@@ -15,7 +15,7 @@ public class LuceneQeuryParserTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
+    var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
     db.execute("sql", getScriptFromStream(stream)).close();
   }
 
@@ -29,7 +29,7 @@ public class LuceneQeuryParserTest extends BaseLuceneTest {
         .close();
 
     // querying with leading wildcard
-    ResultSet docs = db.query("select * from Song where [title] LUCENE \"(title:*tain)\"");
+    var docs = db.query("select * from Song where [title] LUCENE \"(title:*tain)\"");
 
     assertThat(docs).hasSize(4);
   }
@@ -45,7 +45,7 @@ public class LuceneQeuryParserTest extends BaseLuceneTest {
                 + "\", \"lowercaseExpandedTerms\": false}")
         .close();
 
-    ResultSet docs = db.query("select * from Song where [author] LUCENE \"Hunter\"");
+    var docs = db.query("select * from Song where [author] LUCENE \"Hunter\"");
 
     assertThat(docs).hasSize(97);
 

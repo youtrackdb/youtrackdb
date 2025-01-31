@@ -39,14 +39,14 @@ public class ServerCommandPostInstallDatabase extends ServerCommandAuthenticated
     checkSyntax(iRequest.getUrl(), 1, "Syntax error: installDatabase");
     iRequest.getData().commandInfo = "Import database";
     try {
-      final String url = iRequest.getContent();
-      final String name = getDbName(url);
+      final var url = iRequest.getContent();
+      final var name = getDbName(url);
       if (name != null) {
         if (server.getContext().exists(name)) {
           throw new DatabaseException("Database named '" + name + "' already exists: ");
         } else {
-          final URL uri = new URL(url);
-          final URLConnection conn = uri.openConnection();
+          final var uri = new URL(url);
+          final var conn = uri.openConnection();
           conn.setRequestProperty("User-Agent", "YouTrackDB-Studio");
           conn.setDefaultUseCaches(false);
           server
@@ -79,7 +79,7 @@ public class ServerCommandPostInstallDatabase extends ServerCommandAuthenticated
   protected String getDbName(final String url) {
     String name = null;
     if (url != null) {
-      int idx = url.lastIndexOf('/');
+      var idx = url.lastIndexOf('/');
       if (idx != -1) {
         name = url.substring(idx + 1).replace(".zip", "");
       }

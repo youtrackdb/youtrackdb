@@ -96,7 +96,7 @@ public class ResultBinary implements Result {
   public <T> T getProperty(String name) {
     assert db != null && db.assertIfNotActive();
 
-    BytesContainer bytes = new BytesContainer(this.bytes);
+    var bytes = new BytesContainer(this.bytes);
     bytes.skip(offset);
     return serializer.deserializeFieldTyped(db, bytes, name, id == null, schema, null);
   }
@@ -127,10 +127,10 @@ public class ResultBinary implements Result {
   public Set<String> getPropertyNames() {
     assert db != null && db.assertIfNotActive();
 
-    final BytesContainer container = new BytesContainer(bytes);
+    final var container = new BytesContainer(bytes);
     container.skip(offset);
     // TODO: use something more correct that new EntityImpl
-    String[] fields = serializer.getFieldNames(new EntityImpl(db), container, id == null);
+    var fields = serializer.getFieldNames(new EntityImpl(db), container, id == null);
     return new HashSet<>(Arrays.asList(fields));
   }
 
@@ -212,8 +212,8 @@ public class ResultBinary implements Result {
   }
 
   private EntityImpl toEntityImpl() {
-    EntityImpl entity = new EntityImpl(db);
-    BytesContainer bytes = new BytesContainer(this.bytes);
+    var entity = new EntityImpl(db);
+    var bytes = new BytesContainer(this.bytes);
     bytes.skip(offset);
 
     serializer.deserialize(db, entity, bytes);

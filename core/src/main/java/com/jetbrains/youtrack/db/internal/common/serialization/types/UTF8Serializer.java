@@ -13,7 +13,7 @@ public class UTF8Serializer implements BinarySerializer<String> {
 
   @Override
   public int getObjectSize(String object, Object... hints) {
-    final byte[] encoded = object.getBytes(StandardCharsets.UTF_8);
+    final var encoded = object.getBytes(StandardCharsets.UTF_8);
     return ShortSerializer.SHORT_SIZE + encoded.length;
   }
 
@@ -25,7 +25,7 @@ public class UTF8Serializer implements BinarySerializer<String> {
 
   @Override
   public void serialize(String object, byte[] stream, int startPosition, Object... hints) {
-    final byte[] encoded = object.getBytes(StandardCharsets.UTF_8);
+    final var encoded = object.getBytes(StandardCharsets.UTF_8);
     ShortSerializer.INSTANCE.serialize((short) encoded.length, stream, startPosition);
     startPosition += ShortSerializer.SHORT_SIZE;
 
@@ -34,10 +34,10 @@ public class UTF8Serializer implements BinarySerializer<String> {
 
   @Override
   public String deserialize(byte[] stream, int startPosition) {
-    final int encodedSize = ShortSerializer.INSTANCE.deserialize(stream, startPosition) & INT_MASK;
+    final var encodedSize = ShortSerializer.INSTANCE.deserialize(stream, startPosition) & INT_MASK;
     startPosition += ShortSerializer.SHORT_SIZE;
 
-    final byte[] encoded = new byte[encodedSize];
+    final var encoded = new byte[encodedSize];
     System.arraycopy(stream, startPosition, encoded, 0, encodedSize);
     return new String(encoded, StandardCharsets.UTF_8);
   }
@@ -60,7 +60,7 @@ public class UTF8Serializer implements BinarySerializer<String> {
   @Override
   public void serializeNativeObject(
       String object, byte[] stream, int startPosition, Object... hints) {
-    final byte[] encoded = object.getBytes(StandardCharsets.UTF_8);
+    final var encoded = object.getBytes(StandardCharsets.UTF_8);
     ShortSerializer.INSTANCE.serializeNative((short) encoded.length, stream, startPosition);
     startPosition += ShortSerializer.SHORT_SIZE;
 
@@ -69,11 +69,11 @@ public class UTF8Serializer implements BinarySerializer<String> {
 
   @Override
   public String deserializeNativeObject(byte[] stream, int startPosition) {
-    final int encodedSize =
+    final var encodedSize =
         ShortSerializer.INSTANCE.deserializeNative(stream, startPosition) & INT_MASK;
     startPosition += ShortSerializer.SHORT_SIZE;
 
-    final byte[] encoded = new byte[encodedSize];
+    final var encoded = new byte[encodedSize];
     System.arraycopy(stream, startPosition, encoded, 0, encodedSize);
     return new String(encoded, StandardCharsets.UTF_8);
   }
@@ -91,7 +91,7 @@ public class UTF8Serializer implements BinarySerializer<String> {
 
   @Override
   public void serializeInByteBufferObject(String object, ByteBuffer buffer, Object... hints) {
-    final byte[] encoded = object.getBytes(StandardCharsets.UTF_8);
+    final var encoded = object.getBytes(StandardCharsets.UTF_8);
     buffer.putShort((short) encoded.length);
 
     buffer.put(encoded);
@@ -99,19 +99,19 @@ public class UTF8Serializer implements BinarySerializer<String> {
 
   @Override
   public String deserializeFromByteBufferObject(ByteBuffer buffer) {
-    final int encodedSize = buffer.getShort() & INT_MASK;
+    final var encodedSize = buffer.getShort() & INT_MASK;
 
-    final byte[] encoded = new byte[encodedSize];
+    final var encoded = new byte[encodedSize];
     buffer.get(encoded);
     return new String(encoded, StandardCharsets.UTF_8);
   }
 
   @Override
   public String deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
-    final int encodedSize = buffer.getShort(offset) & INT_MASK;
+    final var encodedSize = buffer.getShort(offset) & INT_MASK;
     offset += Short.BYTES;
 
-    final byte[] encoded = new byte[encodedSize];
+    final var encoded = new byte[encodedSize];
     buffer.get(offset, encoded);
     return new String(encoded, StandardCharsets.UTF_8);
   }
@@ -129,10 +129,10 @@ public class UTF8Serializer implements BinarySerializer<String> {
   @Override
   public String deserializeFromByteBufferObject(
       ByteBuffer buffer, WALChanges walChanges, int offset) {
-    final int encodedSize = walChanges.getShortValue(buffer, offset) & INT_MASK;
+    final var encodedSize = walChanges.getShortValue(buffer, offset) & INT_MASK;
     offset += ShortSerializer.SHORT_SIZE;
 
-    final byte[] encoded = walChanges.getBinaryValue(buffer, offset, encodedSize);
+    final var encoded = walChanges.getBinaryValue(buffer, offset, encodedSize);
     return new String(encoded, StandardCharsets.UTF_8);
   }
 
@@ -143,8 +143,8 @@ public class UTF8Serializer implements BinarySerializer<String> {
 
   @Override
   public byte[] serializeNativeAsWhole(String object, Object... hints) {
-    final byte[] encoded = object.getBytes(StandardCharsets.UTF_8);
-    final byte[] result = new byte[encoded.length + ShortSerializer.SHORT_SIZE];
+    final var encoded = object.getBytes(StandardCharsets.UTF_8);
+    final var result = new byte[encoded.length + ShortSerializer.SHORT_SIZE];
 
     ShortSerializer.INSTANCE.serializeNative((short) encoded.length, result, 0);
     System.arraycopy(encoded, 0, result, ShortSerializer.SHORT_SIZE, encoded.length);

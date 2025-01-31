@@ -233,7 +233,7 @@ public interface BinarySerializer<T> {
   int getObjectSizeInByteBuffer(ByteBuffer buffer, WALChanges walChanges, int offset);
 
   default byte[] serializeNativeAsWhole(T object, Object... hints) {
-    final byte[] result = new byte[getObjectSize(object, hints)];
+    final var result = new byte[getObjectSize(object, hints)];
     serializeNativeObject(object, result, 0, hints);
     return result;
   }

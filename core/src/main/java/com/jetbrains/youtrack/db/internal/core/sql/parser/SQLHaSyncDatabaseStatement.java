@@ -25,11 +25,11 @@ public class SQLHaSyncDatabaseStatement extends SQLSimpleExecStatement {
 
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
-    final DatabaseSessionInternal database = ctx.getDatabase();
+    final var database = ctx.getDatabase();
 
     try {
-      boolean result = database.sync(force, !full);
-      ResultInternal r = new ResultInternal(database);
+      var result = database.sync(force, !full);
+      var r = new ResultInternal(database);
       r.setProperty("result", result);
       return ExecutionStream.singleton(r);
     } catch (Exception e) {

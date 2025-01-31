@@ -33,7 +33,7 @@ public class ServerCommandDeleteIndex extends ServerCommandDocumentAbstract {
 
   @Override
   public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
-    final String[] urlParts =
+    final var urlParts =
         checkSyntax(
             iRequest.getUrl(), 3, "Syntax error: index/<database>/<index-name>/<key>/[<value>]");
 
@@ -43,7 +43,7 @@ public class ServerCommandDeleteIndex extends ServerCommandDocumentAbstract {
     try {
       db = getProfiledDatabaseInstance(iRequest);
 
-      final Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, urlParts[2]);
+      final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, urlParts[2]);
       if (index == null) {
         throw new IllegalArgumentException("Index name '" + urlParts[2] + "' not found");
       }

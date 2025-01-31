@@ -13,7 +13,7 @@ public class HttpFunctionTest extends BaseHttpDatabaseTest {
   @Test
   public void callFunction() throws Exception {
     // CREATE FUNCTION FIRST
-    ClassicHttpResponse response1 =
+    var response1 =
         post("command/" + getDatabaseName() + "/sql/")
             .payload(
                 "CREATE FUNCTION hello \"return 'Hello ' + name + ' ' + surname;\" PARAMETERS"
@@ -22,7 +22,7 @@ public class HttpFunctionTest extends BaseHttpDatabaseTest {
             .getResponse();
     Assert.assertEquals(response1.getReasonPhrase(), 200, response1.getCode());
 
-    ClassicHttpResponse response2 =
+    var response2 =
         post("function/" + getDatabaseName() + "/hello")
             .payload("{\"name\": \"Jay\", \"surname\": \"Miner\"}", CONTENT.TEXT)
             .setUserName("admin")
@@ -30,7 +30,7 @@ public class HttpFunctionTest extends BaseHttpDatabaseTest {
             .getResponse();
     Assert.assertEquals(response2.getReasonPhrase(), 200, response2.getCode());
 
-    String response = EntityUtils.toString(getResponse().getEntity());
+    var response = EntityUtils.toString(getResponse().getEntity());
 
     Assert.assertNotNull(response);
     var objectMapper = new ObjectMapper();

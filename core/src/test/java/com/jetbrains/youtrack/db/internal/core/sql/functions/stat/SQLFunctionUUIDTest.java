@@ -44,13 +44,13 @@ public class SQLFunctionUUIDTest {
 
   @Test
   public void testEmpty() {
-    Object result = uuid.getResult();
+    var result = uuid.getResult();
     assertNull(result);
   }
 
   @Test
   public void testResult() {
-    String result = (String) uuid.execute(null, null, null, null, null);
+    var result = (String) uuid.execute(null, null, null, null, null);
     assertNotNull(result);
   }
 
@@ -61,7 +61,7 @@ public class SQLFunctionUUIDTest {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
       try (var db = ctx.open("test", "admin", "adminpwd")) {
 
-        try (final ResultSet result = db.query("select uuid() as uuid")) {
+        try (final var result = db.query("select uuid() as uuid")) {
           assertNotNull(result.next().getProperty("uuid"));
           assertFalse(result.hasNext());
         }

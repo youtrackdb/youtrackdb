@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -75,20 +74,20 @@ public class CommandExecutorSQLCreateProperty extends CommandExecutorSQLAbstract
   public CommandExecutorSQLCreateProperty parse(DatabaseSessionInternal db,
       final CommandRequest iRequest) {
 
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
       init((CommandRequestText) iRequest);
 
-      final StringBuilder word = new StringBuilder();
+      final var word = new StringBuilder();
 
-      int oldPos = 0;
-      int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
+      var oldPos = 0;
+      var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CREATE)) {
         throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_CREATE + " not found", parserText, oldPos);
@@ -107,7 +106,7 @@ public class CommandExecutorSQLCreateProperty extends CommandExecutorSQLAbstract
         throw new CommandSQLParsingException("Expected <class>.<property>", parserText, oldPos);
       }
 
-      String[] parts = split(word);
+      var parts = split(word);
       if (parts.length != 2) {
         throw new CommandSQLParsingException("Expected <class>.<property>", parserText, oldPos);
       }
@@ -152,11 +151,11 @@ public class CommandExecutorSQLCreateProperty extends CommandExecutorSQLAbstract
 
       // Use a REGEX for the rest because we know exactly what we are looking for.
       // If we are in strict mode, the parser took care of strict matching.
-      String rest = parserTextUpperCase.substring(pos).trim();
-      String pattern = "(`[^`]*`|[^\\(]\\S*)?\\s*(\\(.*\\))?\\s*(UNSAFE)?";
+      var rest = parserTextUpperCase.substring(pos).trim();
+      var pattern = "(`[^`]*`|[^\\(]\\S*)?\\s*(\\(.*\\))?\\s*(UNSAFE)?";
 
-      Pattern r = Pattern.compile(pattern);
-      Matcher m = r.matcher(rest.toUpperCase(Locale.ENGLISH).trim());
+      var r = Pattern.compile(pattern);
+      var m = r.matcher(rest.toUpperCase(Locale.ENGLISH).trim());
 
       if (m.matches()) {
         // Linked Type / Class
@@ -173,8 +172,8 @@ public class CommandExecutorSQLCreateProperty extends CommandExecutorSQLAbstract
 
         // Attributes
         if (m.group(2) != null) {
-          String raw = m.group(2);
-          String atts = raw.substring(1, raw.length() - 1);
+          var raw = m.group(2);
+          var atts = raw.substring(1, raw.length() - 1);
           processAtts(atts);
         }
 
@@ -192,14 +191,14 @@ public class CommandExecutorSQLCreateProperty extends CommandExecutorSQLAbstract
   }
 
   private void processAtts(String atts) {
-    String[] split = atts.split(",");
-    for (String attDef : split) {
-      String[] parts = attDef.trim().split("\\s+");
+    var split = atts.split(",");
+    for (var attDef : split) {
+      var parts = attDef.trim().split("\\s+");
       if (parts.length > 2) {
         onInvalidAttributeDefinition(attDef);
       }
 
-      String att = parts[0].trim();
+      var att = parts[0].trim();
       if (att.equals(KEYWORD_MANDATORY)) {
         this.mandatory = getOptionalBoolean(parts);
       } else if (att.equals(KEYWORD_READONLY)) {
@@ -227,7 +226,7 @@ public class CommandExecutorSQLCreateProperty extends CommandExecutorSQLAbstract
       return true;
     }
 
-    String trimmed = parts[1].trim();
+    var trimmed = parts[1].trim();
     if (trimmed.length() == 0) {
       return true;
     }
@@ -240,7 +239,7 @@ public class CommandExecutorSQLCreateProperty extends CommandExecutorSQLAbstract
       onInvalidAttributeDefinition(attDef);
     }
 
-    String trimmed = parts[1].trim();
+    var trimmed = parts[1].trim();
     if (trimmed.length() == 0) {
       onInvalidAttributeDefinition(attDef);
     }
@@ -250,14 +249,14 @@ public class CommandExecutorSQLCreateProperty extends CommandExecutorSQLAbstract
 
   private String[] split(StringBuilder word) {
     List<String> result = new ArrayList<String>();
-    StringBuilder builder = new StringBuilder();
-    boolean quoted = false;
-    for (char c : word.toString().toCharArray()) {
+    var builder = new StringBuilder();
+    var quoted = false;
+    for (var c : word.toString().toCharArray()) {
       if (!quoted) {
         if (c == '`') {
           quoted = true;
         } else if (c == '.') {
-          String nextToken = builder.toString().trim();
+          var nextToken = builder.toString().trim();
           if (nextToken.length() > 0) {
             result.add(nextToken);
           }
@@ -273,7 +272,7 @@ public class CommandExecutorSQLCreateProperty extends CommandExecutorSQLAbstract
         }
       }
     }
-    String nextToken = builder.toString().trim();
+    var nextToken = builder.toString().trim();
     if (nextToken.length() > 0) {
       result.add(nextToken);
     }
@@ -297,7 +296,7 @@ public class CommandExecutorSQLCreateProperty extends CommandExecutorSQLAbstract
     }
 
     final var database = getDatabase();
-    final SchemaClassEmbedded sourceClass =
+    final var sourceClass =
         (SchemaClassEmbedded) database.getMetadata().getSchema().getClass(className);
     if (sourceClass == null) {
       throw new CommandExecutionException("Source class '" + className + "' not found");

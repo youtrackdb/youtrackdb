@@ -36,7 +36,7 @@ public enum ErrorCode {
   private static final ErrorCode[] codes = new ErrorCode[6];
 
   static {
-    for (ErrorCode code : ErrorCode.values()) {
+    for (var code : ErrorCode.values()) {
       codes[code.code] = code;
     }
   }
@@ -74,12 +74,12 @@ public enum ErrorCode {
   }
 
   public void throwException(String message, Throwable parent) {
-    BaseException exc = newException(message, parent);
+    var exc = newException(message, parent);
     throw exc;
   }
 
   public BaseException newException(String message, Throwable parent) {
-    final String fullMessage = String.format("%1$06d_%2$06d - %3$s", category.code, code, message);
+    final var fullMessage = String.format("%1$06d_%2$06d - %3$s", category.code, code, message);
     try {
       return BaseException.wrapException(
           exceptionClass.getConstructor(String.class).newInstance(fullMessage), parent);

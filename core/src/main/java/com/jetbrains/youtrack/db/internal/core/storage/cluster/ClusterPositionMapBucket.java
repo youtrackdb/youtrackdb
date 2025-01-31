@@ -61,9 +61,9 @@ public final class ClusterPositionMapBucket extends DurablePage {
   }
 
   public int add(int pageIndex, int recordPosition, byte status) {
-    int size = getIntValue(SIZE_OFFSET);
+    var size = getIntValue(SIZE_OFFSET);
 
-    int position = entryPosition(size);
+    var position = entryPosition(size);
 
     position += setByteValue(position, status);
     position += setLongValue(position, pageIndex);
@@ -75,9 +75,9 @@ public final class ClusterPositionMapBucket extends DurablePage {
   }
 
   public int allocate() {
-    int size = getIntValue(SIZE_OFFSET);
+    var size = getIntValue(SIZE_OFFSET);
 
-    int position = entryPosition(size);
+    var position = entryPosition(size);
 
     position += setByteValue(position, ALLOCATED);
     position += setLongValue(position, -1);
@@ -89,18 +89,18 @@ public final class ClusterPositionMapBucket extends DurablePage {
   }
 
   public void truncateLastEntry() {
-    final int size = getIntValue(SIZE_OFFSET);
+    final var size = getIntValue(SIZE_OFFSET);
     setIntValue(SIZE_OFFSET, size - 1);
   }
 
   public PositionEntry get(int index) {
-    int size = getIntValue(SIZE_OFFSET);
+    var size = getIntValue(SIZE_OFFSET);
 
     if (index >= size) {
       return null;
     }
 
-    int position = entryPosition(index);
+    var position = entryPosition(index);
     if (getByteValue(position) != FILLED) {
       return null;
     }
@@ -109,15 +109,15 @@ public final class ClusterPositionMapBucket extends DurablePage {
   }
 
   public void set(final int index, final PositionEntry entry) {
-    final int size = getIntValue(SIZE_OFFSET);
+    final var size = getIntValue(SIZE_OFFSET);
 
     if (index >= size) {
       throw new StorageException("Provided index " + index + " is out of range");
     }
 
-    final int position = entryPosition(index);
+    final var position = entryPosition(index);
 
-    byte flag = getByteValue(position);
+    var flag = getByteValue(position);
     if (flag == ALLOCATED) {
       flag = FILLED;
     } else if (flag != FILLED) {
@@ -129,7 +129,7 @@ public final class ClusterPositionMapBucket extends DurablePage {
 
   public void updateEntry(
       final int index, final int pageIndex, final int recordPosition, final byte status) {
-    final int position = entryPosition(index);
+    final var position = entryPosition(index);
     setByteValue(position, status);
     setLongValue(position + ByteSerializer.BYTE_SIZE, pageIndex);
     setIntValue(position + ByteSerializer.BYTE_SIZE + LongSerializer.LONG_SIZE, recordPosition);
@@ -148,13 +148,13 @@ public final class ClusterPositionMapBucket extends DurablePage {
   }
 
   public void remove(int index) {
-    int size = getIntValue(SIZE_OFFSET);
+    var size = getIntValue(SIZE_OFFSET);
 
     if (index >= size) {
       return;
     }
 
-    int position = entryPosition(index);
+    var position = entryPosition(index);
 
     if (getByteValue(position) != FILLED) {
       return;
@@ -164,35 +164,35 @@ public final class ClusterPositionMapBucket extends DurablePage {
   }
 
   public void updateStatus(int index, byte status) {
-    int position = entryPosition(index);
+    var position = entryPosition(index);
     setByteValue(position, status);
   }
 
   private PositionEntry readEntry(int position) {
     position += ByteSerializer.BYTE_SIZE;
-    final long pageIndex = getLongValue(position);
+    final var pageIndex = getLongValue(position);
     position += LongSerializer.LONG_SIZE;
-    final int pagePosition = getIntValue(position);
+    final var pagePosition = getIntValue(position);
     return new PositionEntry(pageIndex, pagePosition);
   }
 
   public boolean exists(final int index) {
-    int size = getIntValue(SIZE_OFFSET);
+    var size = getIntValue(SIZE_OFFSET);
     if (index >= size) {
       return false;
     }
 
-    final int position = entryPosition(index);
+    final var position = entryPosition(index);
     return getByteValue(position) == FILLED;
   }
 
   public byte getStatus(final int index) {
-    int size = getIntValue(SIZE_OFFSET);
+    var size = getIntValue(SIZE_OFFSET);
     if (index >= size) {
       return NOT_EXISTENT;
     }
 
-    final int position = entryPosition(index);
+    final var position = entryPosition(index);
     return getByteValue(position);
   }
 
@@ -222,7 +222,7 @@ public final class ClusterPositionMapBucket extends DurablePage {
       if (o == null || getClass() != o.getClass()) {
         return false;
       }
-      PositionEntry that = (PositionEntry) o;
+      var that = (PositionEntry) o;
       return pageIndex == that.pageIndex && recordPosition == that.recordPosition;
     }
 

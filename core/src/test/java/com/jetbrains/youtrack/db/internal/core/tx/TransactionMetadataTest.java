@@ -37,10 +37,10 @@ public class TransactionMetadataTest {
   @Test
   public void test() {
     db.begin();
-    byte[] metadata = new byte[]{1, 2, 4};
+    var metadata = new byte[]{1, 2, 4};
     ((TransactionInternal) db.getTransaction())
         .setMetadataHolder(new TestTransacationMetadataHolder(metadata));
-    Vertex v = db.newVertex("V");
+    var v = db.newVertex("V");
     v.setProperty("name", "Foo");
     db.save(v);
     db.commit();
@@ -57,7 +57,7 @@ public class TransactionMetadataTest {
         (DatabaseSessionInternal)
             youTrackDB.open(DB_NAME, "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
-    Optional<byte[]> fromStorage = ((AbstractPaginatedStorage) db.getStorage()).getLastMetadata();
+    var fromStorage = ((AbstractPaginatedStorage) db.getStorage()).getLastMetadata();
     assertTrue(fromStorage.isPresent());
     assertArrayEquals(fromStorage.get(), metadata);
   }

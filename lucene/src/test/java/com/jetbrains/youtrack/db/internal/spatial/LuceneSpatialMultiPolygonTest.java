@@ -120,8 +120,8 @@ public class LuceneSpatialMultiPolygonTest extends BaseSpatialLuceneTest {
   public void initMore() {
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass v = schema.getClass("V");
-    SchemaClass oClass = schema.createClass("Place");
+    var v = schema.getClass("V");
+    var oClass = schema.createClass("Place");
     oClass.setSuperClass(db, v);
     oClass.createProperty(db, "location", PropertyType.EMBEDDED, schema.getClass("OMultiPolygon"));
     oClass.createProperty(db, "name", PropertyType.STRING);
@@ -139,7 +139,7 @@ public class LuceneSpatialMultiPolygonTest extends BaseSpatialLuceneTest {
   // DISABLED
   protected void queryMultiPolygon() {
 
-    String query =
+    var query =
         "select * from Place where location && 'POLYGON((-162.5537109375"
             + " 62.11416112594049,-161.87255859375 61.80428390136847,-161.455078125"
             + " 61.92861247439052,-160.7958984375 62.03183469254472,-160.24658203125"
@@ -214,9 +214,9 @@ public class LuceneSpatialMultiPolygonTest extends BaseSpatialLuceneTest {
   @Test
   public void testIndexingMultiPolygon() throws IOException {
 
-    EntityImpl location = loadMultiPolygon();
+    var location = loadMultiPolygon();
 
-    EntityImpl italy = ((EntityImpl) db.newEntity("Place"));
+    var italy = ((EntityImpl) db.newEntity("Place"));
     italy.field("name", "Italy");
     italy.field("location", location);
 
@@ -224,15 +224,15 @@ public class LuceneSpatialMultiPolygonTest extends BaseSpatialLuceneTest {
     db.save(italy);
     db.commit();
 
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Place.location");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Place.location");
 
     db.begin();
     Assert.assertEquals(1, index.getInternal().size(db));
     db.commit();
 
-    InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream("multipolygon.txt");
+    var systemResourceAsStream = ClassLoader.getSystemResourceAsStream("multipolygon.txt");
 
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    var outputStream = new ByteArrayOutputStream();
 
     IOUtils.copyStream(systemResourceAsStream, outputStream);
 
@@ -257,10 +257,10 @@ public class LuceneSpatialMultiPolygonTest extends BaseSpatialLuceneTest {
   @Test
   @Ignore
   public void testReadingMultiPolygon() throws IOException, ParseException {
-    InputStream systemResourceAsStream =
+    var systemResourceAsStream =
         ClassLoader.getSystemResourceAsStream("multipolygon_err.txt");
 
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    var outputStream = new ByteArrayOutputStream();
 
     IOUtils.copyStream(systemResourceAsStream, outputStream);
 

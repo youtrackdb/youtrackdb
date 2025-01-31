@@ -40,7 +40,7 @@ public class ExplainResultSet implements ResultSet {
       throw new IllegalStateException();
     }
 
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     getExecutionPlan().ifPresent(x -> result.setProperty("executionPlan", x.toResult(db)));
     getExecutionPlan()
         .ifPresent(x -> result.setProperty("executionPlanAsString", x.prettyPrint(0, 3)));

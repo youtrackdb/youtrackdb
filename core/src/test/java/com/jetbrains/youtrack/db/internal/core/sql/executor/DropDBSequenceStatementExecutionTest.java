@@ -17,7 +17,7 @@ public class DropDBSequenceStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testPlain() {
-    String name = "testPlain";
+    var name = "testPlain";
     try {
       db.getMetadata()
           .getSequenceLibrary()
@@ -28,9 +28,9 @@ public class DropDBSequenceStatementExecutionTest extends DbTestBase {
 
     Assert.assertNotNull(db.getMetadata().getSequenceLibrary().getSequence(name));
     db.begin();
-    ResultSet result = db.command("drop sequence " + name);
+    var result = db.command("drop sequence " + name);
     Assert.assertTrue(result.hasNext());
-    Result next = result.next();
+    var next = result.next();
     Assert.assertEquals("drop sequence", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -41,11 +41,11 @@ public class DropDBSequenceStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testNonExisting() {
-    String name = "testNonExisting";
-    SequenceLibrary lib = db.getMetadata().getSequenceLibrary();
+    var name = "testNonExisting";
+    var lib = db.getMetadata().getSequenceLibrary();
     Assert.assertNull(lib.getSequence(name));
     try {
-      ResultSet result = db.command("drop sequence " + name);
+      var result = db.command("drop sequence " + name);
       Assert.fail();
     } catch (CommandExecutionException ex1) {
 
@@ -56,11 +56,11 @@ public class DropDBSequenceStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testNonExistingWithIfExists() {
-    String name = "testNonExistingWithIfExists";
-    SequenceLibrary lib = db.getMetadata().getSequenceLibrary();
+    var name = "testNonExistingWithIfExists";
+    var lib = db.getMetadata().getSequenceLibrary();
     Assert.assertNull(lib.getSequence(name));
 
-    ResultSet result = db.command("drop sequence " + name + " if exists");
+    var result = db.command("drop sequence " + name + " if exists");
     Assert.assertFalse(result.hasNext());
 
     try {
@@ -75,7 +75,7 @@ public class DropDBSequenceStatementExecutionTest extends DbTestBase {
     db.begin();
     result = db.command("drop sequence " + name + " if exists");
     Assert.assertTrue(result.hasNext());
-    Result next = result.next();
+    var next = result.next();
     Assert.assertEquals("drop sequence", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();

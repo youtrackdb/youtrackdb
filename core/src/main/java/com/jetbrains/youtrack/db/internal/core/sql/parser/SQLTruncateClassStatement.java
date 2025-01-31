@@ -33,14 +33,14 @@ public class SQLTruncateClassStatement extends DDLStatement {
 
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
-    DatabaseSessionInternal db = ctx.getDatabase();
+    var db = ctx.getDatabase();
     var schema = db.getMetadata().getSchemaInternal();
-    SchemaClassInternal clazz = schema.getClassInternal(className.getStringValue());
+    var clazz = schema.getClassInternal(className.getStringValue());
     if (clazz == null) {
       throw new CommandExecutionException("Schema Class not found: " + className);
     }
 
-    final long recs = clazz.count(ctx.getDatabase(), polymorphic);
+    final var recs = clazz.count(ctx.getDatabase(), polymorphic);
     if (recs > 0 && !unsafe) {
       if (clazz.isSubClassOf("V")) {
         throw new CommandExecutionException(
@@ -54,10 +54,10 @@ public class SQLTruncateClassStatement extends DDLStatement {
     }
 
     List<Result> rs = new ArrayList<>();
-    Collection<SchemaClass> subclasses = clazz.getAllSubclasses();
+    var subclasses = clazz.getAllSubclasses();
     if (polymorphic && !unsafe) { // for multiple inheritance
-      for (SchemaClass subclass : subclasses) {
-        long subclassRecs = clazz.count(db);
+      for (var subclass : subclasses) {
+        var subclassRecs = clazz.count(db);
         if (subclassRecs > 0) {
           if (subclass.isSubClassOf("V")) {
             throw new CommandExecutionException(
@@ -74,14 +74,14 @@ public class SQLTruncateClassStatement extends DDLStatement {
       }
     }
 
-    long count = db.truncateClass(clazz.getName(), false);
-    ResultInternal result = new ResultInternal(db);
+    var count = db.truncateClass(clazz.getName(), false);
+    var result = new ResultInternal(db);
     result.setProperty("operation", "truncate class");
     result.setProperty("className", className.getStringValue());
     result.setProperty("count", count);
     rs.add(result);
     if (polymorphic) {
-      for (SchemaClass subclass : subclasses) {
+      for (var subclass : subclasses) {
         count = db.truncateClass(subclass.getName(), false);
         result = new ResultInternal(db);
         result.setProperty("operation", "truncate class");
@@ -120,7 +120,7 @@ public class SQLTruncateClassStatement extends DDLStatement {
 
   @Override
   public SQLTruncateClassStatement copy() {
-    SQLTruncateClassStatement result = new SQLTruncateClassStatement(-1);
+    var result = new SQLTruncateClassStatement(-1);
     result.className = className == null ? null : className.copy();
     result.polymorphic = polymorphic;
     result.unsafe = unsafe;
@@ -136,7 +136,7 @@ public class SQLTruncateClassStatement extends DDLStatement {
       return false;
     }
 
-    SQLTruncateClassStatement that = (SQLTruncateClassStatement) o;
+    var that = (SQLTruncateClassStatement) o;
 
     if (polymorphic != that.polymorphic) {
       return false;
@@ -149,7 +149,7 @@ public class SQLTruncateClassStatement extends DDLStatement {
 
   @Override
   public int hashCode() {
-    int result = className != null ? className.hashCode() : 0;
+    var result = className != null ? className.hashCode() : 0;
     result = 31 * result + (polymorphic ? 1 : 0);
     result = 31 * result + (unsafe ? 1 : 0);
     return result;

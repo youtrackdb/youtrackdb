@@ -51,8 +51,8 @@ public class FindReferencesStep extends AbstractExecutionStep {
   @Override
   public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     var db = ctx.getDatabase();
-    Set<RID> rids = fetchRidsToFind(ctx);
-    List<RecordIteratorCluster<DBRecord>> clustersIterators = initClusterIterators(ctx);
+    var rids = fetchRidsToFind(ctx);
+    var clustersIterators = initClusterIterators(ctx);
     Stream<Result> stream =
         clustersIterators.stream()
             .flatMap(
@@ -67,12 +67,12 @@ public class FindReferencesStep extends AbstractExecutionStep {
   private static Stream<? extends Result> findMatching(DatabaseSessionInternal db,
       Set<RID> rids,
       DBRecord record) {
-    ResultInternal rec = new ResultInternal(db, record);
+    var rec = new ResultInternal(db, record);
     List<Result> results = new ArrayList<>();
-    for (RID rid : rids) {
-      List<String> resultForRecord = checkObject(db, Collections.singleton(rid), rec, record, "");
+    for (var rid : rids) {
+      var resultForRecord = checkObject(db, Collections.singleton(rid), rec, record, "");
       if (!resultForRecord.isEmpty()) {
-        ResultInternal nextResult = new ResultInternal(db);
+        var nextResult = new ResultInternal(db);
         nextResult.setProperty("rid", rid);
         nextResult.setProperty("referredBy", rec);
         nextResult.setProperty("fields", resultForRecord);
@@ -91,11 +91,11 @@ public class FindReferencesStep extends AbstractExecutionStep {
       targetClusterNames.addAll(ctx.getDatabase().getClusterNames());
     } else {
       if (this.clusters != null) {
-        for (SQLCluster c : this.clusters) {
+        for (var c : this.clusters) {
           if (c.getClusterName() != null) {
             targetClusterNames.add(c.getClusterName());
           } else {
-            String clusterName = db.getClusterNameById(c.getClusterNumber());
+            var clusterName = db.getClusterNameById(c.getClusterNumber());
             if (clusterName == null) {
               throw new CommandExecutionException("Cluster not found: " + c.getClusterNumber());
             }
@@ -104,12 +104,12 @@ public class FindReferencesStep extends AbstractExecutionStep {
         }
         Schema schema = db.getMetadata().getImmutableSchemaSnapshot();
         assert this.classes != null;
-        for (SQLIdentifier className : this.classes) {
-          SchemaClass clazz = schema.getClass(className.getStringValue());
+        for (var className : this.classes) {
+          var clazz = schema.getClass(className.getStringValue());
           if (clazz == null) {
             throw new CommandExecutionException("Class not found: " + className);
           }
-          for (int clusterId : clazz.getPolymorphicClusterIds()) {
+          for (var clusterId : clazz.getPolymorphicClusterIds()) {
             targetClusterNames.add(db.getClusterNameById(clusterId));
           }
         }
@@ -124,11 +124,11 @@ public class FindReferencesStep extends AbstractExecutionStep {
   private Set<RID> fetchRidsToFind(CommandContext ctx) {
     Set<RID> ridsToFind = new HashSet<>();
 
-    ExecutionStepInternal prevStep = prev;
+    var prevStep = prev;
     assert prevStep != null;
-    ExecutionStream nextSlot = prevStep.start(ctx);
+    var nextSlot = prevStep.start(ctx);
     while (nextSlot.hasNext(ctx)) {
-      Result nextRes = nextSlot.next(ctx);
+      var nextRes = nextSlot.next(ctx);
       if (nextRes.isEntity()) {
         ridsToFind.add(nextRes.asEntity().getIdentity());
       }
@@ -164,7 +164,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
       final Collection<?> values,
       final DBRecord iRootObject,
       String prefix) {
-    final Iterator<?> it = values.iterator();
+    final var it = values.iterator();
     List<String> result = new ArrayList<>();
     while (it.hasNext()) {
       result.addAll(checkObject(db, iSourceRIDs, it.next(), iRootObject, prefix));
@@ -202,8 +202,8 @@ public class FindReferencesStep extends AbstractExecutionStep {
         && value.getRecord(db) instanceof EntityImpl) {
       // embedded document
       EntityImpl entity = value.getRecord(db);
-      for (String fieldName : entity.fieldNames()) {
-        Object fieldValue = entity.field(fieldName);
+      for (var fieldName : entity.fieldNames()) {
+        var fieldValue = entity.field(fieldName);
         result.addAll(
             checkObject(db, iSourceRIDs, fieldValue, iRootObject, prefix + "." + fieldName));
       }
@@ -216,8 +216,8 @@ public class FindReferencesStep extends AbstractExecutionStep {
       final DBRecord iRootObject,
       String prefix) {
     List<String> result = new ArrayList<>();
-    for (String fieldName : value.getPropertyNames()) {
-      Object fieldValue = value.getProperty(fieldName);
+    for (var fieldName : value.getPropertyNames()) {
+      var fieldValue = value.getProperty(fieldName);
       result.addAll(
           checkObject(db, iSourceRIDs, fieldValue, iRootObject, prefix + "." + fieldName));
     }
@@ -226,8 +226,8 @@ public class FindReferencesStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
-    StringBuilder result = new StringBuilder();
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var result = new StringBuilder();
     result.append(spaces);
     result.append("+ FIND REFERENCES\n");
     result.append(spaces);

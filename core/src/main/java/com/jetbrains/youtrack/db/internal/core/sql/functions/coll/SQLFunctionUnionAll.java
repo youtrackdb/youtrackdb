@@ -49,7 +49,7 @@ public class SQLFunctionUnionAll extends SQLFunctionMultiValueAbstract<Collectio
       CommandContext iContext) {
     if (Boolean.TRUE.equals(iContext.getVariable("aggregation"))) {
       // AGGREGATION MODE (STATEFUL)
-      Object value = iParams[0];
+      var value = iParams[0];
       if (value != null) {
 
         if (value instanceof SQLFilterItemVariable) {
@@ -67,9 +67,9 @@ public class SQLFunctionUnionAll extends SQLFunctionMultiValueAbstract<Collectio
       return context;
     } else {
       // IN-LINE MODE (STATELESS)
-      final MultiCollectionIterator<Identifiable> result =
+      final var result =
           new MultiCollectionIterator<Identifiable>();
-      for (Object value : iParams) {
+      for (var value : iParams) {
         if (value != null) {
           if (value instanceof SQLFilterItemVariable) {
             value =

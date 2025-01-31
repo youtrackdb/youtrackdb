@@ -57,35 +57,35 @@ public class LuceneNearOperator extends QueryTargetOperator {
       CommandContext iContext,
       final EntitySerializer serializer) {
 
-    List<Number> left = (List<Number>) iLeft;
+    var left = (List<Number>) iLeft;
 
-    double lat = left.get(0).doubleValue();
-    double lon = left.get(1).doubleValue();
+    var lat = left.get(0).doubleValue();
+    var lon = left.get(1).doubleValue();
 
     Shape shape = factory.context().makePoint(lon, lat);
-    List<Number> right = (List<Number>) iRight;
+    var right = (List<Number>) iRight;
 
-    double lat1 = right.get(0).doubleValue();
-    double lon1 = right.get(1).doubleValue();
+    var lat1 = right.get(0).doubleValue();
+    var lon1 = right.get(1).doubleValue();
     Shape shape1 = factory.context().makePoint(lon1, lat1);
 
-    Map map = (Map) right.get(2);
+    var map = (Map) right.get(2);
     double distance = 0;
 
-    Number n = (Number) map.get("maxDistance");
+    var n = (Number) map.get("maxDistance");
     if (n != null) {
       distance = n.doubleValue();
     }
-    Point p = (Point) shape1;
-    Circle circle =
+    var p = (Point) shape1;
+    var circle =
         factory
             .context()
             .makeCircle(
                 p.getX(),
                 p.getY(),
                 DistanceUtils.dist2Degrees(distance, DistanceUtils.EARTH_MEAN_RADIUS_KM));
-    double docDistDEG = factory.context().getDistCalc().distance((Point) shape, p);
-    final double docDistInKM =
+    var docDistDEG = factory.context().getDistCalc().distance((Point) shape, p);
+    final var docDistInKM =
         DistanceUtils.degrees2Dist(docDistDEG, DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM);
     iContext.setVariable("distance", docDistInKM);
     return shape.relate(circle) == SpatialRelation.WITHIN;
@@ -96,15 +96,15 @@ public class LuceneNearOperator extends QueryTargetOperator {
       CommandContext iContext, Index index, List<Object> keyParams, boolean ascSortOrder) {
 
     double distance = 0;
-    Object spatial = iContext.getVariable("spatial");
+    var spatial = iContext.getVariable("spatial");
     if (spatial != null) {
       if (spatial instanceof Number) {
         distance = PropertyType.convert(iContext.getDatabase(), spatial,
             Double.class).doubleValue();
       } else if (spatial instanceof Map) {
-        Map<String, Object> params = (Map<String, Object>) spatial;
+        var params = (Map<String, Object>) spatial;
 
-        Object dst = params.get("maxDistance");
+        var dst = params.get("maxDistance");
         if (dst != null && dst instanceof Number) {
           distance = PropertyType.convert(iContext.getDatabase(), dst,
               Double.class).doubleValue();

@@ -26,10 +26,10 @@ public class DocumentEqualityWrapper {
 
   @Override
   public int hashCode() {
-    int result = 0;
-    for (String fieldName : internal.fieldNames()) {
+    var result = 0;
+    for (var fieldName : internal.fieldNames()) {
       result += fieldName.hashCode();
-      Object value = internal.field(fieldName);
+      var value = internal.field(fieldName);
       if (value != null) {
         result += value.hashCode();
       }

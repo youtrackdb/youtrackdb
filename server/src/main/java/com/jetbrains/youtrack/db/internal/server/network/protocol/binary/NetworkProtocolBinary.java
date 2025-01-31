@@ -133,7 +133,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
       final ContextConfiguration iConfig)
       throws IOException {
 
-    SocketChannelBinaryServer channel = new SocketChannelBinaryServer(iSocket, iConfig);
+    var channel = new SocketChannelBinaryServer(iSocket, iConfig);
     initVariables(iServer, channel);
 
     // SEND PROTOCOL VERSION
@@ -218,7 +218,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
 
       clientTxId = channel.readInt();
       // GET THE CONNECTION IF EXIST
-      ClientConnection connection =
+      var connection =
           server.getClientConnectionManager().getConnection(clientTxId, this);
       if (connection != null) {
         connection.activateDatabaseOnCurrentThread();
@@ -233,11 +233,11 @@ public class NetworkProtocolBinary extends NetworkProtocol {
   }
 
   private void handleHandshake() throws IOException {
-    short protocolVersion = channel.readShort();
-    String driverName = channel.readString();
-    String driverVersion = channel.readString();
-    byte encoding = channel.readByte();
-    byte errorEncoding = channel.readByte();
+    var protocolVersion = channel.readShort();
+    var driverName = channel.readString();
+    var driverVersion = channel.readString();
+    var encoding = channel.readByte();
+    var errorEncoding = channel.readByte();
     BinaryProtocolHelper.checkProtocolVersion(this, protocolVersion);
     this.handshakeInfo =
         new HandshakeInfo(protocolVersion, driverName, driverVersion, encoding, errorEncoding);
@@ -269,7 +269,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
     LogManager.instance().debug(this, "Request id:" + clientTxId + " type:" + requestType);
 
     try {
-      BinaryRequest<? extends BinaryResponse> request = factory.apply(requestType);
+      var request = factory.apply(requestType);
       if (request != null) {
         Exception exception = null;
 
@@ -292,7 +292,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
         }
         // Also in case of session validation error i read the message from the socket.
         try {
-          int protocolVersion = ChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION;
+          var protocolVersion = ChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION;
           var serializer =
               RecordSerializerNetworkFactory.forProtocol(protocolVersion);
           if (connection != null) {
@@ -337,7 +337,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
           } catch (RuntimeException t) {
             // This should be moved in the execution of the command that manipulate data
             if (connection.getDatabase() != null) {
-              final BTreeCollectionManager collectionManager =
+              final var collectionManager =
                   connection.getDatabase().getSbTreeCollectionManager();
               if (collectionManager != null) {
                 collectionManager.clearChangedIds();
@@ -607,7 +607,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
           // TODO: Check if the token is expiring and if it is send a new token
 
           if (connection != null && connection.getToken() != null) {
-            byte[] renewedToken = server.getTokenHandler().renewIfNeeded(connection.getToken());
+            var renewedToken = server.getTokenHandler().renewIfNeeded(connection.getToken());
             channel.writeBytes(renewedToken);
           } else {
             channel.writeBytes(new byte[]{});
@@ -628,7 +628,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
       }
 
       Map<String, String> messages = new HashMap<>();
-      Throwable it = current;
+      var it = current;
       while (it != null) {
         messages.put(current.getClass().getName(), current.getMessage());
         it = it.getCause();
@@ -636,14 +636,14 @@ public class NetworkProtocolBinary extends NetworkProtocol {
       final byte[] result;
       if (handshakeInfo == null
           || handshakeInfo.getErrorEncoding() == ChannelBinaryProtocol.ERROR_MESSAGE_JAVA) {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        final ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+        var outputStream = new ByteArrayOutputStream();
+        final var objectOutputStream = new ObjectOutputStream(outputStream);
         objectOutputStream.writeObject(current);
         objectOutputStream.flush();
         objectOutputStream.close();
         result = outputStream.toByteArray();
       } else if (handshakeInfo.getErrorEncoding() == ChannelBinaryProtocol.ERROR_MESSAGE_STRING) {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        var outputStream = new ByteArrayOutputStream();
         current.printStackTrace(new PrintStream(outputStream));
         result = outputStream.toByteArray();
       } else {
@@ -664,7 +664,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
       } else {
         error = new ErrorResponse(messages, result);
       }
-      int protocolVersion = ChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION;
+      var protocolVersion = ChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION;
       RecordSerializer serializationImpl = RecordSerializerNetworkFactory.current();
       if (connection != null) {
         protocolVersion = connection.getData().protocolVersion;
@@ -750,7 +750,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
           && requestType != ChannelBinaryProtocol.REQUEST_CONNECT
           && requestType != ChannelBinaryProtocol.REQUEST_DB_OPEN) {
         // TODO: Check if the token is expiring and if it is send a new token
-        byte[] renewedToken = server.getTokenHandler().renewIfNeeded(connection.getToken());
+        var renewedToken = server.getTokenHandler().renewIfNeeded(connection.getToken());
         channel.writeBytes(renewedToken);
       }
     }
@@ -823,12 +823,12 @@ public class NetworkProtocolBinary extends NetworkProtocol {
     var db = connection.getDatabase();
     assert db.assertIfNotActive();
 
-    String dbSerializerName = db.getSerializer().toString();
-    String name = connection.getData().getSerializationImpl();
+    var dbSerializerName = db.getSerializer().toString();
+    var name = connection.getData().getSerializationImpl();
     if (RecordInternal.getRecordType(db, iRecord) == EntityImpl.RECORD_TYPE
         && (dbSerializerName == null || !dbSerializerName.equals(name))) {
       ((EntityImpl) iRecord).deserializeFields();
-      RecordSerializer ser = RecordSerializerFactory.instance().getFormat(name);
+      var ser = RecordSerializerFactory.instance().getFormat(name);
       stream = ser.toStream(connection.getDatabase(), iRecord);
     } else {
       stream = iRecord.toStream();
@@ -845,16 +845,16 @@ public class NetworkProtocolBinary extends NetworkProtocol {
     channel.writeRID(iRecord.getIdentity());
     channel.writeVersion(iRecord.getVersion());
     try {
-      final byte[] stream = getRecordBytes(connection, iRecord);
+      final var stream = getRecordBytes(connection, iRecord);
 
       // TODO: This Logic should not be here provide an api in the Serializer if asked for trimmed
       // content.
-      int realLength = trimCsvSerializedContent(connection, stream);
+      var realLength = trimCsvSerializedContent(connection, stream);
 
       channel.writeBytes(stream, realLength);
     } catch (Exception e) {
       channel.writeBytes(null);
-      final String message =
+      final var message =
           "Error on unmarshalling record " + iRecord.getIdentity().toString() + " (" + e + ")";
 
       throw BaseException.wrapException(new SerializationException(message), e);
@@ -862,13 +862,13 @@ public class NetworkProtocolBinary extends NetworkProtocol {
   }
 
   protected static int trimCsvSerializedContent(ClientConnection connection, final byte[] stream) {
-    int realLength = stream.length;
-    final DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
+    var realLength = stream.length;
+    final var db = DatabaseRecordThreadLocal.instance().getIfDefined();
     if (db != null) {
       if (RecordSerializerSchemaAware2CSV.NAME.equals(
           connection.getData().getSerializationImpl())) {
         // TRIM TAILING SPACES (DUE TO OVERSIZE)
-        for (int i = stream.length - 1; i > -1; --i) {
+        for (var i = stream.length - 1; i > -1; --i) {
           if (stream[i] == 32) {
             --realLength;
           } else {
@@ -885,9 +885,9 @@ public class NetworkProtocolBinary extends NetworkProtocol {
   }
 
   public String getRemoteAddress() {
-    final Socket socket = channel.socket;
+    final var socket = channel.socket;
     if (socket != null) {
-      final InetSocketAddress remoteAddress = (InetSocketAddress) socket.getRemoteSocketAddress();
+      final var remoteAddress = (InetSocketAddress) socket.getRemoteSocketAddress();
       return remoteAddress.getAddress().getHostAddress() + ":" + remoteAddress.getPort();
     }
     return null;

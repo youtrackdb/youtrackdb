@@ -104,7 +104,7 @@ public class Traverse implements Command, Iterable<Identifiable>, Iterator<Ident
 
     if (lastTraversed != null) {
       // RETURN LATEST AND RESET IT
-      final Identifiable result = lastTraversed;
+      final var result = lastTraversed;
       lastTraversed = null;
       return result;
     }
@@ -179,14 +179,14 @@ public class Traverse implements Command, Iterable<Identifiable>, Iterator<Ident
   }
 
   public Traverse fields(final Collection<Object> iFields) {
-    for (Object f : iFields) {
+    for (var f : iFields) {
       field(f);
     }
     return this;
   }
 
   public Traverse fields(final String... iFields) {
-    for (String f : iFields) {
+    for (var f : iFields) {
       field(f);
     }
     return this;

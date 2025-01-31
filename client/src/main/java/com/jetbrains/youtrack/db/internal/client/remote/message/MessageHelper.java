@@ -62,11 +62,11 @@ public class MessageHelper {
     channel.writeRID(iRecord.getIdentity());
     channel.writeVersion(iRecord.getVersion());
     try {
-      final byte[] stream = getRecordBytes(db, iRecord, serializer);
+      final var stream = getRecordBytes(db, iRecord, serializer);
       channel.writeBytes(stream);
     } catch (Exception e) {
       channel.writeBytes(null);
-      final String message =
+      final var message =
           "Error on marshalling record " + iRecord.getIdentity() + " (" + e + ")";
 
       throw BaseException.wrapException(new SerializationException(message), e);
@@ -94,12 +94,12 @@ public class MessageHelper {
   public static Map<UUID, BonsaiCollectionPointer> readCollectionChanges(ChannelDataInput network)
       throws IOException {
     Map<UUID, BonsaiCollectionPointer> collectionsUpdates = new HashMap<>();
-    int count = network.readInt();
-    for (int i = 0; i < count; i++) {
-      final long mBitsOfId = network.readLong();
-      final long lBitsOfId = network.readLong();
+    var count = network.readInt();
+    for (var i = 0; i < count; i++) {
+      final var mBitsOfId = network.readLong();
+      final var lBitsOfId = network.readLong();
 
-      final BonsaiCollectionPointer pointer =
+      final var pointer =
           CollectionNetworkSerializer.INSTANCE.readCollectionPointer(network);
 
       collectionsUpdates.put(new UUID(mBitsOfId, lBitsOfId), pointer);
@@ -111,7 +111,7 @@ public class MessageHelper {
       ChannelDataOutput channel, Map<UUID, BonsaiCollectionPointer> changedIds)
       throws IOException {
     channel.writeInt(changedIds.size());
-    for (Entry<UUID, BonsaiCollectionPointer> entry : changedIds.entrySet()) {
+    for (var entry : changedIds.entrySet()) {
       channel.writeLong(entry.getKey().getMostSignificantBits());
       channel.writeLong(entry.getKey().getLeastSignificantBits());
       CollectionNetworkSerializer.INSTANCE.writeCollectionPointer(channel, entry.getValue());
@@ -125,7 +125,7 @@ public class MessageHelper {
     } else {
       channel.writeInt(previousPositions.length);
 
-      for (final PhysicalPosition physicalPosition : previousPositions) {
+      for (final var physicalPosition : previousPositions) {
         channel.writeLong(physicalPosition.clusterPosition);
         channel.writeInt(physicalPosition.recordSize);
         channel.writeVersion(physicalPosition.recordVersion);
@@ -135,15 +135,15 @@ public class MessageHelper {
 
   public static PhysicalPosition[] readPhysicalPositions(ChannelDataInput network)
       throws IOException {
-    final int positionsCount = network.readInt();
+    final var positionsCount = network.readInt();
     final PhysicalPosition[] physicalPositions;
     if (positionsCount == 0) {
       physicalPositions = CommonConst.EMPTY_PHYSICAL_POSITIONS_ARRAY;
     } else {
       physicalPositions = new PhysicalPosition[positionsCount];
 
-      for (int i = 0; i < physicalPositions.length; i++) {
-        final PhysicalPosition position = new PhysicalPosition();
+      for (var i = 0; i < physicalPositions.length; i++) {
+        final var position = new PhysicalPosition();
 
         position.clusterPosition = network.readLong();
         position.recordSize = network.readInt();
@@ -158,11 +158,11 @@ public class MessageHelper {
   public static RawPair<String[], int[]> readClustersArray(final ChannelDataInput network)
       throws IOException {
     final int tot = network.readShort();
-    final String[] clusterNames = new String[tot];
-    final int[] clusterIds = new int[tot];
+    final var clusterNames = new String[tot];
+    final var clusterIds = new int[tot];
 
-    for (int i = 0; i < tot; ++i) {
-      String clusterName = network.readString().toLowerCase(Locale.ENGLISH);
+    for (var i = 0; i < tot; ++i) {
+      var clusterName = network.readString().toLowerCase(Locale.ENGLISH);
       final int clusterId = network.readShort();
       clusterNames[i] = clusterName;
       clusterIds[i] = clusterId;
@@ -174,12 +174,12 @@ public class MessageHelper {
   public static void writeClustersArray(
       ChannelDataOutput channel, RawPair<String[], int[]> clusters, int protocolVersion)
       throws IOException {
-    final String[] clusterNames = clusters.first;
-    final int[] clusterIds = clusters.second;
+    final var clusterNames = clusters.first;
+    final var clusterIds = clusters.second;
 
     channel.writeShort((short) clusterNames.length);
 
-    for (int i = 0; i < clusterNames.length; i++) {
+    for (var i = 0; i < clusterNames.length; i++) {
       channel.writeString(clusterNames[i]);
       channel.writeShort((short) clusterIds[i]);
     }
@@ -194,14 +194,14 @@ public class MessageHelper {
 
     switch (txEntry.getType()) {
       case RecordOperation.CREATED:
-        byte[] record = txEntry.getRecord();
+        var record = txEntry.getRecord();
         iNetwork.writeInt(record.length);
         iNetwork.write(record);
         break;
 
       case RecordOperation.UPDATED:
         iNetwork.writeInt(txEntry.getVersion());
-        byte[] record2 = txEntry.getRecord();
+        var record2 = txEntry.getRecord();
         iNetwork.writeInt(record2.length);
         iNetwork.write(record2);
         iNetwork.writeBoolean(txEntry.isContentChanged());
@@ -241,25 +241,25 @@ public class MessageHelper {
 
   public static RecordOperationRequest readTransactionEntry(final DataInput iNetwork)
       throws IOException {
-    RecordOperationRequest result = new RecordOperationRequest();
+    var result = new RecordOperationRequest();
     result.setType(iNetwork.readByte());
-    int clusterId = iNetwork.readInt();
-    long clusterPosition = iNetwork.readLong();
+    var clusterId = iNetwork.readInt();
+    var clusterPosition = iNetwork.readLong();
     result.setId(new RecordId(clusterId, clusterPosition));
     result.setRecordType(iNetwork.readByte());
 
     switch (result.getType()) {
       case RecordOperation.CREATED:
-        int length = iNetwork.readInt();
-        byte[] record = new byte[length];
+        var length = iNetwork.readInt();
+        var record = new byte[length];
         iNetwork.readFully(record);
         result.setRecord(record);
         break;
 
       case RecordOperation.UPDATED:
         result.setVersion(iNetwork.readInt());
-        int length2 = iNetwork.readInt();
-        byte[] record2 = new byte[length2];
+        var length2 = iNetwork.readInt();
+        var record2 = new byte[length2];
         iNetwork.readFully(record2);
         result.setRecord(record2);
         result.setContentChanged(iNetwork.readBoolean());
@@ -274,7 +274,7 @@ public class MessageHelper {
 
   static RecordOperationRequest readTransactionEntry(
       ChannelDataInput channel, RecordSerializer ser) throws IOException {
-    RecordOperationRequest entry = new RecordOperationRequest();
+    var entry = new RecordOperationRequest();
     entry.setType(channel.readByte());
     entry.setId(channel.readRID());
     entry.setRecordType(channel.readByte());
@@ -307,7 +307,7 @@ public class MessageHelper {
     if (classId == ChannelBinaryProtocol.RECORD_RID) {
       return network.readRID();
     } else {
-      final DBRecord record = readRecordFromBytes(db, network, serializer);
+      final var record = readRecordFromBytes(db, network, serializer);
       return record;
     }
   }
@@ -315,12 +315,12 @@ public class MessageHelper {
   private static DBRecord readRecordFromBytes(
       DatabaseSessionInternal db, ChannelDataInput network, RecordSerializer serializer)
       throws IOException {
-    byte rec = network.readByte();
-    final RecordId rid = network.readRID();
-    final int version = network.readVersion();
-    final byte[] content = network.readBytes();
+    var rec = network.readByte();
+    final var rid = network.readRID();
+    final var version = network.readVersion();
+    final var content = network.readBytes();
 
-    RecordAbstract record =
+    var record =
         YouTrackDBEnginesManager.instance()
             .getRecordFactoryManager()
             .newInstance(rec, rid, db);
@@ -335,7 +335,7 @@ public class MessageHelper {
       ChannelDataOutput channel)
       throws IOException {
     channel.writeByte(QueryResponse.RECORD_TYPE_PROJECTION);
-    ResultSerializerNetwork ser = new ResultSerializerNetwork();
+    var ser = new ResultSerializerNetwork();
     ser.toStream(db, item, channel);
   }
 
@@ -402,7 +402,7 @@ public class MessageHelper {
 
   public static ResultInternal readResult(DatabaseSessionInternal db, ChannelDataInput channel)
       throws IOException {
-    byte type = channel.readByte();
+    var type = channel.readByte();
     return switch (type) {
       case QueryResponse.RECORD_TYPE_BLOB -> readBlob(db, channel);
       case QueryResponse.RECORD_TYPE_VERTEX -> readVertex(db, channel);
@@ -438,7 +438,7 @@ public class MessageHelper {
 
   private static ResultInternal readProjection(DatabaseSessionInternal db,
       ChannelDataInput channel) throws IOException {
-    ResultSerializerNetwork ser = new ResultSerializerNetwork();
+    var ser = new ResultSerializerNetwork();
     return ser.fromStream(db, channel);
   }
 }

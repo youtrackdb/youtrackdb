@@ -117,7 +117,7 @@ public class YouTrackDBConfigImpl implements YouTrackDBConfig {
       }
 
       if (parent.configuration != null) {
-        ContextConfiguration confis = new ContextConfiguration();
+        var confis = new ContextConfiguration();
         confis.merge(parent.configuration);
         if (this.configuration != null) {
           confis.merge(this.configuration);

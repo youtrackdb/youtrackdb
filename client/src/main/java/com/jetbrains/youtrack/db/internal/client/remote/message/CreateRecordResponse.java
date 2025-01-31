@@ -61,8 +61,8 @@ public class CreateRecordResponse implements BinaryResponse {
   @Override
   public void read(DatabaseSessionInternal db, ChannelDataInput network,
       StorageRemoteSession session) throws IOException {
-    short clusterId = network.readShort();
-    long posistion = network.readLong();
+    var clusterId = network.readShort();
+    var posistion = network.readLong();
     identity = new RecordId(clusterId, posistion);
     version = network.readVersion();
     changedIds = MessageHelper.readCollectionChanges(network);

@@ -48,18 +48,18 @@ public class SpatialQueryBuilderDistanceSphere extends SpatialQueryBuilderAbstra
   @Override
   public SpatialQueryContext build(DatabaseSessionInternal db, Map<String, Object> query)
       throws Exception {
-    Shape shape = parseShape(query);
+    var shape = parseShape(query);
 
-    SpatialStrategy strategy = manager.strategy();
+    var strategy = manager.strategy();
 
-    Number distance = (Number) query.get("distance");
+    var distance = (Number) query.get("distance");
 
     // SpatialArgs args1 = new SpatialArgs(SpatialOperation.Intersects, shape);
     //
     // Filter filter = strategy.makeFilter(args1);
     // return new SpatialQueryContext(null, manager.searcher(), new MatchAllDocsQuery(), filter);
 
-    SpatialArgs args =
+    var args =
         new SpatialArgs(
             SpatialOperation.Intersects,
             factory
@@ -70,13 +70,13 @@ public class SpatialQueryBuilderDistanceSphere extends SpatialQueryBuilderAbstra
                         distance.doubleValue() / 1000, DistanceUtils.EARTH_MEAN_RADIUS_KM)));
     //    Filter filter = strategy.makeFilter(args);
 
-    Query filterQuery = strategy.makeQuery(args);
+    var filterQuery = strategy.makeQuery(args);
 
-    IndexSearcher searcher = manager.searcher(db.getStorage());
-    DoubleValuesSource valueSource = strategy.makeDistanceValueSource((Point) shape);
-    Sort distSort = new Sort(valueSource.getSortField(false)).rewrite(searcher);
+    var searcher = manager.searcher(db.getStorage());
+    var valueSource = strategy.makeDistanceValueSource((Point) shape);
+    var distSort = new Sort(valueSource.getSortField(false)).rewrite(searcher);
 
-    BooleanQuery q =
+    var q =
         new BooleanQuery.Builder()
             .add(filterQuery, BooleanClause.Occur.MUST)
             .add(new MatchAllDocsQuery(), BooleanClause.Occur.SHOULD)

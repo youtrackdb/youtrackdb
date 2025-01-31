@@ -20,7 +20,7 @@ public final class LinkConverter implements ValuesConverter<Identifiable> {
 
   @Override
   public Identifiable convert(DatabaseSessionInternal db, Identifiable value) {
-    final RID rid = value.getIdentity();
+    final var rid = value.getIdentity();
     if (!rid.isPersistent()) {
       return value;
     }
@@ -29,7 +29,7 @@ public final class LinkConverter implements ValuesConverter<Identifiable> {
       return ImportConvertersFactory.BROKEN_LINK;
     }
 
-    try (final ResultSet resultSet =
+    try (final var resultSet =
         converterData.session.query(
             "select value from " + DatabaseImport.EXPORT_IMPORT_CLASS_NAME + " where key = ?",
             rid.toString())) {

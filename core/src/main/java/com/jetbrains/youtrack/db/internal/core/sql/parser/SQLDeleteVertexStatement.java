@@ -33,7 +33,7 @@ public class SQLDeleteVertexStatement extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Map<Object, Object> params, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -53,14 +53,14 @@ public class SQLDeleteVertexStatement extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
     ctx.setDatabase(db);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
-      for (int i = 0; i < args.length; i++) {
+      for (var i = 0; i < args.length; i++) {
         params.put(i, args[i]);
       }
     }
@@ -76,8 +76,8 @@ public class SQLDeleteVertexStatement extends SQLStatement {
   }
 
   public DeleteExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    DeleteVertexExecutionPlanner planner = new DeleteVertexExecutionPlanner(this);
-    DeleteExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling);
+    var planner = new DeleteVertexExecutionPlanner(this);
+    var result = planner.createExecutionPlan(ctx, enableProfiling);
     result.setStatement(this.originalStatement);
     result.setGenericStatement(this.toGenericStatement());
     return result;
@@ -127,7 +127,7 @@ public class SQLDeleteVertexStatement extends SQLStatement {
 
   @Override
   public SQLDeleteVertexStatement copy() {
-    SQLDeleteVertexStatement result = new SQLDeleteVertexStatement(-1);
+    var result = new SQLDeleteVertexStatement(-1);
     result.from = from;
     result.fromClause = fromClause == null ? null : fromClause.copy();
     result.whereClause = whereClause == null ? null : whereClause.copy();
@@ -146,7 +146,7 @@ public class SQLDeleteVertexStatement extends SQLStatement {
       return false;
     }
 
-    SQLDeleteVertexStatement that = (SQLDeleteVertexStatement) o;
+    var that = (SQLDeleteVertexStatement) o;
 
     if (from != that.from) {
       return false;
@@ -168,7 +168,7 @@ public class SQLDeleteVertexStatement extends SQLStatement {
 
   @Override
   public int hashCode() {
-    int result = (from ? 1 : 0);
+    var result = (from ? 1 : 0);
     result = 31 * result + (fromClause != null ? fromClause.hashCode() : 0);
     result = 31 * result + (whereClause != null ? whereClause.hashCode() : 0);
     result = 31 * result + (returnBefore ? 1 : 0);

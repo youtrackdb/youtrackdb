@@ -33,7 +33,7 @@ public class LuceneGraphTXTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    SchemaClass type = db.createVertexClass("City");
+    var type = db.createVertexClass("City");
     type.createProperty(db, "name", PropertyType.STRING);
 
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
@@ -42,7 +42,7 @@ public class LuceneGraphTXTest extends BaseLuceneTest {
   @Test
   public void graphTxTest() throws Exception {
 
-    Vertex v = db.newVertex("City");
+    var v = db.newVertex("City");
     v.setProperty("name", "London");
 
     db.begin();
@@ -50,7 +50,7 @@ public class LuceneGraphTXTest extends BaseLuceneTest {
     db.commit();
 
     db.begin();
-    ResultSet results = db.command("select from City where name lucene 'London'");
+    var results = db.command("select from City where name lucene 'London'");
     Assert.assertEquals(results.stream().count(), 1);
 
     v = db.bindToSession(v);

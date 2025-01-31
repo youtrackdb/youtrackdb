@@ -14,22 +14,22 @@ public class ForEachBlockExecutionTest extends DbTestBase {
   @Test
   public void testPlain() {
 
-    String className = "testPlain";
+    var className = "testPlain";
 
     db.createClass(className);
 
-    String script = "";
+    var script = "";
     script += "FOREACH ($val in [1,2,3]){\n";
     script += "  begin;insert into " + className + " set value = $val;commit;\n";
     script += "}";
     script += "SELECT FROM " + className;
 
-    ResultSet results = db.execute("sql", script);
+    var results = db.execute("sql", script);
 
-    int tot = 0;
-    int sum = 0;
+    var tot = 0;
+    var sum = 0;
     while (results.hasNext()) {
-      Result item = results.next();
+      var item = results.next();
       sum += item.<Integer>getProperty("value");
       tot++;
     }
@@ -40,11 +40,11 @@ public class ForEachBlockExecutionTest extends DbTestBase {
 
   @Test
   public void testReturn() {
-    String className = "testReturn";
+    var className = "testReturn";
 
     db.createClass(className);
 
-    String script = "";
+    var script = "";
     script += "FOREACH ($val in [1,2,3]){\n";
     script += "  begin;insert into " + className + " set value = $val;commit;\n";
     script += "  if($val = 2){\n";
@@ -52,14 +52,14 @@ public class ForEachBlockExecutionTest extends DbTestBase {
     script += "  }\n";
     script += "}";
 
-    ResultSet results = db.execute("sql", script);
+    var results = db.execute("sql", script);
     results.close();
     results = db.query("SELECT FROM " + className);
 
-    int tot = 0;
-    int sum = 0;
+    var tot = 0;
+    var sum = 0;
     while (results.hasNext()) {
-      Result item = results.next();
+      var item = results.next();
       sum += item.<Integer>getProperty("value");
       tot++;
     }

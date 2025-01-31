@@ -161,7 +161,7 @@ public class SQLTarget extends BaseParser {
       throw new QueryParsingException("No query target found", parserText, 0);
     }
 
-    final char c = parserGetCurrentChar();
+    final var c = parserGetCurrentChar();
 
     if (c == '$') {
       targetVariable = parserRequiredWord(false, "No valid target");
@@ -174,14 +174,14 @@ public class SQLTarget extends BaseParser {
 
     } else if (c == StringSerializerHelper.EMBEDDED_BEGIN) {
       // SUB QUERY
-      final StringBuilder subText = new StringBuilder(256);
+      final var subText = new StringBuilder(256);
       parserSetCurrentPosition(
           StringSerializerHelper.getEmbedded(parserText, parserGetCurrentPosition(), -1, subText)
               + 1);
       final CommandSQL subCommand = new CommandSQLResultset(subText.toString());
 
-      DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().get();
-      final CommandExecutorSQLResultsetDelegate executor =
+      var db = DatabaseRecordThreadLocal.instance().get();
+      final var executor =
           (CommandExecutorSQLResultsetDelegate)
               db.getSharedContext()
                   .getYouTrackDB()
@@ -195,7 +195,7 @@ public class SQLTarget extends BaseParser {
       subCommand.setContext(commandContext);
       executor.setProgressListener(subCommand.getProgressListener());
       executor.parse(db, subCommand);
-      CommandContext childContext = executor.getContext();
+      var childContext = executor.getContext();
       if (childContext != null) {
         childContext.setParent(context);
       }
@@ -216,7 +216,7 @@ public class SQLTarget extends BaseParser {
           StringSerializerHelper.getCollection(parserText, parserGetCurrentPosition(), rids));
 
       targetRecords = new ArrayList<Identifiable>();
-      for (String rid : rids) {
+      for (var rid : rids) {
         ((List<Identifiable>) targetRecords).add(new RecordId(rid));
       }
 
@@ -229,8 +229,8 @@ public class SQLTarget extends BaseParser {
           && targetIndex == null
           && targetIndexValues == null
           && targetRecords == null)) {
-        String originalSubjectName = parserRequiredWord(false, "Target not found");
-        String subjectName = originalSubjectName.toUpperCase(Locale.ENGLISH);
+        var originalSubjectName = parserRequiredWord(false, "Target not found");
+        var subjectName = originalSubjectName.toUpperCase(Locale.ENGLISH);
 
         final String alias;
         if (subjectName.equals("AS")) {
@@ -239,18 +239,18 @@ public class SQLTarget extends BaseParser {
           alias = subjectName;
         }
 
-        final String subjectToMatch = subjectName;
+        final var subjectToMatch = subjectName;
         if (subjectToMatch.startsWith(CommandExecutorSQLAbstract.CLUSTER_PREFIX)) {
           // REGISTER AS CLUSTER
           if (targetClusters == null) {
             targetClusters = new HashMap<String, String>();
           }
-          final String clusterNames =
+          final var clusterNames =
               subjectName.substring(CommandExecutorSQLAbstract.CLUSTER_PREFIX.length());
           if (clusterNames.startsWith("[") && clusterNames.endsWith("]")) {
             final Collection<String> clusters = new HashSet<String>(3);
             StringSerializerHelper.getCollection(clusterNames, 0, clusters);
-            for (String cl : clusters) {
+            for (var cl : clusters) {
               targetClusters.put(cl, cl);
             }
           } else {
@@ -263,7 +263,7 @@ public class SQLTarget extends BaseParser {
               originalSubjectName.substring(CommandExecutorSQLAbstract.INDEX_PREFIX.length());
         } else if (subjectToMatch.startsWith(CommandExecutorSQLAbstract.METADATA_PREFIX)) {
           // METADATA
-          final String metadataTarget =
+          final var metadataTarget =
               subjectName.substring(CommandExecutorSQLAbstract.METADATA_PREFIX.length());
           targetRecords = new ArrayList<Identifiable>();
 
@@ -317,7 +317,7 @@ public class SQLTarget extends BaseParser {
             targetClasses = new HashMap<String, String>();
           }
 
-          final SchemaClass cls =
+          final var cls =
               DatabaseRecordThreadLocal.instance()
                   .get()
                   .getMetadata()

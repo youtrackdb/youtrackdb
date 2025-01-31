@@ -81,7 +81,7 @@ public class RemoteLiveQueryPushTest {
 
   @Test
   public void testLiveEvents() {
-    MockLiveListener mock = new MockLiveListener();
+    var mock = new MockLiveListener();
     storage.registerLiveListener(10, new LiveQueryClientListener(database, mock));
     List<LiveQueryResult> events = new ArrayList<>();
     events.add(
@@ -93,7 +93,7 @@ public class RemoteLiveQueryPushTest {
     events.add(
         new LiveQueryResult(LiveQueryResult.DELETE_EVENT, new ResultInternal(database), null));
 
-    LiveQueryPushRequest request =
+    var request =
         new LiveQueryPushRequest(10, LiveQueryPushRequest.END, events);
     request.execute(null, storage);
     assertEquals(1, mock.countCreate);

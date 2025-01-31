@@ -100,7 +100,7 @@ public class ContextConfiguration implements Serializable {
     if (enumType.isAssignableFrom(value.getClass())) {
       return enumType.cast(value);
     } else if (value instanceof String) {
-      final String presentation = value.toString();
+      final var presentation = value.toString();
       return Enum.valueOf(enumType, presentation);
     } else {
       throw new ClassCastException(
@@ -114,7 +114,7 @@ public class ContextConfiguration implements Serializable {
       return (T) config.get(iName);
     }
 
-    final String sysProperty = System.getProperty(iName);
+    final var sysProperty = System.getProperty(iName);
     if (sysProperty != null) {
       return (T) sysProperty;
     }
@@ -123,7 +123,7 @@ public class ContextConfiguration implements Serializable {
   }
 
   public boolean getValueAsBoolean(final GlobalConfiguration iConfig) {
-    final Object v = getValue(iConfig);
+    final var v = getValue(iConfig);
     if (v == null) {
       return false;
     }
@@ -135,7 +135,7 @@ public class ContextConfiguration implements Serializable {
   }
 
   public String getValueAsString(final GlobalConfiguration iConfig) {
-    final Object v = getValue(iConfig);
+    final var v = getValue(iConfig);
     if (v == null) {
       return null;
     }
@@ -143,7 +143,7 @@ public class ContextConfiguration implements Serializable {
   }
 
   public int getValueAsInteger(final GlobalConfiguration iConfig) {
-    final Object v = getValue(iConfig);
+    final var v = getValue(iConfig);
     if (v == null) {
       return 0;
     }
@@ -151,7 +151,7 @@ public class ContextConfiguration implements Serializable {
   }
 
   public long getValueAsLong(final GlobalConfiguration iConfig) {
-    final Object v = getValue(iConfig);
+    final var v = getValue(iConfig);
     if (v == null) {
       return 0;
     }
@@ -159,7 +159,7 @@ public class ContextConfiguration implements Serializable {
   }
 
   public float getValueAsFloat(final GlobalConfiguration iConfig) {
-    final Object v = getValue(iConfig);
+    final var v = getValue(iConfig);
     if (v == null) {
       return 0;
     }

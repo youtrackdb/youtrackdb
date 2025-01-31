@@ -32,7 +32,7 @@ public class RemoteTransactionHookTest extends DbTestBase {
     server = new YouTrackDBServer(false);
     server.setServerRootDirectory(SERVER_DIRECTORY);
     server.startup(getClass().getResourceAsStream("youtrackdb-server-config.xml"));
-    ServerHookConfiguration hookConfig = new ServerHookConfiguration();
+    var hookConfig = new ServerHookConfiguration();
     hookConfig.clazz = CountCallHookServer.class.getName();
     server.getHookManager().addHook(hookConfig);
     server.activate();
@@ -47,7 +47,7 @@ public class RemoteTransactionHookTest extends DbTestBase {
     var builder = YouTrackDBConfig.builder();
     var config = createConfig((YouTrackDBConfigBuilderImpl) builder);
 
-    final String testConfig =
+    final var testConfig =
         System.getProperty("youtrackdb.test.env", DatabaseType.MEMORY.name().toLowerCase());
 
     if ("ci".equals(testConfig) || "release".equals(testConfig)) {
@@ -73,15 +73,15 @@ public class RemoteTransactionHookTest extends DbTestBase {
   @Test
   @Ignore
   public void testCalledInTx() {
-    CountCallHook calls = new CountCallHook(db);
+    var calls = new CountCallHook(db);
     db.registerHook(calls);
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("SomeTx"));
+    var doc = ((EntityImpl) db.newEntity("SomeTx"));
     doc.setProperty("name", "some");
     db.save(doc);
     db.command("insert into SomeTx set name='aa' ").close();
-    ResultSet res = db.command("update SomeTx set name='bb' where name=\"some\"");
+    var res = db.command("update SomeTx set name='bb' where name=\"some\"");
     assertEquals((Long) 1L, res.next().getProperty("count"));
     res.close();
     db.command("delete from SomeTx where name='aa'").close();
@@ -97,15 +97,15 @@ public class RemoteTransactionHookTest extends DbTestBase {
     youTrackDB.execute(
         "create database test memory users (admin identified by 'admin' role admin)");
     var database = youTrackDB.open("test", "admin", "admin");
-    CountCallHook calls = new CountCallHook(database);
+    var calls = new CountCallHook(database);
     database.registerHook(calls);
     database.createClassIfNotExist("SomeTx");
     database.begin();
-    EntityImpl doc = ((EntityImpl) database.newEntity("SomeTx"));
+    var doc = ((EntityImpl) database.newEntity("SomeTx"));
     doc.setProperty("name", "some");
     database.save(doc);
     database.command("insert into SomeTx set name='aa' ").close();
-    ResultSet res = database.command("update SomeTx set name='bb' where name=\"some\"");
+    var res = database.command("update SomeTx set name='bb' where name=\"some\"");
     assertEquals((Long) 1L, res.next().getProperty("count"));
     res.close();
     database.command("delete from SomeTx where name='aa'").close();
@@ -126,12 +126,12 @@ public class RemoteTransactionHookTest extends DbTestBase {
   @Ignore
   public void testCalledInTxServer() {
     db.begin();
-    CountCallHookServer calls = CountCallHookServer.instance;
-    EntityImpl doc = ((EntityImpl) db.newEntity("SomeTx"));
+    var calls = CountCallHookServer.instance;
+    var doc = ((EntityImpl) db.newEntity("SomeTx"));
     doc.setProperty("name", "some");
     db.save(doc);
     db.command("insert into SomeTx set name='aa' ").close();
-    ResultSet res = db.command("update SomeTx set name='bb' where name=\"some\"");
+    var res = db.command("update SomeTx set name='bb' where name=\"some\"");
     assertEquals((Long) 1L, res.next().getProperty("count"));
     res.close();
     db.command("delete from SomeTx where name='aa'").close();

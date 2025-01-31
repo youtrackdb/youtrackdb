@@ -60,7 +60,7 @@ public class LiveQueryListenerImpl implements LiveQueryListenerV2 {
     if (query.trim().toLowerCase().startsWith("live ")) {
       query = query.trim().substring(5);
     }
-    SQLStatement stm = SQLEngine.parse(query, db);
+    var stm = SQLEngine.parse(query, db);
     if (!(stm instanceof SQLSelectStatement)) {
       throw new CommandExecutionException(
           "Only SELECT statement can be used as a live query: " + query);
@@ -101,7 +101,7 @@ public class LiveQueryListenerImpl implements LiveQueryListenerV2 {
     if (iArgs != null)
     // BIND ARGUMENTS INTO CONTEXT TO ACCESS FROM ANY POINT (EVEN FUNCTIONS)
     {
-      for (Map.Entry<Object, Object> arg : iArgs.entrySet()) {
+      for (var arg : iArgs.entrySet()) {
         ctx.setVariable(arg.getKey().toString(), arg.getValue());
       }
     }
@@ -138,12 +138,12 @@ public class LiveQueryListenerImpl implements LiveQueryListenerV2 {
   public void onLiveResults(List<LiveQueryOp> iRecords) {
     execDb.activateOnCurrentThread();
 
-    for (LiveQueryOp iRecord : iRecords) {
+    for (var iRecord : iRecords) {
       ResultInternal record;
       if (iRecord.type == RecordOperation.CREATED || iRecord.type == RecordOperation.UPDATED) {
         record = copy(execDb, iRecord.after);
         if (iRecord.type == RecordOperation.UPDATED) {
-          ResultInternal before = copy(execDb, iRecord.before);
+          var before = copy(execDb, iRecord.before);
           record.setMetadata(BEFORE_METADATA_KEY, before);
         }
       } else {
@@ -179,7 +179,7 @@ public class LiveQueryListenerImpl implements LiveQueryListenerV2 {
     ctx.setDatabase(execDb);
 
     if (statement.getProjection() != null) {
-      ResultInternal result =
+      var result =
           (ResultInternal)
               statement.getProjection().calculateSingle(ctx, record);
       return result;
@@ -190,12 +190,12 @@ public class LiveQueryListenerImpl implements LiveQueryListenerV2 {
   private boolean filter(Result record) {
     // filter by class
     if (className != null) {
-      Object filterClass = record.getProperty("@class");
-      String recordClassName = String.valueOf(filterClass);
+      var filterClass = record.getProperty("@class");
+      var recordClassName = String.valueOf(filterClass);
       if (filterClass == null) {
         return false;
       } else if (!(className.equalsIgnoreCase(recordClassName))) {
-        SchemaClass recordClass =
+        var recordClass =
             this.execDb.getMetadata().getImmutableSchemaSnapshot().getClass(recordClassName);
         if (recordClass == null) {
           return false;
@@ -207,8 +207,8 @@ public class LiveQueryListenerImpl implements LiveQueryListenerV2 {
       }
     }
     if (rids != null && rids.size() > 0) {
-      boolean found = false;
-      for (RecordId rid : rids) {
+      var found = false;
+      for (var rid : rids) {
         if (rid.equals(record.getIdentity().orElse(null))) {
           found = true;
           break;
@@ -223,11 +223,11 @@ public class LiveQueryListenerImpl implements LiveQueryListenerV2 {
       }
     }
     // filter conditions
-    SQLWhereClause where = statement.getWhereClause();
+    var where = statement.getWhereClause();
     if (where == null) {
       return true;
     }
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     ctx.setInputParameters(params);
     return where.matchesFilters(record, ctx);
   }
@@ -236,9 +236,9 @@ public class LiveQueryListenerImpl implements LiveQueryListenerV2 {
     if (item == null) {
       return null;
     }
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
 
-    for (String prop : item.getPropertyNames()) {
+    for (var prop : item.getPropertyNames()) {
       result.setProperty(prop, item.getProperty(prop));
     }
     return result;
@@ -246,7 +246,7 @@ public class LiveQueryListenerImpl implements LiveQueryListenerV2 {
 
   private static Map<Object, Object> toPositionalParams(Object[] iArgs) {
     Map<Object, Object> result = new HashMap<>();
-    for (int i = 0; i < iArgs.length; i++) {
+    for (var i = 0; i < iArgs.length; i++) {
       result.put(i, iArgs[i]);
     }
     return result;
@@ -258,7 +258,7 @@ public class LiveQueryListenerImpl implements LiveQueryListenerV2 {
   }
 
   protected void execInSeparateDatabase(final CallableFunction iCallback) {
-    final DatabaseSessionInternal prevDb = DatabaseRecordThreadLocal.instance().getIfDefined();
+    final var prevDb = DatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       iCallback.call(null);
     } finally {

@@ -32,10 +32,10 @@ public class DocumentTest extends DbTestBase {
 
   @Test
   public void testFromMapNotSaved() {
-    final EntityImpl doc = new EntityImpl(db);
+    final var doc = new EntityImpl(db);
     doc.field("name", "Jay");
     doc.field("surname", "Miner");
-    Map<String, Object> map = doc.toMap();
+    var map = doc.toMap();
 
     Assert.assertEquals(2, map.size());
     Assert.assertEquals("Jay", map.get("name"));
@@ -45,10 +45,10 @@ public class DocumentTest extends DbTestBase {
   @Test
   public void testFromMapWithClass() {
     db.begin();
-    final EntityImpl doc = (EntityImpl) db.newEntity("OUser");
+    final var doc = (EntityImpl) db.newEntity("OUser");
     doc.field("name", "Jay");
     doc.field("surname", "Miner");
-    Map<String, Object> map = doc.toMap();
+    var map = doc.toMap();
 
     Assert.assertEquals(4, map.size());
     Assert.assertEquals("Jay", map.get("name"));
@@ -61,13 +61,13 @@ public class DocumentTest extends DbTestBase {
   @Test
   public void testFromMapWithClassAndRid() {
     db.begin();
-    final EntityImpl doc = (EntityImpl) db.newEntity("V");
+    final var doc = (EntityImpl) db.newEntity("V");
     doc.field("name", "Jay");
     doc.field("surname", "Miner");
     doc.save();
     db.commit();
 
-    Map<String, Object> map = db.bindToSession(doc).toMap();
+    var map = db.bindToSession(doc).toMap();
 
     Assert.assertEquals(4, map.size());
     Assert.assertEquals("Jay", map.get("name"));
@@ -78,7 +78,7 @@ public class DocumentTest extends DbTestBase {
 
   @Test
   public void testConversionOnTypeSet() {
-    EntityImpl doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) db.newEntity();
 
     doc.field("some", 3);
     doc.setFieldType("some", PropertyType.STRING);
@@ -88,25 +88,25 @@ public class DocumentTest extends DbTestBase {
 
   @Test
   public void testEval() {
-    EntityImpl doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) db.newEntity();
 
     doc.field("amount", 300);
 
-    Number amountPlusVat = (Number) doc.eval("amount * 120 / 100");
+    var amountPlusVat = (Number) doc.eval("amount * 120 / 100");
 
     Assert.assertEquals(360L, amountPlusVat.longValue());
   }
 
   @Test
   public void testEvalInContext() {
-    EntityImpl doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) db.newEntity();
 
     doc.field("amount", 300);
 
-    BasicCommandContext context = new BasicCommandContext();
+    var context = new BasicCommandContext();
     context.setVariable("vat", 20);
     context.setDatabase(db);
-    Number amountPlusVat = (Number) doc.eval("amount * (100 + $vat) / 100", context);
+    var amountPlusVat = (Number) doc.eval("amount * (100 + $vat) / 100", context);
 
     Assert.assertEquals(360L, amountPlusVat.longValue());
   }

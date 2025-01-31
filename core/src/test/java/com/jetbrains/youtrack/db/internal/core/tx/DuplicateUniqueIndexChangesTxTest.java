@@ -39,7 +39,7 @@ public class DuplicateUniqueIndexChangesTxTest extends DbTestBase {
 
   public void beforeTest() throws Exception {
     super.beforeTest();
-    final SchemaClass class_ = db.getMetadata().getSchema().createClass("Person");
+    final var class_ = db.getMetadata().getSchema().createClass("Person");
     var indexName =
         class_
             .createProperty(db, "name", PropertyType.STRING)
@@ -75,7 +75,7 @@ public class DuplicateUniqueIndexChangesTxTest extends DbTestBase {
   }
 
   private EntityImpl fetchDocumentFromIndex(String o) {
-    try (Stream<RID> stream = index.getInternal().getRids(db, o)) {
+    try (var stream = index.getInternal().getRids(db, o)) {
       return (EntityImpl) stream.findFirst().map(rid -> rid.getRecord(db)).orElse(null);
     }
   }

@@ -44,7 +44,7 @@ public class LuceneInsertUpdateSingleDocumentTransactionTest extends BaseLuceneT
   public void init() {
     Schema schema = db.getMetadata().getSchema();
 
-    SchemaClass oClass = schema.createClass("City");
+    var oClass = schema.createClass("City");
     oClass.createProperty(db, "name", PropertyType.STRING);
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
@@ -56,9 +56,9 @@ public class LuceneInsertUpdateSingleDocumentTransactionTest extends BaseLuceneT
     db = openDatabase();
     Schema schema = db.getMetadata().getSchema();
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("City"));
+    var doc = ((EntityImpl) db.newEntity("City"));
     doc.field("name", "");
-    EntityImpl doc1 = ((EntityImpl) db.newEntity("City"));
+    var doc1 = ((EntityImpl) db.newEntity("City"));
     doc1.field("name", "");
     doc = db.save(doc);
     doc1 = db.save(doc1);
@@ -72,9 +72,9 @@ public class LuceneInsertUpdateSingleDocumentTransactionTest extends BaseLuceneT
     db.save(doc);
     db.save(doc1);
     db.commit();
-    Index idx = db.getClassInternal("City").getClassIndex(db, "City.name");
+    var idx = db.getClassInternal("City").getClassIndex(db, "City.name");
     Collection<?> coll;
-    try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (var stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
 

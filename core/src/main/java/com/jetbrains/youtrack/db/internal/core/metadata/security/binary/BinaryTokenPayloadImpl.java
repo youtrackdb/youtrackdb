@@ -111,14 +111,14 @@ public class BinaryTokenPayloadImpl implements BinaryTokenPayload {
 
   @Override
   public void serialize(DataOutputStream output, TokenMetaInfo serializer) throws IOException {
-    String toWrite = this.database;
+    var toWrite = this.database;
     BinaryTokenSerializer.writeString(output, toWrite);
     if (this.databaseType == null) {
       output.writeByte(-1);
     } else {
       output.writeByte(serializer.getDbTypeID(this.databaseType));
     }
-    RID id = this.userRid;
+    var id = this.userRid;
     if (id == null) {
       output.writeShort(-1);
       output.writeLong(-1);

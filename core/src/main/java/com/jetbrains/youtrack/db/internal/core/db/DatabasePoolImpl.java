@@ -45,8 +45,8 @@ public class DatabasePoolImpl implements DatabasePoolInternal {
       String user,
       String password,
       YouTrackDBConfigImpl config) {
-    int max = config.getConfiguration().getValueAsInteger(DB_POOL_MAX);
-    int min = config.getConfiguration().getValueAsInteger(DB_POOL_MIN);
+    var max = config.getConfiguration().getValueAsInteger(DB_POOL_MAX);
+    var min = config.getConfiguration().getValueAsInteger(DB_POOL_MIN);
     this.factory = factory;
     this.config = config;
     pool =
@@ -96,7 +96,7 @@ public class DatabasePoolImpl implements DatabasePoolInternal {
       pool = null;
     }
     if (p != null) {
-      for (DatabaseSessionInternal res : p.getAllResources()) {
+      for (var res : p.getAllResources()) {
         res.realClose();
       }
       p.close();

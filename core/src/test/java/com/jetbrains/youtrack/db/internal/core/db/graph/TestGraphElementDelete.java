@@ -44,9 +44,9 @@ public class TestGraphElementDelete {
   @Test
   public void testDeleteVertex() {
     database.begin();
-    Vertex vertex = database.newVertex("V");
-    Vertex vertex1 = database.newVertex("V");
-    Edge edge = vertex.addEdge(vertex1, "E");
+    var vertex = database.newVertex("V");
+    var vertex1 = database.newVertex("V");
+    var edge = vertex.addEdge(vertex1, "E");
     database.save(edge);
     database.commit();
 
@@ -66,9 +66,9 @@ public class TestGraphElementDelete {
   public void testDeleteEdge() {
 
     database.begin();
-    Vertex vertex = database.newVertex("V");
-    Vertex vertex1 = database.newVertex("V");
-    Edge edge = vertex.addEdge(vertex1, "E");
+    var vertex = database.newVertex("V");
+    var vertex1 = database.newVertex("V");
+    var edge = vertex.addEdge(vertex1, "E");
     database.save(edge);
     database.commit();
 
@@ -82,9 +82,9 @@ public class TestGraphElementDelete {
   @Test
   public void testDeleteEdgeConcurrentModification() throws Exception {
     database.begin();
-    Vertex vertex = database.newVertex("V");
-    Vertex vertex1 = database.newVertex("V");
-    Edge edge = vertex.addEdge(vertex1, "E");
+    var vertex = database.newVertex("V");
+    var vertex1 = database.newVertex("V");
+    var edge = vertex.addEdge(vertex1, "E");
     database.save(edge);
     database.commit();
 

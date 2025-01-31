@@ -51,7 +51,7 @@ public class InsertExecutionPlanner {
   }
 
   public InsertExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    InsertExecutionPlan result = new InsertExecutionPlan(ctx);
+    var result = new InsertExecutionPlan(ctx);
 
     if (targetIndex != null) {
       IndexAbstract.manualIndexesWarning();
@@ -66,7 +66,7 @@ public class InsertExecutionPlanner {
       handleSetFields(result, insertBody, ctx, enableProfiling);
       var database = ctx.getDatabase();
       if (targetCluster != null) {
-        String name = targetCluster.getClusterName();
+        var name = targetCluster.getClusterName();
         if (name == null) {
           name = database.getClusterNameById(targetCluster.getClusterNumber());
         }
@@ -113,17 +113,17 @@ public class InsertExecutionPlanner {
               ctx,
               profilingEnabled));
     } else if (insertBody.getContent() != null) {
-      for (SQLJson json : insertBody.getContent()) {
+      for (var json : insertBody.getContent()) {
         result.chain(new UpdateContentStep(json, ctx, profilingEnabled));
       }
     } else if (insertBody.getContentInputParam() != null) {
-      for (SQLInputParameter inputParam : insertBody.getContentInputParam()) {
+      for (var inputParam : insertBody.getContentInputParam()) {
         result.chain(new UpdateContentStep(inputParam, ctx, profilingEnabled));
       }
     } else if (insertBody.getSetExpressions() != null) {
       List<SQLUpdateItem> items = new ArrayList<>();
-      for (SQLInsertSetExpression exp : insertBody.getSetExpressions()) {
-        SQLUpdateItem item = new SQLUpdateItem(-1);
+      for (var exp : insertBody.getSetExpressions()) {
+        var item = new SQLUpdateItem(-1);
         item.setOperator(SQLUpdateItem.OPERATOR_EQ);
         item.setLeft(exp.getLeft().copy());
         item.setRight(exp.getRight().copy());
@@ -140,16 +140,16 @@ public class InsertExecutionPlanner {
     if (targetClass != null) {
       tc = targetClass;
     } else if (targetCluster != null) {
-      String name = targetCluster.getClusterName();
+      var name = targetCluster.getClusterName();
       if (name == null) {
         name = database.getClusterNameById(targetCluster.getClusterNumber());
       }
-      SchemaClass targetClass = schema.getClassByClusterId(database.getClusterIdByName(name));
+      var targetClass = schema.getClassByClusterId(database.getClusterIdByName(name));
       if (targetClass != null) {
         tc = new SQLIdentifier(targetClass.getName());
       }
     } else {
-      SchemaClass targetClass =
+      var targetClass =
           schema.getClassByClusterId(
               database.getClusterIdByName(targetClusterName.getStringValue()));
       if (targetClass != null) {
@@ -165,7 +165,7 @@ public class InsertExecutionPlanner {
       SQLInsertBody body,
       CommandContext ctx,
       boolean profilingEnabled) {
-    int tot = 1;
+    var tot = 1;
     if (body != null
         && body.getValueExpressions() != null
         && !body.getValueExpressions().isEmpty()) {
@@ -192,7 +192,7 @@ public class InsertExecutionPlanner {
       SQLSelectStatement selectStatement,
       CommandContext ctx,
       boolean profilingEnabled) {
-    InternalExecutionPlan subPlan = selectStatement.createExecutionPlan(ctx, profilingEnabled);
+    var subPlan = selectStatement.createExecutionPlan(ctx, profilingEnabled);
     result.chain(new SubQueryStep(subPlan, ctx, ctx, profilingEnabled));
     result.chain(new CopyDocumentStep(ctx, profilingEnabled));
     result.chain(new RemoveEdgePointersStep(ctx, profilingEnabled));

@@ -19,10 +19,10 @@ public class ReturnMatchPathElementsStep extends AbstractUnrollStep {
   @Override
   protected Collection<Result> unroll(Result res, CommandContext iContext) {
     List<Result> result = new ArrayList<>();
-    for (String s : res.getPropertyNames()) {
-      Object elem = res.getProperty(s);
+    for (var s : res.getPropertyNames()) {
+      var elem = res.getProperty(s);
       if (elem instanceof Identifiable) {
-        ResultInternal newelem = new ResultInternal(iContext.getDatabase(),
+        var newelem = new ResultInternal(iContext.getDatabase(),
             (Identifiable) elem);
         elem = newelem;
       }
@@ -36,7 +36,7 @@ public class ReturnMatchPathElementsStep extends AbstractUnrollStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
     return spaces + "+ UNROLL $pathElements";
   }
 }

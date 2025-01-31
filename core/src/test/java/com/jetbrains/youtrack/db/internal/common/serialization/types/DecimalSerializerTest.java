@@ -62,7 +62,7 @@ public class DecimalSerializerTest {
   public void testNativeDirectMemoryCompatibility() {
     decimalSerializer.serializeNativeObject(OBJECT, stream, 0);
 
-    final ByteBuffer buffer =
+    final var buffer =
         ByteBuffer.allocateDirect(stream.length).order(ByteOrder.nativeOrder());
     buffer.put(stream);
     buffer.position(0);
@@ -72,14 +72,14 @@ public class DecimalSerializerTest {
 
   @Test
   public void testSerializeInByteBuffer() {
-    final int serializationOffset = 5;
+    final var serializationOffset = 5;
 
-    final ByteBuffer buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
+    final var buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
 
     buffer.position(serializationOffset);
     decimalSerializer.serializeInByteBufferObject(OBJECT, buffer);
 
-    final int binarySize = buffer.position() - serializationOffset;
+    final var binarySize = buffer.position() - serializationOffset;
     Assert.assertEquals(binarySize, FIELD_SIZE);
 
     buffer.position(serializationOffset);
@@ -93,14 +93,14 @@ public class DecimalSerializerTest {
 
   @Test
   public void testSerializeInByteBufferImmutablePosition() {
-    final int serializationOffset = 5;
+    final var serializationOffset = 5;
 
-    final ByteBuffer buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
+    final var buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
 
     buffer.position(serializationOffset);
     decimalSerializer.serializeInByteBufferObject(OBJECT, buffer);
 
-    final int binarySize = buffer.position() - serializationOffset;
+    final var binarySize = buffer.position() - serializationOffset;
     Assert.assertEquals(binarySize, FIELD_SIZE);
 
     buffer.position(0);
@@ -115,13 +115,13 @@ public class DecimalSerializerTest {
 
   @Test
   public void testSerializeWALChanges() {
-    final int serializationOffset = 5;
-    final ByteBuffer buffer =
+    final var serializationOffset = 5;
+    final var buffer =
         ByteBuffer.allocateDirect(
                 FIELD_SIZE + serializationOffset + WALPageChangesPortion.PORTION_BYTES)
             .order(ByteOrder.nativeOrder());
 
-    final byte[] data = new byte[FIELD_SIZE];
+    final var data = new byte[FIELD_SIZE];
     decimalSerializer.serializeNativeObject(OBJECT, data, 0);
     final WALChanges walChanges = new WALPageChangesPortion();
     walChanges.setBinaryValue(buffer, data, serializationOffset);

@@ -109,7 +109,7 @@ public abstract class IndexAbstract implements IndexInternal {
     if (indexDefinitionEntity != null) {
       try {
         final String indexDefClassName = config.field(INDEX_DEFINITION_CLASS);
-        final Class<?> indexDefClass = Class.forName(indexDefClassName);
+        final var indexDefClass = Class.forName(indexDefClassName);
         loadedIndexDefinition =
             (IndexDefinition) indexDefClass.getDeclaredConstructor().newInstance();
         loadedIndexDefinition.fromStream(indexDefinitionEntity);
@@ -125,23 +125,23 @@ public abstract class IndexAbstract implements IndexInternal {
     } else {
       // @COMPATIBILITY 1.0rc6 new index model was implemented
       final Boolean isAutomatic = config.field(CONFIG_AUTOMATIC);
-      IndexFactory factory = Indexes.getFactory(type, algorithm);
+      var factory = Indexes.getFactory(type, algorithm);
       if (Boolean.TRUE.equals(isAutomatic)) {
-        final int pos = indexName.lastIndexOf('.');
+        final var pos = indexName.lastIndexOf('.');
         if (pos < 0) {
           throw new IndexException(
               "Cannot convert from old index model to new one. "
                   + "Invalid index name. Dot (.) separator should be present");
         }
-        final String className = indexName.substring(0, pos);
-        final String propertyName = indexName.substring(pos + 1);
+        final var className = indexName.substring(0, pos);
+        final var propertyName = indexName.substring(pos + 1);
 
         final String keyTypeStr = config.field(CONFIG_KEYTYPE);
         if (keyTypeStr == null) {
           throw new IndexException(
               "Cannot convert from old index model to new one. " + "Index key type is absent");
         }
-        final PropertyType keyType = PropertyType.valueOf(keyTypeStr.toUpperCase(Locale.ENGLISH));
+        final var keyType = PropertyType.valueOf(keyTypeStr.toUpperCase(Locale.ENGLISH));
 
         loadedIndexDefinition = new PropertyIndexDefinition(className, propertyName, keyType);
 
@@ -149,7 +149,7 @@ public abstract class IndexAbstract implements IndexInternal {
         config.removeField(CONFIG_KEYTYPE);
       } else if (config.field(CONFIG_KEYTYPE) != null) {
         final String keyTypeStr = config.field(CONFIG_KEYTYPE);
-        final PropertyType keyType = PropertyType.valueOf(keyTypeStr.toUpperCase(Locale.ENGLISH));
+        final var keyType = PropertyType.valueOf(keyTypeStr.toUpperCase(Locale.ENGLISH));
 
         loadedIndexDefinition = new SimpleKeyIndexDefinition(keyType);
 
@@ -160,7 +160,7 @@ public abstract class IndexAbstract implements IndexInternal {
     final Set<String> clusters = new HashSet<>(
         config.field(CONFIG_CLUSTERS, PropertyType.EMBEDDEDSET));
 
-    final int indexVersion =
+    final var indexVersion =
         config.field(INDEX_VERSION) == null
             ? 1
             : (Integer) config.field(INDEX_VERSION);
@@ -202,7 +202,7 @@ public abstract class IndexAbstract implements IndexInternal {
       final ProgressListener progressListener) {
     acquireExclusiveLock();
     try {
-      Set<String> clustersToIndex = indexMetadata.getClustersToIndex();
+      var clustersToIndex = indexMetadata.getClustersToIndex();
 
       if (clustersToIndex != null) {
         this.clustersToIndex = new HashSet<>(clustersToIndex);
@@ -261,7 +261,7 @@ public abstract class IndexAbstract implements IndexInternal {
     try {
       clustersToIndex.clear();
 
-      final IndexMetadata indexMetadata = loadMetadata(config);
+      final var indexMetadata = loadMetadata(config);
       this.im = indexMetadata;
       clustersToIndex.addAll(indexMetadata.getClustersToIndex());
 
@@ -346,7 +346,7 @@ public abstract class IndexAbstract implements IndexInternal {
    */
   @Deprecated
   public long count(DatabaseSessionInternal session, Object iKey) {
-    try (Stream<RawPair<Object, RID>> stream =
+    try (var stream =
         streamEntriesBetween(session, iKey, true, iKey, true, true)) {
       return stream.count();
     }
@@ -357,7 +357,7 @@ public abstract class IndexAbstract implements IndexInternal {
    */
   @Deprecated
   public long getKeySize() {
-    try (Stream<Object> stream = keyStream()) {
+    try (var stream = keyStream()) {
       return stream.distinct().count();
     }
   }
@@ -386,8 +386,8 @@ public abstract class IndexAbstract implements IndexInternal {
 
   @Deprecated
   public Object getFirstKey() {
-    try (final Stream<Object> stream = keyStream()) {
-      final Iterator<Object> iterator = stream.iterator();
+    try (final var stream = keyStream()) {
+      final var iterator = stream.iterator();
       if (iterator.hasNext()) {
         return iterator.next();
       }
@@ -398,8 +398,8 @@ public abstract class IndexAbstract implements IndexInternal {
 
   @Deprecated
   public Object getLastKey(DatabaseSessionInternal session) {
-    try (final Stream<RawPair<Object, RID>> stream = descStream(session)) {
-      final Iterator<RawPair<Object, RID>> iterator = stream.iterator();
+    try (final var stream = descStream(session)) {
+      final var iterator = stream.iterator();
       if (iterator.hasNext()) {
         return iterator.next().first;
       }
@@ -483,7 +483,7 @@ public abstract class IndexAbstract implements IndexInternal {
         LogManager.instance().error(this, "Error during index '%s' delete", e, im.getName());
       }
 
-      IndexMetadata indexMetadata = this.loadMetadata(updateConfiguration(session));
+      var indexMetadata = this.loadMetadata(updateConfiguration(session));
       Map<String, String> engineProperties = new HashMap<>();
       indexId = storage.addIndexEngine(indexMetadata, engineProperties);
       apiVersion = AbstractPaginatedStorage.extractEngineAPIVersion(indexId);
@@ -539,7 +539,7 @@ public abstract class IndexAbstract implements IndexInternal {
       long entityNum = 0;
       long entitiesTotal = 0;
 
-      for (final String cluster : clustersToIndex) {
+      for (final var cluster : clustersToIndex) {
         entitiesTotal += storage.count(session, storage.getClusterIdByName(cluster));
       }
 
@@ -548,8 +548,8 @@ public abstract class IndexAbstract implements IndexInternal {
       }
 
       // INDEX ALL CLUSTERS
-      for (final String clusterName : clustersToIndex) {
-        final long[] metrics =
+      for (final var clusterName : clustersToIndex) {
+        final var metrics =
             indexCluster(session, clusterName, iProgressListener, entityNum,
                 entitiesIndexed, entitiesTotal);
         entityNum = metrics[0];
@@ -628,7 +628,7 @@ public abstract class IndexAbstract implements IndexInternal {
       try {
         //noinspection ObjectAllocationInLoop
         try {
-          try (final Stream<RawPair<Object, RID>> stream = stream(session)) {
+          try (final var stream = stream(session)) {
             session.executeInTxBatches(stream, (db, entry) -> {
               remove(session, entry.first, entry.second);
             });
@@ -641,7 +641,7 @@ public abstract class IndexAbstract implements IndexInternal {
         }
 
         try {
-          try (Stream<RID> stream = getRids(session, null)) {
+          try (var stream = getRids(session, null)) {
             stream.forEach((rid) -> remove(session, null, rid));
           }
         } catch (IndexEngineException e) {
@@ -732,14 +732,14 @@ public abstract class IndexAbstract implements IndexInternal {
   }
 
   public EntityImpl updateConfiguration(DatabaseSessionInternal db) {
-    EntityImpl entity = new EntityImpl(db);
+    var entity = new EntityImpl(db);
     entity.field(CONFIG_TYPE, im.getType());
     entity.field(CONFIG_NAME, im.getName());
     entity.field(INDEX_VERSION, im.getVersion());
 
     if (im.getIndexDefinition() != null) {
 
-      final EntityImpl indexDefEntity = im.getIndexDefinition()
+      final var indexDefEntity = im.getIndexDefinition()
           .toStream(db, new EntityImpl(db));
       if (!indexDefEntity.hasOwners()) {
         EntityInternalUtils.addOwner(indexDefEntity, entity);
@@ -848,7 +848,7 @@ public abstract class IndexAbstract implements IndexInternal {
         return false;
       }
 
-      final IndexAbstract that = (IndexAbstract) o;
+      final var that = (IndexAbstract) o;
 
       return im.getName().equals(that.im.getName());
     } finally {
@@ -885,7 +885,7 @@ public abstract class IndexAbstract implements IndexInternal {
   public int compareTo(Index index) {
     acquireSharedLock();
     try {
-      final String name = index.getName();
+      final var name = index.getName();
       return this.im.getName().compareTo(name);
     } finally {
       releaseSharedLock();
@@ -1028,13 +1028,13 @@ public abstract class IndexAbstract implements IndexInternal {
       return key;
     }
 
-    final int keySize = definition.getParamCount();
+    final var keySize = definition.getParamCount();
 
     if (!(keySize == 1
         || compositeKey.getKeys().size() == keySize
         || partialSearchMode.equals(PartialSearchMode.NONE))) {
-      final CompositeKey fullKey = new CompositeKey(compositeKey);
-      int itemsToAdd = keySize - fullKey.getKeys().size();
+      final var fullKey = new CompositeKey(compositeKey);
+      var itemsToAdd = keySize - fullKey.getKeys().size();
 
       final Comparable<?> keyItem;
       if (partialSearchMode.equals(PartialSearchMode.HIGHEST_BOUNDARY)) {
@@ -1043,7 +1043,7 @@ public abstract class IndexAbstract implements IndexInternal {
         keyItem = ALWAYS_LESS_KEY;
       }
 
-      for (int i = 0; i < itemsToAdd; i++) {
+      for (var i = 0; i < itemsToAdd; i++) {
         fullKey.addKey(keyItem);
       }
 

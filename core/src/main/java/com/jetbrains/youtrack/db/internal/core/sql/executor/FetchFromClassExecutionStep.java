@@ -66,26 +66,26 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
     } else if (Boolean.FALSE.equals(ridOrder)) {
       orderByRidDesc = true;
     }
-    SchemaClass clazz = loadClassFromSchema(className, ctx);
-    int[] classClusters = clazz.getPolymorphicClusterIds();
-    IntArrayList filteredClassClusters = new IntArrayList();
+    var clazz = loadClassFromSchema(className, ctx);
+    var classClusters = clazz.getPolymorphicClusterIds();
+    var filteredClassClusters = new IntArrayList();
 
-    for (int clusterId : classClusters) {
-      String clusterName = ctx.getDatabase().getClusterNameById(clusterId);
+    for (var clusterId : classClusters) {
+      var clusterName = ctx.getDatabase().getClusterNameById(clusterId);
       if (clusters == null || clusters.contains(clusterName)) {
         filteredClassClusters.add(clusterId);
       }
     }
-    int[] clusterIds = new int[filteredClassClusters.size() + 1];
-    for (int i = 0; i < filteredClassClusters.size(); i++) {
+    var clusterIds = new int[filteredClassClusters.size() + 1];
+    for (var i = 0; i < filteredClassClusters.size(); i++) {
       clusterIds[i] = filteredClassClusters.getInt(i);
     }
     clusterIds[clusterIds.length - 1] = -1; // temporary cluster, data in tx
 
     sortClusers(clusterIds);
-    for (int clusterId : clusterIds) {
+    for (var clusterId : clusterIds) {
       if (clusterId > 0) {
-        FetchFromClusterExecutionStep step =
+        var step =
             new FetchFromClusterExecutionStep(clusterId, planningInfo, ctx, profilingEnabled);
         if (orderByRidAsc) {
           step.setOrder(FetchFromClusterExecutionStep.ORDER_ASC);
@@ -95,7 +95,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
         subSteps.add(step);
       } else {
         // current tx
-        FetchTemporaryFromTxStep step =
+        var step =
             new FetchTemporaryFromTxStep(ctx, className, profilingEnabled);
         if (orderByRidAsc) {
           step.setOrder(FetchFromClusterExecutionStep.ORDER_ASC);
@@ -108,7 +108,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
   }
 
   protected SchemaClass loadClassFromSchema(String className, CommandContext ctx) {
-    SchemaClass clazz = ctx.getDatabase().getMetadata().getImmutableSchemaSnapshot()
+    var clazz = ctx.getDatabase().getMetadata().getImmutableSchemaSnapshot()
         .getClass(className);
     if (clazz == null) {
       throw new CommandExecutionException("Class " + className + " not found");
@@ -122,8 +122,8 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
     } else if (orderByRidDesc) {
       Arrays.sort(clusterIds);
       // revert order
-      for (int i = 0; i < clusterIds.length / 2; i++) {
-        int old = clusterIds[i];
+      for (var i = 0; i < clusterIds.length / 2; i++) {
+        var old = clusterIds[i];
         clusterIds[i] = clusterIds[clusterIds.length - 1 - i];
         clusterIds[clusterIds.length - 1 - i] = old;
       }
@@ -136,15 +136,15 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
       prev.start(ctx).close(ctx);
     }
 
-    List<ExecutionStep> stepsIter = subSteps;
+    var stepsIter = subSteps;
 
-    ExecutionStreamProducer res =
+    var res =
         new ExecutionStreamProducer() {
           private final Iterator<ExecutionStep> iter = stepsIter.iterator();
 
           @Override
           public ExecutionStream next(CommandContext ctx) {
-            ExecutionStep step = iter.next();
+            var step = iter.next();
             return ((AbstractExecutionStep) step).start(ctx);
           }
 
@@ -168,7 +168,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
 
   @Override
   public void sendTimeout() {
-    for (ExecutionStep step : subSteps) {
+    for (var step : subSteps) {
       ((AbstractExecutionStep) step).sendTimeout();
     }
     if (prev != null) {
@@ -178,7 +178,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
 
   @Override
   public void close() {
-    for (ExecutionStep step : subSteps) {
+    for (var step : subSteps) {
       ((AbstractExecutionStep) step).close();
     }
     if (prev != null) {
@@ -188,16 +188,16 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    StringBuilder builder = new StringBuilder();
-    String ind = ExecutionStepInternal.getIndent(depth, indent);
+    var builder = new StringBuilder();
+    var ind = ExecutionStepInternal.getIndent(depth, indent);
     builder.append(ind);
     builder.append("+ FETCH FROM CLASS ").append(className);
     if (profilingEnabled) {
       builder.append(" (").append(getCostFormatted()).append(")");
     }
     builder.append("\n");
-    for (int i = 0; i < subSteps.size(); i++) {
-      ExecutionStepInternal step = (ExecutionStepInternal) subSteps.get(i);
+    for (var i = 0; i < subSteps.size(); i++) {
+      var step = (ExecutionStepInternal) subSteps.get(i);
       builder.append(step.prettyPrint(depth + 1, indent));
       if (i < subSteps.size() - 1) {
         builder.append("\n");
@@ -208,7 +208,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
 
   @Override
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
+    var result = ExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("className", className);
     result.setProperty("orderByRidAsc", orderByRidAsc);
     result.setProperty("orderByRidDesc", orderByRidDesc);
@@ -239,7 +239,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
 
   @Override
   public ExecutionStep copy(CommandContext ctx) {
-    FetchFromClassExecutionStep result = new FetchFromClassExecutionStep(ctx, profilingEnabled);
+    var result = new FetchFromClassExecutionStep(ctx, profilingEnabled);
     result.className = this.className;
     result.orderByRidAsc = this.orderByRidAsc;
     result.orderByRidDesc = this.orderByRidDesc;

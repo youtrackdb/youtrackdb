@@ -26,8 +26,8 @@ public class ConvertToUpdatableResultStepTest extends TestUtilsFixture {
   public void shouldConvertUpdatableResult() {
     CommandContext context = new BasicCommandContext();
     context.setDatabase(db);
-    ConvertToUpdatableResultStep step = new ConvertToUpdatableResultStep(context, false);
-    AbstractExecutionStep previous =
+    var step = new ConvertToUpdatableResultStep(context, false);
+    var previous =
         new AbstractExecutionStep(context, false) {
           boolean done = false;
 
@@ -35,8 +35,8 @@ public class ConvertToUpdatableResultStepTest extends TestUtilsFixture {
           public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
             List<Result> result = new ArrayList<>();
             if (!done) {
-              for (int i = 0; i < 10; i++) {
-                EntityImpl document = (EntityImpl) db.newEntity();
+              for (var i = 0; i < 10; i++) {
+                var document = (EntityImpl) db.newEntity();
                 document.setProperty(STRING_PROPERTY, RandomStringUtils.randomAlphanumeric(10));
                 document.setProperty(INTEGER_PROPERTY, new Random().nextInt());
                 documents.add(document);
@@ -49,11 +49,11 @@ public class ConvertToUpdatableResultStepTest extends TestUtilsFixture {
         };
 
     step.setPrevious(previous);
-    ExecutionStream result = step.start(context);
+    var result = step.start(context);
 
-    int counter = 0;
+    var counter = 0;
     while (result.hasNext(context)) {
-      Result currentItem = result.next(context);
+      var currentItem = result.next(context);
       if (!(currentItem.getClass().equals(UpdatableResult.class))) {
         Assert.fail("There is an item in result set that is not an instance of UpdatableResult");
       }

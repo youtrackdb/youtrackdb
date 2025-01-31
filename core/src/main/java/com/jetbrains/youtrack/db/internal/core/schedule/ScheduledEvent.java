@@ -108,7 +108,7 @@ public class ScheduledEvent extends IdentityWrapper {
 
   public void interrupt() {
     synchronized (this) {
-      final TimerTask t = timer;
+      final var t = timer;
       timer = null;
       if (t != null) {
         t.cancel();
@@ -146,7 +146,7 @@ public class ScheduledEvent extends IdentityWrapper {
       throw new DatabaseExportException("Cannot schedule an unsaved event");
     }
 
-    ScheduledTimerTask task = new ScheduledTimerTask(this, database, user, youtrackDB);
+    var task = new ScheduledTimerTask(this, database, user, youtrackDB);
     task.schedule();
 
     timer = task;
@@ -177,9 +177,9 @@ public class ScheduledEvent extends IdentityWrapper {
     public void schedule() {
       synchronized (this) {
         event.nextExecutionId.incrementAndGet();
-        Date now = new Date();
-        long time = event.cron.getNextValidTimeAfter(now).getTime();
-        long delay = time - now.getTime();
+        var now = new Date();
+        var time = event.cron.getNextValidTimeAfter(now).getTime();
+        var delay = time - now.getTime();
         youTrackDBInternal.scheduleOnce(this, delay);
       }
     }
@@ -215,7 +215,7 @@ public class ScheduledEvent extends IdentityWrapper {
                 event.getName(),
                 event.nextExecutionId.get());
         try {
-          boolean executeEvent = executeEvent(db);
+          var executeEvent = executeEvent(db);
           if (executeEvent) {
             LogManager.instance()
                 .info(
@@ -240,7 +240,7 @@ public class ScheduledEvent extends IdentityWrapper {
     }
 
     private boolean executeEvent(DatabaseSessionInternal db) {
-      for (int retry = 0; retry < 10; ++retry) {
+      for (var retry = 0; retry < 10; ++retry) {
         try {
           try {
             return db.computeInTx(() -> {
@@ -325,7 +325,7 @@ public class ScheduledEvent extends IdentityWrapper {
                 event.getName(),
                 event.nextExecutionId.get(),
                 result);
-        for (int retry = 0; retry < 10; ++retry) {
+        for (var retry = 0; retry < 10; ++retry) {
           session.executeInTx(
               () -> {
                 try {

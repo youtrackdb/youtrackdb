@@ -48,9 +48,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSelectNoTarget() {
-    ResultSet result = db.query("select 1 as one, 2 as two, 2+3");
+    var result = db.query("select 1 as one, 2 as two, 2+3");
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals(1, item.<Object>getProperty("one"));
     Assert.assertEquals(2, item.<Object>getProperty("two"));
@@ -64,25 +64,25 @@ public class SelectStatementExecutionTest extends DbTestBase {
   public void testGroupByCount() {
     db.getMetadata().getSchema().createClass("InputTx");
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       db.begin();
-      final String hash = UUID.randomUUID().toString();
+      final var hash = UUID.randomUUID().toString();
       db.command("insert into InputTx set address = '" + hash + "'");
 
       // CREATE RANDOM NUMBER OF COPIES final int random = new Random().nextInt(10);
-      final int random = new Random().nextInt(10);
-      for (int j = 0; j < random; j++) {
+      final var random = new Random().nextInt(10);
+      for (var j = 0; j < random; j++) {
         db.command("insert into InputTx set address = '" + hash + "'");
       }
       db.commit();
     }
 
-    final ResultSet result =
+    final var result =
         db.query(
             "select address, count(*) as occurrencies from InputTx where address is not null group"
                 + " by address limit 10");
     while (result.hasNext()) {
-      final Result row = result.next();
+      final var row = result.next();
       Assert.assertNotNull(row.getProperty("address")); // <== FALSE!
       Assert.assertNotNull(row.getProperty("occurrencies"));
     }
@@ -91,7 +91,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSelectNoTargetSkip() {
-    ResultSet result = db.query("select 1 as one, 2 as two, 2+3 skip 1");
+    var result = db.query("select 1 as one, 2 as two, 2+3 skip 1");
     Assert.assertFalse(result.hasNext());
     printExecutionPlan(result);
 
@@ -100,9 +100,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSelectNoTargetSkipZero() {
-    ResultSet result = db.query("select 1 as one, 2 as two, 2+3 skip 0");
+    var result = db.query("select 1 as one, 2 as two, 2+3 skip 0");
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals(1, item.<Object>getProperty("one"));
     Assert.assertEquals(2, item.<Object>getProperty("two"));
@@ -114,7 +114,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSelectNoTargetLimit0() {
-    ResultSet result = db.query("select 1 as one, 2 as two, 2+3 limit 0");
+    var result = db.query("select 1 as one, 2 as two, 2+3 limit 0");
     Assert.assertFalse(result.hasNext());
     printExecutionPlan(result);
 
@@ -123,9 +123,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSelectNoTargetLimit1() {
-    ResultSet result = db.query("select 1 as one, 2 as two, 2+3 limit 1");
+    var result = db.query("select 1 as one, 2 as two, 2+3 limit 1");
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals(1, item.<Object>getProperty("one"));
     Assert.assertEquals(2, item.<Object>getProperty("two"));
@@ -137,16 +137,16 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSelectNoTargetLimitx() {
-    ResultSet result = db.query("select 1 as one, 2 as two, 2+3 skip 0 limit 0");
+    var result = db.query("select 1 as one, 2 as two, 2+3 skip 0 limit 0");
     printExecutionPlan(result);
     result.close();
   }
 
   @Test
   public void testSelectFullScan1() {
-    String className = "TestSelectFullScan1";
+    var className = "TestSelectFullScan1";
     db.getMetadata().getSchema().createClass(className);
-    for (int i = 0; i < 100000; i++) {
+    for (var i = 0; i < 100000; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -155,10 +155,10 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result = db.query("select from " + className);
-    for (int i = 0; i < 100000; i++) {
+    var result = db.query("select from " + className);
+    for (var i = 0; i < 100000; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertTrue(("" + item.getProperty("name")).startsWith("name"));
     }
@@ -169,9 +169,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSelectFullScanOrderByRidAsc() {
-    String className = "testSelectFullScanOrderByRidAsc";
+    var className = "testSelectFullScanOrderByRidAsc";
     db.getMetadata().getSchema().createClass(className);
-    for (int i = 0; i < 100000; i++) {
+    for (var i = 0; i < 100000; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -179,12 +179,12 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.save();
       db.commit();
     }
-    ResultSet result = db.query("select from " + className + " ORDER BY @rid ASC");
+    var result = db.query("select from " + className + " ORDER BY @rid ASC");
     printExecutionPlan(result);
     Identifiable lastItem = null;
-    for (int i = 0; i < 100000; i++) {
+    for (var i = 0; i < 100000; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertTrue(("" + item.getProperty("name")).startsWith("name"));
       if (lastItem != null) {
@@ -200,9 +200,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSelectFullScanOrderByRidDesc() {
-    String className = "testSelectFullScanOrderByRidDesc";
+    var className = "testSelectFullScanOrderByRidDesc";
     db.getMetadata().getSchema().createClass(className);
-    for (int i = 0; i < 100000; i++) {
+    for (var i = 0; i < 100000; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -211,12 +211,12 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result = db.query("select from " + className + " ORDER BY @rid DESC");
+    var result = db.query("select from " + className + " ORDER BY @rid DESC");
     printExecutionPlan(result);
     Identifiable lastItem = null;
-    for (int i = 0; i < 100000; i++) {
+    for (var i = 0; i < 100000; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertTrue(("" + item.getProperty("name")).startsWith("name"));
       if (lastItem != null) {
@@ -232,9 +232,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSelectFullScanLimit1() {
-    String className = "testSelectFullScanLimit1";
+    var className = "testSelectFullScanLimit1";
     db.getMetadata().getSchema().createClass(className);
-    for (int i = 0; i < 300; i++) {
+    for (var i = 0; i < 300; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -242,12 +242,12 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.save();
       db.commit();
     }
-    ResultSet result = db.query("select from " + className + " limit 10");
+    var result = db.query("select from " + className + " limit 10");
     printExecutionPlan(result);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertTrue(("" + item.getProperty("name")).startsWith("name"));
     }
@@ -257,9 +257,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSelectFullScanSkipLimit1() {
-    String className = "testSelectFullScanSkipLimit1";
+    var className = "testSelectFullScanSkipLimit1";
     db.getMetadata().getSchema().createClass(className);
-    for (int i = 0; i < 300; i++) {
+    for (var i = 0; i < 300; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -267,12 +267,12 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.save();
       db.commit();
     }
-    ResultSet result = db.query("select from " + className + " skip 100 limit 10");
+    var result = db.query("select from " + className + " skip 100 limit 10");
     printExecutionPlan(result);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertTrue(("" + item.getProperty("name")).startsWith("name"));
     }
@@ -282,9 +282,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSelectOrderByDesc() {
-    String className = "testSelectOrderByDesc";
+    var className = "testSelectOrderByDesc";
     db.getMetadata().getSchema().createClass(className);
-    for (int i = 0; i < 30; i++) {
+    for (var i = 0; i < 30; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -292,13 +292,13 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.save();
       db.commit();
     }
-    ResultSet result = db.query("select from " + className + " order by surname desc");
+    var result = db.query("select from " + className + " order by surname desc");
     printExecutionPlan(result);
 
     String lastSurname = null;
-    for (int i = 0; i < 30; i++) {
+    for (var i = 0; i < 30; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       String thisSurname = item.getProperty("surname");
       if (lastSurname != null) {
@@ -312,9 +312,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSelectOrderByAsc() {
-    String className = "testSelectOrderByAsc";
+    var className = "testSelectOrderByAsc";
     db.getMetadata().getSchema().createClass(className);
-    for (int i = 0; i < 30; i++) {
+    for (var i = 0; i < 30; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -322,13 +322,13 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.save();
       db.commit();
     }
-    ResultSet result = db.query("select from " + className + " order by surname asc");
+    var result = db.query("select from " + className + " order by surname asc");
     printExecutionPlan(result);
 
     String lastSurname = null;
-    for (int i = 0; i < 30; i++) {
+    for (var i = 0; i < 30; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       String thisSurname = item.getProperty("surname");
       if (lastSurname != null) {
@@ -342,9 +342,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSelectOrderByMassiveAsc() {
-    String className = "testSelectOrderByMassiveAsc";
+    var className = "testSelectOrderByMassiveAsc";
     db.getMetadata().getSchema().createClass(className);
-    for (int i = 0; i < 100000; i++) {
+    for (var i = 0; i < 100000; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -353,12 +353,12 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result = db.query("select from " + className + " order by surname asc limit 100");
+    var result = db.query("select from " + className + " order by surname asc limit 100");
     printExecutionPlan(result);
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("surname0", item.getProperty("surname"));
     }
@@ -368,9 +368,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSelectOrderWithProjections() {
-    String className = "testSelectOrderWithProjections";
+    var className = "testSelectOrderWithProjections";
     db.getMetadata().getSchema().createClass(className);
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 10);
@@ -379,13 +379,13 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result = db.query("select name from " + className + " order by surname asc");
+    var result = db.query("select name from " + className + " order by surname asc");
     printExecutionPlan(result);
 
     String lastName = null;
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       String name = item.getProperty("name");
       Assert.assertNotNull(name);
@@ -400,9 +400,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSelectOrderWithProjections2() {
-    String className = "testSelectOrderWithProjections2";
+    var className = "testSelectOrderWithProjections2";
     db.getMetadata().getSchema().createClass(className);
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 10);
@@ -411,14 +411,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query("select name from " + className + " order by name asc, surname asc");
     printExecutionPlan(result);
 
     String lastName = null;
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       String name = item.getProperty("name");
       Assert.assertNotNull(name);
@@ -433,10 +433,10 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSelectFullScanWithFilter1() {
-    String className = "testSelectFullScanWithFilter1";
+    var className = "testSelectFullScanWithFilter1";
     db.getMetadata().getSchema().createClass(className);
 
-    for (int i = 0; i < 300; i++) {
+    for (var i = 0; i < 300; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -445,15 +445,15 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query("select from " + className + " where name = 'name1' or name = 'name7' ");
     printExecutionPlan(result);
 
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
-      Object name = item.getProperty("name");
+      var name = item.getProperty("name");
       Assert.assertTrue("name1".equals(name) || "name7".equals(name));
     }
     Assert.assertFalse(result.hasNext());
@@ -462,9 +462,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSelectFullScanWithFilter2() {
-    String className = "testSelectFullScanWithFilter2";
+    var className = "testSelectFullScanWithFilter2";
     db.getMetadata().getSchema().createClass(className);
-    for (int i = 0; i < 300; i++) {
+    for (var i = 0; i < 300; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -472,14 +472,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.save();
       db.commit();
     }
-    ResultSet result = db.query("select from " + className + " where name <> 'name1' ");
+    var result = db.query("select from " + className + " where name <> 'name1' ");
     printExecutionPlan(result);
 
-    for (int i = 0; i < 299; i++) {
+    for (var i = 0; i < 299; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
-      Object name = item.getProperty("name");
+      var name = item.getProperty("name");
       Assert.assertNotEquals("name1", name);
     }
     Assert.assertFalse(result.hasNext());
@@ -488,9 +488,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testProjections() {
-    String className = "testProjections";
+    var className = "testProjections";
     db.getMetadata().getSchema().createClass(className);
-    for (int i = 0; i < 300; i++) {
+    for (var i = 0; i < 300; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -498,12 +498,12 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.save();
       db.commit();
     }
-    ResultSet result = db.query("select name from " + className);
+    var result = db.query("select name from " + className);
     printExecutionPlan(result);
 
-    for (int i = 0; i < 300; i++) {
+    for (var i = 0; i < 300; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       String name = item.getProperty("name");
       String surname = item.getProperty("surname");
@@ -518,22 +518,22 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testCountStar() {
-    String className = "testCountStar";
+    var className = "testCountStar";
     db.getMetadata().getSchema().createClass(className);
 
-    for (int i = 0; i < 7; i++) {
+    for (var i = 0; i < 7; i++) {
       db.begin();
-      EntityImpl doc = (EntityImpl) db.newEntity(className);
+      var doc = (EntityImpl) db.newEntity(className);
       doc.save();
       db.commit();
     }
 
     try {
-      ResultSet result = db.query("select count(*) from " + className);
+      var result = db.query("select count(*) from " + className);
       printExecutionPlan(result);
       Assert.assertNotNull(result);
       Assert.assertTrue(result.hasNext());
-      Result next = result.next();
+      var next = result.next();
       Assert.assertNotNull(next);
       Assert.assertEquals(7L, (Object) next.getProperty("count(*)"));
       Assert.assertFalse(result.hasNext());
@@ -546,23 +546,23 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testCountStar2() {
-    String className = "testCountStar2";
+    var className = "testCountStar2";
     db.getMetadata().getSchema().createClass(className);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
-      EntityImpl doc = (EntityImpl) db.newEntity(className);
+      var doc = (EntityImpl) db.newEntity(className);
       doc.setProperty("name", "name" + (i % 5));
       doc.save();
       db.commit();
     }
     try {
-      ResultSet result = db.query("select count(*), name from " + className + " group by name");
+      var result = db.query("select count(*), name from " + className + " group by name");
       printExecutionPlan(result);
       Assert.assertNotNull(result);
-      for (int i = 0; i < 5; i++) {
+      for (var i = 0; i < 5; i++) {
         Assert.assertTrue(result.hasNext());
-        Result next = result.next();
+        var next = result.next();
         Assert.assertNotNull(next);
         Assert.assertEquals(2L, (Object) next.getProperty("count(*)"));
       }
@@ -576,21 +576,21 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testCountStarEmptyNoIndex() {
-    String className = "testCountStarEmptyNoIndex";
+    var className = "testCountStarEmptyNoIndex";
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
-    Entity elem = db.newEntity(className);
+    var elem = db.newEntity(className);
     elem.setProperty("name", "bar");
     elem.save();
     db.commit();
 
     try {
-      ResultSet result = db.query("select count(*) from " + className + " where name = 'foo'");
+      var result = db.query("select count(*) from " + className + " where name = 'foo'");
       printExecutionPlan(result);
       Assert.assertNotNull(result);
       Assert.assertTrue(result.hasNext());
-      Result next = result.next();
+      var next = result.next();
       Assert.assertNotNull(next);
       Assert.assertEquals(0L, (Object) next.getProperty("count(*)"));
       Assert.assertFalse(result.hasNext());
@@ -603,22 +603,22 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testCountStarEmptyNoIndexWithAlias() {
-    String className = "testCountStarEmptyNoIndexWithAlias";
+    var className = "testCountStarEmptyNoIndexWithAlias";
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
-    Entity elem = db.newEntity(className);
+    var elem = db.newEntity(className);
     elem.setProperty("name", "bar");
     elem.save();
     db.commit();
 
     try {
-      ResultSet result =
+      var result =
           db.query("select count(*) as a from " + className + " where name = 'foo'");
       printExecutionPlan(result);
       Assert.assertNotNull(result);
       Assert.assertTrue(result.hasNext());
-      Result next = result.next();
+      var next = result.next();
       Assert.assertNotNull(next);
       Assert.assertEquals(0L, (Object) next.getProperty("a"));
       Assert.assertFalse(result.hasNext());
@@ -631,7 +631,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testAggretateMixedWithNonAggregate() {
-    String className = "testAggretateMixedWithNonAggregate";
+    var className = "testAggretateMixedWithNonAggregate";
     db.getMetadata().getSchema().createClass(className);
 
     try {
@@ -648,7 +648,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testAggretateMixedWithNonAggregateInCollection() {
-    String className = "testAggretateMixedWithNonAggregateInCollection";
+    var className = "testAggretateMixedWithNonAggregateInCollection";
     db.getMetadata().getSchema().createClass(className);
 
     try {
@@ -663,12 +663,12 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testAggretateInCollection() {
-    String className = "testAggretateInCollection";
+    var className = "testAggretateInCollection";
     db.getMetadata().getSchema().createClass(className);
 
     try {
-      String query = "select [max(a), max(b)] from " + className;
-      ResultSet result = db.query(query);
+      var query = "select [max(a), max(b)] from " + className;
+      var result = db.query(query);
       printExecutionPlan(query, result);
       result.close();
     } catch (Exception x) {
@@ -678,11 +678,11 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testAggretateMixedWithNonAggregateConstants() {
-    String className = "testAggretateMixedWithNonAggregateConstants";
+    var className = "testAggretateMixedWithNonAggregateConstants";
     db.getMetadata().getSchema().createClass(className);
 
     try {
-      ResultSet result =
+      var result =
           db.query(
               "select max(a + b) + (max(b + c * 2) + 1 + 2) * 3 as foo, max(d) + max(e), f from "
                   + className);
@@ -696,10 +696,10 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testAggregateSum() {
-    String className = "testAggregateSum";
+    var className = "testAggregateSum";
     db.getMetadata().getSchema().createClass(className);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -708,10 +708,10 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result = db.query("select sum(val) from " + className);
+    var result = db.query("select sum(val) from " + className);
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals(45, (Object) item.getProperty("sum(val)"));
 
@@ -720,9 +720,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testAggregateSumGroupBy() {
-    String className = "testAggregateSumGroupBy";
+    var className = "testAggregateSumGroupBy";
     db.getMetadata().getSchema().createClass(className);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "even" : "odd");
@@ -730,13 +730,13 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.save();
       db.commit();
     }
-    ResultSet result = db.query("select sum(val), type from " + className + " group by type");
+    var result = db.query("select sum(val), type from " + className + " group by type");
     printExecutionPlan(result);
-    boolean evenFound = false;
-    boolean oddFound = false;
-    for (int i = 0; i < 2; i++) {
+    var evenFound = false;
+    var oddFound = false;
+    for (var i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       if ("even".equals(item.getProperty("type"))) {
         Assert.assertEquals(20, item.<Object>getProperty("sum(val)"));
@@ -754,9 +754,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testAggregateSumMaxMinGroupBy() {
-    String className = "testAggregateSumMaxMinGroupBy";
+    var className = "testAggregateSumMaxMinGroupBy";
     db.getMetadata().getSchema().createClass(className);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "even" : "odd");
@@ -764,14 +764,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.save();
       db.commit();
     }
-    ResultSet result =
+    var result =
         db.query("select sum(val), max(val), min(val), type from " + className + " group by type");
     printExecutionPlan(result);
-    boolean evenFound = false;
-    boolean oddFound = false;
-    for (int i = 0; i < 2; i++) {
+    var evenFound = false;
+    var oddFound = false;
+    for (var i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       if ("even".equals(item.getProperty("type"))) {
         Assert.assertEquals(20, item.<Object>getProperty("sum(val)"));
@@ -793,9 +793,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testAggregateSumNoGroupByInProjection() {
-    String className = "testAggregateSumNoGroupByInProjection";
+    var className = "testAggregateSumNoGroupByInProjection";
     db.getMetadata().getSchema().createClass(className);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "even" : "odd");
@@ -803,15 +803,15 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.save();
       db.commit();
     }
-    ResultSet result = db.query("select sum(val) from " + className + " group by type");
+    var result = db.query("select sum(val) from " + className + " group by type");
     printExecutionPlan(result);
-    boolean evenFound = false;
-    boolean oddFound = false;
-    for (int i = 0; i < 2; i++) {
+    var evenFound = false;
+    var oddFound = false;
+    for (var i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
-      Object sum = item.getProperty("sum(val)");
+      var sum = item.getProperty("sum(val)");
       if (sum.equals(20)) {
         evenFound = true;
       } else if (sum.equals(25)) {
@@ -826,9 +826,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testAggregateSumNoGroupByInProjection2() {
-    String className = "testAggregateSumNoGroupByInProjection2";
+    var className = "testAggregateSumNoGroupByInProjection2";
     db.getMetadata().getSchema().createClass(className);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "dd1" : "dd2");
@@ -836,14 +836,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.save();
       db.commit();
     }
-    ResultSet result =
+    var result =
         db.query("select sum(val) from " + className + " group by type.substring(0,1)");
     printExecutionPlan(result);
-    for (int i = 0; i < 1; i++) {
+    for (var i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
-      Object sum = item.getProperty("sum(val)");
+      var sum = item.getProperty("sum(val)");
       Assert.assertEquals(45, sum);
     }
     Assert.assertFalse(result.hasNext());
@@ -852,13 +852,13 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromClusterNumber() {
-    String className = "testFetchFromClusterNumber";
+    var className = "testFetchFromClusterNumber";
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass clazz = schema.createClass(className);
-    int targetCluster = clazz.getClusterIds()[0];
-    String targetClusterName = db.getClusterNameById(targetCluster);
+    var clazz = schema.createClass(className);
+    var targetCluster = clazz.getClusterIds()[0];
+    var targetClusterName = db.getClusterNameById(targetCluster);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("val", i);
@@ -866,12 +866,12 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result = db.query("select from cluster:" + targetClusterName);
+    var result = db.query("select from cluster:" + targetClusterName);
     printExecutionPlan(result);
-    int sum = 0;
-    for (int i = 0; i < 10; i++) {
+    var sum = 0;
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Integer val = item.getProperty("val");
       Assert.assertNotNull(val);
       sum += val;
@@ -883,26 +883,26 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromClusterNumberOrderByRidDesc() {
-    String className = "testFetchFromClusterNumberOrderByRidDesc";
+    var className = "testFetchFromClusterNumberOrderByRidDesc";
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass clazz = schema.createClass(className);
-    int targetCluster = clazz.getClusterIds()[0];
-    String targetClusterName = db.getClusterNameById(targetCluster);
+    var clazz = schema.createClass(className);
+    var targetCluster = clazz.getClusterIds()[0];
+    var targetClusterName = db.getClusterNameById(targetCluster);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("val", i);
       doc.save(targetClusterName);
       db.commit();
     }
-    ResultSet result =
+    var result =
         db.query("select from cluster:" + targetClusterName + " order by @rid desc");
     printExecutionPlan(result);
-    int sum = 0;
-    for (int i = 0; i < 10; i++) {
+    var sum = 0;
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Integer val = item.getProperty("val");
       Assert.assertEquals(i, 9 - val);
     }
@@ -913,26 +913,26 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromClusterNumberOrderByRidAsc() {
-    String className = "testFetchFromClusterNumberOrderByRidAsc";
+    var className = "testFetchFromClusterNumberOrderByRidAsc";
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass clazz = schema.createClass(className);
-    int targetCluster = clazz.getClusterIds()[0];
-    String targetClusterName = db.getClusterNameById(targetCluster);
+    var clazz = schema.createClass(className);
+    var targetCluster = clazz.getClusterIds()[0];
+    var targetClusterName = db.getClusterNameById(targetCluster);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("val", i);
       doc.save(targetClusterName);
       db.commit();
     }
-    ResultSet result = db.query(
+    var result = db.query(
         "select from cluster:" + targetClusterName + " order by @rid asc");
     printExecutionPlan(result);
-    int sum = 0;
-    for (int i = 0; i < 10; i++) {
+    var sum = 0;
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Integer val = item.getProperty("val");
       Assert.assertEquals((Object) i, val);
     }
@@ -943,19 +943,19 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromClustersNumberOrderByRidAsc() {
-    String className = "testFetchFromClustersNumberOrderByRidAsc";
+    var className = "testFetchFromClustersNumberOrderByRidAsc";
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass clazz = schema.createClass(className);
+    var clazz = schema.createClass(className);
     if (clazz.getClusterIds().length < 2) {
       clazz.addCluster(db, "testFetchFromClustersNumberOrderByRidAsc_2");
     }
-    int targetCluster = clazz.getClusterIds()[0];
-    String targetClusterName = db.getClusterNameById(targetCluster);
+    var targetCluster = clazz.getClusterIds()[0];
+    var targetClusterName = db.getClusterNameById(targetCluster);
 
-    int targetCluster2 = clazz.getClusterIds()[1];
-    String targetClusterName2 = db.getClusterNameById(targetCluster2);
+    var targetCluster2 = clazz.getClusterIds()[1];
+    var targetClusterName2 = db.getClusterNameById(targetCluster2);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("val", i);
@@ -963,7 +963,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("val", i);
@@ -971,7 +971,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query(
             "select from cluster:["
                 + targetClusterName
@@ -980,9 +980,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
                 + "] order by @rid asc");
     printExecutionPlan(result);
 
-    for (int i = 0; i < 20; i++) {
+    for (var i = 0; i < 20; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Integer val = item.getProperty("val");
       Assert.assertEquals((Object) (i % 10), val);
     }
@@ -993,11 +993,11 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testQueryAsTarget() {
-    String className = "testQueryAsTarget";
+    var className = "testQueryAsTarget";
     Schema schema = db.getMetadata().getSchema();
     schema.createClass(className);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("val", i);
@@ -1005,13 +1005,13 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query("select from (select from " + className + " where val > 2)  where val < 8");
     printExecutionPlan(result);
 
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Integer val = item.getProperty("val");
       Assert.assertTrue(val > 2);
       Assert.assertTrue(val < 8);
@@ -1022,12 +1022,12 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testQuerySchema() {
-    ResultSet result = db.query("select from metadata:schema");
+    var result = db.query("select from metadata:schema");
     printExecutionPlan(result);
 
-    for (int i = 0; i < 1; i++) {
+    for (var i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item.getProperty("classes"));
     }
     Assert.assertFalse(result.hasNext());
@@ -1036,11 +1036,11 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testQueryMetadataIndexManager() {
-    ResultSet result = db.query("select from metadata:indexmanager");
+    var result = db.query("select from metadata:indexmanager");
     printExecutionPlan(result);
-    for (int i = 0; i < 1; i++) {
+    for (var i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item.getProperty("indexes"));
     }
     Assert.assertFalse(result.hasNext());
@@ -1049,7 +1049,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testQueryMetadataIndexManager2() {
-    ResultSet result = db.query("select expand(indexes) from metadata:indexmanager");
+    var result = db.query("select expand(indexes) from metadata:indexmanager");
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     result.close();
@@ -1057,11 +1057,11 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testQueryMetadataDatabase() {
-    ResultSet result = db.query("select from metadata:database");
+    var result = db.query("select from metadata:database");
     printExecutionPlan(result);
 
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertEquals("testQueryMetadataDatabase", item.getProperty("name"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -1069,11 +1069,11 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testQueryMetadataStorage() {
-    ResultSet result = db.query("select from metadata:storage");
+    var result = db.query("select from metadata:storage");
     printExecutionPlan(result);
 
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertEquals("testQueryMetadataStorage", item.getProperty("name"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -1081,7 +1081,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testNonExistingRids() {
-    ResultSet result = db.query("select from #0:100000000");
+    var result = db.query("select from #0:100000000");
     printExecutionPlan(result);
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -1089,7 +1089,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromSingleRid() {
-    ResultSet result = db.query("select from #0:1");
+    var result = db.query("select from #0:1");
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     Assert.assertNotNull(result.next());
@@ -1099,7 +1099,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromSingleRid2() {
-    ResultSet result = db.query("select from [#0:1]");
+    var result = db.query("select from [#0:1]");
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     Assert.assertNotNull(result.next());
@@ -1109,7 +1109,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromSingleRidParam() {
-    ResultSet result = db.query("select from ?", new RecordId(0, 1));
+    var result = db.query("select from ?", new RecordId(0, 1));
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     Assert.assertNotNull(result.next());
@@ -1120,11 +1120,11 @@ public class SelectStatementExecutionTest extends DbTestBase {
   @Test
   public void testFetchFromSingleRid3() {
     db.begin();
-    EntityImpl document = (EntityImpl) db.newEntity();
+    var document = (EntityImpl) db.newEntity();
     document.save();
     db.commit();
 
-    ResultSet result = db.query("select from [#0:1, #0:2]");
+    var result = db.query("select from [#0:1, #0:2]");
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     Assert.assertNotNull(result.next());
@@ -1137,11 +1137,11 @@ public class SelectStatementExecutionTest extends DbTestBase {
   @Test
   public void testFetchFromSingleRid4() {
     db.begin();
-    EntityImpl document = (EntityImpl) db.newEntity();
+    var document = (EntityImpl) db.newEntity();
     document.save();
     db.commit();
 
-    ResultSet result = db.query("select from [#0:1, #0:2, #0:100000]");
+    var result = db.query("select from [#0:1, #0:2, #0:100000]");
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     Assert.assertNotNull(result.next());
@@ -1153,12 +1153,12 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromClassWithIndex() {
-    String className = "testFetchFromClassWithIndex";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testFetchFromClassWithIndex";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createIndex(db, className + ".name", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -1166,36 +1166,36 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result = db.query("select from " + className + " where name = 'name2'");
+    var result = db.query("select from " + className + " where name = 'name2'");
     printExecutionPlan(result);
 
     Assert.assertTrue(result.hasNext());
-    Result next = result.next();
+    var next = result.next();
     Assert.assertNotNull(next);
     Assert.assertEquals("name2", next.getProperty("name"));
 
     Assert.assertFalse(result.hasNext());
 
-    Optional<ExecutionPlan> p = result.getExecutionPlan();
+    var p = result.getExecutionPlan();
     Assert.assertTrue(p.isPresent());
-    ExecutionPlan p2 = p.get();
+    var p2 = p.get();
     Assert.assertTrue(p2 instanceof SelectExecutionPlan);
-    SelectExecutionPlan plan = (SelectExecutionPlan) p2;
+    var plan = (SelectExecutionPlan) p2;
     Assert.assertEquals(FetchFromIndexStep.class, plan.getSteps().get(0).getClass());
     result.close();
   }
 
   @Test
   public void testFetchFromIndex() {
-    boolean oldAllowManual = GlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES.getValueAsBoolean();
+    var oldAllowManual = GlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES.getValueAsBoolean();
     GlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES.setValue(true);
-    String className = "testFetchFromIndex";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testFetchFromIndex";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
-    String indexName = className + ".name";
+    var indexName = className + ".name";
     clazz.createIndex(db, indexName, SchemaClass.INDEX_TYPE.NOTUNIQUE, "name");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -1203,20 +1203,20 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result = db.query("select from index:" + indexName + " where key = 'name2'");
+    var result = db.query("select from index:" + indexName + " where key = 'name2'");
     printExecutionPlan(result);
 
     Assert.assertTrue(result.hasNext());
-    Result next = result.next();
+    var next = result.next();
     Assert.assertNotNull(next);
 
     Assert.assertFalse(result.hasNext());
 
-    Optional<ExecutionPlan> p = result.getExecutionPlan();
+    var p = result.getExecutionPlan();
     Assert.assertTrue(p.isPresent());
-    ExecutionPlan p2 = p.get();
+    var p2 = p.get();
     Assert.assertTrue(p2 instanceof SelectExecutionPlan);
-    SelectExecutionPlan plan = (SelectExecutionPlan) p2;
+    var plan = (SelectExecutionPlan) p2;
     Assert.assertEquals(FetchFromIndexStep.class, plan.getSteps().get(0).getClass());
     result.close();
     GlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES.setValue(oldAllowManual);
@@ -1224,16 +1224,16 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromIndexHierarchy() {
-    String className = "testFetchFromIndexHierarchy";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testFetchFromIndexHierarchy";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createIndex(db, className + ".name", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name");
 
-    String classNameExt = "testFetchFromIndexHierarchyExt";
-    SchemaClass clazzExt = db.getMetadata().getSchema().createClass(classNameExt, clazz);
+    var classNameExt = "testFetchFromIndexHierarchyExt";
+    var clazzExt = db.getMetadata().getSchema().createClass(classNameExt, clazz);
     clazzExt.createIndex(db, classNameExt + ".name", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name");
 
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -1241,7 +1241,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    for (int i = 5; i < 10; i++) {
+    for (var i = 5; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(classNameExt);
       doc.setProperty("name", "name" + i);
@@ -1249,20 +1249,20 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result = db.query("select from " + classNameExt + " where name = 'name6'");
+    var result = db.query("select from " + classNameExt + " where name = 'name6'");
     printExecutionPlan(result);
 
     Assert.assertTrue(result.hasNext());
-    Result next = result.next();
+    var next = result.next();
     Assert.assertNotNull(next);
 
     Assert.assertFalse(result.hasNext());
 
-    Optional<ExecutionPlan> p = result.getExecutionPlan();
+    var p = result.getExecutionPlan();
     Assert.assertTrue(p.isPresent());
-    ExecutionPlan p2 = p.get();
+    var p2 = p.get();
     Assert.assertTrue(p2 instanceof SelectExecutionPlan);
-    SelectExecutionPlan plan = (SelectExecutionPlan) p2;
+    var plan = (SelectExecutionPlan) p2;
     Assert.assertEquals(FetchFromIndexStep.class, plan.getSteps().get(0).getClass());
 
     Assert.assertEquals(
@@ -1272,14 +1272,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromClassWithIndexes() {
-    String className = "testFetchFromClassWithIndexes";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testFetchFromClassWithIndexes";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     clazz.createIndex(db, className + ".name", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name");
     clazz.createIndex(db, className + ".surname", SchemaClass.INDEX_TYPE.NOTUNIQUE, "surname");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -1288,13 +1288,13 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query("select from " + className + " where name = 'name2' or surname = 'surname3'");
     printExecutionPlan(result);
 
     Assert.assertTrue(result.hasNext());
-    for (int i = 0; i < 2; i++) {
-      Result next = result.next();
+    for (var i = 0; i < 2; i++) {
+      var next = result.next();
       Assert.assertNotNull(next);
       Assert.assertTrue(
           "name2".equals(next.getProperty("name"))
@@ -1303,27 +1303,27 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
     Assert.assertFalse(result.hasNext());
 
-    Optional<ExecutionPlan> p = result.getExecutionPlan();
+    var p = result.getExecutionPlan();
     Assert.assertTrue(p.isPresent());
-    ExecutionPlan p2 = p.get();
+    var p2 = p.get();
     Assert.assertTrue(p2 instanceof SelectExecutionPlan);
-    SelectExecutionPlan plan = (SelectExecutionPlan) p2;
+    var plan = (SelectExecutionPlan) p2;
     Assert.assertEquals(ParallelExecStep.class, plan.getSteps().get(0).getClass());
-    ParallelExecStep parallel = (ParallelExecStep) plan.getSteps().get(0);
+    var parallel = (ParallelExecStep) plan.getSteps().get(0);
     Assert.assertEquals(2, parallel.getSubExecutionPlans().size());
     result.close();
   }
 
   @Test
   public void testFetchFromClassWithIndexes2() {
-    String className = "testFetchFromClassWithIndexes2";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testFetchFromClassWithIndexes2";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     clazz.createIndex(db, className + ".name", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name");
     clazz.createIndex(db, className + ".surname", SchemaClass.INDEX_TYPE.NOTUNIQUE, "surname");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -1332,7 +1332,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query(
             "select from "
                 + className
@@ -1345,14 +1345,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromClassWithIndexes3() {
-    String className = "testFetchFromClassWithIndexes3";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testFetchFromClassWithIndexes3";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     clazz.createIndex(db, className + ".name", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name");
     clazz.createIndex(db, className + ".surname", SchemaClass.INDEX_TYPE.NOTUNIQUE, "surname");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -1362,7 +1362,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query(
             "select from "
                 + className
@@ -1370,8 +1370,8 @@ public class SelectStatementExecutionTest extends DbTestBase {
     printExecutionPlan(result);
 
     Assert.assertTrue(result.hasNext());
-    for (int i = 0; i < 2; i++) {
-      Result next = result.next();
+    for (var i = 0; i < 2; i++) {
+      var next = result.next();
       Assert.assertNotNull(next);
       Assert.assertTrue(
           "name2".equals(next.getProperty("name"))
@@ -1384,14 +1384,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromClassWithIndexes4() {
-    String className = "testFetchFromClassWithIndexes4";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testFetchFromClassWithIndexes4";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     clazz.createIndex(db, className + ".name", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name");
     clazz.createIndex(db, className + ".surname", SchemaClass.INDEX_TYPE.NOTUNIQUE, "surname");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -1401,7 +1401,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query(
             "select from "
                 + className
@@ -1410,8 +1410,8 @@ public class SelectStatementExecutionTest extends DbTestBase {
     printExecutionPlan(result);
 
     Assert.assertTrue(result.hasNext());
-    for (int i = 0; i < 2; i++) {
-      Result next = result.next();
+    for (var i = 0; i < 2; i++) {
+      var next = result.next();
       Assert.assertNotNull(next);
       Assert.assertTrue(
           "name2".equals(next.getProperty("name"))
@@ -1424,14 +1424,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromClassWithIndexes5() {
-    String className = "testFetchFromClassWithIndexes5";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testFetchFromClassWithIndexes5";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     clazz.createIndex(db, className + ".name_surname", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -1441,13 +1441,13 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query("select from " + className + " where name = 'name3' and surname >= 'surname1'");
     printExecutionPlan(result);
 
     Assert.assertTrue(result.hasNext());
-    for (int i = 0; i < 1; i++) {
-      Result next = result.next();
+    for (var i = 0; i < 1; i++) {
+      var next = result.next();
       Assert.assertNotNull(next);
       Assert.assertEquals("name3", next.getProperty("name"));
     }
@@ -1458,14 +1458,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromClassWithIndexes6() {
-    String className = "testFetchFromClassWithIndexes6";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testFetchFromClassWithIndexes6";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     clazz.createIndex(db, className + ".name_surname", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -1475,7 +1475,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query("select from " + className + " where name = 'name3' and surname > 'surname3'");
     printExecutionPlan(result);
 
@@ -1485,14 +1485,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromClassWithIndexes7() {
-    String className = "testFetchFromClassWithIndexes7";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testFetchFromClassWithIndexes7";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     clazz.createIndex(db, className + ".name_surname", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -1502,11 +1502,11 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query("select from " + className + " where name = 'name3' and surname >= 'surname3'");
     printExecutionPlan(result);
-    for (int i = 0; i < 1; i++) {
-      Result next = result.next();
+    for (var i = 0; i < 1; i++) {
+      var next = result.next();
       Assert.assertNotNull(next);
       Assert.assertEquals("name3", next.getProperty("name"));
     }
@@ -1516,14 +1516,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromClassWithIndexes8() {
-    String className = "testFetchFromClassWithIndexes8";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testFetchFromClassWithIndexes8";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     clazz.createIndex(db, className + ".name_surname", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -1533,7 +1533,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query("select from " + className + " where name = 'name3' and surname < 'surname3'");
     printExecutionPlan(result);
 
@@ -1543,14 +1543,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromClassWithIndexes9() {
-    String className = "testFetchFromClassWithIndexes9";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testFetchFromClassWithIndexes9";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     clazz.createIndex(db, className + ".name_surname", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -1560,11 +1560,11 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query("select from " + className + " where name = 'name3' and surname <= 'surname3'");
     printExecutionPlan(result);
-    for (int i = 0; i < 1; i++) {
-      Result next = result.next();
+    for (var i = 0; i < 1; i++) {
+      var next = result.next();
       Assert.assertNotNull(next);
       Assert.assertEquals("name3", next.getProperty("name"));
     }
@@ -1574,14 +1574,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromClassWithIndexes10() {
-    String className = "testFetchFromClassWithIndexes10";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testFetchFromClassWithIndexes10";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     clazz.createIndex(db, className + ".name_surname", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -1591,11 +1591,11 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result = db.query("select from " + className + " where name > 'name3' ");
+    var result = db.query("select from " + className + " where name > 'name3' ");
     printExecutionPlan(result);
-    for (int i = 0; i < 6; i++) {
+    for (var i = 0; i < 6; i++) {
       Assert.assertTrue(result.hasNext());
-      Result next = result.next();
+      var next = result.next();
       Assert.assertNotNull(next);
     }
     Assert.assertFalse(result.hasNext());
@@ -1604,14 +1604,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromClassWithIndexes11() {
-    String className = "testFetchFromClassWithIndexes11";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testFetchFromClassWithIndexes11";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     clazz.createIndex(db, className + ".name_surname", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -1621,10 +1621,10 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result = db.query("select from " + className + " where name >= 'name3' ");
+    var result = db.query("select from " + className + " where name >= 'name3' ");
     printExecutionPlan(result);
-    for (int i = 0; i < 7; i++) {
-      Result next = result.next();
+    for (var i = 0; i < 7; i++) {
+      var next = result.next();
       Assert.assertNotNull(next);
     }
     Assert.assertFalse(result.hasNext());
@@ -1633,14 +1633,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromClassWithIndexes12() {
-    String className = "testFetchFromClassWithIndexes12";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testFetchFromClassWithIndexes12";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     clazz.createIndex(db, className + ".name_surname", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -1650,10 +1650,10 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result = db.query("select from " + className + " where name < 'name3' ");
+    var result = db.query("select from " + className + " where name < 'name3' ");
     printExecutionPlan(result);
-    for (int i = 0; i < 3; i++) {
-      Result next = result.next();
+    for (var i = 0; i < 3; i++) {
+      var next = result.next();
       Assert.assertNotNull(next);
     }
     Assert.assertFalse(result.hasNext());
@@ -1662,14 +1662,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromClassWithIndexes13() {
-    String className = "testFetchFromClassWithIndexes13";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testFetchFromClassWithIndexes13";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     clazz.createIndex(db, className + ".name_surname", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -1679,10 +1679,10 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result = db.query("select from " + className + " where name <= 'name3' ");
+    var result = db.query("select from " + className + " where name <= 'name3' ");
     printExecutionPlan(result);
-    for (int i = 0; i < 4; i++) {
-      Result next = result.next();
+    for (var i = 0; i < 4; i++) {
+      var next = result.next();
       Assert.assertNotNull(next);
     }
     Assert.assertFalse(result.hasNext());
@@ -1691,14 +1691,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromClassWithIndexes14() {
-    String className = "testFetchFromClassWithIndexes14";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testFetchFromClassWithIndexes14";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     clazz.createIndex(db, className + ".name_surname", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -1708,15 +1708,15 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query("select from " + className + " where name > 'name3' and name < 'name5'");
     printExecutionPlan(result);
-    for (int i = 0; i < 1; i++) {
-      Result next = result.next();
+    for (var i = 0; i < 1; i++) {
+      var next = result.next();
       Assert.assertNotNull(next);
     }
     Assert.assertFalse(result.hasNext());
-    SelectExecutionPlan plan = (SelectExecutionPlan) result.getExecutionPlan().get();
+    var plan = (SelectExecutionPlan) result.getExecutionPlan().get();
     Assert.assertEquals(
         1, plan.getSteps().stream().filter(step -> step instanceof FetchFromIndexStep).count());
     result.close();
@@ -1724,14 +1724,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromClassWithIndexes15() {
-    String className = "testFetchFromClassWithIndexes15";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testFetchFromClassWithIndexes15";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     clazz.createIndex(db, className + ".name_surname", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -1741,7 +1741,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query(
             "select from "
                 + className
@@ -1749,7 +1749,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
                 + " 'surname5' ");
     printExecutionPlan(result);
     Assert.assertFalse(result.hasNext());
-    SelectExecutionPlan plan = (SelectExecutionPlan) result.getExecutionPlan().get();
+    var plan = (SelectExecutionPlan) result.getExecutionPlan().get();
     Assert.assertEquals(
         1, plan.getSteps().stream().filter(step -> step instanceof FetchFromIndexStep).count());
     result.close();
@@ -1757,15 +1757,15 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromClassWithHashIndexes1() {
-    String className = "testFetchFromClassWithHashIndexes1";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testFetchFromClassWithHashIndexes1";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     clazz.createIndex(db,
         className + ".name_surname", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -1775,17 +1775,17 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query("select from " + className + " where name = 'name6' and surname = 'surname6' ");
     printExecutionPlan(result);
 
-    for (int i = 0; i < 1; i++) {
+    for (var i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      Result next = result.next();
+      var next = result.next();
       Assert.assertNotNull(next);
     }
     Assert.assertFalse(result.hasNext());
-    SelectExecutionPlan plan = (SelectExecutionPlan) result.getExecutionPlan().get();
+    var plan = (SelectExecutionPlan) result.getExecutionPlan().get();
     Assert.assertEquals(
         1, plan.getSteps().stream().filter(step -> step instanceof FetchFromIndexStep).count());
     result.close();
@@ -1793,15 +1793,15 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromClassWithHashIndexes2() {
-    String className = "testFetchFromClassWithHashIndexes2";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testFetchFromClassWithHashIndexes2";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     clazz.createIndex(db,
         className + ".name_surname", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -1811,17 +1811,17 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query("select from " + className + " where name = 'name6' and surname >= 'surname6' ");
     printExecutionPlan(result);
 
-    for (int i = 0; i < 1; i++) {
+    for (var i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      Result next = result.next();
+      var next = result.next();
       Assert.assertNotNull(next);
     }
     Assert.assertFalse(result.hasNext());
-    SelectExecutionPlan plan = (SelectExecutionPlan) result.getExecutionPlan().get();
+    var plan = (SelectExecutionPlan) result.getExecutionPlan().get();
     Assert.assertEquals(
         FetchFromIndexStep.class, plan.getSteps().getFirst().getClass()); // index not used
     result.close();
@@ -1829,13 +1829,13 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testExpand1() {
-    String childClassName = "testExpand1_child";
-    String parentClassName = "testExpand1_parent";
-    SchemaClass childClass = db.getMetadata().getSchema().createClass(childClassName);
-    SchemaClass parentClass = db.getMetadata().getSchema().createClass(parentClassName);
+    var childClassName = "testExpand1_child";
+    var parentClassName = "testExpand1_parent";
+    var childClass = db.getMetadata().getSchema().createClass(childClassName);
+    var parentClass = db.getMetadata().getSchema().createClass(parentClassName);
 
-    int count = 10;
-    for (int i = 0; i < count; i++) {
+    var count = 10;
+    for (var i = 0; i < count; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(childClassName);
       doc.setProperty("name", "name" + i);
@@ -1843,18 +1843,18 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.setProperty("foo", i);
       doc.save();
 
-      EntityImpl parent = (EntityImpl) db.newEntity(parentClassName);
+      var parent = (EntityImpl) db.newEntity(parentClassName);
       parent.setProperty("linked", doc);
       parent.save();
       db.commit();
     }
 
-    ResultSet result = db.query("select expand(linked) from " + parentClassName);
+    var result = db.query("select expand(linked) from " + parentClassName);
     printExecutionPlan(result);
 
-    for (int i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       Assert.assertTrue(result.hasNext());
-      Result next = result.next();
+      var next = result.next();
       Assert.assertNotNull(next);
     }
     Assert.assertFalse(result.hasNext());
@@ -1863,35 +1863,35 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testExpand2() {
-    String childClassName = "testExpand2_child";
-    String parentClassName = "testExpand2_parent";
-    SchemaClass childClass = db.getMetadata().getSchema().createClass(childClassName);
-    SchemaClass parentClass = db.getMetadata().getSchema().createClass(parentClassName);
+    var childClassName = "testExpand2_child";
+    var parentClassName = "testExpand2_parent";
+    var childClass = db.getMetadata().getSchema().createClass(childClassName);
+    var parentClass = db.getMetadata().getSchema().createClass(parentClassName);
 
     db.begin();
-    int count = 10;
-    int collSize = 11;
-    for (int i = 0; i < count; i++) {
+    var count = 10;
+    var collSize = 11;
+    for (var i = 0; i < count; i++) {
       List coll = new ArrayList<>();
-      for (int j = 0; j < collSize; j++) {
+      for (var j = 0; j < collSize; j++) {
         EntityImpl doc = db.newInstance(childClassName);
         doc.setProperty("name", "name" + i);
         doc.save();
         coll.add(doc);
       }
 
-      EntityImpl parent = (EntityImpl) db.newEntity(parentClassName);
+      var parent = (EntityImpl) db.newEntity(parentClassName);
       parent.setProperty("linked", coll);
       parent.save();
     }
     db.commit();
 
-    ResultSet result = db.query("select expand(linked) from " + parentClassName);
+    var result = db.query("select expand(linked) from " + parentClassName);
     printExecutionPlan(result);
 
-    for (int i = 0; i < count * collSize; i++) {
+    for (var i = 0; i < count * collSize; i++) {
       Assert.assertTrue(result.hasNext());
-      Result next = result.next();
+      var next = result.next();
       Assert.assertNotNull(next);
     }
     Assert.assertFalse(result.hasNext());
@@ -1900,37 +1900,37 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testExpand3() {
-    String childClassName = "testExpand3_child";
-    String parentClassName = "testExpand3_parent";
-    SchemaClass childClass = db.getMetadata().getSchema().createClass(childClassName);
-    SchemaClass parentClass = db.getMetadata().getSchema().createClass(parentClassName);
+    var childClassName = "testExpand3_child";
+    var parentClassName = "testExpand3_parent";
+    var childClass = db.getMetadata().getSchema().createClass(childClassName);
+    var parentClass = db.getMetadata().getSchema().createClass(parentClassName);
 
     db.begin();
-    int count = 30;
-    int collSize = 7;
-    for (int i = 0; i < count; i++) {
+    var count = 30;
+    var collSize = 7;
+    for (var i = 0; i < count; i++) {
       List coll = new ArrayList<>();
-      for (int j = 0; j < collSize; j++) {
+      for (var j = 0; j < collSize; j++) {
         EntityImpl doc = db.newInstance(childClassName);
         doc.setProperty("name", "name" + j);
         doc.save();
         coll.add(doc);
       }
 
-      EntityImpl parent = (EntityImpl) db.newEntity(parentClassName);
+      var parent = (EntityImpl) db.newEntity(parentClassName);
       parent.setProperty("linked", coll);
       parent.save();
     }
     db.commit();
 
-    ResultSet result =
+    var result =
         db.query("select expand(linked) from " + parentClassName + " order by name");
     printExecutionPlan(result);
 
     String last = null;
-    for (int i = 0; i < count * collSize; i++) {
+    for (var i = 0; i < count * collSize; i++) {
       Assert.assertTrue(result.hasNext());
-      Result next = result.next();
+      var next = result.next();
       if (i > 0) {
         Assert.assertTrue(last.compareTo(next.getProperty("name")) <= 0);
       }
@@ -1943,12 +1943,12 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testDistinct1() {
-    String className = "testDistinct1";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testDistinct1";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
 
-    for (int i = 0; i < 30; i++) {
+    for (var i = 0; i < 30; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 10);
@@ -1957,12 +1957,12 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result = db.query("select distinct name, surname from " + className);
+    var result = db.query("select distinct name, surname from " + className);
     printExecutionPlan(result);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      Result next = result.next();
+      var next = result.next();
       Assert.assertNotNull(next);
     }
     Assert.assertFalse(result.hasNext());
@@ -1971,12 +1971,12 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testDistinct2() {
-    String className = "testDistinct2";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testDistinct2";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
 
-    for (int i = 0; i < 30; i++) {
+    for (var i = 0; i < 30; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 10);
@@ -1985,12 +1985,12 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result = db.query("select distinct(name) from " + className);
+    var result = db.query("select distinct(name) from " + className);
     printExecutionPlan(result);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      Result next = result.next();
+      var next = result.next();
       Assert.assertNotNull(next);
     }
     Assert.assertFalse(result.hasNext());
@@ -1999,9 +1999,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testLet1() {
-    ResultSet result = db.query("select $a as one, $b as two let $a = 1, $b = 1+1");
+    var result = db.query("select $a as one, $b as two let $a = 1, $b = 1+1");
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals(1, item.<Object>getProperty("one"));
     Assert.assertEquals(2, item.<Object>getProperty("two"));
@@ -2011,9 +2011,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testLet1Long() {
-    ResultSet result = db.query("select $a as one, $b as two let $a = 1L, $b = 1L+1");
+    var result = db.query("select $a as one, $b as two let $a = 1L, $b = 1L+1");
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals(1L, item.<Object>getProperty("one"));
     Assert.assertEquals(2L, item.<Object>getProperty("two"));
@@ -2023,15 +2023,15 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testLet2() {
-    ResultSet result = db.query("select $a as one let $a = (select 1 as a)");
+    var result = db.query("select $a as one let $a = (select 1 as a)");
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
-    Object one = item.getProperty("one");
+    var one = item.getProperty("one");
     Assert.assertTrue(one instanceof List);
     Assert.assertEquals(1, ((List) one).size());
-    Object x = ((List) one).get(0);
+    var x = ((List) one).get(0);
     Assert.assertTrue(x instanceof Result);
     Assert.assertEquals(1, (Object) ((Result) x).getProperty("a"));
     result.close();
@@ -2039,22 +2039,22 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testLet3() {
-    ResultSet result = db.query("select $a[0].foo as one let $a = (select 1 as foo)");
+    var result = db.query("select $a[0].foo as one let $a = (select 1 as foo)");
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
-    Object one = item.getProperty("one");
+    var one = item.getProperty("one");
     Assert.assertEquals(1, one);
     result.close();
   }
 
   @Test
   public void testLet4() {
-    String className = "testLet4";
+    var className = "testLet4";
     db.getMetadata().getSchema().createClass(className);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -2063,15 +2063,15 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query(
             "select name, surname, $nameAndSurname as fullname from "
                 + className
                 + " let $nameAndSurname = name + ' ' + surname");
     printExecutionPlan(result);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals(
           item.getProperty("fullname"),
@@ -2083,10 +2083,10 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testLet5() {
-    String className = "testLet5";
+    var className = "testLet5";
     db.getMetadata().getSchema().createClass(className);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -2095,7 +2095,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query(
             "select from "
                 + className
@@ -2103,9 +2103,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
                 + className
                 + " where name = 'name1')");
     printExecutionPlan(result);
-    for (int i = 0; i < 1; i++) {
+    for (var i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("name1", item.getProperty("name"));
     }
@@ -2115,10 +2115,10 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testLet6() {
-    String className = "testLet6";
+    var className = "testLet6";
     db.getMetadata().getSchema().createClass(className);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -2127,7 +2127,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query(
             "select $foo as name from "
                 + className
@@ -2135,9 +2135,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
                 + className
                 + " where name = $parent.$current.name)");
     printExecutionPlan(result);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("name"));
       Assert.assertTrue(item.getProperty("name") instanceof Collection);
@@ -2148,10 +2148,10 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testLet7() {
-    String className = "testLet7";
+    var className = "testLet7";
     db.getMetadata().getSchema().createClass(className);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -2160,7 +2160,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query(
             "select $bar as name from "
                 + className
@@ -2170,9 +2170,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
                 + " where name = $parent.$current.name),"
                 + "$bar = $foo[0].name");
     printExecutionPlan(result);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("name"));
       Assert.assertTrue(item.getProperty("name") instanceof String);
@@ -2183,24 +2183,24 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testLetWithTraverseFunction() {
-    String vertexClassName = "testLetWithTraverseFunction";
-    String edgeClassName = "testLetWithTraverseFunctioEdge";
+    var vertexClassName = "testLetWithTraverseFunction";
+    var edgeClassName = "testLetWithTraverseFunctioEdge";
 
-    SchemaClass vertexClass = db.createVertexClass(vertexClassName);
+    var vertexClass = db.createVertexClass(vertexClassName);
 
     db.begin();
-    Vertex doc1 = db.newVertex(vertexClass);
+    var doc1 = db.newVertex(vertexClass);
     doc1.setProperty("name", "A");
     doc1.save();
 
-    Vertex doc2 = db.newVertex(vertexClass);
+    var doc2 = db.newVertex(vertexClass);
     doc2.setProperty("name", "B");
     doc2.save();
     db.commit();
 
-    RID doc2Id = doc2.getIdentity();
+    var doc2Id = doc2.getIdentity();
 
-    SchemaClass edgeClass = db.createEdgeClass(edgeClassName);
+    var edgeClass = db.createEdgeClass(edgeClassName);
 
     db.begin();
     doc1 = db.bindToSession(doc1);
@@ -2209,12 +2209,12 @@ public class SelectStatementExecutionTest extends DbTestBase {
     db.newRegularEdge(doc1, doc2, edgeClass).save();
     db.commit();
 
-    String queryString =
+    var queryString =
         "SELECT $x, name FROM " + vertexClassName + " let $x = out(\"" + edgeClassName + "\")";
-    ResultSet resultSet = db.query(queryString);
-    int counter = 0;
+    var resultSet = db.query(queryString);
+    var counter = 0;
     while (resultSet.hasNext()) {
-      Result result = resultSet.next();
+      var result = resultSet.next();
       Iterable edge = result.getProperty("$x");
       Iterator<Identifiable> iter = edge.iterator();
       while (iter.hasNext()) {
@@ -2230,10 +2230,10 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testLetVariableSubqueryProjectionFetchFromClassTarget_9695() {
-    String className = "testLetVariableSubqueryProjectionFetchFromClassTarget_9695";
+    var className = "testLetVariableSubqueryProjectionFetchFromClassTarget_9695";
     db.getMetadata().getSchema().createClass(className);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("i", i);
@@ -2242,7 +2242,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query(
             "select $current.*, $b.*, $b.@class from (select 1 as sqa, @class as sqc from "
                 + className
@@ -2250,17 +2250,17 @@ public class SelectStatementExecutionTest extends DbTestBase {
                 + "let $b = $current");
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
-    Object currentProperty = item.getProperty("$current.*");
+    var currentProperty = item.getProperty("$current.*");
     Assert.assertTrue(currentProperty instanceof Result);
-    final Result currentResult = (Result) currentProperty;
+    final var currentResult = (Result) currentProperty;
     Assert.assertTrue(currentResult.isProjection());
     Assert.assertEquals(Integer.valueOf(1), currentResult.<Integer>getProperty("sqa"));
     Assert.assertEquals(className, currentResult.getProperty("sqc"));
-    Object bProperty = item.getProperty("$b.*");
+    var bProperty = item.getProperty("$b.*");
     Assert.assertTrue(bProperty instanceof Result);
-    final Result bResult = (Result) bProperty;
+    final var bResult = (Result) bProperty;
     Assert.assertTrue(bResult.isProjection());
     Assert.assertEquals(Integer.valueOf(1), bResult.<Integer>getProperty("sqa"));
     Assert.assertEquals(className, bResult.getProperty("sqc"));
@@ -2269,10 +2269,10 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testUnwind1() {
-    String className = "testUnwind1";
+    var className = "testUnwind1";
     db.getMetadata().getSchema().createClass(className);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("i", i);
@@ -2281,11 +2281,11 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result = db.query("select i, iSeq from " + className + " unwind iSeq");
+    var result = db.query("select i, iSeq from " + className + " unwind iSeq");
     printExecutionPlan(result);
-    for (int i = 0; i < 30; i++) {
+    for (var i = 0; i < 30; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("i"));
       Assert.assertNotNull(item.getProperty("iSeq"));
@@ -2299,10 +2299,10 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testUnwind2() {
-    String className = "testUnwind2";
+    var className = "testUnwind2";
     db.getMetadata().getSchema().createClass(className);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("i", i);
@@ -2315,11 +2315,11 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result = db.query("select i, iSeq from " + className + " unwind iSeq");
+    var result = db.query("select i, iSeq from " + className + " unwind iSeq");
     printExecutionPlan(result);
-    for (int i = 0; i < 30; i++) {
+    for (var i = 0; i < 30; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("i"));
       Assert.assertNotNull(item.getProperty("iSeq"));
@@ -2333,18 +2333,18 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromSubclassIndexes1() {
-    String parent = "testFetchFromSubclassIndexes1_parent";
-    String child1 = "testFetchFromSubclassIndexes1_child1";
-    String child2 = "testFetchFromSubclassIndexes1_child2";
-    SchemaClass parentClass = db.getMetadata().getSchema().createClass(parent);
-    SchemaClass childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
-    SchemaClass childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
+    var parent = "testFetchFromSubclassIndexes1_parent";
+    var child1 = "testFetchFromSubclassIndexes1_child1";
+    var child2 = "testFetchFromSubclassIndexes1_child2";
+    var parentClass = db.getMetadata().getSchema().createClass(parent);
+    var childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
+    var childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
 
     parentClass.createProperty(db, "name", PropertyType.STRING);
     childClass1.createIndex(db, child1 + ".name", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name");
     childClass2.createIndex(db, child2 + ".name", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(child1);
       doc.setProperty("name", "name" + i);
@@ -2352,7 +2352,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(child2);
       doc.setProperty("name", "name" + i);
@@ -2360,13 +2360,13 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result = db.query("select from " + parent + " where name = 'name1'");
+    var result = db.query("select from " + parent + " where name = 'name1'");
     printExecutionPlan(result);
-    InternalExecutionPlan plan = (InternalExecutionPlan) result.getExecutionPlan().get();
+    var plan = (InternalExecutionPlan) result.getExecutionPlan().get();
     Assert.assertTrue(plan.getSteps().get(0) instanceof ParallelExecStep);
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
     }
     Assert.assertFalse(result.hasNext());
@@ -2375,18 +2375,18 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromSubclassIndexes2() {
-    String parent = "testFetchFromSubclassIndexes2_parent";
-    String child1 = "testFetchFromSubclassIndexes2_child1";
-    String child2 = "testFetchFromSubclassIndexes2_child2";
-    SchemaClass parentClass = db.getMetadata().getSchema().createClass(parent);
-    SchemaClass childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
-    SchemaClass childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
+    var parent = "testFetchFromSubclassIndexes2_parent";
+    var child1 = "testFetchFromSubclassIndexes2_child1";
+    var child2 = "testFetchFromSubclassIndexes2_child2";
+    var parentClass = db.getMetadata().getSchema().createClass(parent);
+    var childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
+    var childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
 
     parentClass.createProperty(db, "name", PropertyType.STRING);
     childClass1.createIndex(db, child1 + ".name", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name");
     childClass2.createIndex(db, child2 + ".name", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(child1);
       doc.setProperty("name", "name" + i);
@@ -2395,7 +2395,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(child2);
       doc.setProperty("name", "name" + i);
@@ -2404,14 +2404,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query("select from " + parent + " where name = 'name1' and surname = 'surname1'");
     printExecutionPlan(result);
-    InternalExecutionPlan plan = (InternalExecutionPlan) result.getExecutionPlan().get();
+    var plan = (InternalExecutionPlan) result.getExecutionPlan().get();
     Assert.assertTrue(plan.getSteps().get(0) instanceof ParallelExecStep);
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
     }
     Assert.assertFalse(result.hasNext());
@@ -2420,17 +2420,17 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromSubclassIndexes3() {
-    String parent = "testFetchFromSubclassIndexes3_parent";
-    String child1 = "testFetchFromSubclassIndexes3_child1";
-    String child2 = "testFetchFromSubclassIndexes3_child2";
-    SchemaClass parentClass = db.getMetadata().getSchema().createClass(parent);
-    SchemaClass childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
-    SchemaClass childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
+    var parent = "testFetchFromSubclassIndexes3_parent";
+    var child1 = "testFetchFromSubclassIndexes3_child1";
+    var child2 = "testFetchFromSubclassIndexes3_child2";
+    var parentClass = db.getMetadata().getSchema().createClass(parent);
+    var childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
+    var childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
 
     parentClass.createProperty(db, "name", PropertyType.STRING);
     childClass1.createIndex(db, child1 + ".name", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(child1);
       doc.setProperty("name", "name" + i);
@@ -2439,7 +2439,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(child2);
       doc.setProperty("name", "name" + i);
@@ -2448,15 +2448,15 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query("select from " + parent + " where name = 'name1' and surname = 'surname1'");
     printExecutionPlan(result);
-    InternalExecutionPlan plan = (InternalExecutionPlan) result.getExecutionPlan().get();
+    var plan = (InternalExecutionPlan) result.getExecutionPlan().get();
     Assert.assertTrue(
         plan.getSteps().get(0) instanceof FetchFromClassExecutionStep); // no index used
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
     }
     Assert.assertFalse(result.hasNext());
@@ -2465,12 +2465,12 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromSubclassIndexes4() {
-    String parent = "testFetchFromSubclassIndexes4_parent";
-    String child1 = "testFetchFromSubclassIndexes4_child1";
-    String child2 = "testFetchFromSubclassIndexes4_child2";
-    SchemaClass parentClass = db.getMetadata().getSchema().createClass(parent);
-    SchemaClass childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
-    SchemaClass childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
+    var parent = "testFetchFromSubclassIndexes4_parent";
+    var child1 = "testFetchFromSubclassIndexes4_child1";
+    var child2 = "testFetchFromSubclassIndexes4_child2";
+    var parentClass = db.getMetadata().getSchema().createClass(parent);
+    var childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
+    var childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
 
     parentClass.createProperty(db, "name", PropertyType.STRING);
     childClass1.createIndex(db, child1 + ".name", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name");
@@ -2482,7 +2482,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     parentdoc.save();
     db.commit();
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(child1);
       doc.setProperty("name", "name" + i);
@@ -2491,7 +2491,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(child2);
       doc.setProperty("name", "name" + i);
@@ -2500,17 +2500,17 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query("select from " + parent + " where name = 'name1' and surname = 'surname1'");
     printExecutionPlan(result);
-    InternalExecutionPlan plan = (InternalExecutionPlan) result.getExecutionPlan().get();
+    var plan = (InternalExecutionPlan) result.getExecutionPlan().get();
     Assert.assertTrue(
         plan.getSteps().get(0)
             instanceof
             FetchFromClassExecutionStep); // no index, because the superclass is not empty
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
     }
     Assert.assertFalse(result.hasNext());
@@ -2519,23 +2519,23 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromSubSubclassIndexes() {
-    String parent = "testFetchFromSubSubclassIndexes_parent";
-    String child1 = "testFetchFromSubSubclassIndexes_child1";
-    String child2 = "testFetchFromSubSubclassIndexes_child2";
-    String child2_1 = "testFetchFromSubSubclassIndexes_child2_1";
-    String child2_2 = "testFetchFromSubSubclassIndexes_child2_2";
-    SchemaClass parentClass = db.getMetadata().getSchema().createClass(parent);
-    SchemaClass childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
-    SchemaClass childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
-    SchemaClass childClass2_1 = db.getMetadata().getSchema().createClass(child2_1, childClass2);
-    SchemaClass childClass2_2 = db.getMetadata().getSchema().createClass(child2_2, childClass2);
+    var parent = "testFetchFromSubSubclassIndexes_parent";
+    var child1 = "testFetchFromSubSubclassIndexes_child1";
+    var child2 = "testFetchFromSubSubclassIndexes_child2";
+    var child2_1 = "testFetchFromSubSubclassIndexes_child2_1";
+    var child2_2 = "testFetchFromSubSubclassIndexes_child2_2";
+    var parentClass = db.getMetadata().getSchema().createClass(parent);
+    var childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
+    var childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
+    var childClass2_1 = db.getMetadata().getSchema().createClass(child2_1, childClass2);
+    var childClass2_2 = db.getMetadata().getSchema().createClass(child2_2, childClass2);
 
     parentClass.createProperty(db, "name", PropertyType.STRING);
     childClass1.createIndex(db, child1 + ".name", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name");
     childClass2_1.createIndex(db, child2_1 + ".name", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name");
     childClass2_2.createIndex(db, child2_2 + ".name", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(child1);
       doc.setProperty("name", "name" + i);
@@ -2544,7 +2544,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(child2_1);
       doc.setProperty("name", "name" + i);
@@ -2553,7 +2553,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(child2_2);
       doc.setProperty("name", "name" + i);
@@ -2562,14 +2562,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query("select from " + parent + " where name = 'name1' and surname = 'surname1'");
     printExecutionPlan(result);
-    InternalExecutionPlan plan = (InternalExecutionPlan) result.getExecutionPlan().get();
+    var plan = (InternalExecutionPlan) result.getExecutionPlan().get();
     Assert.assertTrue(plan.getSteps().get(0) instanceof ParallelExecStep);
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
     }
     Assert.assertFalse(result.hasNext());
@@ -2578,22 +2578,22 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFetchFromSubSubclassIndexesWithDiamond() {
-    String parent = "testFetchFromSubSubclassIndexesWithDiamond_parent";
-    String child1 = "testFetchFromSubSubclassIndexesWithDiamond_child1";
-    String child2 = "testFetchFromSubSubclassIndexesWithDiamond_child2";
-    String child12 = "testFetchFromSubSubclassIndexesWithDiamond_child12";
+    var parent = "testFetchFromSubSubclassIndexesWithDiamond_parent";
+    var child1 = "testFetchFromSubSubclassIndexesWithDiamond_child1";
+    var child2 = "testFetchFromSubSubclassIndexesWithDiamond_child2";
+    var child12 = "testFetchFromSubSubclassIndexesWithDiamond_child12";
 
-    SchemaClass parentClass = db.getMetadata().getSchema().createClass(parent);
-    SchemaClass childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
-    SchemaClass childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
-    SchemaClass childClass12 =
+    var parentClass = db.getMetadata().getSchema().createClass(parent);
+    var childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
+    var childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
+    var childClass12 =
         db.getMetadata().getSchema().createClass(child12, childClass1, childClass2);
 
     parentClass.createProperty(db, "name", PropertyType.STRING);
     childClass1.createIndex(db, child1 + ".name", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name");
     childClass2.createIndex(db, child2 + ".name", SchemaClass.INDEX_TYPE.NOTUNIQUE, "name");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(child1);
       doc.setProperty("name", "name" + i);
@@ -2602,7 +2602,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(child2);
       doc.setProperty("name", "name" + i);
@@ -2611,7 +2611,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(child12);
       doc.setProperty("name", "name" + i);
@@ -2620,14 +2620,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query("select from " + parent + " where name = 'name1' and surname = 'surname1'");
     printExecutionPlan(result);
-    InternalExecutionPlan plan = (InternalExecutionPlan) result.getExecutionPlan().get();
+    var plan = (InternalExecutionPlan) result.getExecutionPlan().get();
     Assert.assertTrue(plan.getSteps().get(0) instanceof FetchFromClassExecutionStep);
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
     }
     Assert.assertFalse(result.hasNext());
@@ -2636,8 +2636,8 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testIndexPlusSort1() {
-    String className = "testIndexPlusSort1";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testIndexPlusSort1";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     db.command(
@@ -2648,7 +2648,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
                 + " (name, surname) NOTUNIQUE")
         .close();
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
@@ -2657,13 +2657,13 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query("select from " + className + " where name = 'name1' order by surname ASC");
     printExecutionPlan(result);
     String lastSurname = null;
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("surname"));
 
@@ -2674,7 +2674,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       lastSurname = surname;
     }
     Assert.assertFalse(result.hasNext());
-    ExecutionPlan plan = result.getExecutionPlan().get();
+    var plan = result.getExecutionPlan().get();
     Assert.assertEquals(
         1, plan.getSteps().stream().filter(step -> step instanceof FetchFromIndexStep).count());
     Assert.assertEquals(
@@ -2684,8 +2684,8 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testIndexPlusSort2() {
-    String className = "testIndexPlusSort2";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testIndexPlusSort2";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     db.command(
@@ -2696,7 +2696,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
                 + " (name, surname) NOTUNIQUE")
         .close();
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
@@ -2705,13 +2705,13 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query("select from " + className + " where name = 'name1' order by surname DESC");
     printExecutionPlan(result);
     String lastSurname = null;
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("surname"));
 
@@ -2722,7 +2722,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       lastSurname = surname;
     }
     Assert.assertFalse(result.hasNext());
-    ExecutionPlan plan = result.getExecutionPlan().get();
+    var plan = result.getExecutionPlan().get();
     Assert.assertEquals(
         1, plan.getSteps().stream().filter(step -> step instanceof FetchFromIndexStep).count());
     Assert.assertEquals(
@@ -2732,8 +2732,8 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testIndexPlusSort3() {
-    String className = "testIndexPlusSort3";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testIndexPlusSort3";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     db.command(
@@ -2744,7 +2744,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
                 + " (name, surname) NOTUNIQUE")
         .close();
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
@@ -2753,14 +2753,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query(
             "select from " + className + " where name = 'name1' order by name DESC, surname DESC");
     printExecutionPlan(result);
     String lastSurname = null;
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("surname"));
 
@@ -2771,7 +2771,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       lastSurname = surname;
     }
     Assert.assertFalse(result.hasNext());
-    ExecutionPlan plan = result.getExecutionPlan().get();
+    var plan = result.getExecutionPlan().get();
     Assert.assertEquals(
         1, plan.getSteps().stream().filter(step -> step instanceof FetchFromIndexStep).count());
     Assert.assertEquals(
@@ -2781,8 +2781,8 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testIndexPlusSort4() {
-    String className = "testIndexPlusSort4";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testIndexPlusSort4";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     db.command(
@@ -2793,7 +2793,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
                 + " (name, surname) NOTUNIQUE")
         .close();
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
@@ -2802,14 +2802,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query(
             "select from " + className + " where name = 'name1' order by name ASC, surname ASC");
     printExecutionPlan(result);
     String lastSurname = null;
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("surname"));
 
@@ -2820,7 +2820,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       lastSurname = surname;
     }
     Assert.assertFalse(result.hasNext());
-    ExecutionPlan plan = result.getExecutionPlan().get();
+    var plan = result.getExecutionPlan().get();
     Assert.assertEquals(
         1, plan.getSteps().stream().filter(step -> step instanceof FetchFromIndexStep).count());
     Assert.assertEquals(
@@ -2830,8 +2830,8 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testIndexPlusSort5() {
-    String className = "testIndexPlusSort5";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testIndexPlusSort5";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     clazz.createProperty(db, "address", PropertyType.STRING);
@@ -2843,7 +2843,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
                 + " (name, surname, address) NOTUNIQUE")
         .close();
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
@@ -2852,13 +2852,13 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query("select from " + className + " where name = 'name1' order by surname ASC");
     printExecutionPlan(result);
     String lastSurname = null;
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("surname"));
       String surname = item.getProperty("surname");
@@ -2868,7 +2868,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       lastSurname = surname;
     }
     Assert.assertFalse(result.hasNext());
-    ExecutionPlan plan = result.getExecutionPlan().get();
+    var plan = result.getExecutionPlan().get();
     Assert.assertEquals(
         1, plan.getSteps().stream().filter(step -> step instanceof FetchFromIndexStep).count());
     Assert.assertEquals(
@@ -2878,8 +2878,8 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testIndexPlusSort6() {
-    String className = "testIndexPlusSort6";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testIndexPlusSort6";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     clazz.createProperty(db, "address", PropertyType.STRING);
@@ -2891,7 +2891,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
                 + " (name, surname, address) NOTUNIQUE")
         .close();
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
@@ -2900,13 +2900,13 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query("select from " + className + " where name = 'name1' order by surname DESC");
     printExecutionPlan(result);
     String lastSurname = null;
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("surname"));
       String surname = item.getProperty("surname");
@@ -2916,7 +2916,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       lastSurname = surname;
     }
     Assert.assertFalse(result.hasNext());
-    ExecutionPlan plan = result.getExecutionPlan().get();
+    var plan = result.getExecutionPlan().get();
     Assert.assertEquals(
         1, plan.getSteps().stream().filter(step -> step instanceof FetchFromIndexStep).count());
     Assert.assertEquals(
@@ -2926,8 +2926,8 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testIndexPlusSort7() {
-    String className = "testIndexPlusSort7";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testIndexPlusSort7";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     clazz.createProperty(db, "address", PropertyType.STRING);
@@ -2939,7 +2939,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
                 + " (name, surname, address) NOTUNIQUE")
         .close();
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
@@ -2948,19 +2948,19 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query("select from " + className + " where name = 'name1' order by address DESC");
     printExecutionPlan(result);
 
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("surname"));
     }
     Assert.assertFalse(result.hasNext());
-    boolean orderStepFound = false;
-    for (ExecutionStep step : result.getExecutionPlan().get().getSteps()) {
+    var orderStepFound = false;
+    for (var step : result.getExecutionPlan().get().getSteps()) {
       if (step instanceof OrderByStep) {
         orderStepFound = true;
         break;
@@ -2972,8 +2972,8 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testIndexPlusSort8() {
-    String className = "testIndexPlusSort8";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testIndexPlusSort8";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     db.command(
@@ -2984,7 +2984,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
                 + " (name, surname) NOTUNIQUE")
         .close();
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
@@ -2993,20 +2993,20 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query(
             "select from " + className + " where name = 'name1' order by name ASC, surname DESC");
     printExecutionPlan(result);
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("surname"));
     }
     Assert.assertFalse(result.hasNext());
     Assert.assertFalse(result.hasNext());
-    boolean orderStepFound = false;
-    for (ExecutionStep step : result.getExecutionPlan().get().getSteps()) {
+    var orderStepFound = false;
+    for (var step : result.getExecutionPlan().get().getSteps()) {
       if (step instanceof OrderByStep) {
         orderStepFound = true;
         break;
@@ -3018,8 +3018,8 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testIndexPlusSort9() {
-    String className = "testIndexPlusSort9";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testIndexPlusSort9";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     db.command(
@@ -3030,7 +3030,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
                 + " (name, surname) NOTUNIQUE")
         .close();
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
@@ -3039,18 +3039,18 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result = db.query("select from " + className + " order by name , surname ASC");
+    var result = db.query("select from " + className + " order by name , surname ASC");
     printExecutionPlan(result);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("surname"));
     }
     Assert.assertFalse(result.hasNext());
     Assert.assertFalse(result.hasNext());
-    boolean orderStepFound = false;
-    for (ExecutionStep step : result.getExecutionPlan().get().getSteps()) {
+    var orderStepFound = false;
+    for (var step : result.getExecutionPlan().get().getSteps()) {
       if (step instanceof OrderByStep) {
         orderStepFound = true;
         break;
@@ -3062,8 +3062,8 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testIndexPlusSort10() {
-    String className = "testIndexPlusSort10";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testIndexPlusSort10";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     db.command(
@@ -3074,7 +3074,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
                 + " (name, surname) NOTUNIQUE")
         .close();
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
@@ -3083,18 +3083,18 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result = db.query("select from " + className + " order by name desc, surname desc");
+    var result = db.query("select from " + className + " order by name desc, surname desc");
     printExecutionPlan(result);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("surname"));
     }
     Assert.assertFalse(result.hasNext());
     Assert.assertFalse(result.hasNext());
-    boolean orderStepFound = false;
-    for (ExecutionStep step : result.getExecutionPlan().get().getSteps()) {
+    var orderStepFound = false;
+    for (var step : result.getExecutionPlan().get().getSteps()) {
       if (step instanceof OrderByStep) {
         orderStepFound = true;
         break;
@@ -3106,8 +3106,8 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testIndexPlusSort11() {
-    String className = "testIndexPlusSort11";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testIndexPlusSort11";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     db.command(
@@ -3118,7 +3118,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
                 + " (name, surname) NOTUNIQUE")
         .close();
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
@@ -3127,18 +3127,18 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result = db.query("select from " + className + " order by name asc, surname desc");
+    var result = db.query("select from " + className + " order by name asc, surname desc");
     printExecutionPlan(result);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("surname"));
     }
     Assert.assertFalse(result.hasNext());
     Assert.assertFalse(result.hasNext());
-    boolean orderStepFound = false;
-    for (ExecutionStep step : result.getExecutionPlan().get().getSteps()) {
+    var orderStepFound = false;
+    for (var step : result.getExecutionPlan().get().getSteps()) {
       if (step instanceof OrderByStep) {
         orderStepFound = true;
         break;
@@ -3150,8 +3150,8 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testIndexPlusSort12() {
-    String className = "testIndexPlusSort12";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testIndexPlusSort12";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
     clazz.createProperty(db, "surname", PropertyType.STRING);
     db.command(
@@ -3162,7 +3162,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
                 + " (name, surname) NOTUNIQUE")
         .close();
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
@@ -3171,12 +3171,12 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result = db.query("select from " + className + " order by name");
+    var result = db.query("select from " + className + " order by name");
     printExecutionPlan(result);
     String last = null;
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("name"));
       String name = item.getProperty("name");
@@ -3187,8 +3187,8 @@ public class SelectStatementExecutionTest extends DbTestBase {
     }
     Assert.assertFalse(result.hasNext());
     Assert.assertFalse(result.hasNext());
-    boolean orderStepFound = false;
-    for (ExecutionStep step : result.getExecutionPlan().get().getSteps()) {
+    var orderStepFound = false;
+    for (var step : result.getExecutionPlan().get().getSteps()) {
       if (step instanceof OrderByStep) {
         orderStepFound = true;
         break;
@@ -3200,21 +3200,21 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSelectFromStringParam() {
-    String className = "testSelectFromStringParam";
+    var className = "testSelectFromStringParam";
     db.getMetadata().getSchema().createClass(className);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
     }
-    ResultSet result = db.query("select from ?", className);
+    var result = db.query("select from ?", className);
     printExecutionPlan(result);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertTrue(("" + item.getProperty("name")).startsWith("name"));
     }
@@ -3224,9 +3224,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSelectFromStringNamedParam() {
-    String className = "testSelectFromStringNamedParam";
+    var className = "testSelectFromStringNamedParam";
     db.getMetadata().getSchema().createClass(className);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -3235,12 +3235,12 @@ public class SelectStatementExecutionTest extends DbTestBase {
     }
     Map<Object, Object> params = new HashMap<>();
     params.put("target", className);
-    ResultSet result = db.query("select from :target", params);
+    var result = db.query("select from :target", params);
     printExecutionPlan(result);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertTrue(("" + item.getProperty("name")).startsWith("name"));
     }
@@ -3250,10 +3250,10 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testMatches() {
-    String className = "testMatches";
+    var className = "testMatches";
     db.getMetadata().getSchema().createClass(className);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -3261,12 +3261,12 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result = db.query("select from " + className + " where name matches 'name1'");
+    var result = db.query("select from " + className + " where name matches 'name1'");
     printExecutionPlan(result);
 
-    for (int i = 0; i < 1; i++) {
+    for (var i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals(item.getProperty("name"), "name1");
     }
@@ -3276,7 +3276,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testRange() {
-    String className = "testRange";
+    var className = "testRange";
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
@@ -3285,20 +3285,20 @@ public class SelectStatementExecutionTest extends DbTestBase {
     doc.save();
     db.commit();
 
-    ResultSet result = db.query("select name[0..3] as names from " + className);
+    var result = db.query("select name[0..3] as names from " + className);
     printExecutionPlan(result);
 
-    for (int i = 0; i < 1; i++) {
+    for (var i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
-      Object names = item.getProperty("names");
+      var names = item.getProperty("names");
       if (names == null) {
         Assert.fail();
       }
       if (names instanceof Collection) {
         Assert.assertEquals(3, ((Collection) names).size());
-        Iterator iter = ((Collection) names).iterator();
+        var iter = ((Collection) names).iterator();
         Assert.assertEquals("a", iter.next());
         Assert.assertEquals("b", iter.next());
         Assert.assertEquals("c", iter.next());
@@ -3314,7 +3314,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testRangeParams1() {
-    String className = "testRangeParams1";
+    var className = "testRangeParams1";
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
@@ -3323,20 +3323,20 @@ public class SelectStatementExecutionTest extends DbTestBase {
     doc.save();
     db.commit();
 
-    ResultSet result = db.query("select name[?..?] as names from " + className, 0, 3);
+    var result = db.query("select name[?..?] as names from " + className, 0, 3);
     printExecutionPlan(result);
 
-    for (int i = 0; i < 1; i++) {
+    for (var i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
-      Object names = item.getProperty("names");
+      var names = item.getProperty("names");
       if (names == null) {
         Assert.fail();
       }
       if (names instanceof Collection) {
         Assert.assertEquals(3, ((Collection) names).size());
-        Iterator iter = ((Collection) names).iterator();
+        var iter = ((Collection) names).iterator();
         Assert.assertEquals("a", iter.next());
         Assert.assertEquals("b", iter.next());
         Assert.assertEquals("c", iter.next());
@@ -3352,7 +3352,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testRangeParams2() {
-    String className = "testRangeParams2";
+    var className = "testRangeParams2";
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
@@ -3364,20 +3364,20 @@ public class SelectStatementExecutionTest extends DbTestBase {
     Map<String, Object> params = new HashMap<>();
     params.put("a", 0);
     params.put("b", 3);
-    ResultSet result = db.query("select name[:a..:b] as names from " + className, params);
+    var result = db.query("select name[:a..:b] as names from " + className, params);
     printExecutionPlan(result);
 
-    for (int i = 0; i < 1; i++) {
+    for (var i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
-      Object names = item.getProperty("names");
+      var names = item.getProperty("names");
       if (names == null) {
         Assert.fail();
       }
       if (names instanceof Collection) {
         Assert.assertEquals(3, ((Collection) names).size());
-        Iterator iter = ((Collection) names).iterator();
+        var iter = ((Collection) names).iterator();
         Assert.assertEquals("a", iter.next());
         Assert.assertEquals("b", iter.next());
         Assert.assertEquals("c", iter.next());
@@ -3393,7 +3393,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testEllipsis() {
-    String className = "testEllipsis";
+    var className = "testEllipsis";
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
@@ -3402,20 +3402,20 @@ public class SelectStatementExecutionTest extends DbTestBase {
     doc.save();
     db.commit();
 
-    ResultSet result = db.query("select name[0...2] as names from " + className);
+    var result = db.query("select name[0...2] as names from " + className);
     printExecutionPlan(result);
 
-    for (int i = 0; i < 1; i++) {
+    for (var i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
-      Object names = item.getProperty("names");
+      var names = item.getProperty("names");
       if (names == null) {
         Assert.fail();
       }
       if (names instanceof Collection) {
         Assert.assertEquals(3, ((Collection) names).size());
-        Iterator iter = ((Collection) names).iterator();
+        var iter = ((Collection) names).iterator();
         Assert.assertEquals("a", iter.next());
         Assert.assertEquals("b", iter.next());
         Assert.assertEquals("c", iter.next());
@@ -3434,12 +3434,12 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testNewRid() {
-    ResultSet result = db.query("select {\"@rid\":\"#12:0\"} as theRid ");
+    var result = db.query("select {\"@rid\":\"#12:0\"} as theRid ");
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
-    Object rid = item.getProperty("theRid");
+    var item = result.next();
+    var rid = item.getProperty("theRid");
     Assert.assertTrue(rid instanceof Identifiable);
-    Identifiable id = (Identifiable) rid;
+    var id = (Identifiable) rid;
     Assert.assertEquals(12, id.getIdentity().getClusterId());
     Assert.assertEquals(0L, id.getIdentity().getClusterPosition());
     Assert.assertFalse(result.hasNext());
@@ -3448,24 +3448,24 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testNestedProjections1() {
-    String className = "testNestedProjections1";
+    var className = "testNestedProjections1";
     db.command("create class " + className).close();
 
     db.begin();
-    Entity elem1 = db.newEntity(className);
+    var elem1 = db.newEntity(className);
     elem1.setProperty("name", "a");
     elem1.save();
 
-    Entity elem2 = db.newEntity(className);
+    var elem2 = db.newEntity(className);
     elem2.setProperty("name", "b");
     elem2.setProperty("surname", "lkj");
     elem2.save();
 
-    Entity elem3 = db.newEntity(className);
+    var elem3 = db.newEntity(className);
     elem3.setProperty("name", "c");
     elem3.save();
 
-    Entity elem4 = db.newEntity(className);
+    var elem4 = db.newEntity(className);
     elem4.setProperty("name", "d");
     elem4.setProperty("elem1", elem1);
     elem4.setProperty("elem2", elem2);
@@ -3474,11 +3474,11 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
     db.commit();
 
-    ResultSet result =
+    var result =
         db.query(
             "select name, elem1:{*}, elem2:{!surname} from " + className + " where name = 'd'");
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     // TODO refine this!
     Assert.assertTrue(item.getProperty("elem1") instanceof Result);
@@ -3490,11 +3490,11 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSimpleCollectionFiltering() {
-    String className = "testSimpleCollectionFiltering";
+    var className = "testSimpleCollectionFiltering";
     db.command("create class " + className).close();
 
     db.begin();
-    Entity elem1 = db.newEntity(className);
+    var elem1 = db.newEntity(className);
     List<String> coll = new ArrayList<>();
     coll.add("foo");
     coll.add("bar");
@@ -3503,9 +3503,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
     elem1.save();
     db.commit();
 
-    ResultSet result = db.query("select coll[='foo'] as filtered from " + className);
+    var result = db.query("select coll[='foo'] as filtered from " + className);
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     List res = item.getProperty("filtered");
     Assert.assertEquals(1, res.size());
     Assert.assertEquals("foo", res.get(0));
@@ -3536,11 +3536,11 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testContaninsWithConversion() {
-    String className = "testContaninsWithConversion";
+    var className = "testContaninsWithConversion";
     db.command("create class " + className).close();
 
     db.begin();
-    Entity elem1 = db.newEntity(className);
+    var elem1 = db.newEntity(className);
     List<Long> coll = new ArrayList<>();
     coll.add(1L);
     coll.add(3L);
@@ -3548,7 +3548,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     elem1.setProperty("coll", coll);
     elem1.save();
 
-    Entity elem2 = db.newEntity(className);
+    var elem2 = db.newEntity(className);
     coll = new ArrayList<>();
     coll.add(2L);
     coll.add(4L);
@@ -3557,7 +3557,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     elem2.save();
     db.commit();
 
-    ResultSet result = db.query("select from " + className + " where coll contains 1");
+    var result = db.query("select from " + className + " where coll contains 1");
     Assert.assertTrue(result.hasNext());
     result.next();
     Assert.assertFalse(result.hasNext());
@@ -3577,7 +3577,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
   @Test
   public void testIndexPrefixUsage() {
     // issue #7636
-    String className = "testIndexPrefixUsage";
+    var className = "testIndexPrefixUsage";
     db.command("create class " + className).close();
     db.command("create property " + className + ".id LONG").close();
     db.command("create property " + className + ".name STRING").close();
@@ -3588,7 +3588,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     db.command("insert into " + className + " set id = 1 , name = 'Bar'").close();
     db.commit();
 
-    ResultSet result = db.query("select from " + className + " where name = 'Bar'");
+    var result = db.query("select from " + className + " where name = 'Bar'");
     Assert.assertTrue(result.hasNext());
     result.next();
     Assert.assertFalse(result.hasNext());
@@ -3597,7 +3597,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testNamedParams() {
-    String className = "testNamedParams";
+    var className = "testNamedParams";
     db.command("create class " + className).close();
 
     db.begin();
@@ -3608,7 +3608,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     Map<String, Object> params = new HashMap<>();
     params.put("p1", "Foo");
     params.put("p2", "Fox");
-    ResultSet result =
+    var result =
         db.query("select from " + className + " where name = :p1 and surname = :p2", params);
     Assert.assertTrue(result.hasNext());
     result.next();
@@ -3618,7 +3618,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testNamedParamsWithIndex() {
-    String className = "testNamedParamsWithIndex";
+    var className = "testNamedParamsWithIndex";
     db.command("create class " + className).close();
     db.command("create property " + className + ".name STRING").close();
     db.command("create index " + className + ".name ON " + className + " (name) NOTUNIQUE").close();
@@ -3630,7 +3630,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
     Map<String, Object> params = new HashMap<>();
     params.put("p1", "Foo");
-    ResultSet result = db.query("select from " + className + " where name = :p1", params);
+    var result = db.query("select from " + className + " where name = :p1", params);
     Assert.assertTrue(result.hasNext());
     result.next();
     Assert.assertFalse(result.hasNext());
@@ -3639,7 +3639,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testIsDefined() {
-    String className = "testIsDefined";
+    var className = "testIsDefined";
     db.command("create class " + className).close();
 
     db.begin();
@@ -3648,7 +3648,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     db.command("insert into " + className + " set sur = 'Barz'").close();
     db.commit();
 
-    ResultSet result = db.query("select from " + className + " where name is defined");
+    var result = db.query("select from " + className + " where name is defined");
     Assert.assertTrue(result.hasNext());
     result.next();
     Assert.assertFalse(result.hasNext());
@@ -3657,7 +3657,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testIsNotDefined() {
-    String className = "testIsNotDefined";
+    var className = "testIsNotDefined";
     db.command("create class " + className).close();
 
     db.begin();
@@ -3666,7 +3666,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     db.command("insert into " + className + " set sur = 'Barz'").close();
     db.commit();
 
-    ResultSet result = db.query("select from " + className + " where name is not defined");
+    var result = db.query("select from " + className + " where name is not defined");
     Assert.assertTrue(result.hasNext());
     result.next();
     Assert.assertFalse(result.hasNext());
@@ -3675,9 +3675,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testContainsWithSubquery() {
-    String className = "testContainsWithSubquery";
+    var className = "testContainsWithSubquery";
     db.createClassIfNotExist(className + 1);
-    SchemaClass clazz2 = db.createClassIfNotExist(className + 2);
+    var clazz2 = db.createClassIfNotExist(className + 2);
     clazz2.createProperty(db, "tags", PropertyType.EMBEDDEDLIST);
 
     db.begin();
@@ -3688,7 +3688,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     db.command("insert into " + className + 2 + "  set tags = ['foo']");
     db.commit();
 
-    try (ResultSet result =
+    try (var result =
         db.query(
             "select from "
                 + className
@@ -3708,9 +3708,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testInWithSubquery() {
-    String className = "testInWithSubquery";
+    var className = "testInWithSubquery";
     db.createClassIfNotExist(className + 1);
-    SchemaClass clazz2 = db.createClassIfNotExist(className + 2);
+    var clazz2 = db.createClassIfNotExist(className + 2);
     clazz2.createProperty(db, "tags", PropertyType.EMBEDDEDLIST);
 
     db.begin();
@@ -3721,7 +3721,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     db.command("insert into " + className + 2 + "  set tags = ['foo']");
     db.commit();
 
-    try (ResultSet result =
+    try (var result =
         db.query(
             "select from "
                 + className
@@ -3741,8 +3741,8 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testContainsAny() {
-    String className = "testContainsAny";
-    SchemaClass clazz = db.createClassIfNotExist(className);
+    var className = "testContainsAny";
+    var clazz = db.createClassIfNotExist(className);
     clazz.createProperty(db, "tags", PropertyType.EMBEDDEDLIST, PropertyType.STRING);
 
     db.begin();
@@ -3750,21 +3750,21 @@ public class SelectStatementExecutionTest extends DbTestBase {
     db.command("insert into " + className + "  set tags = ['bbb', 'FFF']");
     db.commit();
 
-    try (ResultSet result =
+    try (var result =
         db.query("select from " + className + " where tags containsany ['foo','baz']")) {
       Assert.assertTrue(result.hasNext());
       result.next();
       Assert.assertFalse(result.hasNext());
     }
 
-    try (ResultSet result =
+    try (var result =
         db.query("select from " + className + " where tags containsany ['foo','bar']")) {
       Assert.assertTrue(result.hasNext());
       result.next();
       Assert.assertFalse(result.hasNext());
     }
 
-    try (ResultSet result =
+    try (var result =
         db.query("select from " + className + " where tags containsany ['foo','bbb']")) {
       Assert.assertTrue(result.hasNext());
       result.next();
@@ -3773,21 +3773,21 @@ public class SelectStatementExecutionTest extends DbTestBase {
       Assert.assertFalse(result.hasNext());
     }
 
-    try (ResultSet result =
+    try (var result =
         db.query("select from " + className + " where tags containsany ['xx','baz']")) {
       Assert.assertFalse(result.hasNext());
     }
 
-    try (ResultSet result = db.query("select from " + className + " where tags containsany []")) {
+    try (var result = db.query("select from " + className + " where tags containsany []")) {
       Assert.assertFalse(result.hasNext());
     }
   }
 
   @Test
   public void testContainsAnyWithIndex() {
-    String className = "testContainsAnyWithIndex";
-    SchemaClass clazz = db.createClassIfNotExist(className);
-    SchemaProperty prop = clazz.createProperty(db, "tags", PropertyType.EMBEDDEDLIST,
+    var className = "testContainsAnyWithIndex";
+    var clazz = db.createClassIfNotExist(className);
+    var prop = clazz.createProperty(db, "tags", PropertyType.EMBEDDEDLIST,
         PropertyType.STRING);
     prop.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
@@ -3796,7 +3796,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     db.command("insert into " + className + "  set tags = ['bbb', 'FFF']");
     db.commit();
 
-    try (ResultSet result =
+    try (var result =
         db.query("select from " + className + " where tags containsany ['foo','baz']")) {
       Assert.assertTrue(result.hasNext());
       result.next();
@@ -3806,7 +3806,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
 
-    try (ResultSet result =
+    try (var result =
         db.query("select from " + className + " where tags containsany ['foo','bar']")) {
       Assert.assertTrue(result.hasNext());
       result.next();
@@ -3816,7 +3816,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
 
-    try (ResultSet result =
+    try (var result =
         db.query("select from " + className + " where tags containsany ['foo','bbb']")) {
       Assert.assertTrue(result.hasNext());
       result.next();
@@ -3828,7 +3828,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
 
-    try (ResultSet result =
+    try (var result =
         db.query("select from " + className + " where tags containsany ['xx','baz']")) {
       Assert.assertFalse(result.hasNext());
       Assert.assertTrue(
@@ -3836,7 +3836,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
 
-    try (ResultSet result = db.query("select from " + className + " where tags containsany []")) {
+    try (var result = db.query("select from " + className + " where tags containsany []")) {
       Assert.assertFalse(result.hasNext());
       Assert.assertTrue(
           result.getExecutionPlan().get().getSteps().stream()
@@ -3846,8 +3846,8 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testContainsAll() {
-    String className = "testContainsAll";
-    SchemaClass clazz = db.createClassIfNotExist(className);
+    var className = "testContainsAll";
+    var clazz = db.createClassIfNotExist(className);
     clazz.createProperty(db, "tags", PropertyType.EMBEDDEDLIST, PropertyType.STRING);
 
     db.begin();
@@ -3855,14 +3855,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
     db.command("insert into " + className + "  set tags = ['foo', 'FFF']");
     db.commit();
 
-    try (ResultSet result =
+    try (var result =
         db.query("select from " + className + " where tags containsall ['foo','bar']")) {
       Assert.assertTrue(result.hasNext());
       result.next();
       Assert.assertFalse(result.hasNext());
     }
 
-    try (ResultSet result =
+    try (var result =
         db.query("select from " + className + " where tags containsall ['foo']")) {
       Assert.assertTrue(result.hasNext());
       result.next();
@@ -3874,7 +3874,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testBetween() {
-    String className = "testBetween";
+    var className = "testBetween";
     db.createClassIfNotExist(className);
 
     db.begin();
@@ -3884,7 +3884,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     db.command("insert into " + className + "  set name = 'foo4', val = 4");
     db.commit();
 
-    try (ResultSet result = db.query("select from " + className + " where val between 2 and 3")) {
+    try (var result = db.query("select from " + className + " where val between 2 and 3")) {
       Assert.assertTrue(result.hasNext());
       result.next();
       Assert.assertTrue(result.hasNext());
@@ -3895,9 +3895,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testInWithIndex() {
-    String className = "testInWithIndex";
-    SchemaClass clazz = db.createClassIfNotExist(className);
-    SchemaProperty prop = clazz.createProperty(db, "tag", PropertyType.STRING);
+    var className = "testInWithIndex";
+    var clazz = db.createClassIfNotExist(className);
+    var prop = clazz.createProperty(db, "tag", PropertyType.STRING);
     prop.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
@@ -3905,7 +3905,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     db.command("insert into " + className + "  set tag = 'bar'");
     db.commit();
 
-    try (ResultSet result = db.query(
+    try (var result = db.query(
         "select from " + className + " where tag in ['foo','baz']")) {
       Assert.assertTrue(result.hasNext());
       result.next();
@@ -3915,7 +3915,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
 
-    try (ResultSet result = db.query(
+    try (var result = db.query(
         "select from " + className + " where tag in ['foo','bar']")) {
       Assert.assertTrue(result.hasNext());
       result.next();
@@ -3927,7 +3927,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
 
-    try (ResultSet result = db.query("select from " + className + " where tag in []")) {
+    try (var result = db.query("select from " + className + " where tag in []")) {
       Assert.assertFalse(result.hasNext());
       Assert.assertTrue(
           result.getExecutionPlan().get().getSteps().stream()
@@ -3937,7 +3937,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     List<String> params = new ArrayList<>();
     params.add("foo");
     params.add("bar");
-    try (ResultSet result = db.query("select from " + className + " where tag in (?)", params)) {
+    try (var result = db.query("select from " + className + " where tag in (?)", params)) {
       Assert.assertTrue(result.hasNext());
       result.next();
       Assert.assertTrue(result.hasNext());
@@ -3951,32 +3951,32 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testIndexChain() {
-    String className1 = "testIndexChain1";
-    String className2 = "testIndexChain2";
-    String className3 = "testIndexChain3";
+    var className1 = "testIndexChain1";
+    var className2 = "testIndexChain2";
+    var className3 = "testIndexChain3";
 
-    SchemaClass clazz3 = db.createClassIfNotExist(className3);
-    SchemaProperty prop = clazz3.createProperty(db, "name", PropertyType.STRING);
+    var clazz3 = db.createClassIfNotExist(className3);
+    var prop = clazz3.createProperty(db, "name", PropertyType.STRING);
     prop.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
-    SchemaClass clazz2 = db.createClassIfNotExist(className2);
+    var clazz2 = db.createClassIfNotExist(className2);
     prop = clazz2.createProperty(db, "next", PropertyType.LINK, clazz3);
     prop.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
-    SchemaClass clazz1 = db.createClassIfNotExist(className1);
+    var clazz1 = db.createClassIfNotExist(className1);
     prop = clazz1.createProperty(db, "next", PropertyType.LINK, clazz2);
     prop.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
-    Entity elem3 = db.newEntity(className3);
+    var elem3 = db.newEntity(className3);
     elem3.setProperty("name", "John");
     elem3.save();
 
-    Entity elem2 = db.newEntity(className2);
+    var elem2 = db.newEntity(className2);
     elem2.setProperty("next", elem3);
     elem2.save();
 
-    Entity elem1 = db.newEntity(className1);
+    var elem1 = db.newEntity(className1);
     elem1.setProperty("next", elem2);
     elem1.setProperty("name", "right");
     elem1.save();
@@ -3986,10 +3986,10 @@ public class SelectStatementExecutionTest extends DbTestBase {
     elem1.save();
     db.commit();
 
-    try (ResultSet result =
+    try (var result =
         db.query("select from " + className1 + " where next.next.name = ?", "John")) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertEquals("right", item.getProperty("name"));
       Assert.assertFalse(result.hasNext());
       Assert.assertTrue(
@@ -4000,39 +4000,39 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testIndexChainWithContainsAny() {
-    String className1 = "testIndexChainWithContainsAny1";
-    String className2 = "testIndexChainWithContainsAny2";
-    String className3 = "testIndexChainWithContainsAny3";
+    var className1 = "testIndexChainWithContainsAny1";
+    var className2 = "testIndexChainWithContainsAny2";
+    var className3 = "testIndexChainWithContainsAny3";
 
-    SchemaClass clazz3 = db.createClassIfNotExist(className3);
-    SchemaProperty prop = clazz3.createProperty(db, "name", PropertyType.STRING);
+    var clazz3 = db.createClassIfNotExist(className3);
+    var prop = clazz3.createProperty(db, "name", PropertyType.STRING);
     prop.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
-    SchemaClass clazz2 = db.createClassIfNotExist(className2);
+    var clazz2 = db.createClassIfNotExist(className2);
     prop = clazz2.createProperty(db, "next", PropertyType.LINKSET, clazz3);
     prop.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
-    SchemaClass clazz1 = db.createClassIfNotExist(className1);
+    var clazz1 = db.createClassIfNotExist(className1);
     prop = clazz1.createProperty(db, "next", PropertyType.LINKSET, clazz2);
     prop.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
-    Entity elem3 = db.newEntity(className3);
+    var elem3 = db.newEntity(className3);
     elem3.setProperty("name", "John");
     elem3.save();
 
-    Entity elemFoo = db.newEntity(className3);
+    var elemFoo = db.newEntity(className3);
     elemFoo.setProperty("foo", "bar");
     elemFoo.save();
 
-    Entity elem2 = db.newEntity(className2);
+    var elem2 = db.newEntity(className2);
     List<Entity> elems3 = new ArrayList<>();
     elems3.add(elem3);
     elems3.add(elemFoo);
     elem2.setProperty("next", elems3);
     elem2.save();
 
-    Entity elem1 = db.newEntity(className1);
+    var elem1 = db.newEntity(className1);
     List<Entity> elems2 = new ArrayList<>();
     elems2.add(elem2);
     elem1.setProperty("next", elems2);
@@ -4044,10 +4044,10 @@ public class SelectStatementExecutionTest extends DbTestBase {
     elem1.save();
     db.commit();
 
-    try (ResultSet result =
+    try (var result =
         db.query("select from " + className1 + " where next.next.name CONTAINSANY ['John']")) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertEquals("right", item.getProperty("name"));
       Assert.assertFalse(result.hasNext());
       Assert.assertTrue(
@@ -4058,28 +4058,28 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testMapByKeyIndex() {
-    String className = "testMapByKeyIndex";
+    var className = "testMapByKeyIndex";
 
-    SchemaClass clazz1 = db.createClassIfNotExist(className);
-    SchemaProperty prop = clazz1.createProperty(db, "themap", PropertyType.EMBEDDEDMAP);
+    var clazz1 = db.createClassIfNotExist(className);
+    var prop = clazz1.createProperty(db, "themap", PropertyType.EMBEDDEDMAP);
 
     db.command(
         "CREATE INDEX " + className + ".themap ON " + className + "(themap by key) NOTUNIQUE");
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       db.begin();
       Map<String, Object> theMap = new HashMap<>();
       theMap.put("key" + i, "val" + i);
-      Entity elem1 = db.newEntity(className);
+      var elem1 = db.newEntity(className);
       elem1.setProperty("themap", theMap);
       elem1.save();
       db.commit();
     }
 
-    try (ResultSet result =
+    try (var result =
         db.query("select from " + className + " where themap CONTAINSKEY ?", "key10")) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Map<String, Object> map = item.getProperty("themap");
       Assert.assertEquals("key10", map.keySet().iterator().next());
       Assert.assertFalse(result.hasNext());
@@ -4091,9 +4091,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testMapByKeyIndexMultiple() {
-    String className = "testMapByKeyIndexMultiple";
+    var className = "testMapByKeyIndexMultiple";
 
-    SchemaClass clazz1 = db.createClassIfNotExist(className);
+    var clazz1 = db.createClassIfNotExist(className);
     clazz1.createProperty(db, "themap", PropertyType.EMBEDDEDMAP);
     clazz1.createProperty(db, "thestring", PropertyType.STRING);
 
@@ -4104,24 +4104,24 @@ public class SelectStatementExecutionTest extends DbTestBase {
             + className
             + "(themap by key, thestring) NOTUNIQUE");
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       db.begin();
       Map<String, Object> theMap = new HashMap<>();
       theMap.put("key" + i, "val" + i);
-      Entity elem1 = db.newEntity(className);
+      var elem1 = db.newEntity(className);
       elem1.setProperty("themap", theMap);
       elem1.setProperty("thestring", "thestring" + i);
       elem1.save();
       db.commit();
     }
 
-    try (ResultSet result =
+    try (var result =
         db.query(
             "select from " + className + " where themap CONTAINSKEY ? AND thestring = ?",
             "key10",
             "thestring10")) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Map<String, Object> map = item.getProperty("themap");
       Assert.assertEquals("key10", map.keySet().iterator().next());
       Assert.assertFalse(result.hasNext());
@@ -4133,29 +4133,29 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testMapByValueIndex() {
-    String className = "testMapByValueIndex";
+    var className = "testMapByValueIndex";
 
-    SchemaClass clazz1 = db.createClassIfNotExist(className);
-    SchemaProperty prop = clazz1.createProperty(db, "themap", PropertyType.EMBEDDEDMAP,
+    var clazz1 = db.createClassIfNotExist(className);
+    var prop = clazz1.createProperty(db, "themap", PropertyType.EMBEDDEDMAP,
         PropertyType.STRING);
 
     db.command(
         "CREATE INDEX " + className + ".themap ON " + className + "(themap by value) NOTUNIQUE");
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       db.begin();
       Map<String, Object> theMap = new HashMap<>();
       theMap.put("key" + i, "val" + i);
-      Entity elem1 = db.newEntity(className);
+      var elem1 = db.newEntity(className);
       elem1.setProperty("themap", theMap);
       elem1.save();
       db.commit();
     }
 
-    try (ResultSet result =
+    try (var result =
         db.query("select from " + className + " where themap CONTAINSVALUE ?", "val10")) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Map<String, Object> map = item.getProperty("themap");
       Assert.assertEquals("key10", map.keySet().iterator().next());
       Assert.assertFalse(result.hasNext());
@@ -4167,9 +4167,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testListOfMapsContains() {
-    String className = "testListOfMapsContains";
+    var className = "testListOfMapsContains";
 
-    SchemaClass clazz1 = db.createClassIfNotExist(className);
+    var clazz1 = db.createClassIfNotExist(className);
     clazz1.createProperty(db, "thelist", PropertyType.EMBEDDEDLIST, PropertyType.EMBEDDEDMAP);
 
     db.begin();
@@ -4177,7 +4177,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     db.command("INSERT INTO " + className + " SET thelist = [{name:\"Joe\"}]").close();
     db.commit();
 
-    try (ResultSet result =
+    try (var result =
         db.query("select from " + className + " where thelist CONTAINS ( name = ?)", "Jack")) {
       Assert.assertTrue(result.hasNext());
       result.next();
@@ -4187,7 +4187,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testOrderByWithCollate() {
-    String className = "testOrderByWithCollate";
+    var className = "testOrderByWithCollate";
 
     db.createClassIfNotExist(className);
 
@@ -4199,11 +4199,11 @@ public class SelectStatementExecutionTest extends DbTestBase {
     db.command("INSERT INTO " + className + " SET name = 'd', idx = 3").close();
     db.commit();
 
-    try (ResultSet result =
+    try (var result =
         db.query("select from " + className + " order by name asc collate ci")) {
-      for (int i = 0; i < 5; i++) {
+      for (var i = 0; i < 5; i++) {
         Assert.assertTrue(result.hasNext());
-        Result item = result.next();
+        var item = result.next();
         int val = item.getProperty("idx");
         Assert.assertEquals(i, val);
       }
@@ -4213,7 +4213,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testContainsEmptyCollection() {
-    String className = "testContainsEmptyCollection";
+    var className = "testContainsEmptyCollection";
 
     db.createClassIfNotExist(className);
 
@@ -4241,7 +4241,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
         .close();
     db.commit();
 
-    try (ResultSet result = db.query("select from " + className + " where test contains []")) {
+    try (var result = db.query("select from " + className + " where test contains []")) {
       Assert.assertTrue(result.hasNext());
       result.next();
       Assert.assertFalse(result.hasNext());
@@ -4250,7 +4250,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testContainsCollection() {
-    String className = "testContainsCollection";
+    var className = "testContainsCollection";
 
     db.createClassIfNotExist(className);
 
@@ -4278,7 +4278,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
         .close();
     db.commit();
 
-    try (ResultSet result = db.query("select from " + className + " where test contains [1]")) {
+    try (var result = db.query("select from " + className + " where test contains [1]")) {
       Assert.assertTrue(result.hasNext());
       result.next();
       Assert.assertFalse(result.hasNext());
@@ -4291,7 +4291,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     try {
       GlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP.setValue(3);
 
-      String className = "testHeapLimitForOrderBy";
+      var className = "testHeapLimitForOrderBy";
 
       db.createClassIfNotExist(className);
 
@@ -4303,7 +4303,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
 
       try {
-        try (ResultSet result = db.query("select from " + className + " ORDER BY name")) {
+        try (var result = db.query("select from " + className + " ORDER BY name")) {
           result.forEachRemaining(x -> x.getProperty("name"));
         }
         Assert.fail();
@@ -4316,9 +4316,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testXor() {
-    try (ResultSet result = db.query("select 15 ^ 4 as foo")) {
+    try (var result = db.query("select 15 ^ 4 as foo")) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertEquals(11, (int) item.getProperty("foo"));
       Assert.assertFalse(result.hasNext());
     }
@@ -4326,7 +4326,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testLike() {
-    String className = "testLike";
+    var className = "testLike";
 
     db.createClassIfNotExist(className);
 
@@ -4335,34 +4335,34 @@ public class SelectStatementExecutionTest extends DbTestBase {
     db.command("INSERT INTO " + className + " content {\"name\": \"test[]{}()|*^.test\"}").close();
     db.commit();
 
-    try (ResultSet result = db.query("select from " + className + " where name LIKE 'foo%'")) {
+    try (var result = db.query("select from " + className + " where name LIKE 'foo%'")) {
       Assert.assertTrue(result.hasNext());
       result.next();
       Assert.assertFalse(result.hasNext());
     }
-    try (ResultSet result =
+    try (var result =
         db.query("select from " + className + " where name LIKE '%foo%baz%'")) {
       Assert.assertTrue(result.hasNext());
       result.next();
       Assert.assertFalse(result.hasNext());
     }
-    try (ResultSet result = db.query("select from " + className + " where name LIKE '%bar%'")) {
+    try (var result = db.query("select from " + className + " where name LIKE '%bar%'")) {
       Assert.assertTrue(result.hasNext());
       result.next();
       Assert.assertFalse(result.hasNext());
     }
 
-    try (ResultSet result = db.query("select from " + className + " where name LIKE 'bar%'")) {
+    try (var result = db.query("select from " + className + " where name LIKE 'bar%'")) {
       Assert.assertFalse(result.hasNext());
     }
 
-    try (ResultSet result = db.query("select from " + className + " where name LIKE '%bar'")) {
+    try (var result = db.query("select from " + className + " where name LIKE '%bar'")) {
       Assert.assertFalse(result.hasNext());
     }
 
-    String specialChars = "[]{}()|*^.";
-    for (char c : specialChars.toCharArray()) {
-      try (ResultSet result =
+    var specialChars = "[]{}()|*^.";
+    for (var c : specialChars.toCharArray()) {
+      try (var result =
           db.query("select from " + className + " where name LIKE '%" + c + "%'")) {
         Assert.assertTrue(result.hasNext());
         result.next();
@@ -4374,9 +4374,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
   @Test
   public void testCountGroupBy() {
     // issue #9288
-    String className = "testCountGroupBy";
+    var className = "testCountGroupBy";
     db.getMetadata().getSchema().createClass(className);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "even" : "odd");
@@ -4384,11 +4384,11 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.save();
       db.commit();
     }
-    ResultSet result = db.query("select count(val) as count from " + className + " limit 3");
+    var result = db.query("select count(val) as count from " + className + " limit 3");
     printExecutionPlan(result);
 
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertEquals(10L, (long) item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -4397,8 +4397,8 @@ public class SelectStatementExecutionTest extends DbTestBase {
   @Test
   @Ignore
   public void testTimeout() {
-    String className = "testTimeout";
-    final String funcitonName = getClass().getSimpleName() + "_sleep";
+    var className = "testTimeout";
+    final var funcitonName = getClass().getSimpleName() + "_sleep";
     db.getMetadata().getSchema().createClass(className);
 
     SQLEngine.getInstance()
@@ -4463,13 +4463,13 @@ public class SelectStatementExecutionTest extends DbTestBase {
               public void setResult(Object iResult) {
               }
             });
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "even" : "odd");
       doc.setProperty("val", i);
       doc.save();
     }
-    try (ResultSet result =
+    try (var result =
         db.query("select " + funcitonName + "(), * from " + className + " timeout 1")) {
       while (result.hasNext()) {
         result.next();
@@ -4479,7 +4479,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
     }
 
-    try (ResultSet result =
+    try (var result =
         db.query("select " + funcitonName + "(), * from " + className + " timeout 1000")) {
       while (result.hasNext()) {
         result.next();
@@ -4491,22 +4491,22 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSimpleRangeQueryWithIndexGTE() {
-    final String className = "testSimpleRangeQueryWithIndexGTE";
-    final SchemaClass clazz = db.getMetadata().getSchema().getOrCreateClass(className);
-    final SchemaProperty prop = clazz.createProperty(db, "name", PropertyType.STRING);
+    final var className = "testSimpleRangeQueryWithIndexGTE";
+    final var clazz = db.getMetadata().getSchema().getOrCreateClass(className);
+    final var prop = clazz.createProperty(db, "name", PropertyType.STRING);
     prop.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       final EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
     }
-    final ResultSet result = db.query("select from " + className + " WHERE name >= 'name5'");
+    final var result = db.query("select from " + className + " WHERE name >= 'name5'");
     printExecutionPlan(result);
 
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       Assert.assertTrue(result.hasNext());
       result.next();
     }
@@ -4516,22 +4516,22 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSimpleRangeQueryWithIndexLTE() {
-    final String className = "testSimpleRangeQueryWithIndexLTE";
-    final SchemaClass clazz = db.getMetadata().getSchema().getOrCreateClass(className);
-    final SchemaProperty prop = clazz.createProperty(db, "name", PropertyType.STRING);
+    final var className = "testSimpleRangeQueryWithIndexLTE";
+    final var clazz = db.getMetadata().getSchema().getOrCreateClass(className);
+    final var prop = clazz.createProperty(db, "name", PropertyType.STRING);
     prop.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       final EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
     }
-    final ResultSet result = db.query("select from " + className + " WHERE name <= 'name5'");
+    final var result = db.query("select from " + className + " WHERE name <= 'name5'");
     printExecutionPlan(result);
 
-    for (int i = 0; i < 6; i++) {
+    for (var i = 0; i < 6; i++) {
       Assert.assertTrue(result.hasNext());
       result.next();
     }
@@ -4541,13 +4541,13 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSimpleRangeQueryWithOutIndex() {
-    final String className = "testSimpleRangeQueryWithOutIndex";
-    final SchemaClass clazz = db.getMetadata().getSchema().getOrCreateClass(className);
-    final SchemaProperty prop = clazz.createProperty(db, "name", PropertyType.STRING);
+    final var className = "testSimpleRangeQueryWithOutIndex";
+    final var clazz = db.getMetadata().getSchema().getOrCreateClass(className);
+    final var prop = clazz.createProperty(db, "name", PropertyType.STRING);
     // Hash Index skipped for range query
     prop.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       final EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -4555,10 +4555,10 @@ public class SelectStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    final ResultSet result = db.query("select from " + className + " WHERE name >= 'name5'");
+    final var result = db.query("select from " + className + " WHERE name >= 'name5'");
     printExecutionPlan(result);
 
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       Assert.assertTrue(result.hasNext());
       result.next();
     }
@@ -4572,11 +4572,11 @@ public class SelectStatementExecutionTest extends DbTestBase {
     // A -b-> B -c-> C -d-> D.name
     //               C.name
 
-    String classNamePrefix = "testComplexIndexChain_";
-    SchemaClass a = db.getMetadata().getSchema().createClass(classNamePrefix + "A");
-    SchemaClass b = db.getMetadata().getSchema().createClass(classNamePrefix + "C");
-    SchemaClass c = db.getMetadata().getSchema().createClass(classNamePrefix + "B");
-    SchemaClass d = db.getMetadata().getSchema().createClass(classNamePrefix + "D");
+    var classNamePrefix = "testComplexIndexChain_";
+    var a = db.getMetadata().getSchema().createClass(classNamePrefix + "A");
+    var b = db.getMetadata().getSchema().createClass(classNamePrefix + "C");
+    var c = db.getMetadata().getSchema().createClass(classNamePrefix + "B");
+    var d = db.getMetadata().getSchema().createClass(classNamePrefix + "D");
 
     a.createProperty(db, "b", PropertyType.LINK, b)
         .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
@@ -4590,26 +4590,26 @@ public class SelectStatementExecutionTest extends DbTestBase {
         .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
-    Entity dDoc = db.newEntity(d.getName());
+    var dDoc = db.newEntity(d.getName());
     dDoc.setProperty("name", "foo");
     dDoc.save();
 
-    Entity cDoc = db.newEntity(c.getName());
+    var cDoc = db.newEntity(c.getName());
     cDoc.setProperty("name", "foo");
     cDoc.setProperty("d", dDoc);
     cDoc.save();
 
-    Entity bDoc = db.newEntity(b.getName());
+    var bDoc = db.newEntity(b.getName());
     bDoc.setProperty("c", cDoc);
     bDoc.save();
 
-    Entity aDoc = db.newEntity(a.getName());
+    var aDoc = db.newEntity(a.getName());
     aDoc.setProperty("b", bDoc);
     aDoc.save();
 
     db.commit();
 
-    try (ResultSet rs =
+    try (var rs =
         db.query(
             "SELECT FROM "
                 + classNamePrefix
@@ -4617,7 +4617,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       Assert.assertTrue(rs.hasNext());
     }
 
-    try (ResultSet rs =
+    try (var rs =
         db.query(
             "SELECT FROM " + classNamePrefix + "A WHERE b.c.name = 'foo' AND b.c.d.name = 'foo'")) {
       Assert.assertTrue(rs.hasNext());
@@ -4629,7 +4629,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testIndexWithSubquery() {
-    String classNamePrefix = "testIndexWithSubquery_";
+    var classNamePrefix = "testIndexWithSubquery_";
     db.command("create class " + classNamePrefix + "Ownership extends V abstract;").close();
     db.command("create class " + classNamePrefix + "User extends V;").close();
     db.command("create property " + classNamePrefix + "User.id String;").close();
@@ -4674,7 +4674,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
         .close();
     db.commit();
 
-    try (ResultSet rs =
+    try (var rs =
         db.query(
             "select from "
                 + classNamePrefix
@@ -4698,7 +4698,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
                 + "Report(id) unique;")
         .close();
 
-    try (ResultSet rs =
+    try (var rs =
         db.query(
             "select from "
                 + classNamePrefix
@@ -4717,7 +4717,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testExclude() {
-    String className = "TestExclude";
+    var className = "TestExclude";
     db.getMetadata().getSchema().createClass(className);
     db.begin();
     EntityImpl doc = db.newInstance(className);
@@ -4726,9 +4726,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
     doc.save();
     db.commit();
 
-    ResultSet result = db.query("select *, !surname from " + className);
+    var result = db.query("select *, !surname from " + className);
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals("foo", item.getProperty("name"));
     Assert.assertNull(item.getProperty("surname"));
@@ -4739,7 +4739,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testOrderByLet() {
-    String className = "testOrderByLet";
+    var className = "testOrderByLet";
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
@@ -4752,23 +4752,23 @@ public class SelectStatementExecutionTest extends DbTestBase {
     doc.save();
     db.commit();
 
-    try (ResultSet result =
+    try (var result =
         db.query(
             "select from "
                 + className
                 + " LET $order = name.substring(1) ORDER BY $order ASC LIMIT 1")) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("baaa", item.getProperty("name"));
     }
-    try (ResultSet result =
+    try (var result =
         db.query(
             "select from "
                 + className
                 + " LET $order = name.substring(1) ORDER BY $order DESC LIMIT 1")) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("abbb", item.getProperty("name"));
     }
@@ -4776,7 +4776,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testMapToJson() {
-    String className = "testMapToJson";
+    var className = "testMapToJson";
     db.command("create class " + className).close();
     db.command("create property " + className + ".themap embeddedmap").close();
 
@@ -4788,16 +4788,16 @@ public class SelectStatementExecutionTest extends DbTestBase {
         .close();
     db.commit();
 
-    try (ResultSet rs = db.query("select themap.tojson() as x from " + className)) {
+    try (var rs = db.query("select themap.tojson() as x from " + className)) {
       Assert.assertTrue(rs.hasNext());
-      Result item = rs.next();
+      var item = rs.next();
       Assert.assertTrue(((String) item.getProperty("x")).contains("foo bar"));
     }
   }
 
   @Test
   public void testOptimizedCountQuery() {
-    String className = "testOptimizedCountQuery";
+    var className = "testOptimizedCountQuery";
     db.command("create class " + className).close();
     db.command("create property " + className + ".field boolean").close();
     db.command("create index " + className + ".field on " + className + "(field) NOTUNIQUE")
@@ -4807,10 +4807,10 @@ public class SelectStatementExecutionTest extends DbTestBase {
     db.command("insert into " + className + " set field=true").close();
     db.commit();
 
-    try (ResultSet rs =
+    try (var rs =
         db.query("select count(*) as count from " + className + " where field=true")) {
       Assert.assertTrue(rs.hasNext());
-      Result item = rs.next();
+      var item = rs.next();
       Assert.assertEquals((long) item.getProperty("count"), 1L);
       Assert.assertFalse(rs.hasNext());
     }

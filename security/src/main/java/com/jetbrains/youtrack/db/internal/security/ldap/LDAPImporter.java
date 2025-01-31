@@ -65,17 +65,17 @@ public class LDAPImporter implements SecurityComponent {
   // SecurityComponent
   public void active() {
     // Go through each database entry and check the _OLDAPUsers schema.
-    for (Map.Entry<String, Database> dbEntry : databaseMap.entrySet()) {
-      Database db = dbEntry.getValue();
+    for (var dbEntry : databaseMap.entrySet()) {
+      var db = dbEntry.getValue();
 
-      try (DatabaseSessionInternal odb = context.openNoAuthenticate(db.getName(), "internal")) {
+      try (var odb = context.openNoAuthenticate(db.getName(), "internal")) {
         verifySchema(odb);
       } catch (Exception ex) {
         LogManager.instance().error(this, "LDAPImporter.active() Database: %s", ex, db.getName());
       }
     }
 
-    ImportTask importTask = new ImportTask();
+    var importTask = new ImportTask();
     importTimer = new Timer(true);
     importTimer.scheduleAtFixedRate(
         importTask, 30000, importPeriod * 1000L); // Wait 30 seconds before starting
@@ -113,7 +113,7 @@ public class LDAPImporter implements SecurityComponent {
       if (importDoc.containsField("databases")) {
         List<EntityImpl> list = importDoc.field("databases");
 
-        for (EntityImpl dbDoc : list) {
+        for (var dbDoc : list) {
           if (dbDoc.containsField("database")) {
             String dbName = dbDoc.field("database");
 
@@ -121,7 +121,7 @@ public class LDAPImporter implements SecurityComponent {
               LogManager.instance().info(this, "config() database: %s", dbName);
             }
 
-            boolean ignoreLocal = true;
+            var ignoreLocal = true;
 
             if (dbDoc.containsField("ignoreLocal")) {
               ignoreLocal = dbDoc.field("ignoreLocal");
@@ -132,7 +132,7 @@ public class LDAPImporter implements SecurityComponent {
 
               final List<EntityImpl> dbdList = dbDoc.field("domains");
 
-              for (EntityImpl dbDomainDoc : dbdList) {
+              for (var dbDomainDoc : dbdList) {
                 String domain = null;
 
                 // "domain" is mandatory.
@@ -152,16 +152,16 @@ public class LDAPImporter implements SecurityComponent {
 
                     final List<EntityImpl> ldapServers = dbDomainDoc.field("servers");
 
-                    for (EntityImpl ldapServerDoc : ldapServers) {
+                    for (var ldapServerDoc : ldapServers) {
                       final String url = ldapServerDoc.field("url");
 
-                      boolean isAlias = false;
+                      var isAlias = false;
 
                       if (ldapServerDoc.containsField("isAlias")) {
                         isAlias = ldapServerDoc.field("isAlias");
                       }
 
-                      LDAPServer server = LDAPServer.validateURL(url, isAlias);
+                      var server = LDAPServer.validateURL(url, isAlias);
 
                       if (server != null) {
                         ldapServerList.add(server);
@@ -186,7 +186,7 @@ public class LDAPImporter implements SecurityComponent {
                     // userDocList can be null if only the oldapUserClass is used instead
                     // security.json.
                     if (userDocList != null) {
-                      for (EntityImpl userDoc : userDocList) {
+                      for (var userDoc : userDocList) {
                         if (userDoc.containsField("baseDN") && userDoc.containsField("filter")) {
                           if (userDoc.containsField("roles")) {
                             final String baseDN = userDoc.field("baseDN");
@@ -204,7 +204,7 @@ public class LDAPImporter implements SecurityComponent {
 
                             final List<String> roleList = userDoc.field("roles");
 
-                            final User User = new User(baseDN, filter, roleList);
+                            final var User = new User(baseDN, filter, roleList);
 
                             userList.add(User);
                           } else {
@@ -226,7 +226,7 @@ public class LDAPImporter implements SecurityComponent {
                       }
                     }
 
-                    DatabaseDomain dbd =
+                    var dbd =
                         new DatabaseDomain(domain, ldapServerList, userList, authenticator);
 
                     dbDomainsList.add(dbd);
@@ -249,7 +249,7 @@ public class LDAPImporter implements SecurityComponent {
               }
 
               if (dbName != null) {
-                Database db = new Database(dbName, ignoreLocal, dbDomainsList);
+                var db = new Database(dbName, ignoreLocal, dbDomainsList);
                 databaseMap.put(dbName, db);
               }
             } else {
@@ -289,11 +289,11 @@ public class LDAPImporter implements SecurityComponent {
       if (!odb.getMetadata().getSchema().existsClass(oldapUserClass)) {
         System.out.println("calling createClass");
 
-        SchemaClass ldapUser = odb.getMetadata().getSchema().createClass(oldapUserClass);
+        var ldapUser = odb.getMetadata().getSchema().createClass(oldapUserClass);
 
         System.out.println("calling createProperty");
 
-        SchemaProperty prop = ldapUser.createProperty(odb, "Domain", PropertyType.STRING);
+        var prop = ldapUser.createProperty(odb, "Domain", PropertyType.STRING);
 
         System.out.println("calling setMandatory");
 
@@ -396,7 +396,7 @@ public class LDAPImporter implements SecurityComponent {
 
     public void addRoles(Set<String> roles) {
       if (roles != null) {
-        for (String role : roles) {
+        for (var role : roles) {
           this.roles.add(role);
         }
       }
@@ -430,7 +430,7 @@ public class LDAPImporter implements SecurityComponent {
       this.filter = filter;
 
       // Convert the list into a set, for convenience.
-      for (String role : roleList) {
+      for (var role : roleList) {
         roles.add(role);
       }
     }
@@ -469,9 +469,9 @@ public class LDAPImporter implements SecurityComponent {
       LogManager.instance().info(this, "LDAPImporter.importLDAP() \n");
     }
 
-    for (Map.Entry<String, Database> dbEntry : databaseMap.entrySet()) {
+    for (var dbEntry : databaseMap.entrySet()) {
       try {
-        Database db = dbEntry.getValue();
+        var db = dbEntry.getValue();
 
         var odb = context.openNoAuthenticate(db.getName(), "internal");
 
@@ -488,18 +488,18 @@ public class LDAPImporter implements SecurityComponent {
           // If one or more LDAP servers cannot be reached (perhaps temporarily), we don't want to
           // delete all the database users, locking everyone out until the LDAP server is available
           // again.
-          boolean deleteUsers = false;
+          var deleteUsers = false;
 
           // Retrieves all the current YouTrackDB users from the specified ODatabase and stores them
           // in usersToBeDeleted.
           retrieveAllUsers(odb, db.ignoreLocal(), usersToBeDeleted);
 
-          for (DatabaseDomain dd : db.getDatabaseDomains()) {
+          for (var dd : db.getDatabaseDomains()) {
             try {
-              Subject ldapSubject = getLDAPSubject(dd.getAuthenticator());
+              var ldapSubject = getLDAPSubject(dd.getAuthenticator());
 
               if (ldapSubject != null) {
-                DirContext dc = LDAPLibrary.openContext(ldapSubject, dd.getLDAPServers(), debug);
+                var dc = LDAPLibrary.openContext(ldapSubject, dd.getLDAPServers(), debug);
 
                 if (dc != null) {
                   deleteUsers = true;
@@ -512,7 +512,7 @@ public class LDAPImporter implements SecurityComponent {
 
                     retrieveLDAPUsers(odb, dd.getDomain(), userList);
 
-                    for (User user : userList) {
+                    for (var user : userList) {
                       List<String> usersRetrieved = new ArrayList<String>();
 
                       LogManager.instance()
@@ -527,7 +527,7 @@ public class LDAPImporter implements SecurityComponent {
                           dc, user.getBaseDN(), user.getFilter(), usersRetrieved, debug);
 
                       if (!usersRetrieved.isEmpty()) {
-                        for (String upn : usersRetrieved) {
+                        for (var upn : usersRetrieved) {
                           usersToBeDeleted.remove(upn);
 
                           LogManager.instance()
@@ -617,24 +617,24 @@ public class LDAPImporter implements SecurityComponent {
   private void retrieveLDAPUsers(
       final DatabaseSession odb, final String domain, final List<User> userList) {
     try {
-      String sql = String.format("SELECT FROM `%s` WHERE Domain = ?", oldapUserClass);
+      var sql = String.format("SELECT FROM `%s` WHERE Domain = ?", oldapUserClass);
 
-      ResultSet users = odb.query(sql, domain);
+      var users = odb.query(sql, domain);
 
       while (users.hasNext()) {
-        Result userDoc = users.next();
+        var userDoc = users.next();
         String roles = userDoc.getProperty("Roles");
 
         if (roles != null) {
           List<String> roleList = new ArrayList<String>();
 
-          String[] roleArray = roles.split(",");
+          var roleArray = roles.split(",");
 
-          for (String role : roleArray) {
+          for (var role : roleArray) {
             roleList.add(role.trim());
           }
 
-          User user =
+          var user =
               new User(userDoc.getProperty("BaseDN"), userDoc.getProperty("Filter"), roleList);
           userList.add(user);
         } else {
@@ -662,15 +662,15 @@ public class LDAPImporter implements SecurityComponent {
   private void retrieveAllUsers(
       final DatabaseSession odb, final boolean ignoreLocal, final Set<String> usersToBeDeleted) {
     try {
-      String sql = "SELECT FROM OUser";
+      var sql = "SELECT FROM OUser";
 
       if (ignoreLocal) {
         sql = "SELECT FROM OUser WHERE _externalUser = true";
       }
-      ResultSet users = odb.query(sql);
+      var users = odb.query(sql);
 
       while (users.hasNext()) {
-        Result user = users.next();
+        var user = users.next();
         String name = user.getProperty("name");
 
         if (name != null) {
@@ -694,7 +694,7 @@ public class LDAPImporter implements SecurityComponent {
 
   private void deleteUsers(final DatabaseSession odb, final Set<String> usersToBeDeleted) {
     try {
-      for (String user : usersToBeDeleted) {
+      for (var user : usersToBeDeleted) {
         odb.command("DELETE FROM OUser WHERE name = ?", user);
 
         LogManager.instance()
@@ -712,8 +712,8 @@ public class LDAPImporter implements SecurityComponent {
 
   private void importUsers(final DatabaseSession odb, final Map<String, DatabaseUser> usersMap) {
     try {
-      for (Map.Entry<String, DatabaseUser> entry : usersMap.entrySet()) {
-        String upn = entry.getKey();
+      for (var entry : usersMap.entrySet()) {
+        var upn = entry.getKey();
 
         if (upsertDbUser(odb, upn, entry.getValue().getRoles())) {
           LogManager.instance()
@@ -749,21 +749,21 @@ public class LDAPImporter implements SecurityComponent {
       // final String password = SecurityManager.instance().createSHA256(String.valueOf(new
       // java.util.Random().nextLong()));
 
-      final String password = UUID.randomUUID().toString();
+      final var password = UUID.randomUUID().toString();
 
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       sb.append(
           "UPDATE OUser SET name = ?, password = ?, status = \"ACTIVE\", _externalUser = true,"
               + " roles = (SELECT FROM ORole WHERE name in [");
 
-      String[] roleParams = new String[roles.size()];
+      var roleParams = new String[roles.size()];
 
-      Iterator<String> it = roles.iterator();
+      var it = roles.iterator();
 
-      int cnt = 0;
+      var cnt = 0;
 
       while (it.hasNext()) {
-        String role = it.next();
+        var role = it.next();
 
         sb.append("'");
         sb.append(role);

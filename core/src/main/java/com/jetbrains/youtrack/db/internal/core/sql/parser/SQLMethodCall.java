@@ -52,8 +52,8 @@ public class SQLMethodCall extends SimpleNode {
     builder.append(".");
     methodName.toString(params, builder);
     builder.append("(");
-    boolean first = true;
-    for (SQLExpression param : this.params) {
+    var first = true;
+    for (var param : this.params) {
       if (!first) {
         builder.append(", ");
       }
@@ -67,8 +67,8 @@ public class SQLMethodCall extends SimpleNode {
     builder.append(".");
     methodName.toGenericStatement(builder);
     builder.append("(");
-    boolean first = true;
-    for (SQLExpression param : this.params) {
+    var first = true;
+    for (var param : this.params) {
       if (!first) {
         builder.append(", ");
       }
@@ -93,8 +93,8 @@ public class SQLMethodCall extends SimpleNode {
 
   private void resolveMethod(DatabaseSessionInternal session) {
     if (!resolved) {
-      String name = methodName.getStringValue();
-      for (String graphMethod : graphMethods) {
+      var name = methodName.getStringValue();
+      for (var graphMethod : graphMethods) {
         if (graphMethod.equalsIgnoreCase(name)) {
           isGraph = true;
           break;
@@ -122,11 +122,11 @@ public class SQLMethodCall extends SimpleNode {
       String name,
       List<SQLExpression> iParams,
       Iterable<Identifiable> iPossibleResults) {
-    Object val = ctx.getVariable("$current");
+    var val = ctx.getVariable("$current");
     if (val == null && targetObjects == null) {
       return null;
     }
-    List<Object> paramValues = resolveParams(targetObjects, ctx, iParams, val);
+    var paramValues = resolveParams(targetObjects, ctx, iParams, val);
     if (resolveIsGraphFunction(ctx.getDatabase())) {
       return invokeGraphFunction(
           this.graphFunction, targetObjects, ctx, iPossibleResults, paramValues);
@@ -158,7 +158,7 @@ public class SQLMethodCall extends SimpleNode {
       Iterable<Identifiable> iPossibleResults,
       List<Object> paramValues) {
     if (graphFunction instanceof SQLFunctionFiltered) {
-      Object current = ctx.getVariable("$current");
+      var current = ctx.getVariable("$current");
       if (current instanceof Result) {
         current = ((Result) current).getEntity().orElse(null);
       }
@@ -171,7 +171,7 @@ public class SQLMethodCall extends SimpleNode {
               iPossibleResults,
               ctx);
     } else {
-      Object current = ctx.getVariable("$current");
+      var current = ctx.getVariable("$current");
       if (current instanceof Identifiable) {
         return graphFunction.execute(
             targetObjects, (Identifiable) current, null, paramValues.toArray(), ctx);
@@ -194,19 +194,19 @@ public class SQLMethodCall extends SimpleNode {
       String name,
       List<SQLExpression> iParams,
       Iterable<Identifiable> iPossibleResults) {
-    Object val = ctx.getVariable("$current");
+    var val = ctx.getVariable("$current");
     if (val == null && targetObjects == null) {
       return null;
     }
-    List<Object> paramValues = resolveParams(targetObjects, ctx, iParams, val);
-    SQLFunction function = SQLEngine.getInstance().getFunction(ctx.getDatabase(), name);
+    var paramValues = resolveParams(targetObjects, ctx, iParams, val);
+    var function = SQLEngine.getInstance().getFunction(ctx.getDatabase(), name);
     return invokeGraphFunction(function, targetObjects, ctx, iPossibleResults, paramValues);
   }
 
   private static List<Object> resolveParams(
       Object targetObjects, CommandContext ctx, List<SQLExpression> iParams, Object val) {
     List<Object> paramValues = new ArrayList<Object>();
-    for (SQLExpression expr : iParams) {
+    for (var expr : iParams) {
       if (val instanceof Identifiable) {
         paramValues.add(expr.execute((Identifiable) val, ctx));
       } else if (val instanceof Result) {
@@ -227,7 +227,7 @@ public class SQLMethodCall extends SimpleNode {
       throw new UnsupportedOperationException();
     }
 
-    String straightName = methodName.getStringValue();
+    var straightName = methodName.getStringValue();
     if (straightName.equalsIgnoreCase("out")) {
       return executeGraphFunction(targetObjects, ctx, "in", params, null);
     }
@@ -271,7 +271,7 @@ public class SQLMethodCall extends SimpleNode {
   }
 
   public boolean needsAliases(Set<String> aliases) {
-    for (SQLExpression param : params) {
+    for (var param : params) {
       if (param.needsAliases(aliases)) {
         return true;
       }
@@ -280,7 +280,7 @@ public class SQLMethodCall extends SimpleNode {
   }
 
   public SQLMethodCall copy() {
-    SQLMethodCall result = new SQLMethodCall(-1);
+    var result = new SQLMethodCall(-1);
     result.methodName = methodName.copy();
     result.params = params.stream().map(x -> x.copy()).collect(Collectors.toList());
     return result;
@@ -295,7 +295,7 @@ public class SQLMethodCall extends SimpleNode {
       return false;
     }
 
-    SQLMethodCall that = (SQLMethodCall) o;
+    var that = (SQLMethodCall) o;
 
     if (!Objects.equals(methodName, that.methodName)) {
       return false;
@@ -305,14 +305,14 @@ public class SQLMethodCall extends SimpleNode {
 
   @Override
   public int hashCode() {
-    int result = methodName != null ? methodName.hashCode() : 0;
+    var result = methodName != null ? methodName.hashCode() : 0;
     result = 31 * result + (params != null ? params.hashCode() : 0);
     return result;
   }
 
   public void extractSubQueries(SubQueryCollector collector) {
     if (params != null) {
-      for (SQLExpression param : params) {
+      for (var param : params) {
         param.extractSubQueries(collector);
       }
     }
@@ -320,7 +320,7 @@ public class SQLMethodCall extends SimpleNode {
 
   public boolean refersToParent() {
     if (params != null) {
-      for (SQLExpression exp : params) {
+      for (var exp : params) {
         if (exp.refersToParent()) {
           return true;
         }
@@ -330,7 +330,7 @@ public class SQLMethodCall extends SimpleNode {
   }
 
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     if (methodName != null) {
       result.setProperty("methodName", methodName.serialize(db));
     }
@@ -349,8 +349,8 @@ public class SQLMethodCall extends SimpleNode {
     if (fromResult.getProperty("params") != null) {
       List<Result> ser = fromResult.getProperty("params");
       params = new ArrayList<>();
-      for (Result r : ser) {
-        SQLExpression exp = new SQLExpression(-1);
+      for (var r : ser) {
+        var exp = new SQLExpression(-1);
         exp.deserialize(r);
         params.add(exp);
       }

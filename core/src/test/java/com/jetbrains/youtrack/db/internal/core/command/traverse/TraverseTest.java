@@ -29,34 +29,34 @@ public class TraverseTest extends DbTestBase {
   @Test
   public void testDepthTraverse() {
     db.begin();
-    final EntityImpl aa = (EntityImpl) db.newEntity();
-    final EntityImpl ab = (EntityImpl) db.newEntity();
-    final EntityImpl ba = (EntityImpl) db.newEntity();
-    final EntityImpl bb = (EntityImpl) db.newEntity();
-    final EntityImpl a = (EntityImpl) db.newEntity();
+    final var aa = (EntityImpl) db.newEntity();
+    final var ab = (EntityImpl) db.newEntity();
+    final var ba = (EntityImpl) db.newEntity();
+    final var bb = (EntityImpl) db.newEntity();
+    final var a = (EntityImpl) db.newEntity();
     a.setProperty("aa", aa, PropertyType.LINK);
     a.setProperty("ab", ab, PropertyType.LINK);
-    final EntityImpl b = (EntityImpl) db.newEntity();
+    final var b = (EntityImpl) db.newEntity();
     b.setProperty("ba", ba, PropertyType.LINK);
     b.setProperty("bb", bb, PropertyType.LINK);
 
     rootDocument.setProperty("a", a, PropertyType.LINK);
     rootDocument.setProperty("b", b, PropertyType.LINK);
 
-    final EntityImpl c1 = (EntityImpl) db.newEntity();
-    final EntityImpl c1a = (EntityImpl) db.newEntity();
+    final var c1 = (EntityImpl) db.newEntity();
+    final var c1a = (EntityImpl) db.newEntity();
     c1.setProperty("c1a", c1a, PropertyType.LINK);
-    final EntityImpl c1b = (EntityImpl) db.newEntity();
+    final var c1b = (EntityImpl) db.newEntity();
     c1.setProperty("c1b", c1b, PropertyType.LINK);
-    final EntityImpl c2 = (EntityImpl) db.newEntity();
-    final EntityImpl c2a = (EntityImpl) db.newEntity();
+    final var c2 = (EntityImpl) db.newEntity();
+    final var c2a = (EntityImpl) db.newEntity();
     c2.setProperty("c2a", c2a, PropertyType.LINK);
-    final EntityImpl c2b = (EntityImpl) db.newEntity();
+    final var c2b = (EntityImpl) db.newEntity();
     c2.setProperty("c2b", c2b, PropertyType.LINK);
-    final EntityImpl c3 = (EntityImpl) db.newEntity();
-    final EntityImpl c3a = (EntityImpl) db.newEntity();
+    final var c3 = (EntityImpl) db.newEntity();
+    final var c3a = (EntityImpl) db.newEntity();
     c3.setProperty("c3a", c3a, PropertyType.LINK);
-    final EntityImpl c3b = (EntityImpl) db.newEntity();
+    final var c3b = (EntityImpl) db.newEntity();
     c3.setProperty("c3b", c3b, PropertyType.LINK);
     rootDocument.setProperty("c", new ArrayList<>(Arrays.asList(c1, c2, c3)),
         PropertyType.LINKLIST);
@@ -66,7 +66,7 @@ public class TraverseTest extends DbTestBase {
 
     db.begin();
     rootDocument = db.bindToSession(rootDocument);
-    final List<EntityImpl> expectedResult =
+    final var expectedResult =
         Arrays.asList(
             rootDocument,
             db.bindToSession(a),
@@ -85,7 +85,7 @@ public class TraverseTest extends DbTestBase {
             db.bindToSession(c3a),
             db.bindToSession(c3b));
 
-    final List<Identifiable> results = traverse.execute(db);
+    final var results = traverse.execute(db);
 
     compareTraverseResults(expectedResult, results);
     db.commit();
@@ -95,34 +95,34 @@ public class TraverseTest extends DbTestBase {
   public void testBreadthTraverse() throws Exception {
     traverse.setStrategy(Traverse.STRATEGY.BREADTH_FIRST);
 
-    final EntityImpl aa = (EntityImpl) db.newEntity();
-    final EntityImpl ab = (EntityImpl) db.newEntity();
-    final EntityImpl ba = (EntityImpl) db.newEntity();
-    final EntityImpl bb = (EntityImpl) db.newEntity();
-    final EntityImpl a = (EntityImpl) db.newEntity();
+    final var aa = (EntityImpl) db.newEntity();
+    final var ab = (EntityImpl) db.newEntity();
+    final var ba = (EntityImpl) db.newEntity();
+    final var bb = (EntityImpl) db.newEntity();
+    final var a = (EntityImpl) db.newEntity();
     a.setProperty("aa", aa, PropertyType.LINK);
     a.setProperty("ab", ab, PropertyType.LINK);
-    final EntityImpl b = (EntityImpl) db.newEntity();
+    final var b = (EntityImpl) db.newEntity();
     b.setProperty("ba", ba, PropertyType.LINK);
     b.setProperty("bb", bb, PropertyType.LINK);
 
     rootDocument.setProperty("a", a, PropertyType.LINK);
     rootDocument.setProperty("b", b, PropertyType.LINK);
 
-    final EntityImpl c1 = (EntityImpl) db.newEntity();
-    final EntityImpl c1a = (EntityImpl) db.newEntity();
+    final var c1 = (EntityImpl) db.newEntity();
+    final var c1a = (EntityImpl) db.newEntity();
     c1.setProperty("c1a", c1a, PropertyType.LINK);
-    final EntityImpl c1b = (EntityImpl) db.newEntity();
+    final var c1b = (EntityImpl) db.newEntity();
     c1.setProperty("c1b", c1b, PropertyType.LINK);
-    final EntityImpl c2 = (EntityImpl) db.newEntity();
-    final EntityImpl c2a = (EntityImpl) db.newEntity();
+    final var c2 = (EntityImpl) db.newEntity();
+    final var c2a = (EntityImpl) db.newEntity();
     c2.setProperty("c2a", c2a, PropertyType.LINK);
-    final EntityImpl c2b = (EntityImpl) db.newEntity();
+    final var c2b = (EntityImpl) db.newEntity();
     c2.setProperty("c2b", c2b, PropertyType.LINK);
-    final EntityImpl c3 = (EntityImpl) db.newEntity();
-    final EntityImpl c3a = (EntityImpl) db.newEntity();
+    final var c3 = (EntityImpl) db.newEntity();
+    final var c3a = (EntityImpl) db.newEntity();
     c3.setProperty("c3a", c3a, PropertyType.LINK);
-    final EntityImpl c3b = (EntityImpl) db.newEntity();
+    final var c3b = (EntityImpl) db.newEntity();
     c3.setProperty("c3b", c3b, PropertyType.LINK);
     rootDocument.setProperty("c", new ArrayList<>(Arrays.asList(c1, c2, c3)),
         PropertyType.LINKLIST);
@@ -130,7 +130,7 @@ public class TraverseTest extends DbTestBase {
     db.executeInTx(() -> rootDocument.save());
 
     rootDocument = db.bindToSession(rootDocument);
-    final List<EntityImpl> expectedResult =
+    final var expectedResult =
         Arrays.asList(
             rootDocument,
             db.bindToSession(a),
@@ -149,15 +149,15 @@ public class TraverseTest extends DbTestBase {
             db.bindToSession(c3a),
             db.bindToSession(c3b));
 
-    final List<Identifiable> results = traverse.execute(db);
+    final var results = traverse.execute(db);
 
     compareTraverseResults(expectedResult, results);
   }
 
   private void compareTraverseResults(List<EntityImpl> expectedResult,
       List<Identifiable> results) {
-    boolean equality = results.size() == expectedResult.size();
-    for (int i = 0; i < expectedResult.size() && equality; i++) {
+    var equality = results.size() == expectedResult.size();
+    for (var i = 0; i < expectedResult.size() && equality; i++) {
       equality &= results.get(i).equals(expectedResult.get(i));
     }
     System.out.println("Expected: " + expectedResult);

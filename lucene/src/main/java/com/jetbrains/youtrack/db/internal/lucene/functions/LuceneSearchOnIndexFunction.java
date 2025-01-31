@@ -50,32 +50,32 @@ public class LuceneSearchOnIndexFunction extends LuceneSearchFunctionTemplate {
       Object iCurrentResult,
       Object[] params,
       CommandContext ctx) {
-    Entity entity =
+    var entity =
         iThis instanceof Entity ? (Entity) iThis : ((Result) iThis).asEntity();
 
-    String indexName = (String) params[0];
+    var indexName = (String) params[0];
 
-    LuceneFullTextIndex index = searchForIndex(ctx, indexName);
+    var index = searchForIndex(ctx, indexName);
 
     if (index == null) {
       return false;
     }
 
-    String query = (String) params[1];
+    var query = (String) params[1];
 
-    MemoryIndex memoryIndex = getOrCreateMemoryIndex(ctx);
+    var memoryIndex = getOrCreateMemoryIndex(ctx);
 
-    List<Object> key =
+    var key =
         index.getDefinition().getFields().stream()
             .map(s -> entity.getProperty(s))
             .collect(Collectors.toList());
 
-    for (IndexableField field : index.buildDocument(ctx.getDatabase(), key).getFields()) {
+    for (var field : index.buildDocument(ctx.getDatabase(), key).getFields()) {
       memoryIndex.addField(field, index.indexAnalyzer());
     }
 
     var metadata = getMetadata(params);
-    LuceneKeyAndMetadata keyAndMetadata =
+    var keyAndMetadata =
         new LuceneKeyAndMetadata(
             new LuceneCompositeKey(Collections.singletonList(query)).setContext(ctx), metadata);
 
@@ -92,7 +92,7 @@ public class LuceneSearchOnIndexFunction extends LuceneSearchFunctionTemplate {
   }
 
   private static MemoryIndex getOrCreateMemoryIndex(CommandContext ctx) {
-    MemoryIndex memoryIndex = (MemoryIndex) ctx.getVariable(MEMORY_INDEX);
+    var memoryIndex = (MemoryIndex) ctx.getVariable(MEMORY_INDEX);
     if (memoryIndex == null) {
       memoryIndex = new MemoryIndex();
       ctx.setVariable(MEMORY_INDEX, memoryIndex);
@@ -120,16 +120,16 @@ public class LuceneSearchOnIndexFunction extends LuceneSearchFunctionTemplate {
       CommandContext ctx,
       SQLExpression... args) {
 
-    LuceneFullTextIndex index = searchForIndex(target, ctx, args);
+    var index = searchForIndex(target, ctx, args);
 
-    SQLExpression expression = args[1];
-    String query = (String) expression.execute((Identifiable) null, ctx);
+    var expression = args[1];
+    var query = (String) expression.execute((Identifiable) null, ctx);
     if (index != null && query != null) {
 
       var meta = getMetadata(args, ctx);
 
       List<Identifiable> luceneResultSet;
-      try (Stream<RID> rids =
+      try (var rids =
           index
               .getInternal()
               .getRids(ctx.getDatabase(),
@@ -154,18 +154,18 @@ public class LuceneSearchOnIndexFunction extends LuceneSearchFunctionTemplate {
   protected LuceneFullTextIndex searchForIndex(
       SQLFromClause target, CommandContext ctx, SQLExpression... args) {
 
-    SQLFromItem item = target.getItem();
-    SQLIdentifier identifier = item.getIdentifier();
+    var item = target.getItem();
+    var identifier = item.getIdentifier();
     return searchForIndex(identifier.getStringValue(), ctx, args);
   }
 
   private LuceneFullTextIndex searchForIndex(
       String className, CommandContext ctx, SQLExpression... args) {
 
-    String indexName = (String) args[0].execute((Identifiable) null, ctx);
+    var indexName = (String) args[0].execute((Identifiable) null, ctx);
 
-    final DatabaseSessionInternal database = ctx.getDatabase();
-    Index index =
+    final var database = ctx.getDatabase();
+    var index =
         database
             .getMetadata()
             .getIndexManagerInternal()
@@ -179,8 +179,8 @@ public class LuceneSearchOnIndexFunction extends LuceneSearchFunctionTemplate {
   }
 
   private LuceneFullTextIndex searchForIndex(CommandContext ctx, String indexName) {
-    final DatabaseSessionInternal database = ctx.getDatabase();
-    Index index = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
+    final var database = ctx.getDatabase();
+    var index = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
 
     if (index != null && index.getInternal() instanceof LuceneFullTextIndex) {
       return (LuceneFullTextIndex) index;

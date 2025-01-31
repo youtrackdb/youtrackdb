@@ -79,7 +79,7 @@ public final class IndexDefinition {
       return false;
     }
 
-    IndexDefinition that = (IndexDefinition) o;
+    var that = (IndexDefinition) o;
     return nullValuesIgnored == that.nullValuesIgnored && name.equals(that.name)
         && className.equals(
         that.className) && properties.equals(that.properties) && type == that.type
@@ -88,7 +88,7 @@ public final class IndexDefinition {
 
   @Override
   public int hashCode() {
-    int result = name.hashCode();
+    var result = name.hashCode();
     result = 31 * result + className.hashCode();
     result = 31 * result + properties.hashCode();
     result = 31 * result + type.hashCode();

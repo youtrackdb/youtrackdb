@@ -120,7 +120,7 @@ public abstract class DurableComponent extends SharedResourceAbstract {
   protected CacheEntry loadOrAddPageForWrite(
       final AtomicOperation atomicOperation, final long fileId, final long pageIndex)
       throws IOException {
-    CacheEntry entry = atomicOperation.loadPageForWrite(fileId, pageIndex, 1, true);
+    var entry = atomicOperation.loadPageForWrite(fileId, pageIndex, 1, true);
     if (entry == null) {
       entry = addPage(atomicOperation, fileId);
     }

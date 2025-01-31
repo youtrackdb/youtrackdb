@@ -46,7 +46,7 @@ public class CommandExecutorSQLDropUser extends CommandExecutorSQLAbstract
     // DELETE FROM OUser WHERE name='<name>'
 
     //
-    String sb =
+    var sb =
         "DELETE FROM " + USER_CLASS + " WHERE " + USER_FIELD_NAME + "='" + this.userName + "'";
 
     //

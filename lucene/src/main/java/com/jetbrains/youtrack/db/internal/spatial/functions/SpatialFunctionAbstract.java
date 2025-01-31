@@ -29,7 +29,7 @@ public abstract class SpatialFunctionAbstract extends SQLFunctionAbstract {
   }
 
   boolean containsNull(Object[] params) {
-    for (Object param : params) {
+    for (var param : params) {
       if (param == null) {
         return true;
       }
@@ -39,9 +39,9 @@ public abstract class SpatialFunctionAbstract extends SQLFunctionAbstract {
   }
 
   protected Shape toShape(Object param) {
-    final Object singleItem = getSingleItem(param);
+    final var singleItem = getSingleItem(param);
     if (singleItem != null) {
-      final Object singleProp = getSingleProperty(singleItem);
+      final var singleProp = getSingleProperty(singleItem);
       if (singleProp != null) {
         return factory.fromObject(singleProp);
       }

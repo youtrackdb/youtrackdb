@@ -37,7 +37,7 @@ public class ServerCommandPatchDocument extends ServerCommandDocumentAbstract {
 
   @Override
   public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
-    final String[] urlParts =
+    final var urlParts =
         checkSyntax(iRequest.getUrl(), 2, "Syntax error: document/<database>[/<record-id>]");
 
     iRequest.getData().commandInfo = "Edit Document";
@@ -49,8 +49,8 @@ public class ServerCommandPatchDocument extends ServerCommandDocumentAbstract {
 
                 if (urlParts.length > 2) {
                   // EXTRACT RID
-                  final int parametersPos = urlParts[2].indexOf('?');
-                  final String rid =
+                  final var parametersPos = urlParts[2].indexOf('?');
+                  final var rid =
                       parametersPos > -1 ? urlParts[2].substring(0, parametersPos) : urlParts[2];
                   recordId = new RecordId(rid);
 
@@ -89,7 +89,7 @@ public class ServerCommandPatchDocument extends ServerCommandDocumentAbstract {
                   return new RawPair<>(false, recordId);
                 }
 
-                boolean partialUpdateMode = true;
+                var partialUpdateMode = true;
                 currentEntity.merge(entity, partialUpdateMode, false);
                 RecordInternal.setVersion(currentEntity, entity.getVersion());
 

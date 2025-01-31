@@ -27,7 +27,7 @@ public class FetchFromDatabaseMetadataStep extends AbstractExecutionStep {
 
   private static Result produce(CommandContext ctx) {
     var db = ctx.getDatabase();
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
 
     result.setProperty("name", db.getName());
     result.setProperty("user", db.geCurrentUser() == null ? null : db.geCurrentUser().getName(db));
@@ -50,8 +50,8 @@ public class FetchFromDatabaseMetadataStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
-    String result = spaces + "+ FETCH DATABASE METADATA";
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var result = spaces + "+ FETCH DATABASE METADATA";
     if (profilingEnabled) {
       result += " (" + getCostFormatted() + ")";
     }

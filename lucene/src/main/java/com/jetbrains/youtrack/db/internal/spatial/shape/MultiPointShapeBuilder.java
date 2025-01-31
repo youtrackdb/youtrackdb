@@ -41,9 +41,9 @@ public class MultiPointShapeBuilder extends ComplexShapeBuilder<JtsGeometry> {
   public JtsGeometry fromDoc(EntityImpl document) {
     validate(document);
     List<List<Number>> coordinates = document.field(COORDINATES);
-    Coordinate[] coords = new Coordinate[coordinates.size()];
-    int i = 0;
-    for (List<Number> coordinate : coordinates) {
+    var coords = new Coordinate[coordinates.size()];
+    var i = 0;
+    for (var coordinate : coordinates) {
       coords[i] = new Coordinate(coordinate.get(0).doubleValue(), coordinate.get(1).doubleValue());
       i++;
     }
@@ -53,22 +53,22 @@ public class MultiPointShapeBuilder extends ComplexShapeBuilder<JtsGeometry> {
   @Override
   public void initClazz(DatabaseSessionInternal db) {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass multiPoint = schema.createAbstractClass(getName(), superClass(db));
+    var multiPoint = schema.createAbstractClass(getName(), superClass(db));
     multiPoint.createProperty(db, COORDINATES, PropertyType.EMBEDDEDLIST,
         PropertyType.EMBEDDEDLIST);
   }
 
   @Override
   public EntityImpl toEntitty(final JtsGeometry shape) {
-    final MultiPoint geom = (MultiPoint) shape.getGeom();
+    final var geom = (MultiPoint) shape.getGeom();
 
-    EntityImpl doc = new EntityImpl(null, getName());
+    var doc = new EntityImpl(null, getName());
     doc.field(
         COORDINATES,
         new ArrayList<List<Double>>() {
           {
-            Coordinate[] coordinates = geom.getCoordinates();
-            for (Coordinate coordinate : coordinates) {
+            var coordinates = geom.getCoordinates();
+            for (var coordinate : coordinates) {
               add(Arrays.asList(coordinate.x, coordinate.y));
             }
           }

@@ -49,7 +49,7 @@ public class StorageSegmentConfiguration implements Serializable {
 
   public void setRoot(StorageConfiguration iRoot) {
     this.root = iRoot;
-    for (StorageFileConfiguration f : infoFiles) {
+    for (var f : infoFiles) {
       f.parent = this;
     }
   }

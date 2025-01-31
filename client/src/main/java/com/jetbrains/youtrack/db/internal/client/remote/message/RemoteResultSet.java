@@ -39,7 +39,7 @@ public class RemoteResultSet implements ResultSet {
     this.hasNextPage = hasNextPage;
     if (db != null) {
       db.queryStarted(queryId, new QueryDatabaseState(this));
-      for (Result result : currentPage) {
+      for (var result : currentPage) {
         if (result instanceof ResultInternal) {
           ((ResultInternal) result).bindToCache(db);
         }
@@ -76,7 +76,7 @@ public class RemoteResultSet implements ResultSet {
     if (currentPage.isEmpty()) {
       throw new IllegalStateException();
     }
-    Result internal = currentPage.remove(0);
+    var internal = currentPage.remove(0);
 
     if (internal.isRecord() && db != null && db.getTransaction().isActive()) {
       DBRecord record = db.getTransaction().getRecord(internal.getIdentity().orElseThrow());

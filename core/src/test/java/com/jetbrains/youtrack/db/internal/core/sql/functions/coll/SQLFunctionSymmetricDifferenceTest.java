@@ -32,24 +32,24 @@ public class SQLFunctionSymmetricDifferenceTest {
 
   @Test
   public void testOperator() {
-    final SQLFunctionSymmetricDifference differenceFunction =
+    final var differenceFunction =
         new SQLFunctionSymmetricDifference();
 
     final List<Object> income = Arrays.asList(1, 2, 3, 1, 4, 5, 2, 2, 1, 1);
     final Set<Object> expectedResult = new HashSet<Object>(Arrays.asList(3, 4, 5));
 
-    for (Object i : income) {
+    for (var i : income) {
       differenceFunction.execute(null, null, null, new Object[]{i}, null);
     }
 
-    final Set<Object> actualResult = differenceFunction.getResult();
+    final var actualResult = differenceFunction.getResult();
 
     assertSetEquals(actualResult, expectedResult);
   }
 
   @Test
   public void testExecute() {
-    final SQLFunctionSymmetricDifference function = new SQLFunctionSymmetricDifference();
+    final var function = new SQLFunctionSymmetricDifference();
 
     final List<List<Object>> incomes =
         Arrays.asList(
@@ -59,7 +59,7 @@ public class SQLFunctionSymmetricDifferenceTest {
 
     final Set<Object> expectedResult = new HashSet<Object>(Arrays.<Object>asList(4, 7, 8, 9, 0));
 
-    final Set<Object> actualResult =
+    final var actualResult =
         (Set<Object>)
             function.execute(null, null, null, incomes.toArray(), new BasicCommandContext());
 
@@ -68,7 +68,7 @@ public class SQLFunctionSymmetricDifferenceTest {
 
   private static void assertSetEquals(Set<Object> actualResult, Set<Object> expectedResult) {
     assertEquals(actualResult.size(), expectedResult.size());
-    for (Object o : actualResult) {
+    for (var o : actualResult) {
       assertTrue(expectedResult.contains(o));
     }
   }

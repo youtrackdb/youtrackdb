@@ -89,9 +89,9 @@ public class DefaultIndexFactory implements IndexFactory {
 
   public IndexInternal createIndex(Storage storage, IndexMetadata im)
       throws ConfigurationException {
-    int version = im.getVersion();
-    final String indexType = im.getType();
-    final String algorithm = im.getAlgorithm();
+    var version = im.getVersion();
+    final var indexType = im.getType();
+    final var algorithm = im.getAlgorithm();
 
     if (version < 0) {
       version = getLastVersion(algorithm);
@@ -125,7 +125,7 @@ public class DefaultIndexFactory implements IndexFactory {
       throw new IndexException("Name of algorithm is not specified");
     }
     final BaseIndexEngine indexEngine;
-    String storageType = storage.getType();
+    var storageType = storage.getType();
 
     if (storageType.equals("distributed")) {
       storageType = storage.getType();
@@ -134,7 +134,7 @@ public class DefaultIndexFactory implements IndexFactory {
     switch (storageType) {
       case "memory":
       case "plocal":
-        AbstractPaginatedStorage realStorage = (AbstractPaginatedStorage) storage;
+        var realStorage = (AbstractPaginatedStorage) storage;
         switch (data.getAlgorithm()) {
           case SBTREE_ALGORITHM:
             throw new UnsupportedOperationException("SBTree index is not supported");

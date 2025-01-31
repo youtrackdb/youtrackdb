@@ -33,23 +33,23 @@ public class SimpleKeyIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateValueSimpleKey() {
-    final SimpleKeyIndexDefinition keyIndexDefinition =
+    final var keyIndexDefinition =
         new SimpleKeyIndexDefinition(PropertyType.INTEGER);
-    final Object result = keyIndexDefinition.createValue(db, "2");
+    final var result = keyIndexDefinition.createValue(db, "2");
     Assert.assertEquals(2, result);
   }
 
   @Test
   public void testCreateValueCompositeKeyListParam() {
-    final Object result = simpleKeyIndexDefinition.createValue(db, Arrays.asList("2", "3"));
+    final var result = simpleKeyIndexDefinition.createValue(db, Arrays.asList("2", "3"));
 
-    final CompositeKey compositeKey = new CompositeKey(Arrays.asList(2, "3"));
+    final var compositeKey = new CompositeKey(Arrays.asList(2, "3"));
     Assert.assertEquals(result, compositeKey);
   }
 
   @Test
   public void testCreateValueCompositeKeyNullListParam() {
-    final Object result =
+    final var result =
         simpleKeyIndexDefinition.createValue(db, Collections.singletonList(null));
 
     Assert.assertNull(result);
@@ -57,7 +57,7 @@ public class SimpleKeyIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testNullParamListItem() {
-    final Object result = simpleKeyIndexDefinition.createValue(db, Arrays.asList("2", null));
+    final var result = simpleKeyIndexDefinition.createValue(db, Arrays.asList("2", null));
 
     Assert.assertNull(result);
   }
@@ -69,36 +69,36 @@ public class SimpleKeyIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateValueCompositeKey() {
-    final Object result = simpleKeyIndexDefinition.createValue(db, "2", "3");
+    final var result = simpleKeyIndexDefinition.createValue(db, "2", "3");
 
-    final CompositeKey compositeKey = new CompositeKey(Arrays.asList(2, "3"));
+    final var compositeKey = new CompositeKey(Arrays.asList(2, "3"));
     Assert.assertEquals(result, compositeKey);
   }
 
   @Test
   public void testCreateValueCompositeKeyNullParamList() {
-    final Object result = simpleKeyIndexDefinition.createValue(db, (List<?>) null);
+    final var result = simpleKeyIndexDefinition.createValue(db, (List<?>) null);
 
     Assert.assertNull(result);
   }
 
   @Test
   public void testCreateValueCompositeKeyNullParam() {
-    final Object result = simpleKeyIndexDefinition.createValue(db, (Object) null);
+    final var result = simpleKeyIndexDefinition.createValue(db, (Object) null);
 
     Assert.assertNull(result);
   }
 
   @Test
   public void testCreateValueCompositeKeyEmptyList() {
-    final Object result = simpleKeyIndexDefinition.createValue(db, Collections.emptyList());
+    final var result = simpleKeyIndexDefinition.createValue(db, Collections.emptyList());
 
     Assert.assertNull(result);
   }
 
   @Test
   public void testNullParamItem() {
-    final Object result = simpleKeyIndexDefinition.createValue(db, "2", null);
+    final var result = simpleKeyIndexDefinition.createValue(db, "2", null);
 
     Assert.assertNull(result);
   }
@@ -115,7 +115,7 @@ public class SimpleKeyIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testParamCountOneItem() {
-    final SimpleKeyIndexDefinition keyIndexDefinition =
+    final var keyIndexDefinition =
         new SimpleKeyIndexDefinition(PropertyType.INTEGER);
 
     Assert.assertEquals(1, keyIndexDefinition.getParamCount());
@@ -130,7 +130,7 @@ public class SimpleKeyIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testGetKeyTypesOneType() {
-    final SimpleKeyIndexDefinition keyIndexDefinition =
+    final var keyIndexDefinition =
         new SimpleKeyIndexDefinition(PropertyType.BOOLEAN);
 
     Assert.assertEquals(new PropertyType[]{PropertyType.BOOLEAN}, keyIndexDefinition.getTypes());
@@ -139,13 +139,13 @@ public class SimpleKeyIndexDefinitionTest extends DbTestBase {
   @Test
   public void testReload() {
     db.begin();
-    final EntityImpl storeDocument = simpleKeyIndexDefinition.toStream(db,
+    final var storeDocument = simpleKeyIndexDefinition.toStream(db,
         (EntityImpl) db.newEntity());
     storeDocument.save();
     db.commit();
 
     final EntityImpl loadDocument = db.load(storeDocument.getIdentity());
-    final SimpleKeyIndexDefinition loadedKeyIndexDefinition = new SimpleKeyIndexDefinition();
+    final var loadedKeyIndexDefinition = new SimpleKeyIndexDefinition();
     loadedKeyIndexDefinition.fromStream(loadDocument);
 
     Assert.assertEquals(loadedKeyIndexDefinition, simpleKeyIndexDefinition);

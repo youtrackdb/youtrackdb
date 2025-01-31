@@ -51,10 +51,10 @@ public class CommandExecutorSQLCreateVertex extends CommandExecutorSQLSetAware
   public CommandExecutorSQLCreateVertex parse(DatabaseSessionInternal db,
       final CommandRequest iRequest) {
 
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
@@ -68,7 +68,7 @@ public class CommandExecutorSQLCreateVertex extends CommandExecutorSQLSetAware
       parserRequiredKeyword("CREATE");
       parserRequiredKeyword("VERTEX");
 
-      String temp = parseOptionalWord(true);
+      var temp = parseOptionalWord(true);
 
       while (temp != null) {
         if (temp.equals("CLUSTER")) {
@@ -130,12 +130,12 @@ public class CommandExecutorSQLCreateVertex extends CommandExecutorSQLSetAware
     }
 
     // CREATE VERTEX DOES NOT HAVE TO BE IN TX
-    final VertexInternal vertex = (VertexInternal) getDatabase().newVertex(clazz);
+    final var vertex = (VertexInternal) getDatabase().newVertex(clazz);
 
     if (fields != null)
     // EVALUATE FIELDS
     {
-      for (final Pair<String, Object> f : fields) {
+      for (final var f : fields) {
         if (f.getValue() instanceof SQLFunctionRuntime) {
           f.setValue(
               ((SQLFunctionRuntime) f.getValue()).getValue(vertex.getRecord(db), null, context));

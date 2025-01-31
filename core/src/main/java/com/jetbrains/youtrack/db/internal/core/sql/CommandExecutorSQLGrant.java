@@ -37,10 +37,10 @@ public class CommandExecutorSQLGrant extends CommandExecutorSQLPermissionAbstrac
 
   @SuppressWarnings("unchecked")
   public CommandExecutorSQLGrant parse(DatabaseSessionInternal db, final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
@@ -51,10 +51,10 @@ public class CommandExecutorSQLGrant extends CommandExecutorSQLPermissionAbstrac
       resource = null;
       role = null;
 
-      StringBuilder word = new StringBuilder();
+      var word = new StringBuilder();
 
-      int oldPos = 0;
-      int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
+      var oldPos = 0;
+      var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_GRANT)) {
         throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_GRANT + " not found. Use " + getSyntax(), parserText, oldPos);
@@ -91,7 +91,7 @@ public class CommandExecutorSQLGrant extends CommandExecutorSQLPermissionAbstrac
         throw new CommandSQLParsingException("Invalid role", parserText, oldPos);
       }
 
-      final String roleName = word.toString();
+      final var roleName = word.toString();
       role = getDatabase().getMetadata().getSecurity().getRole(roleName);
       if (role == null) {
         throw new CommandSQLParsingException("Invalid role: " + roleName);

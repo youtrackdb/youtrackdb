@@ -49,12 +49,12 @@ public class BinaryComparatorCompareTest extends AbstractComparatorTest {
   public void testDatetime() throws ParseException {
     testCompareNumber(PropertyType.DATETIME, 10L);
 
-    final SimpleDateFormat format =
+    final var format =
         new SimpleDateFormat(StorageConfiguration.DEFAULT_DATETIME_FORMAT);
     format.setTimeZone(DateHelper.getDatabaseTimeZone());
 
-    String now1 = format.format(new Date());
-    Date now = format.parse(now1);
+    var now1 = format.format(new Date());
+    var now = format.parse(now1);
 
     Assert.assertEquals(
         0, comparator.compare(field(db, PropertyType.DATETIME, now),
@@ -73,9 +73,9 @@ public class BinaryComparatorCompareTest extends AbstractComparatorTest {
 
   @Test
   public void testBinary() {
-    final byte[] b1 = new byte[]{0, 1, 2, 3};
-    final byte[] b2 = new byte[]{0, 1, 2, 4};
-    final byte[] b3 = new byte[]{1, 1, 2, 4};
+    final var b1 = new byte[]{0, 1, 2, 3};
+    final var b2 = new byte[]{0, 1, 2, 4};
+    final var b3 = new byte[]{1, 1, 2, 4};
 
     Assert.assertEquals(
         "For values " + field(db, PropertyType.BINARY, b1) + " and " + field(db,
@@ -414,7 +414,7 @@ public class BinaryComparatorCompareTest extends AbstractComparatorTest {
   }
 
   protected void testCompareNumber(PropertyType sourceType, Number value10AsSourceType) {
-    PropertyType[] numberTypes =
+    var numberTypes =
         new PropertyType[]{
             PropertyType.BYTE,
             PropertyType.DOUBLE,
@@ -425,7 +425,7 @@ public class BinaryComparatorCompareTest extends AbstractComparatorTest {
             PropertyType.DATETIME
         };
 
-    for (PropertyType t : numberTypes) {
+    for (var t : numberTypes) {
       if (sourceType == PropertyType.DATETIME && t == PropertyType.BYTE)
       // SKIP TEST
       {
@@ -435,7 +435,7 @@ public class BinaryComparatorCompareTest extends AbstractComparatorTest {
       testCompare(sourceType, t);
     }
 
-    for (PropertyType t : numberTypes) {
+    for (var t : numberTypes) {
       testCompare(t, sourceType);
     }
 

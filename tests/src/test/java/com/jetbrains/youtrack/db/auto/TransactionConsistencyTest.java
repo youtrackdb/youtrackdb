@@ -72,8 +72,8 @@ public class TransactionConsistencyTest extends BaseDBTest {
     RID vDocA_Rid = vDocA_db1.getIdentity().copy();
     RID vDocB_Rid = vDocB_db1.getIdentity().copy();
 
-    int vDocA_version = -1;
-    int vDocB_version = -1;
+    var vDocA_version = -1;
+    var vDocB_version = -1;
 
     database2 = acquireSession();
     database2.begin();
@@ -303,11 +303,11 @@ public class TransactionConsistencyTest extends BaseDBTest {
     db = acquireSession();
     db.begin();
 
-    EntityImpl kim = ((EntityImpl) db.newEntity("Profile")).field("name", "Kim")
+    var kim = ((EntityImpl) db.newEntity("Profile")).field("name", "Kim")
         .field("surname", "Bauer");
-    EntityImpl teri = ((EntityImpl) db.newEntity("Profile")).field("name", "Teri")
+    var teri = ((EntityImpl) db.newEntity("Profile")).field("name", "Teri")
         .field("surname", "Bauer");
-    EntityImpl jack = ((EntityImpl) db.newEntity("Profile")).field("name", "Jack")
+    var jack = ((EntityImpl) db.newEntity("Profile")).field("name", "Jack")
         .field("surname", "Bauer");
 
     ((HashSet<EntityImpl>) jack.field("following", new HashSet<EntityImpl>())
@@ -328,7 +328,7 @@ public class TransactionConsistencyTest extends BaseDBTest {
 
     EntityImpl loadedJack = db.load(jack.getIdentity());
 
-    int jackLastVersion = loadedJack.getVersion();
+    var jackLastVersion = loadedJack.getVersion();
     db.begin();
     loadedJack = db.bindToSession(loadedJack);
     loadedJack.field("occupation", "agent");
@@ -352,8 +352,8 @@ public class TransactionConsistencyTest extends BaseDBTest {
   public void createLinkInTx() {
     db = createSessionInstance();
 
-    SchemaClass profile = db.getMetadata().getSchema().createClass("MyProfile", 1);
-    SchemaClass edge = db.getMetadata().getSchema().createClass("MyEdge", 1);
+    var profile = db.getMetadata().getSchema().createClass("MyProfile", 1);
+    var edge = db.getMetadata().getSchema().createClass("MyEdge", 1);
     profile
         .createProperty(db, "name", PropertyType.STRING)
         .setMin(db, "3")
@@ -368,14 +368,14 @@ public class TransactionConsistencyTest extends BaseDBTest {
 
     db.begin();
 
-    EntityImpl kim = ((EntityImpl) db.newEntity("MyProfile")).field("name", "Kim")
+    var kim = ((EntityImpl) db.newEntity("MyProfile")).field("name", "Kim")
         .field("surname", "Bauer");
-    EntityImpl teri = ((EntityImpl) db.newEntity("MyProfile")).field("name", "Teri")
+    var teri = ((EntityImpl) db.newEntity("MyProfile")).field("name", "Teri")
         .field("surname", "Bauer");
-    EntityImpl jack = ((EntityImpl) db.newEntity("MyProfile")).field("name", "Jack")
+    var jack = ((EntityImpl) db.newEntity("MyProfile")).field("name", "Jack")
         .field("surname", "Bauer");
 
-    EntityImpl myedge = ((EntityImpl) db.newEntity("MyEdge")).field("in", kim).field("out", jack);
+    var myedge = ((EntityImpl) db.newEntity("MyEdge")).field("in", kim).field("out", jack);
     myedge.save();
     ((HashSet<EntityImpl>) kim.field("out", new HashSet<RID>()).field("out")).add(myedge);
     ((HashSet<EntityImpl>) jack.field("in", new HashSet<RID>()).field("in")).add(myedge);
@@ -385,7 +385,7 @@ public class TransactionConsistencyTest extends BaseDBTest {
     teri.save();
     db.commit();
 
-    ResultSet result = db.command("select from MyProfile ");
+    var result = db.command("select from MyProfile ");
 
     Assert.assertTrue(result.stream().findAny().isPresent());
   }
@@ -395,13 +395,13 @@ public class TransactionConsistencyTest extends BaseDBTest {
   public void loadRecordTest() {
     db.begin();
 
-    EntityImpl kim = ((EntityImpl) db.newEntity("Profile")).field("name", "Kim")
+    var kim = ((EntityImpl) db.newEntity("Profile")).field("name", "Kim")
         .field("surname", "Bauer");
-    EntityImpl teri = ((EntityImpl) db.newEntity("Profile")).field("name", "Teri")
+    var teri = ((EntityImpl) db.newEntity("Profile")).field("name", "Teri")
         .field("surname", "Bauer");
-    EntityImpl jack = ((EntityImpl) db.newEntity("Profile")).field("name", "Jack")
+    var jack = ((EntityImpl) db.newEntity("Profile")).field("name", "Jack")
         .field("surname", "Bauer");
-    EntityImpl chloe = ((EntityImpl) db.newEntity("Profile")).field("name", "Chloe")
+    var chloe = ((EntityImpl) db.newEntity("Profile")).field("name", "Chloe")
         .field("surname", "O'Brien");
 
     ((HashSet<EntityImpl>) jack.field("following", new HashSet<EntityImpl>())
@@ -445,7 +445,7 @@ public class TransactionConsistencyTest extends BaseDBTest {
   @Test
   public void testTransactionPopulateDelete() {
     if (!db.getMetadata().getSchema().existsClass("MyFruit")) {
-      SchemaClass fruitClass = db.getMetadata().getSchema().createClass("MyFruit");
+      var fruitClass = db.getMetadata().getSchema().createClass("MyFruit");
       fruitClass.createProperty(db, "name", PropertyType.STRING);
       fruitClass.createProperty(db, "color", PropertyType.STRING);
       fruitClass.createProperty(db, "flavor", PropertyType.STRING);
@@ -470,8 +470,8 @@ public class TransactionConsistencyTest extends BaseDBTest {
           .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
     }
 
-    int chunkSize = 10;
-    for (int initialValue = 0; initialValue < 10; initialValue++) {
+    var chunkSize = 10;
+    for (var initialValue = 0; initialValue < 10; initialValue++) {
       Assert.assertEquals(db.countClusterElements("MyFruit"), 0);
 
       System.out.println(
@@ -484,8 +484,8 @@ public class TransactionConsistencyTest extends BaseDBTest {
       // do insert
       List<EntityImpl> v = new ArrayList<>();
       db.begin();
-      for (int i = initialValue * chunkSize; i < (initialValue * chunkSize) + chunkSize; i++) {
-        EntityImpl d =
+      for (var i = initialValue * chunkSize; i < (initialValue * chunkSize) + chunkSize; i++) {
+        var d =
             ((EntityImpl) db.newEntity("MyFruit"))
                 .field("name", "" + i)
                 .field("color", "FOO")
@@ -508,7 +508,7 @@ public class TransactionConsistencyTest extends BaseDBTest {
 
       // do delete
       db.begin();
-      for (EntityImpl entries : v) {
+      for (var entries : v) {
         db.delete(db.bindToSession(entries));
       }
       db.commit();
@@ -614,14 +614,14 @@ public class TransactionConsistencyTest extends BaseDBTest {
   }
 
   public void transactionRollbackConstistencyTest() {
-    SchemaClass vertexClass = db.getMetadata().getSchema().createClass("TRVertex");
-    SchemaClass edgeClass = db.getMetadata().getSchema().createClass("TREdge");
+    var vertexClass = db.getMetadata().getSchema().createClass("TRVertex");
+    var edgeClass = db.getMetadata().getSchema().createClass("TREdge");
     vertexClass.createProperty(db, "in", PropertyType.LINKSET, edgeClass);
     vertexClass.createProperty(db, "out", PropertyType.LINKSET, edgeClass);
     edgeClass.createProperty(db, "in", PropertyType.LINK, vertexClass);
     edgeClass.createProperty(db, "out", PropertyType.LINK, vertexClass);
 
-    SchemaClass personClass = db.getMetadata().getSchema()
+    var personClass = db.getMetadata().getSchema()
         .createClass("TRPerson", vertexClass);
     personClass.createProperty(db, "name", PropertyType.STRING)
         .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
@@ -631,14 +631,14 @@ public class TransactionConsistencyTest extends BaseDBTest {
 
     db.close();
 
-    final int cnt = 4;
+    final var cnt = 4;
 
     db = createSessionInstance();
     db.begin();
     List<Entity> inserted = new ArrayList<>();
 
-    for (int i = 0; i < cnt; i++) {
-      EntityImpl person = ((EntityImpl) db.newEntity("TRPerson"));
+    for (var i = 0; i < cnt; i++) {
+      var person = ((EntityImpl) db.newEntity("TRPerson"));
       person.field("name", Character.toString((char) ('A' + i)));
       person.field("surname", Character.toString((char) ('A' + (i % 3))));
       person.field("myversion", 0);
@@ -646,7 +646,7 @@ public class TransactionConsistencyTest extends BaseDBTest {
       person.field("out", new HashSet<EntityImpl>());
 
       if (i >= 1) {
-        EntityImpl edge = ((EntityImpl) db.newEntity("TREdge"));
+        var edge = ((EntityImpl) db.newEntity("TREdge"));
         edge.field("in", person.getIdentity());
         edge.field("out", inserted.get(i - 1));
         (person.<Set<EntityImpl>>getProperty("out")).add(edge);
@@ -659,7 +659,7 @@ public class TransactionConsistencyTest extends BaseDBTest {
     }
     db.commit();
 
-    final ResultSet result1 = db.command("select from TRPerson");
+    final var result1 = db.command("select from TRPerson");
     Assert.assertEquals(result1.stream().count(), cnt);
 
     try {
@@ -667,8 +667,8 @@ public class TransactionConsistencyTest extends BaseDBTest {
           () -> {
             List<Entity> inserted2 = new ArrayList<>();
 
-            for (int i = 0; i < cnt; i++) {
-              EntityImpl person = ((EntityImpl) db.newEntity("TRPerson"));
+            for (var i = 0; i < cnt; i++) {
+              var person = ((EntityImpl) db.newEntity("TRPerson"));
               person.field("name", Character.toString((char) ('a' + i)));
               person.field("surname", Character.toString((char) ('a' + (i % 3))));
               person.field("myversion", 0);
@@ -676,7 +676,7 @@ public class TransactionConsistencyTest extends BaseDBTest {
               person.field("out", new HashSet<EntityImpl>());
 
               if (i >= 1) {
-                EntityImpl edge = ((EntityImpl) db.newEntity("TREdge"));
+                var edge = ((EntityImpl) db.newEntity("TREdge"));
                 edge.field("in", person.getIdentity());
                 edge.field("out", inserted2.get(i - 1));
                 (person.<Set<EntityImpl>>getProperty("out")).add(edge);
@@ -688,7 +688,7 @@ public class TransactionConsistencyTest extends BaseDBTest {
               person.save();
             }
 
-            for (int i = 0; i < cnt; i++) {
+            for (var i = 0; i < cnt; i++) {
               if (i != cnt - 1) {
                 var doc = db.bindToSession((EntityImpl) inserted.get(i));
                 doc.setProperty("myversion", 2);
@@ -706,7 +706,7 @@ public class TransactionConsistencyTest extends BaseDBTest {
       Assert.assertTrue(true);
     }
 
-    final ResultSet result2 = db.command("select from TRPerson");
+    final var result2 = db.command("select from TRPerson");
     Assert.assertNotNull(result2);
     Assert.assertEquals(result2.stream().count(), cnt);
   }
@@ -793,7 +793,7 @@ public class TransactionConsistencyTest extends BaseDBTest {
         2); // this is fine, author still linked to 2 books
     Assert.assertEquals(account.getProperty("name"), originalName); // name is restored
 
-    int bookCount = 0;
+    var bookCount = 0;
     for (var b : db.browseClass("Address")) {
       var street = b.getProperty("street");
       if ("Mulholland drive".equals(street) || "Via Veneto".equals(street)) {
@@ -807,9 +807,9 @@ public class TransactionConsistencyTest extends BaseDBTest {
   public void testTransactionsCache() {
     Assert.assertFalse(db.getTransaction().isActive());
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass classA = schema.createClass("TransA");
+    var classA = schema.createClass("TransA");
     classA.createProperty(db, "name", PropertyType.STRING);
-    EntityImpl doc = ((EntityImpl) db.newEntity(classA));
+    var doc = ((EntityImpl) db.newEntity(classA));
     doc.field("name", "test1");
 
     db.begin();

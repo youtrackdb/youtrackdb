@@ -26,8 +26,8 @@ public class SQLClusterList extends SimpleNode {
   public void toString(Map<Object, Object> params, StringBuilder builder) {
 
     builder.append("cluster:[");
-    boolean first = true;
-    for (SQLIdentifier id : clusters) {
+    var first = true;
+    for (var id : clusters) {
       if (!first) {
         builder.append(",");
       }
@@ -39,8 +39,8 @@ public class SQLClusterList extends SimpleNode {
 
   public void toGenericStatement(StringBuilder builder) {
     builder.append("cluster:[");
-    boolean first = true;
-    for (SQLIdentifier id : clusters) {
+    var first = true;
+    for (var id : clusters) {
       if (!first) {
         builder.append(",");
       }
@@ -52,8 +52,8 @@ public class SQLClusterList extends SimpleNode {
 
   public List<SQLCluster> toListOfClusters() {
     List<SQLCluster> result = new ArrayList<>();
-    for (SQLIdentifier id : clusters) {
-      SQLCluster cluster = new SQLCluster(-1);
+    for (var id : clusters) {
+      var cluster = new SQLCluster(-1);
       cluster.clusterName = id.getStringValue();
       result.add(cluster);
     }
@@ -61,7 +61,7 @@ public class SQLClusterList extends SimpleNode {
   }
 
   public SQLClusterList copy() {
-    SQLClusterList result = new SQLClusterList(-1);
+    var result = new SQLClusterList(-1);
     result.clusters = clusters.stream().map(x -> x.copy()).collect(Collectors.toList());
     return result;
   }
@@ -75,7 +75,7 @@ public class SQLClusterList extends SimpleNode {
       return false;
     }
 
-    SQLClusterList that = (SQLClusterList) o;
+    var that = (SQLClusterList) o;
 
     return Objects.equals(clusters, that.clusters);
   }
@@ -86,7 +86,7 @@ public class SQLClusterList extends SimpleNode {
   }
 
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     if (clusters != null) {
       result.setProperty(
           "clusters", clusters.stream().map(x -> x.serialize(db)).collect(Collectors.toList()));
@@ -98,8 +98,8 @@ public class SQLClusterList extends SimpleNode {
     if (fromResult.getProperty("clusters") != null) {
       clusters = new ArrayList<>();
       List<Result> ser = fromResult.getProperty("clusters");
-      for (Result item : ser) {
-        SQLIdentifier id = SQLIdentifier.deserialize(item);
+      for (var item : ser) {
+        var id = SQLIdentifier.deserialize(item);
         clusters.add(id);
       }
     }

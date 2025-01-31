@@ -51,7 +51,7 @@ public class SQLMethodHash extends AbstractSQLMethod {
       return null;
     }
 
-    final String algorithm =
+    final var algorithm =
         iParams.length > 0 ? iParams[0].toString() : SecurityManager.HASH_ALGORITHM;
     try {
       return SecurityManager.createHash(iThis.toString(), algorithm);

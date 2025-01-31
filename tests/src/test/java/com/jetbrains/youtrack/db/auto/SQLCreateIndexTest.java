@@ -39,7 +39,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
     super.beforeClass();
 
     final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass oClass = schema.createClass("sqlCreateIndexTestClass");
+    final var oClass = schema.createClass("sqlCreateIndexTestClass");
     oClass.createProperty(db, "prop1", EXPECTED_PROP1_TYPE);
     oClass.createProperty(db, "prop2", EXPECTED_PROP2_TYPE);
     oClass.createProperty(db, "prop3", PropertyType.EMBEDDEDMAP, PropertyType.INTEGER);
@@ -66,7 +66,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
   public void testOldSyntax() throws Exception {
     db.command("CREATE INDEX sqlCreateIndexTestClass.prop1 UNIQUE").close();
 
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getIndexManager()
@@ -74,7 +74,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
     Assert.assertNotNull(index);
 
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
 
     Assert.assertTrue(indexDefinition instanceof PropertyIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields().get(0), "prop1");
@@ -90,7 +90,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
                 + " UNIQUE")
         .close();
 
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getSchema()
@@ -99,7 +99,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
     Assert.assertNotNull(index);
 
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
 
     Assert.assertTrue(indexDefinition instanceof CompositeIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), Arrays.asList("prop1", "prop2"));
@@ -115,7 +115,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
             "CREATE INDEX sqlCreateIndexEmbeddedMapIndex ON sqlCreateIndexTestClass (prop3) UNIQUE")
         .close();
 
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getSchema()
@@ -124,7 +124,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
     Assert.assertNotNull(index);
 
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
 
     Assert.assertTrue(indexDefinition instanceof PropertyMapIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), List.of("prop3"));
@@ -139,7 +139,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
   public void testOldStileCreateEmbeddedMapIndex() throws Exception {
     db.command("CREATE INDEX sqlCreateIndexTestClass.prop3 UNIQUE").close();
 
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getSchema()
@@ -148,7 +148,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
     Assert.assertNotNull(index);
 
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
 
     Assert.assertTrue(indexDefinition instanceof PropertyMapIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), List.of("prop3"));
@@ -170,7 +170,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
       Assert.fail();
     } catch (CommandSQLParsingException e) {
     }
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getSchema()
@@ -192,7 +192,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
     } catch (CommandSQLParsingException e) {
 
     }
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getSchema()
@@ -214,7 +214,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
     } catch (CommandSQLParsingException e) {
 
     }
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getSchema()
@@ -232,7 +232,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
                 + " key) UNIQUE")
         .close();
 
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getSchema()
@@ -241,7 +241,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
     Assert.assertNotNull(index);
 
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
 
     Assert.assertTrue(indexDefinition instanceof PropertyMapIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), List.of("prop3"));
@@ -260,7 +260,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
                 + " by value) UNIQUE")
         .close();
 
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getSchema()
@@ -269,7 +269,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
     Assert.assertNotNull(index);
 
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
 
     Assert.assertTrue(indexDefinition instanceof PropertyMapIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), List.of("prop3"));
@@ -288,7 +288,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
                 + " NOTUNIQUE")
         .close();
 
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getSchema()
@@ -297,7 +297,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
     Assert.assertNotNull(index);
 
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
 
     Assert.assertTrue(indexDefinition instanceof PropertyListIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), List.of("prop5"));
@@ -311,7 +311,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
             "CREATE INDEX sqlCreateIndexRidBagIndex ON sqlCreateIndexTestClass (prop9) NOTUNIQUE")
         .close();
 
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getSchema()
@@ -320,7 +320,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
     Assert.assertNotNull(index);
 
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
 
     Assert.assertTrue(indexDefinition instanceof PropertyRidBagIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), List.of("prop9"));
@@ -331,7 +331,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
   public void testCreateOldStileEmbeddedListIndex() throws Exception {
     db.command("CREATE INDEX sqlCreateIndexTestClass.prop5 NOTUNIQUE").close();
 
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getSchema()
@@ -340,7 +340,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
     Assert.assertNotNull(index);
 
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
 
     Assert.assertTrue(indexDefinition instanceof PropertyListIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), List.of("prop5"));
@@ -351,7 +351,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
   public void testCreateOldStileRidBagIndex() throws Exception {
     db.command("CREATE INDEX sqlCreateIndexTestClass.prop9 NOTUNIQUE").close();
 
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getSchema()
@@ -360,7 +360,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
     Assert.assertNotNull(index);
 
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
 
     Assert.assertTrue(indexDefinition instanceof PropertyRidBagIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), List.of("prop9"));
@@ -384,7 +384,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
                   "Linked type was not provided. You should provide linked type for embedded"
                       + " collections that are going to be indexed."));
     }
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getSchema()
@@ -410,7 +410,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
                   "Linked type was not provided. You should provide linked type for embedded"
                       + " collections that are going to be indexed."));
     }
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getSchema()
@@ -422,7 +422,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
   @Test
   public void testCreateCompositeIndexWithTypes() throws Exception {
-    final String query =
+    final var query =
         "CREATE INDEX sqlCreateIndexCompositeIndex2 ON sqlCreateIndexTestClass (prop1,"
             + " prop2) UNIQUE "
             + EXPECTED_PROP1_TYPE
@@ -431,7 +431,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
     db.command(query).close();
 
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getSchema()
@@ -440,7 +440,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
     Assert.assertNotNull(index);
 
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
 
     Assert.assertTrue(indexDefinition instanceof CompositeIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), Arrays.asList("prop1", "prop2"));
@@ -451,7 +451,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
   @Test
   public void testCreateCompositeIndexWithWrongTypes() throws Exception {
-    final String query =
+    final var query =
         "CREATE INDEX sqlCreateIndexCompositeIndex3 ON sqlCreateIndexTestClass (prop1,"
             + " prop2) UNIQUE "
             + EXPECTED_PROP1_TYPE
@@ -475,7 +475,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
       Assert.assertEquals(cause.getClass(), IllegalArgumentException.class);
     }
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getSchema()
@@ -492,7 +492,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
                 + " (prop1, prop2) UNIQUE metadata {v1:23, v2:\"val2\"}")
         .close();
 
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getSchema()
@@ -501,7 +501,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
     Assert.assertNotNull(index);
 
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
 
     Assert.assertTrue(indexDefinition instanceof CompositeIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), Arrays.asList("prop1", "prop2"));
@@ -521,7 +521,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
             "CREATE INDEX sqlCreateIndexTestClass.prop8 NOTUNIQUE  metadata {v1:23, v2:\"val2\"}")
         .close();
 
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getSchema()
@@ -530,7 +530,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
     Assert.assertNotNull(index);
 
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
 
     Assert.assertTrue(indexDefinition instanceof PropertyIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), List.of("prop8"));
@@ -544,7 +544,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
   }
 
   public void testCreateCompositeIndexWithTypesAndMetadata() throws Exception {
-    final String query =
+    final var query =
         "CREATE INDEX sqlCreateIndexCompositeIndex2WithConfig ON sqlCreateIndexTestClass"
             + " (prop1, prop2) UNIQUE "
             + EXPECTED_PROP1_TYPE
@@ -554,7 +554,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
     db.command(query).close();
 
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getSchema()
@@ -563,7 +563,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
     Assert.assertNotNull(index);
 
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
 
     Assert.assertTrue(indexDefinition instanceof CompositeIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), Arrays.asList("prop1", "prop2"));

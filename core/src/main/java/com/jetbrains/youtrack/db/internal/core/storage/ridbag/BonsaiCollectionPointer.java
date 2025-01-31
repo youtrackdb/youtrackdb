@@ -66,7 +66,7 @@ public class BonsaiCollectionPointer {
       return false;
     }
 
-    BonsaiCollectionPointer that = (BonsaiCollectionPointer) o;
+    var that = (BonsaiCollectionPointer) o;
 
     if (fileId != that.fileId) {
       return false;
@@ -76,7 +76,7 @@ public class BonsaiCollectionPointer {
 
   @Override
   public int hashCode() {
-    int result = (int) (fileId ^ (fileId >>> 32));
+    var result = (int) (fileId ^ (fileId >>> 32));
     result = 31 * result + rootPointer.hashCode();
     return result;
   }

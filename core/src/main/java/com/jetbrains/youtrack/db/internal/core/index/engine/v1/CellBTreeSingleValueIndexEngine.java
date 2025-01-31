@@ -2,7 +2,6 @@ package com.jetbrains.youtrack.db.internal.core.index.engine.v1;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.config.IndexEngineData;
@@ -89,7 +88,7 @@ public final class CellBTreeSingleValueIndexEngine
   }
 
   private void doClearTree(AtomicOperation atomicOperation) throws IOException {
-    try (Stream<Object> stream = sbTree.keyStream()) {
+    try (var stream = sbTree.keyStream()) {
       stream.forEach(
           (key) -> {
             try {
@@ -104,8 +103,8 @@ public final class CellBTreeSingleValueIndexEngine
 
   @Override
   public void load(IndexEngineData data) {
-    int keySize = data.getKeySize();
-    PropertyType[] keyTypes = data.getKeyTypes();
+    var keySize = data.getKeySize();
+    var keyTypes = data.getKeyTypes();
     BinarySerializer keySerializer = storage.resolveObjectSerializer(data.getKeySerializedId());
     sbTree.load(name, keySize, keyTypes, keySerializer);
   }
@@ -137,7 +136,7 @@ public final class CellBTreeSingleValueIndexEngine
 
   @Override
   public Stream<RID> get(Object key) {
-    final RID rid = sbTree.get(key);
+    final var rid = sbTree.get(key);
     if (rid == null) {
       return Stream.empty();
     }
@@ -146,7 +145,7 @@ public final class CellBTreeSingleValueIndexEngine
 
   @Override
   public Stream<RawPair<Object, RID>> stream(IndexEngineValuesTransformer valuesTransformer) {
-    final Object firstKey = sbTree.firstKey();
+    final var firstKey = sbTree.firstKey();
     if (firstKey == null) {
       return Stream.empty();
     }
@@ -156,7 +155,7 @@ public final class CellBTreeSingleValueIndexEngine
   @Override
   public Stream<RawPair<Object, RID>> descStream(
       IndexEngineValuesTransformer valuesTransformer) {
-    final Object lastKey = sbTree.lastKey();
+    final var lastKey = sbTree.lastKey();
     if (lastKey == null) {
       return Stream.empty();
     }

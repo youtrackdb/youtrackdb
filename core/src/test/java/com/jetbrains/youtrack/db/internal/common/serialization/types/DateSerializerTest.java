@@ -49,7 +49,7 @@ public class DateSerializerTest {
   @Test
   public void testSerialize() {
     dateSerializer.serialize(OBJECT, stream, 0);
-    Calendar calendar = Calendar.getInstance();
+    var calendar = Calendar.getInstance();
     calendar.setTime(OBJECT);
     calendar.set(Calendar.HOUR_OF_DAY, 0);
     calendar.set(Calendar.MINUTE, 0);
@@ -61,7 +61,7 @@ public class DateSerializerTest {
   @Test
   public void testSerializeNative() {
     dateSerializer.serializeNativeObject(OBJECT, stream, 0);
-    Calendar calendar = Calendar.getInstance();
+    var calendar = Calendar.getInstance();
     calendar.setTime(OBJECT);
     calendar.set(Calendar.HOUR_OF_DAY, 0);
     calendar.set(Calendar.MINUTE, 0);
@@ -73,14 +73,14 @@ public class DateSerializerTest {
   @Test
   public void testNativeDirectMemoryCompatibility() {
     dateSerializer.serializeNativeObject(OBJECT, stream, 0);
-    Calendar calendar = Calendar.getInstance();
+    var calendar = Calendar.getInstance();
     calendar.setTime(OBJECT);
     calendar.set(Calendar.HOUR_OF_DAY, 0);
     calendar.set(Calendar.MINUTE, 0);
     calendar.set(Calendar.SECOND, 0);
     calendar.set(Calendar.MILLISECOND, 0);
 
-    ByteBuffer buffer = ByteBuffer.allocateDirect(stream.length).order(ByteOrder.nativeOrder());
+    var buffer = ByteBuffer.allocateDirect(stream.length).order(ByteOrder.nativeOrder());
     buffer.position(0);
     buffer.put(stream);
     buffer.position(0);
@@ -90,11 +90,11 @@ public class DateSerializerTest {
 
   @Test
   public void testSerializeInByteBuffer() {
-    final int serializationOffset = 5;
+    final var serializationOffset = 5;
 
-    final ByteBuffer buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
+    final var buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
 
-    Calendar calendar = Calendar.getInstance();
+    var calendar = Calendar.getInstance();
     calendar.setTime(OBJECT);
     calendar.set(Calendar.HOUR_OF_DAY, 0);
     calendar.set(Calendar.MINUTE, 0);
@@ -104,7 +104,7 @@ public class DateSerializerTest {
     buffer.position(serializationOffset);
     dateSerializer.serializeInByteBufferObject(OBJECT, buffer);
 
-    final int binarySize = buffer.position() - serializationOffset;
+    final var binarySize = buffer.position() - serializationOffset;
     Assert.assertEquals(binarySize, FIELD_SIZE);
 
     buffer.position(serializationOffset);
@@ -118,11 +118,11 @@ public class DateSerializerTest {
 
   @Test
   public void testSerializeInImmutableByteBufferPosition() {
-    final int serializationOffset = 5;
+    final var serializationOffset = 5;
 
-    final ByteBuffer buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
+    final var buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
 
-    Calendar calendar = Calendar.getInstance();
+    var calendar = Calendar.getInstance();
     calendar.setTime(OBJECT);
     calendar.set(Calendar.HOUR_OF_DAY, 0);
     calendar.set(Calendar.MINUTE, 0);
@@ -132,7 +132,7 @@ public class DateSerializerTest {
     buffer.position(serializationOffset);
     dateSerializer.serializeInByteBufferObject(OBJECT, buffer);
 
-    final int binarySize = buffer.position() - serializationOffset;
+    final var binarySize = buffer.position() - serializationOffset;
     Assert.assertEquals(binarySize, FIELD_SIZE);
 
     buffer.position(0);
@@ -148,18 +148,18 @@ public class DateSerializerTest {
 
   @Test
   public void testSerializeWALChanges() {
-    final int serializationOffset = 5;
-    final ByteBuffer buffer =
+    final var serializationOffset = 5;
+    final var buffer =
         ByteBuffer.allocateDirect(
                 FIELD_SIZE + serializationOffset + WALPageChangesPortion.PORTION_BYTES)
             .order(ByteOrder.nativeOrder());
-    final byte[] data = new byte[FIELD_SIZE];
+    final var data = new byte[FIELD_SIZE];
     dateSerializer.serializeNativeObject(OBJECT, data, 0);
     final WALChanges walChanges = new WALPageChangesPortion();
 
     walChanges.setBinaryValue(buffer, data, serializationOffset);
 
-    Calendar calendar = Calendar.getInstance();
+    var calendar = Calendar.getInstance();
     calendar.setTime(OBJECT);
     calendar.set(Calendar.HOUR_OF_DAY, 0);
     calendar.set(Calendar.MINUTE, 0);

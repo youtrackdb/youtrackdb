@@ -36,11 +36,11 @@ public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
     var db = ctx.getDatabase();
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     result.setProperty("operation", "optimize databae");
 
     if (isOptimizeEdges()) {
-      String edges = optimizeEdges(db);
+      var edges = optimizeEdges(db);
       result.setProperty("optimizeEdges", edges);
     }
 
@@ -50,7 +50,7 @@ public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
   @Override
   public void toString(Map<Object, Object> params, StringBuilder builder) {
     builder.append("OPTIMIZE DATABASE");
-    for (SQLCommandLineOption option : options) {
+    for (var option : options) {
       builder.append(" ");
       option.toString(params, builder);
     }
@@ -59,7 +59,7 @@ public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
   @Override
   public void toGenericStatement(StringBuilder builder) {
     builder.append("OPTIMIZE DATABASE");
-    for (SQLCommandLineOption option : options) {
+    for (var option : options) {
       builder.append(" ");
       option.toGenericStatement(builder);
     }
@@ -67,7 +67,7 @@ public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
 
   @Override
   public SQLOptimizeDatabaseStatement copy() {
-    SQLOptimizeDatabaseStatement result = new SQLOptimizeDatabaseStatement(-1);
+    var result = new SQLOptimizeDatabaseStatement(-1);
     result.options =
         options == null
             ? null
@@ -77,12 +77,12 @@ public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
 
   private String optimizeEdges(DatabaseSessionInternal db) {
     long transformed = 0;
-    final long totalEdges = db.countClass("E");
+    final var totalEdges = db.countClass("E");
     long browsedEdges = 0;
     long lastLapBrowsed = 0;
-    long lastLapTime = System.currentTimeMillis();
+    var lastLapTime = System.currentTimeMillis();
 
-    for (EntityImpl entity : db.browseClass("E")) {
+    for (var entity : db.browseClass("E")) {
       if (Thread.currentThread().isInterrupted()) {
         break;
       }
@@ -97,11 +97,11 @@ public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
           final EntityImpl inV = entity.getPropertyInternal("in");
 
           // OUTGOING
-          final Object outField = outV.getPropertyInternal("out_" + entity.getClassName());
+          final var outField = outV.getPropertyInternal("out_" + entity.getClassName());
           if (outField instanceof RidBag) {
-            final Iterator<RID> it = ((RidBag) outField).iterator();
+            final var it = ((RidBag) outField).iterator();
             while (it.hasNext()) {
-              RID v = it.next();
+              var v = it.next();
               if (edgeIdentity.equals(v)) {
                 // REPLACE EDGE RID WITH IN-VERTEX RID
                 it.remove();
@@ -114,11 +114,11 @@ public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
           outV.save();
 
           // INCOMING
-          final Object inField = inV.getPropertyInternal("in_" + entity.getClassName());
+          final var inField = inV.getPropertyInternal("in_" + entity.getClassName());
           if (outField instanceof RidBag) {
-            final Iterator<RID> it = ((RidBag) inField).iterator();
+            final var it = ((RidBag) inField).iterator();
             while (it.hasNext()) {
-              RID v = it.next();
+              var v = it.next();
               if (edgeIdentity.equals(v)) {
                 // REPLACE EDGE RID WITH IN-VERTEX RID
                 it.remove();
@@ -132,10 +132,10 @@ public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
 
           entity.delete();
 
-          final long now = System.currentTimeMillis();
+          final var now = System.currentTimeMillis();
 
           if (verbose() && (now - lastLapTime > 2000)) {
-            final long elapsed = now - lastLapTime;
+            final var elapsed = now - lastLapTime;
 
             LogManager.instance()
                 .info(
@@ -157,7 +157,7 @@ public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
   }
 
   private boolean isOptimizeEdges() {
-    for (SQLCommandLineOption option : options) {
+    for (var option : options) {
       if (option.name.getStringValue().equalsIgnoreCase("LWEDGES")) {
         return true;
       }
@@ -166,7 +166,7 @@ public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
   }
 
   private boolean verbose() {
-    for (SQLCommandLineOption option : options) {
+    for (var option : options) {
       if (option.name.getStringValue().equalsIgnoreCase("NOVERBOSE")) {
         return false;
       }
@@ -183,7 +183,7 @@ public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
       return false;
     }
 
-    SQLOptimizeDatabaseStatement that = (SQLOptimizeDatabaseStatement) o;
+    var that = (SQLOptimizeDatabaseStatement) o;
 
     return Objects.equals(options, that.options);
   }

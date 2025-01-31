@@ -1,14 +1,11 @@
 package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
@@ -19,7 +16,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -57,7 +53,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
       schema.dropClass("classIndexManagerTestCompositeCollectionClass");
     }
 
-    final SchemaClass superClass = schema.createClass("classIndexManagerTestSuperClass");
+    final var superClass = schema.createClass("classIndexManagerTestSuperClass");
     superClass.createProperty(db, "prop0", PropertyType.STRING);
     superClass.createIndex(db,
         "classIndexManagerTestSuperClass.prop0",
@@ -66,7 +62,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
         Map.of("ignoreNullValues", true),
         new String[]{"prop0"});
 
-    final SchemaClass oClass = schema.createClass("classIndexManagerTestClass", superClass);
+    final var oClass = schema.createClass("classIndexManagerTestClass", superClass);
     oClass.createProperty(db, "prop1", PropertyType.STRING);
     oClass.createIndex(db,
         "classIndexManagerTestClass.prop1",
@@ -75,12 +71,12 @@ public class ClassIndexManagerTest extends BaseDBTest {
         Map.of("ignoreNullValues", true),
         new String[]{"prop1"});
 
-    final SchemaProperty propTwo = oClass.createProperty(db, "prop2", PropertyType.INTEGER);
+    final var propTwo = oClass.createProperty(db, "prop2", PropertyType.INTEGER);
     propTwo.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     oClass.createProperty(db, "prop3", PropertyType.BOOLEAN);
 
-    final SchemaProperty propFour = oClass.createProperty(db, "prop4", PropertyType.EMBEDDEDLIST,
+    final var propFour = oClass.createProperty(db, "prop4", PropertyType.EMBEDDEDLIST,
         PropertyType.STRING);
     propFour.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
@@ -91,7 +87,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     oClass.createIndex(db,
         "classIndexManagerTestIndexByValue", SchemaClass.INDEX_TYPE.NOTUNIQUE, "prop5 by value");
 
-    final SchemaProperty propSix = oClass.createProperty(db, "prop6", PropertyType.EMBEDDEDSET,
+    final var propSix = oClass.createProperty(db, "prop6", PropertyType.EMBEDDEDSET,
         PropertyType.STRING);
     propSix.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
@@ -101,11 +97,11 @@ public class ClassIndexManagerTest extends BaseDBTest {
         null,
         Map.of("ignoreNullValues", true), new String[]{"prop1", "prop2"});
 
-    final SchemaClass oClassTwo = schema.createClass("classIndexManagerTestClassTwo");
+    final var oClassTwo = schema.createClass("classIndexManagerTestClassTwo");
     oClassTwo.createProperty(db, "prop1", PropertyType.STRING);
     oClassTwo.createProperty(db, "prop2", PropertyType.INTEGER);
 
-    final SchemaClass compositeCollectionClass =
+    final var compositeCollectionClass =
         schema.createClass("classIndexManagerTestCompositeCollectionClass");
     compositeCollectionClass.createProperty(db, "prop1", PropertyType.STRING);
     compositeCollectionClass.createProperty(db, "prop2", PropertyType.EMBEDDEDLIST,
@@ -165,15 +161,15 @@ public class ClassIndexManagerTest extends BaseDBTest {
   }
 
   public void testPropertiesCheckUniqueIndexDubKeysCreate() {
-    final EntityImpl docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    final var docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    final var docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
     docOne.field("prop1", "a");
     db.begin();
     docOne.save();
     db.commit();
 
-    boolean exceptionThrown = false;
+    var exceptionThrown = false;
     try {
       docTwo.field("prop1", "a");
       db.begin();
@@ -187,8 +183,8 @@ public class ClassIndexManagerTest extends BaseDBTest {
   }
 
   public void testPropertiesCheckUniqueIndexDubKeyIsNullCreate() {
-    final EntityImpl docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    final var docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    final var docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
     docOne.field("prop1", "a");
     db.begin();
@@ -202,8 +198,8 @@ public class ClassIndexManagerTest extends BaseDBTest {
   }
 
   public void testPropertiesCheckUniqueIndexDubKeyIsNullCreateInTx() {
-    final EntityImpl docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    final var docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    final var docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
     db.begin();
     docOne.field("prop1", "a");
@@ -215,15 +211,15 @@ public class ClassIndexManagerTest extends BaseDBTest {
   }
 
   public void testPropertiesCheckUniqueIndexInParentDubKeysCreate() {
-    final EntityImpl docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    final var docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    final var docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
     docOne.field("prop0", "a");
     db.begin();
     docOne.save();
     db.commit();
 
-    boolean exceptionThrown = false;
+    var exceptionThrown = false;
     try {
       docTwo.field("prop0", "a");
       db.begin();
@@ -237,10 +233,10 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
   public void testPropertiesCheckUniqueIndexDubKeysUpdate() {
     db.begin();
-    EntityImpl docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
-    EntityImpl docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    var docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    var docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
-    boolean exceptionThrown = false;
+    var exceptionThrown = false;
     docOne.field("prop1", "a");
 
     docOne.save();
@@ -267,8 +263,8 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
   public void testPropertiesCheckUniqueIndexDubKeyIsNullUpdate() {
     db.begin();
-    EntityImpl docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
-    EntityImpl docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    var docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    var docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
     docOne.field("prop1", "a");
 
@@ -290,8 +286,8 @@ public class ClassIndexManagerTest extends BaseDBTest {
   }
 
   public void testPropertiesCheckUniqueIndexDubKeyIsNullUpdateInTX() {
-    final EntityImpl docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    final var docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    final var docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
     db.begin();
     docOne.field("prop1", "a");
@@ -306,13 +302,13 @@ public class ClassIndexManagerTest extends BaseDBTest {
   }
 
   public void testPropertiesCheckNonUniqueIndexDubKeys() {
-    final EntityImpl docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    final var docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     docOne.field("prop2", 1);
     db.begin();
     docOne.save();
     db.commit();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    final var docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     docTwo.field("prop2", 1);
     db.begin();
     docTwo.save();
@@ -320,12 +316,12 @@ public class ClassIndexManagerTest extends BaseDBTest {
   }
 
   public void testPropertiesCheckUniqueNullKeys() {
-    final EntityImpl docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    final var docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     db.begin();
     docOne.save();
     db.commit();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    final var docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     db.begin();
     docTwo.save();
     db.commit();
@@ -334,27 +330,27 @@ public class ClassIndexManagerTest extends BaseDBTest {
   public void testCreateDocumentWithoutClass() {
     checkEmbeddedDB();
 
-    final Collection<? extends Index> beforeIndexes =
+    final var beforeIndexes =
         db.getMetadata().getIndexManagerInternal().getIndexes(db);
     final Map<String, Long> indexSizeMap = new HashMap<>();
 
-    for (final Index index : beforeIndexes) {
+    for (final var index : beforeIndexes) {
       indexSizeMap.put(index.getName(), index.getInternal().size(db));
     }
 
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.field("prop1", "a");
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.field("prop1", "a");
     docTwo.save();
     db.commit();
 
-    final Collection<? extends Index> afterIndexes =
+    final var afterIndexes =
         db.getMetadata().getIndexManagerInternal().getIndexes(db);
-    for (final Index index : afterIndexes) {
+    for (final var index : afterIndexes) {
       Assert.assertEquals(
           index.getInternal().size(db), indexSizeMap.get(index.getName()).longValue());
     }
@@ -363,20 +359,20 @@ public class ClassIndexManagerTest extends BaseDBTest {
   public void testUpdateDocumentWithoutClass() {
     checkEmbeddedDB();
 
-    final Collection<? extends Index> beforeIndexes =
+    final var beforeIndexes =
         db.getMetadata().getIndexManagerInternal().getIndexes(db);
     final Map<String, Long> indexSizeMap = new HashMap<>();
 
-    for (final Index index : beforeIndexes) {
+    for (final var index : beforeIndexes) {
       indexSizeMap.put(index.getName(), index.getInternal().size(db));
     }
 
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.field("prop1", "a");
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.field("prop1", "b");
     docTwo.save();
 
@@ -384,16 +380,16 @@ public class ClassIndexManagerTest extends BaseDBTest {
     docOne.save();
     db.commit();
 
-    final Collection<? extends Index> afterIndexes =
+    final var afterIndexes =
         db.getMetadata().getIndexManagerInternal().getIndexes(db);
-    for (final Index index : afterIndexes) {
+    for (final var index : afterIndexes) {
       Assert.assertEquals(
           index.getInternal().size(db), indexSizeMap.get(index.getName()).longValue());
     }
   }
 
   public void testDeleteDocumentWithoutClass() {
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.field("prop1", "a");
 
     db.begin();
@@ -406,7 +402,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
   }
 
   public void testDeleteModifiedDocumentWithoutClass() {
-    EntityImpl docOne = ((EntityImpl) db.newEntity());
+    var docOne = ((EntityImpl) db.newEntity());
     docOne.field("prop1", "a");
 
     db.begin();
@@ -422,7 +418,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
   public void testDocumentUpdateWithoutDirtyFields() {
     db.begin();
-    EntityImpl docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    var docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     docOne.field("prop1", "a");
 
     docOne.save();
@@ -438,7 +434,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
   public void testCreateDocumentIndexRecordAdded() {
     checkEmbeddedDB();
 
-    final EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    final var doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     doc.field("prop0", "x");
     doc.field("prop1", "a");
     doc.field("prop2", 1);
@@ -448,21 +444,21 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass oClass = schema.getClass("classIndexManagerTestClass");
-    final SchemaClass oSuperClass = schema.getClass("classIndexManagerTestSuperClass");
+    final var oClass = schema.getClass("classIndexManagerTestClass");
+    final var oSuperClass = schema.getClass("classIndexManagerTestSuperClass");
 
-    final Index propOneIndex = db.getMetadata().getIndexManagerInternal()
+    final var propOneIndex = db.getMetadata().getIndexManagerInternal()
         .getIndex(db, "classIndexManagerTestClass.prop1");
-    try (Stream<RID> stream = propOneIndex.getInternal().getRids(db, "a")) {
+    try (var stream = propOneIndex.getInternal().getRids(db, "a")) {
       Assert.assertTrue(stream.findFirst().isPresent());
     }
     Assert.assertEquals(propOneIndex.getInternal().size(db), 1);
 
-    final Index compositeIndex = db.getMetadata().getIndexManagerInternal()
+    final var compositeIndex = db.getMetadata().getIndexManagerInternal()
         .getIndex(db, "classIndexManagerComposite");
 
-    final IndexDefinition compositeIndexDefinition = compositeIndex.getDefinition();
-    try (Stream<RID> rids =
+    final var compositeIndexDefinition = compositeIndex.getDefinition();
+    try (var rids =
         compositeIndex
             .getInternal()
             .getRids(db, compositeIndexDefinition.createValue(db, "a", 1))) {
@@ -470,9 +466,9 @@ public class ClassIndexManagerTest extends BaseDBTest {
     }
     Assert.assertEquals(compositeIndex.getInternal().size(db), 1);
 
-    final Index propZeroIndex = db.getMetadata().getIndexManagerInternal().getIndex(db,
+    final var propZeroIndex = db.getMetadata().getIndexManagerInternal().getIndex(db,
         "classIndexManagerTestSuperClass.prop0");
-    try (Stream<RID> stream = propZeroIndex.getInternal().getRids(db, "x")) {
+    try (var stream = propZeroIndex.getInternal().getRids(db, "x")) {
       Assert.assertTrue(stream.findFirst().isPresent());
     }
     Assert.assertEquals(propZeroIndex.getInternal().size(db), 1);
@@ -482,7 +478,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     doc.field("prop0", "x");
     doc.field("prop1", "a");
     doc.field("prop2", 1);
@@ -491,14 +487,14 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass oSuperClass = schema.getClass("classIndexManagerTestSuperClass");
-    final SchemaClass oClass = schema.getClass("classIndexManagerTestClass");
+    final var oSuperClass = schema.getClass("classIndexManagerTestSuperClass");
+    final var oClass = schema.getClass("classIndexManagerTestClass");
 
-    final Index propOneIndex = db.getMetadata().getIndexManagerInternal()
+    final var propOneIndex = db.getMetadata().getIndexManagerInternal()
         .getIndex(db, "classIndexManagerTestClass.prop1");
-    final Index compositeIndex = db.getMetadata().getIndexManagerInternal()
+    final var compositeIndex = db.getMetadata().getIndexManagerInternal()
         .getIndex(db, "classIndexManagerComposite");
-    final Index propZeroIndex = db.getMetadata().getIndexManagerInternal().getIndex(db,
+    final var propZeroIndex = db.getMetadata().getIndexManagerInternal().getIndex(db,
         "classIndexManagerTestSuperClass.prop0");
 
     Assert.assertEquals(propOneIndex.getInternal().size(db), 1);
@@ -522,7 +518,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
     doc.field("prop0", "x");
     doc.field("prop1", "a");
@@ -532,14 +528,14 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass oSuperClass = schema.getClass("classIndexManagerTestSuperClass");
-    final SchemaClass oClass = schema.getClass("classIndexManagerTestClass");
+    final var oSuperClass = schema.getClass("classIndexManagerTestSuperClass");
+    final var oClass = schema.getClass("classIndexManagerTestClass");
 
-    final Index propOneIndex = db.getMetadata().getIndexManagerInternal().getIndex(db,
+    final var propOneIndex = db.getMetadata().getIndexManagerInternal().getIndex(db,
         "classIndexManagerTestClass.prop1");
-    final Index compositeIndex = db.getMetadata().getIndexManagerInternal()
+    final var compositeIndex = db.getMetadata().getIndexManagerInternal()
         .getIndex(db, "classIndexManagerComposite");
-    final Index propZeroIndex = db.getMetadata().getIndexManagerInternal().getIndex(db,
+    final var propZeroIndex = db.getMetadata().getIndexManagerInternal().getIndex(db,
         "classIndexManagerTestSuperClass.prop0");
 
     Assert.assertEquals(propOneIndex.getInternal().size(db), 1);
@@ -562,7 +558,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     doc.field("prop0", "x");
     doc.field("prop1", "a");
     doc.field("prop2", 1);
@@ -571,16 +567,16 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass oSuperClass = schema.getClass("classIndexManagerTestSuperClass");
-    final SchemaClass oClass = schema.getClass("classIndexManagerTestClass");
+    final var oSuperClass = schema.getClass("classIndexManagerTestSuperClass");
+    final var oClass = schema.getClass("classIndexManagerTestClass");
 
-    final Index propZeroIndex = db.getMetadata().getIndexManagerInternal().getIndex(db,
+    final var propZeroIndex = db.getMetadata().getIndexManagerInternal().getIndex(db,
         "classIndexManagerTestSuperClass.prop0");
-    final Index propOneIndex = db.getMetadata().getIndexManagerInternal()
+    final var propOneIndex = db.getMetadata().getIndexManagerInternal()
         .getIndex(db, "classIndexManagerTestClass.prop1");
-    final Index compositeIndex = db.getMetadata().getIndexManagerInternal()
+    final var compositeIndex = db.getMetadata().getIndexManagerInternal()
         .getIndex(db, "classIndexManagerComposite");
-    final IndexDefinition compositeIndexDefinition = compositeIndex.getDefinition();
+    final var compositeIndexDefinition = compositeIndex.getDefinition();
 
     Assert.assertEquals(propOneIndex.getInternal().size(db), 1);
     Assert.assertEquals(compositeIndex.getInternal().size(db), 1);
@@ -597,13 +593,13 @@ public class ClassIndexManagerTest extends BaseDBTest {
     Assert.assertEquals(compositeIndex.getInternal().size(db), 1);
     Assert.assertEquals(propZeroIndex.getInternal().size(db), 1);
 
-    try (Stream<RID> stream = propZeroIndex.getInternal().getRids(db, "y")) {
+    try (var stream = propZeroIndex.getInternal().getRids(db, "y")) {
       Assert.assertTrue(stream.findFirst().isPresent());
     }
-    try (Stream<RID> stream = propOneIndex.getInternal().getRids(db, "a")) {
+    try (var stream = propOneIndex.getInternal().getRids(db, "a")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream =
+    try (var stream =
         compositeIndex
             .getInternal()
             .getRids(db, compositeIndexDefinition.createValue(db, "a", 2))) {
@@ -615,7 +611,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     doc.field("prop1", "a");
     doc.field("prop2", (Object) null);
 
@@ -623,13 +619,13 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass oClass = schema.getClass("classIndexManagerTestClass");
+    final var oClass = schema.getClass("classIndexManagerTestClass");
 
-    final Index propOneIndex = db.getMetadata().getIndexManagerInternal()
+    final var propOneIndex = db.getMetadata().getIndexManagerInternal()
         .getIndex(db, "classIndexManagerTestClass.prop1");
-    final Index compositeIndex = db.getMetadata().getIndexManagerInternal()
+    final var compositeIndex = db.getMetadata().getIndexManagerInternal()
         .getIndex(db, "classIndexManagerComposite");
-    final IndexDefinition compositeIndexDefinition = compositeIndex.getDefinition();
+    final var compositeIndexDefinition = compositeIndex.getDefinition();
 
     Assert.assertEquals(propOneIndex.getInternal().size(db), 1);
     Assert.assertEquals(compositeIndex.getInternal().size(db), 0);
@@ -643,10 +639,10 @@ public class ClassIndexManagerTest extends BaseDBTest {
     Assert.assertEquals(propOneIndex.getInternal().size(db), 1);
     Assert.assertEquals(compositeIndex.getInternal().size(db), 1);
 
-    try (Stream<RID> stream = propOneIndex.getInternal().getRids(db, "a")) {
+    try (var stream = propOneIndex.getInternal().getRids(db, "a")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream =
+    try (var stream =
         compositeIndex
             .getInternal()
             .getRids(db, compositeIndexDefinition.createValue(db, "a", 2))) {
@@ -658,15 +654,15 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass oClass = schema.getClass("classIndexManagerTestClass");
+    final var oClass = schema.getClass("classIndexManagerTestClass");
 
-    final Index propFourIndex = db.getMetadata().getIndexManagerInternal()
+    final var propFourIndex = db.getMetadata().getIndexManagerInternal()
         .getIndex(db, "classIndexManagerTestClass.prop4");
 
     Assert.assertEquals(propFourIndex.getInternal().size(db), 0);
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
     final List<String> listProperty = new ArrayList<>();
     listProperty.add("value1");
@@ -677,10 +673,10 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     Assert.assertEquals(propFourIndex.getInternal().size(db), 2);
-    try (Stream<RID> stream = propFourIndex.getInternal().getRids(db, "value1")) {
+    try (var stream = propFourIndex.getInternal().getRids(db, "value1")) {
       Assert.assertTrue(stream.findFirst().isPresent());
     }
-    try (Stream<RID> stream = propFourIndex.getInternal().getRids(db, "value2")) {
+    try (var stream = propFourIndex.getInternal().getRids(db, "value2")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -700,14 +696,14 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     Assert.assertEquals(propFourIndex.getInternal().size(db), 3);
-    try (Stream<RID> stream = propFourIndex.getInternal().getRids(db, "value3")) {
+    try (var stream = propFourIndex.getInternal().getRids(db, "value3")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFourIndex.getInternal().getRids(db, "value4")) {
+    try (var stream = propFourIndex.getInternal().getRids(db, "value4")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
-    try (Stream<RID> stream = propFourIndex.getInternal().getRids(db, "value5")) {
+    try (var stream = propFourIndex.getInternal().getRids(db, "value5")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
@@ -715,17 +711,17 @@ public class ClassIndexManagerTest extends BaseDBTest {
   public void testMapUpdate() {
     checkEmbeddedDB();
 
-    final Index propFiveIndexKey = db.getMetadata().getIndexManagerInternal()
+    final var propFiveIndexKey = db.getMetadata().getIndexManagerInternal()
         .getIndex(db,
             "classIndexManagerTestIndexByKey");
-    final Index propFiveIndexValue = db.getMetadata().getIndexManagerInternal()
+    final var propFiveIndexValue = db.getMetadata().getIndexManagerInternal()
         .getIndex(db,
             "classIndexManagerTestIndexByValue");
 
     Assert.assertEquals(propFiveIndexKey.getInternal().size(db), 0);
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
     final Map<String, String> mapProperty = new HashMap<>();
     mapProperty.put("key1", "value1");
@@ -736,10 +732,10 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     Assert.assertEquals(propFiveIndexKey.getInternal().size(db), 2);
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key1")) {
+    try (var stream = propFiveIndexKey.getInternal().getRids(db, "key1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key2")) {
+    try (var stream = propFiveIndexKey.getInternal().getRids(db, "key2")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -762,33 +758,33 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     Assert.assertEquals(propFiveIndexKey.getInternal().size(db), 5);
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key1")) {
+    try (var stream = propFiveIndexKey.getInternal().getRids(db, "key1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key3")) {
+    try (var stream = propFiveIndexKey.getInternal().getRids(db, "key3")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key4")) {
+    try (var stream = propFiveIndexKey.getInternal().getRids(db, "key4")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key6")) {
+    try (var stream = propFiveIndexKey.getInternal().getRids(db, "key6")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key7")) {
+    try (var stream = propFiveIndexKey.getInternal().getRids(db, "key7")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
     Assert.assertEquals(propFiveIndexValue.getInternal().size(db), 4);
-    try (Stream<RID> stream = propFiveIndexValue.getInternal().getRids(db, "value5")) {
+    try (var stream = propFiveIndexValue.getInternal().getRids(db, "value5")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexValue.getInternal().getRids(db, "value3")) {
+    try (var stream = propFiveIndexValue.getInternal().getRids(db, "value3")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexValue.getInternal().getRids(db, "value7")) {
+    try (var stream = propFiveIndexValue.getInternal().getRids(db, "value7")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexValue.getInternal().getRids(db, "value6")) {
+    try (var stream = propFiveIndexValue.getInternal().getRids(db, "value6")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
@@ -796,13 +792,13 @@ public class ClassIndexManagerTest extends BaseDBTest {
   public void testSetUpdate() {
     checkEmbeddedDB();
 
-    final Index propSixIndex = db.getMetadata().getIndexManagerInternal()
+    final var propSixIndex = db.getMetadata().getIndexManagerInternal()
         .getIndex(db, "classIndexManagerTestClass.prop6");
 
     Assert.assertEquals(propSixIndex.getInternal().size(db), 0);
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
     final Set<String> setProperty = new HashSet<>();
     setProperty.add("value1");
@@ -813,10 +809,10 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     Assert.assertEquals(propSixIndex.getInternal().size(db), 2);
-    try (Stream<RID> stream = propSixIndex.getInternal().getRids(db, "value1")) {
+    try (var stream = propSixIndex.getInternal().getRids(db, "value1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propSixIndex.getInternal().getRids(db, "value2")) {
+    try (var stream = propSixIndex.getInternal().getRids(db, "value2")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -838,10 +834,10 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     Assert.assertEquals(propSixIndex.getInternal().size(db), 2);
-    try (Stream<RID> stream = propSixIndex.getInternal().getRids(db, "value1")) {
+    try (var stream = propSixIndex.getInternal().getRids(db, "value1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propSixIndex.getInternal().getRids(db, "value5")) {
+    try (var stream = propSixIndex.getInternal().getRids(db, "value5")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
@@ -849,13 +845,13 @@ public class ClassIndexManagerTest extends BaseDBTest {
   public void testListDelete() {
     checkEmbeddedDB();
 
-    final Index propFourIndex = db.getMetadata().getIndexManagerInternal()
+    final var propFourIndex = db.getMetadata().getIndexManagerInternal()
         .getIndex(db, "classIndexManagerTestClass.prop4");
 
     Assert.assertEquals(propFourIndex.getInternal().size(db), 0);
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
     final List<String> listProperty = new ArrayList<>();
     listProperty.add("value1");
@@ -866,10 +862,10 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     Assert.assertEquals(propFourIndex.getInternal().size(db), 2);
-    try (Stream<RID> stream = propFourIndex.getInternal().getRids(db, "value1")) {
+    try (var stream = propFourIndex.getInternal().getRids(db, "value1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFourIndex.getInternal().getRids(db, "value2")) {
+    try (var stream = propFourIndex.getInternal().getRids(db, "value2")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -889,13 +885,13 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     Assert.assertEquals(propFourIndex.getInternal().size(db), 3);
-    try (Stream<RID> stream = propFourIndex.getInternal().getRids(db, "value3")) {
+    try (var stream = propFourIndex.getInternal().getRids(db, "value3")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFourIndex.getInternal().getRids(db, "value4")) {
+    try (var stream = propFourIndex.getInternal().getRids(db, "value4")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFourIndex.getInternal().getRids(db, "value5")) {
+    try (var stream = propFourIndex.getInternal().getRids(db, "value5")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -915,17 +911,17 @@ public class ClassIndexManagerTest extends BaseDBTest {
   public void testMapDelete() {
     checkEmbeddedDB();
 
-    final Index propFiveIndexKey = db.getMetadata().getIndexManagerInternal()
+    final var propFiveIndexKey = db.getMetadata().getIndexManagerInternal()
         .getIndex(db,
             "classIndexManagerTestIndexByKey");
-    final Index propFiveIndexValue = db.getMetadata().getIndexManagerInternal()
+    final var propFiveIndexValue = db.getMetadata().getIndexManagerInternal()
         .getIndex(db,
             "classIndexManagerTestIndexByValue");
 
     Assert.assertEquals(propFiveIndexKey.getInternal().size(db), 0);
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
     final Map<String, String> mapProperty = new HashMap<>();
     mapProperty.put("key1", "value1");
@@ -936,10 +932,10 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     Assert.assertEquals(propFiveIndexKey.getInternal().size(db), 2);
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key1")) {
+    try (var stream = propFiveIndexKey.getInternal().getRids(db, "key1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key2")) {
+    try (var stream = propFiveIndexKey.getInternal().getRids(db, "key2")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -962,33 +958,33 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     Assert.assertEquals(propFiveIndexKey.getInternal().size(db), 5);
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key1")) {
+    try (var stream = propFiveIndexKey.getInternal().getRids(db, "key1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key3")) {
+    try (var stream = propFiveIndexKey.getInternal().getRids(db, "key3")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key4")) {
+    try (var stream = propFiveIndexKey.getInternal().getRids(db, "key4")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key6")) {
+    try (var stream = propFiveIndexKey.getInternal().getRids(db, "key6")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexKey.getInternal().getRids(db, "key7")) {
+    try (var stream = propFiveIndexKey.getInternal().getRids(db, "key7")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
     Assert.assertEquals(propFiveIndexValue.getInternal().size(db), 4);
-    try (Stream<RID> stream = propFiveIndexValue.getInternal().getRids(db, "value5")) {
+    try (var stream = propFiveIndexValue.getInternal().getRids(db, "value5")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexValue.getInternal().getRids(db, "value3")) {
+    try (var stream = propFiveIndexValue.getInternal().getRids(db, "value3")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexValue.getInternal().getRids(db, "value7")) {
+    try (var stream = propFiveIndexValue.getInternal().getRids(db, "value7")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propFiveIndexValue.getInternal().getRids(db, "value6")) {
+    try (var stream = propFiveIndexValue.getInternal().getRids(db, "value6")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -1011,13 +1007,13 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
   public void testSetDelete() {
     checkEmbeddedDB();
-    final Index propSixIndex = db.getMetadata().getIndexManagerInternal()
+    final var propSixIndex = db.getMetadata().getIndexManagerInternal()
         .getIndex(db, "classIndexManagerTestClass.prop6");
 
     Assert.assertEquals(propSixIndex.getInternal().size(db), 0);
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
 
     final Set<String> setProperty = new HashSet<>();
     setProperty.add("value1");
@@ -1028,10 +1024,10 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     Assert.assertEquals(propSixIndex.getInternal().size(db), 2);
-    try (Stream<RID> stream = propSixIndex.getInternal().getRids(db, "value1")) {
+    try (var stream = propSixIndex.getInternal().getRids(db, "value1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propSixIndex.getInternal().getRids(db, "value2")) {
+    try (var stream = propSixIndex.getInternal().getRids(db, "value2")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -1053,10 +1049,10 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     Assert.assertEquals(propSixIndex.getInternal().size(db), 2);
-    try (Stream<RID> stream = propSixIndex.getInternal().getRids(db, "value1")) {
+    try (var stream = propSixIndex.getInternal().getRids(db, "value1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = propSixIndex.getInternal().getRids(db, "value5")) {
+    try (var stream = propSixIndex.getInternal().getRids(db, "value5")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -1075,7 +1071,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
   public void testDeleteDocumentIndexRecordDeleted() {
     checkEmbeddedDB();
 
-    final EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    final var doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     doc.field("prop0", "x");
     doc.field("prop1", "a");
     doc.field("prop2", 1);
@@ -1084,11 +1080,11 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.save();
     db.commit();
 
-    final Index propZeroIndex = db.getMetadata().getIndexManagerInternal().getIndex(db,
+    final var propZeroIndex = db.getMetadata().getIndexManagerInternal().getIndex(db,
         "classIndexManagerTestSuperClass.prop0");
-    final Index propOneIndex = db.getMetadata().getIndexManagerInternal()
+    final var propOneIndex = db.getMetadata().getIndexManagerInternal()
         .getIndex(db, "classIndexManagerTestClass.prop1");
-    final Index compositeIndex = db.getMetadata().getIndexManagerInternal()
+    final var compositeIndex = db.getMetadata().getIndexManagerInternal()
         .getIndex(db, "classIndexManagerComposite");
 
     Assert.assertEquals(propZeroIndex.getInternal().size(db), 1);
@@ -1108,7 +1104,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     doc.field("prop0", "x");
     doc.field("prop1", "a");
     doc.field("prop2", 1);
@@ -1116,12 +1112,12 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.save();
     db.commit();
 
-    final Index propOneIndex = db.getMetadata().getIndexManagerInternal()
+    final var propOneIndex = db.getMetadata().getIndexManagerInternal()
         .getIndex(db, "classIndexManagerTestClass.prop1");
-    final Index compositeIndex = db.getMetadata().getIndexManagerInternal()
+    final var compositeIndex = db.getMetadata().getIndexManagerInternal()
         .getIndex(db, "classIndexManagerComposite");
 
-    final Index propZeroIndex = db.getMetadata().getIndexManagerInternal().getIndex(db,
+    final var propZeroIndex = db.getMetadata().getIndexManagerInternal().getIndex(db,
         "classIndexManagerTestSuperClass.prop0");
     Assert.assertEquals(propZeroIndex.getInternal().size(db), 1);
     Assert.assertEquals(propOneIndex.getInternal().size(db), 1);
@@ -1144,16 +1140,16 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    final EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    final var doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     doc.field("prop1", "a");
     doc.field("prop2", (Object) null);
 
     doc.save();
     db.commit();
 
-    final Index propOneIndex = db.getMetadata().getIndexManagerInternal()
+    final var propOneIndex = db.getMetadata().getIndexManagerInternal()
         .getIndex(db, "classIndexManagerTestClass.prop1");
-    final Index compositeIndex = db.getMetadata().getIndexManagerInternal()
+    final var compositeIndex = db.getMetadata().getIndexManagerInternal()
         .getIndex(db, "classIndexManagerComposite");
 
     Assert.assertEquals(propOneIndex.getInternal().size(db), 1);
@@ -1171,16 +1167,16 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     doc.field("prop1", "a");
     doc.field("prop2", (Object) null);
 
     doc.save();
     db.commit();
 
-    final Index propOneIndex = db.getMetadata().getIndexManagerInternal()
+    final var propOneIndex = db.getMetadata().getIndexManagerInternal()
         .getIndex(db, "classIndexManagerTestClass.prop1");
-    final Index compositeIndex = db.getMetadata().getIndexManagerInternal()
+    final var compositeIndex = db.getMetadata().getIndexManagerInternal()
         .getIndex(db, "classIndexManagerComposite");
 
     Assert.assertEquals(propOneIndex.getInternal().size(db), 1);
@@ -1201,7 +1197,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClassTwo"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestClassTwo"));
     doc.field("prop1", "a");
 
     doc.save();
@@ -1214,18 +1210,18 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     final Schema schema = db.getMetadata().getSchema();
-    final SchemaClassInternal oClass = (SchemaClassInternal) schema.getClass(
+    final var oClass = (SchemaClassInternal) schema.getClass(
         "classIndexManagerTestClass");
 
     final Collection<Index> indexes = oClass.getIndexesInternal(db);
-    for (final Index index : indexes) {
+    for (final var index : indexes) {
       Assert.assertEquals(index.getInternal().size(db), 0);
     }
   }
 
   public void testNoClassIndexesDelete() {
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestClassTwo"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestClassTwo"));
     doc.field("prop1", "a");
 
     doc.save();
@@ -1239,7 +1235,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
   public void testCollectionCompositeCreation() {
     checkEmbeddedDB();
 
-    final EntityImpl doc = ((EntityImpl) db.newEntity(
+    final var doc = ((EntityImpl) db.newEntity(
         "classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
@@ -1249,18 +1245,18 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.save();
     db.commit();
 
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "classIndexManagerTestIndexValueAndCollection");
     Assert.assertEquals(index.getInternal().size(db), 2);
 
-    try (Stream<RID> stream = index.getInternal()
+    try (var stream = index.getInternal()
         .getRids(db, new CompositeKey("test1", 1))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
-    try (Stream<RID> stream = index.getInternal()
+    try (var stream = index.getInternal()
         .getRids(db, new CompositeKey("test1", 2))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
@@ -1276,7 +1272,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    final EntityImpl doc = ((EntityImpl) db.newEntity(
+    final var doc = ((EntityImpl) db.newEntity(
         "classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", (Object) null);
@@ -1285,7 +1281,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.save();
     db.commit();
 
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
@@ -1300,7 +1296,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
   public void testCollectionCompositeNullCollectionFieldCreation() {
     checkEmbeddedDB();
 
-    final EntityImpl doc = ((EntityImpl) db.newEntity(
+    final var doc = ((EntityImpl) db.newEntity(
         "classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
@@ -1310,7 +1306,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.save();
     db.commit();
 
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
@@ -1326,7 +1322,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1335,7 +1331,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     db.begin();
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
@@ -1348,11 +1344,11 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.save();
     db.commit();
 
-    try (Stream<RID> stream = index.getInternal()
+    try (var stream = index.getInternal()
         .getRids(db, new CompositeKey("test2", 1))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
-    try (Stream<RID> stream = index.getInternal()
+    try (var stream = index.getInternal()
         .getRids(db, new CompositeKey("test2", 2))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
@@ -1370,7 +1366,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1379,7 +1375,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     db.begin();
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
@@ -1392,11 +1388,11 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.save();
     db.commit();
 
-    try (Stream<RID> stream = index.getInternal()
+    try (var stream = index.getInternal()
         .getRids(db, new CompositeKey("test1", 1))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
-    try (Stream<RID> stream = index.getInternal()
+    try (var stream = index.getInternal()
         .getRids(db, new CompositeKey("test1", 3))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
@@ -1414,7 +1410,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1423,7 +1419,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     db.begin();
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
@@ -1441,19 +1437,19 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.save();
     db.commit();
 
-    try (Stream<RID> stream = index.getInternal()
+    try (var stream = index.getInternal()
         .getRids(db, new CompositeKey("test1", 2))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
-    try (Stream<RID> stream = index.getInternal()
+    try (var stream = index.getInternal()
         .getRids(db, new CompositeKey("test1", 3))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
-    try (Stream<RID> stream = index.getInternal()
+    try (var stream = index.getInternal()
         .getRids(db, new CompositeKey("test1", 4))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
-    try (Stream<RID> stream = index.getInternal()
+    try (var stream = index.getInternal()
         .getRids(db, new CompositeKey("test1", 5))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
@@ -1471,7 +1467,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1480,7 +1476,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     db.begin();
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
@@ -1502,19 +1498,19 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     Assert.assertEquals(index.getInternal().size(db), 4);
 
-    try (Stream<RID> stream = index.getInternal()
+    try (var stream = index.getInternal()
         .getRids(db, new CompositeKey("test2", 2))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
-    try (Stream<RID> stream = index.getInternal()
+    try (var stream = index.getInternal()
         .getRids(db, new CompositeKey("test2", 3))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
-    try (Stream<RID> stream = index.getInternal()
+    try (var stream = index.getInternal()
         .getRids(db, new CompositeKey("test2", 4))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
-    try (Stream<RID> stream = index.getInternal()
+    try (var stream = index.getInternal()
         .getRids(db, new CompositeKey("test2", 5))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
@@ -1530,7 +1526,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1539,7 +1535,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     db.begin();
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
@@ -1565,7 +1561,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1574,7 +1570,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     db.begin();
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
@@ -1600,7 +1596,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1610,7 +1606,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     db.begin();
     doc = db.bindToSession(doc);
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
@@ -1636,7 +1632,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1645,7 +1641,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     db.begin();
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
@@ -1678,7 +1674,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1687,7 +1683,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     db.begin();
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
@@ -1707,7 +1703,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1716,7 +1712,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     db.begin();
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
@@ -1736,7 +1732,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1745,7 +1741,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     db.begin();
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
@@ -1769,7 +1765,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1779,7 +1775,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     db.begin();
     doc = db.bindToSession(doc);
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
@@ -1804,7 +1800,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1813,7 +1809,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     db.begin();
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
@@ -1834,7 +1830,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1844,7 +1840,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     db.begin();
     doc = db.bindToSession(doc);
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
@@ -1863,7 +1859,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1872,7 +1868,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     db.begin();
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
@@ -1892,7 +1888,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1902,7 +1898,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     db.begin();
     doc = db.bindToSession(doc);
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
@@ -1922,7 +1918,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
+    var doc = ((EntityImpl) db.newEntity("classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1932,7 +1928,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     db.begin();
     doc = db.bindToSession(doc);
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
@@ -1956,7 +1952,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
   public void testIndexOnPropertiesFromClassAndSuperclass() {
     checkEmbeddedDB();
 
-    final EntityImpl docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    final var docOne = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     docOne.field("prop0", "doc1-prop0");
     docOne.field("prop1", "doc1-prop1");
 
@@ -1964,7 +1960,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     docOne.save();
     db.commit();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
+    final var docTwo = ((EntityImpl) db.newEntity("classIndexManagerTestClass"));
     docTwo.field("prop0", "doc2-prop0");
     docTwo.field("prop1", "doc2-prop1");
 
@@ -1973,7 +1969,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     db.commit();
 
     final Schema schema = db.getMetadata().getSchema();
-    final Index index =
+    final var index =
         db.getMetadata().getIndexManagerInternal()
             .getIndex(db, "classIndexManagerTestIndexOnPropertiesFromClassAndSuperclass");
 

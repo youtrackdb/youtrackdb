@@ -13,13 +13,13 @@ public class DropClusterStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testPlain() {
-    String cluster = "testPlain";
+    var cluster = "testPlain";
     db.getStorage().addCluster(db, cluster);
 
     Assert.assertTrue(db.getClusterIdByName(cluster) > 0);
-    ResultSet result = db.command("drop cluster " + cluster);
+    var result = db.command("drop cluster " + cluster);
     Assert.assertTrue(result.hasNext());
-    Result next = result.next();
+    var next = result.next();
     Assert.assertEquals("drop cluster", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -29,13 +29,13 @@ public class DropClusterStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testDropClusterIfExists() {
-    String cluster = "testDropClusterIfExists";
+    var cluster = "testDropClusterIfExists";
     db.getStorage().addCluster(db, cluster);
 
     Assert.assertTrue(db.getClusterIdByName(cluster) > 0);
-    ResultSet result = db.command("drop cluster " + cluster + " IF EXISTS");
+    var result = db.command("drop cluster " + cluster + " IF EXISTS");
     Assert.assertTrue(result.hasNext());
-    Result next = result.next();
+    var next = result.next();
     Assert.assertEquals("drop cluster", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();

@@ -43,7 +43,7 @@ public class JMXPlugin extends ServerPluginAbstract {
   @Override
   public void config(final YouTrackDBServer youTrackDBServer,
       final ServerParameterConfiguration[] iParams) {
-    for (ServerParameterConfiguration param : iParams) {
+    for (var param : iParams) {
       if (param.name.equalsIgnoreCase("enabled")) {
         if (!Boolean.parseBoolean(param.value))
         // DISABLE IT
@@ -58,7 +58,7 @@ public class JMXPlugin extends ServerPluginAbstract {
     LogManager.instance()
         .info(this, "JMX plugin installed and active: profilerManaged=%s", profilerManaged);
 
-    final MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+    final var mBeanServer = ManagementFactory.getPlatformMBeanServer();
 
     try {
       if (profilerManaged) {
@@ -79,7 +79,7 @@ public class JMXPlugin extends ServerPluginAbstract {
   @Override
   public void shutdown() {
     try {
-      MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+      var mBeanServer = ManagementFactory.getPlatformMBeanServer();
       if (onProfiler != null) {
         if (mBeanServer.isRegistered(onProfiler)) {
           mBeanServer.unregisterMBean(onProfiler);

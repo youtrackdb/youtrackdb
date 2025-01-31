@@ -43,16 +43,16 @@ public class PushManager implements MetadataUpdateListener {
 
   public synchronized void pushDistributedConfig(DatabaseSessionInternal database,
       List<String> hosts) {
-    Iterator<WeakReference<NetworkProtocolBinary>> iter = distributedConfigPush.iterator();
+    var iter = distributedConfigPush.iterator();
     while (iter.hasNext()) {
-      WeakReference<NetworkProtocolBinary> ref = iter.next();
-      NetworkProtocolBinary protocolBinary = ref.get();
+      var ref = iter.next();
+      var protocolBinary = ref.get();
       if (protocolBinary != null) {
         // TODO Filter by database, push just list of active server for a specific database
-        PushDistributedConfigurationRequest request =
+        var request =
             new PushDistributedConfigurationRequest(hosts);
         try {
-          BinaryPushResponse response = protocolBinary.push(database, request);
+          var response = protocolBinary.push(database, request);
         } catch (IOException e) {
           iter.remove();
         }
@@ -67,7 +67,7 @@ public class PushManager implements MetadataUpdateListener {
   }
 
   public synchronized void cleanPushSockets() {
-    Iterator<WeakReference<NetworkProtocolBinary>> iter = distributedConfigPush.iterator();
+    var iter = distributedConfigPush.iterator();
     while (iter.hasNext()) {
       if (iter.next().get() == null) {
         iter.remove();
@@ -81,8 +81,8 @@ public class PushManager implements MetadataUpdateListener {
   }
 
   private void cleanListeners(Map<String, Set<WeakReference<NetworkProtocolBinary>>> toClean) {
-    for (Set<WeakReference<NetworkProtocolBinary>> value : toClean.values()) {
-      Iterator<WeakReference<NetworkProtocolBinary>> iter = value.iterator();
+    for (var value : toClean.values()) {
+      var iter = value.iterator();
       while (iter.hasNext()) {
         if (iter.next().get() == null) {
           iter.remove();
@@ -134,20 +134,20 @@ public class PushManager implements MetadataUpdateListener {
       SchemaShared schema) {
     var entity = schema.toNetworkStream(db);
     entity.setup(null);
-    PushSchemaRequest request = new PushSchemaRequest(entity);
+    var request = new PushSchemaRequest(entity);
     this.schema.send(db, database, request, this);
   }
 
   @Override
   public void onSequenceLibraryUpdate(DatabaseSessionInternal session, String database) {
-    PushSequencesRequest request = new PushSequencesRequest();
+    var request = new PushSequencesRequest();
     this.sequences.send(session, database, request, this);
   }
 
   @Override
   public void onStorageConfigurationUpdate(String database,
       StorageConfiguration update) {
-    PushStorageConfigurationRequest request = new PushStorageConfigurationRequest(update);
+    var request = new PushStorageConfigurationRequest(update);
     storageConfigurations.send(null, database, request, this);
   }
 
@@ -168,17 +168,17 @@ public class PushManager implements MetadataUpdateListener {
           () -> {
             Set<WeakReference<NetworkProtocolBinary>> clients = null;
             synchronized (PushManager.this) {
-              Set<WeakReference<NetworkProtocolBinary>> cl = context.get(database);
+              var cl = context.get(database);
               if (cl != null) {
                 clients = new HashSet<>(cl);
               }
             }
             if (clients != null) {
-              for (WeakReference<NetworkProtocolBinary> ref : clients) {
-                NetworkProtocolBinary protocolBinary = ref.get();
+              for (var ref : clients) {
+                var protocolBinary = ref.get();
                 if (protocolBinary != null) {
                   try {
-                    BinaryPushRequest<?> request = pack.getRequest(database);
+                    var request = pack.getRequest(database);
                     if (request != null) {
                       if (sessionCopy != null) {
                         sessionCopy.activateOnCurrentThread();

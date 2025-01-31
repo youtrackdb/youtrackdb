@@ -21,7 +21,7 @@ public class IteratorExecutionStream implements ExecutionStream {
 
   @Override
   public Result next(CommandContext ctx) {
-    Object val = iterator.next();
+    var val = iterator.next();
     if (val instanceof Result) {
       return (Result) val;
     }

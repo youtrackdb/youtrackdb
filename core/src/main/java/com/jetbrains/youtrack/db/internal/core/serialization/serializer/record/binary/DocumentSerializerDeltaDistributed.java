@@ -18,13 +18,13 @@ public class DocumentSerializerDeltaDistributed extends DocumentSerializerDelta 
 
   protected void deserializeDeltaLinkBag(DatabaseSessionInternal db, BytesContainer bytes,
       RidBag toUpdate) {
-    boolean isTree = deserializeByte(bytes) == 1;
-    long rootChanges = VarIntSerializer.readAsLong(bytes);
+    var isTree = deserializeByte(bytes) == 1;
+    var rootChanges = VarIntSerializer.readAsLong(bytes);
     while (rootChanges-- > 0) {
-      byte change = deserializeByte(bytes);
+      var change = deserializeByte(bytes);
       switch (change) {
         case CREATED: {
-          RecordId link = readOptimizedLink(db, bytes);
+          var link = readOptimizedLink(db, bytes);
           if (toUpdate != null) {
             toUpdate.add(link);
           }
@@ -34,7 +34,7 @@ public class DocumentSerializerDeltaDistributed extends DocumentSerializerDelta 
           break;
         }
         case REMOVED: {
-          RecordId link = readOptimizedLink(db, bytes);
+          var link = readOptimizedLink(db, bytes);
           if (toUpdate != null) {
             toUpdate.remove(link);
           }
@@ -54,11 +54,11 @@ public class DocumentSerializerDeltaDistributed extends DocumentSerializerDelta 
   protected void serializeDeltaLinkBag(DatabaseSessionInternal db, BytesContainer bytes,
       RidBag value) {
     serializeByte(bytes, value.isEmbedded() ? (byte) 0 : 1);
-    MultiValueChangeTimeLine<RID, RID> timeline =
+    var timeline =
         value.getTransactionTimeLine();
     assert timeline != null : "Cx ollection timeline required for link types serialization";
     VarIntSerializer.write(bytes, timeline.getMultiValueChangeEvents().size());
-    for (MultiValueChangeEvent<RID, RID> event :
+    for (var event :
         timeline.getMultiValueChangeEvents()) {
       switch (event.getChangeType()) {
         case ADD:

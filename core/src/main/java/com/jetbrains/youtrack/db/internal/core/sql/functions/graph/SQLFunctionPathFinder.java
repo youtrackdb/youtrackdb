@@ -60,13 +60,13 @@ public abstract class SQLFunctionPathFinder extends SQLFunctionMathAbstract {
     distance.put(paramSourceVertex.getIdentity(), MIN);
     unSettledNodes.add(paramSourceVertex);
 
-    int maxDistances = 0;
-    int maxSettled = 0;
-    int maxUnSettled = 0;
-    int maxPredecessors = 0;
+    var maxDistances = 0;
+    var maxSettled = 0;
+    var maxUnSettled = 0;
+    var maxPredecessors = 0;
 
     while (continueTraversing()) {
-      final Vertex node = getMinimum(unSettledNodes);
+      final var node = getMinimum(unSettledNodes);
       unSettledNodes.remove(node);
       findMinimalDistances(node);
 
@@ -109,8 +109,8 @@ public abstract class SQLFunctionPathFinder extends SQLFunctionMathAbstract {
    * This method returns the path from the source to the selected target and NULL if no path exists
    */
   public LinkedList<Vertex> getPath() {
-    final LinkedList<Vertex> path = new LinkedList<Vertex>();
-    Vertex step = paramDestinationVertex;
+    final var path = new LinkedList<Vertex>();
+    var step = paramDestinationVertex;
     // Check if a path exists
     if (predecessors.get(step.getIdentity()) == null) {
       return null;
@@ -136,8 +136,8 @@ public abstract class SQLFunctionPathFinder extends SQLFunctionMathAbstract {
   }
 
   protected void findMinimalDistances(final Vertex node) {
-    for (Vertex neighbor : getNeighbors(node)) {
-      final float d = sumDistances(getShortestDistance(node), getDistance(node, neighbor));
+    for (var neighbor : getNeighbors(node)) {
+      final var d = sumDistances(getShortestDistance(node), getDistance(node, neighbor));
 
       if (getShortestDistance(neighbor) > d) {
         distance.put(neighbor.getIdentity(), d);
@@ -152,8 +152,8 @@ public abstract class SQLFunctionPathFinder extends SQLFunctionMathAbstract {
 
     final Set<Vertex> neighbors = new HashSet<Vertex>();
     if (node != null) {
-      for (Vertex v : node.getVertices(paramDirection)) {
-        final Vertex ov = v;
+      for (var v : node.getVertices(paramDirection)) {
+        final var ov = v;
         if (ov != null && isNotSettled(ov)) {
           neighbors.add(ov);
         }
@@ -165,7 +165,7 @@ public abstract class SQLFunctionPathFinder extends SQLFunctionMathAbstract {
   protected Vertex getMinimum(final Set<Vertex> vertexes) {
     Vertex minimum = null;
     Float minimumDistance = null;
-    for (Vertex vertex : vertexes) {
+    for (var vertex : vertexes) {
       if (minimum == null || getShortestDistance(vertex) < minimumDistance) {
         minimum = vertex;
         minimumDistance = getShortestDistance(minimum);
@@ -187,7 +187,7 @@ public abstract class SQLFunctionPathFinder extends SQLFunctionMathAbstract {
       return Float.MAX_VALUE;
     }
 
-    final Float d = distance.get(destination.getIdentity());
+    final var d = distance.get(destination.getIdentity());
     return d == null ? Float.MAX_VALUE : d;
   }
 

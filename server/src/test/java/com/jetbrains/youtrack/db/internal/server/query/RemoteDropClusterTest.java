@@ -16,13 +16,13 @@ public class RemoteDropClusterTest extends BaseServerMemoryDatabase {
 
   @Test
   public void simpleDropCluster() {
-    int cl = db.addCluster("one");
+    var cl = db.addCluster("one");
     db.dropCluster(cl);
   }
 
   @Test
   public void simpleDropClusterTruncate() {
-    int cl = db.addCluster("one");
+    var cl = db.addCluster("one");
     db.dropCluster(cl);
   }
 

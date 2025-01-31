@@ -67,14 +67,14 @@ public class SQLHelper {
 
   public static Object parseDefaultValue(DatabaseSessionInternal session, EntityImpl iRecord,
       final String iWord) {
-    final Object v = SQLHelper.parseValue(iWord, null);
+    final var v = SQLHelper.parseValue(iWord, null);
 
     if (v != VALUE_NOT_PARSED) {
       return v;
     }
 
     // TRY TO PARSE AS FUNCTION
-    final SQLFunctionRuntime func = SQLHelper.getFunction(session, null, iWord);
+    final var func = SQLHelper.getFunction(session, null, iWord);
     if (func != null) {
       var context = new BasicCommandContext();
       context.setDatabase(session);
@@ -119,12 +119,12 @@ public class SQLHelper {
     } else if (iValue.charAt(0) == StringSerializerHelper.LIST_BEGIN
         && iValue.charAt(iValue.length() - 1) == StringSerializerHelper.LIST_END) {
       // COLLECTION/ARRAY
-      final List<String> items =
+      final var items =
           StringSerializerHelper.smartSplit(
               iValue.substring(1, iValue.length() - 1), StringSerializerHelper.RECORD_SEPARATOR);
 
       final List<Object> coll = new ArrayList<Object>();
-      for (String item : items) {
+      for (var item : items) {
         coll.add(parseValue(item, iContext, resolveContextVariables));
       }
       fieldValue = coll;
@@ -132,13 +132,13 @@ public class SQLHelper {
     } else if (iValue.charAt(0) == StringSerializerHelper.MAP_BEGIN
         && iValue.charAt(iValue.length() - 1) == StringSerializerHelper.MAP_END) {
       // MAP
-      final List<String> items =
+      final var items =
           StringSerializerHelper.smartSplit(
               iValue.substring(1, iValue.length() - 1), StringSerializerHelper.RECORD_SEPARATOR);
 
       final Map<Object, Object> map = new HashMap<Object, Object>();
-      for (String item : items) {
-        final List<String> parts =
+      for (var item : items) {
+        final var parts =
             StringSerializerHelper.smartSplit(item, StringSerializerHelper.ENTRY_SEPARATOR);
 
         if (parts == null || parts.size() != 2) {
@@ -147,7 +147,7 @@ public class SQLHelper {
         }
 
         Object key = StringSerializerHelper.decode(parseValue(parts.get(0), iContext).toString());
-        Object value = parseValue(parts.get(1), iContext);
+        var value = parseValue(parts.get(1), iContext);
         if (VALUE_NOT_PARSED == value) {
           value = new SQLPredicate(iContext, parts.get(1)).evaluate(iContext);
         }
@@ -201,7 +201,7 @@ public class SQLHelper {
       {
         fieldValue = Boolean.FALSE;
       } else if (iValue.startsWith("date(")) {
-        final SQLFunctionRuntime func = SQLHelper.getFunction(iContext.getDatabase(), null,
+        final var func = SQLHelper.getFunction(iContext.getDatabase(), null,
             iValue);
         if (func != null) {
           fieldValue = func.execute(null, null, null, iContext);
@@ -209,7 +209,7 @@ public class SQLHelper {
       } else if (resolveContextVariables && iValue.startsWith("$") && iContext != null) {
         fieldValue = iContext.getVariable(iValue);
       } else {
-        final Object v = parseStringNumber(iValue);
+        final var v = parseStringNumber(iValue);
         if (v != null) {
           fieldValue = v;
         }
@@ -220,7 +220,7 @@ public class SQLHelper {
   }
 
   public static Object parseStringNumber(final String iValue) {
-    final PropertyType t = RecordSerializerCSVAbstract.getType(iValue);
+    final var t = RecordSerializerCSVAbstract.getType(iValue);
 
     if (t == PropertyType.INTEGER) {
       return Integer.parseInt(iValue);
@@ -275,7 +275,7 @@ public class SQLHelper {
     }
 
     // TRY TO PARSE AS RAW VALUE
-    final Object v = parseValue(iWord, iContext, resolveContextVariables);
+    final var v = parseValue(iWord, iContext, resolveContextVariables);
     if (v != VALUE_NOT_PARSED) {
       return v;
     }
@@ -300,13 +300,13 @@ public class SQLHelper {
 
   public static SQLFunctionRuntime getFunction(DatabaseSessionInternal session,
       final BaseParser iCommand, final String iWord) {
-    final int separator = iWord.indexOf('.');
-    final int beginParenthesis = iWord.indexOf(StringSerializerHelper.EMBEDDED_BEGIN);
+    final var separator = iWord.indexOf('.');
+    final var beginParenthesis = iWord.indexOf(StringSerializerHelper.EMBEDDED_BEGIN);
     if (beginParenthesis > -1 && (separator == -1 || separator > beginParenthesis)) {
-      final int endParenthesis =
+      final var endParenthesis =
           iWord.indexOf(StringSerializerHelper.EMBEDDED_END, beginParenthesis);
 
-      final char firstChar = iWord.charAt(0);
+      final var firstChar = iWord.charAt(0);
       if (endParenthesis > -1 && (firstChar == '_' || Character.isLetter(firstChar)))
       // FUNCTION: CREATE A RUN-TIME CONTAINER FOR IT TO SAVE THE PARAMETERS
       {
@@ -338,7 +338,7 @@ public class SQLHelper {
     if (iObject instanceof SQLFilterItem) {
       return ((SQLFilterItem) iObject).getValue(iRecord, null, iContext);
     } else if (iObject instanceof String) {
-      final String s = ((String) iObject).trim();
+      final var s = ((String) iObject).trim();
       if (iRecord != null & !s.isEmpty()
           && !IOUtils.isStringContent(iObject)
           && !Character.isDigit(s.charAt(0)))
@@ -398,7 +398,7 @@ public class SQLHelper {
 
     final List<Pair<String, Object>> fields = new ArrayList<Pair<String, Object>>(iFields.size());
 
-    for (Map.Entry<String, Object> entry : iFields.entrySet()) {
+    for (var entry : iFields.entrySet()) {
       fields.add(new Pair<String, Object>(entry.getKey(), entry.getValue()));
     }
 
@@ -415,9 +415,9 @@ public class SQLHelper {
     }
 
     // BIND VALUES
-    for (Pair<String, Object> field : iFields) {
-      final String fieldName = field.getKey();
-      Object fieldValue = field.getValue();
+    for (var field : iFields) {
+      final var fieldName = field.getKey();
+      var fieldValue = field.getValue();
 
       if (fieldValue != null) {
         if (fieldValue instanceof CommandSQL cmd) {
@@ -426,13 +426,13 @@ public class SQLHelper {
               .execute(iContext.getDatabase());
 
           // CHECK FOR CONVERSIONS
-          SchemaImmutableClass immutableClass = EntityInternalUtils.getImmutableSchemaClass(e);
+          var immutableClass = EntityInternalUtils.getImmutableSchemaClass(e);
           if (immutableClass != null) {
-            final SchemaProperty prop = immutableClass.getProperty(fieldName);
+            final var prop = immutableClass.getProperty(fieldName);
             if (prop != null) {
               if (prop.getType() == PropertyType.LINK) {
                 if (MultiValue.isMultiValue(fieldValue)) {
-                  final int size = MultiValue.getSize(fieldValue);
+                  final var size = MultiValue.getSize(fieldValue);
                   if (size == 1)
                   // GET THE FIRST ITEM AS UNIQUE LINK
                   {
@@ -458,7 +458,7 @@ public class SQLHelper {
 
             String singleFieldName = null;
             var db = iContext.getDatabase();
-            for (Object o : MultiValue.getMultiValueIterable(fieldValue)) {
+            for (var o : MultiValue.getMultiValueIterable(fieldValue)) {
               if (o instanceof Identifiable && !((Identifiable) o).getIdentity()
                   .isPersistent()) {
                 // TEMPORARY / EMBEDDED

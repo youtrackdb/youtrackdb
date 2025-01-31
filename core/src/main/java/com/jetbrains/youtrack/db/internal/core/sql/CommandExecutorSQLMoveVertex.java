@@ -74,7 +74,7 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
 
     parserRequiredKeyword("TO");
 
-    String temp = parseOptionalWord(true);
+    var temp = parseOptionalWord(true);
 
     while (temp != null) {
       if (temp.startsWith("CLUSTER:")) {
@@ -136,14 +136,14 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final Set<Identifiable> sourceRIDs =
+    final var sourceRIDs =
         SQLEngine.getInstance().parseRIDTarget(db, source, context, iArgs);
 
     // CREATE EDGES
     final List<EntityImpl> result = new ArrayList<EntityImpl>(sourceRIDs.size());
 
-    for (Identifiable from : sourceRIDs) {
-      final Vertex fromVertex = toVertex(from);
+    for (var from : sourceRIDs) {
+      final var fromVertex = toVertex(from);
       if (fromVertex == null) {
         continue;
       }
@@ -155,7 +155,7 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
 
       if (fields != null) {
         // EVALUATE FIELDS
-        for (final Pair<String, Object> f : fields) {
+        for (final var f : fields) {
           if (f.getValue() instanceof SQLFunctionRuntime) {
             f.setValue(
                 ((SQLFunctionRuntime) f.getValue())

@@ -43,9 +43,9 @@ public class MultiLineStringShapeBuilder extends ComplexShapeBuilder<JtsGeometry
   public JtsGeometry fromDoc(EntityImpl document) {
     validate(document);
     List<List<List<Number>>> coordinates = document.field(COORDINATES);
-    LineString[] multiLine = new LineString[coordinates.size()];
-    int j = 0;
-    for (List<List<Number>> coordinate : coordinates) {
+    var multiLine = new LineString[coordinates.size()];
+    var j = 0;
+    for (var coordinate : coordinates) {
       multiLine[j] = createLineString(coordinate);
       j++;
     }
@@ -55,12 +55,12 @@ public class MultiLineStringShapeBuilder extends ComplexShapeBuilder<JtsGeometry
   @Override
   public void initClazz(DatabaseSessionInternal db) {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass lineString = schema.createAbstractClass(getName(), superClass(db));
+    var lineString = schema.createAbstractClass(getName(), superClass(db));
     lineString.createProperty(db, COORDINATES, PropertyType.EMBEDDEDLIST,
         PropertyType.EMBEDDEDLIST);
 
     if (GlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()) {
-      SchemaClass lineStringZ = schema.createAbstractClass(getName() + "Z", superClass(db));
+      var lineStringZ = schema.createAbstractClass(getName() + "Z", superClass(db));
       lineStringZ.createProperty(db, COORDINATES, PropertyType.EMBEDDEDLIST,
           PropertyType.EMBEDDEDLIST);
     }
@@ -68,12 +68,12 @@ public class MultiLineStringShapeBuilder extends ComplexShapeBuilder<JtsGeometry
 
   @Override
   public EntityImpl toEntitty(JtsGeometry shape) {
-    final MultiLineString geom = (MultiLineString) shape.getGeom();
+    final var geom = (MultiLineString) shape.getGeom();
 
     List<List<List<Double>>> coordinates = new ArrayList<List<List<Double>>>();
-    EntityImpl doc = new EntityImpl(null, getName());
-    for (int i = 0; i < geom.getNumGeometries(); i++) {
-      final LineString lineString = (LineString) geom.getGeometryN(i);
+    var doc = new EntityImpl(null, getName());
+    for (var i = 0; i < geom.getNumGeometries(); i++) {
+      final var lineString = (LineString) geom.getGeometryN(i);
       coordinates.add(coordinatesFromLineString(lineString));
     }
 
@@ -88,9 +88,9 @@ public class MultiLineStringShapeBuilder extends ComplexShapeBuilder<JtsGeometry
     }
 
     List<List<List<Double>>> coordinates = new ArrayList<List<List<Double>>>();
-    EntityImpl doc = new EntityImpl(null, getName() + "Z");
-    for (int i = 0; i < geometry.getNumGeometries(); i++) {
-      final Geometry lineString = geometry.getGeometryN(i);
+    var doc = new EntityImpl(null, getName() + "Z");
+    for (var i = 0; i < geometry.getNumGeometries(); i++) {
+      final var lineString = geometry.getGeometryN(i);
       coordinates.add(coordinatesFromLineStringZ(lineString));
     }
 
@@ -103,7 +103,7 @@ public class MultiLineStringShapeBuilder extends ComplexShapeBuilder<JtsGeometry
     if (document.getClassName().equals("OMultiLineStringZ")) {
       List<List<List<Double>>> coordinates = document.getProperty("coordinates");
 
-      String result =
+      var result =
           coordinates.stream()
               .map(
                   line ->

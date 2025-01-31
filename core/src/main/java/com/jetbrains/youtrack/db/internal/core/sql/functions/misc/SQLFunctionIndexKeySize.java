@@ -46,17 +46,17 @@ public class SQLFunctionIndexKeySize extends SQLFunctionAbstract {
       Object iCurrentResult,
       final Object[] iParams,
       CommandContext context) {
-    final Object value = iParams[0];
+    final var value = iParams[0];
 
-    String indexName = String.valueOf(value);
-    final DatabaseSessionInternal database = context.getDatabase();
-    Index index = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
+    var indexName = String.valueOf(value);
+    final var database = context.getDatabase();
+    var index = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
     if (index == null) {
       return null;
     }
-    try (Stream<RawPair<Object, RID>> stream = index.getInternal()
+    try (var stream = index.getInternal()
         .stream(context.getDatabase())) {
-      try (Stream<RID> rids = index.getInternal().getRids(context.getDatabase(), null)) {
+      try (var rids = index.getInternal().getRids(context.getDatabase(), null)) {
         return stream.map((pair) -> pair.first).distinct().count() + rids.count();
       }
     }

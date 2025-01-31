@@ -29,11 +29,11 @@ public class RemoteGraphTXTest extends BaseServerMemoryDatabase {
     db.commit();
 
     db.begin();
-    try (ResultSet resultSet =
+    try (var resultSet =
         db.command(
             "create edge TestEdge  from ( select from FirstV where id = '1') to ( select from"
                 + " SecondV where id = '2')")) {
-      Result result = resultSet.stream().iterator().next();
+      var result = resultSet.stream().iterator().next();
 
       Assert.assertTrue(result.isEdge());
     }
@@ -56,10 +56,10 @@ public class RemoteGraphTXTest extends BaseServerMemoryDatabase {
 
     db.begin();
     Assert.assertEquals(0, db.query("select from TestEdge").stream().count());
-    List<Result> results =
+    var results =
         db.query("select bothE().size() as count from V").stream().collect(Collectors.toList());
 
-    for (Result result : results) {
+    for (var result : results) {
       Assert.assertEquals(0, (int) result.getProperty("count"));
     }
     db.commit();

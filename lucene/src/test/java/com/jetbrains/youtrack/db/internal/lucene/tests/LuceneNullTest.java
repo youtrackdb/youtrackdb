@@ -24,7 +24,7 @@ public class LuceneNullTest extends LuceneBaseTest {
   public void testNullChangeToNotNullWithLists() {
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("Test"));
+    var doc = ((EntityImpl) db.newEntity("Test"));
     db.save(doc);
     db.commit();
 
@@ -34,7 +34,7 @@ public class LuceneNullTest extends LuceneBaseTest {
     db.save(doc);
     db.commit();
 
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Test.names");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Test.names");
 
     db.begin();
     Assert.assertEquals(1, index.getInternal().size(db));
@@ -44,7 +44,7 @@ public class LuceneNullTest extends LuceneBaseTest {
   @Test
   public void testNotNullChangeToNullWithLists() {
 
-    EntityImpl doc = ((EntityImpl) db.newEntity("Test"));
+    var doc = ((EntityImpl) db.newEntity("Test"));
 
     db.begin();
     doc.field("names", new String[]{"foo"});
@@ -60,7 +60,7 @@ public class LuceneNullTest extends LuceneBaseTest {
     db.commit();
 
     db.begin();
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Test.names");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Test.names");
     Assert.assertEquals(0, index.getInternal().size(db));
     db.commit();
   }

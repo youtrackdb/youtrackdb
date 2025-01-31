@@ -42,8 +42,8 @@ public class RectangleShapeBuilder extends ShapeBuilder<Rectangle> {
   public void initClazz(DatabaseSessionInternal db) {
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass rectangle = schema.createAbstractClass(NAME, superClass(db));
-    SchemaProperty coordinates = rectangle.createProperty(db, COORDINATES,
+    var rectangle = schema.createAbstractClass(NAME, superClass(db));
+    var coordinates = rectangle.createProperty(db, COORDINATES,
         PropertyType.EMBEDDEDLIST,
         PropertyType.DOUBLE);
     coordinates.setMin(db, "4");
@@ -55,19 +55,19 @@ public class RectangleShapeBuilder extends ShapeBuilder<Rectangle> {
     validate(document);
     List<Number> coordinates = document.field(COORDINATES);
 
-    Point topLeft =
+    var topLeft =
         SPATIAL_CONTEXT.makePoint(
             coordinates.get(0).doubleValue(), coordinates.get(1).doubleValue());
-    Point bottomRight =
+    var bottomRight =
         SPATIAL_CONTEXT.makePoint(
             coordinates.get(2).doubleValue(), coordinates.get(3).doubleValue());
-    Rectangle rectangle = SPATIAL_CONTEXT.makeRectangle(topLeft, bottomRight);
+    var rectangle = SPATIAL_CONTEXT.makeRectangle(topLeft, bottomRight);
     return rectangle;
   }
 
   @Override
   public EntityImpl toEntitty(final Rectangle shape) {
-    EntityImpl doc = new EntityImpl(null, NAME);
+    var doc = new EntityImpl(null, NAME);
     doc.field(
         COORDINATES,
         new ArrayList<Double>() {

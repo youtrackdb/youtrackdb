@@ -24,8 +24,8 @@ public class SchemaIndexTest extends BaseDBTest {
     super.beforeMethod();
 
     final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass superTest = schema.createClass("SchemaSharedIndexSuperTest");
-    final SchemaClass test = schema.createClass("SchemaIndexTest", superTest);
+    final var superTest = schema.createClass("SchemaSharedIndexSuperTest");
+    final var test = schema.createClass("SchemaIndexTest", superTest);
     test.createProperty(db, "prop1", PropertyType.DOUBLE);
     test.createProperty(db, "prop2", PropertyType.DOUBLE);
   }
@@ -95,7 +95,7 @@ public class SchemaIndexTest extends BaseDBTest {
 
   @Test
   public void testIndexWithNumberProperties() {
-    SchemaClass oclass = db.getMetadata().getSchema()
+    var oclass = db.getMetadata().getSchema()
         .createClass("SchemaIndexTest_numberclass");
     oclass.createProperty(db, "1", PropertyType.STRING).setMandatory(db, false);
     oclass.createProperty(db, "2", PropertyType.STRING).setMandatory(db, false);

@@ -69,7 +69,7 @@ public final class CommandRequest implements BinaryRequest<CommandResponse> {
       RecordSerializerNetwork serializer)
       throws IOException {
 
-    byte type = channel.readByte();
+    var type = channel.readByte();
     if (type == (byte) 'l') {
       live = true;
     }

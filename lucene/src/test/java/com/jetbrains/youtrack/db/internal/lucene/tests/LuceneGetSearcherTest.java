@@ -33,7 +33,7 @@ public class LuceneGetSearcherTest extends LuceneBaseTest {
 
   @Before
   public void init() {
-    SchemaClass song = db.createVertexClass("Person");
+    var song = db.createVertexClass("Person");
     song.createProperty(db, "isDeleted", PropertyType.BOOLEAN);
 
     db.command("create index Person.isDeleted on Person (isDeleted) FULLTEXT ENGINE LUCENE");
@@ -42,11 +42,11 @@ public class LuceneGetSearcherTest extends LuceneBaseTest {
   @Test
   public void testSearcherInstance() {
 
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.isDeleted");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.isDeleted");
 
     Assert.assertTrue(index.getInternal() instanceof LuceneIndexNotUnique);
 
-    LuceneIndexNotUnique idx = (LuceneIndexNotUnique) index.getInternal();
+    var idx = (LuceneIndexNotUnique) index.getInternal();
 
     Assert.assertNotNull(idx.searcher());
   }

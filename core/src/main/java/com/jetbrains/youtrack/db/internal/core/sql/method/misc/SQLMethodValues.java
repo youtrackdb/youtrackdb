@@ -51,7 +51,7 @@ public class SQLMethodValues extends AbstractSQLMethod {
       var propertyNames = entity.getPropertyNames();
       var result = new ArrayList<>(propertyNames.size());
 
-      for (String propertyName : propertyNames) {
+      for (var propertyName : propertyNames) {
         result.add(entity.getProperty(propertyName));
       }
 
@@ -64,7 +64,7 @@ public class SQLMethodValues extends AbstractSQLMethod {
     }
     if (ioResult instanceof Collection) {
       List result = new ArrayList();
-      for (Object o : (Collection) ioResult) {
+      for (var o : (Collection) ioResult) {
         result.addAll((Collection) execute(iThis, iCurrentRecord, iContext, o, iParams));
       }
       return result;

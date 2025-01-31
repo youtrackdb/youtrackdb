@@ -19,23 +19,23 @@ public class FindReferencesStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testLink() {
-    String name = "testLink1";
-    String name2 = "testLink2";
+    var name = "testLink1";
+    var name2 = "testLink2";
     db.getMetadata().getSchema().createClass(name);
     db.getMetadata().getSchema().createClass(name2);
 
     db.begin();
-    EntityImpl linked = (EntityImpl) db.newEntity(name);
+    var linked = (EntityImpl) db.newEntity(name);
     linked.field("foo", "bar");
     linked.save();
     db.commit();
 
     Set<RID> ridsToMatch = new HashSet<>();
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       linked = db.bindToSession(linked);
-      EntityImpl doc = (EntityImpl) db.newEntity(name2);
+      var doc = (EntityImpl) db.newEntity(name2);
       doc.field("counter", i);
       if (i % 2 == 0) {
         doc.field("link", linked);
@@ -47,13 +47,13 @@ public class FindReferencesStatementExecutionTest extends DbTestBase {
       }
     }
 
-    ResultSet result = db.query("find references " + linked.getIdentity());
+    var result = db.query("find references " + linked.getIdentity());
 
     printExecutionPlan(result);
 
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       Assert.assertTrue(result.hasNext());
-      Result next = result.next();
+      var next = result.next();
       ridsToMatch.remove(next.getProperty("referredBy"));
     }
 

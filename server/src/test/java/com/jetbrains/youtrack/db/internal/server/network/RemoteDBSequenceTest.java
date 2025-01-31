@@ -14,7 +14,7 @@ public class RemoteDBSequenceTest extends BaseServerMemoryDatabase {
 
   @Test
   public void testSequences() {
-    DatabaseSessionInternal database = db;
+    var database = db;
     database.command("CREATE CLASS SV extends V").close();
     database.command("CREATE SEQUENCE seqCounter TYPE ORDERED").close();
     database.command("CREATE PROPERTY SV.uniqueID Long").close();
@@ -32,10 +32,10 @@ public class RemoteDBSequenceTest extends BaseServerMemoryDatabase {
     database.reload();
 
     database.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("CV1"));
+    var doc = ((EntityImpl) db.newEntity("CV1"));
     doc.field("testID", 1);
     database.save(doc);
-    EntityImpl doc1 = ((EntityImpl) db.newEntity("CV1"));
+    var doc1 = ((EntityImpl) db.newEntity("CV1"));
     doc1.field("testID", 1);
     database.save(doc1);
     assertNotEquals(doc1.field("uniqueID"), doc.field("uniqueID"));

@@ -16,31 +16,31 @@ public class CreateIndexStatementExecutionTest extends BaseMemoryInternalDatabas
 
   @Test
   public void testPlain() {
-    String className = "testPlain";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testPlain";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
 
     Assert.assertNull(db.getMetadata().getIndexManagerInternal().getIndex(db, className + ".name"));
-    ResultSet result =
+    var result =
         db.command("create index " + className + ".name on " + className + " (name) notunique");
     Assert.assertTrue(result.hasNext());
-    Result next = result.next();
+    var next = result.next();
     Assert.assertFalse(result.hasNext());
     Assert.assertNotNull(next);
     result.close();
-    Index idx = db.getMetadata().getIndexManagerInternal().getIndex(db, className + ".name");
+    var idx = db.getMetadata().getIndexManagerInternal().getIndex(db, className + ".name");
     Assert.assertNotNull(idx);
     Assert.assertFalse(idx.isUnique());
   }
 
   @Test
   public void testIfNotExists() {
-    String className = "testIfNotExists";
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "testIfNotExists";
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "name", PropertyType.STRING);
 
     Assert.assertNull(db.getMetadata().getIndexManagerInternal().getIndex(db, className + ".name"));
-    ResultSet result =
+    var result =
         db.command(
             "create index "
                 + className
@@ -48,11 +48,11 @@ public class CreateIndexStatementExecutionTest extends BaseMemoryInternalDatabas
                 + className
                 + " (name) notunique");
     Assert.assertTrue(result.hasNext());
-    Result next = result.next();
+    var next = result.next();
     Assert.assertFalse(result.hasNext());
     Assert.assertNotNull(next);
     result.close();
-    Index idx = db.getMetadata().getIndexManagerInternal().getIndex(db, className + ".name");
+    var idx = db.getMetadata().getIndexManagerInternal().getIndex(db, className + ".name");
     Assert.assertNotNull(idx);
     Assert.assertFalse(idx.isUnique());
 

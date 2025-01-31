@@ -40,7 +40,7 @@ public class UpdateContentStep extends AbstractExecutionStep {
   @Override
   public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
-    ExecutionStream upstream = prev.start(ctx);
+    var upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 
@@ -59,22 +59,22 @@ public class UpdateContentStep extends AbstractExecutionStep {
     EntityImpl fieldsToPreserve = null;
 
     var db = ctx.getDatabase();
-    SchemaClass clazz = record.getSchemaType().orElse(null);
+    var clazz = record.getSchemaType().orElse(null);
     if (clazz != null && ((SchemaImmutableClass) clazz).isRestricted()) {
       fieldsToPreserve = new EntityImpl(db);
 
-      final SchemaClass restricted =
+      final var restricted =
           ctx.getDatabase()
               .getMetadata()
               .getImmutableSchemaSnapshot()
               .getClass(Security.RESTRICTED_CLASSNAME);
-      for (SchemaProperty prop : restricted.properties(ctx.getDatabase())) {
+      for (var prop : restricted.properties(ctx.getDatabase())) {
         fieldsToPreserve.field(prop.getName(), record.<Object>getProperty(prop.getName()));
       }
     }
     Map<String, Object> preDefaultValues = null;
     if (clazz != null) {
-      for (SchemaProperty prop : clazz.properties(ctx.getDatabase())) {
+      for (var prop : clazz.properties(ctx.getDatabase())) {
         if (prop.getDefaultValue() != null) {
           if (preDefaultValues == null) {
             preDefaultValues = new HashMap<>();
@@ -87,7 +87,7 @@ public class UpdateContentStep extends AbstractExecutionStep {
     SchemaClass recordClass =
         EntityInternalUtils.getImmutableSchemaClass(ctx.getDatabase(), record.getRecord(db));
     if (recordClass != null && recordClass.isSubClassOf("V")) {
-      for (String fieldName : record.getPropertyNamesInternal()) {
+      for (var fieldName : record.getPropertyNamesInternal()) {
         if (fieldName.startsWith("in_") || fieldName.startsWith("out_")) {
           if (fieldsToPreserve == null) {
             fieldsToPreserve = new EntityImpl(db);
@@ -96,7 +96,7 @@ public class UpdateContentStep extends AbstractExecutionStep {
         }
       }
     } else if (recordClass != null && recordClass.isSubClassOf("E")) {
-      for (String fieldName : record.getPropertyNamesInternal()) {
+      for (var fieldName : record.getPropertyNamesInternal()) {
         if (fieldName.equals("in") || fieldName.equals("out")) {
           if (fieldsToPreserve == null) {
             fieldsToPreserve = new EntityImpl(db);
@@ -109,7 +109,7 @@ public class UpdateContentStep extends AbstractExecutionStep {
     if (json != null) {
       entity.merge(json.toEntity(record, ctx), false, false);
     } else if (inputParameter != null) {
-      Object val = inputParameter.getValue(ctx.getInputParameters());
+      var val = inputParameter.getValue(ctx.getInputParameters());
       if (val instanceof Entity) {
         entity.merge(((Entity) val).getRecord(db), false, false);
       } else if (val instanceof Map<?, ?> map) {
@@ -125,7 +125,7 @@ public class UpdateContentStep extends AbstractExecutionStep {
       entity.merge(fieldsToPreserve, true, false);
     }
     if (preDefaultValues != null) {
-      for (Map.Entry<String, Object> val : preDefaultValues.entrySet()) {
+      for (var val : preDefaultValues.entrySet()) {
         if (!entity.containsField(val.getKey())) {
           entity.setProperty(val.getKey(), val.getValue());
         }
@@ -135,8 +135,8 @@ public class UpdateContentStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
-    StringBuilder result = new StringBuilder();
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var result = new StringBuilder();
     result.append(spaces);
     result.append("+ UPDATE CONTENT\n");
     result.append(spaces);

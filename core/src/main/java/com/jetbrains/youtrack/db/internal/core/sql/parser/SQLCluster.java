@@ -56,7 +56,7 @@ public class SQLCluster extends SimpleNode {
   }
 
   public SQLCluster copy() {
-    SQLCluster result = new SQLCluster(-1);
+    var result = new SQLCluster(-1);
     result.clusterName = clusterName;
     result.clusterNumber = clusterNumber;
     return result;
@@ -71,7 +71,7 @@ public class SQLCluster extends SimpleNode {
       return false;
     }
 
-    SQLCluster oCluster = (SQLCluster) o;
+    var oCluster = (SQLCluster) o;
 
     if (!Objects.equals(clusterName, oCluster.clusterName)) {
       return false;
@@ -81,13 +81,13 @@ public class SQLCluster extends SimpleNode {
 
   @Override
   public int hashCode() {
-    int result = clusterName != null ? clusterName.hashCode() : 0;
+    var result = clusterName != null ? clusterName.hashCode() : 0;
     result = 31 * result + (clusterNumber != null ? clusterNumber.hashCode() : 0);
     return result;
   }
 
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     result.setProperty("clusterName", clusterName);
     result.setProperty("clusterNumber", clusterNumber);
     return result;

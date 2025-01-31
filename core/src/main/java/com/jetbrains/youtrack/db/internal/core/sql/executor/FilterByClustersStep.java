@@ -34,11 +34,11 @@ public class FilterByClustersStep extends AbstractExecutionStep {
 
   @Override
   public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
-    IntOpenHashSet ids = init(ctx.getDatabase());
+    var ids = init(ctx.getDatabase());
     if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
     }
-    ExecutionStream resultSet = prev.start(ctx);
+    var resultSet = prev.start(ctx);
     return resultSet.filter((value, context) -> this.filterMap(value, ids));
   }
 
@@ -47,7 +47,7 @@ public class FilterByClustersStep extends AbstractExecutionStep {
       var rid = result.getRecordId();
       assert rid != null;
 
-      int clusterId = rid.getClusterId();
+      var clusterId = rid.getClusterId();
       if (clusterId < 0) {
         // this record comes from a TX, it still doesn't have a cluster assigned
         return result;
@@ -70,7 +70,7 @@ public class FilterByClustersStep extends AbstractExecutionStep {
 
   @Override
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
+    var result = ExecutionStepInternal.basicSerialize(db, this);
     if (clusters != null) {
       result.setProperty("clusters", clusters);
     }

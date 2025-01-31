@@ -155,8 +155,8 @@ public class SQLModifier extends SimpleNode {
     }
     List<Object> result = new ArrayList<Object>();
     if (iResult.getClass().isArray()) {
-      for (int i = 0; i < Array.getLength(iResult); i++) {
-        Object item = Array.get(iResult, i);
+      for (var i = 0; i < Array.getLength(iResult); i++) {
+        var item = Array.get(iResult, i);
         if (condition.evaluate(item, ctx)) {
           result.add(item);
         }
@@ -171,7 +171,7 @@ public class SQLModifier extends SimpleNode {
     }
     if (iResult instanceof Iterator) {
       while (((Iterator) iResult).hasNext()) {
-        Object item = ((Iterator) iResult).next();
+        var item = ((Iterator) iResult).next();
         if (condition.evaluate(item, ctx)) {
           result.add(item);
         }
@@ -205,7 +205,7 @@ public class SQLModifier extends SimpleNode {
   }
 
   public SQLModifier copy() {
-    SQLModifier result = new SQLModifier(-1);
+    var result = new SQLModifier(-1);
     result.squareBrackets = squareBrackets;
     result.arrayRange = arrayRange == null ? null : arrayRange.copy();
     result.condition = condition == null ? null : condition.copy();
@@ -227,7 +227,7 @@ public class SQLModifier extends SimpleNode {
       return false;
     }
 
-    SQLModifier oModifier = (SQLModifier) o;
+    var oModifier = (SQLModifier) o;
 
     if (squareBrackets != oModifier.squareBrackets) {
       return false;
@@ -255,7 +255,7 @@ public class SQLModifier extends SimpleNode {
 
   @Override
   public int hashCode() {
-    int result = (squareBrackets ? 1 : 0);
+    var result = (squareBrackets ? 1 : 0);
     result = 31 * result + (arrayRange != null ? arrayRange.hashCode() : 0);
     result = 31 * result + (condition != null ? condition.hashCode() : 0);
     result = 31 * result + (arraySingleValues != null ? arraySingleValues.hashCode() : 0);
@@ -315,7 +315,7 @@ public class SQLModifier extends SimpleNode {
     if (next == null) {
       doSetValue(currentRecord, target, value, ctx);
     } else {
-      Object newTarget = calculateLocal(currentRecord, target, ctx);
+      var newTarget = calculateLocal(currentRecord, target, ctx);
       if (newTarget != null) {
         next.setValue(currentRecord, newTarget, value, ctx);
       }
@@ -360,7 +360,7 @@ public class SQLModifier extends SimpleNode {
         }
       } else if (MultiValue.isMultiValue(target)) {
         List<Object> result = new ArrayList<>();
-        for (Object o : MultiValue.getMultiValueIterable(target)) {
+        for (var o : MultiValue.getMultiValueIterable(target)) {
           if (condition.evaluate(o, ctx)) {
             result.add(o);
           }
@@ -380,7 +380,7 @@ public class SQLModifier extends SimpleNode {
   public void applyRemove(
       Object currentValue, ResultInternal originalRecord, CommandContext ctx) {
     if (next != null) {
-      Object val = calculateLocal(originalRecord, currentValue, ctx);
+      var val = calculateLocal(originalRecord, currentValue, ctx);
       next.applyRemove(val, originalRecord, ctx);
     } else {
       if (arrayRange != null) {
@@ -403,7 +403,7 @@ public class SQLModifier extends SimpleNode {
   }
 
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     result.setProperty("squareBrackets", squareBrackets);
     if (arrayRange != null) {
       result.setProperty("arrayRange", arrayRange.serialize(db));
@@ -498,7 +498,7 @@ public class SQLModifier extends SimpleNode {
   public Optional<MetadataPath> getPath() {
     if (this.suffix != null && this.suffix.isBaseIdentifier()) {
       if (this.next != null) {
-        Optional<MetadataPath> path = this.next.getPath();
+        var path = this.next.getPath();
         if (path.isPresent()) {
           path.get().addPre(suffix.identifier.getValue());
         }

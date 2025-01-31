@@ -19,7 +19,7 @@ public class YTLiveQueryMonitorEmbedded implements LiveQueryMonitor {
 
   @Override
   public void unSubscribe() {
-    DatabaseSessionInternal prev = DatabaseRecordThreadLocal.instance().getIfDefined();
+    var prev = DatabaseRecordThreadLocal.instance().getIfDefined();
     db.activateOnCurrentThread();
     LiveQueryHookV2.unsubscribe(token, db);
     if (prev != null) {

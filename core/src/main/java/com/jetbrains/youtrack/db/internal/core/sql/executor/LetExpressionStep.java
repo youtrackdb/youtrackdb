@@ -38,7 +38,7 @@ public class LetExpressionStep extends AbstractExecutionStep {
   }
 
   private Result mapResult(Result result, CommandContext ctx) {
-    Object value = expression.execute(result, ctx);
+    var value = expression.execute(result, ctx);
     ((ResultInternal) result)
         .setMetadata(varname.getStringValue(), SQLProjectionItem.convert(value, ctx));
     return result;
@@ -46,13 +46,13 @@ public class LetExpressionStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
     return spaces + "+ LET (for each record)\n" + spaces + "  " + varname + " = " + expression;
   }
 
   @Override
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
+    var result = ExecutionStepInternal.basicSerialize(db, this);
     if (varname != null) {
       result.setProperty("varname", varname.serialize(db));
     }

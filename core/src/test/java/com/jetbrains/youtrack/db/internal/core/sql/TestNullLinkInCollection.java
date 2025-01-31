@@ -28,14 +28,14 @@ public class TestNullLinkInCollection extends DbTestBase {
   public void testLinkListRemovedRecord() {
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("Test"));
+    var doc = ((EntityImpl) db.newEntity("Test"));
     List<RecordId> docs = new ArrayList<>();
     docs.add(new RecordId(10, 20));
     doc.field("items", docs, PropertyType.LINKLIST);
     db.save(doc);
     db.commit();
 
-    try (ResultSet res = db.query("select items from Test")) {
+    try (var res = db.query("select items from Test")) {
       assertEquals(new RecordId(10, 20), ((List) res.next().getProperty("items")).get(0));
     }
   }
@@ -43,14 +43,14 @@ public class TestNullLinkInCollection extends DbTestBase {
   @Test
   public void testLinkSetRemovedRecord() {
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("Test"));
+    var doc = ((EntityImpl) db.newEntity("Test"));
     Set<RecordId> docs = new HashSet<>();
     docs.add(new RecordId(10, 20));
     doc.field("items", docs, PropertyType.LINKSET);
     db.save(doc);
     db.commit();
 
-    try (ResultSet res = db.query("select items from Test")) {
+    try (var res = db.query("select items from Test")) {
       Assert.assertEquals(
           new RecordId(10, 20), ((Set) res.next().getProperty("items")).iterator().next());
     }

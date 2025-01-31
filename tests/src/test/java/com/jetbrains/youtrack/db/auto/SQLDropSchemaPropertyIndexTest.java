@@ -46,7 +46,7 @@ public class SQLDropSchemaPropertyIndexTest extends BaseDBTest {
     super.beforeMethod();
 
     final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass oClass = schema.createClass("DropPropertyIndexTestClass");
+    final var oClass = schema.createClass("DropPropertyIndexTestClass");
     oClass.createProperty(db, "prop1", EXPECTED_PROP1_TYPE);
     oClass.createProperty(db, "prop2", EXPECTED_PROP2_TYPE);
   }
@@ -66,7 +66,7 @@ public class SQLDropSchemaPropertyIndexTest extends BaseDBTest {
                 + " prop1) UNIQUE")
         .close();
 
-    Index index =
+    var index =
         db
             .getMetadata()
             .getSchema()
@@ -94,7 +94,7 @@ public class SQLDropSchemaPropertyIndexTest extends BaseDBTest {
                 + " prop1) UNIQUE")
         .close();
 
-    Index index =
+    var index =
         db
             .getMetadata()
             .getSchema()
@@ -122,7 +122,7 @@ public class SQLDropSchemaPropertyIndexTest extends BaseDBTest {
                 + " prop2) UNIQUE")
         .close();
 
-    Index index =
+    var index =
         db
             .getMetadata()
             .getSchema()
@@ -150,7 +150,7 @@ public class SQLDropSchemaPropertyIndexTest extends BaseDBTest {
 
     Assert.assertNotNull(index);
 
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
 
     Assert.assertTrue(indexDefinition instanceof CompositeIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), Arrays.asList("prop1", "prop2"));
@@ -178,7 +178,7 @@ public class SQLDropSchemaPropertyIndexTest extends BaseDBTest {
                       + " indexes before removing property or use FORCE parameter."));
     }
 
-    final Index index =
+    final var index =
         db
             .getMetadata()
             .getSchema()
@@ -187,7 +187,7 @@ public class SQLDropSchemaPropertyIndexTest extends BaseDBTest {
 
     Assert.assertNotNull(index);
 
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
 
     Assert.assertTrue(indexDefinition instanceof CompositeIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), Arrays.asList("prop1", "prop2"));

@@ -22,18 +22,18 @@ public class CommandExecutorSQLDropSequence extends CommandExecutorSQLAbstract
 
   @Override
   public CommandExecutorSQLDropSequence parse(DatabaseSessionInternal db, CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
       init((CommandRequestText) iRequest);
 
-      final DatabaseSessionInternal database = getDatabase();
-      final StringBuilder word = new StringBuilder();
+      final var database = getDatabase();
+      final var word = new StringBuilder();
 
       parserRequiredKeyword("DROP");
       parserRequiredKeyword("SEQUENCE");
@@ -56,7 +56,7 @@ public class CommandExecutorSQLDropSequence extends CommandExecutorSQLAbstract
     try {
       database.getMetadata().getSequenceLibrary().dropSequence(this.sequenceName);
     } catch (DatabaseException exc) {
-      String message = "Unable to execute command: " + exc.getMessage();
+      var message = "Unable to execute command: " + exc.getMessage();
       LogManager.instance().error(this, message, exc, (Object) null);
       throw new CommandExecutionException(message);
     }

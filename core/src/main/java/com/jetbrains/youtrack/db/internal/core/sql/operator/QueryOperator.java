@@ -225,11 +225,11 @@ public abstract class QueryOperator {
     final Class<?> thisClass = this.getClass();
     final Class<?> otherClass = other.getClass();
 
-    int thisPosition = -1;
-    int otherPosition = -1;
-    for (int i = 0; i < DEFAULT_OPERATORS_ORDER.length; i++) {
+    var thisPosition = -1;
+    var otherPosition = -1;
+    for (var i = 0; i < DEFAULT_OPERATORS_ORDER.length; i++) {
       // subclass of default operators inherit their parent ordering
-      final Class<?> clazz = DEFAULT_OPERATORS_ORDER[i];
+      final var clazz = DEFAULT_OPERATORS_ORDER[i];
       if (clazz.isAssignableFrom(thisClass)) {
         thisPosition = i;
       }
@@ -261,16 +261,16 @@ public abstract class QueryOperator {
       iContext.updateMetric("compositeIndexUsed", +1);
     }
 
-    final Profiler profiler = YouTrackDBEnginesManager.instance().getProfiler();
+    final var profiler = YouTrackDBEnginesManager.instance().getProfiler();
     if (profiler.isRecording()) {
       profiler.updateCounter(
           profiler.getDatabaseMetric(index.getDatabaseName(), "query.indexUsed"),
           "Used index in query",
           +1);
 
-      int params = indexDefinition.getParamCount();
+      var params = indexDefinition.getParamCount();
       if (params > 1) {
-        final String profiler_prefix =
+        final var profiler_prefix =
             profiler.getDatabaseMetric(index.getDatabaseName(), "query.compositeIndexUsed");
 
         profiler.updateCounter(profiler_prefix, "Used composite index in query", +1);

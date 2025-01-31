@@ -24,9 +24,9 @@ public class TokenHandlerImplTest extends BaseMemoryInternalDatabase {
   @Test
   public void testWebTokenCreationValidation()
       throws InvalidKeyException, NoSuchAlgorithmException, IOException {
-    SecurityUser original = db.geCurrentUser();
-    TokenHandlerImpl handler = new TokenHandlerImpl("any key".getBytes(), 60, "HmacSHA256");
-    byte[] token = handler.getSignedWebToken(db, original);
+    var original = db.geCurrentUser();
+    var handler = new TokenHandlerImpl("any key".getBytes(), 60, "HmacSHA256");
+    var token = handler.getSignedWebToken(db, original);
 
     try {
       // Make this thread wait at least 10 milliseconds before check the validity
@@ -34,22 +34,22 @@ public class TokenHandlerImplTest extends BaseMemoryInternalDatabase {
     } catch (InterruptedException e) {
     }
 
-    Token tok = handler.parseWebToken(token);
+    var tok = handler.parseWebToken(token);
 
     assertNotNull(tok);
 
     assertTrue(tok.getIsVerified());
 
-    SecurityUserImpl user = tok.getUser(db);
+    var user = tok.getUser(db);
     assertEquals(user.getName(db), original.getName(db));
-    boolean boole = handler.validateToken(tok, "open", db.getName());
+    var boole = handler.validateToken(tok, "open", db.getName());
     assertTrue(boole);
     assertTrue(tok.getIsValid());
   }
 
   @Test(expected = Exception.class)
   public void testInvalidToken() throws InvalidKeyException, NoSuchAlgorithmException, IOException {
-    TokenHandlerImpl handler = new TokenHandlerImpl("any key".getBytes(), 60, "HmacSHA256");
+    var handler = new TokenHandlerImpl("any key".getBytes(), 60, "HmacSHA256");
     handler.parseWebToken("random".getBytes());
   }
 
@@ -59,8 +59,8 @@ public class TokenHandlerImplTest extends BaseMemoryInternalDatabase {
     header.setType("YouTrackDB");
     header.setAlgorithm("some");
     header.setKeyId("the_key");
-    TokenHandlerImpl handler = new TokenHandlerImpl();
-    byte[] headerbytes = TokenHandlerImpl.serializeWebHeader(header);
+    var handler = new TokenHandlerImpl();
+    var headerbytes = TokenHandlerImpl.serializeWebHeader(header);
 
     TokenHeader des = TokenHandlerImpl.deserializeWebHeader(headerbytes);
     assertNotNull(des);
@@ -72,8 +72,8 @@ public class TokenHandlerImplTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testSerializeDeserializeWebPayload() throws Exception {
-    YouTrackDBJwtPayload payload = new YouTrackDBJwtPayload();
-    String ptype = "YouTrackDB";
+    var payload = new YouTrackDBJwtPayload();
+    var ptype = "YouTrackDB";
     payload.setAudience("audiance");
     payload.setExpiry(1L);
     payload.setIssuedAt(2L);
@@ -83,10 +83,10 @@ public class TokenHandlerImplTest extends BaseMemoryInternalDatabase {
     payload.setTokenId("aaa");
     payload.setUserRid(new RecordId(3, 4));
 
-    TokenHandlerImpl handler = new TokenHandlerImpl();
-    byte[] payloadbytes = TokenHandlerImpl.serializeWebPayload(payload);
+    var handler = new TokenHandlerImpl();
+    var payloadbytes = TokenHandlerImpl.serializeWebPayload(payload);
 
-    JwtPayload des = TokenHandlerImpl.deserializeWebPayload(ptype, payloadbytes);
+    var des = TokenHandlerImpl.deserializeWebPayload(ptype, payloadbytes);
     assertNotNull(des);
     assertEquals(payload.getAudience(), des.getAudience());
     assertEquals(payload.getExpiry(), des.getExpiry());
@@ -99,17 +99,17 @@ public class TokenHandlerImplTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testTokenForge() throws InvalidKeyException, NoSuchAlgorithmException, IOException {
-    SecurityUser original = db.geCurrentUser();
-    TokenHandlerImpl handler = new TokenHandlerImpl("any key".getBytes(), 60, "HmacSHA256");
+    var original = db.geCurrentUser();
+    var handler = new TokenHandlerImpl("any key".getBytes(), 60, "HmacSHA256");
 
-    byte[] token = handler.getSignedWebToken(db, original);
-    byte[] token2 = handler.getSignedWebToken(db, original);
-    String s = new String(token);
-    String s2 = new String(token2);
+    var token = handler.getSignedWebToken(db, original);
+    var token2 = handler.getSignedWebToken(db, original);
+    var s = new String(token);
+    var s2 = new String(token2);
 
-    String newS = s.substring(0, s.lastIndexOf('.')) + s2.substring(s2.lastIndexOf('.'));
+    var newS = s.substring(0, s.lastIndexOf('.')) + s2.substring(s2.lastIndexOf('.'));
 
-    Token tok = handler.parseWebToken(newS.getBytes());
+    var tok = handler.parseWebToken(newS.getBytes());
 
     assertNotNull(tok);
 
@@ -119,42 +119,42 @@ public class TokenHandlerImplTest extends BaseMemoryInternalDatabase {
   @Test
   public void testBinartTokenCreationValidation()
       throws InvalidKeyException, NoSuchAlgorithmException, IOException {
-    SecurityUser original = db.geCurrentUser();
-    TokenHandlerImpl handler = new TokenHandlerImpl("any key".getBytes(), 60, "HmacSHA256");
-    NetworkProtocolData data = new NetworkProtocolData();
+    var original = db.geCurrentUser();
+    var handler = new TokenHandlerImpl("any key".getBytes(), 60, "HmacSHA256");
+    var data = new NetworkProtocolData();
     data.driverName = "aa";
     data.driverVersion = "aa";
     data.setSerializationImpl("a");
     data.protocolVersion = 2;
 
-    byte[] token = handler.getSignedBinaryToken(db, original, data);
+    var token = handler.getSignedBinaryToken(db, original, data);
 
-    Token tok = handler.parseBinaryToken(token);
+    var tok = handler.parseBinaryToken(token);
 
     assertNotNull(tok);
 
     assertTrue(tok.getIsVerified());
 
-    SecurityUserImpl user = tok.getUser(db);
+    var user = tok.getUser(db);
     assertEquals(user.getName(db), original.getName(db));
-    boolean boole = handler.validateBinaryToken(tok);
+    var boole = handler.validateBinaryToken(tok);
     assertTrue(boole);
     assertTrue(tok.getIsValid());
   }
 
   @Test
   public void testTokenNotRenew() {
-    SecurityUser original = db.geCurrentUser();
-    TokenHandlerImpl handler = new TokenHandlerImpl("any key".getBytes(), 60, "HmacSHA256");
-    NetworkProtocolData data = new NetworkProtocolData();
+    var original = db.geCurrentUser();
+    var handler = new TokenHandlerImpl("any key".getBytes(), 60, "HmacSHA256");
+    var data = new NetworkProtocolData();
     data.driverName = "aa";
     data.driverVersion = "aa";
     data.setSerializationImpl("a");
     data.protocolVersion = 2;
 
-    byte[] token = handler.getSignedBinaryToken(db, original, data);
+    var token = handler.getSignedBinaryToken(db, original, data);
 
-    Token tok = handler.parseBinaryToken(token);
+    var tok = handler.parseBinaryToken(token);
     token = handler.renewIfNeeded(tok);
 
     assertEquals(0, token.length);
@@ -162,17 +162,17 @@ public class TokenHandlerImplTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testTokenRenew() {
-    SecurityUser original = db.geCurrentUser();
-    TokenHandlerImpl handler = new TokenHandlerImpl("any key".getBytes(), 60, "HmacSHA256");
-    NetworkProtocolData data = new NetworkProtocolData();
+    var original = db.geCurrentUser();
+    var handler = new TokenHandlerImpl("any key".getBytes(), 60, "HmacSHA256");
+    var data = new NetworkProtocolData();
     data.driverName = "aa";
     data.driverVersion = "aa";
     data.setSerializationImpl("a");
     data.protocolVersion = 2;
 
-    byte[] token = handler.getSignedBinaryToken(db, original, data);
+    var token = handler.getSignedBinaryToken(db, original, data);
 
-    Token tok = handler.parseBinaryToken(token);
+    var tok = handler.parseBinaryToken(token);
     tok.setExpiry(System.currentTimeMillis() + (handler.getSessionInMills() / 2) - 1);
     token = handler.renewIfNeeded(tok);
 

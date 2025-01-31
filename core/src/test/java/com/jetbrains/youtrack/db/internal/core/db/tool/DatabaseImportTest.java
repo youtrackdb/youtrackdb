@@ -19,16 +19,16 @@ public class DatabaseImportTest {
 
   @Test
   public void exportImportOnlySchemaTest() throws IOException {
-    String databaseName = "export";
-    final String exportDbPath = "target/export_" + DatabaseImportTest.class.getSimpleName();
-    YouTrackDB youTrackDB = YourTracks.embedded(exportDbPath, YouTrackDBConfig.defaultConfig());
+    var databaseName = "export";
+    final var exportDbPath = "target/export_" + DatabaseImportTest.class.getSimpleName();
+    var youTrackDB = YourTracks.embedded(exportDbPath, YouTrackDBConfig.defaultConfig());
     youTrackDB.createIfNotExists(databaseName, DatabaseType.PLOCAL, "admin", "admin", "admin");
 
-    final ByteArrayOutputStream output = new ByteArrayOutputStream();
-    try (final DatabaseSession db = youTrackDB.open(databaseName, "admin", "admin")) {
+    final var output = new ByteArrayOutputStream();
+    try (final var db = youTrackDB.open(databaseName, "admin", "admin")) {
       db.createClass("SimpleClass");
 
-      final DatabaseExport export =
+      final var export =
           new DatabaseExport((DatabaseSessionInternal) db, output, iText -> {
           });
       export.setOptions(" -excludeAll -includeSchema=true");
@@ -37,14 +37,14 @@ public class DatabaseImportTest {
     youTrackDB.drop(databaseName);
     youTrackDB.close();
 
-    final String importDbPath = "target/import_" + DatabaseImportTest.class.getSimpleName();
+    final var importDbPath = "target/import_" + DatabaseImportTest.class.getSimpleName();
     youTrackDB = YourTracks.embedded(importDbPath, YouTrackDBConfig.defaultConfig());
     databaseName = "import";
 
     youTrackDB.createIfNotExists(databaseName, DatabaseType.PLOCAL, "admin", "admin", "admin");
     try (var db = (DatabaseSessionInternal) youTrackDB.open(databaseName, "admin",
         "admin")) {
-      final DatabaseImport importer =
+      final var importer =
           new DatabaseImport(
               db,
               new ByteArrayInputStream(output.toByteArray()),

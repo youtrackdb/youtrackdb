@@ -45,7 +45,7 @@ public class LuceneInsertUpdateTest extends BaseLuceneTest {
   public void init() {
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass oClass = schema.createClass("City");
+    var oClass = schema.createClass("City");
 
     oClass.createProperty(db, "name", PropertyType.STRING);
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
@@ -57,21 +57,21 @@ public class LuceneInsertUpdateTest extends BaseLuceneTest {
     Schema schema = db.getMetadata().getSchema();
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("City"));
+    var doc = ((EntityImpl) db.newEntity("City"));
     doc.field("name", "Rome");
 
     db.save(doc);
     db.commit();
 
     db.begin();
-    Index idx = db.getClassInternal("City").getClassIndex(db, "City.name");
+    var idx = db.getClassInternal("City").getClassIndex(db, "City.name");
     Collection<?> coll;
-    try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (var stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 1);
 
-    Identifiable next = (Identifiable) coll.iterator().next();
+    var next = (Identifiable) coll.iterator().next();
     doc = db.load(next.getIdentity());
     Assert.assertEquals(doc.field("name"), "Rome");
 
@@ -81,11 +81,11 @@ public class LuceneInsertUpdateTest extends BaseLuceneTest {
     db.commit();
 
     db.begin();
-    try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (var stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 0);
-    try (Stream<RID> stream = idx.getInternal().getRids(db, "London")) {
+    try (var stream = idx.getInternal().getRids(db, "London")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 1);
@@ -99,15 +99,15 @@ public class LuceneInsertUpdateTest extends BaseLuceneTest {
     db.save(doc);
     db.commit();
 
-    try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (var stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 0);
-    try (Stream<RID> stream = idx.getInternal().getRids(db, "London")) {
+    try (var stream = idx.getInternal().getRids(db, "London")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 0);
-    try (Stream<RID> stream = idx.getInternal().getRids(db, "Berlin")) {
+    try (var stream = idx.getInternal().getRids(db, "Berlin")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 1);

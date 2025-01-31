@@ -49,7 +49,7 @@ public final class IndexEngineData {
       final String encryptionOptions,
       final Map<String, String> engineProperties) {
     this.indexId = indexId;
-    IndexDefinition definition = metadata.getIndexDefinition();
+    var definition = metadata.getIndexDefinition();
     this.name = metadata.getName();
     this.algorithm = metadata.getAlgorithm();
     this.indexType = metadata.getType();

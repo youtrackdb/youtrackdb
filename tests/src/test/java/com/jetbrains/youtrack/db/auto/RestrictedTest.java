@@ -83,7 +83,7 @@ public class RestrictedTest extends BaseDBTest {
   public void testFilteredQuery() throws IOException {
     db = createSessionInstance("writer", "writer");
     db.begin();
-    ResultSet result = db.query("select from CMSDocument");
+    var result = db.query("select from CMSDocument");
     Assert.assertEquals(result.stream().count(), 0);
     db.commit();
   }
@@ -103,7 +103,7 @@ public class RestrictedTest extends BaseDBTest {
     db = createSessionInstance("reader", "reader");
 
     db.begin();
-    ResultSet result = db.query("select from CMSDocument");
+    var result = db.query("select from CMSDocument");
     Assert.assertEquals(result.stream().count(), 0);
     db.commit();
   }
@@ -113,7 +113,7 @@ public class RestrictedTest extends BaseDBTest {
     db = createSessionInstance();
 
     db.begin();
-    ResultSet result = db.query("select from CMSDocument where user = 'writer'");
+    var result = db.query("select from CMSDocument where user = 'writer'");
     Assert.assertEquals(result.stream().count(), 1);
     db.commit();
   }
@@ -123,7 +123,7 @@ public class RestrictedTest extends BaseDBTest {
     db = createSessionInstance("writer", "writer");
 
     db.begin();
-    ResultSet result = db.query("select from CMSDocument");
+    var result = db.query("select from CMSDocument");
     Assert.assertEquals(result.stream().count(), 1);
     db.commit();
   }
@@ -309,7 +309,7 @@ public class RestrictedTest extends BaseDBTest {
   public void testReaderRoleInheritsFromWriterRole() throws IOException {
     db = createSessionInstance();
     db.begin();
-    Role reader = db.getMetadata().getSecurity().getRole("reader");
+    var reader = db.getMetadata().getSecurity().getRole("reader");
     reader.setParentRole(db, db.getMetadata().getSecurity().getRole("writer"));
 
     reader.save(db);
@@ -342,7 +342,7 @@ public class RestrictedTest extends BaseDBTest {
   public void testReaderRoleDesntInheritsFromWriterRole() throws IOException {
     db = createSessionInstance();
     db.begin();
-    Role reader = db.getMetadata().getSecurity().getRole("reader");
+    var reader = db.getMetadata().getSecurity().getRole("reader");
     reader.setParentRole(db, null);
     reader.save(db);
     db.commit();
@@ -391,7 +391,7 @@ public class RestrictedTest extends BaseDBTest {
 
     db = createSessionInstance("writer", "writer");
     db.begin();
-    ResultSet result = db.query("select from TestUpdateRestricted");
+    var result = db.query("select from TestUpdateRestricted");
     Assert.assertEquals(result.stream().count(), 0);
     db.commit();
 
@@ -405,10 +405,10 @@ public class RestrictedTest extends BaseDBTest {
 
     db.begin();
     result = db.query("select from TestUpdateRestricted");
-    Result res = result.next();
+    var res = result.next();
     Assert.assertFalse(result.hasNext());
 
-    final Entity doc = res.getEntity().get();
+    final var doc = res.getEntity().get();
     Assert.assertEquals(doc.getProperty("data"), "My Test");
     doc.setProperty("user", "admin");
 

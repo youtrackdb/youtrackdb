@@ -39,30 +39,30 @@ public final class FreeSpaceMap extends DurableComponent {
   }
 
   private void init(final AtomicOperation atomicOperation) throws IOException {
-    try (final CacheEntry firstLevelCacheEntry = addPage(atomicOperation, fileId)) {
-      final FreeSpaceMapPage page = new FreeSpaceMapPage(firstLevelCacheEntry);
+    try (final var firstLevelCacheEntry = addPage(atomicOperation, fileId)) {
+      final var page = new FreeSpaceMapPage(firstLevelCacheEntry);
       page.init();
     }
   }
 
   public int findFreePage(final int requiredSize) throws IOException {
-    final int normalizedSize = requiredSize / NORMALIZATION_INTERVAL + 1;
+    final var normalizedSize = requiredSize / NORMALIZATION_INTERVAL + 1;
 
-    final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+    final var atomicOperation = atomicOperationsManager.getCurrentOperation();
     final int localSecondLevelPageIndex;
 
-    try (final CacheEntry firstLevelEntry = loadPageForRead(atomicOperation, fileId, 0)) {
-      final FreeSpaceMapPage page = new FreeSpaceMapPage(firstLevelEntry);
+    try (final var firstLevelEntry = loadPageForRead(atomicOperation, fileId, 0)) {
+      final var page = new FreeSpaceMapPage(firstLevelEntry);
       localSecondLevelPageIndex = page.findPage(normalizedSize);
       if (localSecondLevelPageIndex < 0) {
         return -1;
       }
     }
 
-    final int secondLevelPageIndex = localSecondLevelPageIndex + 1;
-    try (final CacheEntry leafEntry =
+    final var secondLevelPageIndex = localSecondLevelPageIndex + 1;
+    try (final var leafEntry =
         loadPageForRead(atomicOperation, fileId, secondLevelPageIndex)) {
-      final FreeSpaceMapPage page = new FreeSpaceMapPage(leafEntry);
+      final var page = new FreeSpaceMapPage(leafEntry);
       return page.findPage(normalizedSize)
           + localSecondLevelPageIndex * FreeSpaceMapPage.CELLS_PER_PAGE;
     }
@@ -75,31 +75,31 @@ public final class FreeSpaceMap extends DurableComponent {
     assert pageIndex >= 0;
     assert freeSpace < DurablePage.MAX_PAGE_SIZE_BYTES;
 
-    final int normalizedSpace = freeSpace / NORMALIZATION_INTERVAL;
-    final int secondLevelPageIndex = 1 + pageIndex / FreeSpaceMapPage.CELLS_PER_PAGE;
+    final var normalizedSpace = freeSpace / NORMALIZATION_INTERVAL;
+    final var secondLevelPageIndex = 1 + pageIndex / FreeSpaceMapPage.CELLS_PER_PAGE;
 
-    final long filledUpTo = getFilledUpTo(atomicOperation, fileId);
+    final var filledUpTo = getFilledUpTo(atomicOperation, fileId);
 
-    for (int i = 0; i < secondLevelPageIndex - filledUpTo + 1; i++) {
-      try (final CacheEntry cacheEntry = addPage(atomicOperation, fileId)) {
-        final FreeSpaceMapPage page = new FreeSpaceMapPage(cacheEntry);
+    for (var i = 0; i < secondLevelPageIndex - filledUpTo + 1; i++) {
+      try (final var cacheEntry = addPage(atomicOperation, fileId)) {
+        final var page = new FreeSpaceMapPage(cacheEntry);
         page.init();
       }
     }
 
     final int maxFreeSpaceSecondLevel;
-    final int localSecondLevelPageIndex = pageIndex % FreeSpaceMapPage.CELLS_PER_PAGE;
-    try (final CacheEntry leafEntry =
+    final var localSecondLevelPageIndex = pageIndex % FreeSpaceMapPage.CELLS_PER_PAGE;
+    try (final var leafEntry =
         loadPageForWrite(atomicOperation, fileId, secondLevelPageIndex, true)) {
 
-      final FreeSpaceMapPage page = new FreeSpaceMapPage(leafEntry);
+      final var page = new FreeSpaceMapPage(leafEntry);
       maxFreeSpaceSecondLevel =
           page.updatePageMaxFreeSpace(localSecondLevelPageIndex, normalizedSpace);
     }
 
-    try (final CacheEntry firstLevelCacheEntry =
+    try (final var firstLevelCacheEntry =
         loadPageForWrite(atomicOperation, fileId, 0, true)) {
-      final FreeSpaceMapPage page = new FreeSpaceMapPage(firstLevelCacheEntry);
+      final var page = new FreeSpaceMapPage(firstLevelCacheEntry);
       page.updatePageMaxFreeSpace(secondLevelPageIndex - 1, maxFreeSpaceSecondLevel);
     }
   }

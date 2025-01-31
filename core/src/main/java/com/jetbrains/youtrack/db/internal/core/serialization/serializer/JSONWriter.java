@@ -85,7 +85,7 @@ public class JSONWriter {
       return "null";
     }
 
-    final StringBuilder buffer = new StringBuilder(64);
+    final var buffer = new StringBuilder(64);
     if (iValue instanceof Boolean || iValue instanceof Number) {
 
       if (iValue instanceof Double && !Double.isFinite((Double) iValue)) {
@@ -107,7 +107,7 @@ public class JSONWriter {
         } else {
           try {
             var rec = linked.getRecord(db);
-            final String embeddedFormat =
+            final var embeddedFormat =
                 iFormat != null && iFormat.isEmpty()
                     ? "indent:" + iIndentLevel
                     : iFormat + ",indent:" + iIndentLevel;
@@ -132,11 +132,11 @@ public class JSONWriter {
         buffer.append('\"');
       } else {
         buffer.append('[');
-        int size = Array.getLength(iValue);
+        var size = Array.getLength(iValue);
         if (iFormat != null && iFormat.contains("shallow")) {
           buffer.append(size);
         } else {
-          for (int i = 0; i < size; ++i) {
+          for (var i = 0; i < size; ++i) {
             if (i > 0) {
               buffer.append(",");
             }
@@ -178,8 +178,8 @@ public class JSONWriter {
       }
 
       if (valueType == PropertyType.CUSTOM) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream object = new ObjectOutputStream(baos);
+        var baos = new ByteArrayOutputStream();
+        var object = new ObjectOutputStream(baos);
         object.writeObject(iValue);
         object.flush();
         buffer.append('"');
@@ -187,7 +187,7 @@ public class JSONWriter {
         buffer.append('"');
       } else {
         // TREAT IT AS STRING
-        final String v = iValue.toString();
+        final var v = iValue.toString();
         buffer.append('"');
         buffer.append(encode(v));
         buffer.append('"');
@@ -213,7 +213,7 @@ public class JSONWriter {
         buffer.append(i);
       }
     } else {
-      for (int i = 0; it.hasNext(); ++i) {
+      for (var i = 0; it.hasNext(); ++i) {
         if (i > 0) {
           buffer.append(",");
         }
@@ -235,17 +235,17 @@ public class JSONWriter {
       DatabaseSessionInternal db, final Collection<? extends Identifiable> iRecords,
       final String iFormat) {
     try {
-      final StringWriter buffer = new StringWriter();
-      final JSONWriter json = new JSONWriter(buffer);
+      final var buffer = new StringWriter();
+      final var json = new JSONWriter(buffer);
       // WRITE RECORDS
       json.beginCollection(db, 0, false, null);
       if (iRecords != null) {
         if (iFormat != null && iFormat.contains("shallow")) {
           buffer.append("" + iRecords.size());
         } else {
-          int counter = 0;
+          var counter = 0;
           String objectJson;
-          for (Identifiable rec : iRecords) {
+          for (var rec : iRecords) {
             if (rec != null) {
               try {
                 objectJson =
@@ -284,7 +284,7 @@ public class JSONWriter {
     try {
       buffer.append('{');
       if (iMap != null) {
-        int i = 0;
+        var i = 0;
         Entry<?, ?> entry;
         for (Iterator<?> it = iMap.entrySet().iterator(); it.hasNext(); ++i) {
           entry = (Entry<?, ?>) it.next();
@@ -426,9 +426,9 @@ public class JSONWriter {
       DatabaseSessionInternal db, int iIdentLevel, boolean iNewLine, final String iName,
       Object[]... iPairs)
       throws IOException {
-    for (Object[] iPair : iPairs) {
+    for (var iPair : iPairs) {
       beginObject(iIdentLevel, true, iName);
-      for (int k = 0; k < iPair.length; ) {
+      for (var k = 0; k < iPair.length; ) {
         writeAttribute(db, iIdentLevel + 1, false, (String) iPair[k++], iPair[k++], format);
       }
       endObject(iIdentLevel, false);
@@ -488,7 +488,7 @@ public class JSONWriter {
       // FORCE THE OUTPUT AS COLLECTION
       out.append('[');
       if (iValue instanceof Identifiable) {
-        final boolean shallow = iFormat != null && iFormat.contains("shallow");
+        final var shallow = iFormat != null && iFormat.contains("shallow");
         if (shallow) {
           out.append("1");
         } else {
@@ -563,7 +563,7 @@ public class JSONWriter {
       }
 
       if (prettyPrint) {
-        for (int i = 0; i < iIdentLevel; ++i) {
+        for (var i = 0; i < iIdentLevel; ++i) {
           out.append("  ");
         }
       }

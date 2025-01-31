@@ -197,7 +197,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   private void wakeupOnOpenDbLifecycleListeners() {
-    for (Iterator<DatabaseLifecycleListener> it = YouTrackDBEnginesManager.instance()
+    for (var it = YouTrackDBEnginesManager.instance()
         .getDbLifecycleListeners();
         it.hasNext(); ) {
       it.next().onOpen(getDatabaseOwner());
@@ -206,7 +206,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
 
   private void wakeupOnCloseDbLifecycleListeners() {
-    for (Iterator<DatabaseLifecycleListener> it = YouTrackDBEnginesManager.instance()
+    for (var it = YouTrackDBEnginesManager.instance()
         .getDbLifecycleListeners();
         it.hasNext(); ) {
       it.next().onClose(getDatabaseOwner());
@@ -214,7 +214,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   private void wakeupOnCloseListeners() {
-    for (SessionListener listener : getListenersCopy()) {
+    for (var listener : getListenersCopy()) {
       try {
         listener.onClose(getDatabaseOwner());
       } catch (Exception e) {
@@ -238,7 +238,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * Deletes the record checking the version.
    */
   private void delete(final RID iRecord, final int iVersion) {
-    final DBRecord record = load(iRecord);
+    final var record = load(iRecord);
     RecordInternal.setVersion(record, iVersion);
     delete(record);
   }
@@ -268,7 +268,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
       final boolean loadTombstones) {
     checkSecurity(Rule.ResourceGeneric.CLUSTER, Role.PERMISSION_READ, iClusterName);
     assert assertIfNotActive();
-    final int clusterId = getClusterIdByName(iClusterName);
+    final var clusterId = getClusterIdByName(iClusterName);
     return new RecordIteratorCluster<>(
         this, clusterId, startClusterPosition, endClusterPosition);
   }
@@ -281,7 +281,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
       long endClusterPosition) {
     checkSecurity(Rule.ResourceGeneric.CLUSTER, Role.PERMISSION_READ, iClusterName);
     assert assertIfNotActive();
-    final int clusterId = getClusterIdByName(iClusterName);
+    final var clusterId = getClusterIdByName(iClusterName);
     //noinspection deprecation
     return new RecordIteratorCluster<>(this, clusterId, startClusterPosition, endClusterPosition);
   }
@@ -292,7 +292,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   public CommandRequest command(final CommandRequest iCommand) {
     checkSecurity(Rule.ResourceGeneric.COMMAND, Role.PERMISSION_READ);
     assert assertIfNotActive();
-    final CommandRequestInternal command = (CommandRequestInternal) iCommand;
+    final var command = (CommandRequestInternal) iCommand;
     try {
       command.reset();
       return command;
@@ -350,7 +350,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   @Override
   public DatabaseSessionInternal getDatabaseOwner() {
     assert assertIfNotActive();
-    DatabaseSessionInternal current = databaseOwner;
+    var current = databaseOwner;
     while (current != null && current != this && current.getDatabaseOwner() != current) {
       current = current.getDatabaseOwner();
     }
@@ -416,7 +416,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     if (user instanceof SecurityUserImpl) {
       final Metadata metadata = getMetadata();
       if (metadata != null) {
-        final SecurityInternal security = sharedContext.getSecurity();
+        final var security = sharedContext.getSecurity();
         this.user = new ImmutableUser(this, security.getVersion(this), user);
       } else {
         this.user = new ImmutableUser(this, -1, user);
@@ -436,8 +436,8 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
         Metadata metadata = getMetadata();
         if (metadata != null) {
-          final SecurityInternal security = sharedContext.getSecurity();
-          final SecurityUserImpl secGetUser = security.getUser(this, user.getName(this));
+          final var security = sharedContext.getSecurity();
+          final var secGetUser = security.getUser(this, user.getName(this));
           if (secGetUser != null) {
             user = new ImmutableUser(this, security.getVersion(this), secGetUser);
           } else {
@@ -477,8 +477,8 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
         new LinkedHashMap<>(hooks);
     tmp.put(iHookImpl, iPosition);
     hooks.clear();
-    for (RecordHook.HOOK_POSITION p : RecordHook.HOOK_POSITION.values()) {
-      for (Map.Entry<RecordHook, RecordHook.HOOK_POSITION> e : tmp.entrySet()) {
+    for (var p : RecordHook.HOOK_POSITION.values()) {
+      for (var e : tmp.entrySet()) {
         if (e.getValue() == p) {
           hooks.put(e.getKey(), e.getValue());
         }
@@ -536,8 +536,8 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
       return RecordHook.RESULT.RECORD_NOT_CHANGED;
     }
 
-    final RecordHook.SCOPE scope = RecordHook.SCOPE.typeToScope(type);
-    final int scopeOrdinal = scope.ordinal();
+    final var scope = RecordHook.SCOPE.typeToScope(type);
+    final var scopeOrdinal = scope.ordinal();
 
     var identity = ((RecordId) id.getIdentity()).copy();
     if (!pushInHook(identity)) {
@@ -552,9 +552,9 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
         return RecordHook.RESULT.RECORD_NOT_CHANGED;
       }
 
-      boolean recordChanged = false;
-      for (RecordHook hook : hooksByScope[scopeOrdinal]) {
-        final RecordHook.RESULT res = hook.onTrigger(this, type, rec);
+      var recordChanged = false;
+      for (var hook : hooksByScope[scopeOrdinal]) {
+        final var res = hook.onTrigger(this, type, rec);
 
         if (res == RecordHook.RESULT.RECORD_CHANGED) {
           recordChanged = true;
@@ -674,10 +674,10 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   public void checkForClusterPermissions(final String iClusterName) {
     assert assertIfNotActive();
     // CHECK FOR ORESTRICTED
-    final Set<SchemaClass> classes =
+    final var classes =
         getMetadata().getImmutableSchemaSnapshot().getClassesRelyOnCluster(this, iClusterName);
 
-    for (SchemaClass c : classes) {
+    for (var c : classes) {
       if (c.isSubClassOf(SecurityShared.RESTRICTED_CLASSNAME)) {
         throw new SecurityException(
             "Class '"
@@ -718,7 +718,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     if (iAttribute == null) {
       throw new IllegalArgumentException("attribute is null");
     }
-    final StorageInfo storage = getStorageInfo();
+    final var storage = getStorageInfo();
     return switch (iAttribute) {
       case DATEFORMAT -> storage.getConfiguration().getDateFormat();
       case DATE_TIME_FORMAT -> storage.getConfiguration().getDateTimeFormat();
@@ -739,7 +739,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
       throw new IllegalArgumentException("attribute is null");
     }
 
-    final StorageInfo storage = getStorageInfo();
+    final var storage = getStorageInfo();
     if (attribute == ATTRIBUTES_INTERNAL.VALIDATION) {
       return storage.getConfiguration().isValidationEnabled();
     }
@@ -786,7 +786,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     checkOpenness();
     assert assertIfNotActive();
 
-    final DBRecord rec = load(iRecord);
+    final var rec = load(iRecord);
     delete(rec);
   }
 
@@ -975,7 +975,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   public int assignAndCheckCluster(DBRecord record, String clusterName) {
     assert assertIfNotActive();
 
-    RecordId rid = (RecordId) record.getIdentity();
+    var rid = (RecordId) record.getIdentity();
     // if provided a cluster name use it.
     if (rid.getClusterId() <= RID.CLUSTER_POS_INVALID && clusterName != null) {
       rid.setClusterId(getClusterIdByName(clusterName));
@@ -1008,7 +1008,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
         }
       } else {
         if (record instanceof RecordBytes) {
-          int[] blobs = getBlobClusterIds();
+          var blobs = getBlobClusterIds();
           if (blobs.length == 0) {
             rid.setClusterId(getDefaultClusterId());
           } else {
@@ -1027,7 +1027,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     // If the cluster id was set check is validity
     if (rid.getClusterId() > RID.CLUSTER_ID_INVALID) {
       if (schemaClass != null) {
-        String messageClusterName = getClusterNameById(rid.getClusterId());
+        var messageClusterName = getClusterNameById(rid.getClusterId());
         checkRecordClass(schemaClass, messageClusterName, rid);
         if (!schemaClass.hasClusterId(rid.getClusterId())) {
           throw new IllegalArgumentException(
@@ -1084,7 +1084,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     }
 
     // WAKE UP LISTENERS
-    for (SessionListener listener : browseListeners()) {
+    for (var listener : browseListeners()) {
       try {
         listener.onBeforeTxBegin(this);
       } catch (Exception e) {
@@ -1260,7 +1260,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   @Override
   public EdgeInternal newRegularEdge(Vertex from, Vertex to, String type) {
     assert assertIfNotActive();
-    SchemaClass cl = getMetadata().getImmutableSchemaSnapshot().getClass(type);
+    var cl = getMetadata().getImmutableSchemaSnapshot().getClass(type);
     if (cl == null || !cl.isEdgeType()) {
       throw new IllegalArgumentException(type + " is not a regular edge class");
     }
@@ -1275,7 +1275,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   @Override
   public Edge newLightweightEdge(Vertex from, Vertex to, @Nonnull String type) {
     assert assertIfNotActive();
-    SchemaClass cl = getMetadata().getImmutableSchemaSnapshot().getClass(type);
+    var cl = getMetadata().getImmutableSchemaSnapshot().getClass(type);
     if (cl == null || !cl.isEdgeType()) {
       throw new IllegalArgumentException(type + " is not a lightweight edge class");
     }
@@ -1315,7 +1315,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     EntityImpl outEntity;
     EntityImpl inEntity;
 
-    boolean outEntityModified = false;
+    var outEntityModified = false;
     if (checkDeletedInTx(toVertex)) {
       throw new RecordNotFoundException(
           toVertex.getIdentity(),
@@ -1342,7 +1342,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     }
 
     Schema schema = getMetadata().getImmutableSchemaSnapshot();
-    final SchemaClass edgeType = schema.getClass(className);
+    final var edgeType = schema.getClass(className);
 
     if (edgeType == null) {
       throw new IllegalArgumentException("Class " + className + " does not exist");
@@ -1358,8 +1358,8 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
           "Cannot create lightweight edge for class " + className + " because it is not abstract");
     }
 
-    final String outFieldName = Vertex.getEdgeLinkFieldName(Direction.OUT, className);
-    final String inFieldName = Vertex.getEdgeLinkFieldName(Direction.IN, className);
+    final var outFieldName = Vertex.getEdgeLinkFieldName(Direction.OUT, className);
+    final var inFieldName = Vertex.getEdgeLinkFieldName(Direction.IN, className);
 
     if (createLightweightEdge) {
       edge = newLightweightEdgeInternal(className, toVertex, inVertex);
@@ -1393,7 +1393,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
       return false;
     }
 
-    final RecordOperation oper = getTransaction().getRecordEntry(id);
+    final var oper = getTransaction().getRecordEntry(id);
     if (oper == null) {
       return id.isTemporary();
     } else {
@@ -1586,7 +1586,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    */
   public long countClass(final String iClassName, final boolean iPolymorphic) {
     assert assertIfNotActive();
-    final SchemaImmutableClass cls =
+    final var cls =
         (SchemaImmutableClass) getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
     if (cls == null) {
       throw new IllegalArgumentException("Class not found in database");
@@ -1599,13 +1599,13 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     checkOpenness();
     assert assertIfNotActive();
 
-    long totalOnDb = cls.countImpl(iPolymorphic);
+    var totalOnDb = cls.countImpl(iPolymorphic);
 
     long deletedInTx = 0;
     long addedInTx = 0;
-    String className = cls.getName();
+    var className = cls.getName();
     if (getTransaction().isActive()) {
-      for (RecordOperation op : getTransaction().getRecordOperations()) {
+      for (var op : getTransaction().getRecordOperations()) {
         if (op.type == RecordOperation.DELETED) {
           final DBRecord rec = op.record;
           if (rec instanceof EntityImpl) {
@@ -1717,7 +1717,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   protected void beforeCommitOperations() {
     assert assertIfNotActive();
-    for (SessionListener listener : browseListeners()) {
+    for (var listener : browseListeners()) {
       try {
         listener.onBeforeTxCommit(this);
       } catch (Exception e) {
@@ -1741,11 +1741,11 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   public void afterCommitOperations() {
     assert assertIfNotActive();
-    for (SessionListener listener : browseListeners()) {
+    for (var listener : browseListeners()) {
       try {
         listener.onAfterTxCommit(this);
       } catch (Exception e) {
-        final String message =
+        final var message =
             "Error after the transaction has been committed. The transaction remains valid. The"
                 + " exception caught was on execution of "
                 + listener.getClass()
@@ -1760,7 +1760,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   protected void beforeRollbackOperations() {
     assert assertIfNotActive();
-    for (SessionListener listener : browseListeners()) {
+    for (var listener : browseListeners()) {
       try {
         listener.onBeforeTxRollback(this);
       } catch (Exception t) {
@@ -1772,7 +1772,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   protected void afterRollbackOperations() {
     assert assertIfNotActive();
-    for (SessionListener listener : browseListeners()) {
+    for (var listener : browseListeners()) {
       try {
         listener.onAfterTxRollback(this);
       } catch (Exception t) {
@@ -1843,7 +1843,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   @Override
   public void resetInitialization() {
     assert assertIfNotActive();
-    for (RecordHook h : hooks.keySet()) {
+    for (var h : hooks.keySet()) {
       h.onUnregister();
     }
 
@@ -1863,7 +1863,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     checkSecurity(Rule.ResourceGeneric.CLUSTER, operation, cluster);
 
     if (record instanceof EntityImpl) {
-      String clazzName = ((EntityImpl) record).getClassName();
+      var clazzName = ((EntityImpl) record).getClassName();
       if (clazzName != null) {
         checkSecurity(Rule.ResourceGeneric.CLASS, operation, clazzName);
       }
@@ -1892,14 +1892,14 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    */
   @Override
   public void activateOnCurrentThread() {
-    final DatabaseRecordThreadLocal tl = DatabaseRecordThreadLocal.instance();
+    final var tl = DatabaseRecordThreadLocal.instance();
     tl.set(this);
   }
 
   @Override
   public boolean isActiveOnCurrentThread() {
-    final DatabaseRecordThreadLocal tl = DatabaseRecordThreadLocal.instance();
-    final DatabaseSessionInternal db = tl.getIfDefined();
+    final var tl = DatabaseRecordThreadLocal.instance();
+    final var db = tl.getIfDefined();
     return db == this;
   }
 
@@ -1921,7 +1921,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
       final SchemaClass recordClass, final String iClusterName, final RecordId rid) {
     assert assertIfNotActive();
 
-    final SchemaClass clusterIdClass =
+    final var clusterIdClass =
         metadata.getImmutableSchemaSnapshot().getClassByClusterId(rid.getClusterId());
     if (recordClass == null && clusterIdClass != null
         || clusterIdClass == null && recordClass != null
@@ -1944,8 +1944,8 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   @Override
   public boolean assertIfNotActive() {
-    final DatabaseRecordThreadLocal tl = DatabaseRecordThreadLocal.instance();
-    DatabaseSessionInternal currentDatabase = tl.get();
+    final var tl = DatabaseRecordThreadLocal.instance();
+    var currentDatabase = tl.get();
 
     //noinspection deprecation
     if (currentDatabase instanceof DatabaseDocumentTx databaseDocumentTx) {
@@ -1967,19 +1967,19 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   private void compileHooks() {
     final List<RecordHook>[] intermediateHooksByScope =
         new List[RecordHook.SCOPE.values().length];
-    for (RecordHook.SCOPE scope : RecordHook.SCOPE.values()) {
+    for (var scope : RecordHook.SCOPE.values()) {
       intermediateHooksByScope[scope.ordinal()] = new ArrayList<>();
     }
 
-    for (RecordHook hook : hooks.keySet()) {
-      for (RecordHook.SCOPE scope : hook.getScopes()) {
+    for (var hook : hooks.keySet()) {
+      for (var scope : hook.getScopes()) {
         intermediateHooksByScope[scope.ordinal()].add(hook);
       }
     }
 
-    for (RecordHook.SCOPE scope : RecordHook.SCOPE.values()) {
-      final int ordinal = scope.ordinal();
-      final List<RecordHook> scopeHooks = intermediateHooksByScope[ordinal];
+    for (var scope : RecordHook.SCOPE.values()) {
+      final var ordinal = scope.ordinal();
+      final var scopeHooks = intermediateHooksByScope[ordinal];
       hooksByScope[ordinal] = scopeHooks.toArray(new RecordHook[0]);
     }
   }
@@ -1993,7 +1993,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   public EdgeInternal newLightweightEdgeInternal(String iClassName, Vertex from, Vertex to) {
     assert assertIfNotActive();
-    SchemaImmutableClass clazz =
+    var clazz =
         (SchemaImmutableClass) getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
 
     return new EdgeDelegate(from, to, clazz, iClassName);
@@ -2001,7 +2001,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   public Edge newRegularEdge(String iClassName, Vertex from, Vertex to) {
     assert assertIfNotActive();
-    SchemaClass cl = getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
+    var cl = getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
 
     if (cl == null || !cl.isEdgeType()) {
       throw new IllegalArgumentException(iClassName + " is not an edge class");
@@ -2014,7 +2014,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     assert assertIfNotActive();
 
     if (this.activeQueries.size() > 1 && this.activeQueries.size() % 10 == 0) {
-      String msg =
+      var msg =
           "This database instance has "
               + activeQueries.size()
               + " open command/query result sets, please make sure you close them with"
@@ -2035,7 +2035,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   public void queryClosed(String id) {
     assert assertIfNotActive();
 
-    QueryDatabaseState removed = this.activeQueries.remove(id);
+    var removed = this.activeQueries.remove(id);
     getListeners().forEach((it) -> it.onCommandEnd(this, removed.getResultSet()));
 
   }
@@ -2059,7 +2059,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   public ResultSet getActiveQuery(String id) {
     assert assertIfNotActive();
 
-    QueryDatabaseState state = activeQueries.get(id);
+    var state = activeQueries.get(id);
     if (state != null) {
       return state.getResultSet();
     } else {
@@ -2070,14 +2070,14 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   @Override
   public boolean isClusterEdge(int cluster) {
     assert assertIfNotActive();
-    SchemaClass clazz = getMetadata().getImmutableSchemaSnapshot().getClassByClusterId(cluster);
+    var clazz = getMetadata().getImmutableSchemaSnapshot().getClassByClusterId(cluster);
     return clazz != null && clazz.isEdgeType();
   }
 
   @Override
   public boolean isClusterVertex(int cluster) {
     assert assertIfNotActive();
-    SchemaClass clazz = getMetadata().getImmutableSchemaSnapshot().getClassByClusterId(cluster);
+    var clazz = getMetadata().getImmutableSchemaSnapshot().getClassByClusterId(cluster);
     return clazz != null && clazz.isVertexType();
   }
 
@@ -2110,11 +2110,11 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
       Iterable<T> iterable, int batchSize, BiConsumer<DatabaseSession, T> consumer) {
     var ok = false;
     assert assertIfNotActive();
-    int counter = 0;
+    var counter = 0;
 
     begin();
     try {
-      for (T t : iterable) {
+      for (var t : iterable) {
         consumer.accept(this, t);
         counter++;
 
@@ -2151,7 +2151,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   public <T> void forEachInTx(Stream<T> stream, BiConsumer<DatabaseSession, T> consumer) {
     assert assertIfNotActive();
 
-    try (Stream<T> s = stream) {
+    try (var s = stream) {
       forEachInTx(s.iterator(), consumer);
     }
   }
@@ -2216,7 +2216,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
       Iterator<T> iterator, int batchSize, BiConsumer<DatabaseSession, T> consumer) {
     var ok = false;
     assert assertIfNotActive();
-    int counter = 0;
+    var counter = 0;
 
     begin();
     try {

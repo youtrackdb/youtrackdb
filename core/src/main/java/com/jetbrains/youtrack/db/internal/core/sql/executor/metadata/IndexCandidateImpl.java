@@ -44,7 +44,7 @@ public class IndexCandidateImpl implements IndexCandidate {
 
   @Override
   public Optional<IndexCandidate> normalize(CommandContext ctx) {
-    Index index = ctx.getDatabase().getMetadata().getIndexManager().getIndex(name);
+    var index = ctx.getDatabase().getMetadata().getIndexManager().getIndex(name);
     if (property.getName().equals(index.getDefinition().getFields().get(0))) {
       return Optional.of(this);
     } else {

@@ -115,7 +115,7 @@ public class SQLMethodExclude extends AbstractSQLMethod {
           if (MultiValue.isMultiValue(iThis)) {
             // ACT ON MULTIPLE DOCUMENTS
             final List<Object> result = new ArrayList<Object>(MultiValue.getSize(iThis));
-            for (Object o : MultiValue.getMultiValueIterable(iThis)) {
+            for (var o : MultiValue.getMultiValueIterable(iThis)) {
               if (o instanceof Identifiable) {
                 try {
                   var rec = ((Identifiable) o).getRecord(db);
@@ -140,13 +140,13 @@ public class SQLMethodExclude extends AbstractSQLMethod {
     var result = new ResultInternal(db);
 
     var propertyNames = new HashSet<>(entity.getPropertyNames());
-    for (Object iFieldName : iFieldNames) {
+    for (var iFieldName : iFieldNames) {
       if (iFieldName != null) {
-        final String fieldName = iFieldName.toString();
+        final var fieldName = iFieldName.toString();
         if (fieldName.endsWith("*")) {
-          final String fieldPart = fieldName.substring(0, fieldName.length() - 1);
+          final var fieldPart = fieldName.substring(0, fieldName.length() - 1);
 
-          for (String propertyName : entity.getPropertyNames()) {
+          for (var propertyName : entity.getPropertyNames()) {
             if (propertyName.startsWith(fieldPart)) {
               propertyNames.remove(propertyName);
             }
@@ -157,7 +157,7 @@ public class SQLMethodExclude extends AbstractSQLMethod {
       }
     }
 
-    for (String propertyName : propertyNames) {
+    for (var propertyName : propertyNames) {
       result.setProperty(propertyName, entity.getProperty(propertyName));
     }
 
@@ -170,13 +170,13 @@ public class SQLMethodExclude extends AbstractSQLMethod {
 
     var propertyNames = new HashSet<>(map.keySet());
 
-    for (Object iFieldName : iFieldNames) {
+    for (var iFieldName : iFieldNames) {
       if (iFieldName != null) {
-        final String fieldName = iFieldName.toString();
+        final var fieldName = iFieldName.toString();
         if (fieldName.endsWith("*")) {
-          final String fieldPart = fieldName.substring(0, fieldName.length() - 1);
+          final var fieldPart = fieldName.substring(0, fieldName.length() - 1);
 
-          for (String propertyName : map.keySet()) {
+          for (var propertyName : map.keySet()) {
             if (propertyName.startsWith(fieldPart)) {
               propertyNames.remove(propertyName);
             }
@@ -187,7 +187,7 @@ public class SQLMethodExclude extends AbstractSQLMethod {
       }
     }
 
-    for (String propertyName : propertyNames) {
+    for (var propertyName : propertyNames) {
       result.setProperty(propertyName, map.get(propertyName));
     }
 

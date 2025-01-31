@@ -21,7 +21,7 @@ public class LuceneFreezeReleaseTest extends BaseLuceneTest {
     }
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass person = schema.createClass("Person");
+    var person = schema.createClass("Person");
     person.createProperty(db, "name", PropertyType.STRING);
 
     db.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE").close();
@@ -30,7 +30,7 @@ public class LuceneFreezeReleaseTest extends BaseLuceneTest {
     db.save(((EntityImpl) db.newEntity("Person")).field("name", "John"));
     db.commit();
 
-    ResultSet results = db.query("select from Person where name lucene 'John'");
+    var results = db.query("select from Person where name lucene 'John'");
     Assert.assertEquals(1, results.stream().count());
     db.freeze();
 
@@ -56,7 +56,7 @@ public class LuceneFreezeReleaseTest extends BaseLuceneTest {
     }
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass person = schema.createClass("Person");
+    var person = schema.createClass("Person");
     person.createProperty(db, "name", PropertyType.STRING);
 
     db.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE").close();
@@ -65,7 +65,7 @@ public class LuceneFreezeReleaseTest extends BaseLuceneTest {
     db.save(((EntityImpl) db.newEntity("Person")).field("name", "John"));
     db.commit();
 
-      ResultSet results = db.query("select from Person where name lucene 'John'");
+    var results = db.query("select from Person where name lucene 'John'");
       Assert.assertEquals(1, results.stream().count());
 
       db.freeze();
@@ -87,7 +87,7 @@ public class LuceneFreezeReleaseTest extends BaseLuceneTest {
   }
 
   private static boolean isWindows() {
-    final String osName = System.getProperty("os.name").toLowerCase();
+    final var osName = System.getProperty("os.name").toLowerCase();
     return osName.contains("win");
   }
 }

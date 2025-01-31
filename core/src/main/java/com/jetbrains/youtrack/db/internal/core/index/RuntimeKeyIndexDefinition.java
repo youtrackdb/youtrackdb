@@ -106,7 +106,7 @@ public class RuntimeKeyIndexDefinition<T> extends AbstractIndexDefinition {
   protected void serializeFromStream(EntityImpl entity) {
     super.serializeFromStream(entity);
 
-    final byte keySerializerId = ((Number) entity.field("keySerializerId")).byteValue();
+    final var keySerializerId = ((Number) entity.field("keySerializerId")).byteValue();
     //noinspection unchecked
     serializer =
         (BinarySerializer<T>)
@@ -135,13 +135,13 @@ public class RuntimeKeyIndexDefinition<T> extends AbstractIndexDefinition {
       return false;
     }
 
-    final RuntimeKeyIndexDefinition<?> that = (RuntimeKeyIndexDefinition<?>) o;
+    final var that = (RuntimeKeyIndexDefinition<?>) o;
     return serializer.equals(that.serializer);
   }
 
   @Override
   public int hashCode() {
-    int result = super.hashCode();
+    var result = super.hashCode();
     result = 31 * result + serializer.getId();
     return result;
   }

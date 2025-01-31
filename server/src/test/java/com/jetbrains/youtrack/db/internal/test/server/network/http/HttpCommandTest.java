@@ -49,7 +49,7 @@ public class HttpCommandTest extends BaseHttpDatabaseTest {
             .getResponse()
             .getCode());
 
-    final InputStream response = getResponse().getEntity().getContent();
+    final var response = getResponse().getEntity().getContent();
 
     var objectMapper = new ObjectMapper();
     var result = objectMapper.readTree(response);
@@ -75,7 +75,7 @@ public class HttpCommandTest extends BaseHttpDatabaseTest {
             .getResponse()
             .getCode());
 
-    final InputStream response = getResponse().getEntity().getContent();
+    final var response = getResponse().getEntity().getContent();
     var objectMapper = new ObjectMapper();
     var result = objectMapper.readTree(response);
 

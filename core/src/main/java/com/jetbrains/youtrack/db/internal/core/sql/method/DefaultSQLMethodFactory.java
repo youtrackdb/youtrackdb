@@ -142,7 +142,7 @@ public class DefaultSQLMethodFactory implements SQLMethodFactory {
 
   @Override
   public SQLMethod createMethod(final String name) throws CommandExecutionException {
-    final Object m = methods.get(name);
+    final var m = methods.get(name);
     final SQLMethod method;
 
     if (m instanceof Class<?>) {

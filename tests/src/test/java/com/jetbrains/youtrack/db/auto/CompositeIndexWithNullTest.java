@@ -24,7 +24,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
 
   public void testPointQuery() {
     final Schema schema = db.getMetadata().getSchema();
-    SchemaClassInternal clazz = (SchemaClassInternal) schema.createClass(
+    var clazz = (SchemaClassInternal) schema.createClass(
         "compositeIndexNullPointQueryClass");
     clazz.createProperty(db, "prop1", PropertyType.INTEGER);
     clazz.createProperty(db, "prop2", PropertyType.INTEGER);
@@ -38,8 +38,8 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
         null,
         metadata, new String[]{"prop1", "prop2", "prop3"});
 
-    for (int i = 0; i < 20; i++) {
-      EntityImpl document = ((EntityImpl) db.newEntity("compositeIndexNullPointQueryClass"));
+    for (var i = 0; i < 20; i++) {
+      var document = ((EntityImpl) db.newEntity("compositeIndexNullPointQueryClass"));
       document.field("prop1", i / 10);
       document.field("prop2", i / 5);
 
@@ -52,10 +52,10 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       db.commit();
     }
 
-    String query = "select from compositeIndexNullPointQueryClass where prop1 = 1 and prop2 = 2";
+    var query = "select from compositeIndexNullPointQueryClass where prop1 = 1 and prop2 = 2";
     var resultSet = db.query(query).toList();
     Assert.assertEquals(resultSet.size(), 5);
-    for (int k = 0; k < 5; k++) {
+    for (var k = 0; k < 5; k++) {
       var result = resultSet.get(k);
       Assert.assertEquals(result.<Object>getProperty("prop1"), 1);
       Assert.assertEquals(result.<Object>getProperty("prop2"), 2);
@@ -86,7 +86,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
 
   public void testPointQueryInTx() {
     final Schema schema = db.getMetadata().getSchema();
-    SchemaClass clazz = schema.createClass("compositeIndexNullPointQueryInTxClass");
+    var clazz = schema.createClass("compositeIndexNullPointQueryInTxClass");
     clazz.createProperty(db, "prop1", PropertyType.INTEGER);
     clazz.createProperty(db, "prop2", PropertyType.INTEGER);
     clazz.createProperty(db, "prop3", PropertyType.INTEGER);
@@ -100,8 +100,8 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
 
     db.begin();
 
-    for (int i = 0; i < 20; i++) {
-      EntityImpl document = ((EntityImpl) db.newEntity("compositeIndexNullPointQueryInTxClass"));
+    for (var i = 0; i < 20; i++) {
+      var document = ((EntityImpl) db.newEntity("compositeIndexNullPointQueryInTxClass"));
       document.field("prop1", i / 10);
       document.field("prop2", i / 5);
 
@@ -114,11 +114,11 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
 
     db.commit();
 
-    String query =
+    var query =
         "select from compositeIndexNullPointQueryInTxClass where prop1 = 1 and prop2 = 2";
     var resultSet = db.query(query).toList();
     Assert.assertEquals(resultSet.size(), 5);
-    for (int k = 0; k < 5; k++) {
+    for (var k = 0; k < 5; k++) {
       var result = resultSet.get(k);
       Assert.assertEquals(result.<Object>getProperty("prop1"), 1);
       Assert.assertEquals(result.<Object>getProperty("prop2"), 2);
@@ -153,7 +153,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
     }
 
     final Schema schema = db.getMetadata().getSchema();
-    SchemaClass clazz = schema.createClass("compositeIndexNullPointQueryInMiddleTxClass");
+    var clazz = schema.createClass("compositeIndexNullPointQueryInMiddleTxClass");
     clazz.createProperty(db, "prop1", PropertyType.INTEGER);
     clazz.createProperty(db, "prop2", PropertyType.INTEGER);
     clazz.createProperty(db, "prop3", PropertyType.INTEGER);
@@ -168,8 +168,8 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
 
     db.begin();
 
-    for (int i = 0; i < 20; i++) {
-      EntityImpl document = ((EntityImpl) db.newEntity(
+    for (var i = 0; i < 20; i++) {
+      var document = ((EntityImpl) db.newEntity(
           "compositeIndexNullPointQueryInMiddleTxClass"));
       document.field("prop1", i / 10);
       document.field("prop2", i / 5);
@@ -181,12 +181,12 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       document.save();
     }
 
-    String query =
+    var query =
         "select from compositeIndexNullPointQueryInMiddleTxClass where prop1 = 1 and prop2 = 2";
     var resultSet = db.query(query).toList();
     Assert.assertEquals(resultSet.size(), 5);
 
-    for (int k = 0; k < 5; k++) {
+    for (var k = 0; k < 5; k++) {
       var result = resultSet.get(k);
       Assert.assertEquals(result.<Object>getProperty("prop1"), 1);
       Assert.assertEquals(result.<Object>getProperty("prop2"), 2);
@@ -219,7 +219,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
 
   public void testRangeQuery() {
     final Schema schema = db.getMetadata().getSchema();
-    SchemaClass clazz = schema.createClass("compositeIndexNullRangeQueryClass");
+    var clazz = schema.createClass("compositeIndexNullRangeQueryClass");
     clazz.createProperty(db, "prop1", PropertyType.INTEGER);
     clazz.createProperty(db, "prop2", PropertyType.INTEGER);
     clazz.createProperty(db, "prop3", PropertyType.INTEGER);
@@ -233,8 +233,8 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
         metadata,
         null, new String[]{"prop1", "prop2", "prop3"});
 
-    for (int i = 0; i < 20; i++) {
-      EntityImpl document = ((EntityImpl) db.newEntity("compositeIndexNullRangeQueryClass"));
+    for (var i = 0; i < 20; i++) {
+      var document = ((EntityImpl) db.newEntity("compositeIndexNullRangeQueryClass"));
       document.field("prop1", i / 10);
       document.field("prop2", i / 5);
 
@@ -247,11 +247,11 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       db.commit();
     }
 
-    String query = "select from compositeIndexNullRangeQueryClass where prop1 = 1 and prop2 > 2";
+    var query = "select from compositeIndexNullRangeQueryClass where prop1 = 1 and prop2 > 2";
     var resultSet = db.query(query).toList();
 
     Assert.assertEquals(resultSet.size(), 5);
-    for (int k = 0; k < 5; k++) {
+    for (var k = 0; k < 5; k++) {
       var result = resultSet.get(k);
       Assert.assertEquals(result.<Object>getProperty("prop1"), 1);
       Assert.assertTrue(result.<Integer>getProperty("prop2") > 2);
@@ -267,7 +267,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
     resultSet = db.query(query).toList();
 
     Assert.assertEquals(resultSet.size(), 10);
-    for (int k = 0; k < 10; k++) {
+    for (var k = 0; k < 10; k++) {
       var result = resultSet.get(k);
       Assert.assertTrue(result.<Integer>getProperty("prop1") > 0);
     }
@@ -279,7 +279,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
     }
 
     final Schema schema = db.getMetadata().getSchema();
-    SchemaClass clazz = schema.createClass("compositeIndexNullRangeQueryInMiddleTxClass");
+    var clazz = schema.createClass("compositeIndexNullRangeQueryInMiddleTxClass");
     clazz.createProperty(db, "prop1", PropertyType.INTEGER);
     clazz.createProperty(db, "prop2", PropertyType.INTEGER);
     clazz.createProperty(db, "prop3", PropertyType.INTEGER);
@@ -294,8 +294,8 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
         null, new String[]{"prop1", "prop2", "prop3"});
 
     db.begin();
-    for (int i = 0; i < 20; i++) {
-      EntityImpl document = ((EntityImpl) db.newEntity(
+    for (var i = 0; i < 20; i++) {
+      var document = ((EntityImpl) db.newEntity(
           "compositeIndexNullRangeQueryInMiddleTxClass"));
       document.field("prop1", i / 10);
       document.field("prop2", i / 5);
@@ -307,12 +307,12 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       document.save();
     }
 
-    String query =
+    var query =
         "select from compositeIndexNullRangeQueryInMiddleTxClass where prop1 = 1 and prop2 > 2";
     var resultSet = db.query(query).toList();
 
     Assert.assertEquals(resultSet.size(), 5);
-    for (int k = 0; k < 5; k++) {
+    for (var k = 0; k < 5; k++) {
       var result = resultSet.get(k);
       Assert.assertEquals(result.<Object>getProperty("prop1"), 1);
       Assert.assertTrue(result.<Integer>getProperty("prop2") > 2);
@@ -328,7 +328,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
     resultSet = db.query(query).toList();
 
     Assert.assertEquals(resultSet.size(), 10);
-    for (int k = 0; k < 10; k++) {
+    for (var k = 0; k < 10; k++) {
       var result = resultSet.get(k);
       Assert.assertTrue(result.<Integer>getProperty("prop1") > 0);
     }
@@ -338,7 +338,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
 
   public void testPointQueryNullInTheMiddle() {
     final Schema schema = db.getMetadata().getSchema();
-    SchemaClass clazz = schema.createClass("compositeIndexNullPointQueryNullInTheMiddleClass");
+    var clazz = schema.createClass("compositeIndexNullPointQueryNullInTheMiddleClass");
     clazz.createProperty(db, "prop1", PropertyType.INTEGER);
     clazz.createProperty(db, "prop2", PropertyType.INTEGER);
     clazz.createProperty(db, "prop3", PropertyType.INTEGER);
@@ -352,8 +352,8 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
         metadata,
         null, new String[]{"prop1", "prop2", "prop3"});
 
-    for (int i = 0; i < 20; i++) {
-      EntityImpl document = ((EntityImpl) db.newEntity(
+    for (var i = 0; i < 20; i++) {
+      var document = ((EntityImpl) db.newEntity(
           "compositeIndexNullPointQueryNullInTheMiddleClass"));
       document.field("prop1", i / 10);
 
@@ -368,10 +368,10 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       db.commit();
     }
 
-    String query = "select from compositeIndexNullPointQueryNullInTheMiddleClass where prop1 = 1";
+    var query = "select from compositeIndexNullPointQueryNullInTheMiddleClass where prop1 = 1";
     var resultSet = db.query(query).toList();
     Assert.assertEquals(resultSet.size(), 10);
-    for (int k = 0; k < 10; k++) {
+    for (var k = 0; k < 10; k++) {
       var result = resultSet.get(k);
       Assert.assertEquals(result.<Object>getProperty("prop1"), 1);
     }
@@ -418,7 +418,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
     }
 
     final Schema schema = db.getMetadata().getSchema();
-    SchemaClass clazz = schema.createClass(
+    var clazz = schema.createClass(
         "compositeIndexNullPointQueryNullInTheMiddleInMiddleTxClass");
     clazz.createProperty(db, "prop1", PropertyType.INTEGER);
     clazz.createProperty(db, "prop2", PropertyType.INTEGER);
@@ -434,8 +434,8 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
 
     db.begin();
 
-    for (int i = 0; i < 20; i++) {
-      EntityImpl document =
+    for (var i = 0; i < 20; i++) {
+      var document =
           ((EntityImpl) db.newEntity("compositeIndexNullPointQueryNullInTheMiddleInMiddleTxClass"));
       document.field("prop1", i / 10);
 
@@ -448,11 +448,11 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       document.save();
     }
 
-    String query =
+    var query =
         "select from compositeIndexNullPointQueryNullInTheMiddleInMiddleTxClass where prop1 = 1";
     var resultSet = db.query(query).toList();
     Assert.assertEquals(resultSet.size(), 10);
-    for (int k = 0; k < 10; k++) {
+    for (var k = 0; k < 10; k++) {
       var result = resultSet.get(k);
       Assert.assertEquals(result.<Object>getProperty("prop1"), 1);
     }
@@ -498,7 +498,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
 
   public void testRangeQueryNullInTheMiddle() {
     final Schema schema = db.getMetadata().getSchema();
-    SchemaClass clazz = schema.createClass("compositeIndexNullRangeQueryNullInTheMiddleClass");
+    var clazz = schema.createClass("compositeIndexNullRangeQueryNullInTheMiddleClass");
     clazz.createProperty(db, "prop1", PropertyType.INTEGER);
     clazz.createProperty(db, "prop2", PropertyType.INTEGER);
     clazz.createProperty(db, "prop3", PropertyType.INTEGER);
@@ -511,8 +511,8 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
         null,
         metadata, new String[]{"prop1", "prop2", "prop3"});
 
-    for (int i = 0; i < 20; i++) {
-      EntityImpl document = ((EntityImpl) db.newEntity(
+    for (var i = 0; i < 20; i++) {
+      var document = ((EntityImpl) db.newEntity(
           "compositeIndexNullRangeQueryNullInTheMiddleClass"));
       document.field("prop1", i / 10);
 
@@ -527,11 +527,11 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       db.commit();
     }
 
-    final String query =
+    final var query =
         "select from compositeIndexNullRangeQueryNullInTheMiddleClass where prop1 > 0";
     var resultSet = db.query(query).toList();
     Assert.assertEquals(resultSet.size(), 10);
-    for (int k = 0; k < 10; k++) {
+    for (var k = 0; k < 10; k++) {
       var result = resultSet.get(k);
       Assert.assertEquals(result.<Object>getProperty("prop1"), 1);
     }
@@ -549,7 +549,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
     }
 
     final Schema schema = db.getMetadata().getSchema();
-    SchemaClass clazz = schema.createClass(
+    var clazz = schema.createClass(
         "compositeIndexNullRangeQueryNullInTheMiddleInMiddleTxClass");
     clazz.createProperty(db, "prop1", PropertyType.INTEGER);
     clazz.createProperty(db, "prop2", PropertyType.INTEGER);
@@ -562,8 +562,8 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
         null,
         metadata, new String[]{"prop1", "prop2", "prop3"});
 
-    for (int i = 0; i < 20; i++) {
-      EntityImpl document =
+    for (var i = 0; i < 20; i++) {
+      var document =
           ((EntityImpl) db.newEntity("compositeIndexNullRangeQueryNullInTheMiddleInMiddleTxClass"));
       document.field("prop1", i / 10);
 
@@ -578,11 +578,11 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       db.commit();
     }
 
-    final String query =
+    final var query =
         "select from compositeIndexNullRangeQueryNullInTheMiddleInMiddleTxClass where prop1 > 0";
     var resultSet = db.query(query).toList();
     Assert.assertEquals(resultSet.size(), 10);
-    for (int k = 0; k < 10; k++) {
+    for (var k = 0; k < 10; k++) {
       var result = resultSet.get(k);
       Assert.assertEquals(result.<Object>getProperty("prop1"), 1);
     }

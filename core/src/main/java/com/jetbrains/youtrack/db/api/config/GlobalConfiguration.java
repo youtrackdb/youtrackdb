@@ -1840,11 +1840,11 @@ public enum GlobalConfiguration {
     out.print(YouTrackDBConstants.getVersion());
     out.println(" configuration dump:");
 
-    String lastSection = "";
-    for (GlobalConfiguration value : values()) {
-      final int index = value.key.indexOf('.');
+    var lastSection = "";
+    for (var value : values()) {
+      final var index = value.key.indexOf('.');
 
-      String section = value.key;
+      var section = value.key;
       if (index >= 0) {
         section = value.key.substring(0, index);
       }
@@ -1868,7 +1868,7 @@ public enum GlobalConfiguration {
    * @return GlobalConfiguration instance if found, otherwise null
    */
   public static GlobalConfiguration findByKey(final String iKey) {
-    for (GlobalConfiguration v : values()) {
+    for (var v : values()) {
       if (v.key.equalsIgnoreCase(iKey)) {
         return v;
       }
@@ -1881,8 +1881,8 @@ public enum GlobalConfiguration {
    * ENUM names or the string representation of configuration values
    */
   public static void setConfiguration(final Map<String, Object> iConfig) {
-    for (Entry<String, Object> config : iConfig.entrySet()) {
-      for (GlobalConfiguration v : values()) {
+    for (var config : iConfig.entrySet()) {
+      for (var v : values()) {
         if (v.key.equals(config.getKey())) {
           v.setValue(config.getValue());
           break;
@@ -1899,16 +1899,16 @@ public enum GlobalConfiguration {
    */
   private static void readConfiguration() {
     String prop;
-    for (GlobalConfiguration config : values()) {
+    for (var config : values()) {
       prop = System.getProperty(config.key);
       if (prop != null) {
         config.setValue(prop);
       }
     }
 
-    for (GlobalConfiguration config : values()) {
+    for (var config : values()) {
 
-      String key = getEnvKey(config);
+      var key = getEnvKey(config);
       if (key != null) {
         prop = System.getenv(key);
         if (prop != null) {
@@ -1940,7 +1940,7 @@ public enum GlobalConfiguration {
   }
 
   public void setValue(final Object iValue) {
-    Object oldValue = value;
+    var oldValue = value;
 
     if (iValue != null) {
       if (type == Boolean.class) {
@@ -1952,15 +1952,15 @@ public enum GlobalConfiguration {
       } else if (type == String.class) {
         value = iValue.toString();
       } else if (type.isEnum()) {
-        boolean accepted = false;
+        var accepted = false;
 
         if (type.isInstance(iValue)) {
           value = iValue;
           accepted = true;
         } else if (iValue instanceof String string) {
 
-          for (Object constant : type.getEnumConstants()) {
-            final Enum<?> enumConstant = (Enum<?>) constant;
+          for (var constant : type.getEnumConstants()) {
+            final var enumConstant = (Enum<?>) constant;
 
             if (enumConstant.name().equalsIgnoreCase(string)) {
               value = enumConstant;
@@ -1989,7 +1989,7 @@ public enum GlobalConfiguration {
   }
 
   public boolean getValueAsBoolean() {
-    final Object v = value != null && value != nullValue ? value : defValue;
+    final var v = value != null && value != nullValue ? value : defValue;
     return v instanceof Boolean ? (Boolean) v : Boolean.parseBoolean(v.toString());
   }
 
@@ -2000,20 +2000,20 @@ public enum GlobalConfiguration {
   }
 
   public int getValueAsInteger() {
-    final Object v = value != null && value != nullValue ? value : defValue;
+    final var v = value != null && value != nullValue ? value : defValue;
     return (int)
         (v instanceof Number ? ((Number) v).intValue() : FileUtils.getSizeAsNumber(v.toString()));
   }
 
   public long getValueAsLong() {
-    final Object v = value != null && value != nullValue ? value : defValue;
+    final var v = value != null && value != nullValue ? value : defValue;
     return v instanceof Number
         ? ((Number) v).longValue()
         : FileUtils.getSizeAsNumber(v.toString());
   }
 
   public float getValueAsFloat() {
-    final Object v = value != null && value != nullValue ? value : defValue;
+    final var v = value != null && value != nullValue ? value : defValue;
     return v instanceof Float ? (Float) v : Float.parseFloat(v.toString());
   }
 
@@ -2043,9 +2043,9 @@ public enum GlobalConfiguration {
 
   private static class ProfileEnabledChangeCallbac implements ConfigurationChangeCallback {
     public void change(final Object iCurrentValue, final Object iNewValue) {
-      YouTrackDBEnginesManager instance = YouTrackDBEnginesManager.instance();
+      var instance = YouTrackDBEnginesManager.instance();
       if (instance != null) {
-        final Profiler prof = instance.getProfiler();
+        final var prof = instance.getProfiler();
         if (prof != null) {
           if ((Boolean) iNewValue) {
             prof.startRecording();

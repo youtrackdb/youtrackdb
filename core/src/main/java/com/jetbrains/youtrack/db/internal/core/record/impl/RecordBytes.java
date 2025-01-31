@@ -103,8 +103,8 @@ public class RecordBytes extends RecordAbstract implements Blob {
   public int fromInputStream(final InputStream in) throws IOException {
     incrementLoading();
     try {
-      try (MemoryStream out = new MemoryStream()) {
-        final byte[] buffer = new byte[MemoryStream.DEF_SIZE];
+      try (var out = new MemoryStream()) {
+        final var buffer = new byte[MemoryStream.DEF_SIZE];
         int readBytesCount;
         while (true) {
           readBytesCount = in.read(buffer, 0, buffer.length);
@@ -136,8 +136,8 @@ public class RecordBytes extends RecordAbstract implements Blob {
   public int fromInputStream(final InputStream in, final int maxSize) throws IOException {
     incrementLoading();
     try {
-      final byte[] buffer = new byte[maxSize];
-      int totalBytesCount = 0;
+      final var buffer = new byte[maxSize];
+      var totalBytesCount = 0;
       int readBytesCount;
       while (totalBytesCount < maxSize) {
         readBytesCount = in.read(buffer, totalBytesCount, buffer.length - totalBytesCount);

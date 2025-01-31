@@ -48,7 +48,7 @@ public class CommandExecutorSQLLiveUnsubscribe extends CommandExecutorSQLAbstrac
     try {
 
       LiveQueryHook.unsubscribe(Integer.parseInt(unsubscribeToken), getDatabase());
-      EntityImpl result = new EntityImpl(null);
+      var result = new EntityImpl(null);
       result.field("unsubscribed", unsubscribeToken);
       result.field("unsubscribe", true);
       result.field("token", unsubscribeToken);
@@ -64,7 +64,7 @@ public class CommandExecutorSQLLiveUnsubscribe extends CommandExecutorSQLAbstrac
                   + e.getClass().getName()
                   + " - "
                   + e.getMessage());
-      EntityImpl result = new EntityImpl(null);
+      var result = new EntityImpl(null);
       result.field("error-unsubscribe", unsubscribeToken);
       result.field("error-description", e.getMessage());
       result.field("error-type", e.getClass().getName());
@@ -84,7 +84,7 @@ public class CommandExecutorSQLLiveUnsubscribe extends CommandExecutorSQLAbstrac
     if (this.unsubscribeToken != null) {
       return executeUnsubscribe();
     }
-    EntityImpl result = new EntityImpl(null);
+    var result = new EntityImpl(null);
     result.field("error-unsubscribe", "no token");
     return result;
   }
@@ -92,9 +92,9 @@ public class CommandExecutorSQLLiveUnsubscribe extends CommandExecutorSQLAbstrac
   @Override
   public CommandExecutorSQLLiveUnsubscribe parse(DatabaseSessionInternal db,
       CommandRequest iRequest) {
-    CommandRequestText requestText = (CommandRequestText) iRequest;
-    String originalText = requestText.getText();
-    String remainingText = requestText.getText().trim().substring(5).trim();
+    var requestText = (CommandRequestText) iRequest;
+    var originalText = requestText.getText();
+    var remainingText = requestText.getText().trim().substring(5).trim();
     requestText.setText(remainingText);
     try {
       if (remainingText.toLowerCase(Locale.ENGLISH).startsWith("unsubscribe")) {

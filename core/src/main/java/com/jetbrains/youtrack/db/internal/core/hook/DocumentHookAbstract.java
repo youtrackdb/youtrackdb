@@ -334,7 +334,7 @@ public abstract class DocumentHookAbstract implements RecordHook {
 
     if (includeClasses != null) {
       // FILTER BY CLASSES
-      for (String cls : includeClasses) {
+      for (var cls : includeClasses) {
         if (clazz.isSubClassOf(cls)) {
           return true;
         }
@@ -344,7 +344,7 @@ public abstract class DocumentHookAbstract implements RecordHook {
 
     if (excludeClasses != null) {
       // FILTER BY CLASSES
-      for (String cls : excludeClasses) {
+      for (var cls : excludeClasses) {
         if (clazz.isSubClassOf(cls)) {
           return false;
         }

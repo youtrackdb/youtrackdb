@@ -52,7 +52,7 @@ public class YouTrackDBRemoteTest {
                 "com/jetbrains/youtrack/db/internal/server/network/youtrackdb-server-config.xml"));
     server.activate();
 
-    YouTrackDBConfig config =
+    var config =
         YouTrackDBConfig.builder()
             .addGlobalConfigurationParameter(GlobalConfiguration.DB_CACHED_POOL_CAPACITY, 2)
             .addGlobalConfigurationParameter(GlobalConfiguration.DB_CACHED_POOL_CLEAN_UP_TIMEOUT,
@@ -68,7 +68,7 @@ public class YouTrackDBRemoteTest {
       factory.execute("create database test memory users (admin identified by 'admin' role admin)");
     }
 
-    DatabaseSessionInternal db = (DatabaseSessionInternal) factory.open("test", "admin",
+    var db = (DatabaseSessionInternal) factory.open("test", "admin",
         "admin");
     db.begin();
     db.save(db.newEntity());
@@ -99,7 +99,7 @@ public class YouTrackDBRemoteTest {
     }
 
     SessionPool pool = new SessionPoolImpl(factory, "test", "admin", "admin");
-    DatabaseSessionInternal db = (DatabaseSessionInternal) pool.acquire();
+    var db = (DatabaseSessionInternal) pool.acquire();
     db.begin();
     db.save(db.newEntity());
     db.commit();
@@ -116,20 +116,20 @@ public class YouTrackDBRemoteTest {
               + " identified by 'reader' role reader, writer identified by 'writer' role writer)");
     }
 
-    SessionPool poolAdmin1 = factory.cachedPool("testdb", "admin", "admin");
-    SessionPool poolAdmin2 = factory.cachedPool("testdb", "admin", "admin");
-    SessionPool poolReader1 = factory.cachedPool("testdb", "reader", "reader");
-    SessionPool poolReader2 = factory.cachedPool("testdb", "reader", "reader");
+    var poolAdmin1 = factory.cachedPool("testdb", "admin", "admin");
+    var poolAdmin2 = factory.cachedPool("testdb", "admin", "admin");
+    var poolReader1 = factory.cachedPool("testdb", "reader", "reader");
+    var poolReader2 = factory.cachedPool("testdb", "reader", "reader");
 
     assertEquals(poolAdmin1, poolAdmin2);
     assertEquals(poolReader1, poolReader2);
     assertNotEquals(poolAdmin1, poolReader1);
 
-    SessionPool poolWriter1 = factory.cachedPool("testdb", "writer", "writer");
-    SessionPool poolWriter2 = factory.cachedPool("testdb", "writer", "writer");
+    var poolWriter1 = factory.cachedPool("testdb", "writer", "writer");
+    var poolWriter2 = factory.cachedPool("testdb", "writer", "writer");
     assertEquals(poolWriter1, poolWriter2);
 
-    SessionPool poolAdmin3 = factory.cachedPool("testdb", "admin", "admin");
+    var poolAdmin3 = factory.cachedPool("testdb", "admin", "admin");
     assertNotEquals(poolAdmin1, poolAdmin3);
 
     poolAdmin1.close();
@@ -144,8 +144,8 @@ public class YouTrackDBRemoteTest {
           "create database testdb memory users (admin identified by 'admin' role admin)");
     }
 
-    SessionPool poolAdmin1 = factory.cachedPool("testdb", "admin", "admin");
-    SessionPool poolAdmin2 = factory.cachedPool("testdb", "admin", "admin");
+    var poolAdmin1 = factory.cachedPool("testdb", "admin", "admin");
+    var poolAdmin2 = factory.cachedPool("testdb", "admin", "admin");
 
     assertFalse(poolAdmin1.isClosed());
     assertEquals(poolAdmin1, poolAdmin2);
@@ -156,7 +156,7 @@ public class YouTrackDBRemoteTest {
 
     Thread.sleep(5_000);
 
-    SessionPool poolAdmin3 = factory.cachedPool("testdb", "admin", "admin");
+    var poolAdmin3 = factory.cachedPool("testdb", "admin", "admin");
     assertNotEquals(poolAdmin1, poolAdmin3);
     assertFalse(poolAdmin3.isClosed());
 
@@ -182,7 +182,7 @@ public class YouTrackDBRemoteTest {
           try {
             assertThat(db.isActiveOnCurrentThread()).isTrue();
 
-            ResultSet res = db.query("SELECT * FROM OUser");
+            var res = db.query("SELECT * FROM OUser");
 
             assertEquals(3, res.stream().count());
 
@@ -193,7 +193,7 @@ public class YouTrackDBRemoteTest {
         };
 
     // spawn 20 threads
-    List<CompletableFuture<Void>> futures =
+    var futures =
         IntStream.range(0, 19)
             .boxed()
             .map(i -> CompletableFuture.runAsync(acquirer))
@@ -208,7 +208,7 @@ public class YouTrackDBRemoteTest {
   public void testListDatabases() {
     assertEquals(0, factory.list().size());
     factory.execute("create database test memory users (admin identified by 'admin' role admin)");
-    List<String> databases = factory.list();
+    var databases = factory.list();
     assertEquals(1, databases.size());
     assertTrue(databases.contains("test"));
   }
@@ -221,7 +221,7 @@ public class YouTrackDBRemoteTest {
         YouTrackDBConfig.builder()
             .addGlobalConfigurationParameter(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
             .build());
-    try (DatabaseSession session = factory.open("noUser", "root", "root")) {
+    try (var session = factory.open("noUser", "root", "root")) {
       assertEquals(0, session.query("select from OUser").stream().count());
     }
   }
@@ -234,7 +234,7 @@ public class YouTrackDBRemoteTest {
         YouTrackDBConfig.builder()
             .addGlobalConfigurationParameter(GlobalConfiguration.CREATE_DEFAULT_USERS, true)
             .build());
-    try (DatabaseSession session = factory.open("noUser", "root", "root")) {
+    try (var session = factory.open("noUser", "root", "root")) {
       assertEquals(3, session.query("select from OUser").stream().count());
     }
   }
@@ -243,7 +243,7 @@ public class YouTrackDBRemoteTest {
   public void testCopyOpenedDatabase() {
     factory.execute("create database test memory users (admin identified by 'admin' role admin)");
     DatabaseSession db1;
-    try (DatabaseSessionInternal db =
+    try (var db =
         (DatabaseSessionInternal) factory.open("test", "admin", "admin")) {
       db1 = db.copy();
     }
@@ -254,11 +254,11 @@ public class YouTrackDBRemoteTest {
 
   @Test
   public void testCreateDatabaseViaSQL() {
-    String dbName = "testCreateDatabaseViaSQL";
+    var dbName = "testCreateDatabaseViaSQL";
 
-    try (ResultSet result = factory.execute("create database " + dbName + " plocal")) {
+    try (var result = factory.execute("create database " + dbName + " plocal")) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertEquals(true, item.getProperty("created"));
     }
     Assert.assertTrue(factory.exists(dbName));
@@ -267,7 +267,7 @@ public class YouTrackDBRemoteTest {
 
   @After
   public void after() {
-    for (String db : factory.list()) {
+    for (var db : factory.list()) {
       factory.drop(db);
     }
 

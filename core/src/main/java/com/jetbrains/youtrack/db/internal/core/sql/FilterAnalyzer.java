@@ -49,7 +49,7 @@ public class FilterAnalyzer {
       DatabaseSessionInternal session,
       SchemaClassInternal iSchemaClass,
       IndexSearchResult searchResultFields) {
-    final Set<Index> involvedIndexes =
+    final var involvedIndexes =
         iSchemaClass.getInvolvedIndexesInternal(session, searchResultFields.fields());
 
     final List<Index> result = new ArrayList<Index>(involvedIndexes.size());
@@ -76,7 +76,7 @@ public class FilterAnalyzer {
       return null;
     }
 
-    QueryOperator operator = condition.getOperator();
+    var operator = condition.getOperator();
 
     while (operator == null) {
       if (condition.getRight() == null && condition.getLeft() instanceof SQLFilterCondition) {
@@ -87,14 +87,14 @@ public class FilterAnalyzer {
       }
     }
 
-    final IndexReuseType indexReuseType =
+    final var indexReuseType =
         operator.getIndexReuseType(condition.getLeft(), condition.getRight());
     if (IndexReuseType.INDEX_UNION.equals(indexReuseType)) {
       return analyzeUnion(iSchemaClass, condition, iContext);
     }
 
     List<List<IndexSearchResult>> result = new ArrayList<List<IndexSearchResult>>();
-    List<IndexSearchResult> sub = analyzeCondition(condition, iSchemaClass, iContext);
+    var sub = analyzeCondition(condition, iSchemaClass, iContext);
     //    analyzeFilterBranch(iSchemaClass, condition, sub, iContext);
     result.add(sub);
     return result;
@@ -113,7 +113,7 @@ public class FilterAnalyzer {
       SQLFilterCondition condition, final SchemaClassInternal schemaClass, CommandContext context) {
 
     final List<IndexSearchResult> indexSearchResults = new ArrayList<IndexSearchResult>();
-    IndexSearchResult lastCondition =
+    var lastCondition =
         analyzeFilterBranch(context.getDatabase(), schemaClass, condition, indexSearchResults,
             context);
 
@@ -135,7 +135,7 @@ public class FilterAnalyzer {
       return null;
     }
 
-    QueryOperator operator = condition.getOperator();
+    var operator = condition.getOperator();
 
     while (operator == null) {
       if (condition.getRight() == null && condition.getLeft() instanceof SQLFilterCondition) {
@@ -146,7 +146,7 @@ public class FilterAnalyzer {
       }
     }
 
-    final IndexReuseType indexReuseType =
+    final var indexReuseType =
         operator.getIndexReuseType(condition.getLeft(), condition.getRight());
     return switch (indexReuseType) {
       case INDEX_INTERSECTION ->
@@ -174,7 +174,7 @@ public class FilterAnalyzer {
       SQLFilterCondition condition,
       List<IndexSearchResult> iIndexSearchResults,
       CommandContext ctx) {
-    IndexSearchResult result = createIndexedProperty(condition, condition.getLeft(), ctx);
+    var result = createIndexedProperty(condition, condition.getLeft(), ctx);
     if (result == null) {
       result = createIndexedProperty(condition, condition.getRight(), ctx);
     }
@@ -195,11 +195,11 @@ public class FilterAnalyzer {
       SQLFilterCondition condition,
       List<IndexSearchResult> iIndexSearchResults,
       CommandContext iContext) {
-    final IndexSearchResult leftResult =
+    final var leftResult =
         analyzeFilterBranch(session
             , iSchemaClass, (SQLFilterCondition) condition.getLeft(), iIndexSearchResults,
             iContext);
-    final IndexSearchResult rightResult =
+    final var rightResult =
         analyzeFilterBranch(session
             , iSchemaClass,
             (SQLFilterCondition) condition.getRight(),
@@ -207,7 +207,7 @@ public class FilterAnalyzer {
 
     if (leftResult != null && rightResult != null) {
       if (leftResult.canBeMerged(rightResult)) {
-        final IndexSearchResult mergeResult = leftResult.merge(rightResult);
+        final var mergeResult = leftResult.merge(rightResult);
         if (iSchemaClass.areIndexed(iContext.getDatabase(), mergeResult.fields())) {
           iIndexSearchResults.add(mergeResult);
         }
@@ -253,10 +253,10 @@ public class FilterAnalyzer {
       return null;
     }
 
-    boolean inverted = iCondition.getRight() == iItem;
-    final Object origValue = inverted ? iCondition.getLeft() : iCondition.getRight();
+    var inverted = iCondition.getRight() == iItem;
+    final var origValue = inverted ? iCondition.getLeft() : iCondition.getRight();
 
-    QueryOperator operator = iCondition.getOperator();
+    var operator = iCondition.getOperator();
 
     if (inverted) {
       if (operator instanceof QueryOperatorIn) {
@@ -280,7 +280,7 @@ public class FilterAnalyzer {
       return new IndexSearchResult(operator, item.getFieldChain(), origValue);
     }
 
-    final Object value = SQLHelper.getValue(origValue, null, ctx);
+    final var value = SQLHelper.getValue(origValue, null, ctx);
     return new IndexSearchResult(operator, item.getFieldChain(), value);
   }
 
@@ -294,11 +294,11 @@ public class FilterAnalyzer {
   private static boolean checkIndexChainExistence(DatabaseSession session,
       SchemaClassInternal iSchemaClass,
       IndexSearchResult result) {
-    final int fieldCount = result.lastField.getItemCount();
-    SchemaClassInternal cls = (SchemaClassInternal) iSchemaClass.getProperty(
+    final var fieldCount = result.lastField.getItemCount();
+    var cls = (SchemaClassInternal) iSchemaClass.getProperty(
         result.lastField.getItemName(0)).getLinkedClass();
 
-    for (int i = 1; i < fieldCount; i++) {
+    for (var i = 1; i < fieldCount; i++) {
       if (cls == null || !cls.areIndexed(session, result.lastField.getItemName(i))) {
         return false;
       }

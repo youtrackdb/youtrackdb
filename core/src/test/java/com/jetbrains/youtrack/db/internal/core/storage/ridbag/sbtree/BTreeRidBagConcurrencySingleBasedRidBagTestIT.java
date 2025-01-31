@@ -10,7 +10,6 @@ import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -65,11 +64,11 @@ public class BTreeRidBagConcurrencySingleBasedRidBagTestIT {
 
     db.create();
 
-    EntityImpl document = ((EntityImpl) db.newEntity());
-    RidBag ridBag = new RidBag(db);
+    var document = ((EntityImpl) db.newEntity());
+    var ridBag = new RidBag(db);
 
     document.field("ridBag", ridBag);
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       final RID ridToAdd = new RecordId(0, positionCounter.incrementAndGet());
       ridBag.add(ridToAdd);
       ridTree.add(ridToAdd);
@@ -80,11 +79,11 @@ public class BTreeRidBagConcurrencySingleBasedRidBagTestIT {
 
     List<Future<Void>> futures = new ArrayList<>();
 
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       futures.add(threadExecutor.submit(new RidAdder(i)));
     }
 
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       futures.add(threadExecutor.submit(new RidDeleter(i)));
     }
 
@@ -93,7 +92,7 @@ public class BTreeRidBagConcurrencySingleBasedRidBagTestIT {
     Thread.sleep(30 * 60000);
     cont = false;
 
-    for (Future<Void> future : futures) {
+    for (var future : futures) {
       future.get();
     }
 
@@ -124,14 +123,14 @@ public class BTreeRidBagConcurrencySingleBasedRidBagTestIT {
     public Void call() throws Exception {
       latch.await();
 
-      int addedRecords = 0;
+      var addedRecords = 0;
 
       DatabaseSessionInternal db = new DatabaseDocumentTx(URL);
       try (db) {
         db.open("admin", "admin");
         while (cont) {
           List<RID> ridsToAdd = new ArrayList<>();
-          for (int i = 0; i < 10; i++) {
+          for (var i = 0; i < 10; i++) {
             ridsToAdd.add(new RecordId(0, positionCounter.incrementAndGet()));
           }
 
@@ -140,7 +139,7 @@ public class BTreeRidBagConcurrencySingleBasedRidBagTestIT {
             document.setLazyLoad(false);
 
             RidBag ridBag = document.field("ridBag");
-            for (RID rid : ridsToAdd) {
+            for (var rid : ridsToAdd) {
               ridBag.add(rid);
             }
 
@@ -176,9 +175,9 @@ public class BTreeRidBagConcurrencySingleBasedRidBagTestIT {
     public Void call() throws Exception {
       latch.await();
 
-      int deletedRecords = 0;
+      var deletedRecords = 0;
 
-      Random rnd = new Random();
+      var rnd = new Random();
       DatabaseSessionInternal db = new DatabaseDocumentTx(URL);
       try (db) {
         db.open("admin", "admin");
@@ -187,10 +186,10 @@ public class BTreeRidBagConcurrencySingleBasedRidBagTestIT {
             EntityImpl document = db.load(docContainerRid);
             document.setLazyLoad(false);
             RidBag ridBag = document.field("ridBag");
-            Iterator<RID> iterator = ridBag.iterator();
+            var iterator = ridBag.iterator();
 
             List<RID> ridsToDelete = new ArrayList<>();
-            int counter = 0;
+            var counter = 0;
             while (iterator.hasNext()) {
               Identifiable identifiable = iterator.next();
               if (rnd.nextBoolean()) {

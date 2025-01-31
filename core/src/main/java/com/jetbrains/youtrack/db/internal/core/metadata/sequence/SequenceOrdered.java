@@ -45,7 +45,7 @@ public class SequenceOrdered extends DBSequence {
     return callRetry(session,
         (db, entity) -> {
           long newValue;
-          Long limitValue = getLimitValue(entity);
+          var limitValue = getLimitValue(entity);
           var increment = getIncrement(entity);
 
           if (getOrderType(entity) == SequenceOrderType.ORDER_POSITIVE) {
@@ -70,11 +70,11 @@ public class SequenceOrdered extends DBSequence {
 
           setValue(entity, newValue);
           if (limitValue != null && !getRecyclable(entity)) {
-            float tillEnd = (float) Math.abs(limitValue - newValue) / increment;
-            float delta = (float) Math.abs(limitValue - getStart(entity)) / increment;
+            var tillEnd = (float) Math.abs(limitValue - newValue) / increment;
+            var delta = (float) Math.abs(limitValue - getStart(entity)) / increment;
             // warning on 1%
             if (tillEnd <= (delta / 100.f) || tillEnd <= 1) {
-              String warningMessage =
+              var warningMessage =
                   "Non-recyclable sequence: "
                       + getSequenceName(entity)
                       + " reaching limt, current value: "
@@ -100,7 +100,7 @@ public class SequenceOrdered extends DBSequence {
   public long resetWork(DatabaseSessionInternal session) {
     return callRetry(session,
         (db, entity) -> {
-          long newValue = getStart(entity);
+          var newValue = getStart(entity);
           setValue(entity, newValue);
           return newValue;
         }, "reset");

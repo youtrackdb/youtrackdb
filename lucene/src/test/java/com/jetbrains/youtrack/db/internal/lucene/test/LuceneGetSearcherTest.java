@@ -35,8 +35,8 @@ public class LuceneGetSearcherTest extends BaseLuceneTest {
   @Before
   public void init() {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass v = schema.getClass("V");
-    SchemaClass song = schema.createClass("Person");
+    var v = schema.getClass("V");
+    var song = schema.createClass("Person");
     song.setSuperClass(db, v);
     song.createProperty(db, "isDeleted", PropertyType.BOOLEAN);
 
@@ -47,11 +47,11 @@ public class LuceneGetSearcherTest extends BaseLuceneTest {
   @Test
   public void testSearcherInstance() {
 
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.isDeleted");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.isDeleted");
 
     Assert.assertTrue(index.getInternal() instanceof LuceneIndexNotUnique);
 
-    LuceneIndexNotUnique idx = (LuceneIndexNotUnique) index.getInternal();
+    var idx = (LuceneIndexNotUnique) index.getInternal();
 
     Assert.assertNotNull(idx.searcher());
   }

@@ -45,9 +45,9 @@ public class SQLFilter extends SQLPredicate implements CommandPredicate {
     parserTextUpperCase = iText.toUpperCase(Locale.ENGLISH);
 
     try {
-      final int lastPos = parserGetCurrentPosition();
-      final String lastText = parserText;
-      final String lastTextUpperCase = parserTextUpperCase;
+      final var lastPos = parserGetCurrentPosition();
+      final var lastText = parserText;
+      final var lastTextUpperCase = parserTextUpperCase;
 
       text(iContext.getDatabase(), parserText.substring(lastPos));
 
@@ -90,7 +90,7 @@ public class SQLFilter extends SQLPredicate implements CommandPredicate {
         if (!right.inBraces
             && right.operator != null
             && right.operator.precedence < iCondition.operator.precedence) {
-          SQLFilterCondition newLeft =
+          var newLeft =
               new SQLFilterCondition(iCondition.left, iCondition.operator, right.left);
           right.setLeft(newLeft);
           resetOperatorPrecedence(right);

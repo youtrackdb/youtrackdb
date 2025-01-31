@@ -76,7 +76,7 @@ public class SystemDBImporter extends Thread {
   public void run() {
     try {
       if (enabled && databaseList != null) {
-        for (String dbName : databaseList) {
+        for (var dbName : databaseList) {
           if (!isRunning) {
             break;
           }
@@ -108,23 +108,23 @@ public class SystemDBImporter extends Thread {
       LogManager.instance()
           .info(this, "Starting import of the auditing log from database: %s", dbName);
 
-      int totalImported = 0;
+      var totalImported = 0;
 
       // We modify the query after the first iteration, using the last imported RID as a starting
       // point.
-      String sql = String.format("select from %s order by @rid limit ?", auditingClass);
+      var sql = String.format("select from %s order by @rid limit ?", auditingClass);
 
       while (isRunning) {
         db.activateOnCurrentThread();
         // Retrieve the auditing log records from the local database.
-        ResultSet result = db.query(sql, limit);
+        var result = db.query(sql, limit);
 
-        int count = 0;
+        var count = 0;
 
         String lastRID = null;
 
         while (result.hasNext()) {
-          Result entity = result.next();
+          var entity = result.next();
           try {
             Entity copy = new EntityImpl(db);
 

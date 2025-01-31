@@ -36,7 +36,7 @@ public class DocumentEmbeddedTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    SchemaClass type = db.getMetadata().getSchema().createClass("City");
+    var type = db.getMetadata().getSchema().createClass("City");
     type.createProperty(db, "name", PropertyType.STRING);
 
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
@@ -45,7 +45,7 @@ public class DocumentEmbeddedTest extends BaseLuceneTest {
   @Test
   public void embeddedNoTx() {
 
-    EntityImpl doc = ((EntityImpl) db.newEntity("City"));
+    var doc = ((EntityImpl) db.newEntity("City"));
 
     doc.field("name", "London");
     db.begin();
@@ -59,7 +59,7 @@ public class DocumentEmbeddedTest extends BaseLuceneTest {
     db.save(doc);
     db.commit();
 
-    ResultSet results = db.query("select from City where name lucene 'London'");
+    var results = db.query("select from City where name lucene 'London'");
 
     Assert.assertEquals(1, results.stream().count());
   }
@@ -67,7 +67,7 @@ public class DocumentEmbeddedTest extends BaseLuceneTest {
   @Test
   public void embeddedTx() {
 
-    EntityImpl doc = ((EntityImpl) db.newEntity("City"));
+    var doc = ((EntityImpl) db.newEntity("City"));
 
     db.begin();
     doc.field("name", "Berlin");
@@ -76,7 +76,7 @@ public class DocumentEmbeddedTest extends BaseLuceneTest {
 
     db.commit();
 
-    ResultSet results = db.query("select from City where name lucene 'Berlin'");
+    var results = db.query("select from City where name lucene 'Berlin'");
 
     Assert.assertEquals(1, results.stream().count());
   }

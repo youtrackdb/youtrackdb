@@ -44,7 +44,7 @@ public class YouTrackDbBlob implements java.sql.Blob {
 
   protected YouTrackDbBlob(List<Blob> binaryDataChunks) throws IllegalArgumentException {
     this.binaryDataChunks = new ArrayList<>(binaryDataChunks.size());
-    for (Blob binaryDataChunk : binaryDataChunks) {
+    for (var binaryDataChunk : binaryDataChunks) {
       if (binaryDataChunk == null) {
         throw new IllegalArgumentException("The binary data chunks list cannot hold null chunks");
       } else if (((RecordAbstract) binaryDataChunk).getSize() == 0) {
@@ -68,7 +68,7 @@ public class YouTrackDbBlob implements java.sql.Blob {
 
   private long calculateLength() {
     long length = 0;
-    for (byte[] binaryDataChunk : binaryDataChunks) {
+    for (var binaryDataChunk : binaryDataChunks) {
       length += binaryDataChunk.length;
     }
     return length;
@@ -91,9 +91,9 @@ public class YouTrackDbBlob implements java.sql.Blob {
               + "be extracted cannot be a negative number");
     }
 
-    int relativeIndex = this.getRelativeIndex(pos);
+    var relativeIndex = this.getRelativeIndex(pos);
 
-    ByteBuffer buffer = ByteBuffer.allocate(length);
+    var buffer = ByteBuffer.allocate(length);
     int j;
     for (j = 0; j < length; j++) {
       if (relativeIndex == currentChunk.length) {
@@ -125,7 +125,7 @@ public class YouTrackDbBlob implements java.sql.Blob {
    * @return
    */
   private int getRelativeIndex(long pos) {
-    int currentSize = 0;
+    var currentSize = 0;
     currentChunkIndex = 0;
 
     // loop until we find the chuks holding the given position
@@ -136,7 +136,7 @@ public class YouTrackDbBlob implements java.sql.Blob {
     currentChunk = binaryDataChunks.get(currentChunkIndex);
     currentSize -= currentChunk.length;
     // the position referred to the target binary chunk
-    int relativePosition = (int) (pos - currentSize);
+    var relativePosition = (int) (pos - currentSize);
     // the index of the first byte to be returned
     return relativePosition - 1;
   }

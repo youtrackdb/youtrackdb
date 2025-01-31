@@ -34,10 +34,10 @@ public class CommandExecutorSQLSelectTestIndex extends BaseMemoryInternalDatabas
     db.command("create property Foo.bar EMBEDDEDLIST STRING").close();
     db.command("create index Foo.bar on Foo (bar) NOTUNIQUE").close();
     db.command("insert into Foo set bar = ['yep']").close();
-    ResultSet results = db.query("select from Foo where bar = 'yep'");
+    var results = db.query("select from Foo where bar = 'yep'");
     assertEquals(results.stream().count(), 1);
 
-    final Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Foo.bar");
+    final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Foo.bar");
     assertEquals(index.getInternal().size(db), 1);
   }
 
@@ -53,7 +53,7 @@ public class CommandExecutorSQLSelectTestIndex extends BaseMemoryInternalDatabas
     db.command("INSERT INTO Derived SET uuid='abcdef'").close();
     db.command("ALTER CLASS Derived SUPERCLASSES Base").close();
 
-    ResultSet results = db.query("SELECT * FROM Derived WHERE uuid='abcdef'");
+    var results = db.query("SELECT * FROM Derived WHERE uuid='abcdef'");
     assertEquals(results.stream().count(), 1);
   }
 
@@ -63,7 +63,7 @@ public class CommandExecutorSQLSelectTestIndex extends BaseMemoryInternalDatabas
     db.command("CREATE PROPERTY Foo.name String").close();
     db.command("INSERT INTO Foo SET name = 'foo'").close();
 
-    ResultSet result = db.query("SELECT * FROM Foo WHERE ['foo', 'bar'] CONTAINS name");
+    var result = db.query("SELECT * FROM Foo WHERE ['foo', 'bar'] CONTAINS name");
     assertEquals(result.stream().count(), 1);
 
     result = db.query("SELECT * FROM Foo WHERE name IN ['foo', 'bar']");

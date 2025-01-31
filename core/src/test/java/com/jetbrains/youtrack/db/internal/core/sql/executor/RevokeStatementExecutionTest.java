@@ -51,7 +51,7 @@ public class RevokeStatementExecutionTest {
   @Test
   public void testSimple() {
     db.begin();
-    Role testRole =
+    var testRole =
         db.getMetadata()
             .getSecurity()
             .createRole("testRole");
@@ -75,12 +75,12 @@ public class RevokeStatementExecutionTest {
 
   @Test
   public void testRemovePolicy() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
+    var policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(db, true);
     policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);

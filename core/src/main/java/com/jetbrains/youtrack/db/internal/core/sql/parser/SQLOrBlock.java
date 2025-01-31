@@ -38,7 +38,7 @@ public class SQLOrBlock extends SQLBooleanExpression {
       return true;
     }
 
-    for (SQLBooleanExpression block : subBlocks) {
+    for (var block : subBlocks) {
       if (block.evaluate(currentRecord, ctx)) {
         return true;
       }
@@ -52,7 +52,7 @@ public class SQLOrBlock extends SQLBooleanExpression {
       return true;
     }
 
-    for (SQLBooleanExpression block : subBlocks) {
+    for (var block : subBlocks) {
       if (block.evaluate(currentRecord, ctx)) {
         return true;
       }
@@ -90,8 +90,8 @@ public class SQLOrBlock extends SQLBooleanExpression {
       return;
     }
 
-    boolean first = true;
-    for (SQLBooleanExpression expr : subBlocks) {
+    var first = true;
+    for (var expr : subBlocks) {
       if (!first) {
         builder.append(" OR ");
       }
@@ -105,8 +105,8 @@ public class SQLOrBlock extends SQLBooleanExpression {
       return;
     }
 
-    boolean first = true;
-    for (SQLBooleanExpression expr : subBlocks) {
+    var first = true;
+    for (var expr : subBlocks) {
       if (!first) {
         builder.append(" OR ");
       }
@@ -117,7 +117,7 @@ public class SQLOrBlock extends SQLBooleanExpression {
 
   @Override
   protected boolean supportsBasicCalculation() {
-    for (SQLBooleanExpression expr : subBlocks) {
+    for (var expr : subBlocks) {
       if (!expr.supportsBasicCalculation()) {
         return false;
       }
@@ -127,8 +127,8 @@ public class SQLOrBlock extends SQLBooleanExpression {
 
   @Override
   protected int getNumberOfExternalCalculations() {
-    int result = 0;
-    for (SQLBooleanExpression expr : subBlocks) {
+    var result = 0;
+    for (var expr : subBlocks) {
       result += expr.getNumberOfExternalCalculations();
     }
     return result;
@@ -137,7 +137,7 @@ public class SQLOrBlock extends SQLBooleanExpression {
   @Override
   protected List<Object> getExternalCalculationConditions() {
     List<Object> result = new ArrayList<>();
-    for (SQLBooleanExpression expr : subBlocks) {
+    for (var expr : subBlocks) {
       result.addAll(expr.getExternalCalculationConditions());
     }
     return result;
@@ -149,8 +149,8 @@ public class SQLOrBlock extends SQLBooleanExpression {
       return null;
     }
     List<SQLBinaryCondition> result = new ArrayList<>();
-    for (SQLBooleanExpression exp : subBlocks) {
-      List<SQLBinaryCondition> sub = exp.getIndexedFunctionConditions(iSchemaClass, database);
+    for (var exp : subBlocks) {
+      var sub = exp.getIndexedFunctionConditions(iSchemaClass, database);
       if (sub != null && !sub.isEmpty()) {
         result.addAll(sub);
       }
@@ -160,8 +160,8 @@ public class SQLOrBlock extends SQLBooleanExpression {
 
   public List<SQLAndBlock> flatten() {
     List<SQLAndBlock> result = new ArrayList<>();
-    for (SQLBooleanExpression sub : subBlocks) {
-      List<SQLAndBlock> childFlattened = sub.flatten();
+    for (var sub : subBlocks) {
+      var childFlattened = sub.flatten();
       result.addAll(childFlattened);
     }
     return result;
@@ -169,7 +169,7 @@ public class SQLOrBlock extends SQLBooleanExpression {
 
   @Override
   public boolean needsAliases(Set<String> aliases) {
-    for (SQLBooleanExpression expr : subBlocks) {
+    for (var expr : subBlocks) {
       if (expr.needsAliases(aliases)) {
         return true;
       }
@@ -179,7 +179,7 @@ public class SQLOrBlock extends SQLBooleanExpression {
 
   @Override
   public SQLOrBlock copy() {
-    SQLOrBlock result = new SQLOrBlock(-1);
+    var result = new SQLOrBlock(-1);
     result.subBlocks = subBlocks.stream().map(SQLBooleanExpression::copy)
         .collect(Collectors.toList());
     return result;
@@ -194,7 +194,7 @@ public class SQLOrBlock extends SQLBooleanExpression {
       return false;
     }
 
-    SQLOrBlock oOrBlock = (SQLOrBlock) o;
+    var oOrBlock = (SQLOrBlock) o;
 
     return Objects.equals(subBlocks, oOrBlock.subBlocks);
   }
@@ -209,7 +209,7 @@ public class SQLOrBlock extends SQLBooleanExpression {
     if (subBlocks.isEmpty()) {
       return true;
     }
-    for (SQLBooleanExpression block : subBlocks) {
+    for (var block : subBlocks) {
       if (!block.isEmpty()) {
         return false;
       }
@@ -219,14 +219,14 @@ public class SQLOrBlock extends SQLBooleanExpression {
 
   @Override
   public void extractSubQueries(SubQueryCollector collector) {
-    for (SQLBooleanExpression block : subBlocks) {
+    for (var block : subBlocks) {
       block.extractSubQueries(collector);
     }
   }
 
   @Override
   public boolean refersToParent() {
-    for (SQLBooleanExpression exp : subBlocks) {
+    for (var exp : subBlocks) {
       if (exp != null && exp.refersToParent()) {
         return true;
       }
@@ -237,8 +237,8 @@ public class SQLOrBlock extends SQLBooleanExpression {
   @Override
   public List<String> getMatchPatternInvolvedAliases() {
     List<String> result = new ArrayList<>();
-    for (SQLBooleanExpression exp : subBlocks) {
-      List<String> x = exp.getMatchPatternInvolvedAliases();
+    for (var exp : subBlocks) {
+      var x = exp.getMatchPatternInvolvedAliases();
       if (x != null) {
         result.addAll(x);
       }
@@ -253,7 +253,7 @@ public class SQLOrBlock extends SQLBooleanExpression {
 
   @Override
   public boolean isCacheable(DatabaseSessionInternal session) {
-    for (SQLBooleanExpression block : this.subBlocks) {
+    for (var block : this.subBlocks) {
       if (!block.isCacheable(session)) {
         return false;
       }
@@ -264,7 +264,7 @@ public class SQLOrBlock extends SQLBooleanExpression {
   @Override
   public SQLBooleanExpression rewriteIndexChainsAsSubqueries(CommandContext ctx,
       SchemaClassInternal clazz) {
-    for (SQLBooleanExpression exp : subBlocks) {
+    for (var exp : subBlocks) {
       exp.rewriteIndexChainsAsSubqueries(ctx, clazz);
     }
     return this;
@@ -272,9 +272,9 @@ public class SQLOrBlock extends SQLBooleanExpression {
 
   public Optional<IndexCandidate> findIndex(IndexFinder info, CommandContext ctx) {
     Optional<IndexCandidate> result = Optional.empty();
-    boolean first = true;
-    for (SQLBooleanExpression exp : subBlocks) {
-      Optional<IndexCandidate> singleResult = exp.findIndex(info, ctx);
+    var first = true;
+    for (var exp : subBlocks) {
+      var singleResult = exp.findIndex(info, ctx);
       if (singleResult.isPresent()) {
         if (first) {
           result = singleResult;
@@ -283,7 +283,7 @@ public class SQLOrBlock extends SQLBooleanExpression {
           if (result.get() instanceof RequiredIndexCanditate) {
             ((RequiredIndexCanditate) result.get()).addCanditate(singleResult.get());
           } else {
-            RequiredIndexCanditate req = new RequiredIndexCanditate();
+            var req = new RequiredIndexCanditate();
             req.addCanditate(result.get());
             req.addCanditate(singleResult.get());
             result = Optional.of(req);
@@ -302,7 +302,7 @@ public class SQLOrBlock extends SQLBooleanExpression {
     if (subBlocks.isEmpty()) {
       return true;
     }
-    for (SQLBooleanExpression exp : subBlocks) {
+    for (var exp : subBlocks) {
       if (exp.isAlwaysTrue()) {
         return true;
       }

@@ -48,7 +48,7 @@ public class TxNonUniqueIndexWithCollationTest extends DbTestBase {
         .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
-    Entity user = db.newEntity("user");
+    var user = db.newEntity("user");
     user.setProperty("name", "abc");
     db.save(user);
     user = db.newEntity("user");
@@ -69,7 +69,7 @@ public class TxNonUniqueIndexWithCollationTest extends DbTestBase {
 
     db.command("update user set name='abd' where name='Aby'").close();
 
-    final ResultSet r = db.command("select * from user where name like '%B%' order by name");
+    final var r = db.command("select * from user where name like '%B%' order by name");
     assertEquals("abc", r.next().getProperty("name"));
     assertEquals("abd", r.next().getProperty("name"));
     assertEquals("abd", r.next().getProperty("name"));
@@ -86,7 +86,7 @@ public class TxNonUniqueIndexWithCollationTest extends DbTestBase {
 
     db.command("update user set name='Abd' where name='Aby'").close();
 
-    final ResultSet r = db.command("select * from user where name >= 'abd' order by name");
+    final var r = db.command("select * from user where name >= 'abd' order by name");
     assertEquals("Abd", r.next().getProperty("name"));
     assertEquals("Abd", r.next().getProperty("name"));
     assertEquals("abz", r.next().getProperty("name"));
@@ -102,7 +102,7 @@ public class TxNonUniqueIndexWithCollationTest extends DbTestBase {
 
     db.command("update user set name='abd' where name='Aby'").close();
 
-    final List<EntityImpl> r =
+    final var r =
         db.query("select * from user where name in ['Abc', 'Abd', 'Abz'] order by name").stream()
             .map(x -> ((EntityImpl) (x.asEntity())))
             .toList();

@@ -81,7 +81,7 @@ public class PhysicalPosition implements SerializableStream, Externalizable {
 
   @Override
   public SerializableStream fromStream(final byte[] iStream) throws SerializationException {
-    int pos = 0;
+    var pos = 0;
 
     clusterPosition = BinaryProtocol.bytes2long(iStream);
     pos += BinaryProtocol.SIZE_LONG;
@@ -99,8 +99,8 @@ public class PhysicalPosition implements SerializableStream, Externalizable {
 
   @Override
   public byte[] toStream() throws SerializationException {
-    final byte[] buffer = new byte[binarySize];
-    int pos = 0;
+    final var buffer = new byte[binarySize];
+    var pos = 0;
 
     BinaryProtocol.long2bytes(clusterPosition, buffer, pos);
     pos += BinaryProtocol.SIZE_LONG;
@@ -129,7 +129,7 @@ public class PhysicalPosition implements SerializableStream, Externalizable {
 
   @Override
   public int hashCode() {
-    int result = (int) (31 * clusterPosition);
+    var result = (int) (31 * clusterPosition);
     result = 31 * result + (int) recordType;
     result = 31 * result + recordVersion;
     result = 31 * result + recordSize;

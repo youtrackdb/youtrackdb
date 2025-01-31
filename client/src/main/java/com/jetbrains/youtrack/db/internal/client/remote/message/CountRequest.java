@@ -47,7 +47,7 @@ public final class CountRequest implements BinaryRequest<CountResponse> {
   public void write(DatabaseSessionInternal database, ChannelDataOutput network,
       StorageRemoteSession session) throws IOException {
     network.writeShort((short) clusterIds.length);
-    for (int iClusterId : clusterIds) {
+    for (var iClusterId : clusterIds) {
       network.writeShort((short) iClusterId);
     }
 
@@ -59,7 +59,7 @@ public final class CountRequest implements BinaryRequest<CountResponse> {
       throws IOException {
     int nclusters = channel.readShort();
     clusterIds = new int[nclusters];
-    for (int i = 0; i < clusterIds.length; i++) {
+    for (var i = 0; i < clusterIds.length; i++) {
       clusterIds[i] = channel.readShort();
     }
     countTombstones = channel.readByte() != 0;

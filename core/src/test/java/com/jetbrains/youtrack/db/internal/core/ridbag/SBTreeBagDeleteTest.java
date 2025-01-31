@@ -29,22 +29,22 @@ public class SBTreeBagDeleteTest extends BaseMemoryInternalDatabase {
   @Test
   public void testDeleteRidbagTx() throws InterruptedException {
 
-    EntityImpl doc = (EntityImpl) db.newEntity();
-    RidBag bag = new RidBag(db);
-    int size =
+    var doc = (EntityImpl) db.newEntity();
+    var bag = new RidBag(db);
+    var size =
         GlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger() << 1;
-    for (int i = 0; i < size; i++) {
+    for (var i = 0; i < size; i++) {
       bag.add(new RecordId(10, i));
     }
     doc.field("bag", bag);
 
     db.begin();
-    RID id = db.save(doc).getIdentity();
+    var id = db.save(doc).getIdentity();
     db.commit();
 
     doc = db.bindToSession(doc);
     bag = doc.field("bag");
-    BonsaiCollectionPointer pointer = bag.getPointer();
+    var pointer = bag.getPointer();
 
     db.begin();
     doc = db.bindToSession(doc);
@@ -59,7 +59,7 @@ public class SBTreeBagDeleteTest extends BaseMemoryInternalDatabase {
     }
 
     Thread.sleep(100);
-    EdgeBTree<RID, Integer> tree =
+    var tree =
         db.getSbTreeCollectionManager().loadSBTree(pointer);
     assertEquals(0, tree.getRealBagSize(Collections.emptyMap()));
   }

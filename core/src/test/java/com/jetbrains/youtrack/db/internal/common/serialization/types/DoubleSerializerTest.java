@@ -61,7 +61,7 @@ public class DoubleSerializerTest {
   public void testNativeDirectMemoryCompatibility() {
     doubleSerializer.serializeNative(OBJECT, stream, 0);
 
-    ByteBuffer buffer = ByteBuffer.allocateDirect(stream.length).order(ByteOrder.nativeOrder());
+    var buffer = ByteBuffer.allocateDirect(stream.length).order(ByteOrder.nativeOrder());
     buffer.put(stream);
     buffer.position(0);
 
@@ -70,13 +70,13 @@ public class DoubleSerializerTest {
 
   @Test
   public void testSerializeInByteBuffer() {
-    final int serializationOffset = 5;
-    ByteBuffer buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
+    final var serializationOffset = 5;
+    var buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
 
     buffer.position(5);
     doubleSerializer.serializeInByteBufferObject(OBJECT, buffer);
 
-    final int binarySize = buffer.position() - serializationOffset;
+    final var binarySize = buffer.position() - serializationOffset;
     Assert.assertEquals(binarySize, FIELD_SIZE);
 
     buffer.position(serializationOffset);
@@ -90,13 +90,13 @@ public class DoubleSerializerTest {
 
   @Test
   public void testSerializeInImmutableByteBufferPosition() {
-    final int serializationOffset = 5;
-    ByteBuffer buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
+    final var serializationOffset = 5;
+    var buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
 
     buffer.position(5);
     doubleSerializer.serializeInByteBufferObject(OBJECT, buffer);
 
-    final int binarySize = buffer.position() - serializationOffset;
+    final var binarySize = buffer.position() - serializationOffset;
     Assert.assertEquals(binarySize, FIELD_SIZE);
 
     buffer.position(0);
@@ -111,12 +111,12 @@ public class DoubleSerializerTest {
 
   @Test
   public void testSerializeWALChanges() {
-    final int serializationOffset = 5;
-    final ByteBuffer buffer =
+    final var serializationOffset = 5;
+    final var buffer =
         ByteBuffer.allocateDirect(
                 FIELD_SIZE + serializationOffset + WALPageChangesPortion.PORTION_BYTES)
             .order(ByteOrder.nativeOrder());
-    final byte[] data = new byte[FIELD_SIZE];
+    final var data = new byte[FIELD_SIZE];
     doubleSerializer.serializeNativeObject(OBJECT, data, 0);
 
     final WALChanges walChanges = new WALPageChangesPortion();

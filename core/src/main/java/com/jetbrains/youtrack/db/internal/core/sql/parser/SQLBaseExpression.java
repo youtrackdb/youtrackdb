@@ -254,7 +254,7 @@ public class SQLBaseExpression extends SQLMathExpression {
   public Optional<MetadataPath> getPath() {
     if (identifier != null && identifier.isBaseIdentifier()) {
       if (modifier != null) {
-        Optional<MetadataPath> path = modifier.getPath();
+        var path = modifier.getPath();
         if (path.isPresent()) {
           path.get().addPre(this.identifier.getSuffix().identifier.getStringValue());
           return path;
@@ -316,9 +316,9 @@ public class SQLBaseExpression extends SQLMathExpression {
   public SimpleNode splitForAggregation(
       AggregateProjectionSplit aggregateProj, CommandContext ctx) {
     if (isAggregate(ctx.getDatabase())) {
-      SimpleNode splitResult = identifier.splitForAggregation(aggregateProj, ctx);
+      var splitResult = identifier.splitForAggregation(aggregateProj, ctx);
       if (splitResult instanceof SQLBaseIdentifier) {
-        SQLBaseExpression result = new SQLBaseExpression(-1);
+        var result = new SQLBaseExpression(-1);
         result.identifier = (SQLBaseIdentifier) splitResult;
         return result;
       }
@@ -338,7 +338,7 @@ public class SQLBaseExpression extends SQLMathExpression {
 
   @Override
   public SQLBaseExpression copy() {
-    SQLBaseExpression result = new SQLBaseExpression(-1);
+    var result = new SQLBaseExpression(-1);
     result.number = number == null ? null : number.copy();
     result.identifier = identifier == null ? null : identifier.copy();
     result.inputParam = inputParam == null ? null : inputParam.copy();
@@ -363,7 +363,7 @@ public class SQLBaseExpression extends SQLMathExpression {
       return false;
     }
 
-    SQLBaseExpression that = (SQLBaseExpression) o;
+    var that = (SQLBaseExpression) o;
 
     if (!Objects.equals(number, that.number)) {
       return false;
@@ -382,7 +382,7 @@ public class SQLBaseExpression extends SQLMathExpression {
 
   @Override
   public int hashCode() {
-    int result = number != null ? number.hashCode() : 0;
+    var result = number != null ? number.hashCode() : 0;
     result = 31 * result + (identifier != null ? identifier.hashCode() : 0);
     result = 31 * result + (inputParam != null ? inputParam.hashCode() : 0);
     result = 31 * result + (string != null ? string.hashCode() : 0);
@@ -417,14 +417,14 @@ public class SQLBaseExpression extends SQLMathExpression {
       if (modifier == null) {
         identifier.applyRemove(result, ctx);
       } else {
-        Object val = identifier.execute(result, ctx);
+        var val = identifier.execute(result, ctx);
         modifier.applyRemove(val, result, ctx);
       }
     }
   }
 
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = (ResultInternal) super.serialize(db);
+    var result = (ResultInternal) super.serialize(db);
 
     if (number != null) {
       result.setProperty("number", number.serialize(db));
@@ -520,7 +520,7 @@ public class SQLBaseExpression extends SQLMathExpression {
       return false;
     }
     if (identifier.isIndexChain(ctx, clazz)) {
-      SchemaProperty prop = clazz.getProperty(
+      var prop = clazz.getProperty(
           identifier.getSuffix().getIdentifier().getStringValue());
       var linkedClass = (SchemaClassInternal) prop.getLinkedClass();
       if (linkedClass != null) {

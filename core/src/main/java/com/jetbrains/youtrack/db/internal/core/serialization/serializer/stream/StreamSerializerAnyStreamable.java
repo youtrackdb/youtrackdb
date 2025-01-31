@@ -61,17 +61,17 @@ public class StreamSerializerAnyStreamable {
       return null;
     }
 
-    final int classNameSize = BinaryProtocol.bytes2int(iStream);
+    final var classNameSize = BinaryProtocol.bytes2int(iStream);
 
     if (classNameSize <= 0) {
-      final String message =
+      final var message =
           "Class signature not found in ANY entity: " + Arrays.toString(iStream);
       LogManager.instance().error(this, message, null);
 
       throw new SerializationException(message);
     }
 
-    final String className = new String(iStream, 4, classNameSize, StandardCharsets.UTF_8);
+    final var className = new String(iStream, 4, classNameSize, StandardCharsets.UTF_8);
 
     try {
       final CommandRequestText stream;
@@ -98,7 +98,7 @@ public class StreamSerializerAnyStreamable {
           ArrayUtils.copyOfRange(iStream, 4 + classNameSize, iStream.length), serializer);
 
     } catch (Exception e) {
-      final String message = "Error on unmarshalling content. Class: " + className;
+      final var message = "Error on unmarshalling content. Class: " + className;
       LogManager.instance().error(this, message, e);
       throw BaseException.wrapException(new SerializationException(message), e);
     }
@@ -126,9 +126,9 @@ public class StreamSerializerAnyStreamable {
       }
     }
     // SERIALIZE THE OBJECT CONTENT
-    byte[] objectContent = iObject.toStream(db, (RecordSerializerNetwork) db.getSerializer());
+    var objectContent = iObject.toStream(db, (RecordSerializerNetwork) db.getSerializer());
 
-    byte[] result = new byte[4 + className.length + objectContent.length];
+    var result = new byte[4 + className.length + objectContent.length];
 
     // COPY THE CLASS NAME SIZE + CLASS NAME + OBJECT CONTENT
     System.arraycopy(BinaryProtocol.int2bytes(className.length), 0, result, 0, 4);

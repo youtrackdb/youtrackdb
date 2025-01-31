@@ -69,7 +69,7 @@ public abstract class IdentityWrapper implements Serializable {
       return false;
     }
 
-    IdentityWrapper that = (IdentityWrapper) o;
+    var that = (IdentityWrapper) o;
     return rid.equals(that.rid);
   }
 

@@ -47,7 +47,7 @@ public class RawPair<V1, V2> {
       return false;
     }
 
-    RawPair<?, ?> rawPair = (RawPair<?, ?>) o;
+    var rawPair = (RawPair<?, ?>) o;
 
     if (!first.equals(rawPair.first)) {
       return false;
@@ -57,7 +57,7 @@ public class RawPair<V1, V2> {
 
   @Override
   public int hashCode() {
-    int result = first.hashCode();
+    var result = first.hashCode();
     result = 31 * result + second.hashCode();
     return result;
   }

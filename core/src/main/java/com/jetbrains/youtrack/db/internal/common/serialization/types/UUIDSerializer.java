@@ -53,9 +53,9 @@ public class UUIDSerializer implements BinarySerializer<UUID> {
 
   @Override
   public UUID deserialize(byte[] stream, int startPosition) {
-    final long mostSignificantBits =
+    final var mostSignificantBits =
         LongSerializer.INSTANCE.deserializeLiteral(stream, startPosition);
-    final long leastSignificantBits =
+    final var leastSignificantBits =
         LongSerializer.INSTANCE.deserializeLiteral(
             stream, startPosition + LongSerializer.LONG_SIZE);
     return new UUID(mostSignificantBits, leastSignificantBits);
@@ -87,9 +87,9 @@ public class UUIDSerializer implements BinarySerializer<UUID> {
 
   @Override
   public UUID deserializeNativeObject(final byte[] stream, final int startPosition) {
-    final long mostSignificantBits =
+    final var mostSignificantBits =
         LongSerializer.INSTANCE.deserializeNative(stream, startPosition);
-    final long leastSignificantBits =
+    final var leastSignificantBits =
         LongSerializer.INSTANCE.deserializeNative(
             stream, startPosition + LongSerializer.LONG_SIZE);
     return new UUID(mostSignificantBits, leastSignificantBits);
@@ -119,17 +119,17 @@ public class UUIDSerializer implements BinarySerializer<UUID> {
    */
   @Override
   public UUID deserializeFromByteBufferObject(ByteBuffer buffer) {
-    final long mostSignificantBits = buffer.getLong();
-    final long leastSignificantBits = buffer.getLong();
+    final var mostSignificantBits = buffer.getLong();
+    final var leastSignificantBits = buffer.getLong();
     return new UUID(mostSignificantBits, leastSignificantBits);
   }
 
   @Override
   public UUID deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
-    final long mostSignificantBits = buffer.getLong(offset);
+    final var mostSignificantBits = buffer.getLong(offset);
     offset += Long.BYTES;
 
-    final long leastSignificantBits = buffer.getLong(offset);
+    final var leastSignificantBits = buffer.getLong(offset);
 
     return new UUID(mostSignificantBits, leastSignificantBits);
   }
@@ -153,8 +153,8 @@ public class UUIDSerializer implements BinarySerializer<UUID> {
   @Override
   public UUID deserializeFromByteBufferObject(
       ByteBuffer buffer, WALChanges walChanges, int offset) {
-    final long mostSignificantBits = walChanges.getLongValue(buffer, offset);
-    final long leastSignificantBits =
+    final var mostSignificantBits = walChanges.getLongValue(buffer, offset);
+    final var leastSignificantBits =
         walChanges.getLongValue(buffer, offset + LongSerializer.LONG_SIZE);
     return new UUID(mostSignificantBits, leastSignificantBits);
   }

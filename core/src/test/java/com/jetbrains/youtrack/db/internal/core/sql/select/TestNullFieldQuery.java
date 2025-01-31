@@ -18,27 +18,27 @@ public class TestNullFieldQuery extends DbTestBase {
   public void testQueryNullValue() {
     db.getMetadata().getSchema().createClass("Test");
     db.begin();
-    EntityImpl doc = (EntityImpl) db.newEntity("Test");
+    var doc = (EntityImpl) db.newEntity("Test");
     doc.field("name", (Object) null);
     db.save(doc);
     db.commit();
 
-    ResultSet res = db.query("select from Test where name= 'some' ");
+    var res = db.query("select from Test where name= 'some' ");
     assertEquals(0, res.stream().count());
   }
 
   @Test
   public void testQueryNullValueSchemaFull() {
-    SchemaClass clazz = db.getMetadata().getSchema().createClass("Test");
+    var clazz = db.getMetadata().getSchema().createClass("Test");
     clazz.createProperty(db, "name", PropertyType.ANY);
 
     db.begin();
-    EntityImpl doc = (EntityImpl) db.newEntity("Test");
+    var doc = (EntityImpl) db.newEntity("Test");
     doc.field("name", (Object) null);
     db.save(doc);
     db.commit();
 
-    ResultSet res = db.query("select from Test where name= 'some' ");
+    var res = db.query("select from Test where name= 'some' ");
     assertEquals(0, res.stream().count());
   }
 }

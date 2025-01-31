@@ -212,7 +212,7 @@ public abstract class IdentifiableIterator<REC extends Identifiable>
       return null;
     }
 
-    final boolean moveResult =
+    final var moveResult =
         switch (movement) {
           case 1 -> nextPosition();
           case -1 -> prevPosition();
@@ -373,9 +373,9 @@ public abstract class IdentifiableIterator<REC extends Identifiable>
       return;
     }
 
-    for (int clId : iClusterIds) {
+    for (var clId : iClusterIds) {
       if (iDatabase.getStorage().isSystemCluster(clId)) {
-        final SecurityUser dbUser = iDatabase.geCurrentUser();
+        final var dbUser = iDatabase.geCurrentUser();
         if (dbUser == null
             || dbUser.allow(iDatabase, Rule.ResourceGeneric.SYSTEM_CLUSTERS, null,
             Role.PERMISSION_READ)

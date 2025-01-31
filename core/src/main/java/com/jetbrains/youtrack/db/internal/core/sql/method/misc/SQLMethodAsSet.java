@@ -71,7 +71,7 @@ public class SQLMethodAsSet extends AbstractSQLMethod {
         set = new LinkedHashSet<Object>();
       }
 
-      for (Iterator<Object> iter = (Iterator<Object>) ioResult; iter.hasNext(); ) {
+      for (var iter = (Iterator<Object>) ioResult; iter.hasNext(); ) {
         set.add(iter.next());
       }
       return set;

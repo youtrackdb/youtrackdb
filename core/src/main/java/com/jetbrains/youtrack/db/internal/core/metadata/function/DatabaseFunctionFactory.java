@@ -51,7 +51,7 @@ public class DatabaseFunctionFactory implements SQLFunctionFactory {
   @Override
   public SQLFunction createFunction(final String name) throws CommandExecutionException {
     var db = DatabaseRecordThreadLocal.instance().get();
-    final Function f = db.getMetadata().getFunctionLibrary().getFunction(name);
+    final var f = db.getMetadata().getFunctionLibrary().getFunction(name);
     return new DatabaseFunction(f);
   }
 }

@@ -30,11 +30,11 @@ public class SQLReturnStatement extends SQLSimpleExecStatement {
     List<Result> rs = new ArrayList<>();
 
     var database = ctx.getDatabase();
-    Object result = expression == null ? null : expression.execute((Result) null, ctx);
+    var result = expression == null ? null : expression.execute((Result) null, ctx);
     if (result instanceof Result) {
       rs.add((Result) result);
     } else if (result instanceof Identifiable) {
-      ResultInternal res = new ResultInternal(database, (Identifiable) result);
+      var res = new ResultInternal(database, (Identifiable) result);
       rs.add(res);
     } else if (result instanceof ResultSet) {
       if (!((ResultSet) result).hasNext()) {
@@ -53,7 +53,7 @@ public class SQLReturnStatement extends SQLSimpleExecStatement {
     } else if (result instanceof ExecutionStream) {
       return (ExecutionStream) result;
     } else {
-      ResultInternal res = new ResultInternal(database);
+      var res = new ResultInternal(database);
       res.setProperty("value", result);
       rs.add(res);
     }
@@ -80,7 +80,7 @@ public class SQLReturnStatement extends SQLSimpleExecStatement {
 
   @Override
   public SQLReturnStatement copy() {
-    SQLReturnStatement result = new SQLReturnStatement(-1);
+    var result = new SQLReturnStatement(-1);
     result.expression = expression == null ? null : expression.copy();
     return result;
   }
@@ -94,7 +94,7 @@ public class SQLReturnStatement extends SQLSimpleExecStatement {
       return false;
     }
 
-    SQLReturnStatement that = (SQLReturnStatement) o;
+    var that = (SQLReturnStatement) o;
 
     return Objects.equals(expression, that.expression);
   }

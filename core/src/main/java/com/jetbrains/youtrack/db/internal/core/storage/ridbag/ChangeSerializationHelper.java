@@ -8,7 +8,6 @@ import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySeria
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.LinkSerializer;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,21 +28,21 @@ public class ChangeSerializationHelper {
   }
 
   public Change deserializeChange(final byte[] stream, final int offset) {
-    int value =
+    var value =
         IntegerSerializer.INSTANCE.deserializeLiteral(stream, offset + ByteSerializer.BYTE_SIZE);
     return createChangeInstance(ByteSerializer.INSTANCE.deserializeLiteral(stream, offset), value);
   }
 
   public static Map<RID, Change> deserializeChanges(DatabaseSessionInternal db,
       final byte[] stream, int offset) {
-    final int count = IntegerSerializer.INSTANCE.deserializeLiteral(stream, offset);
+    final var count = IntegerSerializer.INSTANCE.deserializeLiteral(stream, offset);
     offset += IntegerSerializer.INT_SIZE;
 
-    final HashMap<RID, Change> res = new HashMap<>();
-    for (int i = 0; i < count; i++) {
-      RecordId rid = LinkSerializer.INSTANCE.deserialize(stream, offset);
+    final var res = new HashMap<RID, Change>();
+    for (var i = 0; i < count; i++) {
+      var rid = LinkSerializer.INSTANCE.deserialize(stream, offset);
       offset += LinkSerializer.RID_SIZE;
-      Change change = ChangeSerializationHelper.INSTANCE.deserializeChange(stream, offset);
+      var change = ChangeSerializationHelper.INSTANCE.deserializeChange(stream, offset);
       offset += Change.SIZE;
 
       RID identifiable;
@@ -69,8 +68,8 @@ public class ChangeSerializationHelper {
     IntegerSerializer.INSTANCE.serializeLiteral(changes.size(), stream, offset);
     offset += IntegerSerializer.INT_SIZE;
 
-    for (Map.Entry<K, Change> entry : changes.entrySet()) {
-      K key = entry.getKey();
+    for (var entry : changes.entrySet()) {
+      var key = entry.getKey();
       if (key instanceof RID rid && rid.isTemporary()) {
         try {
           //noinspection unchecked

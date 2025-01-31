@@ -37,7 +37,7 @@ public class FetchFromIndexedFunctionStep extends AbstractExecutionStep {
       prev.start(ctx).close(ctx);
     }
 
-    Iterator<Identifiable> fullResult = init(ctx);
+    var fullResult = init(ctx);
     return ExecutionStream.loadIterator(fullResult).interruptable();
   }
 
@@ -47,7 +47,7 @@ public class FetchFromIndexedFunctionStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String result =
+    var result =
         ExecutionStepInternal.getIndent(depth, indent)
             + "+ FETCH FROM INDEXED FUNCTION "
             + functionCondition.toString();
@@ -59,7 +59,7 @@ public class FetchFromIndexedFunctionStep extends AbstractExecutionStep {
 
   @Override
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
+    var result = ExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("functionCondition", this.functionCondition.serialize(db));
     result.setProperty("queryTarget", this.queryTarget.serialize(db));
 

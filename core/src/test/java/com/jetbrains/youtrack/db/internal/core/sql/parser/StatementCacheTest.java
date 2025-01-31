@@ -7,7 +7,7 @@ public class StatementCacheTest {
 
   @Test
   public void testInIsNotAReservedWord() {
-    StatementCache cache = new StatementCache(2);
+    var cache = new StatementCache(2);
     cache.get("select from foo");
     cache.get("select from bar");
     cache.get("select from baz");

@@ -88,7 +88,7 @@ public class LuceneGeoSpatialIndexEngine extends LuceneSpatialIndexEngineAbstrac
       LuceneTxChanges changes)
       throws Exception {
 
-    LuceneQueryContext queryContext = queryStrategy.build(db, key).withChanges(changes);
+    var queryContext = queryStrategy.build(db, key).withChanges(changes);
     return new LuceneResultSet(db, this, queryContext, EMPTY_METADATA);
   }
 
@@ -99,15 +99,15 @@ public class LuceneGeoSpatialIndexEngine extends LuceneSpatialIndexEngineAbstrac
       Document doc,
       ScoreDoc score) {
 
-    SpatialQueryContext spatialContext = (SpatialQueryContext) queryContext;
+    var spatialContext = (SpatialQueryContext) queryContext;
     if (spatialContext.spatialArgs != null) {
       updateLastAccess();
       openIfClosed(queryContext.getContext().getDatabase().getStorage());
       @SuppressWarnings("deprecation")
-      Point docPoint = (Point) ctx.readShape(doc.get(strategy.getFieldName()));
-      double docDistDEG =
+      var docPoint = (Point) ctx.readShape(doc.get(strategy.getFieldName()));
+      var docDistDEG =
           ctx.getDistCalc().distance(spatialContext.spatialArgs.getShape().getCenter(), docPoint);
-      final double docDistInKM =
+      final var docDistInKM =
           DistanceUtils.degrees2Dist(docDistDEG, DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM);
       Map<String, Object> data = new HashMap<String, Object>();
       data.put("distance", docDistInKM);

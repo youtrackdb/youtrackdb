@@ -142,7 +142,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
     clusterToClusterMapping.defaultReturnValue(-2);
     // TODO: check unclosed stream?
-    final BufferedInputStream bufferedInputStream =
+    final var bufferedInputStream =
         new BufferedInputStream(new FileInputStream(this.fileName));
     bufferedInputStream.mark(1024);
     InputStream inputStream;
@@ -211,11 +211,11 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
   public DatabaseImport importDatabase() {
     database.checkSecurity(Rule.ResourceGeneric.DATABASE, Role.PERMISSION_ALL);
-    final boolean preValidation = database.isValidationEnabled();
+    final var preValidation = database.isValidationEnabled();
     try {
       listener.onMessage(
           "\nStarted import of database '" + database.getURL() + "' from " + fileName + "...");
-      final long time = System.nanoTime();
+      final var time = System.nanoTime();
 
       jsonReader.readNext(JSONReader.BEGIN_OBJECT);
       database.setValidationEnabled(false);
@@ -224,7 +224,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       removeDefaultNonSecurityClasses();
       database.getMetadata().getIndexManagerInternal().reload(database);
 
-      for (final Index index :
+      for (final var index :
           database.getMetadata().getIndexManagerInternal().getIndexes(database)) {
         if (index.isAutomatic()) {
           indexesToRebuild.add(index.getName());
@@ -233,9 +233,9 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
       var beforeImportSchemaSnapshot = database.getMetadata().getImmutableSchemaSnapshot();
 
-      boolean clustersImported = false;
+      var clustersImported = false;
       while (jsonReader.hasNext() && jsonReader.lastChar() != '}') {
-        final String tag = jsonReader.readString(JSONReader.FIELD_ASSIGNMENT);
+        final var tag = jsonReader.readString(JSONReader.FIELD_ASSIGNMENT);
 
         if (tag.equals("info")) {
           importInfo();
@@ -285,11 +285,11 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       listener.onMessage(
           "\n\nDatabase import completed in " + ((System.nanoTime() - time) / 1000000) + " ms");
     } catch (final Exception e) {
-      final StringWriter writer = new StringWriter();
+      final var writer = new StringWriter();
       writer.append("Error on database import happened just before line ")
           .append(String.valueOf(jsonReader.getLineNumber())).append(", column ")
           .append(String.valueOf(jsonReader.getColumnNumber())).append("\n");
-      final PrintWriter printWriter = new PrintWriter(writer);
+      final var printWriter = new PrintWriter(writer);
       e.printStackTrace(printWriter);
       printWriter.flush();
 
@@ -327,7 +327,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       do {
         jsonReader.readNext(JSONReader.NEXT_IN_ARRAY);
 
-        final RecordId recordId = new RecordId(jsonReader.getValue());
+        final var recordId = new RecordId(jsonReader.getValue());
         brokenRids.add(recordId);
 
       } while (jsonReader.lastChar() != ']');
@@ -346,10 +346,10 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
   public void rebuildIndexes() {
     database.getMetadata().getIndexManagerInternal().reload(database);
 
-    IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    var indexManager = database.getMetadata().getIndexManagerInternal();
 
     listener.onMessage("\nRebuild of stale indexes...");
-    for (String indexName : indexesToRebuild) {
+    for (var indexName : indexesToRebuild) {
 
       if (indexManager.getIndex(database, indexName) == null) {
         listener.onMessage(
@@ -449,7 +449,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
     jsonReader.readNext(JSONReader.BEGIN_OBJECT);
     while (jsonReader.lastChar() != '}') {
-      final String fieldName = jsonReader.readString(JSONReader.FIELD_ASSIGNMENT);
+      final var fieldName = jsonReader.readString(JSONReader.FIELD_ASSIGNMENT);
       if (fieldName.equals("exporter-version")) {
         exporterVersion = jsonReader.readInteger(JSONReader.NEXT_IN_OBJECT);
       } else {
@@ -484,15 +484,15 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
         "\nNon merge mode (-merge=false): removing all default non security classes");
 
     final Schema schema = database.getMetadata().getSchema();
-    final Collection<SchemaClass> classes = schema.getClasses(database);
-    final SchemaClass role = schema.getClass(Role.CLASS_NAME);
-    final SchemaClass user = schema.getClass(SecurityUserImpl.CLASS_NAME);
-    final SchemaClass identity = schema.getClass(Identity.CLASS_NAME);
+    final var classes = schema.getClasses(database);
+    final var role = schema.getClass(Role.CLASS_NAME);
+    final var user = schema.getClass(SecurityUserImpl.CLASS_NAME);
+    final var identity = schema.getClass(Identity.CLASS_NAME);
     // final SchemaClass oSecurityPolicy = schema.getClass(SecurityPolicy.class.getSimpleName());
     final Map<String, SchemaClass> classesToDrop = new HashMap<>();
     final Set<String> indexNames = new HashSet<>();
-    for (final SchemaClass dbClass : classes) {
-      final String className = dbClass.getName();
+    for (final var dbClass : classes) {
+      final var className = dbClass.getName();
       if (!dbClass.isSuperClassOf(role)
           && !dbClass.isSuperClassOf(user)
           && !dbClass.isSuperClassOf(identity) /*&& !dbClass.isSuperClassOf(oSecurityPolicy)*/) {
@@ -501,20 +501,20 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       }
     }
 
-    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
-    for (final String indexName : indexNames) {
+    final var indexManager = database.getMetadata().getIndexManagerInternal();
+    for (final var indexName : indexNames) {
       indexManager.dropIndex(database, indexName);
     }
 
-    int removedClasses = 0;
+    var removedClasses = 0;
     while (!classesToDrop.isEmpty()) {
       final AbstractList<String> classesReadyToDrop = new ArrayList<>();
-      for (final String className : classesToDrop.keySet()) {
-        boolean isSuperClass = false;
-        for (SchemaClass dbClass : classesToDrop.values()) {
-          final List<SchemaClass> parentClasses = dbClass.getSuperClasses();
+      for (final var className : classesToDrop.keySet()) {
+        var isSuperClass = false;
+        for (var dbClass : classesToDrop.values()) {
+          final var parentClasses = dbClass.getSuperClasses();
           if (parentClasses != null) {
-            for (SchemaClass parentClass : parentClasses) {
+            for (var parentClass : parentClasses) {
               if (className.equalsIgnoreCase(parentClass.getName())) {
                 isSuperClass = true;
                 break;
@@ -526,7 +526,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
           classesReadyToDrop.add(className);
         }
       }
-      for (final String className : classesReadyToDrop) {
+      for (final var className : classesReadyToDrop) {
         schema.dropClass(className);
         classesToDrop.remove(className);
         removedClasses++;
@@ -537,7 +537,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
   }
 
   private void setLinkedClasses() {
-    for (final Entry<SchemaPropertyImpl, String> linkedClass : linkedClasses.entrySet()) {
+    for (final var linkedClass : linkedClasses.entrySet()) {
       linkedClass
           .getKey()
           .setLinkedClass(database,
@@ -554,7 +554,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
     jsonReader.readNext(JSONReader.BEGIN_OBJECT);
     @SuppressWarnings("unused")
-    int schemaVersion =
+    var schemaVersion =
         jsonReader
             .readNext(JSONReader.FIELD_ASSIGNMENT)
             .checkContent("\"version\"")
@@ -567,11 +567,11 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       do {
         jsonReader.readNext(JSONReader.BEGIN_OBJECT);
         jsonReader.readNext(JSONReader.FIELD_ASSIGNMENT).checkContent("\"name\"");
-        String name = jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
+        var name = jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
         jsonReader.readNext(JSONReader.FIELD_ASSIGNMENT).checkContent("\"global-id\"");
-        String id = jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
+        var id = jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
         jsonReader.readNext(JSONReader.FIELD_ASSIGNMENT).checkContent("\"type\"");
-        String type = jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
+        var type = jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
         // getDatabase().getMetadata().getSchema().createGlobalProperty(name, PropertyType.valueOf(type),
         // Integer.valueOf(id));
         jsonReader.readNext(JSONReader.NEXT_IN_ARRAY);
@@ -581,17 +581,17 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     }
 
     if (jsonReader.getValue().equals("\"blob-clusters\"")) {
-      String blobClusterIds = jsonReader.readString(JSONReader.END_COLLECTION, true).trim();
+      var blobClusterIds = jsonReader.readString(JSONReader.END_COLLECTION, true).trim();
       blobClusterIds = blobClusterIds.substring(1, blobClusterIds.length() - 1);
 
       if (!blobClusterIds.isEmpty()) {
         // READ BLOB CLUSTER IDS
-        for (String i :
+        for (var i :
             StringSerializerHelper.split(
                 blobClusterIds, StringSerializerHelper.RECORD_SEPARATOR)) {
-          int cluster = Integer.parseInt(i);
+          var cluster = Integer.parseInt(i);
           if (!ArrayUtils.contains(database.getBlobClusterIds(), cluster)) {
-            String name = database.getClusterNameById(cluster);
+            var name = database.getClusterNameById(cluster);
             database.addBlobCluster(name);
           }
         }
@@ -608,7 +608,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     try {
       do {
         jsonReader.readNext(JSONReader.BEGIN_OBJECT);
-        String className =
+        var className =
             jsonReader
                 .readNext(JSONReader.FIELD_ASSIGNMENT)
                 .checkContent("\"name\"")
@@ -627,7 +627,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
         jsonReader.readNext(JSONReader.NEXT_IN_OBJECT);
         if (className.contains(".")) {
           // MIGRATE OLD NAME WITH . TO _
-          final String newClassName = className.replace('.', '_');
+          final var newClassName = className.replace('.', '_');
           convertedClassNames.put(className, newClassName);
 
           listener.onMessage(
@@ -636,7 +636,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
           className = newClassName;
         }
 
-        SchemaClassImpl cls = (SchemaClassImpl) database.getMetadata().getSchema()
+        var cls = (SchemaClassImpl) database.getMetadata().getSchema()
             .getClass(className);
 
         if (cls == null) {
@@ -668,14 +668,14 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
             case "\"abstract\"" ->
                 cls.setAbstract(database, jsonReader.readBoolean(JSONReader.NEXT_IN_OBJECT));
             case "\"short-name\"" -> {
-              final String shortName = jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
+              final var shortName = jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
               if (!cls.getName().equalsIgnoreCase(shortName)) {
                 cls.setShortName(database, shortName);
               }
             }
             case "\"super-class\"" -> {
               // @compatibility <2.1 SINGLE CLASS ONLY
-              final String classSuper = jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
+              final var classSuper = jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
               final List<String> superClassNames = new ArrayList<String>();
               superClassNames.add(classSuper);
               superClasses.put(cls, superClassNames);
@@ -688,7 +688,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
               while (jsonReader.lastChar() != ']') {
                 jsonReader.readNext(JSONReader.NEXT_IN_ARRAY);
 
-                final String clsName = jsonReader.getValue();
+                final var clsName = jsonReader.getValue();
 
                 superClassNames.add(IOUtils.getStringContent(clsName));
               }
@@ -710,8 +710,8 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
               jsonReader.readNext(JSONReader.NEXT_IN_OBJECT);
             }
             case "\"customFields\"" -> {
-              Map<String, String> customFields = importCustomFields();
-              for (Entry<String, String> entry : customFields.entrySet()) {
+              var customFields = importCustomFields();
+              for (var entry : customFields.entrySet()) {
                 cls.setCustom(database, entry.getKey(), entry.getValue());
               }
             }
@@ -731,7 +731,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       this.setLinkedClasses();
 
       if (exporterVersion < 11) {
-        SchemaClass role = database.getMetadata().getSchema().getClass(Role.CLASS_NAME);
+        var role = database.getMetadata().getSchema().getClass(Role.CLASS_NAME);
         role.dropProperty(database, "rules");
       }
 
@@ -746,9 +746,9 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
   }
 
   private void rebuildCompleteClassInheritence() {
-    for (final Entry<SchemaClass, List<String>> entry : superClasses.entrySet()) {
-      for (final String superClassName : entry.getValue()) {
-        final SchemaClass superClass = database.getMetadata().getSchema().getClass(superClassName);
+    for (final var entry : superClasses.entrySet()) {
+      for (final var superClassName : entry.getValue()) {
+        final var superClass = database.getMetadata().getSchema().getClass(superClassName);
 
         if (!entry.getKey().getSuperClasses().contains(superClass)) {
           entry.getKey().addSuperClass(database, superClass);
@@ -764,13 +764,13 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       return;
     }
 
-    final String propName =
+    final var propName =
         jsonReader
             .readNext(JSONReader.FIELD_ASSIGNMENT)
             .checkContent("\"name\"")
             .readString(JSONReader.COMMA_SEPARATOR);
 
-    String next = jsonReader.readNext(JSONReader.FIELD_ASSIGNMENT).getValue();
+    var next = jsonReader.readNext(JSONReader.FIELD_ASSIGNMENT).getValue();
 
     if (next.equals("\"id\"")) {
       // @COMPATIBILITY 1.0rc4 IGNORE THE ID
@@ -779,7 +779,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     }
     next = jsonReader.checkContent("\"type\"").readString(JSONReader.NEXT_IN_OBJECT);
 
-    final PropertyType type = PropertyType.valueOf(next);
+    final var type = PropertyType.valueOf(next);
 
     String attrib;
     String value = null;
@@ -788,9 +788,9 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     String max = null;
     String linkedClass = null;
     PropertyType linkedType = null;
-    boolean mandatory = false;
-    boolean readonly = false;
-    boolean notNull = false;
+    var mandatory = false;
+    var readonly = false;
+    var notNull = false;
     String collate = null;
     String regexp = null;
     String defaultValue = null;
@@ -852,7 +852,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       }
     }
 
-    SchemaPropertyImpl prop = (SchemaPropertyImpl) iClass.getProperty(propName);
+    var prop = (SchemaPropertyImpl) iClass.getProperty(propName);
     if (prop == null) {
       // CREATE IT
       prop = (SchemaPropertyImpl) iClass.createProperty(database, propName, type,
@@ -885,7 +885,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       prop.setDefaultValue(database, value);
     }
     if (customFields != null) {
-      for (Entry<String, String> entry : customFields.entrySet()) {
+      for (var entry : customFields.entrySet()) {
         prop.setCustom(database, entry.getKey(), entry.getValue());
       }
     }
@@ -897,8 +897,8 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     jsonReader.readNext(JSONReader.BEGIN_OBJECT);
 
     while (jsonReader.lastChar() != '}') {
-      final String key = jsonReader.readString(JSONReader.FIELD_ASSIGNMENT);
-      final String value = jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
+      final var key = jsonReader.readString(JSONReader.FIELD_ASSIGNMENT);
+      final var value = jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
 
       result.put(key, value);
     }
@@ -915,7 +915,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
     jsonReader.readNext(JSONReader.BEGIN_COLLECTION);
 
-    boolean recreateManualIndex = false;
+    var recreateManualIndex = false;
     if (exporterVersion <= 4) {
       removeDefaultClusters();
       recreateManualIndex = true;
@@ -928,7 +928,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     while (jsonReader.lastChar() != ']') {
       jsonReader.readNext(JSONReader.BEGIN_OBJECT);
 
-      String name =
+      var name =
           jsonReader
               .readNext(JSONReader.FIELD_ASSIGNMENT)
               .checkContent("\"name\"")
@@ -947,7 +947,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
                 .readNext(JSONReader.FIELD_ASSIGNMENT)
                 .checkContent("\"id\"")
                 .readInteger(JSONReader.COMMA_SEPARATOR);
-        String type =
+        var type =
             jsonReader
                 .readNext(JSONReader.FIELD_ASSIGNMENT)
                 .checkContent("\"type\"")
@@ -985,7 +985,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       listener.onMessage(
           "\n- Creating cluster " + (name != null ? "'" + name + "'" : "NULL") + "...");
 
-      int createdClusterId = name != null ? database.getClusterIdByName(name) : -1;
+      var createdClusterId = name != null ? database.getClusterIdByName(name) : -1;
       if (createdClusterId == -1) {
         // CREATE IT
         if (!preserveClusterIDs) {
@@ -1025,7 +1025,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
           }
         } else {
 
-          final SchemaClass clazz =
+          final var clazz =
               database.getMetadata().getSchema().getClassByClusterId(createdClusterId);
           if (clazz instanceof SchemaClassEmbedded) {
             ((SchemaClassEmbedded) clazz).removeClusterId(database, createdClusterId, true);
@@ -1047,7 +1047,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
     listener.onMessage("\nRebuilding indexes of truncated clusters ...");
 
-    for (final String indexName : indexesToRebuild) {
+    for (final var indexName : indexesToRebuild) {
       database
           .getMetadata()
           .getIndexManagerInternal()
@@ -1064,7 +1064,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
                 @Override
                 public boolean onProgress(Object iTask, long iCounter, float iPercent) {
-                  final long now = System.currentTimeMillis();
+                  final var now = System.currentTimeMillis();
                   if (last == 0) {
                     last = now;
                   } else {
@@ -1098,7 +1098,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     database.begin();
     if (!database.exists(
         new RecordId(database.getStorageInfo().getConfiguration().getIndexMgrRecordId()))) {
-      EntityImpl indexEntity = new EntityImpl(database);
+      var indexEntity = new EntityImpl(database);
       indexEntity.save(MetadataDefault.CLUSTER_INTERNAL_NAME);
       database.getStorage().setIndexMgrRecordId(indexEntity.getIdentity().toString());
     }
@@ -1114,9 +1114,9 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
   private RID importRecord(HashSet<RID> recordsBeforeImport,
       Schema beforeImportSchemaSnapshot)
       throws Exception {
-    Pair<String, Map<String, RidSet>> recordParse =
+    var recordParse =
         jsonReader.readRecordString(this.maxRidbagStringSizeBeforeLazyImport);
-    String value = recordParse.getKey().trim();
+    var value = recordParse.getKey().trim();
 
     if (value.isEmpty()) {
       return null;
@@ -1133,7 +1133,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     // this stage
     // and processed later. The following collects the positions ("value" inside the string) of
     // skipped fields.
-    IntOpenHashSet skippedPartsIndexes = new IntOpenHashSet();
+    var skippedPartsIndexes = new IntOpenHashSet();
 
     try {
       try {
@@ -1145,14 +1145,14 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       } catch (final SerializationException e) {
         if (e.getCause() instanceof SchemaException) {
           // EXTRACT CLASS NAME If ANY
-          final int pos = value.indexOf("\"@class\":\"");
+          final var pos = value.indexOf("\"@class\":\"");
           if (pos > -1) {
-            final int end = value.indexOf('"', pos + "\"@class\":\"".length() + 1);
-            final String value1 = value.substring(0, pos + "\"@class\":\"".length());
-            final String clsName = value.substring(pos + "\"@class\":\"".length(), end);
-            final String value2 = value.substring(end);
+            final var end = value.indexOf('"', pos + "\"@class\":\"".length() + 1);
+            final var value1 = value.substring(0, pos + "\"@class\":\"".length());
+            final var clsName = value.substring(pos + "\"@class\":\"".length(), end);
+            final var value2 = value.substring(end);
 
-            final String newClassName = convertedClassNames.get(clsName);
+            final var newClassName = convertedClassNames.get(clsName);
 
             value = value1 + newClassName + value2;
             // OVERWRITE CLASS NAME WITH NEW NAME
@@ -1190,8 +1190,8 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       }
 
       if (exporterVersion >= 3) {
-        int oridsId = database.getClusterIdByName("ORIDs");
-        int indexId = database.getClusterIdByName(MetadataDefault.CLUSTER_INDEX_NAME);
+        var oridsId = database.getClusterIdByName("ORIDs");
+        var indexId = database.getClusterIdByName(MetadataDefault.CLUSTER_INDEX_NAME);
 
         if (record.getIdentity().getClusterId() == indexId
             || record.getIdentity().getClusterId() == oridsId) {
@@ -1201,11 +1201,11 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
         }
       }
 
-      final int manualIndexCluster =
+      final var manualIndexCluster =
           database.getClusterIdByName(MetadataDefault.CLUSTER_MANUAL_INDEX_NAME);
-      final int internalCluster =
+      final var internalCluster =
           database.getClusterIdByName(MetadataDefault.CLUSTER_INTERNAL_NAME);
-      final int indexCluster = database.getClusterIdByName(MetadataDefault.CLUSTER_INDEX_NAME);
+      final var indexCluster = database.getClusterIdByName(MetadataDefault.CLUSTER_INDEX_NAME);
 
       if (exporterVersion >= 4) {
         if (record.getIdentity().getClusterId() == manualIndexCluster) {
@@ -1221,7 +1221,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       }
 
       final RID rid = record.getIdentity().copy();
-      final int clusterId = rid.getClusterId();
+      final var clusterId = rid.getClusterId();
 
       Entity systemRecord = null;
       var cls = beforeImportSchemaSnapshot.getClassByClusterId(clusterId);
@@ -1304,7 +1304,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
       // import skipped records (too big to be imported before)
       if (!skippedPartsIndexes.isEmpty()) {
-        for (Integer skippedPartsIndex : skippedPartsIndexes) {
+        for (var skippedPartsIndex : skippedPartsIndexes) {
           importSkippedRidbag(record, value, skippedPartsIndex);
         }
       }
@@ -1351,7 +1351,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     if (schema.getClass(EXPORT_IMPORT_CLASS_NAME) != null) {
       schema.dropClass(EXPORT_IMPORT_CLASS_NAME);
     }
-    final SchemaClass cls = schema.createClass(EXPORT_IMPORT_CLASS_NAME);
+    final var cls = schema.createClass(EXPORT_IMPORT_CLASS_NAME);
     cls.createProperty(database, "key", PropertyType.STRING);
     cls.createProperty(database, "value", PropertyType.STRING);
 
@@ -1363,9 +1363,9 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
     // the only security records are left at this moment so we need to overwrite them
     // and then remove left overs
-    final HashSet<RID> recordsBeforeImport = new HashSet<>();
+    final var recordsBeforeImport = new HashSet<RID>();
 
-    for (final String clusterName : database.getClusterNames()) {
+    for (final var clusterName : database.getClusterNames()) {
       final Iterator<DBRecord> recordIterator = database.browseCluster(clusterName);
       while (recordIterator.hasNext()) {
         recordsBeforeImport.add(recordIterator.next().getIdentity());
@@ -1377,9 +1377,9 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
     RID rid;
     RID lastRid = new ChangeableRecordId();
-    final long begin = System.currentTimeMillis();
+    final var begin = System.currentTimeMillis();
     long lastLapRecords = 0;
-    long last = begin;
+    var last = begin;
     Set<String> involvedClusters = new HashSet<>();
 
     LogManager.instance().debug(this, "Detected exporter version " + exporterVersion + ".");
@@ -1398,7 +1398,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
         lastRid = rid;
       }
 
-      final long now = System.currentTimeMillis();
+      final var now = System.currentTimeMillis();
       if (now - last > IMPORT_RECORD_DUMP_LAP_EVERY_MS) {
         final List<String> sortedClusters = new ArrayList<>(involvedClusters);
         Collections.sort(sortedClusters);
@@ -1423,7 +1423,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
     // remove all records which were absent in new database but
     // exist in old database
-    for (final RID leftOverRid : recordsBeforeImport) {
+    for (final var leftOverRid : recordsBeforeImport) {
       database.executeInTx(() -> database.delete(leftOverRid));
     }
 
@@ -1446,7 +1446,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     if (bags == null) {
       return;
     }
-    Entity entity = (Entity) record;
+    var entity = (Entity) record;
     bags.forEach(
         (field, ridset) -> {
           RidBag ridbag = ((EntityInternal) record).getPropertyInternal(field);
@@ -1461,9 +1461,9 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
   private void importSkippedRidbag(DBRecord record, String value, Integer skippedPartsIndex) {
     var entity = (EntityInternal) record;
 
-    StringBuilder builder = new StringBuilder();
+    var builder = new StringBuilder();
 
-    int nextIndex =
+    var nextIndex =
         StringSerializerHelper.parse(
             value,
             builder,
@@ -1480,20 +1480,20 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
             '\r',
             '\t');
 
-    String fieldName = IOUtils.getStringContent(builder.toString());
+    var fieldName = IOUtils.getStringContent(builder.toString());
     RidBag bag = entity.getPropertyInternal(fieldName);
 
     if (!(value.charAt(nextIndex) == '[')) {
       throw new DatabaseImportException("Cannot import field: " + fieldName + " (too big)");
     }
 
-    StringBuilder ridBuffer = new StringBuilder();
+    var ridBuffer = new StringBuilder();
 
-    for (int i = nextIndex + 1; i < value.length() + 2; i++) {
+    for (var i = nextIndex + 1; i < value.length() + 2; i++) {
       if (value.charAt(i) == ',' || value.charAt(i) == ']') {
-        String ridString = IOUtils.getStringContent(ridBuffer.toString().trim());
+        var ridString = IOUtils.getStringContent(ridBuffer.toString().trim());
         if (ridString.length() > 0) {
-          RecordId rid = new RecordId(ridString);
+          var rid = new RecordId(ridString);
           bag.add(rid);
           record.save();
         }
@@ -1510,12 +1510,12 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
   private void importIndexes() throws IOException, ParseException {
     listener.onMessage("\n\nImporting indexes ...");
 
-    IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    var indexManager = database.getMetadata().getIndexManagerInternal();
     indexManager.reload(database);
 
     jsonReader.readNext(JSONReader.BEGIN_COLLECTION);
 
-    int numberOfCreatedIndexes = 0;
+    var numberOfCreatedIndexes = 0;
     while (jsonReader.lastChar() != ']') {
       jsonReader.readNext(JSONReader.NEXT_OBJ_IN_ARRAY);
       if (jsonReader.lastChar() == ']') {
@@ -1532,7 +1532,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       Map<String, String> engineProperties = null;
 
       while (jsonReader.lastChar() != '}') {
-        final String fieldName = jsonReader.readString(JSONReader.FIELD_ASSIGNMENT);
+        final var fieldName = jsonReader.readString(JSONReader.FIELD_ASSIGNMENT);
         if (fieldName.equals("name")) {
           indexName = jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
         } else {
@@ -1550,13 +1550,13 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
                   jsonReader.readNext(JSONReader.NEXT_IN_OBJECT);
                 } else {
                   if (fieldName.equals("metadata")) {
-                    final String jsonMetadata = jsonReader.readString(JSONReader.END_OBJECT, true);
+                    final var jsonMetadata = jsonReader.readString(JSONReader.END_OBJECT, true);
                     metadata = new EntityImpl(database);
                     metadata.updateFromJSON(jsonMetadata);
                     jsonReader.readNext(JSONReader.NEXT_IN_OBJECT);
                   } else {
                     if (fieldName.equals("engineProperties")) {
-                      final String jsonEngineProperties =
+                      final var jsonEngineProperties =
                           jsonReader.readString(JSONReader.END_OBJECT, true);
                       var entity = new EntityImpl(database);
                       entity.updateFromJSON(jsonEngineProperties);
@@ -1615,10 +1615,10 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
       indexManager.dropIndex(database, indexName);
       indexesToRebuild.remove(indexName);
-      IntArrayList clusterIds = new IntArrayList();
+      var clusterIds = new IntArrayList();
 
-      for (final String clusterName : clustersToIndex) {
-        int id = database.getClusterIdByName(clusterName);
+      for (final var clusterName : clustersToIndex) {
+        var id = database.getClusterIdByName(clusterName);
         if (id != -1) {
           clusterIds.add(id);
         } else {
@@ -1628,11 +1628,11 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
                   clusterName, indexName));
         }
       }
-      int[] clusterIdsToIndex = new int[clusterIds.size()];
+      var clusterIdsToIndex = new int[clusterIds.size()];
 
-      int i = 0;
+      var i = 0;
       for (var n = 0; n < clusterIds.size(); n++) {
-        int clusterId = clusterIds.getInt(n);
+        var clusterId = clusterIds.getInt(n);
         clusterIdsToIndex[i] = clusterId;
         i++;
       }
@@ -1641,10 +1641,10 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
         indexDefinition = new SimpleKeyIndexDefinition(PropertyType.STRING);
       }
 
-      boolean oldValue = GlobalConfiguration.INDEX_IGNORE_NULL_VALUES_DEFAULT.getValueAsBoolean();
+      var oldValue = GlobalConfiguration.INDEX_IGNORE_NULL_VALUES_DEFAULT.getValueAsBoolean();
       GlobalConfiguration.INDEX_IGNORE_NULL_VALUES_DEFAULT.setValue(
           indexDefinition.isNullValuesIgnored());
-      final Index index =
+      final var index =
           indexManager.createIndex(
               database,
               indexName,
@@ -1656,7 +1656,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
               indexAlgorithm);
       GlobalConfiguration.INDEX_IGNORE_NULL_VALUES_DEFAULT.setValue(oldValue);
       if (blueprintsIndexClass != null) {
-        EntityImpl configuration = index.getConfiguration(database);
+        var configuration = index.getConfiguration(database);
         configuration.field("blueprintsIndexClass", blueprintsIndexClass);
         indexManager.save(database);
       }
@@ -1672,7 +1672,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     jsonReader.readNext(JSONReader.BEGIN_COLLECTION);
 
     while (jsonReader.lastChar() != ']') {
-      final String clusterToIndex = jsonReader.readString(JSONReader.NEXT_IN_ARRAY);
+      final var clusterToIndex = jsonReader.readString(JSONReader.NEXT_IN_ARRAY);
       clustersToIndex.add(clusterToIndex);
     }
 
@@ -1684,17 +1684,17 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     jsonReader.readString(JSONReader.BEGIN_OBJECT);
     jsonReader.readNext(JSONReader.FIELD_ASSIGNMENT);
 
-    final String className = jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
+    final var className = jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
 
     jsonReader.readNext(JSONReader.FIELD_ASSIGNMENT);
 
-    final String value = jsonReader.readString(JSONReader.END_OBJECT, true);
+    final var value = jsonReader.readString(JSONReader.END_OBJECT, true);
 
     final IndexDefinition indexDefinition;
     final EntityImpl indexDefinitionEntity =
         RecordSerializerJackson.INSTANCE.fromString(database, value, null, null);
     try {
-      final Class<?> indexDefClass = Class.forName(className);
+      final var indexDefClass = Class.forName(className);
       indexDefinition = (IndexDefinition) indexDefClass.getDeclaredConstructor().newInstance();
       indexDefinition.fromStream(indexDefinitionEntity);
     } catch (final ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
@@ -1713,34 +1713,34 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
             + "Started migration of links (-migrateLinks=true). Links are going to be updated"
             + " according to new RIDs:");
 
-    final long begin = System.currentTimeMillis();
-    final long[] last = new long[]{begin};
-    final long[] entitiesLastLap = new long[1];
+    final var begin = System.currentTimeMillis();
+    final var last = new long[]{begin};
+    final var entitiesLastLap = new long[1];
 
-    long[] totalEntities = new long[1];
-    Collection<String> clusterNames = database.getClusterNames();
-    for (String clusterName : clusterNames) {
+    var totalEntities = new long[1];
+    var clusterNames = database.getClusterNames();
+    for (var clusterName : clusterNames) {
       if (MetadataDefault.CLUSTER_INDEX_NAME.equals(clusterName)
           || MetadataDefault.CLUSTER_INTERNAL_NAME.equals(clusterName)
           || MetadataDefault.CLUSTER_MANUAL_INDEX_NAME.equals(clusterName)) {
         continue;
       }
 
-      final long[] entities = new long[1];
-      final String[] prefix = new String[]{""};
+      final var entities = new long[1];
+      final var prefix = new String[]{""};
 
       listener.onMessage("\n- Cluster " + clusterName + "...");
 
-      final int clusterId = database.getClusterIdByName(clusterName);
-      final long clusterRecords = database.countClusterElements(clusterId);
-      Storage storage = database.getStorage();
+      final var clusterId = database.getClusterIdByName(clusterName);
+      final var clusterRecords = database.countClusterElements(clusterId);
+      var storage = database.getStorage();
 
-      PhysicalPosition[] positions =
+      var positions =
           storage.ceilingPhysicalPositions(database, clusterId, new PhysicalPosition(0));
       while (positions.length > 0) {
-        for (PhysicalPosition position : positions) {
+        for (var position : positions) {
           database.executeInTx(() -> {
-            DBRecord record = database.load(new RecordId(clusterId, position.clusterPosition));
+            var record = database.load(new RecordId(clusterId, position.clusterPosition));
             if (record instanceof EntityImpl entity) {
               rewriteLinksInDocument(database, entity, brokenRids);
 
@@ -1748,7 +1748,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
               entitiesLastLap[0]++;
               totalEntities[0]++;
 
-              final long now = System.currentTimeMillis();
+              final var now = System.currentTimeMillis();
               if (now - last[0] > IMPORT_RECORD_DUMP_LAP_EVERY_MS) {
                 listener.onMessage(
                     String.format(
@@ -1793,8 +1793,8 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
   protected static EntityImpl doRewriteLinksInDocument(
       DatabaseSessionInternal session, EntityImpl entity, Set<RID> brokenRids) {
-    final LinksRewriter rewriter = new LinksRewriter(new ConverterData(session, brokenRids));
-    final EntityFieldWalker entityFieldWalker = new EntityFieldWalker();
+    final var rewriter = new LinksRewriter(new ConverterData(session, brokenRids));
+    final var entityFieldWalker = new EntityFieldWalker();
     return entityFieldWalker.walkDocument(session, entity, rewriter);
   }
 

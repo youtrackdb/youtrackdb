@@ -71,7 +71,7 @@ public class RecordSerializerNetworkBase implements RecordSerializerNetwork {
       return iRecord;
     }
 
-    BytesContainer container = new BytesContainer(iSource);
+    var container = new BytesContainer(iSource);
     container.skip(1);
 
     try {
@@ -98,10 +98,10 @@ public class RecordSerializerNetworkBase implements RecordSerializerNetwork {
     if (iSource instanceof Blob) {
       return iSource.toStream();
     } else {
-      final BytesContainer container = new BytesContainer();
+      final var container = new BytesContainer();
 
       // WRITE SERIALIZER VERSION
-      int pos = container.alloc(1);
+      var pos = container.alloc(1);
       container.bytes[pos] = CURRENT_RECORD_VERSION;
       // SERIALIZE RECORD
       serializerByVersion[CURRENT_RECORD_VERSION].serialize(db, (EntityImpl) iSource,
@@ -116,13 +116,13 @@ public class RecordSerializerNetworkBase implements RecordSerializerNetwork {
     if (db != null) {
       schema = db.getMetadata().getImmutableSchemaSnapshot();
     }
-    BytesContainer bytes = new BytesContainer();
+    var bytes = new BytesContainer();
     serializerByVersion[0].serializeValue(db, bytes, value, type, null, schema, null);
     return bytes.fitBytes();
   }
 
   public Object deserializeValue(DatabaseSessionInternal db, byte[] val, PropertyType type) {
-    BytesContainer bytes = new BytesContainer(val);
+    var bytes = new BytesContainer(val);
     return serializerByVersion[0].deserializeValue(db, bytes, type, null);
   }
 
@@ -143,7 +143,7 @@ public class RecordSerializerNetworkBase implements RecordSerializerNetwork {
       return new String[0];
     }
 
-    final BytesContainer container = new BytesContainer(iSource).skip(1);
+    final var container = new BytesContainer(iSource).skip(1);
 
     try {
       return serializerByVersion[iSource[0]].getFieldNames(reference, container, false);

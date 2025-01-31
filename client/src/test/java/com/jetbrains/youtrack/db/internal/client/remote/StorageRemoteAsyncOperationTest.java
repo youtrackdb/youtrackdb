@@ -76,7 +76,7 @@ public class StorageRemoteAsyncOperationTest {
   @Test
   @Ignore
   public void testSyncCall() {
-    final CallStatus status = new CallStatus();
+    final var status = new CallStatus();
     storage.asyncNetworkOperationNoRetry(null,
         new BinaryAsyncRequest<BinaryResponse>() {
           @Override
@@ -148,7 +148,7 @@ public class StorageRemoteAsyncOperationTest {
 
   @Test
   public void testNoReadCall() {
-    final CallStatus status = new CallStatus();
+    final var status = new CallStatus();
     storage.asyncNetworkOperationNoRetry(null,
         new BinaryAsyncRequest<BinaryResponse>() {
           @Override
@@ -222,10 +222,10 @@ public class StorageRemoteAsyncOperationTest {
   @Test
   @Ignore
   public void testAsyncRead() throws InterruptedException {
-    final CallStatus status = new CallStatus();
-    final CountDownLatch callBackWait = new CountDownLatch(1);
-    final CountDownLatch readDone = new CountDownLatch(1);
-    final CountDownLatch callBackDone = new CountDownLatch(1);
+    final var status = new CallStatus();
+    final var callBackWait = new CountDownLatch(1);
+    final var readDone = new CountDownLatch(1);
+    final var callBackDone = new CountDownLatch(1);
     storage.asyncNetworkOperationNoRetry(null,
         new BinaryAsyncRequest<BinaryResponse>() {
           @Override
@@ -306,7 +306,7 @@ public class StorageRemoteAsyncOperationTest {
     // SBLCK THE CALLBAC THAT SHOULD BE IN ANOTHER THREAD
     callBackWait.countDown();
 
-    boolean called = readDone.await(200, TimeUnit.MILLISECONDS);
+    var called = readDone.await(200, TimeUnit.MILLISECONDS);
     if (!called) {
       fail("Read not called");
     }

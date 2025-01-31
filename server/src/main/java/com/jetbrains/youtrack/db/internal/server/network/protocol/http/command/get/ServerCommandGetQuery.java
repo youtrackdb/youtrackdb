@@ -38,30 +38,30 @@ public class ServerCommandGetQuery extends ServerCommandAuthenticatedDbAbstract 
   @Override
   @SuppressWarnings("unchecked")
   public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
-    String[] urlParts =
+    var urlParts =
         checkSyntax(
             iRequest.getUrl(),
             4,
             "Syntax error: query/<database>/sql/<query-text>[/<limit>][/<fetchPlan>].<br>Limit is"
                 + " optional and is set to 20 by default. Set to 0 to have no limits.");
 
-    int limit = urlParts.length > 4 ? Integer.parseInt(urlParts[4]) : 20;
-    String fetchPlan = urlParts.length > 5 ? urlParts[5] : null;
-    final String text = urlParts[3];
-    final String accept = iRequest.getHeader("accept");
+    var limit = urlParts.length > 4 ? Integer.parseInt(urlParts[4]) : 20;
+    var fetchPlan = urlParts.length > 5 ? urlParts[5] : null;
+    final var text = urlParts[3];
+    final var accept = iRequest.getHeader("accept");
 
     iRequest.getData().commandInfo = "Query";
     iRequest.getData().commandDetail = text;
 
-    try (DatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
-      SQLStatement stm = ServerCommandPostCommand.parseStatement("SQL", text, db);
-      ResultSet result = db.query(text);
+    try (var db = getProfiledDatabaseInstance(iRequest)) {
+      var stm = ServerCommandPostCommand.parseStatement("SQL", text, db);
+      var result = db.query(text);
       limit = ServerCommandPostCommand.getLimitFromStatement(stm, limit);
-      String localFetchPlan = ServerCommandPostCommand.getFetchPlanFromStatement(stm);
+      var localFetchPlan = ServerCommandPostCommand.getFetchPlanFromStatement(stm);
       if (localFetchPlan != null) {
         fetchPlan = localFetchPlan;
       }
-      int i = 0;
+      var i = 0;
       List response = new ArrayList();
       while (result.hasNext()) {
         if (limit >= 0 && i >= limit) {

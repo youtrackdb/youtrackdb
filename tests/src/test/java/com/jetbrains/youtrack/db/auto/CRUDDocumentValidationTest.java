@@ -59,7 +59,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
   public void validationDisabledAdDatabaseLevel() {
     db.getMetadata().reload();
     try {
-      EntityImpl entity = ((EntityImpl) db.newEntity("MyTestClass"));
+      var entity = ((EntityImpl) db.newEntity("MyTestClass"));
       db.begin();
       entity.save();
       db.commit();
@@ -71,7 +71,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
         .command("ALTER DATABASE " + ATTRIBUTES_INTERNAL.VALIDATION.name() + " FALSE")
         .close();
     try {
-      EntityImpl doc = ((EntityImpl) db.newEntity("MyTestClass"));
+      var doc = ((EntityImpl) db.newEntity("MyTestClass"));
       db.begin();
       doc.save();
       db.commit();
@@ -156,7 +156,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
       expectedExceptions = ValidationException.class)
   public void validationStrictClass() {
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("StrictTest"));
+    var doc = ((EntityImpl) db.newEntity("StrictTest"));
     doc.field("id", 122112);
     doc.field("antani", "122112");
     doc.save();
@@ -196,10 +196,10 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
     db.getMetadata().reload();
     db.close();
     db = acquireSession();
-    List<Result> result =
+    var result =
         db.query("SELECT FROM MyTestClass WHERE keyField = ?", "K1").stream().toList();
     Assert.assertEquals(result.size(), 1);
-    Result doc = result.getFirst();
+    var doc = result.getFirst();
     Assert.assertTrue(doc.hasProperty("keyField"));
     Assert.assertTrue(doc.hasProperty("dateTimeField"));
     Assert.assertTrue(doc.hasProperty("stringField"));
@@ -207,11 +207,11 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "createSchemaForMandatoryNullableTest")
   public void testUpdateDocDefined() {
-    List<Result> result =
+    var result =
         db.query("SELECT FROM MyTestClass WHERE keyField = ?", "K1").stream().toList();
     db.begin();
     Assert.assertEquals(result.size(), 1);
-    Entity readDoc = result.getFirst().asEntity();
+    var readDoc = result.getFirst().asEntity();
     assert readDoc != null;
     readDoc.setProperty("keyField", "K1N");
     readDoc.save();
@@ -220,7 +220,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "testUpdateDocDefined")
   public void validationMandatoryNullableCloseDb() {
-    EntityImpl doc = ((EntityImpl) db.newEntity("MyTestClass"));
+    var doc = ((EntityImpl) db.newEntity("MyTestClass"));
     doc.field("keyField", "K2");
     doc.field("dateTimeField", (Date) null);
     doc.field("stringField", (String) null);
@@ -231,11 +231,11 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
     db.close();
     db = acquireSession();
 
-    List<Result> result =
+    var result =
         db.query("SELECT FROM MyTestClass WHERE keyField = ?", "K2").stream().toList();
     db.begin();
     Assert.assertEquals(result.size(), 1);
-    Entity readDoc = result.getFirst().asEntity();
+    var readDoc = result.getFirst().asEntity();
     assert readDoc != null;
     readDoc.setProperty("keyField", "K2N");
     readDoc.save();
@@ -244,7 +244,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "validationMandatoryNullableCloseDb")
   public void validationMandatoryNullableNoCloseDb() {
-    EntityImpl doc = ((EntityImpl) db.newEntity("MyTestClass"));
+    var doc = ((EntityImpl) db.newEntity("MyTestClass"));
     doc.field("keyField", "K3");
     doc.field("dateTimeField", (Date) null);
     doc.field("stringField", (String) null);
@@ -254,10 +254,10 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
     db.commit();
 
     db.begin();
-    List<Result> result =
+    var result =
         db.query("SELECT FROM MyTestClass WHERE keyField = ?", "K3").stream().toList();
     Assert.assertEquals(result.size(), 1);
-    Entity readDoc = result.getFirst().asEntity();
+    var readDoc = result.getFirst().asEntity();
     assert readDoc != null;
     readDoc.setProperty("keyField", "K3N");
     readDoc.save();
@@ -273,12 +273,12 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
   @Test
   public void testNullComparison() {
     // given
-    EntityImpl doc1 = ((EntityImpl) db.newEntity()).field("testField", (Object) null);
-    EntityImpl doc2 = ((EntityImpl) db.newEntity()).field("testField", (Object) null);
+    var doc1 = ((EntityImpl) db.newEntity()).field("testField", (Object) null);
+    var doc2 = ((EntityImpl) db.newEntity()).field("testField", (Object) null);
 
     var context = new BasicCommandContext();
     context.setDatabase(db);
-    EntityComparator comparator =
+    var comparator =
         new EntityComparator(
             Collections.singletonList(new Pair<>("testField", "asc")),
             context);

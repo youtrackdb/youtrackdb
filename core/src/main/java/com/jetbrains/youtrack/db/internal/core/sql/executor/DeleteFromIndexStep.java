@@ -79,14 +79,14 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     }
 
     var session = ctx.getDatabase();
-    Set<Stream<RawPair<Object, RID>>> streams = init(session, condition);
-    ExecutionStreamProducer res =
+    var streams = init(session, condition);
+    var res =
         new ExecutionStreamProducer() {
           private final Iterator<Stream<RawPair<Object, RID>>> iter = streams.iterator();
 
           @Override
           public ExecutionStream next(CommandContext ctx) {
-            Stream<RawPair<Object, RID>> s = iter.next();
+            var s = iter.next();
             return ExecutionStream.resultIterator(
                 s.filter(
                         (entry) -> {
@@ -112,15 +112,15 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
   }
 
   private Result readResult(DatabaseSessionInternal session, RawPair<Object, RID> entry) {
-    ResultInternal result = new ResultInternal(session);
-    RID value = entry.second;
+    var result = new ResultInternal(session);
+    var value = entry.second;
     index.remove(session, entry.first, value);
     return result;
   }
 
   private boolean filter(RawPair<Object, RID> entry, CommandContext ctx) {
     if (ridCondition != null) {
-      ResultInternal res = new ResultInternal(ctx.getDatabase());
+      var res = new ResultInternal(ctx.getDatabase());
       res.setProperty("rid", entry.second);
       return ridCondition.evaluate(res, ctx);
     } else {
@@ -162,16 +162,16 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
    * @param acquiredStreams TODO
    */
   private void processAndBlock(Set<Stream<RawPair<Object, RID>>> acquiredStreams) {
-    SQLCollection fromKey = indexKeyFrom((SQLAndBlock) condition, additional);
-    SQLCollection toKey = indexKeyTo((SQLAndBlock) condition, additional);
-    boolean fromKeyIncluded = indexKeyFromIncluded((SQLAndBlock) condition, additional);
-    boolean toKeyIncluded = indexKeyToIncluded((SQLAndBlock) condition, additional);
+    var fromKey = indexKeyFrom((SQLAndBlock) condition, additional);
+    var toKey = indexKeyTo((SQLAndBlock) condition, additional);
+    var fromKeyIncluded = indexKeyFromIncluded((SQLAndBlock) condition, additional);
+    var toKeyIncluded = indexKeyToIncluded((SQLAndBlock) condition, additional);
     init(acquiredStreams, fromKey, fromKeyIncluded, toKey, toKeyIncluded);
   }
 
   private void processFlatIteration(DatabaseSessionInternal session,
       Set<Stream<RawPair<Object, RID>>> acquiredStreams) {
-    Stream<RawPair<Object, RID>> stream =
+    var stream =
         orderAsc ? index.stream(session) : index.descStream(session);
     storeAcquiredStream(stream, acquiredStreams);
   }
@@ -190,9 +190,9 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
       boolean fromKeyIncluded,
       SQLCollection toKey,
       boolean toKeyIncluded) {
-    Object secondValue = fromKey.execute((Result) null, ctx);
-    Object thirdValue = toKey.execute((Result) null, ctx);
-    IndexDefinition indexDef = index.getDefinition();
+    var secondValue = fromKey.execute((Result) null, ctx);
+    var thirdValue = toKey.execute((Result) null, ctx);
+    var indexDef = index.getDefinition();
     Stream<RawPair<Object, RID>> stream;
     var database = ctx.getDatabase();
     if (index.supportsOrderedIterations()) {
@@ -217,7 +217,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     if (condition == null) {
       return false;
     }
-    for (SQLBooleanExpression exp : condition.getSubBlocks()) {
+    for (var exp : condition.getSubBlocks()) {
       if (exp instanceof SQLBinaryCondition) {
         if (((SQLBinaryCondition) exp).getOperator() instanceof SQLEqualsCompareOperator) {
           return true;
@@ -231,18 +231,18 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
 
   private void processBetweenCondition(DatabaseSessionInternal session,
       Set<Stream<RawPair<Object, RID>>> acquiredStreams) {
-    IndexDefinition definition = index.getDefinition();
-    SQLExpression key = ((SQLBetweenCondition) condition).getFirst();
+    var definition = index.getDefinition();
+    var key = ((SQLBetweenCondition) condition).getFirst();
     if (!key.toString().equalsIgnoreCase("key")) {
       throw new CommandExecutionException(
           "search for index for " + condition + " is not supported yet");
     }
-    SQLExpression second = ((SQLBetweenCondition) condition).getSecond();
-    SQLExpression third = ((SQLBetweenCondition) condition).getThird();
+    var second = ((SQLBetweenCondition) condition).getSecond();
+    var third = ((SQLBetweenCondition) condition).getThird();
 
-    Object secondValue = second.execute((Result) null, ctx);
-    Object thirdValue = third.execute((Result) null, ctx);
-    Stream<RawPair<Object, RID>> stream =
+    var secondValue = second.execute((Result) null, ctx);
+    var thirdValue = third.execute((Result) null, ctx);
+    var stream =
         index.streamEntriesBetween(session,
             toBetweenIndexKey(session, definition, secondValue),
             true,
@@ -252,15 +252,15 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
   }
 
   private void processBinaryCondition(Set<Stream<RawPair<Object, RID>>> acquiredStreams) {
-    IndexDefinition definition = index.getDefinition();
-    SQLBinaryCompareOperator operator = ((SQLBinaryCondition) condition).getOperator();
-    SQLExpression left = ((SQLBinaryCondition) condition).getLeft();
+    var definition = index.getDefinition();
+    var operator = ((SQLBinaryCondition) condition).getOperator();
+    var left = ((SQLBinaryCondition) condition).getLeft();
     if (!left.toString().equalsIgnoreCase("key")) {
       throw new CommandExecutionException(
           "search for index for " + condition + " is not supported yet");
     }
-    Object rightValue = ((SQLBinaryCondition) condition).getRight().execute((Result) null, ctx);
-    Stream<RawPair<Object, RID>> stream =
+    var rightValue = ((SQLBinaryCondition) condition).getRight().execute((Result) null, ctx);
+    var stream =
         createStream(ctx.getDatabase(), operator, definition, rightValue);
     storeAcquiredStream(stream, acquiredStreams);
   }
@@ -299,7 +299,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
       SQLBinaryCompareOperator operator,
       IndexDefinition definition,
       Object value) {
-    boolean orderAsc = this.orderAsc;
+    var orderAsc = this.orderAsc;
     if (operator instanceof SQLEqualsCompareOperator) {
       return index.streamEntries(session, toIndexKey(session, definition, value), orderAsc);
     } else if (operator instanceof SQLGeOperator) {
@@ -318,10 +318,10 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
 
   private static SQLCollection indexKeyFrom(SQLAndBlock keyCondition,
       SQLBinaryCondition additional) {
-    SQLCollection result = new SQLCollection(-1);
-    for (SQLBooleanExpression exp : keyCondition.getSubBlocks()) {
+    var result = new SQLCollection(-1);
+    for (var exp : keyCondition.getSubBlocks()) {
       if (exp instanceof SQLBinaryCondition binaryCond) {
-        SQLBinaryCompareOperator operator = binaryCond.getOperator();
+        var operator = binaryCond.getOperator();
         if ((operator instanceof SQLEqualsCompareOperator)
             || (operator instanceof SQLGtOperator)
             || (operator instanceof SQLGeOperator)) {
@@ -337,10 +337,10 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
   }
 
   private static SQLCollection indexKeyTo(SQLAndBlock keyCondition, SQLBinaryCondition additional) {
-    SQLCollection result = new SQLCollection(-1);
-    for (SQLBooleanExpression exp : keyCondition.getSubBlocks()) {
+    var result = new SQLCollection(-1);
+    for (var exp : keyCondition.getSubBlocks()) {
       if (exp instanceof SQLBinaryCondition binaryCond) {
-        SQLBinaryCompareOperator operator = binaryCond.getOperator();
+        var operator = binaryCond.getOperator();
         if ((operator instanceof SQLEqualsCompareOperator)
             || (operator instanceof SQLLtOperator)
             || (operator instanceof SQLLeOperator)) {
@@ -357,11 +357,11 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
 
   private static boolean indexKeyFromIncluded(
       SQLAndBlock keyCondition, SQLBinaryCondition additional) {
-    SQLBooleanExpression exp =
+    var exp =
         keyCondition.getSubBlocks().get(keyCondition.getSubBlocks().size() - 1);
     if (exp instanceof SQLBinaryCondition) {
-      SQLBinaryCompareOperator operator = ((SQLBinaryCondition) exp).getOperator();
-      SQLBinaryCompareOperator additionalOperator =
+      var operator = ((SQLBinaryCondition) exp).getOperator();
+      var additionalOperator =
           Optional.ofNullable(additional).map(SQLBinaryCondition::getOperator).orElse(null);
       if (isGreaterOperator(operator)) {
         return isIncludeOperator(operator);
@@ -397,11 +397,11 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
 
   private static boolean indexKeyToIncluded(SQLAndBlock keyCondition,
       SQLBinaryCondition additional) {
-    SQLBooleanExpression exp =
+    var exp =
         keyCondition.getSubBlocks().get(keyCondition.getSubBlocks().size() - 1);
     if (exp instanceof SQLBinaryCondition) {
-      SQLBinaryCompareOperator operator = ((SQLBinaryCondition) exp).getOperator();
-      SQLBinaryCompareOperator additionalOperator =
+      var operator = ((SQLBinaryCondition) exp).getOperator();
+      var additionalOperator =
           Optional.ofNullable(additional).map(SQLBinaryCondition::getOperator).orElse(null);
       if (isLessOperator(operator)) {
         return isIncludeOperator(operator);
@@ -416,12 +416,12 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String result =
+    var result =
         ExecutionStepInternal.getIndent(depth, indent) + "+ DELETE FROM INDEX " + index.getName();
     if (profilingEnabled) {
       result += " (" + getCostFormatted() + ")";
     }
-    String additional =
+    var additional =
         Optional.ofNullable(this.additional)
             .map(oBinaryCondition -> " and " + oBinaryCondition)
             .orElse("");

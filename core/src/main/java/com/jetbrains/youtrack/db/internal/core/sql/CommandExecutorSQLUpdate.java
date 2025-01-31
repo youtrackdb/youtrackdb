@@ -94,10 +94,10 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
 
   @SuppressWarnings("unchecked")
   public CommandExecutorSQLUpdate parse(DatabaseSessionInternal db, final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       if (updateEdge) {
@@ -135,7 +135,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
 
       clazz = extractClassFromTarget(subjectName);
 
-      String word = parserNextWord(true);
+      var word = parserNextWord(true);
 
       if (parserIsEnded()
           || (!word.equals(KEYWORD_SET)
@@ -204,7 +204,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         parserNextWord(true);
       }
 
-      final String additionalStatement = parserGetLastWord();
+      final var additionalStatement = parserGetLastWord();
 
       if (subjectName.startsWith("(")) {
         subjectName = subjectName.trim();
@@ -228,9 +228,9 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
           || additionalStatement.equals(CommandExecutorSQLAbstract.KEYWORD_LIMIT)
           || additionalStatement.equals(CommandExecutorSQLAbstract.KEYWORD_LET)) {
         if (this.preParsedStatement != null) {
-          Map<Object, Object> params = ((CommandRequestText) iRequest).getParameters();
-          SQLUpdateStatement updateStm = (SQLUpdateStatement) preParsedStatement;
-          StringBuilder selectString = new StringBuilder();
+          var params = ((CommandRequestText) iRequest).getParameters();
+          var updateStm = (SQLUpdateStatement) preParsedStatement;
+          var selectString = new StringBuilder();
           selectString.append("select from ");
           updateStm.target.toString(params, selectString);
           if (updateStm.whereClause != null) {
@@ -306,7 +306,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     Map<Object, Object> queryArgs;
     if (parameters.size() > 0 && parameters.getByName(0) != null) {
       queryArgs = new HashMap<Object, Object>();
-      for (int i = parameterCounter; i < parameters.size(); i++) {
+      for (var i = parameterCounter; i < parameters.size(); i++) {
         if (parameters.getByName(i) != null) {
           queryArgs.put(i - parameterCounter, parameters.getByName(i));
         }
@@ -324,7 +324,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     if (upsertMode && !updated) {
       // IF UPDATE DOES NOT PRODUCE RESULTS AND UPSERT MODE IS ENABLED, CREATE DOCUMENT AND APPLY
       // SET/ADD/PUT/MERGE and so on
-      final EntityImpl entity =
+      final var entity =
           subjectName != null ? new EntityImpl(db, subjectName) : new EntityImpl(db);
       // locks by result(entity)
       try {
@@ -381,7 +381,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
 
     returnHandler.beforeUpdate(record);
 
-    boolean updated = handleContent(db, record);
+    var updated = handleContent(db, record);
     updated |= handleMerge(record);
     updated |= handleSetEntries(record);
     updated |= handleIncrementEntries(record);
@@ -433,11 +433,11 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     if (!updateEdge) {
       return;
     }
-    Object currentOut = record.field("out");
-    Object currentIn = record.field("in");
+    var currentOut = record.field("out");
+    var currentIn = record.field("in");
 
-    Object prevOut = record.getOriginalValue("out");
-    Object prevIn = record.getOriginalValue("in");
+    var prevOut = record.getOriginalValue("out");
+    var prevIn = record.getOriginalValue("in");
 
     validateOutInForEdge(db, record, currentOut, currentIn);
 
@@ -459,11 +459,11 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
       DatabaseSessionInternal db, EntityImpl edge, Identifiable prevVertex,
       Identifiable currentVertex, String direction) {
     if (prevVertex != null && !prevVertex.equals(currentVertex)) {
-      String edgeClassName = edge.getClassName();
+      var edgeClassName = edge.getClassName();
       if (edgeClassName.equalsIgnoreCase("E")) {
         edgeClassName = "";
       }
-      String vertexFieldName = direction + "_" + edgeClassName;
+      var vertexFieldName = direction + "_" + edgeClassName;
       EntityImpl prevOutDoc = prevVertex.getRecord(db);
       RidBag prevBag = prevOutDoc.field(vertexFieldName);
 
@@ -532,7 +532,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
 
   protected void parseMerge(DatabaseSessionInternal db) {
     if (!parserIsEnded() && !parserGetLastWord().equals(KEYWORD_WHERE)) {
-      final String contentAsString = parserRequiredWord(false, "entity to merge expected").trim();
+      final var contentAsString = parserRequiredWord(false, "entity to merge expected").trim();
       merge = new EntityImpl(db);
       merge.updateFromJSON(contentAsString);
       parserSkipWhiteSpaces();
@@ -545,7 +545,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
   }
 
   protected String getBlock(String fieldValue) {
-    final int startPos = parserGetCurrentPosition();
+    final var startPos = parserGetCurrentPosition();
 
     if (fieldValue.startsWith("{") || fieldValue.startsWith("[")) {
       if (startPos > 0) {
@@ -555,7 +555,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
       }
 
       parserSkipWhiteSpaces();
-      final StringBuilder buffer = new StringBuilder();
+      final var buffer = new StringBuilder();
       parserSetCurrentPosition(
           StringSerializerHelper.parse(
               parserText,
@@ -579,14 +579,14 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
    */
   protected void parseReturn() throws CommandSQLParsingException {
     parserNextWord(false, " ");
-    String mode = parserGetLastWord().trim();
+    var mode = parserGetLastWord().trim();
 
     if (mode.equalsIgnoreCase("COUNT")) {
       returnHandler = new RecordCountHandler();
     } else if (mode.equalsIgnoreCase("BEFORE") || mode.equalsIgnoreCase("AFTER")) {
 
       parserNextWord(false, " ");
-      String returning = parserGetLastWord().trim();
+      var returning = parserGetLastWord().trim();
       Object returnExpression = null;
       if (returning.equalsIgnoreCase(KEYWORD_WHERE)
           || returning.equalsIgnoreCase(KEYWORD_TIMEOUT)
@@ -618,12 +618,12 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
   }
 
   private boolean handleContent(DatabaseSessionInternal db, EntityImpl record) {
-    boolean updated = false;
+    var updated = false;
     if (content != null) {
       // REPLACE ALL THE CONTENT
-      final EntityImpl fieldsToPreserve = new EntityImpl(db);
+      final var fieldsToPreserve = new EntityImpl(db);
 
-      final SchemaClass restricted =
+      final var restricted =
           getDatabase()
               .getMetadata()
               .getImmutableSchemaSnapshot()
@@ -631,20 +631,20 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
 
       if (restricted != null
           && restricted.isSuperClassOf(EntityInternalUtils.getImmutableSchemaClass(record))) {
-        for (SchemaProperty prop : restricted.properties(getDatabase())) {
+        for (var prop : restricted.properties(getDatabase())) {
           fieldsToPreserve.field(prop.getName(), record.<Object>field(prop.getName()));
         }
       }
 
       SchemaClass recordClass = EntityInternalUtils.getImmutableSchemaClass(record);
       if (recordClass != null && recordClass.isSubClassOf("V")) {
-        for (String fieldName : record.fieldNames()) {
+        for (var fieldName : record.fieldNames()) {
           if (fieldName.startsWith("in_") || fieldName.startsWith("out_")) {
             fieldsToPreserve.field(fieldName, record.<Object>field(fieldName));
           }
         }
       } else if (recordClass != null && recordClass.isSubClassOf("E")) {
-        for (String fieldName : record.fieldNames()) {
+        for (var fieldName : record.fieldNames()) {
           if (fieldName.equals("in") || fieldName.equals("out")) {
             fieldsToPreserve.field(fieldName, record.<Object>field(fieldName));
           }
@@ -659,7 +659,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
   }
 
   private boolean handleMerge(EntityImpl record) {
-    boolean updated = false;
+    var updated = false;
     if (merge != null) {
       // MERGE THE CONTENT
       record.merge(merge, true, false);
@@ -669,7 +669,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
   }
 
   private boolean handleSetEntries(final EntityImpl record) {
-    boolean updated = false;
+    var updated = false;
     // BIND VALUES TO UPDATE
     if (!setEntries.isEmpty()) {
       SQLHelper.bindParameters(record, setEntries, parameters, context);
@@ -679,10 +679,10 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
   }
 
   private boolean handleIncrementEntries(final EntityImpl record) {
-    boolean updated = false;
+    var updated = false;
     // BIND VALUES TO INCREMENT
     if (!incrementEntries.isEmpty()) {
-      for (Pair<String, Object> entry : incrementEntries) {
+      for (var entry : incrementEntries) {
         final Number prevValue = record.field(entry.getKey());
 
         Number current;
@@ -711,16 +711,16 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
   }
 
   private boolean handleAddEntries(DatabaseSessionInternal querySession, EntityImpl record) {
-    boolean updated = false;
+    var updated = false;
     // BIND VALUES TO ADD
     Object fieldValue;
-    for (Pair<String, Object> entry : addEntries) {
+    for (var entry : addEntries) {
       Collection<Object> coll = null;
       RidBag bag = null;
       if (!record.containsField(entry.getKey())) {
         // GET THE TYPE IF ANY
         if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
-          SchemaProperty prop =
+          var prop =
               EntityInternalUtils.getImmutableSchemaClass(record).getProperty(entry.getKey());
           if (prop != null && prop.getType() == PropertyType.LINKSET)
           // SET TYPE
@@ -762,7 +762,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         }
       }
 
-      final Object value = extractValue(querySession, record, entry);
+      final var value = extractValue(querySession, record, entry);
 
       if (coll != null) {
         if (value instanceof Identifiable) {
@@ -784,15 +784,15 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   private boolean handlePutEntries(DatabaseSessionInternal querySession, EntityImpl record) {
-    boolean updated = false;
+    var updated = false;
     if (!putEntries.isEmpty()) {
       // BIND VALUES TO PUT (AS MAP)
-      for (Triple<String, String, Object> entry : putEntries) {
-        Object fieldValue = record.field(entry.getKey());
+      for (var entry : putEntries) {
+        var fieldValue = record.field(entry.getKey());
 
         if (fieldValue == null) {
           if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
-            final SchemaProperty property =
+            final var property =
                 EntityInternalUtils.getImmutableSchemaClass(record).getProperty(entry.getKey());
             if (property != null
                 && (property.getType() != null
@@ -807,14 +807,14 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         }
 
         if (fieldValue instanceof Map<?, ?>) {
-          Map<String, Object> map = (Map<String, Object>) fieldValue;
+          var map = (Map<String, Object>) fieldValue;
 
-          Pair<String, Object> pair = entry.getValue();
+          var pair = entry.getValue();
 
-          Object value = extractValue(querySession, record, pair);
+          var value = extractValue(querySession, record, pair);
 
           if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
-            final SchemaProperty property =
+            final var property =
                 EntityInternalUtils.getImmutableSchemaClass(record).getProperty(entry.getKey());
             if (property != null
                 && property.getType().equals(PropertyType.LINKMAP)
@@ -837,17 +837,17 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
   }
 
   private boolean handleRemoveEntries(DatabaseSessionInternal querySession, EntityImpl record) {
-    boolean updated = false;
+    var updated = false;
     if (!removeEntries.isEmpty()) {
       // REMOVE FIELD IF ANY
-      for (Pair<String, Object> entry : removeEntries) {
-        Object value = extractValue(querySession, record, entry);
+      for (var entry : removeEntries) {
+        var value = extractValue(querySession, record, entry);
 
         if (value == EMPTY_VALUE) {
           record.removeField(entry.getKey());
           updated = true;
         } else {
-          final Object fieldValue = record.field(entry.getKey());
+          final var fieldValue = record.field(entry.getKey());
 
           if (fieldValue instanceof Collection<?>) {
             updated = removeFromCollection(updated, value, (Collection<?>) fieldValue);
@@ -873,7 +873,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
 
   private boolean removeFromMap(boolean updated, Object value, Map<?, ?> map) {
     if (value instanceof Collection) {
-      for (Object o : ((Collection) value)) {
+      for (var o : ((Collection) value)) {
         updated |= map.remove(o) != null;
       }
     } else {
@@ -885,7 +885,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
   private static boolean removeFromBag(EntityImpl record, boolean updated, Object value,
       RidBag bag) {
     if (value instanceof Collection) {
-      for (Object o : ((Collection) value)) {
+      for (var o : ((Collection) value)) {
         updated |= removeSingleValueFromBag(bag, o, record);
       }
     } else {
@@ -905,7 +905,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
 
   private Object extractValue(DatabaseSessionInternal requestSession, EntityImpl record,
       Pair<String, Object> entry) {
-    Object value = entry.getValue();
+    var value = entry.getValue();
 
     if (value instanceof SQLFilterItem) {
       value = ((SQLFilterItem) value).getValue(record, null, context);
@@ -925,7 +925,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     String fieldName;
     String fieldValue;
 
-    boolean firstLap = true;
+    var firstLap = true;
     while (!parserIsEnded()
         && (firstLap || parserGetLastSeparator() == ',' || parserGetCurrentChar() == ',')
         && !parserGetLastWord().equals(KEYWORD_WHERE)) {
@@ -934,7 +934,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
       parserRequiredKeyword("=");
       fieldValue = parserRequiredWord(false, "Value expected", " =><,\r\n");
 
-      final Object v = convertValue(db, clazz, fieldName,
+      final var v = convertValue(db, clazz, fieldName,
           getFieldValueCountingParameters(fieldValue));
 
       // INSERT TRANSFORMED FIELD VALUE
@@ -955,7 +955,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     String fieldKey;
     String fieldValue;
 
-    boolean firstLap = true;
+    var firstLap = true;
     while (!parserIsEnded()
         && (firstLap || parserGetLastSeparator() == ',' || parserGetCurrentChar() == ',')
         && !parserGetLastWord().equals(KEYWORD_WHERE)) {
@@ -987,13 +987,13 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     String fieldValue;
     Object value;
 
-    boolean firstLap = true;
+    var firstLap = true;
     while (!parserIsEnded()
         && (firstLap || parserGetLastSeparator() == ',' || parserGetCurrentChar() == ',')
         && !parserGetLastWord().equals(KEYWORD_WHERE)) {
 
       fieldName = parserRequiredWord(false, "Field name expected");
-      final boolean found = parserOptionalKeyword("=", "WHERE");
+      final var found = parserOptionalKeyword("=", "WHERE");
       if (found) {
         if (parserGetLastWord().equals("WHERE")) {
           parserGoBack();
@@ -1022,7 +1022,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     String fieldName;
     String fieldValue;
 
-    boolean firstLap = true;
+    var firstLap = true;
     while (!parserIsEnded()
         && (firstLap || parserGetLastSeparator() == ',')
         && !parserGetLastWord().equals(KEYWORD_WHERE)) {

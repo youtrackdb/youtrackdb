@@ -36,7 +36,7 @@ public class LuceneCreateJavaApiTest extends LuceneBaseTest {
 
   @Before
   public void init() {
-    SchemaClass song = db.createVertexClass("Song");
+    var song = db.createVertexClass("Song");
     song.createProperty(db, "title", PropertyType.STRING);
     song.createProperty(db, "author", PropertyType.STRING);
     song.createProperty(db, "description", PropertyType.STRING);
@@ -46,7 +46,7 @@ public class LuceneCreateJavaApiTest extends LuceneBaseTest {
   public void testCreateIndex() {
     Schema schema = db.getMetadata().getSchema();
 
-    SchemaClass song = schema.getClass("Song");
+    var song = schema.getClass("Song");
 
     var meta = Map.of("analyzer", StandardAnalyzer.class.getName());
 
@@ -57,7 +57,7 @@ public class LuceneCreateJavaApiTest extends LuceneBaseTest {
         meta,
         "LUCENE", new String[]{"title"});
 
-    Index lucene = db.getIndex("Song.title");
+    var lucene = db.getIndex("Song.title");
     assertThat(lucene).isNotNull();
 
     assertThat(lucene.getMetadata().containsKey("analyzer")).isTrue();
@@ -69,7 +69,7 @@ public class LuceneCreateJavaApiTest extends LuceneBaseTest {
   @Test
   public void testCreateIndexCompositeWithDefaultAnalyzer() {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass song = schema.getClass("Song");
+    var song = schema.getClass("Song");
 
     song.createIndex(db,
         "Song.author_description",
@@ -78,7 +78,7 @@ public class LuceneCreateJavaApiTest extends LuceneBaseTest {
         null,
         "LUCENE", new String[]{"author", "description"});
 
-    Index lucene = db.getIndex("Song.author_description");
+    var lucene = db.getIndex("Song.author_description");
     assertThat(lucene).isNotNull();
 
     assertThat(lucene.getMetadata().containsKey("analyzer")).isTrue();

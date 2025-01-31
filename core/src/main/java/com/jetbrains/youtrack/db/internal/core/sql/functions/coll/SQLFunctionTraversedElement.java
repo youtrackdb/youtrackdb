@@ -81,9 +81,9 @@ public class SQLFunctionTraversedElement extends SQLFunctionConfigurableAbstract
       final CommandContext iContext,
       final String iClassName) {
     final int beginIndex = (Integer) iParams[0];
-    final int items = iParams.length > 1 ? (Integer) iParams[1] : 1;
+    final var items = iParams.length > 1 ? (Integer) iParams[1] : 1;
 
-    Collection stack = (Collection) iContext.getVariable("stack");
+    var stack = (Collection) iContext.getVariable("stack");
     if (stack == null && iThis instanceof Result) {
       stack = (Collection) ((Result) iThis).getMetadata("$stack");
     }
@@ -96,11 +96,11 @@ public class SQLFunctionTraversedElement extends SQLFunctionConfigurableAbstract
 
     var db = iContext.getDatabase();
     if (beginIndex < 0) {
-      int i = -1;
-      for (Iterator it = stack.iterator(); it.hasNext(); ) {
-        final Object o = it.next();
+      var i = -1;
+      for (var it = stack.iterator(); it.hasNext(); ) {
+        final var o = it.next();
         if (o instanceof TraverseRecordProcess) {
-          final Identifiable record = ((TraverseRecordProcess) o).getTarget();
+          final var record = ((TraverseRecordProcess) o).getTarget();
 
           if (iClassName == null
               || EntityInternalUtils.getImmutableSchemaClass(record.getRecord(db))
@@ -137,12 +137,12 @@ public class SQLFunctionTraversedElement extends SQLFunctionConfigurableAbstract
         }
       }
     } else {
-      int i = 0;
-      List listStack = stackToList(stack);
-      for (int x = listStack.size() - 1; x >= 0; x--) {
-        final Object o = listStack.get(x);
+      var i = 0;
+      var listStack = stackToList(stack);
+      for (var x = listStack.size() - 1; x >= 0; x--) {
+        final var o = listStack.get(x);
         if (o instanceof TraverseRecordProcess) {
-          final Identifiable record = ((TraverseRecordProcess) o).getTarget();
+          final var record = ((TraverseRecordProcess) o).getTarget();
 
           if (iClassName == null
               || EntityInternalUtils.getImmutableSchemaClass(record.getRecord(db))

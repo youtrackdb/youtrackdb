@@ -108,7 +108,7 @@ public class SQLMethodInclude extends AbstractSQLMethod {
       } else if (MultiValue.isMultiValue(iThis)) {
         // ACT ON MULTIPLE DOCUMENTS
         final List<Object> result = new ArrayList<Object>(MultiValue.getSize(iThis));
-        for (Object o : MultiValue.getMultiValueIterable(iThis)) {
+        for (var o : MultiValue.getMultiValueIterable(iThis)) {
           if (o instanceof Identifiable) {
             try {
               var record = ((Identifiable) o).getRecord(db);
@@ -128,22 +128,22 @@ public class SQLMethodInclude extends AbstractSQLMethod {
 
   private static Object copy(final EntityImpl entity,
       final Object[] iFieldNames) {
-    final EntityImpl ent = new EntityImpl(null);
-    for (Object iFieldName : iFieldNames) {
+    final var ent = new EntityImpl(null);
+    for (var iFieldName : iFieldNames) {
       if (iFieldName != null) {
 
-        final String fieldName = iFieldName.toString();
+        final var fieldName = iFieldName.toString();
 
         if (!fieldName.isEmpty() && fieldName.charAt(fieldName.length() - 1) == '*') {
-          final String fieldPart = fieldName.substring(0, fieldName.length() - 1);
+          final var fieldPart = fieldName.substring(0, fieldName.length() - 1);
           final List<String> toInclude = new ArrayList<String>();
-          for (String f : entity.fieldNames()) {
+          for (var f : entity.fieldNames()) {
             if (f.startsWith(fieldPart)) {
               toInclude.add(f);
             }
           }
 
-          for (String f : toInclude) {
+          for (var f : toInclude) {
             ent.field(fieldName, entity.<Object>field(f));
           }
 
@@ -157,21 +157,21 @@ public class SQLMethodInclude extends AbstractSQLMethod {
 
   private static Object copy(final Map map,
       final Object[] iFieldNames) {
-    final EntityImpl entity = new EntityImpl(null);
-    for (Object iFieldName : iFieldNames) {
+    final var entity = new EntityImpl(null);
+    for (var iFieldName : iFieldNames) {
       if (iFieldName != null) {
-        final String fieldName = iFieldName.toString();
+        final var fieldName = iFieldName.toString();
 
         if (!fieldName.isEmpty() && fieldName.charAt(fieldName.length() - 1) == '*') {
-          final String fieldPart = fieldName.substring(0, fieldName.length() - 1);
+          final var fieldPart = fieldName.substring(0, fieldName.length() - 1);
           final List<String> toInclude = new ArrayList<String>();
-          for (Object f : map.keySet()) {
+          for (var f : map.keySet()) {
             if (f.toString().startsWith(fieldPart)) {
               toInclude.add(f.toString());
             }
           }
 
-          for (String f : toInclude) {
+          for (var f : toInclude) {
             entity.field(fieldName, map.get(f));
           }
 

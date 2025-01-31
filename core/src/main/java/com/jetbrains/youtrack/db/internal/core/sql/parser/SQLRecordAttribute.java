@@ -40,7 +40,7 @@ public class SQLRecordAttribute extends SimpleNode {
   }
 
   public SQLRecordAttribute copy() {
-    SQLRecordAttribute result = new SQLRecordAttribute(-1);
+    var result = new SQLRecordAttribute(-1);
     result.name = name;
     return result;
   }
@@ -54,7 +54,7 @@ public class SQLRecordAttribute extends SimpleNode {
       return false;
     }
 
-    SQLRecordAttribute that = (SQLRecordAttribute) o;
+    var that = (SQLRecordAttribute) o;
 
     return Objects.equals(name, that.name);
   }
@@ -73,7 +73,7 @@ public class SQLRecordAttribute extends SimpleNode {
   }
 
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     result.setProperty("name", name);
     return result;
   }
@@ -84,7 +84,7 @@ public class SQLRecordAttribute extends SimpleNode {
 
   public Object evaluate(Result iCurrentRecord, CommandContext ctx) {
     if (name.equalsIgnoreCase("@rid")) {
-      RID identity = iCurrentRecord.getIdentity().orElse(null);
+      var identity = iCurrentRecord.getIdentity().orElse(null);
       if (identity == null) {
         identity = iCurrentRecord.getProperty(name);
       }

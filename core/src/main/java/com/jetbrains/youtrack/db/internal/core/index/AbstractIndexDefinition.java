@@ -66,7 +66,7 @@ public abstract class AbstractIndexDefinition implements IndexDefinition {
       return false;
     }
 
-    AbstractIndexDefinition that = (AbstractIndexDefinition) o;
+    var that = (AbstractIndexDefinition) o;
 
     if (!collate.equals(that.collate)) {
       return false;
@@ -77,7 +77,7 @@ public abstract class AbstractIndexDefinition implements IndexDefinition {
 
   @Override
   public int hashCode() {
-    int result = collate.hashCode();
+    var result = collate.hashCode();
     result = 31 * result + (nullValuesIgnored ? 1 : 0);
     return result;
   }

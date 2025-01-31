@@ -40,8 +40,8 @@ public class SQLFromItem extends SimpleNode {
         return;
       } else {
         builder.append("[");
-        boolean first = true;
-        for (SQLRid rid : rids) {
+        var first = true;
+        for (var rid : rids) {
           if (!first) {
             builder.append(", ");
           }
@@ -57,8 +57,8 @@ public class SQLFromItem extends SimpleNode {
         return;
       } else {
         builder.append("[");
-        boolean first = true;
-        for (SQLInputParameter rid : inputParams) {
+        var first = true;
+        for (var rid : inputParams) {
           if (!first) {
             builder.append(", ");
           }
@@ -106,8 +106,8 @@ public class SQLFromItem extends SimpleNode {
         return;
       } else {
         builder.append("[");
-        boolean first = true;
-        for (SQLRid rid : rids) {
+        var first = true;
+        for (var rid : rids) {
           if (!first) {
             builder.append(", ");
           }
@@ -123,8 +123,8 @@ public class SQLFromItem extends SimpleNode {
         return;
       } else {
         builder.append("[");
-        boolean first = true;
-        for (SQLInputParameter rid : inputParams) {
+        var first = true;
+        for (var rid : inputParams) {
           if (!first) {
             builder.append(", ");
           }
@@ -208,7 +208,7 @@ public class SQLFromItem extends SimpleNode {
   }
 
   public SQLFromItem copy() {
-    SQLFromItem result = new SQLFromItem(-1);
+    var result = new SQLFromItem(-1);
     if (rids != null) {
       result.rids = rids.stream().map(r -> r.copy()).collect(Collectors.toList());
     }
@@ -237,7 +237,7 @@ public class SQLFromItem extends SimpleNode {
       return false;
     }
 
-    SQLFromItem oFromItem = (SQLFromItem) o;
+    var oFromItem = (SQLFromItem) o;
 
     if (!Objects.equals(rids, oFromItem.rids)) {
       return false;
@@ -274,7 +274,7 @@ public class SQLFromItem extends SimpleNode {
 
   @Override
   public int hashCode() {
-    int result = rids != null ? rids.hashCode() : 0;
+    var result = rids != null ? rids.hashCode() : 0;
     result = 31 * result + (inputParams != null ? inputParams.hashCode() : 0);
     result = 31 * result + (cluster != null ? cluster.hashCode() : 0);
     result = 31 * result + (clusterList != null ? clusterList.hashCode() : 0);
@@ -333,7 +333,7 @@ public class SQLFromItem extends SimpleNode {
   }
 
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     if (rids != null) {
       result.setProperty(
           "rids", rids.stream().map(x -> x.serialize(db)).collect(Collectors.toList()));
@@ -377,8 +377,8 @@ public class SQLFromItem extends SimpleNode {
     if (fromResult.getProperty("rids") != null) {
       List<Result> serRids = fromResult.getProperty("rids");
       rids = new ArrayList<>();
-      for (Result res : serRids) {
-        SQLRid rid = new SQLRid(-1);
+      for (var res : serRids) {
+        var rid = new SQLRid(-1);
         rid.deserialize(res);
         rids.add(rid);
       }
@@ -387,7 +387,7 @@ public class SQLFromItem extends SimpleNode {
     if (fromResult.getProperty("inputParams") != null) {
       List<Result> ser = fromResult.getProperty("inputParams");
       inputParams = new ArrayList<>();
-      for (Result res : ser) {
+      for (var res : ser) {
         inputParams.add(SQLInputParameter.deserializeFromOResult(res));
       }
     }

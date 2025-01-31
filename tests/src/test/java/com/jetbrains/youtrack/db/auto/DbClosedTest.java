@@ -56,8 +56,8 @@ public class DbClosedTest extends BaseDBTest {
       return;
     }
 
-    final int max = GlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS.getValueAsInteger();
-    for (int i = 0; i < max * 2; ++i) {
+    final var max = GlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS.getValueAsInteger();
+    for (var i = 0; i < max * 2; ++i) {
       final DatabaseSession db = acquireSession();
       db.close();
     }

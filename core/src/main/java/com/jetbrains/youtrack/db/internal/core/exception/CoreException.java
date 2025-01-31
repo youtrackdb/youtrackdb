@@ -47,9 +47,9 @@ public abstract class CoreException extends BaseException {
 
     this.errorCode = errorCode;
     this.componentName = componentName;
-    final DatabaseRecordThreadLocal instance = DatabaseRecordThreadLocal.instance();
+    final var instance = DatabaseRecordThreadLocal.instance();
 
-    final DatabaseSessionInternal database = instance.getIfDefined();
+    final var database = instance.getIfDefined();
     if (database != null) {
       dbName = database.getName();
     } else {
@@ -79,7 +79,7 @@ public abstract class CoreException extends BaseException {
 
   @Override
   public final String getMessage() {
-    final StringBuilder builder = new StringBuilder(super.getMessage());
+    final var builder = new StringBuilder(super.getMessage());
 
     if (dbName != null) {
       builder.append("\r\n\t").append("DB name=\"").append(dbName).append("\"");

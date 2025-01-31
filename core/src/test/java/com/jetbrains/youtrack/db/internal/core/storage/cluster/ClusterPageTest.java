@@ -4,11 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
 import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator.Intention;
-import com.jetbrains.youtrack.db.internal.common.directmemory.Pointer;
 import com.jetbrains.youtrack.db.internal.core.record.RecordVersionHelper;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.CachePointer;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntryImpl;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CachePointer;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.ints.IntSets;
@@ -29,17 +28,17 @@ public class ClusterPageTest {
 
   @Test
   public void testAddOneRecord() {
-    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = ByteBufferPool.instance(null);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
 
     try {
-      final ClusterPage localPage = new ClusterPage(cacheEntry);
+      final var localPage = new ClusterPage(cacheEntry);
       localPage.init();
       addOneRecord(localPage);
 
@@ -50,12 +49,12 @@ public class ClusterPageTest {
   }
 
   private void addOneRecord(ClusterPage localPage) {
-    int freeSpace = localPage.getFreeSpace();
+    var freeSpace = localPage.getFreeSpace();
     Assert.assertEquals(localPage.getRecordsCount(), 0);
 
-    int recordVersion = 1;
+    var recordVersion = 1;
 
-    int position =
+    var position =
         localPage.appendRecord(
             recordVersion, new byte[]{1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1}, -1, IntSets.emptySet());
     Assert.assertEquals(localPage.getRecordsCount(), 1);
@@ -72,16 +71,16 @@ public class ClusterPageTest {
 
   @Test
   public void testAddThreeRecords() {
-    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = ByteBufferPool.instance(null);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
-      ClusterPage localPage = new ClusterPage(cacheEntry);
+      var localPage = new ClusterPage(cacheEntry);
       localPage.init();
 
       addThreeRecords(localPage);
@@ -93,20 +92,20 @@ public class ClusterPageTest {
   }
 
   private void addThreeRecords(ClusterPage localPage) {
-    int freeSpace = localPage.getFreeSpace();
+    var freeSpace = localPage.getFreeSpace();
 
     Assert.assertEquals(localPage.getRecordsCount(), 0);
 
-    int recordVersion = 0;
+    var recordVersion = 0;
     recordVersion++;
 
-    int positionOne =
+    var positionOne =
         localPage.appendRecord(
             recordVersion, new byte[]{1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1}, -1, IntSets.emptySet());
-    int positionTwo =
+    var positionTwo =
         localPage.appendRecord(
             recordVersion, new byte[]{2, 2, 3, 4, 5, 6, 5, 4, 3, 2, 2}, -1, IntSets.emptySet());
-    int positionThree =
+    var positionThree =
         localPage.appendRecord(
             recordVersion, new byte[]{3, 2, 3, 4, 5, 6, 5, 4, 3, 2, 3}, -1, IntSets.emptySet());
 
@@ -139,16 +138,16 @@ public class ClusterPageTest {
 
   @Test
   public void testAddFullPage() {
-    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = ByteBufferPool.instance(null);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
-      ClusterPage localPage = new ClusterPage(cacheEntry);
+      var localPage = new ClusterPage(cacheEntry);
       localPage.init();
 
       addFullPage(localPage);
@@ -160,13 +159,13 @@ public class ClusterPageTest {
   }
 
   private void addFullPage(ClusterPage localPage) {
-    int recordVersion = 0;
+    var recordVersion = 0;
     recordVersion++;
 
     List<Integer> positions = new ArrayList<>();
     int lastPosition;
     byte counter = 0;
-    int freeSpace = localPage.getFreeSpace();
+    var freeSpace = localPage.getFreeSpace();
     do {
       lastPosition =
           localPage.appendRecord(
@@ -196,16 +195,16 @@ public class ClusterPageTest {
 
   @Test
   public void testAddDeleteAddBookedPositionsOne() {
-    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = ByteBufferPool.instance(null);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
-      ClusterPage localPage = new ClusterPage(cacheEntry);
+      var localPage = new ClusterPage(cacheEntry);
       localPage.init();
 
       addDeleteAddBookedPositionsOne(localPage);
@@ -232,7 +231,7 @@ public class ClusterPageTest {
     bookedPositions.add(1);
     bookedPositions.add(2);
 
-    int position = clusterPage.appendRecord(1, new byte[]{5}, -1, bookedPositions);
+    var position = clusterPage.appendRecord(1, new byte[]{5}, -1, bookedPositions);
     Assert.assertEquals(3, position);
 
     position = clusterPage.appendRecord(1, new byte[]{6}, -1, bookedPositions);
@@ -260,16 +259,16 @@ public class ClusterPageTest {
 
   @Test
   public void testAddDeleteAddBookedPositionsTwo() {
-    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = ByteBufferPool.instance(null);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
-      ClusterPage localPage = new ClusterPage(cacheEntry);
+      var localPage = new ClusterPage(cacheEntry);
       localPage.init();
 
       addDeleteAddBookedPositionsTwo(localPage);
@@ -296,7 +295,7 @@ public class ClusterPageTest {
     bookedPositions.add(1);
     bookedPositions.add(2);
 
-    int position = clusterPage.appendRecord(1, new byte[]{5}, -1, bookedPositions);
+    var position = clusterPage.appendRecord(1, new byte[]{5}, -1, bookedPositions);
     Assert.assertEquals(3, position);
 
     position = clusterPage.appendRecord(1, new byte[]{6}, -1, bookedPositions);
@@ -324,16 +323,16 @@ public class ClusterPageTest {
 
   @Test
   public void testAddDeleteAddBookedPositionsThree() {
-    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = ByteBufferPool.instance(null);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
-      ClusterPage localPage = new ClusterPage(cacheEntry);
+      var localPage = new ClusterPage(cacheEntry);
       localPage.init();
 
       addDeleteAddBookedPositionsThree(localPage);
@@ -360,7 +359,7 @@ public class ClusterPageTest {
     bookedPositions.add(1);
     bookedPositions.add(2);
 
-    int position = clusterPage.appendRecord(1, new byte[]{9}, 2, bookedPositions);
+    var position = clusterPage.appendRecord(1, new byte[]{9}, 2, bookedPositions);
     Assert.assertEquals(2, position);
 
     position = clusterPage.appendRecord(1, new byte[]{8}, 1, bookedPositions);
@@ -388,17 +387,17 @@ public class ClusterPageTest {
 
   @Test
   public void testDeleteAddLowerVersion() {
-    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = ByteBufferPool.instance(null);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
 
     try {
-      ClusterPage localPage = new ClusterPage(cacheEntry);
+      var localPage = new ClusterPage(cacheEntry);
       localPage.init();
 
       deleteAddLowerVersion(localPage);
@@ -410,23 +409,23 @@ public class ClusterPageTest {
   }
 
   private void deleteAddLowerVersion(ClusterPage localPage) {
-    int recordVersion = 0;
+    var recordVersion = 0;
     recordVersion++;
     recordVersion++;
 
-    final byte[] record = new byte[]{1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1};
-    int position = localPage.appendRecord(recordVersion, record, -1, IntSets.emptySet());
+    final var record = new byte[]{1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1};
+    var position = localPage.appendRecord(recordVersion, record, -1, IntSets.emptySet());
 
     Assert.assertArrayEquals(record, localPage.deleteRecord(position, true));
 
-    int newRecordVersion = 0;
+    var newRecordVersion = 0;
 
     Assert.assertEquals(
         localPage.appendRecord(
             newRecordVersion, new byte[]{2, 2, 2, 4, 5, 6, 5, 4, 2, 2, 2}, -1, IntSets.emptySet()),
         position);
 
-    int recordSize = localPage.getRecordSize(position);
+    var recordSize = localPage.getRecordSize(position);
     Assert.assertEquals(recordSize, 11);
 
     Assert.assertEquals(localPage.getRecordVersion(position), newRecordVersion);
@@ -437,17 +436,17 @@ public class ClusterPageTest {
 
   @Test
   public void testDeleteAddLowerVersionNFL() {
-    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = ByteBufferPool.instance(null);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
 
     try {
-      ClusterPage localPage = new ClusterPage(cacheEntry);
+      var localPage = new ClusterPage(cacheEntry);
       localPage.init();
 
       deleteAddLowerVersionNFL(localPage);
@@ -459,23 +458,23 @@ public class ClusterPageTest {
   }
 
   private void deleteAddLowerVersionNFL(ClusterPage localPage) {
-    int recordVersion = 0;
+    var recordVersion = 0;
     recordVersion++;
     recordVersion++;
 
-    final byte[] record = new byte[]{1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1};
-    int position = localPage.appendRecord(recordVersion, record, -1, IntSets.emptySet());
+    final var record = new byte[]{1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1};
+    var position = localPage.appendRecord(recordVersion, record, -1, IntSets.emptySet());
 
     Assert.assertArrayEquals(record, localPage.deleteRecord(position, false));
 
-    int newRecordVersion = 0;
+    var newRecordVersion = 0;
 
     Assert.assertEquals(
         localPage.appendRecord(
             newRecordVersion, new byte[]{2, 2, 2, 4, 5, 6, 5, 4, 2, 2, 2}, -1, IntSets.emptySet()),
         position);
 
-    int recordSize = localPage.getRecordSize(position);
+    var recordSize = localPage.getRecordSize(position);
     Assert.assertEquals(recordSize, 11);
 
     Assert.assertEquals(localPage.getRecordVersion(position), newRecordVersion);
@@ -486,16 +485,16 @@ public class ClusterPageTest {
 
   @Test
   public void testDeleteAddBiggerVersion() {
-    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = ByteBufferPool.instance(null);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
-      ClusterPage localPage = new ClusterPage(cacheEntry);
+      var localPage = new ClusterPage(cacheEntry);
       localPage.init();
 
       deleteAddBiggerVersion(localPage);
@@ -507,16 +506,16 @@ public class ClusterPageTest {
   }
 
   private void deleteAddBiggerVersion(ClusterPage localPage) {
-    int recordVersion = 0;
+    var recordVersion = 0;
     recordVersion++;
     recordVersion++;
 
-    final byte[] record = new byte[]{1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1};
-    int position = localPage.appendRecord(recordVersion, record, -1, IntSets.emptySet());
+    final var record = new byte[]{1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1};
+    var position = localPage.appendRecord(recordVersion, record, -1, IntSets.emptySet());
 
     Assert.assertArrayEquals(record, localPage.deleteRecord(position, true));
 
-    int newRecordVersion = 0;
+    var newRecordVersion = 0;
     newRecordVersion++;
     newRecordVersion++;
     newRecordVersion++;
@@ -527,7 +526,7 @@ public class ClusterPageTest {
             newRecordVersion, new byte[]{2, 2, 2, 4, 5, 6, 5, 4, 2, 2, 2}, -1, IntSets.emptySet()),
         position);
 
-    int recordSize = localPage.getRecordSize(position);
+    var recordSize = localPage.getRecordSize(position);
     Assert.assertEquals(recordSize, 11);
 
     Assert.assertEquals(localPage.getRecordVersion(position), newRecordVersion);
@@ -537,16 +536,16 @@ public class ClusterPageTest {
 
   @Test
   public void testDeleteAddBiggerVersionNFL() {
-    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = ByteBufferPool.instance(null);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
-      ClusterPage localPage = new ClusterPage(cacheEntry);
+      var localPage = new ClusterPage(cacheEntry);
       localPage.init();
 
       deleteAddBiggerVersionNFL(localPage);
@@ -558,16 +557,16 @@ public class ClusterPageTest {
   }
 
   private void deleteAddBiggerVersionNFL(ClusterPage localPage) {
-    int recordVersion = 0;
+    var recordVersion = 0;
     recordVersion++;
     recordVersion++;
 
-    final byte[] record = new byte[]{1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1};
-    int position = localPage.appendRecord(recordVersion, record, -1, IntSets.emptySet());
+    final var record = new byte[]{1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1};
+    var position = localPage.appendRecord(recordVersion, record, -1, IntSets.emptySet());
 
     Assert.assertArrayEquals(record, localPage.deleteRecord(position, false));
 
-    int newRecordVersion = 0;
+    var newRecordVersion = 0;
     newRecordVersion++;
     newRecordVersion++;
     newRecordVersion++;
@@ -578,7 +577,7 @@ public class ClusterPageTest {
             newRecordVersion, new byte[]{2, 2, 2, 4, 5, 6, 5, 4, 2, 2, 2}, -1, IntSets.emptySet()),
         position);
 
-    int recordSize = localPage.getRecordSize(position);
+    var recordSize = localPage.getRecordSize(position);
     Assert.assertEquals(recordSize, 11);
 
     Assert.assertEquals(localPage.getRecordVersion(position), newRecordVersion);
@@ -588,16 +587,16 @@ public class ClusterPageTest {
 
   @Test
   public void testDeleteAddEqualVersion() {
-    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = ByteBufferPool.instance(null);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
-      ClusterPage localPage = new ClusterPage(cacheEntry);
+      var localPage = new ClusterPage(cacheEntry);
       localPage.init();
 
       deleteAddEqualVersion(localPage);
@@ -609,12 +608,12 @@ public class ClusterPageTest {
   }
 
   private void deleteAddEqualVersion(ClusterPage localPage) {
-    int recordVersion = 0;
+    var recordVersion = 0;
     recordVersion++;
     recordVersion++;
 
-    final byte[] record = new byte[]{1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1};
-    int position = localPage.appendRecord(recordVersion, record, -1, IntSets.emptySet());
+    final var record = new byte[]{1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1};
+    var position = localPage.appendRecord(recordVersion, record, -1, IntSets.emptySet());
 
     Assert.assertArrayEquals(record, localPage.deleteRecord(position, true));
 
@@ -623,7 +622,7 @@ public class ClusterPageTest {
             recordVersion, new byte[]{2, 2, 2, 4, 5, 6, 5, 4, 2, 2, 2}, -1, IntSets.emptySet()),
         position);
 
-    int recordSize = localPage.getRecordSize(position);
+    var recordSize = localPage.getRecordSize(position);
     Assert.assertEquals(recordSize, 11);
 
     Assert.assertEquals(localPage.getRecordVersion(position), recordVersion);
@@ -633,16 +632,16 @@ public class ClusterPageTest {
 
   @Test
   public void testDeleteAddEqualVersionNFL() {
-    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = ByteBufferPool.instance(null);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
-      ClusterPage localPage = new ClusterPage(cacheEntry);
+      var localPage = new ClusterPage(cacheEntry);
       localPage.init();
 
       deleteAddEqualVersionNFL(localPage);
@@ -654,12 +653,12 @@ public class ClusterPageTest {
   }
 
   private void deleteAddEqualVersionNFL(ClusterPage localPage) {
-    int recordVersion = 0;
+    var recordVersion = 0;
     recordVersion++;
     recordVersion++;
 
-    final byte[] record = new byte[]{1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1};
-    int position = localPage.appendRecord(recordVersion, record, -1, IntSets.emptySet());
+    final var record = new byte[]{1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1};
+    var position = localPage.appendRecord(recordVersion, record, -1, IntSets.emptySet());
 
     Assert.assertArrayEquals(record, localPage.deleteRecord(position, false));
 
@@ -668,7 +667,7 @@ public class ClusterPageTest {
             recordVersion, new byte[]{2, 2, 2, 4, 5, 6, 5, 4, 2, 2, 2}, -1, IntSets.emptySet()),
         position);
 
-    int recordSize = localPage.getRecordSize(position);
+    var recordSize = localPage.getRecordSize(position);
     Assert.assertEquals(recordSize, 11);
 
     Assert.assertEquals(localPage.getRecordVersion(position), recordVersion);
@@ -678,16 +677,16 @@ public class ClusterPageTest {
 
   @Test
   public void testDeleteAddEqualVersionKeepTombstoneVersion() {
-    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = ByteBufferPool.instance(null);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
-      ClusterPage localPage = new ClusterPage(cacheEntry);
+      var localPage = new ClusterPage(cacheEntry);
       localPage.init();
 
       deleteAddEqualVersionKeepTombstoneVersion(localPage);
@@ -699,12 +698,12 @@ public class ClusterPageTest {
   }
 
   private void deleteAddEqualVersionKeepTombstoneVersion(ClusterPage localPage) {
-    int recordVersion = 0;
+    var recordVersion = 0;
     recordVersion++;
     recordVersion++;
 
-    final byte[] record = new byte[]{1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1};
-    int position = localPage.appendRecord(recordVersion, record, -1, IntSets.emptySet());
+    final var record = new byte[]{1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1};
+    var position = localPage.appendRecord(recordVersion, record, -1, IntSets.emptySet());
 
     Assert.assertArrayEquals(record, localPage.deleteRecord(position, true));
 
@@ -713,7 +712,7 @@ public class ClusterPageTest {
             recordVersion, new byte[]{2, 2, 2, 4, 5, 6, 5, 4, 2, 2, 2}, -1, IntSets.emptySet()),
         position);
 
-    int recordSize = localPage.getRecordSize(position);
+    var recordSize = localPage.getRecordSize(position);
     Assert.assertEquals(recordSize, 11);
 
     Assert.assertEquals(localPage.getRecordVersion(position), recordVersion);
@@ -723,16 +722,16 @@ public class ClusterPageTest {
 
   @Test
   public void testDeleteTwoOutOfFour() {
-    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = ByteBufferPool.instance(null);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
-      ClusterPage localPage = new ClusterPage(cacheEntry);
+      var localPage = new ClusterPage(cacheEntry);
       localPage.init();
 
       deleteTwoOutOfFour(localPage);
@@ -744,19 +743,19 @@ public class ClusterPageTest {
   }
 
   private void deleteTwoOutOfFour(ClusterPage localPage) {
-    int recordVersion = 0;
+    var recordVersion = 0;
     recordVersion++;
 
-    final byte[] recordOne = new byte[]{1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1};
-    final byte[] recordTwo = new byte[]{2, 2, 3, 4, 5, 6, 5, 4, 3, 2, 2};
-    final byte[] recordThree = new byte[]{3, 2, 3, 4, 5, 6, 5, 4, 3, 2, 3};
-    final byte[] recordFour = new byte[]{4, 2, 3, 4, 5, 6, 5, 4, 3, 2, 4};
+    final var recordOne = new byte[]{1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1};
+    final var recordTwo = new byte[]{2, 2, 3, 4, 5, 6, 5, 4, 3, 2, 2};
+    final var recordThree = new byte[]{3, 2, 3, 4, 5, 6, 5, 4, 3, 2, 3};
+    final var recordFour = new byte[]{4, 2, 3, 4, 5, 6, 5, 4, 3, 2, 4};
 
-    int positionOne = localPage.appendRecord(recordVersion, recordOne, -1, IntSets.emptySet());
-    int positionTwo = localPage.appendRecord(recordVersion, recordTwo, -1, IntSets.emptySet());
+    var positionOne = localPage.appendRecord(recordVersion, recordOne, -1, IntSets.emptySet());
+    var positionTwo = localPage.appendRecord(recordVersion, recordTwo, -1, IntSets.emptySet());
 
-    int positionThree = localPage.appendRecord(recordVersion, recordThree, -1, IntSets.emptySet());
-    int positionFour = localPage.appendRecord(recordVersion, recordFour, -1, IntSets.emptySet());
+    var positionThree = localPage.appendRecord(recordVersion, recordThree, -1, IntSets.emptySet());
+    var positionFour = localPage.appendRecord(recordVersion, recordFour, -1, IntSets.emptySet());
 
     Assert.assertEquals(localPage.getRecordsCount(), 4);
     Assert.assertEquals(positionOne, 0);
@@ -769,7 +768,7 @@ public class ClusterPageTest {
     Assert.assertFalse(localPage.isDeleted(2));
     Assert.assertFalse(localPage.isDeleted(3));
 
-    int freeSpace = localPage.getFreeSpace();
+    var freeSpace = localPage.getFreeSpace();
 
     Assert.assertArrayEquals(recordOne, localPage.deleteRecord(0, true));
     Assert.assertArrayEquals(recordThree, localPage.deleteRecord(2, true));
@@ -806,16 +805,16 @@ public class ClusterPageTest {
 
   @Test
   public void testAddFullPageDeleteAndAddAgain() {
-    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = ByteBufferPool.instance(null);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
-      ClusterPage localPage = new ClusterPage(cacheEntry);
+      var localPage = new ClusterPage(cacheEntry);
       localPage.init();
 
       addFullPageDeleteAndAddAgain(localPage);
@@ -832,8 +831,8 @@ public class ClusterPageTest {
 
     int lastPosition;
     byte counter = 0;
-    int freeSpace = localPage.getFreeSpace();
-    int recordVersion = 0;
+    var freeSpace = localPage.getFreeSpace();
+    var recordVersion = 0;
     recordVersion++;
 
     do {
@@ -851,10 +850,10 @@ public class ClusterPageTest {
       }
     } while (lastPosition >= 0);
 
-    int filledRecordsCount = positionCounter.size();
+    var filledRecordsCount = positionCounter.size();
     Assert.assertEquals(localPage.getRecordsCount(), filledRecordsCount);
 
-    for (int i = 0; i < filledRecordsCount; i += 2) {
+    for (var i = 0; i < filledRecordsCount; i += 2) {
       localPage.deleteRecord(i, true);
       deletedPositions.add(i);
       positionCounter.remove(i);
@@ -875,7 +874,7 @@ public class ClusterPageTest {
     } while (lastPosition >= 0);
 
     Assert.assertEquals(localPage.getRecordsCount(), filledRecordsCount);
-    for (Map.Entry<Integer, Byte> entry : positionCounter.entrySet()) {
+    for (var entry : positionCounter.entrySet()) {
       assertThat(localPage.getRecordBinaryValue(entry.getKey(), 0, 3))
           .isEqualTo(new byte[]{entry.getValue(), entry.getValue(), entry.getValue()});
 
@@ -889,16 +888,16 @@ public class ClusterPageTest {
 
   @Test
   public void testAddFullPageDeleteAndAddAgainNFL() {
-    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = ByteBufferPool.instance(null);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
-      ClusterPage localPage = new ClusterPage(cacheEntry);
+      var localPage = new ClusterPage(cacheEntry);
       localPage.init();
 
       addFullPageDeleteAndAddAgainNFL(localPage);
@@ -914,8 +913,8 @@ public class ClusterPageTest {
 
     int lastPosition;
     byte counter = 0;
-    int freeSpace = localPage.getFreeSpace();
-    int recordVersion = 0;
+    var freeSpace = localPage.getFreeSpace();
+    var recordVersion = 0;
     recordVersion++;
 
     do {
@@ -933,10 +932,10 @@ public class ClusterPageTest {
       }
     } while (lastPosition >= 0);
 
-    int filledRecordsCount = positionCounter.size();
+    var filledRecordsCount = positionCounter.size();
     Assert.assertEquals(localPage.getRecordsCount(), filledRecordsCount);
 
-    for (int i = filledRecordsCount; i >= 0; i--) {
+    for (var i = filledRecordsCount; i >= 0; i--) {
       localPage.deleteRecord(i, false);
       positionCounter.remove(i);
     }
@@ -957,7 +956,7 @@ public class ClusterPageTest {
     } while (lastPosition >= 0);
 
     Assert.assertEquals(localPage.getRecordsCount(), filledRecordsCount);
-    for (Map.Entry<Integer, Byte> entry : positionCounter.entrySet()) {
+    for (var entry : positionCounter.entrySet()) {
       assertThat(localPage.getRecordBinaryValue(entry.getKey(), 0, 3))
           .isEqualTo(new byte[]{entry.getValue(), entry.getValue(), entry.getValue()});
 
@@ -967,19 +966,19 @@ public class ClusterPageTest {
 
   @Test
   public void testAddBigRecordDeleteAndAddSmallRecords() {
-    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = ByteBufferPool.instance(null);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
 
     try {
-      final long seed = System.currentTimeMillis();
+      final var seed = System.currentTimeMillis();
 
-      ClusterPage localPage = new ClusterPage(cacheEntry);
+      var localPage = new ClusterPage(cacheEntry);
       localPage.init();
 
       addBigRecordDeleteAndAddSmallRecords(seed, localPage);
@@ -991,24 +990,24 @@ public class ClusterPageTest {
   }
 
   private void addBigRecordDeleteAndAddSmallRecords(long seed, ClusterPage localPage) {
-    final Random mersenneTwisterFast = new Random(seed);
+    final var mersenneTwisterFast = new Random(seed);
 
-    int recordVersion = 0;
+    var recordVersion = 0;
     recordVersion++;
     recordVersion++;
 
-    final byte[] bigChunk = new byte[ClusterPage.MAX_ENTRY_SIZE / 2];
+    final var bigChunk = new byte[ClusterPage.MAX_ENTRY_SIZE / 2];
 
     mersenneTwisterFast.nextBytes(bigChunk);
 
-    int position = localPage.appendRecord(recordVersion, bigChunk, -1, IntSets.emptySet());
+    var position = localPage.appendRecord(recordVersion, bigChunk, -1, IntSets.emptySet());
     Assert.assertEquals(position, 0);
     Assert.assertEquals(localPage.getRecordVersion(0), recordVersion);
 
     Assert.assertArrayEquals(bigChunk, localPage.deleteRecord(0, true));
 
     recordVersion++;
-    int freeSpace = localPage.getFreeSpace();
+    var freeSpace = localPage.getFreeSpace();
     Map<Integer, Byte> positionCounter = new HashMap<>();
     int lastPosition;
     byte counter = 0;
@@ -1033,7 +1032,7 @@ public class ClusterPageTest {
     } while (lastPosition >= 0);
 
     Assert.assertEquals(localPage.getRecordsCount(), positionCounter.size());
-    for (Map.Entry<Integer, Byte> entry : positionCounter.entrySet()) {
+    for (var entry : positionCounter.entrySet()) {
       assertThat(localPage.getRecordBinaryValue(entry.getKey(), 0, 3))
           .isEqualTo(new byte[]{entry.getValue(), entry.getValue(), entry.getValue()});
       Assert.assertEquals(localPage.getRecordSize(entry.getKey()), 3);
@@ -1043,18 +1042,18 @@ public class ClusterPageTest {
 
   @Test
   public void testFindFirstRecord() {
-    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = ByteBufferPool.instance(null);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
 
-    final long seed = System.currentTimeMillis();
+    final var seed = System.currentTimeMillis();
     try {
-      ClusterPage localPage = new ClusterPage(cacheEntry);
+      var localPage = new ClusterPage(cacheEntry);
       localPage.init();
 
       findFirstRecord(seed, localPage);
@@ -1066,14 +1065,14 @@ public class ClusterPageTest {
   }
 
   private void findFirstRecord(long seed, ClusterPage localPage) {
-    final Random mersenneTwister = new Random(seed);
+    final var mersenneTwister = new Random(seed);
     Set<Integer> positions = new HashSet<>();
 
     int lastPosition;
     byte counter = 0;
-    int freeSpace = localPage.getFreeSpace();
+    var freeSpace = localPage.getFreeSpace();
 
-    int recordVersion = 0;
+    var recordVersion = 0;
     recordVersion++;
 
     do {
@@ -1091,19 +1090,19 @@ public class ClusterPageTest {
       }
     } while (lastPosition >= 0);
 
-    int filledRecordsCount = positions.size();
+    var filledRecordsCount = positions.size();
     Assert.assertEquals(localPage.getRecordsCount(), filledRecordsCount);
 
-    for (int i = 0; i < filledRecordsCount; i++) {
+    for (var i = 0; i < filledRecordsCount; i++) {
       if (mersenneTwister.nextBoolean()) {
         localPage.deleteRecord(i, true);
         positions.remove(i);
       }
     }
 
-    int recordsIterated = 0;
-    int recordPosition = 0;
-    int lastRecordPosition = -1;
+    var recordsIterated = 0;
+    var recordPosition = 0;
+    var lastRecordPosition = -1;
 
     do {
       recordPosition = localPage.findFirstRecord(recordPosition);
@@ -1125,18 +1124,18 @@ public class ClusterPageTest {
 
   @Test
   public void testFindLastRecord() {
-    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = ByteBufferPool.instance(null);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
 
-    final long seed = System.currentTimeMillis();
+    final var seed = System.currentTimeMillis();
     try {
-      ClusterPage localPage = new ClusterPage(cacheEntry);
+      var localPage = new ClusterPage(cacheEntry);
       localPage.init();
 
       findLastRecord(seed, localPage);
@@ -1148,14 +1147,14 @@ public class ClusterPageTest {
   }
 
   private void findLastRecord(long seed, ClusterPage localPage) {
-    final Random mersenneTwister = new Random(seed);
+    final var mersenneTwister = new Random(seed);
     Set<Integer> positions = new HashSet<>();
 
     int lastPosition;
     byte counter = 0;
-    int freeSpace = localPage.getFreeSpace();
+    var freeSpace = localPage.getFreeSpace();
 
-    int recordVersion = 0;
+    var recordVersion = 0;
     recordVersion++;
 
     do {
@@ -1173,19 +1172,19 @@ public class ClusterPageTest {
       }
     } while (lastPosition >= 0);
 
-    int filledRecordsCount = positions.size();
+    var filledRecordsCount = positions.size();
     Assert.assertEquals(localPage.getRecordsCount(), filledRecordsCount);
 
-    for (int i = 0; i < filledRecordsCount; i++) {
+    for (var i = 0; i < filledRecordsCount; i++) {
       if (mersenneTwister.nextBoolean()) {
         localPage.deleteRecord(i, true);
         positions.remove(i);
       }
     }
 
-    int recordsIterated = 0;
-    int recordPosition = Integer.MAX_VALUE;
-    int lastRecordPosition = Integer.MAX_VALUE;
+    var recordsIterated = 0;
+    var recordPosition = Integer.MAX_VALUE;
+    var lastRecordPosition = Integer.MAX_VALUE;
     do {
       recordPosition = localPage.findLastRecord(recordPosition);
       if (recordPosition < 0) {
@@ -1204,16 +1203,16 @@ public class ClusterPageTest {
 
   @Test
   public void testSetGetNextPage() {
-    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = ByteBufferPool.instance(null);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
-      ClusterPage localPage = new ClusterPage(cacheEntry);
+      var localPage = new ClusterPage(cacheEntry);
       localPage.init();
 
       setGetNextPage(localPage);
@@ -1231,16 +1230,16 @@ public class ClusterPageTest {
 
   @Test
   public void testSetGetPrevPage() {
-    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = ByteBufferPool.instance(null);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
-      ClusterPage localPage = new ClusterPage(cacheEntry);
+      var localPage = new ClusterPage(cacheEntry);
       localPage.init();
       setGetPrevPage(localPage);
 
@@ -1257,16 +1256,16 @@ public class ClusterPageTest {
 
   @Test
   public void testReplaceOneRecordWithEqualSize() {
-    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = ByteBufferPool.instance(null);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
-      ClusterPage localPage = new ClusterPage(cacheEntry);
+      var localPage = new ClusterPage(cacheEntry);
       localPage.init();
 
       replaceOneRecordWithEqualSize(localPage);
@@ -1280,18 +1279,18 @@ public class ClusterPageTest {
   private void replaceOneRecordWithEqualSize(ClusterPage localPage) {
     Assert.assertEquals(localPage.getRecordsCount(), 0);
 
-    int recordVersion = 0;
+    var recordVersion = 0;
     recordVersion++;
 
-    final byte[] record = new byte[]{1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1};
-    int index = localPage.appendRecord(recordVersion, record, -1, IntSets.emptySet());
-    int freeSpace = localPage.getFreeSpace();
+    final var record = new byte[]{1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1};
+    var index = localPage.appendRecord(recordVersion, record, -1, IntSets.emptySet());
+    var freeSpace = localPage.getFreeSpace();
 
     int newRecordVersion;
     newRecordVersion = recordVersion;
     newRecordVersion++;
 
-    final byte[] oldRecord =
+    final var oldRecord =
         localPage.replaceRecord(
             index, new byte[]{5, 2, 3, 4, 5, 11, 5, 4, 3, 2, 1}, newRecordVersion);
     Assert.assertEquals(localPage.getFreeSpace(), freeSpace);
@@ -1306,17 +1305,17 @@ public class ClusterPageTest {
 
   @Test
   public void testReplaceOneRecordNoVersionUpdate() {
-    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = ByteBufferPool.instance(null);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
 
     try {
-      ClusterPage localPage = new ClusterPage(cacheEntry);
+      var localPage = new ClusterPage(cacheEntry);
       localPage.init();
 
       replaceOneRecordNoVersionUpdate(localPage);
@@ -1330,14 +1329,14 @@ public class ClusterPageTest {
   private void replaceOneRecordNoVersionUpdate(ClusterPage localPage) {
     Assert.assertEquals(localPage.getRecordsCount(), 0);
 
-    int recordVersion = 0;
+    var recordVersion = 0;
     recordVersion++;
 
-    byte[] record = new byte[]{1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1};
-    int index = localPage.appendRecord(recordVersion, record, -1, IntSets.emptySet());
-    int freeSpace = localPage.getFreeSpace();
+    var record = new byte[]{1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1};
+    var index = localPage.appendRecord(recordVersion, record, -1, IntSets.emptySet());
+    var freeSpace = localPage.getFreeSpace();
 
-    byte[] oldRecord =
+    var oldRecord =
         localPage.replaceRecord(index, new byte[]{5, 2, 3, 4, 5, 11, 5, 4, 3, 2, 1}, -1);
     Assert.assertEquals(localPage.getFreeSpace(), freeSpace);
     Assert.assertArrayEquals(record, oldRecord);
@@ -1351,16 +1350,16 @@ public class ClusterPageTest {
 
   @Test
   public void testReplaceOneRecordLowerVersion() {
-    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = ByteBufferPool.instance(null);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
-      ClusterPage localPage = new ClusterPage(cacheEntry);
+      var localPage = new ClusterPage(cacheEntry);
       localPage.init();
 
       replaceOneRecordLowerVersion(localPage);
@@ -1373,17 +1372,17 @@ public class ClusterPageTest {
   private void replaceOneRecordLowerVersion(ClusterPage localPage) {
     Assert.assertEquals(localPage.getRecordsCount(), 0);
 
-    int recordVersion = 0;
+    var recordVersion = 0;
     recordVersion++;
 
-    final byte[] record = new byte[]{1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1};
-    int index = localPage.appendRecord(recordVersion, record, -1, IntSets.emptySet());
-    int freeSpace = localPage.getFreeSpace();
+    final var record = new byte[]{1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1};
+    var index = localPage.appendRecord(recordVersion, record, -1, IntSets.emptySet());
+    var freeSpace = localPage.getFreeSpace();
 
     int newRecordVersion;
     newRecordVersion = recordVersion;
 
-    byte[] oldRecord =
+    var oldRecord =
         localPage.replaceRecord(
             index, new byte[]{5, 2, 3, 4, 5, 11, 5, 4, 3, 2, 1}, newRecordVersion);
     Assert.assertEquals(localPage.getFreeSpace(), freeSpace);

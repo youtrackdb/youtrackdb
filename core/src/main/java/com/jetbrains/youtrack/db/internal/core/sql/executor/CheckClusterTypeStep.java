@@ -1,10 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCluster;
 
@@ -42,7 +40,7 @@ public class CheckClusterTypeStep extends AbstractExecutionStep {
       prev.start(context).close(ctx);
     }
 
-    DatabaseSessionInternal db = context.getDatabase();
+    var db = context.getDatabase();
 
     int clusterId;
     if (clusterName != null) {
@@ -59,13 +57,13 @@ public class CheckClusterTypeStep extends AbstractExecutionStep {
       throw new CommandExecutionException("Cluster not found: " + clusterName);
     }
 
-    SchemaClass clazz = db.getMetadata().getImmutableSchemaSnapshot().getClass(targetClass);
+    var clazz = db.getMetadata().getImmutableSchemaSnapshot().getClass(targetClass);
     if (clazz == null) {
       throw new CommandExecutionException("Class not found: " + targetClass);
     }
 
-    boolean found = false;
-    for (int clust : clazz.getPolymorphicClusterIds()) {
+    var found = false;
+    for (var clust : clazz.getPolymorphicClusterIds()) {
       if (clust == clusterId) {
         found = true;
         break;
@@ -80,8 +78,8 @@ public class CheckClusterTypeStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
-    StringBuilder result = new StringBuilder();
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var result = new StringBuilder();
     result.append(spaces);
     result.append("+ CHECK TARGET CLUSTER FOR CLASS");
     if (profilingEnabled) {

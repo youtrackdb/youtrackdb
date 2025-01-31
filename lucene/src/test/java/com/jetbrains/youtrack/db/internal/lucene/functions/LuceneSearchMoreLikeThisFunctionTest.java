@@ -16,7 +16,7 @@ public class LuceneSearchMoreLikeThisFunctionTest extends BaseLuceneTest {
 
   @Before
   public void setUp() throws Exception {
-    try (InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql")) {
+    try (var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql")) {
       //noinspection resource
       db.execute("sql", getScriptFromStream(stream)).close();
     }
@@ -25,10 +25,10 @@ public class LuceneSearchMoreLikeThisFunctionTest extends BaseLuceneTest {
   @Test
   public void shouldSearchMoreLikeThisWithRid() throws Exception {
     db.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE ");
-    SchemaClass clazz = db.getMetadata().getSchema().getClass("Song");
-    int defCluster = clazz.getClusterIds()[0];
+    var clazz = db.getMetadata().getSchema().getClass("Song");
+    var defCluster = clazz.getClusterIds()[0];
 
-    try (ResultSet resultSet =
+    try (var resultSet =
         db.query(
             "SELECT from Song where SEARCH_More([#"
                 + defCluster
@@ -44,10 +44,10 @@ public class LuceneSearchMoreLikeThisFunctionTest extends BaseLuceneTest {
 
     db.command("create index Song.multi on Song (title,author) FULLTEXT ENGINE LUCENE ");
 
-    SchemaClass clazz = db.getMetadata().getSchema().getClass("Song");
-    int defCluster = clazz.getClusterIds()[0];
+    var clazz = db.getMetadata().getSchema().getClass("Song");
+    var defCluster = clazz.getClusterIds()[0];
 
-    try (ResultSet resultSet =
+    try (var resultSet =
         db.query(
             "SELECT from Song where SEARCH_More([#"
                 + defCluster
@@ -62,10 +62,10 @@ public class LuceneSearchMoreLikeThisFunctionTest extends BaseLuceneTest {
   public void shouldSearchOnFieldAndMoreLikeThisWithRidOnMultiFieldsIndex() throws Exception {
     db.command("create index Song.multi on Song (title) FULLTEXT ENGINE LUCENE ");
 
-    SchemaClass clazz = db.getMetadata().getSchema().getClass("Song");
-    int defCluster = clazz.getClusterIds()[0];
+    var clazz = db.getMetadata().getSchema().getClass("Song");
+    var defCluster = clazz.getClusterIds()[0];
 
-    try (ResultSet resultSet =
+    try (var resultSet =
         db.query(
             "SELECT from Song where author ='Hunter' AND SEARCH_More([#"
                 + defCluster
@@ -85,10 +85,10 @@ public class LuceneSearchMoreLikeThisFunctionTest extends BaseLuceneTest {
 
     db.command("create index Song.multi on Song (title) FULLTEXT ENGINE LUCENE ");
 
-    SchemaClass clazz = db.getMetadata().getSchema().getClass("Song");
-    int defCluster = clazz.getClusterIds()[0];
+    var clazz = db.getMetadata().getSchema().getClass("Song");
+    var defCluster = clazz.getClusterIds()[0];
 
-    try (ResultSet resultSet =
+    try (var resultSet =
         db.query(
             "SELECT from Song where SEARCH_More([#"
                 + defCluster
@@ -105,10 +105,10 @@ public class LuceneSearchMoreLikeThisFunctionTest extends BaseLuceneTest {
 
     db.command("create index Song.multi on Song (title,author) FULLTEXT ENGINE LUCENE ");
 
-    SchemaClass clazz = db.getMetadata().getSchema().getClass("Song");
-    int defCluster = clazz.getClusterIds()[0];
+    var clazz = db.getMetadata().getSchema().getClass("Song");
+    var defCluster = clazz.getClusterIds()[0];
 
-    try (ResultSet resultSet =
+    try (var resultSet =
         db.query(
             "SELECT from Song where SEARCH_More( [#"
                 + defCluster
@@ -126,7 +126,7 @@ public class LuceneSearchMoreLikeThisFunctionTest extends BaseLuceneTest {
 
     db.command("create index Song.multi on Song (title,author) FULLTEXT ENGINE LUCENE ");
 
-    try (ResultSet resultSet =
+    try (var resultSet =
         db.query(
             "SELECT from Song  let $a=(SELECT @rid FROM Song WHERE author = 'Hunter')  where"
                 + " SEARCH_More( $a, { 'minTermFreq':1, 'minDocFreq':1} ) = true")) {

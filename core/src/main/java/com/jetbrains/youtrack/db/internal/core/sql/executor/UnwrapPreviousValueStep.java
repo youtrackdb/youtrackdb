@@ -19,7 +19,7 @@ public class UnwrapPreviousValueStep extends AbstractExecutionStep {
   public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
 
-    ExecutionStream upstream = prev.start(ctx);
+    var upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 
@@ -39,7 +39,7 @@ public class UnwrapPreviousValueStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String result = ExecutionStepInternal.getIndent(depth, indent) + "+ UNWRAP PREVIOUS VALUE";
+    var result = ExecutionStepInternal.getIndent(depth, indent) + "+ UNWRAP PREVIOUS VALUE";
     if (profilingEnabled) {
       result += " (" + getCostFormatted() + ")";
     }

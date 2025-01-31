@@ -38,7 +38,7 @@ public class DatabaseRecordThreadLocal extends ThreadLocal<DatabaseSessionIntern
 
   @Nonnull
   public static DatabaseRecordThreadLocal instance() {
-    final DatabaseRecordThreadLocal dbInst = INSTANCE.get();
+    final var dbInst = INSTANCE.get();
     if (dbInst != null) {
       return dbInst;
     }
@@ -49,7 +49,7 @@ public class DatabaseRecordThreadLocal extends ThreadLocal<DatabaseSessionIntern
   private static void registerCleanUpHandler() {
     // we can do that to avoid thread local memory leaks in containers
     if (INSTANCE.get() == null) {
-      final YouTrackDBEnginesManager inst = YouTrackDBEnginesManager.instance();
+      final var inst = YouTrackDBEnginesManager.instance();
       if (inst == null) {
         throw new DatabaseException("YouTrackDB API is not active.");
       }
@@ -71,7 +71,7 @@ public class DatabaseRecordThreadLocal extends ThreadLocal<DatabaseSessionIntern
 
   @Override
   public DatabaseSessionInternal get() {
-    DatabaseSessionInternal db = super.get();
+    var db = super.get();
     if (db == null) {
       if (YouTrackDBEnginesManager.instance().getDatabaseThreadFactory() == null) {
         throw new DatabaseException(

@@ -53,9 +53,9 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
 
     final Iterator fromIter = loadFrom();
     var db = ctx.getDatabase();
-    final Set<RID> toList = loadTo(db);
+    final var toList = loadTo(db);
 
-    ExecutionStreamProducer res =
+    var res =
         new ExecutionStreamProducer() {
           private final Iterator iter = fromIter;
           private final Set<RID> to = toList;
@@ -101,11 +101,11 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
       toValues = Collections.singleton(toValues).iterator();
     }
 
-    Iterator<?> toIter = (Iterator<?>) toValues;
+    var toIter = (Iterator<?>) toValues;
     if (toIter != null) {
       final Set<RID> toList = new HashSet<>();
       while (toIter.hasNext()) {
-        Object elem = toIter.next();
+        var elem = toIter.next();
         if (elem instanceof Result result && result.isEntity()) {
           elem = result.asEntity();
         }
@@ -162,8 +162,8 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
     if (targetCluster == null) {
       return true;
     }
-    int clusterId = edge.getIdentity().getClusterId();
-    String clusterName = ctx.getDatabase().getClusterNameById(clusterId);
+    var clusterId = edge.getIdentity().getClusterId();
+    var clusterName = ctx.getDatabase().getClusterNameById(clusterId);
     return clusterName.equals(targetCluster.getStringValue());
   }
 
@@ -178,8 +178,8 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
-    String result = spaces + "+ FOR EACH x in " + fromAlias + "\n";
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var result = spaces + "+ FOR EACH x in " + fromAlias + "\n";
     result += spaces + "    FOR EACH y in " + toAlias + "\n";
     result += spaces + "       FETCH EDGES FROM x TO y";
     if (targetClass != null) {

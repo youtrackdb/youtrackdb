@@ -25,7 +25,7 @@ import java.io.IOException;
 public class HttpMultipartHelper {
 
   protected static boolean isMultipartPartHeader(StringBuilder header) {
-    final String linePart = header.toString();
+    final var linePart = header.toString();
     return ((linePart.equals(HttpUtils.MULTIPART_CONTENT_CHARSET))
         || (linePart.equals(HttpUtils.MULTIPART_CONTENT_FILENAME))
         || (linePart.equals(HttpUtils.MULTIPART_CONTENT_NAME))
@@ -35,7 +35,7 @@ public class HttpMultipartHelper {
   }
 
   public static boolean isEndRequest(final HttpRequest iRequest) throws IOException {
-    int in = iRequest.getMultipartStream().read();
+    var in = iRequest.getMultipartStream().read();
     if (((char) in) == '-') {
       in = iRequest.getMultipartStream().read();
       if (((char) in) == '-') {

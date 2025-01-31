@@ -77,7 +77,7 @@ public class EdgeIterator extends LazyWrapperIterator<Edge> {
       return ((Entity) iObject).asEdge().get();
     }
 
-    final Identifiable rec = (Identifiable) iObject;
+    final var rec = (Identifiable) iObject;
 
     if (rec == null) {
       // SKIP IT
@@ -110,7 +110,7 @@ public class EdgeIterator extends LazyWrapperIterator<Edge> {
     final Edge edge;
     if (value.isVertex()) {
       // DIRECT VERTEX, CREATE DUMMY EDGE
-      DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
+      var db = DatabaseRecordThreadLocal.instance().getIfDefined();
       SchemaImmutableClass clazz = null;
       if (db != null && connection.getValue() != null) {
         clazz =

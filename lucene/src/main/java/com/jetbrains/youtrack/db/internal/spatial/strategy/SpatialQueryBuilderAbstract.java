@@ -46,12 +46,12 @@ public abstract class SpatialQueryBuilderAbstract {
 
   protected Shape parseShape(Map<String, Object> query) {
 
-    Object geometry = query.get(SHAPE);
+    var geometry = query.get(SHAPE);
 
     if (geometry == null) {
       throw new IndexEngineException("Invalid spatial query. Missing shape field " + query, null);
     }
-    Shape parsed = factory.fromObject(geometry);
+    var parsed = factory.fromObject(geometry);
 
     if (parsed == null) {
       throw new IndexEngineException(

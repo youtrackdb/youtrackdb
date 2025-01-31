@@ -32,14 +32,14 @@ public class CommandScriptException extends CoreException {
       return message;
     }
 
-    final StringBuilder buffer = new StringBuilder();
+    final var buffer = new StringBuilder();
     buffer.append("Error on parsing script at position #");
     buffer.append(position);
     buffer.append(": " + message);
     buffer.append("\nScript: ");
     buffer.append(text);
     buffer.append("\n------");
-    for (int i = 0; i < position - 1; ++i) {
+    for (var i = 0; i < position - 1; ++i) {
       buffer.append("-");
     }
 

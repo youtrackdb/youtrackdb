@@ -30,9 +30,9 @@ public class TruncateClassStatementExecutionTest extends BaseMemoryInternalDatab
   public void testTruncateClass() {
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass testClass = getOrCreateClass(schema);
+    var testClass = getOrCreateClass(schema);
 
-    final Index index = getOrCreateIndex(testClass);
+    final var index = getOrCreateIndex(testClass);
 
     db.command("truncate class test_class");
 
@@ -52,7 +52,7 @@ public class TruncateClassStatementExecutionTest extends BaseMemoryInternalDatab
         .field("data", Arrays.asList(8, 9, -1)));
     db.commit();
 
-    ResultSet result = db.query("select from test_class");
+    var result = db.query("select from test_class");
     //    Assert.assertEquals(result.size(), 2);
 
     Set<Integer> set = new HashSet<Integer>();
@@ -64,7 +64,7 @@ public class TruncateClassStatementExecutionTest extends BaseMemoryInternalDatab
 
     Assert.assertEquals(index.getInternal().size(db), 6);
 
-    try (Stream<RawPair<Object, RID>> stream = index.getInternal().stream(db)) {
+    try (var stream = index.getInternal().stream(db)) {
       stream.forEach(
           (entry) -> {
             Assert.assertTrue(set.contains((Integer) entry.first));
@@ -87,7 +87,7 @@ public class TruncateClassStatementExecutionTest extends BaseMemoryInternalDatab
       Assert.fail();
     } catch (Exception e) {
     }
-    ResultSet result = db.query("select from TestTruncateVertexClass");
+    var result = db.query("select from TestTruncateVertexClass");
     Assert.assertTrue(result.hasNext());
     result.close();
 
@@ -109,8 +109,8 @@ public class TruncateClassStatementExecutionTest extends BaseMemoryInternalDatab
     db.command("insert into TestTruncateVertexClassSubclass set name = 'bar'");
     db.commit();
 
-    ResultSet result = db.query("select from TestTruncateVertexClassSuperclass");
-    for (int i = 0; i < 2; i++) {
+    var result = db.query("select from TestTruncateVertexClassSuperclass");
+    for (var i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
       result.next();
     }
@@ -149,8 +149,8 @@ public class TruncateClassStatementExecutionTest extends BaseMemoryInternalDatab
     db.commit();
 
     if (!db.getStorage().isRemote()) {
-      final IndexManagerAbstract indexManager = db.getMetadata().getIndexManagerInternal();
-      final Index indexOne =
+      final var indexManager = db.getMetadata().getIndexManagerInternal();
+      final var indexOne =
           indexManager.getIndex(db, "TestTruncateVertexClassSuperclassWithIndex_index");
       Assert.assertEquals(2, indexOne.getInternal().size(db));
 
@@ -171,7 +171,7 @@ public class TruncateClassStatementExecutionTest extends BaseMemoryInternalDatab
   }
 
   private Index getOrCreateIndex(SchemaClass testClass) {
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "test_class_by_data");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "test_class_by_data");
     if (index == null) {
       testClass.createProperty(db, "data", PropertyType.EMBEDDEDLIST, PropertyType.INTEGER);
       testClass.createIndex(db, "test_class_by_data", SchemaClass.INDEX_TYPE.UNIQUE,
@@ -195,7 +195,7 @@ public class TruncateClassStatementExecutionTest extends BaseMemoryInternalDatab
   public void testTruncateClassWithCommandCache() {
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass testClass = getOrCreateClass(schema);
+    var testClass = getOrCreateClass(schema);
 
     db.command("truncate class test_class");
 
@@ -206,7 +206,7 @@ public class TruncateClassStatementExecutionTest extends BaseMemoryInternalDatab
         .field("data", Arrays.asList(3, 0)));
     db.commit();
 
-    ResultSet result = db.query("select from test_class");
+    var result = db.query("select from test_class");
     Assert.assertEquals(toList(result).size(), 2);
 
     result.close();

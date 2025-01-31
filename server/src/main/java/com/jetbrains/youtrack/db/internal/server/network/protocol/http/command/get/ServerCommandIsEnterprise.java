@@ -44,7 +44,7 @@ public class ServerCommandIsEnterprise extends ServerCommandAuthenticatedServerA
   @Override
   public boolean execute(HttpRequest iRequest, HttpResponse iResponse) throws Exception {
 
-    final String[] parts = checkSyntax(iRequest.getUrl(), 1, "Syntax error: isEE");
+    final var parts = checkSyntax(iRequest.getUrl(), 1, "Syntax error: isEE");
 
     if ("GET".equalsIgnoreCase(iRequest.getHttpMethod())) {
       doGet(iRequest, iResponse, parts);
@@ -58,7 +58,7 @@ public class ServerCommandIsEnterprise extends ServerCommandAuthenticatedServerA
 
     if ("isEE".equalsIgnoreCase(parts[0])) {
 
-      EntityImpl context = YouTrackDBEnginesManager.instance().getProfiler().getContext();
+      var context = YouTrackDBEnginesManager.instance().getProfiler().getContext();
 
       if (context.getProperty("enterprise") == null) {
         context.setProperty("enterprise", false);

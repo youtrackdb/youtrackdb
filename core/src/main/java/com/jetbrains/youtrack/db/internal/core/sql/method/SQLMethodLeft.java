@@ -47,9 +47,9 @@ public class SQLMethodLeft extends AbstractSQLMethod {
       return null;
     }
 
-    final String valueAsString = iThis.toString();
+    final var valueAsString = iThis.toString();
 
-    final int len = Integer.parseInt(iParams[0].toString());
+    final var len = Integer.parseInt(iParams[0].toString());
     return valueAsString.substring(0, len <= valueAsString.length() ? len : valueAsString.length());
   }
 }

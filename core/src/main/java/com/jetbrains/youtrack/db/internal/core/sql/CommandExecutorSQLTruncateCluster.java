@@ -47,20 +47,20 @@ public class CommandExecutorSQLTruncateCluster extends CommandExecutorSQLAbstrac
   @SuppressWarnings("unchecked")
   public CommandExecutorSQLTruncateCluster parse(DatabaseSessionInternal db,
       final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
       init((CommandRequestText) iRequest);
 
-      StringBuilder word = new StringBuilder();
+      var word = new StringBuilder();
 
-      int oldPos = 0;
-      int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
+      var oldPos = 0;
+      var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_TRUNCATE)) {
         throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_TRUNCATE + " not found. Use " + getSyntax(), parserText, oldPos);
@@ -84,7 +84,7 @@ public class CommandExecutorSQLTruncateCluster extends CommandExecutorSQLAbstrac
 
       if (preParsedStatement
           != null) { // new parser, this will be removed and implemented with the new executor
-        SQLIdentifier name = ((SQLTruncateClusterStatement) preParsedStatement).clusterName;
+        var name = ((SQLTruncateClusterStatement) preParsedStatement).clusterName;
         if (name != null) {
           clusterName = name.getStringValue();
         }
@@ -114,9 +114,9 @@ public class CommandExecutorSQLTruncateCluster extends CommandExecutorSQLAbstrac
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final DatabaseSessionInternal database = getDatabase();
+    final var database = getDatabase();
 
-    final int clusterId = database.getClusterIdByName(clusterName);
+    final var clusterId = database.getClusterIdByName(clusterName);
     if (clusterId < 0) {
       throw new DatabaseException("Cluster with name " + clusterName + " does not exist");
     }
@@ -126,12 +126,12 @@ public class CommandExecutorSQLTruncateCluster extends CommandExecutorSQLAbstrac
     if (clazz == null) {
       database.checkForClusterPermissions(clusterName);
 
-      final RecordIteratorCluster<DBRecord> iteratorCluster = database.browseCluster(clusterName);
+      final var iteratorCluster = database.browseCluster(clusterName);
       if (iteratorCluster == null) {
         throw new DatabaseException("Cluster with name " + clusterName + " does not exist");
       }
       while (iteratorCluster.hasNext()) {
-        final DBRecord record = iteratorCluster.next();
+        final var record = iteratorCluster.next();
         record.delete();
       }
     } else {

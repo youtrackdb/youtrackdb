@@ -35,7 +35,7 @@ public final class RIDsWeakValuesHashMap<V> extends AbstractMap<RID, V>
   public V get(RID key) {
     evictStaleEntries();
     V result = null;
-    final WeakRefValue<V> soft_ref = hashMap.get(key);
+    final var soft_ref = hashMap.get(key);
 
     if (soft_ref != null) {
       result = soft_ref.get();
@@ -58,12 +58,12 @@ public final class RIDsWeakValuesHashMap<V> extends AbstractMap<RID, V>
       throw new IllegalStateException("Modification is not allowed");
     }
 
-    int evicted = 0;
+    var evicted = 0;
 
     WeakRefValue<V> sv;
     //noinspection unchecked
     while ((sv = (WeakRefValue<V>) refQueue.poll()) != null) {
-      final RID key = sv.key;
+      final var key = sv.key;
 
       if (key instanceof ChangeableIdentity changeableIdentity) {
         changeableIdentity.removeIdentityChangeListener(this);
@@ -85,13 +85,13 @@ public final class RIDsWeakValuesHashMap<V> extends AbstractMap<RID, V>
 
     evictStaleEntries();
 
-    final WeakRefValue<V> soft_ref = new WeakRefValue<>(key, value, refQueue);
+    final var soft_ref = new WeakRefValue<V>(key, value, refQueue);
 
     if (key instanceof ChangeableIdentity changeableIdentity) {
       changeableIdentity.addIdentityChangeListener(this);
     }
 
-    final WeakRefValue<V> result = hashMap.put(key, soft_ref);
+    final var result = hashMap.put(key, soft_ref);
     if (result == null) {
       return null;
     }
@@ -106,7 +106,7 @@ public final class RIDsWeakValuesHashMap<V> extends AbstractMap<RID, V>
 
     evictStaleEntries();
 
-    final WeakRefValue<V> result = hashMap.remove(key);
+    final var result = hashMap.remove(key);
     if (key instanceof ChangeableIdentity changeableIdentity) {
       changeableIdentity.removeIdentityChangeListener(this);
     }
@@ -135,8 +135,8 @@ public final class RIDsWeakValuesHashMap<V> extends AbstractMap<RID, V>
   public @Nonnull Set<Entry<RID, V>> entrySet() {
     evictStaleEntries();
     Set<Entry<RID, V>> result = new HashSet<>();
-    for (final Entry<RID, WeakRefValue<V>> entry : hashMap.entrySet()) {
-      final V value = entry.getValue().get();
+    for (final var entry : hashMap.entrySet()) {
+      final var value = entry.getValue().get();
       if (value != null) {
         result.add(
             new Entry<>() {
@@ -163,8 +163,8 @@ public final class RIDsWeakValuesHashMap<V> extends AbstractMap<RID, V>
 
     stopModification = true;
     try {
-      for (final Entry<RID, WeakRefValue<V>> entry : hashMap.entrySet()) {
-        final V value = entry.getValue().get();
+      for (final var entry : hashMap.entrySet()) {
+        final var value = entry.getValue().get();
         if (value != null) {
           action.accept(entry.getKey(), value);
         }
@@ -225,7 +225,7 @@ public final class RIDsWeakValuesHashMap<V> extends AbstractMap<RID, V>
       }
 
       @SuppressWarnings("unchecked")
-      WeakRefValue<V> that = (WeakRefValue<V>) o;
+      var that = (WeakRefValue<V>) o;
       return key.equals(that.key);
     }
 

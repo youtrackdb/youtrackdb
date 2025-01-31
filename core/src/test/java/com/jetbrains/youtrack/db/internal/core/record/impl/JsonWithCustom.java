@@ -19,16 +19,16 @@ public class JsonWithCustom extends DbTestBase {
 
   @Test
   public void testCustomField() {
-    boolean old = GlobalConfiguration.DB_CUSTOM_SUPPORT.getValueAsBoolean();
+    var old = GlobalConfiguration.DB_CUSTOM_SUPPORT.getValueAsBoolean();
     GlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(true);
-    EntityImpl doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) db.newEntity();
     doc.field("test", String.class, PropertyType.CUSTOM);
 
-    String json = doc.toJSON();
+    var json = doc.toJSON();
 
     System.out.println(json);
 
-    EntityImpl doc1 = (EntityImpl) db.newEntity();
+    var doc1 = (EntityImpl) db.newEntity();
     doc1.updateFromJSON(json);
     assertEquals(doc.<String>field("test"), doc1.field("test"));
     GlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(old);
@@ -36,21 +36,21 @@ public class JsonWithCustom extends DbTestBase {
 
   @Test(expected = DatabaseException.class)
   public void testCustomFieldDisabled() {
-    EntityImpl doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) db.newEntity();
     doc.field("test", String.class, PropertyType.CUSTOM);
 
-    String json = doc.toJSON();
+    var json = doc.toJSON();
 
     System.out.println(json);
 
-    EntityImpl doc1 = (EntityImpl) db.newEntity();
+    var doc1 = (EntityImpl) db.newEntity();
     doc1.updateFromJSON(json);
     assertEquals(doc.<String>field("test"), doc1.field("test"));
   }
 
   @Test
   public void testCustomSerialization() {
-    boolean old = GlobalConfiguration.DB_CUSTOM_SUPPORT.getValueAsBoolean();
+    var old = GlobalConfiguration.DB_CUSTOM_SUPPORT.getValueAsBoolean();
     GlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(true);
     try (final YouTrackDB youTrackDB =
         CreateDatabaseUtil.createDatabase(
@@ -58,14 +58,14 @@ public class JsonWithCustom extends DbTestBase {
       // youTrackDB.create("testJson", DatabaseType.MEMORY);
       try (var db = (DatabaseSessionInternal) youTrackDB.open("testJson", "admin",
           CreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
-        SchemaClass klass = db.getMetadata().getSchema().createClass("TestCustom");
+        var klass = db.getMetadata().getSchema().createClass("TestCustom");
         klass.createProperty(db, "test", PropertyType.CUSTOM);
-        EntityImpl doc = (EntityImpl) db.newEntity("TestCustom");
+        var doc = (EntityImpl) db.newEntity("TestCustom");
         doc.field("test", TestCustom.ONE, PropertyType.CUSTOM);
 
-        String json = doc.toJSON();
+        var json = doc.toJSON();
 
-        EntityImpl doc1 = (EntityImpl) db.newEntity();
+        var doc1 = (EntityImpl) db.newEntity();
         doc1.updateFromJSON(json);
         assertEquals(TestCustom.ONE, TestCustom.valueOf(doc1.field("test")));
       }

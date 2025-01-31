@@ -70,7 +70,7 @@ public class RecordFactoryManager {
   }
 
   public String getRecordTypeName(final byte iRecordType) {
-    String name = recordTypeNames[iRecordType];
+    var name = recordTypeNames[iRecordType];
     if (name == null) {
       throw new IllegalArgumentException("Unsupported record type: " + iRecordType);
     }
@@ -106,7 +106,7 @@ public class RecordFactoryManager {
   }
 
   protected RecordFactory getFactory(final byte iRecordType) {
-    final RecordFactory factory = recordFactories[iRecordType];
+    final var factory = recordFactories[iRecordType];
     if (factory == null) {
       throw new IllegalArgumentException("Record type '" + iRecordType + "' is not supported");
     }

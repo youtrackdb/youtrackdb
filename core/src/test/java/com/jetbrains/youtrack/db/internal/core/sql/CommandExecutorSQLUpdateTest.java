@@ -57,7 +57,7 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.command("INSERT INTO company SET name = 'MyCompany'").close();
     db.commit();
 
-    final Entity r = db.query("SELECT FROM company").next().getEntity().get();
+    final var r = db.query("SELECT FROM company").next().getEntity().get();
 
     db.begin();
     db.command("INSERT INTO employee SET name = 'Philipp'").close();
@@ -87,8 +87,8 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.command("UPDATE V content {\"value\":\"foo\"}").close();
     db.commit();
 
-    try (ResultSet result = db.query("select from V")) {
-      Result doc = result.next();
+    try (var result = db.query("select from V")) {
+      var doc = result.next();
       assertEquals(doc.getProperty("value"), "foo");
     }
   }
@@ -100,14 +100,14 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.command("UPDATE V content {\"value\":\"foo\\\\\"}").close();
     db.commit();
 
-    try (ResultSet result = db.query("select from V")) {
+    try (var result = db.query("select from V")) {
       assertEquals(result.next().getProperty("value"), "foo\\");
     }
 
     db.begin();
     db.command("UPDATE V content {\"value\":\"foo\\\\\\\\\"}").close();
 
-    try (ResultSet result = db.query("select from V")) {
+    try (var result = db.query("select from V")) {
       assertEquals(result.next().getProperty("value"), "foo\\\\");
     }
     db.commit();
@@ -126,7 +126,7 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
             "INSERT INTO i_have_a_list CONTENT {\"id\": \"the_id\", \"types\": [\"aaa\", \"bbb\"]}")
         .close();
 
-    ResultSet result = db.query("SELECT * FROM i_have_a_list WHERE types = 'aaa'");
+    var result = db.query("SELECT * FROM i_have_a_list WHERE types = 'aaa'");
     assertEquals(result.stream().count(), 1);
 
     db.command(
@@ -145,7 +145,7 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
   @Test
   public void testNamedParamsSyntax() {
     // issue #4470
-    String className = getClass().getSimpleName() + "_NamedParamsSyntax";
+    var className = getClass().getSimpleName() + "_NamedParamsSyntax";
 
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("name", "foo");
@@ -187,8 +187,8 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.command("UPDATE test SET id = 1 , addField=[\"xxxx\"] UPSERT WHERE id = 1").close();
     db.commit();
 
-    try (ResultSet result = db.query("select from test")) {
-      Result doc = result.next();
+    try (var result = db.query("select from test")) {
+      var doc = result.next();
       Set<?> set = doc.getProperty("addField");
       assertEquals(set.size(), 1);
       assertEquals(set.iterator().next(), "xxxx");
@@ -198,13 +198,13 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
   @Test
   public void testUpdateParamDate() throws Exception {
     db.command("CREATE CLASS test").close();
-    Date date = new Date();
+    var date = new Date();
 
     db.begin();
     db.command("insert into test set birthDate = ?", date).close();
     db.commit();
-    try (ResultSet result = db.query("select from test")) {
-      Result doc = result.next();
+    try (var result = db.query("select from test")) {
+      var doc = result.next();
       assertEquals(doc.getProperty("birthDate"), date);
     }
 
@@ -213,8 +213,8 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.command("UPDATE test set birthDate = ?", date).close();
     db.commit();
 
-    try (ResultSet result = db.query("select from test")) {
-      Result doc = result.next();
+    try (var result = db.query("select from test")) {
+      var doc = result.next();
       assertEquals(doc.getProperty("birthDate"), date);
     }
   }
@@ -225,7 +225,7 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.getMetadata().getSchema().createClass("test");
 
     db.begin();
-    EntityImpl doc = (EntityImpl) db.newEntity("test");
+    var doc = (EntityImpl) db.newEntity("test");
     doc.field("id", 1);
     doc.field("boolean", false);
     doc.field("integerList", Collections.EMPTY_LIST);
@@ -253,8 +253,8 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
         .close();
     db.commit();
 
-    try (ResultSet queryResult = db.command("SELECT * FROM test WHERE id = 1")) {
-      Result docResult = queryResult.next();
+    try (var queryResult = db.command("SELECT * FROM test WHERE id = 1")) {
+      var docResult = queryResult.next();
       List<?> resultBooleanList = docResult.getProperty("booleanList");
       assertNotNull(resultBooleanList);
       assertEquals(resultBooleanList.size(), 1);
@@ -269,7 +269,7 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.command("CREATE class test").close();
 
     db.begin();
-    final EntityImpl test = (EntityImpl) db.newEntity("test");
+    final var test = (EntityImpl) db.newEntity("test");
     test.field("id", "id1");
     test.field("count", 20);
 
@@ -280,7 +280,7 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.save(test);
     db.commit();
 
-    Entity queried = db.query("SELECT FROM test WHERE id = \"id1\"").next().getEntity().get();
+    var queried = db.query("SELECT FROM test WHERE id = \"id1\"").next().getEntity().get();
 
     db.begin();
     db.command("UPDATE test set count += 2").close();
@@ -308,12 +308,12 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.command("CREATE class test").close();
 
     db.begin();
-    final EntityImpl test = (EntityImpl) db.newEntity("test");
+    final var test = (EntityImpl) db.newEntity("test");
     test.field("text", "initial value");
     db.save(test);
     db.commit();
 
-    Entity queried = db.query("SELECT FROM test").next().getEntity().get();
+    var queried = db.query("SELECT FROM test").next().getEntity().get();
     assertEquals(queried.getProperty("text"), "initial value");
 
     Map<String, Object> params = new HashMap<String, Object>();
@@ -332,13 +332,13 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.command("CREATE class test").close();
 
     db.begin();
-    final EntityImpl test = (EntityImpl) db.newEntity("test");
+    final var test = (EntityImpl) db.newEntity("test");
     test.field("text", "initial value");
 
     db.save(test);
     db.commit();
 
-    Entity queried = db.query("SELECT FROM test").next().getEntity().get();
+    var queried = db.query("SELECT FROM test").next().getEntity().get();
     assertEquals(queried.getProperty("text"), "initial value");
 
     Map<String, Object> params = new HashMap<String, Object>();
@@ -362,7 +362,7 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
         .close();
     db.commit();
 
-    Entity queried = db.query("SELECT FROM testquotesinjson").next().getEntity().get();
+    var queried = db.query("SELECT FROM testquotesinjson").next().getEntity().get();
     assertEquals(((Map) queried.getProperty("value")).get("f12"), "test\\");
   }
 
@@ -377,13 +377,13 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.command("insert into B set name = 'bar', a = (select from A)").close();
     db.commit();
 
-    String script = "let $a = select from B;\n" + "update $a.a set name = 'baz';\n";
+    var script = "let $a = select from B;\n" + "update $a.a set name = 'baz';\n";
 
     db.begin();
     db.command(new CommandScript(script)).execute(db);
     db.commit();
 
-    try (ResultSet result = db.query("select from A")) {
+    try (var result = db.query("select from A")) {
       assertEquals(result.next().getProperty("name"), "baz");
       assertFalse(result.hasNext());
     }
@@ -397,7 +397,7 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.command("UPDATE `foo-bar` set name = 'bar' where name = 'foo'").close();
     db.commit();
 
-    try (ResultSet result = db.query("select from `foo-bar`")) {
+    try (var result = db.query("select from `foo-bar`")) {
       assertEquals(result.next().getProperty("name"), "bar");
     }
   }
@@ -408,7 +408,7 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.getMetadata().getSchema().createClass("foo");
     db.command("insert into foo set name = 'foo'").close();
     db.command("UPDATE foo set name = 'bar' where name = 'foo' lock record limit 1").close();
-    try (ResultSet result = db.query("select from foo")) {
+    try (var result = db.query("select from foo")) {
       assertEquals(result.next().getProperty("name"), "bar");
     }
     db.command("UPDATE foo set name = 'foo' where name = 'bar' lock record limit 1").close();
@@ -425,7 +425,7 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.command("UPDATE cluster:foo set bar = {\"value\":\"foo\\\\\"}").close();
     db.commit();
 
-    try (ResultSet result = db.query("select from cluster:foo")) {
+    try (var result = db.query("select from cluster:foo")) {
       assertEquals(((Result) result.next().getProperty("bar")).getProperty("value"), "foo\\");
     }
   }
@@ -443,9 +443,9 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.command("UPDATE cluster:foo set bar = {\"value\":\"foo\\\\\"}").close();
     db.commit();
 
-    try (ResultSet result = db.query("select from cluster:foo")) {
+    try (var result = db.query("select from cluster:foo")) {
       assertTrue(result.hasNext());
-      Result doc = result.next();
+      var doc = result.next();
       assertEquals(((Result) doc.getProperty("bar")).getProperty("value"), "foo\\");
       assertFalse(result.hasNext());
     }
@@ -455,9 +455,9 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.command("UPDATE cluster:fooadditional1 set bar = {\"value\":\"foo\\\\\"}").close();
     db.commit();
 
-    try (ResultSet result = db.query("select from cluster:fooadditional1")) {
+    try (var result = db.query("select from cluster:fooadditional1")) {
       assertTrue(result.hasNext());
-      Result doc = result.next();
+      var doc = result.next();
       assertEquals(((Result) doc.getProperty("bar")).getProperty("value"), "foo\\");
       assertFalse(result.hasNext());
     }
@@ -480,9 +480,9 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
         .close();
     db.commit();
 
-    ResultSet resultSet = db.query("select from cluster:[ fooadditional1, fooadditional2 ]");
+    var resultSet = db.query("select from cluster:[ fooadditional1, fooadditional2 ]");
     assertTrue(resultSet.hasNext());
-    Result doc = resultSet.next();
+    var doc = resultSet.next();
     assertEquals(((Result) doc.getProperty("bar")).getProperty("value"), "foo\\");
     assertTrue(resultSet.hasNext());
     doc = resultSet.next();
@@ -497,7 +497,7 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.command("CREATE class Foo").close();
 
     db.begin();
-    EntityImpl d = (EntityImpl) db.newEntity("Foo");
+    var d = (EntityImpl) db.newEntity("Foo");
     d.field("name", "foo");
     d.save();
 
@@ -505,9 +505,9 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.command("update Foo CONTENT {\"a\":1}").close();
     db.commit();
 
-    try (ResultSet result = db.query("select from Foo")) {
+    try (var result = db.query("select from Foo")) {
 
-      Result doc = result.next();
+      var doc = result.next();
       assertNull(doc.getProperty("_allowRead"));
       assertFalse(result.hasNext());
     }
@@ -519,7 +519,7 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.command("CREATE class Foo").close();
 
     db.begin();
-    EntityImpl d = (EntityImpl) db.newEntity("Foo");
+    var d = (EntityImpl) db.newEntity("Foo");
     d.field("name", "foo");
     d.save();
     db.commit();
@@ -531,7 +531,7 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     db.commit();
 
     db.begin();
-    ResultSet result = db.command("update Foo set surname = 'baz' return count");
+    var result = db.command("update Foo set surname = 'baz' return count");
     db.commit();
 
     assertEquals(2, (long) result.next().getProperty("count"));
@@ -546,13 +546,13 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
         .close();
 
     db.begin();
-    EntityImpl state = (EntityImpl) db.newEntity("TestLinked");
+    var state = (EntityImpl) db.newEntity("TestLinked");
     state.setProperty("id", "idvalue");
     db.save(state);
     db.commit();
 
     db.begin();
-    EntityImpl d = (EntityImpl) db.newEntity("TestSource");
+    var d = (EntityImpl) db.newEntity("TestSource");
     state = db.bindToSession(state);
     d.setProperty("name", "foo");
     d.setProperty("linked", state);
@@ -566,9 +566,9 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
         .close();
     db.commit();
 
-    ResultSet result = db.query("select from TestLinked where id = \"idvalue\"");
+    var result = db.query("select from TestLinked where id = \"idvalue\"");
     while (result.hasNext()) {
-      Result res = result.next();
+      var res = result.next();
       assertTrue(res.hasProperty("flag"));
       assertTrue(res.getProperty("flag"));
     }

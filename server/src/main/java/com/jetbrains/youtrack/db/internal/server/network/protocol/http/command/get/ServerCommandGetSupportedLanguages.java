@@ -33,18 +33,18 @@ public class ServerCommandGetSupportedLanguages extends ServerCommandAuthenticat
 
   @Override
   public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
-    String[] urlParts =
+    var urlParts =
         checkSyntax(iRequest.getUrl(), 2, "Syntax error: supportedLanguages/<database>");
 
     iRequest.getData().commandInfo = "Returns the supported languages";
 
-    try (DatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
-      EntityImpl result = new EntityImpl(null);
+    try (var db = getProfiledDatabaseInstance(iRequest)) {
+      var result = new EntityImpl(null);
       Set<String> languages = new HashSet<>();
 
-      ScriptManager scriptManager =
+      var scriptManager =
           YouTrackDBInternal.extract(server.getContext()).getScriptManager();
-      for (String language : scriptManager.getSupportedLanguages()) {
+      for (var language : scriptManager.getSupportedLanguages()) {
         if (scriptManager.getFormatters() != null
             && scriptManager.getFormatters().get(language) != null) {
           languages.add(language);

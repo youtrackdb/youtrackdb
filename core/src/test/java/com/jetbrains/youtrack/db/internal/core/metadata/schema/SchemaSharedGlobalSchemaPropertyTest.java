@@ -17,7 +17,7 @@ public class SchemaSharedGlobalSchemaPropertyTest extends DbTestBase {
     Schema schema = db.getMetadata().getSchema();
 
     schema.createGlobalProperty("testaasd", PropertyType.SHORT, 100);
-    GlobalProperty prop = schema.getGlobalPropertyById(100);
+    var prop = schema.getGlobalPropertyById(100);
     assertEquals(prop.getName(), "testaasd");
     assertEquals(prop.getId(), (Integer) 100);
     assertEquals(prop.getType(), PropertyType.SHORT);

@@ -52,16 +52,16 @@ public class QueryLocalCacheIntegrationTest extends BaseDBTest {
     db.getMetadata().getSchema().createClass("OutInFetchClass");
 
     db.begin();
-    EntityImpl singleLinked = ((EntityImpl) db.newEntity());
+    var singleLinked = ((EntityImpl) db.newEntity());
     db.save(singleLinked);
-    EntityImpl doc = ((EntityImpl) db.newEntity("FetchClass"));
+    var doc = ((EntityImpl) db.newEntity("FetchClass"));
     doc.field("name", "first");
     db.save(doc);
-    EntityImpl doc1 = ((EntityImpl) db.newEntity("FetchClass"));
+    var doc1 = ((EntityImpl) db.newEntity("FetchClass"));
     doc1.field("name", "second");
     doc1.field("linked", singleLinked);
     db.save(doc1);
-    EntityImpl doc2 = ((EntityImpl) db.newEntity("FetchClass"));
+    var doc2 = ((EntityImpl) db.newEntity("FetchClass"));
     doc2.field("name", "third");
     List<EntityImpl> linkList = new ArrayList<>();
     linkList.add(doc);
@@ -74,29 +74,29 @@ public class QueryLocalCacheIntegrationTest extends BaseDBTest {
     doc2.field("linkSet", linkSet);
     db.save(doc2);
 
-    EntityImpl doc3 = ((EntityImpl) db.newEntity("FetchClass"));
+    var doc3 = ((EntityImpl) db.newEntity("FetchClass"));
     doc3.field("name", "forth");
     doc3.field("ref", doc2);
     doc3.field("linkSet", linkSet);
     doc3.field("linkList", linkList);
     db.save(doc3);
 
-    EntityImpl doc4 = ((EntityImpl) db.newEntity("SecondFetchClass"));
+    var doc4 = ((EntityImpl) db.newEntity("SecondFetchClass"));
     doc4.field("name", "fifth");
     doc4.field("surname", "test");
     db.save(doc4);
 
-    EntityImpl doc5 = ((EntityImpl) db.newEntity("SecondFetchClass"));
+    var doc5 = ((EntityImpl) db.newEntity("SecondFetchClass"));
     doc5.field("name", "sixth");
     doc5.field("surname", "test");
     db.save(doc5);
 
-    EntityImpl doc6 = ((EntityImpl) db.newEntity("OutInFetchClass"));
-    RidBag out = new RidBag(db);
+    var doc6 = ((EntityImpl) db.newEntity("OutInFetchClass"));
+    var out = new RidBag(db);
     out.add(doc2.getIdentity());
     out.add(doc3.getIdentity());
     doc6.field("out_friend", out);
-    RidBag in = new RidBag(db);
+    var in = new RidBag(db);
     in.add(doc4.getIdentity());
     in.add(doc5.getIdentity());
     doc6.field("in_friend", in);
@@ -115,7 +115,7 @@ public class QueryLocalCacheIntegrationTest extends BaseDBTest {
 
   @Test
   public void queryTest() {
-    final long times = YouTrackDBEnginesManager.instance().getProfiler().getCounter("Cache.reused");
+    final var times = YouTrackDBEnginesManager.instance().getProfiler().getCounter("Cache.reused");
 
     List<EntityImpl> resultset =
         db.query(new SQLSynchQuery<EntityImpl>("select * from FetchClass"));
@@ -124,7 +124,7 @@ public class QueryLocalCacheIntegrationTest extends BaseDBTest {
         times);
 
     RID linked;
-    for (EntityImpl d : resultset) {
+    for (var d : resultset) {
       linked = d.field("linked", RID.class);
       if (linked != null) {
         Assert.assertNull(db.getLocalCache().findRecord(linked));

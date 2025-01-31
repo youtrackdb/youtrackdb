@@ -39,13 +39,13 @@ public class SqlScriptExecutor extends AbstractScriptExecutor {
     if (!script.trim().endsWith(";")) {
       script += ";";
     }
-    List<SQLStatement> statements = SQLEngine.parseScript(script, database);
+    var statements = SQLEngine.parseScript(script, database);
 
     CommandContext scriptContext = new BasicCommandContext();
     scriptContext.setDatabase(database);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
-      for (int i = 0; i < args.length; i++) {
+      for (var i = 0; i < args.length; i++) {
         params.put(i, args[i]);
       }
     }
@@ -59,7 +59,7 @@ public class SqlScriptExecutor extends AbstractScriptExecutor {
     if (!script.trim().endsWith(";")) {
       script += ";";
     }
-    List<SQLStatement> statements = SQLEngine.parseScript(script, database);
+    var statements = SQLEngine.parseScript(script, database);
 
     CommandContext scriptContext = new BasicCommandContext();
     scriptContext.setDatabase(database);
@@ -70,15 +70,15 @@ public class SqlScriptExecutor extends AbstractScriptExecutor {
   }
 
   private ResultSet executeInternal(List<SQLStatement> statements, CommandContext scriptContext) {
-    ScriptExecutionPlan plan = new ScriptExecutionPlan(scriptContext);
+    var plan = new ScriptExecutionPlan(scriptContext);
 
     plan.setStatement(
         statements.stream().map(SQLStatement::toString).collect(Collectors.joining(";")));
 
     List<SQLStatement> lastRetryBlock = new ArrayList<>();
-    int nestedTxLevel = 0;
+    var nestedTxLevel = 0;
 
-    for (SQLStatement stm : statements) {
+    for (var stm : statements) {
       if (stm.getOriginalStatement() == null) {
         stm.setOriginalStatement(stm.toString());
       }
@@ -87,7 +87,7 @@ public class SqlScriptExecutor extends AbstractScriptExecutor {
       }
 
       if (nestedTxLevel <= 0) {
-        InternalExecutionPlan sub = stm.createExecutionPlan(scriptContext);
+        var sub = stm.createExecutionPlan(scriptContext);
         plan.chain(sub, false);
       } else {
         lastRetryBlock.add(stm);
@@ -97,12 +97,12 @@ public class SqlScriptExecutor extends AbstractScriptExecutor {
         nestedTxLevel--;
         if (nestedTxLevel == 0) {
           if (((SQLCommitStatement) stm).getRetry() != null) {
-            int nRetries = ((SQLCommitStatement) stm).getRetry().getValue().intValue();
+            var nRetries = ((SQLCommitStatement) stm).getRetry().getValue().intValue();
             if (nRetries <= 0) {
               throw new CommandExecutionException("Invalid retry number: " + nRetries);
             }
 
-            RetryStep step =
+            var step =
                 new RetryStep(
                     lastRetryBlock,
                     nRetries,
@@ -110,13 +110,13 @@ public class SqlScriptExecutor extends AbstractScriptExecutor {
                     ((SQLCommitStatement) stm).getElseFail(),
                     scriptContext,
                     false);
-            RetryExecutionPlan retryPlan = new RetryExecutionPlan(scriptContext);
+            var retryPlan = new RetryExecutionPlan(scriptContext);
             retryPlan.chain(step);
             plan.chain(retryPlan, false);
             lastRetryBlock = new ArrayList<>();
           } else {
-            for (SQLStatement statement : lastRetryBlock) {
-              InternalExecutionPlan sub = statement.createExecutionPlan(scriptContext);
+            for (var statement : lastRetryBlock) {
+              var sub = statement.createExecutionPlan(scriptContext);
               plan.chain(sub, false);
             }
           }
@@ -134,7 +134,7 @@ public class SqlScriptExecutor extends AbstractScriptExecutor {
   public Object executeFunction(
       CommandContext context, final String functionName, final Map<Object, Object> iArgs) {
 
-    final CommandExecutorFunction command = new CommandExecutorFunction();
+    final var command = new CommandExecutorFunction();
     command.parse(context.getDatabase(), new CommandFunction(functionName));
     return command.executeInContext(context, iArgs);
   }

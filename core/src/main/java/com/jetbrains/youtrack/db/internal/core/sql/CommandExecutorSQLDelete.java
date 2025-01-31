@@ -24,10 +24,8 @@ import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.parser.StringParser;
-import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
@@ -37,7 +35,6 @@ import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.IndexAbstract;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -48,7 +45,6 @@ import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLDeleteStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLQuery;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -76,10 +72,10 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
 
   @SuppressWarnings("unchecked")
   public CommandExecutorSQLDelete parse(DatabaseSessionInternal db, final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
@@ -101,7 +97,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
       parserRequiredKeyword(CommandExecutorSQLDelete.KEYWORD_DELETE);
       parserRequiredKeyword(CommandExecutorSQLDelete.KEYWORD_FROM);
 
-      String subjectName = parserRequiredWord(false, "Syntax error", " =><,\r\n");
+      var subjectName = parserRequiredWord(false, "Syntax error", " =><,\r\n");
       if (subjectName == null) {
         throwSyntaxErrorException(
             "Invalid subject name. Expected cluster, class, index or sub-query");
@@ -114,7 +110,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
 
         if (!parserIsEnded()) {
           while (!parserIsEnded()) {
-            final String word = parserGetLastWord();
+            final var word = parserGetLastWord();
 
             if (word.equals(KEYWORD_RETURN)) {
               returning = parseReturn();
@@ -145,7 +141,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
         parserNextWord(true);
         if (!parserIsEnded()) {
           while (!parserIsEnded()) {
-            final String word = parserGetLastWord();
+            final var word = parserGetLastWord();
 
             if (word.equals(KEYWORD_RETURN)) {
               returning = parseReturn();
@@ -167,7 +163,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
         parserNextWord(true);
 
         while (!parserIsEnded()) {
-          final String word = parserGetLastWord();
+          final var word = parserGetLastWord();
 
           if (word.equals(KEYWORD_RETURN)) {
             returning = parseReturn();
@@ -179,7 +175,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
           parserNextWord(true);
         }
 
-        final String condition =
+        final var condition =
             parserGetCurrentPosition() > -1
                 ? " " + parserText.substring(parserGetCurrentPosition())
                 : "";
@@ -216,7 +212,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
       // AGAINST CLUSTERS AND CLASSES
       query.setContext(getContext());
 
-      Object prevLockValue = query.getContext().getVariable("$locking");
+      var prevLockValue = query.getContext().getVariable("$locking");
 
       query.execute(db, iArgs);
 
@@ -237,7 +233,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
       if (compiledFilter != null) {
         compiledFilter.bindParameters(iArgs);
       }
-      final IndexInternal index =
+      final var index =
           db
               .getMetadata()
               .getIndexManagerInternal()
@@ -255,15 +251,15 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
       if (compiledFilter == null || compiledFilter.getRootCondition() == null) {
         if (returning.equalsIgnoreCase("COUNT")) {
           // RETURNS ONLY THE COUNT
-          final long total = index.size(db);
+          final var total = index.size(db);
           index.clear(db);
           return total;
         } else {
           // RETURNS ALL THE DELETED RECORDS
-          Iterator<RawPair<Object, RID>> cursor = index.stream(db).iterator();
+          var cursor = index.stream(db).iterator();
 
           while (cursor.hasNext()) {
-            final RawPair<Object, RID> entry = cursor.next();
+            final var entry = cursor.next();
             Identifiable rec = entry.second;
             rec = rec.getRecord(db);
             if (rec != null) {
@@ -295,7 +291,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
             key = getIndexKey(db, index.getDefinition(), leftCondition.getRight());
           }
 
-          final SQLFilterCondition rightCondition =
+          final var rightCondition =
               (SQLFilterCondition) compiledFilter.getRootCondition().getRight();
           if (KEYWORD_RID.equalsIgnoreCase(rightCondition.getLeft().toString())) {
             value = SQLHelper.getValue(rightCondition.getRight());
@@ -395,7 +391,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
    * Parses the returning keyword if found.
    */
   protected String parseReturn() throws CommandSQLParsingException {
-    final String returning = parserNextWord(true);
+    final var returning = parserNextWord(true);
 
     if (!returning.equalsIgnoreCase("COUNT") && !returning.equalsIgnoreCase("BEFORE")) {
       throwParsingException(
@@ -417,7 +413,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
       if (value instanceof List<?> values) {
         List<Object> keyParams = new ArrayList<Object>(values.size());
 
-        for (Object o : values) {
+        for (var o : values) {
           keyParams.add(SQLHelper.getValue(o));
         }
         return indexDefinition.createValue(session, keyParams);

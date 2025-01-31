@@ -35,7 +35,7 @@ public class YouTrackDbDataSourceTest extends YouTrackDbJdbcDbPerClassTemplateTe
   @Test
   public void shouldConnect() throws SQLException {
 
-    Connection conn = ds.getConnection();
+    var conn = ds.getConnection();
 
     assertThat(conn).isNotNull();
     conn.close();
@@ -51,26 +51,26 @@ public class YouTrackDbDataSourceTest extends YouTrackDbJdbcDbPerClassTemplateTe
   @Test
   public void shouldConnectWithPoolSizeOne() throws SQLException {
 
-    Properties info = new Properties();
+    var info = new Properties();
     info.setProperty("db.usePool", "TRUE");
     info.setProperty("db.pool.min", "1");
     info.setProperty("db.pool.max", "1");
     info.put("serverUser", "admin");
     info.put("serverPassword", "admin");
 
-    final YouTrackDbDataSource ds = new YouTrackDbDataSource();
+    final var ds = new YouTrackDbDataSource();
     ds.setDbUrl("jdbc:youtrackdb:memory:" + name.getMethodName());
     ds.setUsername("admin");
     ds.setPassword("admin");
     ds.setInfo(info);
 
-    YouTrackDbJdbcConnection conn = (YouTrackDbJdbcConnection) ds.getConnection();
+    var conn = (YouTrackDbJdbcConnection) ds.getConnection();
     assertThat(conn).isNotNull();
 
     conn.close();
     assertThat(conn.isClosed()).isTrue();
 
-    YouTrackDbJdbcConnection conn2 = (YouTrackDbJdbcConnection) ds.getConnection();
+    var conn2 = (YouTrackDbJdbcConnection) ds.getConnection();
     assertThat(conn2).isNotNull();
     conn2.close();
     assertThat(conn2.isClosed()).isTrue();
@@ -96,8 +96,8 @@ public class YouTrackDbDataSourceTest extends YouTrackDbJdbcDbPerClassTemplateTe
                     try {
                       conn1 = ds.getConnection();
 
-                      Statement statement = conn1.createStatement();
-                      ResultSet rs =
+                      var statement = conn1.createStatement();
+                      var rs =
                           statement.executeQuery(
                               "SELECT stringKey, intKey, text, length, date FROM Item order by"
                                   + " stringKey");
@@ -125,7 +125,7 @@ public class YouTrackDbDataSourceTest extends YouTrackDbJdbcDbPerClassTemplateTe
                   });
         };
     // spawn 20 threads
-    List<CompletableFuture<Void>> futures =
+    var futures =
         IntStream.range(0, 19)
             .boxed()
             .map(i -> CompletableFuture.runAsync(dbClient))
@@ -136,19 +136,19 @@ public class YouTrackDbDataSourceTest extends YouTrackDbJdbcDbPerClassTemplateTe
 
   @Test
   public void shouldConnectWithYouTrackDBInstance() throws SQLException {
-    final String serverUser = "admin";
-    final String serverPassword = "admin";
-    final String dbName = "test";
+    final var serverUser = "admin";
+    final var serverPassword = "admin";
+    final var dbName = "test";
 
-    YouTrackDBImpl youTrackDB =
+    var youTrackDB =
         new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()), serverUser, serverPassword,
             YouTrackDBConfig.defaultConfig());
     youTrackDB.execute(
         "create database ? memory users(admin identified by 'admin' role admin)", dbName);
 
-    YouTrackDbDataSource ods = new YouTrackDbDataSource(youTrackDB, dbName);
-    Connection connection = ods.getConnection(serverUser, serverPassword);
-    Statement statement = connection.createStatement();
+    var ods = new YouTrackDbDataSource(youTrackDB, dbName);
+    var connection = ods.getConnection(serverUser, serverPassword);
+    var statement = connection.createStatement();
     statement.executeQuery("SELECT FROM V");
   }
 }

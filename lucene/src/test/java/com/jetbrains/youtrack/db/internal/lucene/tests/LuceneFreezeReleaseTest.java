@@ -27,7 +27,7 @@ public class LuceneFreezeReleaseTest extends LuceneBaseTest {
   public void freezeReleaseTest() {
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass person = schema.createClass("Person");
+    var person = schema.createClass("Person");
     person.createProperty(db, "name", PropertyType.STRING);
 
     db.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE");
@@ -36,7 +36,7 @@ public class LuceneFreezeReleaseTest extends LuceneBaseTest {
     db.save(((EntityImpl) db.newEntity("Person")).field("name", "John"));
     db.commit();
 
-    ResultSet results = db.query("select from Person where search_class('John')=true");
+    var results = db.query("select from Person where search_class('John')=true");
 
     assertThat(results).hasSize(1);
     results.close();
@@ -66,7 +66,7 @@ public class LuceneFreezeReleaseTest extends LuceneBaseTest {
   public void freezeReleaseMisUsageTest() {
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass person = schema.createClass("Person");
+    var person = schema.createClass("Person");
     person.createProperty(db, "name", PropertyType.STRING);
 
     db.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE");
@@ -75,7 +75,7 @@ public class LuceneFreezeReleaseTest extends LuceneBaseTest {
     db.save(((EntityImpl) db.newEntity("Person")).field("name", "John"));
     db.commit();
 
-    ResultSet results = db.command("select from Person where search_class('John')=true");
+    var results = db.command("select from Person where search_class('John')=true");
 
     assertThat(results).hasSize(1);
     results.close();

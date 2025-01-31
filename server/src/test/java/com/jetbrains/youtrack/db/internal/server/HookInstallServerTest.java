@@ -62,20 +62,20 @@ public class HookInstallServerTest {
     server = new YouTrackDBServer(false);
     server.setServerRootDirectory(SERVER_DIRECTORY);
 
-    ServerConfigurationManager ret =
+    var ret =
         new ServerConfigurationManager(
             this.getClass()
                 .getClassLoader()
                 .getResourceAsStream(
                     "com/jetbrains/youtrack/db/internal/server/network/youtrackdb-server-config.xml"));
-    ServerHookConfiguration hc = new ServerHookConfiguration();
+    var hc = new ServerHookConfiguration();
     hc.clazz = MyHook.class.getName();
     ret.getConfiguration().hooks = new ArrayList<>();
     ret.getConfiguration().hooks.add(hc);
     server.startup(ret.getConfiguration());
     server.activate();
 
-    ServerAdmin admin = new ServerAdmin("remote:localhost");
+    var admin = new ServerAdmin("remote:localhost");
     admin.connect("root", "root");
     admin.createDatabase("test", "nothign", "memory");
     admin.close();
@@ -83,7 +83,7 @@ public class HookInstallServerTest {
 
   @After
   public void after() throws IOException {
-    ServerAdmin admin = new ServerAdmin("remote:localhost");
+    var admin = new ServerAdmin("remote:localhost");
     admin.connect("root", "root");
     admin.dropDatabase("test", "memory");
     admin.close();
@@ -96,11 +96,11 @@ public class HookInstallServerTest {
 
   @Test
   public void test() {
-    final int initValue = count;
+    final var initValue = count;
 
     try (var pool =
         YourTracks.remote("remote:localhost", "root", "root")) {
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         var poolInstance = pool.cachedPool("test", "admin", "admin");
         var id = i;
         try (var db = poolInstance.acquire()) {

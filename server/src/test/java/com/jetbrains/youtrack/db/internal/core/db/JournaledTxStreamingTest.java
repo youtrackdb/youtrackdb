@@ -53,7 +53,7 @@ public class JournaledTxStreamingTest {
 
   @Before
   public void before() throws Exception {
-    String buildDirectory = System.getProperty("buildDirectory", ".");
+    var buildDirectory = System.getProperty("buildDirectory", ".");
     buildDirectory += "/" + JournaledTxStreamingTest.class.getSimpleName();
 
     buildDir = new File(buildDirectory);
@@ -78,7 +78,7 @@ public class JournaledTxStreamingTest {
         (DatabaseSessionInternal)
             ctx.open(JournaledTxStreamingTest.class.getSimpleName(), "root", "root");
 
-    final Socket socket = new Socket();
+    final var socket = new Socket();
     socket.connect(new InetSocketAddress(InetAddress.getLocalHost(), 3600));
     socket.setSoTimeout(2000);
     stream = new DataInputStream(socket.getInputStream());
@@ -102,15 +102,15 @@ public class JournaledTxStreamingTest {
   public void testStreaming() throws IOException {
     Deque<Long> txs = new ArrayDeque<>();
 
-    for (int i = 0; i < ITERATIONS; ++i) {
+    for (var i = 0; i < ITERATIONS; ++i) {
       db.begin();
       txs.addLast(db.getTransaction().getClientTransactionId());
-      Entity rec = db.newInstance();
+      var rec = db.newInstance();
       db.save(rec, db.getClusterNameById(db.getDefaultClusterId()));
       db.commit();
     }
 
-    for (int i = 0; i < ITERATIONS; ++i) {
+    for (var i = 0; i < ITERATIONS; ++i) {
       assertThat(stream.readInt()).isEqualTo(txs.removeFirst());
     }
   }
@@ -118,14 +118,14 @@ public class JournaledTxStreamingTest {
   public static final class RemoteDBRunner {
 
     public static void main(String[] args) throws Exception {
-      YouTrackDBServer server = ServerMain.create(false);
+      var server = ServerMain.create(false);
       server.startup(
           RemoteDBRunner.class.getResourceAsStream(
               "/com/jetbrains/youtrack/db/internal/core/db/journaled-tx-streaming-test-server-config.xml"));
       server.activate();
 
-      final String mutexFile = System.getProperty("mutexFile");
-      final RandomAccessFile mutex = new RandomAccessFile(mutexFile, "rw");
+      final var mutexFile = System.getProperty("mutexFile");
+      final var mutex = new RandomAccessFile(mutexFile, "rw");
       mutex.seek(0);
       mutex.write(1);
       mutex.close();
@@ -133,17 +133,17 @@ public class JournaledTxStreamingTest {
   }
 
   private void spawnServer() throws Exception {
-    final File mutexFile = new File(buildDir, "mutex.ct");
-    final RandomAccessFile mutex = new RandomAccessFile(mutexFile, "rw");
+    final var mutexFile = new File(buildDir, "mutex.ct");
+    final var mutex = new RandomAccessFile(mutexFile, "rw");
     mutex.seek(0);
     mutex.write(0);
 
-    String javaExec = System.getProperty("java.home") + "/bin/java";
+    var javaExec = System.getProperty("java.home") + "/bin/java";
     javaExec = new File(javaExec).getCanonicalPath();
 
     System.setProperty("YOUTRACKDB_HOME", buildDir.getCanonicalPath());
 
-    ProcessBuilder processBuilder =
+    var processBuilder =
         new ProcessBuilder(
             javaExec,
             "-classpath",

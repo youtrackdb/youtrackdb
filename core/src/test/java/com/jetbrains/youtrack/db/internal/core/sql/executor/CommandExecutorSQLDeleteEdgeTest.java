@@ -53,7 +53,7 @@ public class CommandExecutorSQLDeleteEdgeTest extends DbTestBase {
   @Test
   public void testFromSelect() {
     db.begin();
-    ResultSet res =
+    var res =
         db.command(
             "delete edge CanAccess from (select from User where username = 'gongolo') to "
                 + folderId1);
@@ -65,7 +65,7 @@ public class CommandExecutorSQLDeleteEdgeTest extends DbTestBase {
   @Test
   public void testFromSelectToSelect() {
     db.begin();
-    ResultSet res =
+    var res =
         db.command(
             "delete edge CanAccess from ( select from User where username = 'gongolo' ) to ( select"
                 + " from Folder where keyId = '01234567893' )");
@@ -78,14 +78,14 @@ public class CommandExecutorSQLDeleteEdgeTest extends DbTestBase {
   @Test
   public void testDeleteByRID() {
     db.begin();
-    ResultSet result = db.command("delete edge [" + edges.get(0).getIdentity() + "]");
+    var result = db.command("delete edge [" + edges.get(0).getIdentity() + "]");
     db.commit();
     assertEquals((long) result.next().getProperty("count"), 1L);
   }
 
   @Test
   public void testDeleteEdgeWithVertexRid() {
-    ResultSet vertexes = db.command("select from v limit 1");
+    var vertexes = db.command("select from v limit 1");
     try {
       db.begin();
       db.command("delete edge [" + vertexes.next().getIdentity().get() + "]").close();
@@ -100,7 +100,7 @@ public class CommandExecutorSQLDeleteEdgeTest extends DbTestBase {
   public void testDeleteEdgeBatch() {
     // for issue #4622
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       db.begin();
       db.command("create vertex User set name = 'foo" + i + "'").close();
       db.command(
@@ -116,7 +116,7 @@ public class CommandExecutorSQLDeleteEdgeTest extends DbTestBase {
     db.command("delete edge CanAccess batch 5").close();
     db.commit();
 
-    ResultSet result = db.query("select expand( in('CanAccess') ) from " + folderId1);
+    var result = db.query("select expand( in('CanAccess') ) from " + folderId1);
     assertEquals(result.stream().count(), 0);
   }
 }

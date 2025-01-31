@@ -37,7 +37,7 @@ public class GraphEmbeddedTest extends BaseLuceneTest {
   @Before
   public void init() {
 
-    SchemaClass type = db.createVertexClass("City");
+    var type = db.createVertexClass("City");
     type.createProperty(db, "latitude", PropertyType.DOUBLE);
     type.createProperty(db, "longitude", PropertyType.DOUBLE);
     type.createProperty(db, "name", PropertyType.STRING);
@@ -51,7 +51,7 @@ public class GraphEmbeddedTest extends BaseLuceneTest {
     // THIS WON'T USE LUCENE INDEXES!!!! see #6997
 
     db.begin();
-    Vertex city = db.newVertex("City");
+    var city = db.newVertex("City");
     city.setProperty("name", "London / a");
     db.save(city);
 
@@ -62,7 +62,7 @@ public class GraphEmbeddedTest extends BaseLuceneTest {
 
     db.begin();
 
-    ResultSet resultSet = db.query("SELECT from City where name = 'London / a' ");
+    var resultSet = db.query("SELECT from City where name = 'London / a' ");
 
     Assertions.assertThat(resultSet).hasSize(1);
 
@@ -73,27 +73,27 @@ public class GraphEmbeddedTest extends BaseLuceneTest {
 
   @Test
   public void testGetVericesFilterClass() {
-    SchemaClass v = db.getClass("V");
+    var v = db.getClass("V");
     v.createProperty(db, "name", PropertyType.STRING);
     db.command("CREATE INDEX V.name ON V(name) NOTUNIQUE");
 
-    SchemaClass oneClass = db.createVertexClass("One");
-    SchemaClass twoClass = db.createVertexClass("Two");
+    var oneClass = db.createVertexClass("One");
+    var twoClass = db.createVertexClass("Two");
 
-    Vertex one = db.newVertex(oneClass);
+    var one = db.newVertex(oneClass);
     one.setProperty("name", "Same");
 
     db.begin();
     db.save(one);
     db.commit();
 
-    Vertex two = db.newVertex(twoClass);
+    var two = db.newVertex(twoClass);
     two.setProperty("name", "Same");
     db.begin();
     db.save(two);
     db.commit();
 
-    ResultSet resultSet = db.query("SELECT from One where name = 'Same' ");
+    var resultSet = db.query("SELECT from One where name = 'Same' ");
 
     Assertions.assertThat(resultSet).hasSize(1);
   }

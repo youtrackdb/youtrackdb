@@ -127,10 +127,10 @@ public class QueryOperatorTraverse extends QueryOperatorEqualityNotNulls {
 
       // TRAVERSE THE DOCUMENT ITSELF
       if (cfgFields != null) {
-        for (final String cfgField : cfgFields) {
+        for (final var cfgField : cfgFields) {
           if (cfgField.equalsIgnoreCase(SQLFilterItemFieldAny.FULL_NAME)) {
             // ANY
-            for (final String fieldName : target.fieldNames()) {
+            for (final var fieldName : target.fieldNames()) {
               if (traverse(
                   target.rawField(fieldName),
                   iCondition,
@@ -142,7 +142,7 @@ public class QueryOperatorTraverse extends QueryOperatorEqualityNotNulls {
             }
           } else if (cfgField.equalsIgnoreCase(SQLFilterItemFieldAny.FULL_NAME)) {
             // ALL
-            for (final String fieldName : target.fieldNames()) {
+            for (final var fieldName : target.fieldNames()) {
               if (!traverse(
                   target.rawField(fieldName),
                   iCondition,
@@ -164,22 +164,22 @@ public class QueryOperatorTraverse extends QueryOperatorEqualityNotNulls {
 
     } else if (iTarget instanceof QueryRuntimeValueMulti multi) {
 
-      for (final Object o : multi.getValues()) {
+      for (final var o : multi.getValues()) {
         if (traverse(o, iCondition, iLevel + 1, iEvaluatedRecords, iContext) == Boolean.TRUE) {
           return true;
         }
       }
     } else if (iTarget instanceof Map<?, ?>) {
 
-      final Map<Object, Object> map = (Map<Object, Object>) iTarget;
-      for (final Object o : map.values()) {
+      final var map = (Map<Object, Object>) iTarget;
+      for (final var o : map.values()) {
         if (traverse(o, iCondition, iLevel + 1, iEvaluatedRecords, iContext) == Boolean.TRUE) {
           return true;
         }
       }
     } else if (MultiValue.isMultiValue(iTarget)) {
-      final Iterable<Object> collection = MultiValue.getMultiValueIterable(iTarget);
-      for (final Object o : collection) {
+      final var collection = MultiValue.getMultiValueIterable(iTarget);
+      for (final var o : collection) {
         if (traverse(o, iCondition, iLevel + 1, iEvaluatedRecords, iContext) == Boolean.TRUE) {
           return true;
         }
@@ -202,12 +202,12 @@ public class QueryOperatorTraverse extends QueryOperatorEqualityNotNulls {
       return this;
     }
 
-    final int start = !iParams.isEmpty() ? Integer.parseInt(iParams.get(0)) : startDeepLevel;
-    final int end = iParams.size() > 1 ? Integer.parseInt(iParams.get(1)) : endDeepLevel;
+    final var start = !iParams.isEmpty() ? Integer.parseInt(iParams.get(0)) : startDeepLevel;
+    final var end = iParams.size() > 1 ? Integer.parseInt(iParams.get(1)) : endDeepLevel;
 
-    String[] fields = new String[]{"any()"};
+    var fields = new String[]{"any()"};
     if (iParams.size() > 2) {
-      String f = iParams.get(2);
+      var f = iParams.get(2);
       if (f.startsWith("'") || f.startsWith("\"")) {
         f = f.substring(1, f.length() - 1);
       }

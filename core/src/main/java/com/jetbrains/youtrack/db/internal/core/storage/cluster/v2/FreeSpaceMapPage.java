@@ -11,11 +11,11 @@ public final class FreeSpaceMapPage extends DurablePage {
   private static final int LEAVES_START_OFFSET;
 
   static {
-    final int pageCells = MAX_PAGE_SIZE_BYTES / CELL_SIZE;
+    final var pageCells = MAX_PAGE_SIZE_BYTES / CELL_SIZE;
 
     LEVELS = Integer.SIZE - Integer.numberOfLeadingZeros(pageCells) - 1;
 
-    final int totalCells = (MAX_PAGE_SIZE_BYTES - NEXT_FREE_POSITION) / CELL_SIZE;
+    final var totalCells = (MAX_PAGE_SIZE_BYTES - NEXT_FREE_POSITION) / CELL_SIZE;
     // amount of leaves in a tree
     CELLS_PER_PAGE = totalCells - ((1 << (LEVELS - 1)) - 1);
 
@@ -27,30 +27,30 @@ public final class FreeSpaceMapPage extends DurablePage {
   }
 
   public void init() {
-    final byte[] zeros = new byte[MAX_PAGE_SIZE_BYTES - NEXT_FREE_POSITION];
+    final var zeros = new byte[MAX_PAGE_SIZE_BYTES - NEXT_FREE_POSITION];
     setBinaryValue(NEXT_FREE_POSITION, zeros);
   }
 
   public int findPage(int requiredSize) {
-    int nodeIndex = 0;
+    var nodeIndex = 0;
 
-    final int maxValue = 0xFF & getByteValue(nodeOffset(1, 0));
+    final var maxValue = 0xFF & getByteValue(nodeOffset(1, 0));
     if (maxValue == 0 || maxValue < requiredSize) {
       return -1;
     }
 
-    for (int level = 2; level <= LEVELS; level++) {
-      final int leftNodeIndex = nodeIndex << 1;
+    for (var level = 2; level <= LEVELS; level++) {
+      final var leftNodeIndex = nodeIndex << 1;
       if (leftNodeIndex >= CELLS_PER_PAGE) {
         return -1;
       }
-      final int leftNodeOffset = nodeOffset(level, leftNodeIndex);
+      final var leftNodeOffset = nodeOffset(level, leftNodeIndex);
 
-      final int leftMax = 0xFF & getByteValue(leftNodeOffset);
+      final var leftMax = 0xFF & getByteValue(leftNodeOffset);
       if (leftMax >= requiredSize) {
         nodeIndex <<= 1;
       } else {
-        final int rightNodeIndex = (nodeIndex << 1) + 1;
+        final var rightNodeIndex = (nodeIndex << 1) + 1;
 
         if (rightNodeIndex >= CELLS_PER_PAGE) {
           return -1;
@@ -72,12 +72,12 @@ public final class FreeSpaceMapPage extends DurablePage {
       throw new IllegalArgumentException("Page index " + pageIndex + " exceeds tree capacity");
     }
 
-    int nodeOffset = LEAVES_START_OFFSET + pageIndex * CELL_SIZE;
-    int nodeIndex = pageIndex;
-    int nodeValue = freeSpace;
+    var nodeOffset = LEAVES_START_OFFSET + pageIndex * CELL_SIZE;
+    var nodeIndex = pageIndex;
+    var nodeValue = freeSpace;
 
-    for (int level = LEVELS; level > 0; level--) {
-      final int prevValue = 0xFF & getByteValue(nodeOffset);
+    for (var level = LEVELS; level > 0; level--) {
+      final var prevValue = 0xFF & getByteValue(nodeOffset);
       if (prevValue == nodeValue) {
         return 0xFF & getByteValue(nodeOffset(1, 0));
       }
@@ -95,7 +95,7 @@ public final class FreeSpaceMapPage extends DurablePage {
         siblingIndex = nodeIndex - 1;
       }
 
-      final int siblingOffset = nodeOffset(level, siblingIndex);
+      final var siblingOffset = nodeOffset(level, siblingIndex);
       final int siblingValue;
 
       if (siblingOffset + 2 <= MAX_PAGE_SIZE_BYTES) {

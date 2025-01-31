@@ -27,25 +27,18 @@ import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBStartupListener;
-import com.jetbrains.youtrack.db.internal.core.storage.Storage;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.ReadCache;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.WriteCache;
 import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
 import java.io.File;
 import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadInfo;
-import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 public abstract class AbstractProfiler extends SharedResourceAbstract
@@ -102,30 +95,30 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
     @Override
     public void run() {
       try {
-        final long jvmTotMemory = Runtime.getRuntime().totalMemory();
-        final long jvmMaxMemory = Runtime.getRuntime().maxMemory();
+        final var jvmTotMemory = Runtime.getRuntime().totalMemory();
+        final var jvmMaxMemory = Runtime.getRuntime().maxMemory();
 
-        for (Storage s : YouTrackDBEnginesManager.instance().getStorages()) {
+        for (var s : YouTrackDBEnginesManager.instance().getStorages()) {
           if (s instanceof LocalPaginatedStorage) {
-            final ReadCache dk = ((LocalPaginatedStorage) s).getReadCache();
-            final WriteCache wk = ((LocalPaginatedStorage) s).getWriteCache();
+            final var dk = ((LocalPaginatedStorage) s).getReadCache();
+            final var wk = ((LocalPaginatedStorage) s).getWriteCache();
             if (dk == null || wk == null)
             // NOT YET READY
             {
               continue;
             }
 
-            final long totalDiskCacheUsedMemory =
+            final var totalDiskCacheUsedMemory =
                 (dk.getUsedMemory() + wk.getExclusiveWriteCachePagesSize()) / FileUtils.MEGABYTE;
-            final long maxDiskCacheUsedMemory =
+            final var maxDiskCacheUsedMemory =
                 GlobalConfiguration.DISK_CACHE_SIZE.getValueAsLong();
 
             // CHECK IF THERE IS MORE THAN 40% HEAP UNUSED AND DISK-CACHE IS 80% OF THE MAXIMUM SIZE
             if ((jvmTotMemory * 140 / 100) < jvmMaxMemory
                 && (totalDiskCacheUsedMemory * 120 / 100) > maxDiskCacheUsedMemory) {
 
-              final long suggestedMaxHeap = jvmTotMemory * 120 / 100;
-              final long suggestedDiskCache =
+              final var suggestedMaxHeap = jvmTotMemory * 120 / 100;
+              final var suggestedDiskCache =
                   GlobalConfiguration.DISK_CACHE_SIZE.getValueAsLong()
                       + (jvmMaxMemory - suggestedMaxHeap) / FileUtils.MEGABYTE;
 
@@ -185,17 +178,17 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
   protected abstract AtomicInteger getTip(String iMessage);
 
   public static String dumpEnvironment(final String dumpType) {
-    final StringBuilder buffer = new StringBuilder();
+    final var buffer = new StringBuilder();
 
-    final Runtime runtime = Runtime.getRuntime();
+    final var runtime = Runtime.getRuntime();
 
-    final long freeSpaceInMB = new File(".").getFreeSpace();
-    final long totalSpaceInMB = new File(".").getTotalSpace();
+    final var freeSpaceInMB = new File(".").getFreeSpace();
+    final var totalSpaceInMB = new File(".").getTotalSpace();
 
-    int stgs = 0;
+    var stgs = 0;
     long diskCacheUsed = 0;
     long diskCacheTotal = 0;
-    for (Storage stg : YouTrackDBEnginesManager.instance().getStorages()) {
+    for (var stg : YouTrackDBEnginesManager.instance().getStorages()) {
       if (stg instanceof LocalPaginatedStorage) {
         diskCacheUsed += ((LocalPaginatedStorage) stg).getReadCache().getUsedMemory();
         diskCacheTotal += GlobalConfiguration.DISK_CACHE_SIZE.getValueAsLong() * 1024 * 1024;
@@ -203,13 +196,13 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
       }
     }
     try {
-      MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-      ObjectName osMBeanName =
+      var mbs = ManagementFactory.getPlatformMBeanServer();
+      var osMBeanName =
           ObjectName.getInstance(ManagementFactory.OPERATING_SYSTEM_MXBEAN_NAME);
       if (mbs.isInstanceOf(osMBeanName, "com.sun.management.OperatingSystemMXBean")) {
-        final long osTotalMem =
+        final var osTotalMem =
             ((Number) mbs.getAttribute(osMBeanName, "TotalPhysicalMemorySize")).longValue();
-        final long osUsedMem =
+        final var osUsedMem =
             osTotalMem
                 - ((Number) mbs.getAttribute(osMBeanName, "FreePhysicalMemorySize")).longValue();
 
@@ -253,11 +246,11 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
         long lastTxRollback = 0;
 
         if (statsLastAutoDump > 0) {
-          final long msFromLastDump = System.currentTimeMillis() - statsLastAutoDump;
+          final var msFromLastDump = System.currentTimeMillis() - statsLastAutoDump;
 
-          final String[] hooks = YouTrackDBEnginesManager.instance().getProfiler()
+          final var hooks = YouTrackDBEnginesManager.instance().getProfiler()
               .getHookAsString();
-          for (String h : hooks) {
+          for (var h : hooks) {
             if (h.startsWith("db.") && h.endsWith("createRecord")) {
               lastCreateRecords += (Long) YouTrackDBEnginesManager.instance().getProfiler()
                   .getHookValue(h);
@@ -279,10 +272,10 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
             }
           }
 
-          final List<String> chronos = YouTrackDBEnginesManager.instance().getProfiler()
+          final var chronos = YouTrackDBEnginesManager.instance().getProfiler()
               .getChronos();
-          for (String c : chronos) {
-            final ProfilerEntry chrono = YouTrackDBEnginesManager.instance().getProfiler()
+          for (var c : chronos) {
+            final var chrono = YouTrackDBEnginesManager.instance().getProfiler()
                 .getChrono(c);
             if (chrono != null) {
               if (c.startsWith("db.") && c.contains(".command.")) {
@@ -406,7 +399,7 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
   }
 
   public int reportTip(final String iMessage) {
-    AtomicInteger counter = getTip(iMessage);
+    var counter = getTip(iMessage);
     if (counter == null) {
       // DUMP THE MESSAGE ONLY THE FIRST TIME
       LogManager.instance().info(this, "[TIP] " + iMessage);
@@ -527,15 +520,15 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
       LogManager.instance()
           .info(this, "Enabled auto dump of profiler every %d second(s)", iSeconds);
 
-      final int ms = iSeconds * 1000;
+      final var ms = iSeconds * 1000;
 
       autoDumpTask =
           YouTrackDBEnginesManager.instance()
               .scheduleTask(
                   () -> {
-                    final StringBuilder output = new StringBuilder();
+                    final var output = new StringBuilder();
 
-                    final String dumpType =
+                    final var dumpType =
                         GlobalConfiguration.PROFILER_AUTODUMP_TYPE.getValueAsString();
 
                     output.append(
@@ -568,7 +561,7 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
   public Map<String, Pair<String, METRIC_TYPE>> getMetadata() {
     final Map<String, Pair<String, METRIC_TYPE>> metadata =
         new HashMap<String, Pair<String, METRIC_TYPE>>();
-    for (Entry<String, String> entry : dictionary.entrySet()) {
+    for (var entry : dictionary.entrySet()) {
       metadata.put(
           entry.getKey(),
           new Pair<String, METRIC_TYPE>(entry.getValue(), types.get(entry.getKey())));
@@ -579,7 +572,7 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
   @Override
   public String[] getHookAsString() {
     final List<String> keys = new ArrayList<String>(hooks.keySet());
-    final String[] array = new String[keys.size()];
+    final var array = new String[keys.size()];
     return keys.toArray(array);
   }
 
@@ -613,19 +606,19 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
 
   @Override
   public String getSystemMetric(final String iMetricName) {
-    String buffer = "system." + iMetricName;
+    var buffer = "system." + iMetricName;
     return buffer;
   }
 
   @Override
   public String getProcessMetric(final String iMetricName) {
-    String buffer = "process." + iMetricName;
+    var buffer = "process." + iMetricName;
     return buffer;
   }
 
   @Override
   public String getDatabaseMetric(final String iDatabaseName, final String iMetricName) {
-    String buffer = "db." + (iDatabaseName != null ? iDatabaseName : "*") + '.' + iMetricName;
+    var buffer = "db." + (iDatabaseName != null ? iDatabaseName : "*") + '.' + iMetricName;
     return buffer;
   }
 
@@ -635,7 +628,7 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
   }
 
   protected void installMemoryChecker() {
-    final long memoryCheckInterval =
+    final var memoryCheckInterval =
         GlobalConfiguration.PROFILER_MEMORYCHECK_INTERVAL.getValueAsLong();
 
     if (memoryCheckInterval > 0) {
@@ -666,20 +659,20 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
 
   @Override
   public String threadDump() {
-    final StringBuilder dump = new StringBuilder();
+    final var dump = new StringBuilder();
     dump.append("THREAD DUMP\n");
-    final ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
-    final ThreadInfo[] threadInfos =
+    final var threadMXBean = ManagementFactory.getThreadMXBean();
+    final var threadInfos =
         threadMXBean.getThreadInfo(threadMXBean.getAllThreadIds(), 100);
-    for (ThreadInfo threadInfo : threadInfos) {
+    for (var threadInfo : threadInfos) {
       dump.append('"');
       dump.append(threadInfo.getThreadName());
       dump.append("\" ");
-      final Thread.State state = threadInfo.getThreadState();
+      final var state = threadInfo.getThreadState();
       dump.append("\n   java.lang.Thread.State: ");
       dump.append(state);
-      final StackTraceElement[] stackTraceElements = threadInfo.getStackTrace();
-      for (final StackTraceElement stackTraceElement : stackTraceElements) {
+      final var stackTraceElements = threadInfo.getStackTrace();
+      for (final var stackTraceElement : stackTraceElements) {
         dump.append("\n        at ");
         dump.append(stackTraceElement);
       }

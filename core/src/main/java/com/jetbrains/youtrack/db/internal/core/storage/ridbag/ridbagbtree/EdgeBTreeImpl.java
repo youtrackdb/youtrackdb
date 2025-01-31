@@ -77,24 +77,24 @@ public class EdgeBTreeImpl implements EdgeBTree<RID, Integer> {
 
   @Override
   public void clear(AtomicOperation atomicOperation) {
-    try (Stream<RawPairObjectInteger<EdgeKey>> stream =
+    try (var stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, Integer.MIN_VALUE, Long.MIN_VALUE),
             true,
             new EdgeKey(ridBagId, Integer.MAX_VALUE, Long.MAX_VALUE),
             true,
             true)) {
-      final Iterator<RawPairObjectInteger<EdgeKey>> iterator = stream.iterator();
+      final var iterator = stream.iterator();
 
       while (iterator.hasNext()) {
-        final RawPairObjectInteger<EdgeKey> entry = iterator.next();
+        final var entry = iterator.next();
         bTree.remove(atomicOperation, entry.first);
       }
     }
   }
 
   public boolean isEmpty() {
-    try (final Stream<RawPairObjectInteger<EdgeKey>> stream =
+    try (final var stream =
         bTree.iterateEntriesMajor(
             new EdgeKey(ridBagId, Integer.MIN_VALUE, Long.MIN_VALUE), true, true)) {
       return stream.findAny().isEmpty();
@@ -126,7 +126,7 @@ public class EdgeBTreeImpl implements EdgeBTree<RID, Integer> {
       boolean inclusive,
       boolean ascSortOrder,
       RangeResultListener<RID, Integer> listener) {
-    try (final Stream<RawPairObjectInteger<EdgeKey>> stream =
+    try (final var stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, rid.getClusterId(), rid.getClusterPosition()),
             inclusive,
@@ -139,16 +139,16 @@ public class EdgeBTreeImpl implements EdgeBTree<RID, Integer> {
 
   @Override
   public RID firstKey() {
-    try (final Stream<RawPairObjectInteger<EdgeKey>> stream =
+    try (final var stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, Integer.MIN_VALUE, Long.MIN_VALUE),
             true,
             new EdgeKey(ridBagId, Integer.MAX_VALUE, Long.MAX_VALUE),
             true,
             true)) {
-      final Iterator<RawPairObjectInteger<EdgeKey>> iterator = stream.iterator();
+      final var iterator = stream.iterator();
       if (iterator.hasNext()) {
-        final RawPairObjectInteger<EdgeKey> entry = iterator.next();
+        final var entry = iterator.next();
         return new RecordId(entry.first.targetCluster, entry.first.targetPosition);
       }
     }
@@ -158,16 +158,16 @@ public class EdgeBTreeImpl implements EdgeBTree<RID, Integer> {
 
   @Override
   public RID lastKey() {
-    try (final Stream<RawPairObjectInteger<EdgeKey>> stream =
+    try (final var stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, Integer.MAX_VALUE, Long.MAX_VALUE),
             true,
             new EdgeKey(ridBagId, Integer.MIN_VALUE, Long.MIN_VALUE),
             true,
             false)) {
-      final Iterator<RawPairObjectInteger<EdgeKey>> iterator = stream.iterator();
+      final var iterator = stream.iterator();
       if (iterator.hasNext()) {
-        final RawPairObjectInteger<EdgeKey> entry = iterator.next();
+        final var entry = iterator.next();
         return new RecordId(entry.first.targetCluster, entry.first.targetPosition);
       }
     }
@@ -178,9 +178,9 @@ public class EdgeBTreeImpl implements EdgeBTree<RID, Integer> {
   @Override
   public int getRealBagSize(Map<RID, Change> changes) {
     final Map<Identifiable, Change> notAppliedChanges = new HashMap<>(changes);
-    final ModifiableInteger size = new ModifiableInteger(0);
+    final var size = new ModifiableInteger(0);
 
-    try (final Stream<RawPairObjectInteger<EdgeKey>> stream =
+    try (final var stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, Integer.MIN_VALUE, Long.MIN_VALUE),
             true,
@@ -190,9 +190,9 @@ public class EdgeBTreeImpl implements EdgeBTree<RID, Integer> {
       forEachEntry(
           stream,
           entry -> {
-            final RecordId rid =
+            final var rid =
                 new RecordId(entry.first.targetCluster, entry.first.targetPosition);
-            final Change change = notAppliedChanges.remove(rid);
+            final var change = notAppliedChanges.remove(rid);
             final int result;
 
             final Integer treeValue = entry.second;
@@ -207,8 +207,8 @@ public class EdgeBTreeImpl implements EdgeBTree<RID, Integer> {
           });
     }
 
-    for (final Change change : notAppliedChanges.values()) {
-      final int result = change.applyTo(0);
+    for (final var change : notAppliedChanges.values()) {
+      final var result = change.applyTo(0);
       size.increment(result);
     }
 
@@ -229,9 +229,9 @@ public class EdgeBTreeImpl implements EdgeBTree<RID, Integer> {
       final Stream<RawPairObjectInteger<EdgeKey>> stream,
       final Function<RawPairObjectInteger<EdgeKey>, Boolean> consumer) {
 
-    boolean cont = true;
+    var cont = true;
 
-    final Iterator<RawPairObjectInteger<EdgeKey>> iterator = stream.iterator();
+    final var iterator = stream.iterator();
     while (iterator.hasNext() && cont) {
       cont = consumer.apply(iterator.next());
     }
@@ -243,9 +243,9 @@ public class EdgeBTreeImpl implements EdgeBTree<RID, Integer> {
       maxValuesToFetch = Integer.MAX_VALUE;
     }
 
-    final IntArrayList result = new IntArrayList(Math.max(8, maxValuesToFetch));
+    final var result = new IntArrayList(Math.max(8, maxValuesToFetch));
 
-    final int limit = maxValuesToFetch;
+    final var limit = maxValuesToFetch;
     forEachEntry(
         stream,
         entry -> {

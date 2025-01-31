@@ -26,13 +26,13 @@ public class SQLFunctionConvertTest extends DbTestBase {
         .close();
     db.commit();
 
-    RID doc = db.query("select from TestConversion limit 1").next().getIdentity().get();
+    var doc = db.query("select from TestConversion limit 1").next().getIdentity().get();
 
     db.begin();
     db.command("update TestConversion set selfrid = 'foo" + doc.getIdentity() + "'").close();
     db.commit();
 
-    ResultSet results = db.query("select string.asString() as convert from TestConversion");
+    var results = db.query("select string.asString() as convert from TestConversion");
 
     assertTrue(results.next().getProperty("convert") instanceof String);
     assertFalse(results.hasNext());

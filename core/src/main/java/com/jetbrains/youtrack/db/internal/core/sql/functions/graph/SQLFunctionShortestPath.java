@@ -83,9 +83,9 @@ public class SQLFunctionShortestPath extends SQLFunctionMathAbstract {
     var db = iContext.getDatabase();
     var record = iCurrentRecord != null ? iCurrentRecord.getRecord(db) : null;
 
-    final ShortestPathContext ctx = new ShortestPathContext();
+    final var ctx = new ShortestPathContext();
 
-    Object source = iParams[0];
+    var source = iParams[0];
     source = getSingleItem(source);
     if (source == null) {
       throw new IllegalArgumentException("Only one sourceVertex is allowed");
@@ -101,7 +101,7 @@ public class SQLFunctionShortestPath extends SQLFunctionMathAbstract {
       throw new IllegalArgumentException("The sourceVertex must be a vertex record");
     }
 
-    Object dest = iParams[1];
+    var dest = iParams[1];
     dest = getSingleItem(dest);
     if (dest == null) {
       throw new IllegalArgumentException("Only one destinationVertex is allowed");
@@ -135,7 +135,7 @@ public class SQLFunctionShortestPath extends SQLFunctionMathAbstract {
     ctx.edgeType = null;
     if (iParams.length > 3) {
 
-      Object param = iParams[3];
+      var param = iParams[3];
       if (param instanceof Collection
           && ((Collection) param).stream().allMatch(x -> x instanceof String)) {
         ctx.edgeType = ((Collection<String>) param).stream().collect(Collectors.joining(","));
@@ -158,7 +158,7 @@ public class SQLFunctionShortestPath extends SQLFunctionMathAbstract {
     ctx.queueRight.add(ctx.destinationVertex);
     ctx.rightVisited.add(ctx.destinationVertex.getIdentity());
 
-    int depth = 1;
+    var depth = 1;
     while (true) {
       if (ctx.maxDepth != null && ctx.maxDepth <= depth) {
         break;
@@ -239,7 +239,7 @@ public class SQLFunctionShortestPath extends SQLFunctionMathAbstract {
     }
     if (mapParams != null) {
       ctx.maxDepth = integer(mapParams.get("maxDepth"));
-      Boolean withEdge = toBoolean(mapParams.get("edge"));
+      var withEdge = toBoolean(mapParams.get("edge"));
       ctx.edge = Boolean.TRUE.equals(withEdge) ? Boolean.TRUE : Boolean.FALSE;
     }
   }
@@ -290,11 +290,11 @@ public class SQLFunctionShortestPath extends SQLFunctionMathAbstract {
   private RawPair<Iterable<Vertex>, Iterable<Edge>> getVerticesAndEdges(
       Vertex srcVertex, Direction direction, String... types) {
     if (direction == Direction.BOTH) {
-      MultiCollectionIterator<Vertex> vertexIterator = new MultiCollectionIterator<>();
-      MultiCollectionIterator<Edge> edgeIterator = new MultiCollectionIterator<>();
-      RawPair<Iterable<Vertex>, Iterable<Edge>> pair1 =
+      var vertexIterator = new MultiCollectionIterator<Vertex>();
+      var edgeIterator = new MultiCollectionIterator<Edge>();
+      var pair1 =
           getVerticesAndEdges(srcVertex, Direction.OUT, types);
-      RawPair<Iterable<Vertex>, Iterable<Edge>> pair2 =
+      var pair2 =
           getVerticesAndEdges(srcVertex, Direction.IN, types);
       vertexIterator.add(pair1.first);
       vertexIterator.add(pair2.first);
@@ -302,8 +302,8 @@ public class SQLFunctionShortestPath extends SQLFunctionMathAbstract {
       edgeIterator.add(pair2.second);
       return new RawPair<>(vertexIterator, edgeIterator);
     } else {
-      Iterable<Edge> edges1 = srcVertex.getEdges(direction, types);
-      Iterable<Edge> edges2 = srcVertex.getEdges(direction, types);
+      var edges1 = srcVertex.getEdges(direction, types);
+      var edges2 = srcVertex.getEdges(direction, types);
       return new RawPair<>(new EdgeToVertexIterable(edges1, direction), edges2);
     }
   }
@@ -326,7 +326,7 @@ public class SQLFunctionShortestPath extends SQLFunctionMathAbstract {
   }
 
   protected List<RID> walkLeft(final ShortestPathContext ctx) {
-    ArrayDeque<Vertex> nextLevelQueue = new ArrayDeque<>();
+    var nextLevelQueue = new ArrayDeque<Vertex>();
     if (!Boolean.TRUE.equals(ctx.edge)) {
       while (!ctx.queueLeft.isEmpty()) {
         ctx.current = ctx.queueLeft.poll();
@@ -337,9 +337,9 @@ public class SQLFunctionShortestPath extends SQLFunctionMathAbstract {
         } else {
           neighbors = ctx.current.getVertices(ctx.directionLeft, ctx.edgeTypeParam);
         }
-        for (Vertex neighbor : neighbors) {
-          final Vertex v = neighbor;
-          final RID neighborIdentity = v.getIdentity();
+        for (var neighbor : neighbors) {
+          final var v = neighbor;
+          final var neighborIdentity = v.getIdentity();
 
           if (ctx.rightVisited.contains(neighborIdentity)) {
             ctx.previouses.put(neighborIdentity, ctx.current.getIdentity());
@@ -363,12 +363,12 @@ public class SQLFunctionShortestPath extends SQLFunctionMathAbstract {
         } else {
           neighbors = getVerticesAndEdges(ctx.current, ctx.directionLeft, ctx.edgeTypeParam);
         }
-        Iterator<Vertex> vertexIterator = neighbors.first.iterator();
-        Iterator<Edge> edgeIterator = neighbors.second.iterator();
+        var vertexIterator = neighbors.first.iterator();
+        var edgeIterator = neighbors.second.iterator();
         while (vertexIterator.hasNext() && edgeIterator.hasNext()) {
-          Vertex v = vertexIterator.next();
-          final RID neighborVertexIdentity = v.getIdentity();
-          final RID neighborEdgeIdentity = edgeIterator.next().getIdentity();
+          var v = vertexIterator.next();
+          final var neighborVertexIdentity = v.getIdentity();
+          final var neighborEdgeIdentity = edgeIterator.next().getIdentity();
 
           if (ctx.rightVisited.contains(neighborVertexIdentity)) {
             ctx.previouses.put(neighborVertexIdentity, neighborEdgeIdentity);
@@ -390,7 +390,7 @@ public class SQLFunctionShortestPath extends SQLFunctionMathAbstract {
   }
 
   protected List<RID> walkRight(final ShortestPathContext ctx) {
-    final ArrayDeque<Vertex> nextLevelQueue = new ArrayDeque<>();
+    final var nextLevelQueue = new ArrayDeque<Vertex>();
     if (!Boolean.TRUE.equals(ctx.edge)) {
       while (!ctx.queueRight.isEmpty()) {
         ctx.currentRight = ctx.queueRight.poll();
@@ -401,9 +401,9 @@ public class SQLFunctionShortestPath extends SQLFunctionMathAbstract {
         } else {
           neighbors = ctx.currentRight.getVertices(ctx.directionRight, ctx.edgeTypeParam);
         }
-        for (Vertex neighbor : neighbors) {
-          final Vertex v = neighbor;
-          final RID neighborIdentity = v.getIdentity();
+        for (var neighbor : neighbors) {
+          final var v = neighbor;
+          final var neighborIdentity = v.getIdentity();
 
           if (ctx.leftVisited.contains(neighborIdentity)) {
             ctx.nexts.put(neighborIdentity, ctx.currentRight.getIdentity());
@@ -429,12 +429,12 @@ public class SQLFunctionShortestPath extends SQLFunctionMathAbstract {
           neighbors = getVerticesAndEdges(ctx.currentRight, ctx.directionRight, ctx.edgeTypeParam);
         }
 
-        Iterator<Vertex> vertexIterator = neighbors.first.iterator();
-        Iterator<Edge> edgeIterator = neighbors.second.iterator();
+        var vertexIterator = neighbors.first.iterator();
+        var edgeIterator = neighbors.second.iterator();
         while (vertexIterator.hasNext() && edgeIterator.hasNext()) {
-          final Vertex v = vertexIterator.next();
-          final RID neighborVertexIdentity = v.getIdentity();
-          final RID neighborEdgeIdentity = edgeIterator.next().getIdentity();
+          final var v = vertexIterator.next();
+          final var neighborVertexIdentity = v.getIdentity();
+          final var neighborEdgeIdentity = edgeIterator.next().getIdentity();
 
           if (ctx.leftVisited.contains(neighborVertexIdentity)) {
             ctx.nexts.put(neighborVertexIdentity, neighborEdgeIdentity);
@@ -461,7 +461,7 @@ public class SQLFunctionShortestPath extends SQLFunctionMathAbstract {
       final RID neighbor) {
     final List<RID> result = new ArrayList<RID>();
 
-    RID current = neighbor;
+    var current = neighbor;
     while (current != null) {
       result.add(0, current);
       current = leftDistances.get(current);

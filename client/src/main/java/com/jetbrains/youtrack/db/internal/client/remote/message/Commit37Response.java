@@ -44,7 +44,7 @@ public final class Commit37Response implements BinaryResponse {
     super();
     this.updatedRids = new ArrayList<>(updatedRids.size());
 
-    for (Map.Entry<RecordId, RecordId> entry : updatedRids.entrySet()) {
+    for (var entry : updatedRids.entrySet()) {
       this.updatedRids.add(new ObjectObjectImmutablePair<>(entry.getValue(), entry.getKey()));
     }
 
@@ -72,9 +72,9 @@ public final class Commit37Response implements BinaryResponse {
   public void read(DatabaseSessionInternal db, ChannelDataInput network,
       StorageRemoteSession session) throws IOException {
 
-    int updatedRidsSize = network.readInt();
+    var updatedRidsSize = network.readInt();
     updatedRids = new ArrayList<>(updatedRidsSize);
-    for (int i = 0; i < updatedRidsSize; i++) {
+    for (var i = 0; i < updatedRidsSize; i++) {
       var first = network.readRID();
       var second = network.readRID();
 

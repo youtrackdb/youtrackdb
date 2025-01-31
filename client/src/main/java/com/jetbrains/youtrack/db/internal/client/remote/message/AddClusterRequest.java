@@ -53,7 +53,7 @@ public final class AddClusterRequest implements BinaryRequest<AddClusterResponse
   public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
       RecordSerializerNetwork serializer)
       throws IOException {
-    String type = "";
+    var type = "";
     if (protocolVersion < 24) {
       type = channel.readString();
     }

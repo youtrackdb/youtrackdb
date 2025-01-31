@@ -135,7 +135,7 @@ public class SecurityTest extends BaseDBTest {
     Assert.assertEquals(updated.intValue(), 1);
 
     db.begin();
-    ResultSet result = db.query("select from ouser where name = 'reader'");
+    var result = db.query("select from ouser where name = 'reader'");
     Assert.assertNotEquals(result.next().getProperty("password"), "test");
     db.commit();
 
@@ -161,17 +161,17 @@ public class SecurityTest extends BaseDBTest {
     db = createSessionInstance("admin", "admin");
 
     db.begin();
-    Security security = db.getMetadata().getSecurity();
-    Role writer = security.getRole("writer");
+    var security = db.getMetadata().getSecurity();
+    var writer = security.getRole("writer");
 
-    Role writerChild =
+    var writerChild =
         security.createRole("writerChild", writer);
     writerChild.save(db);
     db.commit();
 
     try {
       db.begin();
-      Role writerGrandChild =
+      var writerGrandChild =
           security.createRole(
               "writerGrandChild", writerChild);
       writerGrandChild.save(db);
@@ -179,7 +179,7 @@ public class SecurityTest extends BaseDBTest {
 
       try {
         db.begin();
-        SecurityUserImpl child = security.createUser("writerChild", "writerChild",
+        var child = security.createUser("writerChild", "writerChild",
             writerGrandChild);
         child.save(db);
         db.commit();
@@ -195,7 +195,7 @@ public class SecurityTest extends BaseDBTest {
             db = createSessionInstance("writerChild", "writerChild");
 
             db.begin();
-            SecurityUser user = db.geCurrentUser();
+            var user = db.geCurrentUser();
             Assert.assertTrue(user.hasRole(db, "writer", true));
             Assert.assertFalse(user.hasRole(db, "wrter", true));
             db.commit();
@@ -226,9 +226,9 @@ public class SecurityTest extends BaseDBTest {
     db = createSessionInstance();
 
     db.begin();
-    Security security = db.getMetadata().getSecurity();
+    var security = db.getMetadata().getSecurity();
 
-    Role adminRole = security.getRole("admin");
+    var adminRole = security.getRole("admin");
     security.createUser("user'quoted", "foobar", adminRole);
     db.commit();
     db.close();
@@ -236,7 +236,7 @@ public class SecurityTest extends BaseDBTest {
     db = createSessionInstance();
     db.begin();
     security = db.getMetadata().getSecurity();
-    SecurityUserImpl user = security.getUser("user'quoted");
+    var user = security.getUser("user'quoted");
     Assert.assertNotNull(user);
     security.dropUser(user.getName(db));
     db.commit();
@@ -254,7 +254,7 @@ public class SecurityTest extends BaseDBTest {
   public void testUserNoRole() {
     db = createSessionInstance();
 
-    Security security = db.getMetadata().getSecurity();
+    var security = db.getMetadata().getSecurity();
 
     db.begin();
     security.createUser("noRole", "noRole", (String[]) null);
@@ -279,7 +279,7 @@ public class SecurityTest extends BaseDBTest {
     db = createSessionInstance();
 
     db.begin();
-    List<Result> result =
+    var result =
         db.command("select from ouser").stream().collect(Collectors.toList());
     Assert.assertFalse(result.isEmpty());
     db.commit();
@@ -352,11 +352,11 @@ public class SecurityTest extends BaseDBTest {
   public void testEmptyUserName() {
     db = createSessionInstance();
     try {
-      Security security = db.getMetadata().getSecurity();
-      String userName = "";
+      var security = db.getMetadata().getSecurity();
+      var userName = "";
       try {
         db.begin();
-        Role reader = security.getRole("reader");
+        var reader = security.getRole("reader");
         security.createUser(userName, "foobar", reader);
         db.commit();
         Assert.fail();
@@ -373,12 +373,12 @@ public class SecurityTest extends BaseDBTest {
   public void testUserNameWithAllSpaces() {
     db = createSessionInstance();
     try {
-      Security security = db.getMetadata().getSecurity();
+      var security = db.getMetadata().getSecurity();
 
       db.begin();
-      Role reader = security.getRole("reader");
+      var reader = security.getRole("reader");
       db.commit();
-      final String userName = "  ";
+      final var userName = "  ";
       try {
         db.begin();
         security.createUser(userName, "foobar", reader);
@@ -397,12 +397,12 @@ public class SecurityTest extends BaseDBTest {
   public void testUserNameWithSurroundingSpacesOne() {
     db = createSessionInstance();
     try {
-      Security security = db.getMetadata().getSecurity();
+      var security = db.getMetadata().getSecurity();
 
       db.begin();
-      Role reader = security.getRole("reader");
+      var reader = security.getRole("reader");
       db.commit();
-      final String userName = " sas";
+      final var userName = " sas";
       try {
         db.begin();
         security.createUser(userName, "foobar", reader);
@@ -421,11 +421,11 @@ public class SecurityTest extends BaseDBTest {
   public void testUserNameWithSurroundingSpacesTwo() {
     db = createSessionInstance();
     try {
-      Security security = db.getMetadata().getSecurity();
+      var security = db.getMetadata().getSecurity();
 
       db.begin();
-      Role reader = security.getRole("reader");
-      final String userName = "sas ";
+      var reader = security.getRole("reader");
+      final var userName = "sas ";
       try {
         security.createUser(userName, "foobar", reader);
         db.commit();
@@ -443,12 +443,12 @@ public class SecurityTest extends BaseDBTest {
   public void testUserNameWithSurroundingSpacesThree() {
     db = createSessionInstance();
     try {
-      Security security = db.getMetadata().getSecurity();
+      var security = db.getMetadata().getSecurity();
 
       db.begin();
-      Role reader = security.getRole("reader");
+      var reader = security.getRole("reader");
       db.commit();
-      final String userName = " sas ";
+      final var userName = " sas ";
       try {
         db.begin();
         security.createUser(userName, "foobar", reader);
@@ -467,12 +467,12 @@ public class SecurityTest extends BaseDBTest {
   public void testUserNameWithSpacesInTheMiddle() {
     db = createSessionInstance();
     try {
-      Security security = db.getMetadata().getSecurity();
+      var security = db.getMetadata().getSecurity();
 
       db.begin();
-      Role reader = security.getRole("reader");
+      var reader = security.getRole("reader");
       db.commit();
-      final String userName = "s a s";
+      final var userName = "s a s";
       db.begin();
       security.createUser(userName, "foobar", reader);
       db.commit();

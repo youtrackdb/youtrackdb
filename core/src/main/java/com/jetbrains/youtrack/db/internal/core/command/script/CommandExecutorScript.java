@@ -44,11 +44,9 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSe
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
 import com.jetbrains.youtrack.db.internal.core.sql.TemporaryRidGenerator;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilter;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.ParseException;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIfStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.YouTrackDBSql;
 import com.jetbrains.youtrack.db.internal.core.sql.query.LegacyResultSet;
 import java.io.BufferedReader;
@@ -65,11 +63,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.script.Bindings;
 import javax.script.Compilable;
-import javax.script.CompiledScript;
 import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 
@@ -109,7 +104,7 @@ public class CommandExecutorScript extends CommandExecutorAbstract
   }
 
   public Object executeInContext(final CommandContext iContext, final Map<Object, Object> iArgs) {
-    final String language = request.getLanguage();
+    final var language = request.getLanguage();
     parserText = request.getText();
     parameters = iArgs;
 
@@ -130,11 +125,11 @@ public class CommandExecutorScript extends CommandExecutorAbstract
 
   private String preParse(String parserText, final Map<Object, Object> iArgs)
       throws ParseException {
-    final boolean strict = getDatabase().getStorageInfo().getConfiguration().isStrictSql();
+    final var strict = getDatabase().getStorageInfo().getConfiguration().isStrictSql();
     if (strict) {
       parserText = addSemicolons(parserText);
 
-      DatabaseSessionInternal db = getDatabase();
+      var db = getDatabase();
 
       byte[] bytes;
       try {
@@ -176,9 +171,9 @@ public class CommandExecutorScript extends CommandExecutorAbstract
                     + getDatabase().getStorageInfo().getConfiguration().getCharset());
         osql = new YouTrackDBSql(is);
       }
-      List<SQLStatement> statements = osql.parseScript();
-      StringBuilder result = new StringBuilder();
-      for (SQLStatement stm : statements) {
+      var statements = osql.parseScript();
+      var result = new StringBuilder();
+      for (var stm : statements) {
         stm.toString(iArgs, result);
         if (!(stm instanceof SQLIfStatement)) {
           result.append(";");
@@ -192,9 +187,9 @@ public class CommandExecutorScript extends CommandExecutorAbstract
   }
 
   private String addSemicolons(String parserText) {
-    String[] rows = parserText.split("\n");
-    StringBuilder builder = new StringBuilder();
-    for (String row : rows) {
+    var rows = parserText.split("\n");
+    var builder = new StringBuilder();
+    for (var row : rows) {
       row = row.trim();
       builder.append(row);
       if (!(row.endsWith(";") || row.endsWith("{"))) {
@@ -211,12 +206,12 @@ public class CommandExecutorScript extends CommandExecutorAbstract
 
   protected Object executeJsr223Script(
       final String language, final CommandContext iContext, final Map<Object, Object> iArgs) {
-    DatabaseSessionInternal db = iContext.getDatabase();
+    var db = iContext.getDatabase();
 
-    final ScriptManager scriptManager = db.getSharedContext().getYouTrackDB().getScriptManager();
-    CompiledScript compiledScript = request.getCompiledScript();
+    final var scriptManager = db.getSharedContext().getYouTrackDB().getScriptManager();
+    var compiledScript = request.getCompiledScript();
 
-    final ScriptEngine scriptEngine = scriptManager.acquireDatabaseEngine(db.getName(), language);
+    final var scriptEngine = scriptManager.acquireDatabaseEngine(db.getName(), language);
     try {
 
       if (compiledScript == null) {
@@ -234,7 +229,7 @@ public class CommandExecutorScript extends CommandExecutorAbstract
         request.setCompiledScript(compiledScript);
       }
 
-      final Bindings binding =
+      final var binding =
           scriptManager.bind(
               scriptEngine,
               compiledScript.getEngine().getBindings(ScriptContext.ENGINE_SCOPE),
@@ -243,7 +238,7 @@ public class CommandExecutorScript extends CommandExecutorAbstract
               iArgs);
 
       try {
-        final Object ob = compiledScript.eval(binding);
+        final var ob = compiledScript.eval(binding);
 
         return CommandExecutorUtility.transformResult(ob);
       } catch (ScriptException e) {
@@ -282,26 +277,26 @@ public class CommandExecutorScript extends CommandExecutorAbstract
   protected Object executeSQLScript(final String iText, final DatabaseSessionInternal db)
       throws IOException {
     Object lastResult = null;
-    int maxRetry = 1;
+    var maxRetry = 1;
 
     context.setVariable("transactionRetries", 0);
     context.setVariable("parentQuery", this);
 
-    for (int retry = 1; retry <= maxRetry; retry++) {
+    for (var retry = 1; retry <= maxRetry; retry++) {
       try {
         try {
-          int txBegunAtLine = -1;
-          int txBegunAtPart = -1;
+          var txBegunAtLine = -1;
+          var txBegunAtPart = -1;
           lastResult = null;
-          int nestedLevel = 0;
-          int skippingScriptsAtNestedLevel = -1;
+          var nestedLevel = 0;
+          var skippingScriptsAtNestedLevel = -1;
 
-          final BufferedReader reader = new BufferedReader(new StringReader(iText));
+          final var reader = new BufferedReader(new StringReader(iText));
 
-          int line = 0;
-          int linePart = 0;
+          var line = 0;
+          var linePart = 0;
           String lastLine;
-          boolean txBegun = false;
+          var txBegun = false;
 
           for (; line < txBegunAtLine; ++line)
           // SKIP PREVIOUS COMMAND AND JUMP TO THE BEGIN IF ANY
@@ -317,7 +312,7 @@ public class CommandExecutorScript extends CommandExecutorAbstract
 
             // final List<String> lineParts = StringSerializerHelper.smartSplit(lastLine, ';',
             // true);
-            final List<String> lineParts = splitBySemicolon(lastLine);
+            final var lineParts = splitBySemicolon(lastLine);
 
             if (line == txBegunAtLine)
             // SKIP PREVIOUS COMMAND PART AND JUMP TO THE BEGIN IF ANY
@@ -327,17 +322,17 @@ public class CommandExecutorScript extends CommandExecutorAbstract
               linePart = 0;
             }
 
-            boolean breakReturn = false;
+            var breakReturn = false;
 
             for (; linePart < lineParts.size(); ++linePart) {
-              final String lastCommand = lineParts.get(linePart);
+              final var lastCommand = lineParts.get(linePart);
 
               if (isIfCondition(lastCommand)) {
                 nestedLevel++;
                 if (skippingScriptsAtNestedLevel >= 0) {
                   continue; // I'm in an (outer) IF that did not match the condition
                 }
-                boolean ifResult = evaluateIfCondition(lastCommand);
+                var ifResult = evaluateIfCondition(lastCommand);
                 if (!ifResult) {
                   // if does not match the condition, skip all the inner statements
                   skippingScriptsAtNestedLevel = nestedLevel;
@@ -390,7 +385,7 @@ public class CommandExecutorScript extends CommandExecutorAbstract
 
                 if (retry == 1 && lastCommand.length() > "commit ".length()) {
                   // FIRST CYCLE: PARSE RETRY TIMES OVERWRITING DEFAULT = 1
-                  String next = lastCommand.substring("commit ".length()).trim();
+                  var next = lastCommand.substring("commit ".length()).trim();
                   if (StringSerializerHelper.startsWithIgnoreCase(next, "retry ")) {
                     next = next.substring("retry ".length()).trim();
                     maxRetry = Integer.parseInt(next);
@@ -488,8 +483,8 @@ public class CommandExecutorScript extends CommandExecutorAbstract
     List<String> result = new ArrayList<String>();
     Character prev = null;
     Character lastQuote = null;
-    StringBuilder buffer = new StringBuilder();
-    for (char c : lastLine.toCharArray()) {
+    var buffer = new StringBuilder();
+    for (var c : lastLine.toCharArray()) {
       if (c == ';' && lastQuote == null) {
         if (buffer.toString().trim().length() > 0) {
           result.add(buffer.toString().trim());
@@ -515,10 +510,10 @@ public class CommandExecutorScript extends CommandExecutorAbstract
   }
 
   private boolean evaluateIfCondition(String lastCommand) {
-    String cmd = lastCommand;
+    var cmd = lastCommand;
     cmd = cmd.trim().substring(2); // remove IF
     cmd = cmd.trim().substring(0, cmd.trim().length() - 1); // remove {
-    SQLFilter condition = SQLEngine.parseCondition(cmd, getContext(), "IF");
+    var condition = SQLEngine.parseCondition(cmd, getContext(), "IF");
     Object result = null;
     try {
       result = condition.evaluate(null, null, getContext());
@@ -536,7 +531,7 @@ public class CommandExecutorScript extends CommandExecutorAbstract
     if (iCommand == null) {
       return false;
     }
-    String cmd = iCommand.trim();
+    var cmd = iCommand.trim();
     if (cmd.length() < 3) {
       return false;
     }
@@ -559,9 +554,9 @@ public class CommandExecutorScript extends CommandExecutorAbstract
   }
 
   private Object executeCommand(final String lastCommand, final DatabaseSession db) {
-    final CommandSQL command = new CommandSQL(lastCommand);
+    final var command = new CommandSQL(lastCommand);
     var database = (DatabaseSessionInternal) db;
-    Object result =
+    var result =
         database
             .command(command.setContext(getContext()))
             .execute(database, toMap(parameters));
@@ -580,7 +575,7 @@ public class CommandExecutorScript extends CommandExecutorAbstract
 
   private Object getValue(final String iValue, final DatabaseSessionInternal db) {
     Object lastResult = null;
-    boolean recordResultSet = true;
+    var recordResultSet = true;
     if (iValue.equalsIgnoreCase("NULL")) {
       lastResult = null;
     } else if (iValue.startsWith("[") && iValue.endsWith("]")) {
@@ -590,8 +585,8 @@ public class CommandExecutorScript extends CommandExecutorAbstract
       StringSerializerHelper.getCollection(iValue, 0, items);
       final List<Object> result = new ArrayList<Object>(items.size());
 
-      for (int i = 0; i < items.size(); ++i) {
-        String item = items.get(i);
+      for (var i = 0; i < items.size(); ++i) {
+        var item = items.get(i);
 
         result.add(getValue(item, db));
       }
@@ -599,12 +594,12 @@ public class CommandExecutorScript extends CommandExecutorAbstract
       checkIsRecordResultSet(lastResult);
     } else if (iValue.startsWith("{") && iValue.endsWith("}")) {
       // MAP
-      final Map<String, String> map = StringSerializerHelper.getMap(db, iValue);
+      final var map = StringSerializerHelper.getMap(db, iValue);
       final Map<Object, Object> result = new HashMap<Object, Object>(map.size());
 
-      for (Map.Entry<String, String> entry : map.entrySet()) {
+      for (var entry : map.entrySet()) {
         // KEY
-        String stringKey = entry.getKey();
+        var stringKey = entry.getKey();
         if (stringKey == null) {
           continue;
         }
@@ -623,7 +618,7 @@ public class CommandExecutorScript extends CommandExecutorAbstract
         }
 
         // VALUE
-        String stringValue = entry.getValue();
+        var stringValue = entry.getValue();
         if (stringValue == null) {
           continue;
         }
@@ -660,7 +655,7 @@ public class CommandExecutorScript extends CommandExecutorAbstract
       if (!MultiValue.isMultiValue(result)) {
         request.setRecordResultSet(false);
       } else {
-        for (Object val : MultiValue.getMultiValueIterable(result)) {
+        for (var val : MultiValue.getMultiValueIterable(result)) {
           if (!(val instanceof Identifiable)) {
             request.setRecordResultSet(false);
           }
@@ -670,7 +665,7 @@ public class CommandExecutorScript extends CommandExecutorAbstract
   }
 
   private void executeSleep(String lastCommand) {
-    final String sleepTimeInMs = lastCommand.substring("sleep ".length()).trim();
+    final var sleepTimeInMs = lastCommand.substring("sleep ".length()).trim();
     try {
       Thread.sleep(Integer.parseInt(sleepTimeInMs));
     } catch (InterruptedException e) {
@@ -679,24 +674,24 @@ public class CommandExecutorScript extends CommandExecutorAbstract
   }
 
   private void executeConsoleLog(final String lastCommand, final DatabaseSessionInternal db) {
-    final String value = lastCommand.substring("console.log ".length()).trim();
+    final var value = lastCommand.substring("console.log ".length()).trim();
     LogManager.instance().info(this, "%s", getValue(IOUtils.wrapStringContent(value, '\''), db));
   }
 
   private void executeConsoleOutput(final String lastCommand, final DatabaseSessionInternal db) {
-    final String value = lastCommand.substring("console.output ".length()).trim();
+    final var value = lastCommand.substring("console.output ".length()).trim();
     System.out.println(getValue(IOUtils.wrapStringContent(value, '\''), db));
   }
 
   private void executeConsoleError(final String lastCommand, final DatabaseSessionInternal db) {
-    final String value = lastCommand.substring("console.error ".length()).trim();
+    final var value = lastCommand.substring("console.error ".length()).trim();
     System.err.println(getValue(IOUtils.wrapStringContent(value, '\''), db));
   }
 
   private Object executeLet(final String lastCommand, final DatabaseSessionInternal db) {
-    final int equalsPos = lastCommand.indexOf('=');
-    final String variable = lastCommand.substring("let ".length(), equalsPos).trim();
-    final String cmd = lastCommand.substring(equalsPos + 1).trim();
+    final var equalsPos = lastCommand.indexOf('=');
+    final var variable = lastCommand.substring("let ".length(), equalsPos).trim();
+    final var cmd = lastCommand.substring(equalsPos + 1).trim();
     if (cmd == null) {
       return null;
     }

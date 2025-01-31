@@ -34,14 +34,14 @@ public class LuceneSkipLimitTest extends BaseLuceneTest {
   @Test
   public void testContext() {
 
-    List<RID> docs =
+    var docs =
         db.query("select * from Song where [title] LUCENE \"(title:man)\"").stream()
             .map((r) -> r.getIdentity().get())
             .collect(Collectors.toList());
 
     Assert.assertEquals(docs.size(), 14);
 
-    RID doc = docs.get(9);
+    var doc = docs.get(9);
     docs =
         db
             .query("select * from Song where [title] LUCENE \"(title:man)\" skip 10 limit 10")
@@ -65,7 +65,7 @@ public class LuceneSkipLimitTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
+    var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
 
     db.execute("sql", getScriptFromStream(stream)).close();
 

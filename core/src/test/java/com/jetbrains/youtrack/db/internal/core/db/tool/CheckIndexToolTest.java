@@ -1,9 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.db.tool;
 
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,8 +25,8 @@ public class CheckIndexToolTest extends BaseMemoryInternalDatabase {
 
     RID rid = doc.getIdentity();
 
-    int N_RECORDS = 100000;
-    for (int i = 0; i < N_RECORDS; i++) {
+    var N_RECORDS = 100000;
+    for (var i = 0; i < N_RECORDS; i++) {
       db.begin();
       doc = db.newInstance("Foo");
       doc.field("name", "x" + i);
@@ -37,16 +35,16 @@ public class CheckIndexToolTest extends BaseMemoryInternalDatabase {
     }
 
     db.begin();
-    Index idx = db.getMetadata().getIndexManagerInternal().getIndex(db, "Foo.name");
-    Object key = idx.getDefinition().createValue(db, "a");
+    var idx = db.getMetadata().getIndexManagerInternal().getIndex(db, "Foo.name");
+    var key = idx.getDefinition().createValue(db, "a");
     idx.remove(db, key, rid);
     db.commit();
 
     db.begin();
-    ResultSet result = db.query("SELECT FROM Foo");
+    var result = db.query("SELECT FROM Foo");
     Assert.assertEquals(N_RECORDS + 1, result.stream().count());
 
-    CheckIndexTool tool = new CheckIndexTool();
+    var tool = new CheckIndexTool();
     tool.setDatabase(db);
     tool.setVerbose(true);
     tool.setOutputListener(System.out::println);
@@ -71,7 +69,7 @@ public class CheckIndexToolTest extends BaseMemoryInternalDatabase {
     db.command("insert into testclass set name = 'c' ");
     db.commit();
 
-    final CheckIndexTool tool = new CheckIndexTool();
+    final var tool = new CheckIndexTool();
 
     tool.setDatabase(db);
     tool.setVerbose(true);

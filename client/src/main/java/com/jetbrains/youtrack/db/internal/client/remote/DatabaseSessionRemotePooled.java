@@ -41,7 +41,7 @@ public class DatabaseSessionRemotePooled extends DatabaseSessionRemote {
   }
 
   public void realClose() {
-    DatabaseSessionInternal old = DatabaseRecordThreadLocal.instance().getIfDefined();
+    var old = DatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       activateOnCurrentThread();
       super.close();

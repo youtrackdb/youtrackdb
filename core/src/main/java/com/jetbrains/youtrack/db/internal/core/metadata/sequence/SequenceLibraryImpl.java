@@ -51,11 +51,11 @@ public class SequenceLibraryImpl {
     sequences.clear();
 
     if (db.getMetadata().getImmutableSchemaSnapshot().existsClass(DBSequence.CLASS_NAME)) {
-      try (final ResultSet result = db.query("SELECT FROM " + DBSequence.CLASS_NAME)) {
+      try (final var result = db.query("SELECT FROM " + DBSequence.CLASS_NAME)) {
         while (result.hasNext()) {
-          Result res = result.next();
+          var res = result.next();
 
-          final DBSequence sequence =
+          final var sequence =
               SequenceHelper.createSequence((EntityImpl) res.getEntity().get());
           sequences.put(sequence.getName(db).toUpperCase(Locale.ENGLISH), sequence);
         }
@@ -78,7 +78,7 @@ public class SequenceLibraryImpl {
   }
 
   public DBSequence getSequence(final DatabaseSessionInternal database, final String iName) {
-    final String name = iName.toUpperCase(Locale.ENGLISH);
+    final var name = iName.toUpperCase(Locale.ENGLISH);
     reloadIfNeeded(database);
     DBSequence seq;
     synchronized (this) {
@@ -100,10 +100,10 @@ public class SequenceLibraryImpl {
     init(db);
     reloadIfNeeded(db);
 
-    final String key = iName.toUpperCase(Locale.ENGLISH);
+    final var key = iName.toUpperCase(Locale.ENGLISH);
     validateSequenceNoExists(key);
 
-    final DBSequence sequence = SequenceHelper.createSequence(db, sequenceType, params, iName);
+    final var sequence = SequenceHelper.createSequence(db, sequenceType, params, iName);
     sequences.put(key, sequence);
 
     return sequence;
@@ -111,7 +111,7 @@ public class SequenceLibraryImpl {
 
   public synchronized void dropSequence(
       final DatabaseSessionInternal database, final String iName) {
-    final DBSequence seq = getSequence(database, iName);
+    final var seq = getSequence(database, iName);
     if (seq != null) {
       try {
         database.delete(seq.entityRid);
@@ -127,20 +127,20 @@ public class SequenceLibraryImpl {
       final DatabaseSessionInternal database, final EntityImpl entity) {
     init(database);
 
-    String name = DBSequence.getSequenceName(entity);
+    var name = DBSequence.getSequenceName(entity);
     if (name == null) {
       return;
     }
 
     name = name.toUpperCase(Locale.ENGLISH);
 
-    final DBSequence seq = getSequence(database, name);
+    final var seq = getSequence(database, name);
 
     if (seq != null) {
       return;
     }
 
-    final DBSequence sequence = SequenceHelper.createSequence(entity);
+    final var sequence = SequenceHelper.createSequence(entity);
 
     sequences.put(name, sequence);
     onSequenceLibraryUpdate(database);
@@ -148,7 +148,7 @@ public class SequenceLibraryImpl {
 
   public void onSequenceDropped(
       final DatabaseSessionInternal database, final EntityImpl entity) {
-    String name = DBSequence.getSequenceName(entity);
+    var name = DBSequence.getSequenceName(entity);
     if (name == null) {
       return;
     }
@@ -164,7 +164,7 @@ public class SequenceLibraryImpl {
       return;
     }
 
-    final SchemaClassImpl sequenceClass =
+    final var sequenceClass =
         (SchemaClassImpl) database.getMetadata().getSchema().createClass(DBSequence.CLASS_NAME);
     DBSequence.initClass(database, sequenceClass);
   }
@@ -176,7 +176,7 @@ public class SequenceLibraryImpl {
   }
 
   private static void onSequenceLibraryUpdate(DatabaseSessionInternal database) {
-    for (MetadataUpdateListener one : database.getSharedContext().browseListeners()) {
+    for (var one : database.getSharedContext().browseListeners()) {
       one.onSequenceLibraryUpdate(database, database.getName());
     }
   }

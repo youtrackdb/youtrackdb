@@ -77,7 +77,7 @@ public abstract class HttpRequestAbstract implements HttpRequest {
       setHeaders(new HashMap<String, String>());
     }
 
-    final int pos = h.indexOf(':');
+    final var pos = h.indexOf(':');
     if (pos > -1) {
       getHeaders()
           .put(h.substring(0, pos).trim().toLowerCase(Locale.ENGLISH), h.substring(pos + 1).trim());
@@ -89,12 +89,12 @@ public abstract class HttpRequestAbstract implements HttpRequest {
     if (content == null || content.length() < 1) {
       return null;
     }
-    HashMap<String, String> retMap = new HashMap<String, String>();
+    var retMap = new HashMap<String, String>();
     String key;
     String value;
-    String[] pairs = content.split("\\&");
-    for (int i = 0; i < pairs.length; i++) {
-      String[] fields = pairs[i].split("=");
+    var pairs = content.split("\\&");
+    for (var i = 0; i < pairs.length; i++) {
+      var fields = pairs[i].split("=");
       if (fields.length == 2) {
         key = URLDecoder.decode(fields[0], StandardCharsets.UTF_8);
         value = URLDecoder.decode(fields[1], StandardCharsets.UTF_8);

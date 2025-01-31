@@ -39,8 +39,8 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   public void testSetAbstractClusterNotChanged() throws Exception {
     final Schema oSchema = db.getMetadata().getSchema();
 
-    SchemaClass oClass = oSchema.createClass("Test1");
-    final int oldClusterId = oClass.getClusterIds()[0];
+    var oClass = oSchema.createClass("Test1");
+    final var oldClusterId = oClass.getClusterIds()[0];
 
     oClass.setAbstract(db, false);
 
@@ -57,7 +57,7 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   public void testSetAbstractShouldCreateNewClusters() throws Exception {
     final Schema oSchema = db.getMetadata().getSchema();
 
-    SchemaClass oClass = oSchema.createAbstractClass("Test2");
+    var oClass = oSchema.createAbstractClass("Test2");
 
     oClass.setAbstract(db, false);
 
@@ -69,7 +69,7 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   public void testCreateNoLinkedClass() {
     final Schema oSchema = db.getMetadata().getSchema();
 
-    SchemaClassInternal oClass = (SchemaClassInternal) oSchema.createClass("Test21");
+    var oClass = (SchemaClassInternal) oSchema.createClass("Test21");
     oClass.createProperty(db, "some", PropertyType.LINKLIST, (SchemaClass) null);
     oClass.createProperty(db, "some2", PropertyType.LINKLIST, (SchemaClass) null, true);
 
@@ -80,11 +80,11 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   @Test(expected = SchemaException.class)
   public void testCreatePropertyFailOnExistingData() {
     final Schema oSchema = db.getMetadata().getSchema();
-    SchemaClass oClass = oSchema.createClass("Test3");
+    var oClass = oSchema.createClass("Test3");
 
     db.executeInTx(
         () -> {
-          EntityImpl document = (EntityImpl) db.newEntity("Test3");
+          var document = (EntityImpl) db.newEntity("Test3");
           document.field("some", "String");
           db.save(document);
         });
@@ -95,12 +95,12 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   @Test(expected = SchemaException.class)
   public void testCreatePropertyFailOnExistingDataLinkList() {
     final Schema oSchema = db.getMetadata().getSchema();
-    SchemaClass oClass = oSchema.createClass("Test4");
+    var oClass = oSchema.createClass("Test4");
 
     db.executeInTx(
         () -> {
-          EntityImpl document = (EntityImpl) db.newEntity("Test4");
-          ArrayList<EntityImpl> list = new ArrayList<EntityImpl>();
+          var document = (EntityImpl) db.newEntity("Test4");
+          var list = new ArrayList<EntityImpl>();
           list.add((EntityImpl) db.newEntity("Test4"));
           document.field("some", list);
           db.save(document);
@@ -112,11 +112,11 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   @Test(expected = SchemaException.class)
   public void testCreatePropertyFailOnExistingDataLinkSet() {
     final Schema oSchema = db.getMetadata().getSchema();
-    SchemaClass oClass = oSchema.createClass("Test5");
+    var oClass = oSchema.createClass("Test5");
 
     db.executeInTx(
         () -> {
-          EntityImpl document = (EntityImpl) db.newEntity("Test5");
+          var document = (EntityImpl) db.newEntity("Test5");
           Set<EntityImpl> set = new HashSet<EntityImpl>();
           set.add((EntityImpl) db.newEntity("Test5"));
           document.field("somelinkset", set);
@@ -129,11 +129,11 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   @Test(expected = SchemaException.class)
   public void testCreatePropertyFailOnExistingDataEmbeddetSet() {
     final Schema oSchema = db.getMetadata().getSchema();
-    SchemaClass oClass = oSchema.createClass("Test6");
+    var oClass = oSchema.createClass("Test6");
 
     db.executeInTx(
         () -> {
-          EntityImpl document = (EntityImpl) db.newEntity("Test6");
+          var document = (EntityImpl) db.newEntity("Test6");
           Set<EntityImpl> list = new HashSet<EntityImpl>();
           list.add((EntityImpl) db.newEntity("Test6"));
           document.field("someembededset", list, PropertyType.EMBEDDEDSET);
@@ -146,11 +146,11 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   @Test(expected = SchemaException.class)
   public void testCreatePropertyFailOnExistingDataEmbeddedList() {
     final Schema oSchema = db.getMetadata().getSchema();
-    SchemaClass oClass = oSchema.createClass("Test7");
+    var oClass = oSchema.createClass("Test7");
 
     db.executeInTx(
         () -> {
-          EntityImpl document = (EntityImpl) db.newEntity("Test7");
+          var document = (EntityImpl) db.newEntity("Test7");
           List<EntityImpl> list = new ArrayList<EntityImpl>();
           list.add((EntityImpl) db.newEntity("Test7"));
           document.field("someembeddedlist", list, PropertyType.EMBEDDEDLIST);
@@ -163,11 +163,11 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   @Test(expected = SchemaException.class)
   public void testCreatePropertyFailOnExistingDataEmbeddedMap() {
     final Schema oSchema = db.getMetadata().getSchema();
-    SchemaClass oClass = oSchema.createClass("Test8");
+    var oClass = oSchema.createClass("Test8");
 
     db.executeInTx(
         () -> {
-          EntityImpl document = (EntityImpl) db.newEntity("Test8");
+          var document = (EntityImpl) db.newEntity("Test8");
           Map<String, EntityImpl> map = new HashMap<>();
           map.put("test", (EntityImpl) db.newEntity("Test8"));
           document.field("someembededmap", map, PropertyType.EMBEDDEDMAP);
@@ -180,12 +180,12 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   @Test(expected = SchemaException.class)
   public void testCreatePropertyFailOnExistingDataLinkMap() {
     final Schema oSchema = db.getMetadata().getSchema();
-    SchemaClass oClass = oSchema.createClass("Test9");
+    var oClass = oSchema.createClass("Test9");
     oSchema.createClass("Test8");
 
     db.executeInTx(
         () -> {
-          EntityImpl document = (EntityImpl) db.newEntity("Test9");
+          var document = (EntityImpl) db.newEntity("Test9");
           Map<String, EntityImpl> map = new HashMap<String, EntityImpl>();
           map.put("test", (EntityImpl) db.newEntity("Test8"));
           document.field("somelinkmap", map, PropertyType.LINKMAP);
@@ -198,12 +198,12 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   @Test
   public void testCreatePropertyCastable() {
     final Schema oSchema = db.getMetadata().getSchema();
-    SchemaClass oClass = oSchema.createClass("Test10");
+    var oClass = oSchema.createClass("Test10");
 
     var rid =
         db.computeInTx(
             () -> {
-              EntityImpl document = (EntityImpl) db.newEntity("Test10");
+              var document = (EntityImpl) db.newEntity("Test10");
               // TODO add boolan and byte
               document.field("test1", (short) 1);
               document.field("test2", 1);
@@ -240,12 +240,12 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   @Test
   public void testCreatePropertyCastableColection() {
     final Schema oSchema = db.getMetadata().getSchema();
-    SchemaClass oClass = oSchema.createClass("Test11");
+    var oClass = oSchema.createClass("Test11");
 
     var rid =
         db.computeInTx(
             () -> {
-              EntityImpl document = (EntityImpl) db.newEntity("Test11");
+              var document = (EntityImpl) db.newEntity("Test11");
               document.field("test1", new ArrayList<EntityImpl>(), PropertyType.EMBEDDEDLIST);
               document.field("test2", new ArrayList<EntityImpl>(), PropertyType.LINKLIST);
               document.field("test3", new HashSet<EntityImpl>(), PropertyType.EMBEDDEDSET);
@@ -275,9 +275,9 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   @Test
   public void testCreatePropertyIdKeep() {
     final Schema oSchema = db.getMetadata().getSchema();
-    SchemaClass oClass = oSchema.createClass("Test12");
-    SchemaProperty prop = oClass.createProperty(db, "test2", PropertyType.STRING);
-    Integer id = prop.getId();
+    var oClass = oSchema.createClass("Test12");
+    var prop = oClass.createProperty(db, "test2", PropertyType.STRING);
+    var id = prop.getId();
     oClass.dropProperty(db, "test2");
     prop = oClass.createProperty(db, "test2", PropertyType.STRING);
     assertEquals(id, prop.getId());
@@ -286,9 +286,9 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   @Test
   public void testRenameProperty() {
     final Schema oSchema = db.getMetadata().getSchema();
-    SchemaClass oClass = oSchema.createClass("Test13");
-    SchemaProperty prop = oClass.createProperty(db, "test1", PropertyType.STRING);
-    Integer id = prop.getId();
+    var oClass = oSchema.createClass("Test13");
+    var prop = oClass.createProperty(db, "test1", PropertyType.STRING);
+    var id = prop.getId();
     prop.setName(db, "test2");
     assertNotEquals(id, prop.getId());
   }
@@ -296,9 +296,9 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   @Test
   public void testChangeTypeProperty() {
     final Schema oSchema = db.getMetadata().getSchema();
-    SchemaClass oClass = oSchema.createClass("Test14");
-    SchemaProperty prop = oClass.createProperty(db, "test1", PropertyType.SHORT);
-    Integer id = prop.getId();
+    var oClass = oSchema.createClass("Test14");
+    var prop = oClass.createProperty(db, "test1", PropertyType.SHORT);
+    var id = prop.getId();
     prop.setType(db, PropertyType.INTEGER);
     assertNotEquals(id, prop.getId());
   }
@@ -306,9 +306,9 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   @Test
   public void testRenameBackProperty() {
     final Schema oSchema = db.getMetadata().getSchema();
-    SchemaClass oClass = oSchema.createClass("Test15");
-    SchemaProperty prop = oClass.createProperty(db, "test1", PropertyType.STRING);
-    Integer id = prop.getId();
+    var oClass = oSchema.createClass("Test15");
+    var prop = oClass.createProperty(db, "test1", PropertyType.STRING);
+    var id = prop.getId();
     prop.setName(db, "test2");
     assertNotEquals(id, prop.getId());
     prop.setName(db, "test1");
@@ -318,17 +318,17 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   @Test(expected = IllegalArgumentException.class)
   public void testSetUncastableType() {
     final Schema oSchema = db.getMetadata().getSchema();
-    SchemaClass oClass = oSchema.createClass("Test16");
-    SchemaProperty prop = oClass.createProperty(db, "test1", PropertyType.STRING);
+    var oClass = oSchema.createClass("Test16");
+    var prop = oClass.createProperty(db, "test1", PropertyType.STRING);
     prop.setType(db, PropertyType.INTEGER);
   }
 
   @Test
   public void testFindById() {
     final Schema oSchema = db.getMetadata().getSchema();
-    SchemaClass oClass = oSchema.createClass("Test17");
-    SchemaProperty prop = oClass.createProperty(db, "testaaa", PropertyType.STRING);
-    GlobalProperty global = oSchema.getGlobalPropertyById(prop.getId());
+    var oClass = oSchema.createClass("Test17");
+    var prop = oClass.createProperty(db, "testaaa", PropertyType.STRING);
+    var global = oSchema.getGlobalPropertyById(prop.getId());
 
     assertEquals(prop.getId(), global.getId());
     assertEquals(prop.getName(), global.getName());
@@ -338,11 +338,11 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   @Test
   public void testFindByIdDrop() {
     final Schema oSchema = db.getMetadata().getSchema();
-    SchemaClass oClass = oSchema.createClass("Test18");
-    SchemaProperty prop = oClass.createProperty(db, "testaaa", PropertyType.STRING);
-    Integer id = prop.getId();
+    var oClass = oSchema.createClass("Test18");
+    var prop = oClass.createProperty(db, "testaaa", PropertyType.STRING);
+    var id = prop.getId();
     oClass.dropProperty(db, "testaaa");
-    GlobalProperty global = oSchema.getGlobalPropertyById(id);
+    var global = oSchema.getGlobalPropertyById(id);
 
     assertEquals(id, global.getId());
     assertEquals("testaaa", global.getName());
@@ -352,7 +352,7 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   @Test
   public void testChangePropertyTypeCastable() {
     final Schema oSchema = db.getMetadata().getSchema();
-    SchemaClass oClass = oSchema.createClass("Test19");
+    var oClass = oSchema.createClass("Test19");
 
     oClass.createProperty(db, "test1", PropertyType.SHORT);
     oClass.createProperty(db, "test2", PropertyType.INTEGER);
@@ -364,7 +364,7 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
     var rid =
         db.computeInTx(
             () -> {
-              EntityImpl document = (EntityImpl) db.newEntity("Test19");
+              var document = (EntityImpl) db.newEntity("Test19");
               // TODO add boolean and byte
               document.field("test1", (short) 1);
               document.field("test2", 1);
@@ -401,7 +401,7 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   @Test
   public void testChangePropertyName() {
     final Schema oSchema = db.getMetadata().getSchema();
-    SchemaClass oClass = oSchema.createClass("Test20");
+    var oClass = oSchema.createClass("Test20");
 
     oClass.createProperty(db, "test1", PropertyType.SHORT);
     oClass.createProperty(db, "test2", PropertyType.INTEGER);
@@ -413,7 +413,7 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
     var rid =
         db.computeInTx(
             () -> {
-              EntityImpl document = (EntityImpl) db.newEntity("Test20");
+              var document = (EntityImpl) db.newEntity("Test20");
               // TODO add boolan and byte
               document.field("test1", (short) 1);
               document.field("test2", 1);
@@ -450,12 +450,12 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   @Test
   public void testCreatePropertyCastableColectionNoCache() {
     final Schema oSchema = db.getMetadata().getSchema();
-    SchemaClass oClass = oSchema.createClass("Test11bis");
+    var oClass = oSchema.createClass("Test11bis");
 
     var rid =
         db.computeInTx(
             () -> {
-              final EntityImpl document = (EntityImpl) db.newEntity("Test11bis");
+              final var document = (EntityImpl) db.newEntity("Test11bis");
               document.field("test1", new ArrayList<EntityImpl>(), PropertyType.EMBEDDEDLIST);
               document.field("test2", new ArrayList<EntityImpl>(), PropertyType.LINKLIST);
 
@@ -474,9 +474,9 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
     oClass.createProperty(db, "test5", PropertyType.LINKMAP);
     oClass.createProperty(db, "test6", PropertyType.EMBEDDEDMAP);
 
-    ExecutorService executor = Executors.newSingleThreadExecutor();
+    var executor = Executors.newSingleThreadExecutor();
 
-    Future<EntityImpl> future =
+    var future =
         executor.submit(
             () -> {
               EntityImpl doc1 = db.copy().load(rid);
@@ -516,7 +516,7 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
     assertNotNull(oSchema.createClass("$OClassImplTesttestCla23ssNameSyntax_12"));
     assertNotNull(oSchema.createClass("OClassImplTesttestC$la23ssNameSyntax_12"));
     assertNotNull(oSchema.createClass("oOClassImplTesttestC$la23ssNameSyntax_12"));
-    String[] validClassNamesSince30 = {
+    var validClassNamesSince30 = new String[]{
         "foo bar",
         "12",
         "#12",
@@ -528,17 +528,17 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
         "asdfaf.",
         "asdf:asdf"
     };
-    for (String s : validClassNamesSince30) {
+    for (var s : validClassNamesSince30) {
       assertNotNull(oSchema.createClass(s));
     }
   }
 
   @Test
   public void testTypeAny() {
-    String className = "testTypeAny";
+    var className = "testTypeAny";
     final Schema oSchema = db.getMetadata().getSchema();
 
-    SchemaClass oClass = oSchema.createClass(className);
+    var oClass = oSchema.createClass(className);
 
     db.executeInTx(
         () -> {
@@ -549,7 +549,7 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
 
     oClass.createProperty(db, "name", PropertyType.ANY);
 
-    try (ResultSet result = db.query("select from " + className + " where name = 'foo'")) {
+    try (var result = db.query("select from " + className + " where name = 'foo'")) {
       assertEquals(result.stream().count(), 1);
     }
   }
@@ -557,7 +557,7 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   @Test
   public void testAlterCustomAttributeInClass() {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass oClass = schema.createClass("TestCreateCustomAttributeClass");
+    var oClass = schema.createClass("TestCreateCustomAttributeClass");
 
     oClass.setCustom(db, "customAttribute", "value1");
     assertEquals("value1", oClass.getCustom("customAttribute"));

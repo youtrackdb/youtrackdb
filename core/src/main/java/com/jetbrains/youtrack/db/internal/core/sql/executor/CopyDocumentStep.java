@@ -24,12 +24,12 @@ public class CopyDocumentStep extends AbstractExecutionStep {
   public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
 
-    ExecutionStream upstream = prev.start(ctx);
+    var upstream = prev.start(ctx);
     return upstream.map(CopyDocumentStep::mapResult);
   }
 
   private static Result mapResult(Result result, CommandContext ctx) {
-    Entity resultEntity = ctx.getDatabase().newEntity();
+    var resultEntity = ctx.getDatabase().newEntity();
     if (result.isEntity()) {
       var docToCopy = (EntityImpl) result.asEntity();
 
@@ -47,8 +47,8 @@ public class CopyDocumentStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
-    StringBuilder result = new StringBuilder();
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var result = new StringBuilder();
     result.append(spaces);
     result.append("+ COPY ENTITY");
     if (profilingEnabled) {

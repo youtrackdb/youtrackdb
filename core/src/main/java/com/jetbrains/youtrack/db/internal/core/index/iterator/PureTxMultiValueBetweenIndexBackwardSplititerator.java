@@ -47,7 +47,7 @@ public class PureTxMultiValueBetweenIndexBackwardSplititerator
       toKey = this.oIndexTxAwareMultiValue.enhanceToCompositeKeyBetweenDesc(toKey, toInclusive);
     }
 
-    final Object[] keys = indexChanges.firstAndLastKeys(fromKey, fromInclusive, toKey, toInclusive);
+    final var keys = indexChanges.firstAndLastKeys(fromKey, fromInclusive, toKey, toInclusive);
     if (keys.length == 0) {
       nextKey = null;
     } else {
@@ -57,14 +57,14 @@ public class PureTxMultiValueBetweenIndexBackwardSplititerator
   }
 
   private RawPair<Object, RID> nextEntryInternal() {
-    final Identifiable identifiable = valuesIterator.next();
+    final var identifiable = valuesIterator.next();
     return new RawPair<>(key, identifiable.getIdentity());
   }
 
   @Override
   public boolean tryAdvance(Consumer<? super RawPair<Object, RID>> action) {
     if (valuesIterator.hasNext()) {
-      final RawPair<Object, RID> entry = nextEntryInternal();
+      final var entry = nextEntryInternal();
       action.accept(entry);
       return true;
     }
@@ -90,7 +90,7 @@ public class PureTxMultiValueBetweenIndexBackwardSplititerator
     }
 
     valuesIterator = result.iterator();
-    final RawPair<Object, RID> entry = nextEntryInternal();
+    final var entry = nextEntryInternal();
     action.accept(entry);
     return true;
   }

@@ -97,16 +97,16 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     byte[] binary;
 
     Set<Integer> ids = new HashSet<>();
-    for (int i = 0; i < TOT_RECORDS_ACCOUNT; i++) {
+    for (var i = 0; i < TOT_RECORDS_ACCOUNT; i++) {
       ids.add(i);
     }
 
     var it = db.browseClass("Account", false);
     for (it.last(); it.hasPrevious(); ) {
-      EntityImpl rec = it.previous();
+      var rec = it.previous();
 
       if (rec != null) {
-        int id = ((Number) rec.field("id")).intValue();
+        var id = ((Number) rec.field("id")).intValue();
         Assert.assertTrue(ids.remove(id));
         Assert.assertEquals(rec.field("name"), "Gipsy");
         Assert.assertEquals(rec.field("location"), "Italy");
@@ -117,7 +117,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
 
         binary = rec.field("binary", PropertyType.BINARY);
 
-        for (int b = 0; b < binary.length; ++b) {
+        for (var b = 0; b < binary.length; ++b) {
           Assert.assertEquals(binary[b], (byte) b);
         }
       }
@@ -128,7 +128,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "readAndBrowseDescendingAndCheckHoleUtilization")
   public void update() {
-    int[] i = new int[1];
+    var i = new int[1];
 
     var iterator = (Iterator<EntityImpl>) db.<EntityImpl>browseCluster("Account");
     db.forEachInTx(iterator, (session, rec) -> {
@@ -146,8 +146,8 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "update")
   public void testUpdate() {
-    for (EntityImpl rec : db.<EntityImpl>browseCluster("Account")) {
-      int price = ((Number) rec.field("price")).intValue();
+    for (var rec : db.<EntityImpl>browseCluster("Account")) {
+      var price = ((Number) rec.field("price")).intValue();
       Assert.assertTrue(price - 100 >= 0);
 
       if ((price - 100) % 2 == 0) {
@@ -181,23 +181,23 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     vDoc.save();
     db.commit();
 
-    Collection<Index> indexes =
+    var indexes =
         db.getMetadata().getSchemaInternal().getClassInternal("Profile")
             .getPropertyInternal("nick")
             .getAllIndexesInternal(db);
 
     Assert.assertEquals(indexes.size(), 1);
 
-    Index indexDefinition = indexes.iterator().next();
-    try (final Stream<RID> stream = indexDefinition.getInternal().getRids(db, "JayM1")) {
+    var indexDefinition = indexes.iterator().next();
+    try (final var stream = indexDefinition.getInternal().getRids(db, "JayM1")) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
 
-    try (final Stream<RID> stream = indexDefinition.getInternal().getRids(db, "JayM2")) {
+    try (final var stream = indexDefinition.getInternal().getRids(db, "JayM2")) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
 
-    try (Stream<RID> stream = indexDefinition.getInternal().getRids(db, "JayM3")) {
+    try (var stream = indexDefinition.getInternal().getRids(db, "JayM3")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
@@ -215,15 +215,15 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     vDoc.save();
     db.commit();
 
-    Collection<Index> indexes =
+    var indexes =
         db.getMetadata().getSchemaInternal().getClassInternal("Profile")
             .getPropertyInternal("name")
             .getAllIndexesInternal(db);
     Assert.assertEquals(indexes.size(), 1);
 
-    Index indexName = indexes.iterator().next();
+    var indexName = indexes.iterator().next();
     // We must get 2 records for "nameA".
-    try (Stream<RID> stream = indexName.getInternal().getRids(db, "Jack")) {
+    try (var stream = indexName.getInternal().getRids(db, "Jack")) {
       Assert.assertEquals(stream.count(), 2);
     }
 
@@ -233,7 +233,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     db.commit();
 
     // We must get 1 record for "nameA".
-    try (Stream<RID> stream = indexName.getInternal().getRids(db, "Jack")) {
+    try (var stream = indexName.getInternal().getRids(db, "Jack")) {
       Assert.assertEquals(stream.count(), 1);
     }
   }
@@ -262,8 +262,8 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
 
   public void testLazyLoadingByLink() {
     db.begin();
-    EntityImpl coreDoc = ((EntityImpl) db.newEntity());
-    EntityImpl linkDoc = ((EntityImpl) db.newEntity());
+    var coreDoc = ((EntityImpl) db.newEntity());
+    var linkDoc = ((EntityImpl) db.newEntity());
 
     linkDoc.save();
     coreDoc.field("link", linkDoc);
@@ -304,7 +304,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
             .execute(db);
 
     Assert.assertEquals(result.size(), 1);
-    EntityImpl dexter = result.getFirst();
+    var dexter = result.getFirst();
 
     db.begin();
     dexter = db.bindToSession(dexter);
@@ -344,7 +344,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
   @Test
   public void testNestedEmbeddedMap() {
     db.begin();
-    EntityImpl newDoc = ((EntityImpl) db.newEntity());
+    var newDoc = ((EntityImpl) db.newEntity());
 
     final Map<String, HashMap<?, ?>> map1 = new HashMap<>();
     newDoc.field("map1", map1, PropertyType.EMBEDDEDMAP);
@@ -355,7 +355,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     final Map<String, HashMap<?, ?>> map3 = new HashMap<>();
     map2.put("map3", (HashMap<?, ?>) map3);
     newDoc.save();
-    final RecordId rid = newDoc.getIdentity();
+    final var rid = newDoc.getIdentity();
     db.commit();
 
     newDoc = db.bindToSession(newDoc);
@@ -369,19 +369,19 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
 
     Assert.assertTrue(loadedMap1.containsKey("map2"));
     Assert.assertTrue(loadedMap1.get("map2") instanceof Map<?, ?>);
-    final Map<String, EntityImpl> loadedMap2 = (Map<String, EntityImpl>) loadedMap1.get("map2");
+    final var loadedMap2 = (Map<String, EntityImpl>) loadedMap1.get("map2");
     Assert.assertEquals(loadedMap2.size(), 1);
 
     Assert.assertTrue(loadedMap2.containsKey("map3"));
     Assert.assertTrue(loadedMap2.get("map3") instanceof Map<?, ?>);
-    final Map<String, EntityImpl> loadedMap3 = (Map<String, EntityImpl>) loadedMap2.get("map3");
+    final var loadedMap3 = (Map<String, EntityImpl>) loadedMap2.get("map3");
     Assert.assertEquals(loadedMap3.size(), 0);
   }
 
   @Test
   public void commandWithPositionalParameters() {
-    final SQLSynchQuery<EntityImpl> query =
-        new SQLSynchQuery<>("select from Profile where name = ? and surname = ?");
+    final var query =
+        new SQLSynchQuery<EntityImpl>("select from Profile where name = ? and surname = ?");
     @SuppressWarnings("deprecation")
     List<EntityImpl> result = db.command(query).execute(db, "Barack", "Obama");
 
@@ -392,8 +392,8 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
   public void queryWithPositionalParameters() {
     addBarackObamaAndFollowers();
 
-    final SQLSynchQuery<EntityImpl> query =
-        new SQLSynchQuery<>("select from Profile where name = ? and surname = ?");
+    final var query =
+        new SQLSynchQuery<EntityImpl>("select from Profile where name = ? and surname = ?");
     @SuppressWarnings("deprecation")
     List<EntityImpl> result = db.query(query, "Barack", "Obama");
 
@@ -402,10 +402,11 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
 
   @Test
   public void commandWithNamedParameters() {
-    final SQLSynchQuery<EntityImpl> query =
-        new SQLSynchQuery<>("select from Profile where name = :name and surname = :surname");
+    final var query =
+        new SQLSynchQuery<EntityImpl>(
+            "select from Profile where name = :name and surname = :surname");
 
-    HashMap<String, String> params = new HashMap<>();
+    var params = new HashMap<String, String>();
     params.put("name", "Barack");
     params.put("surname", "Obama");
 
@@ -444,10 +445,11 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
   public void queryWithNamedParameters() {
     addBarackObamaAndFollowers();
 
-    final SQLSynchQuery<EntityImpl> query =
-        new SQLSynchQuery<>("select from Profile where name = :name and surname = :surname");
+    final var query =
+        new SQLSynchQuery<EntityImpl>(
+            "select from Profile where name = :name and surname = :surname");
 
-    HashMap<String, String> params = new HashMap<>();
+    var params = new HashMap<String, String>();
     params.put("name", "Barack");
     params.put("surname", "Obama");
 
@@ -460,11 +462,11 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
   public void testJSONLinkd() {
     db.createClassIfNotExist("PersonTest");
     db.begin();
-    EntityImpl jaimeDoc = ((EntityImpl) db.newEntity("PersonTest"));
+    var jaimeDoc = ((EntityImpl) db.newEntity("PersonTest"));
     jaimeDoc.field("name", "jaime");
     jaimeDoc.save();
 
-    EntityImpl cerseiDoc = ((EntityImpl) db.newEntity("PersonTest"));
+    var cerseiDoc = ((EntityImpl) db.newEntity("PersonTest"));
     cerseiDoc.updateFromJSON(
         "{\"@type\":\"d\",\"name\":\"cersei\",\"valonqar\":" + jaimeDoc.toJSON("") + "}");
     cerseiDoc.save();
@@ -473,7 +475,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     db.begin();
     jaimeDoc = db.bindToSession(jaimeDoc);
     // The link between jamie and tyrion is not saved properly
-    EntityImpl tyrionDoc = ((EntityImpl) db.newEntity("PersonTest"));
+    var tyrionDoc = ((EntityImpl) db.newEntity("PersonTest"));
     tyrionDoc.updateFromJSON(
         "{\"@type\":\"d\",\"name\":\"tyrion\",\"emergency_contact\":{\"relationship\":\"brother\",\"contact\":"
             + jaimeDoc.toJSON()
@@ -481,7 +483,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     tyrionDoc.save();
     db.commit();
 
-    for (EntityImpl o : db.browseClass("PersonTest")) {
+    for (var o : db.browseClass("PersonTest")) {
       for (Identifiable id : db.query("traverse * from " + o.getIdentity().toString())
           .stream().map(
               r -> r.getIdentity().orElseThrow()).toList()) {
@@ -492,15 +494,15 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
 
   @Test
   public void testDirtyChild() {
-    EntityImpl parent = ((EntityImpl) db.newEntity());
+    var parent = ((EntityImpl) db.newEntity());
 
-    EntityImpl child1 = ((EntityImpl) db.newEntity());
+    var child1 = ((EntityImpl) db.newEntity());
     EntityInternalUtils.addOwner(child1, parent);
     parent.field("child1", child1);
 
     Assert.assertTrue(child1.hasOwners());
 
-    EntityImpl child2 = ((EntityImpl) db.newEntity());
+    var child2 = ((EntityImpl) db.newEntity());
     EntityInternalUtils.addOwner(child2, child1);
     child1.field("child2", child2);
 
@@ -517,10 +519,10 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
   }
 
   public void testEncoding() {
-    String s = " \r\n\t:;,.|+*/\\=!?[]()'\"";
+    var s = " \r\n\t:;,.|+*/\\=!?[]()'\"";
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity());
+    var doc = ((EntityImpl) db.newEntity());
     doc.field("test", s);
     doc.save();
     db.commit();
@@ -551,8 +553,8 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
       Assert.assertTrue(superClassResult.contains(result));
     }
 
-    HashSet<EntityImpl> browsed = new HashSet<>();
-    for (EntityImpl d : db.browseClass("Account")) {
+    var browsed = new HashSet<EntityImpl>();
+    for (var d : db.browseClass("Account")) {
       Assert.assertFalse(browsed.contains(d));
       browsed.add(d);
     }
@@ -606,8 +608,8 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
       Assert.assertFalse(superClassResult.contains(r));
     }
 
-    HashSet<EntityImpl> browsed = new HashSet<>();
-    for (EntityImpl d : db.browseClass("Account")) {
+    var browsed = new HashSet<EntityImpl>();
+    for (var d : db.browseClass("Account")) {
       Assert.assertFalse(browsed.contains(d));
       browsed.add(d);
     }
@@ -652,11 +654,11 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     bank.field("name", "MyBankChained");
 
     // EMBEDDED
-    EntityImpl embedded = db.<EntityImpl>newInstance("Account")
+    var embedded = db.<EntityImpl>newInstance("Account")
         .field("name", "embedded1");
     bank.field("embedded", embedded, PropertyType.EMBEDDED);
 
-    EntityImpl[] embeddeds =
+    var embeddeds =
         new EntityImpl[]{
             db.<EntityImpl>newInstance("Account").field("name", "embedded2"),
             db.<EntityImpl>newInstance("Account").field("name", "embedded3")
@@ -664,10 +666,10 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     bank.field("embeddeds", embeddeds, PropertyType.EMBEDDEDLIST);
 
     // LINKED
-    EntityImpl linked = db.<EntityImpl>newInstance("Account").field("name", "linked1");
+    var linked = db.<EntityImpl>newInstance("Account").field("name", "linked1");
     bank.field("linked", linked);
 
-    EntityImpl[] linkeds =
+    var linkeds =
         new EntityImpl[]{
             db.<EntityImpl>newInstance("Account").field("name", "linked2"),
             db.<EntityImpl>newInstance("Account").field("name", "linked3")
@@ -682,21 +684,21 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
 
     db.begin();
     bank = db.bindToSession(bank);
-    EntityImpl changedDoc1 = bank.field("embedded.total", 100);
+    var changedDoc1 = bank.field("embedded.total", 100);
     // MUST CHANGE THE PARENT DOC BECAUSE IT'S EMBEDDED
     Assert.assertEquals(changedDoc1.field("name"), "MyBankChained");
     Assert.assertEquals(changedDoc1.<Object>field("embedded.total"), 100);
 
-    EntityImpl changedDoc2 = bank.field("embeddeds.total", 200);
+    var changedDoc2 = bank.field("embeddeds.total", 200);
     // MUST CHANGE THE PARENT DOC BECAUSE IT'S EMBEDDED
     Assert.assertEquals(changedDoc2.field("name"), "MyBankChained");
 
     Collection<Integer> intEmbeddeds = changedDoc2.field("embeddeds.total");
-    for (Integer e : intEmbeddeds) {
+    for (var e : intEmbeddeds) {
       Assert.assertEquals(e.intValue(), 200);
     }
 
-    EntityImpl changedDoc3 = bank.field("linked.total", 300);
+    var changedDoc3 = bank.field("linked.total", 300);
     // MUST CHANGE THE LINKED DOCUMENT
     Assert.assertEquals(changedDoc3.field("name"), "linked1");
     Assert.assertEquals(changedDoc3.<Object>field("total"), 300);
@@ -706,7 +708,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     bank = db.bindToSession(bank);
     ((EntityImpl) bank.field("linked")).delete();
     //noinspection unchecked
-    for (Identifiable l : (Collection<Identifiable>) bank.field("linkeds")) {
+    for (var l : (Collection<Identifiable>) bank.field("linkeds")) {
       l.getRecord(db).delete();
     }
     bank.delete();
@@ -718,19 +720,19 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
       //we need to use only network oriented serializers in remote
       return;
     }
-    RecordSerializer current = DatabaseSessionAbstract.getDefaultSerializer();
+    var current = DatabaseSessionAbstract.getDefaultSerializer();
     DatabaseSessionAbstract.setDefaultSerializer(RecordSerializerSchemaAware2CSV.INSTANCE);
-    RecordSerializer dbser = db.getSerializer();
+    var dbser = db.getSerializer();
     db.setSerializer(RecordSerializerSchemaAware2CSV.INSTANCE);
-    final byte[] streamOrigin =
+    final var streamOrigin =
         "Account@html:{\"path\":\"html/layout\"},config:{\"title\":\"Github Admin\",\"modules\":(githubDisplay:\"github_display\")},complex:(simple1:\"string1\",one_level1:(simple2:\"string2\"),two_levels:(simple3:\"string3\",one_level2:(simple4:\"string4\")))"
             .getBytes();
-    EntityImpl doc =
+    var doc =
         (EntityImpl)
             RecordSerializerSchemaAware2CSV.INSTANCE.fromStream(db,
                 streamOrigin, new EntityImpl(db), null);
     doc.field("out");
-    final byte[] streamDest = RecordSerializerSchemaAware2CSV.INSTANCE.toStream(db, doc);
+    final var streamDest = RecordSerializerSchemaAware2CSV.INSTANCE.toStream(db, doc);
     Assert.assertEquals(streamOrigin, streamDest);
     DatabaseSessionAbstract.setDefaultSerializer(current);
     db.setSerializer(dbser);
@@ -741,9 +743,9 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     var resultSet = executeQuery("select from Account");
 
     db.begin();
-    EntityImpl doc = (EntityImpl) resultSet.getFirst().asEntity();
+    var doc = (EntityImpl) resultSet.getFirst().asEntity();
     doc.field("name", "modified");
-    int oldVersion = doc.getVersion();
+    var oldVersion = doc.getVersion();
 
     RecordInternal.setVersion(doc, -2);
 
@@ -759,20 +761,20 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
 
   public void testCreateEmbddedClassDocument() {
     final Schema schema = db.getMetadata().getSchema();
-    final String SUFFIX = "TESTCLUSTER1";
+    final var SUFFIX = "TESTCLUSTER1";
 
-    SchemaClass testClass1 = schema.createClass("testCreateEmbddedClass1");
-    SchemaClass testClass2 = schema.createClass("testCreateEmbddedClass2");
+    var testClass1 = schema.createClass("testCreateEmbddedClass1");
+    var testClass2 = schema.createClass("testCreateEmbddedClass2");
     testClass2.createProperty(db, "testClass1Property", PropertyType.EMBEDDED, testClass1);
 
-    int clusterId = db.addCluster("testCreateEmbddedClass2" + SUFFIX);
+    var clusterId = db.addCluster("testCreateEmbddedClass2" + SUFFIX);
     schema.getClass("testCreateEmbddedClass2").addClusterId(db, clusterId);
 
     testClass1 = schema.getClass("testCreateEmbddedClass1");
     testClass2 = schema.getClass("testCreateEmbddedClass2");
 
     db.begin();
-    EntityImpl testClass2Document = ((EntityImpl) db.newEntity(testClass2));
+    var testClass2Document = ((EntityImpl) db.newEntity(testClass2));
     testClass2Document.field("testClass1Property", db.newEntity(testClass1));
     testClass2Document.save();
     db.commit();
@@ -787,13 +789,13 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
   }
 
   public void testRemoveAllLinkList() {
-    EntityImpl doc = ((EntityImpl) db.newEntity());
+    var doc = ((EntityImpl) db.newEntity());
 
     final List<EntityImpl> allDocs = new ArrayList<>();
 
     db.begin();
-    for (int i = 0; i < 10; i++) {
-      final EntityImpl linkDoc = ((EntityImpl) db.newEntity());
+    for (var i = 0; i < 10; i++) {
+      final var linkDoc = ((EntityImpl) db.newEntity());
       linkDoc.save();
 
       allDocs.add(linkDoc);
@@ -804,7 +806,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
 
     db.begin();
     final List<EntityImpl> docsToRemove = new ArrayList<>(allDocs.size() / 2);
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       docsToRemove.add(allDocs.get(i));
     }
 
@@ -814,7 +816,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
 
     Assert.assertEquals(linkList.size(), 5);
 
-    for (int i = 5; i < 10; i++) {
+    for (var i = 5; i < 10; i++) {
       Assert.assertEquals(linkList.get(i - 5), allDocs.get(i));
     }
     doc.save();
@@ -829,7 +831,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     linkList = doc.field("linkList");
     Assert.assertEquals(linkList.size(), 5);
 
-    for (int i = 5; i < 10; i++) {
+    for (var i = 5; i < 10; i++) {
       Assert.assertEquals(linkList.get(i - 5), allDocs.get(i));
     }
     db.commit();
@@ -872,7 +874,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     db.command("insert into TestExport set anything = 2.3").close();
     db.commit();
 
-    ResultSet result = db.command("select count(*) from TestExport where anything = 3");
+    var result = db.command("select count(*) from TestExport where anything = 3");
     Assert.assertNotNull(result);
     Assert.assertEquals(result.stream().count(), 1);
 

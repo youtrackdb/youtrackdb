@@ -46,7 +46,7 @@ public class ClassLoaderHelper {
   public static synchronized <T extends Object> Iterator<T> lookupProviderWithYouTrackDBClassLoader(
       Class<T> clazz, ClassLoader youTrackDBClassLoader) {
 
-    final ClassLoader origClassLoader = Thread.currentThread().getContextClassLoader();
+    final var origClassLoader = Thread.currentThread().getContextClassLoader();
     Thread.currentThread().setContextClassLoader(youTrackDBClassLoader);
     try {
       return ServiceLoader.load(clazz).iterator();

@@ -77,13 +77,13 @@ public abstract class AbstractRecordCache {
     final Set<RID> toRemove = new HashSet<RID>(underlying.size() / 2);
 
     final Set<RID> keys = new HashSet<RID>(underlying.keys());
-    for (final RID id : keys) {
+    for (final var id : keys) {
       if (id.getClusterId() == cid) {
         toRemove.add(id);
       }
     }
 
-    for (final RID ridToRemove : toRemove) {
+    for (final var ridToRemove : toRemove) {
       underlying.remove(ridToRemove);
     }
   }

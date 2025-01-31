@@ -68,9 +68,9 @@ public class SQLFunctionDocument extends SQLFunctionMultiValueAbstract<EntityImp
       throw new IllegalArgumentException(
           "Map function: expected a map or pairs of parameters as key, value");
     } else {
-      for (int i = 0; i < iParams.length; i += 2) {
-        final String key = iParams[i].toString();
-        final Object value = iParams[i + 1];
+      for (var i = 0; i < iParams.length; i += 2) {
+        final var key = iParams[i].toString();
+        final var value = iParams[i + 1];
 
         if (value != null) {
           if (iParams.length <= 2 && context == null)
@@ -97,7 +97,7 @@ public class SQLFunctionDocument extends SQLFunctionMultiValueAbstract<EntityImp
 
   @Override
   public EntityImpl getResult() {
-    final EntityImpl res = context;
+    final var res = context;
     context = null;
     return prepareResult(res);
   }

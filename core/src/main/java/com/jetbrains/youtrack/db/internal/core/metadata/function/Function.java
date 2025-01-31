@@ -168,17 +168,17 @@ public class Function extends IdentityWrapper {
       iContext = new BasicCommandContext();
     }
     var database = iContext.getDatabase();
-    final List<String> params = parameters;
+    final var params = parameters;
 
     // CONVERT PARAMETERS IN A MAP
     Map<Object, Object> args = null;
 
     if (iArgs.length > 0) {
       args = new LinkedHashMap<>();
-      for (int i = 0; i < iArgs.length; ++i) {
+      for (var i = 0; i < iArgs.length; ++i) {
         // final Object argValue =
         // RecordSerializerStringAbstract.getTypeValue(iArgs[i].toString());
-        final Object argValue = iArgs[i];
+        final var argValue = iArgs[i];
 
         if (params != null && i < params.size()) {
           args.put(params.get(i), argValue);
@@ -193,7 +193,7 @@ public class Function extends IdentityWrapper {
       return callback.call(args);
     }
 
-    ScriptExecutor executor =
+    var executor =
         database
             .getSharedContext()
             .getYouTrackDB()
@@ -206,14 +206,14 @@ public class Function extends IdentityWrapper {
 
   public Object executeInContext(@Nonnull CommandContext iContext,
       @Nonnull final Map<String, Object> iArgs) {
-    DatabaseSessionInternal database = iContext.getDatabase();
+    var database = iContext.getDatabase();
     // CONVERT PARAMETERS IN A MAP
     final Map<Object, Object> args = new LinkedHashMap<>();
 
     if (!iArgs.isEmpty()) {
       // PRESERVE THE ORDER FOR PARAMETERS (ARE USED AS POSITIONAL)
-      final List<String> params = parameters;
-      for (String p : params) {
+      final var params = parameters;
+      for (var p : params) {
         args.put(p, iArgs.get(p));
       }
     }
@@ -223,7 +223,7 @@ public class Function extends IdentityWrapper {
       return callback.call(args);
     }
 
-    ScriptExecutor executor =
+    var executor =
         database
             .getSharedContext()
             .getYouTrackDB()
@@ -236,7 +236,7 @@ public class Function extends IdentityWrapper {
 
   @Deprecated
   public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
-    final long start = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
+    final var start = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
 
     Object result;
     while (true) {
@@ -245,7 +245,7 @@ public class Function extends IdentityWrapper {
           return callback.call(iArgs);
         }
 
-        ScriptExecutor executor =
+        var executor =
             session
                 .getSharedContext()
                 .getYouTrackDB()

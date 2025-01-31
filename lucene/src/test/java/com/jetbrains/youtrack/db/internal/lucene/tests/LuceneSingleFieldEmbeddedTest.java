@@ -32,7 +32,7 @@ public class LuceneSingleFieldEmbeddedTest extends LuceneBaseTest {
 
   @Before
   public void init() {
-    InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
+    var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
 
     db.execute("sql", getScriptFromStream(stream));
 
@@ -43,7 +43,7 @@ public class LuceneSingleFieldEmbeddedTest extends LuceneBaseTest {
   @Test
   public void loadAndTest() {
 
-    ResultSet docs =
+    var docs =
         db.query("select * from Song where search_fields(['title'],\"(title:mountain)\")=true");
 
     assertThat(docs).hasSize(4);

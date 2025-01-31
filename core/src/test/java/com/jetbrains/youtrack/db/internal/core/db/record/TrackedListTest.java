@@ -20,13 +20,13 @@ public class TrackedListTest extends DbTestBase {
 
   @Test
   public void testAddNotificationOne() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedList<String> trackedList = new TrackedList<String>(doc);
+    final var trackedList = new TrackedList<String>(doc);
     trackedList.enableTracking(doc);
-    MultiValueChangeEvent<Object, Object> event =
+    var event =
         new MultiValueChangeEvent<Object, Object>(
             ChangeType.ADD, 0, "value1", null);
     trackedList.add("value1");
@@ -38,17 +38,17 @@ public class TrackedListTest extends DbTestBase {
 
   @Test
   public void testAddNotificationTwo() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedList<String> trackedList = new TrackedList<String>(doc);
+    final var trackedList = new TrackedList<String>(doc);
     trackedList.add("value1");
     trackedList.add("value2");
 
     trackedList.disableTracking(doc);
     trackedList.enableTracking(doc);
-    MultiValueChangeEvent<Object, Object> event =
+    var event =
         new MultiValueChangeEvent<Object, Object>(
             ChangeType.ADD, 2, "value3", null);
 
@@ -60,11 +60,11 @@ public class TrackedListTest extends DbTestBase {
 
   @Test
   public void testAddNotificationThree() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedList<String> trackedList = new TrackedList<String>(doc);
+    final var trackedList = new TrackedList<String>(doc);
     doc.setProperty("tracked", trackedList);
     trackedList.add("value1");
     Assert.assertTrue(doc.isDirty());
@@ -72,11 +72,11 @@ public class TrackedListTest extends DbTestBase {
 
   @Test
   public void testAddNotificationFour() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedList<String> trackedList = new TrackedList<String>(doc);
+    final var trackedList = new TrackedList<String>(doc);
     trackedList.add("value1");
     trackedList.add("value2");
 
@@ -93,11 +93,11 @@ public class TrackedListTest extends DbTestBase {
 
   @Test
   public void testAddAllNotificationOne() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedList<String> trackedList = new TrackedList<String>(doc);
+    final var trackedList = new TrackedList<String>(doc);
     final List<String> valuesToAdd = new ArrayList<String>();
     valuesToAdd.add("value1");
     valuesToAdd.add("value3");
@@ -122,11 +122,11 @@ public class TrackedListTest extends DbTestBase {
 
   @Test
   public void testAddAllNotificationTwo() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedList<String> trackedList = new TrackedList<String>(doc);
+    final var trackedList = new TrackedList<String>(doc);
     doc.setProperty("tracked", trackedList);
     final List<String> valuesToAdd = new ArrayList<String>();
     valuesToAdd.add("value1");
@@ -139,11 +139,11 @@ public class TrackedListTest extends DbTestBase {
 
   @Test
   public void testAddAllNotificationThree() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedList<String> trackedList = new TrackedList<String>(doc);
+    final var trackedList = new TrackedList<String>(doc);
     final List<String> valuesToAdd = new ArrayList<String>();
     valuesToAdd.add("value1");
     valuesToAdd.add("value3");
@@ -153,7 +153,7 @@ public class TrackedListTest extends DbTestBase {
 
     trackedList.disableTracking(doc);
     trackedList.enableTracking(doc);
-    for (String e : valuesToAdd) {
+    for (var e : valuesToAdd) {
       trackedList.addInternal(e);
     }
 
@@ -163,11 +163,11 @@ public class TrackedListTest extends DbTestBase {
 
   @Test
   public void testAddIndexNotificationOne() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedList<String> trackedList = new TrackedList<String>(doc);
+    final var trackedList = new TrackedList<String>(doc);
     trackedList.add("value1");
     trackedList.add("value2");
 
@@ -176,8 +176,8 @@ public class TrackedListTest extends DbTestBase {
     trackedList.disableTracking(doc);
     trackedList.enableTracking(doc);
 
-    MultiValueChangeEvent<Integer, String> event =
-        new MultiValueChangeEvent<>(ChangeType.ADD, 1, "value3", null);
+    var event =
+        new MultiValueChangeEvent<Integer, String>(ChangeType.ADD, 1, "value3", null);
 
     trackedList.add(1, "value3");
     Assert.assertEquals(event, trackedList.getTimeLine().getMultiValueChangeEvents().get(0));
@@ -187,11 +187,11 @@ public class TrackedListTest extends DbTestBase {
 
   @Test
   public void testAddIndexNotificationTwo() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedList<String> trackedList = new TrackedList<String>(doc);
+    final var trackedList = new TrackedList<String>(doc);
     doc.setProperty("aa", trackedList);
     trackedList.add("value1");
     trackedList.add("value2");
@@ -204,11 +204,11 @@ public class TrackedListTest extends DbTestBase {
 
   @Test
   public void testSetNotificationOne() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedList<String> trackedList = new TrackedList<String>(doc);
+    final var trackedList = new TrackedList<String>(doc);
     trackedList.add("value1");
     trackedList.add("value2");
     trackedList.add("value3");
@@ -216,7 +216,7 @@ public class TrackedListTest extends DbTestBase {
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
     trackedList.enableTracking(doc);
-    MultiValueChangeEvent<Object, Object> event =
+    var event =
         new MultiValueChangeEvent<Object, Object>(
             ChangeType.UPDATE, 1, "value4", "value2");
     trackedList.set(1, "value4");
@@ -227,11 +227,11 @@ public class TrackedListTest extends DbTestBase {
 
   @Test
   public void testSetNotificationTwo() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedList<String> trackedList = new TrackedList<String>(doc);
+    final var trackedList = new TrackedList<String>(doc);
     doc.setProperty("tracked", trackedList);
     trackedList.add("value1");
     trackedList.add("value2");
@@ -246,11 +246,11 @@ public class TrackedListTest extends DbTestBase {
 
   @Test
   public void testRemoveNotificationOne() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedList<String> trackedList = new TrackedList<String>(doc);
+    final var trackedList = new TrackedList<String>(doc);
     trackedList.add("value1");
     trackedList.add("value2");
     trackedList.add("value3");
@@ -260,19 +260,19 @@ public class TrackedListTest extends DbTestBase {
 
     trackedList.enableTracking(doc);
     trackedList.remove("value2");
-    MultiValueChangeEvent<Integer, String> event =
-        new MultiValueChangeEvent<>(ChangeType.REMOVE, 1, null, "value2");
+    var event =
+        new MultiValueChangeEvent<Integer, String>(ChangeType.REMOVE, 1, null, "value2");
     Assert.assertEquals(event, trackedList.getTimeLine().getMultiValueChangeEvents().get(0));
     Assert.assertTrue(doc.isDirty());
   }
 
   @Test
   public void testRemoveNotificationTwo() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedList<String> trackedList = new TrackedList<String>(doc);
+    final var trackedList = new TrackedList<String>(doc);
     doc.setProperty("tracked", trackedList);
     trackedList.add("value1");
     trackedList.add("value2");
@@ -287,11 +287,11 @@ public class TrackedListTest extends DbTestBase {
 
   @Test
   public void testRemoveNotificationFour() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedList<String> trackedList = new TrackedList<String>(doc);
+    final var trackedList = new TrackedList<String>(doc);
     trackedList.add("value1");
     trackedList.add("value2");
     trackedList.add("value3");
@@ -307,11 +307,11 @@ public class TrackedListTest extends DbTestBase {
 
   @Test
   public void testRemoveIndexOne() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedList<String> trackedList = new TrackedList<String>(doc);
+    final var trackedList = new TrackedList<String>(doc);
     trackedList.add("value1");
     trackedList.add("value2");
     trackedList.add("value3");
@@ -321,7 +321,7 @@ public class TrackedListTest extends DbTestBase {
     trackedList.enableTracking(doc);
 
     trackedList.remove(1);
-    MultiValueChangeEvent<Object, Object> event =
+    var event =
         new MultiValueChangeEvent<Object, Object>(
             ChangeType.REMOVE, 1, null, "value2");
     Assert.assertTrue(trackedList.isModified());
@@ -331,11 +331,11 @@ public class TrackedListTest extends DbTestBase {
 
   @Test
   public void testClearOne() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedList<String> trackedList = new TrackedList<String>(doc);
+    final var trackedList = new TrackedList<String>(doc);
     trackedList.add("value1");
     trackedList.add("value2");
     trackedList.add("value3");
@@ -363,11 +363,11 @@ public class TrackedListTest extends DbTestBase {
 
   @Test
   public void testClearTwo() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedList<String> trackedList = new TrackedList<String>(doc);
+    final var trackedList = new TrackedList<String>(doc);
     doc.setProperty("tracked", trackedList);
     trackedList.add("value1");
     trackedList.add("value2");
@@ -382,9 +382,9 @@ public class TrackedListTest extends DbTestBase {
 
   @Test
   public void testReturnOriginalStateOne() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
 
-    final TrackedList<String> trackedList = new TrackedList<String>(doc);
+    final var trackedList = new TrackedList<String>(doc);
     trackedList.add("value1");
     trackedList.add("value2");
     trackedList.add("value3");
@@ -416,9 +416,9 @@ public class TrackedListTest extends DbTestBase {
 
   @Test
   public void testReturnOriginalStateTwo() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
 
-    final TrackedList<String> trackedList = new TrackedList<String>(doc);
+    final var trackedList = new TrackedList<String>(doc);
     trackedList.add("value1");
     trackedList.add("value2");
     trackedList.add("value3");
@@ -465,22 +465,22 @@ public class TrackedListTest extends DbTestBase {
       }
     }
 
-    final TrackedList<String> beforeSerialization =
+    final var beforeSerialization =
         new TrackedList<String>(new NotSerializableEntityImpl(db));
     beforeSerialization.add("firstVal");
     beforeSerialization.add("secondVal");
 
-    final MemoryStream memoryStream = new MemoryStream();
-    ObjectOutputStream out = new ObjectOutputStream(memoryStream);
+    final var memoryStream = new MemoryStream();
+    var out = new ObjectOutputStream(memoryStream);
     out.writeObject(beforeSerialization);
     out.close();
 
-    final ObjectInputStream input =
+    final var input =
         new ObjectInputStream(new ByteArrayInputStream(memoryStream.copy()));
-    @SuppressWarnings("unchecked") final List<String> afterSerialization = (List<String>) input.readObject();
+    @SuppressWarnings("unchecked") final var afterSerialization = (List<String>) input.readObject();
 
     Assert.assertEquals(afterSerialization.size(), beforeSerialization.size());
-    for (int i = 0; i < afterSerialization.size(); i++) {
+    for (var i = 0; i < afterSerialization.size(); i++) {
       Assert.assertEquals(afterSerialization.get(i), beforeSerialization.get(i));
     }
   }

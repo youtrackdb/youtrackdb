@@ -56,7 +56,7 @@ public class SQLMethodRemoveAll extends AbstractSQLMethod {
                   return iArgument;
                 }
               });
-      for (Object o : iParams) {
+      for (var o : iParams) {
         ioResult = MultiValue.remove(ioResult, o, true);
       }
     }

@@ -70,10 +70,10 @@ public class UdpSyslogMessageSender extends AbstractSyslogMessageSender {
   @Override
   public void sendMessage(SyslogMessage message) throws IOException {
     sendCounter.incrementAndGet();
-    long nanosBefore = System.nanoTime();
+    var nanosBefore = System.nanoTime();
 
     try {
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      var baos = new ByteArrayOutputStream();
       Writer out = new OutputStreamWriter(baos, UTF_8);
 
       message.toSyslogMessage(messageFormat, out);
@@ -82,9 +82,9 @@ public class UdpSyslogMessageSender extends AbstractSyslogMessageSender {
       if (logger.isLoggable(Level.FINEST)) {
         logger.finest("Send syslog message " + baos.toString(UTF_8));
       }
-      byte[] bytes = baos.toByteArray();
+      var bytes = baos.toByteArray();
 
-      DatagramPacket packet =
+      var packet =
           new DatagramPacket(
               bytes, bytes.length, syslogServerHostnameReference.get(), syslogServerPort);
       datagramSocket.send(packet);
@@ -118,7 +118,7 @@ public class UdpSyslogMessageSender extends AbstractSyslogMessageSender {
   }
 
   public String getSyslogServerHostname() {
-    InetAddress inetAddress = syslogServerHostnameReference.get();
+    var inetAddress = syslogServerHostnameReference.get();
     return inetAddress == null ? null : inetAddress.getHostName();
   }
 

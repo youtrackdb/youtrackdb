@@ -12,7 +12,7 @@ public class SQLFunctionIndexKeySizeTest extends DbTestBase {
 
   @Test
   public void test() {
-    SchemaClass clazz = db.getMetadata().getSchema().createClass("Test");
+    var clazz = db.getMetadata().getSchema().createClass("Test");
     clazz.createProperty(db, "name", PropertyType.STRING);
     db.command("create index testindex on  Test (name) notunique").close();
 
@@ -21,9 +21,9 @@ public class SQLFunctionIndexKeySizeTest extends DbTestBase {
     db.command("insert into Test set name = 'b'").close();
     db.commit();
 
-    try (ResultSet rs = db.query("select indexKeySize('testindex') as foo")) {
+    try (var rs = db.query("select indexKeySize('testindex') as foo")) {
       Assert.assertTrue(rs.hasNext());
-      Result item = rs.next();
+      var item = rs.next();
       Assert.assertEquals((Object) 2L, item.getProperty("foo"));
       Assert.assertFalse(rs.hasNext());
     }

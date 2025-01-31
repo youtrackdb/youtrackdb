@@ -25,9 +25,9 @@ public class SerializableWrapper implements SerializableStream {
 
   @Override
   public byte[] toStream() throws SerializationException {
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    var output = new ByteArrayOutputStream();
     try {
-      ObjectOutputStream writer = new ObjectOutputStream(output);
+      var writer = new ObjectOutputStream(output);
       writer.writeObject(serializable);
       writer.close();
     } catch (IOException e) {
@@ -39,9 +39,9 @@ public class SerializableWrapper implements SerializableStream {
 
   @Override
   public SerializableStream fromStream(byte[] iStream) throws SerializationException {
-    ByteArrayInputStream stream = new ByteArrayInputStream(iStream);
+    var stream = new ByteArrayInputStream(iStream);
     try {
-      ObjectInputStream reader = new ObjectInputStream(stream);
+      var reader = new ObjectInputStream(stream);
       serializable = (Serializable) reader.readObject();
       reader.close();
     } catch (Exception e) {

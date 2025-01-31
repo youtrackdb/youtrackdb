@@ -50,7 +50,7 @@ public class QueryOperatorMinor extends QueryOperatorEqualityNotNulls {
 
   public QueryOperatorMinor() {
     super("<", 5, false);
-    DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
+    var db = DatabaseRecordThreadLocal.instance().getIfDefined();
     if (db != null) {
       binaryEvaluate = db.getSerializer().getSupportBinaryEvaluate();
     }
@@ -64,7 +64,7 @@ public class QueryOperatorMinor extends QueryOperatorEqualityNotNulls {
       final Object iLeft,
       final Object iRight,
       CommandContext iContext) {
-    final Object right = PropertyType.convert(iContext.getDatabase(), iRight, iLeft.getClass());
+    final var right = PropertyType.convert(iContext.getDatabase(), iRight, iLeft.getClass());
     if (right == null) {
       return false;
     }
@@ -82,9 +82,9 @@ public class QueryOperatorMinor extends QueryOperatorEqualityNotNulls {
   @Override
   public Stream<RawPair<Object, RID>> executeIndexQuery(
       CommandContext iContext, Index index, List<Object> keyParams, boolean ascSortOrder) {
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
 
-    final IndexInternal internalIndex = index.getInternal();
+    final var internalIndex = index.getInternal();
     if (!internalIndex.canBeUsedInEqualityOperators() || !internalIndex.hasRangeQuerySupport()) {
       return null;
     }
@@ -113,7 +113,7 @@ public class QueryOperatorMinor extends QueryOperatorEqualityNotNulls {
       // is the biggest composite key in the index that contains key with values field1=1 and
       // field2=2.
 
-      final CompositeIndexDefinition compositeIndexDefinition =
+      final var compositeIndexDefinition =
           (CompositeIndexDefinition) indexDefinition;
 
       final Object keyOne =

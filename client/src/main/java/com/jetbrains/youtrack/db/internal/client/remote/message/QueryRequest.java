@@ -172,11 +172,11 @@ public final class QueryRequest implements BinaryRequest<QueryResponse> {
   }
 
   public Object[] getPositionalParameters(DatabaseSessionInternal db) {
-    Map<String, Object> params = getParams(db);
+    var params = getParams(db);
     if (params == null) {
       return null;
     }
-    Object[] result = new Object[params.size()];
+    var result = new Object[params.size()];
     params
         .entrySet()
         .forEach(

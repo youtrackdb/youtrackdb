@@ -58,9 +58,9 @@ public class SQLCreateIndexStatement extends DDLStatement {
 
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
-    Object execResult = execute(ctx);
+    var execResult = execute(ctx);
     if (execResult != null) {
-      ResultInternal result = new ResultInternal(ctx.getDatabase());
+      var result = new ResultInternal(ctx.getDatabase());
       result.setProperty("operation", "create index");
       result.setProperty("name", name.getValue());
       return ExecutionStream.singleton(result);
@@ -70,7 +70,7 @@ public class SQLCreateIndexStatement extends DDLStatement {
   }
 
   Object execute(CommandContext ctx) {
-    final DatabaseSessionInternal database = ctx.getDatabase();
+    final var database = ctx.getDatabase();
 
     if (database.getMetadata().getIndexManagerInternal().existsIndex(name.getValue())) {
       if (ifNotExists) {
@@ -81,15 +81,15 @@ public class SQLCreateIndexStatement extends DDLStatement {
     }
 
     final Index idx;
-    List<Collate> collatesList = calculateCollates(ctx);
-    String engine =
+    var collatesList = calculateCollates(ctx);
+    var engine =
         this.engine == null ? null : this.engine.getStringValue().toUpperCase(Locale.ENGLISH);
-    EntityImpl metadataDoc = calculateMetadata(ctx);
+    var metadataDoc = calculateMetadata(ctx);
 
     if (propertyList == null || propertyList.size() == 0) {
-      IndexFactory factory = Indexes.getFactory(type.getStringValue(), engine);
+      var factory = Indexes.getFactory(type.getStringValue(), engine);
 
-      PropertyType[] keyTypes = calculateKeyTypes(ctx);
+      var keyTypes = calculateKeyTypes(ctx);
 
       if (keyTypes != null && keyTypes.length > 0) {
         idx =
@@ -127,14 +127,14 @@ public class SQLCreateIndexStatement extends DDLStatement {
 
       } else if (className == null && keyTypes == null || keyTypes.length == 0) {
         // legacy: create index without specifying property names
-        String[] split = name.getValue().split("\\.");
+        var split = name.getValue().split("\\.");
         if (split.length != 2) {
           throw new DatabaseException(
               "Impossible to create an index without specify class and property name nor key types:"
                   + " "
                   + this);
         }
-        SchemaClass oClass = database.getClass(split[0]);
+        var oClass = database.getClass(split[0]);
         if (oClass == null) {
           throw new DatabaseException(
               "Impossible to create an index, class not found: " + split[0]);
@@ -143,7 +143,7 @@ public class SQLCreateIndexStatement extends DDLStatement {
           throw new DatabaseException(
               "Impossible to create an index, property not found: " + name.getValue());
         }
-        String[] fields = new String[]{split[1]};
+        var fields = new String[]{split[1]};
         idx = getoIndex(oClass, fields, engine, database, collatesList, metadataDoc);
 
       } else {
@@ -153,8 +153,8 @@ public class SQLCreateIndexStatement extends DDLStatement {
                 + this);
       }
     } else {
-      String[] fields = calculateProperties(ctx);
-      SchemaClass oClass = getIndexClass(ctx);
+      var fields = calculateProperties(ctx);
+      var oClass = getIndexClass(ctx);
       idx = getoIndex(oClass, fields, engine, database, collatesList, metadataDoc);
     }
 
@@ -174,7 +174,7 @@ public class SQLCreateIndexStatement extends DDLStatement {
       EntityImpl metadataDoc) {
     Index idx;
     if ((keyTypes == null || keyTypes.size() == 0) && collatesList == null) {
-      String indexName = name.getValue();
+      var indexName = name.getValue();
       oClass.createIndex(database,
           indexName, type.getStringValue(), null, metadataDoc != null ? metadataDoc.toMap() : null,
           engine, fields);
@@ -182,7 +182,7 @@ public class SQLCreateIndexStatement extends DDLStatement {
     } else {
       final List<PropertyType> fieldTypeList;
       if (keyTypes == null || keyTypes.size() == 0 && fields.length > 0) {
-        for (final String fieldName : fields) {
+        for (final var fieldName : fields) {
           if (!fieldName.equals("@rid") && !oClass.existsProperty(fieldName)) {
             throw new IndexException(
                 "Index with name : '"
@@ -202,7 +202,7 @@ public class SQLCreateIndexStatement extends DDLStatement {
                 .collect(Collectors.toList());
       }
 
-      final IndexDefinition idxDef =
+      final var idxDef =
           IndexDefinitionFactory.createIndexDefinition(
               oClass,
               Arrays.asList(fields),
@@ -251,7 +251,7 @@ public class SQLCreateIndexStatement extends DDLStatement {
     if (className == null) {
       return null;
     }
-    SchemaClass result =
+    var result =
         ctx.getDatabase().getMetadata().getSchema().getClass(className.getStringValue());
     if (result == null) {
       throw new CommandExecutionException("Cannot find class " + className);
@@ -281,11 +281,11 @@ public class SQLCreateIndexStatement extends DDLStatement {
 
   private List<Collate> calculateCollates(CommandContext ctx) {
     List<Collate> result = new ArrayList<>();
-    boolean found = false;
-    for (Property prop : this.propertyList) {
-      String collate = prop.collate == null ? null : prop.collate.getStringValue();
+    var found = false;
+    for (var prop : this.propertyList) {
+      var collate = prop.collate == null ? null : prop.collate.getStringValue();
       if (collate != null) {
-        final Collate col = SQLEngine.getCollate(collate);
+        final var col = SQLEngine.getCollate(collate);
         result.add(col);
         found = true;
       } else {
@@ -306,8 +306,8 @@ public class SQLCreateIndexStatement extends DDLStatement {
       builder.append(" ON ");
       className.toString(params, builder);
       builder.append(" (");
-      boolean first = true;
-      for (Property prop : propertyList) {
+      var first = true;
+      for (var prop : propertyList) {
         if (!first) {
           builder.append(", ");
         }
@@ -336,9 +336,9 @@ public class SQLCreateIndexStatement extends DDLStatement {
       engine.toString(params, builder);
     }
     if (keyTypes != null && keyTypes.size() > 0) {
-      boolean first = true;
+      var first = true;
       builder.append(" ");
-      for (SQLIdentifier keyType : keyTypes) {
+      for (var keyType : keyTypes) {
         if (!first) {
           builder.append(",");
         }
@@ -360,8 +360,8 @@ public class SQLCreateIndexStatement extends DDLStatement {
       builder.append(" ON ");
       className.toGenericStatement(builder);
       builder.append(" (");
-      boolean first = true;
-      for (Property prop : propertyList) {
+      var first = true;
+      for (var prop : propertyList) {
         if (!first) {
           builder.append(", ");
         }
@@ -390,9 +390,9 @@ public class SQLCreateIndexStatement extends DDLStatement {
       engine.toGenericStatement(builder);
     }
     if (keyTypes != null && keyTypes.size() > 0) {
-      boolean first = true;
+      var first = true;
       builder.append(" ");
-      for (SQLIdentifier keyType : keyTypes) {
+      for (var keyType : keyTypes) {
         if (!first) {
           builder.append(",");
         }
@@ -408,7 +408,7 @@ public class SQLCreateIndexStatement extends DDLStatement {
 
   @Override
   public SQLCreateIndexStatement copy() {
-    SQLCreateIndexStatement result = new SQLCreateIndexStatement(-1);
+    var result = new SQLCreateIndexStatement(-1);
     result.name = name == null ? null : name.copy();
     result.className = className == null ? null : className.copy();
     result.propertyList =
@@ -432,7 +432,7 @@ public class SQLCreateIndexStatement extends DDLStatement {
       return false;
     }
 
-    SQLCreateIndexStatement that = (SQLCreateIndexStatement) o;
+    var that = (SQLCreateIndexStatement) o;
 
     if (!Objects.equals(name, that.name)) {
       return false;
@@ -457,7 +457,7 @@ public class SQLCreateIndexStatement extends DDLStatement {
 
   @Override
   public int hashCode() {
-    int result = name != null ? name.hashCode() : 0;
+    var result = name != null ? name.hashCode() : 0;
     result = 31 * result + (className != null ? className.hashCode() : 0);
     result = 31 * result + (propertyList != null ? propertyList.hashCode() : 0);
     result = 31 * result + (type != null ? type.hashCode() : 0);
@@ -476,7 +476,7 @@ public class SQLCreateIndexStatement extends DDLStatement {
     protected SQLIdentifier collate;
 
     public Property copy() {
-      Property result = new Property();
+      var result = new Property();
       result.name = name == null ? null : name.copy();
       result.recordAttribute = recordAttribute == null ? null : recordAttribute.copy();
       result.byKey = byKey;
@@ -494,7 +494,7 @@ public class SQLCreateIndexStatement extends DDLStatement {
         return false;
       }
 
-      Property property = (Property) o;
+      var property = (Property) o;
 
       if (byKey != property.byKey) {
         return false;
@@ -513,7 +513,7 @@ public class SQLCreateIndexStatement extends DDLStatement {
 
     @Override
     public int hashCode() {
-      int result = name != null ? name.hashCode() : 0;
+      var result = name != null ? name.hashCode() : 0;
       result = 31 * result + (recordAttribute != null ? recordAttribute.hashCode() : 0);
       result = 31 * result + (byKey ? 1 : 0);
       result = 31 * result + (byValue ? 1 : 0);
@@ -525,7 +525,7 @@ public class SQLCreateIndexStatement extends DDLStatement {
      * returns the complete key to index, eg. property name or "property by key/value"
      */
     public String getCompleteKey() {
-      StringBuilder result = new StringBuilder();
+      var result = new StringBuilder();
       if (name != null) {
         result.append(name.getStringValue());
       } else if (recordAttribute != null) {

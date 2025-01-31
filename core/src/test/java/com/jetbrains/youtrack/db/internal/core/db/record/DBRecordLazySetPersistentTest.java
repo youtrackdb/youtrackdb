@@ -21,10 +21,10 @@ public class DBRecordLazySetPersistentTest extends DbTestBase {
     db.activateOnCurrentThread();
     db.begin();
     {
-      EntityImpl doc1 = (EntityImpl) db.newEntity();
+      var doc1 = (EntityImpl) db.newEntity();
       doc1.field("linkset", new HashSet<EntityImpl>());
       Set<EntityImpl> linkset = doc1.field("linkset");
-      EntityImpl doc2 = (EntityImpl) db.newEntity();
+      var doc2 = (EntityImpl) db.newEntity();
       doc2.save();
       orid2 = doc2.getIdentity();
       linkset.add(doc2);
@@ -62,10 +62,10 @@ public class DBRecordLazySetPersistentTest extends DbTestBase {
     db.activateOnCurrentThread();
     db.begin();
     {
-      EntityImpl doc1 = (EntityImpl) db.newEntity();
+      var doc1 = (EntityImpl) db.newEntity();
       doc1.field("linkset", new HashSet<Identifiable>());
       Set<Identifiable> linkset = doc1.field("linkset");
-      EntityImpl doc2 = (EntityImpl) db.newEntity();
+      var doc2 = (EntityImpl) db.newEntity();
       doc2.save();
       orid2 = doc2.getIdentity();
       linkset.add(doc2);

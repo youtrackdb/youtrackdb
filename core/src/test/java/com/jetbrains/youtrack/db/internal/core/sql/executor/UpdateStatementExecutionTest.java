@@ -53,7 +53,7 @@ public class UpdateStatementExecutionTest {
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
@@ -86,12 +86,12 @@ public class UpdateStatementExecutionTest {
   @Test
   public void testSetString() {
     db.begin();
-    ResultSet result = db.command("update " + className + " set surname = 'foo'");
+    var result = db.command("update " + className + " set surname = 'foo'");
     db.commit();
 
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 10L, item.getProperty("count"));
 
@@ -99,7 +99,7 @@ public class UpdateStatementExecutionTest {
     result.close();
 
     result = db.query("select from " + className);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
       item = result.next();
       Assert.assertNotNull(item);
@@ -112,18 +112,18 @@ public class UpdateStatementExecutionTest {
   @Test
   public void testCopyField() {
     db.begin();
-    ResultSet result = db.command("update " + className + " set surname = name");
+    var result = db.command("update " + className + " set surname = name");
     db.commit();
 
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 10L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
     result.close();
 
     result = db.query("select from " + className);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
       item = result.next();
       Assert.assertNotNull(item);
@@ -136,18 +136,18 @@ public class UpdateStatementExecutionTest {
   @Test
   public void testSetExpression() {
     db.begin();
-    ResultSet result = db.command("update " + className + " set surname = 'foo'+name ");
+    var result = db.command("update " + className + " set surname = 'foo'+name ");
     db.commit();
 
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 10L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
     result.close();
 
     result = db.query("select from " + className);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
       item = result.next();
       Assert.assertNotNull(item);
@@ -160,20 +160,20 @@ public class UpdateStatementExecutionTest {
   @Test
   public void testConditionalSet() {
     db.begin();
-    ResultSet result =
+    var result =
         db.command("update " + className + " set surname = 'foo' where name = 'name3'");
     db.commit();
 
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 1L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
     result.close();
 
     result = db.query("select from " + className);
-    boolean found = false;
-    for (int i = 0; i < 10; i++) {
+    var found = false;
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
       item = result.next();
       Assert.assertNotNull(item);
@@ -190,21 +190,21 @@ public class UpdateStatementExecutionTest {
   @Test
   public void testSetOnList() {
     db.begin();
-    ResultSet result =
+    var result =
         db.command("update " + className + " set tagsList[0] = 'abc' where name = 'name3'");
     db.commit();
 
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 1L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
     result.close();
 
     result = db.query("select from " + className);
-    boolean found = false;
-    for (int i = 0; i < 10; i++) {
+    var found = false;
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
       item = result.next();
       Assert.assertNotNull(item);
@@ -225,21 +225,21 @@ public class UpdateStatementExecutionTest {
   @Test
   public void testSetOnList2() {
     db.begin();
-    ResultSet result =
+    var result =
         db.command("update " + className + " set tagsList[6] = 'abc' where name = 'name3'");
     db.commit();
 
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 1L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
     result.close();
 
     result = db.query("select from " + className);
-    boolean found = false;
-    for (int i = 0; i < 10; i++) {
+    var found = false;
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
       item = result.next();
       Assert.assertNotNull(item);
@@ -264,20 +264,20 @@ public class UpdateStatementExecutionTest {
   @Test
   public void testSetOnMap() {
     db.begin();
-    ResultSet result =
+    var result =
         db.command("update " + className + " set tagsMap['foo'] = 'abc' where name = 'name3'");
     db.commit();
 
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 1L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
     result.close();
 
     result = db.query("select from " + className);
-    boolean found = false;
-    for (int i = 0; i < 10; i++) {
+    var found = false;
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
       item = result.next();
       Assert.assertNotNull(item);
@@ -304,19 +304,19 @@ public class UpdateStatementExecutionTest {
   @Test
   public void testPlusAssign() {
     db.begin();
-    ResultSet result =
+    var result =
         db.command("update " + className + " set name += 'foo', newField += 'bar', number += 5");
     db.commit();
 
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 10L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
     result.close();
 
     result = db.query("select from " + className);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
       item = result.next();
       Assert.assertNotNull(item);
@@ -333,19 +333,19 @@ public class UpdateStatementExecutionTest {
   @Test
   public void testMinusAssign() {
     db.begin();
-    ResultSet result = db.command("update " + className + " set number -= 5");
+    var result = db.command("update " + className + " set number -= 5");
     db.commit();
 
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 10L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
     result.close();
 
     result = db.query("select from " + className);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
       item = result.next();
       Assert.assertNotNull(item);
@@ -358,18 +358,18 @@ public class UpdateStatementExecutionTest {
   @Test
   public void testStarAssign() {
     db.begin();
-    ResultSet result = db.command("update " + className + " set number *= 5");
+    var result = db.command("update " + className + " set number *= 5");
     db.commit();
 
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 10L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
     result.close();
 
     result = db.query("select from " + className);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
       item = result.next();
       Assert.assertNotNull(item);
@@ -382,18 +382,18 @@ public class UpdateStatementExecutionTest {
   @Test
   public void testSlashAssign() {
     db.begin();
-    ResultSet result = db.command("update " + className + " set number /= 2");
+    var result = db.command("update " + className + " set number /= 2");
     db.commit();
 
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 10L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
     result.close();
 
     result = db.query("select from " + className);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
       item = result.next();
       Assert.assertNotNull(item);
@@ -405,10 +405,10 @@ public class UpdateStatementExecutionTest {
 
   @Test
   public void testRemove() {
-    ResultSet result = db.query("select from " + className);
-    for (int i = 0; i < 10; i++) {
+    var result = db.query("select from " + className);
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("surname"));
     }
@@ -418,9 +418,9 @@ public class UpdateStatementExecutionTest {
     result = db.command("update " + className + " remove surname");
     db.commit();
 
-    for (int i = 0; i < 1; i++) {
+    for (var i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals((Object) 10L, item.getProperty("count"));
     }
@@ -428,9 +428,9 @@ public class UpdateStatementExecutionTest {
     result.close();
 
     result = db.query("select from " + className);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNull(item.getProperty("surname"));
     }
@@ -442,19 +442,19 @@ public class UpdateStatementExecutionTest {
   public void testContent() {
 
     db.begin();
-    ResultSet result =
+    var result =
         db.command("update " + className + " content {'name': 'foo', 'secondName': 'bar'}");
     db.commit();
 
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 10L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
     result.close();
 
     result = db.query("select from " + className);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
       item = result.next();
       Assert.assertNotNull(item);
@@ -470,19 +470,19 @@ public class UpdateStatementExecutionTest {
   public void testMerge() {
 
     db.begin();
-    ResultSet result =
+    var result =
         db.command("update " + className + " merge {'name': 'foo', 'secondName': 'bar'}");
     db.commit();
 
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 10L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
     result.close();
 
     result = db.query("select from " + className);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
       item = result.next();
       Assert.assertNotNull(item);
@@ -498,19 +498,19 @@ public class UpdateStatementExecutionTest {
   public void testUpsert1() {
 
     db.begin();
-    ResultSet result =
+    var result =
         db.command("update " + className + " set foo = 'bar' upsert where name = 'name1'");
     db.commit();
 
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 1L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
     result.close();
 
     result = db.query("select from " + className);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
       item = result.next();
       Assert.assertNotNull(item);
@@ -530,13 +530,13 @@ public class UpdateStatementExecutionTest {
   public void testUpsertAndReturn() {
 
     db.begin();
-    ResultSet result =
+    var result =
         db.command(
             "update " + className + " set foo = 'bar' upsert  return after  where name = 'name1' ");
     db.commit();
 
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals("bar", item.getProperty("foo"));
     Assert.assertFalse(result.hasNext());
@@ -547,19 +547,19 @@ public class UpdateStatementExecutionTest {
   public void testUpsert2() {
 
     db.begin();
-    ResultSet result =
+    var result =
         db.command("update " + className + " set foo = 'bar' upsert where name = 'name11'");
     db.commit();
 
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 1L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
     result.close();
 
     result = db.query("select from " + className);
-    for (int i = 0; i < 11; i++) {
+    for (var i = 0; i < 11; i++) {
       Assert.assertTrue(result.hasNext());
       item = result.next();
       Assert.assertNotNull(item);
@@ -577,15 +577,15 @@ public class UpdateStatementExecutionTest {
 
   @Test
   public void testRemove1() {
-    String className = "overridden" + this.className;
+    var className = "overridden" + this.className;
 
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "theProperty", PropertyType.EMBEDDEDLIST);
 
     db.begin();
     EntityImpl doc = db.newInstance(className);
     List theList = new ArrayList();
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       theList.add("n" + i);
     }
     doc.setProperty("theProperty", theList);
@@ -594,12 +594,12 @@ public class UpdateStatementExecutionTest {
     db.commit();
 
     db.begin();
-    ResultSet result = db.command("update " + className + " remove theProperty[0]");
+    var result = db.command("update " + className + " remove theProperty[0]");
     db.commit();
 
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -618,14 +618,14 @@ public class UpdateStatementExecutionTest {
 
   @Test
   public void testRemove2() {
-    String className = "overridden" + this.className;
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "overridden" + this.className;
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "theProperty", PropertyType.EMBEDDEDLIST);
 
     db.begin();
     EntityImpl doc = db.newInstance(className);
     List theList = new ArrayList();
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       theList.add("n" + i);
     }
     doc.setProperty("theProperty", theList);
@@ -634,12 +634,12 @@ public class UpdateStatementExecutionTest {
     db.commit();
 
     db.begin();
-    ResultSet result = db.command("update " + className + " remove theProperty[0, 1, 3]");
+    var result = db.command("update " + className + " remove theProperty[0, 1, 3]");
     db.commit();
 
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -673,13 +673,13 @@ public class UpdateStatementExecutionTest {
 
   @Test
   public void testRemove3() {
-    String className = "overriden" + this.className;
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(className);
+    var className = "overriden" + this.className;
+    var clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty(db, "theProperty", PropertyType.EMBEDDED);
 
     db.begin();
     EntityImpl doc = db.newInstance(className);
-    EntityImpl emb = ((EntityImpl) db.newEntity());
+    var emb = ((EntityImpl) db.newEntity());
     emb.setProperty("sub", "foo");
     emb.setProperty("aaa", "bar");
     doc.setProperty("theProperty", emb);
@@ -688,12 +688,12 @@ public class UpdateStatementExecutionTest {
     db.commit();
 
     db.begin();
-    ResultSet result = db.command("update " + className + " remove theProperty.sub");
+    var result = db.command("update " + className + " remove theProperty.sub");
     db.commit();
 
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -717,11 +717,11 @@ public class UpdateStatementExecutionTest {
     db.command("UPDATE " + className + " REMOVE tagsMap[\"bar\"]").close();
     db.commit();
 
-    ResultSet result = db.query("SELECT tagsMap FROM " + className);
+    var result = db.query("SELECT tagsMap FROM " + className);
     printExecutionPlan(result);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals(2, ((Map) item.getProperty("tagsMap")).size());
       Assert.assertFalse(((Map) item.getProperty("tagsMap")).containsKey("bar"));
@@ -737,11 +737,11 @@ public class UpdateStatementExecutionTest {
     db.command("UPDATE " + className + " REMOVE tagsMap = \"bar\"").close();
     db.commit();
 
-    ResultSet result = db.query("SELECT tagsMap FROM " + className);
+    var result = db.query("SELECT tagsMap FROM " + className);
     printExecutionPlan(result);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals(2, ((Map) item.getProperty("tagsMap")).size());
       Assert.assertFalse(((Map) item.getProperty("tagsMap")).containsKey("bar"));
@@ -754,13 +754,13 @@ public class UpdateStatementExecutionTest {
   public void testUpdateWhereSubquery() {
 
     db.begin();
-    Vertex vertex = db.newVertex();
+    var vertex = db.newVertex();
     vertex.setProperty("one", "two");
-    RID identity = db.save(vertex).getIdentity();
+    var identity = db.save(vertex).getIdentity();
     db.commit();
 
     db.begin();
-    try (ResultSet result =
+    try (var result =
         db.command(
             "update v set first='value' where @rid in (select @rid from [" + identity + "]) ")) {
 
@@ -769,7 +769,7 @@ public class UpdateStatementExecutionTest {
     db.commit();
 
     db.begin();
-    try (ResultSet result =
+    try (var result =
         db.command(
             "update v set other='value' where @rid in (select * from [" + identity + "]) ")) {
       assertEquals((long) result.next().getProperty("count"), 1L);

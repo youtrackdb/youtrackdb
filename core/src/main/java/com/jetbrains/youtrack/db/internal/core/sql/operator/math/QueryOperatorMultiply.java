@@ -61,7 +61,7 @@ public class QueryOperatorMultiply extends QueryOperator {
     }
 
     if (iLeft instanceof Number l && iRight instanceof Number r) {
-      Class maxPrecisionClass = getMaxPrecisionClass(l, r);
+      var maxPrecisionClass = getMaxPrecisionClass(l, r);
       if (Integer.class.equals(maxPrecisionClass)) {
         return tryDownscaleToInt(l.longValue() * r.longValue());
       } else if (Long.class.equals(maxPrecisionClass)) {
@@ -104,8 +104,8 @@ public class QueryOperatorMultiply extends QueryOperator {
   }
 
   public static Class getMaxPrecisionClass(Number l, Number r) {
-    Class<? extends Number> lClass = l.getClass();
-    Class<? extends Number> rClass = r.getClass();
+    var lClass = l.getClass();
+    var rClass = r.getClass();
     if (lClass.equals(BigDecimal.class) || rClass.equals(BigDecimal.class)) {
       return BigDecimal.class;
     }

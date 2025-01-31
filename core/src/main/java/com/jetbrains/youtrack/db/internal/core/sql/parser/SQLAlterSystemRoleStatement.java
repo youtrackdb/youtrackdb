@@ -51,25 +51,25 @@ public class SQLAlterSystemRoleStatement extends SQLSimpleExecServerStatement {
   @Override
   public ExecutionStream executeSimple(ServerCommandContext ctx) {
 
-    SystemDatabase systemDb = ctx.getServer().getSystemDatabase();
+    var systemDb = ctx.getServer().getSystemDatabase();
 
     return systemDb.executeWithDB(
         (db) -> {
           List<Result> rs = new ArrayList<>();
 
-          SecurityInternal security = db.getSharedContext().getSecurity();
+          var security = db.getSharedContext().getSecurity();
 
-          Role role = db.getMetadata().getSecurity().getRole(name.getStringValue());
+          var role = db.getMetadata().getSecurity().getRole(name.getStringValue());
           if (role == null) {
             throw new CommandExecutionException("role not found: " + name.getStringValue());
           }
-          for (Op op : operations) {
-            ResultInternal result = new ResultInternal(db);
+          for (var op : operations) {
+            var result = new ResultInternal(db);
             result.setProperty("operation", "alter system role");
             result.setProperty("name", name.getStringValue());
             result.setProperty("resource", op.resource.toString());
             if (op.type == Op.TYPE_ADD) {
-              SecurityPolicyImpl policy =
+              var policy =
                   security.getSecurityPolicy(db, op.policyName.getStringValue());
               result.setProperty("operation", "ADD POLICY");
               result.setProperty("policyName", op.policyName.getStringValue());
@@ -99,7 +99,7 @@ public class SQLAlterSystemRoleStatement extends SQLSimpleExecServerStatement {
     builder.append("ALTER SYSTEM ROLE ");
     name.toString(params, builder);
 
-    for (Op operation : operations) {
+    for (var operation : operations) {
       if (operation.type == SQLAlterRoleStatement.Op.TYPE_ADD) {
         builder.append(" SET POLICY ");
         operation.policyName.toString(params, builder);

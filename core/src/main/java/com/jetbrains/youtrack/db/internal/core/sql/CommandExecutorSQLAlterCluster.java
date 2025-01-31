@@ -28,14 +28,12 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplica
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster.ATTRIBUTES;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -55,20 +53,20 @@ public class CommandExecutorSQLAlterCluster extends CommandExecutorSQLAbstract
 
   public CommandExecutorSQLAlterCluster parse(DatabaseSessionInternal db,
       final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
       init((CommandRequestText) iRequest);
 
-      StringBuilder word = new StringBuilder();
+      var word = new StringBuilder();
 
-      int oldPos = 0;
-      int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
+      var oldPos = 0;
+      var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_ALTER)) {
         throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_ALTER + " not found. Use " + getSyntax(), parserText, oldPos);
@@ -91,8 +89,8 @@ public class CommandExecutorSQLAlterCluster extends CommandExecutorSQLAbstract
       clusterName = word.toString();
       clusterName = decodeClassName(clusterName);
 
-      final Pattern p = Pattern.compile("([0-9]*)");
-      final Matcher m = p.matcher(clusterName);
+      final var p = Pattern.compile("([0-9]*)");
+      final var m = p.matcher(clusterName);
       if (m.matches()) {
         clusterId = Integer.parseInt(clusterName);
       }
@@ -104,7 +102,7 @@ public class CommandExecutorSQLAlterCluster extends CommandExecutorSQLAbstract
             "Missing cluster attribute to change. Use " + getSyntax(), parserText, oldPos);
       }
 
-      final String attributeAsString = word.toString();
+      final var attributeAsString = word.toString();
 
       try {
         attribute = StorageCluster.ATTRIBUTES.valueOf(
@@ -158,7 +156,7 @@ public class CommandExecutorSQLAlterCluster extends CommandExecutorSQLAbstract
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final IntArrayList clusters = getClusters();
+    final var clusters = getClusters();
 
     if (clusters.isEmpty()) {
       throw new CommandExecutionException("Cluster '" + clusterName + "' not found");
@@ -166,7 +164,7 @@ public class CommandExecutorSQLAlterCluster extends CommandExecutorSQLAbstract
 
     Object result = null;
 
-    final DatabaseSessionInternal database = getDatabase();
+    final var database = getDatabase();
 
     for (final int clusterId : getClusters()) {
       if (this.clusterId > -1 && clusterName.equals(String.valueOf(this.clusterId))) {
@@ -181,7 +179,7 @@ public class CommandExecutorSQLAlterCluster extends CommandExecutorSQLAbstract
       } else {
         this.clusterId = clusterId;
       }
-      final Storage storage = database.getStorage();
+      final var storage = database.getStorage();
       result = storage.setClusterAttribute(clusterId, attribute, value);
     }
 
@@ -196,14 +194,14 @@ public class CommandExecutorSQLAlterCluster extends CommandExecutorSQLAbstract
   }
 
   protected IntArrayList getClusters() {
-    final DatabaseSessionInternal database = getDatabase();
+    final var database = getDatabase();
 
-    final IntArrayList result = new IntArrayList();
+    final var result = new IntArrayList();
 
     if (clusterName.endsWith("*")) {
-      final String toMatch =
+      final var toMatch =
           clusterName.substring(0, clusterName.length() - 1).toLowerCase(Locale.ENGLISH);
-      for (String cl : database.getClusterNames()) {
+      for (var cl : database.getClusterNames()) {
         if (cl.startsWith(toMatch)) {
           result.add(database.getStorage().getClusterIdByName(cl));
         }

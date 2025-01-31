@@ -114,26 +114,26 @@ public class PostponedEngineStartTest {
 
   // @Test
   public void testEngineShouldNotStartAtRuntimeStart() {
-    final Engine engine = YOUTRACKDB.getEngine(ENGINE1.getName());
+    final var engine = YOUTRACKDB.getEngine(ENGINE1.getName());
     Assert.assertFalse(engine.isRunning());
   }
 
   // @Test(dependsOnMethods = "testEngineShouldNotStartAtRuntimeStart")
   public void testGetEngineIfRunningShouldReturnNullEngineIfNotRunning() {
-    final Engine engine = YOUTRACKDB.getEngineIfRunning(ENGINE1.getName());
+    final var engine = YOUTRACKDB.getEngineIfRunning(ENGINE1.getName());
     Assert.assertNull(engine);
   }
 
   // @Test(dependsOnMethods = "testGetEngineIfRunningShouldReturnNullEngineIfNotRunning")
   public void testGetRunningEngineShouldStartEngine() {
-    final Engine engine = YOUTRACKDB.getRunningEngine(ENGINE1.getName());
+    final var engine = YOUTRACKDB.getRunningEngine(ENGINE1.getName());
     Assert.assertNotNull(engine);
     Assert.assertTrue(engine.isRunning());
   }
 
   // @Test(dependsOnMethods = "testGetRunningEngineShouldStartEngine")
   public void testEngineRestart() {
-    Engine engine = YOUTRACKDB.getRunningEngine(ENGINE1.getName());
+    var engine = YOUTRACKDB.getRunningEngine(ENGINE1.getName());
     engine.shutdown();
     Assert.assertFalse(engine.isRunning());
 
@@ -149,10 +149,10 @@ public class PostponedEngineStartTest {
 
   // @Test
   public void testStoppedEngineShouldStartAndCreateStorage() {
-    Engine engine = YOUTRACKDB.getEngineIfRunning(ENGINE2.getName());
+    var engine = YOUTRACKDB.getEngineIfRunning(ENGINE2.getName());
     Assert.assertNull(engine);
 
-    final Storage storage =
+    final var storage =
         ENGINE2.createStorage(
             ENGINE2.getName() + ":storage",
             125 * 1024 * 1024,
@@ -178,7 +178,7 @@ public class PostponedEngineStartTest {
 
   // @Test(expected = IllegalStateException.class)
   public void testGetRunningEngineShouldThrowIfEngineIsUnableToStart() {
-    Engine engine = YOUTRACKDB.getEngine(FAULTY_ENGINE.getName());
+    var engine = YOUTRACKDB.getEngine(FAULTY_ENGINE.getName());
     Assert.assertNotNull(engine);
     try {
 

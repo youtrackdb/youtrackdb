@@ -33,7 +33,6 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaPropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAlterPropertyStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.util.Arrays;
 import java.util.Date;
@@ -57,20 +56,20 @@ public class CommandExecutorSQLAlterProperty extends CommandExecutorSQLAbstract
 
   public CommandExecutorSQLAlterProperty parse(DatabaseSessionInternal db,
       final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
       init((CommandRequestText) iRequest);
 
-      StringBuilder word = new StringBuilder();
+      var word = new StringBuilder();
 
-      int oldPos = 0;
-      int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
+      var oldPos = 0;
+      var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_ALTER)) {
         throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_ALTER + " not found. Use " + getSyntax(), parserText, oldPos);
@@ -90,11 +89,11 @@ public class CommandExecutorSQLAlterProperty extends CommandExecutorSQLAbstract
             "Expected <class>.<property>. Use " + getSyntax(), parserText, oldPos);
       }
 
-      String[] parts = word.toString().split("\\.");
+      var parts = word.toString().split("\\.");
       if (parts.length != 2) {
         if (parts[1].startsWith("`") && parts[parts.length - 1].endsWith("`")) {
-          StringBuilder fullName = new StringBuilder();
-          for (int i = 1; i < parts.length; i++) {
+          var fullName = new StringBuilder();
+          for (var i = 1; i < parts.length; i++) {
             if (i > 1) {
               fullName.append(".");
             }
@@ -120,7 +119,7 @@ public class CommandExecutorSQLAlterProperty extends CommandExecutorSQLAbstract
             "Missing property attribute to change. Use " + getSyntax(), parserText, oldPos);
       }
 
-      final String attributeAsString = word.toString();
+      final var attributeAsString = word.toString();
 
       try {
         attribute = SchemaProperty.ATTRIBUTES.valueOf(
@@ -153,9 +152,9 @@ public class CommandExecutorSQLAlterProperty extends CommandExecutorSQLAbstract
       }
 
       if (preParsedStatement != null) {
-        SQLExpression settingExp = ((SQLAlterPropertyStatement) preParsedStatement).settingValue;
+        var settingExp = ((SQLAlterPropertyStatement) preParsedStatement).settingValue;
         if (settingExp != null) {
-          Object expValue = settingExp.execute((Identifiable) null, context);
+          var expValue = settingExp.execute((Identifiable) null, context);
           if (expValue == null) {
             expValue = settingExp.toString();
           }
@@ -220,13 +219,13 @@ public class CommandExecutorSQLAlterProperty extends CommandExecutorSQLAbstract
           "Cannot execute the command because it has not yet been parsed");
     }
 
-    final SchemaClassImpl sourceClass =
+    final var sourceClass =
         (SchemaClassImpl) db.getMetadata().getSchema().getClass(className);
     if (sourceClass == null) {
       throw new CommandExecutionException("Source class '" + className + "' not found");
     }
 
-    final SchemaPropertyImpl prop = (SchemaPropertyImpl) sourceClass.getProperty(fieldName);
+    final var prop = (SchemaPropertyImpl) sourceClass.getProperty(fieldName);
     if (prop == null) {
       throw new CommandExecutionException(
           "Property '" + className + "." + fieldName + "' not exists");

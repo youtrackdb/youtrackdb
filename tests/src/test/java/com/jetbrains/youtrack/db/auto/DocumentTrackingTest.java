@@ -37,7 +37,7 @@ public class DocumentTrackingTest extends BaseDBTest {
     super.beforeClass();
 
     if (!db.getMetadata().getSchema().existsClass("DocumentTrackingTestClass")) {
-      final SchemaClass trackedClass =
+      final var trackedClass =
           db.getMetadata().getSchema().createClass("DocumentTrackingTestClass");
       trackedClass.createProperty(db, "embeddedlist", PropertyType.EMBEDDEDLIST);
       trackedClass.createProperty(db, "embeddedmap", PropertyType.EMBEDDEDMAP);
@@ -49,7 +49,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   }
 
   public void testDocumentEmbeddedListTrackingAfterSave() {
-    EntityImpl document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) db.newEntity());
 
     final List<String> list = new ArrayList<>();
     list.add("value1");
@@ -87,7 +87,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   }
 
   public void testDocumentEmbeddedMapTrackingAfterSave() {
-    EntityImpl document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) db.newEntity());
 
     final Map<String, String> map = new HashMap<>();
     map.put("key1", "value1");
@@ -125,7 +125,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   }
 
   public void testDocumentEmbeddedSetTrackingAfterSave() {
-    EntityImpl document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) db.newEntity());
 
     final Set<String> set = new HashSet<>();
     set.add("value1");
@@ -164,13 +164,13 @@ public class DocumentTrackingTest extends BaseDBTest {
 
   public void testDocumentLinkSetTrackingAfterSave() {
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.save();
 
-    EntityImpl document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) db.newEntity());
 
     final Set<RID> set = new HashSet<>();
     set.add(docOne.getIdentity());
@@ -199,13 +199,13 @@ public class DocumentTrackingTest extends BaseDBTest {
 
   public void testDocumentLinkListTrackingAfterSave() {
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.save();
 
-    EntityImpl document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) db.newEntity());
 
     final List<RID> list = new ArrayList<>();
     list.add(docOne.getIdentity());
@@ -235,13 +235,13 @@ public class DocumentTrackingTest extends BaseDBTest {
 
   public void testDocumentLinkMapTrackingAfterSave() {
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.save();
 
-    EntityImpl document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) db.newEntity());
 
     final Map<String, RID> map = new HashMap<>();
     map.put("key1", docOne.getIdentity());
@@ -269,7 +269,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
   public void testDocumentEmbeddedListTrackingAfterSaveCacheDisabled() {
     db.begin();
-    EntityImpl document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) db.newEntity());
 
     final List<String> list = new ArrayList<>();
     list.add("value1");
@@ -306,7 +306,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
   public void testDocumentEmbeddedMapTrackingAfterSaveCacheDisabled() {
     db.begin();
-    EntityImpl document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) db.newEntity());
 
     final Map<String, String> map = new HashMap<>();
     map.put("key1", "value1");
@@ -343,7 +343,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
   public void testDocumentEmbeddedSetTrackingAfterSaveCacheDisabled() {
     db.begin();
-    EntityImpl document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) db.newEntity());
 
     final Set<String> set = new HashSet<>();
     set.add("value1");
@@ -380,13 +380,13 @@ public class DocumentTrackingTest extends BaseDBTest {
 
   public void testDocumentLinkSetTrackingAfterSaveCacheDisabled() {
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.save();
 
-    EntityImpl document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) db.newEntity());
 
     final Set<RID> set = new HashSet<>();
     set.add(docOne.getIdentity());
@@ -415,13 +415,13 @@ public class DocumentTrackingTest extends BaseDBTest {
 
   public void testDocumentLinkListTrackingAfterSaveCacheDisabled() {
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.save();
 
-    EntityImpl document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) db.newEntity());
 
     final List<RID> list = new ArrayList<>();
     list.add(docOne.getIdentity());
@@ -450,13 +450,13 @@ public class DocumentTrackingTest extends BaseDBTest {
 
   public void testDocumentLinkMapTrackingAfterSaveCacheDisabled() {
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.save();
 
-    EntityImpl document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) db.newEntity());
 
     final Map<String, RID> map = new HashMap<>();
     map.put("key1", docOne.getIdentity());
@@ -482,7 +482,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   }
 
   public void testDocumentEmbeddedListTrackingAfterSaveWitClass() {
-    EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
     db.begin();
     final List<String> list = new ArrayList<>();
@@ -520,7 +520,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   }
 
   public void testDocumentEmbeddedMapTrackingAfterSaveWithClass() {
-    EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
     final Map<String, String> map = new HashMap<>();
     map.put("key1", "value1");
@@ -557,7 +557,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   }
 
   public void testDocumentEmbeddedSetTrackingAfterSaveWithClass() {
-    EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
     final Set<String> set = new HashSet<>();
     set.add("value1");
@@ -595,13 +595,13 @@ public class DocumentTrackingTest extends BaseDBTest {
 
   public void testDocumentLinkSetTrackingAfterSaveWithClass() {
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.save();
 
-    EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
     final Set<RID> set = new HashSet<>();
     set.add(docOne.getIdentity());
@@ -628,13 +628,13 @@ public class DocumentTrackingTest extends BaseDBTest {
 
   public void testDocumentLinkListTrackingAfterSaveWithClass() {
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.save();
 
-    EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
     final List<RID> list = new ArrayList<>();
     list.add(docOne.getIdentity());
@@ -663,13 +663,13 @@ public class DocumentTrackingTest extends BaseDBTest {
 
   public void testDocumentLinkMapTrackingAfterSaveWithClass() {
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.save();
 
-    EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
     final Map<String, RID> map = new HashMap<>();
     map.put("key1", docOne.getIdentity());
@@ -697,7 +697,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testDocumentEmbeddedListTrackingAfterConversion() {
     db.begin();
-    EntityImpl document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) db.newEntity());
 
     final Set<String> set = new HashSet<>();
     set.add("value1");
@@ -720,7 +720,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testDocumentEmbeddedSetTrackingFailAfterConversion() {
     db.begin();
-    EntityImpl document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) db.newEntity());
 
     final List<String> list = new ArrayList<>();
     list.add("value1");
@@ -741,7 +741,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   }
 
   public void testDocumentEmbeddedListTrackingFailAfterReplace() {
-    EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
     final List<String> list = new ArrayList<>();
     list.add("value1");
@@ -774,7 +774,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   }
 
   public void testDocumentEmbeddedMapTrackingAfterReplace() {
-    EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
     final Map<String, String> map = new HashMap<>();
     map.put("key1", "value1");
@@ -807,7 +807,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   }
 
   public void testDocumentEmbeddedSetTrackingAfterReplace() {
-    EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
     final Set<String> set = new HashSet<>();
     set.add("value1");
@@ -840,7 +840,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   }
 
   public void testRemoveField() {
-    EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
     final List<String> list = new ArrayList<>();
     list.add("value1");
@@ -868,7 +868,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   }
 
   public void testTrackingChangesSwitchedOff() {
-    EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
     final List<String> list = new ArrayList<>();
     list.add("value1");
@@ -896,7 +896,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   }
 
   public void testTrackingChangesSwitchedOn() {
-    EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
     final List<String> list = new ArrayList<>();
     list.add("value1");
@@ -935,7 +935,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   }
 
   public void testReset() {
-    EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
     final List<String> list = new ArrayList<>();
     list.add("value1");
@@ -963,7 +963,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   }
 
   public void testClear() {
-    EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
     final List<String> list = new ArrayList<>();
     list.add("value1");
@@ -991,7 +991,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   }
 
   public void testUnload() {
-    EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
     final List<String> list = new ArrayList<>();
     list.add("value1");
@@ -1018,7 +1018,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   }
 
   public void testUnsetDirty() {
-    EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
     final List<String> list = new ArrayList<>();
     list.add("value1");
@@ -1044,7 +1044,7 @@ public class DocumentTrackingTest extends BaseDBTest {
   }
 
   public void testRemoveFieldUsingIterator() {
-    EntityImpl document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
 
     final List<String> list = new ArrayList<>();
     list.add("value1");

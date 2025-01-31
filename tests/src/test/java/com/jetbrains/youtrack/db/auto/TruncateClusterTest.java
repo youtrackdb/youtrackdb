@@ -20,10 +20,10 @@ public class TruncateClusterTest extends BaseDBTest {
   }
 
   public void testSimpleCluster() {
-    final String clusterName = "TruncateCluster";
+    final var clusterName = "TruncateCluster";
 
-    final int clusterId = db.addCluster(clusterName);
-    final EntityImpl document = ((EntityImpl) db.newEntity());
+    final var clusterId = db.addCluster(clusterName);
+    final var document = ((EntityImpl) db.newEntity());
 
     db.begin();
     document.save(clusterName);
@@ -39,19 +39,19 @@ public class TruncateClusterTest extends BaseDBTest {
   }
 
   public void testClusterWithIndex() {
-    final String clusterName = "TruncateClusterWithIndex";
-    final int clusterId = db.addCluster(clusterName);
+    final var clusterName = "TruncateClusterWithIndex";
+    final var clusterId = db.addCluster(clusterName);
 
-    final String className = "TruncateClusterClass";
+    final var className = "TruncateClusterClass";
     final Schema schema = db.getMetadata().getSchema();
 
-    final SchemaClass clazz = schema.createClass(className);
+    final var clazz = schema.createClass(className);
     clazz.addClusterId(db, clusterId);
 
     clazz.createProperty(db, "value", PropertyType.STRING);
     clazz.createIndex(db, "TruncateClusterIndex", SchemaClass.INDEX_TYPE.UNIQUE, "value");
 
-    final EntityImpl document = ((EntityImpl) db.newEntity());
+    final var document = ((EntityImpl) db.newEntity());
     document.field("value", "val");
 
     db.begin();
@@ -61,7 +61,7 @@ public class TruncateClusterTest extends BaseDBTest {
     Assert.assertEquals(db.countClass(className), 1);
     Assert.assertEquals(db.countClusterElements(clusterId), 1);
 
-    ResultSet indexQuery = db.query("select from TruncateClusterClass where value='val'");
+    var indexQuery = db.query("select from TruncateClusterClass where value='val'");
     Assert.assertEquals(indexQuery.stream().count(), 1);
 
     db.truncateCluster(clusterName);
@@ -75,10 +75,10 @@ public class TruncateClusterTest extends BaseDBTest {
   }
 
   public void testSimpleClusterIsAbsent() {
-    final String clusterName = "TruncateClusterIsAbsent";
-    final int clusterId = db.addCluster(clusterName);
+    final var clusterName = "TruncateClusterIsAbsent";
+    final var clusterId = db.addCluster(clusterName);
 
-    final EntityImpl document = ((EntityImpl) db.newEntity());
+    final var document = ((EntityImpl) db.newEntity());
 
     db.begin();
     document.save(clusterName);
@@ -98,17 +98,17 @@ public class TruncateClusterTest extends BaseDBTest {
   }
 
   public void testClusterInClassIsAbsent() {
-    final String clusterName = "TruncateClusterInClassIsAbsent";
+    final var clusterName = "TruncateClusterInClassIsAbsent";
 
-    final int clusterId = db.addCluster(clusterName);
+    final var clusterId = db.addCluster(clusterName);
 
-    final String className = "TruncateClusterIsAbsentClass";
+    final var className = "TruncateClusterIsAbsentClass";
     final Schema schema = db.getMetadata().getSchema();
 
-    final SchemaClassInternal clazz = (SchemaClassInternal) schema.createClass(className);
+    final var clazz = (SchemaClassInternal) schema.createClass(className);
     clazz.addClusterId(db, clusterId);
 
-    final EntityImpl document = ((EntityImpl) db.newEntity());
+    final var document = ((EntityImpl) db.newEntity());
 
     db.begin();
     document.save(clusterName);

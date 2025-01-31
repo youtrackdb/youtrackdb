@@ -77,8 +77,8 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
       return null;
     }
 
-    final int posFirstValue = content.indexOf(StringSerializerHelper.ENTRY_SEPARATOR);
-    final int pos = content.indexOf(StringSerializerHelper.CLASS_SEPARATOR);
+    final var posFirstValue = content.indexOf(StringSerializerHelper.ENTRY_SEPARATOR);
+    final var pos = content.indexOf(StringSerializerHelper.CLASS_SEPARATOR);
 
     if (pos > -1 && (pos < posFirstValue || posFirstValue == -1)) {
       return content.substring(0, pos);
@@ -98,11 +98,11 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
     }
 
     // UNMARSHALL THE CLASS NAME
-    final EntityImpl record = (EntityImpl) iRecord;
+    final var record = (EntityImpl) iRecord;
 
     int pos;
-    final DatabaseSessionInternal database = DatabaseRecordThreadLocal.instance().getIfDefined();
-    final int posFirstValue = iContent.indexOf(StringSerializerHelper.ENTRY_SEPARATOR);
+    final var database = DatabaseRecordThreadLocal.instance().getIfDefined();
+    final var posFirstValue = iContent.indexOf(StringSerializerHelper.ENTRY_SEPARATOR);
     pos = iContent.indexOf(StringSerializerHelper.CLASS_SEPARATOR);
     if (pos > -1 && (pos < posFirstValue || posFirstValue == -1)) {
       if ((record.getIdentity().getClusterId() < 0 || database == null)) {
@@ -120,7 +120,7 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
       return iRecord;
     }
 
-    final List<String> fields =
+    final var fields =
         StringSerializerHelper.smartSplit(
             iContent, StringSerializerHelper.RECORD_SEPARATOR, true, true);
 
@@ -141,9 +141,9 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
     }
 
     // UNMARSHALL ALL THE FIELDS
-    for (String fieldEntry : fields) {
+    for (var fieldEntry : fields) {
       fieldEntry = fieldEntry.trim();
-      boolean uncertainType = false;
+      var uncertainType = false;
 
       try {
         pos = fieldEntry.indexOf(FIELD_VALUE_SEPARATOR);
@@ -165,7 +165,7 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
           // GET THE FIELD VALUE
           fieldValue = fieldEntry.length() > pos + 1 ? fieldEntry.substring(pos + 1) : null;
 
-          boolean setFieldType = false;
+          var setFieldType = false;
 
           // SEARCH FOR A CONFIGURED PROPERTY
           if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
@@ -211,17 +211,17 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
                         ? PropertyType.EMBEDDEDLIST
                         : PropertyType.EMBEDDEDSET;
 
-                final String value = fieldValue.substring(1, fieldValue.length() - 1);
+                final var value = fieldValue.substring(1, fieldValue.length() - 1);
 
                 if (!value.isEmpty()) {
                   if (value.charAt(0) == StringSerializerHelper.LINK) {
                     // TODO replace with regex
                     // ASSURE ALL THE ITEMS ARE RID
-                    int max = value.length();
-                    boolean allLinks = true;
-                    boolean checkRid = true;
-                    for (int i = 0; i < max; ++i) {
-                      char c = value.charAt(i);
+                    var max = value.length();
+                    var allLinks = true;
+                    var checkRid = true;
+                    for (var i = 0; i < max; ++i) {
+                      var c = value.charAt(i);
                       if (checkRid) {
                         if (c != '#') {
                           allLinks = false;
@@ -247,7 +247,7 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
                   } else if (Character.isDigit(value.charAt(0))
                       || value.charAt(0) == '+'
                       || value.charAt(0) == '-') {
-                    String[] items = value.split(",");
+                    var items = value.split(",");
                     linkedType = getType(items[0]);
                   } else if (value.charAt(0) == '\'' || value.charAt(0) == '"') {
                     linkedType = PropertyType.STRING;
@@ -278,7 +278,7 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
               }
             }
           }
-          final Object value =
+          final var value =
               fieldFromStream(db, iRecord, type, linkedClass, linkedType, fieldName, fieldValue);
           if ("@class".equals(fieldName)) {
             EntityInternalUtils.fillClassNameIfNeeded(((EntityImpl) iRecord), value.toString());
@@ -308,14 +308,14 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
 
   @Override
   public byte[] toStream(DatabaseSessionInternal db, RecordAbstract iRecord) {
-    final byte[] result = super.toStream(db, iRecord);
+    final var result = super.toStream(db, iRecord);
     if (result == null || result.length > 0) {
       return result;
     }
 
     // Fix of nasty IBM JDK bug. In case of very depth recursive graph serialization
     // EntityImpl#_source property may be initialized incorrectly.
-    final EntityImpl recordSchemaAware = (EntityImpl) iRecord;
+    final var recordSchemaAware = (EntityImpl) iRecord;
     if (recordSchemaAware.fields() > 0) {
       return null;
     }
@@ -324,8 +324,8 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
   }
 
   public byte[] writeClassOnly(DBRecord iSource) {
-    final EntityImpl record = (EntityImpl) iSource;
-    StringBuilder iOutput = new StringBuilder();
+    final var record = (EntityImpl) iSource;
+    var iOutput = new StringBuilder();
     if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
       iOutput.append(EntityInternalUtils.getImmutableSchemaClass(record).getStreamableName());
       iOutput.append(StringSerializerHelper.CLASS_SEPARATOR);
@@ -358,13 +358,13 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
     SchemaClass linkedClass;
     PropertyType linkedType;
     String fieldClassName;
-    int i = 0;
+    var i = 0;
 
-    final String[] fieldNames = record.fieldNames();
+    final var fieldNames = record.fieldNames();
 
     // MARSHALL ALL THE FIELDS OR DELTA IF TRACKING IS ENABLED
-    for (String fieldName : fieldNames) {
-      Object fieldValue = record.rawField(fieldName);
+    for (var fieldName : fieldNames) {
+      var fieldValue = record.rawField(fieldName);
       if (i > 0) {
         iOutput.append(StringSerializerHelper.RECORD_SEPARATOR);
       }
@@ -445,11 +445,11 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
                     ? PropertyType.EMBEDDED
                     : PropertyType.LINK;
           } else if (fieldValue instanceof Collection<?> || fieldValue.getClass().isArray()) {
-            final int size = MultiValue.getSize(fieldValue);
+            final var size = MultiValue.getSize(fieldValue);
 
             if (autoDetectCollectionType) {
               if (size > 0) {
-                final Object firstValue = MultiValue.getFirstValue(fieldValue);
+                final var firstValue = MultiValue.getFirstValue(fieldValue);
 
                 if (firstValue != null) {
                   if (firstValue instanceof RID) {
@@ -515,10 +515,10 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
               }
             }
           } else if (fieldValue instanceof Map<?, ?> && type == null) {
-            final int size = MultiValue.getSize(fieldValue);
+            final var size = MultiValue.getSize(fieldValue);
 
             if (size > 0) {
-              final Object firstValue = MultiValue.getFirstValue(fieldValue);
+              final var firstValue = MultiValue.getFirstValue(fieldValue);
 
               if (firstValue != null) {
                 if (DatabaseRecordThreadLocal.instance().isDefined()
@@ -576,7 +576,7 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
       return null;
     }
 
-    SchemaClass linkedClass =
+    var linkedClass =
         iDatabase.getMetadata().getImmutableSchemaSnapshot().getClass(iFieldClassName);
 
     return linkedClass;

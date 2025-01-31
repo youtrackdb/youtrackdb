@@ -33,10 +33,10 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     db.command("CREATE VERTEX Person set name = 'n5'").close();
     db.command("CREATE VERTEX Person set name = 'n6'").close();
 
-    String[][] friendList =
+    var friendList =
         new String[][]{{"n1", "n2"}, {"n1", "n3"}, {"n2", "n4"}, {"n4", "n5"}, {"n4", "n6"}};
 
-    for (String[] pair : friendList) {
+    for (var pair : friendList) {
       db.command(
           "CREATE EDGE Friend from (select from Person where name = ?) to (select from Person where"
               + " name = ?)",
@@ -63,19 +63,19 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     db.command("CREATE property IndexedEdge.in LINK").close();
     db.command("CREATE index IndexedEdge_out_in on IndexedEdge (out, in) NOTUNIQUE").close();
 
-    int nodes = 1000;
+    var nodes = 1000;
 
     db.executeInTx(
         () -> {
-          for (int i = 0; i < nodes; i++) {
-            EntityImpl doc = (EntityImpl) db.newEntity("IndexedVertex");
+          for (var i = 0; i < nodes; i++) {
+            var doc = (EntityImpl) db.newEntity("IndexedVertex");
             doc.field("uid", i);
             doc.save();
           }
         });
 
-    for (int i = 0; i < 100; i++) {
-      String cmd =
+    for (var i = 0; i < 100; i++) {
+      var cmd =
           "CREATE EDGE IndexedEDGE FROM (SELECT FROM IndexedVertex WHERE uid = 0) TO (SELECT FROM"
               + " IndexedVertex WHERE uid > "
               + (i * nodes / 100)
@@ -136,7 +136,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     db.command("CREATE class WorksAt extends E").close();
     db.command("CREATE class ManagerOf extends E").close();
 
-    int[][] deptHierarchy = new int[10][];
+    var deptHierarchy = new int[10][];
     deptHierarchy[0] = new int[]{1, 2};
     deptHierarchy[1] = new int[]{3, 4};
     deptHierarchy[2] = new int[]{5, 6};
@@ -148,9 +148,9 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     deptHierarchy[8] = new int[]{};
     deptHierarchy[9] = new int[]{};
 
-    String[] deptManagers = {"a", "b", "d", null, null, null, null, "c", null, null};
+    var deptManagers = new String[]{"a", "b", "d", null, null, null, null, "c", null, null};
 
-    String[][] employees = new String[10][];
+    var employees = new String[10][];
     employees[0] = new String[]{"p1"};
     employees[1] = new String[]{"p2", "p3"};
     employees[2] = new String[]{"p4", "p5"};
@@ -163,13 +163,13 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     employees[9] = new String[]{"p12", "p13"};
 
     db.begin();
-    for (int i = 0; i < deptHierarchy.length; i++) {
+    for (var i = 0; i < deptHierarchy.length; i++) {
       db.command("CREATE VERTEX Department set name = 'department" + i + "' ").close();
     }
 
-    for (int parent = 0; parent < deptHierarchy.length; parent++) {
-      int[] children = deptHierarchy[parent];
-      for (int child : children) {
+    for (var parent = 0; parent < deptHierarchy.length; parent++) {
+      var children = deptHierarchy[parent];
+      for (var child : children) {
         db.command(
                 "CREATE EDGE ParentDepartment from (select from Department where name = 'department"
                     + child
@@ -182,8 +182,8 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     db.commit();
 
     db.begin();
-    for (int dept = 0; dept < deptManagers.length; dept++) {
-      String manager = deptManagers[dept];
+    for (var dept = 0; dept < deptManagers.length; dept++) {
+      var manager = deptManagers[dept];
       if (manager != null) {
         db.command("CREATE Vertex Employee set name = '" + manager + "' ").close();
 
@@ -199,9 +199,9 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     db.commit();
 
     db.begin();
-    for (int dept = 0; dept < employees.length; dept++) {
-      String[] employeesForDept = employees[dept];
-      for (String employee : employeesForDept) {
+    for (var dept = 0; dept < employees.length; dept++) {
+      var employeesForDept = employees[dept];
+      for (var employee : employeesForDept) {
         db.command("CREATE Vertex Employee set name = '" + employee + "' ").close();
 
         db.command(
@@ -222,16 +222,16 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     db.command("CREATE index TriangleV_uid on TriangleV (uid) UNIQUE").close();
     db.command("CREATE class TriangleE extends E").close();
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       db.command("CREATE VERTEX TriangleV set uid = ?", i).close();
       db.commit();
     }
-    int[][] edges = {
+    var edges = new int[][]{
         {0, 1}, {0, 2}, {1, 2}, {1, 3}, {2, 4}, {3, 4}, {3, 5}, {4, 0}, {4, 7}, {6, 7}, {7, 8},
         {7, 9}, {8, 9}, {9, 1}, {8, 3}, {8, 4}
     };
-    for (int[] edge : edges) {
+    for (var edge : edges) {
       db.begin();
       db.command(
               "CREATE EDGE TriangleE from (select from TriangleV where uid = ?) to (select from"
@@ -247,13 +247,13 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     db.command("CREATE class DiamondV extends V").close();
     db.command("CREATE class DiamondE extends E").close();
 
-    for (int i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       db.begin();
       db.command("CREATE VERTEX DiamondV set uid = ?", i).close();
       db.commit();
     }
-    int[][] edges = {{0, 1}, {0, 2}, {1, 3}, {2, 3}};
-    for (int[] edge : edges) {
+    var edges = new int[][]{{0, 1}, {0, 2}, {1, 3}, {2, 3}};
+    for (var edge : edges) {
       db.begin();
       db.command(
               "CREATE EDGE DiamondE from (select from DiamondV where uid = ?) to (select from"
@@ -267,11 +267,11 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testSimple() throws Exception {
-    ResultSet qResult = db.query("match {class:Person, as: person} return person");
+    var qResult = db.query("match {class:Person, as: person} return person");
     printExecutionPlan(qResult);
 
-    for (int i = 0; i < 6; i++) {
-      Result item = qResult.next();
+    for (var i = 0; i < 6; i++) {
+      var item = qResult.next();
       Assert.assertEquals(1, item.getPropertyNames().size());
       Entity person = db.load(item.getProperty("person"));
 
@@ -283,12 +283,12 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testSimpleWhere() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "match {class:Person, as: person, where: (name = 'n1' or name = 'n2')} return person");
 
-    for (int i = 0; i < 2; i++) {
-      Result item = qResult.next();
+    for (var i = 0; i < 2; i++) {
+      var item = qResult.next();
       Assert.assertEquals(1, item.getPropertyNames().size());
       Entity personId = db.load(item.getProperty("person"));
 
@@ -301,7 +301,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testSimpleLimit() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "match {class:Person, as: person, where: (name = 'n1' or name = 'n2')} return person"
                 + " limit 1");
@@ -313,11 +313,11 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testSimpleLimit2() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "match {class:Person, as: person, where: (name = 'n1' or name = 'n2')} return person"
                 + " limit -1");
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       Assert.assertTrue(qResult.hasNext());
       qResult.next();
     }
@@ -327,11 +327,11 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testSimpleLimit3() throws Exception {
 
-    ResultSet qResult =
+    var qResult =
         db.query(
             "match {class:Person, as: person, where: (name = 'n1' or name = 'n2')} return person"
                 + " limit 3");
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       Assert.assertTrue(qResult.hasNext());
       qResult.next();
     }
@@ -340,16 +340,16 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testSimpleUnnamedParams() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "match {class:Person, as: person, where: (name = ? or name = ?)} return person",
             "n1",
             "n2");
 
     printExecutionPlan(qResult);
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
 
-      Result item = qResult.next();
+      var item = qResult.next();
       Assert.assertEquals(1, item.getPropertyNames().size());
       Entity person = db.load(item.getProperty("person"));
 
@@ -362,14 +362,14 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testCommonFriends() throws Exception {
 
-    ResultSet qResult =
+    var qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name ="
                 + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name ="
                 + " 'n4')} return friend)");
     printExecutionPlan(qResult);
     Assert.assertTrue(qResult.hasNext());
-    Result item = qResult.next();
+    var item = qResult.next();
     Assert.assertEquals("n2", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -378,14 +378,14 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testCommonFriendsPatterns() throws Exception {
 
-    ResultSet qResult =
+    var qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name ="
                 + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name ="
                 + " 'n4')} return $patterns)");
     printExecutionPlan(qResult);
     Assert.assertTrue(qResult.hasNext());
-    Result item = qResult.next();
+    var item = qResult.next();
     Assert.assertEquals("n2", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -393,14 +393,14 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testPattens() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "match {class:Person, where:(name ="
                 + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name ="
                 + " 'n4')} return $patterns");
     printExecutionPlan(qResult);
     Assert.assertTrue(qResult.hasNext());
-    Result item = qResult.next();
+    var item = qResult.next();
     Assert.assertEquals(1, item.getPropertyNames().size());
     Assert.assertEquals("friend", item.getPropertyNames().iterator().next());
     Assert.assertFalse(qResult.hasNext());
@@ -409,14 +409,14 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testPaths() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "match {class:Person, where:(name ="
                 + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name ="
                 + " 'n4')} return $paths");
     printExecutionPlan(qResult);
     Assert.assertTrue(qResult.hasNext());
-    Result item = qResult.next();
+    var item = qResult.next();
     Assert.assertEquals(3, item.getPropertyNames().size());
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -424,14 +424,14 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testElements() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "match {class:Person, where:(name ="
                 + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name ="
                 + " 'n4')} return $elements");
     printExecutionPlan(qResult);
     Assert.assertTrue(qResult.hasNext());
-    Result item = qResult.next();
+    var item = qResult.next();
     Assert.assertEquals("n2", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -439,7 +439,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testPathElements() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "match {class:Person, where:(name ="
                 + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name ="
@@ -449,9 +449,9 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     expected.add("n1");
     expected.add("n2");
     expected.add("n4");
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       Assert.assertTrue(qResult.hasNext());
-      Result item = qResult.next();
+      var item = qResult.next();
       expected.remove(item.getProperty("name"));
     }
     Assert.assertFalse(qResult.hasNext());
@@ -462,14 +462,14 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testCommonFriendsMatches() throws Exception {
 
-    ResultSet qResult =
+    var qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name ="
                 + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name ="
                 + " 'n4')} return $matches)");
     printExecutionPlan(qResult);
     Assert.assertTrue(qResult.hasNext());
-    Result item = qResult.next();
+    var item = qResult.next();
     Assert.assertEquals("n2", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -478,14 +478,14 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testCommonFriendsArrows() throws Exception {
 
-    ResultSet qResult =
+    var qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name ="
                 + " 'n1')}-Friend-{as:friend}-Friend-{class: Person, where:(name = 'n4')} return"
                 + " friend)");
     printExecutionPlan(qResult);
     Assert.assertTrue(qResult.hasNext());
-    Result item = qResult.next();
+    var item = qResult.next();
     Assert.assertEquals("n2", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -494,14 +494,14 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testCommonFriendsArrowsPatterns() throws Exception {
 
-    ResultSet qResult =
+    var qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name ="
                 + " 'n1')}-Friend-{as:friend}-Friend-{class: Person, where:(name = 'n4')} return"
                 + " $patterns)");
     printExecutionPlan(qResult);
     Assert.assertTrue(qResult.hasNext());
-    Result item = qResult.next();
+    var item = qResult.next();
     Assert.assertEquals("n2", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -510,14 +510,14 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testCommonFriends2() throws Exception {
 
-    ResultSet qResult =
+    var qResult =
         db.query(
             "match {class:Person, where:(name ="
                 + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name ="
                 + " 'n4')} return friend.name as name");
 
     Assert.assertTrue(qResult.hasNext());
-    Result item = qResult.next();
+    var item = qResult.next();
     Assert.assertEquals("n2", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -526,13 +526,13 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testCommonFriends2Arrows() throws Exception {
 
-    ResultSet qResult =
+    var qResult =
         db.query(
             "match {class:Person, where:(name = 'n1')}-Friend-{as:friend}-Friend-{class: Person,"
                 + " where:(name = 'n4')} return friend.name as name");
 
     Assert.assertTrue(qResult.hasNext());
-    Result item = qResult.next();
+    var item = qResult.next();
     Assert.assertEquals("n2", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -540,13 +540,13 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testReturnMethod() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "match {class:Person, where:(name ="
                 + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name ="
                 + " 'n4')} return friend.name.toUpperCase(Locale.ENGLISH) as name");
     Assert.assertTrue(qResult.hasNext());
-    Result item = qResult.next();
+    var item = qResult.next();
     Assert.assertEquals("N2", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -554,12 +554,12 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testReturnMethodArrows() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "match {class:Person, where:(name = 'n1')}-Friend-{as:friend}-Friend-{class: Person,"
                 + " where:(name = 'n4')} return friend.name.toUpperCase(Locale.ENGLISH) as name");
     Assert.assertTrue(qResult.hasNext());
-    Result item = qResult.next();
+    var item = qResult.next();
     Assert.assertEquals("N2", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -567,14 +567,14 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testReturnExpression() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "match {class:Person, where:(name ="
                 + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name ="
                 + " 'n4')} return friend.name + ' ' +friend.name as name");
 
     Assert.assertTrue(qResult.hasNext());
-    Result item = qResult.next();
+    var item = qResult.next();
     Assert.assertEquals("n2 n2", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -582,13 +582,13 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testReturnExpressionArrows() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "match {class:Person, where:(name = 'n1')}-Friend-{as:friend}-Friend-{class: Person,"
                 + " where:(name = 'n4')} return friend.name + ' ' +friend.name as name");
 
     Assert.assertTrue(qResult.hasNext());
-    Result item = qResult.next();
+    var item = qResult.next();
     Assert.assertEquals("n2 n2", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -596,14 +596,14 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testReturnDefaultAlias() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "match {class:Person, where:(name ="
                 + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name ="
                 + " 'n4')} return friend.name");
 
     Assert.assertTrue(qResult.hasNext());
-    Result item = qResult.next();
+    var item = qResult.next();
     Assert.assertEquals("n2", item.getProperty("friend.name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -611,13 +611,13 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testReturnDefaultAliasArrows() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "match {class:Person, where:(name = 'n1')}-Friend-{as:friend}-Friend-{class: Person,"
                 + " where:(name = 'n4')} return friend.name");
 
     Assert.assertTrue(qResult.hasNext());
-    Result item = qResult.next();
+    var item = qResult.next();
     Assert.assertEquals("n2", item.getProperty("friend.name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -625,14 +625,14 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testFriendsOfFriends() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name ="
                 + " 'n1')}.out('Friend').out('Friend'){as:friend} return $matches)");
 
     printExecutionPlan(qResult);
     Assert.assertTrue(qResult.hasNext());
-    Result item = qResult.next();
+    var item = qResult.next();
     Assert.assertEquals("n4", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -640,13 +640,13 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testFriendsOfFriendsArrows() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name ="
                 + " 'n1')}-Friend->{}-Friend->{as:friend} return $matches)");
 
     Assert.assertTrue(qResult.hasNext());
-    Result item = qResult.next();
+    var item = qResult.next();
     Assert.assertEquals("n4", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -654,7 +654,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testFriendsOfFriends2() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name = 'n1'), as:"
                 + " me}.both('Friend').both('Friend'){as:friend, where: ($matched.me !="
@@ -670,7 +670,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testFriendsOfFriends2Arrows() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name = 'n1'), as:"
                 + " me}-Friend-{}-Friend-{as:friend, where: ($matched.me != $currentMatch)} return"
@@ -685,7 +685,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testFriendsWithName() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name = 'n1' and 1 + 1 ="
                 + " 2)}.out('Friend'){as:friend, where:(name = 'n2' and 1 + 1 = 2)} return"
@@ -699,7 +699,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testFriendsWithNameArrows() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name = 'n1' and 1 + 1 ="
                 + " 2)}-Friend->{as:friend, where:(name = 'n2' and 1 + 1 = 2)} return friend)");
@@ -712,7 +712,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testWhile() throws Exception {
 
-    ResultSet qResult =
+    var qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name ="
                 + " 'n1')}.out('Friend'){as:friend, while: ($depth < 1)} return friend)");
@@ -758,7 +758,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   }
 
   private int size(ResultSet qResult) {
-    int result = 0;
+    var result = 0;
     while (qResult.hasNext()) {
       result++;
       qResult.next();
@@ -768,7 +768,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testWhileArrows() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name ="
                 + " 'n1')}-Friend->{as:friend, while: ($depth < 1)} return friend)");
@@ -801,7 +801,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testMaxDepth() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name ="
                 + " 'n1')}.out('Friend'){as:friend, maxDepth: 1, where: ($depth=1) } return"
@@ -834,7 +834,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testMaxDepthArrow() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name ="
                 + " 'n1')}-Friend->{as:friend, maxDepth: 1, where: ($depth=1) } return friend)");
@@ -880,7 +880,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   }
 
   private EntityImpl getManager(String personName) {
-    String query =
+    var query =
         "select expand(manager) from ("
             + "  match {class:Employee, where: (name = '"
             + personName
@@ -894,16 +894,16 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
             + "  return manager"
             + ")";
 
-    ResultSet qResult = db.query(query);
+    var qResult = db.query(query);
     Assert.assertTrue(qResult.hasNext());
-    Result item = qResult.next();
+    var item = qResult.next();
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
     return item.getEntity().get().getRecord(db);
   }
 
   private EntityImpl getManagerArrows(String personName) {
-    String query =
+    var query =
         "select expand(manager) from ("
             + "  match {class:Employee, where: (name = '"
             + personName
@@ -915,10 +915,10 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
             + "  return manager"
             + ")";
 
-    ResultSet qResult = db.query(query);
+    var qResult = db.query(query);
     printExecutionPlan(qResult);
     Assert.assertTrue(qResult.hasNext());
-    Result item = qResult.next();
+    var item = qResult.next();
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
     return item.getEntity().get().getRecord(db);
@@ -942,7 +942,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   }
 
   private Result getManager2(String personName) {
-    String query =
+    var query =
         "select expand(manager) from ("
             + "  match {class:Employee, where: (name = '"
             + personName
@@ -957,16 +957,16 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
             + "  return manager"
             + ")";
 
-    ResultSet qResult = db.query(query);
+    var qResult = db.query(query);
     Assert.assertTrue(qResult.hasNext());
-    Result item = qResult.next();
+    var item = qResult.next();
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
     return item;
   }
 
   private Result getManager2Arrows(String personName) {
-    String query =
+    var query =
         "select expand(manager) from ("
             + "  match {class:Employee, where: (name = '"
             + personName
@@ -979,9 +979,9 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
             + "  return manager"
             + ")";
 
-    ResultSet qResult = db.query(query);
+    var qResult = db.query(query);
     Assert.assertTrue(qResult.hasNext());
-    Result item = qResult.next();
+    var item = qResult.next();
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
     return item;
@@ -992,14 +992,14 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     initOrgChart();
     // people managed by a manager are people who belong to his department or people who belong to
     // sub-departments without a manager
-    ResultSet managedByA = getManagedBy("a");
+    var managedByA = getManagedBy("a");
     Assert.assertTrue(managedByA.hasNext());
-    Result item = managedByA.next();
+    var item = managedByA.next();
     Assert.assertFalse(managedByA.hasNext());
     Assert.assertEquals("p1", item.getProperty("name"));
     managedByA.close();
 
-    ResultSet managedByB = getManagedBy("b");
+    var managedByB = getManagedBy("b");
 
     Set<String> expectedNames = new HashSet<String>();
     expectedNames.add("p2");
@@ -1008,9 +1008,9 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     expectedNames.add("p7");
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       Assert.assertTrue(managedByB.hasNext());
-      Result id = managedByB.next();
+      var id = managedByB.next();
       String name = id.getProperty("name");
       names.add(name);
     }
@@ -1019,7 +1019,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   }
 
   private ResultSet getManagedBy(String managerName) {
-    String query =
+    var query =
         "select expand(managed) from ("
             + "  match {class:Employee, where: (name = '"
             + managerName
@@ -1041,13 +1041,13 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     initOrgChart();
     // people managed by a manager are people who belong to his department or people who belong to
     // sub-departments without a manager
-    ResultSet managedByA = getManagedByArrows("a");
+    var managedByA = getManagedByArrows("a");
     Assert.assertTrue(managedByA.hasNext());
-    Result item = managedByA.next();
+    var item = managedByA.next();
     Assert.assertFalse(managedByA.hasNext());
     Assert.assertEquals("p1", item.getProperty("name"));
     managedByA.close();
-    ResultSet managedByB = getManagedByArrows("b");
+    var managedByB = getManagedByArrows("b");
 
     Set<String> expectedNames = new HashSet<String>();
     expectedNames.add("p2");
@@ -1056,9 +1056,9 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     expectedNames.add("p7");
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       Assert.assertTrue(managedByB.hasNext());
-      Result id = managedByB.next();
+      var id = managedByB.next();
       String name = id.getProperty("name");
       names.add(name);
     }
@@ -1067,7 +1067,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   }
 
   private ResultSet getManagedByArrows(String managerName) {
-    String query =
+    var query =
         "select expand(managed) from ("
             + "  match {class:Employee, where: (name = '"
             + managerName
@@ -1087,13 +1087,13 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     initOrgChart();
     // people managed by a manager are people who belong to his department or people who belong to
     // sub-departments without a manager
-    ResultSet managedByA = getManagedBy2("a");
+    var managedByA = getManagedBy2("a");
     Assert.assertTrue(managedByA.hasNext());
-    Result item = managedByA.next();
+    var item = managedByA.next();
     Assert.assertFalse(managedByA.hasNext());
     Assert.assertEquals("p1", item.getProperty("name"));
     managedByA.close();
-    ResultSet managedByB = getManagedBy2("b");
+    var managedByB = getManagedBy2("b");
 
     Set<String> expectedNames = new HashSet<String>();
     expectedNames.add("p2");
@@ -1102,9 +1102,9 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     expectedNames.add("p7");
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       Assert.assertTrue(managedByB.hasNext());
-      Result id = managedByB.next();
+      var id = managedByB.next();
       String name = id.getProperty("name");
       names.add(name);
     }
@@ -1113,7 +1113,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   }
 
   private ResultSet getManagedBy2(String managerName) {
-    String query =
+    var query =
         "select expand(managed) from ("
             + "  match {class:Employee, where: (name = '"
             + managerName
@@ -1135,13 +1135,13 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     initOrgChart();
     // people managed by a manager are people who belong to his department or people who belong to
     // sub-departments without a manager
-    ResultSet managedByA = getManagedBy2Arrows("a");
+    var managedByA = getManagedBy2Arrows("a");
     Assert.assertTrue(managedByA.hasNext());
-    Result item = managedByA.next();
+    var item = managedByA.next();
     Assert.assertFalse(managedByA.hasNext());
     Assert.assertEquals("p1", item.getProperty("name"));
     managedByA.close();
-    ResultSet managedByB = getManagedBy2Arrows("b");
+    var managedByB = getManagedBy2Arrows("b");
 
     Set<String> expectedNames = new HashSet<String>();
     expectedNames.add("p2");
@@ -1150,9 +1150,9 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     expectedNames.add("p7");
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       Assert.assertTrue(managedByB.hasNext());
-      Result id = managedByB.next();
+      var id = managedByB.next();
       String name = id.getProperty("name");
       names.add(name);
     }
@@ -1161,7 +1161,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   }
 
   private ResultSet getManagedBy2Arrows(String managerName) {
-    String query =
+    var query =
         "select expand(managed) from ("
             + "  match {class:Employee, where: (name = '"
             + managerName
@@ -1180,7 +1180,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testTriangle1() {
     initTriangleTest();
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "  .out('TriangleE'){as: friend2}"
@@ -1189,7 +1189,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
             + "  .out('TriangleE'){as: friend3}"
             + "return $matches";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
 
     printExecutionPlan(result);
 
@@ -1202,12 +1202,12 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testTriangle1Arrows() {
     initTriangleTest();
-    String query =
+    var query =
         "match {class:TriangleV, as: friend1, where: (uid = 0)} -TriangleE-> {as: friend2}"
             + " -TriangleE-> {as: friend3},{class:TriangleV, as: friend1} -TriangleE-> {as:"
             + " friend3}return $matches";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     Assert.assertTrue(result.hasNext());
     result.next();
     Assert.assertFalse(result.hasNext());
@@ -1217,7 +1217,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testTriangle2Old() {
     initTriangleTest();
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1}"
             + "  .out('TriangleE'){class:TriangleV, as: friend2, where: (uid = 1)}"
@@ -1226,10 +1226,10 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
             + "  .out('TriangleE'){as: friend3}"
             + "return $matches";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    Result doc = result.next();
+    var doc = result.next();
     Entity friend1 = db.load(doc.getProperty("friend1"));
     Entity friend2 = db.load(doc.getProperty("friend2"));
     Entity friend3 = db.load(doc.getProperty("friend3"));
@@ -1242,7 +1242,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testTriangle2() {
     initTriangleTest();
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1}"
             + "  .out('TriangleE'){class:TriangleV, as: friend2, where: (uid = 1)}"
@@ -1251,9 +1251,9 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
             + "  .out('TriangleE'){as: friend3}"
             + "return $patterns";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    Result doc = result.next();
+    var doc = result.next();
     Assert.assertFalse(result.hasNext());
     Entity friend1 = db.load(doc.getProperty("friend1"));
     Entity friend2 = db.load(doc.getProperty("friend2"));
@@ -1267,7 +1267,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testTriangle2Arrows() {
     initTriangleTest();
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1}"
             + "  -TriangleE->{class:TriangleV, as: friend2, where: (uid = 1)}"
@@ -1276,9 +1276,9 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
             + "  -TriangleE->{as: friend3}"
             + "return $matches";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    Result doc = result.next();
+    var doc = result.next();
     Assert.assertFalse(result.hasNext());
     Entity friend1 = db.load(doc.getProperty("friend1"));
     Entity friend2 = db.load(doc.getProperty("friend2"));
@@ -1292,7 +1292,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testTriangle3() {
     initTriangleTest();
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1}"
             + "  -TriangleE->{as: friend2}"
@@ -1301,9 +1301,9 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
             + "  -TriangleE->{as: friend3}"
             + "return $matches";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    Result doc = result.next();
+    var doc = result.next();
     Assert.assertFalse(result.hasNext());
     result.close();
   }
@@ -1311,7 +1311,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testTriangle4() {
     initTriangleTest();
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1}"
             + "  .out('TriangleE'){as: friend2, where: (uid = 1)}"
@@ -1320,9 +1320,9 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
             + "  .out('TriangleE'){as: friend3}"
             + "return $matches";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    Result doc = result.next();
+    var doc = result.next();
     Assert.assertFalse(result.hasNext());
     result.close();
   }
@@ -1330,7 +1330,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testTriangle4Arrows() {
     initTriangleTest();
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1}"
             + "  -TriangleE->{as: friend2, where: (uid = 1)}"
@@ -1339,9 +1339,9 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
             + "  -TriangleE->{as: friend3}"
             + "return $matches";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    Result doc = result.next();
+    var doc = result.next();
     Assert.assertFalse(result.hasNext());
     result.close();
   }
@@ -1349,7 +1349,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testTriangleWithEdges4() {
     initTriangleTest();
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1}"
             + "  .outE('TriangleE').inV(){as: friend2, where: (uid = 1)}"
@@ -1358,10 +1358,10 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
             + "  .outE('TriangleE').inV(){as: friend3}"
             + "return $matches";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    Result doc = result.next();
+    var doc = result.next();
     Assert.assertFalse(result.hasNext());
     result.close();
   }
@@ -1369,18 +1369,18 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testCartesianProduct() {
     initTriangleTest();
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1, where:(uid = 1)},"
             + "{class:TriangleV, as: friend2, where:(uid = 2 or uid = 3)}"
             + "return $matches";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     printExecutionPlan(result);
 
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      Result doc = result.next();
+      var doc = result.next();
       Entity friend1 = db.load(doc.getProperty("friend1"));
       Assert.assertEquals(friend1.<Object>getProperty("uid"), 1);
     }
@@ -1391,9 +1391,9 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testNoPrefetch() {
     initEdgeIndexTest();
-    String query = "match " + "{class:IndexedVertex, as: one}" + "return $patterns";
+    var query = "match " + "{class:IndexedVertex, as: one}" + "return $patterns";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     printExecutionPlan(result);
 
     result
@@ -1404,7 +1404,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
                     .filter(y -> y instanceof MatchPrefetchStep)
                     .forEach(prefetchStepFound -> Assert.fail()));
 
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       Assert.assertTrue(result.hasNext());
       result.next();
     }
@@ -1415,16 +1415,16 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testCartesianProductLimit() {
     initTriangleTest();
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1, where:(uid = 1)},"
             + "{class:TriangleV, as: friend2, where:(uid = 2 or uid = 3)}"
             + "return $matches LIMIT 1";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
 
     Assert.assertTrue(result.hasNext());
-    Result d = result.next();
+    var d = result.next();
     Entity friend1 = db.load(d.getProperty("friend1"));
     Assert.assertEquals(friend1.<Object>getProperty("uid"), 1);
     Assert.assertFalse(result.hasNext());
@@ -1434,16 +1434,16 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testArrayNumber() {
     initTriangleTest();
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[0] as foo";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
 
     Assert.assertTrue(result.hasNext());
 
-    Result doc = result.next();
+    var doc = result.next();
     Object foo = db.load(doc.getProperty("foo"));
     Assert.assertNotNull(foo);
     Assert.assertTrue(((Entity) foo).isVertex());
@@ -1453,16 +1453,16 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testArraySingleSelectors2() {
     initTriangleTest();
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[0,1] as foo";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    Result doc = result.next();
+    var doc = result.next();
     Assert.assertFalse(result.hasNext());
-    Object foo = doc.getProperty("foo");
+    var foo = doc.getProperty("foo");
     Assert.assertNotNull(foo);
     Assert.assertTrue(foo instanceof List);
     Assert.assertEquals(2, ((List) foo).size());
@@ -1472,17 +1472,17 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testArrayRangeSelectors1() {
     initTriangleTest();
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[0..1] as foo";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    Result doc = result.next();
+    var doc = result.next();
     Assert.assertFalse(result.hasNext());
 
-    Object foo = doc.getProperty("foo");
+    var foo = doc.getProperty("foo");
     Assert.assertNotNull(foo);
     Assert.assertTrue(foo instanceof List);
     Assert.assertEquals(1, ((List) foo).size());
@@ -1492,17 +1492,17 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testArrayRange2() {
     initTriangleTest();
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[0..2] as foo";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    Result doc = result.next();
+    var doc = result.next();
     Assert.assertFalse(result.hasNext());
 
-    Object foo = doc.getProperty("foo");
+    var foo = doc.getProperty("foo");
     Assert.assertNotNull(foo);
     Assert.assertTrue(foo instanceof List);
     Assert.assertEquals(2, ((List) foo).size());
@@ -1512,17 +1512,17 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testArrayRange3() {
     initTriangleTest();
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[0..3] as foo";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    Result doc = result.next();
+    var doc = result.next();
     Assert.assertFalse(result.hasNext());
 
-    Object foo = doc.getProperty("foo");
+    var foo = doc.getProperty("foo");
     Assert.assertNotNull(foo);
     Assert.assertTrue(foo instanceof List);
     Assert.assertEquals(2, ((List) foo).size());
@@ -1532,21 +1532,21 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testConditionInSquareBrackets() {
     initTriangleTest();
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[uid = 2] as foo";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    Result doc = result.next();
+    var doc = result.next();
     Assert.assertFalse(result.hasNext());
 
-    Object foo = doc.getProperty("foo");
+    var foo = doc.getProperty("foo");
     Assert.assertNotNull(foo);
     Assert.assertTrue(foo instanceof List);
     Assert.assertEquals(1, ((List) foo).size());
-    Vertex resultVertex = (Vertex) ((List) foo).get(0);
+    var resultVertex = (Vertex) ((List) foo).get(0);
     Assert.assertEquals(2, resultVertex.<Object>getProperty("uid"));
     result.close();
   }
@@ -1554,16 +1554,16 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testIndexedEdge() {
     initEdgeIndexTest();
-    String query =
+    var query =
         "match "
             + "{class:IndexedVertex, as: one, where: (uid = 0)}"
             + ".out('IndexedEdge'){class:IndexedVertex, as: two, where: (uid = 1)}"
             + "return one, two";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    Result doc = result.next();
+    var doc = result.next();
     Assert.assertFalse(result.hasNext());
     result.close();
   }
@@ -1571,15 +1571,15 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testIndexedEdgeArrows() {
     initEdgeIndexTest();
-    String query =
+    var query =
         "match "
             + "{class:IndexedVertex, as: one, where: (uid = 0)}"
             + "-IndexedEdge->{class:IndexedVertex, as: two, where: (uid = 1)}"
             + "return one, two";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    Result doc = result.next();
+    var doc = result.next();
     Assert.assertFalse(result.hasNext());
     result.close();
   }
@@ -1587,14 +1587,14 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testJson() {
     initEdgeIndexTest();
-    String query =
+    var query =
         "match "
             + "{class:IndexedVertex, as: one, where: (uid = 0)} "
             + "return {'name':'foo', 'uuid':one.uid}";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    Result doc = result.next();
+    var doc = result.next();
     Assert.assertFalse(result.hasNext());
 
     //    EntityImpl doc = result.get(0);
@@ -1606,14 +1606,14 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testJson2() {
     initEdgeIndexTest();
-    String query =
+    var query =
         "match "
             + "{class:IndexedVertex, as: one, where: (uid = 0)} "
             + "return {'name':'foo', 'sub': {'uuid':one.uid}}";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    Result doc = result.next();
+    var doc = result.next();
     Assert.assertFalse(result.hasNext());
     //    EntityImpl doc = result.get(0);
     //    assertEquals("foo", doc.field("name"));
@@ -1624,14 +1624,14 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testJson3() {
     initEdgeIndexTest();
-    String query =
+    var query =
         "match "
             + "{class:IndexedVertex, as: one, where: (uid = 0)} "
             + "return {'name':'foo', 'sub': [{'uuid':one.uid}]}";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    Result doc = result.next();
+    var doc = result.next();
     Assert.assertFalse(result.hasNext());
     //    EntityImpl doc = result.get(0);
     //    assertEquals("foo", doc.field("name"));
@@ -1643,16 +1643,16 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testUnique() {
     initDiamondTest();
-    StringBuilder query = new StringBuilder();
+    var query = new StringBuilder();
     query.append("match ");
     query.append(
         "{class:DiamondV, as: one, where: (uid = 0)}.out('DiamondE').out('DiamondE'){as: two} ");
     query.append("return DISTINCT one, two");
 
-    ResultSet result = db.query(query.toString());
+    var result = db.query(query.toString());
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    Result doc = result.next();
+    var doc = result.next();
     Assert.assertFalse(result.hasNext());
 
     query = new StringBuilder();
@@ -1676,16 +1676,16 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testNotUnique() {
     initDiamondTest();
-    StringBuilder query = new StringBuilder();
+    var query = new StringBuilder();
     query.append("match ");
     query.append(
         "{class:DiamondV, as: one, where: (uid = 0)}.out('DiamondE').out('DiamondE'){as: two} ");
     query.append("return one, two");
 
-    ResultSet result = db.query(query.toString());
+    var result = db.query(query.toString());
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    Result doc = result.next();
+    var doc = result.next();
     Assert.assertTrue(result.hasNext());
     doc = result.next();
     Assert.assertFalse(result.hasNext());
@@ -1712,7 +1712,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testManagedElements() {
     initOrgChart();
-    ResultSet managedByB = getManagedElements("b");
+    var managedByB = getManagedElements("b");
 
     Set<String> expectedNames = new HashSet<String>();
     expectedNames.add("b");
@@ -1722,9 +1722,9 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     expectedNames.add("p7");
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
-    for (int i = 0; i < 6; i++) {
+    for (var i = 0; i < 6; i++) {
       Assert.assertTrue(managedByB.hasNext());
-      Result doc = managedByB.next();
+      var doc = managedByB.next();
       String name = doc.getProperty("name");
       names.add(name);
     }
@@ -1734,7 +1734,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   }
 
   private ResultSet getManagedElements(String managerName) {
-    String query =
+    var query =
         "  match {class:Employee, as:boss, where: (name = '"
             + managerName
             + "')}"
@@ -1750,7 +1750,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   @Test
   public void testManagedPathElements() {
     initOrgChart();
-    ResultSet managedByB = getManagedPathElements("b");
+    var managedByB = getManagedPathElements("b");
 
     Set<String> expectedNames = new HashSet<String>();
     expectedNames.add("department1");
@@ -1764,9 +1764,9 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     expectedNames.add("p7");
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(managedByB.hasNext());
-      Result doc = managedByB.next();
+      var doc = managedByB.next();
       String name = doc.getProperty("name");
       names.add(name);
     }
@@ -1777,15 +1777,15 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testOptional() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "match {class:Person, as: person} -NonExistingEdge-> {as:b, optional:true} return"
                 + " person, b.name");
 
     printExecutionPlan(qResult);
-    for (int i = 0; i < 6; i++) {
+    for (var i = 0; i < 6; i++) {
       Assert.assertTrue(qResult.hasNext());
-      Result doc = qResult.next();
+      var doc = qResult.next();
       Assert.assertEquals(2, doc.getPropertyNames().size());
       Entity person = db.load(doc.getProperty("person"));
 
@@ -1796,14 +1796,14 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testOptional2() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "match {class:Person, as: person} --> {as:b, optional:true, where:(nonExisting = 12)}"
                 + " return person, b.name");
 
-    for (int i = 0; i < 6; i++) {
+    for (var i = 0; i < 6; i++) {
       Assert.assertTrue(qResult.hasNext());
-      Result doc = qResult.next();
+      var doc = qResult.next();
       Assert.assertEquals(2, doc.getPropertyNames().size());
       Entity person = db.load(doc.getProperty("person"));
 
@@ -1814,7 +1814,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testOptional3() throws Exception {
-    ResultSet qResult =
+    var qResult =
         db.query(
             "select friend.name as name, b from (match {class:Person, as:a, where:(name = 'n1' and"
                 + " 1 + 1 = 2)}.out('Friend'){as:friend, where:(name = 'n2' and 1 + 1 ="
@@ -1823,7 +1823,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
     printExecutionPlan(qResult);
     Assert.assertTrue(qResult.hasNext());
-    Result doc = qResult.next();
+    var doc = qResult.next();
     Assert.assertEquals("n2", doc.getProperty("name"));
     Assert.assertNull(doc.getProperty("b"));
     Assert.assertFalse(qResult.hasNext());
@@ -1840,9 +1840,9 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     db.command("CREATE VERTEX testOrderByAsc SET name = 'ccc'").close();
     db.commit();
 
-    String query = "MATCH { class: testOrderByAsc, as:a} RETURN a.name as name order by name asc";
+    var query = "MATCH { class: testOrderByAsc, as:a} RETURN a.name as name order by name asc";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     Assert.assertTrue(result.hasNext());
     Assert.assertEquals("aaa", result.next().getProperty("name"));
     Assert.assertTrue(result.hasNext());
@@ -1865,9 +1865,9 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     db.command("CREATE VERTEX testOrderByDesc SET name = 'ccc'").close();
     db.commit();
 
-    String query = "MATCH { class: testOrderByDesc, as:a} RETURN a.name as name order by name desc";
+    var query = "MATCH { class: testOrderByDesc, as:a} RETURN a.name as name order by name desc";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     Assert.assertTrue(result.hasNext());
     Assert.assertEquals("zzz", result.next().getProperty("name"));
     Assert.assertTrue(result.hasNext());
@@ -1882,18 +1882,18 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testNestedProjections() {
-    String clazz = "testNestedProjections";
+    var clazz = "testNestedProjections";
     db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
 
     db.begin();
     db.command("CREATE VERTEX " + clazz + " SET name = 'bbb', surname = 'ccc'").close();
     db.commit();
 
-    String query = "MATCH { class: " + clazz + ", as:a} RETURN a:{name}, 'x' ";
+    var query = "MATCH { class: " + clazz + ", as:a} RETURN a:{name}, 'x' ";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Result a = item.getProperty("a");
     Assert.assertEquals("bbb", a.getProperty("name"));
     Assert.assertNull(a.getProperty("surname"));
@@ -1903,7 +1903,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testAggregate() {
-    String clazz = "testAggregate";
+    var clazz = "testAggregate";
     db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
 
     db.begin();
@@ -1915,14 +1915,14 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     db.command("CREATE VERTEX " + clazz + " SET name = 'bbb', num = 6").close();
     db.commit();
 
-    String query =
+    var query =
         "MATCH { class: "
             + clazz
             + ", as:a} RETURN a.name as a, max(a.num) as maxNum group by a.name order by a.name";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertEquals("aaa", item.getProperty("a"));
     Assert.assertEquals(3, (int) item.getProperty("maxNum"));
 
@@ -1937,7 +1937,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testOrderByOutOfProjAsc() {
-    String clazz = "testOrderByOutOfProjAsc";
+    var clazz = "testOrderByOutOfProjAsc";
     db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
 
     db.begin();
@@ -1946,15 +1946,15 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     db.command("CREATE VERTEX " + clazz + " SET name = 'aaa', num = 2, num2 = 3").close();
     db.commit();
 
-    String query =
+    var query =
         "MATCH { class: "
             + clazz
             + ", as:a} RETURN a.name as name, a.num as num order by a.num2 asc";
 
-    ResultSet result = db.query(query);
-    for (int i = 0; i < 3; i++) {
+    var result = db.query(query);
+    for (var i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertEquals("aaa", item.getProperty("name"));
       Assert.assertEquals(i, (int) item.getProperty("num"));
     }
@@ -1965,7 +1965,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testOrderByOutOfProjDesc() {
-    String clazz = "testOrderByOutOfProjDesc";
+    var clazz = "testOrderByOutOfProjDesc";
     db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
 
     db.begin();
@@ -1974,15 +1974,15 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     db.command("CREATE VERTEX " + clazz + " SET name = 'aaa', num = 2, num2 = 3").close();
     db.commit();
 
-    String query =
+    var query =
         "MATCH { class: "
             + clazz
             + ", as:a} RETURN a.name as name, a.num as num order by a.num2 desc";
 
-    ResultSet result = db.query(query);
-    for (int i = 2; i >= 0; i--) {
+    var result = db.query(query);
+    for (var i = 2; i >= 0; i--) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertEquals("aaa", item.getProperty("name"));
       Assert.assertEquals(i, (int) item.getProperty("num"));
     }
@@ -1993,7 +1993,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testUnwind() {
-    String clazz = "testUnwind";
+    var clazz = "testUnwind";
     db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
 
     db.begin();
@@ -2001,14 +2001,14 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     db.command("CREATE VERTEX " + clazz + " SET name = 'bbb', coll = [3, 4]").close();
     db.commit();
 
-    String query =
+    var query =
         "MATCH { class: " + clazz + ", as:a} RETURN a.name as name, a.coll as num unwind num";
 
-    int sum = 0;
-    ResultSet result = db.query(query);
-    for (int i = 0; i < 4; i++) {
+    var sum = 0;
+    var result = db.query(query);
+    for (var i = 0; i < 4; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       sum += item.<Integer>getProperty("num");
     }
 
@@ -2020,7 +2020,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testSkip() {
-    String clazz = "testSkip";
+    var clazz = "testSkip";
     db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
 
     db.begin();
@@ -2030,15 +2030,15 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     db.command("CREATE VERTEX " + clazz + " SET name = 'ddd'").close();
     db.commit();
 
-    String query =
+    var query =
         "MATCH { class: "
             + clazz
             + ", as:a} RETURN a.name as name ORDER BY name ASC skip 1 limit 2";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
 
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertEquals("bbb", item.getProperty("name"));
 
     Assert.assertTrue(result.hasNext());
@@ -2052,7 +2052,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testDepthAlias() {
-    String clazz = "testDepthAlias";
+    var clazz = "testDepthAlias";
     db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
 
     db.begin();
@@ -2084,19 +2084,19 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
         .close();
     db.commit();
 
-    String query =
+    var query =
         "MATCH { class: "
             + clazz
             + ", as:a, where:(name = 'aaa')} --> {as:b, while:($depth<10), depthAlias: xy} RETURN"
             + " a.name as name, b.name as bname, xy";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
 
-    int sum = 0;
-    for (int i = 0; i < 4; i++) {
+    var sum = 0;
+    for (var i = 0; i < 4; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
-      Object depth = item.getProperty("xy");
+      var item = result.next();
+      var depth = item.getProperty("xy");
       Assert.assertTrue(depth instanceof Integer);
       Assert.assertEquals("aaa", item.getProperty("name"));
       switch ((int) depth) {
@@ -2125,7 +2125,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testPathAlias() {
-    String clazz = "testPathAlias";
+    var clazz = "testPathAlias";
     db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
 
     db.begin();
@@ -2157,20 +2157,20 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
         .close();
     db.commit();
 
-    String query =
+    var query =
         "MATCH { class: "
             + clazz
             + ", as:a, where:(name = 'aaa')} --> {as:b, while:($depth<10), pathAlias: xy} RETURN"
             + " a.name as name, b.name as bname, xy";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
 
-    for (int i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
-      Object path = item.getProperty("xy");
+      var item = result.next();
+      var path = item.getProperty("xy");
       Assert.assertTrue(path instanceof List);
-      List<Identifiable> thePath = (List<Identifiable>) path;
+      var thePath = (List<Identifiable>) path;
 
       String bname = item.getProperty("bname");
       if (bname.equals("aaa")) {
@@ -2196,20 +2196,20 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testNegativePattern() {
-    String clazz = "testNegativePattern";
+    var clazz = "testNegativePattern";
     db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
 
     db.executeInTx(
         () -> {
-          Vertex v1 = db.newVertex(clazz);
+          var v1 = db.newVertex(clazz);
           v1.setProperty("name", "a");
           v1.save();
 
-          Vertex v2 = db.newVertex(clazz);
+          var v2 = db.newVertex(clazz);
           v2.setProperty("name", "b");
           v2.save();
 
-          Vertex v3 = db.newVertex(clazz);
+          var v3 = db.newVertex(clazz);
           v3.setProperty("name", "c");
           v3.save();
 
@@ -2217,11 +2217,11 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
           v2.addRegularEdge(v3).save();
         });
 
-    String query = "MATCH { class:" + clazz + ", as:a} --> {as:b} --> {as:c}, ";
+    var query = "MATCH { class:" + clazz + ", as:a} --> {as:b} --> {as:c}, ";
     query += " NOT {as:a} --> {as:c}";
     query += " RETURN $patterns";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     Assert.assertTrue(result.hasNext());
     result.next();
     Assert.assertFalse(result.hasNext());
@@ -2231,20 +2231,20 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testNegativePattern2() {
-    String clazz = "testNegativePattern2";
+    var clazz = "testNegativePattern2";
     db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
 
     db.executeInTx(
         () -> {
-          Vertex v1 = db.newVertex(clazz);
+          var v1 = db.newVertex(clazz);
           v1.setProperty("name", "a");
           v1.save();
 
-          Vertex v2 = db.newVertex(clazz);
+          var v2 = db.newVertex(clazz);
           v2.setProperty("name", "b");
           v2.save();
 
-          Vertex v3 = db.newVertex(clazz);
+          var v3 = db.newVertex(clazz);
           v3.setProperty("name", "c");
           v3.save();
 
@@ -2253,11 +2253,11 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
           v1.addRegularEdge(v3).save();
         });
 
-    String query = "MATCH { class:" + clazz + ", as:a} --> {as:b} --> {as:c}, ";
+    var query = "MATCH { class:" + clazz + ", as:a} --> {as:b} --> {as:c}, ";
     query += " NOT {as:a} --> {as:c}";
     query += " RETURN $patterns";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     Assert.assertFalse(result.hasNext());
 
     result.close();
@@ -2265,20 +2265,20 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testNegativePattern3() {
-    String clazz = "testNegativePattern3";
+    var clazz = "testNegativePattern3";
     db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
 
     db.executeInTx(
         () -> {
-          Vertex v1 = db.newVertex(clazz);
+          var v1 = db.newVertex(clazz);
           v1.setProperty("name", "a");
           v1.save();
 
-          Vertex v2 = db.newVertex(clazz);
+          var v2 = db.newVertex(clazz);
           v2.setProperty("name", "b");
           v2.save();
 
-          Vertex v3 = db.newVertex(clazz);
+          var v3 = db.newVertex(clazz);
           v3.setProperty("name", "c");
           v3.save();
 
@@ -2287,11 +2287,11 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
           v1.addRegularEdge(v3).save();
         });
 
-    String query = "MATCH { class:" + clazz + ", as:a} --> {as:b} --> {as:c}, ";
+    var query = "MATCH { class:" + clazz + ", as:a} --> {as:b} --> {as:c}, ";
     query += " NOT {as:a} --> {as:c, where:(name <> 'c')}";
     query += " RETURN $patterns";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     Assert.assertTrue(result.hasNext());
     result.next();
     Assert.assertFalse(result.hasNext());
@@ -2301,20 +2301,20 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testPathTraversal() {
-    String clazz = "testPathTraversal";
+    var clazz = "testPathTraversal";
     db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
 
     db.executeInTx(
         () -> {
-          Vertex v1 = db.newVertex(clazz);
+          var v1 = db.newVertex(clazz);
           v1.setProperty("name", "a");
           v1.save();
 
-          Vertex v2 = db.newVertex(clazz);
+          var v2 = db.newVertex(clazz);
           v2.setProperty("name", "b");
           v2.save();
 
-          Vertex v3 = db.newVertex(clazz);
+          var v3 = db.newVertex(clazz);
           v3.setProperty("name", "c");
           v3.save();
 
@@ -2325,12 +2325,12 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
           v2.save();
         });
 
-    String query = "MATCH { class:" + clazz + ", as:a}.next{as:b, where:(name ='b')}";
+    var query = "MATCH { class:" + clazz + ", as:a}.next{as:b, where:(name ='b')}";
     query += " RETURN a.name as a, b.name as b";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertEquals("a", item.getProperty("a"));
     Assert.assertEquals("b", item.getProperty("b"));
 
@@ -2353,7 +2353,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
   }
 
   private ResultSet getManagedPathElements(String managerName) {
-    String query =
+    var query =
         "  match {class:Employee, as:boss, where: (name = '"
             + managerName
             + "')}"
@@ -2368,16 +2368,16 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
 
   @Test
   public void testQuotedClassName() {
-    String className = "testQuotedClassName";
+    var className = "testQuotedClassName";
     db.command("CREATE CLASS " + className + " EXTENDS V").close();
 
     db.begin();
     db.command("CREATE VERTEX " + className + " SET name = 'a'").close();
     db.commit();
 
-    String query = "MATCH {class: `" + className + "`, as:foo} RETURN $elements";
+    var query = "MATCH {class: `" + className + "`, as:foo} RETURN $elements";
 
-    try (ResultSet rs = db.query(query)) {
+    try (var rs = db.query(query)) {
       Assert.assertEquals(1L, rs.stream().count());
     }
   }

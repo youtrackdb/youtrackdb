@@ -17,7 +17,7 @@ public class DatabaseCreateDropClusterTest extends DbTestBase {
 
   @Test
   public void createDropClusterOnClass() {
-    SchemaClass test = db.getMetadata().getSchema().createClass("test", 1, null);
+    var test = db.getMetadata().getSchema().createClass("test", 1, null);
     test.addCluster(db, "aTest");
     Assert.assertNotEquals(db.getClusterIdByName("aTest"), -1);
     Assert.assertEquals(test.getClusterIds().length, 2);

@@ -41,7 +41,7 @@ public class CommandExecutorSQLDeleteVertexTest extends DbTestBase {
   public void testDeleteVertexLimit() throws Exception {
     // for issue #4148
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       db.command("create vertex User set name = 'foo" + i + "'").close();
       db.commit();
@@ -51,7 +51,7 @@ public class CommandExecutorSQLDeleteVertexTest extends DbTestBase {
     db.command("delete vertex User limit 4").close();
     db.commit();
 
-    ResultSet result = db.query("select from User");
+    var result = db.query("select from User");
     Assert.assertEquals(result.stream().count(), 6);
   }
 
@@ -59,7 +59,7 @@ public class CommandExecutorSQLDeleteVertexTest extends DbTestBase {
   public void testDeleteVertexBatch() throws Exception {
     // for issue #4622
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       db.begin();
       db.command("create vertex User set name = 'foo" + i + "'").close();
       db.commit();
@@ -69,7 +69,7 @@ public class CommandExecutorSQLDeleteVertexTest extends DbTestBase {
     db.command("delete vertex User batch 5").close();
     db.commit();
 
-    ResultSet result = db.query("select from User");
+    var result = db.query("select from User");
     Assert.assertEquals(result.stream().count(), 0);
   }
 
@@ -85,7 +85,7 @@ public class CommandExecutorSQLDeleteVertexTest extends DbTestBase {
         .close();
     db.commit();
 
-    try (ResultSet edges = db.query("select from e limit 1")) {
+    try (var edges = db.query("select from e limit 1")) {
       db.begin();
       db.command("delete vertex [" + edges.next().getIdentity().get() + "]").close();
       db.commit();
@@ -97,7 +97,7 @@ public class CommandExecutorSQLDeleteVertexTest extends DbTestBase {
   public void testDeleteVertexFromSubquery() throws Exception {
     // for issue #4523
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       db.begin();
       db.command("create vertex User set name = 'foo" + i + "'").close();
       db.commit();
@@ -107,7 +107,7 @@ public class CommandExecutorSQLDeleteVertexTest extends DbTestBase {
     db.command("delete vertex from (select from User)").close();
     db.commit();
 
-    ResultSet result = db.query("select from User");
+    var result = db.query("select from User");
     Assert.assertEquals(result.stream().count(), 0);
   }
 
@@ -115,7 +115,7 @@ public class CommandExecutorSQLDeleteVertexTest extends DbTestBase {
   public void testDeleteVertexFromSubquery2() throws Exception {
     // for issue #4523
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       db.begin();
       db.command("create vertex User set name = 'foo" + i + "'").close();
       db.commit();
@@ -125,7 +125,7 @@ public class CommandExecutorSQLDeleteVertexTest extends DbTestBase {
     db.command("delete vertex from (select from User where name = 'foo10')").close();
     db.commit();
 
-    ResultSet result = db.query("select from User");
+    var result = db.query("select from User");
     Assert.assertEquals(result.stream().count(), 99);
   }
 }

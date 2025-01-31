@@ -273,7 +273,7 @@ public abstract class DBSequence {
 
   boolean updateParams(EntityImpl entity, CreateParams params, boolean executeViaDistributed)
       throws DatabaseException {
-    boolean any = false;
+    var any = false;
 
     if (params.start != null && DBSequence.getStart(entity) != params.start) {
       DBSequence.setStart(entity, params.start);
@@ -463,7 +463,7 @@ public abstract class DBSequence {
             () -> {
               dbCopy.activateOnCurrentThread();
               try (dbCopy) {
-                for (int retry = 0; retry < maxRetry; ++retry) {
+                for (var retry = 0; retry < maxRetry; ++retry) {
                   updateLock.lock();
                   try {
                     return dbCopy.computeInTx(

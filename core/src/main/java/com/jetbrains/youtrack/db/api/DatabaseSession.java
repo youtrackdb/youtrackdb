@@ -535,9 +535,9 @@ public interface DatabaseSession extends AutoCloseable {
    */
   default SchemaClass createClassIfNotExist(String className, String... superclasses)
       throws SchemaException {
-    Schema schema = getSchema();
+    var schema = getSchema();
 
-    SchemaClass result = schema.getClass(className);
+    var result = schema.getClass(className);
     if (result == null) {
       result = createClass(className, superclasses);
     }
@@ -678,7 +678,7 @@ public interface DatabaseSession extends AutoCloseable {
    * @return The object representing the class in the schema. Null if the class does not exist.
    */
   default SchemaClass getClass(String className) {
-    Schema schema = getSchema();
+    var schema = getSchema();
     return schema.getClass(className);
   }
 
@@ -692,20 +692,20 @@ public interface DatabaseSession extends AutoCloseable {
    *                         does not exist.
    */
   default SchemaClass createClass(String className, String... superclasses) throws SchemaException {
-    Schema schema = getSchema();
+    var schema = getSchema();
     SchemaClass[] superclassInstances = null;
     if (superclasses != null) {
       superclassInstances = new SchemaClass[superclasses.length];
-      for (int i = 0; i < superclasses.length; i++) {
-        String superclass = superclasses[i];
-        SchemaClass superclazz = schema.getClass(superclass);
+      for (var i = 0; i < superclasses.length; i++) {
+        var superclass = superclasses[i];
+        var superclazz = schema.getClass(superclass);
         if (superclazz == null) {
           throw new SchemaException("Class " + superclass + " does not exist");
         }
         superclassInstances[i] = superclazz;
       }
     }
-    SchemaClass result = schema.getClass(className);
+    var result = schema.getClass(className);
     if (result != null) {
       throw new SchemaException("Class " + className + " already exists");
     }
@@ -727,20 +727,20 @@ public interface DatabaseSession extends AutoCloseable {
    */
   default SchemaClass createAbstractClass(String className, String... superclasses)
       throws SchemaException {
-    Schema schema = getSchema();
+    var schema = getSchema();
     SchemaClass[] superclassInstances = null;
     if (superclasses != null) {
       superclassInstances = new SchemaClass[superclasses.length];
-      for (int i = 0; i < superclasses.length; i++) {
-        String superclass = superclasses[i];
-        SchemaClass superclazz = schema.getClass(superclass);
+      for (var i = 0; i < superclasses.length; i++) {
+        var superclass = superclasses[i];
+        var superclazz = schema.getClass(superclass);
         if (superclazz == null) {
           throw new SchemaException("Class " + superclass + " does not exist");
         }
         superclassInstances[i] = superclazz;
       }
     }
-    SchemaClass result = schema.getClass(className);
+    var result = schema.getClass(className);
     if (result != null) {
       throw new SchemaException("Class " + className + " already exists");
     }

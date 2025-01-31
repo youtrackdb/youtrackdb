@@ -49,15 +49,15 @@ public class DateConversionTestCase extends DbTestBase {
 
     // write on the db a vertex with a date:
     // 1975-05-31 23:00:00 GMT OR 1975-06-01 01:00:00 (GMT+1) +DST (+2 total)
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    Date dateToInsert = format.parse("1975-06-01 01:00:00");
+    var format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    var dateToInsert = format.parse("1975-06-01 01:00:00");
 
-    EntityImpl document = (EntityImpl) db.newEntity();
+    var document = (EntityImpl) db.newEntity();
     document.field("date", dateToInsert, PropertyType.DATE);
-    byte[] res = serializer.toStream(db, document);
-    EntityImpl extr = (EntityImpl) serializer.fromStream(db, res, (EntityImpl) db.newEntity(),
+    var res = serializer.toStream(db, document);
+    var extr = (EntityImpl) serializer.fromStream(db, res, (EntityImpl) db.newEntity(),
         new String[]{});
-    final String[] fields = extr.fieldNames();
+    final var fields = extr.fieldNames();
 
     assertNotNull(fields);
     assertEquals(1, fields.length);
@@ -65,9 +65,9 @@ public class DateConversionTestCase extends DbTestBase {
 
     Date old = document.field("date");
     Date newDate = extr.field("date");
-    Calendar cal = Calendar.getInstance();
+    var cal = Calendar.getInstance();
     cal.setTime(old);
-    Calendar cal1 = Calendar.getInstance();
+    var cal1 = Calendar.getInstance();
     cal1.setTime(old);
     assertEquals(cal.get(Calendar.YEAR), cal1.get(Calendar.YEAR));
     assertEquals(cal.get(Calendar.MONTH), cal1.get(Calendar.MONTH));
@@ -81,16 +81,16 @@ public class DateConversionTestCase extends DbTestBase {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
       try (var db = (DatabaseSessionInternal) ctx.open("test", "admin", "adminpwd")) {
 
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        var format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         format.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date date = format.parse("2016-08-31 23:30:00");
+        var date = format.parse("2016-08-31 23:30:00");
 
         db.set(DatabaseSession.ATTRIBUTES.TIMEZONE, "GMT");
 
-        EntityImpl doc = (EntityImpl) db.newEntity();
+        var doc = (EntityImpl) db.newEntity();
 
         doc.setProperty("dateTime", date);
-        String formatted = doc.eval("dateTime.format('yyyy-MM-dd')").toString();
+        var formatted = doc.eval("dateTime.format('yyyy-MM-dd')").toString();
 
         Assert.assertEquals("2016-08-31", formatted);
       }

@@ -156,7 +156,7 @@ public class ProfilerStub extends AbstractProfiler {
       return "<no recording>";
     }
 
-    final StringBuilder buffer = new StringBuilder(super.dump());
+    final var buffer = new StringBuilder(super.dump());
 
     if (tips.size() == 0) {
       return "";
@@ -171,8 +171,8 @@ public class ProfilerStub extends AbstractProfiler {
     final List<String> names = new ArrayList<String>(tips.keySet());
     Collections.sort(names);
 
-    for (String n : names) {
-      final AtomicInteger v = tips.get(n);
+    for (var n : names) {
+      final var v = tips.get(n);
       buffer.append(String.format("\n%-100s | %10d |", n, v.intValue()));
     }
 
@@ -205,7 +205,7 @@ public class ProfilerStub extends AbstractProfiler {
       return -1;
     }
 
-    final Long stat = counters.get(statName);
+    final var stat = counters.get(statName);
     if (stat == null) {
       return -1;
     }
@@ -263,7 +263,7 @@ public class ProfilerStub extends AbstractProfiler {
   @Override
   public String[] getCountersAsString() {
     final List<String> keys = new ArrayList<String>(counters.keySet());
-    final String[] result = new String[keys.size()];
+    final var result = new String[keys.size()];
     return keys.toArray(result);
   }
 

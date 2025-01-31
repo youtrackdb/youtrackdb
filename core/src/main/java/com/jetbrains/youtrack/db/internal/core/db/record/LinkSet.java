@@ -86,7 +86,7 @@ public class LinkSet extends TrackedSet<Identifiable> implements IdentityChangeL
     var result = super.removeAll(c);
 
     if (result) {
-      for (Object item : c) {
+      for (var item : c) {
         if (item instanceof ChangeableIdentity changeableIdentity) {
           changeableIdentity.removeIdentityChangeListener(this);
         }
@@ -102,7 +102,7 @@ public class LinkSet extends TrackedSet<Identifiable> implements IdentityChangeL
     }
 
     var result = false;
-    for (Identifiable o : c) {
+    for (var o : c) {
       var resultAdd = super.add(o);
       result = result || resultAdd;
 
@@ -123,8 +123,8 @@ public class LinkSet extends TrackedSet<Identifiable> implements IdentityChangeL
     }
 
     Objects.requireNonNull(c);
-    boolean modified = false;
-    Iterator<Identifiable> it = iterator();
+    var modified = false;
+    var it = iterator();
 
     while (it.hasNext()) {
       if (!c.contains(it.next())) {

@@ -29,32 +29,32 @@ public abstract class DDLStatement extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
     ctx.setDatabase(db);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
-      for (int i = 0; i < args.length; i++) {
+      for (var i = 0; i < args.length; i++) {
         params.put(i, args[i]);
       }
     }
     ctx.setInputParameters(params);
-    DDLExecutionPlan executionPlan = (DDLExecutionPlan) createExecutionPlan(ctx, false);
+    var executionPlan = (DDLExecutionPlan) createExecutionPlan(ctx, false);
     return new ExecutionResultSet(executionPlan.executeInternal(ctx), ctx, executionPlan);
   }
 
   public ResultSet execute(
       DatabaseSessionInternal db, Map<Object, Object> params, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
     ctx.setDatabase(db);
     ctx.setInputParameters(params);
-    DDLExecutionPlan executionPlan = (DDLExecutionPlan) createExecutionPlan(ctx, false);
+    var executionPlan = (DDLExecutionPlan) createExecutionPlan(ctx, false);
     return new ExecutionResultSet(executionPlan.executeInternal(ctx), ctx, executionPlan);
   }
 

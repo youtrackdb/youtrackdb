@@ -51,11 +51,11 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
       db.addBlobCluster("binary");
     }
 
-    long rec = db.countClusterElements("binary");
+    var rec = db.countClusterElements("binary");
 
     db.begin();
 
-    Blob recordBytes = db.newBlob("This is the first version".getBytes());
+    var recordBytes = db.newBlob("This is the first version".getBytes());
     ((RecordAbstract) recordBytes).save("binary");
 
     db.rollback();
@@ -69,11 +69,11 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
       db.addBlobCluster("binary");
     }
 
-    long tot = db.countClusterElements("binary");
+    var tot = db.countClusterElements("binary");
 
     db.begin();
 
-    Blob recordBytes = db.newBlob("This is the first version".getBytes());
+    var recordBytes = db.newBlob("This is the first version".getBytes());
     ((RecordAbstract) recordBytes).save("binary");
 
     db.commit();
@@ -87,9 +87,9 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
       db.addBlobCluster("binary");
     }
 
-    DatabaseSessionInternal db2 = acquireSession();
+    var db2 = acquireSession();
     db.activateOnCurrentThread();
-    Blob record1 = db.newBlob("This is the first version".getBytes());
+    var record1 = db.newBlob("This is the first version".getBytes());
 
     db.begin();
     ((RecordAbstract) record1).save("binary");
@@ -144,7 +144,7 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
       db.addBlobCluster("binary");
     }
 
-    Blob record = db.newBlob("This is the first version".getBytes());
+    var record = db.newBlob("This is the first version".getBytes());
     db.begin();
     record.save();
     db.commit();
@@ -154,7 +154,7 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
 
       // RE-READ THE RECORD
       record = db.load(record.getIdentity());
-      int v1 = record.getVersion();
+      var v1 = record.getVersion();
       RecordInternal.fill(
           record, record.getIdentity(), v1, "This is the second version".getBytes(), true);
       record.save();
@@ -174,9 +174,9 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
       db.addBlobCluster("binary");
     }
 
-    DatabaseSessionInternal db2 = acquireSession();
+    var db2 = acquireSession();
     db2.begin();
-    Blob record1 = db2.newBlob("This is the first version".getBytes());
+    var record1 = db2.newBlob("This is the first version".getBytes());
     record1.save();
     db2.commit();
     try {
@@ -185,7 +185,7 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
 
       // RE-READ THE RECORD
       record1 = db.load(record1.getIdentity());
-      int v1 = record1.getVersion();
+      var v1 = record1.getVersion();
       RecordInternal.fill(
           record1, record1.getIdentity(), v1, "This is the second version".getBytes(), true);
       record1.save();
@@ -216,14 +216,14 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
       schema.createClass("Account");
     }
 
-    long totalAccounts = db.countClass("Account");
+    var totalAccounts = db.countClass("Account");
 
-    String json =
+    var json =
         "{ \"@class\": \"Account\", \"type\": \"Residence\", \"street\": \"Piazza di Spagna\"}";
 
     db.begin();
-    for (int g = 0; g < 1000; g++) {
-      EntityImpl doc = ((EntityImpl) db.newEntity("Account"));
+    for (var g = 0; g < 1000; g++) {
+      var doc = ((EntityImpl) db.newEntity("Account"));
       doc.updateFromJSON(json);
       doc.field("nr", g);
 
@@ -246,11 +246,11 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
 
     db.begin();
 
-    EntityImpl kim = ((EntityImpl) db.newEntity("Profile")).field("name", "Kim")
+    var kim = ((EntityImpl) db.newEntity("Profile")).field("name", "Kim")
         .field("surname", "Bauer");
-    EntityImpl teri = ((EntityImpl) db.newEntity("Profile")).field("name", "Teri")
+    var teri = ((EntityImpl) db.newEntity("Profile")).field("name", "Teri")
         .field("surname", "Bauer");
-    EntityImpl jack = ((EntityImpl) db.newEntity("Profile")).field("name", "Jack")
+    var jack = ((EntityImpl) db.newEntity("Profile")).field("name", "Jack")
         .field("surname", "Bauer");
 
     ((HashSet<EntityImpl>) jack.field("following", new HashSet<EntityImpl>())
@@ -293,13 +293,13 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
   }
 
   public void testNestedTx() throws Exception {
-    final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    final var executorService = Executors.newSingleThreadExecutor();
 
-    final Callable<Void> assertEmptyRecord =
+    final var assertEmptyRecord =
         new Callable<Void>() {
           @Override
           public Void call() throws Exception {
-            final DatabaseSessionInternal db = acquireSession();
+            final var db = acquireSession();
             try {
               Assert.assertEquals(db.countClass("NestedTxClass"), 0);
             } finally {
@@ -317,7 +317,7 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
 
     db.begin();
 
-    final EntityImpl externalDocOne = ((EntityImpl) db.newEntity("NestedTxClass"));
+    final var externalDocOne = ((EntityImpl) db.newEntity("NestedTxClass"));
     externalDocOne.field("v", "val1");
     externalDocOne.save();
 
@@ -326,7 +326,7 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
 
     db.begin();
 
-    final EntityImpl externalDocTwo = ((EntityImpl) db.newEntity("NestedTxClass"));
+    final var externalDocTwo = ((EntityImpl) db.newEntity("NestedTxClass"));
     externalDocTwo.field("v", "val2");
     externalDocTwo.save();
 
@@ -338,7 +338,7 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
     assertFuture = executorService.submit(assertEmptyRecord);
     assertFuture.get();
 
-    final EntityImpl externalDocThree = ((EntityImpl) db.newEntity("NestedTxClass"));
+    final var externalDocThree = ((EntityImpl) db.newEntity("NestedTxClass"));
     externalDocThree.field("v", "val3");
     externalDocThree.save();
 
@@ -349,13 +349,13 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
   }
 
   public void testNestedTxRollbackOne() throws Exception {
-    final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    final var executorService = Executors.newSingleThreadExecutor();
 
-    final Callable<Void> assertEmptyRecord =
+    final var assertEmptyRecord =
         new Callable<Void>() {
           @Override
           public Void call() throws Exception {
-            final DatabaseSessionInternal db = acquireSession();
+            final var db = acquireSession();
             try {
               Assert.assertEquals(db.countClass("NestedTxRollbackOne"), 1);
             } finally {
@@ -371,14 +371,14 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
       schema.createClass("NestedTxRollbackOne");
     }
 
-    EntityImpl brokenDocOne = ((EntityImpl) db.newEntity("NestedTxRollbackOne"));
+    var brokenDocOne = ((EntityImpl) db.newEntity("NestedTxRollbackOne"));
     db.begin();
     brokenDocOne.save();
     db.commit();
     try {
       db.begin();
 
-      final EntityImpl externalDocOne = ((EntityImpl) db.newEntity("NestedTxRollbackOne"));
+      final var externalDocOne = ((EntityImpl) db.newEntity("NestedTxRollbackOne"));
       externalDocOne.field("v", "val1");
       externalDocOne.save();
 
@@ -386,7 +386,7 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
       assertFuture.get();
 
       db.begin();
-      EntityImpl externalDocTwo = ((EntityImpl) db.newEntity("NestedTxRollbackOne"));
+      var externalDocTwo = ((EntityImpl) db.newEntity("NestedTxRollbackOne"));
       externalDocTwo.field("v", "val2");
       externalDocTwo.save();
 
@@ -402,7 +402,7 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
       assertFuture = executorService.submit(assertEmptyRecord);
       assertFuture.get();
 
-      final EntityImpl externalDocThree = ((EntityImpl) db.newEntity("NestedTxRollbackOne"));
+      final var externalDocThree = ((EntityImpl) db.newEntity("NestedTxRollbackOne"));
       externalDocThree.field("v", "val3");
 
       db.begin();
@@ -413,7 +413,7 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
       executorService
           .submit(
               () -> {
-                try (DatabaseSessionInternal db = acquireSession()) {
+                try (var db = acquireSession()) {
                   db.executeInTx(() -> {
                     EntityImpl brokenDocTwo = db.load(brokenRid);
                     brokenDocTwo.field("v", "vstr");
@@ -441,13 +441,13 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
 
     db.begin();
     try {
-      final EntityImpl externalDocOne = ((EntityImpl) db.newEntity("NestedTxRollbackTwo"));
+      final var externalDocOne = ((EntityImpl) db.newEntity("NestedTxRollbackTwo"));
       externalDocOne.field("v", "val1");
       externalDocOne.save();
 
       db.begin();
 
-      final EntityImpl externalDocTwo = ((EntityImpl) db.newEntity("NestedTxRollbackTwo"));
+      final var externalDocTwo = ((EntityImpl) db.newEntity("NestedTxRollbackTwo"));
       externalDocTwo.field("v", "val2");
       externalDocTwo.save();
 

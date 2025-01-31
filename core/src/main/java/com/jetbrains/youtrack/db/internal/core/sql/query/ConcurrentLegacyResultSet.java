@@ -74,7 +74,7 @@ public class ConcurrentLegacyResultSet<T> implements LegacyResultSet<T> {
   @Override
   public LegacyResultSet<T> copy() {
     synchronized (wrapped) {
-      final ConcurrentLegacyResultSet<T> copy = new ConcurrentLegacyResultSet<T>(wrapped.copy());
+      final var copy = new ConcurrentLegacyResultSet<T>(wrapped.copy());
       copy.completed = true;
       return copy;
     }

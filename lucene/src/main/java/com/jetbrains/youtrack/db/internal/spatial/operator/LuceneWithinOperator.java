@@ -54,14 +54,14 @@ public class LuceneWithinOperator extends QueryTargetOperator {
       Object iRight,
       CommandContext iContext,
       final EntitySerializer serializer) {
-    List<Number> left = (List<Number>) iLeft;
+    var left = (List<Number>) iLeft;
 
-    double lat = left.get(0).doubleValue();
-    double lon = left.get(1).doubleValue();
+    var lat = left.get(0).doubleValue();
+    var lon = left.get(1).doubleValue();
 
     Shape shape = SpatialContext.GEO.makePoint(lon, lat);
 
-    Shape shape1 =
+    var shape1 =
         shapeFactory.makeShape(iContext.getDatabase(), new SpatialCompositeKey((List<?>) iRight),
             SpatialContext.GEO);
 

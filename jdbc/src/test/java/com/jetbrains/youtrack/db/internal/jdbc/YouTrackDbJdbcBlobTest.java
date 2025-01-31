@@ -40,33 +40,33 @@ public class YouTrackDbJdbcBlobTest extends YouTrackDbJdbcDbPerClassTemplateTest
     conn.createStatement().executeQuery("CREATE CLASS Blobs");
 
     conn.createStatement().execute("begin");
-    PreparedStatement statement =
+    var statement =
         conn.prepareStatement("INSERT INTO Blobs (uuid,attachment) VALUES (?,?)");
 
     statement.setInt(1, 1);
     statement.setBinaryStream(2, ClassLoader.getSystemResourceAsStream("file.pdf"));
 
-    int rowsInserted = statement.executeUpdate();
+    var rowsInserted = statement.executeUpdate();
 
     assertThat(rowsInserted).isEqualTo(1);
     conn.createStatement().execute("commit");
 
     // verify the blob
 
-    PreparedStatement stmt = conn.prepareStatement("SELECT FROM Blobs WHERE uuid = 1 ");
+    var stmt = conn.prepareStatement("SELECT FROM Blobs WHERE uuid = 1 ");
 
-    ResultSet rs = stmt.executeQuery();
+    var rs = stmt.executeQuery();
     assertThat(rs.next()).isTrue();
     rs.next();
 
-    Blob blob = rs.getBlob("attachment");
+    var blob = rs.getBlob("attachment");
     verifyBlobAgainstFile(blob);
   }
 
   private void verifyBlobAgainstFile(Blob blob)
       throws NoSuchAlgorithmException, IOException, SQLException {
-    String digest = this.calculateMD5checksum(ClassLoader.getSystemResourceAsStream("file.pdf"));
-    File binaryFile = getOutFile();
+    var digest = this.calculateMD5checksum(ClassLoader.getSystemResourceAsStream("file.pdf"));
+    var binaryFile = getOutFile();
 
     assertThat(blob).isNotNull();
 
@@ -80,13 +80,13 @@ public class YouTrackDbJdbcBlobTest extends YouTrackDbJdbcDbPerClassTemplateTest
   @Test
   public void shouldLoadBlob() throws SQLException, IOException, NoSuchAlgorithmException {
 
-    PreparedStatement stmt = conn.prepareStatement("SELECT FROM Article WHERE uuid = 1 ");
+    var stmt = conn.prepareStatement("SELECT FROM Article WHERE uuid = 1 ");
 
-    ResultSet rs = stmt.executeQuery();
+    var rs = stmt.executeQuery();
     assertThat(rs.next()).isTrue();
     rs.next();
 
-    Blob blob = rs.getBlob("attachment");
+    var blob = rs.getBlob("attachment");
 
     verifyBlobAgainstFile(blob);
   }
@@ -94,12 +94,12 @@ public class YouTrackDbJdbcBlobTest extends YouTrackDbJdbcDbPerClassTemplateTest
   @Test
   public void shouldLoadChuckedBlob() throws SQLException, IOException, NoSuchAlgorithmException {
 
-    PreparedStatement stmt = conn.prepareStatement("SELECT FROM Article WHERE uuid = 2 ");
+    var stmt = conn.prepareStatement("SELECT FROM Article WHERE uuid = 2 ");
 
-    ResultSet rs = stmt.executeQuery();
+    var rs = stmt.executeQuery();
     assertThat(rs.next()).isTrue();
     rs.next();
-    Blob blob = rs.getBlob("attachment");
+    var blob = rs.getBlob("attachment");
 
     verifyBlobAgainstFile(blob);
   }
@@ -110,7 +110,7 @@ public class YouTrackDbJdbcBlobTest extends YouTrackDbJdbcDbPerClassTemplateTest
 
   protected File getOutFile() {
     createWorkingDirIfRequired();
-    File outFile = new File(TEST_WORKING_DIR + "output_blob.pdf");
+    var outFile = new File(TEST_WORKING_DIR + "output_blob.pdf");
     deleteFileIfItExists(outFile);
     return outFile;
   }
@@ -134,7 +134,7 @@ public class YouTrackDbJdbcBlobTest extends YouTrackDbJdbcDbPerClassTemplateTest
 
   private String calculateMD5checksum(InputStream fileStream)
       throws NoSuchAlgorithmException, IOException {
-    MessageDigest md = MessageDigest.getInstance("MD5");
+    var md = MessageDigest.getInstance("MD5");
 
     try {
       fileStream = new DigestInputStream(fileStream, md);

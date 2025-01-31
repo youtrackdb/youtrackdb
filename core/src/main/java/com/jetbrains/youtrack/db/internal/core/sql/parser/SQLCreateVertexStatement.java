@@ -33,7 +33,7 @@ public class SQLCreateVertexStatement extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Map<Object, Object> params, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -53,14 +53,14 @@ public class SQLCreateVertexStatement extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
     ctx.setDatabase(db);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
-      for (int i = 0; i < args.length; i++) {
+      for (var i = 0; i < args.length; i++) {
         params.put(i, args[i]);
       }
     }
@@ -77,7 +77,7 @@ public class SQLCreateVertexStatement extends SQLStatement {
 
   @Override
   public InternalExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    CreateVertexExecutionPlanner planner = new CreateVertexExecutionPlanner(this);
+    var planner = new CreateVertexExecutionPlanner(this);
     InternalExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling);
     result.setStatement(this.originalStatement);
     result.setGenericStatement(this.toGenericStatement());
@@ -159,7 +159,7 @@ public class SQLCreateVertexStatement extends SQLStatement {
       return false;
     }
 
-    SQLCreateVertexStatement that = (SQLCreateVertexStatement) o;
+    var that = (SQLCreateVertexStatement) o;
 
     if (!Objects.equals(targetClass, that.targetClass)) {
       return false;
@@ -178,7 +178,7 @@ public class SQLCreateVertexStatement extends SQLStatement {
 
   @Override
   public int hashCode() {
-    int result = targetClass != null ? targetClass.hashCode() : 0;
+    var result = targetClass != null ? targetClass.hashCode() : 0;
     result = 31 * result + (targetClusterName != null ? targetClusterName.hashCode() : 0);
     result = 31 * result + (targetCluster != null ? targetCluster.hashCode() : 0);
     result = 31 * result + (returnStatement != null ? returnStatement.hashCode() : 0);

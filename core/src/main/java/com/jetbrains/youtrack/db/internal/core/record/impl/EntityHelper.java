@@ -155,7 +155,7 @@ public class EntityHelper {
       } else if (iValue instanceof String) {
         return (RET) new RecordId((String) iValue);
       } else if (MultiValue.isMultiValue(iValue) && MultiValue.getSize(iValue) == 1) {
-        Object val = MultiValue.getFirstValue(iValue);
+        var val = MultiValue.getFirstValue(iValue);
         if (val instanceof Result) {
           val = ((Result) val).getIdentity().orElse(null);
         }
@@ -179,14 +179,14 @@ public class EntityHelper {
         } else if (iValue instanceof String stringValue) {
 
           if (!stringValue.isEmpty()) {
-            final String[] items = stringValue.split(",");
-            for (String s : items) {
+            final var items = stringValue.split(",");
+            for (var s : items) {
               ((Collection<Object>) newValue).add(s);
             }
           }
         } else if (MultiValue.isMultiValue(iValue)) {
           // GENERIC MULTI VALUE
-          for (Object s : MultiValue.getMultiValueIterable(iValue)) {
+          for (var s : MultiValue.getMultiValueIterable(iValue)) {
             ((Collection<Object>) newValue).add(s);
           }
         }
@@ -212,14 +212,14 @@ public class EntityHelper {
         } else if (iValue instanceof String stringValue) {
 
           if (!stringValue.isEmpty()) {
-            final String[] items = stringValue.split(",");
-            for (String s : items) {
+            final var items = stringValue.split(",");
+            for (var s : items) {
               ((Collection<Object>) newValue).add(s);
             }
           }
         } else if (MultiValue.isMultiValue(iValue)) {
           // GENERIC MULTI VALUE
-          for (Object s : MultiValue.getMultiValueIterable(iValue)) {
+          for (var s : MultiValue.getMultiValueIterable(iValue)) {
             ((Collection<Object>) newValue).add(s);
           }
         }
@@ -245,8 +245,8 @@ public class EntityHelper {
       }
     } else if (Date.class.isAssignableFrom(iFieldType)) {
       if (iValue instanceof String && DatabaseRecordThreadLocal.instance().isDefined()) {
-        DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().get();
-        final StorageConfiguration config = db.getStorageInfo().getConfiguration();
+        var db = DatabaseRecordThreadLocal.instance().get();
+        final var config = db.getStorageInfo().getConfiguration();
 
         DateFormat formatter;
 
@@ -258,11 +258,11 @@ public class EntityHelper {
         }
 
         try {
-          Date newValue = formatter.parse((String) iValue);
+          var newValue = formatter.parse((String) iValue);
           // _fieldValues.put(iFieldName, newValue);
           return (RET) newValue;
         } catch (ParseException pe) {
-          final String dateFormat =
+          final var dateFormat =
               ((String) iValue).length() > config.getDateFormat().length()
                   ? config.getDateTimeFormat()
                   : config.getDateFormat();
@@ -295,18 +295,18 @@ public class EntityHelper {
       return null;
     }
 
-    final int fieldNameLength = iFieldName.length();
+    final var fieldNameLength = iFieldName.length();
     if (fieldNameLength == 0) {
       return (RET) value;
     }
 
-    Identifiable currentRecord = value instanceof Identifiable ? (Identifiable) value : null;
+    var currentRecord = value instanceof Identifiable ? (Identifiable) value : null;
 
-    int beginPos = iFieldName.charAt(0) == '.' ? 1 : 0;
-    int nextSeparatorPos = iFieldName.charAt(0) == '.' ? 1 : 0;
-    boolean firstInChain = true;
+    var beginPos = iFieldName.charAt(0) == '.' ? 1 : 0;
+    var nextSeparatorPos = iFieldName.charAt(0) == '.' ? 1 : 0;
+    var firstInChain = true;
     do {
-      char nextSeparator = ' ';
+      var nextSeparator = ' ';
       for (; nextSeparatorPos < fieldNameLength; ++nextSeparatorPos) {
         nextSeparator = iFieldName.charAt(nextSeparatorPos);
         if (nextSeparator == '.' || nextSeparator == '[') {
@@ -334,9 +334,9 @@ public class EntityHelper {
             value = getMapEntry(db, (Map<String, ?>) value, fieldName);
           } else if (MultiValue.isMultiValue(value)) {
             final HashSet<Object> temp = new LinkedHashSet<Object>();
-            for (Object o : MultiValue.getMultiValueIterable(value)) {
+            for (var o : MultiValue.getMultiValueIterable(value)) {
               if (o instanceof Identifiable) {
-                Object r = getFieldValue(db, o, iFieldName);
+                var r = getFieldValue(db, o, iFieldName);
                 if (r != null) {
                   MultiValue.add(temp, r);
                 }
@@ -353,12 +353,12 @@ public class EntityHelper {
         }
 
         // final int end = iFieldName.indexOf(']', nextSeparatorPos);
-        final int end = findClosingBracketPosition(iFieldName, nextSeparatorPos);
+        final var end = findClosingBracketPosition(iFieldName, nextSeparatorPos);
         if (end == -1) {
           throw new IllegalArgumentException("Missed closed ']'");
         }
 
-        String indexPart = iFieldName.substring(nextSeparatorPos + 1, end);
+        var indexPart = iFieldName.substring(nextSeparatorPos + 1, end);
         if (indexPart.isEmpty()) {
           return null;
         }
@@ -370,18 +370,18 @@ public class EntityHelper {
         }
 
         if (value instanceof Identifiable) {
-          final DBRecord record =
+          final var record =
               currentRecord instanceof Identifiable ? currentRecord.getRecord(db) : null;
 
-          final Object index = getIndexPart(iContext, indexPart);
-          final String indexAsString = index != null ? index.toString() : null;
+          final var index = getIndexPart(iContext, indexPart);
+          final var indexAsString = index != null ? index.toString() : null;
 
-          final List<String> indexParts =
+          final var indexParts =
               StringSerializerHelper.smartSplit(
                   indexAsString, ',', StringSerializerHelper.DEFAULT_IGNORE_CHARS);
-          final List<String> indexRanges =
+          final var indexRanges =
               StringSerializerHelper.smartSplit(indexAsString, '-', ' ');
-          final List<String> indexCondition =
+          final var indexCondition =
               StringSerializerHelper.smartSplit(indexAsString, '=', ' ');
 
           if (indexParts.size() == 1 && indexCondition.size() == 1 && indexRanges.size() == 1)
@@ -390,8 +390,8 @@ public class EntityHelper {
             value = ((EntityImpl) record).field(indexAsString);
           } else if (indexParts.size() > 1) {
             // MULTI VALUE
-            final Object[] values = new Object[indexParts.size()];
-            for (int i = 0; i < indexParts.size(); ++i) {
+            final var values = new Object[indexParts.size()];
+            for (var i = 0; i < indexParts.size(); ++i) {
               values[i] = ((EntityImpl) record).field(
                   IOUtils.getStringContent(indexParts.get(i)));
             }
@@ -399,21 +399,21 @@ public class EntityHelper {
           } else if (indexRanges.size() > 1) {
 
             // MULTI VALUES RANGE
-            String from = indexRanges.get(0);
-            String to = indexRanges.get(1);
+            var from = indexRanges.get(0);
+            var to = indexRanges.get(1);
 
-            final EntityImpl entity = (EntityImpl) record;
+            final var entity = (EntityImpl) record;
 
-            final String[] fieldNames = entity.fieldNames();
-            final int rangeFrom = from != null && !from.isEmpty() ? Integer.parseInt(from) : 0;
-            final int rangeTo =
+            final var fieldNames = entity.fieldNames();
+            final var rangeFrom = from != null && !from.isEmpty() ? Integer.parseInt(from) : 0;
+            final var rangeTo =
                 to != null && !to.isEmpty()
                     ? Math.min(Integer.parseInt(to), fieldNames.length - 1)
                     : fieldNames.length - 1;
 
-            final Object[] values = new Object[rangeTo - rangeFrom + 1];
+            final var values = new Object[rangeTo - rangeFrom + 1];
 
-            for (int i = rangeFrom; i <= rangeTo; ++i) {
+            for (var i = rangeFrom; i <= rangeTo; ++i) {
               values[i - rangeFrom] = entity.field(fieldNames[i]);
             }
 
@@ -421,15 +421,15 @@ public class EntityHelper {
 
           } else if (!indexCondition.isEmpty()) {
             // CONDITION
-            final String conditionFieldName = indexCondition.get(0);
-            Object conditionFieldValue =
+            final var conditionFieldName = indexCondition.get(0);
+            var conditionFieldValue =
                 RecordSerializerStringAbstract.getTypeValue(db, indexCondition.get(1));
 
             if (conditionFieldValue instanceof String) {
               conditionFieldValue = IOUtils.getStringContent(conditionFieldValue);
             }
 
-            final Object fieldValue = getFieldValue(db, currentRecord, conditionFieldName);
+            final var fieldValue = getFieldValue(db, currentRecord, conditionFieldName);
 
             if (conditionFieldValue != null && fieldValue != null) {
               conditionFieldValue = PropertyType.convert(db, conditionFieldValue,
@@ -442,45 +442,45 @@ public class EntityHelper {
             }
           }
         } else if (value instanceof Map<?, ?>) {
-          final Object index = getIndexPart(iContext, indexPart);
-          final String indexAsString = index != null ? index.toString() : null;
+          final var index = getIndexPart(iContext, indexPart);
+          final var indexAsString = index != null ? index.toString() : null;
 
-          final List<String> indexParts =
+          final var indexParts =
               StringSerializerHelper.smartSplit(
                   indexAsString, ',', StringSerializerHelper.DEFAULT_IGNORE_CHARS);
-          final List<String> indexRanges =
+          final var indexRanges =
               StringSerializerHelper.smartSplit(indexAsString, '-', ' ');
-          final List<String> indexCondition =
+          final var indexCondition =
               StringSerializerHelper.smartSplit(indexAsString, '=', ' ');
 
-          final Map<String, ?> map = (Map<String, ?>) value;
+          final var map = (Map<String, ?>) value;
           if (indexParts.size() == 1 && indexCondition.size() == 1 && indexRanges.size() == 1)
           // SINGLE VALUE
           {
             value = map.get(index);
           } else if (indexParts.size() > 1) {
             // MULTI VALUE
-            final Object[] values = new Object[indexParts.size()];
-            for (int i = 0; i < indexParts.size(); ++i) {
+            final var values = new Object[indexParts.size()];
+            for (var i = 0; i < indexParts.size(); ++i) {
               values[i] = map.get(IOUtils.getStringContent(indexParts.get(i)));
             }
             value = values;
           } else if (indexRanges.size() > 1) {
 
             // MULTI VALUES RANGE
-            String from = indexRanges.get(0);
-            String to = indexRanges.get(1);
+            var from = indexRanges.get(0);
+            var to = indexRanges.get(1);
 
             final List<String> fieldNames = new ArrayList<String>(map.keySet());
-            final int rangeFrom = from != null && !from.isEmpty() ? Integer.parseInt(from) : 0;
-            final int rangeTo =
+            final var rangeFrom = from != null && !from.isEmpty() ? Integer.parseInt(from) : 0;
+            final var rangeTo =
                 to != null && !to.isEmpty()
                     ? Math.min(Integer.parseInt(to), fieldNames.size() - 1)
                     : fieldNames.size() - 1;
 
-            final Object[] values = new Object[rangeTo - rangeFrom + 1];
+            final var values = new Object[rangeTo - rangeFrom + 1];
 
-            for (int i = rangeFrom; i <= rangeTo; ++i) {
+            for (var i = rangeFrom; i <= rangeTo; ++i) {
               values[i - rangeFrom] = map.get(fieldNames.get(i));
             }
 
@@ -488,15 +488,15 @@ public class EntityHelper {
 
           } else if (!indexCondition.isEmpty()) {
             // CONDITION
-            final String conditionFieldName = indexCondition.get(0);
-            Object conditionFieldValue =
+            final var conditionFieldName = indexCondition.get(0);
+            var conditionFieldValue =
                 RecordSerializerStringAbstract.getTypeValue(db, indexCondition.get(1));
 
             if (conditionFieldValue instanceof String) {
               conditionFieldValue = IOUtils.getStringContent(conditionFieldValue);
             }
 
-            final Object fieldValue = map.get(conditionFieldName);
+            final var fieldValue = map.get(conditionFieldName);
 
             if (conditionFieldValue != null && fieldValue != null) {
               conditionFieldValue = PropertyType.convert(db, conditionFieldValue,
@@ -511,12 +511,12 @@ public class EntityHelper {
 
         } else if (MultiValue.isMultiValue(value)) {
           // MULTI VALUE
-          final Object index = getIndexPart(iContext, indexPart);
-          final String indexAsString = index != null ? index.toString() : null;
+          final var index = getIndexPart(iContext, indexPart);
+          final var indexAsString = index != null ? index.toString() : null;
 
-          final List<String> indexParts = StringSerializerHelper.smartSplit(indexAsString, ',');
-          final List<String> indexRanges = StringSerializerHelper.smartSplit(indexAsString, '-');
-          final List<String> indexCondition =
+          final var indexParts = StringSerializerHelper.smartSplit(indexAsString, ',');
+          final var indexRanges = StringSerializerHelper.smartSplit(indexAsString, '-');
+          final var indexCondition =
               StringSerializerHelper.smartSplit(indexAsString, '=', ' ');
 
           if (isFieldName(indexAsString)) {
@@ -534,8 +534,8 @@ public class EntityHelper {
           } else if (isListOfNumbers(indexParts)) {
 
             // MULTI VALUES
-            final Object[] values = new Object[indexParts.size()];
-            for (int i = 0; i < indexParts.size(); ++i) {
+            final var values = new Object[indexParts.size()];
+            for (var i = 0; i < indexParts.size(); ++i) {
               values[i] = MultiValue.getValue(value, Integer.parseInt(indexParts.get(i)));
             }
             if (indexParts.size() > 1) {
@@ -547,10 +547,10 @@ public class EntityHelper {
           } else if (isListOfNumbers(indexRanges)) {
 
             // MULTI VALUES RANGE
-            String from = indexRanges.get(0);
-            String to = indexRanges.get(1);
+            var from = indexRanges.get(0);
+            var to = indexRanges.get(1);
 
-            final int rangeFrom = from != null && !from.isEmpty() ? Integer.parseInt(from) : 0;
+            final var rangeFrom = from != null && !from.isEmpty() ? Integer.parseInt(from) : 0;
             final int rangeTo;
             if (to != null && !to.isEmpty()) {
               rangeTo = Math.min(Integer.parseInt(to), MultiValue.getSize(value) - 1);
@@ -558,32 +558,32 @@ public class EntityHelper {
               rangeTo = MultiValue.getSize(value) - 1;
             }
 
-            int arraySize = rangeTo - rangeFrom + 1;
+            var arraySize = rangeTo - rangeFrom + 1;
             if (arraySize < 0) {
               arraySize = 0;
             }
-            final Object[] values = new Object[arraySize];
-            for (int i = rangeFrom; i <= rangeTo; ++i) {
+            final var values = new Object[arraySize];
+            for (var i = rangeFrom; i <= rangeTo; ++i) {
               values[i - rangeFrom] = MultiValue.getValue(value, i);
             }
             value = values;
 
           } else {
             // CONDITION
-            SQLPredicate pred = new SQLPredicate(iContext, indexAsString);
+            var pred = new SQLPredicate(iContext, indexAsString);
             final HashSet<Object> values = new LinkedHashSet<Object>();
 
-            for (Object v : MultiValue.getMultiValueIterable(value)) {
+            for (var v : MultiValue.getMultiValueIterable(value)) {
               if (v instanceof Identifiable) {
-                Object result =
+                var result =
                     pred.evaluate((Identifiable) v, ((Identifiable) v).getRecord(db), iContext);
                 if (Boolean.TRUE.equals(result)) {
                   values.add(v);
                 }
               } else if (v instanceof Map) {
-                EntityImpl entity = new EntityImpl(null);
+                var entity = new EntityImpl(null);
                 entity.updateFromMap((Map<String, ? extends Object>) v);
-                Object result = pred.evaluate(entity, entity, iContext);
+                var result = pred.evaluate(entity, entity, iContext);
                 if (Boolean.TRUE.equals(result)) {
                   values.add(v);
                 }
@@ -615,9 +615,9 @@ public class EntityHelper {
         if (fieldName.startsWith("$")) {
           value = iContext.getVariable(fieldName);
         } else if (fieldName.contains("(")) {
-          boolean executedMethod = false;
+          var executedMethod = false;
           if (!firstInChain && fieldName.endsWith("()")) {
-            SQLMethod method =
+            var method =
                 SQLEngine.getMethod(fieldName.substring(0, fieldName.length() - 2));
             if (method != null) {
               value = method.execute(value, currentRecord, iContext, value, new Object[]{});
@@ -628,12 +628,12 @@ public class EntityHelper {
             value = evaluateFunction(value, fieldName, iContext);
           }
         } else {
-          final List<String> indexCondition =
+          final var indexCondition =
               StringSerializerHelper.smartSplit(fieldName, '=', ' ');
 
           if (indexCondition.size() == 2) {
-            final String conditionFieldName = indexCondition.get(0);
-            Object conditionFieldValue =
+            final var conditionFieldName = indexCondition.get(0);
+            var conditionFieldValue =
                 RecordSerializerStringAbstract.getTypeValue(db, indexCondition.get(1));
 
             if (conditionFieldValue instanceof String) {
@@ -649,7 +649,7 @@ public class EntityHelper {
             value = getMapEntry(db, (Map<String, ?>) value, fieldName);
           } else if (MultiValue.isMultiValue(value)) {
             final Set<Object> values = new LinkedHashSet<Object>();
-            for (Object v : MultiValue.getMultiValueIterable(value)) {
+            for (var v : MultiValue.getMultiValueIterable(value)) {
               final Object item;
 
               if (v instanceof Identifiable) {
@@ -695,11 +695,11 @@ public class EntityHelper {
 
   private static int findClosingBracketPosition(String iFieldName, int nextSeparatorPos) {
     Character currentQuote = null;
-    boolean escaping = false;
-    int innerBrackets = 0;
-    char[] chars = iFieldName.toCharArray();
-    for (int i = nextSeparatorPos + 1; i < chars.length; i++) {
-      char next = chars[i];
+    var escaping = false;
+    var innerBrackets = 0;
+    var chars = iFieldName.toCharArray();
+    for (var i = nextSeparatorPos + 1; i < chars.length; i++) {
+      var next = chars[i];
       if (escaping) {
         escaping = false;
       } else if (next == '\\') {
@@ -729,8 +729,8 @@ public class EntityHelper {
       // quoted identifier
       return !indexAsString.substring(1, indexAsString.length() - 1).contains("`");
     }
-    boolean firstChar = true;
-    for (char c : indexAsString.toCharArray()) {
+    var firstChar = true;
+    for (var c : indexAsString.toCharArray()) {
       if (isLetter(c) || (isNumber(c) && !firstChar)) {
         firstChar = false;
         continue;
@@ -755,7 +755,7 @@ public class EntityHelper {
   }
 
   private static boolean isListOfNumbers(List<String> list) {
-    for (String s : list) {
+    for (var s : list) {
       try {
         Integer.parseInt(s);
       } catch (NumberFormatException ignore) {
@@ -771,7 +771,7 @@ public class EntityHelper {
         && (indexPart.charAt(0) == '"' || indexPart.charAt(0) == '\'')) {
       index = IOUtils.getStringContent(indexPart);
     } else if (indexPart.charAt(0) == '$') {
-      final Object ctxValue = iContext.getVariable(indexPart);
+      final var ctxValue = iContext.getVariable(indexPart);
       if (ctxValue == null) {
         return null;
       }
@@ -798,7 +798,7 @@ public class EntityHelper {
 
       if (rec instanceof EntityImpl entity) {
 
-        Object fieldValue = entity.field(iConditionFieldName);
+        var fieldValue = entity.field(iConditionFieldName);
 
         if (iConditionFieldValue == null) {
           return fieldValue == null ? entity : null;
@@ -810,8 +810,8 @@ public class EntityHelper {
         }
       }
     } else if (iValue instanceof Map<?, ?>) {
-      final Map<String, ?> map = (Map<String, ?>) iValue;
-      Object fieldValue = getMapEntry(db, map, iConditionFieldName);
+      final var map = (Map<String, ?>) iValue;
+      var fieldValue = getMapEntry(db, map, iConditionFieldName);
 
       fieldValue = PropertyType.convert(db, fieldValue, iConditionFieldValue.getClass());
       if (fieldValue != null && fieldValue.equals(iConditionFieldValue)) {
@@ -838,18 +838,18 @@ public class EntityHelper {
     }
 
     if (iKey instanceof String iName) {
-      int pos = iName.indexOf('.');
+      var pos = iName.indexOf('.');
       if (pos > -1) {
         iName = iName.substring(0, pos);
       }
 
-      final Object value = iMap.get(iName);
+      final var value = iMap.get(iName);
       if (value == null) {
         return null;
       }
 
       if (pos > -1) {
-        final String restFieldName = iName.substring(pos + 1);
+        final var restFieldName = iName.substring(pos + 1);
         if (value instanceof EntityImpl) {
           return getFieldValue(session, value, restFieldName);
         } else if (value instanceof Map<?, ?>) {
@@ -870,7 +870,7 @@ public class EntityHelper {
     }
 
     if (!iFieldName.isEmpty()) {
-      final char begin = iFieldName.charAt(0);
+      final var begin = iFieldName.charAt(0);
       if (begin == '@') {
         if (db == null) {
           throw new IllegalStateException(
@@ -896,7 +896,7 @@ public class EntityHelper {
               .getRecordFactoryManager()
               .getRecordTypeName(RecordInternal.getRecordType(db, iCurrent.getRecord(db)));
         } else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_SIZE)) {
-          final byte[] stream = ((RecordAbstract) iCurrent.getRecord(db)).toStream();
+          final var stream = ((RecordAbstract) iCurrent.getRecord(db)).toStream();
           return stream != null ? stream.length : 0;
         } else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_FIELDS)) {
           return ((EntityImpl) iCurrent.getRecord(db)).fieldNames();
@@ -925,7 +925,7 @@ public class EntityHelper {
 
     Object result = null;
 
-    final String function = iFunction.toUpperCase(Locale.ENGLISH);
+    final var function = iFunction.toUpperCase(Locale.ENGLISH);
 
     if (function.startsWith("SIZE(")) {
       result = currentValue instanceof DBRecord ? 1 : MultiValue.getSize(currentValue);
@@ -953,7 +953,7 @@ public class EntityHelper {
       if (currentValue instanceof String) {
         result = Boolean.parseBoolean((String) currentValue);
       } else if (currentValue instanceof Number) {
-        final int bValue = ((Number) currentValue).intValue();
+        final var bValue = ((Number) currentValue).intValue();
         if (bValue == 0) {
           result = Boolean.FALSE;
         } else if (bValue == 1) {
@@ -988,14 +988,14 @@ public class EntityHelper {
       }
     } else {
       // EXTRACT ARGUMENTS
-      final List<String> args =
+      final var args =
           StringSerializerHelper.getParameters(iFunction.substring(iFunction.indexOf('(')));
 
-      final DBRecord currentRecord =
+      final var currentRecord =
           iContext != null ? (DBRecord) iContext.getVariable("$current") : null;
-      for (int i = 0; i < args.size(); ++i) {
-        final String arg = args.get(i);
-        final Object o = SQLHelper.getValue(arg, currentRecord, iContext);
+      for (var i = 0; i < args.size(); ++i) {
+        final var arg = args.get(i);
+        final var o = SQLHelper.getValue(arg, currentRecord, iContext);
         if (o != null) {
           args.set(i, o.toString());
         }
@@ -1027,7 +1027,7 @@ public class EntityHelper {
         result = IOUtils.getStringContent(args.getFirst()) + currentValue;
       } else if (function.startsWith("FORMAT(")) {
         if (currentValue instanceof Date) {
-          SimpleDateFormat formatter = new SimpleDateFormat(
+          var formatter = new SimpleDateFormat(
               IOUtils.getStringContent(args.getFirst()));
           formatter.setTimeZone(DateHelper.getDatabaseTimeZone());
           result = formatter.format(currentValue);
@@ -1035,17 +1035,17 @@ public class EntityHelper {
           result = String.format(IOUtils.getStringContent(args.getFirst()), currentValue);
         }
       } else if (function.startsWith("LEFT(")) {
-        final int len = Integer.parseInt(args.getFirst());
-        final String stringValue = currentValue.toString();
+        final var len = Integer.parseInt(args.getFirst());
+        final var stringValue = currentValue.toString();
         result = stringValue.substring(0, Math.min(len, stringValue.length()));
       } else if (function.startsWith("RIGHT(")) {
-        final int offset = Integer.parseInt(args.getFirst());
-        final String stringValue = currentValue.toString();
+        final var offset = Integer.parseInt(args.getFirst());
+        final var stringValue = currentValue.toString();
         result =
             stringValue.substring(
                 offset < stringValue.length() ? stringValue.length() - offset : 0);
       } else {
-        final SQLFunctionRuntime f = SQLHelper.getFunction(iContext.getDatabase(), null,
+        final var f = SQLHelper.getFunction(iContext.getDatabase(), null,
             iFunction);
         if (f != null) {
           result = f.execute(currentRecord, currentRecord, null, iContext);
@@ -1065,7 +1065,7 @@ public class EntityHelper {
         // EMBEDDED DOCUMENT
         return ((EntityImpl) fieldValue).copy();
       } else if (fieldValue instanceof RidBag) {
-        RidBag newBag = ((RidBag) fieldValue).copy(db);
+        var newBag = ((RidBag) fieldValue).copy(db);
         newBag.setOwner(null);
         newBag.setOwner(iCloned);
         return newBag;
@@ -1074,7 +1074,7 @@ public class EntityHelper {
         return ((LinkList) fieldValue).copy(iCloned);
 
       } else if (fieldValue instanceof TrackedList<?>) {
-        final TrackedList<Object> newList = new TrackedList<Object>(iCloned);
+        final var newList = new TrackedList<Object>(iCloned);
         newList.addAll((TrackedList<Object>) fieldValue);
         return newList;
 
@@ -1082,12 +1082,12 @@ public class EntityHelper {
         return new ArrayList<>((List<Object>) fieldValue);
         // SETS
       } else if (fieldValue instanceof LinkSet) {
-        final LinkSet newList = new LinkSet(iCloned);
+        final var newList = new LinkSet(iCloned);
         newList.addAll((LinkSet) fieldValue);
         return newList;
 
       } else if (fieldValue instanceof TrackedSet<?>) {
-        final TrackedSet<Object> newList = new TrackedSet<Object>(iCloned);
+        final var newList = new TrackedSet<Object>(iCloned);
         newList.addAll((TrackedSet<Object>) fieldValue);
         return newList;
 
@@ -1095,12 +1095,12 @@ public class EntityHelper {
         return new HashSet<Object>((Set<Object>) fieldValue);
         // MAPS
       } else if (fieldValue instanceof LinkMap) {
-        final LinkMap newMap = new LinkMap(iCloned, ((LinkMap) fieldValue).getRecordType());
+        final var newMap = new LinkMap(iCloned, ((LinkMap) fieldValue).getRecordType());
         newMap.putAll((LinkMap) fieldValue);
         return newMap;
 
       } else if (fieldValue instanceof TrackedMap) {
-        final TrackedMap<Object> newMap = new TrackedMap<Object>(iCloned);
+        final var newMap = new TrackedMap<Object>(iCloned);
         newMap.putAll((TrackedMap<Object>) fieldValue);
         return newMap;
 
@@ -1129,7 +1129,7 @@ public class EntityHelper {
         if (!current.isDirty()) {
           RID id;
           if (ridMapper != null) {
-            RID mappedId = ridMapper.map(current.getIdentity());
+            var mappedId = ridMapper.map(current.getIdentity());
             if (mappedId != null) {
               id = mappedId;
             } else {
@@ -1300,17 +1300,17 @@ public class EntityHelper {
       Map<Object, Object> otherFieldValue,
       RIDMapper ridMapper) {
     // CHECK IF THE ORDER IS RESPECTED
-    final Map<Object, Object> myMap = myFieldValue;
-    final Map<Object, Object> otherMap = otherFieldValue;
+    final var myMap = myFieldValue;
+    final var otherMap = otherFieldValue;
 
     if (myMap.size() != otherMap.size()) {
       return false;
     }
 
-    boolean oldMyAutoConvert = false;
-    boolean oldOtherAutoConvert = false;
+    var oldMyAutoConvert = false;
+    var oldOtherAutoConvert = false;
 
-    final Iterator<Entry<Object, Object>> myEntryIterator =
+    final var myEntryIterator =
         makeDbCall(
             iMyDb,
             new DbRelatedCall<Iterator<Entry<Object, Object>>>() {
@@ -1326,7 +1326,7 @@ public class EntityHelper {
             return myEntryIterator.hasNext();
           }
         })) {
-      final Entry<Object, Object> myEntry =
+      final var myEntry =
           makeDbCall(
               iMyDb,
               new DbRelatedCall<Entry<Object, Object>>() {
@@ -1334,7 +1334,7 @@ public class EntityHelper {
                   return myEntryIterator.next();
                 }
               });
-      final Object myKey =
+      final var myKey =
           makeDbCall(
               iMyDb,
               new DbRelatedCall<Object>() {
@@ -1375,7 +1375,7 @@ public class EntityHelper {
           return false;
         }
       } else {
-        final Object myValue =
+        final var myValue =
             makeDbCall(
                 iMyDb,
                 new DbRelatedCall<Object>() {
@@ -1384,7 +1384,7 @@ public class EntityHelper {
                   }
                 });
 
-        final Object otherValue =
+        final var otherValue =
             makeDbCall(
                 iOtherDb,
                 new DbRelatedCall<Object>() {
@@ -1407,14 +1407,14 @@ public class EntityHelper {
       DatabaseSessionInternal iOtherDb,
       Collection<?> otherFieldValue,
       RIDMapper ridMapper) {
-    final Collection<?> myCollection = myFieldValue;
-    final Collection<?> otherCollection = otherFieldValue;
+    final var myCollection = myFieldValue;
+    final var otherCollection = otherFieldValue;
 
     if (myCollection.size() != otherCollection.size()) {
       return false;
     }
 
-    final Iterator<?> myIterator =
+    final var myIterator =
         makeDbCall(
             iMyDb,
             new DbRelatedCall<Iterator<?>>() {
@@ -1423,7 +1423,7 @@ public class EntityHelper {
               }
             });
 
-    final Iterator<?> otherIterator =
+    final var otherIterator =
         makeDbCall(
             iOtherDb,
             new DbRelatedCall<Iterator<?>>() {
@@ -1439,7 +1439,7 @@ public class EntityHelper {
             return myIterator.hasNext();
           }
         })) {
-      final Object myNextVal =
+      final var myNextVal =
           makeDbCall(
               iMyDb,
               new DbRelatedCall<Object>() {
@@ -1448,7 +1448,7 @@ public class EntityHelper {
                 }
               });
 
-      final Object otherNextVal =
+      final var otherNextVal =
           makeDbCall(
               iOtherDb,
               new DbRelatedCall<Object>() {
@@ -1470,8 +1470,8 @@ public class EntityHelper {
       DatabaseSessionInternal iOtherDb,
       Set<?> otherFieldValue,
       RIDMapper ridMapper) {
-    final Set<?> mySet = myFieldValue;
-    final Set<?> otherSet = otherFieldValue;
+    final var mySet = myFieldValue;
+    final var otherSet = otherFieldValue;
 
     final int mySize =
         makeDbCall(
@@ -1495,7 +1495,7 @@ public class EntityHelper {
       return false;
     }
 
-    final Iterator<?> myIterator =
+    final var myIterator =
         makeDbCall(
             iMyDb,
             new DbRelatedCall<Iterator<?>>() {
@@ -1512,7 +1512,7 @@ public class EntityHelper {
           }
         })) {
 
-      final Iterator<?> otherIterator =
+      final var otherIterator =
           makeDbCall(
               iOtherDb,
               new DbRelatedCall<Iterator<?>>() {
@@ -1521,7 +1521,7 @@ public class EntityHelper {
                 }
               });
 
-      final Object myNextVal =
+      final var myNextVal =
           makeDbCall(
               iMyDb,
               new DbRelatedCall<Object>() {
@@ -1530,7 +1530,7 @@ public class EntityHelper {
                 }
               });
 
-      boolean found = false;
+      var found = false;
       while (!found
           && makeDbCall(
           iOtherDb,
@@ -1539,7 +1539,7 @@ public class EntityHelper {
               return otherIterator.hasNext();
             }
           })) {
-        final Object otherNextVal =
+        final var otherNextVal =
             makeDbCall(
                 iOtherDb,
                 new DbRelatedCall<Object>() {
@@ -1564,10 +1564,10 @@ public class EntityHelper {
       DatabaseSessionInternal iOtherDb,
       RidBag otherFieldValue,
       RIDMapper ridMapper) {
-    final RidBag myBag = myFieldValue;
-    final RidBag otherBag = otherFieldValue;
+    final var myBag = myFieldValue;
+    final var otherBag = otherFieldValue;
 
-    final DatabaseSessionInternal currentDb = DatabaseRecordThreadLocal.instance()
+    final var currentDb = DatabaseRecordThreadLocal.instance()
         .getIfDefined();
     try {
 
@@ -1593,7 +1593,7 @@ public class EntityHelper {
         return false;
       }
 
-      final List<RID> otherBagCopy =
+      final var otherBagCopy =
           makeDbCall(
               iOtherDb,
               new DbRelatedCall<List<RID>>() {
@@ -1608,7 +1608,7 @@ public class EntityHelper {
                 }
               });
 
-      final Iterator<RID> myIterator =
+      final var myIterator =
           makeDbCall(
               iMyDb,
               database -> myBag.iterator());
@@ -1616,14 +1616,14 @@ public class EntityHelper {
       while (makeDbCall(
           iMyDb,
           database -> myIterator.hasNext())) {
-        final Identifiable myIdentifiable =
+        final var myIdentifiable =
             makeDbCall(
                 iMyDb,
                 (DbRelatedCall<Identifiable>) database -> myIterator.next());
 
         final RID otherRid;
         if (ridMapper != null) {
-          RID convertedRid = ridMapper.map(myIdentifiable.getIdentity());
+          var convertedRid = ridMapper.map(myIdentifiable.getIdentity());
           if (convertedRid != null) {
             otherRid = convertedRid;
           } else {
@@ -1679,16 +1679,16 @@ public class EntityHelper {
     }
 
     if (myValue.getClass().isArray()) {
-      final int myArraySize = Array.getLength(myValue);
-      final int otherArraySize = Array.getLength(otherValue);
+      final var myArraySize = Array.getLength(myValue);
+      final var otherArraySize = Array.getLength(otherValue);
 
       if (myArraySize != otherArraySize) {
         return false;
       }
 
-      for (int i = 0; i < myArraySize; i++) {
-        final Object first = Array.get(myValue, i);
-        final Object second = Array.get(otherValue, i);
+      for (var i = 0; i < myArraySize; i++) {
+        final var first = Array.get(myValue, i);
+        final var second = Array.get(otherValue, i);
         if (first == null && second != null) {
           return false;
         }
@@ -1720,7 +1720,7 @@ public class EntityHelper {
       myValue = myIdentifiableValue.getIdentity();
       otherValue = otherIdentifiableValue.getIdentity();
       if (((RID) myValue).isPersistent()) {
-        RID convertedValue = ridMapper.map((RID) myValue);
+        var convertedValue = ridMapper.map((RID) myValue);
         if (convertedValue != null) {
           myValue = convertedValue;
         }

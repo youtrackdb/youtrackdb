@@ -43,15 +43,15 @@ public class PointShapeBuilder extends ShapeBuilder<Point> {
   public void initClazz(DatabaseSessionInternal db) {
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass point = schema.createAbstractClass(NAME, superClass(db));
-    SchemaProperty coordinates = point.createProperty(db, COORDINATES, PropertyType.EMBEDDEDLIST,
+    var point = schema.createAbstractClass(NAME, superClass(db));
+    var coordinates = point.createProperty(db, COORDINATES, PropertyType.EMBEDDEDLIST,
         PropertyType.DOUBLE);
     coordinates.setMin(db, "2");
     coordinates.setMax(db, "2");
 
     if (GlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()) {
-      SchemaClass pointz = schema.createAbstractClass(NAME + "Z", superClass(db));
-      SchemaProperty coordinatesz = pointz.createProperty(db, COORDINATES,
+      var pointz = schema.createAbstractClass(NAME + "Z", superClass(db));
+      var coordinatesz = pointz.createProperty(db, COORDINATES,
           PropertyType.EMBEDDEDLIST,
           PropertyType.DOUBLE);
       coordinatesz.setMin(db, "3");
@@ -77,7 +77,7 @@ public class PointShapeBuilder extends ShapeBuilder<Point> {
   @Override
   public EntityImpl toEntitty(final Point shape) {
 
-    EntityImpl doc = new EntityImpl(null, NAME);
+    var doc = new EntityImpl(null, NAME);
     doc.field(
         COORDINATES,
         new ArrayList<Double>() {
@@ -95,7 +95,7 @@ public class PointShapeBuilder extends ShapeBuilder<Point> {
       return toEntitty(parsed);
     }
 
-    EntityImpl doc = new EntityImpl(null, NAME + "Z");
+    var doc = new EntityImpl(null, NAME + "Z");
     doc.field(
         COORDINATES,
         new ArrayList<Double>() {

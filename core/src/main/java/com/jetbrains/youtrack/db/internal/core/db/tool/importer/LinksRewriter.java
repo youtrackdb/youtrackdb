@@ -18,15 +18,15 @@ public final class LinksRewriter implements EntityPropertiesVisitor {
   @Override
   public Object visitField(DatabaseSessionInternal db, PropertyType type, PropertyType linkedType,
       Object value) {
-    boolean oldAutoConvertValue = false;
+    var oldAutoConvertValue = false;
 
-    final ValuesConverter valuesConverter =
+    final var valuesConverter =
         ImportConvertersFactory.INSTANCE.getConverter(value, converterData);
     if (valuesConverter == null) {
       return value;
     }
 
-    final Object newValue = valuesConverter.convert(db, value);
+    final var newValue = valuesConverter.convert(db, value);
 
     // this code intentionally uses == instead of equals, in such case we may distinguish rids which
     // already contained in

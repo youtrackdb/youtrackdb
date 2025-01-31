@@ -83,16 +83,16 @@ public class FrontendTransactionDataChange {
   }
 
   public static FrontendTransactionDataChange deserialize(DataInput input) throws IOException {
-    FrontendTransactionDataChange change = new FrontendTransactionDataChange();
+    var change = new FrontendTransactionDataChange();
     change.type = input.readByte();
     change.recordType = input.readByte();
-    int cluster = input.readInt();
-    long position = input.readLong();
+    var cluster = input.readInt();
+    var position = input.readLong();
     change.id = new RecordId(cluster, position);
-    boolean isThereRecord = input.readBoolean();
+    var isThereRecord = input.readBoolean();
     if (isThereRecord) {
-      int size = input.readInt();
-      byte[] record = new byte[size];
+      var size = input.readInt();
+      var record = new byte[size];
       input.readFully(record);
       change.record = Optional.of(record);
     } else {

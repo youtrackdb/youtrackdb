@@ -39,19 +39,19 @@ public class GEOTest extends BaseDBTest {
 
   @Test
   public void geoSchema() {
-    final SchemaClass mapPointClass = db.getMetadata().getSchema().createClass("MapPoint");
+    final var mapPointClass = db.getMetadata().getSchema().createClass("MapPoint");
     mapPointClass.createProperty(db, "x", PropertyType.DOUBLE)
         .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
     mapPointClass.createProperty(db, "y", PropertyType.DOUBLE)
         .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     if (!remoteDB) {
-      final Set<Index> xIndexes =
+      final var xIndexes =
           db.getMetadata().getSchema().getClassInternal("MapPoint")
               .getInvolvedIndexesInternal(db, "x");
       Assert.assertEquals(xIndexes.size(), 1);
 
-      final Set<Index> yIndexes =
+      final var yIndexes =
           db.getMetadata().getSchema().getClassInternal("MapPoint")
               .getInvolvedIndexesInternal(db, "y");
       Assert.assertEquals(yIndexes.size(), 1);
@@ -64,12 +64,12 @@ public class GEOTest extends BaseDBTest {
       return;
     }
 
-    final Set<Index> xIndexes =
+    final var xIndexes =
         db.getMetadata().getSchema().getClassInternal("MapPoint").
             getInvolvedIndexesInternal(db, "x");
     Assert.assertEquals(xIndexes.size(), 1);
 
-    final Set<Index> yIndexDefinitions =
+    final var yIndexDefinitions =
         db.getMetadata().getSchema().getClassInternal("MapPoint")
             .getInvolvedIndexesInternal(db, "y");
     Assert.assertEquals(yIndexDefinitions.size(), 1);
@@ -79,7 +79,7 @@ public class GEOTest extends BaseDBTest {
   public void queryCreatePoints() {
     EntityImpl point;
 
-    for (int i = 0; i < 10000; ++i) {
+    for (var i = 0; i < 10000; ++i) {
       point = ((EntityImpl) db.newEntity("MapPoint"));
 
       point.field("x", (52.20472d + i / 100d));
@@ -104,7 +104,7 @@ public class GEOTest extends BaseDBTest {
 
     Assert.assertFalse(result.isEmpty());
 
-    for (EntityImpl d : result) {
+    for (var d : result) {
       Assert.assertEquals(d.getClassName(), "MapPoint");
       Assert.assertEquals(RecordInternal.getRecordType(db, d), EntityImpl.RECORD_TYPE);
     }

@@ -33,14 +33,14 @@ public class LuceneIndexCreateDropTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    final SchemaClass type = db.createVertexClass("City");
+    final var type = db.createVertexClass("City");
     type.createProperty(db, "name", PropertyType.STRING);
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
 
   @Test
   public void dropIndex() {
-    Set<Index> indexes = db.getClassInternal("City").getIndexesInternal(db);
+    var indexes = db.getClassInternal("City").getIndexesInternal(db);
     Assert.assertEquals("Exactly one index should exist.", 1, indexes.size());
 
     db.command("drop index City.name").close();

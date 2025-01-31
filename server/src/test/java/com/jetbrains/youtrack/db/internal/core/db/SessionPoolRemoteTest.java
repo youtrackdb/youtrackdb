@@ -35,7 +35,7 @@ public class SessionPoolRemoteTest {
 
   @Test
   public void testPoolCloseTx() {
-    YouTrackDBImpl youTrackDb =
+    var youTrackDb =
         new YouTrackDBImpl(
             "remote:localhost:",
             "root",
@@ -49,7 +49,7 @@ public class SessionPoolRemoteTest {
     }
 
     SessionPool pool = new SessionPoolImpl(youTrackDb, "test", "admin", "admin");
-    DatabaseSessionInternal db = (DatabaseSessionInternal) pool.acquire();
+    var db = (DatabaseSessionInternal) pool.acquire();
     db.createClass("Test");
     db.begin();
     db.save(((EntityImpl) db.newEntity("Test")));
@@ -63,7 +63,7 @@ public class SessionPoolRemoteTest {
 
   @Test
   public void testPoolDoubleClose() {
-    YouTrackDBImpl youTrackDb =
+    var youTrackDb =
         new YouTrackDBImpl(
             DbTestBase.embeddedDBUrl(getClass()),
             YouTrackDBConfig.builder()

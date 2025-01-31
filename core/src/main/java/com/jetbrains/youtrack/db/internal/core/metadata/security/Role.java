@@ -123,17 +123,17 @@ public class Role extends IdentityWrapper implements SecurityRole {
 
     Map<String, Number> storedRules = source.getProperty(RULES);
     if (storedRules != null) {
-      for (Entry<String, Number> a : storedRules.entrySet()) {
-        Rule.ResourceGeneric resourceGeneric =
+      for (var a : storedRules.entrySet()) {
+        var resourceGeneric =
             Rule.mapLegacyResourceToGenericResource(a.getKey());
 
-        Rule rule = rules.get(resourceGeneric);
+        var rule = rules.get(resourceGeneric);
         if (rule == null) {
           rule = new Rule(resourceGeneric, null, null);
           rules.put(resourceGeneric, rule);
         }
 
-        String specificResource = Rule.mapLegacyResourceToSpecificResource(a.getKey());
+        var specificResource = Rule.mapLegacyResourceToSpecificResource(a.getKey());
         if (specificResource == null || specificResource.equals("*")) {
           rule.grantAccess(null, a.getValue().intValue());
         } else {
@@ -163,7 +163,7 @@ public class Role extends IdentityWrapper implements SecurityRole {
     entity.getOrCreateEmbeddedMap(RULES).putAll(getEncodedRules());
 
     var storedPolicies = new HashMap<String, Identifiable>();
-    for (Map.Entry<String, SecurityPolicy> policy : policies.entrySet()) {
+    for (var policy : policies.entrySet()) {
       storedPolicies.put(policy.getKey(), policy.getValue().getIdentity());
     }
 
@@ -177,9 +177,9 @@ public class Role extends IdentityWrapper implements SecurityRole {
    * @return String representation of the permission
    */
   public static String permissionToString(final int iPermission) {
-    int permission = iPermission;
-    final StringBuilder returnValue = new StringBuilder(128);
-    for (Entry<Integer, String> p : PERMISSION_BIT_NAMES.entrySet()) {
+    var permission = iPermission;
+    final var returnValue = new StringBuilder(128);
+    for (var p : PERMISSION_BIT_NAMES.entrySet()) {
       if ((permission & p.getKey()) == p.getKey()) {
         if (!returnValue.isEmpty()) {
           returnValue.append(", ");
@@ -205,7 +205,7 @@ public class Role extends IdentityWrapper implements SecurityRole {
           "Permission bit number must be positive and less than 32");
     }
 
-    final int value = 1 << bitNo;
+    final var value = 1 << bitNo;
     if (PERMISSION_BIT_NAMES == null) {
       PERMISSION_BIT_NAMES = new Int2ObjectOpenHashMap<>();
     }
@@ -221,7 +221,7 @@ public class Role extends IdentityWrapper implements SecurityRole {
   static void generateSchema(DatabaseSessionInternal session) {
     SchemaProperty p;
     var schema = session.getMetadata().getSchema();
-    final SchemaClassInternal roleClass = schema.getClassInternal(CLASS_NAME);
+    final var roleClass = schema.getClassInternal(CLASS_NAME);
 
     final var rules = roleClass.getProperty(RULES);
     if (rules == null) {
@@ -261,9 +261,9 @@ public class Role extends IdentityWrapper implements SecurityRole {
       final Rule.ResourceGeneric resourceGeneric,
       String resourceSpecific,
       final int iCRUDOperation) {
-    final Rule rule = getRules().get(resourceGeneric);
+    final var rule = getRules().get(resourceGeneric);
     if (rule != null) {
-      final Boolean allowed = rule.isAllowed(resourceSpecific, iCRUDOperation);
+      final var allowed = rule.isAllowed(resourceSpecific, iCRUDOperation);
       if (allowed != null) {
         return allowed;
       }
@@ -279,7 +279,7 @@ public class Role extends IdentityWrapper implements SecurityRole {
 
   public boolean hasRule(final Rule.ResourceGeneric resourceGeneric, String resourceSpecific) {
     var rules = getRules();
-    Rule rule = rules.get(resourceGeneric);
+    var rule = rules.get(resourceGeneric);
 
     if (rule == null) {
       return false;
@@ -291,7 +291,7 @@ public class Role extends IdentityWrapper implements SecurityRole {
   public Role addRule(
       DatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific,
       final int iOperation) {
-    Rule rule = rules.get(resourceGeneric);
+    var rule = rules.get(resourceGeneric);
     if (rule == null) {
       rule = new Rule(resourceGeneric, null, null);
       rules.put(resourceGeneric, rule);
@@ -307,8 +307,8 @@ public class Role extends IdentityWrapper implements SecurityRole {
   @Deprecated
   @Override
   public boolean allow(String iResource, int iCRUDOperation) {
-    final String specificResource = Rule.mapLegacyResourceToSpecificResource(iResource);
-    final Rule.ResourceGeneric resourceGeneric =
+    final var specificResource = Rule.mapLegacyResourceToSpecificResource(iResource);
+    final var resourceGeneric =
         Rule.mapLegacyResourceToGenericResource(iResource);
 
     if (specificResource == null || specificResource.equals("*")) {
@@ -321,8 +321,8 @@ public class Role extends IdentityWrapper implements SecurityRole {
   @Deprecated
   @Override
   public boolean hasRule(String iResource) {
-    final String specificResource = Rule.mapLegacyResourceToSpecificResource(iResource);
-    final Rule.ResourceGeneric resourceGeneric =
+    final var specificResource = Rule.mapLegacyResourceToSpecificResource(iResource);
+    final var resourceGeneric =
         Rule.mapLegacyResourceToGenericResource(iResource);
 
     if (specificResource == null || specificResource.equals("*")) {
@@ -335,8 +335,8 @@ public class Role extends IdentityWrapper implements SecurityRole {
   @Deprecated
   @Override
   public SecurityRole addRule(DatabaseSession session, String iResource, int iOperation) {
-    final String specificResource = Rule.mapLegacyResourceToSpecificResource(iResource);
-    final Rule.ResourceGeneric resourceGeneric =
+    final var specificResource = Rule.mapLegacyResourceToSpecificResource(iResource);
+    final var resourceGeneric =
         Rule.mapLegacyResourceToGenericResource(iResource);
 
     if (specificResource == null || specificResource.equals("*")) {
@@ -349,8 +349,8 @@ public class Role extends IdentityWrapper implements SecurityRole {
   @Deprecated
   @Override
   public SecurityRole grant(DatabaseSession session, String iResource, int iOperation) {
-    final String specificResource = Rule.mapLegacyResourceToSpecificResource(iResource);
-    final Rule.ResourceGeneric resourceGeneric =
+    final var specificResource = Rule.mapLegacyResourceToSpecificResource(iResource);
+    final var resourceGeneric =
         Rule.mapLegacyResourceToGenericResource(iResource);
 
     if (specificResource == null || specificResource.equals("*")) {
@@ -363,8 +363,8 @@ public class Role extends IdentityWrapper implements SecurityRole {
   @Deprecated
   @Override
   public SecurityRole revoke(DatabaseSession session, String iResource, int iOperation) {
-    final String specificResource = Rule.mapLegacyResourceToSpecificResource(iResource);
-    final Rule.ResourceGeneric resourceGeneric =
+    final var specificResource = Rule.mapLegacyResourceToSpecificResource(iResource);
+    final var resourceGeneric =
         Rule.mapLegacyResourceToGenericResource(iResource);
 
     if (specificResource == null || specificResource.equals("*")) {
@@ -380,7 +380,7 @@ public class Role extends IdentityWrapper implements SecurityRole {
   public Role grant(
       DatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific,
       final int iOperation) {
-    Rule rule = rules.get(resourceGeneric);
+    var rule = rules.get(resourceGeneric);
 
     if (rule == null) {
       rule = new Rule(resourceGeneric, null, null);
@@ -404,7 +404,7 @@ public class Role extends IdentityWrapper implements SecurityRole {
       return this;
     }
 
-    Rule rule = rules.get(resourceGeneric);
+    var rule = rules.get(resourceGeneric);
 
     if (rule == null) {
       rule = new Rule(resourceGeneric, null, null);
@@ -435,14 +435,14 @@ public class Role extends IdentityWrapper implements SecurityRole {
     final Map<String, Byte> result = new HashMap<>();
 
     var rules = getRules();
-    for (Rule rule : rules.values()) {
-      String name = Rule.mapResourceGenericToLegacyResource(rule.getResourceGeneric());
+    for (var rule : rules.values()) {
+      var name = Rule.mapResourceGenericToLegacyResource(rule.getResourceGeneric());
 
       if (rule.getAccess() != null) {
         result.put(name, rule.getAccess());
       }
 
-      for (Map.Entry<String, Byte> specificResource : rule.getSpecificResources().entrySet()) {
+      for (var specificResource : rule.getSpecificResources().entrySet()) {
         result.put(name + "." + specificResource.getKey(), specificResource.getValue());
       }
     }

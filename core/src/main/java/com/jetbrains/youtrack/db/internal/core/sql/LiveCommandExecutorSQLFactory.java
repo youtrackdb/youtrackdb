@@ -69,7 +69,7 @@ public class LiveCommandExecutorSQLFactory implements CommandExecutorSQLFactory 
    */
   public CommandExecutorSQLAbstract createCommand(final String name)
       throws CommandExecutionException {
-    final Class<? extends CommandExecutorSQLAbstract> clazz = COMMANDS.get(name);
+    final var clazz = COMMANDS.get(name);
 
     if (clazz == null) {
       throw new CommandExecutionException("Unknowned command name :" + name);

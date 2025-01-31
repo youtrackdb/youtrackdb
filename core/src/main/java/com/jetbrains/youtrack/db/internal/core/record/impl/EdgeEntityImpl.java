@@ -30,7 +30,7 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
 
   @Override
   public Vertex getFrom() {
-    Object result = getPropertyInternal(DIRECTION_OUT);
+    var result = getPropertyInternal(DIRECTION_OUT);
     if (!(result instanceof Entity v)) {
       return null;
     }
@@ -63,7 +63,7 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
 
   @Override
   public Vertex getTo() {
-    Object result = getPropertyInternal(DIRECTION_IN);
+    var result = getPropertyInternal(DIRECTION_IN);
     if (!(result instanceof Entity v)) {
       return null;
     }
@@ -217,11 +217,11 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
   }
 
   public static void deleteLinks(Edge delegate) {
-    Vertex from = delegate.getFrom();
+    var from = delegate.getFrom();
     if (from != null) {
       VertexInternal.removeOutgoingEdge(from, delegate);
     }
-    Vertex to = delegate.getTo();
+    var to = delegate.getTo();
     if (to != null) {
       VertexInternal.removeIncomingEdge(to, delegate);
     }

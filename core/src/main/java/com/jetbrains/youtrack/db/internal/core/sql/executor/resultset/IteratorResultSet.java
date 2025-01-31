@@ -31,7 +31,7 @@ public class IteratorResultSet implements ResultSet {
 
   @Override
   public Result next() {
-    Object val = iterator.next();
+    var val = iterator.next();
     if (val instanceof Result) {
       return (Result) val;
     }

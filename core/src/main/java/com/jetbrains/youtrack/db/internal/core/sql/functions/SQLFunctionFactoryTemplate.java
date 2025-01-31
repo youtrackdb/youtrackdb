@@ -39,7 +39,7 @@ public abstract class SQLFunctionFactoryTemplate implements SQLFunctionFactory {
 
   @Override
   public SQLFunction createFunction(final String name) throws CommandExecutionException {
-    final Object obj = functions.get(name);
+    final var obj = functions.get(name);
 
     if (obj == null) {
       throw new CommandExecutionException("Unknown function name :" + name);
@@ -49,7 +49,7 @@ public abstract class SQLFunctionFactoryTemplate implements SQLFunctionFactory {
       return (SQLFunction) obj;
     } else {
       // it's a class
-      final Class<?> clazz = (Class<?>) obj;
+      final var clazz = (Class<?>) obj;
       try {
         return (SQLFunction) clazz.newInstance();
       } catch (Exception e) {

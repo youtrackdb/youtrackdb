@@ -19,7 +19,7 @@ public class SQLFunctionVarianceTest {
 
   @Test
   public void testEmpty() {
-    Object result = variance.getResult();
+    var result = variance.getResult();
     assertNull(result);
   }
 
@@ -27,11 +27,11 @@ public class SQLFunctionVarianceTest {
   public void testVariance() {
     Integer[] scores = {4, 7, 15, 3};
 
-    for (Integer s : scores) {
+    for (var s : scores) {
       variance.execute(null, null, null, new Object[]{s}, null);
     }
 
-    Object result = variance.getResult();
+    var result = variance.getResult();
     assertEquals(22.1875, result);
   }
 
@@ -39,11 +39,11 @@ public class SQLFunctionVarianceTest {
   public void testVariance1() {
     Integer[] scores = {4, 7};
 
-    for (Integer s : scores) {
+    for (var s : scores) {
       variance.execute(null, null, null, new Object[]{s}, null);
     }
 
-    Object result = variance.getResult();
+    var result = variance.getResult();
     assertEquals(2.25, result);
   }
 
@@ -51,11 +51,11 @@ public class SQLFunctionVarianceTest {
   public void testVariance2() {
     Integer[] scores = {15, 3};
 
-    for (Integer s : scores) {
+    for (var s : scores) {
       variance.execute(null, null, null, new Object[]{s}, null);
     }
 
-    Object result = variance.getResult();
+    var result = variance.getResult();
     assertEquals(36.0, result);
   }
 }

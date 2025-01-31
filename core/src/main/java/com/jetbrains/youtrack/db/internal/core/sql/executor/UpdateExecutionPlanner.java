@@ -65,7 +65,7 @@ public class UpdateExecutionPlanner {
   }
 
   public UpdateExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    UpdateExecutionPlan result = new UpdateExecutionPlan(ctx);
+    var result = new UpdateExecutionPlan(ctx);
 
     handleTarget(result, ctx, this.target, this.whereClause, this.timeout, enableProfiling);
     if (updateEdge) {
@@ -185,7 +185,7 @@ public class UpdateExecutionPlanner {
       List<SQLUpdateOperations> ops,
       boolean profilingEnabled) {
     if (ops != null) {
-      for (SQLUpdateOperations op : ops) {
+      for (var op : ops) {
         switch (op.getType()) {
           case SQLUpdateOperations.TYPE_SET:
             plan.chain(new UpdateSetStep(op.getUpdateItems(), ctx, profilingEnabled));
@@ -219,13 +219,13 @@ public class UpdateExecutionPlanner {
       SQLWhereClause whereClause,
       SQLTimeout timeout,
       boolean profilingEnabled) {
-    SQLSelectStatement sourceStatement = new SQLSelectStatement(-1);
+    var sourceStatement = new SQLSelectStatement(-1);
     sourceStatement.setTarget(target);
     sourceStatement.setWhereClause(whereClause);
     if (timeout != null) {
       sourceStatement.setTimeout(this.timeout.copy());
     }
-    SelectExecutionPlanner planner = new SelectExecutionPlanner(sourceStatement);
+    var planner = new SelectExecutionPlanner(sourceStatement);
     result.chain(
         new SubQueryStep(
             planner.createExecutionPlan(ctx, profilingEnabled, false), ctx, ctx, profilingEnabled));

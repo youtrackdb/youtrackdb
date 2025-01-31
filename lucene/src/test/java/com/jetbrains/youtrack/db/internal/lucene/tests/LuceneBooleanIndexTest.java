@@ -38,14 +38,14 @@ public class LuceneBooleanIndexTest extends LuceneBaseTest {
   @Before
   public void init() {
 
-    SchemaClass personClass = db.createVertexClass("Person");
+    var personClass = db.createVertexClass("Person");
     personClass.createProperty(db, "isDeleted", PropertyType.BOOLEAN);
 
     db.command("create index Person.isDeleted on Person (isDeleted) FULLTEXT ENGINE LUCENE")
         .close();
 
-    for (int i = 0; i < 1000; i++) {
-      Vertex person = db.newVertex("Person");
+    for (var i = 0; i < 1000; i++) {
+      var person = db.newVertex("Person");
       person.setProperty("isDeleted", i % 2 == 0);
       db.begin();
       db.save(person);
@@ -56,9 +56,9 @@ public class LuceneBooleanIndexTest extends LuceneBaseTest {
   @Test
   public void shouldQueryBooleanField() {
 
-    ResultSet docs = db.query("select from Person where search_class('false') = true");
+    var docs = db.query("select from Person where search_class('false') = true");
 
-    List<Result> results = docs.stream().collect(Collectors.toList());
+    var results = docs.stream().collect(Collectors.toList());
     assertThat(results).hasSize(500);
 
     assertThat(results.get(0).<Boolean>getProperty("isDeleted")).isFalse();

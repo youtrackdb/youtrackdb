@@ -56,13 +56,13 @@ public class SchedulerImpl {
 
   public void scheduleEvent(DatabaseSession session, final ScheduledEvent event) {
     if (events.putIfAbsent(event.getName(), event) == null) {
-      String database = session.getName();
+      var database = session.getName();
       event.schedule(database, "admin", youtrackDB);
     }
   }
 
   public ScheduledEvent removeEventInternal(final String eventName) {
-    final ScheduledEvent event = events.remove(eventName);
+    final var event = events.remove(eventName);
 
     if (event != null) {
       event.interrupt();
@@ -73,7 +73,7 @@ public class SchedulerImpl {
   public void removeEvent(DatabaseSessionInternal session, final String eventName) {
     LogManager.instance().debug(this, "Removing scheduled event '%s'...", eventName);
 
-    final ScheduledEvent event = removeEventInternal(eventName);
+    final var event = removeEventInternal(eventName);
 
     if (event != null) {
       // RECORD EXISTS: DELETE THE EVENT RECORD
@@ -87,7 +87,7 @@ public class SchedulerImpl {
   }
 
   public void updateEvent(DatabaseSessionInternal session, final ScheduledEvent event) {
-    final ScheduledEvent oldEvent = events.remove(event.getName());
+    final var oldEvent = events.remove(event.getName());
     if (oldEvent != null) {
       oldEvent.interrupt();
     }
@@ -111,14 +111,14 @@ public class SchedulerImpl {
   public void load(DatabaseSessionInternal database) {
     if (database.getMetadata().getSchema().existsClass(ScheduledEvent.CLASS_NAME)) {
       final Iterable<EntityImpl> result = database.browseClass(ScheduledEvent.CLASS_NAME);
-      for (EntityImpl d : result) {
+      for (var d : result) {
         scheduleEvent(database, new ScheduledEvent(d, database));
       }
     }
   }
 
   public void close() {
-    for (ScheduledEvent event : events.values()) {
+    for (var event : events.values()) {
       event.interrupt();
     }
     events.clear();
@@ -162,7 +162,7 @@ public class SchedulerImpl {
 
   public void initScheduleRecord(EntityImpl entity) {
     String name = entity.field(ScheduledEvent.PROP_NAME);
-    final ScheduledEvent event = getEvent(name);
+    final var event = getEvent(name);
     if (event != null && event.getIdentity().equals(entity.getIdentity())) {
       throw new DatabaseException(
           "Scheduled event with name '" + name + "' already exists in database");
@@ -173,7 +173,7 @@ public class SchedulerImpl {
   public void preHandleUpdateScheduleInTx(DatabaseSessionInternal session, EntityImpl entity) {
     try {
       final String schedulerName = entity.field(ScheduledEvent.PROP_NAME);
-      ScheduledEvent event = getEvent(schedulerName);
+      var event = getEvent(schedulerName);
 
       if (event != null) {
         // UPDATED EVENT
@@ -188,7 +188,7 @@ public class SchedulerImpl {
           var tx = session.getTransaction();
 
           @SuppressWarnings("unchecked")
-          Set<RID> rids = (Set<RID>) tx.getCustomData(RIDS_OF_EVENTS_TO_RESCHEDULE_KEY);
+          var rids = (Set<RID>) tx.getCustomData(RIDS_OF_EVENTS_TO_RESCHEDULE_KEY);
           if (rids == null) {
             rids = new HashSet<>();
             tx.setCustomData(RIDS_OF_EVENTS_TO_RESCHEDULE_KEY, rids);
@@ -207,11 +207,11 @@ public class SchedulerImpl {
     try {
       var tx = session.getTransaction();
       @SuppressWarnings("unchecked")
-      Set<RID> rids = (Set<RID>) tx.getCustomData(RIDS_OF_EVENTS_TO_RESCHEDULE_KEY);
+      var rids = (Set<RID>) tx.getCustomData(RIDS_OF_EVENTS_TO_RESCHEDULE_KEY);
 
       if (rids != null && rids.contains(entity.getIdentity())) {
         final String schedulerName = entity.field(ScheduledEvent.PROP_NAME);
-        ScheduledEvent event = getEvent(schedulerName);
+        var event = getEvent(schedulerName);
 
         if (event != null) {
           // RULE CHANGED, STOP CURRENT EVENT AND RESCHEDULE IT

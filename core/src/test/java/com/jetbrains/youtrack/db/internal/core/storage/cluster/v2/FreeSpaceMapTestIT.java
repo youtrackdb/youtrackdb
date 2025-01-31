@@ -32,7 +32,7 @@ public class FreeSpaceMapTestIT {
 
   @BeforeClass
   public static void beforeClass() throws IOException {
-    String buildDirectory = System.getProperty("buildDirectory");
+    var buildDirectory = System.getProperty("buildDirectory");
     if (buildDirectory == null || buildDirectory.isEmpty()) {
       buildDirectory = ".";
     }
@@ -47,7 +47,7 @@ public class FreeSpaceMapTestIT {
     youTrackDB.execute(
         "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
 
-    final DatabaseSessionInternal databaseDocumentTx =
+    final var databaseDocumentTx =
         (DatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
     storage = (AbstractPaginatedStorage) databaseDocumentTx.getStorage();
@@ -120,23 +120,23 @@ public class FreeSpaceMapTestIT {
 
   @Test
   public void randomPages() throws IOException {
-    final int pages = 1_000;
-    final int checks = 1_000;
+    final var pages = 1_000;
+    final var checks = 1_000;
 
-    final HashMap<Integer, Integer> pageSpaceMap = new HashMap<>();
-    final long seed = 1107466507161549L; // System.nanoTime();
+    final var pageSpaceMap = new HashMap<Integer, Integer>();
+    final var seed = 1107466507161549L; // System.nanoTime();
     System.out.println("randomPages seed - " + seed);
-    final Random random = new Random(seed);
+    final var random = new Random(seed);
 
-    int[] maxFreeSpaceIndex = new int[]{-1};
-    for (int i = 0; i < pages; i++) {
-      final int pageIndex = i;
+    var maxFreeSpaceIndex = new int[]{-1};
+    for (var i = 0; i < pages; i++) {
+      final var pageIndex = i;
 
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
           operation -> {
-            final int freeSpace = random.nextInt(DurablePage.MAX_PAGE_SIZE_BYTES);
-            final int freeSpaceIndex =
+            final var freeSpace = random.nextInt(DurablePage.MAX_PAGE_SIZE_BYTES);
+            final var freeSpaceIndex =
                 (freeSpace - FreeSpaceMap.NORMALIZATION_INTERVAL + 1)
                     / FreeSpaceMap.NORMALIZATION_INTERVAL;
             if (maxFreeSpaceIndex[0] < freeSpaceIndex) {
@@ -148,10 +148,10 @@ public class FreeSpaceMapTestIT {
           });
     }
 
-    for (int i = 0; i < checks; i++) {
-      final int freeSpace = random.nextInt(DurablePage.MAX_PAGE_SIZE_BYTES);
-      final int pageIndex = freeSpaceMap.findFreePage(freeSpace);
-      final int freeSpaceIndex = freeSpace / FreeSpaceMap.NORMALIZATION_INTERVAL;
+    for (var i = 0; i < checks; i++) {
+      final var freeSpace = random.nextInt(DurablePage.MAX_PAGE_SIZE_BYTES);
+      final var pageIndex = freeSpaceMap.findFreePage(freeSpace);
+      final var freeSpaceIndex = freeSpace / FreeSpaceMap.NORMALIZATION_INTERVAL;
       if (freeSpaceIndex <= maxFreeSpaceIndex[0]) {
         Assert.assertTrue(pageSpaceMap.get(pageIndex) >= freeSpace);
       } else {
@@ -162,24 +162,24 @@ public class FreeSpaceMapTestIT {
 
   @Test
   public void randomPagesUpdate() throws IOException {
-    final int pages = 1_000;
-    final int checks = 1_000;
+    final var pages = 1_000;
+    final var checks = 1_000;
 
-    final HashMap<Integer, Integer> pageSpaceMap = new HashMap<>();
-    final TreeMap<Integer, Integer> sizeMap = new TreeMap<>();
+    final var pageSpaceMap = new HashMap<Integer, Integer>();
+    final var sizeMap = new TreeMap<Integer, Integer>();
 
-    final long seed = System.nanoTime();
+    final var seed = System.nanoTime();
     System.out.println("randomPagesUpdate seed - " + seed);
 
-    final Random random = new Random(seed);
+    final var random = new Random(seed);
 
-    for (int i = 0; i < pages; i++) {
-      final int pageIndex = i;
+    for (var i = 0; i < pages; i++) {
+      final var pageIndex = i;
 
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
           operation -> {
-            final int freeSpace = random.nextInt(DurablePage.MAX_PAGE_SIZE_BYTES);
+            final var freeSpace = random.nextInt(DurablePage.MAX_PAGE_SIZE_BYTES);
             pageSpaceMap.put(pageIndex, freeSpace);
             sizeMap.compute(
                 freeSpace,
@@ -195,13 +195,13 @@ public class FreeSpaceMapTestIT {
           });
     }
 
-    for (int i = 0; i < pages; i++) {
-      final int pageIndex = i;
+    for (var i = 0; i < pages; i++) {
+      final var pageIndex = i;
 
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
           operation -> {
-            final int freeSpace = random.nextInt(DurablePage.MAX_PAGE_SIZE_BYTES);
+            final var freeSpace = random.nextInt(DurablePage.MAX_PAGE_SIZE_BYTES);
             final int oldFreeSpace = pageSpaceMap.get(pageIndex);
 
             pageSpaceMap.put(pageIndex, freeSpace);
@@ -230,14 +230,14 @@ public class FreeSpaceMapTestIT {
           });
     }
 
-    final int maxFreeSpaceIndex =
+    final var maxFreeSpaceIndex =
         (sizeMap.lastKey() - (FreeSpaceMap.NORMALIZATION_INTERVAL - 1))
             / FreeSpaceMap.NORMALIZATION_INTERVAL;
 
-    for (int i = 0; i < checks; i++) {
-      final int freeSpace = random.nextInt(DurablePage.MAX_PAGE_SIZE_BYTES);
-      final int pageIndex = freeSpaceMap.findFreePage(freeSpace);
-      final int freeSpaceIndex = freeSpace / FreeSpaceMap.NORMALIZATION_INTERVAL;
+    for (var i = 0; i < checks; i++) {
+      final var freeSpace = random.nextInt(DurablePage.MAX_PAGE_SIZE_BYTES);
+      final var pageIndex = freeSpaceMap.findFreePage(freeSpace);
+      final var freeSpaceIndex = freeSpace / FreeSpaceMap.NORMALIZATION_INTERVAL;
 
       if (freeSpaceIndex <= maxFreeSpaceIndex) {
         Assert.assertTrue(pageSpaceMap.get(pageIndex) >= freeSpace);
@@ -249,9 +249,9 @@ public class FreeSpaceMapTestIT {
 
   @After
   public void after() throws IOException {
-    final WriteCache writeCache = storage.getWriteCache();
+    final var writeCache = storage.getWriteCache();
 
-    final long fileId = writeCache.fileIdByName(freeSpaceMap.getFullName());
+    final var fileId = writeCache.fileIdByName(freeSpaceMap.getFullName());
     storage.getReadCache().deleteFile(fileId, writeCache);
   }
 }

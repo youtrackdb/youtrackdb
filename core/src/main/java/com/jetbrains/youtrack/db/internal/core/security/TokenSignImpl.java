@@ -54,8 +54,8 @@ public class TokenSignImpl implements TokenSign {
   }
 
   private Mac getLocalMac() {
-    Map<String, Mac> map = threadLocalMac.get();
-    Mac mac = map.get(this.algorithm);
+    var map = threadLocalMac.get();
+    var mac = map.get(this.algorithm);
     if (mac == null) {
       try {
         mac = Mac.getInstance(this.algorithm);
@@ -70,7 +70,7 @@ public class TokenSignImpl implements TokenSign {
 
   @Override
   public byte[] signToken(final TokenHeader header, final byte[] unsignedToken) {
-    final Mac mac = getLocalMac();
+    final var mac = getLocalMac();
     try {
       mac.init(keyProvider.getKey(header));
       return mac.doFinal(unsignedToken);
@@ -83,16 +83,16 @@ public class TokenSignImpl implements TokenSign {
 
   @Override
   public boolean verifyTokenSign(ParsedToken parsed) {
-    Token token = parsed.getToken();
-    byte[] tokenBytes = parsed.getTokenBytes();
-    byte[] signature = parsed.getSignature();
-    final Mac mac = getLocalMac();
+    var token = parsed.getToken();
+    var tokenBytes = parsed.getTokenBytes();
+    var signature = parsed.getSignature();
+    final var mac = getLocalMac();
 
     try {
       mac.init(keyProvider.getKey(token.getHeader()));
       mac.update(tokenBytes, 0, tokenBytes.length);
-      final byte[] calculatedSignature = mac.doFinal();
-      boolean valid = MessageDigest.isEqual(calculatedSignature, signature);
+      final var calculatedSignature = mac.doFinal();
+      var valid = MessageDigest.isEqual(calculatedSignature, signature);
       if (!valid) {
         LogManager.instance()
             .warn(
@@ -129,7 +129,7 @@ public class TokenSignImpl implements TokenSign {
 
   public static byte[] readKeyFromConfig(ContextConfiguration config) {
     byte[] key = null;
-    String configKey = config.getValueAsString(GlobalConfiguration.NETWORK_TOKEN_SECRETKEY);
+    var configKey = config.getValueAsString(GlobalConfiguration.NETWORK_TOKEN_SECRETKEY);
     if (configKey == null || configKey.length() == 0) {
       if (configKey != null && configKey.length() > 0) {
         key = Base64.getUrlDecoder().decode(configKey);

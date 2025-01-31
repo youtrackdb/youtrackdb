@@ -23,7 +23,7 @@ public class ServerSecurityConfig implements SecurityConfig {
   public Syslog getSyslog() {
     if (sysLog == null && server != null) {
       if (server.getPluginManager() != null) {
-        ServerPluginInfo syslogPlugin = server.getPluginManager().getPluginByName("syslog");
+        var syslogPlugin = server.getPluginManager().getPluginByName("syslog");
         if (syslogPlugin != null) {
           sysLog = (Syslog) syslogPlugin.getInstance();
         }
@@ -35,10 +35,10 @@ public class ServerSecurityConfig implements SecurityConfig {
   @Override
   public String getConfigurationFile() {
     // Default
-    String configFile =
+    var configFile =
         SystemVariableResolver.resolveSystemVariables("${YOUTRACKDB_HOME}/config/security.json");
 
-    String ssf =
+    var ssf =
         server
             .getContextConfiguration()
             .getValueAsString(GlobalConfiguration.SERVER_SECURITY_FILE);

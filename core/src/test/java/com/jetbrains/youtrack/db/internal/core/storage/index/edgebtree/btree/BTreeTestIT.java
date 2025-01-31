@@ -1,6 +1,5 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.edgebtree.btree;
 
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
@@ -21,7 +20,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -74,7 +72,7 @@ public class BTreeTestIT {
     youTrackDB.execute(
         "create database " + DB_NAME + " plocal users ( admin identified by 'admin' role admin)");
 
-    DatabaseSession databaseSession = youTrackDB.open(DB_NAME, "admin", "admin");
+    var databaseSession = youTrackDB.open(DB_NAME, "admin", "admin");
     storage = (AbstractPaginatedStorage) ((DatabaseSessionInternal) databaseSession).getStorage();
     atomicOperationsManager = storage.getAtomicOperationsManager();
     databaseSession.close();
@@ -106,10 +104,10 @@ public class BTreeTestIT {
   public void testKeyPut() throws Exception {
     EdgeKey firstKey = null;
     EdgeKey lastKey = null;
-    long start = System.nanoTime();
-    for (int i = 0; i < keysCount; i++) {
-      final int index = i;
-      final EdgeKey key = new EdgeKey(42, index % 32000, index);
+    var start = System.nanoTime();
+    for (var i = 0; i < keysCount; i++) {
+      final var index = i;
+      final var key = new EdgeKey(42, index % 32000, index);
       atomicOperationsManager.executeInsideAtomicOperation(
           null, atomicOperation -> bTree.put(atomicOperation, key, index + 1));
 
@@ -125,11 +123,11 @@ public class BTreeTestIT {
         }
       }
     }
-    long end = System.nanoTime();
+    var end = System.nanoTime();
     System.out.printf("%d us per insert%n", (end - start) / 1_000 / keysCount);
 
     start = System.nanoTime();
-    for (int i = 0; i < keysCount; i++) {
+    for (var i = 0; i < keysCount; i++) {
       Assertions.assertThat(bTree.get(new EdgeKey(42, i % 32000, i))).isEqualTo(i + 1);
     }
     end = System.nanoTime();
@@ -139,7 +137,7 @@ public class BTreeTestIT {
     Assert.assertEquals(firstKey, bTree.firstKey());
     Assert.assertEquals(lastKey, bTree.lastKey());
 
-    for (int i = keysCount; i < keysCount + 100; i++) {
+    for (var i = keysCount; i < keysCount + 100; i++) {
       Assert.assertEquals(bTree.get(new EdgeKey(42, i % 32000, i)), -1);
     }
   }
@@ -147,14 +145,14 @@ public class BTreeTestIT {
   @Test
   public void testKeyPutRandomUniform() throws Exception {
     final NavigableSet<EdgeKey> keys = new TreeSet<>();
-    final Random random = new Random();
+    final var random = new Random();
 
     while (keys.size() < keysCount) {
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
           atomicOperation -> {
-            int val = random.nextInt(Integer.MAX_VALUE);
-            final EdgeKey key = new EdgeKey(42, val, val);
+            var val = random.nextInt(Integer.MAX_VALUE);
+            final var key = new EdgeKey(42, val, val);
             bTree.put(atomicOperation, key, val);
 
             keys.add(key);
@@ -165,7 +163,7 @@ public class BTreeTestIT {
     Assert.assertEquals(bTree.firstKey(), keys.first());
     Assert.assertEquals(bTree.lastKey(), keys.last());
 
-    for (EdgeKey key : keys) {
+    for (var key : keys) {
       Assert.assertEquals(bTree.get(key), key.targetPosition);
     }
   }
@@ -173,10 +171,10 @@ public class BTreeTestIT {
   @Test
   public void testKeyPutRandomGaussian() throws Exception {
     NavigableSet<EdgeKey> keys = new TreeSet<>();
-    long seed = System.currentTimeMillis();
+    var seed = System.currentTimeMillis();
     System.out.println("testKeyPutRandomGaussian seed : " + seed);
 
-    Random random = new Random(seed);
+    var random = new Random(seed);
 
     while (keys.size() < keysCount) {
       atomicOperationsManager.executeInsideAtomicOperation(
@@ -187,7 +185,7 @@ public class BTreeTestIT {
               val = (int) (random.nextGaussian() * Integer.MAX_VALUE / 2 + Integer.MAX_VALUE);
             } while (val < 0);
 
-            final EdgeKey key = new EdgeKey(42, val, val);
+            final var key = new EdgeKey(42, val, val);
             bTree.put(atomicOperation, key, val);
 
             keys.add(key);
@@ -198,7 +196,7 @@ public class BTreeTestIT {
     Assert.assertEquals(bTree.firstKey(), keys.first());
     Assert.assertEquals(bTree.lastKey(), keys.last());
 
-    for (EdgeKey key : keys) {
+    for (var key : keys) {
       Assert.assertEquals(bTree.get(key), key.targetPosition);
     }
   }
@@ -206,17 +204,17 @@ public class BTreeTestIT {
   @Test
   public void testKeyDeleteRandomUniform() throws Exception {
     NavigableSet<EdgeKey> keys = new TreeSet<>();
-    for (int i = 0; i < keysCount; i++) {
-      final EdgeKey key = new EdgeKey(42, i, i);
-      final int val = i;
+    for (var i = 0; i < keysCount; i++) {
+      final var key = new EdgeKey(42, i, i);
+      final var val = i;
       atomicOperationsManager.executeInsideAtomicOperation(
           null, atomicOperation -> bTree.put(atomicOperation, key, val));
       keys.add(key);
     }
 
-    Iterator<EdgeKey> keysIterator = keys.iterator();
+    var keysIterator = keys.iterator();
     while (keysIterator.hasNext()) {
-      EdgeKey key = keysIterator.next();
+      var key = keysIterator.next();
       if (key.targetPosition % 3 == 0) {
         atomicOperationsManager.executeInsideAtomicOperation(
             null, atomicOperation -> bTree.remove(atomicOperation, key));
@@ -232,7 +230,7 @@ public class BTreeTestIT {
       Assert.assertNull(bTree.lastKey());
     }
 
-    for (final EdgeKey key : keys) {
+    for (final var key : keys) {
       if (key.targetPosition % 3 == 0) {
         Assert.assertEquals(-1, bTree.get(key));
       } else {
@@ -245,17 +243,17 @@ public class BTreeTestIT {
   public void testKeyDeleteRandomGaussian() throws Exception {
     NavigableSet<EdgeKey> keys = new TreeSet<>();
 
-    long seed = System.currentTimeMillis();
+    var seed = System.currentTimeMillis();
     System.out.println("testKeyDeleteRandomGaussian seed : " + seed);
-    Random random = new Random(seed);
+    var random = new Random(seed);
 
     while (keys.size() < keysCount) {
-      final int val = (int) (random.nextGaussian() * Integer.MAX_VALUE / 2 + Integer.MAX_VALUE);
+      final var val = (int) (random.nextGaussian() * Integer.MAX_VALUE / 2 + Integer.MAX_VALUE);
       if (val < 0) {
         continue;
       }
 
-      EdgeKey key = new EdgeKey(42, val, val);
+      var key = new EdgeKey(42, val, val);
       atomicOperationsManager.executeInsideAtomicOperation(
           null, atomicOperation -> bTree.put(atomicOperation, key, val));
       keys.add(key);
@@ -263,10 +261,10 @@ public class BTreeTestIT {
       Assert.assertEquals(bTree.get(key), val);
     }
 
-    Iterator<EdgeKey> keysIterator = keys.iterator();
+    var keysIterator = keys.iterator();
 
     while (keysIterator.hasNext()) {
-      EdgeKey key = keysIterator.next();
+      var key = keysIterator.next();
 
       if (key.targetPosition % 3 == 0) {
         atomicOperationsManager.executeInsideAtomicOperation(
@@ -283,7 +281,7 @@ public class BTreeTestIT {
       Assert.assertNull(bTree.lastKey());
     }
 
-    for (EdgeKey key : keys) {
+    for (var key : keys) {
       if (key.targetPosition % 3 == 0) {
         Assert.assertEquals(-1, bTree.get(key));
       } else {
@@ -296,16 +294,16 @@ public class BTreeTestIT {
   public void testKeyDelete() throws Exception {
     System.out.println("Keys count " + keysCount);
 
-    for (int i = 0; i < keysCount; i++) {
-      final EdgeKey key = new EdgeKey(42, i, i);
-      final int val = i;
+    for (var i = 0; i < keysCount; i++) {
+      final var key = new EdgeKey(42, i, i);
+      final var val = i;
 
       atomicOperationsManager.executeInsideAtomicOperation(
           null, atomicOperation -> bTree.put(atomicOperation, key, val));
     }
 
-    for (int i = 0; i < keysCount; i++) {
-      final EdgeKey key = new EdgeKey(42, i, i);
+    for (var i = 0; i < keysCount; i++) {
+      final var key = new EdgeKey(42, i, i);
       if (key.targetPosition % 3 == 0) {
 
         atomicOperationsManager.executeInsideAtomicOperation(
@@ -315,8 +313,8 @@ public class BTreeTestIT {
       }
     }
 
-    for (int i = 0; i < keysCount; i++) {
-      final EdgeKey key = new EdgeKey(42, i, i);
+    for (var i = 0; i < keysCount; i++) {
+      final var key = new EdgeKey(42, i, i);
       if (i % 3 == 0) {
         Assert.assertEquals(-1, bTree.get(key));
       } else {
@@ -329,35 +327,35 @@ public class BTreeTestIT {
   public void testKeyAddDelete() throws Exception {
     System.out.println("Keys count " + keysCount);
 
-    for (int i = 0; i < keysCount; i++) {
-      final EdgeKey key = new EdgeKey(42, i, i);
+    for (var i = 0; i < keysCount; i++) {
+      final var key = new EdgeKey(42, i, i);
       atomicOperationsManager.executeInsideAtomicOperation(
           null, atomicOperation -> bTree.put(atomicOperation, key, key.targetCluster % 5));
 
       Assert.assertEquals(bTree.get(key), key.targetCluster % 5);
     }
 
-    for (int i = 0; i < keysCount; i++) {
-      final int index = i;
+    for (var i = 0; i < keysCount; i++) {
+      final var index = i;
 
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
           atomicOperation -> {
             if (index % 3 == 0) {
-              final EdgeKey key = new EdgeKey(42, index, index);
+              final var key = new EdgeKey(42, index, index);
               Assert.assertEquals(bTree.remove(atomicOperation, key), key.targetCluster % 5);
             }
 
             if (index % 2 == 0) {
-              final EdgeKey key = new EdgeKey(42, index + keysCount, index + keysCount);
+              final var key = new EdgeKey(42, index + keysCount, index + keysCount);
               bTree.put(atomicOperation, key, (index + keysCount) % 5);
             }
           });
     }
 
-    for (int i = 0; i < keysCount; i++) {
+    for (var i = 0; i < keysCount; i++) {
       {
-        final EdgeKey key = new EdgeKey(42, i, i);
+        final var key = new EdgeKey(42, i, i);
         if (i % 3 == 0) {
           Assert.assertEquals(-1, bTree.get(key));
         } else {
@@ -366,7 +364,7 @@ public class BTreeTestIT {
       }
 
       if (i % 2 == 0) {
-        final EdgeKey key = new EdgeKey(42, i + keysCount, i + keysCount);
+        final var key = new EdgeKey(42, i + keysCount, i + keysCount);
         Assert.assertEquals(bTree.get(key), (i + keysCount) % 5);
       }
     }
@@ -377,19 +375,19 @@ public class BTreeTestIT {
     System.out.printf("Keys count %d%n", keysCount);
 
     NavigableMap<EdgeKey, Integer> keyValues = new TreeMap<>();
-    final long seed = System.nanoTime();
+    final var seed = System.nanoTime();
 
     System.out.println("testIterateEntriesMajor: " + seed);
-    final Random random = new Random(seed);
+    final var random = new Random(seed);
 
-    int printCounter = 0;
+    var printCounter = 0;
 
     while (keyValues.size() < keysCount) {
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
           atomicOperation -> {
-            final int val = random.nextInt(Integer.MAX_VALUE);
-            final EdgeKey key = new EdgeKey(42, val, val % 64937);
+            final var val = random.nextInt(Integer.MAX_VALUE);
+            final var key = new EdgeKey(42, val, val % 64937);
 
             bTree.put(atomicOperation, key, val);
             keyValues.put(key, val);
@@ -416,24 +414,24 @@ public class BTreeTestIT {
       Random random,
       boolean keyInclusive,
       boolean ascSortOrder) {
-    EdgeKey[] keys = new EdgeKey[keyValues.size()];
-    int index = 0;
+    var keys = new EdgeKey[keyValues.size()];
+    var index = 0;
 
-    for (EdgeKey key : keyValues.keySet()) {
+    for (var key : keyValues.keySet()) {
       keys[index] = key;
       index++;
     }
 
-    for (int i = 0; i < 100; i++) {
-      final int fromKeyIndex = random.nextInt(keys.length);
-      EdgeKey fromKey = keys[fromKeyIndex];
+    for (var i = 0; i < 100; i++) {
+      final var fromKeyIndex = random.nextInt(keys.length);
+      var fromKey = keys[fromKeyIndex];
 
       if (random.nextBoolean() && fromKey.targetPosition > Long.MIN_VALUE) {
         fromKey = new EdgeKey(fromKey.ridBagId, fromKey.targetCluster, fromKey.targetPosition - 1);
       }
 
       final Iterator<RawPairObjectInteger<EdgeKey>> indexIterator;
-      try (Stream<RawPairObjectInteger<EdgeKey>> stream =
+      try (var stream =
           bTree.iterateEntriesMajor(fromKey, keyInclusive, ascSortOrder)) {
         indexIterator = stream.iterator();
 
@@ -450,8 +448,8 @@ public class BTreeTestIT {
         }
 
         while (iterator.hasNext()) {
-          final RawPairObjectInteger<EdgeKey> indexEntry = indexIterator.next();
-          final Map.Entry<EdgeKey, Integer> entry = iterator.next();
+          final var indexEntry = indexIterator.next();
+          final var entry = iterator.next();
 
           Assert.assertEquals(indexEntry.first, entry.getKey());
           Assert.assertEquals(indexEntry.second, entry.getValue().intValue());
@@ -469,20 +467,20 @@ public class BTreeTestIT {
     System.out.printf("Keys count %d%n", keysCount);
     NavigableMap<EdgeKey, Integer> keyValues = new TreeMap<>();
 
-    final long seed = System.nanoTime();
+    final var seed = System.nanoTime();
 
     System.out.println("testIterateEntriesMinor: " + seed);
-    final Random random = new Random(seed);
+    final var random = new Random(seed);
 
-    int printCounter = 0;
+    var printCounter = 0;
 
     while (keyValues.size() < keysCount) {
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
           atomicOperation -> {
-            final int val = random.nextInt(Integer.MAX_VALUE);
+            final var val = random.nextInt(Integer.MAX_VALUE);
 
-            EdgeKey key = new EdgeKey(42, val, val % 64937);
+            var key = new EdgeKey(42, val, val % 64937);
             bTree.put(atomicOperation, key, val);
             keyValues.put(key, val);
           });
@@ -508,23 +506,23 @@ public class BTreeTestIT {
       Random random,
       boolean keyInclusive,
       boolean ascSortOrder) {
-    EdgeKey[] keys = new EdgeKey[keyValues.size()];
-    int index = 0;
+    var keys = new EdgeKey[keyValues.size()];
+    var index = 0;
 
-    for (EdgeKey key : keyValues.keySet()) {
+    for (var key : keyValues.keySet()) {
       keys[index] = key;
       index++;
     }
 
-    for (int i = 0; i < 100; i++) {
-      int toKeyIndex = random.nextInt(keys.length);
-      EdgeKey toKey = keys[toKeyIndex];
+    for (var i = 0; i < 100; i++) {
+      var toKeyIndex = random.nextInt(keys.length);
+      var toKey = keys[toKeyIndex];
       if (random.nextBoolean()) {
         toKey = new EdgeKey(toKey.ridBagId, toKey.targetCluster, toKey.targetPosition + 1);
       }
 
       final Iterator<RawPairObjectInteger<EdgeKey>> indexIterator;
-      try (Stream<RawPairObjectInteger<EdgeKey>> stream =
+      try (var stream =
           bTree.iterateEntriesMinor(toKey, keyInclusive, ascSortOrder)) {
         indexIterator = stream.iterator();
 
@@ -536,8 +534,8 @@ public class BTreeTestIT {
         }
 
         while (iterator.hasNext()) {
-          RawPairObjectInteger<EdgeKey> indexEntry = indexIterator.next();
-          Map.Entry<EdgeKey, Integer> entry = iterator.next();
+          var indexEntry = indexIterator.next();
+          var entry = iterator.next();
 
           Assert.assertEquals(indexEntry.first, entry.getKey());
           Assert.assertEquals(indexEntry.second, entry.getValue().intValue());
@@ -555,16 +553,16 @@ public class BTreeTestIT {
     System.out.printf("Keys count %d%n", keysCount);
 
     NavigableMap<EdgeKey, Integer> keyValues = new TreeMap<>();
-    final Random random = new Random();
+    final var random = new Random();
 
-    int printCounter = 0;
+    var printCounter = 0;
 
     while (keyValues.size() < keysCount) {
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
           atomicOperation -> {
-            int val = random.nextInt(Integer.MAX_VALUE);
-            EdgeKey key = new EdgeKey(42, val, val % 64937);
+            var val = random.nextInt(Integer.MAX_VALUE);
+            var key = new EdgeKey(42, val, val % 64937);
             bTree.put(atomicOperation, key, val);
             keyValues.put(key, val);
           });
@@ -594,24 +592,24 @@ public class BTreeTestIT {
       boolean fromInclusive,
       boolean toInclusive,
       boolean ascSortOrder) {
-    EdgeKey[] keys = new EdgeKey[keyValues.size()];
-    int index = 0;
+    var keys = new EdgeKey[keyValues.size()];
+    var index = 0;
 
-    for (EdgeKey key : keyValues.keySet()) {
+    for (var key : keyValues.keySet()) {
       keys[index] = key;
       index++;
     }
 
-    for (int i = 0; i < 100; i++) {
-      int fromKeyIndex = random.nextInt(keys.length);
-      int toKeyIndex = random.nextInt(keys.length);
+    for (var i = 0; i < 100; i++) {
+      var fromKeyIndex = random.nextInt(keys.length);
+      var toKeyIndex = random.nextInt(keys.length);
 
       if (fromKeyIndex > toKeyIndex) {
         toKeyIndex = fromKeyIndex;
       }
 
-      EdgeKey fromKey = keys[fromKeyIndex];
-      EdgeKey toKey = keys[toKeyIndex];
+      var fromKey = keys[fromKeyIndex];
+      var toKey = keys[toKeyIndex];
 
       if (random.nextBoolean()) {
         fromKey = new EdgeKey(fromKey.ridBagId, fromKey.targetCluster, fromKey.targetPosition - 1);
@@ -626,7 +624,7 @@ public class BTreeTestIT {
       }
 
       final Iterator<RawPairObjectInteger<EdgeKey>> indexIterator;
-      try (Stream<RawPairObjectInteger<EdgeKey>> stream =
+      try (var stream =
           bTree.iterateEntriesBetween(fromKey, fromInclusive, toKey, toInclusive, ascSortOrder)) {
         indexIterator = stream.iterator();
 
@@ -644,10 +642,10 @@ public class BTreeTestIT {
         }
 
         while (iterator.hasNext()) {
-          RawPairObjectInteger<EdgeKey> indexEntry = indexIterator.next();
+          var indexEntry = indexIterator.next();
           Assert.assertNotNull(indexEntry);
 
-          Map.Entry<EdgeKey, Integer> mapEntry = iterator.next();
+          var mapEntry = iterator.next();
           Assert.assertEquals(indexEntry.first, mapEntry.getKey());
           Assert.assertEquals(indexEntry.second, mapEntry.getValue().intValue());
         }

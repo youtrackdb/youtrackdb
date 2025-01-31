@@ -10,14 +10,14 @@ public class RecordSerializerBinaryDebug extends RecordSerializerBinaryV0 {
 
   public RecordSerializationDebug deserializeDebug(
       final byte[] iSource, DatabaseSessionInternal db) {
-    RecordSerializationDebug debugInfo = new RecordSerializationDebug();
-    ImmutableSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
-    BytesContainer bytes = new BytesContainer(iSource);
+    var debugInfo = new RecordSerializationDebug();
+    var schema = db.getMetadata().getImmutableSchemaSnapshot();
+    var bytes = new BytesContainer(iSource);
     int version = readByte(bytes);
 
     if (RecordSerializerBinary.INSTANCE.getSerializer(version).isSerializingClassNameByDefault()) {
       try {
-        final String className = readString(bytes);
+        final var className = readString(bytes);
         debugInfo.className = className;
       } catch (RuntimeException ex) {
         debugInfo.readingFailure = true;

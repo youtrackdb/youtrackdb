@@ -32,18 +32,18 @@ public class ScriptTransformerImpl implements ScriptTransformer {
 
     if (!GlobalConfiguration.SCRIPT_POLYGLOT_USE_GRAAL.getValueAsBoolean()) {
       try {
-        final Class<?> c = Class.forName("jdk.nashorn.api.scripting.JSObject");
+        final var c = Class.forName("jdk.nashorn.api.scripting.JSObject");
         registerResultTransformer(
             c,
             new ResultTransformer() {
               @Override
               public Result transform(DatabaseSessionInternal db, Object value) {
-                ResultInternal internal = new ResultInternal(db);
+                var internal = new ResultInternal(db);
 
                 final List res = new ArrayList();
                 internal.setProperty("value", res);
 
-                for (Object v : ((Map) value).values()) {
+                for (var v : ((Map) value).values()) {
                   res.add(new ResultInternal(db, (Identifiable) v));
                 }
 
@@ -64,7 +64,7 @@ public class ScriptTransformerImpl implements ScriptTransformer {
         return null;
       } else if (v.hasArrayElements()) {
         final List<Object> array = new ArrayList<>((int) v.getArraySize());
-        for (int i = 0; i < v.getArraySize(); ++i) {
+        for (var i = 0; i < v.getArraySize(); ++i) {
           array.add(new ResultInternal(db, v.getArrayElement(i).asHostObject()));
         }
         value = array;
@@ -87,7 +87,7 @@ public class ScriptTransformerImpl implements ScriptTransformer {
     } else if (value instanceof Iterator) {
       return new ScriptResultSet(db, (Iterator) value, this);
     }
-    ResultSetTransformer resultSetTransformer = resultSetTransformers.get(value.getClass());
+    var resultSetTransformer = resultSetTransformers.get(value.getClass());
 
     if (resultSetTransformer != null) {
       return resultSetTransformer.transform(value);
@@ -102,7 +102,7 @@ public class ScriptTransformerImpl implements ScriptTransformer {
   @Override
   public Result toResult(DatabaseSessionInternal db, Object value) {
 
-    ResultTransformer transformer = getTransformer(value.getClass());
+    var transformer = getTransformer(value.getClass());
 
     if (transformer == null) {
       return defaultTransformer(db, value);
@@ -112,7 +112,7 @@ public class ScriptTransformerImpl implements ScriptTransformer {
 
   public ResultTransformer getTransformer(final Class clazz) {
     if (clazz != null) {
-      for (Map.Entry<Class, ResultTransformer> entry : transformers.entrySet()) {
+      for (var entry : transformers.entrySet()) {
         if (entry.getKey().isAssignableFrom(clazz)) {
           return entry.getValue();
         }
@@ -127,7 +127,7 @@ public class ScriptTransformerImpl implements ScriptTransformer {
   }
 
   private Result defaultTransformer(DatabaseSessionInternal db, Object value) {
-    ResultInternal internal = new ResultInternal(db);
+    var internal = new ResultInternal(db);
     internal.setProperty("value", value);
     return internal;
   }

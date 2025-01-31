@@ -6,9 +6,9 @@ import java.nio.ByteBuffer;
 public final class LongSerializer {
 
   public static int getObjectSize(long value) {
-    final int zeroBits = Long.numberOfLeadingZeros(value);
-    final int zerosTillFullByte = zeroBits & 7;
-    final int numberSize = 8 - (zeroBits - zerosTillFullByte) / 8;
+    final var zeroBits = Long.numberOfLeadingZeros(value);
+    final var zerosTillFullByte = zeroBits & 7;
+    final var numberSize = 8 - (zeroBits - zerosTillFullByte) / 8;
     return numberSize + 1;
   }
 
@@ -30,14 +30,14 @@ public final class LongSerializer {
   }
 
   public static int serialize(long value, final byte[] stream, int position) {
-    final int zeroBits = Long.numberOfLeadingZeros(value);
-    final int zerosTillFullByte = zeroBits & 7;
-    final int numberSize = 8 - (zeroBits - zerosTillFullByte) / 8;
+    final var zeroBits = Long.numberOfLeadingZeros(value);
+    final var zerosTillFullByte = zeroBits & 7;
+    final var numberSize = 8 - (zeroBits - zerosTillFullByte) / 8;
 
     stream[position] = (byte) numberSize;
     position++;
 
-    for (int i = 0; i < numberSize; i++) {
+    for (var i = 0; i < numberSize; i++) {
       stream[position + i] = (byte) ((0xFF) & value);
       value = value >>> 8;
     }
@@ -46,13 +46,13 @@ public final class LongSerializer {
   }
 
   public static void serialize(long value, final ByteBuffer buffer) {
-    final int zeroBits = Long.numberOfLeadingZeros(value);
-    final int zerosTillFullByte = zeroBits & 7;
-    final int numberSize = 8 - (zeroBits - zerosTillFullByte) / 8;
+    final var zeroBits = Long.numberOfLeadingZeros(value);
+    final var zerosTillFullByte = zeroBits & 7;
+    final var numberSize = 8 - (zeroBits - zerosTillFullByte) / 8;
 
     buffer.put((byte) numberSize);
 
-    for (int i = 0; i < numberSize; i++) {
+    for (var i = 0; i < numberSize; i++) {
       buffer.put((byte) ((0xFF) & value));
       value = value >>> 8;
     }
@@ -62,7 +62,7 @@ public final class LongSerializer {
     final int numberSize = buffer.get();
 
     long value = 0;
-    for (int i = 0; i < numberSize; i++) {
+    for (var i = 0; i < numberSize; i++) {
       value = value | ((0xFFL & buffer.get()) << (i * 8));
     }
 
@@ -74,7 +74,7 @@ public final class LongSerializer {
     offset++;
 
     long value = 0;
-    for (int i = 0; i < numberSize; i++) {
+    for (var i = 0; i < numberSize; i++) {
       value = value | ((0xFFL & buffer.get(offset)) << (i * 8));
       offset++;
     }
@@ -87,7 +87,7 @@ public final class LongSerializer {
     startPosition++;
 
     long value = 0;
-    for (int i = 0; i < numberSize; i++) {
+    for (var i = 0; i < numberSize; i++) {
       value = value | ((0xFFL & stream[startPosition + i]) << (i * 8));
     }
 
@@ -100,7 +100,7 @@ public final class LongSerializer {
     startPosition++;
 
     long value = 0;
-    for (int i = 0; i < numberSize; i++) {
+    for (var i = 0; i < numberSize; i++) {
       value = value | ((0xFFL & changes.getByteValue(buffer, startPosition + i)) << (i * 8));
     }
 

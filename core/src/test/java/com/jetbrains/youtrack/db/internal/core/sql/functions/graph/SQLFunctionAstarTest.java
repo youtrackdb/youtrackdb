@@ -88,7 +88,7 @@ public class SQLFunctionAstarTest {
     graph.createEdgeClass("has_path");
 
     graph.begin();
-    Function cf = graph.getMetadata().getFunctionLibrary().createFunction("myCustomHeuristic");
+    var cf = graph.getMetadata().getFunctionLibrary().createFunction("myCustomHeuristic");
     cf.setCode("return 1;");
     cf.save(graph);
 
@@ -142,67 +142,67 @@ public class SQLFunctionAstarTest {
     v6.setProperty("lon", -118.243685f);
     v6.setProperty("alt", 400);
 
-    Edge e1 = graph.newRegularEdge(v1, v2, "has_path");
+    var e1 = graph.newRegularEdge(v1, v2, "has_path");
     e1.setProperty("weight", 250.0f);
     e1.setProperty("ptype", "road");
     e1.save();
-    Edge e2 = graph.newRegularEdge(v2, v3, "has_path");
+    var e2 = graph.newRegularEdge(v2, v3, "has_path");
     e2.setProperty("weight", 250.0f);
     e2.setProperty("ptype", "road");
     e2.save();
-    Edge e3 = graph.newRegularEdge(v1, v3, "has_path");
+    var e3 = graph.newRegularEdge(v1, v3, "has_path");
     e3.setProperty("weight", 1000.0f);
     e3.setProperty("ptype", "road");
     e3.save();
-    Edge e4 = graph.newRegularEdge(v3, v4, "has_path");
+    var e4 = graph.newRegularEdge(v3, v4, "has_path");
     e4.setProperty("weight", 250.0f);
     e4.setProperty("ptype", "road");
     e4.save();
-    Edge e5 = graph.newRegularEdge(v2, v4, "has_path");
+    var e5 = graph.newRegularEdge(v2, v4, "has_path");
     e5.setProperty("weight", 600.0f);
     e5.setProperty("ptype", "road");
     e5.save();
-    Edge e6 = graph.newRegularEdge(v4, v5, "has_path");
+    var e6 = graph.newRegularEdge(v4, v5, "has_path");
     e6.setProperty("weight", 400.0f);
     e6.setProperty("ptype", "road");
     e6.save();
-    Edge e7 = graph.newRegularEdge(v5, v6, "has_path");
+    var e7 = graph.newRegularEdge(v5, v6, "has_path");
     e7.setProperty("weight", 300.0f);
     e7.setProperty("ptype", "road");
     e7.save();
-    Edge e8 = graph.newRegularEdge(v3, v6, "has_path");
+    var e8 = graph.newRegularEdge(v3, v6, "has_path");
     e8.setProperty("weight", 200.0f);
     e8.setProperty("ptype", "road");
     e8.save();
-    Edge e9 = graph.newRegularEdge(v4, v6, "has_path");
+    var e9 = graph.newRegularEdge(v4, v6, "has_path");
     e9.setProperty("weight", 900.0f);
     e9.setProperty("ptype", "road");
     e9.save();
-    Edge e10 = graph.newRegularEdge(v2, v6, "has_path");
+    var e10 = graph.newRegularEdge(v2, v6, "has_path");
     e10.setProperty("weight", 2500.0f);
     e10.setProperty("ptype", "road");
     e10.save();
-    Edge e11 = graph.newRegularEdge(v1, v5, "has_path");
+    var e11 = graph.newRegularEdge(v1, v5, "has_path");
     e11.setProperty("weight", 100.0f);
     e11.setProperty("ptype", "road");
     e11.save();
-    Edge e12 = graph.newRegularEdge(v4, v1, "has_path");
+    var e12 = graph.newRegularEdge(v4, v1, "has_path");
     e12.setProperty("weight", 200.0f);
     e12.setProperty("ptype", "road");
     e12.save();
-    Edge e13 = graph.newRegularEdge(v5, v3, "has_path");
+    var e13 = graph.newRegularEdge(v5, v3, "has_path");
     e13.setProperty("weight", 800.0f);
     e13.setProperty("ptype", "road");
     e13.save();
-    Edge e14 = graph.newRegularEdge(v5, v2, "has_path");
+    var e14 = graph.newRegularEdge(v5, v2, "has_path");
     e14.setProperty("weight", 500.0f);
     e14.setProperty("ptype", "road");
     e14.save();
-    Edge e15 = graph.newRegularEdge(v6, v5, "has_path");
+    var e15 = graph.newRegularEdge(v6, v5, "has_path");
     e15.setProperty("weight", 250.0f);
     e15.setProperty("ptype", "road");
     e15.save();
-    Edge e16 = graph.newRegularEdge(v3, v1, "has_path");
+    var e16 = graph.newRegularEdge(v3, v1, "has_path");
     e16.setProperty("weight", 550.0f);
     e16.setProperty("ptype", "road");
     e16.save();
@@ -215,7 +215,7 @@ public class SQLFunctionAstarTest {
     options.put(SQLFunctionAstar.PARAM_DIRECTION, "out");
     options.put(SQLFunctionAstar.PARAM_PARALLEL, true);
     options.put(SQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
 
     v1 = graph.bindToSession(v1);
     v4 = graph.bindToSession(v4);
@@ -223,7 +223,7 @@ public class SQLFunctionAstarTest {
     ctx.setDatabase(graph);
     final List<Vertex> result =
         functionAstar.execute(null, null, null, new Object[]{v1, v4, "'weight'", options}, ctx);
-    try (ResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (var rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
 
@@ -240,7 +240,7 @@ public class SQLFunctionAstarTest {
     options.put(SQLFunctionAstar.PARAM_DIRECTION, "out");
     options.put(SQLFunctionAstar.PARAM_PARALLEL, true);
     options.put(SQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     ctx.setDatabase(graph);
 
     v1 = graph.bindToSession(v1);
@@ -248,7 +248,7 @@ public class SQLFunctionAstarTest {
 
     final List<Vertex> result =
         functionAstar.execute(null, null, null, new Object[]{v1, v6, "'weight'", options}, ctx);
-    try (ResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (var rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
     assertEquals(3, result.size());
@@ -264,7 +264,7 @@ public class SQLFunctionAstarTest {
     options.put(SQLFunctionAstar.PARAM_PARALLEL, true);
     options.put(SQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
     options.put(SQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     ctx.setDatabase(graph);
 
     v1 = graph.bindToSession(v1);
@@ -272,7 +272,7 @@ public class SQLFunctionAstarTest {
 
     final List<Vertex> result =
         functionAstar.execute(null, null, null, new Object[]{v1, v6, "'weight'", options}, ctx);
-    try (ResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (var rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
 
@@ -289,7 +289,7 @@ public class SQLFunctionAstarTest {
     options.put(SQLFunctionAstar.PARAM_PARALLEL, true);
     options.put(SQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
     options.put(SQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon", "alt"});
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     ctx.setDatabase(graph);
 
     v1 = graph.bindToSession(v1);
@@ -297,7 +297,7 @@ public class SQLFunctionAstarTest {
 
     final List<Vertex> result =
         functionAstar.execute(null, null, null, new Object[]{v1, v6, "'weight'", options}, ctx);
-    try (ResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (var rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
 
@@ -314,7 +314,7 @@ public class SQLFunctionAstarTest {
     options.put(SQLFunctionAstar.PARAM_PARALLEL, true);
     options.put(SQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
     options.put(SQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     ctx.setDatabase(graph);
 
     v3 = graph.bindToSession(v3);
@@ -322,7 +322,7 @@ public class SQLFunctionAstarTest {
 
     final List<Vertex> result =
         functionAstar.execute(null, null, null, new Object[]{v3, v5, "'weight'", options}, ctx);
-    try (ResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (var rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
 
@@ -339,7 +339,7 @@ public class SQLFunctionAstarTest {
     options.put(SQLFunctionAstar.PARAM_PARALLEL, true);
     options.put(SQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
     options.put(SQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     ctx.setDatabase(graph);
 
     v6 = graph.bindToSession(v6);
@@ -347,7 +347,7 @@ public class SQLFunctionAstarTest {
 
     final List<Vertex> result =
         functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
-    try (ResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (var rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
 
@@ -368,7 +368,7 @@ public class SQLFunctionAstarTest {
     options.put(SQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
     options.put(SQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     options.put(SQLFunctionAstar.PARAM_HEURISTIC_FORMULA, "EucliDEAN");
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     ctx.setDatabase(graph);
 
     v6 = graph.bindToSession(v6);
@@ -376,7 +376,7 @@ public class SQLFunctionAstarTest {
 
     final List<Vertex> result =
         functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
-    try (ResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (var rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
 
@@ -398,7 +398,7 @@ public class SQLFunctionAstarTest {
     options.put(SQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
     options.put(SQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     options.put(SQLFunctionAstar.PARAM_HEURISTIC_FORMULA, HeuristicFormula.EUCLIDEANNOSQR);
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     ctx.setDatabase(graph);
 
     v6 = graph.bindToSession(v6);
@@ -406,7 +406,7 @@ public class SQLFunctionAstarTest {
 
     final List<Vertex> result =
         functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
-    try (ResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (var rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
 
@@ -427,14 +427,14 @@ public class SQLFunctionAstarTest {
     options.put(SQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
     options.put(SQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     options.put(SQLFunctionAstar.PARAM_HEURISTIC_FORMULA, HeuristicFormula.MAXAXIS);
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     ctx.setDatabase(graph);
 
     v6 = graph.bindToSession(v6);
     v1 = graph.bindToSession(v1);
     final List<Vertex> result =
         functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
-    try (ResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (var rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
 
@@ -454,14 +454,14 @@ public class SQLFunctionAstarTest {
     options.put(SQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     options.put(SQLFunctionAstar.PARAM_HEURISTIC_FORMULA, HeuristicFormula.CUSTOM);
     options.put(SQLFunctionAstar.PARAM_CUSTOM_HEURISTIC_FORMULA, "myCustomHeuristic");
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     ctx.setDatabase(graph);
 
     v6 = graph.bindToSession(v6);
     v1 = graph.bindToSession(v1);
     final List<Vertex> result =
         functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
-    try (ResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (var rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
 
@@ -486,7 +486,7 @@ public class SQLFunctionAstarTest {
     options.put(SQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     options.put(SQLFunctionAstar.PARAM_HEURISTIC_FORMULA, HeuristicFormula.CUSTOM);
     options.put(SQLFunctionAstar.PARAM_CUSTOM_HEURISTIC_FORMULA, "myCustomHeuristic");
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     ctx.setDatabase(graph);
 
     v6 = graph.bindToSession(v6);
@@ -494,7 +494,7 @@ public class SQLFunctionAstarTest {
 
     final List<Vertex> result =
         functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
-    try (ResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (var rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
 
@@ -513,7 +513,7 @@ public class SQLFunctionAstarTest {
     options.put(SQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     options.put(SQLFunctionAstar.PARAM_HEURISTIC_FORMULA, HeuristicFormula.CUSTOM);
     options.put(SQLFunctionAstar.PARAM_CUSTOM_HEURISTIC_FORMULA, "myCustomHeuristic");
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     ctx.setDatabase(graph);
 
     v6 = graph.bindToSession(v6);
@@ -521,7 +521,7 @@ public class SQLFunctionAstarTest {
 
     final List<Vertex> result =
         functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
-    try (ResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (var rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
 
@@ -534,7 +534,7 @@ public class SQLFunctionAstarTest {
 
   @Test
   public void testSql() {
-    ResultSet r =
+    var r =
         graph.query(
             "select expand(astar("
                 + v1.getIdentity()
@@ -546,7 +546,7 @@ public class SQLFunctionAstarTest {
     while (r.hasNext()) {
       result.add(r.next().getIdentity().get());
     }
-    try (ResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (var rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
 

@@ -223,7 +223,7 @@ public class TestSchemaPropertyTypeDetection extends DbTestBase {
     linkSet2.add(db.newEntity());
     assertEquals(PropertyType.LINKSET, PropertyType.getTypeByValue(linkSet2));
 
-    EntityImpl document = (EntityImpl) db.newEntity();
+    var document = (EntityImpl) db.newEntity();
     EntityInternalUtils.addOwner(document, (EntityImpl) db.newEntity());
     assertEquals(PropertyType.EMBEDDED, PropertyType.getTypeByValue(document));
   }

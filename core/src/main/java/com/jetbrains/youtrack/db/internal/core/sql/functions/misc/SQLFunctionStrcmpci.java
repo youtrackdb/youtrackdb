@@ -61,7 +61,7 @@ public class SQLFunctionStrcmpci extends SQLFunctionAbstract {
       return 1;
     }
 
-    int res = s1.compareToIgnoreCase(s2);
+    var res = s1.compareToIgnoreCase(s2);
     if (res != 0) {
       // normalize res to -1, 0, 1
       res = res / Math.abs(res);

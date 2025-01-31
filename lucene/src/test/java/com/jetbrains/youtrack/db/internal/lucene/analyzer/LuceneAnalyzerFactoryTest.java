@@ -37,7 +37,7 @@ public class LuceneAnalyzerFactoryTest extends LuceneBaseTest {
     // default analyzer for indexing is keyword
     // default analyzer for query is standard
 
-    String metajson =
+    var metajson =
         IOUtils.readFileAsString(new File("./src/test/resources/index_metadata_new.json"));
     var metadataDocument = ((EntityImpl) db.newEntity());
     metadataDocument.updateFromJSON(metajson);
@@ -66,7 +66,7 @@ public class LuceneAnalyzerFactoryTest extends LuceneBaseTest {
 
   @Test
   public void shouldAssignStandardAnalyzerForIndexingUndefined() throws Exception {
-    LucenePerFieldAnalyzerWrapper analyzer =
+    var analyzer =
         (LucenePerFieldAnalyzerWrapper) analyzerFactory.createAnalyzer(indexDef, INDEX, metadata);
     // default analyzer for indexing
     assertThat(analyzer.getWrappedAnalyzer("undefined")).isInstanceOf(StandardAnalyzer.class);
@@ -74,7 +74,7 @@ public class LuceneAnalyzerFactoryTest extends LuceneBaseTest {
 
   @Test
   public void shouldAssignKeywordAnalyzerForIndexing() throws Exception {
-    LucenePerFieldAnalyzerWrapper analyzer =
+    var analyzer =
         (LucenePerFieldAnalyzerWrapper) analyzerFactory.createAnalyzer(indexDef, INDEX, metadata);
     // default analyzer for indexing
     assertThat(analyzer.getWrappedAnalyzer("genre")).isInstanceOf(KeywordAnalyzer.class);
@@ -83,7 +83,7 @@ public class LuceneAnalyzerFactoryTest extends LuceneBaseTest {
 
   @Test
   public void shouldAssignConfiguredAnalyzerForIndexing() throws Exception {
-    LucenePerFieldAnalyzerWrapper analyzer =
+    var analyzer =
         (LucenePerFieldAnalyzerWrapper) analyzerFactory.createAnalyzer(indexDef, INDEX, metadata);
     assertThat(analyzer.getWrappedAnalyzer("title")).isInstanceOf(EnglishAnalyzer.class);
     assertThat(analyzer.getWrappedAnalyzer("Song.title")).isInstanceOf(EnglishAnalyzer.class);
@@ -98,7 +98,7 @@ public class LuceneAnalyzerFactoryTest extends LuceneBaseTest {
     assertThat(analyzer.getWrappedAnalyzer("Song.description"))
         .isInstanceOf(StandardAnalyzer.class);
 
-    StopwordAnalyzerBase description =
+    var description =
         (StopwordAnalyzerBase) analyzer.getWrappedAnalyzer("description");
 
     assertThat(description.getStopwordSet()).isNotEmpty();
@@ -109,7 +109,7 @@ public class LuceneAnalyzerFactoryTest extends LuceneBaseTest {
 
   @Test
   public void shouldAssignConfiguredAnalyzerForQuery() throws Exception {
-    LucenePerFieldAnalyzerWrapper analyzer =
+    var analyzer =
         (LucenePerFieldAnalyzerWrapper) analyzerFactory.createAnalyzer(indexDef, QUERY, metadata);
     assertThat(analyzer.getWrappedAnalyzer("title")).isInstanceOf(EnglishAnalyzer.class);
     assertThat(analyzer.getWrappedAnalyzer("Song.title")).isInstanceOf(EnglishAnalyzer.class);
@@ -123,7 +123,7 @@ public class LuceneAnalyzerFactoryTest extends LuceneBaseTest {
 
   @Test
   public void shouldUseClassNameToPrefixFieldName() {
-    final LucenePerFieldAnalyzerWrapper analyzer =
+    final var analyzer =
         (LucenePerFieldAnalyzerWrapper) analyzerFactory.createAnalyzer(indexDef, QUERY, metadata);
     assertThat(analyzer.getWrappedAnalyzer("Song.title")).isInstanceOf(EnglishAnalyzer.class);
     assertThat(analyzer.getWrappedAnalyzer("Song.author")).isInstanceOf(KeywordAnalyzer.class);

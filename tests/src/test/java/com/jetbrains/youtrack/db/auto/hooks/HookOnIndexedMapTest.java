@@ -17,7 +17,7 @@ public class HookOnIndexedMapTest {
 
     youTrackDb.execute(
         "create database " + "test" + " memory users ( admin identified by 'admin' role admin)");
-    DatabaseSession db = youTrackDb.open("test", "admin", "admin");
+    var db = youTrackDb.open("test", "admin", "admin");
     db.registerHook(new BrokenMapHook());
 
     db.command("CREATE CLASS AbsVertex IF NOT EXISTS EXTENDS V ABSTRACT;");
@@ -30,13 +30,13 @@ public class HookOnIndexedMapTest {
 
     db.command("INSERT INTO MyClass SET uId = \"test1\", myMap={\"F1\": \"V1\"}");
 
-    try (ResultSet rs = db.command("SELECT * FROM INDEX:MyClass.myMap ORDER BY rid")) {
+    try (var rs = db.command("SELECT * FROM INDEX:MyClass.myMap ORDER BY rid")) {
       //      System.out.println("----------");
       //      System.out.println("SELECT * FROM INDEX:MyClass.myMap ORDER BY rid");
       //      rs.forEachRemaining(x-> System.out.println(x));
     }
 
-    try (ResultSet rs = db.command("SELECT FROM V")) {
+    try (var rs = db.command("SELECT FROM V")) {
       //      System.out.println("----------");
       //      System.out.println("SELECT FROM V");
       //      rs.forEachRemaining(x-> System.out.println(x));
@@ -44,25 +44,25 @@ public class HookOnIndexedMapTest {
 
     db.command("UPDATE MyClass SET myMap = {\"F11\": \"V11\"} WHERE uId = \"test1\"");
 
-    try (ResultSet rs = db.command("SELECT FROM V")) {
+    try (var rs = db.command("SELECT FROM V")) {
       //      System.out.println("----------");
       //      System.out.println("SELECT FROM V");
       //      rs.forEachRemaining(x-> System.out.println(x));
     }
 
-    try (ResultSet rs = db.command("SELECT * FROM INDEX:MyClass.myMap ORDER BY rid")) {
+    try (var rs = db.command("SELECT * FROM INDEX:MyClass.myMap ORDER BY rid")) {
       //      System.out.println("----------");
       //      System.out.println("SELECT * FROM INDEX:MyClass.myMap ORDER BY rid");
       //      rs.forEachRemaining(x-> System.out.println(x));
     }
 
-    try (ResultSet rs = db.command("SELECT COUNT(*) FROM MyClass WHERE myMap.F1 IS NOT NULL")) {
+    try (var rs = db.command("SELECT COUNT(*) FROM MyClass WHERE myMap.F1 IS NOT NULL")) {
       //      System.out.println("----------");
       //      System.out.println("SELECT COUNT(*) FROM MyClass WHERE myMap.F1 IS NOT NULL");
       //      rs.forEachRemaining(x-> System.out.println(x));
     }
 
-    try (ResultSet rs = db.query("SELECT COUNT(*) FROM MyClass WHERE myMap CONTAINSKEY 'F1'")) {
+    try (var rs = db.query("SELECT COUNT(*) FROM MyClass WHERE myMap CONTAINSKEY 'F1'")) {
       //      System.out.println("----------");
       //      System.out.println("SELECT COUNT(*) FROM MyClass WHERE myMap CONTAINSKEY 'F1'");
       //      rs.forEachRemaining(x-> System.out.println(x));
@@ -70,7 +70,7 @@ public class HookOnIndexedMapTest {
 
     db.command("DELETE VERTEX FROM V");
 
-    try (ResultSet rs = db.command("SELECT * FROM INDEX:MyClass.myMap ORDER BY rid")) {
+    try (var rs = db.command("SELECT * FROM INDEX:MyClass.myMap ORDER BY rid")) {
       //      System.out.println("----------");
       //      System.out.println("SELECT * FROM INDEX:MyClass.myMap ORDER BY rid");
       if (rs.hasNext()) {

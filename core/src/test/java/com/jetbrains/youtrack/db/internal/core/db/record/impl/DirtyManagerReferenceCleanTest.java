@@ -17,8 +17,8 @@ public class DirtyManagerReferenceCleanTest extends DbTestBase {
   @Test
   public void testReferDeletedDocument() {
     var id = db.computeInTx(() -> {
-      EntityImpl doc = (EntityImpl) db.newEntity();
-      EntityImpl doc1 = (EntityImpl) db.newEntity();
+      var doc = (EntityImpl) db.newEntity();
+      var doc1 = (EntityImpl) db.newEntity();
       doc1.field("aa", "aa");
       doc.field("ref", doc1);
       doc.field("bb");

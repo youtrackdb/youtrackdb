@@ -49,17 +49,17 @@ public class SecurityEngine {
       SecurityShared security,
       String resourceString,
       SecurityPolicy.Scope scope) {
-    SecurityUser user = session.geCurrentUser();
+    var user = session.geCurrentUser();
     if (user == null) {
       return SQLBooleanExpression.FALSE;
     }
 
-    Set<? extends SecurityRole> roles = user.getRoles();
+    var roles = user.getRoles();
     if (roles == null || roles.isEmpty()) {
       return SQLBooleanExpression.FALSE;
     }
 
-    SecurityResource resource = getResourceFromString(resourceString);
+    var resource = getResourceFromString(resourceString);
     if (resource instanceof SecurityResourceClass) {
       return getPredicateForClass(session, security, (SecurityResourceClass) resource, scope);
     } else if (resource instanceof SecurityResourceProperty) {
@@ -77,9 +77,9 @@ public class SecurityEngine {
       SecurityShared security,
       SecurityResourceFunction resource,
       SecurityPolicy.Scope scope) {
-    Function function =
+    var function =
         session.getMetadata().getFunctionLibrary().getFunction(resource.getFunctionName());
-    Set<? extends SecurityRole> roles = session.geCurrentUser().getRoles();
+    var roles = session.geCurrentUser().getRoles();
     if (roles == null || roles.size() == 0) {
       return null;
     }
@@ -88,10 +88,10 @@ public class SecurityEngine {
           session, security, roles.iterator().next(), function, scope);
     }
 
-    SQLOrBlock result = new SQLOrBlock(-1);
+    var result = new SQLOrBlock(-1);
 
-    for (SecurityRole role : roles) {
-      SQLBooleanExpression roleBlock =
+    for (var role : roles) {
+      var roleBlock =
           getPredicateForRoleHierarchy(session, security, role, function, scope);
       if (SQLBooleanExpression.TRUE.equals(roleBlock)) {
         return SQLBooleanExpression.TRUE;
@@ -107,13 +107,13 @@ public class SecurityEngine {
       SecurityShared security,
       SecurityResourceProperty resource,
       SecurityPolicy.Scope scope) {
-    SchemaClass clazz =
+    var clazz =
         session
             .getMetadata()
             .getImmutableSchemaSnapshot()
             .getClass(resource.getClassName());
-    String propertyName = resource.getPropertyName();
-    Set<? extends SecurityRole> roles = session.geCurrentUser().getRoles();
+    var propertyName = resource.getPropertyName();
+    var roles = session.geCurrentUser().getRoles();
     if (roles == null || roles.size() == 0) {
       return null;
     }
@@ -122,10 +122,10 @@ public class SecurityEngine {
           session, security, roles.iterator().next(), clazz, propertyName, scope);
     }
 
-    SQLOrBlock result = new SQLOrBlock(-1);
+    var result = new SQLOrBlock(-1);
 
-    for (SecurityRole role : roles) {
-      SQLBooleanExpression roleBlock =
+    for (var role : roles) {
+      var roleBlock =
           getPredicateForRoleHierarchy(session, security, role, clazz, propertyName, scope);
       if (SQLBooleanExpression.TRUE.equals(roleBlock)) {
         return SQLBooleanExpression.TRUE;
@@ -141,7 +141,7 @@ public class SecurityEngine {
       SecurityShared security,
       SecurityResourceClass resource,
       SecurityPolicy.Scope scope) {
-    SchemaClass clazz =
+    var clazz =
         session
             .getMetadata()
             .getImmutableSchemaSnapshot()
@@ -149,7 +149,7 @@ public class SecurityEngine {
     if (clazz == null) {
       return SQLBooleanExpression.TRUE;
     }
-    Set<? extends SecurityRole> roles = session.geCurrentUser().getRoles();
+    var roles = session.geCurrentUser().getRoles();
     if (roles == null || roles.size() == 0) {
       return null;
     }
@@ -157,10 +157,10 @@ public class SecurityEngine {
       return getPredicateForRoleHierarchy(session, security, roles.iterator().next(), clazz, scope);
     }
 
-    SQLOrBlock result = new SQLOrBlock(-1);
+    var result = new SQLOrBlock(-1);
 
-    for (SecurityRole role : roles) {
-      SQLBooleanExpression roleBlock =
+    for (var role : roles) {
+      var roleBlock =
           getPredicateForRoleHierarchy(session, security, role, clazz, scope);
       if (SQLBooleanExpression.TRUE.equals(roleBlock)) {
         return SQLBooleanExpression.TRUE;
@@ -179,7 +179,7 @@ public class SecurityEngine {
       SecurityPolicy.Scope scope) {
     // TODO cache!
 
-    SQLBooleanExpression result = getPredicateForFunction(session, security, role, function, scope);
+    var result = getPredicateForFunction(session, security, role, function, scope);
     if (result != null) {
       return result;
     }
@@ -196,14 +196,14 @@ public class SecurityEngine {
       SecurityRole role,
       Function clazz,
       SecurityPolicy.Scope scope) {
-    String resource = "database.function." + clazz.getName();
+    var resource = "database.function." + clazz.getName();
     var definedPolicies = security.getSecurityPolicies(session, role);
-    SecurityPolicy policy = definedPolicies.get(resource);
+    var policy = definedPolicies.get(resource);
 
-    String predicateString = policy != null ? policy.get(scope, session) : null;
+    var predicateString = policy != null ? policy.get(scope, session) : null;
 
     if (predicateString == null) {
-      SecurityPolicy wildcardPolicy = definedPolicies.get("database.function.*");
+      var wildcardPolicy = definedPolicies.get("database.function.*");
       predicateString = wildcardPolicy == null ? null : wildcardPolicy.get(scope, session);
     }
 
@@ -249,7 +249,7 @@ public class SecurityEngine {
       SchemaClass clazz,
       String propertyName,
       SecurityPolicy.Scope scope) {
-    String cacheKey = "$CLASS$" + clazz.getName() + "$PROP$" + propertyName + "$" + scope;
+    var cacheKey = "$CLASS$" + clazz.getName() + "$PROP$" + propertyName + "$" + scope;
     SQLBooleanExpression result;
     if (role != null) {
       result = security.getPredicateFromCache(role.getName(session), cacheKey);
@@ -279,19 +279,19 @@ public class SecurityEngine {
       SecurityRole role,
       SchemaClass clazz,
       SecurityPolicy.Scope scope) {
-    String resource = "database.class." + clazz.getName();
+    var resource = "database.class." + clazz.getName();
     var definedPolicies = security.getSecurityPolicies(session, role);
-    SecurityPolicy classPolicy = definedPolicies.get(resource);
+    var classPolicy = definedPolicies.get(resource);
 
-    String predicateString = classPolicy != null ? classPolicy.get(scope, session) : null;
+    var predicateString = classPolicy != null ? classPolicy.get(scope, session) : null;
     if (predicateString == null && !clazz.getSuperClasses().isEmpty()) {
       if (clazz.getSuperClasses().size() == 1) {
         return getPredicateForClassHierarchy(
             session, security, role, clazz.getSuperClasses().iterator().next(), scope);
       }
-      SQLAndBlock result = new SQLAndBlock(-1);
-      for (SchemaClass superClass : clazz.getSuperClasses()) {
-        SQLBooleanExpression superClassPredicate =
+      var result = new SQLAndBlock(-1);
+      for (var superClass : clazz.getSuperClasses()) {
+        var superClassPredicate =
             getPredicateForClassHierarchy(session, security, role, superClass, scope);
         if (superClassPredicate == null) {
           return SQLBooleanExpression.FALSE;
@@ -302,12 +302,12 @@ public class SecurityEngine {
     }
 
     if (predicateString == null) {
-      SecurityPolicy wildcardPolicy = definedPolicies.get("database.class.*");
+      var wildcardPolicy = definedPolicies.get("database.class.*");
       predicateString = wildcardPolicy == null ? null : wildcardPolicy.get(scope, session);
     }
 
     if (predicateString == null) {
-      SecurityPolicy wildcardPolicy = definedPolicies.get("*");
+      var wildcardPolicy = definedPolicies.get("*");
       predicateString = wildcardPolicy == null ? null : wildcardPolicy.get(scope, session);
     }
     if (predicateString != null) {
@@ -323,11 +323,11 @@ public class SecurityEngine {
       SchemaClass clazz,
       String propertyName,
       SecurityPolicy.Scope scope) {
-    String resource = "database.class." + clazz.getName() + "." + propertyName;
+    var resource = "database.class." + clazz.getName() + "." + propertyName;
     var definedPolicies = security.getSecurityPolicies(session, role);
-    SecurityPolicy classPolicy = definedPolicies.get(resource);
+    var classPolicy = definedPolicies.get(resource);
 
-    String predicateString = classPolicy != null ? classPolicy.get(scope, session) : null;
+    var predicateString = classPolicy != null ? classPolicy.get(scope, session) : null;
     if (predicateString == null && !clazz.getSuperClasses().isEmpty()) {
       if (clazz.getSuperClasses().size() == 1) {
         return getPredicateForClassHierarchy(
@@ -338,9 +338,9 @@ public class SecurityEngine {
             propertyName,
             scope);
       }
-      SQLAndBlock result = new SQLAndBlock(-1);
-      for (SchemaClass superClass : clazz.getSuperClasses()) {
-        SQLBooleanExpression superClassPredicate =
+      var result = new SQLAndBlock(-1);
+      for (var superClass : clazz.getSuperClasses()) {
+        var superClassPredicate =
             getPredicateForClassHierarchy(session, security, role, superClass, propertyName, scope);
         if (superClassPredicate == null) {
           return SQLBooleanExpression.TRUE;
@@ -351,23 +351,23 @@ public class SecurityEngine {
     }
 
     if (predicateString == null) {
-      SecurityPolicy wildcardPolicy =
+      var wildcardPolicy =
           definedPolicies.get("database.class." + clazz.getName() + ".*");
       predicateString = wildcardPolicy == null ? null : wildcardPolicy.get(scope, session);
     }
 
     if (predicateString == null) {
-      SecurityPolicy wildcardPolicy = definedPolicies.get("database.class.*." + propertyName);
+      var wildcardPolicy = definedPolicies.get("database.class.*." + propertyName);
       predicateString = wildcardPolicy == null ? null : wildcardPolicy.get(scope, session);
     }
 
     if (predicateString == null) {
-      SecurityPolicy wildcardPolicy = definedPolicies.get("database.class.*.*");
+      var wildcardPolicy = definedPolicies.get("database.class.*.*");
       predicateString = wildcardPolicy == null ? null : wildcardPolicy.get(scope, session);
     }
 
     if (predicateString == null) {
-      SecurityPolicy wildcardPolicy = definedPolicies.get("*");
+      var wildcardPolicy = definedPolicies.get("*");
       predicateString = wildcardPolicy == null ? null : wildcardPolicy.get(scope, session);
     }
     // TODO
@@ -409,7 +409,7 @@ public class SecurityEngine {
     try {
       // Create a new instance of EntityImpl with a user record id, this will lazy load the user data
       // at the first access with the same execution permission of the policy
-      Identifiable user = session.geCurrentUser().getIdentity();
+      var user = session.geCurrentUser().getIdentity();
 
       var sessionInternal = session;
       var recordCopy = ((RecordAbstract) record).copy();
@@ -419,7 +419,7 @@ public class SecurityEngine {
           .executeNoAuthorizationSync(
               sessionInternal,
               (db -> {
-                BasicCommandContext ctx = new BasicCommandContext();
+                var ctx = new BasicCommandContext();
                 ctx.setDatabase(db);
                 ctx.setDynamicVariable("$currentUser", (inContext) -> user.getRecordSilently(db));
 
@@ -451,7 +451,7 @@ public class SecurityEngine {
           .executeNoAuthorizationAsync(
               session.getName(),
               (db -> {
-                BasicCommandContext ctx = new BasicCommandContext();
+                var ctx = new BasicCommandContext();
                 ctx.setDatabase(db);
                 ctx.setDynamicVariable(
                     "$currentUser",

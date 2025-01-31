@@ -18,8 +18,8 @@ public class LinksetInTransactionTest extends DbTestBase {
 
     db.begin();
     /* A link must already be there */
-    Entity withLinks1 = db.newInstance("WithLinks");
-    Entity link1 = db.newInstance("Linked");
+    var withLinks1 = db.newInstance("WithLinks");
+    var link1 = db.newInstance("Linked");
     link1.save();
     Set set = new HashSet<>();
     set.add(link1);
@@ -33,7 +33,7 @@ public class LinksetInTransactionTest extends DbTestBase {
     link1 = db.bindToSession(link1);
 
     /* Add a new linked record */
-    Entity link2 = db.newInstance("Linked");
+    var link2 = db.newInstance("Linked");
     link2.save();
     Set links = withLinks1.getProperty("links");
     links.add(link2);

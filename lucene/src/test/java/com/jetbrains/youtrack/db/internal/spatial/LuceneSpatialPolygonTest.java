@@ -35,8 +35,8 @@ public class LuceneSpatialPolygonTest extends BaseSpatialLuceneTest {
   @Before
   public void init() {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass v = schema.getClass("V");
-    SchemaClass oClass = schema.createClass("Place");
+    var v = schema.getClass("V");
+    var oClass = schema.createClass("Place");
     oClass.setSuperClass(db, v);
     oClass.createProperty(db, "location", PropertyType.EMBEDDED, schema.getClass("OPolygon"));
     oClass.createProperty(db, "name", PropertyType.STRING);
@@ -53,7 +53,7 @@ public class LuceneSpatialPolygonTest extends BaseSpatialLuceneTest {
 
   protected void queryPolygon() {
 
-    String query = "select * from Place where location && 'POINT(13.383333 52.516667)'";
+    var query = "select * from Place where location && 'POINT(13.383333 52.516667)'";
     List<EntityImpl> docs = db.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(docs.size(), 1);
@@ -67,16 +67,16 @@ public class LuceneSpatialPolygonTest extends BaseSpatialLuceneTest {
   @Test
   public void testIndexingPolygon() throws IOException {
 
-    InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream("germany.json");
+    var systemResourceAsStream = ClassLoader.getSystemResourceAsStream("germany.json");
 
     EntityImpl doc = ((EntityImpl) db.newEntity()).updateFromJSON(systemResourceAsStream);
 
     Map geometry = doc.field("geometry");
 
-    String type = (String) geometry.get("type");
-    EntityImpl location = ((EntityImpl) db.newEntity("O" + type));
+    var type = (String) geometry.get("type");
+    var location = ((EntityImpl) db.newEntity("O" + type));
     location.field("coordinates", geometry.get("coordinates"));
-    EntityImpl germany = ((EntityImpl) db.newEntity("Place"));
+    var germany = ((EntityImpl) db.newEntity("Place"));
     germany.field("name", "Germany");
     germany.field("location", location);
 
@@ -84,7 +84,7 @@ public class LuceneSpatialPolygonTest extends BaseSpatialLuceneTest {
     db.save(germany);
     db.commit();
 
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Place.location");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Place.location");
 
     db.begin();
     Assert.assertEquals(1, index.getInternal().size(db));

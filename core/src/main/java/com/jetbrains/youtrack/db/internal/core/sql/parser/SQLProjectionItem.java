@@ -151,7 +151,7 @@ public class SQLProjectionItem extends SimpleNode {
     if (value instanceof EdgeToVertexIterator) {
       List<RID> result = new ArrayList<>();
       while (((EdgeToVertexIterator) value).hasNext()) {
-        Vertex v = ((EdgeToVertexIterator) value).next();
+        var v = ((EdgeToVertexIterator) value).next();
         if (v != null) {
           result.add(v.getIdentity());
         }
@@ -230,7 +230,7 @@ public class SQLProjectionItem extends SimpleNode {
   }
 
   public SQLProjectionItem getExpandContent() {
-    SQLProjectionItem result = new SQLProjectionItem(-1);
+    var result = new SQLProjectionItem(-1);
     result.expression = expression.getExpandContent();
     return result;
   }
@@ -259,7 +259,7 @@ public class SQLProjectionItem extends SimpleNode {
   public SQLProjectionItem splitForAggregation(
       AggregateProjectionSplit aggregateSplit, CommandContext ctx) {
     if (isAggregate(ctx.getDatabase())) {
-      SQLProjectionItem result = new SQLProjectionItem(-1);
+      var result = new SQLProjectionItem(-1);
       result.alias = getProjectionAlias();
       result.expression = expression.splitForAggregation(aggregateSplit, ctx);
       result.nestedProjection = nestedProjection;
@@ -277,7 +277,7 @@ public class SQLProjectionItem extends SimpleNode {
   }
 
   public SQLProjectionItem copy() {
-    SQLProjectionItem result = new SQLProjectionItem(-1);
+    var result = new SQLProjectionItem(-1);
     result.exclude = exclude;
     result.all = all;
     result.alias = alias == null ? null : alias.copy();
@@ -295,7 +295,7 @@ public class SQLProjectionItem extends SimpleNode {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SQLProjectionItem that = (SQLProjectionItem) o;
+    var that = (SQLProjectionItem) o;
     return exclude == that.exclude
         && all == that.all
         && Objects.equals(alias, that.alias)
@@ -323,7 +323,7 @@ public class SQLProjectionItem extends SimpleNode {
   }
 
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     result.setProperty("all", all);
     if (alias != null) {
       result.setProperty("alias", alias.serialize(db));

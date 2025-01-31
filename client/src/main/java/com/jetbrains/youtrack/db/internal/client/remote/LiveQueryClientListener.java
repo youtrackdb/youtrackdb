@@ -28,14 +28,14 @@ public class LiveQueryClientListener {
    * @return
    */
   public boolean onEvent(LiveQueryPushRequest pushRequest) {
-    DatabaseSessionInternal old = DatabaseRecordThreadLocal.instance().getIfDefined();
+    var old = DatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       database.activateOnCurrentThread();
       if (pushRequest.getStatus() == LiveQueryPushRequest.ERROR) {
         onError(pushRequest.getErrorCode().newException(pushRequest.getErrorMessage(), null));
         return true;
       } else {
-        for (LiveQueryResult result : pushRequest.getEvents()) {
+        for (var result : pushRequest.getEvents()) {
           switch (result.getEventType()) {
             case LiveQueryResult.CREATE_EVENT:
               listener.onCreate(database, result.getCurrentValue());
@@ -60,7 +60,7 @@ public class LiveQueryClientListener {
   }
 
   public void onError(BaseException e) {
-    DatabaseSessionInternal old = DatabaseRecordThreadLocal.instance().getIfDefined();
+    var old = DatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       database.activateOnCurrentThread();
       listener.onError(database, e);
@@ -71,7 +71,7 @@ public class LiveQueryClientListener {
   }
 
   public void onEnd() {
-    DatabaseSessionInternal old = DatabaseRecordThreadLocal.instance().getIfDefined();
+    var old = DatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       database.activateOnCurrentThread();
       listener.onEnd(database);

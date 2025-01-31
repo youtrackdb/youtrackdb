@@ -17,16 +17,16 @@ public class SBTreeNullBucketV1Test {
 
   @Test
   public void testEmptyBucket() {
-    ByteBufferPool bufferPool = new ByteBufferPool(1024);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = new ByteBufferPool(1024);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
 
-    SBTreeNullBucketV1<String> bucket = new SBTreeNullBucketV1<>(cacheEntry);
+    var bucket = new SBTreeNullBucketV1<String>(cacheEntry);
     bucket.init();
 
     Assert.assertNull(bucket.getValue(StringSerializer.INSTANCE));
@@ -38,21 +38,21 @@ public class SBTreeNullBucketV1Test {
 
   @Test
   public void testAddGetValue() {
-    ByteBufferPool bufferPool = new ByteBufferPool(1024);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = new ByteBufferPool(1024);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
 
-    SBTreeNullBucketV1<String> bucket = new SBTreeNullBucketV1<>(cacheEntry);
+    var bucket = new SBTreeNullBucketV1<String>(cacheEntry);
     bucket.init();
 
     bucket.setValue(
         StringSerializer.INSTANCE.serializeNativeAsWhole("test"), StringSerializer.INSTANCE);
-    SBTreeValue<String> treeValue = bucket.getValue(StringSerializer.INSTANCE);
+    var treeValue = bucket.getValue(StringSerializer.INSTANCE);
     Assert.assertNotNull(treeValue);
     Assert.assertEquals(treeValue.getValue(), "test");
 
@@ -63,23 +63,23 @@ public class SBTreeNullBucketV1Test {
 
   @Test
   public void testAddRemoveValue() {
-    ByteBufferPool bufferPool = new ByteBufferPool(1024);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = new ByteBufferPool(1024);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
 
-    SBTreeNullBucketV1<String> bucket = new SBTreeNullBucketV1<>(cacheEntry);
+    var bucket = new SBTreeNullBucketV1<String>(cacheEntry);
     bucket.init();
 
     bucket.setValue(
         StringSerializer.INSTANCE.serializeNativeAsWhole("test"), StringSerializer.INSTANCE);
     bucket.removeValue(StringSerializer.INSTANCE);
 
-    SBTreeValue<String> treeValue = bucket.getValue(StringSerializer.INSTANCE);
+    var treeValue = bucket.getValue(StringSerializer.INSTANCE);
     Assert.assertNull(treeValue);
 
     cacheEntry.releaseExclusiveLock();
@@ -89,23 +89,23 @@ public class SBTreeNullBucketV1Test {
 
   @Test
   public void testAddRemoveAddValue() {
-    ByteBufferPool bufferPool = new ByteBufferPool(1024);
-    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    var bufferPool = new ByteBufferPool(1024);
+    var pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    var cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
 
-    SBTreeNullBucketV1<String> bucket = new SBTreeNullBucketV1<>(cacheEntry);
+    var bucket = new SBTreeNullBucketV1<String>(cacheEntry);
     bucket.init();
 
     bucket.setValue(
         StringSerializer.INSTANCE.serializeNativeAsWhole("test"), StringSerializer.INSTANCE);
     bucket.removeValue(StringSerializer.INSTANCE);
 
-    SBTreeValue<String> treeValue = bucket.getValue(StringSerializer.INSTANCE);
+    var treeValue = bucket.getValue(StringSerializer.INSTANCE);
     Assert.assertNull(treeValue);
 
     bucket.setValue(

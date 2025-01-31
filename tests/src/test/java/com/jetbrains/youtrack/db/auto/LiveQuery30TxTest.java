@@ -83,14 +83,14 @@ public class LiveQuery30TxTest extends BaseDBTest implements CommandOutputListen
 
   @Test
   public void checkLiveQueryTx() throws IOException, InterruptedException {
-    final String className1 = "LiveQuery30Test_checkLiveQueryTx_1";
-    final String className2 = "LiveQuery30Test_checkLiveQueryTx_2";
+    final var className1 = "LiveQuery30Test_checkLiveQueryTx_1";
+    final var className2 = "LiveQuery30Test_checkLiveQueryTx_2";
     db.getMetadata().getSchema().createClass(className1);
     db.getMetadata().getSchema().createClass(className2);
 
-    MyLiveQueryListener listener = new MyLiveQueryListener();
+    var listener = new MyLiveQueryListener();
 
-    LiveQueryMonitor monitor = db.live("live select from " + className1, listener);
+    var monitor = db.live("live select from " + className1, listener);
     Assert.assertNotNull(monitor);
     db.begin();
     db.command("insert into " + className1 + " set name = 'foo', surname = 'bar'");
@@ -104,7 +104,7 @@ public class LiveQuery30TxTest extends BaseDBTest implements CommandOutputListen
     Assert.assertEquals(listener.ops.size(), 2);
     for (Pair doc : listener.ops) {
       Assert.assertEquals(doc.getKey(), "create");
-      Result res = (Result) doc.getValue();
+      var res = (Result) doc.getValue();
       Assert.assertEquals((res).getProperty("name"), "foo");
       Assert.assertNotNull(res.getProperty("@rid"));
       Assert.assertTrue(((RID) res.getProperty("@rid")).getClusterPosition() >= 0);

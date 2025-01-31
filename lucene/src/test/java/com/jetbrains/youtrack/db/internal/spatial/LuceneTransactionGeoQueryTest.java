@@ -36,17 +36,17 @@ public class LuceneTransactionGeoQueryTest extends LuceneBaseTest {
   @Test
   public void testPointTransactionRollBack() {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass v = schema.getClass("V");
-    SchemaClass oClass = schema.createClass("City");
+    var v = schema.getClass("V");
+    var oClass = schema.createClass("City");
     oClass.setSuperClass(db, v);
     oClass.createProperty(db, "location", PropertyType.EMBEDDED, schema.getClass("OPoint"));
     oClass.createProperty(db, "name", PropertyType.STRING);
 
     db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
 
-    Index idx = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
-    EntityImpl rome = newCity(db, "Rome", 12.5, 41.9);
-    EntityImpl london = newCity(db, "London", -0.1275, 51.507222);
+    var idx = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
+    var rome = newCity(db, "Rome", 12.5, 41.9);
+    var london = newCity(db, "London", -0.1275, 51.507222);
 
     db.begin();
 
@@ -57,7 +57,7 @@ public class LuceneTransactionGeoQueryTest extends LuceneBaseTest {
         .close();
     db.save(rome);
     db.save(london);
-    String query =
+    var query =
         "select * from City where location && 'LINESTRING(-160.06393432617188"
             + " 21.996535232496047,-160.1099395751953 21.94304553343818,-160.169677734375"
             + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
@@ -83,16 +83,16 @@ public class LuceneTransactionGeoQueryTest extends LuceneBaseTest {
   @Test
   public void testPointTransactionUpdate() {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass v = schema.getClass("V");
-    SchemaClass oClass = schema.createClass("City");
+    var v = schema.getClass("V");
+    var oClass = schema.createClass("City");
     oClass.setSuperClass(db, v);
     oClass.createProperty(db, "location", PropertyType.EMBEDDED, schema.getClass("OPoint"));
     oClass.createProperty(db, "name", PropertyType.STRING);
 
     db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
 
-    Index idx = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
-    EntityImpl rome = newCity(db, "Rome", 12.5, 41.9);
+    var idx = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
+    var rome = newCity(db, "Rome", 12.5, 41.9);
 
     db.begin();
 
@@ -100,7 +100,7 @@ public class LuceneTransactionGeoQueryTest extends LuceneBaseTest {
 
     db.commit();
 
-    String query =
+    var query =
         "select * from City where location && 'LINESTRING(-160.06393432617188"
             + " 21.996535232496047,-160.1099395751953 21.94304553343818,-160.169677734375"
             + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
@@ -139,7 +139,7 @@ public class LuceneTransactionGeoQueryTest extends LuceneBaseTest {
 
   protected static EntityImpl newCity(DatabaseSession db, String name, final Double longitude,
       final Double latitude) {
-    EntityImpl location = ((EntityImpl) db.newEntity("OPoint"));
+    var location = ((EntityImpl) db.newEntity("OPoint"));
     location.field(
         "coordinates",
         new ArrayList<Double>() {
@@ -149,7 +149,7 @@ public class LuceneTransactionGeoQueryTest extends LuceneBaseTest {
           }
         });
 
-    EntityImpl city = ((EntityImpl) db.newEntity("City"));
+    var city = ((EntityImpl) db.newEntity("City"));
     city.field("name", name);
     city.field("location", location);
     return city;

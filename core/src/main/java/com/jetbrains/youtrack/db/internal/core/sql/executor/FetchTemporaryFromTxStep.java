@@ -49,13 +49,13 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
   }
 
   private Iterator<DBRecord> init(CommandContext ctx) {
-    Iterable<? extends RecordOperation> iterable =
+    var iterable =
         ctx.getDatabase().getTransaction().getRecordOperations();
 
     var db = ctx.getDatabase();
     List<DBRecord> records = new ArrayList<>();
     if (iterable != null) {
-      for (RecordOperation op : iterable) {
+      for (var op : iterable) {
         DBRecord record = op.record;
         if (matchesClass(db, record, className) && !hasCluster(record)) {
           records.add(record);
@@ -65,15 +65,15 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
     if (order == FetchFromClusterExecutionStep.ORDER_ASC) {
       records.sort(
           (o1, o2) -> {
-            long p1 = o1.getIdentity().getClusterPosition();
-            long p2 = o2.getIdentity().getClusterPosition();
+            var p1 = o1.getIdentity().getClusterPosition();
+            var p2 = o2.getIdentity().getClusterPosition();
             return Long.compare(p1, p2);
           });
     } else {
       records.sort(
           (o1, o2) -> {
-            long p1 = o1.getIdentity().getClusterPosition();
-            long p2 = o2.getIdentity().getClusterPosition();
+            var p1 = o1.getIdentity().getClusterPosition();
+            var p2 = o2.getIdentity().getClusterPosition();
             return Long.compare(p2, p1);
           });
     }
@@ -81,7 +81,7 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
   }
 
   private static boolean hasCluster(DBRecord record) {
-    RID rid = record.getIdentity();
+    var rid = record.getIdentity();
     if (rid == null) {
       return false;
     }
@@ -110,8 +110,8 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
-    StringBuilder result = new StringBuilder();
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var result = new StringBuilder();
     result.append(spaces);
     result.append("+ FETCH NEW RECORDS FROM CURRENT TRANSACTION SCOPE (if any)");
     if (profilingEnabled) {
@@ -122,7 +122,7 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
 
   @Override
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
+    var result = ExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("className", className);
     return result;
   }

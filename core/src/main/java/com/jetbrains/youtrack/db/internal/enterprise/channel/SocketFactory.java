@@ -91,13 +91,13 @@ public class SocketFactory {
           throw new ConfigurationException("Please provide a truststore password");
         }
 
-        SSLContext context = SSLContext.getInstance("TLS");
+        var context = SSLContext.getInstance("TLS");
 
-        KeyManagerFactory kmf =
+        var kmf =
             KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 
-        KeyStore keyStore = KeyStore.getInstance(keyStoreType);
-        char[] keyStorePass = keyStorePassword.toCharArray();
+        var keyStore = KeyStore.getInstance(keyStoreType);
+        var keyStorePass = keyStorePassword.toCharArray();
         keyStore.load(getAsStream(keyStorePath), keyStorePass);
 
         kmf.init(keyStore, keyStorePass);
@@ -105,8 +105,8 @@ public class SocketFactory {
         TrustManagerFactory tmf = null;
         if (trustStorePath != null) {
           tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-          KeyStore trustStore = KeyStore.getInstance(trustStoreType);
-          char[] trustStorePass = trustStorePassword.toCharArray();
+          var trustStore = KeyStore.getInstance(trustStoreType);
+          var trustStorePass = trustStorePassword.toCharArray();
           trustStore.load(getAsStream(trustStorePath), trustStorePass);
           tmf.init(trustStore);
         }
@@ -130,7 +130,7 @@ public class SocketFactory {
     path = SystemVariableResolver.resolveSystemVariables(path);
 
     try {
-      URL url = new URL(path);
+      var url = new URL(path);
       input = url.openStream();
     } catch (MalformedURLException ignore) {
       input = null;

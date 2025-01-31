@@ -13,13 +13,13 @@ public class CreateFunctionStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testPlain() {
-    String name = "testPlain";
+    var name = "testPlain";
     db.begin();
-    ResultSet result =
+    var result =
         db.command(
             "CREATE FUNCTION " + name + " \"return a + b;\" PARAMETERS [a,b] language javascript");
     Assert.assertTrue(result.hasNext());
-    Result next = result.next();
+    var next = result.next();
     Assert.assertFalse(result.hasNext());
     Assert.assertNotNull(next);
     Assert.assertEquals(name, next.getProperty("functionName"));

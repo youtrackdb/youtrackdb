@@ -33,8 +33,8 @@ public class MetadataOnlyTest {
 
   @Test
   public void test() {
-    DatabaseSession db = youTrackDb.open("testMetadataOnly", "admin", "admin");
-    byte[] blob =
+    var db = youTrackDb.open("testMetadataOnly", "admin", "admin");
+    var blob =
         new byte[]{
             1, 2, 3, 4, 5, 6,
         };
@@ -42,7 +42,7 @@ public class MetadataOnlyTest {
     db.close();
     YouTrackDBInternal.extract(youTrackDb).forceDatabaseClose("testMetadataOnly");
     db = youTrackDb.open("testMetadataOnly", "admin", "admin");
-    Optional<byte[]> loaded =
+    var loaded =
         ((AbstractPaginatedStorage) ((DatabaseSessionInternal) db).getStorage())
             .getLastMetadata();
     assertTrue(loaded.isPresent());

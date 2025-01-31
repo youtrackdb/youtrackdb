@@ -42,11 +42,11 @@ public class SpatialQueryBuilderOverlap extends SpatialQueryBuilderAbstract {
   @Override
   public SpatialQueryContext build(DatabaseSessionInternal db, Map<String, Object> query)
       throws Exception {
-    Shape shape = parseShape(query);
-    SpatialStrategy strategy = manager.strategy();
-    SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects, shape.getBoundingBox());
-    Query filterQuery = strategy.makeQuery(args);
-    BooleanQuery q =
+    var shape = parseShape(query);
+    var strategy = manager.strategy();
+    var args = new SpatialArgs(SpatialOperation.Intersects, shape.getBoundingBox());
+    var filterQuery = strategy.makeQuery(args);
+    var q =
         new BooleanQuery.Builder()
             .add(filterQuery, BooleanClause.Occur.MUST)
             .add(new MatchAllDocsQuery(), BooleanClause.Occur.SHOULD)

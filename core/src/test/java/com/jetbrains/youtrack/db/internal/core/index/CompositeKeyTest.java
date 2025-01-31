@@ -24,12 +24,12 @@ public class CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testEqualSameKeys() {
-    final CompositeKey compositeKey = new CompositeKey();
+    final var compositeKey = new CompositeKey();
 
     compositeKey.addKey("a");
     compositeKey.addKey("b");
 
-    final CompositeKey anotherCompositeKey = new CompositeKey();
+    final var anotherCompositeKey = new CompositeKey();
     anotherCompositeKey.addKey("a");
     anotherCompositeKey.addKey("b");
 
@@ -39,12 +39,12 @@ public class CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testEqualNotSameKeys() {
-    final CompositeKey compositeKey = new CompositeKey();
+    final var compositeKey = new CompositeKey();
 
     compositeKey.addKey("a");
     compositeKey.addKey("b");
 
-    final CompositeKey anotherCompositeKey = new CompositeKey();
+    final var anotherCompositeKey = new CompositeKey();
     anotherCompositeKey.addKey("a");
     anotherCompositeKey.addKey("b");
     anotherCompositeKey.addKey("c");
@@ -54,26 +54,26 @@ public class CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testEqualNull() {
-    final CompositeKey compositeKey = new CompositeKey();
+    final var compositeKey = new CompositeKey();
     assertNotEquals(null, compositeKey);
   }
 
   @Test
   public void testEqualSame() {
-    final CompositeKey compositeKey = new CompositeKey();
+    final var compositeKey = new CompositeKey();
     //noinspection EqualsWithItself
     assertEquals(compositeKey, compositeKey);
   }
 
   @Test
   public void testEqualDiffClass() {
-    final CompositeKey compositeKey = new CompositeKey();
+    final var compositeKey = new CompositeKey();
     assertNotEquals("1", compositeKey);
   }
 
   @Test
   public void testAddKeyComparable() {
-    final CompositeKey compositeKey = new CompositeKey();
+    final var compositeKey = new CompositeKey();
 
     compositeKey.addKey("a");
 
@@ -83,11 +83,11 @@ public class CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testAddKeyComposite() {
-    final CompositeKey compositeKey = new CompositeKey();
+    final var compositeKey = new CompositeKey();
 
     compositeKey.addKey("a");
 
-    final CompositeKey compositeKeyToAdd = new CompositeKey();
+    final var compositeKeyToAdd = new CompositeKey();
     compositeKeyToAdd.addKey("a");
     compositeKeyToAdd.addKey("b");
 
@@ -100,11 +100,11 @@ public class CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testCompareToSame() {
-    final CompositeKey compositeKey = new CompositeKey();
+    final var compositeKey = new CompositeKey();
     compositeKey.addKey("a");
     compositeKey.addKey("b");
 
-    final CompositeKey anotherCompositeKey = new CompositeKey();
+    final var anotherCompositeKey = new CompositeKey();
     anotherCompositeKey.addKey("a");
     anotherCompositeKey.addKey("b");
 
@@ -113,11 +113,11 @@ public class CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testCompareToPartiallyOneCase() {
-    final CompositeKey compositeKey = new CompositeKey();
+    final var compositeKey = new CompositeKey();
     compositeKey.addKey("a");
     compositeKey.addKey("b");
 
-    final CompositeKey anotherCompositeKey = new CompositeKey();
+    final var anotherCompositeKey = new CompositeKey();
     anotherCompositeKey.addKey("a");
     anotherCompositeKey.addKey("b");
     anotherCompositeKey.addKey("c");
@@ -127,12 +127,12 @@ public class CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testCompareToPartiallySecondCase() {
-    final CompositeKey compositeKey = new CompositeKey();
+    final var compositeKey = new CompositeKey();
     compositeKey.addKey("a");
     compositeKey.addKey("b");
     compositeKey.addKey("c");
 
-    final CompositeKey anotherCompositeKey = new CompositeKey();
+    final var anotherCompositeKey = new CompositeKey();
     anotherCompositeKey.addKey("a");
     anotherCompositeKey.addKey("b");
 
@@ -141,10 +141,10 @@ public class CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testCompareToGT() {
-    final CompositeKey compositeKey = new CompositeKey();
+    final var compositeKey = new CompositeKey();
     compositeKey.addKey("b");
 
-    final CompositeKey anotherCompositeKey = new CompositeKey();
+    final var anotherCompositeKey = new CompositeKey();
     anotherCompositeKey.addKey("a");
     anotherCompositeKey.addKey("b");
 
@@ -153,11 +153,11 @@ public class CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testCompareToLT() {
-    final CompositeKey compositeKey = new CompositeKey();
+    final var compositeKey = new CompositeKey();
     compositeKey.addKey("a");
     compositeKey.addKey("b");
 
-    final CompositeKey anotherCompositeKey = new CompositeKey();
+    final var anotherCompositeKey = new CompositeKey();
 
     anotherCompositeKey.addKey("b");
 
@@ -166,20 +166,20 @@ public class CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testCompareStringsToLT() {
-    final CompositeKey compositeKey = new CompositeKey();
+    final var compositeKey = new CompositeKey();
     compositeKey.addKey("name4");
-    final CompositeKey anotherCompositeKey = new CompositeKey();
+    final var anotherCompositeKey = new CompositeKey();
     anotherCompositeKey.addKey("name5");
     assertEquals(-1, compositeKey.compareTo(anotherCompositeKey));
   }
 
   @Test
   public void testCompareToSymmetryOne() {
-    final CompositeKey compositeKeyOne = new CompositeKey();
+    final var compositeKeyOne = new CompositeKey();
     compositeKeyOne.addKey(1);
     compositeKeyOne.addKey(2);
 
-    final CompositeKey compositeKeyTwo = new CompositeKey();
+    final var compositeKeyTwo = new CompositeKey();
     compositeKeyTwo.addKey(1);
     compositeKeyTwo.addKey(3);
     compositeKeyTwo.addKey(1);
@@ -190,11 +190,11 @@ public class CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testCompareToSymmetryTwo() {
-    final CompositeKey compositeKeyOne = new CompositeKey();
+    final var compositeKeyOne = new CompositeKey();
     compositeKeyOne.addKey(1);
     compositeKeyOne.addKey(2);
 
-    final CompositeKey compositeKeyTwo = new CompositeKey();
+    final var compositeKeyTwo = new CompositeKey();
     compositeKeyTwo.addKey(1);
     compositeKeyTwo.addKey(2);
     compositeKeyTwo.addKey(3);
@@ -205,15 +205,15 @@ public class CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testCompareNullAtTheEnd() {
-    final CompositeKey compositeKeyOne = new CompositeKey();
+    final var compositeKeyOne = new CompositeKey();
     compositeKeyOne.addKey(2);
     compositeKeyOne.addKey(2);
 
-    final CompositeKey compositeKeyTwo = new CompositeKey();
+    final var compositeKeyTwo = new CompositeKey();
     compositeKeyTwo.addKey(2);
     compositeKeyTwo.addKey(null);
 
-    final CompositeKey compositeKeyThree = new CompositeKey();
+    final var compositeKeyThree = new CompositeKey();
     compositeKeyThree.addKey(2);
     compositeKeyThree.addKey(null);
 
@@ -224,17 +224,17 @@ public class CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testCompareNullAtTheMiddle() {
-    final CompositeKey compositeKeyOne = new CompositeKey();
+    final var compositeKeyOne = new CompositeKey();
     compositeKeyOne.addKey(2);
     compositeKeyOne.addKey(2);
     compositeKeyOne.addKey(3);
 
-    final CompositeKey compositeKeyTwo = new CompositeKey();
+    final var compositeKeyTwo = new CompositeKey();
     compositeKeyTwo.addKey(2);
     compositeKeyTwo.addKey(null);
     compositeKeyTwo.addKey(3);
 
-    final CompositeKey compositeKeyThree = new CompositeKey();
+    final var compositeKeyThree = new CompositeKey();
     compositeKeyThree.addKey(2);
     compositeKeyThree.addKey(null);
     compositeKeyThree.addKey(3);
@@ -246,14 +246,14 @@ public class CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testDocumentSerializationCompositeKeyNull() {
-    final CompositeKey compositeKeyOne = new CompositeKey();
+    final var compositeKeyOne = new CompositeKey();
     compositeKeyOne.addKey(1);
     compositeKeyOne.addKey(null);
     compositeKeyOne.addKey(2);
 
-    EntityImpl document = compositeKeyOne.toEntity(db);
+    var document = compositeKeyOne.toEntity(db);
 
-    final CompositeKey compositeKeyTwo = new CompositeKey();
+    final var compositeKeyTwo = new CompositeKey();
     compositeKeyTwo.fromDocument(document);
 
     assertEquals(compositeKeyOne, compositeKeyTwo);
@@ -262,16 +262,16 @@ public class CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testNativeBinarySerializationCompositeKeyNull() {
-    final CompositeKey compositeKeyOne = new CompositeKey();
+    final var compositeKeyOne = new CompositeKey();
     compositeKeyOne.addKey(1);
     compositeKeyOne.addKey(null);
     compositeKeyOne.addKey(2);
 
-    int len = CompositeKeySerializer.INSTANCE.getObjectSize(compositeKeyOne);
-    byte[] data = new byte[len];
+    var len = CompositeKeySerializer.INSTANCE.getObjectSize(compositeKeyOne);
+    var data = new byte[len];
     CompositeKeySerializer.INSTANCE.serializeNativeObject(compositeKeyOne, data, 0);
 
-    final CompositeKey compositeKeyTwo =
+    final var compositeKeyTwo =
         CompositeKeySerializer.INSTANCE.deserializeNativeObject(data, 0);
 
     assertEquals(compositeKeyOne, compositeKeyTwo);
@@ -280,28 +280,28 @@ public class CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testByteBufferBinarySerializationCompositeKeyNull() {
-    final int serializationOffset = 5;
+    final var serializationOffset = 5;
 
-    final CompositeKey compositeKeyOne = new CompositeKey();
+    final var compositeKeyOne = new CompositeKey();
     compositeKeyOne.addKey(1);
     compositeKeyOne.addKey(null);
     compositeKeyOne.addKey(2);
 
-    final int len = CompositeKeySerializer.INSTANCE.getObjectSize(compositeKeyOne);
+    final var len = CompositeKeySerializer.INSTANCE.getObjectSize(compositeKeyOne);
 
-    final ByteBuffer buffer = ByteBuffer.allocate(len + serializationOffset);
+    final var buffer = ByteBuffer.allocate(len + serializationOffset);
     buffer.position(serializationOffset);
 
     CompositeKeySerializer.INSTANCE.serializeInByteBufferObject(compositeKeyOne, buffer);
 
-    final int binarySize = buffer.position() - serializationOffset;
+    final var binarySize = buffer.position() - serializationOffset;
     assertEquals(binarySize, len);
 
     buffer.position(serializationOffset);
     assertEquals(CompositeKeySerializer.INSTANCE.getObjectSizeInByteBuffer(buffer), len);
 
     buffer.position(serializationOffset);
-    final CompositeKey compositeKeyTwo =
+    final var compositeKeyTwo =
         CompositeKeySerializer.INSTANCE.deserializeFromByteBufferObject(buffer);
 
     assertEquals(compositeKeyOne, compositeKeyTwo);
@@ -312,18 +312,18 @@ public class CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testWALChangesBinarySerializationCompositeKeyNull() {
-    final int serializationOffset = 5;
+    final var serializationOffset = 5;
 
-    final CompositeKey compositeKey = new CompositeKey();
+    final var compositeKey = new CompositeKey();
     compositeKey.addKey(1);
     compositeKey.addKey(null);
     compositeKey.addKey(2);
 
-    final int len = CompositeKeySerializer.INSTANCE.getObjectSize(compositeKey);
-    final ByteBuffer buffer =
+    final var len = CompositeKeySerializer.INSTANCE.getObjectSize(compositeKey);
+    final var buffer =
         ByteBuffer.allocateDirect(len + serializationOffset + WALPageChangesPortion.PORTION_BYTES)
             .order(ByteOrder.nativeOrder());
-    final byte[] data = new byte[len];
+    final var data = new byte[len];
 
     CompositeKeySerializer.INSTANCE.serializeNativeObject(compositeKey, data, 0);
     final WALChanges walChanges = new WALPageChangesPortion();
@@ -341,16 +341,16 @@ public class CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testNetworkSerialization() throws IOException {
-    String k1 = "key";
-    CompositeKey k2 = new CompositeKey(null, new CompositeKey("user1", 12.5));
-    CompositeKey compositeKey = new CompositeKey(k1, k2);
-    RecordSerializerNetworkV37 serializer = RecordSerializerNetworkV37.INSTANCE;
-    ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-    DataOutputStream out = new DataOutputStream(outStream);
+    var k1 = "key";
+    var k2 = new CompositeKey(null, new CompositeKey("user1", 12.5));
+    var compositeKey = new CompositeKey(k1, k2);
+    var serializer = RecordSerializerNetworkV37.INSTANCE;
+    var outStream = new ByteArrayOutputStream();
+    var out = new DataOutputStream(outStream);
     compositeKey.toStream(db, serializer, out);
-    ByteArrayInputStream inStream = new ByteArrayInputStream(outStream.toByteArray());
-    DataInputStream in = new DataInputStream(inStream);
-    CompositeKey deserializedCompositeKey = new CompositeKey();
+    var inStream = new ByteArrayInputStream(outStream.toByteArray());
+    var in = new DataInputStream(inStream);
+    var deserializedCompositeKey = new CompositeKey();
     deserializedCompositeKey.fromStream(db, serializer, in);
     assertEquals(compositeKey, deserializedCompositeKey);
   }

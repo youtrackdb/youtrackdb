@@ -8,7 +8,7 @@ public class FrontendTransactionIndexChangesListTest {
 
   @Test
   public void testEmpty() {
-    FrontendTransactionIndexChangesList list = new FrontendTransactionIndexChangesList();
+    var list = new FrontendTransactionIndexChangesList();
     Assert.assertEquals(0, list.size());
     try {
       Assert.assertFalse(list.iterator().hasNext());
@@ -28,8 +28,8 @@ public class FrontendTransactionIndexChangesListTest {
   @Test
   public void testAddRemove() {
 
-    FrontendTransactionIndexChangesList list = new FrontendTransactionIndexChangesList();
-    FrontendTransactionIndexChangesPerKey temp = new FrontendTransactionIndexChangesPerKey(null);
+    var list = new FrontendTransactionIndexChangesList();
+    var temp = new FrontendTransactionIndexChangesPerKey(null);
 
     list.add(
         temp.createEntryInternal(new RecordId(12, 0),

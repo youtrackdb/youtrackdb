@@ -36,7 +36,7 @@ public class IndexTxAwareMultiValueGetValuesTest extends BaseDBTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final SchemaClass cls = db.getMetadata().getSchema().createClass(CLASS_NAME);
+    final var cls = db.getMetadata().getSchema().createClass(CLASS_NAME);
     cls.createProperty(db, PROPERTY_NAME, PropertyType.INTEGER);
     cls.createIndex(db, INDEX, SchemaClass.INDEX_TYPE.NOTUNIQUE, PROPERTY_NAME);
   }
@@ -55,7 +55,7 @@ public class IndexTxAwareMultiValueGetValuesTest extends BaseDBTest {
     }
 
     db.begin();
-    final Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
+    final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
 
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1).save();
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1).save();
@@ -65,7 +65,7 @@ public class IndexTxAwareMultiValueGetValuesTest extends BaseDBTest {
 
     Assert.assertNull(db.getTransaction().getIndexChanges(INDEX));
     Set<Identifiable> resultOne = new HashSet<>();
-    Stream<RawPair<Object, RID>> stream =
+    var stream =
         index.getInternal().streamEntries(db, Arrays.asList(1, 2), true);
     streamToSet(stream, resultOne);
 
@@ -97,11 +97,11 @@ public class IndexTxAwareMultiValueGetValuesTest extends BaseDBTest {
     }
 
     db.begin();
-    final Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
+    final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
 
-    EntityImpl documentOne = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
+    var documentOne = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
     documentOne.save();
-    EntityImpl documentTwo = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
+    var documentTwo = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
     documentTwo.save();
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2).save();
 
@@ -109,7 +109,7 @@ public class IndexTxAwareMultiValueGetValuesTest extends BaseDBTest {
 
     Assert.assertNull(db.getTransaction().getIndexChanges(INDEX));
     Set<Identifiable> resultOne = new HashSet<>();
-    Stream<RawPair<Object, RID>> stream =
+    var stream =
         index.getInternal().streamEntries(db, Arrays.asList(1, 2), true);
     streamToSet(stream, resultOne);
     Assert.assertEquals(resultOne.size(), 3);
@@ -144,9 +144,9 @@ public class IndexTxAwareMultiValueGetValuesTest extends BaseDBTest {
     }
 
     db.begin();
-    final Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
+    final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
 
-    EntityImpl documentOne = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
+    var documentOne = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
     documentOne.save();
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1).save();
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2).save();
@@ -154,7 +154,7 @@ public class IndexTxAwareMultiValueGetValuesTest extends BaseDBTest {
 
     Assert.assertNull(db.getTransaction().getIndexChanges(INDEX));
     Set<Identifiable> resultOne = new HashSet<>();
-    Stream<RawPair<Object, RID>> stream =
+    var stream =
         index.getInternal().streamEntries(db, Arrays.asList(1, 2), true);
     streamToSet(stream, resultOne);
     Assert.assertEquals(resultOne.size(), 3);
@@ -187,9 +187,9 @@ public class IndexTxAwareMultiValueGetValuesTest extends BaseDBTest {
 
     db.begin();
 
-    final Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
+    final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
 
-    final EntityImpl document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
+    final var document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
     document.save();
 
     document.field(PROPERTY_NAME, 0);
@@ -200,7 +200,7 @@ public class IndexTxAwareMultiValueGetValuesTest extends BaseDBTest {
 
     Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX));
     Set<Identifiable> result = new HashSet<>();
-    Stream<RawPair<Object, RID>> stream =
+    var stream =
         index.getInternal().streamEntries(db, Arrays.asList(1, 2), true);
     streamToSet(stream, result);
     Assert.assertEquals(result.size(), 2);
@@ -220,14 +220,14 @@ public class IndexTxAwareMultiValueGetValuesTest extends BaseDBTest {
 
     db.begin();
 
-    final Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
+    final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
 
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1).save();
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2).save();
 
     Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX));
     Set<Identifiable> result = new HashSet<>();
-    Stream<RawPair<Object, RID>> stream =
+    var stream =
         index.getInternal().streamEntries(db, Arrays.asList(1, 2), true);
     streamToSet(stream, result);
     Assert.assertEquals(result.size(), 2);
@@ -250,9 +250,9 @@ public class IndexTxAwareMultiValueGetValuesTest extends BaseDBTest {
 
     db.begin();
 
-    final Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
+    final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
 
-    EntityImpl document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
+    var document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
     document.save();
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2).save();
 
@@ -260,7 +260,7 @@ public class IndexTxAwareMultiValueGetValuesTest extends BaseDBTest {
 
     Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX));
     Set<Identifiable> result = new HashSet<>();
-    Stream<RawPair<Object, RID>> stream =
+    var stream =
         index.getInternal().streamEntries(db, Arrays.asList(1, 2), true);
     streamToSet(stream, result);
     Assert.assertEquals(result.size(), 1);
@@ -280,9 +280,9 @@ public class IndexTxAwareMultiValueGetValuesTest extends BaseDBTest {
 
     db.begin();
 
-    final Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
+    final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
 
-    EntityImpl document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
+    var document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
     document.save();
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2).save();
 
@@ -290,7 +290,7 @@ public class IndexTxAwareMultiValueGetValuesTest extends BaseDBTest {
 
     Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX));
     Set<Identifiable> result = new HashSet<>();
-    Stream<RawPair<Object, RID>> stream =
+    var stream =
         index.getInternal().streamEntries(db, Arrays.asList(1, 2), true);
     streamToSet(stream, result);
     Assert.assertEquals(result.size(), 1);
@@ -310,9 +310,9 @@ public class IndexTxAwareMultiValueGetValuesTest extends BaseDBTest {
 
     db.begin();
 
-    final Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
+    final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
 
-    EntityImpl document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
+    var document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
     document.save();
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2).save();
 
@@ -323,7 +323,7 @@ public class IndexTxAwareMultiValueGetValuesTest extends BaseDBTest {
 
     Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX));
     Set<Identifiable> result = new HashSet<>();
-    Stream<RawPair<Object, RID>> stream =
+    var stream =
         index.getInternal().streamEntries(db, Arrays.asList(1, 2), true);
     streamToSet(stream, result);
 

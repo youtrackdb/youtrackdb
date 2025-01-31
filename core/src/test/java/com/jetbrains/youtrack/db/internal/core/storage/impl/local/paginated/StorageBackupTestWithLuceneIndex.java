@@ -67,7 +67,7 @@ public class StorageBackupTestWithLuceneIndex {
   // @Test
   public void testSingeThreadFullBackup() throws IOException {
     final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass backupClass = schema.createClass("BackupClass");
+    final var backupClass = schema.createClass("BackupClass");
     backupClass.createProperty(db, "num", PropertyType.INTEGER);
     backupClass.createProperty(db, "name", PropertyType.STRING);
 
@@ -79,13 +79,13 @@ public class StorageBackupTestWithLuceneIndex {
         "LUCENE", new String[]{"name"});
 
     db.begin();
-    final EntityImpl document = ((EntityImpl) db.newEntity("BackupClass"));
+    final var document = ((EntityImpl) db.newEntity("BackupClass"));
     document.field("num", 1);
     document.field("name", "Storage");
     document.save();
     db.commit();
 
-    final File backupDir = new File(buildDirectory, "backupDir");
+    final var backupDir = new File(buildDirectory, "backupDir");
     FileUtils.deleteRecursively(backupDir);
 
     if (!backupDir.exists()) {
@@ -93,7 +93,7 @@ public class StorageBackupTestWithLuceneIndex {
     }
 
     db.incrementalBackup(backupDir.toPath());
-    final Storage storage = db.getStorage();
+    final var storage = db.getStorage();
     db.close();
 
     storage.close(db, true);
@@ -104,14 +104,14 @@ public class StorageBackupTestWithLuceneIndex {
         new DatabaseDocumentTx("plocal:" + backedUpDbDirectory);
     backedUpDb.create(backupDir.getAbsolutePath());
 
-    final Storage backupStorage = backedUpDb.getStorage();
+    final var backupStorage = backedUpDb.getStorage();
     backedUpDb.close();
 
     backupStorage.close(db, true);
 
     var youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());
-    final DatabaseCompare compare =
+    final var compare =
         new DatabaseCompare(
             (DatabaseSessionInternal)
                 youTrackDB.open(
@@ -130,7 +130,7 @@ public class StorageBackupTestWithLuceneIndex {
   public void testSingeThreadIncrementalBackup() throws IOException {
 
     final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass backupClass = schema.createClass("BackupClass");
+    final var backupClass = schema.createClass("BackupClass");
     backupClass.createProperty(db, "num", PropertyType.INTEGER);
     backupClass.createProperty(db, "name", PropertyType.STRING);
 
@@ -141,7 +141,7 @@ public class StorageBackupTestWithLuceneIndex {
         null,
         "LUCENE", new String[]{"name"});
 
-    final File backupDir = new File(buildDirectory, "backupDir");
+    final var backupDir = new File(buildDirectory, "backupDir");
     FileUtils.deleteRecursively(backupDir);
 
     if (!backupDir.exists()) {
@@ -149,7 +149,7 @@ public class StorageBackupTestWithLuceneIndex {
     }
 
     db.begin();
-    EntityImpl document = ((EntityImpl) db.newEntity("BackupClass"));
+    var document = ((EntityImpl) db.newEntity("BackupClass"));
     document.field("num", 1);
     document.field("name", "Storage");
     document.save();
@@ -166,12 +166,12 @@ public class StorageBackupTestWithLuceneIndex {
 
     db.incrementalBackup(backupDir.toPath());
 
-    final Storage storage = db.getStorage();
+    final var storage = db.getStorage();
     db.close();
 
     storage.close(db, true);
 
-    final String backedUpDbDirectory =
+    final var backedUpDbDirectory =
         buildDirectory
             + File.separator
             + StorageBackupTestWithLuceneIndex.class.getSimpleName()
@@ -182,14 +182,14 @@ public class StorageBackupTestWithLuceneIndex {
         new DatabaseDocumentTx("plocal:" + backedUpDbDirectory);
     backedUpDb.create(backupDir.getAbsolutePath());
 
-    final Storage backupStorage = backedUpDb.getStorage();
+    final var backupStorage = backedUpDb.getStorage();
     backedUpDb.close();
 
     backupStorage.close(db, true);
 
     var youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());
-    final DatabaseCompare compare =
+    final var compare =
         new DatabaseCompare(
             (DatabaseSessionInternal)
                 youTrackDB.open(

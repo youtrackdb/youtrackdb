@@ -20,18 +20,18 @@ public class TestGraphOperations extends DbTestBase {
 
     db.createVertexClass("TestVertex");
 
-    SchemaClass testLabel = db.createEdgeClass("TestLabel");
+    var testLabel = db.createEdgeClass("TestLabel");
 
-    SchemaProperty key = testLabel.createProperty(db, "key", PropertyType.STRING);
+    var key = testLabel.createProperty(db, "key", PropertyType.STRING);
 
     key.createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
 
     db.begin();
-    Vertex vertex = db.newVertex("TestVertex");
+    var vertex = db.newVertex("TestVertex");
 
-    Vertex vertex1 = db.newVertex("TestVertex");
+    var vertex1 = db.newVertex("TestVertex");
 
-    Edge edge = vertex.addEdge(vertex1, "TestLabel");
+    var edge = vertex.addEdge(vertex1, "TestLabel");
 
     edge.setProperty("key", "unique");
     db.save(vertex);

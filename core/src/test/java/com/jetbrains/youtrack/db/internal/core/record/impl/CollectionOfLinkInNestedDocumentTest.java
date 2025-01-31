@@ -17,19 +17,19 @@ public class CollectionOfLinkInNestedDocumentTest extends DbTestBase {
 
   @Test
   public void nestedLinkSet() {
-    EntityImpl doc1 = (EntityImpl) db.newEntity();
+    var doc1 = (EntityImpl) db.newEntity();
     doc1.field("value", "item 1");
-    EntityImpl doc2 = (EntityImpl) db.newEntity();
+    var doc2 = (EntityImpl) db.newEntity();
     doc2.field("value", "item 2");
-    EntityImpl nested = (EntityImpl) db.newEntity();
-    LinkSet set = new LinkSet(nested);
+    var nested = (EntityImpl) db.newEntity();
+    var set = new LinkSet(nested);
     set.add(doc1);
     set.add(doc2);
 
     nested.field("set", set);
 
     db.begin();
-    EntityImpl base = (EntityImpl) db.newEntity();
+    var base = (EntityImpl) db.newEntity();
     base.field("nested", nested, PropertyType.EMBEDDED);
     Identifiable id = db.save(base);
     db.commit();
@@ -44,19 +44,19 @@ public class CollectionOfLinkInNestedDocumentTest extends DbTestBase {
 
   @Test
   public void nestedLinkList() {
-    EntityImpl doc1 = (EntityImpl) db.newEntity();
+    var doc1 = (EntityImpl) db.newEntity();
     doc1.field("value", "item 1");
-    EntityImpl doc2 = (EntityImpl) db.newEntity();
+    var doc2 = (EntityImpl) db.newEntity();
     doc2.field("value", "item 2");
-    EntityImpl nested = (EntityImpl) db.newEntity();
-    LinkList list = new LinkList(nested);
+    var nested = (EntityImpl) db.newEntity();
+    var list = new LinkList(nested);
     list.add(doc1);
     list.add(doc2);
 
     nested.field("list", list);
 
     db.begin();
-    EntityImpl base = (EntityImpl) db.newEntity();
+    var base = (EntityImpl) db.newEntity();
     base.field("nested", nested, PropertyType.EMBEDDED);
     Identifiable id = db.save(base);
     db.commit();
@@ -69,19 +69,19 @@ public class CollectionOfLinkInNestedDocumentTest extends DbTestBase {
 
   @Test
   public void nestedLinkMap() {
-    EntityImpl doc1 = (EntityImpl) db.newEntity();
+    var doc1 = (EntityImpl) db.newEntity();
     doc1.field("value", "item 1");
-    EntityImpl doc2 = (EntityImpl) db.newEntity();
+    var doc2 = (EntityImpl) db.newEntity();
     doc2.field("value", "item 2");
-    EntityImpl nested = (EntityImpl) db.newEntity();
-    LinkMap map = new LinkMap(nested);
+    var nested = (EntityImpl) db.newEntity();
+    var map = new LinkMap(nested);
     map.put("record1", doc1);
     map.put("record2", doc2);
 
     nested.field("map", map);
 
     db.begin();
-    EntityImpl base = (EntityImpl) db.newEntity();
+    var base = (EntityImpl) db.newEntity();
     base.field("nested", nested, PropertyType.EMBEDDED);
     Identifiable id = db.save(base);
     db.commit();

@@ -46,7 +46,7 @@ public class LiveQueryPlugin extends ServerPluginAbstract implements DatabaseLif
   public void config(final YouTrackDBServer iServer,
       final ServerParameterConfiguration[] iParams) {
     super.config(iServer, iParams);
-    for (ServerParameterConfiguration param : iParams) {
+    for (var param : iParams) {
       if (param.name.equalsIgnoreCase("enabled")) {
         if (Boolean.parseBoolean(param.value)) {
           enabled = true;

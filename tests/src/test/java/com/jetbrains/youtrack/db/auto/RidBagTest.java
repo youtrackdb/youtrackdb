@@ -37,13 +37,13 @@ public abstract class RidBagTest extends BaseDBTest {
   }
 
   public void testAdd() {
-    RidBag bag = new RidBag(db);
+    var bag = new RidBag(db);
 
     bag.add(new RecordId("#77:1"));
     Assert.assertTrue(bag.contains(new RecordId("#77:1")));
     Assert.assertFalse(bag.contains(new RecordId("#78:2")));
 
-    Iterator<RID> iterator = bag.iterator();
+    var iterator = bag.iterator();
     Assert.assertTrue(iterator.hasNext());
 
     Identifiable identifiable = iterator.next();
@@ -54,7 +54,7 @@ public abstract class RidBagTest extends BaseDBTest {
   }
 
   public void testAdd2() {
-    RidBag bag = new RidBag(db);
+    var bag = new RidBag(db);
 
     bag.add(new RecordId("#77:2"));
     bag.add(new RecordId("#77:2"));
@@ -67,7 +67,7 @@ public abstract class RidBagTest extends BaseDBTest {
   }
 
   public void testAddRemoveInTheMiddleOfIteration() {
-    RidBag bag = new RidBag(db);
+    var bag = new RidBag(db);
 
     bag.add(new RecordId("#77:2"));
     bag.add(new RecordId("#77:2"));
@@ -78,8 +78,8 @@ public abstract class RidBagTest extends BaseDBTest {
     bag.add(new RecordId("#77:5"));
     bag.add(new RecordId("#77:6"));
 
-    int counter = 0;
-    Iterator<RID> iterator = bag.iterator();
+    var counter = 0;
+    var iterator = bag.iterator();
 
     bag.remove(new RecordId("#77:2"));
     while (iterator.hasNext()) {
@@ -127,7 +127,7 @@ public abstract class RidBagTest extends BaseDBTest {
       rids.add(identifiable);
     }
 
-    EntityImpl doc = ((EntityImpl) db.newEntity());
+    var doc = ((EntityImpl) db.newEntity());
     doc.field("ridbag", bag);
     db.begin();
     doc.save();
@@ -158,7 +158,7 @@ public abstract class RidBagTest extends BaseDBTest {
   }
 
   public void testAddRemove() {
-    RidBag bag = new RidBag(db);
+    var bag = new RidBag(db);
 
     bag.add(new RecordId("#77:2"));
     bag.add(new RecordId("#77:2"));
@@ -202,7 +202,7 @@ public abstract class RidBagTest extends BaseDBTest {
       rids.add(identifiable);
     }
 
-    EntityImpl doc = ((EntityImpl) db.newEntity());
+    var doc = ((EntityImpl) db.newEntity());
     doc.field("ridbag", bag);
     db.begin();
     doc.save();
@@ -233,7 +233,7 @@ public abstract class RidBagTest extends BaseDBTest {
   }
 
   public void testAddRemoveSBTreeContainsValues() {
-    RidBag bag = new RidBag(db);
+    var bag = new RidBag(db);
 
     bag.add(new RecordId("#77:2"));
     bag.add(new RecordId("#77:2"));
@@ -246,7 +246,7 @@ public abstract class RidBagTest extends BaseDBTest {
 
     assertEmbedded(bag.isEmbedded());
 
-    EntityImpl doc = ((EntityImpl) db.newEntity());
+    var doc = ((EntityImpl) db.newEntity());
     doc.field("ridbag", bag);
     db.begin();
     doc.save();
@@ -287,8 +287,8 @@ public abstract class RidBagTest extends BaseDBTest {
     }
 
     doc = ((EntityImpl) db.newEntity());
-    RidBag otherBag = new RidBag(db);
-    for (RID id : bag) {
+    var otherBag = new RidBag(db);
+    for (var id : bag) {
       otherBag.add(id);
     }
 
@@ -315,7 +315,7 @@ public abstract class RidBagTest extends BaseDBTest {
 
   public void testAddRemoveDuringIterationSBTreeContainsValues() {
     db.begin();
-    RidBag bag = new RidBag(db);
+    var bag = new RidBag(db);
     assertEmbedded(bag.isEmbedded());
 
     bag.add(new RecordId("#77:2"));
@@ -328,7 +328,7 @@ public abstract class RidBagTest extends BaseDBTest {
     bag.add(new RecordId("#77:6"));
     assertEmbedded(bag.isEmbedded());
 
-    EntityImpl doc = ((EntityImpl) db.newEntity());
+    var doc = ((EntityImpl) db.newEntity());
     doc.field("ridbag", bag);
 
     doc.save();
@@ -368,9 +368,9 @@ public abstract class RidBagTest extends BaseDBTest {
       rids.add(identifiable);
     }
 
-    Iterator<RID> iterator = bag.iterator();
+    var iterator = bag.iterator();
     while (iterator.hasNext()) {
-      final RID identifiable = iterator.next();
+      final var identifiable = iterator.next();
       if (identifiable.equals(new RecordId("#77:4"))) {
         iterator.remove();
         assertTrue(rids.remove(identifiable));
@@ -388,8 +388,8 @@ public abstract class RidBagTest extends BaseDBTest {
     assertEmbedded(bag.isEmbedded());
     doc = ((EntityImpl) db.newEntity());
 
-    final RidBag otherBag = new RidBag(db);
-    for (RID id : bag) {
+    final var otherBag = new RidBag(db);
+    for (var id : bag) {
       otherBag.add(id);
     }
 
@@ -415,7 +415,7 @@ public abstract class RidBagTest extends BaseDBTest {
   }
 
   public void testEmptyIterator() {
-    RidBag bag = new RidBag(db);
+    var bag = new RidBag(db);
     assertEmbedded(bag.isEmbedded());
     assertEquals(bag.size(), 0);
 
@@ -428,7 +428,7 @@ public abstract class RidBagTest extends BaseDBTest {
     db.begin();
     List<Identifiable> rids = new ArrayList<>();
 
-    RidBag bag = new RidBag(db);
+    var bag = new RidBag(db);
     assertEmbedded(bag.isEmbedded());
 
     bag.add(new RecordId("#77:2"));
@@ -456,7 +456,7 @@ public abstract class RidBagTest extends BaseDBTest {
     rids.add(new RecordId("#77:6"));
     assertEmbedded(bag.isEmbedded());
 
-    EntityImpl doc = ((EntityImpl) db.newEntity());
+    var doc = ((EntityImpl) db.newEntity());
     doc.field("ridbag", bag);
 
     doc.save();
@@ -523,7 +523,7 @@ public abstract class RidBagTest extends BaseDBTest {
     bag = doc.field("ridbag");
     assertEmbedded(bag.isEmbedded());
 
-    for (RID identifiable : bag) {
+    for (var identifiable : bag) {
       assertTrue(rids.remove(identifiable));
     }
 
@@ -531,8 +531,8 @@ public abstract class RidBagTest extends BaseDBTest {
   }
 
   public void testContentChange() {
-    EntityImpl entity = ((EntityImpl) db.newEntity());
-    RidBag ridBag = new RidBag(db);
+    var entity = ((EntityImpl) db.newEntity());
+    var ridBag = new RidBag(db);
     entity.field("ridBag", ridBag);
 
     db.begin();
@@ -545,7 +545,7 @@ public abstract class RidBagTest extends BaseDBTest {
     ridBag.add(new RecordId("#77:10"));
     Assert.assertTrue(entity.isDirty());
 
-    boolean expectCME = false;
+    var expectCME = false;
     if (RecordInternal.isContentChanged(entity)) {
       assertEmbedded(true);
       expectCME = true;
@@ -580,7 +580,7 @@ public abstract class RidBagTest extends BaseDBTest {
     expected.add(new RecordId("#77:15"));
     expected.add(new RecordId("#77:16"));
 
-    RidBag bag = new RidBag(db);
+    var bag = new RidBag(db);
 
     bag.addAll(expected);
     assertEmbedded(bag.isEmbedded());
@@ -598,7 +598,7 @@ public abstract class RidBagTest extends BaseDBTest {
   public void testAddSBTreeAddInMemoryIterate() {
     List<Identifiable> rids = new ArrayList<>();
 
-    RidBag bag = new RidBag(db);
+    var bag = new RidBag(db);
     assertEmbedded(bag.isEmbedded());
 
     bag.add(new RecordId("#77:2"));
@@ -617,7 +617,7 @@ public abstract class RidBagTest extends BaseDBTest {
     rids.add(new RecordId("#77:4"));
     assertEmbedded(bag.isEmbedded());
 
-    EntityImpl doc = ((EntityImpl) db.newEntity());
+    var doc = ((EntityImpl) db.newEntity());
     doc.field("ridbag", bag);
 
     db.begin();
@@ -668,8 +668,8 @@ public abstract class RidBagTest extends BaseDBTest {
     }
 
     doc = ((EntityImpl) db.newEntity());
-    final RidBag otherBag = new RidBag(db);
-    for (RID id : bag) {
+    final var otherBag = new RidBag(db);
+    for (var id : bag) {
       otherBag.add(id);
     }
 
@@ -694,11 +694,11 @@ public abstract class RidBagTest extends BaseDBTest {
   }
 
   public void testCycle() {
-    EntityImpl docOne = ((EntityImpl) db.newEntity());
-    RidBag ridBagOne = new RidBag(db);
+    var docOne = ((EntityImpl) db.newEntity());
+    var ridBagOne = new RidBag(db);
 
-    EntityImpl docTwo = ((EntityImpl) db.newEntity());
-    RidBag ridBagTwo = new RidBag(db);
+    var docTwo = ((EntityImpl) db.newEntity());
+    var ridBagTwo = new RidBag(db);
 
     docOne.field("ridBag", ridBagOne);
     docTwo.field("ridBag", ridBagTwo);
@@ -734,7 +734,7 @@ public abstract class RidBagTest extends BaseDBTest {
   public void testAddSBTreeAddInMemoryIterateAndRemove() {
     List<Identifiable> rids = new ArrayList<>();
 
-    RidBag bag = new RidBag(db);
+    var bag = new RidBag(db);
     assertEmbedded(bag.isEmbedded());
 
     bag.add(new RecordId("#77:2"));
@@ -760,7 +760,7 @@ public abstract class RidBagTest extends BaseDBTest {
 
     assertEmbedded(bag.isEmbedded());
 
-    EntityImpl doc = ((EntityImpl) db.newEntity());
+    var doc = ((EntityImpl) db.newEntity());
     doc.field("ridbag", bag);
 
     db.begin();
@@ -802,12 +802,12 @@ public abstract class RidBagTest extends BaseDBTest {
 
     assertEmbedded(bag.isEmbedded());
 
-    Iterator<RID> iterator = bag.iterator();
-    int r2c = 0;
-    int r3c = 0;
-    int r6c = 0;
-    int r4c = 0;
-    int r7c = 0;
+    var iterator = bag.iterator();
+    var r2c = 0;
+    var r3c = 0;
+    var r6c = 0;
+    var r4c = 0;
+    var r7c = 0;
 
     while (iterator.hasNext()) {
       Identifiable identifiable = iterator.next();
@@ -870,8 +870,8 @@ public abstract class RidBagTest extends BaseDBTest {
 
     doc = ((EntityImpl) db.newEntity());
 
-    final RidBag otherBag = new RidBag(db);
-    for (RID id : bag) {
+    final var otherBag = new RidBag(db);
+    for (var id : bag) {
       otherBag.add(id);
     }
 
@@ -906,7 +906,7 @@ public abstract class RidBagTest extends BaseDBTest {
     expected.add(new RecordId("#77:15"));
     expected.add(new RecordId("#77:16"));
 
-    final RidBag bag = new RidBag(db);
+    final var bag = new RidBag(db);
     assertEmbedded(bag.isEmbedded());
     bag.addAll(expected);
     assertEmbedded(bag.isEmbedded());
@@ -949,9 +949,9 @@ public abstract class RidBagTest extends BaseDBTest {
     expected.add(new RecordId("#77:21"));
     expected.add(new RecordId("#77:22"));
 
-    EntityImpl doc = ((EntityImpl) db.newEntity());
+    var doc = ((EntityImpl) db.newEntity());
 
-    final RidBag bag = new RidBag(db);
+    final var bag = new RidBag(db);
     bag.addAll(expected);
 
     doc.field("ridbag", bag);
@@ -973,7 +973,7 @@ public abstract class RidBagTest extends BaseDBTest {
     assertEmbedded(loaded.isEmbedded());
 
     Assert.assertEquals(loaded.size(), expected.size());
-    for (RID identifiable : loaded) {
+    for (var identifiable : loaded) {
       Assert.assertTrue(expected.remove(identifiable));
     }
 
@@ -981,16 +981,16 @@ public abstract class RidBagTest extends BaseDBTest {
   }
 
   public void testSaveInBackOrder() {
-    EntityImpl docA = ((EntityImpl) db.newEntity()).field("name", "A");
+    var docA = ((EntityImpl) db.newEntity()).field("name", "A");
 
     db.begin();
-    EntityImpl docB =
+    var docB =
         ((EntityImpl) db.newEntity())
             .field("name", "B");
     docB.save();
     db.commit();
 
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
 
     ridBag.add(docA.getIdentity());
     ridBag.add(docB.getIdentity());
@@ -1003,7 +1003,7 @@ public abstract class RidBagTest extends BaseDBTest {
 
     assertEmbedded(ridBag.isEmbedded());
 
-    HashSet<Identifiable> result = new HashSet<>();
+    var result = new HashSet<Identifiable>();
 
     for (Identifiable oIdentifiable : ridBag) {
       result.add(oIdentifiable);
@@ -1016,14 +1016,14 @@ public abstract class RidBagTest extends BaseDBTest {
   }
 
   public void testMassiveChanges() {
-    EntityImpl document = ((EntityImpl) db.newEntity());
-    RidBag bag = new RidBag(db);
+    var document = ((EntityImpl) db.newEntity());
+    var bag = new RidBag(db);
     assertEmbedded(bag.isEmbedded());
 
-    final long seed = System.nanoTime();
+    final var seed = System.nanoTime();
     System.out.println("testMassiveChanges seed: " + seed);
 
-    Random random = new Random(seed);
+    var random = new Random(seed);
     List<Identifiable> rids = new ArrayList<>();
     document.field("bag", bag);
 
@@ -1033,7 +1033,7 @@ public abstract class RidBagTest extends BaseDBTest {
 
     RID rid = document.getIdentity();
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       document = db.load(rid);
       document.setLazyLoad(false);
@@ -1055,13 +1055,13 @@ public abstract class RidBagTest extends BaseDBTest {
 
   public void testSimultaneousIterationAndRemove() {
     db.begin();
-    RidBag ridBag = new RidBag(db);
-    EntityImpl document = ((EntityImpl) db.newEntity());
+    var ridBag = new RidBag(db);
+    var document = ((EntityImpl) db.newEntity());
     document.field("ridBag", ridBag);
     assertEmbedded(ridBag.isEmbedded());
 
-    for (int i = 0; i < 10; i++) {
-      EntityImpl docToAdd = ((EntityImpl) db.newEntity());
+    for (var i = 0; i < 10; i++) {
+      var docToAdd = ((EntityImpl) db.newEntity());
       docToAdd.save();
       ridBag.add(docToAdd.getIdentity());
     }
@@ -1085,8 +1085,8 @@ public abstract class RidBagTest extends BaseDBTest {
     ridBag = document.field("ridBag");
     assertEmbedded(ridBag.isEmbedded());
 
-    for (int i = 0; i < 10; i++) {
-      EntityImpl docToAdd = ((EntityImpl) db.newEntity());
+    for (var i = 0; i < 10; i++) {
+      var docToAdd = ((EntityImpl) db.newEntity());
 
       db.begin();
       docToAdd.save();
@@ -1098,8 +1098,8 @@ public abstract class RidBagTest extends BaseDBTest {
 
     assertEmbedded(ridBag.isEmbedded());
 
-    for (int i = 0; i < 10; i++) {
-      EntityImpl docToAdd = ((EntityImpl) db.newEntity());
+    for (var i = 0; i < 10; i++) {
+      var docToAdd = ((EntityImpl) db.newEntity());
 
       db.begin();
       docToAdd.save();
@@ -1115,7 +1115,7 @@ public abstract class RidBagTest extends BaseDBTest {
       ridBag.remove(identifiable.getIdentity());
       Assert.assertEquals(ridBag.size(), docs.size());
 
-      int counter = 0;
+      var counter = 0;
       for (Identifiable id : ridBag) {
         Assert.assertTrue(docs.contains(id.getRecord(db)));
         counter++;
@@ -1138,19 +1138,19 @@ public abstract class RidBagTest extends BaseDBTest {
 
   public void testAddMixedValues() {
     db.begin();
-    RidBag ridBag = new RidBag(db);
-    EntityImpl document = ((EntityImpl) db.newEntity());
+    var ridBag = new RidBag(db);
+    var document = ((EntityImpl) db.newEntity());
     document.field("ridBag", ridBag);
     assertEmbedded(ridBag.isEmbedded());
 
     List<Identifiable> itemsToAdd = new ArrayList<>();
 
-    for (int i = 0; i < 10; i++) {
-      EntityImpl docToAdd = ((EntityImpl) db.newEntity());
+    for (var i = 0; i < 10; i++) {
+      var docToAdd = ((EntityImpl) db.newEntity());
       ridBag = document.field("ridBag");
       docToAdd.save();
 
-      for (int k = 0; k < 2; k++) {
+      for (var k = 0; k < 2; k++) {
         ridBag.add(docToAdd.getIdentity());
         itemsToAdd.add(docToAdd);
       }
@@ -1160,15 +1160,15 @@ public abstract class RidBagTest extends BaseDBTest {
 
     assertEmbedded(ridBag.isEmbedded());
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
-      EntityImpl docToAdd = ((EntityImpl) db.newEntity());
+      var docToAdd = ((EntityImpl) db.newEntity());
 
       docToAdd.save();
 
       document = db.bindToSession(document);
       ridBag = document.field("ridBag");
-      for (int k = 0; k < 2; k++) {
+      for (var k = 0; k < 2; k++) {
         ridBag.add(docToAdd.getIdentity());
         itemsToAdd.add(docToAdd);
       }
@@ -1177,9 +1177,9 @@ public abstract class RidBagTest extends BaseDBTest {
       db.commit();
     }
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
-      EntityImpl docToAdd = ((EntityImpl) db.newEntity());
+      var docToAdd = ((EntityImpl) db.newEntity());
       docToAdd.save();
 
       document = db.bindToSession(document);
@@ -1196,17 +1196,17 @@ public abstract class RidBagTest extends BaseDBTest {
     db.begin();
     document = db.bindToSession(document);
     ridBag = document.field("ridBag");
-    for (int i = 0; i < 10; i++) {
-      EntityImpl docToAdd = ((EntityImpl) db.newEntity());
+    for (var i = 0; i < 10; i++) {
+      var docToAdd = ((EntityImpl) db.newEntity());
       docToAdd.save();
 
-      for (int k = 0; k < 2; k++) {
+      for (var k = 0; k < 2; k++) {
         ridBag.add(docToAdd.getIdentity());
         itemsToAdd.add(docToAdd);
       }
     }
-    for (int i = 0; i < 10; i++) {
-      EntityImpl docToAdd = ((EntityImpl) db.newEntity());
+    for (var i = 0; i < 10; i++) {
+      var docToAdd = ((EntityImpl) db.newEntity());
       docToAdd.save();
       ridBag.add(docToAdd.getIdentity());
       itemsToAdd.add(docToAdd);
@@ -1239,7 +1239,7 @@ public abstract class RidBagTest extends BaseDBTest {
     GlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(-1);
 
     if (db.getStorage() instanceof StorageProxy) {
-      ServerAdmin server = new ServerAdmin(db.getURL()).connect("root", SERVER_PASSWORD);
+      var server = new ServerAdmin(db.getURL()).connect("root", SERVER_PASSWORD);
       server.setGlobalConfiguration(
           GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, 7);
       server.setGlobalConfiguration(
@@ -1248,8 +1248,8 @@ public abstract class RidBagTest extends BaseDBTest {
     }
 
     db.begin();
-    RidBag ridBag = new RidBag(db);
-    EntityImpl document = ((EntityImpl) db.newEntity());
+    var ridBag = new RidBag(db);
+    var document = ((EntityImpl) db.newEntity());
     document.field("ridBag", ridBag);
 
     Assert.assertTrue(ridBag.isEmbedded());
@@ -1263,8 +1263,8 @@ public abstract class RidBagTest extends BaseDBTest {
     Assert.assertTrue(ridBag.isEmbedded());
 
     List<RID> addedItems = new ArrayList<>();
-    for (int i = 0; i < 6; i++) {
-      EntityImpl docToAdd = ((EntityImpl) db.newEntity());
+    for (var i = 0; i < 6; i++) {
+      var docToAdd = ((EntityImpl) db.newEntity());
 
       db.begin();
       docToAdd.save();
@@ -1285,7 +1285,7 @@ public abstract class RidBagTest extends BaseDBTest {
     db.rollback();
 
     db.begin();
-    EntityImpl docToAdd = ((EntityImpl) db.newEntity());
+    var docToAdd = ((EntityImpl) db.newEntity());
     docToAdd.save();
     db.commit();
     db.begin();
@@ -1324,7 +1324,7 @@ public abstract class RidBagTest extends BaseDBTest {
 
     addedItems.addAll(addedItemsCopy);
 
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       ridBag.remove(addedItems.remove(i).getIdentity());
     }
 
@@ -1339,7 +1339,7 @@ public abstract class RidBagTest extends BaseDBTest {
     ridBag = document.field("ridBag");
     Assert.assertFalse(ridBag.isEmbedded());
 
-    for (RID id : ridBag) {
+    for (var id : ridBag) {
       Assert.assertTrue(addedItems.remove(id));
     }
 
@@ -1349,7 +1349,7 @@ public abstract class RidBagTest extends BaseDBTest {
     Assert.assertFalse(ridBag.isEmbedded());
 
     addedItems.addAll(addedItemsCopy);
-    for (RID id : ridBag) {
+    for (var id : ridBag) {
       Assert.assertTrue(addedItems.remove(id));
     }
 
@@ -1362,7 +1362,7 @@ public abstract class RidBagTest extends BaseDBTest {
     GlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(-1);
 
     if (db.isRemote()) {
-      ServerAdmin server = new ServerAdmin(db.getURL()).connect("root", SERVER_PASSWORD);
+      var server = new ServerAdmin(db.getURL()).connect("root", SERVER_PASSWORD);
       server.setGlobalConfiguration(
           GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, 7);
       server.setGlobalConfiguration(
@@ -1370,8 +1370,8 @@ public abstract class RidBagTest extends BaseDBTest {
       server.close();
     }
 
-    RidBag ridBag = new RidBag(db);
-    EntityImpl document = ((EntityImpl) db.newEntity());
+    var ridBag = new RidBag(db);
+    var document = ((EntityImpl) db.newEntity());
     document.field("ridBag", ridBag);
 
     Assert.assertTrue(ridBag.isEmbedded());
@@ -1387,9 +1387,9 @@ public abstract class RidBagTest extends BaseDBTest {
     List<Identifiable> addedItems = new ArrayList<>();
 
     ridBag = document.field("ridBag");
-    for (int i = 0; i < 6; i++) {
+    for (var i = 0; i < 6; i++) {
 
-      EntityImpl docToAdd = ((EntityImpl) db.newEntity());
+      var docToAdd = ((EntityImpl) db.newEntity());
 
       docToAdd.save();
       ridBag.add(docToAdd.getIdentity());
@@ -1403,7 +1403,7 @@ public abstract class RidBagTest extends BaseDBTest {
     ridBag = document.field("ridBag");
     Assert.assertTrue(ridBag.isEmbedded());
 
-    EntityImpl docToAdd = ((EntityImpl) db.newEntity());
+    var docToAdd = ((EntityImpl) db.newEntity());
 
     docToAdd.save();
     db.commit();
@@ -1443,7 +1443,7 @@ public abstract class RidBagTest extends BaseDBTest {
 
     addedItems.addAll(addedItemsCopy);
 
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       ridBag.remove(addedItems.remove(i).getIdentity());
     }
 
@@ -1480,12 +1480,12 @@ public abstract class RidBagTest extends BaseDBTest {
     db.begin();
     List<Identifiable> docsToAdd = new ArrayList<>();
 
-    RidBag ridBag = new RidBag(db);
-    EntityImpl document = ((EntityImpl) db.newEntity());
+    var ridBag = new RidBag(db);
+    var document = ((EntityImpl) db.newEntity());
     document.field("ridBag", ridBag);
 
-    for (int i = 0; i < 5; i++) {
-      EntityImpl docToAdd = ((EntityImpl) db.newEntity());
+    for (var i = 0; i < 5; i++) {
+      var docToAdd = ((EntityImpl) db.newEntity());
       docToAdd.save();
       ridBag = document.field("ridBag");
       ridBag.add(docToAdd.getIdentity());
@@ -1505,22 +1505,22 @@ public abstract class RidBagTest extends BaseDBTest {
     assertEmbedded(ridBag.isEmbedded());
 
     ridBag = document.field("ridBag");
-    for (int i = 0; i < 5; i++) {
-      EntityImpl docToAdd = ((EntityImpl) db.newEntity());
+    for (var i = 0; i < 5; i++) {
+      var docToAdd = ((EntityImpl) db.newEntity());
       docToAdd.save();
       ridBag.add(docToAdd.getIdentity());
 
       docsToAdd.add(docToAdd);
     }
 
-    for (int i = 5; i < 10; i++) {
+    for (var i = 5; i < 10; i++) {
       EntityImpl docToAdd = docsToAdd.get(i).getRecord(db);
       docToAdd.save();
     }
 
     Iterator<Identifiable> iterator = docsToAdd.listIterator(7);
     while (iterator.hasNext()) {
-      Identifiable docToAdd = iterator.next();
+      var docToAdd = iterator.next();
       ridBag.remove(docToAdd.getIdentity());
       iterator.remove();
     }
@@ -1554,17 +1554,17 @@ public abstract class RidBagTest extends BaseDBTest {
 
   @Test
   public void testSizeNotChangeAfterRemoveNotExistentElement() {
-    final EntityImpl bob = ((EntityImpl) db.newEntity());
+    final var bob = ((EntityImpl) db.newEntity());
 
     db.begin();
-    final EntityImpl fred = ((EntityImpl) db.newEntity());
+    final var fred = ((EntityImpl) db.newEntity());
     fred.save();
-    final EntityImpl jim =
+    final var jim =
         ((EntityImpl) db.newEntity());
     jim.save();
     db.commit();
 
-    RidBag teamMates = new RidBag(db);
+    var teamMates = new RidBag(db);
 
     teamMates.add(bob.getIdentity());
     teamMates.add(fred.getIdentity());
@@ -1578,10 +1578,10 @@ public abstract class RidBagTest extends BaseDBTest {
 
   @Test
   public void testRemoveNotExistentElementAndAddIt() {
-    RidBag teamMates = new RidBag(db);
+    var teamMates = new RidBag(db);
 
     db.begin();
-    final EntityImpl bob = ((EntityImpl) db.newEntity());
+    final var bob = ((EntityImpl) db.newEntity());
     bob.save();
     db.commit();
 
@@ -1598,13 +1598,13 @@ public abstract class RidBagTest extends BaseDBTest {
   public void testAddNewItemsAndRemoveThem() {
     db.begin();
     final List<Identifiable> rids = new ArrayList<>();
-    RidBag ridBag = new RidBag(db);
-    int size = 0;
-    for (int i = 0; i < 10; i++) {
-      EntityImpl docToAdd = ((EntityImpl) db.newEntity());
+    var ridBag = new RidBag(db);
+    var size = 0;
+    for (var i = 0; i < 10; i++) {
+      var docToAdd = ((EntityImpl) db.newEntity());
       docToAdd.save();
 
-      for (int k = 0; k < 2; k++) {
+      for (var k = 0; k < 2; k++) {
         ridBag.add(docToAdd.getIdentity());
         rids.add(docToAdd);
         size++;
@@ -1612,7 +1612,7 @@ public abstract class RidBagTest extends BaseDBTest {
     }
 
     Assert.assertEquals(ridBag.size(), size);
-    EntityImpl document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) db.newEntity());
     document.field("ridBag", ridBag);
     document.save();
     db.commit();
@@ -1623,11 +1623,11 @@ public abstract class RidBagTest extends BaseDBTest {
     Assert.assertEquals(ridBag.size(), size);
 
     final List<Identifiable> newDocs = new ArrayList<>();
-    for (int i = 0; i < 10; i++) {
-      EntityImpl docToAdd = ((EntityImpl) db.newEntity());
+    for (var i = 0; i < 10; i++) {
+      var docToAdd = ((EntityImpl) db.newEntity());
 
       docToAdd.save();
-      for (int k = 0; k < 2; k++) {
+      for (var k = 0; k < 2; k++) {
         ridBag.add(docToAdd.getIdentity());
         rids.add(docToAdd);
         newDocs.add(docToAdd);
@@ -1642,11 +1642,11 @@ public abstract class RidBagTest extends BaseDBTest {
     ridBag = document.field("ridBag");
     Assert.assertEquals(ridBag.size(), size);
 
-    Random rnd = new Random();
+    var rnd = new Random();
 
-    for (int i = 0; i < newDocs.size(); i++) {
+    for (var i = 0; i < newDocs.size(); i++) {
       if (rnd.nextBoolean()) {
-        Identifiable newDoc = newDocs.get(i);
+        var newDoc = newDocs.get(i);
         rids.remove(newDoc);
         ridBag.remove(newDoc.getIdentity());
         newDocs.remove(newDoc);
@@ -1691,11 +1691,11 @@ public abstract class RidBagTest extends BaseDBTest {
   @Test
   public void testJsonSerialization() {
     db.begin();
-    final EntityImpl externalDoc = ((EntityImpl) db.newEntity());
+    final var externalDoc = ((EntityImpl) db.newEntity());
 
-    final RidBag highLevelRidBag = new RidBag(db);
+    final var highLevelRidBag = new RidBag(db);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       var doc = ((EntityImpl) db.newEntity());
       doc.save();
 
@@ -1704,7 +1704,7 @@ public abstract class RidBagTest extends BaseDBTest {
 
     externalDoc.save();
 
-    EntityImpl testDocument = ((EntityImpl) db.newEntity());
+    var testDocument = ((EntityImpl) db.newEntity());
     testDocument.field("type", "testDocument");
     testDocument.field("ridBag", highLevelRidBag);
     testDocument.field("externalDoc", externalDoc);
@@ -1716,9 +1716,9 @@ public abstract class RidBagTest extends BaseDBTest {
     db.begin();
 
     testDocument = db.bindToSession(testDocument);
-    final String json = testDocument.toJSON(RecordAbstract.OLD_FORMAT_WITH_LATE_TYPES);
+    final var json = testDocument.toJSON(RecordAbstract.OLD_FORMAT_WITH_LATE_TYPES);
 
-    final EntityImpl doc = ((EntityImpl) db.newEntity());
+    final var doc = ((EntityImpl) db.newEntity());
     doc.updateFromJSON(json);
 
     Assert.assertTrue(
@@ -1730,7 +1730,7 @@ public abstract class RidBagTest extends BaseDBTest {
 
   private static void massiveInsertionIteration(Random rnd, List<Identifiable> rids,
       RidBag bag) {
-    Iterator<RID> bagIterator = bag.iterator();
+    var bagIterator = bag.iterator();
 
     while (bagIterator.hasNext()) {
       Identifiable bagValue = bagIterator.next();
@@ -1739,16 +1739,16 @@ public abstract class RidBagTest extends BaseDBTest {
 
     Assert.assertEquals(bag.size(), rids.size());
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       if (rnd.nextDouble() < 0.2 & rids.size() > 5) {
-        final int index = rnd.nextInt(rids.size());
-        final Identifiable rid = rids.remove(index);
+        final var index = rnd.nextInt(rids.size());
+        final var rid = rids.remove(index);
         bag.remove(rid.getIdentity());
       } else {
         final long position;
         position = rnd.nextInt(300);
 
-        final RecordId recordId = new RecordId(1, position);
+        final var recordId = new RecordId(1, position);
         rids.add(recordId);
         bag.add(recordId);
       }

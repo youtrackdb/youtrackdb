@@ -38,7 +38,7 @@ public class ServerCommandPostServer extends ServerCommandAuthenticatedServerAbs
   @Override
   public boolean execute(final HttpRequest iRequest, final HttpResponse iResponse)
       throws Exception {
-    final String[] urlParts =
+    final var urlParts =
         checkSyntax(iRequest.getUrl(), 3, "Syntax error: server/<setting-name>/<setting-value>");
 
     iRequest.getData().commandInfo = "Change server settings";
@@ -47,8 +47,8 @@ public class ServerCommandPostServer extends ServerCommandAuthenticatedServerAbs
       throw new IllegalArgumentException("setting-name is null or empty");
     }
 
-    final String settingName = urlParts[1];
-    final String settingValue = urlParts[2];
+    final var settingName = urlParts[1];
+    final var settingValue = urlParts[2];
 
     if (settingName.startsWith("configuration.")) {
 
@@ -74,9 +74,9 @@ public class ServerCommandPostServer extends ServerCommandAuthenticatedServerAbs
   private void changeConfiguration(
       final HttpResponse iResponse, final String settingName, final String settingValue)
       throws IOException {
-    final GlobalConfiguration cfg = GlobalConfiguration.findByKey(settingName);
+    final var cfg = GlobalConfiguration.findByKey(settingName);
     if (cfg != null) {
-      final Object oldValue = cfg.getValue();
+      final var oldValue = cfg.getValue();
 
       cfg.setValue(settingValue);
 

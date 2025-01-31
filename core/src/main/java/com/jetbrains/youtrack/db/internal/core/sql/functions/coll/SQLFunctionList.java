@@ -50,7 +50,7 @@ public class SQLFunctionList extends SQLFunctionMultiValueAbstract<List<Object>>
       context = new ArrayList<Object>();
     }
 
-    for (Object value : iParams) {
+    for (var value : iParams) {
       if (value != null) {
         if (iParams.length == 1 && context == null)
         // AGGREGATION MODE (STATEFULL)
@@ -78,7 +78,7 @@ public class SQLFunctionList extends SQLFunctionMultiValueAbstract<List<Object>>
 
   @Override
   public List<Object> getResult() {
-    final List<Object> res = context;
+    final var res = context;
     context = null;
     return prepareResult(res);
   }

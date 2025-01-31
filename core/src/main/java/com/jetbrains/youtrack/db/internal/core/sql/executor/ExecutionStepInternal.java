@@ -43,9 +43,9 @@ public interface ExecutionStepInternal extends ExecutionStep {
   void close();
 
   static String getIndent(int depth, int indent) {
-    StringBuilder result = new StringBuilder();
-    for (int i = 0; i < depth; i++) {
-      for (int j = 0; j < indent; j++) {
+    var result = new StringBuilder();
+    for (var i = 0; i < depth; i++) {
+      for (var j = 0; j < indent; j++) {
         result.append(" ");
       }
     }
@@ -53,7 +53,7 @@ public interface ExecutionStepInternal extends ExecutionStep {
   }
 
   default String prettyPrint(int depth, int indent) {
-    String spaces = getIndent(depth, indent);
+    var spaces = getIndent(depth, indent);
     return spaces + getClass().getSimpleName();
   }
 
@@ -95,11 +95,11 @@ public interface ExecutionStepInternal extends ExecutionStep {
 
   static ResultInternal basicSerialize(DatabaseSessionInternal db,
       ExecutionStepInternal step) {
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     result.setProperty(InternalExecutionPlan.JAVA_TYPE, step.getClass().getName());
     if (step.getSubSteps() != null && !step.getSubSteps().isEmpty()) {
       List<Result> serializedSubsteps = new ArrayList<>();
-      for (ExecutionStep substep : step.getSubSteps()) {
+      for (var substep : step.getSubSteps()) {
         serializedSubsteps.add(((ExecutionStepInternal) substep).serialize(db));
       }
       result.setProperty("subSteps", serializedSubsteps);
@@ -107,7 +107,7 @@ public interface ExecutionStepInternal extends ExecutionStep {
 
     if (step.getSubExecutionPlans() != null && !step.getSubExecutionPlans().isEmpty()) {
       List<Result> serializedSubPlans = new ArrayList<>();
-      for (ExecutionPlan substep : step.getSubExecutionPlans()) {
+      for (var substep : step.getSubExecutionPlans()) {
         serializedSubPlans.add(((InternalExecutionPlan) substep).serialize(db));
       }
       result.setProperty("subExecutionPlans", serializedSubPlans);
@@ -119,9 +119,9 @@ public interface ExecutionStepInternal extends ExecutionStep {
       throws ClassNotFoundException, IllegalAccessException, InstantiationException {
     List<Result> serializedSubsteps = serialized.getProperty("subSteps");
     if (serializedSubsteps != null) {
-      for (Result serializedSub : serializedSubsteps) {
+      for (var serializedSub : serializedSubsteps) {
         String className = serializedSub.getProperty(InternalExecutionPlan.JAVA_TYPE);
-        ExecutionStepInternal subStep =
+        var subStep =
             (ExecutionStepInternal) Class.forName(className).newInstance();
         subStep.deserialize(serializedSub);
         step.getSubSteps().add(subStep);
@@ -130,9 +130,9 @@ public interface ExecutionStepInternal extends ExecutionStep {
 
     List<Result> serializedPlans = serialized.getProperty("subExecutionPlans");
     if (serializedSubsteps != null) {
-      for (Result serializedSub : serializedPlans) {
+      for (var serializedSub : serializedPlans) {
         String className = serializedSub.getProperty(InternalExecutionPlan.JAVA_TYPE);
-        InternalExecutionPlan subStep =
+        var subStep =
             (InternalExecutionPlan) Class.forName(className).newInstance();
         subStep.deserialize(serializedSub);
         step.getSubExecutionPlans().add(subStep);

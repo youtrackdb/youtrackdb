@@ -31,7 +31,7 @@ public class RecreateIndexesTask implements Runnable {
   @Override
   public void run() {
     try {
-      final DatabaseSessionEmbedded newDb =
+      final var newDb =
           new DatabaseSessionEmbedded((Storage) ctx.getStorage());
       newDb.activateOnCurrentThread();
       newDb.init(null, ctx);
@@ -47,7 +47,7 @@ public class RecreateIndexesTask implements Runnable {
           indexesToRebuild = Collections.emptyList();
         } else {
           indexesToRebuild = new ArrayList<>();
-          for (EntityImpl index : knownIndexes) {
+          for (var index : knownIndexes) {
             indexesToRebuild.add(index.copy()); // make copies to safely iterate them later
           }
         }
@@ -74,7 +74,7 @@ public class RecreateIndexesTask implements Runnable {
       Collection<EntityImpl> indexesToRebuild, DatabaseSessionEmbedded db) {
     ok = 0;
     errors = 0;
-    for (EntityImpl index : indexesToRebuild) {
+    for (var index : indexesToRebuild) {
       try {
         recreateIndex(index, db);
       } catch (RuntimeException e) {
@@ -92,13 +92,13 @@ public class RecreateIndexesTask implements Runnable {
   }
 
   private void recreateIndex(EntityImpl indexDocument, DatabaseSessionEmbedded db) {
-    final IndexInternal index = createIndex(indexDocument);
-    final IndexMetadata indexMetadata = index.loadMetadata(indexDocument);
-    final IndexDefinition indexDefinition = indexMetadata.getIndexDefinition();
+    final var index = createIndex(indexDocument);
+    final var indexMetadata = index.loadMetadata(indexDocument);
+    final var indexDefinition = indexMetadata.getIndexDefinition();
 
-    final boolean automatic = indexDefinition != null && indexDefinition.isAutomatic();
+    final var automatic = indexDefinition != null && indexDefinition.isAutomatic();
     // XXX: At this moment Lucene-based indexes are not durable, so we still need to rebuild them.
-    final boolean durable = !"LUCENE".equalsIgnoreCase(indexMetadata.getAlgorithm());
+    final var durable = !"LUCENE".equalsIgnoreCase(indexMetadata.getAlgorithm());
 
     // The database and its index manager are in a special half-open state now, the index manager
     // is created, but not populated
@@ -151,9 +151,9 @@ public class RecreateIndexesTask implements Runnable {
     index.loadFromConfiguration(session, indexDocument);
     index.delete(session);
 
-    final String indexName = indexMetadata.getName();
-    final Set<String> clusters = indexMetadata.getClustersToIndex();
-    final String type = indexMetadata.getType();
+    final var indexName = indexMetadata.getName();
+    final var clusters = indexMetadata.getClustersToIndex();
+    final var type = indexMetadata.getType();
 
     if (clusters != null && !clusters.isEmpty() && type != null) {
       LogManager.instance().info(this, "Start creation of index '%s'", indexName);
@@ -215,7 +215,7 @@ public class RecreateIndexesTask implements Runnable {
       throw new IndexException(
           "Index type is null, will process other record. Index configuration: " + idx);
     }
-    IndexMetadata m = IndexAbstract.loadMetadataFromDoc(idx);
+    var m = IndexAbstract.loadMetadataFromDoc(idx);
     return Indexes.createIndex(indexManager.storage, m);
   }
 }

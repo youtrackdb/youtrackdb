@@ -58,15 +58,15 @@ public class SBTFetchEntriesMajorResponse<K, V> implements BinaryResponse {
   @Override
   public void read(DatabaseSessionInternal db, ChannelDataInput network,
       StorageRemoteSession session) throws IOException {
-    byte[] stream = network.readBytes();
-    int offset = 0;
-    final int count = IntegerSerializer.INSTANCE.deserializeLiteral(stream, 0);
+    var stream = network.readBytes();
+    var offset = 0;
+    final var count = IntegerSerializer.INSTANCE.deserializeLiteral(stream, 0);
     offset += IntegerSerializer.INT_SIZE;
     list = new ArrayList<Map.Entry<K, V>>(count);
-    for (int i = 0; i < count; i++) {
-      final K resultKey = keySerializer.deserialize(stream, offset);
+    for (var i = 0; i < count; i++) {
+      final var resultKey = keySerializer.deserialize(stream, offset);
       offset += keySerializer.getObjectSize(stream, offset);
-      final V resultValue = valueSerializer.deserialize(stream, offset);
+      final var resultValue = valueSerializer.deserialize(stream, offset);
       offset += valueSerializer.getObjectSize(stream, offset);
       list.add(new TreeEntry<K, V>(resultKey, resultValue));
     }
@@ -75,17 +75,17 @@ public class SBTFetchEntriesMajorResponse<K, V> implements BinaryResponse {
   public void write(DatabaseSessionInternal session, ChannelDataOutput channel,
       int protocolVersion, RecordSerializer serializer)
       throws IOException {
-    byte[] stream =
+    var stream =
         new byte
             [IntegerSerializer.INT_SIZE
             + list.size()
             * (keySerializer.getFixedLength() + valueSerializer.getFixedLength())];
-    int offset = 0;
+    var offset = 0;
 
     IntegerSerializer.INSTANCE.serializeLiteral(list.size(), stream, offset);
     offset += IntegerSerializer.INT_SIZE;
 
-    for (Entry<K, V> entry : list) {
+    for (var entry : list) {
       keySerializer.serialize(entry.getKey(), stream, offset);
       offset += keySerializer.getObjectSize(entry.getKey());
 

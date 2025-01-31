@@ -148,7 +148,7 @@ public class RecordId implements RID, SerializableStream {
     if (!(obj instanceof Identifiable)) {
       return false;
     }
-    final RecordId other = (RecordId) ((Identifiable) obj).getIdentity();
+    final var other = (RecordId) ((Identifiable) obj).getIdentity();
 
     return clusterId == other.clusterId && clusterPosition == other.clusterPosition;
   }
@@ -164,9 +164,9 @@ public class RecordId implements RID, SerializableStream {
     }
 
     var otherIdentity = other.getIdentity();
-    final int otherClusterId = otherIdentity.getClusterId();
+    final var otherClusterId = otherIdentity.getClusterId();
     if (clusterId == otherClusterId) {
-      final long otherClusterPos = other.getIdentity().getClusterPosition();
+      final var otherClusterPos = other.getIdentity().getClusterPosition();
       return Long.compare(clusterPosition, otherClusterPos);
     } else if (clusterId > otherClusterId) {
       return 1;
@@ -222,19 +222,19 @@ public class RecordId implements RID, SerializableStream {
   }
 
   public int toStream(final OutputStream iStream) throws IOException {
-    final int beginOffset = BinaryProtocol.short2bytes((short) clusterId, iStream);
+    final var beginOffset = BinaryProtocol.short2bytes((short) clusterId, iStream);
     BinaryProtocol.long2bytes(clusterPosition, iStream);
     return beginOffset;
   }
 
   public int toStream(final MemoryStream iStream) throws IOException {
-    final int beginOffset = BinaryProtocol.short2bytes((short) clusterId, iStream);
+    final var beginOffset = BinaryProtocol.short2bytes((short) clusterId, iStream);
     BinaryProtocol.long2bytes(clusterPosition, iStream);
     return beginOffset;
   }
 
   public byte[] toStream() {
-    final byte[] buffer = new byte[BinaryProtocol.SIZE_SHORT + BinaryProtocol.SIZE_LONG];
+    final var buffer = new byte[BinaryProtocol.SIZE_SHORT + BinaryProtocol.SIZE_LONG];
 
     BinaryProtocol.short2bytes((short) clusterId, buffer, 0);
     BinaryProtocol.long2bytes(clusterPosition, buffer, BinaryProtocol.SIZE_SHORT);
@@ -269,7 +269,7 @@ public class RecordId implements RID, SerializableStream {
               + " <cluster-id>:<cluster-position>");
     }
 
-    final List<String> parts = StringSerializerHelper.split(iRecordId, SEPARATOR, PREFIX);
+    final var parts = StringSerializerHelper.split(iRecordId, SEPARATOR, PREFIX);
 
     if (parts.size() != 2) {
       throw new IllegalArgumentException(
@@ -355,8 +355,8 @@ public class RecordId implements RID, SerializableStream {
   }
 
   public static RecordId deserialize(DataInput input) throws IOException {
-    int cluster = input.readInt();
-    long pos = input.readLong();
+    var cluster = input.readInt();
+    var pos = input.readLong();
     if (cluster == -2 && pos == -2) {
       return null;
     }

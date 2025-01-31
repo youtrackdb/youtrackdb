@@ -19,7 +19,7 @@ public class CastToVertexStep extends AbstractExecutionStep {
   @Override
   public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
-    ExecutionStream upstream = prev.start(ctx);
+    var upstream = prev.start(ctx);
     return upstream.map(CastToVertexStep::mapResult);
   }
 
@@ -42,7 +42,7 @@ public class CastToVertexStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String result = ExecutionStepInternal.getIndent(depth, indent) + "+ CAST TO VERTEX";
+    var result = ExecutionStepInternal.getIndent(depth, indent) + "+ CAST TO VERTEX";
     if (profilingEnabled) {
       result += " (" + getCostFormatted() + ")";
     }

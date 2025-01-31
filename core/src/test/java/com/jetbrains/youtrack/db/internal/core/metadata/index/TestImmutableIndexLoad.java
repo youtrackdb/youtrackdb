@@ -25,13 +25,13 @@ public class TestImmutableIndexLoad {
             TestImmutableIndexLoad.class.getSimpleName(),
             DbTestBase.embeddedDBUrl(getClass()),
             CreateDatabaseUtil.TYPE_PLOCAL);
-    DatabaseSession db =
+    var db =
         youTrackDB.open(
             TestImmutableIndexLoad.class.getSimpleName(),
             "admin",
             CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    SchemaClass one = db.createClass("One");
-    SchemaProperty property = one.createProperty(db, "one", PropertyType.STRING);
+    var one = db.createClass("One");
+    var property = one.createProperty(db, "one", PropertyType.STRING);
     property.createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
     db.close();
     youTrackDB.close();
@@ -48,13 +48,13 @@ public class TestImmutableIndexLoad {
             "admin",
             CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     db.begin();
-    EntityImpl doc = (EntityImpl) db.newEntity("One");
+    var doc = (EntityImpl) db.newEntity("One");
     doc.setProperty("one", "a");
     db.save(doc);
     db.commit();
     try {
       db.begin();
-      EntityImpl doc1 = (EntityImpl) db.newEntity("One");
+      var doc1 = (EntityImpl) db.newEntity("One");
       doc1.setProperty("one", "a");
       db.save(doc1);
       db.commit();

@@ -58,7 +58,7 @@ public class DirectMemoryStorage extends AbstractPaginatedStorage {
       writeAheadLog = new MemoryWriteAheadLog();
     }
 
-    final DirectMemoryOnlyDiskCache diskCache =
+    final var diskCache =
         new DirectMemoryOnlyDiskCache(
             contextConfiguration.getValueAsInteger(GlobalConfiguration.DISK_CACHE_PAGE_SIZE)
                 * ONE_KB,

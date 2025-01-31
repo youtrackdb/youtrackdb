@@ -93,14 +93,14 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
     this.tempFileName = fileName + ".tmp";
     FileUtils.prepareForFileCreationOrReplacement(Paths.get(tempFileName), this, "exporting");
 
-    final GZIPOutputStream gzipOS =
+    final var gzipOS =
         new GZIPOutputStream(new FileOutputStream(tempFileName), compressionBuffer) {
           {
             def.setLevel(compressionLevel);
           }
         };
 
-    JsonFactory factory = new JsonFactory();
+    var factory = new JsonFactory();
     jsonGenerator = factory.createGenerator(new OutputStreamWriter(gzipOS));
     jsonGenerator.writeStartObject();
   }
@@ -134,7 +134,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
       listener.onMessage(
           "\nStarted export of database '" + database.getName() + "' to " + fileName + "...");
 
-      long time = System.nanoTime();
+      var time = System.nanoTime();
 
       exportInfo();
       exportClusters();
@@ -161,7 +161,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
     long totalFoundRecords = 0;
     long totalExportedRecords = 0;
 
-    int level = 1;
+    var level = 1;
     listener.onMessage("\nExporting records...");
 
     final Set<RID> brokenRids = new HashSet<>();
@@ -169,10 +169,10 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
     jsonGenerator.writeFieldName("records");
     jsonGenerator.writeStartArray();
 
-    int exportedClusters = 0;
-    int maxClusterId = getMaxClusterId();
-    for (int i = 0; exportedClusters <= maxClusterId; ++i) {
-      String clusterName = database.getClusterNameById(i);
+    var exportedClusters = 0;
+    var maxClusterId = getMaxClusterId();
+    for (var i = 0; exportedClusters <= maxClusterId; ++i) {
+      var clusterName = database.getClusterNameById(i);
 
       exportedClusters++;
 
@@ -193,13 +193,13 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
       if (clusterName != null) {
         RecordAbstract rec = null;
         try {
-          RecordIteratorCluster<DBRecord> it = database.browseCluster(clusterName);
+          var it = database.browseCluster(clusterName);
 
           while (it.hasNext()) {
             rec = (RecordAbstract) it.next();
             if (rec instanceof EntityImpl entity) {
               // CHECK IF THE CLASS OF THE DOCUMENT IS INCLUDED
-              final String className =
+              final var className =
                   entity.getClassName() != null
                       ? entity.getClassName().toUpperCase(Locale.ENGLISH)
                       : null;
@@ -223,7 +223,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
           throw e;
         } catch (Exception t) {
           if (rec != null) {
-            final byte[] buffer = rec.toStream();
+            final var buffer = rec.toStream();
 
             LogManager.instance()
                 .error(
@@ -263,7 +263,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
     jsonGenerator.writeFieldName("brokenRids");
     jsonGenerator.writeStartArray();
 
-    for (final RID rid : brokenRids) {
+    for (final var rid : brokenRids) {
       jsonGenerator.writeString(rid.toString());
     }
     jsonGenerator.writeEndArray();
@@ -301,8 +301,8 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
   }
 
   private int getMaxClusterId() {
-    int totalCluster = -1;
-    for (String clusterName : database.getClusterNames()) {
+    var totalCluster = -1;
+    for (var clusterName : database.getClusterNames()) {
       if (database.getClusterIdByName(clusterName) > totalCluster) {
         totalCluster = database.getClusterIdByName(clusterName);
       }
@@ -326,13 +326,13 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
 
     jsonGenerator.writeFieldName("clusters");
     jsonGenerator.writeStartArray();
-    int exportedClusters = 0;
+    var exportedClusters = 0;
 
-    int maxClusterId = getMaxClusterId();
+    var maxClusterId = getMaxClusterId();
 
-    for (int clusterId = 0; clusterId <= maxClusterId; ++clusterId) {
+    for (var clusterId = 0; clusterId <= maxClusterId; ++clusterId) {
 
-      final String clusterName = database.getClusterNameById(clusterId);
+      final var clusterName = database.getClusterNameById(clusterId);
 
       // exclude removed clusters
       if (clusterName == null) {
@@ -372,7 +372,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
     jsonGenerator.writeFieldName("engine-version");
     jsonGenerator.writeString(YouTrackDBConstants.getVersion());
 
-    final String engineBuild = YouTrackDBConstants.getBuildNumber();
+    final var engineBuild = YouTrackDBConstants.getBuildNumber();
     if (engineBuild != null) {
       jsonGenerator.writeFieldName("engine-build");
       jsonGenerator.writeString(engineBuild);
@@ -395,13 +395,13 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
 
     jsonGenerator.writeArrayFieldStart("indexes");
 
-    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final var indexManager = database.getMetadata().getIndexManagerInternal();
     indexManager.reload(database);
 
-    final Collection<? extends Index> indexes = indexManager.getIndexes(database);
+    final var indexes = indexManager.getIndexes(database);
 
-    for (Index index : indexes) {
-      final String clsName =
+    for (var index : indexes) {
+      final var clsName =
           index.getDefinition() != null ? index.getDefinition().getClassName() : null;
       if (DatabaseImport.EXPORT_IMPORT_CLASS_NAME.equals(clsName)) {
         continue;
@@ -420,7 +420,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
 
       if (!index.getClusters().isEmpty()) {
         jsonGenerator.writeArrayFieldStart("clusters");
-        for (String cluster : index.getClusters()) {
+        for (var cluster : index.getClusters()) {
           jsonGenerator.writeString(cluster);
         }
         jsonGenerator.writeEndArray();
@@ -460,7 +460,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
     //noinspection deprecation
     jsonGenerator.writeNumberField("version", schema.getVersion());
     jsonGenerator.writeArrayFieldStart("blob-clusters");
-    for (int clusterId : database.getBlobClusterIds()) {
+    for (var clusterId : database.getBlobClusterIds()) {
       jsonGenerator.writeNumber(clusterId);
     }
     jsonGenerator.writeEndArray();
@@ -471,14 +471,14 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
       final List<SchemaClass> classes = new ArrayList<>(schema.getClasses(database));
       Collections.sort(classes);
 
-      for (SchemaClass cls : classes) {
+      for (var cls : classes) {
         // CHECK TO FILTER CLASS
         jsonGenerator.writeStartObject();
 
         jsonGenerator.writeStringField("name", cls.getName());
 
         jsonGenerator.writeArrayFieldStart("cluster-ids");
-        for (int clusterId : cls.getClusterIds()) {
+        for (var clusterId : cls.getClusterIds()) {
           jsonGenerator.writeNumber(clusterId);
         }
         jsonGenerator.writeEndArray();
@@ -488,7 +488,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
         }
         if (!cls.getSuperClasses().isEmpty()) {
           jsonGenerator.writeArrayFieldStart("super-classes");
-          for (SchemaClass superClass : cls.getSuperClasses()) {
+          for (var superClass : cls.getSuperClasses()) {
             jsonGenerator.writeString(superClass.getName());
           }
           jsonGenerator.writeEndArray();
@@ -507,7 +507,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
           final List<SchemaProperty> properties = new ArrayList<>(cls.declaredProperties());
           Collections.sort(properties);
 
-          for (SchemaProperty p : properties) {
+          for (var p : properties) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField("name", p.getName());
             jsonGenerator.writeStringField("type", p.getType().toString());
@@ -542,15 +542,15 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
             if (p.getRegexp() != null) {
               jsonGenerator.writeStringField("regexp", p.getRegexp());
             }
-            final Set<String> customKeys = p.getCustomKeys();
+            final var customKeys = p.getCustomKeys();
             final Map<String, String> custom = new HashMap<>();
-            for (String key : customKeys) {
+            for (var key : customKeys) {
               custom.put(key, p.getCustom(key));
             }
 
             if (!custom.isEmpty()) {
               jsonGenerator.writeObjectFieldStart("customFields");
-              for (Map.Entry<String, String> entry : custom.entrySet()) {
+              for (var entry : custom.entrySet()) {
                 jsonGenerator.writeStringField(entry.getKey(), entry.getValue());
               }
               jsonGenerator.writeEndObject();
@@ -559,15 +559,15 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
           }
           jsonGenerator.writeEndArray();
         }
-        final Set<String> customKeys = cls.getCustomKeys();
+        final var customKeys = cls.getCustomKeys();
         final Map<String, String> custom = new HashMap<>();
-        for (String key : customKeys) {
+        for (var key : customKeys) {
           custom.put(key, cls.getCustom(key));
         }
 
         if (!custom.isEmpty()) {
           jsonGenerator.writeObjectFieldStart("customFields");
-          for (Map.Entry<String, String> entry : custom.entrySet()) {
+          for (var entry : custom.entrySet()) {
             jsonGenerator.writeStringField(entry.getKey(), entry.getValue());
           }
           jsonGenerator.writeEndObject();
@@ -585,7 +585,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
       long recordTot, long recordNum, RecordAbstract rec, Set<RID> brokenRids) {
     if (rec != null) {
       try {
-        final String format = RecordAbstract.BASE_FORMAT + ",dateAsLong";
+        final var format = RecordAbstract.BASE_FORMAT + ",dateAsLong";
         RecordSerializerJackson.recordToJson(rec, jsonGenerator, format);
 
         recordExported++;
@@ -603,7 +603,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
           brokenRids.add(rid);
         }
 
-        final byte[] buffer = rec.toStream();
+        final var buffer = rec.toStream();
 
         LogManager.instance()
             .error(

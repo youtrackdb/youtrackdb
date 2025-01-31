@@ -57,7 +57,7 @@ public class SimpleKeySerializer<T extends Comparable<?>> implements BinarySeria
   }
 
   public T deserialize(byte[] stream, int startPosition) {
-    final byte typeId = stream[startPosition];
+    final var typeId = stream[startPosition];
     startPosition += BinarySerializerFactory.TYPE_IDENTIFIER_SIZE;
 
     init(typeId);
@@ -65,7 +65,7 @@ public class SimpleKeySerializer<T extends Comparable<?>> implements BinarySeria
   }
 
   public int getObjectSize(byte[] stream, int startPosition) {
-    final byte serializerId = stream[startPosition];
+    final var serializerId = stream[startPosition];
     init(serializerId);
     return BinarySerializerFactory.TYPE_IDENTIFIER_SIZE
         + binarySerializer.getObjectSize(
@@ -104,7 +104,7 @@ public class SimpleKeySerializer<T extends Comparable<?>> implements BinarySeria
   }
 
   public int getObjectSizeNative(byte[] stream, int startPosition) {
-    final byte serializerId = stream[startPosition];
+    final var serializerId = stream[startPosition];
     init(serializerId);
     return BinarySerializerFactory.TYPE_IDENTIFIER_SIZE
         + binarySerializer.getObjectSizeNative(
@@ -119,7 +119,7 @@ public class SimpleKeySerializer<T extends Comparable<?>> implements BinarySeria
   }
 
   public T deserializeNativeObject(byte[] stream, int startPosition) {
-    final byte typeId = stream[startPosition];
+    final var typeId = stream[startPosition];
     startPosition += BinarySerializerFactory.TYPE_IDENTIFIER_SIZE;
 
     init(typeId);
@@ -156,7 +156,7 @@ public class SimpleKeySerializer<T extends Comparable<?>> implements BinarySeria
    */
   @Override
   public T deserializeFromByteBufferObject(ByteBuffer buffer) {
-    final byte typeId = buffer.get();
+    final var typeId = buffer.get();
 
     init(typeId);
     return (T) binarySerializer.deserializeFromByteBufferObject(buffer);
@@ -164,7 +164,7 @@ public class SimpleKeySerializer<T extends Comparable<?>> implements BinarySeria
 
   @Override
   public T deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
-    final byte typeId = buffer.get(offset);
+    final var typeId = buffer.get(offset);
     offset++;
 
     init(typeId);
@@ -176,7 +176,7 @@ public class SimpleKeySerializer<T extends Comparable<?>> implements BinarySeria
    */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer) {
-    final byte serializerId = buffer.get();
+    final var serializerId = buffer.get();
     init(serializerId);
     return BinarySerializerFactory.TYPE_IDENTIFIER_SIZE
         + binarySerializer.getObjectSizeInByteBuffer(buffer);
@@ -184,7 +184,7 @@ public class SimpleKeySerializer<T extends Comparable<?>> implements BinarySeria
 
   @Override
   public int getObjectSizeInByteBuffer(int offset, ByteBuffer buffer) {
-    final byte serializerId = buffer.get(offset);
+    final var serializerId = buffer.get(offset);
     offset++;
 
     init(serializerId);
@@ -197,7 +197,7 @@ public class SimpleKeySerializer<T extends Comparable<?>> implements BinarySeria
    */
   @Override
   public T deserializeFromByteBufferObject(ByteBuffer buffer, WALChanges walChanges, int offset) {
-    final byte typeId = walChanges.getByteValue(buffer, offset++);
+    final var typeId = walChanges.getByteValue(buffer, offset++);
 
     init(typeId);
     return (T) binarySerializer.deserializeFromByteBufferObject(buffer, walChanges, offset);

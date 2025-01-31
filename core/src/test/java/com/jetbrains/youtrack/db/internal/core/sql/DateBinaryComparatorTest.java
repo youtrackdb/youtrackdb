@@ -24,10 +24,10 @@ public class DateBinaryComparatorTest extends DbTestBase {
   }
 
   private void initSchema() {
-    SchemaClass testClass = db.getMetadata().getSchema().createClass("Test");
+    var testClass = db.getMetadata().getSchema().createClass("Test");
     testClass.createProperty(db, "date", PropertyType.DATE);
     db.begin();
-    EntityImpl document = (EntityImpl) db.newEntity(testClass.getName());
+    var document = (EntityImpl) db.newEntity(testClass.getName());
 
     try {
       document.field("date", new SimpleDateFormat(dateFormat).parse(dateValue));
@@ -40,11 +40,11 @@ public class DateBinaryComparatorTest extends DbTestBase {
 
   @Test
   public void testDateJavaClassPreparedStatement() throws ParseException {
-    String str = "SELECT FROM Test WHERE date = :dateParam";
+    var str = "SELECT FROM Test WHERE date = :dateParam";
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("dateParam", new SimpleDateFormat(dateFormat).parse(dateValue));
 
-    try (ResultSet result = db.query(str, params)) {
+    try (var result = db.query(str, params)) {
       assertEquals(1, result.stream().count());
     }
   }

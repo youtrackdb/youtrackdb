@@ -24,7 +24,7 @@ public class YouTrackDbJdbcStatementTest extends YouTrackDbJdbcDbPerClassTemplat
 
   @Test
   public void shouldCreateStatement() throws Exception {
-    Statement stmt = conn.createStatement();
+    var stmt = conn.createStatement();
     assertThat(stmt).isNotNull();
     stmt.close();
     assertThat(stmt.isClosed()).isTrue();
@@ -32,7 +32,7 @@ public class YouTrackDbJdbcStatementTest extends YouTrackDbJdbcDbPerClassTemplat
 
   @Test
   public void shouldReturnEmptyResultSetOnEmptyQuery() throws SQLException {
-    Statement stmt = conn.createStatement();
+    var stmt = conn.createStatement();
 
     assertThat(stmt.execute("")).isFalse();
     assertThat(stmt.getResultSet()).isNull();
@@ -42,10 +42,10 @@ public class YouTrackDbJdbcStatementTest extends YouTrackDbJdbcDbPerClassTemplat
   @Test
   public void shouldExectuteSelectOne() throws SQLException {
 
-    Statement st = conn.createStatement();
+    var st = conn.createStatement();
     assertThat(st.execute("select 1")).isTrue();
     assertThat(st.getResultSet()).isNotNull();
-    ResultSet resultSet = st.getResultSet();
+    var resultSet = st.getResultSet();
     resultSet.first();
     assertThat(resultSet.getInt("1")).isEqualTo(1);
     assertThat(st.getMoreResults()).isFalse();
@@ -54,8 +54,8 @@ public class YouTrackDbJdbcStatementTest extends YouTrackDbJdbcDbPerClassTemplat
   @Test(expected = SQLException.class)
   public void shouldThrowSqlExceptionOnError() throws SQLException {
 
-    String query = String.format("select sequence('%s').next()", "theSequence");
-    Statement stmt = conn.createStatement();
+    var query = String.format("select sequence('%s').next()", "theSequence");
+    var stmt = conn.createStatement();
     stmt.executeQuery(query);
   }
 }

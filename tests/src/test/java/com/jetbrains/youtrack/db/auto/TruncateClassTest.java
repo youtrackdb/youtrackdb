@@ -49,9 +49,9 @@ public class TruncateClassTest extends BaseDBTest {
     checkEmbeddedDB();
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass testClass = getOrCreateClass(schema);
+    var testClass = getOrCreateClass(schema);
 
-    final Index index = getOrCreateIndex(testClass);
+    final var index = getOrCreateIndex(testClass);
 
     db.command("truncate class test_class").close();
 
@@ -75,11 +75,11 @@ public class TruncateClassTest extends BaseDBTest {
             .field("data", Arrays.asList(8, 9, -1)));
     db.commit();
 
-    List<Result> result =
+    var result =
         db.query("select from test_class").stream().collect(Collectors.toList());
     Assert.assertEquals(result.size(), 2);
     Set<Integer> set = new HashSet<Integer>();
-    for (Result document : result) {
+    for (var document : result) {
       set.addAll(document.getProperty("data"));
     }
     Assert.assertTrue(set.containsAll(Arrays.asList(5, 6, 7, 8, 9, -1)));
@@ -87,11 +87,11 @@ public class TruncateClassTest extends BaseDBTest {
     Assert.assertEquals(index.getInternal().size(db), 6);
 
     Iterator<RawPair<Object, RID>> indexIterator;
-    try (Stream<RawPair<Object, RID>> stream = index.getInternal().stream(db)) {
+    try (var stream = index.getInternal().stream(db)) {
       indexIterator = stream.iterator();
 
       while (indexIterator.hasNext()) {
-        RawPair<Object, RID> entry = indexIterator.next();
+        var entry = indexIterator.next();
         Assert.assertTrue(set.contains((Integer) entry.first));
       }
     }
@@ -111,7 +111,7 @@ public class TruncateClassTest extends BaseDBTest {
       Assert.fail();
     } catch (Exception e) {
     }
-    ResultSet result = db.query("select from TestTruncateVertexClass");
+    var result = db.query("select from TestTruncateVertexClass");
     Assert.assertEquals(result.stream().count(), 1);
 
     db.command("truncate class TestTruncateVertexClass unsafe").close();
@@ -134,7 +134,7 @@ public class TruncateClassTest extends BaseDBTest {
     db.command("insert into TestTruncateVertexClassSubclass set name = 'bar'").close();
     db.commit();
 
-    ResultSet result = db.query("select from TestTruncateVertexClassSuperclass");
+    var result = db.query("select from TestTruncateVertexClassSuperclass");
     Assert.assertEquals(result.stream().count(), 2);
 
     db.command("truncate class TestTruncateVertexClassSuperclass ").close();
@@ -175,7 +175,7 @@ public class TruncateClassTest extends BaseDBTest {
         .close();
     db.commit();
 
-    final Index index = getIndex("TestTruncateVertexClassSuperclassWithIndex_index");
+    final var index = getIndex("TestTruncateVertexClassSuperclassWithIndex_index");
     Assert.assertEquals(index.getInternal().size(db), 2);
 
     db.command("truncate class TestTruncateVertexClassSubclassWithIndex").close();
@@ -188,7 +188,7 @@ public class TruncateClassTest extends BaseDBTest {
   }
 
   private Index getOrCreateIndex(SchemaClass testClass) {
-    Index index =
+    var index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, "test_class_by_data");
     if (index == null) {
       testClass.createProperty(db, "data", PropertyType.EMBEDDEDLIST, PropertyType.INTEGER);
@@ -214,7 +214,7 @@ public class TruncateClassTest extends BaseDBTest {
   public void testTruncateClassWithCommandCache() {
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass testClass = getOrCreateClass(schema);
+    var testClass = getOrCreateClass(schema);
 
     db.command("truncate class test_class").close();
 
@@ -227,7 +227,7 @@ public class TruncateClassTest extends BaseDBTest {
             .field("data", Arrays.asList(3, 0)));
     db.commit();
 
-    ResultSet result = db.query("select from test_class");
+    var result = db.query("select from test_class");
     Assert.assertEquals(result.stream().count(), 2);
 
     db.command("truncate class test_class").close();

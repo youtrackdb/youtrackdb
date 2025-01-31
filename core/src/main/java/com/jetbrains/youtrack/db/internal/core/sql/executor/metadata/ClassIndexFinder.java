@@ -3,11 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor.metadata;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaPropertyInternal;
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 public class ClassIndexFinder implements IndexFinder {
@@ -28,10 +24,10 @@ public class ClassIndexFinder implements IndexFinder {
   }
 
   private PrePath findPrePath(MetadataPath path, CommandContext ctx) {
-    List<String> rawPath = path.getPath();
+    var rawPath = path.getPath();
     var db = ctx.getDatabase();
-    String lastP = rawPath.remove(rawPath.size() - 1);
-    PrePath cand =
+    var lastP = rawPath.remove(rawPath.size() - 1);
+    var cand =
         new PrePath() {
           {
             chain = Optional.empty();
@@ -40,14 +36,14 @@ public class ClassIndexFinder implements IndexFinder {
             last = lastP;
           }
         };
-    for (String ele : rawPath) {
-      SchemaPropertyInternal prop = (SchemaPropertyInternal) cand.cl.getProperty(ele);
+    for (var ele : rawPath) {
+      var prop = (SchemaPropertyInternal) cand.cl.getProperty(ele);
       if (prop != null) {
-        SchemaClass linkedClass = prop.getLinkedClass();
-        Collection<Index> indexes = prop.getAllIndexesInternal(db);
+        var linkedClass = prop.getLinkedClass();
+        var indexes = prop.getAllIndexesInternal(db);
         if (prop.getType().isLink() && linkedClass != null) {
-          boolean found = false;
-          for (Index index : indexes) {
+          var found = false;
+          for (var index : indexes) {
             if (index.getInternal().canBeUsedInEqualityOperators()) {
               if (cand.chain.isPresent()) {
                 ((IndexCandidateChain) cand.chain.get()).add(index.getName());
@@ -80,18 +76,18 @@ public class ClassIndexFinder implements IndexFinder {
   @Override
   public Optional<IndexCandidate> findExactIndex(MetadataPath path, Object value,
       CommandContext ctx) {
-    PrePath pre = findPrePath(path, ctx);
+    var pre = findPrePath(path, ctx);
     if (!pre.valid) {
       return Optional.empty();
     }
-    SchemaClass cl = pre.cl;
-    Optional<IndexCandidate> cand = pre.chain;
-    String last = pre.last;
+    var cl = pre.cl;
+    var cand = pre.chain;
+    var last = pre.last;
 
     var prop = (SchemaPropertyInternal) cl.getProperty(last);
     if (prop != null) {
-      Collection<Index> indexes = prop.getAllIndexesInternal(ctx.getDatabase());
-      for (Index index : indexes) {
+      var indexes = prop.getAllIndexesInternal(ctx.getDatabase());
+      for (var index : indexes) {
         if (index.getInternal().canBeUsedInEqualityOperators()) {
           if (cand.isPresent()) {
             ((IndexCandidateChain) cand.get()).add(index.getName());
@@ -109,22 +105,22 @@ public class ClassIndexFinder implements IndexFinder {
   @Override
   public Optional<IndexCandidate> findByKeyIndex(MetadataPath path, Object value,
       CommandContext ctx) {
-    PrePath pre = findPrePath(path, ctx);
+    var pre = findPrePath(path, ctx);
     if (!pre.valid) {
       return Optional.empty();
     }
-    SchemaClass cl = pre.cl;
-    Optional<IndexCandidate> cand = pre.chain;
-    String last = pre.last;
+    var cl = pre.cl;
+    var cand = pre.chain;
+    var last = pre.last;
 
     var prop = (SchemaPropertyInternal) cl.getProperty(last);
     if (prop != null) {
       if (prop.getType() == PropertyType.EMBEDDEDMAP) {
-        Collection<Index> indexes = prop.getAllIndexesInternal(ctx.getDatabase());
-        for (Index index : indexes) {
+        var indexes = prop.getAllIndexesInternal(ctx.getDatabase());
+        for (var index : indexes) {
           if (index.getInternal().canBeUsedInEqualityOperators()) {
-            IndexDefinition def = index.getDefinition();
-            for (String o : def.getFieldsToIndex()) {
+            var def = index.getDefinition();
+            for (var o : def.getFieldsToIndex()) {
               if (o.equalsIgnoreCase(last + " by key")) {
                 if (cand.isPresent()) {
                   ((IndexCandidateChain) cand.get()).add(index.getName());
@@ -145,18 +141,18 @@ public class ClassIndexFinder implements IndexFinder {
   @Override
   public Optional<IndexCandidate> findAllowRangeIndex(
       MetadataPath path, Operation op, Object value, CommandContext ctx) {
-    PrePath pre = findPrePath(path, ctx);
+    var pre = findPrePath(path, ctx);
     if (!pre.valid) {
       return Optional.empty();
     }
-    SchemaClass cl = pre.cl;
-    Optional<IndexCandidate> cand = pre.chain;
-    String last = pre.last;
+    var cl = pre.cl;
+    var cand = pre.chain;
+    var last = pre.last;
 
     var prop = (SchemaPropertyInternal) cl.getProperty(last);
     if (prop != null) {
-      Collection<Index> indexes = prop.getAllIndexesInternal(ctx.getDatabase());
-      for (Index index : indexes) {
+      var indexes = prop.getAllIndexesInternal(ctx.getDatabase());
+      for (var index : indexes) {
         if (index.getInternal().canBeUsedInEqualityOperators()
             && index.supportsOrderedIterations()) {
           if (cand.isPresent()) {
@@ -175,22 +171,22 @@ public class ClassIndexFinder implements IndexFinder {
   @Override
   public Optional<IndexCandidate> findByValueIndex(MetadataPath path, Object value,
       CommandContext ctx) {
-    PrePath pre = findPrePath(path, ctx);
+    var pre = findPrePath(path, ctx);
     if (!pre.valid) {
       return Optional.empty();
     }
-    SchemaClass cl = pre.cl;
-    Optional<IndexCandidate> cand = pre.chain;
-    String last = pre.last;
+    var cl = pre.cl;
+    var cand = pre.chain;
+    var last = pre.last;
 
     var prop = (SchemaPropertyInternal) cl.getProperty(last);
     if (prop != null) {
       if (prop.getType() == PropertyType.EMBEDDEDMAP) {
-        Collection<Index> indexes = prop.getAllIndexesInternal(ctx.getDatabase());
-        for (Index index : indexes) {
-          IndexDefinition def = index.getDefinition();
+        var indexes = prop.getAllIndexesInternal(ctx.getDatabase());
+        for (var index : indexes) {
+          var def = index.getDefinition();
           if (index.getInternal().canBeUsedInEqualityOperators()) {
-            for (String o : def.getFieldsToIndex()) {
+            for (var o : def.getFieldsToIndex()) {
               if (o.equalsIgnoreCase(last + " by value")) {
                 if (cand.isPresent()) {
                   ((IndexCandidateChain) cand.get()).add(index.getName());

@@ -24,29 +24,29 @@ public class SQLFunctionDecimalTest {
 
   @Test
   public void testEmpty() {
-    Object result = function.getResult();
+    var result = function.getResult();
     assertNull(result);
   }
 
   @Test
   public void testFromInteger() {
     function.execute(null, null, null, new Object[]{12}, null);
-    Object result = function.getResult();
+    var result = function.getResult();
     assertEquals(result, BigDecimal.valueOf(12));
   }
 
   @Test
   public void testFromLong() {
     function.execute(null, null, null, new Object[]{1287623847384L}, null);
-    Object result = function.getResult();
+    var result = function.getResult();
     assertEquals(result, new BigDecimal(1287623847384L));
   }
 
   @Test
   public void testFromString() {
-    String initial = "12324124321234543256758654.76543212345676543254356765434567654";
+    var initial = "12324124321234543256758654.76543212345676543254356765434567654";
     function.execute(null, null, null, new Object[]{initial}, null);
-    Object result = function.getResult();
+    var result = function.getResult();
     assertEquals(result, new BigDecimal(initial));
   }
 
@@ -55,8 +55,8 @@ public class SQLFunctionDecimalTest {
         YouTrackDBConfig.defaultConfig())) {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
       try (var db = ctx.open("test", "admin", "adminpwd")) {
-        String initial = "12324124321234543256758654.76543212345676543254356765434567654";
-        try (ResultSet result = db.query("select decimal('" + initial + "')")) {
+        var initial = "12324124321234543256758654.76543212345676543254356765434567654";
+        try (var result = db.query("select decimal('" + initial + "')")) {
           assertEquals(result.next().getProperty("decimal"), new BigDecimal(initial));
         }
       }

@@ -94,7 +94,7 @@ public class SchemaPropertyEmbedded extends SchemaPropertyImpl {
   protected void setNameInternal(DatabaseSessionInternal session, final String name) {
     session.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
-    String oldName = this.globalRef.getName();
+    var oldName = this.globalRef.getName();
     acquireSchemaWriteLock(session);
     try {
       checkEmbedded(session);
@@ -158,7 +158,7 @@ public class SchemaPropertyEmbedded extends SchemaPropertyImpl {
     try {
       checkEmbedded(session);
 
-      final Collate oldCollate = this.collate;
+      final var oldCollate = this.collate;
 
       if (iCollate == null) {
         iCollate = DefaultCollate.NAME;
@@ -168,13 +168,13 @@ public class SchemaPropertyEmbedded extends SchemaPropertyImpl {
 
       if ((this.collate != null && !this.collate.equals(oldCollate))
           || (this.collate == null && oldCollate != null)) {
-        final Set<Index> indexes = owner.getClassIndexesInternal(session);
+        final var indexes = owner.getClassIndexesInternal(session);
         final List<Index> indexesToRecreate = new ArrayList<Index>();
 
-        for (Index index : indexes) {
-          IndexDefinition definition = index.getDefinition();
+        for (var index : indexes) {
+          var definition = index.getDefinition();
 
-          final List<String> fields = definition.getFields();
+          final var fields = definition.getFields();
           if (fields.contains(getName())) {
             indexesToRecreate.add(index);
           }
@@ -187,17 +187,16 @@ public class SchemaPropertyEmbedded extends SchemaPropertyImpl {
                   "Collate value was changed, following indexes will be rebuilt %s",
                   indexesToRecreate);
 
-          final IndexManagerAbstract indexManager =
+          final var indexManager =
               session.getMetadata().getIndexManagerInternal();
 
-          for (Index indexToRecreate : indexesToRecreate) {
-            final IndexMetadata indexMetadata =
+          for (var indexToRecreate : indexesToRecreate) {
+            final var indexMetadata =
                 indexToRecreate.getInternal()
                     .loadMetadata(indexToRecreate.getConfiguration(session));
 
-
-            final List<String> fields = indexMetadata.getIndexDefinition().getFields();
-            final String[] fieldsToIndex = fields.toArray(new String[0]);
+            final var fields = indexMetadata.getIndexDefinition().getFields();
+            final var fieldsToIndex = fields.toArray(new String[0]);
 
             indexManager.dropIndex(session, indexMetadata.getName());
             owner.createIndex(session,

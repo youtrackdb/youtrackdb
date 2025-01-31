@@ -32,7 +32,7 @@ public class LuceneCreateIndexTest extends BaseLuceneTest {
 
   @Test
   public void loadAndTest() {
-    InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
+    var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
 
     db.execute("sql", getScriptFromStream(stream)).close();
 
@@ -49,7 +49,7 @@ public class LuceneCreateIndexTest extends BaseLuceneTest {
                 + "\"}")
         .close();
 
-    EntityImpl doc = ((EntityImpl) db.newEntity("Song"));
+    var doc = ((EntityImpl) db.newEntity("Song"));
 
     doc.field("title", "Local");
     doc.field("author", "Local");
@@ -80,7 +80,7 @@ public class LuceneCreateIndexTest extends BaseLuceneTest {
   }
 
   protected void assertQuery() {
-    ResultSet docs = db.query("select * from Song where title LUCENE \"mountain\"");
+    var docs = db.query("select * from Song where title LUCENE \"mountain\"");
 
     Assert.assertEquals(4, docs.stream().count());
 
@@ -89,7 +89,7 @@ public class LuceneCreateIndexTest extends BaseLuceneTest {
     Assert.assertEquals(87, docs.stream().count());
 
     System.out.println("-------------");
-    String query =
+    var query =
         "select * from Song where title LUCENE \"mountain\" and author LUCENE \"Fabbio\"  ";
     // String query = "select * from Song where [title] LUCENE \"(title:mountain)\"  and author =
     // 'Fabbio'";
@@ -104,7 +104,7 @@ public class LuceneCreateIndexTest extends BaseLuceneTest {
 
   protected void assertNewQuery() {
 
-    ResultSet docs = db.query("select * from Song where [title] LUCENE \"(title:Local)\"");
+    var docs = db.query("select * from Song where [title] LUCENE \"(title:Local)\"");
 
     Assert.assertEquals(1, docs.stream().count());
   }

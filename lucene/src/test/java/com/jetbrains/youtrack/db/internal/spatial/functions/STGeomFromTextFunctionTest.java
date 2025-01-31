@@ -14,11 +14,11 @@ public class STGeomFromTextFunctionTest extends BaseSpatialLuceneTest {
 
   @Test
   public void test() {
-    boolean prevValue = GlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean();
+    var prevValue = GlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean();
     GlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.setValue(true);
     try {
-      STGeomFromTextFunction func = new STGeomFromTextFunction();
-      EntityImpl item =
+      var func = new STGeomFromTextFunction();
+      var item =
           (EntityImpl) func.execute(null, null, null, new Object[]{"POINT (100.0 80.0)"}, null);
       Assert.assertEquals("OPoint", item.getClassName());
       Assert.assertEquals(2, ((List) item.getProperty("coordinates")).size());

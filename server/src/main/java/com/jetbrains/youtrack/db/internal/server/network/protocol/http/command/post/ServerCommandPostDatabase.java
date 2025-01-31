@@ -59,16 +59,16 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
 
   @Override
   public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
-    String[] urlParts = checkSyntax(iRequest.getUrl(), 3, "Syntax error: database/<db>/<type>");
+    var urlParts = checkSyntax(iRequest.getUrl(), 3, "Syntax error: database/<db>/<type>");
 
     iRequest.getData().commandInfo = "Create database";
 
-    final String databaseName = urlParts[1];
-    final String storageMode = urlParts[2];
-    String url = getStoragePath(databaseName, storageMode);
-    final String type = urlParts.length > 3 ? urlParts[3] : "document";
+    final var databaseName = urlParts[1];
+    final var storageMode = urlParts[2];
+    var url = getStoragePath(databaseName, storageMode);
+    final var type = urlParts.length > 3 ? urlParts[3] : "document";
 
-    boolean createAdmin = false;
+    var createAdmin = false;
     String adminPwd = null;
     if (iRequest.getContent() != null && !iRequest.getContent().isEmpty()) {
       // CONTENT REPLACES TEXT
@@ -98,7 +98,7 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
         server.createDatabase(
             databaseName, DatabaseType.valueOf(storageMode.toUpperCase(Locale.ENGLISH)), null);
 
-        try (DatabaseSessionInternal database =
+        try (var database =
             server.openDatabase(databaseName, serverUser, serverPassword, null)) {
 
           if (createAdmin) {
@@ -141,15 +141,15 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
       final HttpRequest iRequest, final HttpResponse iResponse,
       final DatabaseSessionInternal db)
       throws IOException {
-    final StringWriter buffer = new StringWriter();
-    final JSONWriter json = new JSONWriter(buffer);
+    final var buffer = new StringWriter();
+    final var json = new JSONWriter(buffer);
 
     json.beginObject();
 
     if (db.getMetadata().getSchema().getClasses(db) != null) {
       json.beginCollection(db, 1, false, "classes");
       Set<String> exportedNames = new HashSet<String>();
-      for (SchemaClass cls : db.getMetadata().getSchema().getClasses(db)) {
+      for (var cls : db.getMetadata().getSchema().getClasses(db)) {
         if (!exportedNames.contains(cls.getName())) {
           try {
             exportClass(db, json, (SchemaClassInternal) cls);
@@ -164,8 +164,8 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
 
     if (db.getClusterNames() != null) {
       json.beginCollection(db, 1, false, "clusters");
-      for (String clusterName : db.getClusterNames()) {
-        final int clusterId = db.getClusterIdByName(clusterName);
+      for (var clusterName : db.getClusterNames()) {
+        final var clusterId = db.getClusterIdByName(clusterName);
         if (clusterId < 0) {
           continue;
         }
@@ -193,7 +193,7 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
 
     json.beginCollection(db, 1, false, "users");
     SecurityUserImpl user;
-    for (EntityImpl entity : db.getMetadata().getSecurity().getAllUsers()) {
+    for (var entity : db.getMetadata().getSecurity().getAllUsers()) {
       user = new SecurityUserImpl(db, entity);
       json.beginObject(2, true, null);
       json.writeAttribute(db, 3, false, "name", user.getName(db));
@@ -207,13 +207,13 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
 
     json.beginCollection(db, 1, true, "roles");
     Role role;
-    for (EntityImpl entity : db.getMetadata().getSecurity().getAllRoles()) {
+    for (var entity : db.getMetadata().getSecurity().getAllRoles()) {
       role = new Role(db, entity);
       json.beginObject(2, true, null);
       json.writeAttribute(db, 3, false, "name", role.getName(db));
       json.beginCollection(db, 3, true, "rules");
 
-      for (Map.Entry<String, Byte> rule : role.getEncodedRules().entrySet()) {
+      for (var rule : role.getEncodedRules().entrySet()) {
         json.beginObject(4);
         json.writeAttribute(db, 4, true, "name", rule.getKey());
         json.writeAttribute(db, 4, false, "create",
@@ -258,7 +258,7 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
 
     json.beginCollection(db, 2, true, "properties");
     if (db.getStorage().getConfiguration().getProperties() != null) {
-      for (StorageEntryConfiguration entry : db.getStorage().getConfiguration().getProperties()) {
+      for (var entry : db.getStorage().getConfiguration().getProperties()) {
         if (entry != null) {
           json.beginObject(3, true, null);
           json.writeAttribute(db, 4, false, "name", entry.name);
@@ -299,7 +299,7 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
 
     if (cls.properties(db) != null && cls.properties(db).size() > 0) {
       json.beginCollection(db, 3, true, "properties");
-      for (final SchemaProperty prop : cls.properties(db)) {
+      for (final var prop : cls.properties(db)) {
         json.beginObject(4, true, null);
         json.writeAttribute(db, 4, true, "name", prop.getName());
         if (prop.getLinkedClass() != null) {
@@ -319,15 +319,15 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
       json.endCollection(1, true);
     }
 
-    final Set<Index> indexes = cls.getIndexesInternal(db);
+    final var indexes = cls.getIndexesInternal(db);
     if (!indexes.isEmpty()) {
       json.beginCollection(db, 3, true, "indexes");
-      for (final Index index : indexes) {
+      for (final var index : indexes) {
         json.beginObject(4, true, null);
         json.writeAttribute(db, 4, true, "name", index.getName());
         json.writeAttribute(db, 4, true, "type", index.getType());
 
-        final IndexDefinition indexDefinition = index.getDefinition();
+        final var indexDefinition = index.getDefinition();
         if (indexDefinition != null && !indexDefinition.getFields().isEmpty()) {
           json.writeAttribute(db, 4, true, "fields", indexDefinition.getFields());
         }

@@ -31,14 +31,14 @@ public class SQLLetStatement extends SQLSimpleExecStatement {
     if (expression != null) {
       result = expression.execute((Result) null, ctx);
     } else {
-      Map<Object, Object> params = ctx.getInputParameters();
+      var params = ctx.getInputParameters();
       if (statement.originalStatement == null) {
         statement.setOriginalStatement(statement.toString());
       }
       result = statement.execute(ctx.getDatabase(), params, ctx, false);
     }
     if (result instanceof ResultSet) {
-      InternalResultSet rs = new InternalResultSet();
+      var rs = new InternalResultSet();
       ((ResultSet) result).stream().forEach(x -> rs.add(x));
       rs.setPlan(((ResultSet) result).getExecutionPlan().orElse(null));
       ((ResultSet) result).close();
@@ -82,7 +82,7 @@ public class SQLLetStatement extends SQLSimpleExecStatement {
 
   @Override
   public SQLLetStatement copy() {
-    SQLLetStatement result = new SQLLetStatement(-1);
+    var result = new SQLLetStatement(-1);
     result.name = name == null ? null : name.copy();
     result.statement = statement == null ? null : statement.copy();
     result.expression = expression == null ? null : expression.copy();
@@ -98,7 +98,7 @@ public class SQLLetStatement extends SQLSimpleExecStatement {
       return false;
     }
 
-    SQLLetStatement that = (SQLLetStatement) o;
+    var that = (SQLLetStatement) o;
 
     if (!Objects.equals(name, that.name)) {
       return false;
@@ -111,7 +111,7 @@ public class SQLLetStatement extends SQLSimpleExecStatement {
 
   @Override
   public int hashCode() {
-    int result = name != null ? name.hashCode() : 0;
+    var result = name != null ? name.hashCode() : 0;
     result = 31 * result + (statement != null ? statement.hashCode() : 0);
     result = 31 * result + (expression != null ? expression.hashCode() : 0);
     return result;

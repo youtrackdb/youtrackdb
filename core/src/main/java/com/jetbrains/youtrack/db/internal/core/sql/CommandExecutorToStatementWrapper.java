@@ -52,7 +52,7 @@ public class CommandExecutorToStatementWrapper implements CommandExecutor {
   @Override
   public CommandExecutorToStatementWrapper parse(DatabaseSessionInternal db,
       CommandRequest iCommand) {
-    final CommandRequestText textRequest = (CommandRequestText) iCommand;
+    final var textRequest = (CommandRequestText) iCommand;
     if (iCommand instanceof SQLAsynchQuery) {
       request = (SQLAsynchQuery<EntityImpl>) iCommand;
     } else {
@@ -62,7 +62,7 @@ public class CommandExecutorToStatementWrapper implements CommandExecutor {
         request.setResultListener(textRequest.getResultListener());
       }
     }
-    String queryText = textRequest.getText();
+    var queryText = textRequest.getText();
     statement = StatementCache.get(queryText, getDatabase());
     return this;
   }

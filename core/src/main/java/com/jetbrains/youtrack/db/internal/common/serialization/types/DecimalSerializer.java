@@ -54,10 +54,10 @@ public class DecimalSerializer implements BinarySerializer<BigDecimal> {
   }
 
   public BigDecimal deserialize(final byte[] stream, int startPosition) {
-    final int scale = IntegerSerializer.INSTANCE.deserializeLiteral(stream, startPosition);
+    final var scale = IntegerSerializer.INSTANCE.deserializeLiteral(stream, startPosition);
     startPosition += IntegerSerializer.INT_SIZE;
 
-    final byte[] unscaledValue = BinaryTypeSerializer.INSTANCE.deserialize(stream, startPosition);
+    final var unscaledValue = BinaryTypeSerializer.INSTANCE.deserialize(stream, startPosition);
 
     return new BigDecimal(new BigInteger(unscaledValue), scale);
   }
@@ -83,10 +83,10 @@ public class DecimalSerializer implements BinarySerializer<BigDecimal> {
 
   @Override
   public BigDecimal deserializeNativeObject(byte[] stream, int startPosition) {
-    final int scale = IntegerSerializer.INSTANCE.deserializeNative(stream, startPosition);
+    final var scale = IntegerSerializer.INSTANCE.deserializeNative(stream, startPosition);
     startPosition += IntegerSerializer.INT_SIZE;
 
-    final byte[] unscaledValue =
+    final var unscaledValue =
         BinaryTypeSerializer.INSTANCE.deserializeNativeObject(stream, startPosition);
 
     return new BigDecimal(new BigInteger(unscaledValue), scale);
@@ -120,8 +120,8 @@ public class DecimalSerializer implements BinarySerializer<BigDecimal> {
    */
   @Override
   public BigDecimal deserializeFromByteBufferObject(ByteBuffer buffer) {
-    final int scale = buffer.getInt();
-    final byte[] unscaledValue =
+    final var scale = buffer.getInt();
+    final var unscaledValue =
         BinaryTypeSerializer.INSTANCE.deserializeFromByteBufferObject(buffer);
 
     return new BigDecimal(new BigInteger(unscaledValue), scale);
@@ -129,10 +129,10 @@ public class DecimalSerializer implements BinarySerializer<BigDecimal> {
 
   @Override
   public BigDecimal deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
-    final int scale = buffer.getInt(offset);
+    final var scale = buffer.getInt(offset);
     offset += Integer.BYTES;
 
-    final byte[] unscaledValue =
+    final var unscaledValue =
         BinaryTypeSerializer.INSTANCE.deserializeFromByteBufferObject(offset, buffer);
 
     return new BigDecimal(new BigInteger(unscaledValue), scale);
@@ -160,10 +160,10 @@ public class DecimalSerializer implements BinarySerializer<BigDecimal> {
   @Override
   public BigDecimal deserializeFromByteBufferObject(
       ByteBuffer buffer, WALChanges walChanges, int offset) {
-    final int scale = walChanges.getIntValue(buffer, offset);
+    final var scale = walChanges.getIntValue(buffer, offset);
     offset += IntegerSerializer.INT_SIZE;
 
-    final byte[] unscaledValue =
+    final var unscaledValue =
         BinaryTypeSerializer.INSTANCE.deserializeFromByteBufferObject(buffer, walChanges, offset);
 
     return new BigDecimal(new BigInteger(unscaledValue), scale);

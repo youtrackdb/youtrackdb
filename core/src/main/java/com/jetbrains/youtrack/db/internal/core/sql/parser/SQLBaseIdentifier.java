@@ -224,9 +224,9 @@ public class SQLBaseIdentifier extends SimpleNode {
   public SimpleNode splitForAggregation(
       AggregateProjectionSplit aggregateProj, CommandContext ctx) {
     if (isAggregate(ctx.getDatabase())) {
-      SQLBaseIdentifier result = new SQLBaseIdentifier(-1);
+      var result = new SQLBaseIdentifier(-1);
       if (levelZero != null) {
-        SimpleNode splitResult = levelZero.splitForAggregation(aggregateProj, ctx);
+        var splitResult = levelZero.splitForAggregation(aggregateProj, ctx);
         if (splitResult instanceof SQLLevelZeroIdentifier) {
           result.levelZero = (SQLLevelZeroIdentifier) splitResult;
         } else {
@@ -262,7 +262,7 @@ public class SQLBaseIdentifier extends SimpleNode {
   }
 
   public SQLBaseIdentifier copy() {
-    SQLBaseIdentifier result = new SQLBaseIdentifier(-1);
+    var result = new SQLBaseIdentifier(-1);
     result.levelZero = levelZero == null ? null : levelZero.copy();
     result.suffix = suffix == null ? null : suffix.copy();
     return result;
@@ -277,7 +277,7 @@ public class SQLBaseIdentifier extends SimpleNode {
       return false;
     }
 
-    SQLBaseIdentifier that = (SQLBaseIdentifier) o;
+    var that = (SQLBaseIdentifier) o;
 
     if (!Objects.equals(levelZero, that.levelZero)) {
       return false;
@@ -287,7 +287,7 @@ public class SQLBaseIdentifier extends SimpleNode {
 
   @Override
   public int hashCode() {
-    int result = levelZero != null ? levelZero.hashCode() : 0;
+    var result = levelZero != null ? levelZero.hashCode() : 0;
     result = 31 * result + (suffix != null ? suffix.hashCode() : 0);
     return result;
   }
@@ -317,7 +317,7 @@ public class SQLBaseIdentifier extends SimpleNode {
   }
 
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     if (levelZero != null) {
       result.setProperty("levelZero", levelZero.serialize(db));
     }
@@ -382,12 +382,12 @@ public class SQLBaseIdentifier extends SimpleNode {
 
   public boolean isIndexChain(CommandContext ctx, SchemaClassInternal clazz) {
     if (suffix != null && suffix.isBaseIdentifier()) {
-      SchemaPropertyInternal prop = clazz.getPropertyInternal(
+      var prop = clazz.getPropertyInternal(
           suffix.getIdentifier().getStringValue());
       if (prop == null) {
         return false;
       }
-      Collection<Index> allIndexes = prop.getAllIndexesInternal(ctx.getDatabase());
+      var allIndexes = prop.getAllIndexesInternal(ctx.getDatabase());
 
       return allIndexes != null
           && allIndexes.stream().anyMatch(idx -> idx.getDefinition().getFields().size() == 1);

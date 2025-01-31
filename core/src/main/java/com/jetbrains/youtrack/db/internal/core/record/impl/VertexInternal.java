@@ -255,7 +255,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
       return IterableUtils.chainedIterable(
           getVertices(Direction.OUT, type), getVertices(Direction.IN, type));
     } else {
-      Iterable<Edge> edges = getEdgesInternal(direction, type);
+      var edges = getEdgesInternal(direction, type);
       return new EdgeToVertexIterable(edges, direction);
     }
   }
@@ -264,7 +264,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
   default Iterable<Vertex> getVertices(Direction direction, SchemaClass... type) {
     List<String> types = new ArrayList<>();
     if (type != null) {
-      for (SchemaClass t : type) {
+      for (var t : type) {
         types.add(t.getName());
       }
     }
@@ -351,7 +351,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
   default Iterable<Edge> getEdges(Direction direction, SchemaClass... type) {
     List<String> types = new ArrayList<>();
     if (type != null) {
-      for (SchemaClass t : type) {
+      for (var t : type) {
         types.add(t.getName());
       }
     }
@@ -380,7 +380,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
     var entity = getBaseEntity();
     for (var prefix : prefixes) {
-      for (String fieldName : entity.calculatePropertyNames()) {
+      for (var fieldName : entity.calculatePropertyNames()) {
         if (fieldName.startsWith(prefix)) {
           if (fieldName.equals(prefix)) {
             candidateClasses.add(EdgeInternal.CLASS_NAME);
@@ -428,7 +428,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
     var iterables = new ArrayList<Iterable<Edge>>(fieldNames.size());
     for (var fieldName : fieldNames) {
-      final Pair<Direction, String> connection =
+      final var connection =
           getConnection(schema, direction, fieldName, labels);
       if (connection == null)
       // SKIP THIS FIELD
@@ -485,20 +485,20 @@ public interface VertexInternal extends Vertex, EntityInternal {
     }
 
     Set<String> allClassNames = new HashSet<>();
-    for (String className : classNames) {
+    for (var className : classNames) {
       allClassNames.add(className);
-      SchemaClass clazz = schema.getClass(className);
+      var clazz = schema.getClass(className);
       if (clazz != null) {
         allClassNames.add(clazz.getName()); // needed for aliases
-        Collection<SchemaClass> subClasses = clazz.getAllSubclasses();
-        for (SchemaClass subClass : subClasses) {
+        var subClasses = clazz.getAllSubclasses();
+        for (var subClass : subClasses) {
           allClassNames.add(subClass.getName());
         }
       }
     }
 
     var result = new ArrayList<String>(2 * allClassNames.size());
-    for (String className : allClassNames) {
+    for (var className : allClassNames) {
       switch (iDirection) {
         case OUT:
           result.add(DIRECTION_OUT_PREFIX + className);
@@ -537,15 +537,15 @@ public interface VertexInternal extends Vertex, EntityInternal {
         }
 
         // CHECK AGAINST ALL THE CLASS NAMES
-        for (String clsName : classNames) {
+        for (var clsName : classNames) {
           if (fieldName.equals(DIRECTION_OUT_PREFIX + clsName)) {
             return new Pair<>(Direction.OUT, clsName);
           }
 
           // GO DOWN THROUGH THE INHERITANCE TREE
-          SchemaClass type = schema.getClass(clsName);
+          var type = schema.getClass(clsName);
           if (type != null) {
-            for (SchemaClass subType : type.getAllSubclasses()) {
+            for (var subType : type.getAllSubclasses()) {
               clsName = subType.getName();
 
               if (fieldName.equals(DIRECTION_OUT_PREFIX + clsName)) {
@@ -565,16 +565,16 @@ public interface VertexInternal extends Vertex, EntityInternal {
         }
 
         // CHECK AGAINST ALL THE CLASS NAMES
-        for (String clsName : classNames) {
+        for (var clsName : classNames) {
 
           if (fieldName.equals(DIRECTION_IN_PREFIX + clsName)) {
             return new Pair<>(Direction.IN, clsName);
           }
 
           // GO DOWN THROUGH THE INHERITANCE TREE
-          SchemaClass type = schema.getClass(clsName);
+          var type = schema.getClass(clsName);
           if (type != null) {
-            for (SchemaClass subType : type.getAllSubclasses()) {
+            for (var subType : type.getAllSubclasses()) {
               clsName = subType.getName();
               if (fieldName.equals(DIRECTION_IN_PREFIX + clsName)) {
                 return new Pair<>(Direction.IN, clsName);
@@ -598,7 +598,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
       return;
     }
 
-    final Object fieldValue =
+    final var fieldValue =
         iVertexToRemove != null
             ? vertex.getPropertyInternal(fieldName)
             : vertex.removePropertyInternal(fieldName);
@@ -618,8 +618,8 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
     } else if (fieldValue instanceof RidBag bag) {
       // COLLECTION OF RECORDS: REMOVE THE ENTRY
-      boolean found = false;
-      final Iterator<RID> it = bag.iterator();
+      var found = false;
+      final var it = bag.iterator();
       while (it.hasNext()) {
         if (it.next().equals(iVertexToRemove.getIdentity())) {
           // REMOVE THE OLD ENTRY
@@ -634,7 +634,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
       }
 
     } else if (fieldValue instanceof Collection) {
-      @SuppressWarnings("unchecked") final Collection<Identifiable> col = (Collection<Identifiable>) fieldValue;
+      @SuppressWarnings("unchecked") final var col = (Collection<Identifiable>) fieldValue;
 
       if (col.remove(iVertexToRemove)) {
         col.add(newVertex);
@@ -645,12 +645,12 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   static void deleteLinks(Vertex delegate) {
-    Iterable<Edge> allEdges = delegate.getEdges(Direction.BOTH);
+    var allEdges = delegate.getEdges(Direction.BOTH);
     List<Edge> items = new ArrayList<>();
-    for (Edge edge : allEdges) {
+    for (var edge : allEdges) {
       items.add(edge);
     }
-    for (Edge edge : items) {
+    for (var edge : items) {
       edge.delete();
     }
   }
@@ -658,7 +658,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
   @Override
   default RID moveTo(final String className, final String clusterName) {
 
-    final EntityImpl baseEntity = getBaseEntity();
+    final var baseEntity = getBaseEntity();
     var db = baseEntity.getSession();
     if (!db.getTransaction().isActive()) {
       throw new DatabaseException("This operation is allowed only inside a transaction");
@@ -669,7 +669,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
     }
 
     var oldIdentity = ((RecordId) getIdentity()).copy();
-    final EntityImpl oldRecord = (EntityImpl) oldIdentity.getEntity(db);
+    final var oldRecord = (EntityImpl) oldIdentity.getEntity(db);
 
     var newEntity = (EntityImpl) db.newEntity(className);
     newEntity.copyPropertiesFromOtherEntity(oldRecord);
@@ -678,14 +678,14 @@ public interface VertexInternal extends Vertex, EntityInternal {
     db.delete(oldRecord);
 
     var delegate = new VertexDelegate(newEntity);
-    final Iterable<Edge> outEdges = delegate.getEdges(Direction.OUT);
-    final Iterable<Edge> inEdges = delegate.getEdges(Direction.IN);
+    final var outEdges = delegate.getEdges(Direction.OUT);
+    final var inEdges = delegate.getEdges(Direction.IN);
 
     final RID newIdentity = newEntity.getIdentity();
 
     // CONVERT OUT EDGES
-    for (Edge oe : outEdges) {
-      final Identifiable inVLink = oe.getVertexLink(Direction.IN);
+    for (var oe : outEdges) {
+      final var inVLink = oe.getVertexLink(Direction.IN);
       var optSchemaType = oe.getSchemaType();
 
       String schemaType;
@@ -696,7 +696,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
         schemaType = null;
       }
 
-      final String inFieldName = getEdgeLinkFieldName(Direction.IN, schemaType, true);
+      final var inFieldName = getEdgeLinkFieldName(Direction.IN, schemaType, true);
 
       // link to itself
       EntityImpl inRecord;
@@ -717,8 +717,8 @@ public interface VertexInternal extends Vertex, EntityInternal {
       db.save(oe);
     }
 
-    for (Edge ine : inEdges) {
-      final Identifiable outVLink = ine.getVertexLink(Direction.OUT);
+    for (var ine : inEdges) {
+      final var outVLink = ine.getVertexLink(Direction.OUT);
 
       var optSchemaType = ine.getSchemaType();
 
@@ -730,7 +730,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
         schemaType = null;
       }
 
-      final String outFieldName = getEdgeLinkFieldName(Direction.OUT, schemaType, true);
+      final var outFieldName = getEdgeLinkFieldName(Direction.OUT, schemaType, true);
 
       EntityImpl outRecord;
       if (outVLink.equals(oldIdentity)) {
@@ -760,7 +760,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
       return false;
     }
 
-    final RecordOperation oper = db.getTransaction().getRecordEntry(id);
+    final var oper = db.getTransaction().getRecordEntry(id);
     if (oper == null) {
       return id.isTemporary();
     } else {
@@ -791,7 +791,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
     if (useVertexFieldsForEdgeLabels) {
       // PREFIX "out_" or "in_" TO THE FIELD NAME
-      final String prefix =
+      final var prefix =
           direction == Direction.OUT ? DIRECTION_OUT_PREFIX : DIRECTION_IN_PREFIX;
       if (className == null || className.isEmpty() || className.equals(EdgeInternal.CLASS_NAME)) {
         return prefix;
@@ -854,9 +854,9 @@ public interface VertexInternal extends Vertex, EntityInternal {
     if (labels == null) {
       return null;
     }
-    String[] result = new String[labels.length];
+    var result = new String[labels.length];
 
-    for (int i = 0; i < labels.length; i++) {
+    for (var i = 0; i < labels.length; i++) {
       result[i] = resolveAlias(labels[i], schema);
     }
 
@@ -864,7 +864,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   private static String resolveAlias(String label, Schema schema) {
-    SchemaClass clazz = schema.getClass(label);
+    var clazz = schema.getClass(label);
     if (clazz != null) {
       return clazz.getName();
     }
@@ -898,16 +898,16 @@ public interface VertexInternal extends Vertex, EntityInternal {
       DatabaseSessionInternal db, final EntityImpl fromVertex, final Identifiable to,
       final String fieldName) {
     final Object out;
-    PropertyType outType = fromVertex.getPropertyType(fieldName);
-    Object found = fromVertex.getPropertyInternal(fieldName);
+    var outType = fromVertex.getPropertyType(fieldName);
+    var found = fromVertex.getPropertyInternal(fieldName);
 
     final SchemaClass linkClass = EntityInternalUtils.getImmutableSchemaClass(fromVertex);
     if (linkClass == null) {
       throw new IllegalArgumentException("Class not found in source vertex: " + fromVertex);
     }
 
-    final SchemaProperty prop = linkClass.getProperty(fieldName);
-    final PropertyType propType =
+    final var prop = linkClass.getProperty(fieldName);
+    final var propType =
         prop != null && prop.getType() != PropertyType.ANY ? prop.getType() : null;
 
     if (found == null) {
@@ -919,7 +919,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
         out = coll;
         outType = PropertyType.LINKLIST;
       } else if (propType == null || propType == PropertyType.LINKBAG) {
-        final RidBag bag = new RidBag(fromVertex.getSession());
+        final var bag = new RidBag(fromVertex.getSession());
         bag.add(to.getIdentity());
         out = bag;
         outType = PropertyType.LINKBAG;
@@ -948,7 +948,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
         out = coll;
         outType = PropertyType.LINKLIST;
       } else {
-        final RidBag bag = new RidBag(fromVertex.getSession());
+        final var bag = new RidBag(fromVertex.getSession());
         bag.add(foundId.getIdentity());
         bag.add(to.getIdentity());
         out = bag;
@@ -980,7 +980,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
     var schemaType = edge.getSchemaType();
     assert schemaType.isPresent();
 
-    String className = schemaType.get().getName();
+    var className = schemaType.get().getName();
     Identifiable edgeId = edge.getIdentity();
 
     removeLinkFromEdge(
@@ -990,7 +990,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
   private static void removeLinkFromEdge(
       EntityImpl vertex, Edge edge, String edgeField, Identifiable edgeId,
       Direction direction) {
-    Object edgeProp = vertex.getPropertyInternal(edgeField);
+    var edgeProp = vertex.getPropertyInternal(edgeField);
     RID oppositeVertexId = null;
     if (direction == Direction.IN) {
       var fromIdentifiable = edge.getFromIdentifiable();

@@ -31,13 +31,13 @@ public class ServerCommandPostClass extends ServerCommandAuthenticatedDbAbstract
 
   @Override
   public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
-    String[] urlParts =
+    var urlParts =
         checkSyntax(iRequest.getUrl(), 3, "Syntax error: class/<database>/<class-name>");
 
     iRequest.getData().commandInfo = "Create class";
     iRequest.getData().commandDetail = urlParts[2];
 
-    try (DatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
+    try (var db = getProfiledDatabaseInstance(iRequest)) {
 
       if (db.getMetadata().getSchema().getClass(urlParts[2]) != null) {
         throw new IllegalArgumentException("Class '" + urlParts[2] + "' already exists");

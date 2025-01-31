@@ -25,7 +25,7 @@ public class ExpandStep extends AbstractExecutionStep {
     if (prev == null) {
       throw new CommandExecutionException("Cannot expand without a target");
     }
-    ExecutionStream resultSet = prev.start(ctx);
+    var resultSet = prev.start(ctx);
     return resultSet.flatMap(ExpandStep::nextResults);
   }
 
@@ -37,8 +37,8 @@ public class ExpandStep extends AbstractExecutionStep {
       throw new IllegalStateException("Invalid EXPAND on record " + nextAggregateItem);
     }
 
-    String propName = nextAggregateItem.getPropertyNames().iterator().next();
-    Object projValue = nextAggregateItem.getProperty(propName);
+    var propName = nextAggregateItem.getPropertyNames().iterator().next();
+    var projValue = nextAggregateItem.getProperty(propName);
     var db = ctx.getDatabase();
     switch (projValue) {
       case null -> {
@@ -52,7 +52,7 @@ public class ExpandStep extends AbstractExecutionStep {
           return ExecutionStream.empty();
         }
 
-        ResultInternal res = new ResultInternal(ctx.getDatabase(), rec);
+        var res = new ResultInternal(ctx.getDatabase(), rec);
         return ExecutionStream.singleton(res);
       }
       case Result result -> {
@@ -76,8 +76,8 @@ public class ExpandStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
-    String result = spaces + "+ EXPAND";
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var result = spaces + "+ EXPAND";
     if (profilingEnabled) {
       result += " (" + getCostFormatted() + ")";
     }

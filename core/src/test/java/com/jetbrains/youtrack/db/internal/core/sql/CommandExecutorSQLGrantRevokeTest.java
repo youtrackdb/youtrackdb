@@ -32,7 +32,7 @@ public class CommandExecutorSQLGrantRevokeTest extends DbTestBase {
   @Test
   public void grantServerRemove() {
     db.begin();
-    Role testRole =
+    var testRole =
         db.getMetadata()
             .getSecurity()
             .createRole("testRole");

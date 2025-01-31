@@ -35,7 +35,7 @@ public class ContainsConditionTest extends DbTestBase {
 
   @Test
   public void test() {
-    SQLContainsCondition op = new SQLContainsCondition(-1);
+    var op = new SQLContainsCondition(-1);
 
     Assert.assertFalse(op.execute(db, null, null));
     Assert.assertFalse(op.execute(db, null, "foo"));
@@ -57,7 +57,7 @@ public class ContainsConditionTest extends DbTestBase {
 
   @Test
   public void testIterable() {
-    Iterable left =
+    var left =
         new Iterable() {
           private final List<Integer> ls = Arrays.asList(3, 1, 2);
 
@@ -67,7 +67,7 @@ public class ContainsConditionTest extends DbTestBase {
           }
         };
 
-    Iterable right =
+    var right =
         new Iterable() {
           private final List<Integer> ls = Arrays.asList(2, 3);
 
@@ -77,7 +77,7 @@ public class ContainsConditionTest extends DbTestBase {
           }
         };
 
-    SQLContainsCondition op = new SQLContainsCondition(-1);
+    var op = new SQLContainsCondition(-1);
     Assert.assertTrue(op.execute(db, left, right));
   }
 }

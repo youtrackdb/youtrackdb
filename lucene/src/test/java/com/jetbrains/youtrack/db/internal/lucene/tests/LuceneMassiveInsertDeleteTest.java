@@ -38,7 +38,7 @@ public class LuceneMassiveInsertDeleteTest extends LuceneBaseTest {
   @Before
   public void init() {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass song = db.createVertexClass("City");
+    var song = db.createVertexClass("City");
     song.createProperty(db, "name", PropertyType.STRING);
 
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE");
@@ -47,17 +47,17 @@ public class LuceneMassiveInsertDeleteTest extends LuceneBaseTest {
   @Test
   public void loadCloseDelete() {
 
-    int size = 1000;
-    for (int i = 0; i < size; i++) {
-      Vertex city = db.newVertex("City");
+    var size = 1000;
+    for (var i = 0; i < size; i++) {
+      var city = db.newVertex("City");
       city.setProperty("name", "Rome " + i);
 
       db.begin();
       db.save(city);
       db.commit();
     }
-    String query = "select * from City where search_class('name:Rome')=true";
-    ResultSet docs = db.query(query);
+    var query = "select * from City where search_class('name:Rome')=true";
+    var docs = db.query(query);
     Assertions.assertThat(docs).hasSize(size);
     docs.close();
     db.close();
@@ -82,7 +82,7 @@ public class LuceneMassiveInsertDeleteTest extends LuceneBaseTest {
     db.getMetadata().reload();
 
     db.begin();
-    Index idx = db.getMetadata().getSchema().getClassInternal("City")
+    var idx = db.getMetadata().getSchema().getClassInternal("City")
         .getClassIndex(db, "City.name");
     Assert.assertEquals(0, idx.getInternal().size(db));
     db.commit();

@@ -21,13 +21,13 @@ public class HttpDisabledTokenTest extends BaseHttpDatabaseTest {
 
   @Test
   public void testTokenRequest() throws IOException {
-    HttpPost request = new HttpPost(getBaseURL() + "/token/" + getDatabaseName());
+    var request = new HttpPost(getBaseURL() + "/token/" + getDatabaseName());
     request.setEntity(new StringEntity("grant_type=password&username=admin&password=admin"));
-    final CloseableHttpClient httpClient = HttpClients.createDefault();
-    CloseableHttpResponse response = httpClient.execute(request);
+    final var httpClient = HttpClients.createDefault();
+    var response = httpClient.execute(request);
     assertEquals(response.getReasonPhrase(), response.getCode(), 400);
-    HttpEntity entity = response.getEntity();
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    var entity = response.getEntity();
+    var out = new ByteArrayOutputStream();
     entity.writeTo(out);
     assertTrue(out.toString().contains("unsupported_grant_type"));
   }

@@ -59,9 +59,9 @@ public class SQLMethodMultiValue extends AbstractSQLMethod {
     var database = iContext.getDatabase();
     // MULTI VALUES
     final List<Object> list = new ArrayList<Object>();
-    for (Object iParam : iParams) {
+    for (var iParam : iParams) {
       if (MultiValue.isMultiValue(iParam)) {
-        for (Object o : MultiValue.getMultiValueIterable(iParam)) {
+        for (var o : MultiValue.getMultiValueIterable(iParam)) {
           list.add(EntityHelper.getFieldValue(database, iThis, o.toString(), iContext));
         }
       } else {

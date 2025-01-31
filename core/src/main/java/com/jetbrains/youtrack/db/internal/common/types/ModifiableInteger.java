@@ -60,8 +60,8 @@ public class ModifiableInteger extends Number implements Comparable<ModifiableIn
   }
 
   public int compareTo(final ModifiableInteger anotherInteger) {
-    int thisVal = value;
-    int anotherVal = anotherInteger.value;
+    var thisVal = value;
+    var anotherVal = anotherInteger.value;
 
     return (thisVal < anotherVal) ? -1 : ((thisVal == anotherVal) ? 0 : 1);
   }

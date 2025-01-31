@@ -45,7 +45,7 @@ public class BaseServerMemoryDatabase {
     db.close();
     context.drop(name.getMethodName());
     context.close();
-    String directory = server.getDatabaseDirectory();
+    var directory = server.getDatabaseDirectory();
     server.shutdown();
     FileUtils.deleteRecursively(new File(directory));
   }

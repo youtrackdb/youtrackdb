@@ -61,7 +61,7 @@ public class InternalResultSet implements ResultSet, Resettable {
   }
 
   public InternalResultSet copy() {
-    InternalResultSet result = new InternalResultSet();
+    var result = new InternalResultSet();
     result.content = this.content;
     return result;
   }

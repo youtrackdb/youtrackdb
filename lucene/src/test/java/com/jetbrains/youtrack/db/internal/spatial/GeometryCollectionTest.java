@@ -26,7 +26,7 @@ public class GeometryCollectionTest extends BaseSpatialLuceneTest {
         .close();
     db.commit();
 
-    ResultSet qResult =
+    var qResult =
         db.command(
             "select * from TestInsert where ST_WITHIN(geometry,'POLYGON ((0 0, 15 0, 15 15, 0 15, 0"
                 + " 0))') = true");
@@ -36,7 +36,7 @@ public class GeometryCollectionTest extends BaseSpatialLuceneTest {
     db.command("DELETE VERTEX TestInsert").close();
     db.commit();
 
-    ResultSet qResult2 = db.command("select * from TestInsert");
+    var qResult2 = db.command("select * from TestInsert");
     Assert.assertEquals(0, qResult2.stream().count());
   }
 }

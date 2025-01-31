@@ -38,26 +38,26 @@ public class SQLAlterPropertyStatement extends DDLStatement {
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
     var db = ctx.getDatabase();
-    SchemaClass clazz = db.getMetadata().getSchema().getClass(className.getStringValue());
+    var clazz = db.getMetadata().getSchema().getClass(className.getStringValue());
 
     if (clazz == null) {
       throw new CommandExecutionException("Invalid class name or class not found: " + clazz);
     }
 
-    SchemaProperty property = clazz.getProperty(propertyName.getStringValue());
+    var property = clazz.getProperty(propertyName.getStringValue());
     if (property == null) {
       throw new CommandExecutionException(
           "Property " + propertyName.getStringValue() + " not found on class " + clazz);
     }
 
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     result.setProperty("class", className.getStringValue());
     result.setProperty("property", propertyName.getStringValue());
 
     if (customPropertyName != null) {
-      String customName = customPropertyName.getStringValue();
+      var customName = customPropertyName.getStringValue();
       Object oldValue = property.getCustom(customName);
-      Object finalValue = customPropertyValue.execute((Identifiable) null, ctx);
+      var finalValue = customPropertyValue.execute((Identifiable) null, ctx);
       property.setCustom(db, customName, finalValue == null ? null : "" + finalValue);
 
       result.setProperty("operation", "alter property custom");
@@ -65,16 +65,16 @@ public class SQLAlterPropertyStatement extends DDLStatement {
       result.setProperty("oldValue", oldValue != null ? oldValue.toString() : null);
       result.setProperty("newValue", finalValue != null ? finalValue.toString() : null);
     } else {
-      String setting = settingName.getStringValue();
-      boolean isCollate = setting.equalsIgnoreCase("collate");
-      Object finalValue = settingValue.execute((Identifiable) null, ctx);
+      var setting = settingName.getStringValue();
+      var isCollate = setting.equalsIgnoreCase("collate");
+      var finalValue = settingValue.execute((Identifiable) null, ctx);
       if (finalValue == null
           && (setting.equalsIgnoreCase("name")
           || setting.equalsIgnoreCase("shortname")
           || setting.equalsIgnoreCase("type")
           || isCollate)) {
         finalValue = settingValue.toString();
-        String stringFinalValue = (String) finalValue;
+        var stringFinalValue = (String) finalValue;
         if (stringFinalValue.startsWith("`")
             && stringFinalValue.endsWith("`")
             && stringFinalValue.length() > 2) {
@@ -94,7 +94,7 @@ public class SQLAlterPropertyStatement extends DDLStatement {
                     + Arrays.toString(SchemaProperty.ATTRIBUTES.values())),
             e);
       }
-      Object oldValue = property.get(attribute);
+      var oldValue = property.get(attribute);
       property.set(db, attribute, finalValue);
       finalValue = property.get(attribute); // it makes some conversions...
 
@@ -151,7 +151,7 @@ public class SQLAlterPropertyStatement extends DDLStatement {
 
   @Override
   public SQLAlterPropertyStatement copy() {
-    SQLAlterPropertyStatement result = new SQLAlterPropertyStatement(-1);
+    var result = new SQLAlterPropertyStatement(-1);
     result.className = className == null ? null : className.copy();
     result.propertyName = propertyName == null ? null : propertyName.copy();
     result.customPropertyName = customPropertyName == null ? null : customPropertyName.copy();
@@ -170,7 +170,7 @@ public class SQLAlterPropertyStatement extends DDLStatement {
       return false;
     }
 
-    SQLAlterPropertyStatement that = (SQLAlterPropertyStatement) o;
+    var that = (SQLAlterPropertyStatement) o;
 
     if (!Objects.equals(className, that.className)) {
       return false;
@@ -192,7 +192,7 @@ public class SQLAlterPropertyStatement extends DDLStatement {
 
   @Override
   public int hashCode() {
-    int result = className != null ? className.hashCode() : 0;
+    var result = className != null ? className.hashCode() : 0;
     result = 31 * result + (propertyName != null ? propertyName.hashCode() : 0);
     result = 31 * result + (customPropertyName != null ? customPropertyName.hashCode() : 0);
     result = 31 * result + (customPropertyValue != null ? customPropertyValue.hashCode() : 0);

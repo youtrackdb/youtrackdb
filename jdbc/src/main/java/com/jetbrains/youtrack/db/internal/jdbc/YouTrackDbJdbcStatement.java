@@ -101,9 +101,9 @@ public class YouTrackDbJdbcStatement implements Statement {
     sql = mayCleanForSpark(sqlCommand);
 
     if (sql.equalsIgnoreCase("select 1")) {
-      ResultInternal element = new ResultInternal(database);
+      var element = new ResultInternal(database);
       element.setProperty("1", 1);
-      InternalResultSet rs = new InternalResultSet();
+      var rs = new InternalResultSet();
       rs.add(element);
       oResultSet = rs;
     } else {
@@ -140,7 +140,7 @@ public class YouTrackDbJdbcStatement implements Statement {
   private int doExecuteUpdate(String sql) throws SQLException {
     try {
       oResultSet = executeCommand(sql);
-      Optional<Result> res = oResultSet.stream().findFirst();
+      var res = oResultSet.stream().findFirst();
 
       if (res.isPresent()) {
         if (res.get().getProperty("count") != null) {
@@ -220,9 +220,9 @@ public class YouTrackDbJdbcStatement implements Statement {
   }
 
   public int[] executeBatch() throws SQLException {
-    int[] results = new int[batches.size()];
-    int i = 0;
-    for (String sql : batches) {
+    var results = new int[batches.size()];
+    var i = 0;
+    for (var sql : batches) {
       results[i++] = doExecuteUpdate(sql);
     }
     return results;

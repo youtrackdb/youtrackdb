@@ -16,14 +16,14 @@ public class DeleteExecutionPlan extends UpdateExecutionPlan {
 
   @Override
   public Result toResult(DatabaseSession db) {
-    ResultInternal res = (ResultInternal) super.toResult(db);
+    var res = (ResultInternal) super.toResult(db);
     res.setProperty("type", "DeleteExecutionPlan");
     return res;
   }
 
   @Override
   public boolean canBeCached() {
-    for (ExecutionStepInternal step : steps) {
+    for (var step : steps) {
       if (!step.canBeCached()) {
         return false;
       }
@@ -33,7 +33,7 @@ public class DeleteExecutionPlan extends UpdateExecutionPlan {
 
   @Override
   public InternalExecutionPlan copy(CommandContext ctx) {
-    DeleteExecutionPlan copy = new DeleteExecutionPlan(ctx);
+    var copy = new DeleteExecutionPlan(ctx);
     super.copyOn(copy, ctx);
     return copy;
   }

@@ -15,7 +15,7 @@ public class CompositeIndexSQLInsertTest extends DbTestBase {
   public void beforeTest() throws Exception {
     super.beforeTest();
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass book = schema.createClass("Book");
+    var book = schema.createClass("Book");
     book.createProperty(db, "author", PropertyType.STRING);
     book.createProperty(db, "title", PropertyType.STRING);
     book.createProperty(db, "publicationYears", PropertyType.EMBEDDEDLIST, PropertyType.INTEGER);
@@ -31,7 +31,7 @@ public class CompositeIndexSQLInsertTest extends DbTestBase {
   @Test
   public void testCompositeIndexWithRangeAndContains() {
     final Schema schema = db.getMetadata().getSchema();
-    SchemaClass clazz = schema.createClass("CompositeIndexWithRangeAndConditions");
+    var clazz = schema.createClass("CompositeIndexWithRangeAndConditions");
     clazz.createProperty(db, "id", PropertyType.INTEGER);
     clazz.createProperty(db, "bar", PropertyType.INTEGER);
     clazz.createProperty(db, "tags", PropertyType.EMBEDDEDLIST, PropertyType.STRING);
@@ -61,13 +61,13 @@ public class CompositeIndexSQLInsertTest extends DbTestBase {
         .close();
     db.commit();
 
-    ResultSet res =
+    var res =
         db.query("select from CompositeIndexWithRangeAndConditions where id > 0 and bar = 1");
 
-    long count = res.stream().count();
+    var count = res.stream().count();
     Assert.assertEquals(1, count);
 
-    long count1 =
+    var count1 =
         db
             .query(
                 "select from CompositeIndexWithRangeAndConditions where id = 1 and tags CONTAINS"
@@ -76,7 +76,7 @@ public class CompositeIndexSQLInsertTest extends DbTestBase {
             .count();
     Assert.assertEquals(1, count1);
 
-    long count2 =
+    var count2 =
         db
             .query(
                 "select from CompositeIndexWithRangeAndConditions where id > 0 and tags CONTAINS"
@@ -85,7 +85,7 @@ public class CompositeIndexSQLInsertTest extends DbTestBase {
             .count();
     Assert.assertEquals(1, count2);
 
-    long count3 =
+    var count3 =
         db
             .query("select from CompositeIndexWithRangeAndConditions where id > 0 and bar = 1")
             .stream()
@@ -93,7 +93,7 @@ public class CompositeIndexSQLInsertTest extends DbTestBase {
 
     Assert.assertEquals(1, count3);
 
-    long count4 =
+    var count4 =
         db
             .query(
                 "select from CompositeIndexWithRangeAndConditions where tags CONTAINS \"white\" and"

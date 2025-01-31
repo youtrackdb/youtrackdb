@@ -11,9 +11,9 @@ public class ExecutionPlanCacheTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testCacheInvalidation1() throws InterruptedException {
-    String testName = "testCacheInvalidation1";
-    ExecutionPlanCache cache = ExecutionPlanCache.instance(db);
-    String stm = "SELECT FROM OUser";
+    var testName = "testCacheInvalidation1";
+    var cache = ExecutionPlanCache.instance(db);
+    var stm = "SELECT FROM OUser";
 
     /*
      * the cache has a mechanism that guarantees that if you are doing execution planning
@@ -30,7 +30,7 @@ public class ExecutionPlanCacheTest extends BaseMemoryInternalDatabase {
     cache = ExecutionPlanCache.instance(db);
     Assert.assertTrue(cache.contains(stm));
 
-    SchemaClass clazz = db.getMetadata().getSchema().createClass(testName);
+    var clazz = db.getMetadata().getSchema().createClass(testName);
     Assert.assertFalse(cache.contains(stm));
 
     Thread.sleep(2);
@@ -40,7 +40,7 @@ public class ExecutionPlanCacheTest extends BaseMemoryInternalDatabase {
     cache = ExecutionPlanCache.instance(db);
     Assert.assertTrue(cache.contains(stm));
 
-    SchemaProperty prop = clazz.createProperty(db, "name", PropertyType.STRING);
+    var prop = clazz.createProperty(db, "name", PropertyType.STRING);
     Assert.assertFalse(cache.contains(stm));
 
     Thread.sleep(2);

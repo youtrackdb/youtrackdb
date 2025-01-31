@@ -33,9 +33,9 @@ public class DBSequenceTest extends BaseDBTest {
 
   private void testSequence(String sequenceName, SEQUENCE_TYPE sequenceType)
       throws ExecutionException, InterruptedException {
-    SequenceLibrary sequenceLibrary = db.getMetadata().getSequenceLibrary();
+    var sequenceLibrary = db.getMetadata().getSequenceLibrary();
 
-    DBSequence seq = sequenceLibrary.createSequence(sequenceName, sequenceType, null);
+    var seq = sequenceLibrary.createSequence(sequenceName, sequenceType, null);
 
     SequenceException err = null;
     try {
@@ -49,11 +49,11 @@ public class DBSequenceTest extends BaseDBTest {
             + sequenceType.toString()
             + " sequences with same name doesn't throw an exception");
 
-    DBSequence seqSame = sequenceLibrary.getSequence(sequenceName);
+    var seqSame = sequenceLibrary.getSequence(sequenceName);
     Assert.assertEquals(seqSame, seq);
 
     // Doing it twice to check everything works after reset
-    for (int i = 0; i < 2; ++i) {
+    for (var i = 0; i < 2; ++i) {
       Assert.assertEquals(seq.next(db), 1L);
       Assert.assertEquals(seq.current(db), 1L);
       Assert.assertEquals(seq.next(db), 2L);
@@ -66,9 +66,9 @@ public class DBSequenceTest extends BaseDBTest {
 
   @Test
   public void testOrdered() throws ExecutionException, InterruptedException {
-    SequenceLibrary sequenceManager = db.getMetadata().getSequenceLibrary();
+    var sequenceManager = db.getMetadata().getSequenceLibrary();
 
-    DBSequence seq = sequenceManager.createSequence("seqOrdered", SEQUENCE_TYPE.ORDERED, null);
+    var seq = sequenceManager.createSequence("seqOrdered", SEQUENCE_TYPE.ORDERED, null);
 
     SequenceException err = null;
     try {
@@ -80,7 +80,7 @@ public class DBSequenceTest extends BaseDBTest {
         err == null || err.getMessage().toLowerCase(Locale.ENGLISH).contains("already exists"),
         "Creating two ordered sequences with same name doesn't throw an exception");
 
-    DBSequence seqSame = sequenceManager.getSequence("seqOrdered");
+    var seqSame = sequenceManager.getSequence("seqOrdered");
     Assert.assertEquals(seqSame, seq);
 
     testUsage(seq, FIRST_START);
@@ -95,7 +95,7 @@ public class DBSequenceTest extends BaseDBTest {
 
   private void testUsage(DBSequence seq, long reset)
       throws ExecutionException, InterruptedException {
-    for (int i = 0; i < 2; ++i) {
+    for (var i = 0; i < 2; ++i) {
       Assert.assertEquals(seq.reset(db), reset);
       Assert.assertEquals(seq.current(db), reset);
       Assert.assertEquals(seq.next(db), reset + 1L);

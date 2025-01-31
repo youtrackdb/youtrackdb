@@ -32,7 +32,7 @@ public class YouTrackDBConfigImplTest {
 
   @Test
   public void testBuildSettings() {
-    YouTrackDBConfig settings =
+    var settings =
         YouTrackDBConfig.builder()
             .addGlobalConfigurationParameter(GlobalConfiguration.DB_POOL_MAX, 20)
             .addAttribute(ATTRIBUTES.LOCALE_COUNTRY, "US")
@@ -46,7 +46,7 @@ public class YouTrackDBConfigImplTest {
   public void testBuildSettingsFromMap() {
     Map<String, Object> configs = new HashMap<>();
     configs.put(GlobalConfiguration.DB_POOL_MAX.getKey(), 20);
-    YouTrackDBConfigImpl settings = (YouTrackDBConfigImpl) YouTrackDBConfig.builder()
+    var settings = (YouTrackDBConfigImpl) YouTrackDBConfig.builder()
         .fromMap(configs).build();
     assertEquals(20, settings.getConfiguration().getValue(GlobalConfiguration.DB_POOL_MAX));
   }
@@ -55,7 +55,7 @@ public class YouTrackDBConfigImplTest {
   public void testBuildSettingsFromGlobalMap() {
     Map<GlobalConfiguration, Object> configs = new HashMap<>();
     configs.put(GlobalConfiguration.DB_POOL_MAX, 20);
-    YouTrackDBConfigImpl settings = (YouTrackDBConfigImpl) YouTrackDBConfig.builder()
+    var settings = (YouTrackDBConfigImpl) YouTrackDBConfig.builder()
         .fromGlobalConfigurationParameters(configs).build();
     assertEquals(20, settings.getConfiguration().getValue(GlobalConfiguration.DB_POOL_MAX));
   }

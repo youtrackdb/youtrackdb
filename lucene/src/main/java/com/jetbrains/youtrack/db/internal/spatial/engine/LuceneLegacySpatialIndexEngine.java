@@ -80,7 +80,7 @@ public class LuceneLegacySpatialIndexEngine extends LuceneSpatialIndexEngineAbst
       LuceneTxChanges changes) throws IOException {
     if (key instanceof SpatialCompositeKey newKey) {
 
-      final SpatialOperation strategy =
+      final var strategy =
           newKey.getOperation() != null ? newKey.getOperation() : SpatialOperation.Intersects;
 
       if (SpatialOperation.Intersects.equals(strategy)) {
@@ -104,31 +104,31 @@ public class LuceneLegacySpatialIndexEngine extends LuceneSpatialIndexEngineAbst
 
     double lat = PropertyType.convert(db, key.getKeys().get(0), Double.class);
     double lng = PropertyType.convert(db, key.getKeys().get(1), Double.class);
-    SpatialOperation operation = SpatialOperation.Intersects;
+    var operation = SpatialOperation.Intersects;
 
     @SuppressWarnings("deprecation")
-    Point p = ctx.makePoint(lng, lat);
+    var p = ctx.makePoint(lng, lat);
     @SuppressWarnings("deprecation")
-    SpatialArgs args =
+    var args =
         new SpatialArgs(
             operation,
             ctx.makeCircle(
                 lng,
                 lat,
                 DistanceUtils.dist2Degrees(distance, DistanceUtils.EARTH_MEAN_RADIUS_KM)));
-    Query filterQuery = strategy.makeQuery(args);
+    var filterQuery = strategy.makeQuery(args);
 
-    IndexSearcher searcher = searcher(db.getStorage());
-    DoubleValuesSource valueSource = strategy.makeDistanceValueSource(p);
-    Sort distSort = new Sort(valueSource.getSortField(false)).rewrite(searcher);
+    var searcher = searcher(db.getStorage());
+    var valueSource = strategy.makeDistanceValueSource(p);
+    var distSort = new Sort(valueSource.getSortField(false)).rewrite(searcher);
 
-    BooleanQuery q =
+    var q =
         new BooleanQuery.Builder()
             .add(filterQuery, BooleanClause.Occur.MUST)
             .add(new MatchAllDocsQuery(), BooleanClause.Occur.SHOULD)
             .build();
 
-    LuceneQueryContext queryContext =
+    var queryContext =
         new SpatialQueryContext(context, searcher, q, Arrays.asList(distSort.getSort()))
             .setSpatialArgs(args)
             .withChanges(changes);
@@ -139,22 +139,22 @@ public class LuceneLegacySpatialIndexEngine extends LuceneSpatialIndexEngineAbst
       SpatialCompositeKey key, CommandContext context, LuceneTxChanges changes) {
 
     var db = context.getDatabase();
-    Shape shape = legacyBuilder.makeShape(db, key, ctx);
+    var shape = legacyBuilder.makeShape(db, key, ctx);
     if (shape == null) {
       return null;
     }
-    SpatialArgs args = new SpatialArgs(SpatialOperation.IsWithin, shape);
-    IndexSearcher searcher = searcher(db.getStorage());
+    var args = new SpatialArgs(SpatialOperation.IsWithin, shape);
+    var searcher = searcher(db.getStorage());
 
-    Query filterQuery = strategy.makeQuery(args);
+    var filterQuery = strategy.makeQuery(args);
 
-    BooleanQuery query =
+    var query =
         new BooleanQuery.Builder()
             .add(filterQuery, BooleanClause.Occur.MUST)
             .add(new MatchAllDocsQuery(), BooleanClause.Occur.SHOULD)
             .build();
 
-    LuceneQueryContext queryContext =
+    var queryContext =
         new SpatialQueryContext(context, searcher, query).withChanges(changes);
 
     return new LuceneResultSet(db, this, queryContext, EMPTY_METADATA);
@@ -167,13 +167,13 @@ public class LuceneLegacySpatialIndexEngine extends LuceneSpatialIndexEngineAbst
       Document doc,
       ScoreDoc score) {
 
-    SpatialQueryContext spatialContext = (SpatialQueryContext) queryContext;
+    var spatialContext = (SpatialQueryContext) queryContext;
     if (spatialContext.spatialArgs != null) {
       @SuppressWarnings("deprecation")
-      Point docPoint = (Point) ctx.readShape(doc.get(strategy.getFieldName()));
-      double docDistDEG =
+      var docPoint = (Point) ctx.readShape(doc.get(strategy.getFieldName()));
+      var docDistDEG =
           ctx.getDistCalc().distance(spatialContext.spatialArgs.getShape().getCenter(), docPoint);
-      final double docDistInKM =
+      final var docDistInKM =
           DistanceUtils.degrees2Dist(docDistDEG, DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM);
       Map<String, Object> data = new HashMap<String, Object>();
       data.put("distance", docDistInKM);

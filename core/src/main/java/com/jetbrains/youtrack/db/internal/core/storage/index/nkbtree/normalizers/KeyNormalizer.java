@@ -41,7 +41,7 @@ public class KeyNormalizer {
               + keyTypes.length
               + ".");
     }
-    final AtomicInteger counter = new AtomicInteger(0);
+    final var counter = new AtomicInteger(0);
     return keys.getKeys().stream()
         .collect(
             ByteArrayOutputStream::new,
@@ -58,7 +58,7 @@ public class KeyNormalizer {
       final PropertyType keyType,
       final int decompositon) {
     try {
-      final KeyNormalizers keyNormalizer = normalizers.get(keyType);
+      final var keyNormalizer = normalizers.get(keyType);
       if (keyNormalizer == null) {
         throw new UnsupportedOperationException(
             "Type " + key.getClass().getTypeName() + " is currently not supported");

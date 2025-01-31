@@ -250,7 +250,7 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
       throws IOException {
     status = STATUS.UNMARSHALLING;
     try {
-      final ByteArrayOutputStream out = new ByteArrayOutputStream();
+      final var out = new ByteArrayOutputStream();
       IOUtils.copyStream(iContentResult, out);
       RecordSerializerJackson.INSTANCE.fromString(getSession(), out.toString(), this, null);
       return (RET) this;

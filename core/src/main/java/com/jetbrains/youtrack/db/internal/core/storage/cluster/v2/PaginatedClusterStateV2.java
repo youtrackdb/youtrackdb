@@ -63,7 +63,7 @@ public final class PaginatedClusterStateV2 extends DurablePage {
   }
 
   public void setFreeListPage(int index, int pageIndex) {
-    final int pageOffset = FREE_LIST_OFFSET + index * IntegerSerializer.INT_SIZE;
+    final var pageOffset = FREE_LIST_OFFSET + index * IntegerSerializer.INT_SIZE;
     setIntValue(pageOffset, pageIndex);
   }
 

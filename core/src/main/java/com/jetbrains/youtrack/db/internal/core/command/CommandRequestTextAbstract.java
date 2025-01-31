@@ -87,14 +87,14 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
   public CommandRequestText fromStream(DatabaseSessionInternal db, final byte[] iStream,
       RecordSerializerNetwork serializer)
       throws SerializationException {
-    final MemoryStream buffer = new MemoryStream(iStream);
+    final var buffer = new MemoryStream(iStream);
     fromStream(db, buffer, serializer);
     return this;
   }
 
   public byte[] toStream(DatabaseSessionInternal db, RecordSerializerNetwork serializer)
       throws SerializationException {
-    final MemoryStream buffer = new MemoryStream();
+    final var buffer = new MemoryStream();
     return toStream(buffer);
   }
 
@@ -115,7 +115,7 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
       final Map<Object, Object> params = new HashMap<Object, Object>();
       final Map<Object, List<Object>> compositeKeyParams = new HashMap<Object, List<Object>>();
 
-      for (final Entry<Object, Object> paramEntry : parameters.entrySet()) {
+      for (final var paramEntry : parameters.entrySet()) {
         if (paramEntry.getValue() instanceof CompositeKey compositeKey) {
           compositeKeyParams.put(paramEntry.getKey(), compositeKey.getKeys());
         } else {
@@ -125,14 +125,14 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
 
       buffer.set(!params.isEmpty());
       if (!params.isEmpty()) {
-        final EntityImpl param = new EntityImpl(null);
+        final var param = new EntityImpl(null);
         param.field("parameters", params);
         buffer.set(param.toStream());
       }
 
       buffer.set(!compositeKeyParams.isEmpty());
       if (!compositeKeyParams.isEmpty()) {
-        final EntityImpl compositeKey = new EntityImpl(null);
+        final var compositeKey = new EntityImpl(null);
         compositeKey.field("compositeKeyParams", compositeKeyParams);
         buffer.set(compositeKey.toStream());
       }
@@ -147,10 +147,10 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
 
     parameters = null;
 
-    final boolean simpleParams = buffer.getAsBoolean();
+    final var simpleParams = buffer.getAsBoolean();
     if (simpleParams) {
-      final byte[] paramBuffer = buffer.getAsByteArray();
-      final EntityImpl param = new EntityImpl(null);
+      final var paramBuffer = buffer.getAsByteArray();
+      final var param = new EntityImpl(null);
       if (serializer != null) {
         serializer.fromStream(db, paramBuffer, param, null);
       } else {
@@ -160,7 +160,7 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
       Map<Object, Object> params = param.field("params");
       parameters = new HashMap<Object, Object>();
       if (params != null) {
-        for (Entry<Object, Object> p : params.entrySet()) {
+        for (var p : params.entrySet()) {
           final Object value;
           if (p.getValue() instanceof String) {
             value = RecordSerializerStringAbstract.getTypeValue(db, (String) p.getValue());
@@ -176,7 +176,7 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
         }
       } else {
         params = param.field("parameters");
-        for (Entry<Object, Object> p : params.entrySet()) {
+        for (var p : params.entrySet()) {
           if (p.getKey() instanceof String && Character.isDigit(((String) p.getKey()).charAt(0))) {
             parameters.put(Integer.parseInt((String) p.getKey()), p.getValue());
           } else {
@@ -186,10 +186,10 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
       }
     }
 
-    final boolean compositeKeyParamsPresent = buffer.getAsBoolean();
+    final var compositeKeyParamsPresent = buffer.getAsBoolean();
     if (compositeKeyParamsPresent) {
-      final byte[] paramBuffer = buffer.getAsByteArray();
-      final EntityImpl param = new EntityImpl(null);
+      final var paramBuffer = buffer.getAsByteArray();
+      final var param = new EntityImpl(null);
       if (serializer != null) {
         serializer.fromStream(db, paramBuffer, param, null);
       } else {
@@ -202,9 +202,9 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
         parameters = new HashMap<Object, Object>();
       }
 
-      for (final Entry<Object, Object> p : compositeKeyParams.entrySet()) {
+      for (final var p : compositeKeyParams.entrySet()) {
         if (p.getValue() instanceof List) {
-          final CompositeKey compositeKey = new CompositeKey((List<?>) p.getValue());
+          final var compositeKey = new CompositeKey((List<?>) p.getValue());
           if (p.getKey() instanceof String && Character.isDigit(((String) p.getKey()).charAt(0))) {
             parameters.put(Integer.parseInt((String) p.getKey()), compositeKey);
           } else {

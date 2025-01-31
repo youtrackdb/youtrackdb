@@ -34,22 +34,22 @@ public class DBSequenceActionRequestTest {
 
   @Test
   public void testSerializeDeserialize() {
-    DBSequence.CreateParams params = new DBSequence.CreateParams().setLimitValue(123L);
-    SequenceAction action =
+    var params = new DBSequence.CreateParams().setLimitValue(123L);
+    var action =
         new SequenceAction(
             SequenceAction.CREATE, "testName", params, DBSequence.SEQUENCE_TYPE.ORDERED);
-    SequenceActionRequest request = new SequenceActionRequest(action);
-    ByteArrayOutputStream arrayOutput = new ByteArrayOutputStream();
+    var request = new SequenceActionRequest(action);
+    var arrayOutput = new ByteArrayOutputStream();
     DataOutput out = new DataOutputStream(arrayOutput);
     try {
       request.serialize(out);
       arrayOutput.flush();
-      byte[] bytes = arrayOutput.toByteArray();
+      var bytes = arrayOutput.toByteArray();
       arrayOutput.close();
 
-      ByteArrayInputStream arrayInput = new ByteArrayInputStream(bytes);
+      var arrayInput = new ByteArrayInputStream(bytes);
       DataInput in = new DataInputStream(arrayInput);
-      SequenceActionRequest newRequest = new SequenceActionRequest();
+      var newRequest = new SequenceActionRequest();
       newRequest.deserialize(in);
 
       Assert.assertEquals(newRequest.getAction().getActionType(), action.getActionType());

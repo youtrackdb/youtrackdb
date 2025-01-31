@@ -72,8 +72,8 @@ public class QueryOperatorNot extends QueryOperator {
   @Override
   public RID getBeginRidRange(DatabaseSession session, Object iLeft, Object iRight) {
     if (iLeft instanceof SQLFilterCondition) {
-      final RID beginRange = ((SQLFilterCondition) iLeft).getBeginRidRange(session);
-      final RID endRange = ((SQLFilterCondition) iLeft).getEndRidRange(session);
+      final var beginRange = ((SQLFilterCondition) iLeft).getBeginRidRange(session);
+      final var endRange = ((SQLFilterCondition) iLeft).getEndRidRange(session);
 
       if (beginRange == null && endRange == null) {
         return null;
@@ -92,8 +92,8 @@ public class QueryOperatorNot extends QueryOperator {
   @Override
   public RID getEndRidRange(DatabaseSession session, Object iLeft, Object iRight) {
     if (iLeft instanceof SQLFilterCondition) {
-      final RID beginRange = ((SQLFilterCondition) iLeft).getBeginRidRange(session);
-      final RID endRange = ((SQLFilterCondition) iLeft).getEndRidRange(session);
+      final var beginRange = ((SQLFilterCondition) iLeft).getBeginRidRange(session);
+      final var endRange = ((SQLFilterCondition) iLeft).getEndRidRange(session);
 
       if (beginRange == null && endRange == null) {
         return null;

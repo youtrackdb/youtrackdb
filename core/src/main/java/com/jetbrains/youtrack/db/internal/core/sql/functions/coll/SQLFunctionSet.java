@@ -51,7 +51,7 @@ public class SQLFunctionSet extends SQLFunctionMultiValueAbstract<Set<Object>> {
       context = new HashSet<Object>();
     }
 
-    for (Object value : iParams) {
+    for (var value : iParams) {
       if (value != null) {
         if (iParams.length == 1 && context == null)
         // AGGREGATION MODE (STATEFULL)
@@ -80,7 +80,7 @@ public class SQLFunctionSet extends SQLFunctionMultiValueAbstract<Set<Object>> {
 
   @Override
   public Set<Object> getResult() {
-    final Set<Object> res = context;
+    final var res = context;
     context = null;
     return prepareResult(res);
   }

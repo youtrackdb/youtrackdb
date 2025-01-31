@@ -24,11 +24,11 @@ public class FrontendTransacationMetadataHolderImpl implements FrontendTransacat
 
   @Override
   public byte[] metadata() {
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    var outputStream = new ByteArrayOutputStream();
     DataOutput output = new DataOutputStream(outputStream);
     try {
       id.write(output);
-      byte[] status = this.status.store();
+      var status = this.status.store();
       output.writeInt(status.length);
       output.write(status, 0, status.length);
     } catch (IOException e) {
@@ -38,12 +38,12 @@ public class FrontendTransacationMetadataHolderImpl implements FrontendTransacat
   }
 
   public static FrontendTransacationMetadataHolder read(final byte[] data) {
-    final ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
+    final var inputStream = new ByteArrayInputStream(data);
     final DataInput input = new DataInputStream(inputStream);
     try {
-      final FrontendTransactionId txId = FrontendTransactionId.read(input);
-      int size = input.readInt();
-      byte[] status = new byte[size];
+      final var txId = FrontendTransactionId.read(input);
+      var size = input.readInt();
+      var status = new byte[size];
       input.readFully(status);
       return new FrontendTransacationMetadataHolderImpl(
           new CountDownLatch(0), txId, FrontendTransactionSequenceStatus.read(status));

@@ -35,7 +35,7 @@ public class LuceneSandboxTest extends LuceneBaseTest {
   public void shouldFetchOneDocumentWithExactMatchOnLuceneIndexStandardAnalyzer() throws Exception {
     db.command("CREATE INDEX cdr.filename ON cdr(filename) FULLTEXT ENGINE LUCENE ");
     // partial match
-    ResultSet res =
+    var res =
         db.query("select from cdr WHERE filename LUCENE ' RRC.20161229193002.PROD_R4.eno.data '");
 
     Assertions.assertThat(res).hasSize(2);
@@ -63,7 +63,7 @@ public class LuceneSandboxTest extends LuceneBaseTest {
             + " 'allowLeadingWildcard': true}");
 
     // partial match
-    ResultSet res =
+    var res =
         db.query(
             "select from cdr WHERE SEARCH_CLASS( ' RRC.20161229193002.PROD_R4.eno.data ') = true");
 
@@ -100,22 +100,22 @@ public class LuceneSandboxTest extends LuceneBaseTest {
     db.command("CREATE PROPERTY Son.textOfSon STRING");
 
     db.command("CREATE INDEX Son.textOfSon ON Son(textOfSon) FULLTEXT ENGINE LUCENE ");
-    SchemaClass father = db.getMetadata().getSchema().getClass("Father");
+    var father = db.getMetadata().getSchema().getClass("Father");
   }
 
   @Test
   public void documentSertest() throws Exception {
 
-    Document doc = new Document();
+    var doc = new Document();
     doc.add(new StringField("text", "yabba dabba", Field.Store.YES));
 
-    SimpleTextCodec codec = new SimpleTextCodec();
+    var codec = new SimpleTextCodec();
   }
 
   @Test
   public void charset() throws Exception {
 
-    String element = ";";
+    var element = ";";
     int x = element.charAt(0);
     System.out.println("x=" + x);
   }

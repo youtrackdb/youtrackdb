@@ -38,7 +38,7 @@ public class QueryOperatorNotEquals extends QueryOperatorEqualityNotNulls {
 
   public QueryOperatorNotEquals() {
     super("<>", 5, false);
-    DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
+    var db = DatabaseRecordThreadLocal.instance().getIfDefined();
     if (db != null) {
       binaryEvaluate = db.getSerializer().getSupportBinaryEvaluate();
     }

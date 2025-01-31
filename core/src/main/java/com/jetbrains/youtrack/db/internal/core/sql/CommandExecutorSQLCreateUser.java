@@ -61,13 +61,13 @@ public class CommandExecutorSQLCreateUser extends CommandExecutorSQLAbstract
       }
 
       if (temp.equals(KEYWORD_ROLE)) {
-        String role = parserRequiredWord(false, "Expected <role-name>");
-        int roleLen = (role != null) ? role.length() : 0;
+        var role = parserRequiredWord(false, "Expected <role-name>");
+        var roleLen = (role != null) ? role.length() : 0;
         if (roleLen > 0) {
           if (role.charAt(0) == '[' && role.charAt(roleLen - 1) == ']') {
             role = role.substring(1, role.length() - 1);
-            String[] splits = role.split("[, ]");
-            for (String spl : splits) {
+            var splits = role.split("[, ]");
+            for (var spl : splits) {
               if (spl.length() > 0) {
                 this.roles.add(spl);
               }
@@ -94,7 +94,7 @@ public class CommandExecutorSQLCreateUser extends CommandExecutorSQLAbstract
     // role=(SELECT FROM Role WHERE name in ['<role1>', '<role2>', ...])
 
     // INSERT INTO OUser SET
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     sb.append("INSERT INTO ");
     sb.append(USER_CLASS);
     sb.append(" SET ");
@@ -131,11 +131,11 @@ public class CommandExecutorSQLCreateUser extends CommandExecutorSQLAbstract
     sb.append(" WHERE ");
     sb.append(ROLE_FIELD_NAME);
     sb.append(" IN [");
-    for (int i = 0; i < this.roles.size(); ++i) {
+    for (var i = 0; i < this.roles.size(); ++i) {
       if (i > 0) {
         sb.append(", ");
       }
-      String role = roles.get(i);
+      var role = roles.get(i);
       if (role.startsWith("'") || role.startsWith("\"")) {
         sb.append(this.roles.get(i));
       } else {

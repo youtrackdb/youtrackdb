@@ -32,7 +32,7 @@ public class SharedContextRemote extends SharedContext {
   }
 
   public synchronized void load(DatabaseSessionInternal database) {
-    final long timer = PROFILER.startChrono();
+    final var timer = PROFILER.startChrono();
 
     try {
       if (!loaded) {

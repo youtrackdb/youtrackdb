@@ -32,19 +32,19 @@ public abstract class SQLSimpleExecStatement extends SQLStatement {
       Object[] args,
       CommandContext parentContext,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentContext != null) {
       ctx.setParentWithoutOverridingChild(parentContext);
     }
     ctx.setDatabase(db);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
-      for (int i = 0; i < args.length; i++) {
+      for (var i = 0; i < args.length; i++) {
         params.put(i, args[i]);
       }
     }
     ctx.setInputParameters(params);
-    SingleOpExecutionPlan executionPlan = (SingleOpExecutionPlan) createExecutionPlan(ctx, false);
+    var executionPlan = (SingleOpExecutionPlan) createExecutionPlan(ctx, false);
     return new ExecutionResultSet(executionPlan.executeInternal(ctx), ctx, executionPlan);
   }
 
@@ -53,13 +53,13 @@ public abstract class SQLSimpleExecStatement extends SQLStatement {
       Map<Object, Object> params,
       CommandContext parentContext,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentContext != null) {
       ctx.setParentWithoutOverridingChild(parentContext);
     }
     ctx.setDatabase(db);
     ctx.setInputParameters(params);
-    SingleOpExecutionPlan executionPlan = (SingleOpExecutionPlan) createExecutionPlan(ctx, false);
+    var executionPlan = (SingleOpExecutionPlan) createExecutionPlan(ctx, false);
     return new ExecutionResultSet(executionPlan.executeInternal(ctx), ctx, executionPlan);
   }
 

@@ -24,7 +24,7 @@ final class TreeEntry implements Comparable<TreeEntry> {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    final TreeEntry that = (TreeEntry) o;
+    final var that = (TreeEntry) o;
     return leftChild == that.leftChild
         && rightChild == that.rightChild
         && Objects.equals(key, that.key)

@@ -29,13 +29,13 @@ public class BrokenMapHook extends RecordHookAbstract implements RecordHook {
   }
 
   public RESULT onRecordBeforeCreate(DBRecord record) {
-    Date now = new Date();
-    Entity element = (Entity) record;
+    var now = new Date();
+    var element = (Entity) record;
 
     if (element.getProperty("myMap") != null) {
-      HashMap<String, Object> myMap = new HashMap<>(element.getProperty("myMap"));
+      var myMap = new HashMap<String, Object>(element.getProperty("myMap"));
 
-      String newDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(now);
+      var newDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(now);
 
       myMap.replaceAll((k, v) -> newDate);
 
@@ -46,7 +46,7 @@ public class BrokenMapHook extends RecordHookAbstract implements RecordHook {
   }
 
   public RESULT onRecordBeforeUpdate(DBRecord newRecord) {
-    Entity newElement = (Entity) newRecord;
+    var newElement = (Entity) newRecord;
     try {
       Entity oldElement = database.load(newElement.getIdentity());
 
@@ -55,9 +55,9 @@ public class BrokenMapHook extends RecordHookAbstract implements RecordHook {
 
       if (newPropertyNames.contains("myMap") && oldPropertyNames.contains("myMap")) {
         HashMap<String, Object> newFieldValue = newElement.getProperty("myMap");
-        HashMap<String, Object> oldFieldValue = new HashMap<>(oldElement.getProperty("myMap"));
+        var oldFieldValue = new HashMap<String, Object>(oldElement.getProperty("myMap"));
 
-        String newDate =
+        var newDate =
             LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
         Set<String> newKeys = new HashSet(newFieldValue.keySet());

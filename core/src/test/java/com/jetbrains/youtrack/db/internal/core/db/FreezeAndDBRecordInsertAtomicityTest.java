@@ -63,7 +63,7 @@ public class FreezeAndDBRecordInsertAtomicityTest extends DbTestBase {
 
   @Before
   public void before() {
-    final long seed = System.currentTimeMillis();
+    final var seed = System.currentTimeMillis();
     System.out.println(
         FreezeAndDBRecordInsertAtomicityTest.class.getSimpleName() + " seed: " + seed);
     random = new Random(seed);
@@ -88,16 +88,16 @@ public class FreezeAndDBRecordInsertAtomicityTest extends DbTestBase {
   public void test() throws InterruptedException, ExecutionException {
     final Set<Future<?>> futures = new HashSet<Future<?>>();
 
-    for (int i = 0; i < THREADS; ++i) {
-      final int thread = i;
+    for (var i = 0; i < THREADS; ++i) {
+      final var thread = i;
 
       futures.add(
           executorService.submit(
               () -> {
-                try (final DatabaseSessionInternal db = openDatabase()) {
-                  final Index index =
+                try (final var db = openDatabase()) {
+                  final var index =
                       db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.name");
-                  for (int i1 = 0; i1 < ITERATIONS; ++i1) {
+                  for (var i1 = 0; i1 < ITERATIONS; ++i1) {
                     switch (random.nextInt(2)) {
                       case 0:
                         var val = i1;
@@ -111,8 +111,8 @@ public class FreezeAndDBRecordInsertAtomicityTest extends DbTestBase {
                       case 1:
                         db.freeze();
                         try {
-                          for (EntityImpl document : db.browseClass("Person")) {
-                            try (Stream<RID> rids =
+                          for (var document : db.browseClass("Person")) {
+                            try (var rids =
                                 index.getInternal().getRids(db, document.field("name"))) {
                               assertEquals(document.getIdentity(), rids.findFirst().orElse(null));
                             }
@@ -135,7 +135,7 @@ public class FreezeAndDBRecordInsertAtomicityTest extends DbTestBase {
 
     countDownLatch.await();
 
-    for (Future<?> future : futures) {
+    for (var future : futures) {
       future.get(); // propagate exceptions, if there are any
     }
   }

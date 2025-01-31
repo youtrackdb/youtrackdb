@@ -37,7 +37,7 @@ public class TestNetworkSerializerIndependency {
 
   @Test(expected = StorageException.class)
   public void createCsvDatabaseConnectBinary() throws IOException {
-    RecordSerializer prev = DatabaseSessionAbstract.getDefaultSerializer();
+    var prev = DatabaseSessionAbstract.getDefaultSerializer();
     DatabaseSessionAbstract.setDefaultSerializer(RecordSerializerSchemaAware2CSV.INSTANCE);
     createDatabase();
 
@@ -46,7 +46,7 @@ public class TestNetworkSerializerIndependency {
       DatabaseSessionAbstract.setDefaultSerializer(RecordSerializerBinary.INSTANCE);
       db = new DatabaseDocumentTx("remote:localhost/test");
       db.open("admin", "admin");
-      EntityImpl document = ((EntityImpl) db.newEntity());
+      var document = ((EntityImpl) db.newEntity());
       document.field("name", "something");
       document.field("surname", "something-else");
       document = db.save(document, db.getClusterNameById(db.getDefaultClusterId()));
@@ -67,20 +67,20 @@ public class TestNetworkSerializerIndependency {
   }
 
   private void dropDatabase() throws IOException {
-    ServerAdmin admin = new ServerAdmin("remote:localhost/test");
+    var admin = new ServerAdmin("remote:localhost/test");
     admin.connect("root", "root");
     admin.dropDatabase("plocal");
   }
 
   private void createDatabase() throws IOException {
-    ServerAdmin admin = new ServerAdmin("remote:localhost/test");
+    var admin = new ServerAdmin("remote:localhost/test");
     admin.connect("root", "root");
     admin.createDatabase("document", "plocal");
   }
 
   @Test
   public void createBinaryDatabaseConnectCsv() throws IOException {
-    RecordSerializer prev = DatabaseSessionAbstract.getDefaultSerializer();
+    var prev = DatabaseSessionAbstract.getDefaultSerializer();
     DatabaseSessionAbstract.setDefaultSerializer(RecordSerializerBinary.INSTANCE);
     createDatabase();
 
@@ -90,7 +90,7 @@ public class TestNetworkSerializerIndependency {
         youTrackDBManager.createIfNotExists("test", DatabaseType.MEMORY, "admin", "admin", "admin");
         try (var db = youTrackDBManager.open("test", "admin", "admin")) {
           db.begin();
-          EntityImpl entity = ((EntityImpl) db.newEntity());
+          var entity = ((EntityImpl) db.newEntity());
           entity.field("name", "something");
           entity.field("surname", "something-else");
           entity = db.save(entity);
@@ -117,7 +117,7 @@ public class TestNetworkSerializerIndependency {
     server.shutdown();
 
     YouTrackDBEnginesManager.instance().shutdown();
-    File directory = new File(server.getDatabaseDirectory());
+    var directory = new File(server.getDatabaseDirectory());
     FileUtils.deleteRecursively(directory);
     DatabaseSessionAbstract.setDefaultSerializer(
         RecordSerializerFactory.instance().getFormat(RecordSerializerBinary.NAME));
@@ -126,7 +126,7 @@ public class TestNetworkSerializerIndependency {
 
   private void deleteDirectory(File iDirectory) {
     if (iDirectory.isDirectory()) {
-      for (File f : iDirectory.listFiles()) {
+      for (var f : iDirectory.listFiles()) {
         if (f.isDirectory()) {
           deleteDirectory(f);
         } else if (!f.delete()) {

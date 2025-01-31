@@ -91,7 +91,7 @@ public class BasicCommandContext implements CommandContext {
       iName = iName.substring(1);
     }
 
-    int pos = StringSerializerHelper.getLowerIndexOf(iName, 0, ".", "[");
+    var pos = StringSerializerHelper.getLowerIndexOf(iName, 0, ".", "[");
 
     String firstPart;
     String lastPart;
@@ -191,9 +191,9 @@ public class BasicCommandContext implements CommandContext {
 
     init();
 
-    int pos = StringSerializerHelper.getHigherIndexOf(iName, 0, ".", "[");
+    var pos = StringSerializerHelper.getHigherIndexOf(iName, 0, ".", "[");
     if (pos > -1) {
-      Object nested = getVariable(iName.substring(0, pos));
+      var nested = getVariable(iName.substring(0, pos));
       if (nested != null && nested instanceof CommandContext) {
         ((CommandContext) nested).setVariable(iName.substring(pos + 1), iValue);
       }
@@ -238,14 +238,14 @@ public class BasicCommandContext implements CommandContext {
 
       init();
 
-      int pos = StringSerializerHelper.getHigherIndexOf(iName, 0, ".", "[");
+      var pos = StringSerializerHelper.getHigherIndexOf(iName, 0, ".", "[");
       if (pos > -1) {
-        Object nested = getVariable(iName.substring(0, pos));
+        var nested = getVariable(iName.substring(0, pos));
         if (nested != null && nested instanceof CommandContext) {
           ((CommandContext) nested).incrementVariable(iName.substring(pos + 1));
         }
       } else {
-        final Object v = variables.get(iName);
+        final var v = variables.get(iName);
         if (v == null) {
           variables.put(iName, 1);
         } else if (v instanceof Number) {
@@ -265,7 +265,7 @@ public class BasicCommandContext implements CommandContext {
     }
 
     init();
-    Long value = (Long) variables.get(iName);
+    var value = (Long) variables.get(iName);
     if (value == null) {
       value = iValue;
     } else {
@@ -279,7 +279,7 @@ public class BasicCommandContext implements CommandContext {
    * Returns a read-only map with all the variables.
    */
   public Map<String, Object> getVariables() {
-    final HashMap<String, Object> map = new HashMap<String, Object>();
+    final var map = new HashMap<String, Object>();
     if (child != null) {
       map.putAll(child.getVariables());
     }
@@ -381,7 +381,7 @@ public class BasicCommandContext implements CommandContext {
 
   @Override
   public CommandContext copy() {
-    final BasicCommandContext copy = new BasicCommandContext();
+    final var copy = new BasicCommandContext();
     copy.init();
 
     if (variables != null && !variables.isEmpty()) {
@@ -439,7 +439,7 @@ public class BasicCommandContext implements CommandContext {
    * was already present)
    */
   public synchronized boolean addToUniqueResult(Object o) {
-    Object toAdd = o;
+    var toAdd = o;
     if (o instanceof EntityImpl && ((EntityImpl) o).getIdentity().isNew()) {
       toAdd = new DocumentEqualityWrapper((EntityImpl) o);
     }
@@ -481,7 +481,7 @@ public class BasicCommandContext implements CommandContext {
     if (varName == null || varName.length() == 0) {
       return false;
     }
-    String dollarVar = varName;
+    var dollarVar = varName;
     if (!dollarVar.startsWith("$")) {
       dollarVar = "$" + varName;
     }
@@ -495,7 +495,7 @@ public class BasicCommandContext implements CommandContext {
   }
 
   public void startProfiling(ExecutionStep step) {
-    StepStats stats = stepStats.get(step);
+    var stats = stepStats.get(step);
     if (stats == null) {
       stats = new StepStats();
       stepStats.put(step, stats);

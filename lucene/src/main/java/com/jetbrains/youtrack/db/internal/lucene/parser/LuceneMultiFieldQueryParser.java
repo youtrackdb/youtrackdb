@@ -39,15 +39,15 @@ public class LuceneMultiFieldQueryParser extends MultiFieldQueryParser {
   @Override
   protected Query getFieldQuery(final String field, final String queryText, final int slop)
       throws ParseException {
-    final Optional<Query> query = getQuery(field, queryText, queryText, true, true);
+    final var query = getQuery(field, queryText, queryText, true, true);
     return handleBoost(field, query.orElse(super.getFieldQuery(field, queryText, slop)));
   }
 
   @Override
   protected Query getFieldQuery(final String field, final String queryText, final boolean quoted)
       throws ParseException {
-    final Optional<Query> query = getQuery(field, queryText, queryText, true, true);
-    final Query q = query.orElse(super.getFieldQuery(field, queryText, quoted));
+    final var query = getQuery(field, queryText, queryText, true, true);
+    final var q = query.orElse(super.getFieldQuery(field, queryText, quoted));
     return handleBoost(field, q);
   }
 
@@ -66,7 +66,7 @@ public class LuceneMultiFieldQueryParser extends MultiFieldQueryParser {
       final boolean startInclusive,
       final boolean endInclusive)
       throws ParseException {
-    final Optional<Query> query = getQuery(field, part1, part2, startInclusive, endInclusive);
+    final var query = getQuery(field, part1, part2, startInclusive, endInclusive);
     return query.orElse(super.getRangeQuery(field, part1, part2, startInclusive, endInclusive));
   }
 
@@ -77,8 +77,8 @@ public class LuceneMultiFieldQueryParser extends MultiFieldQueryParser {
       final boolean startInclusive,
       final boolean endInclusive)
       throws ParseException {
-    int start = 0;
-    int end = 0;
+    var start = 0;
+    var end = 0;
     if (!startInclusive) {
       start = 1;
     }

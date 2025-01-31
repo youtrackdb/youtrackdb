@@ -193,11 +193,11 @@ public abstract class SchemaPropertyImpl implements SchemaPropertyInternal {
 
     acquireSchemaReadLock();
     try {
-      final IndexManagerAbstract indexManager = session.getMetadata().getIndexManagerInternal();
+      final var indexManager = session.getMetadata().getIndexManagerInternal();
 
-      final ArrayList<Index> relatedIndexes = new ArrayList<Index>();
-      for (final Index index : indexManager.getClassIndexes(session, owner.getName())) {
-        final IndexDefinition definition = index.getDefinition();
+      final var relatedIndexes = new ArrayList<Index>();
+      for (final var index : indexManager.getClassIndexes(session, owner.getName())) {
+        final var definition = index.getDefinition();
 
         if (Collections.indexOf(
             definition.getFields(), globalRef.getName(), new CaseInsentiveComparator())
@@ -214,7 +214,7 @@ public abstract class SchemaPropertyImpl implements SchemaPropertyInternal {
         }
       }
 
-      for (final Index index : relatedIndexes) {
+      for (final var index : relatedIndexes) {
         session.getMetadata().getIndexManagerInternal().dropIndex(session, index.getName());
       }
 
@@ -348,7 +348,7 @@ public abstract class SchemaPropertyImpl implements SchemaPropertyInternal {
     if (s == null) {
       return "null";
     }
-    String result = "\"" + (s.replaceAll("\\\\", "\\\\\\\\").replaceAll("\"", "\\\\\"")) + "\"";
+    var result = "\"" + (s.replaceAll("\\\\", "\\\\\\\\").replaceAll("\"", "\\\\\"")) + "\"";
     return result;
   }
 
@@ -454,7 +454,7 @@ public abstract class SchemaPropertyImpl implements SchemaPropertyInternal {
       throw new IllegalArgumentException("attribute is null");
     }
 
-    final String stringValue = iValue != null ? iValue.toString() : null;
+    final var stringValue = iValue != null ? iValue.toString() : null;
     var sessionInternal = (DatabaseSessionInternal) session;
 
     switch (attribute) {
@@ -499,7 +499,7 @@ public abstract class SchemaPropertyImpl implements SchemaPropertyInternal {
         setCollate(session, stringValue);
         break;
       case CUSTOM:
-        int indx = stringValue != null ? stringValue.indexOf('=') : -1;
+        var indx = stringValue != null ? stringValue.indexOf('=') : -1;
         if (indx < 0) {
           if ("clear".equalsIgnoreCase(stringValue)) {
             clearCustom(session);
@@ -508,8 +508,8 @@ public abstract class SchemaPropertyImpl implements SchemaPropertyInternal {
                 "Syntax error: expected <name> = <value> or clear, instead found: " + iValue);
           }
         } else {
-          String customName = stringValue.substring(0, indx).trim();
-          String customValue = stringValue.substring(indx + 1).trim();
+          var customName = stringValue.substring(0, indx).trim();
+          var customValue = stringValue.substring(indx + 1).trim();
           if (isQuoted(customValue)) {
             customValue = removeQuotes(customValue);
           }
@@ -578,7 +578,7 @@ public abstract class SchemaPropertyImpl implements SchemaPropertyInternal {
 
   @Override
   public int hashCode() {
-    int sh = hashCode;
+    var sh = hashCode;
     if (sh != 0) {
       return sh;
     }
@@ -598,8 +598,8 @@ public abstract class SchemaPropertyImpl implements SchemaPropertyInternal {
   }
 
   private void calculateHashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
+    final var prime = 31;
+    var result = super.hashCode();
     result = prime * result + ((owner == null) ? 0 : owner.hashCode());
     hashCode = result;
   }
@@ -614,7 +614,7 @@ public abstract class SchemaPropertyImpl implements SchemaPropertyInternal {
       if (obj == null || !SchemaProperty.class.isAssignableFrom(obj.getClass())) {
         return false;
       }
-      SchemaProperty other = (SchemaProperty) obj;
+      var other = (SchemaProperty) obj;
       if (owner == null) {
         if (other.getOwnerClass() != null) {
           return false;
@@ -681,8 +681,8 @@ public abstract class SchemaPropertyImpl implements SchemaPropertyInternal {
       owner.getIndexesInternal(session, indexes);
 
       final List<Index> indexList = new LinkedList<Index>();
-      for (final Index index : indexes) {
-        final IndexDefinition indexDefinition = index.getDefinition();
+      for (final var index : indexes) {
+        final var indexDefinition = index.getDefinition();
         if (indexDefinition.getFields().contains(globalRef.getName())) {
           indexList.add(index);
         }
@@ -695,7 +695,7 @@ public abstract class SchemaPropertyImpl implements SchemaPropertyInternal {
   }
 
   public EntityImpl toStream(DatabaseSessionInternal session) {
-    EntityImpl entity = new EntityImpl(session);
+    var entity = new EntityImpl(session);
     entity.field("name", getName());
     entity.field("type", getType().getId());
     entity.field("globalId", globalRef.getId());
@@ -783,7 +783,7 @@ public abstract class SchemaPropertyImpl implements SchemaPropertyInternal {
   }
 
   public EntityImpl toNetworkStream(DatabaseSessionInternal session) {
-    EntityImpl entity = new EntityImpl(session);
+    var entity = new EntityImpl(session);
     entity.setTrackingChanges(false);
     entity.field("name", getName());
     entity.field("type", getType().getId());

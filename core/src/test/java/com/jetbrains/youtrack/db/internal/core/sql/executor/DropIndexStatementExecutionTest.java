@@ -16,7 +16,7 @@ public class DropIndexStatementExecutionTest extends BaseMemoryInternalDatabase 
 
   @Test
   public void testPlain() {
-    String indexName = db.getMetadata()
+    var indexName = db.getMetadata()
         .getSchema()
         .createClass("testPlain")
         .createProperty(db, "bar", PropertyType.STRING)
@@ -25,9 +25,9 @@ public class DropIndexStatementExecutionTest extends BaseMemoryInternalDatabase 
     db.getMetadata().getIndexManagerInternal().reload(db);
     Assert.assertNotNull((db.getMetadata().getIndexManagerInternal()).getIndex(db, indexName));
 
-    ResultSet result = db.command("drop index " + indexName);
+    var result = db.command("drop index " + indexName);
     Assert.assertTrue(result.hasNext());
-    Result next = result.next();
+    var next = result.next();
     Assert.assertEquals("drop index", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -38,7 +38,7 @@ public class DropIndexStatementExecutionTest extends BaseMemoryInternalDatabase 
 
   @Test
   public void testAll() {
-    String indexName = db.getMetadata()
+    var indexName = db.getMetadata()
         .getSchema()
         .createClass("testAll")
         .createProperty(db, "baz", PropertyType.STRING)
@@ -47,9 +47,9 @@ public class DropIndexStatementExecutionTest extends BaseMemoryInternalDatabase 
     db.getMetadata().getIndexManagerInternal().reload(db);
     Assert.assertNotNull(db.getMetadata().getIndexManagerInternal().getIndex(db, indexName));
 
-    ResultSet result = db.command("drop index *");
+    var result = db.command("drop index *");
     Assert.assertTrue(result.hasNext());
-    Result next = result.next();
+    var next = result.next();
     Assert.assertEquals("drop index", next.getProperty("operation"));
     result.close();
     db.getMetadata().getIndexManagerInternal().reload(db);
@@ -60,7 +60,7 @@ public class DropIndexStatementExecutionTest extends BaseMemoryInternalDatabase 
   @Test
   public void testWrongName() {
 
-    String indexName = "nonexistingindex";
+    var indexName = "nonexistingindex";
     db.getMetadata().getIndexManagerInternal().reload(db);
     Assert.assertNull(db.getMetadata().getIndexManagerInternal().getIndex(db, indexName));
 
@@ -76,7 +76,7 @@ public class DropIndexStatementExecutionTest extends BaseMemoryInternalDatabase 
   @Test
   public void testIfExists() {
 
-    String indexName = "nonexistingindex";
+    var indexName = "nonexistingindex";
     db.getMetadata().getIndexManagerInternal().reload(db);
     Assert.assertNull(db.getMetadata().getIndexManagerInternal().getIndex(db, indexName));
 

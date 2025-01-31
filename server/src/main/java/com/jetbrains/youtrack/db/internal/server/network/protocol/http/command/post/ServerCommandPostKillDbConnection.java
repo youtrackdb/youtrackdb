@@ -33,7 +33,7 @@ public class ServerCommandPostKillDbConnection extends ServerCommandAuthenticate
 
   @Override
   public boolean execute(HttpRequest iRequest, HttpResponse iResponse) throws Exception {
-    final String[] urlParts =
+    final var urlParts =
         checkSyntax(iRequest.getUrl(), 2, "Syntax error: dbconnection/<database>");
 
     doPost(iRequest, iResponse, urlParts[1], iRequest.getContent());
@@ -44,11 +44,11 @@ public class ServerCommandPostKillDbConnection extends ServerCommandAuthenticate
   private void doPost(HttpRequest iRequest, HttpResponse iResponse, String db, String command)
       throws IOException {
 
-    final List<ClientConnection> connections =
+    final var connections =
         server.getClientConnectionManager().getConnections();
-    for (ClientConnection connection : connections) {
+    for (var connection : connections) {
       if (connection.getProtocol() instanceof NetworkProtocolHttpAbstract http) {
-        final HttpRequest req = http.getRequest();
+        final var req = http.getRequest();
 
         if (req != null && req != iRequest && req.getSessionId().equals(iRequest.getSessionId())) {
           server.getClientConnectionManager().interrupt(connection.getId());

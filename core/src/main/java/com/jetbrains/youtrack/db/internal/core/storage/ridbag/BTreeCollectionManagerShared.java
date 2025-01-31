@@ -22,16 +22,13 @@ package com.jetbrains.youtrack.db.internal.core.storage.ridbag;
 
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
-import com.jetbrains.youtrack.db.internal.common.util.RawPairObjectInteger;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBShutdownListener;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBStartupListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.LinkSerializer;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.AbstractWriteCache;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.WriteCache;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.local.WOWCache;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
@@ -39,12 +36,10 @@ import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.BTree;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.EdgeBTree;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.EdgeBTreeImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.EdgeKey;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.RidBagBucketPointer;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Stream;
 
 /**
  *
@@ -66,19 +61,19 @@ public final class BTreeCollectionManagerShared
   }
 
   public void load() {
-    final WriteCache writeCache = storage.getWriteCache();
+    final var writeCache = storage.getWriteCache();
 
-    for (final Map.Entry<String, Long> entry : writeCache.files().entrySet()) {
-      final String fileName = entry.getKey();
+    for (final var entry : writeCache.files().entrySet()) {
+      final var fileName = entry.getKey();
       if (fileName.endsWith(FILE_EXTENSION) && fileName.startsWith(FILE_NAME_PREFIX)) {
-        final BTree bTree =
+        final var bTree =
             new BTree(
                 storage,
                 fileName.substring(0, fileName.length() - FILE_EXTENSION.length()),
                 FILE_EXTENSION);
         bTree.load();
         fileIdBTreeMap.put(AbstractWriteCache.extractFileId(entry.getValue()), bTree);
-        final EdgeKey edgeKey = bTree.firstKey();
+        final var edgeKey = bTree.firstKey();
 
         if (edgeKey != null && edgeKey.ridBagId < 0 && ridBagIdCounter.get() < -edgeKey.ridBagId) {
           ridBagIdCounter.set(-edgeKey.ridBagId);
@@ -99,10 +94,10 @@ public final class BTreeCollectionManagerShared
 
   public void createComponent(final AtomicOperation operation, final int clusterId) {
     // lock is already acquired on storage level, during storage open
-    final BTree bTree = new BTree(storage, FILE_NAME_PREFIX + clusterId, FILE_EXTENSION);
+    final var bTree = new BTree(storage, FILE_NAME_PREFIX + clusterId, FILE_EXTENSION);
     bTree.create(operation);
 
-    final int intFileId = WOWCache.extractFileId(bTree.getFileId());
+    final var intFileId = WOWCache.extractFileId(bTree.getFileId());
     fileIdBTreeMap.put(intFileId, bTree);
   }
 
@@ -110,35 +105,35 @@ public final class BTreeCollectionManagerShared
       final AtomicOperation atomicOperation, final int clusterId) {
     // lock is already acquired on storage level, during cluster drop
 
-    final long fileId = atomicOperation.fileIdByName(generateLockName(clusterId));
-    final int intFileId = AbstractWriteCache.extractFileId(fileId);
-    final BTree bTree = fileIdBTreeMap.remove(intFileId);
+    final var fileId = atomicOperation.fileIdByName(generateLockName(clusterId));
+    final var intFileId = AbstractWriteCache.extractFileId(fileId);
+    final var bTree = fileIdBTreeMap.remove(intFileId);
     if (bTree != null) {
       bTree.delete(atomicOperation);
     }
   }
 
   private EdgeBTreeImpl doCreateRidBag(AtomicOperation atomicOperation, int clusterId) {
-    long fileId = atomicOperation.fileIdByName(generateLockName(clusterId));
+    var fileId = atomicOperation.fileIdByName(generateLockName(clusterId));
 
     // lock is already acquired on storage level, during start fo the transaction so we
     // are thread safe here.
     if (fileId < 0) {
-      final BTree bTree = new BTree(storage, FILE_NAME_PREFIX + clusterId, FILE_EXTENSION);
+      final var bTree = new BTree(storage, FILE_NAME_PREFIX + clusterId, FILE_EXTENSION);
       bTree.create(atomicOperation);
 
       fileId = bTree.getFileId();
-      final long nextRidBagId = -ridBagIdCounter.incrementAndGet();
+      final var nextRidBagId = -ridBagIdCounter.incrementAndGet();
 
-      final int intFileId = AbstractWriteCache.extractFileId(fileId);
+      final var intFileId = AbstractWriteCache.extractFileId(fileId);
       fileIdBTreeMap.put(intFileId, bTree);
 
       return new EdgeBTreeImpl(
           bTree, intFileId, nextRidBagId, LinkSerializer.INSTANCE, IntegerSerializer.INSTANCE);
     } else {
-      final int intFileId = AbstractWriteCache.extractFileId(fileId);
-      final BTree bTree = fileIdBTreeMap.get(intFileId);
-      final long nextRidBagId = -ridBagIdCounter.incrementAndGet();
+      final var intFileId = AbstractWriteCache.extractFileId(fileId);
+      final var bTree = fileIdBTreeMap.get(intFileId);
+      final var nextRidBagId = -ridBagIdCounter.incrementAndGet();
 
       return new EdgeBTreeImpl(
           bTree, intFileId, nextRidBagId, LinkSerializer.INSTANCE, IntegerSerializer.INSTANCE);
@@ -148,12 +143,12 @@ public final class BTreeCollectionManagerShared
   @Override
   public EdgeBTree<RID, Integer> loadSBTree(
       BonsaiCollectionPointer collectionPointer) {
-    final int intFileId = AbstractWriteCache.extractFileId(collectionPointer.getFileId());
+    final var intFileId = AbstractWriteCache.extractFileId(collectionPointer.getFileId());
 
-    final BTree bTree = fileIdBTreeMap.get(intFileId);
+    final var bTree = fileIdBTreeMap.get(intFileId);
 
     final long ridBagId;
-    final RidBagBucketPointer rootPointer = collectionPointer.getRootPointer();
+    final var rootPointer = collectionPointer.getRootPointer();
     if (rootPointer.getPageIndex() < 0) {
       ridBagId = rootPointer.getPageIndex();
     } else {
@@ -175,11 +170,11 @@ public final class BTreeCollectionManagerShared
   @Override
   public BonsaiCollectionPointer createSBTree(
       int clusterId, AtomicOperation atomicOperation, UUID ownerUUID) {
-    final EdgeBTreeImpl bonsaiGlobal = doCreateRidBag(atomicOperation, clusterId);
-    final BonsaiCollectionPointer pointer = bonsaiGlobal.getCollectionPointer();
+    final var bonsaiGlobal = doCreateRidBag(atomicOperation, clusterId);
+    final var pointer = bonsaiGlobal.getCollectionPointer();
 
     if (ownerUUID != null) {
-      Map<UUID, BonsaiCollectionPointer> changedPointers =
+      var changedPointers =
           DatabaseRecordThreadLocal.instance().get().getCollectionsChanges();
       if (pointer != null && pointer.isValid()) {
         changedPointers.put(ownerUUID, pointer);
@@ -194,11 +189,11 @@ public final class BTreeCollectionManagerShared
    */
   @Override
   public UUID listenForChanges(RidBag collection) {
-    UUID ownerUUID = collection.getTemporaryId();
+    var ownerUUID = collection.getTemporaryId();
     if (ownerUUID != null) {
-      final BonsaiCollectionPointer pointer = collection.getPointer();
-      DatabaseSessionInternal session = DatabaseRecordThreadLocal.instance().get();
-      Map<UUID, BonsaiCollectionPointer> changedPointers = session.getCollectionsChanges();
+      final var pointer = collection.getPointer();
+      var session = DatabaseRecordThreadLocal.instance().get();
+      var changedPointers = session.getCollectionsChanges();
       if (pointer != null && pointer.isValid()) {
         changedPointers.put(ownerUUID, pointer);
       }
@@ -239,22 +234,22 @@ public final class BTreeCollectionManagerShared
 
   public boolean delete(
       AtomicOperation atomicOperation, BonsaiCollectionPointer collectionPointer) {
-    final int fileId = (int) collectionPointer.getFileId();
-    final BTree bTree = fileIdBTreeMap.get(fileId);
+    final var fileId = (int) collectionPointer.getFileId();
+    final var bTree = fileIdBTreeMap.get(fileId);
     if (bTree == null) {
       throw new StorageException(
           "RidBug for with collection pointer " + collectionPointer + " does not exist");
     }
 
     final long ridBagId;
-    final RidBagBucketPointer rootPointer = collectionPointer.getRootPointer();
+    final var rootPointer = collectionPointer.getRootPointer();
     if (rootPointer.getPageIndex() < 0) {
       ridBagId = rootPointer.getPageIndex();
     } else {
       ridBagId = (rootPointer.getPageIndex() << 16) + rootPointer.getPageOffset();
     }
 
-    try (Stream<RawPairObjectInteger<EdgeKey>> stream =
+    try (var stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, Integer.MIN_VALUE, Long.MIN_VALUE),
             true,

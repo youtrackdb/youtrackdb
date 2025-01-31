@@ -46,12 +46,12 @@ public class ConcurrentSchemaTest extends BaseDBTest {
     @Override
     public Void call() {
       this.id = createClassThreadCounter.getAndIncrement();
-      for (int i = 0; i < CYCLES; i++) {
+      for (var i = 0; i < CYCLES; i++) {
         DatabaseSession db = acquireSession();
         try {
-          final String clsName = "ConcurrentClassTest-" + id + "-" + i;
+          final var clsName = "ConcurrentClassTest-" + id + "-" + i;
 
-          SchemaClass cls = ConcurrentSchemaTest.this.db.getMetadata().getSchema()
+          var cls = ConcurrentSchemaTest.this.db.getMetadata().getSchema()
               .createClass(clsName);
 
           Assert.assertEquals(cls.getName(), clsName);
@@ -79,10 +79,10 @@ public class ConcurrentSchemaTest extends BaseDBTest {
     @Override
     public Void call() {
       this.id = dropClassThreadCounter.getAndIncrement();
-      for (int i = 0; i < CYCLES; i++) {
+      for (var i = 0; i < CYCLES; i++) {
         DatabaseSession db = acquireSession();
         try {
-          final String clsName = "ConcurrentClassTest-" + id + "-" + i;
+          final var clsName = "ConcurrentClassTest-" + id + "-" + i;
 
           Assert.assertTrue(
               ConcurrentSchemaTest.this.db.getMetadata().getSchema().existsClass(clsName));
@@ -117,9 +117,9 @@ public class ConcurrentSchemaTest extends BaseDBTest {
 
     //    System.out.println("Create classes, checking...");
 
-    for (int id = 0; id < THREADS; ++id) {
-      for (int i = 0; i < CYCLES; ++i) {
-        final String clsName = "ConcurrentClassTest-" + id + "-" + i;
+    for (var id = 0; id < THREADS; ++id) {
+      for (var i = 0; i < CYCLES; ++i) {
+        final var clsName = "ConcurrentClassTest-" + id + "-" + i;
         Assert.assertTrue(db.getMetadata().getSchema().existsClass(clsName));
       }
     }

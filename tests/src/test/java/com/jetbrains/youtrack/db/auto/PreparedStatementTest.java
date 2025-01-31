@@ -56,8 +56,8 @@ public class PreparedStatementTest extends BaseDBTest {
     Set<String> expected = new HashSet<String>();
     expected.add("foo1");
     expected.add("foo2");
-    boolean found = false;
-    for (EntityImpl doc : result) {
+    var found = false;
+    for (var doc : result) {
       found = true;
       Assert.assertTrue(expected.contains(doc.field("name")));
     }
@@ -75,8 +75,8 @@ public class PreparedStatementTest extends BaseDBTest {
     Set<String> expected = new HashSet<String>();
     expected.add("foo1");
     expected.add("foo2");
-    boolean found = false;
-    for (EntityImpl doc : result) {
+    var found = false;
+    for (var doc : result) {
       found = true;
       Assert.assertTrue(expected.contains(doc.field("name")));
     }
@@ -91,7 +91,7 @@ public class PreparedStatementTest extends BaseDBTest {
             .command(new SQLSynchQuery<EntityImpl>("select from PreparedStatementTest1 limit 1"))
             .execute(db);
 
-    EntityImpl record = result.iterator().next();
+    var record = result.iterator().next();
 
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("inputRid", record.getIdentity());
@@ -99,8 +99,8 @@ public class PreparedStatementTest extends BaseDBTest {
         db.command(new SQLSynchQuery<EntityImpl>("select from :inputRid"))
             .execute(db, params);
 
-    boolean found = false;
-    for (EntityImpl doc : result) {
+    var found = false;
+    for (var doc : result) {
       found = true;
       Assert.assertEquals(doc.getIdentity(), record.getIdentity());
       Assert.assertEquals(doc.<Object>field("name"), record.field("name"));
@@ -116,14 +116,14 @@ public class PreparedStatementTest extends BaseDBTest {
             .command(new SQLSynchQuery<EntityImpl>("select from PreparedStatementTest1 limit 1"))
             .execute(db);
 
-    EntityImpl record = result.iterator().next();
+    var record = result.iterator().next();
     result =
         db
             .command(new SQLSynchQuery<EntityImpl>("select from ?"))
             .execute(db, record.getIdentity());
 
-    boolean found = false;
-    for (EntityImpl doc : result) {
+    var found = false;
+    for (var doc : result) {
       found = true;
       Assert.assertEquals(doc.getIdentity(), record.getIdentity());
       Assert.assertEquals(doc.<Object>field("name"), record.field("name"));
@@ -139,7 +139,7 @@ public class PreparedStatementTest extends BaseDBTest {
             .command(new SQLSynchQuery<EntityImpl>("select from PreparedStatementTest1 limit 1"))
             .execute(db);
 
-    EntityImpl record = result.iterator().next();
+    var record = result.iterator().next();
 
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("inputRid", record);
@@ -147,8 +147,8 @@ public class PreparedStatementTest extends BaseDBTest {
         db.command(new SQLSynchQuery<EntityImpl>("select from :inputRid"))
             .execute(db, params);
 
-    boolean found = false;
-    for (EntityImpl doc : result) {
+    var found = false;
+    for (var doc : result) {
       found = true;
       Assert.assertEquals(doc.getIdentity(), record.getIdentity());
       Assert.assertEquals(doc.<Object>field("name"), record.field("name"));
@@ -164,12 +164,12 @@ public class PreparedStatementTest extends BaseDBTest {
             .command(new SQLSynchQuery<EntityImpl>("select from PreparedStatementTest1 limit 1"))
             .execute(db);
 
-    EntityImpl record = result.iterator().next();
+    var record = result.iterator().next();
     result = db.command(new SQLSynchQuery<EntityImpl>("select from ?"))
         .execute(db, record);
 
-    boolean found = false;
-    for (EntityImpl doc : result) {
+    var found = false;
+    for (var doc : result) {
       found = true;
       Assert.assertEquals(doc.getIdentity(), record.getIdentity());
       Assert.assertEquals(doc.<Object>field("name"), record.field("name"));
@@ -179,12 +179,12 @@ public class PreparedStatementTest extends BaseDBTest {
 
   @Test
   public void testUnnamedParamFlat() {
-    ResultSet result = db.query("select from PreparedStatementTest1 where name = ?",
+    var result = db.query("select from PreparedStatementTest1 where name = ?",
         "foo1");
 
-    boolean found = false;
+    var found = false;
     while (result.hasNext()) {
-      Result doc = result.next();
+      var doc = result.next();
       found = true;
       Assert.assertEquals(doc.getProperty("name"), "foo1");
     }
@@ -195,12 +195,12 @@ public class PreparedStatementTest extends BaseDBTest {
   public void testNamedParamFlat() {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("name", "foo1");
-    ResultSet result =
+    var result =
         db.query("select from PreparedStatementTest1 where name = :name", params);
 
-    boolean found = false;
+    var found = false;
     while (result.hasNext()) {
-      Result doc = result.next();
+      var doc = result.next();
       found = true;
       Assert.assertEquals(doc.getProperty("name"), "foo1");
     }
@@ -216,8 +216,8 @@ public class PreparedStatementTest extends BaseDBTest {
                     "select from PreparedStatementTest1 where name in [?]"))
             .execute(db, "foo1");
 
-    boolean found = false;
-    for (EntityImpl doc : result) {
+    var found = false;
+    for (var doc : result) {
       found = true;
       Assert.assertEquals(doc.field("name"), "foo1");
     }
@@ -235,8 +235,8 @@ public class PreparedStatementTest extends BaseDBTest {
                     "select from PreparedStatementTest1 where name in [:name]"))
             .execute(db, params);
 
-    boolean found = false;
-    for (EntityImpl doc : result) {
+    var found = false;
+    for (var doc : result) {
       found = true;
       Assert.assertEquals(doc.field("name"), "foo1");
     }
@@ -252,8 +252,8 @@ public class PreparedStatementTest extends BaseDBTest {
                     "select from PreparedStatementTest1 where name in [?, 'antani']"))
             .execute(db, "foo1");
 
-    boolean found = false;
-    for (EntityImpl doc : result) {
+    var found = false;
+    for (var doc : result) {
       found = true;
       Assert.assertEquals(doc.field("name"), "foo1");
     }
@@ -271,8 +271,8 @@ public class PreparedStatementTest extends BaseDBTest {
                     "select from PreparedStatementTest1 where name in [:name, 'antani']"))
             .execute(db, params);
 
-    boolean found = false;
-    for (EntityImpl doc : result) {
+    var found = false;
+    for (var doc : result) {
       found = true;
       Assert.assertEquals(doc.field("name"), "foo1");
     }
@@ -281,15 +281,15 @@ public class PreparedStatementTest extends BaseDBTest {
 
   @Test
   public void testSubqueryUnnamedParamFlat() {
-    ResultSet result =
+    var result =
         db.query(
             "select from (select from PreparedStatementTest1 where name = ?) where name = ?",
             "foo1",
             "foo1");
 
-    boolean found = false;
+    var found = false;
     while (result.hasNext()) {
-      Result doc = result.next();
+      var doc = result.next();
       found = true;
       Assert.assertEquals(doc.getProperty("name"), "foo1");
     }
@@ -300,15 +300,15 @@ public class PreparedStatementTest extends BaseDBTest {
   public void testSubqueryNamedParamFlat() {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("name", "foo1");
-    ResultSet result =
+    var result =
         db.query(
             "select from (select from PreparedStatementTest1 where name = :name) where name ="
                 + " :name",
             params);
 
-    boolean found = false;
+    var found = false;
     while (result.hasNext()) {
-      Result doc = result.next();
+      var doc = result.next();
       found = true;
       Assert.assertEquals(doc.getProperty("name"), "foo1");
     }
@@ -320,11 +320,11 @@ public class PreparedStatementTest extends BaseDBTest {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("one", 1);
     params.put("three", 3);
-    ResultSet result = db.query("select max(:one, :three) as maximo", params);
+    var result = db.query("select max(:one, :three) as maximo", params);
 
-    boolean found = false;
+    var found = false;
     while (result.hasNext()) {
-      Result doc = result.next();
+      var doc = result.next();
       found = true;
       Assert.assertEquals(doc.<Object>getProperty("maximo"), 3);
     }

@@ -120,7 +120,7 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
         return isFileExists(atomicOperation, getFullName());
       } finally {
         releaseSharedLock();
@@ -203,14 +203,14 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
             if (freeSpaceMap.exists(atomicOperation)) {
               freeSpaceMap.open(atomicOperation);
             } else {
-              final Object[] additionalArgs2 = new Object[]{getName(), storageName};
+              final var additionalArgs2 = new Object[]{getName(), storageName};
               LogManager.instance()
                   .info(
                       this,
                       "Free space map is absent inside of %s cluster of storage %s . Information"
                           + " about free space present inside of each page will be recovered.",
                       additionalArgs2);
-              final Object[] additionalArgs1 = new Object[]{getName(), storageName};
+              final var additionalArgs1 = new Object[]{getName(), storageName};
               LogManager.instance()
                   .info(
                       this,
@@ -218,18 +218,18 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
                       additionalArgs1);
 
               freeSpaceMap.create(atomicOperation);
-              final long filledUpTo = getFilledUpTo(atomicOperation, fileId);
-              for (int pageIndex = 0; pageIndex < filledUpTo; pageIndex++) {
+              final var filledUpTo = getFilledUpTo(atomicOperation, fileId);
+              for (var pageIndex = 0; pageIndex < filledUpTo; pageIndex++) {
 
-                try (final CacheEntry cacheEntry =
+                try (final var cacheEntry =
                     loadPageForRead(atomicOperation, fileId, pageIndex)) {
-                  final ClusterPage clusterPage = new ClusterPage(cacheEntry);
+                  final var clusterPage = new ClusterPage(cacheEntry);
                   freeSpaceMap.updatePageFreeSpace(
                       atomicOperation, pageIndex, clusterPage.getMaxRecordSize());
                 }
 
                 if (pageIndex > 0 && pageIndex % 1_000 == 0) {
-                  final Object[] additionalArgs =
+                  final var additionalArgs =
                       new Object[]{
                           pageIndex + 1, filledUpTo, 100L * (pageIndex + 1) / filledUpTo, getName()
                       };
@@ -241,7 +241,7 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
                 }
               }
 
-              final Object[] additionalArgs = new Object[]{getName()};
+              final var additionalArgs = new Object[]{getName()};
               LogManager.instance()
                   .info(this, "Page scan for cluster %s " + "is completed.", additionalArgs);
             }
@@ -339,7 +339,7 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
         operation -> {
           acquireExclusiveLock();
           try {
-            final int[] result =
+            final var result =
                 serializeRecord(
                     content,
                     calculateClusterEntrySize(content.length),
@@ -349,7 +349,7 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
                     atomicOperation,
                     entrySize -> findNewPageToWrite(atomicOperation, entrySize),
                     page -> {
-                      final CacheEntry cacheEntry = page.getCacheEntry();
+                      final var cacheEntry = page.getCacheEntry();
                       try {
                         cacheEntry.close();
                       } catch (final IOException e) {
@@ -358,8 +358,8 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
                       }
                     });
 
-            final int nextPageIndex = result[0];
-            final int nextPageOffset = result[1];
+            final var nextPageIndex = result[0];
+            final var nextPageOffset = result[1];
             assert result[2] == 0;
 
             updateClusterState(1, content.length, atomicOperation);
@@ -386,7 +386,7 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
       final AtomicOperation atomicOperation, final int entrySize) {
     final ClusterPage page;
     try {
-      final int nextPageToWrite = findNextFreePageIndexToWrite(entrySize);
+      final var nextPageToWrite = findNextFreePageIndexToWrite(entrySize);
 
       final CacheEntry cacheEntry;
       boolean isNew;
@@ -421,32 +421,32 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
       final Consumer<ClusterPage> pagePostProcessor)
       throws IOException {
 
-    int bytesToWrite = len;
-    int chunkSize = calculateChunkSize(bytesToWrite);
+    var bytesToWrite = len;
+    var chunkSize = calculateChunkSize(bytesToWrite);
 
-    long nextRecordPointers = nextRecordPointer;
-    int nextPageIndex = -1;
-    int nextPageOffset = -1;
+    var nextRecordPointers = nextRecordPointer;
+    var nextPageIndex = -1;
+    var nextPageOffset = -1;
 
     while (bytesToWrite > 0) {
-      final ClusterPage page = pageSupplier.apply(bytesToWrite);
+      final var page = pageSupplier.apply(bytesToWrite);
       if (page == null) {
         return new int[]{nextPageIndex, nextPageOffset, bytesToWrite};
       }
 
       int maxRecordSize;
       try {
-        int availableInPage = page.getMaxRecordSize();
+        var availableInPage = page.getMaxRecordSize();
         if (availableInPage > MIN_ENTRY_SIZE) {
 
-          final int pageChunkSize = Math.min(availableInPage, chunkSize);
+          final var pageChunkSize = Math.min(availableInPage, chunkSize);
 
-          final RawPairObjectInteger<byte[]> pair =
+          final var pair =
               serializeEntryChunk(
                   content, pageChunkSize, bytesToWrite, nextRecordPointers, recordType);
-          final byte[] chunk = pair.first;
+          final var chunk = pair.first;
 
-          final CacheEntry cacheEntry = page.getCacheEntry();
+          final var cacheEntry = page.getCacheEntry();
           nextPageOffset =
               page.appendRecord(
                   recordVersion,
@@ -483,20 +483,20 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
       final int bytesToWrite,
       final long nextPagePointer,
       final byte recordType) {
-    final byte[] chunk = new byte[chunkSize];
-    int offset = chunkSize - LongSerializer.LONG_SIZE;
+    final var chunk = new byte[chunkSize];
+    var offset = chunkSize - LongSerializer.LONG_SIZE;
 
     LongSerializer.INSTANCE.serializeNative(nextPagePointer, chunk, offset);
 
-    int written = 0;
+    var written = 0;
     // entry - entry size - record type
-    final int contentSize = bytesToWrite - IntegerSerializer.INT_SIZE - ByteSerializer.BYTE_SIZE;
+    final var contentSize = bytesToWrite - IntegerSerializer.INT_SIZE - ByteSerializer.BYTE_SIZE;
     // skip first record flag
-    final int firstRecordOffset = --offset;
+    final var firstRecordOffset = --offset;
 
     // there are records data to write
     if (contentSize > 0) {
-      final int contentToWrite = Math.min(contentSize, offset);
+      final var contentToWrite = Math.min(contentSize, offset);
       System.arraycopy(
           recordContent,
           contentSize - contentToWrite,
@@ -506,10 +506,10 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
       written = contentToWrite;
     }
 
-    int spaceLeft = chunkSize - written - LongSerializer.LONG_SIZE - ByteSerializer.BYTE_SIZE;
+    var spaceLeft = chunkSize - written - LongSerializer.LONG_SIZE - ByteSerializer.BYTE_SIZE;
 
     if (spaceLeft > 0) {
-      final int spaceToWrite = bytesToWrite - written;
+      final var spaceToWrite = bytesToWrite - written;
       assert spaceToWrite <= IntegerSerializer.INT_SIZE + ByteSerializer.BYTE_SIZE;
 
       // we need to write only record type
@@ -528,7 +528,7 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
 
           written += IntegerSerializer.INT_SIZE + ByteSerializer.BYTE_SIZE;
         } else {
-          final int recordSizePart = spaceToWrite - ByteSerializer.BYTE_SIZE;
+          final var recordSizePart = spaceToWrite - ByteSerializer.BYTE_SIZE;
           assert recordSizePart <= IntegerSerializer.INT_SIZE;
 
           if (recordSizePart == IntegerSerializer.INT_SIZE
@@ -536,19 +536,19 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
             IntegerSerializer.INSTANCE.serializeNative(recordContent.length, chunk, 0);
             written += IntegerSerializer.INT_SIZE;
           } else {
-            final ByteOrder byteOrder = ByteOrder.nativeOrder();
+            final var byteOrder = ByteOrder.nativeOrder();
             if (byteOrder == ByteOrder.LITTLE_ENDIAN) {
-              for (int sizeOffset = (recordSizePart - 1) << 3;
+              for (var sizeOffset = (recordSizePart - 1) << 3;
                   sizeOffset >= 0 && spaceLeft > 0;
                   sizeOffset -= 8, spaceLeft--, written++) {
-                final byte sizeByte = (byte) (0xFF & (recordContent.length >> sizeOffset));
+                final var sizeByte = (byte) (0xFF & (recordContent.length >> sizeOffset));
                 chunk[spaceLeft - 1] = sizeByte;
               }
             } else {
-              for (int sizeOffset = (IntegerSerializer.INT_SIZE - recordSizePart) << 3;
+              for (var sizeOffset = (IntegerSerializer.INT_SIZE - recordSizePart) << 3;
                   sizeOffset < IntegerSerializer.INT_SIZE & spaceLeft > 0;
                   sizeOffset += 8, spaceLeft--, written++) {
-                final byte sizeByte = (byte) (0xFF & (recordContent.length >> sizeOffset));
+                final var sizeByte = (byte) (0xFF & (recordContent.length >> sizeOffset));
                 chunk[spaceLeft - 1] = sizeByte;
               }
             }
@@ -578,17 +578,17 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
     // so we find page with at least half of the space at the worst case
     // we will split record by two anyway.
     if (bytesToWrite >= DurablePage.MAX_PAGE_SIZE_BYTES - FreeSpaceMap.NORMALIZATION_INTERVAL) {
-      final int halfChunkSize = calculateChunkSize(bytesToWrite / 2);
+      final var halfChunkSize = calculateChunkSize(bytesToWrite / 2);
       pageIndex = freeSpaceMap.findFreePage(halfChunkSize / 2);
 
       return pageIndex;
     }
 
-    int chunkSize = calculateChunkSize(bytesToWrite);
+    var chunkSize = calculateChunkSize(bytesToWrite);
     pageIndex = freeSpaceMap.findFreePage(chunkSize);
 
     if (pageIndex < 0 && bytesToWrite > MAX_ENTRY_SIZE / 2) {
-      final int halfChunkSize = calculateChunkSize(bytesToWrite / 2);
+      final var halfChunkSize = calculateChunkSize(bytesToWrite / 2);
       if (halfChunkSize > 0) {
         pageIndex = freeSpaceMap.findFreePage(halfChunkSize / 2);
       }
@@ -624,9 +624,9 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
 
-        final ClusterPositionMapBucket.PositionEntry positionEntry =
+        final var positionEntry =
             clusterPositionMap.get(clusterPosition, atomicOperation);
         if (positionEntry == null) {
           throw new RecordNotFoundException(new RecordId(id, clusterPosition));
@@ -652,16 +652,16 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
       final AtomicOperation atomicOperation)
       throws IOException {
 
-    int recordVersion = 0;
+    var recordVersion = 0;
 
     final List<byte[]> recordChunks = new ArrayList<>(2);
-    int contentSize = 0;
+    var contentSize = 0;
 
     long nextPagePointer;
-    boolean firstEntry = true;
+    var firstEntry = true;
     do {
-      try (final CacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
-        final ClusterPage localPage = new ClusterPage(cacheEntry);
+      try (final var cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
+        final var localPage = new ClusterPage(cacheEntry);
         if (firstEntry) {
           recordVersion = localPage.getRecordVersion(recordPosition);
         }
@@ -675,7 +675,7 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
           }
         }
 
-        final byte[] content =
+        final var content =
             localPage.getRecordBinaryValue(
                 recordPosition, 0, localPage.getRecordSize(recordPosition));
         assert content != null;
@@ -699,22 +699,22 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
       recordPosition = getRecordPosition(nextPagePointer);
     } while (nextPagePointer >= 0);
 
-    byte[] fullContent = convertRecordChunksToSingleChunk(recordChunks, contentSize);
+    var fullContent = convertRecordChunksToSingleChunk(recordChunks, contentSize);
 
     if (fullContent == null) {
       throw new RecordNotFoundException(new RecordId(id, clusterPosition));
     }
 
-    int fullContentPosition = 0;
+    var fullContentPosition = 0;
 
-    final byte recordType = fullContent[fullContentPosition];
+    final var recordType = fullContent[fullContentPosition];
     fullContentPosition++;
 
-    final int readContentSize =
+    final var readContentSize =
         IntegerSerializer.INSTANCE.deserializeNative(fullContent, fullContentPosition);
     fullContentPosition += IntegerSerializer.INT_SIZE;
 
-    byte[] recordContent =
+    var recordContent =
         Arrays.copyOfRange(fullContent, fullContentPosition, fullContentPosition + readContentSize);
 
     return new RawBuffer(recordContent, recordVersion, recordType);
@@ -727,25 +727,25 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
         operation -> {
           acquireExclusiveLock();
           try {
-            final ClusterPositionMapBucket.PositionEntry positionEntry =
+            final var positionEntry =
                 clusterPositionMap.get(clusterPosition, atomicOperation);
             if (positionEntry == null) {
               return false;
             }
 
-            long pageIndex = positionEntry.getPageIndex();
-            int recordPosition = positionEntry.getRecordPosition();
+            var pageIndex = positionEntry.getPageIndex();
+            var recordPosition = positionEntry.getRecordPosition();
 
             long nextPagePointer;
-            int removedContentSize = 0;
+            var removedContentSize = 0;
             int removeRecordSize;
 
             do {
-              boolean cacheEntryReleased = false;
+              var cacheEntryReleased = false;
               final int maxRecordSize;
-              CacheEntry cacheEntry = loadPageForWrite(atomicOperation, fileId, pageIndex, true);
+              var cacheEntry = loadPageForWrite(atomicOperation, fileId, pageIndex, true);
               try {
-                ClusterPage localPage = new ClusterPage(cacheEntry);
+                var localPage = new ClusterPage(cacheEntry);
 
                 if (localPage.isDeleted(recordPosition)) {
                   if (removedContentSize == 0) {
@@ -765,8 +765,8 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
                   localPage = new ClusterPage(cacheEntry);
                 }
 
-                final int initialFreeSpace = localPage.getFreeSpace();
-                final byte[] content = localPage.deleteRecord(recordPosition, true);
+                final var initialFreeSpace = localPage.getFreeSpace();
+                final var content = localPage.deleteRecord(recordPosition, true);
                 atomicOperation.addDeletedRecordPosition(
                     id, cacheEntry.getPageIndex(), recordPosition);
                 assert content != null;
@@ -811,25 +811,25 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
         operation -> {
           acquireExclusiveLock();
           try {
-            final ClusterPositionMapBucket.PositionEntry positionEntry =
+            final var positionEntry =
                 clusterPositionMap.get(clusterPosition, atomicOperation);
             if (positionEntry == null) {
               return;
             }
 
-            int oldContentSize = 0;
-            int nextPageIndex = (int) positionEntry.getPageIndex();
-            int nextRecordPosition = positionEntry.getRecordPosition();
+            var oldContentSize = 0;
+            var nextPageIndex = (int) positionEntry.getPageIndex();
+            var nextRecordPosition = positionEntry.getRecordPosition();
 
-            long nextPagePointer = createPagePointer(nextPageIndex, nextRecordPosition);
+            var nextPagePointer = createPagePointer(nextPageIndex, nextRecordPosition);
 
-            ArrayList<ClusterPage> storedPages = new ArrayList<>();
+            var storedPages = new ArrayList<ClusterPage>();
 
             while (nextPagePointer >= 0) {
-              final CacheEntry cacheEntry =
+              final var cacheEntry =
                   loadPageForWrite(atomicOperation, fileId, nextPageIndex, true);
-              final ClusterPage page = new ClusterPage(cacheEntry);
-              final byte[] deletedRecord = page.deleteRecord(nextRecordPosition, true);
+              final var page = new ClusterPage(cacheEntry);
+              final var deletedRecord = page.deleteRecord(nextRecordPosition, true);
               assert deletedRecord != null;
               oldContentSize = calculateContentSizeFromClusterEntrySize(deletedRecord.length);
               nextPagePointer =
@@ -842,9 +842,9 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
               storedPages.add(page);
             }
 
-            final ListIterator<ClusterPage> reverseIterator =
+            final var reverseIterator =
                 storedPages.listIterator(storedPages.size());
-            int[] result =
+            var result =
                 serializeRecord(
                     content,
                     calculateClusterEntrySize(content.length),
@@ -859,7 +859,7 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
                       return null;
                     },
                     page -> {
-                      final CacheEntry cacheEntry = page.getCacheEntry();
+                      final var cacheEntry = page.getCacheEntry();
                       try {
                         cacheEntry.close();
                       } catch (final IOException e) {
@@ -876,7 +876,7 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
             nextRecordPosition = result[1];
 
             while (reverseIterator.hasPrevious()) {
-              final ClusterPage page = reverseIterator.previous();
+              final var page = reverseIterator.previous();
               page.getCacheEntry().close();
             }
 
@@ -891,7 +891,7 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
                       atomicOperation,
                       entrySize -> findNewPageToWrite(atomicOperation, entrySize),
                       page -> {
-                        final CacheEntry cacheEntry = page.getCacheEntry();
+                        final var cacheEntry = page.getCacheEntry();
                         try {
                           cacheEntry.close();
                         } catch (final IOException e) {
@@ -936,20 +936,20 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
-        final long clusterPosition = position.clusterPosition;
-        final ClusterPositionMapBucket.PositionEntry positionEntry =
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var clusterPosition = position.clusterPosition;
+        final var positionEntry =
             clusterPositionMap.get(clusterPosition, atomicOperation);
 
         if (positionEntry == null) {
           return null;
         }
 
-        final long pageIndex = positionEntry.getPageIndex();
-        final int recordPosition = positionEntry.getRecordPosition();
+        final var pageIndex = positionEntry.getPageIndex();
+        final var recordPosition = positionEntry.getRecordPosition();
 
-        try (final CacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
-          final ClusterPage localPage = new ClusterPage(cacheEntry);
+        try (final var cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
+          final var localPage = new ClusterPage(cacheEntry);
           if (localPage.isDeleted(recordPosition)) {
             return null;
           }
@@ -960,7 +960,7 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
             return null;
           }
 
-          final PhysicalPosition physicalPosition = new PhysicalPosition();
+          final var physicalPosition = new PhysicalPosition();
           physicalPosition.recordSize = -1;
 
           physicalPosition.recordType = localPage.getRecordByteValue(recordPosition, 0);
@@ -983,19 +983,19 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
-        final ClusterPositionMapBucket.PositionEntry positionEntry =
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var positionEntry =
             clusterPositionMap.get(clusterPosition, atomicOperation);
 
         if (positionEntry == null) {
           return false;
         }
 
-        final long pageIndex = positionEntry.getPageIndex();
-        final int recordPosition = positionEntry.getRecordPosition();
+        final var pageIndex = positionEntry.getPageIndex();
+        final var recordPosition = positionEntry.getRecordPosition();
 
-        try (final CacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
-          final ClusterPage localPage = new ClusterPage(cacheEntry);
+        try (final var cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
+          final var localPage = new ClusterPage(cacheEntry);
           return !localPage.isDeleted(recordPosition);
         }
       } finally {
@@ -1012,8 +1012,8 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
-        try (final CacheEntry pinnedStateEntry =
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
+        try (final var pinnedStateEntry =
             loadPageForRead(atomicOperation, fileId, STATE_ENTRY_INDEX)) {
           return new PaginatedClusterStateV2(pinnedStateEntry).getSize();
         }
@@ -1036,7 +1036,7 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
         return clusterPositionMap.getFirstPosition(atomicOperation);
       } finally {
         releaseSharedLock();
@@ -1052,7 +1052,7 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
         return clusterPositionMap.getLastPosition(atomicOperation);
       } finally {
         releaseSharedLock();
@@ -1068,7 +1068,7 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
         return clusterPositionMap.getNextPosition(atomicOperation);
       } finally {
         releaseSharedLock();
@@ -1127,9 +1127,9 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
 
-        try (final CacheEntry pinnedStateEntry =
+        try (final var pinnedStateEntry =
             loadPageForRead(atomicOperation, fileId, STATE_ENTRY_INDEX)) {
           return new PaginatedClusterStateV2(pinnedStateEntry).getRecordsSize();
         }
@@ -1147,8 +1147,8 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
-        final long[] clusterPositions =
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var clusterPositions =
             clusterPositionMap.higherPositions(position.clusterPosition, atomicOperation);
         return convertToPhysicalPositions(clusterPositions);
       } finally {
@@ -1165,8 +1165,8 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
-        final long[] clusterPositions =
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var clusterPositions =
             clusterPositionMap.ceilingPositions(position.clusterPosition, atomicOperation);
         return convertToPhysicalPositions(clusterPositions);
       } finally {
@@ -1183,8 +1183,8 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
-        final long[] clusterPositions =
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var clusterPositions =
             clusterPositionMap.lowerPositions(position.clusterPosition, atomicOperation);
         return convertToPhysicalPositions(clusterPositions);
       } finally {
@@ -1201,8 +1201,8 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
-        final long[] clusterPositions =
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var clusterPositions =
             clusterPositionMap.floorPositions(position.clusterPosition, atomicOperation);
         return convertToPhysicalPositions(clusterPositions);
       } finally {
@@ -1232,9 +1232,9 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
   private void updateClusterState(
       final long sizeDiff, long recordSizeDiff, final AtomicOperation atomicOperation)
       throws IOException {
-    try (final CacheEntry pinnedStateEntry =
+    try (final var pinnedStateEntry =
         loadPageForWrite(atomicOperation, fileId, STATE_ENTRY_INDEX, true)) {
-      final PaginatedClusterStateV2 paginatedClusterState =
+      final var paginatedClusterState =
           new PaginatedClusterStateV2(pinnedStateEntry);
       if (sizeDiff != 0) {
         paginatedClusterState.setSize((int) (paginatedClusterState.getSize() + sizeDiff));
@@ -1278,7 +1278,7 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
 
   private static PhysicalPosition createPhysicalPosition(
       final byte recordType, final long clusterPosition, final int version) {
-    final PhysicalPosition physicalPosition = new PhysicalPosition();
+    final var physicalPosition = new PhysicalPosition();
     physicalPosition.recordType = recordType;
     physicalPosition.recordSize = -1;
     physicalPosition.clusterPosition = clusterPosition;
@@ -1293,8 +1293,8 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
       fullContent = recordChunks.get(0);
     } else {
       fullContent = new byte[contentSize + LongSerializer.LONG_SIZE + ByteSerializer.BYTE_SIZE];
-      int fullContentPosition = 0;
-      for (final byte[] recordChuck : recordChunks) {
+      var fullContentPosition = 0;
+      for (final var recordChuck : recordChunks) {
         System.arraycopy(
             recordChuck,
             0,
@@ -1322,11 +1322,11 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
 
   private CacheEntry allocateNewPage(AtomicOperation atomicOperation) throws IOException {
     CacheEntry cacheEntry;
-    try (final CacheEntry stateCacheEntry =
+    try (final var stateCacheEntry =
         loadPageForWrite(atomicOperation, fileId, STATE_ENTRY_INDEX, true)) {
-      final PaginatedClusterStateV2 clusterState = new PaginatedClusterStateV2(stateCacheEntry);
-      final int fileSize = clusterState.getFileSize();
-      final long filledUpTo = getFilledUpTo(atomicOperation, fileId);
+      final var clusterState = new PaginatedClusterStateV2(stateCacheEntry);
+      final var fileSize = clusterState.getFileSize();
+      final var filledUpTo = getFilledUpTo(atomicOperation, fileId);
 
       if (fileSize == filledUpTo - 1) {
         cacheEntry = addPage(atomicOperation, fileId);
@@ -1351,7 +1351,7 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
 
     assert stateEntry.getPageIndex() == 0;
     try {
-      final PaginatedClusterStateV2 paginatedClusterState =
+      final var paginatedClusterState =
           new PaginatedClusterStateV2(stateEntry);
       paginatedClusterState.setSize(0);
       paginatedClusterState.setRecordsSize(0);
@@ -1362,9 +1362,9 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
   }
 
   private static PhysicalPosition[] convertToPhysicalPositions(final long[] clusterPositions) {
-    final PhysicalPosition[] positions = new PhysicalPosition[clusterPositions.length];
-    for (int i = 0; i < positions.length; i++) {
-      final PhysicalPosition physicalPosition = new PhysicalPosition();
+    final var positions = new PhysicalPosition[clusterPositions.length];
+    for (var i = 0; i < positions.length; i++) {
+      final var physicalPosition = new PhysicalPosition();
       physicalPosition.clusterPosition = clusterPositions[i];
       positions[i] = physicalPosition;
     }
@@ -1372,10 +1372,10 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
   }
 
   public RECORD_STATUS getRecordStatus(final long clusterPosition) throws IOException {
-    final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+    final var atomicOperation = atomicOperationsManager.getCurrentOperation();
     acquireSharedLock();
     try {
-      final byte status = clusterPositionMap.getStatus(clusterPosition, atomicOperation);
+      final var status = clusterPositionMap.getStatus(clusterPosition, atomicOperation);
 
       return switch (status) {
         case ClusterPositionMapBucket.NOT_EXISTENT -> RECORD_STATUS.NOT_EXISTENT;
@@ -1407,15 +1407,15 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
 
-        final ClusterPositionEntry[] nextPositions =
+        final var nextPositions =
             clusterPositionMap.higherPositionsEntries(lastPosition, atomicOperation);
         if (nextPositions.length > 0) {
-          final long newLastPosition = nextPositions[nextPositions.length - 1].getPosition();
+          final var newLastPosition = nextPositions[nextPositions.length - 1].getPosition();
           final List<ClusterBrowseEntry> nexv = new ArrayList<>(nextPositions.length);
-          for (final ClusterPositionEntry pos : nextPositions) {
-            final RawBuffer buff =
+          for (final var pos : nextPositions) {
+            final var buff =
                 internalReadRecord(
                     pos.getPosition(), pos.getPage(), pos.getOffset(), atomicOperation);
             nexv.add(new ClusterBrowseEntry(pos.getPosition(), buff));

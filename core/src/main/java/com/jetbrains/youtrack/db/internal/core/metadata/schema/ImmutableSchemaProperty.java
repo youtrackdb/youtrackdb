@@ -97,7 +97,7 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
     regexp = property.getRegexp();
     customProperties = new HashMap<String, String>();
 
-    for (String key : property.getCustomKeys()) {
+    for (var key : property.getCustomKeys()) {
       customProperties.put(key, property.getCustom(key));
     }
 
@@ -107,12 +107,12 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
     Comparable<Object> minComparable = null;
     if (min != null) {
       if (type.equals(PropertyType.STRING)) {
-        Integer conv = safeConvert(session, min, Integer.class, "min");
+        var conv = safeConvert(session, min, Integer.class, "min");
         if (conv != null) {
           minComparable = new ValidationStringComparable(conv);
         }
       } else if (type.equals(PropertyType.BINARY)) {
-        Integer conv = safeConvert(session, min, Integer.class, "min");
+        var conv = safeConvert(session, min, Integer.class, "min");
         if (conv != null) {
           minComparable = new ValidationBinaryComparable(conv);
         }
@@ -131,19 +131,19 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
           || type.equals(PropertyType.EMBEDDEDSET)
           || type.equals(PropertyType.LINKLIST)
           || type.equals(PropertyType.LINKSET)) {
-        Integer conv = safeConvert(session, min, Integer.class, "min");
+        var conv = safeConvert(session, min, Integer.class, "min");
         if (conv != null) {
 
           minComparable = new ValidationCollectionComparable(conv);
         }
       } else if (type.equals(PropertyType.LINKBAG)) {
-        Integer conv = safeConvert(session, min, Integer.class, "min");
+        var conv = safeConvert(session, min, Integer.class, "min");
         if (conv != null) {
 
           minComparable = new ValidationLinkbagComparable(conv);
         }
       } else if (type.equals(PropertyType.EMBEDDEDMAP) || type.equals(PropertyType.LINKMAP)) {
-        Integer conv = safeConvert(session, min, Integer.class, "min");
+        var conv = safeConvert(session, min, Integer.class, "min");
         if (conv != null) {
 
           minComparable = new ValidationMapComparable(conv);
@@ -154,22 +154,22 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
     Comparable<Object> maxComparable = null;
     if (max != null) {
       if (type.equals(PropertyType.STRING)) {
-        Integer conv = safeConvert(session, max, Integer.class, "max");
+        var conv = safeConvert(session, max, Integer.class, "max");
         if (conv != null) {
 
           maxComparable = new ValidationStringComparable(conv);
         }
       } else if (type.equals(PropertyType.BINARY)) {
-        Integer conv = safeConvert(session, max, Integer.class, "max");
+        var conv = safeConvert(session, max, Integer.class, "max");
         if (conv != null) {
 
           maxComparable = new ValidationBinaryComparable(conv);
         }
       } else if (type.equals(PropertyType.DATE)) {
         // This is needed because a date is valid in any time range of the day.
-        Date maxDate = (Date) safeConvert(session, max, type.getDefaultJavaType(), "max");
+        var maxDate = (Date) safeConvert(session, max, type.getDefaultJavaType(), "max");
         if (maxDate != null) {
-          Calendar cal = Calendar.getInstance();
+          var cal = Calendar.getInstance();
           cal.setTime(maxDate);
           cal.add(Calendar.DAY_OF_MONTH, 1);
           maxDate = new Date(cal.getTime().getTime() - 1);
@@ -189,19 +189,19 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
           || type.equals(PropertyType.EMBEDDEDSET)
           || type.equals(PropertyType.LINKLIST)
           || type.equals(PropertyType.LINKSET)) {
-        Integer conv = safeConvert(session, max, Integer.class, "max");
+        var conv = safeConvert(session, max, Integer.class, "max");
         if (conv != null) {
 
           maxComparable = new ValidationCollectionComparable(conv);
         }
       } else if (type.equals(PropertyType.LINKBAG)) {
-        Integer conv = safeConvert(session, max, Integer.class, "max");
+        var conv = safeConvert(session, max, Integer.class, "max");
         if (conv != null) {
 
           maxComparable = new ValidationLinkbagComparable(conv);
         }
       } else if (type.equals(PropertyType.EMBEDDEDMAP) || type.equals(PropertyType.LINKMAP)) {
-        Integer conv = safeConvert(session, max, Integer.class, "max");
+        var conv = safeConvert(session, max, Integer.class, "max");
         if (conv != null) {
           maxComparable = new ValidationMapComparable(conv);
         }
@@ -483,8 +483,8 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
+    final var prime = 31;
+    var result = super.hashCode();
     result = prime * result + ((owner == null) ? 0 : owner.hashCode());
     return result;
   }
@@ -500,7 +500,7 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
     if (!SchemaProperty.class.isAssignableFrom(obj.getClass())) {
       return false;
     }
-    SchemaProperty other = (SchemaProperty) obj;
+    var other = (SchemaProperty) obj;
     if (owner == null) {
       return other.getOwnerClass() == null;
     } else {

@@ -26,7 +26,7 @@ public class ServerConfigurationManagerTest {
 
   @Test
   public void testManagerUsers() {
-    final ServerConfigurationManager cfgManager =
+    final var cfgManager =
         new ServerConfigurationManager(new ServerConfiguration());
 
     Assert.assertNull(cfgManager.getConfiguration().users);

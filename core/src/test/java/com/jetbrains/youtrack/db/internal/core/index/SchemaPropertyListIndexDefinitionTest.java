@@ -29,12 +29,12 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateValueSingleParameter() {
-    final Object result =
+    final var result =
         propertyIndex.createValue(db, Collections.singletonList(Arrays.asList("12", "23")));
 
     Assert.assertTrue(result instanceof Collection);
 
-    final Collection<?> collectionResult = (Collection<?>) result;
+    final var collectionResult = (Collection<?>) result;
     Assert.assertEquals(collectionResult.size(), 2);
 
     Assert.assertTrue(collectionResult.contains(12));
@@ -43,12 +43,12 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateValueTwoParameters() {
-    final Object result =
+    final var result =
         propertyIndex.createValue(db, Arrays.asList(Arrays.asList("12", "23"), "25"));
 
     Assert.assertTrue(result instanceof Collection);
 
-    final Collection<?> collectionResult = (Collection<?>) result;
+    final var collectionResult = (Collection<?>) result;
     Assert.assertEquals(collectionResult.size(), 2);
 
     Assert.assertTrue(collectionResult.contains(12));
@@ -67,11 +67,11 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateValueSingleParameterArrayParams() {
-    final Object result = propertyIndex.createValue(db, (Object) Arrays.asList("12", "23"));
+    final var result = propertyIndex.createValue(db, (Object) Arrays.asList("12", "23"));
 
     Assert.assertTrue(result instanceof Collection);
 
-    final Collection<?> collectionResult = (Collection<?>) result;
+    final var collectionResult = (Collection<?>) result;
     Assert.assertEquals(collectionResult.size(), 2);
 
     Assert.assertTrue(collectionResult.contains(12));
@@ -80,11 +80,11 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateValueTwoParametersArrayParams() {
-    final Object result = propertyIndex.createValue(db, Arrays.asList("12", "23"), "25");
+    final var result = propertyIndex.createValue(db, Arrays.asList("12", "23"), "25");
 
     Assert.assertTrue(result instanceof Collection);
 
-    final Collection<?> collectionResult = (Collection<?>) result;
+    final var collectionResult = (Collection<?>) result;
     Assert.assertEquals(collectionResult.size(), 2);
 
     Assert.assertTrue(collectionResult.contains(12));
@@ -98,15 +98,15 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testGetDocumentValueToIndex() {
-    final EntityImpl document = (EntityImpl) db.newEntity();
+    final var document = (EntityImpl) db.newEntity();
 
     document.field("fOne", Arrays.asList("12", "23"));
     document.field("fTwo", 10);
 
-    final Object result = propertyIndex.getDocumentValueToIndex(db, document);
+    final var result = propertyIndex.getDocumentValueToIndex(db, document);
     Assert.assertTrue(result instanceof Collection);
 
-    final Collection<?> collectionResult = (Collection<?>) result;
+    final var collectionResult = (Collection<?>) result;
     Assert.assertEquals(collectionResult.size(), 2);
 
     Assert.assertTrue(collectionResult.contains(12));
@@ -115,7 +115,7 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateSingleValue() {
-    final Object result = propertyIndex.createSingleValue(db, "12");
+    final var result = propertyIndex.createSingleValue(db, "12");
     Assert.assertEquals(result, 12);
   }
 
@@ -126,12 +126,12 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventAddOnce() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<Integer, Integer> multiValueChangeEvent =
+    final var multiValueChangeEvent =
         new MultiValueChangeEvent<Integer, Integer>(ChangeType.ADD, 0, 42);
     propertyIndex.processChangeEvent(db, multiValueChangeEvent, keysToAdd, keysToRemove);
 
@@ -146,13 +146,13 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventAddOnceWithConversion() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<Integer, String> multiValueChangeEvent =
+    final var multiValueChangeEvent =
         new MultiValueChangeEvent<Integer, String>(
             ChangeType.ADD, 0, "42");
     propertyIndex.processChangeEvent(db, multiValueChangeEvent, keysToAdd, keysToRemove);
@@ -168,15 +168,15 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventAddTwoTimes() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<Integer, Integer> multiValueChangeEventOne =
+    final var multiValueChangeEventOne =
         new MultiValueChangeEvent<Integer, Integer>(ChangeType.ADD, 0, 42);
-    final MultiValueChangeEvent<Integer, Integer> multiValueChangeEventTwo =
+    final var multiValueChangeEventTwo =
         new MultiValueChangeEvent<Integer, Integer>(ChangeType.ADD, 1, 42);
 
     propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
@@ -193,15 +193,15 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventAddTwoValues() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<Integer, Integer> multiValueChangeEventOne =
+    final var multiValueChangeEventOne =
         new MultiValueChangeEvent<Integer, Integer>(ChangeType.ADD, 0, 42);
-    final MultiValueChangeEvent<Integer, Integer> multiValueChangeEventTwo =
+    final var multiValueChangeEventTwo =
         new MultiValueChangeEvent<Integer, Integer>(ChangeType.ADD, 1, 43);
 
     propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
@@ -219,13 +219,13 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventRemoveOnce() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<Integer, Integer> multiValueChangeEvent =
+    final var multiValueChangeEvent =
         new MultiValueChangeEvent<Integer, Integer>(
             ChangeType.REMOVE, 0, null, 42);
 
@@ -242,13 +242,13 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventRemoveOnceWithConversion() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<Integer, String> multiValueChangeEvent =
+    final var multiValueChangeEvent =
         new MultiValueChangeEvent<Integer, String>(
             ChangeType.REMOVE, 0, null, "42");
 
@@ -265,16 +265,16 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventRemoveTwoTimes() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<Integer, Integer> multiValueChangeEventOne =
+    final var multiValueChangeEventOne =
         new MultiValueChangeEvent<Integer, Integer>(
             ChangeType.REMOVE, 0, null, 42);
-    final MultiValueChangeEvent<Integer, Integer> multiValueChangeEventTwo =
+    final var multiValueChangeEventTwo =
         new MultiValueChangeEvent<Integer, Integer>(
             ChangeType.REMOVE, 1, null, 42);
 
@@ -292,15 +292,15 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventAddTwoTimesInvValue() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<Integer, Integer> multiValueChangeEventOne =
+    final var multiValueChangeEventOne =
         new MultiValueChangeEvent<Integer, Integer>(ChangeType.ADD, 0, 42);
-    final MultiValueChangeEvent<Integer, Integer> multiValueChangeEventTwo =
+    final var multiValueChangeEventTwo =
         new MultiValueChangeEvent<Integer, Integer>(
             ChangeType.ADD, 1, 555);
 
@@ -319,15 +319,15 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventAddRemove() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<Integer, Integer> multiValueChangeEventOne =
+    final var multiValueChangeEventOne =
         new MultiValueChangeEvent<Integer, Integer>(ChangeType.ADD, 0, 42);
-    final MultiValueChangeEvent<Integer, Integer> multiValueChangeEventTwo =
+    final var multiValueChangeEventTwo =
         new MultiValueChangeEvent<Integer, Integer>(
             ChangeType.REMOVE, 0, null, 42);
 
@@ -343,15 +343,15 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventAddRemoveInvValue() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<Integer, Integer> multiValueChangeEventOne =
+    final var multiValueChangeEventOne =
         new MultiValueChangeEvent<Integer, Integer>(ChangeType.ADD, 0, 42);
-    final MultiValueChangeEvent<Integer, Integer> multiValueChangeEventTwo =
+    final var multiValueChangeEventTwo =
         new MultiValueChangeEvent<Integer, Integer>(
             ChangeType.REMOVE, 0, null, 55);
 
@@ -369,17 +369,17 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventAddTwiceRemoveOnce() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<Integer, Integer> multiValueChangeEventOne =
+    final var multiValueChangeEventOne =
         new MultiValueChangeEvent<Integer, Integer>(ChangeType.ADD, 0, 42);
-    final MultiValueChangeEvent<Integer, Integer> multiValueChangeEventTwo =
+    final var multiValueChangeEventTwo =
         new MultiValueChangeEvent<Integer, Integer>(ChangeType.ADD, 1, 42);
-    final MultiValueChangeEvent<Integer, Integer> multiValueChangeEventThree =
+    final var multiValueChangeEventThree =
         new MultiValueChangeEvent<Integer, Integer>(
             ChangeType.REMOVE, 0, null, 42);
 
@@ -398,18 +398,18 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventAddOnceRemoveTwice() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<Integer, Integer> multiValueChangeEventOne =
+    final var multiValueChangeEventOne =
         new MultiValueChangeEvent<Integer, Integer>(
             ChangeType.REMOVE, 0, null, 42);
-    final MultiValueChangeEvent<Integer, Integer> multiValueChangeEventTwo =
+    final var multiValueChangeEventTwo =
         new MultiValueChangeEvent<Integer, Integer>(ChangeType.ADD, 0, 42);
-    final MultiValueChangeEvent<Integer, Integer> multiValueChangeEventThree =
+    final var multiValueChangeEventThree =
         new MultiValueChangeEvent<Integer, Integer>(
             ChangeType.REMOVE, 0, null, 42);
 
@@ -428,19 +428,19 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventRemoveTwoTimesAddOnce() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<Integer, Integer> multiValueChangeEventOne =
+    final var multiValueChangeEventOne =
         new MultiValueChangeEvent<Integer, Integer>(
             ChangeType.REMOVE, 0, null, 42);
-    final MultiValueChangeEvent<Integer, Integer> multiValueChangeEventTwo =
+    final var multiValueChangeEventTwo =
         new MultiValueChangeEvent<Integer, Integer>(
             ChangeType.REMOVE, 1, null, 42);
-    final MultiValueChangeEvent<Integer, Integer> multiValueChangeEventThree =
+    final var multiValueChangeEventThree =
         new MultiValueChangeEvent<Integer, Integer>(ChangeType.ADD, 1, 42);
 
     propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
@@ -458,13 +458,13 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventUpdate() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<Integer, Integer> multiValueChangeEvent =
+    final var multiValueChangeEvent =
         new MultiValueChangeEvent<Integer, Integer>(
             ChangeType.UPDATE, 0, 41, 42);
 
@@ -482,13 +482,13 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventUpdateConvertValues() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<Integer, String> multiValueChangeEvent =
+    final var multiValueChangeEvent =
         new MultiValueChangeEvent<Integer, String>(
             ChangeType.UPDATE, 0, "41", "42");
 

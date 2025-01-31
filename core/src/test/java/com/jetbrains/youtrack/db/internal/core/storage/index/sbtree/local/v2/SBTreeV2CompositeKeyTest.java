@@ -54,7 +54,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
     for (double i = 1; i < 4; i++) {
       for (double j = 1; j < 10; j++) {
-        final CompositeKey compositeKey = new CompositeKey();
+        final var compositeKey = new CompositeKey();
         compositeKey.addKey(i);
         compositeKey.addKey(j);
         atomicOperationsManager.executeInsideAtomicOperation(
@@ -72,7 +72,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @After
   public void afterClass() throws Exception {
-    try (Stream<CompositeKey> keyStream = localSBTree.keyStream()) {
+    try (var keyStream = localSBTree.keyStream()) {
       keyStream.forEach(
           (key) -> {
             try {
@@ -95,15 +95,15 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateBetweenValuesInclusive() {
-    Stream<RawPair<CompositeKey, RID>> stream =
+    var stream =
         localSBTree.iterateEntriesBetween(compositeKey(2.0), true, compositeKey(3.0), true, true);
 
-    Set<RID> orids = extractRids(stream);
+    var orids = extractRids(stream);
 
     assertEquals(18, orids.size());
 
-    for (int i = 2; i <= 3; i++) {
-      for (int j = 1; j <= 9; j++) {
+    for (var i = 2; i <= 3; i++) {
+      for (var j = 1; j <= 9; j++) {
         assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
@@ -113,8 +113,8 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
     orids = extractRids(stream);
 
     assertEquals(18, orids.size());
-    for (int i = 2; i <= 3; i++) {
-      for (int j = 1; j <= 9; j++) {
+    for (var i = 2; i <= 3; i++) {
+      for (var j = 1; j <= 9; j++) {
         assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
@@ -122,13 +122,13 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateBetweenValuesFromInclusive() {
-    Stream<RawPair<CompositeKey, RID>> stream =
+    var stream =
         localSBTree.iterateEntriesBetween(compositeKey(2.0), true, compositeKey(3.0), false, true);
 
-    Set<RID> orids = extractRids(stream);
+    var orids = extractRids(stream);
     assertEquals(9, orids.size());
 
-    for (int j = 1; j <= 9; j++) {
+    for (var j = 1; j <= 9; j++) {
       assertTrue(orids.contains(new RecordId(2, j)));
     }
 
@@ -138,20 +138,20 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
     assertEquals(9, orids.size());
 
-    for (int j = 1; j <= 9; j++) {
+    for (var j = 1; j <= 9; j++) {
       assertTrue(orids.contains(new RecordId(2, j)));
     }
   }
 
   @Test
   public void testIterateBetweenValuesToInclusive() {
-    Stream<RawPair<CompositeKey, RID>> stream =
+    var stream =
         localSBTree.iterateEntriesBetween(compositeKey(2.0), false, compositeKey(3.0), true, true);
-    Set<RID> orids = extractRids(stream);
+    var orids = extractRids(stream);
 
     assertEquals(9, orids.size());
 
-    for (int i = 1; i <= 9; i++) {
+    for (var i = 1; i <= 9; i++) {
       assertTrue(orids.contains(new RecordId(3, i)));
     }
 
@@ -161,16 +161,16 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
     assertEquals(9, orids.size());
 
-    for (int i = 1; i <= 9; i++) {
+    for (var i = 1; i <= 9; i++) {
       assertTrue(orids.contains(new RecordId(3, i)));
     }
   }
 
   @Test
   public void testIterateEntriesNonInclusive() {
-    Stream<RawPair<CompositeKey, RID>> stream =
+    var stream =
         localSBTree.iterateEntriesBetween(compositeKey(2.0), false, compositeKey(3.0), false, true);
-    Set<RID> orids = extractRids(stream);
+    var orids = extractRids(stream);
 
     assertEquals(0, orids.size());
 
@@ -187,7 +187,7 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
     assertEquals(9, orids.size());
 
-    for (int i = 1; i <= 9; i++) {
+    for (var i = 1; i <= 9; i++) {
       assertTrue(orids.contains(new RecordId(2, i)));
     }
 
@@ -198,22 +198,22 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
     assertEquals(9, orids.size());
 
-    for (int i = 1; i <= 9; i++) {
+    for (var i = 1; i <= 9; i++) {
       assertTrue(orids.contains(new RecordId(2, i)));
     }
   }
 
   @Test
   public void testIterateBetweenValuesInclusivePartialKey() {
-    Stream<RawPair<CompositeKey, RID>> stream =
+    var stream =
         localSBTree.iterateEntriesBetween(
             compositeKey(2.0, 4.0), true, compositeKey(3.0), true, true);
-    Set<RID> orids = extractRids(stream);
+    var orids = extractRids(stream);
 
     assertEquals(15, orids.size());
 
-    for (int i = 2; i <= 3; i++) {
-      for (int j = 1; j <= 9; j++) {
+    for (var i = 2; i <= 3; i++) {
+      for (var j = 1; j <= 9; j++) {
         if (i == 2 && j < 4) {
           continue;
         }
@@ -228,8 +228,8 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
     assertEquals(15, orids.size());
 
-    for (int i = 2; i <= 3; i++) {
-      for (int j = 1; j <= 9; j++) {
+    for (var i = 2; i <= 3; i++) {
+      for (var j = 1; j <= 9; j++) {
         if (i == 2 && j < 4) {
           continue;
         }
@@ -240,14 +240,14 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateBetweenValuesFromInclusivePartialKey() {
-    Stream<RawPair<CompositeKey, RID>> stream =
+    var stream =
         localSBTree.iterateEntriesBetween(
             compositeKey(2.0, 4.0), true, compositeKey(3.0), false, true);
 
-    Set<RID> orids = extractRids(stream);
+    var orids = extractRids(stream);
     assertEquals(6, orids.size());
 
-    for (int j = 4; j <= 9; j++) {
+    for (var j = 4; j <= 9; j++) {
       assertTrue(orids.contains(new RecordId(2, j)));
     }
 
@@ -258,22 +258,22 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
     assertEquals(6, orids.size());
 
-    for (int j = 4; j <= 9; j++) {
+    for (var j = 4; j <= 9; j++) {
       assertTrue(orids.contains(new RecordId(2, j)));
     }
   }
 
   @Test
   public void testIterateBetweenValuesToInclusivePartialKey() {
-    Stream<RawPair<CompositeKey, RID>> stream =
+    var stream =
         localSBTree.iterateEntriesBetween(
             compositeKey(2.0, 4.0), false, compositeKey(3.0), true, true);
 
-    Set<RID> orids = extractRids(stream);
+    var orids = extractRids(stream);
     assertEquals(14, orids.size());
 
-    for (int i = 2; i <= 3; i++) {
-      for (int j = 1; j <= 9; j++) {
+    for (var i = 2; i <= 3; i++) {
+      for (var j = 1; j <= 9; j++) {
         if (i == 2 && j <= 4) {
           continue;
         }
@@ -287,8 +287,8 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
     orids = extractRids(stream);
     assertEquals(14, orids.size());
 
-    for (int i = 2; i <= 3; i++) {
-      for (int j = 1; j <= 9; j++) {
+    for (var i = 2; i <= 3; i++) {
+      for (var j = 1; j <= 9; j++) {
         if (i == 2 && j <= 4) {
           continue;
         }
@@ -299,14 +299,14 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateBetweenValuesNonInclusivePartial() {
-    Stream<RawPair<CompositeKey, RID>> stream =
+    var stream =
         localSBTree.iterateEntriesBetween(
             compositeKey(2.0, 4.0), false, compositeKey(3.0), false, true);
 
-    Set<RID> orids = extractRids(stream);
+    var orids = extractRids(stream);
     assertEquals(5, orids.size());
 
-    for (int i = 5; i <= 9; i++) {
+    for (var i = 5; i <= 9; i++) {
       assertTrue(orids.contains(new RecordId(2, i)));
     }
 
@@ -317,21 +317,21 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
     assertEquals(5, orids.size());
 
-    for (int i = 5; i <= 9; i++) {
+    for (var i = 5; i <= 9; i++) {
       assertTrue(orids.contains(new RecordId(2, i)));
     }
   }
 
   @Test
   public void testIterateValuesMajorInclusivePartial() {
-    Stream<RawPair<CompositeKey, RID>> stream =
+    var stream =
         localSBTree.iterateEntriesMajor(compositeKey(2.0), true, true);
-    Set<RID> orids = extractRids(stream);
+    var orids = extractRids(stream);
 
     assertEquals(18, orids.size());
 
-    for (int i = 2; i <= 3; i++) {
-      for (int j = 1; j <= 9; j++) {
+    for (var i = 2; i <= 3; i++) {
+      for (var j = 1; j <= 9; j++) {
         assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
@@ -341,8 +341,8 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
     assertEquals(18, orids.size());
 
-    for (int i = 2; i <= 3; i++) {
-      for (int j = 1; j <= 9; j++) {
+    for (var i = 2; i <= 3; i++) {
+      for (var j = 1; j <= 9; j++) {
         assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
@@ -350,12 +350,12 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateMajorNonInclusivePartial() {
-    Stream<RawPair<CompositeKey, RID>> stream =
+    var stream =
         localSBTree.iterateEntriesMajor(compositeKey(2.0), false, true);
-    Set<RID> orids = extractRids(stream);
+    var orids = extractRids(stream);
     assertEquals(9, orids.size());
 
-    for (int i = 1; i <= 9; i++) {
+    for (var i = 1; i <= 9; i++) {
       assertTrue(orids.contains(new RecordId(3, i)));
     }
 
@@ -364,20 +364,20 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
     assertEquals(9, orids.size());
 
-    for (int i = 1; i <= 9; i++) {
+    for (var i = 1; i <= 9; i++) {
       assertTrue(orids.contains(new RecordId(3, i)));
     }
   }
 
   @Test
   public void testIterateValuesMajorInclusive() {
-    Stream<RawPair<CompositeKey, RID>> stream =
+    var stream =
         localSBTree.iterateEntriesMajor(compositeKey(2.0, 3.0), true, true);
-    Set<RID> orids = extractRids(stream);
+    var orids = extractRids(stream);
     assertEquals(16, orids.size());
 
-    for (int i = 2; i <= 3; i++) {
-      for (int j = 1; j <= 9; j++) {
+    for (var i = 2; i <= 3; i++) {
+      for (var j = 1; j <= 9; j++) {
         if (i == 2 && j < 3) {
           continue;
         }
@@ -390,8 +390,8 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
     assertEquals(16, orids.size());
 
-    for (int i = 2; i <= 3; i++) {
-      for (int j = 1; j <= 9; j++) {
+    for (var i = 2; i <= 3; i++) {
+      for (var j = 1; j <= 9; j++) {
         if (i == 2 && j < 3) {
           continue;
         }
@@ -402,13 +402,13 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateValuesMajorNonInclusive() {
-    Stream<RawPair<CompositeKey, RID>> stream =
+    var stream =
         localSBTree.iterateEntriesMajor(compositeKey(2.0, 3.0), false, true);
-    Set<RID> orids = extractRids(stream);
+    var orids = extractRids(stream);
     assertEquals(15, orids.size());
 
-    for (int i = 2; i <= 3; i++) {
-      for (int j = 1; j <= 9; j++) {
+    for (var i = 2; i <= 3; i++) {
+      for (var j = 1; j <= 9; j++) {
         if (i == 2 && j <= 3) {
           continue;
         }
@@ -421,8 +421,8 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
     assertEquals(15, orids.size());
 
-    for (int i = 2; i <= 3; i++) {
-      for (int j = 1; j <= 9; j++) {
+    for (var i = 2; i <= 3; i++) {
+      for (var j = 1; j <= 9; j++) {
         if (i == 2 && j <= 3) {
           continue;
         }
@@ -433,13 +433,13 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateValuesMinorInclusivePartial() {
-    Stream<RawPair<CompositeKey, RID>> stream =
+    var stream =
         localSBTree.iterateEntriesMinor(compositeKey(3.0), true, true);
-    Set<RID> orids = extractRids(stream);
+    var orids = extractRids(stream);
     assertEquals(27, orids.size());
 
-    for (int i = 1; i <= 3; i++) {
-      for (int j = 1; j <= 9; j++) {
+    for (var i = 1; i <= 3; i++) {
+      for (var j = 1; j <= 9; j++) {
         assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
@@ -449,8 +449,8 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
     assertEquals(27, orids.size());
 
-    for (int i = 1; i <= 3; i++) {
-      for (int j = 1; j <= 9; j++) {
+    for (var i = 1; i <= 3; i++) {
+      for (var j = 1; j <= 9; j++) {
         assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
@@ -458,13 +458,13 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateValuesMinorNonInclusivePartial() {
-    Stream<RawPair<CompositeKey, RID>> stream =
+    var stream =
         localSBTree.iterateEntriesMinor(compositeKey(3.0), false, true);
-    Set<RID> orids = extractRids(stream);
+    var orids = extractRids(stream);
     assertEquals(18, orids.size());
 
-    for (int i = 1; i < 3; i++) {
-      for (int j = 1; j <= 9; j++) {
+    for (var i = 1; i < 3; i++) {
+      for (var j = 1; j <= 9; j++) {
         assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
@@ -474,8 +474,8 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
     assertEquals(18, orids.size());
 
-    for (int i = 1; i < 3; i++) {
-      for (int j = 1; j <= 9; j++) {
+    for (var i = 1; i < 3; i++) {
+      for (var j = 1; j <= 9; j++) {
         assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
@@ -483,13 +483,13 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateValuesMinorInclusive() {
-    Stream<RawPair<CompositeKey, RID>> stream =
+    var stream =
         localSBTree.iterateEntriesMinor(compositeKey(3.0, 2.0), true, true);
-    Set<RID> orids = extractRids(stream);
+    var orids = extractRids(stream);
     assertEquals(20, orids.size());
 
-    for (int i = 1; i <= 3; i++) {
-      for (int j = 1; j <= 9; j++) {
+    for (var i = 1; i <= 3; i++) {
+      for (var j = 1; j <= 9; j++) {
         if (i == 3 && j > 2) {
           continue;
         }
@@ -503,8 +503,8 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
     assertEquals(20, orids.size());
 
-    for (int i = 1; i <= 3; i++) {
-      for (int j = 1; j <= 9; j++) {
+    for (var i = 1; i <= 3; i++) {
+      for (var j = 1; j <= 9; j++) {
         if (i == 3 && j > 2) {
           continue;
         }
@@ -516,14 +516,14 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
   @Test
   public void testIterateValuesMinorNonInclusive() {
-    Stream<RawPair<CompositeKey, RID>> stream =
+    var stream =
         localSBTree.iterateEntriesMinor(compositeKey(3.0, 2.0), false, true);
-    Set<RID> orids = extractRids(stream);
+    var orids = extractRids(stream);
 
     assertEquals(19, orids.size());
 
-    for (int i = 1; i < 3; i++) {
-      for (int j = 1; j <= 9; j++) {
+    for (var i = 1; i < 3; i++) {
+      for (var j = 1; j <= 9; j++) {
         assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
@@ -533,8 +533,8 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
     assertEquals(19, orids.size());
 
-    for (int i = 1; i < 3; i++) {
-      for (int j = 1; j <= 9; j++) {
+    for (var i = 1; i < 3; i++) {
+      for (var j = 1; j <= 9; j++) {
         assertTrue(orids.contains(new RecordId(i, j)));
       }
     }

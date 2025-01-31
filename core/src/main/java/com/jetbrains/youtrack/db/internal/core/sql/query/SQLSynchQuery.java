@@ -85,12 +85,12 @@ public class SQLSynchQuery<T extends Object> extends SQLAsynchQuery<T>
     queryParams = fetchQueryParams(iArgs);
     resetNextRIDIfParametersWereChanged(queryParams);
 
-    final List<Object> res = (List<Object>) super.run(iArgs);
+    final var res = (List<Object>) super.run(iArgs);
 
     if (res != result && res != null && result.isEmptyNoWait()) {
-      Iterator<Object> iter = res.iterator();
+      var iter = res.iterator();
       while (iter.hasNext()) {
-        Object item = iter.next();
+        var item = iter.next();
         result.add((T) item);
       }
     }
@@ -99,7 +99,7 @@ public class SQLSynchQuery<T extends Object> extends SQLAsynchQuery<T>
 
     if (!result.isEmpty()) {
       previousQueryParams = new HashMap<>(queryParams);
-      final RecordId lastRid = (RecordId) ((Identifiable) result.get(
+      final var lastRid = (RecordId) ((Identifiable) result.get(
           result.size() - 1)).getIdentity();
       nextPageRID = new RecordId(lastRid.next());
     }
@@ -140,11 +140,11 @@ public class SQLSynchQuery<T extends Object> extends SQLAsynchQuery<T>
   @Override
   protected MemoryStream queryToStream(DatabaseSessionInternal db,
       RecordSerializerNetwork serializer) {
-    final MemoryStream buffer = super.queryToStream(db, serializer);
+    final var buffer = super.queryToStream(db, serializer);
 
     buffer.setUtf8(nextPageRID != null ? nextPageRID.toString() : "");
 
-    final byte[] queryParams = serializeQueryParameters(db, serializer, previousQueryParams);
+    final var queryParams = serializeQueryParameters(db, serializer, previousQueryParams);
     buffer.set(queryParams);
 
     return buffer;
@@ -155,14 +155,14 @@ public class SQLSynchQuery<T extends Object> extends SQLAsynchQuery<T>
       RecordSerializerNetwork serializer) {
     super.queryFromStream(db, buffer, serializer);
 
-    final String rid = buffer.getAsString();
+    final var rid = buffer.getAsString();
     if ("".equals(rid)) {
       nextPageRID = null;
     } else {
       nextPageRID = new RecordId(rid);
     }
 
-    final byte[] serializedPrevParams = buffer.getAsByteArray();
+    final var serializedPrevParams = buffer.getAsByteArray();
     previousQueryParams = deserializeQueryParameters(db, serializedPrevParams, serializer);
   }
 
@@ -177,7 +177,7 @@ public class SQLSynchQuery<T extends Object> extends SQLAsynchQuery<T>
       return convertToParameters(iArgs);
     }
 
-    Map<Object, Object> queryParams = getParameters();
+    var queryParams = getParameters();
     if (queryParams == null) {
       queryParams = new HashMap<Object, Object>();
     }

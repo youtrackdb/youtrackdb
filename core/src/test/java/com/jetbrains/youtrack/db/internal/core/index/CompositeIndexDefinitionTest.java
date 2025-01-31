@@ -39,7 +39,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testGetFields() {
-    final List<String> fields = compositeIndex.getFields();
+    final var fields = compositeIndex.getFields();
 
     Assert.assertEquals(2, fields.size());
     Assert.assertEquals("fOne", fields.get(0));
@@ -48,14 +48,14 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateValueSuccessful() {
-    final Object result = compositeIndex.createValue(db, Arrays.asList("12", "test"));
+    final var result = compositeIndex.createValue(db, Arrays.asList("12", "test"));
 
     Assert.assertEquals(result, new CompositeKey(Arrays.asList(12, "test")));
   }
 
   @Test
   public void testCreateMapValueSuccessful() {
-    final CompositeIndexDefinition compositeIndexDefinition =
+    final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
 
     compositeIndexDefinition.addIndex(
@@ -69,9 +69,9 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     stringMap.put("key1", "val1");
     stringMap.put("key2", "val2");
 
-    final Object result = compositeIndexDefinition.createValue(db, 12, stringMap);
+    final var result = compositeIndexDefinition.createValue(db, 12, stringMap);
 
-    final Collection<CompositeKey> collectionResult = (Collection<CompositeKey>) result;
+    final var collectionResult = (Collection<CompositeKey>) result;
 
     Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains(new CompositeKey(12, "key1")));
@@ -80,7 +80,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateCollectionValueSuccessfulOne() {
-    final CompositeIndexDefinition compositeIndexDefinition =
+    final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
 
     compositeIndexDefinition.addIndex(
@@ -88,9 +88,9 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyListIndexDefinition("testCollectionClass", "fTwo", PropertyType.INTEGER));
 
-    final Object result = compositeIndexDefinition.createValue(db, 12, Arrays.asList(1, 2));
+    final var result = compositeIndexDefinition.createValue(db, 12, Arrays.asList(1, 2));
 
-    final ArrayList<CompositeKey> expectedResult = new ArrayList<CompositeKey>();
+    final var expectedResult = new ArrayList<CompositeKey>();
 
     expectedResult.add(new CompositeKey(12, 1));
     expectedResult.add(new CompositeKey(12, 2));
@@ -100,7 +100,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateRidBagValueSuccessfulOne() {
-    final CompositeIndexDefinition compositeIndexDefinition =
+    final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
 
     compositeIndexDefinition.addIndex(
@@ -108,14 +108,14 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyRidBagIndexDefinition("testCollectionClass", "fTwo"));
 
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
     ridBag.add(new RecordId("#1:10"));
     ridBag.add(new RecordId("#1:11"));
     ridBag.add(new RecordId("#1:11"));
 
-    final Object result = compositeIndexDefinition.createValue(db, 12, ridBag);
+    final var result = compositeIndexDefinition.createValue(db, 12, ridBag);
 
-    final ArrayList<CompositeKey> expectedResult = new ArrayList<CompositeKey>();
+    final var expectedResult = new ArrayList<CompositeKey>();
 
     expectedResult.add(new CompositeKey(12, new RecordId("#1:10")));
     expectedResult.add(new CompositeKey(12, new RecordId("#1:11")));
@@ -126,7 +126,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateCollectionValueSuccessfulTwo() {
-    final CompositeIndexDefinition compositeIndexDefinition =
+    final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
 
     compositeIndexDefinition.addIndex(
@@ -134,10 +134,10 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fOne", PropertyType.INTEGER));
 
-    final Object result =
+    final var result =
         compositeIndexDefinition.createValue(db, Arrays.asList(Arrays.asList(1, 2), 12));
 
-    final ArrayList<CompositeKey> expectedResult = new ArrayList<CompositeKey>();
+    final var expectedResult = new ArrayList<CompositeKey>();
 
     expectedResult.add(new CompositeKey(1, 12));
     expectedResult.add(new CompositeKey(2, 12));
@@ -147,7 +147,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateCollectionValueEmptyListOne() {
-    final CompositeIndexDefinition compositeIndexDefinition =
+    final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
 
     compositeIndexDefinition.addIndex(
@@ -155,13 +155,13 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fOne", PropertyType.INTEGER));
 
-    final Object result = compositeIndexDefinition.createValue(db, Collections.emptyList(), 12);
+    final var result = compositeIndexDefinition.createValue(db, Collections.emptyList(), 12);
     Assert.assertNull(result);
   }
 
   @Test
   public void testCreateCollectionValueEmptyListTwo() {
-    final CompositeIndexDefinition compositeIndexDefinition =
+    final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
 
     compositeIndexDefinition.addIndex(
@@ -169,13 +169,13 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyListIndexDefinition("testCollectionClass", "fTwo", PropertyType.INTEGER));
 
-    final Object result = compositeIndexDefinition.createValue(db, 12, Collections.emptyList());
+    final var result = compositeIndexDefinition.createValue(db, 12, Collections.emptyList());
     Assert.assertNull(result);
   }
 
   @Test
   public void testCreateCollectionValueEmptyListOneNullSupport() {
-    final CompositeIndexDefinition compositeIndexDefinition =
+    final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
     compositeIndexDefinition.setNullValuesIgnored(false);
 
@@ -184,13 +184,13 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fOne", PropertyType.INTEGER));
 
-    final Object result = compositeIndexDefinition.createValue(db, Collections.emptyList(), 12);
+    final var result = compositeIndexDefinition.createValue(db, Collections.emptyList(), 12);
     Assert.assertEquals(result, List.of(new CompositeKey(null, 12)));
   }
 
   @Test
   public void testCreateCollectionValueEmptyListTwoNullSupport() {
-    final CompositeIndexDefinition compositeIndexDefinition =
+    final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
     compositeIndexDefinition.setNullValuesIgnored(false);
 
@@ -199,13 +199,13 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyListIndexDefinition("testCollectionClass", "fTwo", PropertyType.INTEGER));
 
-    final Object result = compositeIndexDefinition.createValue(db, 12, Collections.emptyList());
+    final var result = compositeIndexDefinition.createValue(db, 12, Collections.emptyList());
     Assert.assertEquals(result, List.of(new CompositeKey(12, null)));
   }
 
   @Test
   public void testCreateRidBagValueSuccessfulTwo() {
-    final CompositeIndexDefinition compositeIndexDefinition =
+    final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
 
     compositeIndexDefinition.addIndex(
@@ -213,14 +213,14 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fOne", PropertyType.INTEGER));
 
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
     ridBag.add(new RecordId("#1:10"));
     ridBag.add(new RecordId("#1:11"));
     ridBag.add(new RecordId("#1:11"));
 
-    final Object result = compositeIndexDefinition.createValue(db, Arrays.asList(ridBag, 12));
+    final var result = compositeIndexDefinition.createValue(db, Arrays.asList(ridBag, 12));
 
-    final ArrayList<CompositeKey> expectedResult = new ArrayList<CompositeKey>();
+    final var expectedResult = new ArrayList<CompositeKey>();
 
     expectedResult.add(new CompositeKey(new RecordId("#1:10"), 12));
     expectedResult.add(new CompositeKey(new RecordId("#1:11"), 12));
@@ -231,7 +231,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateCollectionValueSuccessfulThree() {
-    final CompositeIndexDefinition compositeIndexDefinition =
+    final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
 
     compositeIndexDefinition.addIndex(
@@ -241,9 +241,9 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fThree", PropertyType.STRING));
 
-    final Object result = compositeIndexDefinition.createValue(db, 12, Arrays.asList(1, 2), "test");
+    final var result = compositeIndexDefinition.createValue(db, 12, Arrays.asList(1, 2), "test");
 
-    final ArrayList<CompositeKey> expectedResult = new ArrayList<CompositeKey>();
+    final var expectedResult = new ArrayList<CompositeKey>();
 
     expectedResult.add(new CompositeKey(12, 1, "test"));
     expectedResult.add(new CompositeKey(12, 2, "test"));
@@ -253,7 +253,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateRidBagValueSuccessfulThree() {
-    final CompositeIndexDefinition compositeIndexDefinition =
+    final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
 
     compositeIndexDefinition.addIndex(
@@ -263,14 +263,14 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fThree", PropertyType.STRING));
 
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
     ridBag.add(new RecordId("#1:10"));
     ridBag.add(new RecordId("#1:11"));
     ridBag.add(new RecordId("#1:11"));
 
-    final Object result = compositeIndexDefinition.createValue(db, 12, ridBag, "test");
+    final var result = compositeIndexDefinition.createValue(db, 12, ridBag, "test");
 
-    final ArrayList<CompositeKey> expectedResult = new ArrayList<CompositeKey>();
+    final var expectedResult = new ArrayList<CompositeKey>();
 
     expectedResult.add(new CompositeKey(12, new RecordId("#1:10"), "test"));
     expectedResult.add(new CompositeKey(12, new RecordId("#1:11"), "test"));
@@ -281,7 +281,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test(expected = IndexException.class)
   public void testCreateCollectionValueTwoCollections() {
-    final CompositeIndexDefinition compositeIndexDefinition =
+    final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
 
     compositeIndexDefinition.addIndex(
@@ -299,7 +299,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateValueSuccessfulArrayParams() {
-    final Object result = compositeIndex.createValue(db, "12", "test");
+    final var result = compositeIndex.createValue(db, "12", "test");
 
     Assert.assertEquals(result, new CompositeKey(Arrays.asList(12, "test")));
   }
@@ -314,13 +314,13 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndex.addIndex(
         new PropertyIndexDefinition("testClass", "fThree", PropertyType.STRING));
 
-    final Object result = compositeIndex.createValue(db, "12", "test");
+    final var result = compositeIndex.createValue(db, "12", "test");
     Assert.assertEquals(result, new CompositeKey(Arrays.asList(12, "test")));
   }
 
   @Test
   public void testCreateValueIndexItemWithTwoParams() {
-    final CompositeIndexDefinition anotherCompositeIndex =
+    final var anotherCompositeIndex =
         new CompositeIndexDefinition("testClass");
 
     anotherCompositeIndex.addIndex(
@@ -330,24 +330,24 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
     compositeIndex.addIndex(anotherCompositeIndex);
 
-    final Object result = compositeIndex.createValue(db, "12", "test", "tset");
+    final var result = compositeIndex.createValue(db, "12", "test", "tset");
     Assert.assertEquals(result, new CompositeKey(Arrays.asList(12, "test", "tset")));
   }
 
   @Test
   public void testDocumentToIndexSuccessful() {
-    final EntityImpl document = (EntityImpl) db.newEntity();
+    final var document = (EntityImpl) db.newEntity();
 
     document.field("fOne", 12);
     document.field("fTwo", "test");
 
-    final Object result = compositeIndex.getDocumentValueToIndex(db, document);
+    final var result = compositeIndex.getDocumentValueToIndex(db, document);
     Assert.assertEquals(result, new CompositeKey(Arrays.asList(12, "test")));
   }
 
   @Test
   public void testDocumentToIndexMapValueSuccessful() {
-    final EntityImpl document = (EntityImpl) db.newEntity();
+    final var document = (EntityImpl) db.newEntity();
 
     final Map<String, String> stringMap = new HashMap<String, String>();
     stringMap.put("key1", "val1");
@@ -356,7 +356,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     document.field("fOne", 12);
     document.field("fTwo", stringMap);
 
-    final CompositeIndexDefinition compositeIndexDefinition =
+    final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
 
     compositeIndexDefinition.addIndex(
@@ -366,8 +366,8 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
             "testCollectionClass", "fTwo", PropertyType.STRING,
             PropertyMapIndexDefinition.INDEX_BY.KEY));
 
-    final Object result = compositeIndexDefinition.getDocumentValueToIndex(db, document);
-    final Collection<CompositeKey> collectionResult = (Collection<CompositeKey>) result;
+    final var result = compositeIndexDefinition.getDocumentValueToIndex(db, document);
+    final var collectionResult = (Collection<CompositeKey>) result;
 
     Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains(new CompositeKey(12, "key1")));
@@ -376,12 +376,12 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testDocumentToIndexCollectionValueSuccessfulOne() {
-    final EntityImpl document = (EntityImpl) db.newEntity();
+    final var document = (EntityImpl) db.newEntity();
 
     document.field("fOne", 12);
     document.field("fTwo", Arrays.asList(1, 2));
 
-    final CompositeIndexDefinition compositeIndexDefinition =
+    final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
 
     compositeIndexDefinition.addIndex(
@@ -389,9 +389,9 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyListIndexDefinition("testCollectionClass", "fTwo", PropertyType.INTEGER));
 
-    final Object result = compositeIndexDefinition.getDocumentValueToIndex(db, document);
+    final var result = compositeIndexDefinition.getDocumentValueToIndex(db, document);
 
-    final ArrayList<CompositeKey> expectedResult = new ArrayList<CompositeKey>();
+    final var expectedResult = new ArrayList<CompositeKey>();
 
     expectedResult.add(new CompositeKey(12, 1));
     expectedResult.add(new CompositeKey(12, 2));
@@ -401,12 +401,12 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testDocumentToIndexCollectionValueEmptyOne() {
-    final EntityImpl document = (EntityImpl) db.newEntity();
+    final var document = (EntityImpl) db.newEntity();
 
     document.field("fOne", 12);
     document.field("fTwo", Collections.emptyList());
 
-    final CompositeIndexDefinition compositeIndexDefinition =
+    final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
 
     compositeIndexDefinition.addIndex(
@@ -414,18 +414,18 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyListIndexDefinition("testCollectionClass", "fTwo", PropertyType.INTEGER));
 
-    final Object result = compositeIndexDefinition.getDocumentValueToIndex(db, document);
+    final var result = compositeIndexDefinition.getDocumentValueToIndex(db, document);
     Assert.assertNull(result);
   }
 
   @Test
   public void testDocumentToIndexCollectionValueEmptyTwo() {
-    final EntityImpl document = (EntityImpl) db.newEntity();
+    final var document = (EntityImpl) db.newEntity();
 
     document.field("fOne", Collections.emptyList());
     document.field("fTwo", 12);
 
-    final CompositeIndexDefinition compositeIndexDefinition =
+    final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
 
     compositeIndexDefinition.addIndex(
@@ -433,18 +433,18 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fTwo", PropertyType.INTEGER));
 
-    final Object result = compositeIndexDefinition.getDocumentValueToIndex(db, document);
+    final var result = compositeIndexDefinition.getDocumentValueToIndex(db, document);
     Assert.assertNull(result);
   }
 
   @Test
   public void testDocumentToIndexCollectionValueEmptyOneNullValuesSupport() {
-    final EntityImpl document = (EntityImpl) db.newEntity();
+    final var document = (EntityImpl) db.newEntity();
 
     document.field("fOne", 12);
     document.field("fTwo", Collections.emptyList());
 
-    final CompositeIndexDefinition compositeIndexDefinition =
+    final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
 
     compositeIndexDefinition.addIndex(
@@ -453,18 +453,18 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
         new PropertyListIndexDefinition("testCollectionClass", "fTwo", PropertyType.INTEGER));
     compositeIndexDefinition.setNullValuesIgnored(false);
 
-    final Object result = compositeIndexDefinition.getDocumentValueToIndex(db, document);
+    final var result = compositeIndexDefinition.getDocumentValueToIndex(db, document);
     Assert.assertEquals(result, List.of(new CompositeKey(12, null)));
   }
 
   @Test
   public void testDocumentToIndexCollectionValueEmptyTwoNullValuesSupport() {
-    final EntityImpl document = (EntityImpl) db.newEntity();
+    final var document = (EntityImpl) db.newEntity();
 
     document.field("fOne", Collections.emptyList());
     document.field("fTwo", 12);
 
-    final CompositeIndexDefinition compositeIndexDefinition =
+    final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
 
     compositeIndexDefinition.addIndex(
@@ -473,15 +473,15 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
         new PropertyIndexDefinition("testCollectionClass", "fTwo", PropertyType.INTEGER));
     compositeIndexDefinition.setNullValuesIgnored(false);
 
-    final Object result = compositeIndexDefinition.getDocumentValueToIndex(db, document);
+    final var result = compositeIndexDefinition.getDocumentValueToIndex(db, document);
     Assert.assertEquals(result, List.of(new CompositeKey(null, 12)));
   }
 
   @Test
   public void testDocumentToIndexRidBagValueSuccessfulOne() {
-    final EntityImpl document = (EntityImpl) db.newEntity();
+    final var document = (EntityImpl) db.newEntity();
 
-    final RidBag ridBag = new RidBag(db);
+    final var ridBag = new RidBag(db);
     ridBag.add(new RecordId("#1:10"));
     ridBag.add(new RecordId("#1:11"));
     ridBag.add(new RecordId("#1:11"));
@@ -489,7 +489,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     document.field("fOne", 12);
     document.field("fTwo", ridBag);
 
-    final CompositeIndexDefinition compositeIndexDefinition =
+    final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
 
     compositeIndexDefinition.addIndex(
@@ -497,9 +497,9 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyRidBagIndexDefinition("testCollectionClass", "fTwo"));
 
-    final Object result = compositeIndexDefinition.getDocumentValueToIndex(db, document);
+    final var result = compositeIndexDefinition.getDocumentValueToIndex(db, document);
 
-    final ArrayList<CompositeKey> expectedResult = new ArrayList<CompositeKey>();
+    final var expectedResult = new ArrayList<CompositeKey>();
 
     expectedResult.add(new CompositeKey(12, new RecordId("#1:10")));
     expectedResult.add(new CompositeKey(12, new RecordId("#1:11")));
@@ -510,12 +510,12 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testDocumentToIndexCollectionValueSuccessfulTwo() {
-    final EntityImpl document = (EntityImpl) db.newEntity();
+    final var document = (EntityImpl) db.newEntity();
 
     document.field("fOne", 12);
     document.field("fTwo", Arrays.asList(1, 2));
 
-    final CompositeIndexDefinition compositeIndexDefinition =
+    final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
 
     compositeIndexDefinition.addIndex(
@@ -523,9 +523,9 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fOne", PropertyType.INTEGER));
 
-    final Object result = compositeIndexDefinition.getDocumentValueToIndex(db, document);
+    final var result = compositeIndexDefinition.getDocumentValueToIndex(db, document);
 
-    final ArrayList<CompositeKey> expectedResult = new ArrayList<CompositeKey>();
+    final var expectedResult = new ArrayList<CompositeKey>();
 
     expectedResult.add(new CompositeKey(1, 12));
     expectedResult.add(new CompositeKey(2, 12));
@@ -535,17 +535,17 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testDocumentToIndexRidBagValueSuccessfulTwo() {
-    final RidBag ridBag = new RidBag(db);
+    final var ridBag = new RidBag(db);
     ridBag.add(new RecordId("#1:10"));
     ridBag.add(new RecordId("#1:11"));
     ridBag.add(new RecordId("#1:11"));
 
-    final EntityImpl document = (EntityImpl) db.newEntity();
+    final var document = (EntityImpl) db.newEntity();
 
     document.field("fOne", 12);
     document.field("fTwo", ridBag);
 
-    final CompositeIndexDefinition compositeIndexDefinition =
+    final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
 
     compositeIndexDefinition.addIndex(
@@ -553,9 +553,9 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fOne", PropertyType.INTEGER));
 
-    final Object result = compositeIndexDefinition.getDocumentValueToIndex(db, document);
+    final var result = compositeIndexDefinition.getDocumentValueToIndex(db, document);
 
-    final ArrayList<CompositeKey> expectedResult = new ArrayList<CompositeKey>();
+    final var expectedResult = new ArrayList<CompositeKey>();
 
     expectedResult.add(new CompositeKey(new RecordId("#1:10"), 12));
     expectedResult.add(new CompositeKey(new RecordId("#1:11"), 12));
@@ -566,13 +566,13 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testDocumentToIndexCollectionValueSuccessfulThree() {
-    final EntityImpl document = (EntityImpl) db.newEntity();
+    final var document = (EntityImpl) db.newEntity();
 
     document.field("fOne", 12);
     document.field("fTwo", Arrays.asList(1, 2));
     document.field("fThree", "test");
 
-    final CompositeIndexDefinition compositeIndexDefinition =
+    final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
 
     compositeIndexDefinition.addIndex(
@@ -582,9 +582,9 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fThree", PropertyType.STRING));
 
-    final Object result = compositeIndexDefinition.getDocumentValueToIndex(db, document);
+    final var result = compositeIndexDefinition.getDocumentValueToIndex(db, document);
 
-    final ArrayList<CompositeKey> expectedResult = new ArrayList<CompositeKey>();
+    final var expectedResult = new ArrayList<CompositeKey>();
 
     expectedResult.add(new CompositeKey(12, 1, "test"));
     expectedResult.add(new CompositeKey(12, 2, "test"));
@@ -594,9 +594,9 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testDocumentToIndexRidBagValueSuccessfulThree() {
-    final EntityImpl document = (EntityImpl) db.newEntity();
+    final var document = (EntityImpl) db.newEntity();
 
-    final RidBag ridBag = new RidBag(db);
+    final var ridBag = new RidBag(db);
     ridBag.add(new RecordId("#1:10"));
     ridBag.add(new RecordId("#1:11"));
     ridBag.add(new RecordId("#1:11"));
@@ -605,7 +605,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     document.field("fTwo", ridBag);
     document.field("fThree", "test");
 
-    final CompositeIndexDefinition compositeIndexDefinition =
+    final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
 
     compositeIndexDefinition.addIndex(
@@ -615,9 +615,9 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fThree", PropertyType.STRING));
 
-    final Object result = compositeIndexDefinition.getDocumentValueToIndex(db, document);
+    final var result = compositeIndexDefinition.getDocumentValueToIndex(db, document);
 
-    final ArrayList<CompositeKey> expectedResult = new ArrayList<CompositeKey>();
+    final var expectedResult = new ArrayList<CompositeKey>();
 
     expectedResult.add(new CompositeKey(12, new RecordId("#1:10"), "test"));
     expectedResult.add(new CompositeKey(12, new RecordId("#1:11"), "test"));
@@ -628,12 +628,12 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test(expected = BaseException.class)
   public void testDocumentToIndexCollectionValueTwoCollections() {
-    final EntityImpl document = (EntityImpl) db.newEntity();
+    final var document = (EntityImpl) db.newEntity();
 
     document.field("fOne", List.of(12));
     document.field("fTwo", Arrays.asList(1, 2));
 
-    final CompositeIndexDefinition compositeIndexDefinition =
+    final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
 
     compositeIndexDefinition.addIndex(
@@ -645,7 +645,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test(expected = DatabaseException.class)
   public void testDocumentToIndexWrongField() {
-    final EntityImpl document = (EntityImpl) db.newEntity();
+    final var document = (EntityImpl) db.newEntity();
 
     document.field("fOne", "1t2");
     document.field("fTwo", "test");
@@ -655,14 +655,14 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testGetParamCount() {
-    final int result = compositeIndex.getParamCount();
+    final var result = compositeIndex.getParamCount();
 
     Assert.assertEquals(2, result);
   }
 
   @Test
   public void testGetTypes() {
-    final PropertyType[] result = compositeIndex.getTypes();
+    final var result = compositeIndex.getTypes();
 
     Assert.assertEquals(2, result.length);
     Assert.assertEquals(PropertyType.INTEGER, result[0]);
@@ -671,7 +671,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testEmptyIndexReload() {
-    final CompositeIndexDefinition emptyCompositeIndex =
+    final var emptyCompositeIndex =
         new CompositeIndexDefinition("testClass");
 
     emptyCompositeIndex.addIndex(
@@ -680,13 +680,13 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
         new PropertyIndexDefinition("testClass", "fTwo", PropertyType.STRING));
 
     db.begin();
-    final EntityImpl docToStore = emptyCompositeIndex.toStream(db, (EntityImpl) db.newEntity());
+    final var docToStore = emptyCompositeIndex.toStream(db, (EntityImpl) db.newEntity());
     db.save(docToStore);
     db.commit();
 
     final EntityImpl docToLoad = db.load(docToStore.getIdentity());
 
-    final CompositeIndexDefinition result = new CompositeIndexDefinition();
+    final var result = new CompositeIndexDefinition();
     result.fromStream(docToLoad);
 
     Assert.assertEquals(result, emptyCompositeIndex);
@@ -694,9 +694,9 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testIndexReload() {
-    final EntityImpl docToStore = compositeIndex.toStream(db, (EntityImpl) db.newEntity());
+    final var docToStore = compositeIndex.toStream(db, (EntityImpl) db.newEntity());
 
-    final CompositeIndexDefinition result = new CompositeIndexDefinition();
+    final var result = new CompositeIndexDefinition();
     result.fromStream(docToStore);
 
     Assert.assertEquals(result, compositeIndex);
@@ -705,14 +705,14 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
   @Test
   public void testClassOnlyConstructor() {
 
-    final CompositeIndexDefinition emptyCompositeIndex =
+    final var emptyCompositeIndex =
         new CompositeIndexDefinition(
             "testClass",
             Arrays.asList(
                 new PropertyIndexDefinition("testClass", "fOne", PropertyType.INTEGER),
                 new PropertyIndexDefinition("testClass", "fTwo", PropertyType.STRING)));
 
-    final CompositeIndexDefinition emptyCompositeIndexTwo =
+    final var emptyCompositeIndexTwo =
         new CompositeIndexDefinition("testClass");
 
     emptyCompositeIndexTwo.addIndex(
@@ -723,13 +723,13 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     Assert.assertEquals(emptyCompositeIndex, emptyCompositeIndexTwo);
 
     db.begin();
-    final EntityImpl entityToStore = emptyCompositeIndex.toStream(db, (EntityImpl) db.newEntity());
+    final var entityToStore = emptyCompositeIndex.toStream(db, (EntityImpl) db.newEntity());
     db.save(entityToStore);
     db.commit();
 
     final EntityImpl docToLoad = db.load(entityToStore.getIdentity());
 
-    final CompositeIndexDefinition result = new CompositeIndexDefinition();
+    final var result = new CompositeIndexDefinition();
     result.fromStream(docToLoad);
 
     Assert.assertEquals(result, emptyCompositeIndexTwo);
@@ -737,7 +737,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeListEventsOne() {
-    final CompositeIndexDefinition compositeIndexDefinition = new CompositeIndexDefinition();
+    final var compositeIndexDefinition = new CompositeIndexDefinition();
 
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fOne", PropertyType.INTEGER));
@@ -746,24 +746,24 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fThree", PropertyType.INTEGER));
 
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedList<String> trackedList = new TrackedList<String>(doc);
+    final var trackedList = new TrackedList<String>(doc);
     trackedList.enableTracking(doc);
     trackedList.add("l1");
     trackedList.add("l2");
     trackedList.add("l3");
     trackedList.remove("l2");
 
-    Object2IntOpenHashMap<CompositeKey> keysToAdd = new Object2IntOpenHashMap<>();
+    var keysToAdd = new Object2IntOpenHashMap<CompositeKey>();
     keysToAdd.defaultReturnValue(-1);
 
-    Object2IntOpenHashMap<CompositeKey> keysToRemove = new Object2IntOpenHashMap<>();
+    var keysToRemove = new Object2IntOpenHashMap<CompositeKey>();
     keysToRemove.defaultReturnValue(-1);
 
-    for (MultiValueChangeEvent<Object, Object> multiValueChangeEvent :
+    for (var multiValueChangeEvent :
         trackedList.getTimeLine().getMultiValueChangeEvents()) {
       compositeIndexDefinition.processChangeEvent(
           db, multiValueChangeEvent, keysToAdd, keysToRemove, 2, 3);
@@ -778,7 +778,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeRidBagEventsOne() {
-    final CompositeIndexDefinition compositeIndexDefinition = new CompositeIndexDefinition();
+    final var compositeIndexDefinition = new CompositeIndexDefinition();
 
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fOne", PropertyType.INTEGER));
@@ -787,7 +787,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fThree", PropertyType.INTEGER));
 
-    final RidBag ridBag = new RidBag(db);
+    final var ridBag = new RidBag(db);
     ridBag.enableTracking(null);
     ridBag.add(new RecordId("#10:0"));
     ridBag.add(new RecordId("#10:1"));
@@ -796,13 +796,13 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     ridBag.remove(new RecordId("#10:0"));
     ridBag.remove(new RecordId("#10:1"));
 
-    Object2IntOpenHashMap<CompositeKey> keysToAdd = new Object2IntOpenHashMap<>();
+    var keysToAdd = new Object2IntOpenHashMap<CompositeKey>();
     keysToAdd.defaultReturnValue(-1);
 
-    Object2IntOpenHashMap<CompositeKey> keysToRemove = new Object2IntOpenHashMap<>();
+    var keysToRemove = new Object2IntOpenHashMap<CompositeKey>();
     keysToRemove.defaultReturnValue(-1);
 
-    for (MultiValueChangeEvent<Object, Object> multiValueChangeEvent :
+    for (var multiValueChangeEvent :
         ridBag.getTimeLine().getMultiValueChangeEvents()) {
       compositeIndexDefinition.processChangeEvent(
           db, multiValueChangeEvent, keysToAdd, keysToRemove, 2, 3);
@@ -817,7 +817,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeListEventsTwo() {
-    final CompositeIndexDefinition compositeIndexDefinition = new CompositeIndexDefinition();
+    final var compositeIndexDefinition = new CompositeIndexDefinition();
 
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fOne", PropertyType.INTEGER));
@@ -826,11 +826,11 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fThree", PropertyType.INTEGER));
 
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedList<String> trackedList = new TrackedList<String>(doc);
+    final var trackedList = new TrackedList<String>(doc);
 
     trackedList.add("l1");
     trackedList.add("l2");
@@ -841,13 +841,13 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     trackedList.add("l4");
     trackedList.remove("l1");
 
-    Object2IntOpenHashMap<CompositeKey> keysToAdd = new Object2IntOpenHashMap<>();
+    var keysToAdd = new Object2IntOpenHashMap<CompositeKey>();
     keysToAdd.defaultReturnValue(-1);
 
-    Object2IntOpenHashMap<CompositeKey> keysToRemove = new Object2IntOpenHashMap<>();
+    var keysToRemove = new Object2IntOpenHashMap<CompositeKey>();
     keysToRemove.defaultReturnValue(-1);
 
-    for (MultiValueChangeEvent<Object, Object> multiValueChangeEvent :
+    for (var multiValueChangeEvent :
         trackedList.getTimeLine().getMultiValueChangeEvents()) {
       compositeIndexDefinition.processChangeEvent(
           db, multiValueChangeEvent, keysToAdd, keysToRemove, 2, 3);
@@ -862,7 +862,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeRidBagEventsTwo() {
-    final CompositeIndexDefinition compositeIndexDefinition = new CompositeIndexDefinition();
+    final var compositeIndexDefinition = new CompositeIndexDefinition();
 
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fOne", PropertyType.INTEGER));
@@ -871,7 +871,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fThree", PropertyType.INTEGER));
 
-    final RidBag ridBag = new RidBag(db);
+    final var ridBag = new RidBag(db);
 
     ridBag.add(new RecordId("#10:1"));
     ridBag.add(new RecordId("#10:2"));
@@ -883,13 +883,13 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     ridBag.add(new RecordId("#10:4"));
     ridBag.remove(new RecordId("#10:1"));
 
-    Object2IntOpenHashMap<CompositeKey> keysToAdd = new Object2IntOpenHashMap<>();
+    var keysToAdd = new Object2IntOpenHashMap<CompositeKey>();
     keysToAdd.defaultReturnValue(-1);
 
-    Object2IntOpenHashMap<CompositeKey> keysToRemove = new Object2IntOpenHashMap<>();
+    var keysToRemove = new Object2IntOpenHashMap<CompositeKey>();
     keysToRemove.defaultReturnValue(-1);
 
-    for (MultiValueChangeEvent<Object, Object> multiValueChangeEvent :
+    for (var multiValueChangeEvent :
         ridBag.getTimeLine().getMultiValueChangeEvents()) {
       compositeIndexDefinition.processChangeEvent(
           db, multiValueChangeEvent, keysToAdd, keysToRemove, 2, 3);
@@ -904,7 +904,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeSetEventsOne() {
-    final CompositeIndexDefinition compositeIndexDefinition = new CompositeIndexDefinition();
+    final var compositeIndexDefinition = new CompositeIndexDefinition();
 
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fOne", PropertyType.INTEGER));
@@ -913,11 +913,11 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fThree", PropertyType.INTEGER));
 
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
+    final var trackedSet = new TrackedSet<String>(doc);
 
     trackedSet.enableTracking(doc);
     trackedSet.add("l1");
@@ -925,13 +925,13 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     trackedSet.add("l3");
     trackedSet.remove("l2");
 
-    Object2IntOpenHashMap<CompositeKey> keysToAdd = new Object2IntOpenHashMap<>();
+    var keysToAdd = new Object2IntOpenHashMap<CompositeKey>();
     keysToAdd.defaultReturnValue(-1);
 
-    Object2IntOpenHashMap<CompositeKey> keysToRemove = new Object2IntOpenHashMap<>();
+    var keysToRemove = new Object2IntOpenHashMap<CompositeKey>();
     keysToRemove.defaultReturnValue(-1);
 
-    for (MultiValueChangeEvent<Object, Object> multiValueChangeEvent :
+    for (var multiValueChangeEvent :
         trackedSet.getTimeLine().getMultiValueChangeEvents()) {
       compositeIndexDefinition.processChangeEvent(
           db, multiValueChangeEvent, keysToAdd, keysToRemove, 2, 3);
@@ -946,7 +946,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeSetEventsTwo() {
-    final CompositeIndexDefinition compositeIndexDefinition = new CompositeIndexDefinition();
+    final var compositeIndexDefinition = new CompositeIndexDefinition();
 
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fOne", PropertyType.INTEGER));
@@ -955,11 +955,11 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fThree", PropertyType.INTEGER));
 
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedSet<String> trackedMap = new TrackedSet<String>(doc);
+    final var trackedMap = new TrackedSet<String>(doc);
 
     trackedMap.add("l1");
     trackedMap.add("l2");
@@ -970,13 +970,13 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     trackedMap.add("l4");
     trackedMap.remove("l1");
 
-    Object2IntOpenHashMap<CompositeKey> keysToAdd = new Object2IntOpenHashMap<>();
+    var keysToAdd = new Object2IntOpenHashMap<CompositeKey>();
     keysToAdd.defaultReturnValue(-1);
 
-    Object2IntOpenHashMap<CompositeKey> keysToRemove = new Object2IntOpenHashMap<>();
+    var keysToRemove = new Object2IntOpenHashMap<CompositeKey>();
     keysToRemove.defaultReturnValue(-1);
 
-    for (MultiValueChangeEvent<Object, Object> multiValueChangeEvent :
+    for (var multiValueChangeEvent :
         trackedMap.getTimeLine().getMultiValueChangeEvents()) {
       compositeIndexDefinition.processChangeEvent(
           db, multiValueChangeEvent, keysToAdd, keysToRemove, 2, 3);
@@ -991,7 +991,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeKeyMapEventsOne() {
-    final CompositeIndexDefinition compositeIndexDefinition = new CompositeIndexDefinition();
+    final var compositeIndexDefinition = new CompositeIndexDefinition();
 
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fOne", PropertyType.INTEGER));
@@ -1002,24 +1002,24 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fThree", PropertyType.INTEGER));
 
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedMap<String> trackedMap = new TrackedMap<String>(doc);
+    final var trackedMap = new TrackedMap<String>(doc);
     trackedMap.enableTracking(doc);
     trackedMap.put("k1", "v1");
     trackedMap.put("k2", "v2");
     trackedMap.put("k3", "v3");
     trackedMap.remove("k2");
 
-    Object2IntOpenHashMap<CompositeKey> keysToAdd = new Object2IntOpenHashMap<>();
+    var keysToAdd = new Object2IntOpenHashMap<CompositeKey>();
     keysToAdd.defaultReturnValue(-1);
 
-    Object2IntOpenHashMap<CompositeKey> keysToRemove = new Object2IntOpenHashMap<>();
+    var keysToRemove = new Object2IntOpenHashMap<CompositeKey>();
     keysToRemove.defaultReturnValue(-1);
 
-    for (MultiValueChangeEvent<Object, Object> multiValueChangeEvent :
+    for (var multiValueChangeEvent :
         trackedMap.getTimeLine().getMultiValueChangeEvents()) {
       compositeIndexDefinition.processChangeEvent(
           db, multiValueChangeEvent, keysToAdd, keysToRemove, 2, 3);
@@ -1034,7 +1034,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeKeyMapEventsTwo() {
-    final CompositeIndexDefinition compositeIndexDefinition = new CompositeIndexDefinition();
+    final var compositeIndexDefinition = new CompositeIndexDefinition();
 
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fOne", PropertyType.INTEGER));
@@ -1045,11 +1045,11 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fThree", PropertyType.INTEGER));
 
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedMap<String> trackedMap = new TrackedMap<String>(doc);
+    final var trackedMap = new TrackedMap<String>(doc);
 
     trackedMap.put("k1", "v1");
     trackedMap.put("k2", "v2");
@@ -1060,13 +1060,13 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     trackedMap.put("k4", "v4");
     trackedMap.remove("k1");
 
-    Object2IntOpenHashMap<CompositeKey> keysToAdd = new Object2IntOpenHashMap<>();
+    var keysToAdd = new Object2IntOpenHashMap<CompositeKey>();
     keysToAdd.defaultReturnValue(-1);
 
-    Object2IntOpenHashMap<CompositeKey> keysToRemove = new Object2IntOpenHashMap<>();
+    var keysToRemove = new Object2IntOpenHashMap<CompositeKey>();
     keysToRemove.defaultReturnValue(-1);
 
-    for (MultiValueChangeEvent<Object, Object> multiValueChangeEvent :
+    for (var multiValueChangeEvent :
         trackedMap.getTimeLine().getMultiValueChangeEvents()) {
       compositeIndexDefinition.processChangeEvent(
           db, multiValueChangeEvent, keysToAdd, keysToRemove, 2, 3);

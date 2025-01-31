@@ -50,12 +50,12 @@ public class SQLIfStatement extends SQLStatement {
 
   @Override
   public boolean isIdempotent() {
-    for (SQLStatement stm : statements) {
+    for (var stm : statements) {
       if (!stm.isIdempotent()) {
         return false;
       }
     }
-    for (SQLStatement stm : elseStatements) {
+    for (var stm : elseStatements) {
       if (!stm.isIdempotent()) {
         return false;
       }
@@ -67,14 +67,14 @@ public class SQLIfStatement extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
     ctx.setDatabase(db);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
-      for (int i = 0; i < args.length; i++) {
+      for (var i = 0; i < args.length; i++) {
         params.put(i, args[i]);
       }
     }
@@ -87,16 +87,16 @@ public class SQLIfStatement extends SQLStatement {
       executionPlan = (IfExecutionPlan) createExecutionPlanNoCache(ctx, false);
     }
 
-    ExecutionStepInternal last = executionPlan.executeUntilReturn();
+    var last = executionPlan.executeUntilReturn();
     if (last == null) {
       last = new EmptyStep(ctx, false);
     }
     if (isIdempotent()) {
-      SelectExecutionPlan finalPlan = new SelectExecutionPlan(ctx);
+      var finalPlan = new SelectExecutionPlan(ctx);
       finalPlan.chain(last);
       return new LocalResultSet(finalPlan);
     } else {
-      UpdateExecutionPlan finalPlan = new UpdateExecutionPlan(ctx);
+      var finalPlan = new UpdateExecutionPlan(ctx);
       finalPlan.chain(last);
       finalPlan.executeInternal();
       return new LocalResultSet(finalPlan);
@@ -107,7 +107,7 @@ public class SQLIfStatement extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Map<Object, Object> params, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -121,16 +121,16 @@ public class SQLIfStatement extends SQLStatement {
       executionPlan = (IfExecutionPlan) createExecutionPlanNoCache(ctx, false);
     }
 
-    ExecutionStepInternal last = executionPlan.executeUntilReturn();
+    var last = executionPlan.executeUntilReturn();
     if (last == null) {
       last = new EmptyStep(ctx, false);
     }
     if (isIdempotent()) {
-      SelectExecutionPlan finalPlan = new SelectExecutionPlan(ctx);
+      var finalPlan = new SelectExecutionPlan(ctx);
       finalPlan.chain(last);
       return new LocalResultSet(finalPlan);
     } else {
-      UpdateExecutionPlan finalPlan = new UpdateExecutionPlan(ctx);
+      var finalPlan = new UpdateExecutionPlan(ctx);
       finalPlan.chain(last);
       finalPlan.executeInternal();
       return new LocalResultSet(finalPlan);
@@ -140,9 +140,9 @@ public class SQLIfStatement extends SQLStatement {
   @Override
   public IfExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
 
-    IfExecutionPlan plan = new IfExecutionPlan(ctx);
+    var plan = new IfExecutionPlan(ctx);
 
-    IfStep step = new IfStep(ctx, enableProfiling);
+    var step = new IfStep(ctx, enableProfiling);
     step.setCondition(this.expression);
     plan.chain(step);
 
@@ -156,14 +156,14 @@ public class SQLIfStatement extends SQLStatement {
     builder.append("IF(");
     expression.toString(params, builder);
     builder.append("){\n");
-    for (SQLStatement stm : statements) {
+    for (var stm : statements) {
       stm.toString(params, builder);
       builder.append(";\n");
     }
     builder.append("}");
     if (elseStatements.size() > 0) {
       builder.append("\nELSE {\n");
-      for (SQLStatement stm : elseStatements) {
+      for (var stm : elseStatements) {
         stm.toString(params, builder);
         builder.append(";\n");
       }
@@ -176,14 +176,14 @@ public class SQLIfStatement extends SQLStatement {
     builder.append("IF(");
     expression.toGenericStatement(builder);
     builder.append("){\n");
-    for (SQLStatement stm : statements) {
+    for (var stm : statements) {
       stm.toGenericStatement(builder);
       builder.append(";\n");
     }
     builder.append("}");
     if (elseStatements.size() > 0) {
       builder.append("\nELSE {\n");
-      for (SQLStatement stm : elseStatements) {
+      for (var stm : elseStatements) {
         stm.toGenericStatement(builder);
         builder.append(";\n");
       }
@@ -193,7 +193,7 @@ public class SQLIfStatement extends SQLStatement {
 
   @Override
   public SQLIfStatement copy() {
-    SQLIfStatement result = new SQLIfStatement(-1);
+    var result = new SQLIfStatement(-1);
     result.expression = expression == null ? null : expression.copy();
     result.statements =
         statements == null
@@ -215,7 +215,7 @@ public class SQLIfStatement extends SQLStatement {
       return false;
     }
 
-    SQLIfStatement that = (SQLIfStatement) o;
+    var that = (SQLIfStatement) o;
 
     if (!Objects.equals(expression, that.expression)) {
       return false;
@@ -228,7 +228,7 @@ public class SQLIfStatement extends SQLStatement {
 
   @Override
   public int hashCode() {
-    int result = expression != null ? expression.hashCode() : 0;
+    var result = expression != null ? expression.hashCode() : 0;
     result = 31 * result + (statements != null ? statements.hashCode() : 0);
     result = 31 * result + (elseStatements != null ? elseStatements.hashCode() : 0);
     return result;
@@ -239,7 +239,7 @@ public class SQLIfStatement extends SQLStatement {
   }
 
   public boolean containsReturn() {
-    for (SQLStatement stm : this.statements) {
+    for (var stm : this.statements) {
       if (stm instanceof SQLReturnStatement) {
         return true;
       }
@@ -252,7 +252,7 @@ public class SQLIfStatement extends SQLStatement {
     }
 
     if (elseStatements != null) {
-      for (SQLStatement stm : this.elseStatements) {
+      for (var stm : this.elseStatements) {
         if (stm instanceof SQLReturnStatement) {
           return true;
         }

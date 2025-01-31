@@ -49,8 +49,8 @@ public abstract class HttpMultipartRequestCommand<B, F>
       final DatabaseSessionInternal db)
       throws Exception {
     char currChar;
-    boolean endRequest = false;
-    final HttpMultipartContentInputStream contentIn =
+    var endRequest = false;
+    final var contentIn =
         new HttpMultipartContentInputStream(iRequest.getMultipartStream(), iRequest.getBoundary());
     final HashMap<String, String> headers = new LinkedHashMap<String, String>();
     int in;
@@ -147,8 +147,8 @@ public abstract class HttpMultipartRequestCommand<B, F>
       final HttpRequest iRequest, final HttpResponse iResponse, char currChar)
       throws IOException {
     int in;
-    int boundaryCursor = 0;
-    for (int i = 0; i < 2; i++) {
+    var boundaryCursor = 0;
+    for (var i = 0; i < 2; i++) {
       if (currChar != '-') {
         iResponse.send(
             HttpUtils.STATUS_INVALIDMETHOD_CODE,
@@ -186,8 +186,8 @@ public abstract class HttpMultipartRequestCommand<B, F>
       final HashMap<String, String> headers)
       throws IOException {
     int in;
-    StringBuilder headerName = new StringBuilder();
-    boolean endOfHeaders = false;
+    var headerName = new StringBuilder();
+    var endOfHeaders = false;
     while (!endOfHeaders) {
       headerName.append(currChar);
       if (HttpMultipartHelper.isMultipartPartHeader(headerName)) {
@@ -221,8 +221,8 @@ public abstract class HttpMultipartRequestCommand<B, F>
       HashMap<String, String> headers,
       final String headerName)
       throws IOException {
-    final StringBuilder header = new StringBuilder();
-    boolean endOfHeader = false;
+    final var header = new StringBuilder();
+    var endOfHeader = false;
     int in;
     char currChar;
     in = iRequest.getMultipartStream().read();
@@ -281,7 +281,7 @@ public abstract class HttpMultipartRequestCommand<B, F>
       final HttpMultipartContentInputStream in,
       DatabaseSessionInternal db)
       throws Exception {
-    B result = contentParser.parse(iRequest, headers, in, db);
+    var result = contentParser.parse(iRequest, headers, in, db);
     parseStatus = STATUS.STATUS_EXPECTED_END_REQUEST;
     processBaseContent(iRequest, result, headers);
   }
@@ -293,7 +293,7 @@ public abstract class HttpMultipartRequestCommand<B, F>
       final HttpMultipartContentInputStream in,
       DatabaseSessionInternal db)
       throws Exception {
-    F result = contentParser.parse(iRequest, headers, in, db);
+    var result = contentParser.parse(iRequest, headers, in, db);
     parseStatus = STATUS.STATUS_EXPECTED_END_REQUEST;
     processFileContent(iRequest, result, headers);
   }

@@ -16,11 +16,9 @@ package com.jetbrains.youtrack.db.internal.core.metadata.schema.clusterselection
 
 import static com.jetbrains.youtrack.db.internal.common.util.ClassLoaderHelper.lookupProviderWithYouTrackDBClassLoader;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.ClusterSelectionStrategy;
 import com.jetbrains.youtrack.db.internal.common.factory.ConfigurableStatefulFactory;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import java.lang.reflect.Method;
-import java.util.Iterator;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.ClusterSelectionStrategy;
 
 /**
  * Factory to get the cluster selection strategy.
@@ -37,16 +35,16 @@ public class ClusterSelectionFactory
       ClusterSelectionFactory.class.getClassLoader();
 
   private void registerStrategy() {
-    final Iterator<ClusterSelectionStrategy> ite =
+    final var ite =
         lookupProviderWithYouTrackDBClassLoader(ClusterSelectionStrategy.class,
             youTrackDbClassLoader);
     while (ite.hasNext()) {
-      ClusterSelectionStrategy strategy = ite.next();
+      var strategy = ite.next();
       Class clz = strategy.getClass();
       try {
-        Method method = clz.getMethod("getName");
+        var method = clz.getMethod("getName");
         if (method != null) {
-          String key = (String) method.invoke(clz.newInstance());
+          var key = (String) method.invoke(clz.newInstance());
           register(key, clz);
         } else {
           LogManager.instance().error(this, "getName() funciton missing", null);

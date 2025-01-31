@@ -43,15 +43,15 @@ public class CountFromIndexStepTest extends TestUtilsFixture {
 
   public void beforeTest() throws Exception {
     super.beforeTest();
-    SchemaClass clazz = createClassInstance();
+    var clazz = createClassInstance();
     clazz.createProperty(db, PROPERTY_NAME, PropertyType.STRING);
-    String className = clazz.getName();
+    var className = clazz.getName();
     indexName = className + "." + PROPERTY_NAME;
     clazz.createIndex(db, indexName, SchemaClass.INDEX_TYPE.NOTUNIQUE, PROPERTY_NAME);
 
-    for (int i = 0; i < 20; i++) {
+    for (var i = 0; i < 20; i++) {
       db.begin();
-      EntityImpl document = (EntityImpl) db.newEntity(className);
+      var document = (EntityImpl) db.newEntity(className);
       document.field(PROPERTY_NAME, PROPERTY_VALUE);
       document.save();
       db.commit();
@@ -60,18 +60,18 @@ public class CountFromIndexStepTest extends TestUtilsFixture {
 
   @Test
   public void shouldCountRecordsOfIndex() {
-    SQLIndexName name = new SQLIndexName(-1);
+    var name = new SQLIndexName(-1);
     name.setValue(indexName);
-    SQLIndexIdentifier identifier = new SQLIndexIdentifier(-1);
+    var identifier = new SQLIndexIdentifier(-1);
     identifier.setIndexName(name);
     identifier.setIndexNameString(name.getValue());
     identifier.setType(identifierType);
 
-    BasicCommandContext context = new BasicCommandContext();
+    var context = new BasicCommandContext();
     context.setDatabase(db);
-    CountFromIndexStep step = new CountFromIndexStep(identifier, ALIAS, context, false);
+    var step = new CountFromIndexStep(identifier, ALIAS, context, false);
 
-    ExecutionStream result = step.start(context);
+    var result = step.start(context);
     Assert.assertEquals(20, (long) result.next(context).getProperty(ALIAS));
     Assert.assertFalse(result.hasNext(context));
   }

@@ -32,9 +32,9 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
   @Override
   public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
-    ExecutionStream resultSet = prev.start(ctx);
+    var resultSet = prev.start(ctx);
     Set<Result> pastItems = new HashSet<>();
-    RidSet pastRids = new RidSet();
+    var pastRids = new RidSet();
 
     return resultSet.filter((result, context) -> filterMap(result, pastRids, pastItems));
   }
@@ -50,9 +50,9 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
 
   private void markAsVisited(Result nextValue, Set<RID> pastRids, Set<Result> pastItems) {
     if (nextValue.isEntity()) {
-      RID identity = nextValue.asEntity().getIdentity();
-      int cluster = identity.getClusterId();
-      long pos = identity.getClusterPosition();
+      var identity = nextValue.asEntity().getIdentity();
+      var cluster = identity.getClusterId();
+      var pos = identity.getClusterPosition();
       if (cluster >= 0 && pos >= 0) {
         pastRids.add(identity);
         return;
@@ -73,9 +73,9 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
   private static boolean alreadyVisited(Result nextValue, Set<RID> pastRids,
       Set<Result> pastItems) {
     if (nextValue.isEntity()) {
-      RID identity = nextValue.asEntity().getIdentity();
-      int cluster = identity.getClusterId();
-      long pos = identity.getClusterPosition();
+      var identity = nextValue.asEntity().getIdentity();
+      var cluster = identity.getClusterId();
+      var pos = identity.getClusterPosition();
       if (cluster >= 0 && pos >= 0) {
         return pastRids.contains(identity);
       }
@@ -96,7 +96,7 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String result = ExecutionStepInternal.getIndent(depth, indent) + "+ DISTINCT";
+    var result = ExecutionStepInternal.getIndent(depth, indent) + "+ DISTINCT";
     if (profilingEnabled) {
       result += " (" + getCostFormatted() + ")";
     }

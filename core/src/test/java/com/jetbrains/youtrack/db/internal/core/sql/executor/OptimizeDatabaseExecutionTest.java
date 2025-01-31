@@ -17,35 +17,35 @@ public class OptimizeDatabaseExecutionTest extends DbTestBase {
   public void test() {
     Schema schema = db.getMetadata().getSchema();
 
-    String vClass = "testCreateSingleEdgeV";
+    var vClass = "testCreateSingleEdgeV";
     schema.createClass(vClass, schema.getClass("V"));
 
-    String eClass = "testCreateSingleEdgeE";
+    var eClass = "testCreateSingleEdgeE";
     schema.createClass(eClass, schema.getClass("E"));
 
     db.begin();
-    Vertex v1 = db.newVertex(vClass);
+    var v1 = db.newVertex(vClass);
     v1.setProperty("name", "v1");
     v1.save();
     db.commit();
 
     db.begin();
-    Vertex v2 = db.newVertex(vClass);
+    var v2 = db.newVertex(vClass);
     v2.setProperty("name", "v2");
     v2.save();
     db.commit();
 
     db.begin();
-    ResultSet createREs =
+    var createREs =
         db.command(
             "create edge " + eClass + " from " + v1.getIdentity() + " to " + v2.getIdentity());
     db.commit();
 
     ExecutionPlanPrintUtils.printExecutionPlan(createREs);
-    ResultSet result = db.query("select expand(out()) from " + v1.getIdentity());
+    var result = db.query("select expand(out()) from " + v1.getIdentity());
     Assert.assertNotNull(result);
     Assert.assertTrue(result.hasNext());
-    Result next = result.next();
+    var next = result.next();
     Assert.assertNotNull(next);
     Assert.assertEquals("v2", next.getProperty("name"));
     result.close();
@@ -54,7 +54,7 @@ public class OptimizeDatabaseExecutionTest extends DbTestBase {
     db.command("optimize database -LWEDGES").close();
     db.commit();
 
-    ResultSet rs = db.query("select from E");
+    var rs = db.query("select from E");
     Assert.assertFalse(rs.hasNext());
     rs.close();
   }

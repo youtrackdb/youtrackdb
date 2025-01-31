@@ -14,7 +14,7 @@ public class LucenePhraseQueriesTest extends BaseLuceneTest {
   @Before
   public void setUp() throws Exception {
 
-    SchemaClass type = db.createVertexClass("Role");
+    var type = db.createVertexClass("Role");
     type.createProperty(db, "name", PropertyType.STRING);
 
     db.command(
@@ -30,7 +30,7 @@ public class LucenePhraseQueriesTest extends BaseLuceneTest {
         .close();
 
     db.begin();
-    Vertex role = db.newVertex("Role");
+    var role = db.newVertex("Role");
     role.setProperty("name", "System IT Owner");
     db.save(role);
 
@@ -63,7 +63,7 @@ public class LucenePhraseQueriesTest extends BaseLuceneTest {
   @Test
   public void testPhraseQueries() throws Exception {
 
-    ResultSet vertexes = db.query("select from Role where name lucene ' \"Business Owner\" '  ");
+    var vertexes = db.query("select from Role where name lucene ' \"Business Owner\" '  ");
 
     assertThat(vertexes).hasSize(1);
 
@@ -91,7 +91,7 @@ public class LucenePhraseQueriesTest extends BaseLuceneTest {
   @Test
   public void testComplexPhraseQueries() throws Exception {
 
-    ResultSet vertexes = db.query("select from Role where name lucene ?", "\"System SME\"~1");
+    var vertexes = db.query("select from Role where name lucene ?", "\"System SME\"~1");
 
     assertThat(vertexes).allMatch(v -> v.<String>getProperty("name").contains("SME"));
 

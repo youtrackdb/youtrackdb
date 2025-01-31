@@ -64,8 +64,8 @@ public class QueryOperatorMatches extends QueryOperatorEqualityNotNulls {
 
   private boolean matches(
       final String iValue, final String iRegex, final CommandContext iContext) {
-    final String key = "MATCHES_" + iRegex.hashCode();
-    Pattern p = (Pattern) iContext.getVariable(key);
+    final var key = "MATCHES_" + iRegex.hashCode();
+    var p = (Pattern) iContext.getVariable(key);
     if (p == null) {
       p = Pattern.compile(iRegex);
       iContext.setVariable(key, p);

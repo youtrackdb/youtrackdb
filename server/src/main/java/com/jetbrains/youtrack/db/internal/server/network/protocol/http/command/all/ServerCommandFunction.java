@@ -37,7 +37,7 @@ public class ServerCommandFunction extends ServerCommandAbstractLogic {
 
   @Override
   public String[] init(final HttpRequest iRequest, final HttpResponse iResponse) {
-    final String[] parts =
+    final var parts =
         checkSyntax(iRequest.getUrl(), 3, "Syntax error: function/<database>/<name>[/param]*");
     iRequest.getData().commandInfo = "Execute a function";
     return parts;

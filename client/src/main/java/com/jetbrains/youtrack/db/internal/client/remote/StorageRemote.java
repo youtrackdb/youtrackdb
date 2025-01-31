@@ -359,7 +359,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
           } catch (IOException e) {
             throw new NotSendRequestException("Cannot send request on this channel");
           }
-          final T response = request.createResponse();
+          final var response = request.createResponse();
           T ret = null;
           if (pMode == 0) {
             // SYNC
@@ -423,8 +423,8 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
             throw new NotSendRequestException("Cannot send request on this channel");
           }
 
-          int prev = network.getSocketTimeout();
-          T response = request.createResponse();
+          var prev = network.getSocketTimeout();
+          var response = request.createResponse();
           try {
             if (timeout > 0) {
               network.setSocketTimeout(timeout);
@@ -458,7 +458,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   public <T> T baseNetworkOperation(
       DatabaseSessionRemote remoteSession, final StorageRemoteOperation<T> operation,
       final String errorMessage, int retry) {
-    StorageRemoteSession session = getCurrentSession(remoteSession);
+    var session = getCurrentSession(remoteSession);
     if (session.commandExecuting) {
       throw new DatabaseException(
           "Cannot execute the request because an asynchronous operation is in progress. Please use"
@@ -493,7 +493,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
 
         // In case i do not have a token or i'm switching between server i've to execute a open
         // operation.
-        StorageRemoteNodeSession nodeSession = session.getServerSession(network.getServerURL());
+        var nodeSession = session.getServerSession(network.getServerURL());
         if (nodeSession == null || !nodeSession.isValid() && !session.isStickToSession()) {
           if (nodeSession != null) {
             session.removeServerSession(nodeSession.getServerURL());
@@ -560,7 +560,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
         connectionManager.release(network);
         // Remove the current url because the node is offline
         this.serverURLs.remove(serverUrl);
-        for (StorageRemoteSession activeSession : sessions) {
+        for (var activeSession : sessions) {
           // Not thread Safe ...
           activeSession.removeServerSession(serverUrl);
         }
@@ -611,7 +611,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   }
 
   public int getSessionId(DatabaseSessionRemote database) {
-    StorageRemoteSession session = getCurrentSession(database);
+    var session = getCurrentSession(database);
     return session != null ? session.getSessionId() : -1;
   }
 
@@ -621,13 +621,13 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
     var remoteDb = (DatabaseSessionRemote) db;
     addUser();
     try {
-      StorageRemoteSession session = getCurrentSession(remoteDb);
+      var session = getCurrentSession(remoteDb);
       if (status == STATUS.CLOSED
           || !iUserName.equals(session.connectionUserName)
           || !iUserPassword.equals(session.connectionUserPassword)
           || session.sessions.isEmpty()) {
 
-        CredentialInterceptor ci = SecurityManager.instance().newCredentialInterceptor();
+        var ci = SecurityManager.instance().newCredentialInterceptor();
 
         if (ci != null) {
           ci.intercept(getURL(), iUserName, iUserPassword);
@@ -639,7 +639,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
           session.connectionUserPassword = iUserPassword;
         }
 
-        String strategy = conf.getValueAsString(GlobalConfiguration.CLIENT_CONNECTION_STRATEGY);
+        var strategy = conf.getValueAsString(GlobalConfiguration.CLIENT_CONNECTION_STRATEGY);
         if (strategy != null) {
           connectionStrategy = CONNECTION_STRATEGY.valueOf(strategy.toUpperCase(Locale.ENGLISH));
         }
@@ -672,7 +672,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   }
 
   public void reload(DatabaseSessionInternal database) {
-    ReloadResponse37 res =
+    var res =
         networkOperation((DatabaseSessionRemote) database, new ReloadRequest37(),
             "error loading storage configuration");
     final StorageConfiguration storageConfiguration =
@@ -701,9 +701,9 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
       return;
     }
 
-    final StorageRemoteSession session = getCurrentSession((DatabaseSessionRemote) database);
+    final var session = getCurrentSession((DatabaseSessionRemote) database);
     if (session != null) {
-      final Collection<StorageRemoteNodeSession> nodes = session.getAllServerSessions();
+      final var nodes = session.getAllServerSessions();
       if (!nodes.isEmpty()) {
         ContextConfiguration config = null;
         if (configuration != null) {
@@ -729,7 +729,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
     }
 
     // FROM HERE FORWARD COMPLETELY CLOSE THE STORAGE
-    for (Entry<Integer, LiveQueryClientListener> listener : liveQueryListener.entrySet()) {
+    for (var listener : liveQueryListener.entrySet()) {
       listener.getValue().onEnd();
     }
     liveQueryListener.clear();
@@ -774,7 +774,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
       return false;
     }
 
-    final int remainingUsers = getUsers() > 0 ? removeUser() : 0;
+    final var remainingUsers = getUsers() > 0 ? removeUser() : 0;
 
     return force || remainingUsers == 0;
   }
@@ -817,7 +817,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
       final BTreeCollectionManager collectionManager,
       final Map<UUID, BonsaiCollectionPointer> changes) {
     if (collectionManager != null) {
-      for (Entry<UUID, BonsaiCollectionPointer> coll : changes.entrySet()) {
+      for (var coll : changes.entrySet()) {
         collectionManager.updateCollectionPointer(coll.getKey(), coll.getValue());
       }
       if (RecordSerializationContext.getDepth() <= 1) {
@@ -827,8 +827,8 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   }
 
   public RecordMetadata getRecordMetadata(DatabaseSessionInternal session, final RID rid) {
-    GetRecordMetadataRequest request = new GetRecordMetadataRequest(rid);
-    GetRecordMetadataResponse response =
+    var request = new GetRecordMetadataRequest(rid);
+    var response =
         networkOperation((DatabaseSessionRemote) session, request,
             "Error on record metadata read " + rid);
 
@@ -868,8 +868,8 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
               + " a different connection");
     }
 
-    ReadRecordRequest request = new ReadRecordRequest(iIgnoreCache, iRid, null, false);
-    ReadRecordResponse response = networkOperation(remoteSession, request,
+    var request = new ReadRecordRequest(iIgnoreCache, iRid, null, false);
+    var response = networkOperation(remoteSession, request,
         "Error on read record " + iRid);
 
     return response.getResult();
@@ -877,8 +877,8 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
 
   public String incrementalBackup(DatabaseSessionInternal session, final String backupDirectory,
       CallableFunction<Void, Void> started) {
-    IncrementalBackupRequest request = new IncrementalBackupRequest(backupDirectory);
-    IncrementalBackupResponse response =
+    var request = new IncrementalBackupRequest(backupDirectory);
+    var response =
         networkOperationNoRetry((DatabaseSessionRemote) session, request,
             "Error on incremental backup");
     return response.getFileName();
@@ -919,8 +919,8 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
       realCallback = (iRID, response) -> callback.call(iRID, response.getResult());
     }
 
-    final CleanOutRecordRequest request = new CleanOutRecordRequest(recordVersion, recordId);
-    final CleanOutRecordResponse response =
+    final var request = new CleanOutRecordRequest(recordVersion, recordId);
+    final var response =
         asyncNetworkOperationNoRetry((DatabaseSessionRemote) session,
             request, iMode, recordId, realCallback, "Error on delete record " + recordId);
     Boolean result = null;
@@ -967,8 +967,8 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   }
 
   public long[] getClusterDataRange(DatabaseSessionInternal session, final int iClusterId) {
-    GetClusterDataRangeRequest request = new GetClusterDataRangeRequest(iClusterId);
-    GetClusterDataRangeResponse response =
+    var request = new GetClusterDataRangeRequest(iClusterId);
+    var response =
         networkOperation((DatabaseSessionRemote) session,
             request, "Error on getting last entry position count in cluster: " + iClusterId);
     return response.getPos();
@@ -977,10 +977,10 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   public PhysicalPosition[] higherPhysicalPositions(
       DatabaseSessionInternal session, final int iClusterId,
       final PhysicalPosition iClusterPosition) {
-    HigherPhysicalPositionsRequest request =
+    var request =
         new HigherPhysicalPositionsRequest(iClusterId, iClusterPosition);
 
-    HigherPhysicalPositionsResponse response =
+    var response =
         networkOperation((DatabaseSessionRemote) session,
             request,
             "Error on retrieving higher positions after " + iClusterPosition.clusterPosition);
@@ -991,10 +991,10 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
       DatabaseSessionInternal session, final int clusterId,
       final PhysicalPosition physicalPosition) {
 
-    CeilingPhysicalPositionsRequest request =
+    var request =
         new CeilingPhysicalPositionsRequest(clusterId, physicalPosition);
 
-    CeilingPhysicalPositionsResponse response =
+    var response =
         networkOperation((DatabaseSessionRemote) session,
             request,
             "Error on retrieving ceiling positions after " + physicalPosition.clusterPosition);
@@ -1004,9 +1004,9 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   public PhysicalPosition[] lowerPhysicalPositions(
       DatabaseSessionInternal session, final int iClusterId,
       final PhysicalPosition physicalPosition) {
-    LowerPhysicalPositionsRequest request =
+    var request =
         new LowerPhysicalPositionsRequest(physicalPosition, iClusterId);
-    LowerPhysicalPositionsResponse response =
+    var response =
         networkOperation((DatabaseSessionRemote) session,
             request,
             "Error on retrieving lower positions after " + physicalPosition.clusterPosition);
@@ -1016,9 +1016,9 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   public PhysicalPosition[] floorPhysicalPositions(
       DatabaseSessionInternal session, final int clusterId,
       final PhysicalPosition physicalPosition) {
-    FloorPhysicalPositionsRequest request =
+    var request =
         new FloorPhysicalPositionsRequest(physicalPosition, clusterId);
-    FloorPhysicalPositionsResponse response =
+    var response =
         networkOperation((DatabaseSessionRemote) session,
             request,
             "Error on retrieving floor positions after " + physicalPosition.clusterPosition);
@@ -1026,15 +1026,15 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   }
 
   public long getSize(DatabaseSessionInternal session) {
-    GetSizeRequest request = new GetSizeRequest();
-    GetSizeResponse response = networkOperation((DatabaseSessionRemote) session, request,
+    var request = new GetSizeRequest();
+    var response = networkOperation((DatabaseSessionRemote) session, request,
         "Error on read database size");
     return response.getSize();
   }
 
   public long countRecords(DatabaseSessionInternal session) {
-    CountRecordsRequest request = new CountRecordsRequest();
-    CountRecordsResponse response =
+    var request = new CountRecordsRequest();
+    var response =
         networkOperation((DatabaseSessionRemote) session, request,
             "Error on read database record count");
     return response.getCountRecords();
@@ -1046,8 +1046,8 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
 
   public long count(DatabaseSessionInternal session, final int[] iClusterIds,
       final boolean countTombstones) {
-    CountRequest request = new CountRequest(iClusterIds, countTombstones);
-    CountResponse response =
+    var request = new CountRequest(iClusterIds, countTombstones);
+    var response =
         networkOperation((DatabaseSessionRemote) session,
             request, "Error on read record count in clusters: " + Arrays.toString(iClusterIds));
     return response.getCount();
@@ -1058,44 +1058,44 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
    */
   public Object command(DatabaseSessionInternal db, final CommandRequestText iCommand) {
 
-    final boolean live = iCommand instanceof LiveQuery;
-    final boolean asynch =
+    final var live = iCommand instanceof LiveQuery;
+    final var asynch =
         iCommand instanceof CommandRequestAsynch
             && ((CommandRequestAsynch) iCommand).isAsynchronous();
 
     var remoteDb = (DatabaseSessionRemote) db;
-    CommandRequest request = new CommandRequest(remoteDb, asynch, iCommand, live);
-    CommandResponse response =
+    var request = new CommandRequest(remoteDb, asynch, iCommand, live);
+    var response =
         networkOperation(remoteDb, request,
             "Error on executing command: " + iCommand);
     return response.getResult();
   }
 
   public void stickToSession(DatabaseSessionRemote database) {
-    StorageRemoteSession session = getCurrentSession(database);
+    var session = getCurrentSession(database);
     session.stickToSession();
   }
 
   public void unstickToSession(DatabaseSessionRemote database) {
-    StorageRemoteSession session = getCurrentSession(database);
+    var session = getCurrentSession(database);
     session.unStickToSession();
   }
 
   public RemoteQueryResult query(DatabaseSessionRemote db, String query, Object[] args) {
-    int recordsPerPage = GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
+    var recordsPerPage = GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;
     }
-    QueryRequest request =
+    var request =
         new QueryRequest(db,
             "sql", query, args, QueryRequest.QUERY, db.getSerializer(), recordsPerPage);
-    QueryResponse response = networkOperation(db, request, "Error on executing command: " + query);
+    var response = networkOperation(db, request, "Error on executing command: " + query);
     try {
       if (response.isTxChanges()) {
         fetchTransaction(db);
       }
 
-      RemoteResultSet rs =
+      var rs =
           new RemoteResultSet(
               db,
               response.getQueryId(),
@@ -1117,21 +1117,21 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   }
 
   public RemoteQueryResult query(DatabaseSessionRemote db, String query, Map args) {
-    int recordsPerPage = GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
+    var recordsPerPage = GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;
     }
-    QueryRequest request =
+    var request =
         new QueryRequest(db,
             "sql", query, args, QueryRequest.QUERY, db.getSerializer(), recordsPerPage);
-    QueryResponse response = networkOperation(db, request, "Error on executing command: " + query);
+    var response = networkOperation(db, request, "Error on executing command: " + query);
 
     try {
       if (response.isTxChanges()) {
         fetchTransaction(db);
       }
 
-      RemoteResultSet rs =
+      var rs =
           new RemoteResultSet(
               db,
               response.getQueryId(),
@@ -1153,14 +1153,14 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   }
 
   public RemoteQueryResult command(DatabaseSessionRemote db, String query, Object[] args) {
-    int recordsPerPage = GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
+    var recordsPerPage = GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;
     }
-    QueryRequest request =
+    var request =
         new QueryRequest(db,
             "sql", query, args, QueryRequest.COMMAND, db.getSerializer(), recordsPerPage);
-    QueryResponse response =
+    var response =
         networkOperationNoRetry(db, request, "Error on executing command: " + query);
 
     try {
@@ -1168,7 +1168,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
         fetchTransaction(db);
       }
 
-      RemoteResultSet rs =
+      var rs =
           new RemoteResultSet(
               db,
               response.getQueryId(),
@@ -1189,21 +1189,21 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   }
 
   public RemoteQueryResult command(DatabaseSessionRemote db, String query, Map args) {
-    int recordsPerPage = GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
+    var recordsPerPage = GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;
     }
-    QueryRequest request =
+    var request =
         new QueryRequest(db,
             "sql", query, args, QueryRequest.COMMAND, db.getSerializer(), recordsPerPage);
-    QueryResponse response =
+    var response =
         networkOperationNoRetry(db, request, "Error on executing command: " + query);
     try {
       if (response.isTxChanges()) {
         fetchTransaction(db);
       }
 
-      RemoteResultSet rs =
+      var rs =
           new RemoteResultSet(
               db,
               response.getQueryId(),
@@ -1225,14 +1225,14 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
 
   public RemoteQueryResult execute(
       DatabaseSessionRemote db, String language, String query, Object[] args) {
-    int recordsPerPage = GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
+    var recordsPerPage = GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;
     }
-    QueryRequest request =
+    var request =
         new QueryRequest(db,
             language, query, args, QueryRequest.EXECUTE, db.getSerializer(), recordsPerPage);
-    QueryResponse response =
+    var response =
         networkOperationNoRetry(db, request, "Error on executing command: " + query);
 
     try {
@@ -1240,7 +1240,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
         fetchTransaction(db);
       }
 
-      RemoteResultSet rs =
+      var rs =
           new RemoteResultSet(
               db,
               response.getQueryId(),
@@ -1264,14 +1264,14 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
 
   public RemoteQueryResult execute(
       DatabaseSessionRemote db, String language, String query, Map args) {
-    int recordsPerPage = GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
+    var recordsPerPage = GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;
     }
-    QueryRequest request =
+    var request =
         new QueryRequest(db,
             language, query, args, QueryRequest.EXECUTE, db.getSerializer(), recordsPerPage);
-    QueryResponse response =
+    var response =
         networkOperationNoRetry(db, request, "Error on executing command: " + query);
 
     try {
@@ -1279,7 +1279,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
         fetchTransaction(db);
       }
 
-      RemoteResultSet rs =
+      var rs =
           new RemoteResultSet(
               db,
               response.getQueryId(),
@@ -1301,17 +1301,17 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
 
   public void closeQuery(DatabaseSessionRemote database, String queryId) {
     unstickToSession(database);
-    CloseQueryRequest request = new CloseQueryRequest(queryId);
+    var request = new CloseQueryRequest(queryId);
     networkOperation(database, request, "Error closing query: " + queryId);
   }
 
   public void fetchNextPage(DatabaseSessionRemote database, RemoteResultSet rs) {
-    int recordsPerPage = GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
+    var recordsPerPage = GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;
     }
-    QueryNextPageRequest request = new QueryNextPageRequest(rs.getQueryId(), recordsPerPage);
-    QueryResponse response =
+    var request = new QueryNextPageRequest(rs.getQueryId(), recordsPerPage);
+    var response =
         networkOperation(database, request,
             "Error on fetching next page for statment: " + rs.getQueryId());
 
@@ -1330,11 +1330,11 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
     var remoteSession = (DatabaseSessionRemote) iTx.getDatabase();
     unstickToSession(remoteSession);
 
-    final Commit38Request request =
+    final var request =
         new Commit38Request(iTx.getDatabase(),
             iTx.getId(), true, true, iTx.getRecordOperations(), Collections.emptyMap());
 
-    final Commit37Response response = networkOperationNoRetry(remoteSession, request,
+    final var response = networkOperationNoRetry(remoteSession, request,
         "Error on commit");
 
     // two pass iteration, we update cluster ids, and then update positions
@@ -1345,7 +1345,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
     updateCollectionsFromChanges(
         iTx.getDatabase().getSbTreeCollectionManager(), response.getCollectionChanges());
     // SET ALL THE RECORDS AS UNDIRTY
-    for (RecordOperation txEntry : iTx.getRecordOperations()) {
+    for (var txEntry : iTx.getRecordOperations()) {
       RecordInternal.unsetDirty(txEntry.record);
     }
 
@@ -1357,7 +1357,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
     try {
       if (((FrontendTransactionOptimistic) iTx).isStartedOnServer()
           && !getCurrentSession(remoteSession).getAllServerSessions().isEmpty()) {
-        RollbackTransactionRequest request = new RollbackTransactionRequest(iTx.getId());
+        var request = new RollbackTransactionRequest(iTx.getId());
         networkOperation(remoteSession, request,
             "Error on fetching next page for statement: " + request);
       }
@@ -1378,7 +1378,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
         return Integer.parseInt(iClusterName);
       }
 
-      final StorageCluster cluster = clusterMap.get(iClusterName.toLowerCase(Locale.ENGLISH));
+      final var cluster = clusterMap.get(iClusterName.toLowerCase(Locale.ENGLISH));
       if (cluster == null) {
         return -1;
       }
@@ -1404,8 +1404,8 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
 
   public int addCluster(DatabaseSessionInternal database, final String iClusterName,
       final int iRequestedId) {
-    AddClusterRequest request = new AddClusterRequest(iRequestedId, iClusterName);
-    AddClusterResponse response = networkOperationNoRetry((DatabaseSessionRemote) database,
+    var request = new AddClusterRequest(iRequestedId, iClusterName);
+    var response = networkOperationNoRetry((DatabaseSessionRemote) database,
         request,
         "Error on add new cluster");
     addNewClusterToConfiguration(response.getClusterId(), iClusterName);
@@ -1419,7 +1419,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
         throw new StorageException("Cluster with id " + clusterId + " does not exist");
       }
 
-      final StorageCluster cluster = clusters[clusterId];
+      final var cluster = clusters[clusterId];
       return cluster.getName();
     } finally {
       stateLock.readLock().unlock();
@@ -1456,9 +1456,9 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
 
   public boolean dropCluster(DatabaseSessionInternal database, final int iClusterId) {
 
-    DropClusterRequest request = new DropClusterRequest(iClusterId);
+    var request = new DropClusterRequest(iClusterId);
 
-    DropClusterResponse response =
+    var response =
         networkOperationNoRetry((DatabaseSessionRemote) database, request,
             "Error on removing of cluster");
     if (response.getResult()) {
@@ -1502,7 +1502,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
       // If this is false the clusters may be already update by a push
       if (clusters.length > iClusterId && clusters[iClusterId] != null) {
         // Remove cluster locally waiting for the push
-        final StorageCluster cluster = clusters[iClusterId];
+        final var cluster = clusters[iClusterId];
         clusters[iClusterId] = null;
         clusterMap.remove(cluster.getName());
         ((StorageConfigurationRemote) configuration)
@@ -1525,7 +1525,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
         return null;
       }
 
-      final StorageCluster cluster = clusters[iClusterId];
+      final var cluster = clusters[iClusterId];
       return cluster != null ? cluster.getName() : null;
 
     } finally {
@@ -1610,7 +1610,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   }
 
   public String getUserName(DatabaseSessionInternal database) {
-    final StorageRemoteSession session = getCurrentSession((DatabaseSessionRemote) database);
+    final var session = getCurrentSession((DatabaseSessionRemote) database);
     if (session == null) {
       return null;
     }
@@ -1618,19 +1618,19 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   }
 
   protected void reopenRemoteDatabase(DatabaseSessionRemote database) {
-    String currentURL = getCurrentServerURL(database);
+    var currentURL = getCurrentServerURL(database);
     do {
       do {
-        final SocketChannelBinaryAsynchClient network = getNetwork(currentURL);
+        final var network = getNetwork(currentURL);
         try {
-          StorageRemoteSession session = getCurrentSession(database);
-          StorageRemoteNodeSession nodeSession =
+          var session = getCurrentSession(database);
+          var nodeSession =
               session.getOrCreateServerSession(network.getServerURL());
           if (nodeSession == null || !nodeSession.isValid()) {
             openRemoteDatabase(database, network);
             return;
           } else {
-            ReopenRequest request = new ReopenRequest();
+            var request = new ReopenRequest();
 
             try {
               network.writeByte(request.getCommand());
@@ -1641,9 +1641,9 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
               endRequest(network);
             }
 
-            ReopenResponse response = request.createResponse();
+            var response = request.createResponse();
             try {
-              byte[] newToken = network.beginResponse(database, nodeSession.getSessionId(), true);
+              var newToken = network.beginResponse(database, nodeSession.getSessionId(), true);
               response.read(database, network, session);
               if (newToken != null && newToken.length > 0) {
                 nodeSession.setSession(response.getSessionId(), newToken);
@@ -1678,7 +1678,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
           LogManager.instance().debug(this, "Cannot open database with url " + currentURL, e);
         } catch (SecurityException ex) {
           LogManager.instance().debug(this, "Invalidate token for url=%s", ex, currentURL);
-          StorageRemoteSession session = getCurrentSession(database);
+          var session = getCurrentSession(database);
           session.removeServerSession(currentURL);
 
           if (network != null) {
@@ -1723,17 +1723,17 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   }
 
   protected void openRemoteDatabase(DatabaseSessionRemote database) throws IOException {
-    final String currentURL = getNextAvailableServerURL(true, getCurrentSession(database));
+    final var currentURL = getNextAvailableServerURL(true, getCurrentSession(database));
     openRemoteDatabase(database, currentURL);
   }
 
   public void openRemoteDatabase(DatabaseSessionRemote database,
       SocketChannelBinaryAsynchClient network) throws IOException {
 
-    StorageRemoteSession session = getCurrentSession(database);
-    StorageRemoteNodeSession nodeSession =
+    var session = getCurrentSession(database);
+    var nodeSession =
         session.getOrCreateServerSession(network.getServerURL());
-    Open37Request request =
+    var request =
         new Open37Request(name, session.connectionUserName, session.connectionUserPassword);
     try {
       network.writeByte(request.getCommand());
@@ -1744,7 +1744,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
       endRequest(network);
     }
     final int sessionId;
-    Open37Response response = request.createResponse();
+    var response = request.createResponse();
     try {
       network.beginResponse(database, nodeSession.getSessionId(), true);
       response.read(database, network, session);
@@ -1753,7 +1753,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
       connectionManager.release(network);
     }
     sessionId = response.getSessionId();
-    byte[] token = response.getSessionToken();
+    var token = response.getSessionToken();
     if (token.length == 0) {
       token = null;
     }
@@ -1883,16 +1883,16 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   }
 
   protected String useNewServerURL(DatabaseSessionRemote database, final String iUrl) {
-    int pos = iUrl.indexOf('/');
+    var pos = iUrl.indexOf('/');
     if (pos >= iUrl.length() - 1)
     // IGNORE ENDING /
     {
       pos = -1;
     }
 
-    final String url = pos > -1 ? iUrl.substring(0, pos) : iUrl;
-    String newUrl = serverURLs.removeAndGet(url);
-    StorageRemoteSession session = getCurrentSession(database);
+    final var url = pos > -1 ? iUrl.substring(0, pos) : iUrl;
+    var newUrl = serverURLs.removeAndGet(url);
+    var session = getCurrentSession(database);
     if (session != null) {
       session.currentUrl = newUrl;
       session.serverURLIndex = 0;
@@ -1976,8 +1976,8 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   public static void beginResponse(
       DatabaseSessionInternal db, SocketChannelBinaryAsynchClient iNetwork,
       StorageRemoteSession session) throws IOException {
-    StorageRemoteNodeSession nodeSession = session.getServerSession(iNetwork.getServerURL());
-    byte[] newToken = iNetwork.beginResponse(db, nodeSession.getSessionId(), true);
+    var nodeSession = session.getServerSession(iNetwork.getServerURL());
+    var newToken = iNetwork.beginResponse(db, nodeSession.getSessionId(), true);
     if (newToken != null && newToken.length > 0) {
       nodeSession.setSession(nodeSession.getSessionId(), newToken);
     }
@@ -2015,13 +2015,13 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
         return;
       }
       this.configuration = storageConfiguration;
-      final List<StorageClusterConfiguration> configClusters = storageConfiguration.getClusters();
-      StorageCluster[] clusters = new StorageCluster[configClusters.size()];
-      for (StorageClusterConfiguration clusterConfig : configClusters) {
+      final var configClusters = storageConfiguration.getClusters();
+      var clusters = new StorageCluster[configClusters.size()];
+      for (var clusterConfig : configClusters) {
         if (clusterConfig != null) {
-          final StorageClusterRemote cluster = new StorageClusterRemote();
-          String clusterName = clusterConfig.getName();
-          final int clusterId = clusterConfig.getId();
+          final var cluster = new StorageClusterRemote();
+          var clusterName = clusterConfig.getName();
+          final var clusterId = clusterConfig.getId();
           if (clusterName != null) {
             clusterName = clusterName.toLowerCase(Locale.ENGLISH);
             cluster.configure(clusterId, clusterName);
@@ -2035,12 +2035,12 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
 
       this.clusters = clusters;
       clusterMap.clear();
-      for (int i = 0; i < clusters.length; ++i) {
+      for (var i = 0; i < clusters.length; ++i) {
         if (clusters[i] != null) {
           clusterMap.put(clusters[i].getName(), clusters[i]);
         }
       }
-      final StorageCluster defaultCluster = clusterMap.get(Storage.CLUSTER_DEFAULT_NAME);
+      final var defaultCluster = clusterMap.get(Storage.CLUSTER_DEFAULT_NAME);
       if (defaultCluster != null) {
         defaultClusterId = clusterMap.get(Storage.CLUSTER_DEFAULT_NAME).getId();
       }
@@ -2055,7 +2055,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
       return null;
     }
 
-    StorageRemoteSession session = db.getSessionMetadata();
+    var session = db.getSessionMetadata();
     if (session == null) {
       session = new StorageRemoteSession(sessionSerialId.decrementAndGet());
       sessions.add(session);
@@ -2069,7 +2069,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
     if (status == STATUS.CLOSED) {
       return true;
     }
-    final StorageRemoteSession session = getCurrentSession((DatabaseSessionRemote) database);
+    final var session = getCurrentSession((DatabaseSessionRemote) database);
     if (session == null) {
       return false;
     }
@@ -2078,7 +2078,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
 
   public StorageRemote copy(
       final DatabaseSessionRemote source, final DatabaseSessionRemote dest) {
-    final StorageRemoteSession session = source.getSessionMetadata();
+    final var session = source.getSessionMetadata();
     DatabaseSessionInternal origin = null;
     if (DatabaseRecordThreadLocal.instance() != null) {
       origin = DatabaseRecordThreadLocal.instance().getIfDefined();
@@ -2087,7 +2087,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
     origin = DatabaseDocumentTxInternal.getInternal(origin);
     if (session != null) {
       // TODO:may run a session reopen
-      final StorageRemoteSession newSession =
+      final var newSession =
           new StorageRemoteSession(sessionSerialId.decrementAndGet());
       newSession.connectionUserName = session.connectionUserName;
       newSession.connectionUserPassword = session.connectionUserPassword;
@@ -2109,16 +2109,16 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
       final InputStream inputStream,
       final String name,
       final CommandOutputListener listener) {
-    ImportRequest request = new ImportRequest(inputStream, options, name);
+    var request = new ImportRequest(inputStream, options, name);
 
-    ImportResponse response =
+    var response =
         networkOperationRetryTimeout(database,
             request,
             "Error sending import request",
             0,
             clientConfiguration.getValueAsInteger(GlobalConfiguration.NETWORK_REQUEST_TIMEOUT));
 
-    for (String message : response.getMessages()) {
+    for (var message : response.getMessages()) {
       listener.onMessage(message);
     }
   }
@@ -2129,7 +2129,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
       // If this if is false maybe the content was already update by the push
       if (clusters.length <= clusterId || clusters[clusterId] == null) {
         // Adding the cluster waiting for the push
-        final StorageClusterRemote cluster = new StorageClusterRemote();
+        final var cluster = new StorageClusterRemote();
         cluster.configure(clusterId, iClusterName.toLowerCase(Locale.ENGLISH));
 
         if (clusters.length <= clusterId) {
@@ -2145,15 +2145,15 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
 
   public void beginTransaction(FrontendTransactionOptimistic transaction) {
     var database = (DatabaseSessionRemote) transaction.getDatabase();
-    BeginTransaction38Request request =
+    var request =
         new BeginTransaction38Request(database,
             transaction.getId(),
             true,
             true,
             transaction.getRecordOperations(), Collections.emptyMap());
-    BeginTransactionResponse response =
+    var response =
         networkOperationNoRetry(database, request, "Error on remote transaction begin");
-    for (Map.Entry<RecordId, RecordId> entry : response.getUpdatedIds().entrySet()) {
+    for (var entry : response.getUpdatedIds().entrySet()) {
       transaction.updateIdentityAfterCommit(entry.getValue(), entry.getKey());
     }
 
@@ -2162,15 +2162,15 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
 
   public void sendTransactionState(FrontendTransactionOptimistic transaction) {
     var database = (DatabaseSessionRemote) transaction.getDatabase();
-    SendTransactionStateRequest request =
+    var request =
         new SendTransactionStateRequest(database, transaction.getId(),
             transaction.getRecordOperations());
 
-    SendTransactionStateResponse response =
+    var response =
         networkOperationNoRetry(database, request,
             "Error on remote transaction state send");
 
-    for (Map.Entry<RecordId, RecordId> entry : response.getUpdatedIds().entrySet()) {
+    for (var entry : response.getUpdatedIds().entrySet()) {
       transaction.updateIdentityAfterCommit(entry.getValue(), entry.getKey());
     }
 
@@ -2179,9 +2179,9 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
 
 
   public void fetchTransaction(DatabaseSessionRemote remote) {
-    FrontendTransactionOptimisticClient transaction = remote.getActiveTx();
-    FetchTransaction38Request request = new FetchTransaction38Request(transaction.getId());
-    FetchTransaction38Response response =
+    var transaction = remote.getActiveTx();
+    var request = new FetchTransaction38Request(transaction.getId());
+    var response =
         networkOperation(remote, request, "Error fetching transaction from server side");
 
     transaction.replaceContent(response.getOperations());
@@ -2222,7 +2222,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   }
 
   public BinaryPushResponse executeUpdateSchema(PushSchemaRequest request) {
-    EntityImpl schema = request.getSchema();
+    var schema = request.getSchema();
     RecordInternal.setIdentity(schema, new RecordId(configuration.getSchemaRecordId()));
     DatabaseSessionRemote.updateSchema(this, schema);
     return null;
@@ -2235,8 +2235,8 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
       LiveQueryClientListener listener,
       Object[] params) {
 
-    SubscribeLiveQueryRequest request = new SubscribeLiveQueryRequest(query, params);
-    SubscribeLiveQueryResponse response = pushThread.subscribe(request,
+    var request = new SubscribeLiveQueryRequest(query, params);
+    var response = pushThread.subscribe(request,
         getCurrentSession(database));
     if (response == null) {
       throw new DatabaseException(
@@ -2251,9 +2251,9 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
       String query,
       LiveQueryClientListener listener,
       Map<String, ?> params) {
-    SubscribeLiveQueryRequest request =
+    var request =
         new SubscribeLiveQueryRequest(query, (Map<String, Object>) params);
-    SubscribeLiveQueryResponse response = pushThread.subscribe(request,
+    var response = pushThread.subscribe(request,
         getCurrentSession(database));
     if (response == null) {
       throw new DatabaseException(
@@ -2264,7 +2264,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   }
 
   public void unsubscribeLive(DatabaseSessionRemote database, int monitorId) {
-    UnsubscribeRequest request =
+    var request =
         new UnsubscribeRequest(new UnsubscribeLiveQueryRequest(monitorId));
     networkOperation(database, request, "Error on unsubscribe of live query");
   }
@@ -2274,9 +2274,9 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   }
 
   public static HashMap<String, Object> paramsArrayToParamsMap(Object[] positionalParams) {
-    HashMap<String, Object> params = new HashMap<>();
+    var params = new HashMap<String, Object>();
     if (positionalParams != null) {
-      for (int i = 0; i < positionalParams.length; i++) {
+      for (var i = 0; i < positionalParams.length; i++) {
         params.put(Integer.toString(i), positionalParams[i]);
       }
     }
@@ -2284,7 +2284,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   }
 
   public void executeLiveQueryPush(LiveQueryPushRequest pushRequest) {
-    LiveQueryClientListener listener = liveQueryListener.get(pushRequest.getMonitorId());
+    var listener = liveQueryListener.get(pushRequest.getMonitorId());
     if (listener.onEvent(pushRequest)) {
       liveQueryListener.remove(pushRequest.getMonitorId());
     }
@@ -2296,7 +2296,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
       return;
     }
     StorageRemoteSession aValidSession = null;
-    for (StorageRemoteSession session : sessions) {
+    for (var session : sessions) {
       if (session.getServerSession(host) != null) {
         aValidSession = session;
         break;
@@ -2329,11 +2329,11 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
       this.connectionManager.remove((SocketChannelBinaryAsynchClient) network);
     }
     if (e instanceof java.lang.InterruptedException) {
-      for (LiveQueryClientListener liveListener : liveQueryListener.values()) {
+      for (var liveListener : liveQueryListener.values()) {
         liveListener.onEnd();
       }
     } else {
-      for (LiveQueryClientListener liveListener : liveQueryListener.values()) {
+      for (var liveListener : liveQueryListener.values()) {
         if (e instanceof BaseException) {
           liveListener.onError((BaseException) e);
         } else {

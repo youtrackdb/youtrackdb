@@ -38,15 +38,15 @@ public class ServerCommandDeleteDocument extends ServerCommandDocumentAbstract {
   public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
 
     try (DatabaseSession db = getProfiledDatabaseInstance(iRequest)) {
-      final String[] urlParts =
+      final var urlParts =
           checkSyntax(iRequest.getUrl(), 3, "Syntax error: document/<database>/<record-id>");
 
       iRequest.getData().commandInfo = "Delete document";
 
       // PARSE PARAMETERS
-      final int parametersPos = urlParts[2].indexOf('?');
-      final String rid = parametersPos > -1 ? urlParts[2].substring(0, parametersPos) : urlParts[2];
-      final RecordId recordId = new RecordId(rid);
+      final var parametersPos = urlParts[2].indexOf('?');
+      final var rid = parametersPos > -1 ? urlParts[2].substring(0, parametersPos) : urlParts[2];
+      final var recordId = new RecordId(rid);
 
       if (!recordId.isValid()) {
         throw new IllegalArgumentException("Invalid Record ID in request: " + urlParts[2]);

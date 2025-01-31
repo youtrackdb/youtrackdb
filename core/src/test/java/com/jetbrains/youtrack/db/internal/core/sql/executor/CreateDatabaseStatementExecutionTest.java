@@ -20,7 +20,7 @@ public class CreateDatabaseStatementExecutionTest {
 
   @Test
   public void testPlain() {
-    final String dbName = "OCreateDatabaseStatementExecutionTest_testPlain";
+    final var dbName = "OCreateDatabaseStatementExecutionTest_testPlain";
 
     final YouTrackDB youTrackDb =
         new YouTrackDBImpl(
@@ -28,7 +28,7 @@ public class CreateDatabaseStatementExecutionTest {
             YouTrackDBConfig.builder()
                 .addGlobalConfigurationParameter(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
-    try (ResultSet result =
+    try (var result =
         youTrackDb.execute(
             "create database "
                 + dbName
@@ -37,13 +37,13 @@ public class CreateDatabaseStatementExecutionTest {
                 + CreateDatabaseUtil.NEW_ADMIN_PASSWORD
                 + "' role admin)")) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertEquals(true, item.getProperty("created"));
     }
     Assert.assertTrue(youTrackDb.exists(dbName));
 
     try {
-      final DatabaseSession session =
+      final var session =
           youTrackDb.open(dbName, "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       session.close();
     } finally {
@@ -54,22 +54,22 @@ public class CreateDatabaseStatementExecutionTest {
 
   @Test
   public void testNoDefaultUsers() {
-    String dbName = "OCreateDatabaseStatementExecutionTest_testNoDefaultUsers";
+    var dbName = "OCreateDatabaseStatementExecutionTest_testNoDefaultUsers";
     YouTrackDB youTrackDb = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());
-    try (ResultSet result =
+    try (var result =
         youTrackDb.execute(
             "create database "
                 + dbName
                 + " plocal {'config':{'security.createDefaultUsers': false}}")) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertEquals(true, item.getProperty("created"));
     }
     Assert.assertTrue(youTrackDb.exists(dbName));
 
     try {
-      DatabaseSession session =
+      var session =
           youTrackDb.open(dbName, "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       Assert.fail();
     } catch (SecurityAccessException e) {

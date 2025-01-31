@@ -39,7 +39,7 @@ public class HttpGephiTest extends BaseHttpDatabaseTest {
   public void createDatabase() throws Exception {
     super.createDatabase();
 
-    ClassicHttpResponse response =
+    var response =
         post("command/" + getDatabaseName() + "/sql/")
             .payload(
                 "{\"command\":\"create vertex set name = ?\",\"parameters\":[\"Jay\"]}",
@@ -49,7 +49,7 @@ public class HttpGephiTest extends BaseHttpDatabaseTest {
             .getResponse();
     Assert.assertEquals(response.getReasonPhrase(), response.getCode(), 200);
 
-    ClassicHttpResponse response1 =
+    var response1 =
         post("command/" + getDatabaseName() + "/sql/")
             .payload(
                 "{\"command\":\"create vertex set name = ?\",\"parameters\":[\"Amiga\"]}",
@@ -59,7 +59,7 @@ public class HttpGephiTest extends BaseHttpDatabaseTest {
             .getResponse();
     Assert.assertEquals(response1.getReasonPhrase(), response1.getCode(), 200);
 
-    ClassicHttpResponse response2 =
+    var response2 =
         post("command/" + getDatabaseName() + "/sql/")
             .payload(
                 "{\"command\":\"create edge from (select from v where name = 'Jay') to (select from"

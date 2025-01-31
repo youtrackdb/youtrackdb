@@ -13,11 +13,11 @@ public class DeleteVertexStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testDeleteSingleVertex() {
-    String className = "testDeleteSingleVertex";
+    var className = "testDeleteSingleVertex";
     db.createVertexClass(className);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
-      Vertex v1 = db.newVertex(className);
+      var v1 = db.newVertex(className);
       v1.setProperty("name", "a" + i);
       v1.save();
       db.commit();
@@ -25,7 +25,7 @@ public class DeleteVertexStatementExecutionTest extends DbTestBase {
 
     db.begin();
     db.command("DELETE VERTEX " + className + " WHERE name = 'a3'").close();
-    ResultSet rs = db.query("SELECT FROM " + className);
+    var rs = db.query("SELECT FROM " + className);
     Assert.assertEquals(9, rs.stream().count());
     rs.close();
     db.commit();
@@ -33,11 +33,11 @@ public class DeleteVertexStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testDeleteAllVertices() {
-    String className = "testDeleteAllVertices";
+    var className = "testDeleteAllVertices";
     db.createVertexClass(className);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
-      Vertex v1 = db.newVertex(className);
+      var v1 = db.newVertex(className);
       v1.setProperty("name", "a" + i);
       v1.save();
       db.commit();
@@ -45,7 +45,7 @@ public class DeleteVertexStatementExecutionTest extends DbTestBase {
 
     db.begin();
     db.command("DELETE VERTEX " + className).close();
-    ResultSet rs = db.query("SELECT FROM " + className);
+    var rs = db.query("SELECT FROM " + className);
     Assert.assertEquals(0, rs.stream().count());
     rs.close();
     db.commit();
@@ -53,21 +53,21 @@ public class DeleteVertexStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testFilterClass() {
-    String className1 = "testDeleteAllVertices1";
+    var className1 = "testDeleteAllVertices1";
     db.createVertexClass(className1);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
-      Vertex v1 = db.newVertex(className1);
+      var v1 = db.newVertex(className1);
       v1.setProperty("name", "a" + i);
       v1.save();
       db.commit();
     }
 
-    String className2 = "testDeleteAllVertices2";
+    var className2 = "testDeleteAllVertices2";
     db.createVertexClass(className2);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
-      Vertex v1 = db.newVertex(className2);
+      var v1 = db.newVertex(className2);
       v1.setProperty("name", "a" + i);
       v1.save();
       db.commit();
@@ -75,7 +75,7 @@ public class DeleteVertexStatementExecutionTest extends DbTestBase {
 
     db.begin();
     db.command("DELETE VERTEX " + className1).close();
-    ResultSet rs = db.query("SELECT FROM " + className1);
+    var rs = db.query("SELECT FROM " + className1);
     Assert.assertEquals(0, rs.stream().count());
     rs.close();
     db.commit();

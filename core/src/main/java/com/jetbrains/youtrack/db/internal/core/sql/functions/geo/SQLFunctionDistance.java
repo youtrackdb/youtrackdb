@@ -46,9 +46,9 @@ public class SQLFunctionDistance extends SQLFunctionAbstract {
       CommandContext iContext) {
     double distance;
 
-    final double[] values = new double[4];
+    final var values = new double[4];
 
-    for (int i = 0; i < iParams.length && i < 4; ++i) {
+    for (var i = 0; i < iParams.length && i < 4; ++i) {
       if (iParams[i] == null) {
         return null;
       }
@@ -57,10 +57,10 @@ public class SQLFunctionDistance extends SQLFunctionAbstract {
           Double.class);
     }
 
-    final double deltaLat = Math.toRadians(values[2] - values[0]);
-    final double deltaLon = Math.toRadians(values[3] - values[1]);
+    final var deltaLat = Math.toRadians(values[2] - values[0]);
+    final var deltaLon = Math.toRadians(values[3] - values[1]);
 
-    final double a =
+    final var a =
         Math.pow(Math.sin(deltaLat / 2), 2)
             + Math.cos(Math.toRadians(values[0]))
             * Math.cos(Math.toRadians(values[2]))
@@ -68,7 +68,7 @@ public class SQLFunctionDistance extends SQLFunctionAbstract {
     distance = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)) * EARTH_RADIUS;
 
     if (iParams.length > 4) {
-      final String unit = iParams[4].toString();
+      final var unit = iParams[4].toString();
       if (unit.equalsIgnoreCase("km"))
         // ALREADY IN KM
         ;

@@ -96,7 +96,7 @@ public class SQLCommandsTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "removeProperty")
   public void testSQLScript() {
-    String cmd = "";
+    var cmd = "";
     cmd += "select from ouser limit 1;begin;";
     cmd += "let a = create vertex set script = true\n";
     cmd += "let b = select from v limit 1;";
@@ -104,7 +104,7 @@ public class SQLCommandsTest extends BaseDBTest {
     cmd += "commit;";
     cmd += "return $a;";
 
-    Object result = db.command(new CommandScript("sql", cmd)).execute(db);
+    var result = db.command(new CommandScript("sql", cmd)).execute(db);
 
     Assert.assertTrue(result instanceof Identifiable);
     Assert.assertTrue(((Identifiable) result).getRecord(db) instanceof EntityImpl);
@@ -118,7 +118,7 @@ public class SQLCommandsTest extends BaseDBTest {
       return;
     }
 
-    Collection<String> names = db.getClusterNames();
+    var names = db.getClusterNames();
     Assert.assertFalse(names.contains("testClusterRename".toLowerCase(Locale.ENGLISH)));
 
     db.command("create cluster testClusterRename").close();
@@ -133,17 +133,17 @@ public class SQLCommandsTest extends BaseDBTest {
     Assert.assertFalse(names.contains("testClusterRename".toLowerCase(Locale.ENGLISH)));
 
     if (!remoteDB && databaseType.equals(DatabaseType.PLOCAL)) {
-      String storagePath = db.getStorage().getConfiguration().getDirectory();
+      var storagePath = db.getStorage().getConfiguration().getDirectory();
 
-      final WOWCache wowCache =
+      final var wowCache =
           (WOWCache) ((LocalPaginatedStorage) db.getStorage()).getWriteCache();
 
-      File dataFile =
+      var dataFile =
           new File(
               storagePath,
               wowCache.nativeFileNameById(
                   wowCache.fileIdByName("testClusterRename42" + PaginatedCluster.DEF_EXTENSION)));
-      File mapFile =
+      var mapFile =
           new File(
               storagePath,
               wowCache.nativeFileNameById(

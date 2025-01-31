@@ -34,7 +34,7 @@ public class LuceneContextTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
+    var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
 
     db.execute("sql", getScriptFromStream(stream)).close();
 
@@ -45,15 +45,15 @@ public class LuceneContextTest extends BaseLuceneTest {
   @Test
   public void testContext() {
 
-    ResultSet docs =
+    var docs =
         db.query(
             "select *,$score from Song where [title] LUCENE \"(title:man)\" order by $score desc");
 
     Float latestScore = 100f;
-    int count = 0;
+    var count = 0;
     while (docs.hasNext()) {
       count++;
-      Result doc = docs.next();
+      var doc = docs.next();
       Float score = doc.getProperty("$score");
       Assert.assertNotNull(score);
       Assert.assertTrue(score <= latestScore);
@@ -66,7 +66,7 @@ public class LuceneContextTest extends BaseLuceneTest {
             "select *,$totalHits,$Song_title_totalHits from Song where [title] LUCENE"
                 + " \"(title:man)\" limit 1");
 
-    Result doc = docs.next();
+    var doc = docs.next();
     Assert.assertEquals(Long.valueOf(14), doc.<Long>getProperty("$totalHits"));
     Assert.assertEquals(Long.valueOf(14), doc.<Long>getProperty("$Song_title_totalHits"));
     assertFalse(docs.hasNext());

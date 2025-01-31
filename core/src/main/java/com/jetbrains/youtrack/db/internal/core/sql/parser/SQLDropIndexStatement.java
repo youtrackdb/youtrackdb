@@ -32,12 +32,12 @@ public class SQLDropIndexStatement extends DDLStatement {
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
     List<Result> rs = new ArrayList<>();
-    DatabaseSessionInternal db = ctx.getDatabase();
-    IndexManagerAbstract idxMgr = db.getMetadata().getIndexManagerInternal();
+    var db = ctx.getDatabase();
+    var idxMgr = db.getMetadata().getIndexManagerInternal();
     if (all) {
-      for (Index idx : idxMgr.getIndexes(db)) {
+      for (var idx : idxMgr.getIndexes(db)) {
         db.getMetadata().getIndexManagerInternal().dropIndex(db, idx.getName());
-        ResultInternal result = new ResultInternal(db);
+        var result = new ResultInternal(db);
         result.setProperty("operation", "drop index");
         result.setProperty("clusterName", idx.getName());
         rs.add(result);
@@ -48,7 +48,7 @@ public class SQLDropIndexStatement extends DDLStatement {
         throw new CommandExecutionException("Index not found: " + name.getValue());
       }
       idxMgr.dropIndex(db, name.getValue());
-      ResultInternal result = new ResultInternal(db);
+      var result = new ResultInternal(db);
       result.setProperty("operation", "drop index");
       result.setProperty("indexName", name.getValue());
       rs.add(result);
@@ -85,7 +85,7 @@ public class SQLDropIndexStatement extends DDLStatement {
 
   @Override
   public SQLDropIndexStatement copy() {
-    SQLDropIndexStatement result = new SQLDropIndexStatement(-1);
+    var result = new SQLDropIndexStatement(-1);
     result.all = all;
     result.name = name == null ? null : name.copy();
     return result;
@@ -100,7 +100,7 @@ public class SQLDropIndexStatement extends DDLStatement {
       return false;
     }
 
-    SQLDropIndexStatement that = (SQLDropIndexStatement) o;
+    var that = (SQLDropIndexStatement) o;
 
     if (all != that.all) {
       return false;
@@ -110,7 +110,7 @@ public class SQLDropIndexStatement extends DDLStatement {
 
   @Override
   public int hashCode() {
-    int result = (all ? 1 : 0);
+    var result = (all ? 1 : 0);
     result = 31 * result + (name != null ? name.hashCode() : 0);
     return result;
   }

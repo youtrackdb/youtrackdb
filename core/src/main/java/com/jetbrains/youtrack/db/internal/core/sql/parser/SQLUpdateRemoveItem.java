@@ -42,7 +42,7 @@ public class SQLUpdateRemoveItem extends SimpleNode {
   }
 
   public SQLUpdateRemoveItem copy() {
-    SQLUpdateRemoveItem result = new SQLUpdateRemoveItem(-1);
+    var result = new SQLUpdateRemoveItem(-1);
     result.left = left == null ? null : left.copy();
     result.right = right == null ? null : right.copy();
     return result;
@@ -57,7 +57,7 @@ public class SQLUpdateRemoveItem extends SimpleNode {
       return false;
     }
 
-    SQLUpdateRemoveItem that = (SQLUpdateRemoveItem) o;
+    var that = (SQLUpdateRemoveItem) o;
 
     if (!Objects.equals(left, that.left)) {
       return false;
@@ -67,15 +67,15 @@ public class SQLUpdateRemoveItem extends SimpleNode {
 
   @Override
   public int hashCode() {
-    int result = left != null ? left.hashCode() : 0;
+    var result = left != null ? left.hashCode() : 0;
     result = 31 * result + (right != null ? right.hashCode() : 0);
     return result;
   }
 
   public void applyUpdate(ResultInternal result, CommandContext ctx) {
     if (right != null) {
-      Object leftVal = left.execute(result, ctx);
-      Object rightVal = right.execute(result, ctx);
+      var leftVal = left.execute(result, ctx);
+      var rightVal = right.execute(result, ctx);
       if (rightVal instanceof Result && ((Result) rightVal).isEntity()) {
         rightVal = ((Result) rightVal).getEntity().get();
       }
@@ -92,9 +92,9 @@ public class SQLUpdateRemoveItem extends SimpleNode {
       if (MultiValue.isMultiValue(leftVal)) {
         MultiValue.remove(leftVal, rightVal, false);
         if (MultiValue.isMultiValue(rightVal)) {
-          Iterator<?> iter = MultiValue.getMultiValueIterator(rightVal);
+          var iter = MultiValue.getMultiValueIterator(rightVal);
           while (iter.hasNext()) {
-            Object item = iter.next();
+            var item = iter.next();
             if (item instanceof Result && ((Result) item).getIdentity().isPresent()) {
               MultiValue.remove(leftVal, ((Result) item).getIdentity().get(), false);
             } else {

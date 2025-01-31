@@ -18,7 +18,7 @@ public class HookChangeValidationTest extends DbTestBase {
   public void testHookCreateChangeTx() {
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass classA = schema.createClass("TestClass");
+    var classA = schema.createClass("TestClass");
     classA.createProperty(db, "property1", PropertyType.STRING).setNotNull(db, true);
     classA.createProperty(db, "property2", PropertyType.STRING).setReadonly(db, true);
     classA.createProperty(db, "property3", PropertyType.STRING).setMandatory(db, true);
@@ -43,7 +43,7 @@ public class HookChangeValidationTest extends DbTestBase {
           }
         });
     db.begin();
-    EntityImpl doc = (EntityImpl) db.newEntity(classA);
+    var doc = (EntityImpl) db.newEntity(classA);
     doc.field("property1", "value1-create");
     doc.field("property2", "value2-create");
     doc.field("property3", "value3-create");
@@ -60,7 +60,7 @@ public class HookChangeValidationTest extends DbTestBase {
   public void testHookUpdateChangeTx() {
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass classA = schema.createClass("TestClass");
+    var classA = schema.createClass("TestClass");
     classA.createProperty(db, "property1", PropertyType.STRING).setNotNull(db, true);
     classA.createProperty(db, "property2", PropertyType.STRING).setReadonly(db, true);
     classA.createProperty(db, "property3", PropertyType.STRING).setMandatory(db, true);
@@ -86,7 +86,7 @@ public class HookChangeValidationTest extends DbTestBase {
         });
 
     db.begin();
-    EntityImpl doc = (EntityImpl) db.newEntity(classA);
+    var doc = (EntityImpl) db.newEntity(classA);
     doc.field("property1", "value1-create");
     doc.field("property2", "value2-create");
     doc.field("property3", "value3-create");

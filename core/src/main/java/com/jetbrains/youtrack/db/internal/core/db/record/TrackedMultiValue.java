@@ -61,7 +61,7 @@ public interface TrackedMultiValue<K, V> {
 
   static <X> void nestedEnabled(Iterator<X> iterator, RecordElement parent) {
     while (iterator.hasNext()) {
-      X x = iterator.next();
+      var x = iterator.next();
       if (x instanceof TrackedMultiValue) {
         ((TrackedMultiValue) x).enableTracking(parent);
       }
@@ -70,7 +70,7 @@ public interface TrackedMultiValue<K, V> {
 
   static <X> void nestedDisable(Iterator<X> iterator, RecordElement parent) {
     while (iterator.hasNext()) {
-      X x = iterator.next();
+      var x = iterator.next();
       if (x instanceof TrackedMultiValue) {
         ((TrackedMultiValue) x).disableTracking(parent);
       } else if (x instanceof EntityImpl) {
@@ -84,7 +84,7 @@ public interface TrackedMultiValue<K, V> {
 
   static <X> void nestedTransactionClear(Iterator<X> iterator) {
     while (iterator.hasNext()) {
-      X x = iterator.next();
+      var x = iterator.next();
       if (x instanceof TrackedMultiValue) {
         ((TrackedMultiValue) x).transactionClear();
       } else if (x instanceof EntityImpl) {

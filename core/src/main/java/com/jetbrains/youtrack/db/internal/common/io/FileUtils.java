@@ -48,7 +48,7 @@ public class FileUtils {
   private static final boolean useOldFileAPI;
 
   static {
-    boolean oldAPI = false;
+    var oldAPI = false;
 
     try {
       Class.forName("java.nio.file.FileSystemException");
@@ -68,11 +68,11 @@ public class FileUtils {
       return ((Number) iSize).longValue();
     }
 
-    String size = iSize.toString();
+    var size = iSize.toString();
 
-    boolean number = true;
-    for (int i = size.length() - 1; i >= 0; --i) {
-      final char c = size.charAt(i);
+    var number = true;
+    for (var i = size.length() - 1; i >= 0; --i) {
+      final var c = size.charAt(i);
       if (!Character.isDigit(c)) {
         if (i > 0 || (c != '-' && c != '+')) {
           number = false;
@@ -85,7 +85,7 @@ public class FileUtils {
       return string2number(size).longValue();
     } else {
       size = size.toUpperCase(Locale.ENGLISH);
-      int pos = size.indexOf("KB");
+      var pos = size.indexOf("KB");
       if (pos > -1) {
         return (long) (string2number(size.substring(0, pos)).floatValue() * KILOBYTE);
       }
@@ -147,7 +147,7 @@ public class FileUtils {
 
   public static String getDirectory(String iPath) {
     iPath = getPath(iPath);
-    int pos = iPath.lastIndexOf('/');
+    var pos = iPath.lastIndexOf('/');
     if (pos == -1) {
       return "";
     }
@@ -156,8 +156,8 @@ public class FileUtils {
   }
 
   public static void createDirectoryTree(final String iFileName) {
-    final String[] fileDirectories = iFileName.split("/");
-    for (int i = 0; i < fileDirectories.length - 1; ++i) {
+    final var fileDirectories = iFileName.split("/");
+    for (var i = 0; i < fileDirectories.length - 1; ++i) {
       new File(fileDirectories[i]).mkdir();
     }
   }
@@ -185,7 +185,7 @@ public class FileUtils {
     }
 
     try {
-      Path rootPath = Paths.get(rootFile.getCanonicalPath());
+      var rootPath = Paths.get(rootFile.getCanonicalPath());
       Files.walkFileTree(
           rootPath,
           new SimpleFileVisitor<Path>() {
@@ -222,8 +222,8 @@ public class FileUtils {
 
   @SuppressWarnings("resource")
   public static final void copyFile(final File source, final File destination) throws IOException {
-    FileChannel sourceChannel = new FileInputStream(source).getChannel();
-    FileChannel targetChannel = new FileOutputStream(destination).getChannel();
+    var sourceChannel = new FileInputStream(source).getChannel();
+    var targetChannel = new FileOutputStream(destination).getChannel();
     sourceChannel.transferTo(0, sourceChannel.size(), targetChannel);
     sourceChannel.close();
     targetChannel.close();
@@ -235,8 +235,8 @@ public class FileUtils {
       destination.mkdirs();
     }
 
-    for (File f : source.listFiles()) {
-      final File target = new File(destination.getAbsolutePath() + "/" + f.getName());
+    for (var f : source.listFiles()) {
+      final var target = new File(destination.getAbsolutePath() + "/" + f.getName());
       if (f.isFile()) {
         copyFile(f, target);
       } else {
@@ -250,10 +250,10 @@ public class FileUtils {
       return from.renameTo(to);
     }
 
-    final FileSystem fileSystem = FileSystems.getDefault();
+    final var fileSystem = FileSystems.getDefault();
 
-    final Path fromPath = fileSystem.getPath(from.getAbsolutePath());
-    final Path toPath = fileSystem.getPath(to.getAbsolutePath());
+    final var fromPath = fileSystem.getPath(from.getAbsolutePath());
+    final var toPath = fileSystem.getPath(to.getAbsolutePath());
     Files.move(fromPath, toPath);
 
     return true;
@@ -288,7 +288,7 @@ public class FileUtils {
       LogManager.instance().warn(requester, "'%s' deleted while %s", path, operation);
     }
 
-    final Path parent = path.getParent();
+    final var parent = path.getParent();
     if (parent != null) {
       Files.createDirectories(parent);
     }

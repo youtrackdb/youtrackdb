@@ -255,8 +255,8 @@ public class SQLExpression extends SimpleNode {
   }
 
   public static String encode(String s) {
-    StringBuilder builder = new StringBuilder(s.length());
-    for (char c : s.toCharArray()) {
+    var builder = new StringBuilder(s.length());
+    for (var c : s.toCharArray()) {
       if (c == '\n') {
         builder.append("\\n");
         continue;
@@ -292,8 +292,8 @@ public class SQLExpression extends SimpleNode {
 
   public static String encodeSingle(String s) {
 
-    StringBuilder builder = new StringBuilder(s.length());
-    for (char c : s.toCharArray()) {
+    var builder = new StringBuilder(s.length());
+    for (var c : s.toCharArray()) {
       if (c == '\n') {
         builder.append("\\n");
         continue;
@@ -426,11 +426,11 @@ public class SQLExpression extends SimpleNode {
 
   public SQLExpression splitForAggregation(
       AggregateProjectionSplit aggregateSplit, CommandContext ctx) {
-    DatabaseSessionInternal database = ctx.getDatabase();
+    var database = ctx.getDatabase();
     if (isAggregate(database)) {
-      SQLExpression result = new SQLExpression(-1);
+      var result = new SQLExpression(-1);
       if (mathExpression != null) {
-        SimpleNode splitResult = mathExpression.splitForAggregation(aggregateSplit, ctx);
+        var splitResult = mathExpression.splitForAggregation(aggregateSplit, ctx);
         if (splitResult instanceof SQLMathExpression) {
           result.mathExpression = (SQLMathExpression) splitResult;
         } else if (splitResult instanceof SQLExpression) {
@@ -441,7 +441,7 @@ public class SQLExpression extends SimpleNode {
         }
       }
       if (arrayConcatExpression != null) {
-        SimpleNode splitResult = arrayConcatExpression.splitForAggregation(database,
+        var splitResult = arrayConcatExpression.splitForAggregation(database,
             aggregateSplit);
         if (splitResult instanceof SQLArrayConcatExpression) {
           result.arrayConcatExpression = (SQLArrayConcatExpression) splitResult;
@@ -473,7 +473,7 @@ public class SQLExpression extends SimpleNode {
 
   public SQLExpression copy() {
 
-    SQLExpression result = new SQLExpression(-1);
+    var result = new SQLExpression(-1);
     result.singleQuotes = singleQuotes;
     result.doubleQuotes = doubleQuotes;
     result.isNull = isNull;
@@ -496,7 +496,7 @@ public class SQLExpression extends SimpleNode {
       return false;
     }
 
-    SQLExpression that = (SQLExpression) o;
+    var that = (SQLExpression) o;
 
     if (isNull != that.isNull) {
       return false;
@@ -524,7 +524,7 @@ public class SQLExpression extends SimpleNode {
 
   @Override
   public int hashCode() {
-    int result = singleQuotes != null ? singleQuotes.hashCode() : 0;
+    var result = singleQuotes != null ? singleQuotes.hashCode() : 0;
     result = 31 * result + (doubleQuotes != null ? doubleQuotes.hashCode() : 0);
     result = 31 * result + (isNull ? 1 : 0);
     result = 31 * result + (rid != null ? rid.hashCode() : 0);
@@ -626,7 +626,7 @@ public class SQLExpression extends SimpleNode {
   }
 
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     result.setProperty("singleQuotes", singleQuotes);
     result.setProperty("doubleQuotes", doubleQuotes);
     result.setProperty("isNull", isNull);

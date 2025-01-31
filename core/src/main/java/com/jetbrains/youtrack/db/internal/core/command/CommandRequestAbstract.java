@@ -91,8 +91,8 @@ public abstract class CommandRequestAbstract
       }
 
       params = new HashMap<>(iArgs.length);
-      for (int i = 0; i < iArgs.length; ++i) {
-        Object par = iArgs[i];
+      for (var i = 0; i < iArgs.length; ++i) {
+        var par = iArgs[i];
 
         if (par instanceof Identifiable
             && ((RecordId) ((Identifiable) par).getIdentity()).isValid())

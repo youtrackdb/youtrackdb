@@ -132,7 +132,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
 
     // Set up a date formatter that prints the date in the Http-date format as
     // per RFC 7231, section 7.1.1.1
-    SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
+    var sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
     sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
     writeLine("Date: " + sdf.format(new Date()));
@@ -147,7 +147,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
 
     // INCLUDE COMMON CUSTOM HEADERS
     if (getAdditionalHeaders() != null) {
-      for (String h : getAdditionalHeaders()) {
+      for (var h : getAdditionalHeaders()) {
         writeLine(h);
       }
     }
@@ -301,7 +301,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
       send(HttpUtils.STATUS_OK_NOCONTENT_CODE, "", HttpUtils.CONTENT_TEXT_PLAIN, null, null);
       return;
     }
-    final Iterator<?> it = MultiValue.getMultiValueIterator(iRecords);
+    final var it = MultiValue.getMultiValueIterator(iRecords);
     if (accept != null && accept.contains("text/csv")) {
       sendStream(
           HttpUtils.STATUS_OK_CODE,
@@ -311,14 +311,14 @@ public abstract class HttpResponseAbstract implements HttpResponse {
           new CallableFunction<>() {
             @Override
             public Void call(final ChunkedResponse iArgument) {
-              final LinkedHashSet<String> colNames = new LinkedHashSet<>();
+              final var colNames = new LinkedHashSet<String>();
               final List<Entity> records = new ArrayList<>();
               final List<Map<String, ?>> maps = new ArrayList<>();
 
               // BROWSE ALL THE RECORD TO HAVE THE COMPLETE COLUMN
               // NAMES LIST
               while (it.hasNext()) {
-                final Object r = it.next();
+                final var r = it.next();
 
                 if (r instanceof Result result) {
                   if (result.isEntity()) {
@@ -353,7 +353,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
 
               try {
                 // WRITE THE HEADER
-                for (int col = 0; col < orderedColumns.size(); ++col) {
+                for (var col = 0; col < orderedColumns.size(); ++col) {
                   if (col > 0) {
                     iArgument.write(',');
                   }
@@ -363,13 +363,13 @@ public abstract class HttpResponseAbstract implements HttpResponse {
                 iArgument.write(HttpUtils.EOL);
 
                 // WRITE EACH RECORD
-                for (Entity entity : records) {
-                  for (int col = 0; col < orderedColumns.size(); ++col) {
+                for (var entity : records) {
+                  for (var col = 0; col < orderedColumns.size(); ++col) {
                     if (col > 0) {
                       iArgument.write(',');
                     }
 
-                    Object value = entity.getProperty(orderedColumns.get(col));
+                    var value = entity.getProperty(orderedColumns.get(col));
                     if (value != null) {
                       if (!(value instanceof Number)) {
                         value = "\"" + value + "\"";
@@ -382,12 +382,12 @@ public abstract class HttpResponseAbstract implements HttpResponse {
                 }
 
                 for (var entity : maps) {
-                  for (int col = 0; col < orderedColumns.size(); ++col) {
+                  for (var col = 0; col < orderedColumns.size(); ++col) {
                     if (col > 0) {
                       iArgument.write(',');
                     }
 
-                    Object value = entity.get(orderedColumns.get(col));
+                    var value = entity.get(orderedColumns.get(col));
                     if (value != null) {
                       if (!(value instanceof Number)) {
                         value = "\"" + value + "\"";
@@ -414,7 +414,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
         iFormat = HttpResponse.JSON_FORMAT + "," + iFormat;
       }
 
-      final String sendFormat = iFormat;
+      final var sendFormat = iFormat;
       if (streaming) {
         sendStream(
             HttpUtils.STATUS_OK_CODE,
@@ -423,7 +423,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
             null,
             iArgument -> {
               try {
-                OutputStreamWriter writer = new OutputStreamWriter(iArgument);
+                var writer = new OutputStreamWriter(iArgument);
                 writeRecordsOnStream(
                     iFetchPlan,
                     sendFormat,
@@ -439,7 +439,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
               return null;
             });
       } else {
-        final StringWriter buffer = new StringWriter();
+        final var buffer = new StringWriter();
         writeRecordsOnStream(
             iFetchPlan, iFormat, iAdditionalProperties, it, buffer, db);
         send(
@@ -460,10 +460,10 @@ public abstract class HttpResponseAbstract implements HttpResponse {
       Writer buffer,
       DatabaseSessionInternal db)
       throws IOException {
-    final JSONWriter json = new JSONWriter(buffer, iFormat);
+    final var json = new JSONWriter(buffer, iFormat);
     json.beginObject();
 
-    final String format = iFetchPlan != null ? iFormat + ",fetchPlan:" + iFetchPlan : iFormat;
+    final var format = iFetchPlan != null ? iFormat + ",fetchPlan:" + iFetchPlan : iFormat;
 
     // WRITE RECORDS
     json.beginCollection(db, -1, true, "result");
@@ -471,9 +471,9 @@ public abstract class HttpResponseAbstract implements HttpResponse {
     json.endCollection(-1, true);
 
     if (iAdditionalProperties != null) {
-      for (Map.Entry<String, Object> entry : iAdditionalProperties.entrySet()) {
+      for (var entry : iAdditionalProperties.entrySet()) {
 
-        final Object v = entry.getValue();
+        final var v = entry.getValue();
         if (MultiValue.isMultiValue(v)) {
           json.beginCollection(db, -1, true, entry.getKey());
           formatMultiValue(
@@ -500,11 +500,11 @@ public abstract class HttpResponseAbstract implements HttpResponse {
       DatabaseSessionInternal db)
       throws IOException {
     if (iIterator != null) {
-      int counter = 0;
+      var counter = 0;
       String objectJson;
 
       while (iIterator.hasNext()) {
-        final Object entry = iIterator.next();
+        final var entry = iIterator.next();
         if (entry != null) {
           if (counter++ > 0) {
             buffer.append(", ");
@@ -556,7 +556,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
       iFormat = HttpResponse.JSON_FORMAT;
     }
 
-    final String format = iFetchPlan != null ? iFormat + ",fetchPlan:" + iFetchPlan : iFormat;
+    final var format = iFetchPlan != null ? iFormat + ",fetchPlan:" + iFetchPlan : iFormat;
     if (iRecord != null) {
       send(
           HttpUtils.STATUS_OK_CODE,
@@ -611,7 +611,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
     GZIPOutputStream gout = null;
     ByteArrayOutputStream baos = null;
     try {
-      byte[] incoming = jsonStr.getBytes(StandardCharsets.UTF_8);
+      var incoming = jsonStr.getBytes(StandardCharsets.UTF_8);
       baos = new ByteArrayOutputStream();
       gout = new GZIPOutputStream(baos, 16384); // 16KB
       gout.write(incoming);

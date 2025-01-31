@@ -87,7 +87,7 @@ public class JJTYouTrackDBSqlState {
   public void closeNodeScope(Node n, int num) {
     mk = marks.remove(marks.size() - 1);
     while (num-- > 0) {
-      Node c = popNode();
+      var c = popNode();
       c.jjtSetParent(n);
       n.jjtAddChild(c, num);
     }
@@ -104,10 +104,10 @@ public class JJTYouTrackDBSqlState {
      constructed and they are left on the stack. */
   public void closeNodeScope(Node n, boolean condition) {
     if (condition) {
-      int a = nodeArity();
+      var a = nodeArity();
       mk = marks.remove(marks.size() - 1);
       while (a-- > 0) {
-        Node c = popNode();
+        var c = popNode();
         c.jjtSetParent(n);
         n.jjtAddChild(c, a);
       }

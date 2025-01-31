@@ -26,15 +26,11 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandExecutorAbstract;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import java.util.Map;
-import java.util.Map.Entry;
-import javax.script.Bindings;
 import javax.script.Invocable;
 import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
 /**
@@ -63,17 +59,17 @@ public class CommandExecutorFunction extends CommandExecutorAbstract {
 
     parserText = request.getText();
 
-    DatabaseSessionInternal db = iContext.getDatabase();
-    final Function f = db.getMetadata().getFunctionLibrary().getFunction(parserText);
+    var db = iContext.getDatabase();
+    final var f = db.getMetadata().getFunctionLibrary().getFunction(parserText);
 
     db.checkSecurity(Rule.ResourceGeneric.FUNCTION, Role.PERMISSION_READ, f.getName());
 
-    final ScriptManager scriptManager = db.getSharedContext().getYouTrackDB().getScriptManager();
+    final var scriptManager = db.getSharedContext().getYouTrackDB().getScriptManager();
 
-    final ScriptEngine scriptEngine =
+    final var scriptEngine =
         scriptManager.acquireDatabaseEngine(db.getName(), f.getLanguage());
     try {
-      final Bindings binding =
+      final var binding =
           scriptManager.bindContextVariables(
               scriptEngine,
               scriptEngine.getBindings(ScriptContext.ENGINE_SCOPE),
@@ -89,8 +85,8 @@ public class CommandExecutorFunction extends CommandExecutorAbstract {
           Object[] args = null;
           if (iArgs != null) {
             args = new Object[iArgs.size()];
-            int i = 0;
-            for (Entry<Object, Object> arg : iArgs.entrySet()) {
+            var i = 0;
+            for (var arg : iArgs.entrySet()) {
               args[i++] = arg.getValue();
             }
           } else {
@@ -100,7 +96,7 @@ public class CommandExecutorFunction extends CommandExecutorAbstract {
 
         } else {
           // INVOKE THE CODE SNIPPET
-          final Object[] args = iArgs == null ? null : iArgs.values().toArray();
+          final var args = iArgs == null ? null : iArgs.values().toArray();
           result = scriptEngine.eval(scriptManager.getFunctionInvoke(db, f, args), binding);
         }
         return CommandExecutorUtility.transformResult(

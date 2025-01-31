@@ -52,7 +52,7 @@ public class ServerCommandGetServerVersion extends ServerCommandGetConnections {
 
     iRequest.getData().commandInfo = "Server status";
 
-    final String result = YouTrackDBConstants.getRawVersion();
+    final var result = YouTrackDBConstants.getRawVersion();
 
     iResponse.send(
         HttpUtils.STATUS_OK_CODE,

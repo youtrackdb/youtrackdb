@@ -23,22 +23,17 @@ import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
-import com.jetbrains.youtrack.db.internal.core.command.script.ScriptManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import java.lang.reflect.Method;
-import javax.script.Bindings;
 import javax.script.Invocable;
 import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
 /**
@@ -74,7 +69,7 @@ public class ClassTrigger {
 
   public static RecordHook.RESULT onRecordBeforeCreate(
       final EntityImpl entity, DatabaseSessionInternal database) {
-    Object func = checkClzAttribute(entity, ONBEFORE_CREATED, database);
+    var func = checkClzAttribute(entity, ONBEFORE_CREATED, database);
     if (func != null) {
       if (func instanceof Function) {
         return ClassTrigger.executeFunction(entity, (Function) func, database);
@@ -87,7 +82,7 @@ public class ClassTrigger {
 
   public static void onRecordAfterCreate(
       final EntityImpl entity, DatabaseSessionInternal database) {
-    Object func = checkClzAttribute(entity, ONAFTER_CREATED, database);
+    var func = checkClzAttribute(entity, ONAFTER_CREATED, database);
     if (func != null) {
       if (func instanceof Function) {
         ClassTrigger.executeFunction(entity, (Function) func, database);
@@ -99,7 +94,7 @@ public class ClassTrigger {
 
   public static RecordHook.RESULT onRecordBeforeRead(
       final EntityImpl entity, DatabaseSessionInternal database) {
-    Object func = checkClzAttribute(entity, ONBEFORE_READ, database);
+    var func = checkClzAttribute(entity, ONBEFORE_READ, database);
     if (func != null) {
       if (func instanceof Function) {
         return ClassTrigger.executeFunction(entity, (Function) func, database);
@@ -112,7 +107,7 @@ public class ClassTrigger {
 
   public static void onRecordAfterRead(
       final EntityImpl entity, DatabaseSessionInternal database) {
-    Object func = checkClzAttribute(entity, ONAFTER_READ, database);
+    var func = checkClzAttribute(entity, ONAFTER_READ, database);
     if (func != null) {
       if (func instanceof Function) {
         ClassTrigger.executeFunction(entity, (Function) func, database);
@@ -124,7 +119,7 @@ public class ClassTrigger {
 
   public static RecordHook.RESULT onRecordBeforeUpdate(
       final EntityImpl entity, DatabaseSessionInternal database) {
-    Object func = checkClzAttribute(entity, ONBEFORE_UPDATED, database);
+    var func = checkClzAttribute(entity, ONBEFORE_UPDATED, database);
     if (func != null) {
       if (func instanceof Function) {
         return ClassTrigger.executeFunction(entity, (Function) func, database);
@@ -137,7 +132,7 @@ public class ClassTrigger {
 
   public static void onRecordAfterUpdate(
       final EntityImpl entity, DatabaseSessionInternal database) {
-    Object func = checkClzAttribute(entity, ONAFTER_UPDATED, database);
+    var func = checkClzAttribute(entity, ONAFTER_UPDATED, database);
     if (func != null) {
       if (func instanceof Function) {
         ClassTrigger.executeFunction(entity, (Function) func, database);
@@ -149,7 +144,7 @@ public class ClassTrigger {
 
   public static RecordHook.RESULT onRecordBeforeDelete(
       final EntityImpl entity, DatabaseSessionInternal database) {
-    Object func = checkClzAttribute(entity, ONBEFORE_DELETE, database);
+    var func = checkClzAttribute(entity, ONBEFORE_DELETE, database);
     if (func != null) {
       if (func instanceof Function) {
         return ClassTrigger.executeFunction(entity, (Function) func, database);
@@ -162,7 +157,7 @@ public class ClassTrigger {
 
   public static void onRecordAfterDelete(
       final EntityImpl entity, DatabaseSessionInternal database) {
-    Object func = checkClzAttribute(entity, ONAFTER_DELETE, database);
+    var func = checkClzAttribute(entity, ONAFTER_DELETE, database);
     if (func != null) {
       if (func instanceof Function) {
         ClassTrigger.executeFunction(entity, (Function) func, database);
@@ -174,11 +169,11 @@ public class ClassTrigger {
 
   private static Object checkClzAttribute(
       final EntityImpl entity, String attr, DatabaseSessionInternal database) {
-    final SchemaImmutableClass clz = EntityInternalUtils.getImmutableSchemaClass(database, entity);
+    final var clz = EntityInternalUtils.getImmutableSchemaClass(database, entity);
     if (clz != null && clz.isTriggered()) {
       Function func = null;
-      String fieldName = clz.getCustom(attr);
-      SchemaClass superClz = clz.getSuperClass();
+      var fieldName = clz.getCustom(attr);
+      var superClz = clz.getSuperClass();
       while (fieldName == null || fieldName.length() == 0) {
         if (superClz == null || superClz.getName().equals(CLASSNAME)) {
           break;
@@ -188,7 +183,7 @@ public class ClassTrigger {
       }
       if (fieldName != null && fieldName.length() > 0) {
         // check if it is reflection or not
-        final Object[] clzMethod = ClassTrigger.checkMethod(fieldName);
+        final var clzMethod = ClassTrigger.checkMethod(fieldName);
         if (clzMethod != null) {
           return clzMethod;
         }
@@ -210,7 +205,7 @@ public class ClassTrigger {
           }
         }
       } else {
-        final Object funcProp = entity.field(attr);
+        final var funcProp = entity.field(attr);
         if (funcProp != null) {
           final String funcName;
           if (funcProp instanceof EntityImpl) {
@@ -238,7 +233,7 @@ public class ClassTrigger {
     }
     try {
       Class clz = ClassLoader.getSystemClassLoader().loadClass(clzName);
-      Method method = clz.getMethod(methodName, EntityImpl.class);
+      var method = clz.getMethod(methodName, EntityImpl.class);
       return new Object[]{clz, method};
     } catch (Exception ex) {
       LogManager.instance()
@@ -272,13 +267,13 @@ public class ClassTrigger {
       return RecordHook.RESULT.RECORD_NOT_CHANGED;
     }
 
-    final ScriptManager scriptManager =
+    final var scriptManager =
         database.getSharedContext().getYouTrackDB().getScriptManager();
 
-    final ScriptEngine scriptEngine =
+    final var scriptEngine =
         scriptManager.acquireDatabaseEngine(database.getName(), func.getLanguage());
     try {
-      final Bindings binding = scriptEngine.getBindings(ScriptContext.ENGINE_SCOPE);
+      final var binding = scriptEngine.getBindings(ScriptContext.ENGINE_SCOPE);
 
       scriptManager.bind(scriptEngine, binding, database, null, null);
       binding.put("doc", entity);
@@ -289,7 +284,7 @@ public class ClassTrigger {
           throw new ConfigurationException(
               "Database function '" + func.getName() + "' has no language");
         }
-        final String funcStr = scriptManager.getFunctionDefinition(database, func);
+        final var funcStr = scriptManager.getFunctionDefinition(database, func);
         if (funcStr != null) {
           try {
             scriptEngine.eval(funcStr);
@@ -298,7 +293,7 @@ public class ClassTrigger {
           }
         }
         if (scriptEngine instanceof Invocable invocableEngine) {
-          Object[] empty = CommonConst.EMPTY_OBJECT_ARRAY;
+          var empty = CommonConst.EMPTY_OBJECT_ARRAY;
           result = (String) invocableEngine.invokeFunction(func.getName(), empty);
         }
       } catch (ScriptException e) {

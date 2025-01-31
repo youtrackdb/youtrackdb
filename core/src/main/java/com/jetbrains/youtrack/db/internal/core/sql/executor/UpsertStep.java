@@ -34,7 +34,7 @@ public class UpsertStep extends AbstractExecutionStep {
     var prev = this.prev;
     assert prev != null;
 
-    ExecutionStream upstream = prev.start(ctx);
+    var upstream = prev.start(ctx);
     if (upstream.hasNext(ctx)) {
       return upstream;
     }
@@ -49,12 +49,12 @@ public class UpsertStep extends AbstractExecutionStep {
     if (commandTarget.getItem().getIdentifier() != null) {
       entity = new EntityImpl(db, commandTarget.getItem().getIdentifier().getStringValue());
     } else if (commandTarget.getItem().getCluster() != null) {
-      SQLCluster cluster = commandTarget.getItem().getCluster();
-      Integer clusterId = cluster.getClusterNumber();
+      var cluster = commandTarget.getItem().getCluster();
+      var clusterId = cluster.getClusterNumber();
       if (clusterId == null) {
         clusterId = ctx.getDatabase().getClusterIdByName(cluster.getClusterName());
       }
-      SchemaClass clazz =
+      var clazz =
           ctx.getDatabase()
               .getMetadata()
               .getImmutableSchemaSnapshot()
@@ -65,7 +65,7 @@ public class UpsertStep extends AbstractExecutionStep {
           "Cannot execute UPSERT on target '" + commandTarget + "'");
     }
 
-    UpdatableResult result = new UpdatableResult(ctx.getDatabase(), entity);
+    var result = new UpdatableResult(ctx.getDatabase(), entity);
     if (initialFilter != null) {
       setContent(result, initialFilter);
     }
@@ -73,22 +73,22 @@ public class UpsertStep extends AbstractExecutionStep {
   }
 
   private void setContent(ResultInternal res, SQLWhereClause initialFilter) {
-    List<SQLAndBlock> flattened = initialFilter.flatten();
+    var flattened = initialFilter.flatten();
     if (flattened.isEmpty()) {
       return;
     }
     if (flattened.size() > 1) {
       throw new CommandExecutionException("Cannot UPSERT on OR conditions");
     }
-    SQLAndBlock andCond = flattened.get(0);
-    for (SQLBooleanExpression condition : andCond.getSubBlocks()) {
+    var andCond = flattened.get(0);
+    for (var condition : andCond.getSubBlocks()) {
       condition.transformToUpdateItem().ifPresent(x -> x.applyUpdate(res, ctx));
     }
   }
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
     return spaces
         + "+ INSERT (upsert, if needed)\n"
         + spaces

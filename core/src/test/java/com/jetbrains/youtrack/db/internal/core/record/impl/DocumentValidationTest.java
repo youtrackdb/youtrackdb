@@ -28,14 +28,14 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
   @Test
   public void testRequiredValidation() {
     db.begin();
-    EntityImpl doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) db.newEntity();
     Identifiable id = db.save(doc).getIdentity();
     db.commit();
 
-    SchemaClass embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
+    var embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
     embeddedClazz.createProperty(db, "int", PropertyType.INTEGER).setMandatory(db, true);
 
-    SchemaClass clazz = db.getMetadata().getSchema().createClass("Validation");
+    var clazz = db.getMetadata().getSchema().createClass("Validation");
     clazz.createProperty(db, "int", PropertyType.INTEGER).setMandatory(db, true);
     clazz.createProperty(db, "long", PropertyType.LONG).setMandatory(db, true);
     clazz.createProperty(db, "float", PropertyType.FLOAT).setMandatory(db, true);
@@ -68,7 +68,7 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
     clazz.createProperty(db, "linkSet", PropertyType.LINKSET).setMandatory(db, true);
     clazz.createProperty(db, "linkMap", PropertyType.LINKMAP).setMandatory(db, true);
 
-    EntityImpl d = (EntityImpl) db.newEntity(clazz);
+    var d = (EntityImpl) db.newEntity(clazz);
     d.field("int", 10);
     d.field("long", 10);
     d.field("float", 10);
@@ -90,26 +90,26 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
     d.field("embeddedSetNoClass", new HashSet<RecordId>());
     d.field("embeddedMapNoClass", new HashMap<String, RecordId>());
 
-    EntityImpl embedded = (EntityImpl) db.newEntity("EmbeddedValidation");
+    var embedded = (EntityImpl) db.newEntity("EmbeddedValidation");
     embedded.field("int", 20);
     embedded.field("long", 20);
     d.field("embedded", embedded);
 
-    EntityImpl embeddedInList = (EntityImpl) db.newEntity("EmbeddedValidation");
+    var embeddedInList = (EntityImpl) db.newEntity("EmbeddedValidation");
     embeddedInList.field("int", 30);
     embeddedInList.field("long", 30);
-    final ArrayList<EntityImpl> embeddedList = new ArrayList<>();
+    final var embeddedList = new ArrayList<EntityImpl>();
     embeddedList.add(embeddedInList);
     d.field("embeddedList", embeddedList);
 
-    EntityImpl embeddedInSet = (EntityImpl) db.newEntity("EmbeddedValidation");
+    var embeddedInSet = (EntityImpl) db.newEntity("EmbeddedValidation");
     embeddedInSet.field("int", 30);
     embeddedInSet.field("long", 30);
     final Set<EntityImpl> embeddedSet = new HashSet<>();
     embeddedSet.add(embeddedInSet);
     d.field("embeddedSet", embeddedSet);
 
-    EntityImpl embeddedInMap = (EntityImpl) db.newEntity("EmbeddedValidation");
+    var embeddedInMap = (EntityImpl) db.newEntity("EmbeddedValidation");
     embeddedInMap.field("int", 30);
     embeddedInMap.field("long", 30);
     final Map<String, EntityImpl> embeddedMap = new HashMap<>();
@@ -142,18 +142,18 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testValidationNotValidEmbedded() {
-    SchemaClass embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
+    var embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
     embeddedClazz.createProperty(db, "int", PropertyType.INTEGER).setMandatory(db, true);
 
-    SchemaClass clazz = db.getMetadata().getSchema().createClass("Validation");
+    var clazz = db.getMetadata().getSchema().createClass("Validation");
     clazz.createProperty(db, "int", PropertyType.INTEGER).setMandatory(db, true);
     clazz.createProperty(db, "long", PropertyType.LONG).setMandatory(db, true);
     clazz.createProperty(db, "embedded", PropertyType.EMBEDDED, embeddedClazz)
         .setMandatory(db, true);
-    SchemaClass clazzNotVertex = db.getMetadata().getSchema().createClass("NotVertex");
+    var clazzNotVertex = db.getMetadata().getSchema().createClass("NotVertex");
     clazzNotVertex.createProperty(db, "embeddedSimple", PropertyType.EMBEDDED);
 
-    EntityImpl d = (EntityImpl) db.newEntity(clazz);
+    var d = (EntityImpl) db.newEntity(clazz);
     d.field("int", 30);
     d.field("long", 30);
     d.field("embedded", ((EntityImpl) db.newEntity("EmbeddedValidation")).field("test", "test"));
@@ -172,28 +172,28 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testValidationNotValidEmbeddedSet() {
-    SchemaClass embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
+    var embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
     embeddedClazz.createProperty(db, "int", PropertyType.INTEGER).setMandatory(db, true);
     embeddedClazz.createProperty(db, "long", PropertyType.LONG).setMandatory(db, true);
 
-    SchemaClass clazz = db.getMetadata().getSchema().createClass("Validation");
+    var clazz = db.getMetadata().getSchema().createClass("Validation");
     clazz.createProperty(db, "int", PropertyType.INTEGER).setMandatory(db, true);
     clazz.createProperty(db, "long", PropertyType.LONG).setMandatory(db, true);
     clazz.createProperty(db, "embeddedSet", PropertyType.EMBEDDEDSET, embeddedClazz)
         .setMandatory(db, true);
 
-    EntityImpl d = (EntityImpl) db.newEntity(clazz);
+    var d = (EntityImpl) db.newEntity(clazz);
     d.field("int", 30);
     d.field("long", 30);
     final Set<EntityImpl> embeddedSet = new HashSet<>();
     d.field("embeddedSet", embeddedSet);
 
-    EntityImpl embeddedInSet = (EntityImpl) db.newEntity("EmbeddedValidation");
+    var embeddedInSet = (EntityImpl) db.newEntity("EmbeddedValidation");
     embeddedInSet.field("int", 30);
     embeddedInSet.field("long", 30);
     embeddedSet.add(embeddedInSet);
 
-    EntityImpl embeddedInSet2 = (EntityImpl) db.newEntity("EmbeddedValidation");
+    var embeddedInSet2 = (EntityImpl) db.newEntity("EmbeddedValidation");
     embeddedInSet2.field("int", 30);
     embeddedSet.add(embeddedInSet2);
 
@@ -207,28 +207,28 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testValidationNotValidEmbeddedList() {
-    SchemaClass embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
+    var embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
     embeddedClazz.createProperty(db, "int", PropertyType.INTEGER).setMandatory(db, true);
     embeddedClazz.createProperty(db, "long", PropertyType.LONG).setMandatory(db, true);
 
-    SchemaClass clazz = db.getMetadata().getSchema().createClass("Validation");
+    var clazz = db.getMetadata().getSchema().createClass("Validation");
     clazz.createProperty(db, "int", PropertyType.INTEGER).setMandatory(db, true);
     clazz.createProperty(db, "long", PropertyType.LONG).setMandatory(db, true);
     clazz.createProperty(db, "embeddedList", PropertyType.EMBEDDEDLIST, embeddedClazz)
         .setMandatory(db, true);
 
-    EntityImpl d = (EntityImpl) db.newEntity(clazz);
+    var d = (EntityImpl) db.newEntity(clazz);
     d.field("int", 30);
     d.field("long", 30);
-    final ArrayList<EntityImpl> embeddedList = new ArrayList<>();
+    final var embeddedList = new ArrayList<EntityImpl>();
     d.field("embeddedList", embeddedList);
 
-    EntityImpl embeddedInList = (EntityImpl) db.newEntity("EmbeddedValidation");
+    var embeddedInList = (EntityImpl) db.newEntity("EmbeddedValidation");
     embeddedInList.field("int", 30);
     embeddedInList.field("long", 30);
     embeddedList.add(embeddedInList);
 
-    EntityImpl embeddedInList2 = (EntityImpl) db.newEntity("EmbeddedValidation");
+    var embeddedInList2 = (EntityImpl) db.newEntity("EmbeddedValidation");
     embeddedInList2.field("int", 30);
     embeddedList.add(embeddedInList2);
 
@@ -242,28 +242,28 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testValidationNotValidEmbeddedMap() {
-    SchemaClass embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
+    var embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
     embeddedClazz.createProperty(db, "int", PropertyType.INTEGER).setMandatory(db, true);
     embeddedClazz.createProperty(db, "long", PropertyType.LONG).setMandatory(db, true);
 
-    SchemaClass clazz = db.getMetadata().getSchema().createClass("Validation");
+    var clazz = db.getMetadata().getSchema().createClass("Validation");
     clazz.createProperty(db, "int", PropertyType.INTEGER).setMandatory(db, true);
     clazz.createProperty(db, "long", PropertyType.LONG).setMandatory(db, true);
     clazz.createProperty(db, "embeddedMap", PropertyType.EMBEDDEDMAP, embeddedClazz)
         .setMandatory(db, true);
 
-    EntityImpl d = (EntityImpl) db.newEntity(clazz);
+    var d = (EntityImpl) db.newEntity(clazz);
     d.field("int", 30);
     d.field("long", 30);
     final Map<String, EntityImpl> embeddedMap = new HashMap<>();
     d.field("embeddedMap", embeddedMap);
 
-    EntityImpl embeddedInMap = (EntityImpl) db.newEntity("EmbeddedValidation");
+    var embeddedInMap = (EntityImpl) db.newEntity("EmbeddedValidation");
     embeddedInMap.field("int", 30);
     embeddedInMap.field("long", 30);
     embeddedMap.put("1", embeddedInMap);
 
-    EntityImpl embeddedInMap2 = (EntityImpl) db.newEntity("EmbeddedValidation");
+    var embeddedInMap2 = (EntityImpl) db.newEntity("EmbeddedValidation");
     embeddedInMap2.field("int", 30);
     embeddedMap.put("2", embeddedInMap2);
 
@@ -277,7 +277,7 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
 
   private static void checkRequireField(EntityImpl toCheck, String fieldName) {
     try {
-      EntityImpl newD = toCheck.copy();
+      var newD = toCheck.copy();
       newD.removeField(fieldName);
       newD.validate();
       fail();
@@ -287,16 +287,16 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testMaxValidation() {
-    SchemaClass clazz = db.getMetadata().getSchema().createClass("Validation");
+    var clazz = db.getMetadata().getSchema().createClass("Validation");
     clazz.createProperty(db, "int", PropertyType.INTEGER).setMax(db, "11");
     clazz.createProperty(db, "long", PropertyType.LONG).setMax(db, "11");
     clazz.createProperty(db, "float", PropertyType.FLOAT).setMax(db, "11");
     // clazz.createProperty("boolean", PropertyType.BOOLEAN) no meaning
     clazz.createProperty(db, "binary", PropertyType.BINARY).setMax(db, "11");
     clazz.createProperty(db, "byte", PropertyType.BYTE).setMax(db, "11");
-    Calendar cal = Calendar.getInstance();
+    var cal = Calendar.getInstance();
     cal.add(Calendar.HOUR, cal.get(Calendar.HOUR) == 11 ? 0 : 1);
-    SimpleDateFormat format = db.getStorage().getConfiguration().getDateFormatInstance();
+    var format = db.getStorage().getConfiguration().getDateFormatInstance();
     clazz.createProperty(db, "date", PropertyType.DATE).setMax(db, format.format(cal.getTime()));
     cal = Calendar.getInstance();
     cal.add(Calendar.HOUR, 1);
@@ -320,7 +320,7 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
     clazz.createProperty(db, "linkMap", PropertyType.LINKMAP).setMax(db, "2");
     clazz.createProperty(db, "linkBag", PropertyType.LINKBAG).setMax(db, "2");
 
-    EntityImpl d = (EntityImpl) db.newEntity(clazz);
+    var d = (EntityImpl) db.newEntity(clazz);
     d.field("int", 11);
     d.field("long", 11);
     d.field("float", 11);
@@ -334,7 +334,7 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
     d.field("string", "yeah");
     d.field("embeddedList", Arrays.asList("a", "b"));
     d.field("embeddedSet", new HashSet<>(Arrays.asList("a", "b")));
-    HashMap<String, String> cont = new HashMap<>();
+    var cont = new HashMap<String, String>();
     cont.put("one", "one");
     cont.put("two", "one");
     d.field("embeddedMap", cont);
@@ -342,11 +342,11 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
     d.field(
         "linkSet",
         new HashSet<>(Arrays.asList(new RecordId(40, 30), new RecordId(40, 31))));
-    HashMap<String, RecordId> cont1 = new HashMap<>();
+    var cont1 = new HashMap<String, RecordId>();
     cont1.put("one", new RecordId(30, 30));
     cont1.put("two", new RecordId(30, 30));
     d.field("linkMap", cont1);
-    RidBag bag1 = new RidBag(db);
+    var bag1 = new RidBag(db);
     bag1.add(new RecordId(40, 30));
     bag1.add(new RecordId(40, 33));
     d.field("linkBag", bag1);
@@ -368,7 +368,7 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
     checkField(d, "string", "0123456789101112");
     checkField(d, "embeddedList", Arrays.asList("a", "b", "d"));
     checkField(d, "embeddedSet", new HashSet<>(Arrays.asList("a", "b", "d")));
-    HashMap<String, String> con1 = new HashMap<>();
+    var con1 = new HashMap<String, String>();
     con1.put("one", "one");
     con1.put("two", "one");
     con1.put("three", "one");
@@ -384,13 +384,13 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
         new HashSet<>(
             Arrays.asList(new RecordId(40, 30), new RecordId(40, 33), new RecordId(40, 31))));
 
-    HashMap<String, RecordId> cont3 = new HashMap<>();
+    var cont3 = new HashMap<String, RecordId>();
     cont3.put("one", new RecordId(30, 30));
     cont3.put("two", new RecordId(30, 30));
     cont3.put("three", new RecordId(30, 30));
     checkField(d, "linkMap", cont3);
 
-    RidBag bag2 = new RidBag(db);
+    var bag2 = new RidBag(db);
     bag2.add(new RecordId(40, 30));
     bag2.add(new RecordId(40, 33));
     bag2.add(new RecordId(40, 31));
@@ -400,20 +400,20 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
   @Test
   public void testMinValidation() {
     db.begin();
-    EntityImpl doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) db.newEntity();
     Identifiable id = db.save(doc).getIdentity();
     db.commit();
 
-    SchemaClass clazz = db.getMetadata().getSchema().createClass("Validation");
+    var clazz = db.getMetadata().getSchema().createClass("Validation");
     clazz.createProperty(db, "int", PropertyType.INTEGER).setMin(db, "11");
     clazz.createProperty(db, "long", PropertyType.LONG).setMin(db, "11");
     clazz.createProperty(db, "float", PropertyType.FLOAT).setMin(db, "11");
     // clazz.createProperty("boolean", PropertyType.BOOLEAN) //no meaning
     clazz.createProperty(db, "binary", PropertyType.BINARY).setMin(db, "11");
     clazz.createProperty(db, "byte", PropertyType.BYTE).setMin(db, "11");
-    Calendar cal = Calendar.getInstance();
+    var cal = Calendar.getInstance();
     cal.add(Calendar.HOUR, cal.get(Calendar.HOUR) == 11 ? 0 : 1);
-    SimpleDateFormat format = db.getStorage().getConfiguration().getDateFormatInstance();
+    var format = db.getStorage().getConfiguration().getDateFormatInstance();
     clazz.createProperty(db, "date", PropertyType.DATE).setMin(db, format.format(cal.getTime()));
     cal = Calendar.getInstance();
     cal.add(Calendar.HOUR, 1);
@@ -437,7 +437,7 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
     clazz.createProperty(db, "linkMap", PropertyType.LINKMAP).setMin(db, "1");
     clazz.createProperty(db, "linkBag", PropertyType.LINKBAG).setMin(db, "1");
 
-    EntityImpl d = (EntityImpl) db.newEntity(clazz);
+    var d = (EntityImpl) db.newEntity(clazz);
     d.field("int", 11);
     d.field("long", 11);
     d.field("float", 11);
@@ -461,10 +461,10 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
     d.field("embeddedMap", map);
     d.field("linkList", List.of(new RecordId(40, 50)));
     d.field("linkSet", new HashSet<>(List.of(new RecordId(40, 50))));
-    HashMap<String, RecordId> map1 = new HashMap<>();
+    var map1 = new HashMap<String, RecordId>();
     map1.put("some", new RecordId(40, 50));
     d.field("linkMap", map1);
-    RidBag bag1 = new RidBag(db);
+    var bag1 = new RidBag(db);
     bag1.add(new RecordId(40, 50));
     d.field("linkBag", bag1);
     d.validate();
@@ -495,11 +495,11 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
   @Test
   public void testNotNullValidation() {
     db.begin();
-    EntityImpl doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) db.newEntity();
     Identifiable id = db.save(doc).getIdentity();
     db.commit();
 
-    SchemaClass clazz = db.getMetadata().getSchema().createClass("Validation");
+    var clazz = db.getMetadata().getSchema().createClass("Validation");
     clazz.createProperty(db, "int", PropertyType.INTEGER).setNotNull(db, true);
     clazz.createProperty(db, "long", PropertyType.LONG).setNotNull(db, true);
     clazz.createProperty(db, "float", PropertyType.FLOAT).setNotNull(db, true);
@@ -523,7 +523,7 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
     clazz.createProperty(db, "linkSet", PropertyType.LINKSET).setNotNull(db, true);
     clazz.createProperty(db, "linkMap", PropertyType.LINKMAP).setNotNull(db, true);
 
-    EntityImpl d = (EntityImpl) db.newEntity(clazz);
+    var d = (EntityImpl) db.newEntity(clazz);
     d.field("int", 12);
     d.field("long", 12);
     d.field("float", 12);
@@ -570,10 +570,10 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testRegExpValidation() {
-    SchemaClass clazz = db.getMetadata().getSchema().createClass("Validation");
+    var clazz = db.getMetadata().getSchema().createClass("Validation");
     clazz.createProperty(db, "string", PropertyType.STRING).setRegexp(db, "[^Z]*");
 
-    EntityImpl d = (EntityImpl) db.newEntity(clazz);
+    var d = (EntityImpl) db.newEntity(clazz);
     d.field("string", "yeah");
     d.validate();
 
@@ -582,7 +582,7 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testLinkedTypeValidation() {
-    SchemaClass clazz = db.getMetadata().getSchema().createClass("Validation");
+    var clazz = db.getMetadata().getSchema().createClass("Validation");
     clazz.createProperty(db, "embeddedList", PropertyType.EMBEDDEDLIST)
         .setLinkedType(db, PropertyType.INTEGER);
     clazz.createProperty(db, "embeddedSet", PropertyType.EMBEDDEDSET)
@@ -590,8 +590,8 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
     clazz.createProperty(db, "embeddedMap", PropertyType.EMBEDDEDMAP)
         .setLinkedType(db, PropertyType.INTEGER);
 
-    EntityImpl d = (EntityImpl) db.newEntity(clazz);
-    List<Integer> list = Arrays.asList(1, 2);
+    var d = (EntityImpl) db.newEntity(clazz);
+    var list = Arrays.asList(1, 2);
     d.field("embeddedList", list);
     Set<Integer> set = new HashSet<>(list);
     d.field("embeddedSet", set);
@@ -613,8 +613,8 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testLinkedClassValidation() {
-    SchemaClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    SchemaClass clazz1 = db.getMetadata().getSchema().createClass("Validation1");
+    var clazz = db.getMetadata().getSchema().createClass("Validation");
+    var clazz1 = db.getMetadata().getSchema().createClass("Validation1");
     clazz.createProperty(db, "link", PropertyType.LINK).setLinkedClass(db, clazz1);
     clazz.createProperty(db, "embedded", PropertyType.EMBEDDED).setLinkedClass(db, clazz1);
     clazz.createProperty(db, "linkList", PropertyType.LINKLIST).setLinkedClass(db, clazz1);
@@ -623,14 +623,14 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
     clazz.createProperty(db, "linkSet", PropertyType.LINKSET).setLinkedClass(db, clazz1);
     clazz.createProperty(db, "linkMap", PropertyType.LINKMAP).setLinkedClass(db, clazz1);
     clazz.createProperty(db, "linkBag", PropertyType.LINKBAG).setLinkedClass(db, clazz1);
-    EntityImpl d = (EntityImpl) db.newEntity(clazz);
+    var d = (EntityImpl) db.newEntity(clazz);
     d.field("link", db.newEntity(clazz1));
     d.field("embedded", db.newEntity(clazz1));
-    List<EntityImpl> list = List.of((EntityImpl) db.newEntity(clazz1));
+    var list = List.of((EntityImpl) db.newEntity(clazz1));
     d.field("linkList", list);
     Set<EntityImpl> set = new HashSet<>(list);
     d.field("linkSet", set);
-    List<EntityImpl> embeddedList = Arrays.asList((EntityImpl) db.newEntity(clazz1), null);
+    var embeddedList = Arrays.asList((EntityImpl) db.newEntity(clazz1), null);
     d.field("embeddedList", embeddedList);
     Set<EntityImpl> embeddedSet = new HashSet<>(embeddedList);
     d.field("embeddedSet", embeddedSet);
@@ -656,7 +656,7 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
     checkField(d, "linkSet", new HashSet<>(List.of((EntityImpl) db.newEntity(clazz))));
     checkField(d, "embeddedList", List.of((EntityImpl) db.newEntity(clazz)));
     checkField(d, "embeddedSet", List.of((EntityImpl) db.newEntity(clazz)));
-    RidBag bag = new RidBag(db);
+    var bag = new RidBag(db);
     bag.add(db.newEntity(clazz).getIdentity());
     checkField(d, "linkBag", bag);
     Map<String, EntityImpl> map2 = new HashMap<>();
@@ -666,16 +666,16 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testValidLinkCollectionsUpdate() {
-    SchemaClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    SchemaClass clazz1 = db.getMetadata().getSchema().createClass("Validation1");
+    var clazz = db.getMetadata().getSchema().createClass("Validation");
+    var clazz1 = db.getMetadata().getSchema().createClass("Validation1");
     clazz.createProperty(db, "linkList", PropertyType.LINKLIST).setLinkedClass(db, clazz1);
     clazz.createProperty(db, "linkSet", PropertyType.LINKSET).setLinkedClass(db, clazz1);
     clazz.createProperty(db, "linkMap", PropertyType.LINKMAP).setLinkedClass(db, clazz1);
     clazz.createProperty(db, "linkBag", PropertyType.LINKBAG).setLinkedClass(db, clazz1);
-    EntityImpl d = (EntityImpl) db.newEntity(clazz);
+    var d = (EntityImpl) db.newEntity(clazz);
     d.field("link", db.newEntity(clazz1));
     d.field("embedded", db.newEntity(clazz1));
-    List<EntityImpl> list = List.of((EntityImpl) db.newEntity(clazz1));
+    var list = List.of((EntityImpl) db.newEntity(clazz1));
     d.field("linkList", list);
     Set<EntityImpl> set = new HashSet<>(list);
     d.field("linkSet", set);
@@ -692,7 +692,7 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
     try {
       db.begin();
       d = db.bindToSession(d);
-      EntityImpl newD = d.copy();
+      var newD = d.copy();
       ((Collection) newD.field("linkList")).add(db.newEntity(clazz));
       newD.validate();
       fail();
@@ -703,7 +703,7 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
     try {
       db.begin();
       d = db.bindToSession(d);
-      EntityImpl newD = d.copy();
+      var newD = d.copy();
       ((Collection) newD.field("linkSet")).add(db.newEntity(clazz));
       newD.validate();
       fail();
@@ -724,7 +724,7 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
     try {
       db.begin();
       d = db.bindToSession(d);
-      EntityImpl newD = d.copy();
+      var newD = d.copy();
       ((Map<String, EntityImpl>) newD.field("linkMap")).put("a", (EntityImpl) db.newEntity(clazz));
       newD.validate();
       fail();
@@ -735,7 +735,7 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
 
   private void checkField(EntityImpl toCheck, String field, Object newValue) {
     try {
-      EntityImpl newD = toCheck.copy();
+      var newD = toCheck.copy();
       newD.field(field, newValue);
       newD.validate();
       fail();

@@ -21,7 +21,7 @@ public class LuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
 
   @Before
   public void setUp() throws Exception {
-    final InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
+    final var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
     db.execute("sql", getScriptFromStream(stream));
     db.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE ");
     db.command("create index Song.author on Song (author) FULLTEXT ENGINE LUCENE ");
@@ -32,7 +32,7 @@ public class LuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
 
   @Test
   public void shouldSearchOnSingleField() throws Exception {
-    final ResultSet resultSet =
+    final var resultSet =
         db.query("SELECT from Song where SEARCH_FIELDS(['title'], 'BELIEVE') = true");
     assertThat(resultSet).hasSize(2);
     resultSet.close();
@@ -41,7 +41,7 @@ public class LuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
   @Test
   public void shouldSearchOnSingleFieldWithLeadingWildcard() throws Exception {
     // TODO: metadata still not used
-    final ResultSet resultSet =
+    final var resultSet =
         db.query(
             "SELECT from Song where SEARCH_FIELDS(['title'], '*EVE*', {'allowLeadingWildcard':"
                 + " true}) = true");
@@ -51,7 +51,7 @@ public class LuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
 
   @Test
   public void shouldSearhOnTwoFieldsInOR() throws Exception {
-    final ResultSet resultSet =
+    final var resultSet =
         db.query(
             "SELECT from Song where SEARCH_FIELDS(['title'], 'BELIEVE') = true OR"
                 + " SEARCH_FIELDS(['author'], 'Bob') = true ");
@@ -61,7 +61,7 @@ public class LuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
 
   @Test
   public void shouldSearchOnTwoFieldsInAND() throws Exception {
-    final ResultSet resultSet =
+    final var resultSet =
         db.query(
             "SELECT from Song where SEARCH_FIELDS(['title'], 'tambourine') = true AND"
                 + " SEARCH_FIELDS(['author'], 'Bob') = true ");
@@ -71,7 +71,7 @@ public class LuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
 
   @Test
   public void shouldSearhOnTwoFieldsWithLeadingWildcardInAND() throws Exception {
-    final ResultSet resultSet =
+    final var resultSet =
         db.query(
             "SELECT from Song where SEARCH_FIELDS(['title'], 'tambourine') = true AND"
                 + " SEARCH_FIELDS(['author'], 'Bob', {'allowLeadingWildcard': true}) = true ");
@@ -81,7 +81,7 @@ public class LuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
 
   @Test
   public void shouldSearchOnMultiFieldIndex() throws Exception {
-    ResultSet resultSet =
+    var resultSet =
         db.query(
             "SELECT from Song where SEARCH_FIELDS(['lyrics','description'],"
                 + " '(description:happiness) (lyrics:sad)  ') = true ");
@@ -119,7 +119,7 @@ public class LuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
     db.command("create vertex RockSong set title=\"This is only rock\", author=\"A cool rocker\"");
     db.commit();
 
-    final ResultSet resultSet =
+    final var resultSet =
         db.query("SELECT from RockSong where SEARCH_FIELDS(['title'], '+only +rock') = true ");
     assertThat(resultSet).hasSize(1);
     resultSet.close();
@@ -127,8 +127,8 @@ public class LuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
 
   @Test
   public void testSquareBrackets() throws Exception {
-    final String className = "testSquareBrackets";
-    final String classNameE = "testSquareBracketsE";
+    final var className = "testSquareBrackets";
+    final var classNameE = "testSquareBracketsE";
 
     db.command("create class " + className + " extends V;");
     db.command("create property " + className + ".id Integer;");
@@ -156,7 +156,7 @@ public class LuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
     db.commit();
 
     db.begin();
-    final ResultSet result =
+    final var result =
         db.query(
             "SELECT out('"
                 + classNameE
@@ -164,7 +164,7 @@ public class LuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
                 + className
                 + " WHERE id = 1;");
     assertThat(result.hasNext());
-    final Result item = result.next();
+    final var item = result.next();
     assertThat((Object) item.getProperty("theList")).isInstanceOf(List.class);
     assertThat((List) item.getProperty("theList")).hasSize(3);
     result.close();
@@ -173,7 +173,7 @@ public class LuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
 
   @Test
   public void shouldSupportParameterizedMetadata() throws Exception {
-    final String query = "SELECT from Song where SEARCH_FIELDS(['title'], '*EVE*', ?) = true";
+    final var query = "SELECT from Song where SEARCH_FIELDS(['title'], '*EVE*', ?) = true";
 
     db.query(query, "{'allowLeadingWildcard': true}").close();
     db.query(query, new EntityImpl(db, "allowLeadingWildcard", Boolean.TRUE)).close();

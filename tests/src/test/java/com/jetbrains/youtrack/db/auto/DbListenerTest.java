@@ -123,9 +123,9 @@ public class DbListenerTest extends BaseDBTest {
     db = createSessionInstance();
     db.registerListener(new DbListener());
 
-    final int baseOnBeforeTxBegin = onBeforeTxBegin;
-    final int baseOnBeforeTxCommit = onBeforeTxCommit;
-    final int baseOnAfterTxCommit = onAfterTxCommit;
+    final var baseOnBeforeTxBegin = onBeforeTxBegin;
+    final var baseOnBeforeTxCommit = onBeforeTxCommit;
+    final var baseOnAfterTxCommit = onAfterTxCommit;
 
     db.begin();
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 1);
@@ -194,14 +194,14 @@ public class DbListenerTest extends BaseDBTest {
     db = createSessionInstance();
 
     db.begin();
-    EntityImpl rec =
+    var rec =
         db
             .<EntityImpl>newInstance()
             .field("name", "Jay");
     rec.save();
     db.commit();
 
-    final DocumentChangeListener cl = new DocumentChangeListener(db);
+    final var cl = new DocumentChangeListener(db);
 
     db.begin();
     rec = db.bindToSession(rec);
@@ -229,7 +229,7 @@ public class DbListenerTest extends BaseDBTest {
 
     db.commit();
     db.begin();
-    final DocumentChangeListener cl = new DocumentChangeListener(db);
+    final var cl = new DocumentChangeListener(db);
 
     v = db.bindToSession(v);
     v.setProperty("surname", "Miner");

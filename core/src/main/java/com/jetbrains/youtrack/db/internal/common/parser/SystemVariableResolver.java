@@ -50,7 +50,7 @@ public class SystemVariableResolver implements VariableParserListener {
       return null;
     }
 
-    String resolved = System.getProperty(variable);
+    var resolved = System.getProperty(variable);
 
     if (resolved == null)
     // TRY TO FIND THE VARIABLE BETWEEN SYSTEM'S ENVIRONMENT PROPERTIES

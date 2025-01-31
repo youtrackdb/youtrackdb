@@ -38,7 +38,7 @@ public class PushSchemaRequest implements BinaryPushRequest<BinaryPushResponse> 
 
   @Override
   public void read(DatabaseSessionInternal db, ChannelDataInput network) throws IOException {
-    byte[] bytes = network.readBytes();
+    var bytes = network.readBytes();
     this.schema = (EntityImpl) RecordSerializerNetworkV37Client.INSTANCE.fromStream(db, bytes,
         null);
   }

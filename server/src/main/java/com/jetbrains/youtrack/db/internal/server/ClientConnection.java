@@ -20,12 +20,10 @@
 package com.jetbrains.youtrack.db.internal.server;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.api.query.ExecutionPlan;
 import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.client.binary.BinaryRequestExecutor;
 import com.jetbrains.youtrack.db.internal.common.exception.SystemException;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.QueryDatabaseState;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.security.ParsedToken;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
@@ -40,8 +38,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
@@ -124,7 +120,7 @@ public class ClientConnection {
     if (protocol != null) {
       socket = protocol.getChannel().socket;
     } else {
-      for (NetworkProtocol protocol : this.protocols) {
+      for (var protocol : this.protocols) {
         socket = protocol.getChannel().socket;
         if (socket != null) {
           break;
@@ -133,7 +129,7 @@ public class ClientConnection {
     }
 
     if (socket != null) {
-      final InetSocketAddress remoteAddress = (InetSocketAddress) socket.getRemoteSocketAddress();
+      final var remoteAddress = (InetSocketAddress) socket.getRemoteSocketAddress();
       return remoteAddress.getAddress().getHostAddress() + ":" + remoteAddress.getPort();
     }
     return null;
@@ -155,7 +151,7 @@ public class ClientConnection {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final ClientConnection other = (ClientConnection) obj;
+    final var other = (ClientConnection) obj;
     return id == other.id;
   }
 
@@ -255,8 +251,8 @@ public class ClientConnection {
         throw new TokenSecurityException("missing in token data");
       }
 
-      final String db = token.getToken().getDatabase();
-      final String type = token.getToken().getDatabaseType();
+      final var db = token.getToken().getDatabase();
+      final var type = token.getToken().getDatabaseType();
       if (db != null && type != null) {
         database = server.openDatabase(db, token);
       }
@@ -372,15 +368,15 @@ public class ClientConnection {
   private List<String> getActiveQueries(DatabaseSessionInternal database) {
     try {
       List<String> result = new ArrayList<>();
-      Map<String, QueryDatabaseState> queries = database.getActiveQueries();
-      for (QueryDatabaseState oResultSet : queries.values()) {
-        Optional<ExecutionPlan> plan = oResultSet.getResultSet().getExecutionPlan();
+      var queries = database.getActiveQueries();
+      for (var oResultSet : queries.values()) {
+        var plan = oResultSet.getResultSet().getExecutionPlan();
         if (!plan.isPresent()) {
           continue;
         }
-        ExecutionPlan p = plan.get();
+        var p = plan.get();
         if (p instanceof InternalExecutionPlan) {
-          String stm = ((InternalExecutionPlan) p).getStatement();
+          var stm = ((InternalExecutionPlan) p).getStatement();
           if (stm != null) {
             result.add(stm);
           }

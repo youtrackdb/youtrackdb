@@ -27,14 +27,14 @@ public class HttpGraphTest extends BaseHttpDatabaseTest {
             .getResponse()
             .getCode());
 
-    String script = "begin;";
+    var script = "begin;";
     script += "let $v1 = create vertex Foo set name = 'foo1';";
     script += "let $v2 = create vertex Foo set name = 'foo2';";
     script += "create edge FooEdge from $v1 to $v2;";
     script += "commit;";
     script += "return $v1;";
 
-    final String scriptPayload =
+    final var scriptPayload =
         "{ \"operations\" : [{ \"type\" : \"script\", \"language\" : \"SQL\",  \"script\" :"
             + " \"%s\"}]}";
 
@@ -90,14 +90,14 @@ public class HttpGraphTest extends BaseHttpDatabaseTest {
             .getResponse()
             .getCode());
 
-    String script = "begin;";
+    var script = "begin;";
     script += "let $v1 = create vertex Foo set name = 'foo1';";
     script += "let $v2 = create vertex Foo set name = 'foo2';";
     script += "create edge FooEdge from $v1 to $v2;";
     script += "commit;";
     script += "return $v1;";
 
-    final String scriptPayload =
+    final var scriptPayload =
         "{ \"operations\" : [{ \"type\" : \"script\", \"language\" : \"SQL\",  \"script\" :"
             + " \"%s\"}]}";
 
@@ -107,7 +107,7 @@ public class HttpGraphTest extends BaseHttpDatabaseTest {
             .getResponse();
     Assert.assertEquals(200, response.getCode());
 
-    final String payload =
+    final var payload =
         new EntityImpl(null).field("command", "select from E").field("mode", "graph").toJSON();
     response =
         post("command/" + getDatabaseName() + "/sql/").payload(payload, CONTENT.JSON).getResponse();

@@ -23,8 +23,8 @@ public class TestManyProperties {
       youTrackDB
           .execute("create database test memory users(admin identified by 'admin' role admin)")
           .close();
-      try (DatabaseSession session = youTrackDB.open("test", "admin", "admin")) {
-        SchemaClass clazz = session.createClass("test");
+      try (var session = youTrackDB.open("test", "admin", "admin")) {
+        var clazz = session.createClass("test");
         clazz.createProperty(session, "property1", PropertyType.STRING);
         clazz.createProperty(session, "property2", PropertyType.STRING);
         clazz.createProperty(session, "property3", PropertyType.STRING);
@@ -50,7 +50,7 @@ public class TestManyProperties {
         clazz.createProperty(session, "property23", PropertyType.STRING);
         clazz.createProperty(session, "property24", PropertyType.STRING);
 
-        try (ResultSet set =
+        try (var set =
             session.query(
                 "SELECT FROM test WHERE (((property1 is null) or (property1 = #107:150)) and"
                     + " ((property2 is null) or (property2 = #107:150)) and ((property3 is null) or"

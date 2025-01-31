@@ -49,19 +49,19 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
 
   public CommandExecutorSQLOptimizeDatabase parse(DatabaseSessionInternal db,
       final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
       init((CommandRequestText) iRequest);
 
-      StringBuilder word = new StringBuilder();
+      var word = new StringBuilder();
 
-      int oldPos = 0;
-      int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
+      var oldPos = 0;
+      var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_OPTIMIZE)) {
         throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_OPTIMIZE + " not found. Use " + getSyntax(), parserText, oldPos);
@@ -94,7 +94,7 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
    * Execute the ALTER DATABASE.
    */
   public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
-    final StringBuilder result = new StringBuilder();
+    final var result = new StringBuilder();
 
     if (optimizeEdges) {
       result.append(optimizeEdges());
@@ -104,7 +104,7 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
   }
 
   private String optimizeEdges() {
-    final DatabaseSessionInternal db = getDatabase();
+    final var db = getDatabase();
 
     long transformed = 0;
     if (db.getTransaction().isActive()) {
@@ -115,12 +115,12 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
 
     try {
 
-      final long totalEdges = db.countClass("E");
+      final var totalEdges = db.countClass("E");
       long browsedEdges = 0;
       long lastLapBrowsed = 0;
-      long lastLapTime = System.currentTimeMillis();
+      var lastLapTime = System.currentTimeMillis();
 
-      for (EntityImpl entity : db.browseClass("E")) {
+      for (var entity : db.browseClass("E")) {
         if (Thread.currentThread().isInterrupted()) {
           break;
         }
@@ -135,11 +135,11 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
             final EntityImpl inV = entity.field("in");
 
             // OUTGOING
-            final Object outField = outV.field("out_" + entity.getClassName());
+            final var outField = outV.field("out_" + entity.getClassName());
             if (outField instanceof RidBag) {
-              final Iterator<RID> it = ((RidBag) outField).iterator();
+              final var it = ((RidBag) outField).iterator();
               while (it.hasNext()) {
-                RID v = it.next();
+                var v = it.next();
                 if (edgeIdentity.equals(v)) {
                   // REPLACE EDGE RID WITH IN-VERTEX RID
                   it.remove();
@@ -152,11 +152,11 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
             outV.save();
 
             // INCOMING
-            final Object inField = inV.field("in_" + entity.getClassName());
+            final var inField = inV.field("in_" + entity.getClassName());
             if (outField instanceof RidBag) {
-              final Iterator<RID> it = ((RidBag) inField).iterator();
+              final var it = ((RidBag) inField).iterator();
               while (it.hasNext()) {
-                RID v = it.next();
+                var v = it.next();
                 if (edgeIdentity.equals(v)) {
                   // REPLACE EDGE RID WITH IN-VERTEX RID
                   it.remove();
@@ -175,10 +175,10 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
               db.begin();
             }
 
-            final long now = System.currentTimeMillis();
+            final var now = System.currentTimeMillis();
 
             if (verbose && (now - lastLapTime > 2000)) {
-              final long elapsed = now - lastLapTime;
+              final var elapsed = now - lastLapTime;
 
               LogManager.instance()
                   .info(

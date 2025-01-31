@@ -55,13 +55,13 @@ public class SQLProjection extends SimpleNode {
     if (items == null) {
       return;
     }
-    boolean first = true;
+    var first = true;
 
     if (distinct) {
       builder.append("DISTINCT ");
     }
     // print * before
-    for (SQLProjectionItem item : items) {
+    for (var item : items) {
       if (item.isAll()) {
         if (!first) {
           builder.append(", ");
@@ -73,7 +73,7 @@ public class SQLProjection extends SimpleNode {
     }
 
     // and then the rest of the projections
-    for (SQLProjectionItem item : items) {
+    for (var item : items) {
       if (!item.isAll()) {
         if (!first) {
           builder.append(", ");
@@ -90,13 +90,13 @@ public class SQLProjection extends SimpleNode {
     if (items == null) {
       return;
     }
-    boolean first = true;
+    var first = true;
 
     if (distinct) {
       builder.append("DISTINCT ");
     }
     // print * before
-    for (SQLProjectionItem item : items) {
+    for (var item : items) {
       if (item.isAll()) {
         if (!first) {
           builder.append(", ");
@@ -108,7 +108,7 @@ public class SQLProjection extends SimpleNode {
     }
 
     // and then the rest of the projections
-    for (SQLProjectionItem item : items) {
+    for (var item : items) {
       if (!item.isAll()) {
         if (!first) {
           builder.append(", ");
@@ -133,8 +133,8 @@ public class SQLProjection extends SimpleNode {
     }
 
     var db = iContext.getDatabase();
-    ResultInternal result = new ResultInternal(db);
-    for (SQLProjectionItem item : items) {
+    var result = new ResultInternal(db);
+    for (var item : items) {
       if (item.exclude) {
         continue;
       }
@@ -148,18 +148,18 @@ public class SQLProjection extends SimpleNode {
                     entity.deserializeFields();
                   }
                 });
-        for (String alias : iRecord.getPropertyNames()) {
+        for (var alias : iRecord.getPropertyNames()) {
           if (this.excludes.contains(alias)) {
             continue;
           }
-          Object val = SQLProjectionItem.convert(iRecord.getProperty(alias), iContext);
+          var val = SQLProjectionItem.convert(iRecord.getProperty(alias), iContext);
           if (item.nestedProjection != null) {
             val = item.nestedProjection.apply(item.expression, val, iContext);
           }
           result.setProperty(alias, val);
         }
         if (iRecord.getEntity().isPresent()) {
-          Entity x = iRecord.getEntity().get();
+          var x = iRecord.getEntity().get();
           if (!this.excludes.contains("@rid")) {
             result.setProperty("@rid", x.getIdentity());
           }
@@ -176,7 +176,7 @@ public class SQLProjection extends SimpleNode {
       }
     }
 
-    for (String key : iRecord.getMetadataKeys()) {
+    for (var key : iRecord.getMetadataKeys()) {
       if (!result.getMetadataKeys().contains(key)) {
         result.setMetadata(key, iRecord.getMetadata(key));
       }
@@ -187,7 +187,7 @@ public class SQLProjection extends SimpleNode {
   private void initExcludes(CommandContext iContext) {
     if (excludes == null) {
       this.excludes = new HashSet<String>();
-      for (SQLProjectionItem item : items) {
+      for (var item : items) {
         if (item.exclude) {
           this.excludes.add(item.getProjectionAliasAsString());
         }
@@ -208,7 +208,7 @@ public class SQLProjection extends SimpleNode {
 
   public void validate() {
     if (items != null && items.size() > 1) {
-      for (SQLProjectionItem item : items) {
+      for (var item : items) {
         if (item.isExpand()) {
           throw new CommandSQLParsingException(
               "Cannot execute a query with expand() together with other projections");
@@ -218,7 +218,7 @@ public class SQLProjection extends SimpleNode {
   }
 
   public SQLProjection getExpandContent() {
-    SQLProjection result = new SQLProjection(-1);
+    var result = new SQLProjection(-1);
     result.items = new ArrayList<>();
     result.items.add(this.items.get(0).getExpandContent());
     return result;
@@ -229,7 +229,7 @@ public class SQLProjection extends SimpleNode {
   }
 
   public SQLProjection copy() {
-    SQLProjection result = new SQLProjection(-1);
+    var result = new SQLProjection(-1);
     if (items != null) {
       result.items = items.stream().map(x -> x.copy()).collect(Collectors.toList());
     }
@@ -246,7 +246,7 @@ public class SQLProjection extends SimpleNode {
       return false;
     }
 
-    SQLProjection that = (SQLProjection) o;
+    var that = (SQLProjection) o;
 
     return Objects.equals(items, that.items);
   }
@@ -266,14 +266,14 @@ public class SQLProjection extends SimpleNode {
 
   public void extractSubQueries(SubQueryCollector collector) {
     if (items != null) {
-      for (SQLProjectionItem item : items) {
+      for (var item : items) {
         item.extractSubQueries(collector);
       }
     }
   }
 
   public boolean refersToParent() {
-    for (SQLProjectionItem item : items) {
+    for (var item : items) {
       if (item.refersToParent()) {
         return true;
       }
@@ -282,7 +282,7 @@ public class SQLProjection extends SimpleNode {
   }
 
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     result.setProperty("distinct", distinct);
     if (items != null) {
       result.setProperty(
@@ -298,8 +298,8 @@ public class SQLProjection extends SimpleNode {
       items = new ArrayList<>();
 
       List<Result> ser = fromResult.getProperty("items");
-      for (Result x : ser) {
-        SQLProjectionItem item = new SQLProjectionItem(-1);
+      for (var x : ser) {
+        var item = new SQLProjectionItem(-1);
         item.deserialize(x);
         items.add(item);
       }
@@ -308,7 +308,7 @@ public class SQLProjection extends SimpleNode {
 
   public boolean isCacheable(DatabaseSessionInternal session) {
     if (items != null) {
-      for (SQLProjectionItem item : items) {
+      for (var item : items) {
         if (!item.isCacheable(session)) {
           return false;
         }

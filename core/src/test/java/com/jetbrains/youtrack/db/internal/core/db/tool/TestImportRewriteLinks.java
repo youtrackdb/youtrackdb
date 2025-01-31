@@ -36,7 +36,7 @@ public class TestImportRewriteLinks {
               CreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
         final Schema schema = db.getMetadata().getSchema();
 
-        final SchemaClass cls = schema.createClass(EXPORT_IMPORT_CLASS_NAME);
+        final var cls = schema.createClass(EXPORT_IMPORT_CLASS_NAME);
         cls.createProperty(db, "key", PropertyType.STRING);
         cls.createProperty(db, "value", PropertyType.STRING);
         cls.createIndex(db, EXPORT_IMPORT_INDEX_NAME, INDEX_TYPE.UNIQUE, "key");
@@ -65,11 +65,11 @@ public class TestImportRewriteLinks {
 
         final Set<RID> brokenRids = new HashSet<>();
 
-        EntityImpl doc = (EntityImpl) db.newEntity();
+        var doc = (EntityImpl) db.newEntity();
 
-        EntityImpl emb = (EntityImpl) db.newEntity();
+        var emb = (EntityImpl) db.newEntity();
         doc.field("emb", emb, PropertyType.EMBEDDED);
-        EntityImpl emb1 = (EntityImpl) db.newEntity();
+        var emb1 = (EntityImpl) db.newEntity();
         emb.field("emb1", emb1, PropertyType.EMBEDDED);
         emb1.field("link", new RecordId(10, 4));
         emb1.field("brokenLink", new RecordId(10, 5));

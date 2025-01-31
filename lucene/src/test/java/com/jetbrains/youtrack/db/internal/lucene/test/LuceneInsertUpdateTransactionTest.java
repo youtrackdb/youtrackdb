@@ -45,7 +45,7 @@ public class LuceneInsertUpdateTransactionTest extends BaseLuceneTest {
   public void init() {
     Schema schema = db.getMetadata().getSchema();
 
-    SchemaClass oClass = schema.createClass("City");
+    var oClass = schema.createClass("City");
     oClass.createProperty(db, "name", PropertyType.STRING);
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
@@ -55,21 +55,21 @@ public class LuceneInsertUpdateTransactionTest extends BaseLuceneTest {
 
     Schema schema = db.getMetadata().getSchema();
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("City"));
+    var doc = ((EntityImpl) db.newEntity("City"));
     doc.field("name", "Rome");
     db.save(doc);
 
-    Index idx = db.getClassInternal("City").getClassIndex(db, "City.name");
+    var idx = db.getClassInternal("City").getClassIndex(db, "City.name");
     Assert.assertNotNull(idx);
 
     Collection<?> coll;
-    try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (var stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
 
     Assert.assertEquals(coll.size(), 1);
     db.rollback();
-    try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (var stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 0);
@@ -78,11 +78,11 @@ public class LuceneInsertUpdateTransactionTest extends BaseLuceneTest {
     doc.field("name", "Rome");
     db.save(doc);
 
-    SecurityUserImpl user = new SecurityUserImpl(db, "test", "test");
+    var user = new SecurityUserImpl(db, "test", "test");
     user.save(db);
 
     db.commit();
-    try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (var stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 1);

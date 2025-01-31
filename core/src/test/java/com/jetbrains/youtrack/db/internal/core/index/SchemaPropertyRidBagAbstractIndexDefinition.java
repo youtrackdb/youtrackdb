@@ -31,16 +31,16 @@ public abstract class SchemaPropertyRidBagAbstractIndexDefinition extends DbTest
 
   @Test
   public void testCreateValueSingleParameter() {
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
 
     ridBag.add(new RecordId("#1:12"));
     ridBag.add(new RecordId("#1:23"));
 
-    final Object result = propertyIndex.createValue(db, Collections.singletonList(ridBag));
+    final var result = propertyIndex.createValue(db, Collections.singletonList(ridBag));
 
     Assert.assertTrue(result instanceof Collection);
 
-    final Collection<?> collectionResult = (Collection<?>) result;
+    final var collectionResult = (Collection<?>) result;
     Assert.assertEquals(2, collectionResult.size());
 
     Assert.assertTrue(collectionResult.contains(new RecordId("#1:12")));
@@ -51,16 +51,16 @@ public abstract class SchemaPropertyRidBagAbstractIndexDefinition extends DbTest
 
   @Test
   public void testCreateValueTwoParameters() {
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
 
     ridBag.add(new RecordId("#1:12"));
     ridBag.add(new RecordId("#1:23"));
 
-    final Object result = propertyIndex.createValue(db, Arrays.asList(ridBag, "25"));
+    final var result = propertyIndex.createValue(db, Arrays.asList(ridBag, "25"));
 
     Assert.assertTrue(result instanceof Collection);
 
-    final Collection<?> collectionResult = (Collection<?>) result;
+    final var collectionResult = (Collection<?>) result;
     Assert.assertEquals(2, collectionResult.size());
 
     Assert.assertTrue(collectionResult.contains(new RecordId("#1:12")));
@@ -76,16 +76,16 @@ public abstract class SchemaPropertyRidBagAbstractIndexDefinition extends DbTest
 
   @Test
   public void testCreateValueSingleParameterArrayParams() {
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
 
     ridBag.add(new RecordId("#1:12"));
     ridBag.add(new RecordId("#1:23"));
 
-    final Object result = propertyIndex.createValue(db, ridBag);
+    final var result = propertyIndex.createValue(db, ridBag);
 
     Assert.assertTrue(result instanceof Collection);
 
-    final Collection<?> collectionResult = (Collection<?>) result;
+    final var collectionResult = (Collection<?>) result;
     Assert.assertEquals(2, collectionResult.size());
 
     Assert.assertTrue(collectionResult.contains(new RecordId("#1:12")));
@@ -97,16 +97,16 @@ public abstract class SchemaPropertyRidBagAbstractIndexDefinition extends DbTest
 
   @Test
   public void testCreateValueTwoParametersArrayParams() {
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
 
     ridBag.add(new RecordId("#1:12"));
     ridBag.add(new RecordId("#1:23"));
 
-    final Object result = propertyIndex.createValue(db, ridBag, "25");
+    final var result = propertyIndex.createValue(db, ridBag, "25");
 
     Assert.assertTrue(result instanceof Collection);
 
-    final Collection<?> collectionResult = (Collection<?>) result;
+    final var collectionResult = (Collection<?>) result;
     Assert.assertEquals(2, collectionResult.size());
 
     Assert.assertTrue(collectionResult.contains(new RecordId("#1:12")));
@@ -122,20 +122,20 @@ public abstract class SchemaPropertyRidBagAbstractIndexDefinition extends DbTest
 
   @Test
   public void testGetDocumentValueToIndex() {
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
 
     ridBag.add(new RecordId("#1:12"));
     ridBag.add(new RecordId("#1:23"));
 
-    final EntityImpl document = (EntityImpl) db.newEntity();
+    final var document = (EntityImpl) db.newEntity();
 
     document.field("fOne", ridBag);
     document.field("fTwo", 10);
 
-    final Object result = propertyIndex.getDocumentValueToIndex(db, document);
+    final var result = propertyIndex.getDocumentValueToIndex(db, document);
     Assert.assertTrue(result instanceof Collection);
 
-    final Collection<?> collectionResult = (Collection<?>) result;
+    final var collectionResult = (Collection<?>) result;
     Assert.assertEquals(2, collectionResult.size());
 
     Assert.assertTrue(collectionResult.contains(new RecordId("#1:12")));
@@ -146,13 +146,13 @@ public abstract class SchemaPropertyRidBagAbstractIndexDefinition extends DbTest
 
   @Test
   public void testProcessChangeEventAddOnce() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<Identifiable, Identifiable> multiValueChangeEvent =
+    final var multiValueChangeEvent =
         new MultiValueChangeEvent<Identifiable, Identifiable>(
             ChangeType.ADD, new RecordId("#1:12"),
             new RecordId("#1:12"));
@@ -169,17 +169,17 @@ public abstract class SchemaPropertyRidBagAbstractIndexDefinition extends DbTest
 
   @Test
   public void testProcessChangeEventAddTwoTimes() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<Identifiable, Identifiable> multiValueChangeEventOne =
+    final var multiValueChangeEventOne =
         new MultiValueChangeEvent<Identifiable, Identifiable>(
             ChangeType.ADD, new RecordId("#1:12"),
             new RecordId("#1:12"));
-    final MultiValueChangeEvent<Identifiable, Identifiable> multiValueChangeEventTwo =
+    final var multiValueChangeEventTwo =
         new MultiValueChangeEvent<Identifiable, Identifiable>(
             ChangeType.ADD, new RecordId("#1:12"),
             new RecordId("#1:12"));
@@ -198,17 +198,17 @@ public abstract class SchemaPropertyRidBagAbstractIndexDefinition extends DbTest
 
   @Test
   public void testProcessChangeEventAddTwoValues() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<Identifiable, Identifiable> multiValueChangeEventOne =
+    final var multiValueChangeEventOne =
         new MultiValueChangeEvent<Identifiable, Identifiable>(
             ChangeType.ADD, new RecordId("#1:12"),
             new RecordId("#1:12"));
-    final MultiValueChangeEvent<Identifiable, Identifiable> multiValueChangeEventTwo =
+    final var multiValueChangeEventTwo =
         new MultiValueChangeEvent<Identifiable, Identifiable>(
             ChangeType.ADD, new RecordId("#1:13"),
             new RecordId("#1:13"));
@@ -228,13 +228,13 @@ public abstract class SchemaPropertyRidBagAbstractIndexDefinition extends DbTest
 
   @Test
   public void testProcessChangeEventRemoveOnce() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<Identifiable, Identifiable> multiValueChangeEvent =
+    final var multiValueChangeEvent =
         new MultiValueChangeEvent<Identifiable, Identifiable>(
             ChangeType.REMOVE,
             new RecordId("#1:12"),
@@ -254,19 +254,19 @@ public abstract class SchemaPropertyRidBagAbstractIndexDefinition extends DbTest
 
   @Test
   public void testProcessChangeEventRemoveTwoTimes() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<Identifiable, Identifiable> multiValueChangeEventOne =
+    final var multiValueChangeEventOne =
         new MultiValueChangeEvent<Identifiable, Identifiable>(
             ChangeType.REMOVE,
             new RecordId("#1:12"),
             null,
             new RecordId("#1:12"));
-    final MultiValueChangeEvent<Identifiable, Identifiable> multiValueChangeEventTwo =
+    final var multiValueChangeEventTwo =
         new MultiValueChangeEvent<Identifiable, Identifiable>(
             ChangeType.REMOVE,
             new RecordId("#1:12"),
@@ -287,17 +287,17 @@ public abstract class SchemaPropertyRidBagAbstractIndexDefinition extends DbTest
 
   @Test
   public void testProcessChangeEventAddRemove() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<Identifiable, Identifiable> multiValueChangeEventOne =
+    final var multiValueChangeEventOne =
         new MultiValueChangeEvent<Identifiable, Identifiable>(
             ChangeType.ADD, new RecordId("#1:12"),
             new RecordId("#1:12"));
-    final MultiValueChangeEvent<Identifiable, Identifiable> multiValueChangeEventTwo =
+    final var multiValueChangeEventTwo =
         new MultiValueChangeEvent<Identifiable, Identifiable>(
             ChangeType.REMOVE,
             new RecordId("#1:12"),
@@ -316,17 +316,17 @@ public abstract class SchemaPropertyRidBagAbstractIndexDefinition extends DbTest
 
   @Test
   public void testProcessChangeEventAddRemoveInvValue() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<Identifiable, Identifiable> multiValueChangeEventOne =
+    final var multiValueChangeEventOne =
         new MultiValueChangeEvent<Identifiable, Identifiable>(
             ChangeType.ADD, new RecordId("#1:12"),
             new RecordId("#1:12"));
-    final MultiValueChangeEvent<Identifiable, Identifiable> multiValueChangeEventTwo =
+    final var multiValueChangeEventTwo =
         new MultiValueChangeEvent<Identifiable, Identifiable>(
             ChangeType.REMOVE,
             new RecordId("#1:13"),
@@ -347,21 +347,21 @@ public abstract class SchemaPropertyRidBagAbstractIndexDefinition extends DbTest
 
   @Test
   public void testProcessChangeEventAddTwiceRemoveOnce() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<Identifiable, Identifiable> multiValueChangeEventOne =
+    final var multiValueChangeEventOne =
         new MultiValueChangeEvent<Identifiable, Identifiable>(
             ChangeType.ADD, new RecordId("#1:12"),
             new RecordId("#1:12"));
-    final MultiValueChangeEvent<Identifiable, Identifiable> multiValueChangeEventTwo =
+    final var multiValueChangeEventTwo =
         new MultiValueChangeEvent<Identifiable, Identifiable>(
             ChangeType.ADD, new RecordId("#1:12"),
             new RecordId("#1:12"));
-    final MultiValueChangeEvent<Identifiable, Identifiable> multiValueChangeEventThree =
+    final var multiValueChangeEventThree =
         new MultiValueChangeEvent<Identifiable, Identifiable>(
             ChangeType.REMOVE,
             new RecordId("#1:12"),
@@ -383,23 +383,23 @@ public abstract class SchemaPropertyRidBagAbstractIndexDefinition extends DbTest
 
   @Test
   public void testProcessChangeEventAddOnceRemoveTwice() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<Identifiable, Identifiable> multiValueChangeEventOne =
+    final var multiValueChangeEventOne =
         new MultiValueChangeEvent<Identifiable, Identifiable>(
             ChangeType.REMOVE,
             new RecordId("#1:12"),
             null,
             new RecordId("#1:12"));
-    final MultiValueChangeEvent<Identifiable, Identifiable> multiValueChangeEventTwo =
+    final var multiValueChangeEventTwo =
         new MultiValueChangeEvent<Identifiable, Identifiable>(
             ChangeType.ADD, new RecordId("#1:12"),
             new RecordId("#1:12"));
-    final MultiValueChangeEvent<Identifiable, Identifiable> multiValueChangeEventThree =
+    final var multiValueChangeEventThree =
         new MultiValueChangeEvent<Identifiable, Identifiable>(
             ChangeType.REMOVE,
             new RecordId("#1:12"),
@@ -421,25 +421,25 @@ public abstract class SchemaPropertyRidBagAbstractIndexDefinition extends DbTest
 
   @Test
   public void testProcessChangeEventRemoveTwoTimesAddOnce() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<Identifiable, Identifiable> multiValueChangeEventOne =
+    final var multiValueChangeEventOne =
         new MultiValueChangeEvent<Identifiable, Identifiable>(
             ChangeType.REMOVE,
             new RecordId("#1:12"),
             null,
             new RecordId("#1:12"));
-    final MultiValueChangeEvent<Identifiable, Identifiable> multiValueChangeEventTwo =
+    final var multiValueChangeEventTwo =
         new MultiValueChangeEvent<Identifiable, Identifiable>(
             ChangeType.REMOVE,
             new RecordId("#1:12"),
             null,
             new RecordId("#1:12"));
-    final MultiValueChangeEvent<Identifiable, Identifiable> multiValueChangeEventThree =
+    final var multiValueChangeEventThree =
         new MultiValueChangeEvent<Identifiable, Identifiable>(
             ChangeType.ADD, new RecordId("#1:12"),
             new RecordId("#1:12"));

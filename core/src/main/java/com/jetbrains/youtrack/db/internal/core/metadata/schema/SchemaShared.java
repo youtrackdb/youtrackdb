@@ -137,14 +137,14 @@ public abstract class SchemaShared implements CloseableInStorage {
 
     iName = iName.trim();
 
-    final int nameSize = iName.length();
+    final var nameSize = iName.length();
 
     if (nameSize == 0) {
       throw new IllegalArgumentException("Name is empty");
     }
 
-    for (int i = 0; i < nameSize; ++i) {
-      final char c = iName.charAt(i);
+    for (var i = 0; i < nameSize; ++i) {
+      final var c = iName.charAt(i);
       if (c == ':' || c == ',' || c == ';' || c == ' ' || c == '=')
       // INVALID CHARACTER
       {
@@ -162,14 +162,14 @@ public abstract class SchemaShared implements CloseableInStorage {
 
     iName = iName.trim();
 
-    final int nameSize = iName.length();
+    final var nameSize = iName.length();
 
     if (nameSize == 0) {
       throw new IllegalArgumentException("Name is empty");
     }
 
-    for (int i = 0; i < nameSize; ++i) {
-      final char c = iName.charAt(i);
+    for (var i = 0; i < nameSize; ++i) {
+      final var c = iName.charAt(i);
       if (c == ':' || c == ',' || c == ';' || c == ' ' || c == '=')
       // INVALID CHARACTER
       {
@@ -297,7 +297,7 @@ public abstract class SchemaShared implements CloseableInStorage {
         throw new SchemaException("Cluster with id " + clusterId + " already belongs to Blob");
       }
 
-      final SchemaClass existingCls = clustersToClasses.get(clusterId);
+      final var existingCls = clustersToClasses.get(clusterId);
 
       if (existingCls != null && (cls == null || !cls.equals(existingCls))) {
         throw new SchemaException(
@@ -488,11 +488,11 @@ public abstract class SchemaShared implements CloseableInStorage {
       properties.clear();
       propertiesByNameType.clear();
       List<EntityImpl> globalProperties = entity.field("globalProperties");
-      boolean hasGlobalProperties = false;
+      var hasGlobalProperties = false;
       if (globalProperties != null) {
         hasGlobalProperties = true;
-        for (EntityImpl oDocument : globalProperties) {
-          GlobalPropertyImpl prop = new GlobalPropertyImpl();
+        for (var oDocument : globalProperties) {
+          var prop = new GlobalPropertyImpl();
           prop.fromEntity(oDocument);
           ensurePropertiesSize(prop.getId());
           properties.set(prop.getId(), prop);
@@ -505,7 +505,7 @@ public abstract class SchemaShared implements CloseableInStorage {
       final Map<String, SchemaClassInternal> newClasses = new HashMap<>();
 
       Collection<EntityImpl> storedClasses = entity.field("classes");
-      for (EntityImpl c : storedClasses) {
+      for (var c : storedClasses) {
         String name = c.field("name");
 
         SchemaClassImpl cls;
@@ -535,7 +535,7 @@ public abstract class SchemaShared implements CloseableInStorage {
       List<SchemaClass> superClasses;
       SchemaClass superClass;
 
-      for (EntityImpl c : storedClasses) {
+      for (var c : storedClasses) {
         superClassNames = c.field("superClasses");
         legacySuperClassName = c.field("superClass");
         if (superClassNames == null) {
@@ -550,10 +550,10 @@ public abstract class SchemaShared implements CloseableInStorage {
 
         if (!superClassNames.isEmpty()) {
           // HAS A SUPER CLASS or CLASSES
-          SchemaClassImpl cls =
+          var cls =
               (SchemaClassImpl) classes.get(((String) c.field("name")).toLowerCase(Locale.ENGLISH));
           superClasses = new ArrayList<SchemaClass>(superClassNames.size());
-          for (String superClassName : superClassNames) {
+          for (var superClassName : superClassNames) {
 
             superClass = classes.get(superClassName.toLowerCase(Locale.ENGLISH));
 
@@ -579,7 +579,7 @@ public abstract class SchemaShared implements CloseableInStorage {
       }
 
       if (!hasGlobalProperties) {
-        DatabaseSessionInternal database = DatabaseRecordThreadLocal.instance().get();
+        var database = DatabaseRecordThreadLocal.instance().get();
         if (database.getStorage() instanceof AbstractPaginatedStorage) {
           saveInternal(database);
         }
@@ -598,7 +598,7 @@ public abstract class SchemaShared implements CloseableInStorage {
   public EntityImpl toNetworkStream(DatabaseSessionInternal db) {
     lock.readLock().lock();
     try {
-      EntityImpl entity = new EntityImpl(db);
+      var entity = new EntityImpl(db);
       entity.setTrackingChanges(false);
       entity.field("schemaVersion", CURRENT_VERSION_NUMBER);
 
@@ -610,7 +610,7 @@ public abstract class SchemaShared implements CloseableInStorage {
       entity.field("classes", cc, PropertyType.EMBEDDEDSET);
 
       List<EntityImpl> globalProperties = new ArrayList<>();
-      for (GlobalProperty globalProperty : properties) {
+      for (var globalProperty : properties) {
         if (globalProperty != null) {
           globalProperties.add(((GlobalPropertyImpl) globalProperty).toEntity(db));
         }
@@ -639,13 +639,13 @@ public abstract class SchemaShared implements CloseableInStorage {
       }
 
       Set<EntityImpl> classesEntities = new HashSet<>();
-      for (SchemaClassImpl c : realClases) {
+      for (var c : realClases) {
         classesEntities.add(c.toStream(db));
       }
       entity.field("classes", classesEntities, PropertyType.EMBEDDEDSET);
 
       List<EntityImpl> globalProperties = new ArrayList<>();
-      for (GlobalProperty globalProperty : properties) {
+      for (var globalProperty : properties) {
         if (globalProperty != null) {
           globalProperties.add(((GlobalPropertyImpl) globalProperty).toEntity(db));
         }
@@ -674,7 +674,7 @@ public abstract class SchemaShared implements CloseableInStorage {
 
     acquireSchemaReadLock();
     try {
-      final int clusterId = database.getClusterIdByName(clusterName);
+      final var clusterId = database.getClusterIdByName(clusterName);
       final Set<SchemaClass> result = new HashSet<SchemaClass>();
       for (SchemaClass c : classes.values()) {
         if (ArrayUtils.contains(c.getPolymorphicClusterIds(), clusterId)) {
@@ -768,9 +768,9 @@ public abstract class SchemaShared implements CloseableInStorage {
   }
 
   protected GlobalProperty findOrCreateGlobalProperty(final String name, final PropertyType type) {
-    GlobalProperty global = propertiesByNameType.get(name + "|" + type.name());
+    var global = propertiesByNameType.get(name + "|" + type.name());
     if (global == null) {
-      int id = properties.size();
+      var id = properties.size();
       global = new GlobalPropertyImpl(name, type, id);
       properties.add(id, global);
       propertiesByNameType.put(global.getName() + "|" + global.getType().name(), global);
@@ -788,18 +788,18 @@ public abstract class SchemaShared implements CloseableInStorage {
     }
 
     database.executeInTx(() -> {
-      EntityImpl entity = toStream(database);
+      var entity = toStream(database);
       database.save(entity, MetadataDefault.CLUSTER_INTERNAL_NAME);
     });
 
     forceSnapshot(database);
-    for (MetadataUpdateListener listener : database.getSharedContext().browseListeners()) {
+    for (var listener : database.getSharedContext().browseListeners()) {
       listener.onSchemaUpdate(database, database.getName(), this);
     }
   }
 
   protected void addClusterClassMap(final SchemaClass cls) {
-    for (int clusterId : cls.getClusterIds()) {
+    for (var clusterId : cls.getClusterIds()) {
       if (clusterId < 0) {
         continue;
       }
@@ -828,7 +828,7 @@ public abstract class SchemaShared implements CloseableInStorage {
   public void removeBlobCluster(DatabaseSessionInternal database, String clusterName) {
     acquireSchemaWriteLock(database);
     try {
-      int clusterId = getClusterId(database, clusterName);
+      var clusterId = getClusterId(database, clusterName);
       blobClusters.remove(clusterId);
     } finally {
       releaseSchemaWriteLock(database);
@@ -846,8 +846,8 @@ public abstract class SchemaShared implements CloseableInStorage {
   }
 
   public int createClusterIfNeeded(DatabaseSessionInternal database, String nameOrId) {
-    final String[] parts = nameOrId.split(" ");
-    int clId = getClusterId(database, parts[0]);
+    final var parts = nameOrId.split(" ");
+    var clId = getClusterId(database, parts[0]);
 
     if (clId == NOT_EXISTENT_CLUSTER_ID) {
       try {

@@ -48,8 +48,8 @@ public class DatabaseScriptManager {
                 return new ResourcePoolListener<String, ScriptEngine>() {
                   @Override
                   public ScriptEngine createNewResource(String key, Object... args) {
-                    final ScriptEngine scriptEngine = scriptManager.getEngine(language);
-                    final String library =
+                    final var scriptEngine = scriptManager.getEngine(language);
+                    final var library =
                         scriptManager.getLibrary(
                             DatabaseRecordThreadLocal.instance().get(), language);
 

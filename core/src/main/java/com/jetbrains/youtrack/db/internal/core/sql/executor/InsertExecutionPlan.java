@@ -32,7 +32,7 @@ public class InsertExecutionPlan extends SelectExecutionPlan {
   }
 
   public void executeInternal() throws CommandExecutionException {
-    ExecutionStream nextBlock = super.start();
+    var nextBlock = super.start();
 
     while (nextBlock.hasNext(ctx)) {
       result.add(nextBlock.next(ctx));
@@ -42,14 +42,14 @@ public class InsertExecutionPlan extends SelectExecutionPlan {
 
   @Override
   public Result toResult(DatabaseSession db) {
-    ResultInternal res = (ResultInternal) super.toResult(db);
+    var res = (ResultInternal) super.toResult(db);
     res.setProperty("type", "InsertExecutionPlan");
     return res;
   }
 
   @Override
   public InternalExecutionPlan copy(CommandContext ctx) {
-    InsertExecutionPlan copy = new InsertExecutionPlan(ctx);
+    var copy = new InsertExecutionPlan(ctx);
     super.copyOn(copy, ctx);
     return copy;
   }

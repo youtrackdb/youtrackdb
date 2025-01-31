@@ -68,7 +68,7 @@ public class LinkMap extends TrackedMap<Identifiable> implements Sizeable {
       return null;
     }
 
-    final String key = iKey.toString();
+    final var key = iKey.toString();
     return super.get(key);
   }
 
@@ -95,7 +95,7 @@ public class LinkMap extends TrackedMap<Identifiable> implements Sizeable {
 
   @Override
   public Identifiable remove(Object o) {
-    final Identifiable result = super.remove(o);
+    final var result = super.remove(o);
     if (size() == 0) {
       multiValueStatus = MULTIVALUE_CONTENT_TYPE.EMPTY;
     }

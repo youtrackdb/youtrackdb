@@ -58,7 +58,7 @@ public interface YouTrackDBInternal extends AutoCloseable, SchedulerInternal {
    * @return the new YouTrackDB Factory.
    */
   static YouTrackDBInternal fromUrl(String url, YouTrackDBConfig configuration) {
-    String what = url.substring(0, url.indexOf(':'));
+    var what = url.substring(0, url.indexOf(':'));
     if ("embedded".equals(what)) {
       return embedded(url.substring(url.indexOf(':') + 1), configuration);
     } else if ("remote".equals(what)) {
@@ -83,15 +83,15 @@ public interface YouTrackDBInternal extends AutoCloseable, SchedulerInternal {
   static YouTrackDBInternal remote(String[] hosts, YouTrackDBConfigImpl configuration) {
     YouTrackDBInternal factory;
     try {
-      String className = "com.jetbrains.youtrack.db.internal.client.remote.YouTrackDBRemote";
+      var className = "com.jetbrains.youtrack.db.internal.client.remote.YouTrackDBRemote";
       ClassLoader loader;
       if (configuration != null) {
         loader = configuration.getClassLoader();
       } else {
         loader = YouTrackDBInternal.class.getClassLoader();
       }
-      Class<?> kass = loader.loadClass(className);
-      Constructor<?> constructor =
+      var kass = loader.loadClass(className);
+      var constructor =
           kass.getConstructor(String[].class, YouTrackDBConfig.class,
               YouTrackDBEnginesManager.class);
       factory = (YouTrackDBInternal) constructor.newInstance(hosts, configuration,

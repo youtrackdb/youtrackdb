@@ -52,7 +52,7 @@ public class SQLFunctionSymmetricDifference extends SQLFunctionMultiValueAbstrac
 
   private static void addItemsToResult(
       Collection<Object> co, Set<Object> accepted, Set<Object> rejected) {
-    for (Object o : co) {
+    for (var o : co) {
       addItemToResult(o, accepted, rejected);
     }
   }
@@ -68,7 +68,7 @@ public class SQLFunctionSymmetricDifference extends SQLFunctionMultiValueAbstrac
       return null;
     }
 
-    Object value = iParams[0];
+    var value = iParams[0];
 
     if (iParams.length == 1) {
       // AGGREGATION MODE (STATEFUL)
@@ -88,7 +88,7 @@ public class SQLFunctionSymmetricDifference extends SQLFunctionMultiValueAbstrac
       final Set<Object> result = new HashSet<Object>();
       final Set<Object> rejected = new HashSet<Object>();
 
-      for (Object iParameter : iParams) {
+      for (var iParameter : iParams) {
         if (iParameter instanceof Collection<?>) {
           addItemsToResult((Collection<Object>) iParameter, result, rejected);
         } else {

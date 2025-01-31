@@ -35,7 +35,7 @@ public class ShapeBuilderLegacyImpl implements ShapeBuilderLegacy<Shape> {
 
   @Override
   public Shape makeShape(DatabaseSessionInternal session, CompositeKey key, SpatialContext ctx) {
-    for (ShapeBuilderLegacy f : builders) {
+    for (var f : builders) {
       if (f.canHandle(key)) {
         return f.makeShape(session, key, ctx);
       }

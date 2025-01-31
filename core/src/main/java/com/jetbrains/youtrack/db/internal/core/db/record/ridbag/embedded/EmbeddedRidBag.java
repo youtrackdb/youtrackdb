@@ -110,7 +110,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
         throw new NoSuchElementException();
       }
 
-      Object nextValue = entries[currentIndex];
+      var nextValue = entries[currentIndex];
 
       // we may remove items in ridbag during iteration so we need to be sure that pointed item is
       // not removed.
@@ -149,7 +149,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
 
       currentRemoved = true;
 
-      final RID nextValue = (RID) entries[currentIndex];
+      final var nextValue = (RID) entries[currentIndex];
       entries[currentIndex] = Tombstone.TOMBSTONE;
 
       size--;
@@ -172,8 +172,8 @@ public class EmbeddedRidBag implements RidBagDelegate {
     }
 
     private int nextIndex() {
-      for (int i = currentIndex + 1; i < entriesLength; i++) {
-        Object entry = entries[i];
+      for (var i = currentIndex + 1; i < entriesLength; i++) {
+        var entry = entries[i];
         if (entry instanceof RID) {
           return i;
         }
@@ -194,7 +194,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
       return false;
     }
 
-    for (int i = 0; i < entriesLength; i++) {
+    for (var i = 0; i < entriesLength; i++) {
       if (identifiable.equals(entries[i])) {
         return true;
       }
@@ -237,7 +237,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
   }
 
   public EmbeddedRidBag copy() {
-    final EmbeddedRidBag copy = new EmbeddedRidBag();
+    final var copy = new EmbeddedRidBag();
     copy.contentWasChanged = contentWasChanged;
     copy.entries = entries;
     copy.entriesLength = entriesLength;
@@ -276,11 +276,11 @@ public class EmbeddedRidBag implements RidBagDelegate {
   @Override
   public String toString() {
     if (size < 10) {
-      final StringBuilder sb = new StringBuilder(256);
+      final var sb = new StringBuilder(256);
       sb.append('[');
-      for (final Iterator<RID> it = this.iterator(); it.hasNext(); ) {
+      for (final var it = this.iterator(); it.hasNext(); ) {
         try {
-          RID e = it.next();
+          var e = it.next();
           if (e != null) {
             if (sb.length() > 1) {
               sb.append(", ");
@@ -303,16 +303,16 @@ public class EmbeddedRidBag implements RidBagDelegate {
   public Object returnOriginalState(
       DatabaseSessionInternal session,
       List<MultiValueChangeEvent<RID, RID>> multiValueChangeEvents) {
-    final EmbeddedRidBag reverted = new EmbeddedRidBag();
+    final var reverted = new EmbeddedRidBag();
     for (var identifiable : this) {
       reverted.add(identifiable);
     }
 
-    final ListIterator<MultiValueChangeEvent<RID, RID>> listIterator =
+    final var listIterator =
         multiValueChangeEvents.listIterator(multiValueChangeEvents.size());
 
     while (listIterator.hasPrevious()) {
-      final MultiValueChangeEvent<RID, RID> event = listIterator.previous();
+      final var event = listIterator.previous();
       switch (event.getChangeType()) {
         case ADD:
           reverted.remove(event.getKey());
@@ -344,11 +344,11 @@ public class EmbeddedRidBag implements RidBagDelegate {
     IntegerSerializer.INSTANCE.serializeLiteral(size, stream, offset);
     offset += IntegerSerializer.INT_SIZE;
 
-    final int totEntries = entries.length;
-    for (int i = 0; i < totEntries; ++i) {
-      final Object entry = entries[i];
+    final var totEntries = entries.length;
+    for (var i = 0; i < totEntries; ++i) {
+      final var entry = entries[i];
       if (entry instanceof RID link) {
-        final RID rid = link.getIdentity();
+        final var rid = link.getIdentity();
         if (db != null && !db.isClosed() && db.getTransaction().isActive()) {
           if (!link.getIdentity().isPersistent()) {
             var record = db.getTransaction().getRecord(link.getIdentity());
@@ -376,10 +376,10 @@ public class EmbeddedRidBag implements RidBagDelegate {
   @Override
   public int deserialize(DatabaseSessionInternal db, final byte[] stream, int offset) {
     this.size = IntegerSerializer.INSTANCE.deserializeLiteral(stream, offset);
-    int entriesSize = IntegerSerializer.INSTANCE.deserializeLiteral(stream, offset);
+    var entriesSize = IntegerSerializer.INSTANCE.deserializeLiteral(stream, offset);
     offset += IntegerSerializer.INT_SIZE;
 
-    for (int i = 0; i < entriesSize; i++) {
+    for (var i = 0; i < entriesSize; i++) {
       RID rid = LinkSerializer.INSTANCE.deserialize(stream, offset);
       offset += LinkSerializer.RID_SIZE;
 
@@ -419,11 +419,11 @@ public class EmbeddedRidBag implements RidBagDelegate {
   public void addEntry(final RID identifiable) {
     if (entries.length == entriesLength) {
       if (entriesLength == 0) {
-        final int cfgValue =
+        final var cfgValue =
             GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
         entries = new Object[cfgValue > 0 ? Math.min(cfgValue, 40) : 40];
       } else {
-        final Object[] oldEntries = entries;
+        final var oldEntries = entries;
         entries = new Object[entries.length << 1];
         System.arraycopy(oldEntries, 0, entries, 0, oldEntries.length);
       }
@@ -433,9 +433,9 @@ public class EmbeddedRidBag implements RidBagDelegate {
   }
 
   private boolean removeEntry(RID identifiable) {
-    int i = 0;
+    var i = 0;
     for (; i < entriesLength; i++) {
-      final Object entry = entries[i];
+      final var entry = entries[i];
       if (entry.equals(identifiable)) {
         entries[i] = Tombstone.TOMBSTONE;
         break;

@@ -18,7 +18,7 @@ public class NestedInsertTest extends DbTestBase {
     schm.createClass("myClass");
 
     db.begin();
-    ResultSet result =
+    var result =
         db.command(
             "insert into myClass (name,meta) values"
                 + " (\"claudio\",{\"@type\":\"d\",\"country\":\"italy\","
@@ -37,12 +37,12 @@ public class NestedInsertTest extends DbTestBase {
   @Test
   public void testLinkedNested() {
     Schema schm = db.getMetadata().getSchema();
-    SchemaClass cl = schm.createClass("myClass");
-    SchemaClass linked = schm.createClass("Linked");
+    var cl = schm.createClass("myClass");
+    var linked = schm.createClass("Linked");
     cl.createProperty(db, "some", PropertyType.LINK, linked);
 
     db.begin();
-    ResultSet result =
+    var result =
         db.command(
             "insert into myClass set some ={\"@type\":\"d\",\"@class\":\"Linked\",\"name\":\"a"
                 + " name\"} return @this");

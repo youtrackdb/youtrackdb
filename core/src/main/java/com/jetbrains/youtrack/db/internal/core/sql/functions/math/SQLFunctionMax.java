@@ -50,16 +50,16 @@ public class SQLFunctionMax extends SQLFunctionMathAbstract {
     // calculate max value for current record
     // consider both collection of parameters and collection in each parameter
     Object max = null;
-    for (Object item : iParams) {
+    for (var item : iParams) {
       if (item instanceof Collection<?>) {
-        for (Object subitem : ((Collection<?>) item)) {
+        for (var subitem : ((Collection<?>) item)) {
           if (max == null || subitem != null && ((Comparable) subitem).compareTo(max) > 0) {
             max = subitem;
           }
         }
       } else {
         if ((item instanceof Number) && (max instanceof Number)) {
-          Number[] converted = PropertyType.castComparableNumber((Number) item, (Number) max);
+          var converted = PropertyType.castComparableNumber((Number) item, (Number) max);
           item = converted[0];
           max = converted[1];
         }
@@ -78,7 +78,7 @@ public class SQLFunctionMax extends SQLFunctionMathAbstract {
         context = max;
       } else {
         if (context instanceof Number && max instanceof Number) {
-          final Number[] casted = PropertyType.castComparableNumber((Number) context, (Number) max);
+          final var casted = PropertyType.castComparableNumber((Number) context, (Number) max);
           context = casted[0];
           max = casted[1];
         }

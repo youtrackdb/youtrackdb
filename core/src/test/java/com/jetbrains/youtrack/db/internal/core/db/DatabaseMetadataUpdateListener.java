@@ -31,7 +31,7 @@ public class DatabaseMetadataUpdateListener {
     session = (DatabaseSessionInternal) youTrackDB.open("test", "admin",
         CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     count = 0;
-    MetadataUpdateListener listener =
+    var listener =
         new MetadataUpdateListener() {
 
           @Override

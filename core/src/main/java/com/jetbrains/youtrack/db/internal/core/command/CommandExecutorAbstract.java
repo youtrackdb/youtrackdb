@@ -19,14 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.common.parser.BaseParser;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.ExecutionThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.ExecutionThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.exception.CommandInterruptedException;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
@@ -160,9 +160,9 @@ public abstract class CommandExecutorAbstract extends BaseParser implements Comm
 
     Object aggregatedResult = null;
 
-    for (Map.Entry<String, Object> entry : results.entrySet()) {
-      final String nodeName = entry.getKey();
-      final Object nodeResult = entry.getValue();
+    for (var entry : results.entrySet()) {
+      final var nodeName = entry.getKey();
+      final var nodeResult = entry.getValue();
 
       if (nodeResult instanceof Collection) {
         if (aggregatedResult == null) {

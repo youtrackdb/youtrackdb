@@ -71,7 +71,7 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
       if (iArgs != null)
       // BIND ARGUMENTS INTO CONTEXT TO ACCESS FROM ANY POINT (EVEN FUNCTIONS)
       {
-        for (Map.Entry<Object, Object> arg : iArgs.entrySet()) {
+        for (var arg : iArgs.entrySet()) {
           context.setVariable(arg.getKey().toString(), arg.getValue());
         }
       }
@@ -80,7 +80,7 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
         getContext().beginExecution(timeoutMs, timeoutStrategy);
       }
 
-      EntityImpl result = new EntityImpl(db);
+      var result = new EntityImpl(db);
       result.field("token", token); // TODO change this name...?
 
       ((LegacyResultSet) getResult(db)).add(result);
@@ -98,7 +98,7 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
 
   public void onLiveResult(final RecordOperation iOp) {
 
-    DatabaseSessionInternal oldThreadLocal = DatabaseRecordThreadLocal.instance().getIfDefined();
+    var oldThreadLocal = DatabaseRecordThreadLocal.instance().getIfDefined();
     execDb.activateOnCurrentThread();
 
     try {
@@ -120,7 +120,7 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
         DatabaseRecordThreadLocal.instance().set(oldThreadLocal);
       }
     }
-    final CommandResultListener listener = request.getResultListener();
+    final var listener = request.getResultListener();
     if (listener instanceof LiveResultListener) {
       execInSeparateDatabase(
           new CallableFunction() {
@@ -135,7 +135,7 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
   }
 
   protected static void execInSeparateDatabase(final CallableFunction iCallback) {
-    final DatabaseSessionInternal prevDb = DatabaseRecordThreadLocal.instance().getIfDefined();
+    final var prevDb = DatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       iCallback.call(null);
     } finally {
@@ -157,8 +157,8 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
     } catch (SecurityException ignore) {
       return false;
     }
-    SecurityInternal security = execDb.getSharedContext().getSecurity();
-    boolean allowedByPolicy = security.canRead(execDb, value.getRecord(execDb));
+    var security = execDb.getSharedContext().getSecurity();
+    var allowedByPolicy = security.canRead(execDb, value.getRecord(execDb));
     return allowedByPolicy
         && RestrictedAccessHook.isAllowed(
         execDb, value.getRecord(execDb), RestrictedOperation.ALLOW_READ, false);
@@ -179,33 +179,33 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
     if (!(value instanceof EntityImpl)) {
       return false;
     }
-    final String className = ((EntityImpl) value).getClassName();
+    final var className = ((EntityImpl) value).getClassName();
     if (className == null) {
       return false;
     }
-    final SchemaClass docClass = execDb.getMetadata().getSchema().getClass(className);
+    final var docClass = execDb.getMetadata().getSchema().getClass(className);
     if (docClass == null) {
       return false;
     }
 
     if (this.parsedTarget.getTargetClasses() != null) {
-      for (String clazz : parsedTarget.getTargetClasses().keySet()) {
+      for (var clazz : parsedTarget.getTargetClasses().keySet()) {
         if (docClass.isSubClassOf(clazz)) {
           return true;
         }
       }
     }
     if (this.parsedTarget.getTargetRecords() != null) {
-      for (Identifiable r : parsedTarget.getTargetRecords()) {
+      for (var r : parsedTarget.getTargetRecords()) {
         if (r.getIdentity().equals(value.getIdentity())) {
           return true;
         }
       }
     }
     if (this.parsedTarget.getTargetClusters() != null) {
-      final String clusterName = execDb.getClusterNameById(value.getIdentity().getClusterId());
+      final var clusterName = execDb.getClusterNameById(value.getIdentity().getClusterId());
       if (clusterName != null) {
-        for (String cluster : parsedTarget.getTargetClusters().keySet()) {
+        for (var cluster : parsedTarget.getTargetClusters().keySet()) {
           if (clusterName.equalsIgnoreCase(cluster)) { // make it case insensitive in 3.0?
             return true;
           }
@@ -221,7 +221,7 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
     }
 
     if (execDb != null) {
-      DatabaseSessionInternal oldThreadDB = DatabaseRecordThreadLocal.instance().getIfDefined();
+      var oldThreadDB = DatabaseRecordThreadLocal.instance().getIfDefined();
       execDb.activateOnCurrentThread();
       execDb.close();
       if (oldThreadDB == null) {
@@ -234,9 +234,9 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
 
   @Override
   public CommandExecutorSQLSelect parse(DatabaseSessionInternal db, final CommandRequest iRequest) {
-    final CommandRequestText requestText = (CommandRequestText) iRequest;
-    final String originalText = requestText.getText();
-    final String remainingText = requestText.getText().trim().substring(5).trim();
+    final var requestText = (CommandRequestText) iRequest;
+    final var originalText = requestText.getText();
+    final var remainingText = requestText.getText().trim().substring(5).trim();
     requestText.setText(remainingText);
     try {
       return super.parse(db, iRequest);

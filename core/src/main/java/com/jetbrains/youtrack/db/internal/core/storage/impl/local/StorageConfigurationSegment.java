@@ -104,10 +104,10 @@ public class StorageConfigurationSegment extends StorageConfigurationImpl {
    * @see #update()
    */
   private void clearConfigurationFiles() throws IOException {
-    final Path file = storagePath.resolve(NAME);
+    final var file = storagePath.resolve(NAME);
     Files.deleteIfExists(file);
 
-    final Path backupFile = storagePath.resolve(BACKUP_NAME);
+    final var backupFile = storagePath.resolve(BACKUP_NAME);
     Files.deleteIfExists(backupFile);
   }
 
@@ -130,8 +130,8 @@ public class StorageConfigurationSegment extends StorageConfigurationImpl {
     try {
       initConfiguration(configuration);
 
-      final Path file = storagePath.resolve(NAME);
-      final Path backupFile = storagePath.resolve(BACKUP_NAME);
+      final var file = storagePath.resolve(NAME);
+      final var backupFile = storagePath.resolve(BACKUP_NAME);
 
       if (Files.exists(file)) {
         if (readData(file)) {
@@ -195,10 +195,10 @@ public class StorageConfigurationSegment extends StorageConfigurationImpl {
   public void update() throws SerializationException {
     lock.writeLock().lock();
     try {
-      final Charset utf8 = StandardCharsets.UTF_8;
-      final byte[] buffer = toStream(utf8);
+      final var utf8 = StandardCharsets.UTF_8;
+      final var buffer = toStream(utf8);
 
-      final ByteBuffer byteBuffer =
+      final var byteBuffer =
           ByteBuffer.allocate(buffer.length + IntegerSerializer.INT_SIZE);
       byteBuffer.putInt(buffer.length);
       byteBuffer.put(buffer);
@@ -208,18 +208,18 @@ public class StorageConfigurationSegment extends StorageConfigurationImpl {
           Files.createDirectories(storagePath);
         }
 
-        final Path backupFile = storagePath.resolve(BACKUP_NAME);
+        final var backupFile = storagePath.resolve(BACKUP_NAME);
         Files.deleteIfExists(backupFile);
 
-        try (FileChannel channel =
+        try (var channel =
             FileChannel.open(backupFile, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW)) {
           writeConfigFile(buffer, byteBuffer, channel);
         }
 
-        final Path file = storagePath.resolve(NAME);
+        final var file = storagePath.resolve(NAME);
         Files.deleteIfExists(file);
 
-        try (FileChannel channel =
+        try (var channel =
             FileChannel.open(file, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW)) {
           writeConfigFile(buffer, byteBuffer, channel);
         }
@@ -236,14 +236,14 @@ public class StorageConfigurationSegment extends StorageConfigurationImpl {
 
   private void writeConfigFile(byte[] buffer, ByteBuffer byteBuffer, FileChannel channel)
       throws IOException {
-    final ByteBuffer versionBuffer = ByteBuffer.allocate(1);
+    final var versionBuffer = ByteBuffer.allocate(1);
     versionBuffer.put(FORMAT_VERSION);
 
     versionBuffer.position(0);
     IOUtils.writeByteBuffer(versionBuffer, channel, VERSION_OFFSET);
 
-    final ByteBuffer crc32buffer = ByteBuffer.allocate(IntegerSerializer.INT_SIZE);
-    final CRC32 crc32 = new CRC32();
+    final var crc32buffer = ByteBuffer.allocate(IntegerSerializer.INT_SIZE);
+    final var crc32 = new CRC32();
     crc32.update(buffer);
     crc32buffer.putInt((int) crc32.getValue());
 
@@ -263,20 +263,20 @@ public class StorageConfigurationSegment extends StorageConfigurationImpl {
     final byte fileVersion;
     final int crc32content;
 
-    try (final FileChannel channel = FileChannel.open(file, StandardOpenOption.READ)) {
+    try (final var channel = FileChannel.open(file, StandardOpenOption.READ)) {
       // file header + size of content + at least one byte of content
       if (channel.size()
           < File.HEADER_SIZE + IntegerSerializer.INT_SIZE + ByteSerializer.BYTE_SIZE) {
         return false;
       }
 
-      final ByteBuffer versionBuffer = ByteBuffer.allocate(1);
+      final var versionBuffer = ByteBuffer.allocate(1);
       IOUtils.readByteBuffer(versionBuffer, channel, VERSION_OFFSET, true);
       versionBuffer.position(0);
 
       fileVersion = versionBuffer.get();
       if (fileVersion >= 42) {
-        final ByteBuffer crc32buffer = ByteBuffer.allocate(IntegerSerializer.INT_SIZE);
+        final var crc32buffer = ByteBuffer.allocate(IntegerSerializer.INT_SIZE);
         IOUtils.readByteBuffer(crc32buffer, channel, CRC_32_OFFSET, true);
 
         crc32buffer.position(0);
@@ -290,17 +290,17 @@ public class StorageConfigurationSegment extends StorageConfigurationImpl {
     }
 
     byteBuffer.position(0);
-    final int size = byteBuffer.getInt(); // size of string which contains database configuration
-    byte[] buffer = new byte[size];
+    final var size = byteBuffer.getInt(); // size of string which contains database configuration
+    var buffer = new byte[size];
 
     byteBuffer.get(buffer);
 
     if (fileVersion < 42) {
       if (byteBuffer.limit()
           >= size + 2 * IntegerSerializer.INT_SIZE + 3 * LongSerializer.LONG_SIZE) {
-        final long encodingFagOne = byteBuffer.getLong();
-        final long encodingFagTwo = byteBuffer.getLong();
-        final long encodingFagThree = byteBuffer.getLong();
+        final var encodingFagOne = byteBuffer.getLong();
+        final var encodingFagTwo = byteBuffer.getLong();
+        final var encodingFagThree = byteBuffer.getLong();
 
         final Charset streamEncoding;
 
@@ -309,15 +309,15 @@ public class StorageConfigurationSegment extends StorageConfigurationImpl {
         if (encodingFagOne == ENCODING_FLAG_1
             && encodingFagTwo == ENCODING_FLAG_2
             && encodingFagThree == ENCODING_FLAG_3) {
-          final byte[] utf8Encoded = "UTF-8".getBytes(StandardCharsets.UTF_8);
+          final var utf8Encoded = "UTF-8".getBytes(StandardCharsets.UTF_8);
 
-          final int encodingNameLength = byteBuffer.getInt();
+          final var encodingNameLength = byteBuffer.getInt();
 
           if (encodingNameLength == utf8Encoded.length) {
-            final byte[] binaryEncodingName = new byte[encodingNameLength];
+            final var binaryEncodingName = new byte[encodingNameLength];
             byteBuffer.get(binaryEncodingName);
 
-            final String encodingName = new String(binaryEncodingName, StandardCharsets.UTF_8);
+            final var encodingName = new String(binaryEncodingName, StandardCharsets.UTF_8);
 
             if (encodingName.equals("UTF-8")) {
               streamEncoding = StandardCharsets.UTF_8;
@@ -370,7 +370,7 @@ public class StorageConfigurationSegment extends StorageConfigurationImpl {
         }
       }
     } else {
-      CRC32 crc32 = new CRC32();
+      var crc32 = new CRC32();
       crc32.update(buffer);
 
       if (crc32content != (int) crc32.getValue()) {

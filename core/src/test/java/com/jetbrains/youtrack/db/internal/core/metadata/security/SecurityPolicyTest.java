@@ -13,12 +13,12 @@ public class SecurityPolicyTest extends DbTestBase {
 
   @Test
   public void testSecurityPolicyCreate() {
-    ResultSet rs =
+    var rs =
         db.query(
             "select from " + SecurityPolicy.CLASS_NAME + " WHERE name = ?", "test");
     Assert.assertFalse(rs.hasNext());
     rs.close();
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
     db.begin();
     security.createSecurityPolicy(db, "test");
@@ -28,7 +28,7 @@ public class SecurityPolicyTest extends DbTestBase {
         db.query(
             "select from " + SecurityPolicy.CLASS_NAME + " WHERE name = ?", "test");
     Assert.assertTrue(rs.hasNext());
-    Result item = rs.next();
+    var item = rs.next();
     Assert.assertEquals("test", item.getProperty("name"));
     Assert.assertFalse(rs.hasNext());
     rs.close();
@@ -36,7 +36,7 @@ public class SecurityPolicyTest extends DbTestBase {
 
   @Test
   public void testSecurityPolicyGet() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
     Assert.assertNull(security.getSecurityPolicy(db, "test"));
 
     db.begin();
@@ -48,11 +48,11 @@ public class SecurityPolicyTest extends DbTestBase {
 
   @Test
   public void testValidPredicates() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
     Assert.assertNull(security.getSecurityPolicy(db, "test"));
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "test");
+    var policy = security.createSecurityPolicy(db, "test");
     policy.setCreateRule(db, "name = 'create'");
     policy.setReadRule(db, "name = 'read'");
     policy.setBeforeUpdateRule(db, "name = 'beforeUpdate'");
@@ -75,11 +75,11 @@ public class SecurityPolicyTest extends DbTestBase {
 
   @Test
   public void testInvalidPredicates() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
     Assert.assertNull(security.getSecurityPolicy(db, "test"));
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "test");
+    var policy = security.createSecurityPolicy(db, "test");
     db.commit();
     try {
       db.begin();
@@ -127,11 +127,11 @@ public class SecurityPolicyTest extends DbTestBase {
 
   @Test
   public void testAddPolicyToRole() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
     Assert.assertNull(security.getSecurityPolicy(db, "test"));
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "test");
+    var policy = security.createSecurityPolicy(db, "test");
     policy.setCreateRule(db, "1 = 1");
     policy.setBeforeUpdateRule(db, "1 = 2");
     policy.setActive(db, true);
@@ -139,30 +139,30 @@ public class SecurityPolicyTest extends DbTestBase {
     db.commit();
 
     db.begin();
-    Role reader = security.getRole(db, "reader");
-    String resource = "database.class.Person";
+    var reader = security.getRole(db, "reader");
+    var resource = "database.class.Person";
     security.setSecurityPolicy(db, reader, resource, policy);
     db.commit();
 
-    RID policyRid = policy.getElement(db).getIdentity();
-    try (ResultSet rs = db.query("select from " + Role.CLASS_NAME + " where name = 'reader'")) {
+    var policyRid = policy.getElement(db).getIdentity();
+    try (var rs = db.query("select from " + Role.CLASS_NAME + " where name = 'reader'")) {
       Map<String, Identifiable> rolePolicies = rs.next().getProperty("policies");
-      Identifiable id = rolePolicies.get(resource);
+      var id = rolePolicies.get(resource);
       Assert.assertEquals(id.getIdentity(), policyRid);
     }
 
-    SecurityPolicy policy2 = security.getSecurityPolicy(db, reader, resource);
+    var policy2 = security.getSecurityPolicy(db, reader, resource);
     Assert.assertNotNull(policy2);
     Assert.assertEquals(policy2.getIdentity(), policyRid);
   }
 
   @Test
   public void testRemovePolicyToRole() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
     Assert.assertNull(security.getSecurityPolicy(db, "test"));
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "test");
+    var policy = security.createSecurityPolicy(db, "test");
     policy.setCreateRule(db, "1 = 1");
     policy.setBeforeUpdateRule(db, "1 = 2");
     policy.setActive(db, true);
@@ -170,8 +170,8 @@ public class SecurityPolicyTest extends DbTestBase {
     db.commit();
 
     db.begin();
-    Role reader = security.getRole(db, "reader");
-    String resource = "database.class.Person";
+    var reader = security.getRole(db, "reader");
+    var resource = "database.class.Person";
     security.setSecurityPolicy(db, reader, resource, policy);
 
     security.removeSecurityPolicy(db, reader, resource);

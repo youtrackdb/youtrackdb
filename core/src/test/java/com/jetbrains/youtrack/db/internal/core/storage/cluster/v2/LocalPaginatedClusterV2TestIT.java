@@ -24,7 +24,7 @@ public class LocalPaginatedClusterV2TestIT extends LocalPaginatedClusterAbstract
 
     dbName = "clusterTest";
 
-    final YouTrackDBConfig config = YouTrackDBConfig.defaultConfig();
+    final var config = YouTrackDBConfig.defaultConfig();
     youTrackDB = new YouTrackDBImpl("plocal:" + buildDirectory, config);
     youTrackDB.execute(
         "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");

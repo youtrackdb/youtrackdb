@@ -26,14 +26,14 @@ public class LuceneRangeTest extends LuceneBaseTest {
   public void setUp() throws Exception {
     Schema schema = db.getMetadata().getSchema();
 
-    SchemaClass cls = schema.createClass("Person");
+    var cls = schema.createClass("Person");
     cls.createProperty(db, "name", PropertyType.STRING);
     cls.createProperty(db, "surname", PropertyType.STRING);
     cls.createProperty(db, "date", PropertyType.DATETIME);
     cls.createProperty(db, "age", PropertyType.INTEGER);
     cls.createProperty(db, "weight", PropertyType.FLOAT);
 
-    List<String> names =
+    var names =
         Arrays.asList(
             "John",
             "Robert",
@@ -45,7 +45,7 @@ public class LuceneRangeTest extends LuceneBaseTest {
             "Luis",
             "Gabriel",
             "Sara");
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       db.save(
           ((EntityImpl) db.newEntity("Person"))
@@ -63,7 +63,7 @@ public class LuceneRangeTest extends LuceneBaseTest {
   public void shouldUseRangeQueryOnSingleFloatField() {
 
     //noinspection EmptyTryBlock
-    try (final ResultSet command =
+    try (final var command =
         db.command("create index Person.weight on Person(weight) FULLTEXT ENGINE LUCENE")) {
     }
 
@@ -78,13 +78,13 @@ public class LuceneRangeTest extends LuceneBaseTest {
     db.commit();
 
     // range
-    try (final ResultSet results =
+    try (final var results =
         db.command("SELECT FROM Person WHERE search_class('weight:[0.0 TO 1.1]') = true")) {
       assertThat(results).hasSize(2);
     }
 
     // single value
-    try (final ResultSet results =
+    try (final var results =
         db.command("SELECT FROM Person WHERE search_class('weight:7.1') = true")) {
       assertThat(results).hasSize(1);
     }
@@ -94,7 +94,7 @@ public class LuceneRangeTest extends LuceneBaseTest {
   public void shouldUseRangeQueryOnSingleIntegerField() {
 
     //noinspection EmptyTryBlock
-    try (ResultSet command =
+    try (var command =
         db.command("create index Person.age on Person(age) FULLTEXT ENGINE LUCENE")) {
     }
 
@@ -109,14 +109,14 @@ public class LuceneRangeTest extends LuceneBaseTest {
     db.commit();
 
     // range
-    try (ResultSet results =
+    try (var results =
         db.command("SELECT FROM Person WHERE search_class('age:[5 TO 6]') = true")) {
 
       assertThat(results).hasSize(2);
     }
 
     // single value
-    try (ResultSet results = db.command(
+    try (var results = db.command(
         "SELECT FROM Person WHERE search_class('age:5') = true")) {
       assertThat(results).hasSize(1);
     }
@@ -125,7 +125,7 @@ public class LuceneRangeTest extends LuceneBaseTest {
   @Test
   public void shouldUseRangeQueryOnSingleDateField() {
     //noinspection EmptyTryBlock
-    try (ResultSet command =
+    try (var command =
         db.command("create index Person.date on Person(date) FULLTEXT ENGINE LUCENE")) {
     }
 
@@ -139,13 +139,13 @@ public class LuceneRangeTest extends LuceneBaseTest {
         .isEqualTo(10);
     db.commit();
 
-    String today = DateTools.timeToString(System.currentTimeMillis(), DateTools.Resolution.MINUTE);
-    String fiveDaysAgo =
+    var today = DateTools.timeToString(System.currentTimeMillis(), DateTools.Resolution.MINUTE);
+    var fiveDaysAgo =
         DateTools.timeToString(
             System.currentTimeMillis() - (5 * 3600 * 24 * 1000), DateTools.Resolution.MINUTE);
 
     // range
-    try (final ResultSet results =
+    try (final var results =
         db.command(
             "SELECT FROM Person WHERE search_class('date:["
                 + fiveDaysAgo
@@ -161,7 +161,7 @@ public class LuceneRangeTest extends LuceneBaseTest {
   public void shouldUseRangeQueryMultipleField() {
 
     //noinspection EmptyTryBlock
-    try (ResultSet command =
+    try (var command =
         db.command(
             "create index Person.composite on Person(name,surname,date,age) FULLTEXT ENGINE"
                 + " LUCENE")) {
@@ -177,20 +177,20 @@ public class LuceneRangeTest extends LuceneBaseTest {
 
     db.commit();
 
-    String today = DateTools.timeToString(System.currentTimeMillis(), DateTools.Resolution.MINUTE);
-    String fiveDaysAgo =
+    var today = DateTools.timeToString(System.currentTimeMillis(), DateTools.Resolution.MINUTE);
+    var fiveDaysAgo =
         DateTools.timeToString(
             System.currentTimeMillis() - (5 * 3600 * 24 * 1000), DateTools.Resolution.MINUTE);
 
     // name and age range
-    try (ResultSet results =
+    try (var results =
         db.command("SELECT * FROM Person WHERE search_class('age:[5 TO 6] name:robert  ')=true")) {
 
       assertThat(results).hasSize(3);
     }
 
     // date range
-    try (ResultSet results =
+    try (var results =
         db.command(
             "SELECT FROM Person WHERE search_class('date:["
                 + fiveDaysAgo
@@ -202,7 +202,7 @@ public class LuceneRangeTest extends LuceneBaseTest {
     }
 
     // age and date range with MUST
-    try (ResultSet results =
+    try (var results =
         db.command(
             "SELECT FROM Person WHERE search_class('+age:[4 TO 7]  +date:["
                 + fiveDaysAgo
@@ -216,7 +216,7 @@ public class LuceneRangeTest extends LuceneBaseTest {
   @Test
   public void shouldUseRangeQueryMultipleFieldWithDirectIndexAccess() {
     //noinspection EmptyTryBlock
-    try (ResultSet command =
+    try (var command =
         db.command(
             "create index Person.composite on Person(name,surname,date,age) FULLTEXT ENGINE"
                 + " LUCENE")) {
@@ -232,28 +232,28 @@ public class LuceneRangeTest extends LuceneBaseTest {
         .isEqualTo(10);
     db.commit();
 
-    String today = DateTools.timeToString(System.currentTimeMillis(), DateTools.Resolution.MINUTE);
-    String fiveDaysAgo =
+    var today = DateTools.timeToString(System.currentTimeMillis(), DateTools.Resolution.MINUTE);
+    var fiveDaysAgo =
         DateTools.timeToString(
             System.currentTimeMillis() - (5 * 3600 * 24 * 1000), DateTools.Resolution.MINUTE);
 
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.composite");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.composite");
 
     // name and age range
-    try (Stream<RID> stream = index.getInternal().getRids(db, "name:luke  age:[5 TO 6]")) {
+    try (var stream = index.getInternal().getRids(db, "name:luke  age:[5 TO 6]")) {
       assertThat(stream.count()).isEqualTo(2);
     }
-    try (Stream<RID> stream =
+    try (var stream =
         index.getInternal().getRids(db, "date:[" + fiveDaysAgo + " TO " + today + "]")) {
       assertThat(stream.count()).isEqualTo(5);
     }
-    try (Stream<RID> stream =
+    try (var stream =
         index
             .getInternal()
             .getRids(db, "+age:[4 TO 7]  +date:[" + fiveDaysAgo + " TO " + today + "]")) {
       assertThat(stream.count()).isEqualTo(2);
     }
-    try (Stream<RID> stream = index.getInternal().getRids(db, "*:*")) {
+    try (var stream = index.getInternal().getRids(db, "*:*")) {
       assertThat(stream.count()).isEqualTo(11);
     }
   }

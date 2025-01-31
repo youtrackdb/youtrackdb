@@ -22,9 +22,7 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import java.util.List;
 import org.junit.Test;
 
 public class CommandExecutorSQLCreateDBSequenceTest extends DbTestBase {
@@ -33,7 +31,7 @@ public class CommandExecutorSQLCreateDBSequenceTest extends DbTestBase {
   public void testSimple() {
     db.command("CREATE SEQUENCE Sequence1 TYPE ORDERED").close();
 
-    List<Result> results =
+    var results =
         db.query("select sequence('Sequence1').next() as val").toList();
     assertEquals(1, results.size());
     for (var result : results) {

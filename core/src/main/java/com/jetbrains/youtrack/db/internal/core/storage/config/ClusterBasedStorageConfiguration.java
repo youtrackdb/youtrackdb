@@ -45,7 +45,6 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public final class ClusterBasedStorageConfiguration implements StorageConfiguration {
 
@@ -201,11 +200,11 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
     try {
       updateListener = null;
 
-      final long firstPosition = cluster.getFirstPosition();
-      PhysicalPosition[] positions =
+      final var firstPosition = cluster.getFirstPosition();
+      var positions =
           cluster.ceilingPositions(new PhysicalPosition(firstPosition));
       while (positions.length > 0) {
-        for (PhysicalPosition position : positions) {
+        for (var position : positions) {
           cluster.deleteRecord(atomicOperation, position.clusterPosition);
         }
 
@@ -214,7 +213,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
 
       cluster.delete(atomicOperation);
 
-      try (Stream<String> keyStream = btree.keyStream()) {
+      try (var keyStream = btree.keyStream()) {
         keyStream.forEach((key) -> btree.remove(atomicOperation, key));
       }
 
@@ -270,7 +269,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
   public void pauseUpdateNotifications() {
     lock.writeLock().lock();
     try {
-      final PausedNotificationsState pausedNotificationsState = pauseNotifications.get();
+      final var pausedNotificationsState = pauseNotifications.get();
       pausedNotificationsState.notificationsPaused = true;
     } finally {
       lock.writeLock().unlock();
@@ -280,7 +279,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
   public void fireUpdateNotifications() {
     lock.writeLock().lock();
     try {
-      final PausedNotificationsState pausedNotificationsState = pauseNotifications.get();
+      final var pausedNotificationsState = pauseNotifications.get();
 
       if (pausedNotificationsState.pendingChanges > 0 && updateListener != null) {
         updateListener.onUpdate(this);
@@ -317,7 +316,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
   public int getMinimumClusters() {
     lock.readLock().lock();
     try {
-      final int mc =
+      final var mc =
           getContextConfiguration().getValueAsInteger(GlobalConfiguration.CLASS_MINIMUM_CLUSTERS);
       if (mc == 0) {
         autoInitClusters();
@@ -347,7 +346,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
       throws SerializationException {
     lock.readLock().lock();
     try {
-      final StringBuilder buffer = new StringBuilder(8192);
+      final var buffer = new StringBuilder(8192);
 
       write(buffer, CURRENT_VERSION);
       write(buffer, null);
@@ -361,7 +360,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
       write(buffer, getDateFormat());
       write(buffer, getDateFormat());
 
-      final TimeZone timeZone = getTimeZone();
+      final var timeZone = getTimeZone();
       assert timeZone != null;
 
       write(buffer, timeZone);
@@ -372,9 +371,9 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
 
       phySegmentToStream(buffer, new StorageSegmentConfiguration());
 
-      final List<StorageClusterConfiguration> clusters = getClusters();
+      final var clusters = getClusters();
       write(buffer, clusters.size());
-      for (final StorageClusterConfiguration c : clusters) {
+      for (final var c : clusters) {
         if (c == null) {
           write(buffer, -1);
           continue;
@@ -419,9 +418,9 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
         write(buffer, false);
       }
 
-      final List<StorageEntryConfiguration> properties = getProperties();
+      final var properties = getProperties();
       write(buffer, properties.size());
-      for (final StorageEntryConfiguration e : properties) {
+      for (final var e : properties) {
         entryToStream(buffer, e);
       }
 
@@ -435,8 +434,8 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
 
         // WRITE CONFIGURATION
         write(buffer, configuration.getContextSize());
-        for (final String k : configuration.getContextKeys()) {
-          final GlobalConfiguration cfg = GlobalConfiguration.findByKey(k);
+        for (final var k : configuration.getContextKeys()) {
+          final var cfg = GlobalConfiguration.findByKey(k);
           write(buffer, k);
           if (cfg != null) {
             write(buffer, cfg.isHidden() ? null : configuration.getValueAsString(cfg));
@@ -452,9 +451,9 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
         }
       }
 
-      final List<IndexEngineData> engines = loadIndexEngines();
+      final var engines = loadIndexEngines();
       write(buffer, engines.size());
-      for (final IndexEngineData engineData : engines) {
+      for (final var engineData : engines) {
         write(buffer, engineData.getName());
         write(buffer, engineData.getAlgorithm());
         write(buffer, engineData.getIndexType() == null ? "" : engineData.getIndexType());
@@ -473,7 +472,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
 
         if (engineData.getKeyTypes() != null) {
           write(buffer, engineData.getKeyTypes().length);
-          for (final PropertyType type : engineData.getKeyTypes()) {
+          for (final var type : engineData.getKeyTypes()) {
             write(buffer, type.name());
           }
         } else {
@@ -484,7 +483,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
           write(buffer, 0);
         } else {
           write(buffer, engineData.getEngineProperties().size());
-          for (final Map.Entry<String, String> property :
+          for (final var property :
               engineData.getEngineProperties().entrySet()) {
             write(buffer, property.getKey());
             write(buffer, property.getValue());
@@ -526,7 +525,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
     write(buffer, segment.defrag);
 
     write(buffer, segment.infoFiles.length);
-    for (final StorageFileConfiguration f : segment.infoFiles) {
+    for (final var f : segment.infoFiles) {
       fileToStream(buffer, f);
     }
   }
@@ -659,7 +658,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
   public String getDateFormat() {
     lock.readLock().lock();
     try {
-      final String dateFormat = readStringProperty(DATE_FORMAT_PROPERTY);
+      final var dateFormat = readStringProperty(DATE_FORMAT_PROPERTY);
       assert dateFormat != null;
 
       return dateFormat;
@@ -672,9 +671,9 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
   public SimpleDateFormat getDateFormatInstance() {
     lock.readLock().lock();
     try {
-      final SimpleDateFormat dateFormatInstance = new SimpleDateFormat(getDateFormat());
+      final var dateFormatInstance = new SimpleDateFormat(getDateFormat());
       dateFormatInstance.setLenient(false);
-      final TimeZone timeZone = getTimeZone();
+      final var timeZone = getTimeZone();
       if (timeZone != null) {
         dateFormatInstance.setTimeZone(timeZone);
       }
@@ -689,7 +688,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
   public String getDateTimeFormat() {
     lock.readLock().lock();
     try {
-      final String dateTimeFormat = readStringProperty(DATE_TIME_FORMAT_PROPERTY);
+      final var dateTimeFormat = readStringProperty(DATE_TIME_FORMAT_PROPERTY);
       assert dateTimeFormat != null;
 
       return dateTimeFormat;
@@ -730,9 +729,9 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
   public SimpleDateFormat getDateTimeFormatInstance() {
     lock.readLock().lock();
     try {
-      final SimpleDateFormat dateTimeFormatInstance = new SimpleDateFormat(getDateTimeFormat());
+      final var dateTimeFormatInstance = new SimpleDateFormat(getDateTimeFormat());
       dateTimeFormatInstance.setLenient(false);
-      final TimeZone timeZone = getTimeZone();
+      final var timeZone = getTimeZone();
       if (timeZone != null) {
         dateTimeFormatInstance.setTimeZone(timeZone);
       }
@@ -756,7 +755,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
   public TimeZone getTimeZone() {
     lock.readLock().lock();
     try {
-      final String timeZone = readStringProperty(TIME_ZONE_PROPERTY);
+      final var timeZone = readStringProperty(TIME_ZONE_PROPERTY);
       if (timeZone == null) {
         return null;
       }
@@ -883,27 +882,27 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
 
   private void updateConfigurationProperty(AtomicOperation atomicOperation) {
     final List<byte[]> entries = new ArrayList<>(8);
-    int totalSize = 0;
+    var totalSize = 0;
 
-    final byte[] contextSize = new byte[IntegerSerializer.INT_SIZE];
+    final var contextSize = new byte[IntegerSerializer.INT_SIZE];
     totalSize += contextSize.length;
     entries.add(contextSize);
 
     IntegerSerializer.INSTANCE.serializeNative(configuration.getContextSize(), contextSize, 0);
 
-    for (final String k : configuration.getContextKeys()) {
-      final GlobalConfiguration cfg = GlobalConfiguration.findByKey(k);
-      final byte[] key = serializeStringValue(k);
+    for (final var k : configuration.getContextKeys()) {
+      final var cfg = GlobalConfiguration.findByKey(k);
+      final var key = serializeStringValue(k);
       totalSize += key.length;
       entries.add(key);
 
       if (cfg != null) {
-        final byte[] value =
+        final var value =
             serializeStringValue(cfg.isHidden() ? null : configuration.getValueAsString(cfg));
         totalSize += value.length;
         entries.add(value);
       } else {
-        final byte[] value = serializeStringValue(null);
+        final var value = serializeStringValue(null);
         totalSize += value.length;
         entries.add(value);
 
@@ -914,31 +913,31 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
       }
     }
 
-    final byte[] property = mergeBinaryEntries(totalSize, entries);
+    final var property = mergeBinaryEntries(totalSize, entries);
     storeProperty(
         atomicOperation, CONFIGURATION_PROPERTY, property, CONFIGURATION_PROPERTY_VERSION);
   }
 
   private void readConfiguration() {
-    final RawPairObjectInteger<byte[]> pair = readProperty(CONFIGURATION_PROPERTY);
+    final var pair = readProperty(CONFIGURATION_PROPERTY);
     if (pair == null) {
       return;
     }
 
-    final byte[] property = pair.first;
+    final var property = pair.first;
 
-    int pos = 0;
-    final int size = IntegerSerializer.INSTANCE.deserializeNative(property, pos);
+    var pos = 0;
+    final var size = IntegerSerializer.INSTANCE.deserializeNative(property, pos);
     pos += IntegerSerializer.INT_SIZE;
 
-    for (int i = 0; i < size; i++) {
-      final String key = deserializeStringValue(property, pos);
+    for (var i = 0; i < size; i++) {
+      final var key = deserializeStringValue(property, pos);
       pos += getSerializedStringSize(property, pos);
 
-      final String value = deserializeStringValue(property, pos);
+      final var value = deserializeStringValue(property, pos);
       pos += getSerializedStringSize(property, pos);
 
-      final GlobalConfiguration cfg = GlobalConfiguration.findByKey(key);
+      final var cfg = GlobalConfiguration.findByKey(key);
       if (cfg != null) {
         if (value != null) {
           configuration.setValue(key, PropertyType.convert(null, value, cfg.getType()));
@@ -1035,10 +1034,10 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
         validation = "true".equalsIgnoreCase(value);
       }
 
-      final String key = PROPERTY_PREFIX_PROPERTY + name;
+      final var key = PROPERTY_PREFIX_PROPERTY + name;
       updateStringProperty(atomicOperation, key, value, false);
 
-      @SuppressWarnings("unchecked") final Map<String, String> properties = (Map<String, String>) cache.get(
+      @SuppressWarnings("unchecked") final var properties = (Map<String, String>) cache.get(
           PROPERTIES);
       properties.put(name, value);
     } finally {
@@ -1073,7 +1072,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
   public String getProperty(final String name) {
     lock.readLock().lock();
     try {
-      @SuppressWarnings("unchecked") final Map<String, String> properties = (Map<String, String>) cache.get(
+      @SuppressWarnings("unchecked") final var properties = (Map<String, String>) cache.get(
           PROPERTIES);
       return properties.get(name);
     } finally {
@@ -1085,12 +1084,12 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
   public List<StorageEntryConfiguration> getProperties() {
     lock.readLock().lock();
     try {
-      @SuppressWarnings("unchecked") final Map<String, String> properties = (Map<String, String>) cache.get(
+      @SuppressWarnings("unchecked") final var properties = (Map<String, String>) cache.get(
           PROPERTIES);
 
       final List<StorageEntryConfiguration> result = new ArrayList<>(8);
 
-      for (final Map.Entry<String, String> entry : properties.entrySet()) {
+      for (final var entry : properties.entrySet()) {
         result.add(new StorageEntryConfiguration(entry.getKey(), entry.getValue()));
       }
 
@@ -1102,7 +1101,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
 
   private void preloadConfigurationProperties() {
     final Map<String, String> properties;
-    try (Stream<RawPair<String, RID>> stream =
+    try (var stream =
         btree.iterateEntriesMajor(PROPERTY_PREFIX_PROPERTY, false, true)) {
       properties =
           stream
@@ -1129,7 +1128,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
   public Locale getLocaleInstance() {
     lock.readLock().lock();
     try {
-      Locale locale = (Locale) cache.get(LOCALE_PROPERTY_INSTANCE);
+      var locale = (Locale) cache.get(LOCALE_PROPERTY_INSTANCE);
       if (locale == null) {
         locale = Locale.getDefault();
       }
@@ -1142,8 +1141,8 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
   private void recalculateLocale() {
     Locale locale;
     try {
-      final String localeLanguage = getLocaleLanguage();
-      final String localeCountry = getLocaleCountry();
+      final var localeLanguage = getLocaleLanguage();
+      final var localeCountry = getLocaleCountry();
 
       if (localeLanguage == null || localeCountry == null) {
         locale = Locale.getDefault();
@@ -1167,7 +1166,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
     try {
       final List<String> keysToRemove;
       final List<RID> ridsToRemove;
-      try (Stream<RawPair<String, RID>> stream =
+      try (var stream =
           btree.iterateEntriesMajor(PROPERTY_PREFIX_PROPERTY, false, true)) {
 
         keysToRemove = new ArrayList<>(8);
@@ -1182,15 +1181,15 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
                 });
       }
 
-      for (final String key : keysToRemove) {
+      for (final var key : keysToRemove) {
         btree.remove(atomicOperation, key);
       }
 
-      for (final RID rid : ridsToRemove) {
+      for (final var rid : ridsToRemove) {
         cluster.deleteRecord(atomicOperation, rid.getClusterPosition());
       }
 
-      @SuppressWarnings("unchecked") final Map<String, String> properties = (Map<String, String>) cache.get(
+      @SuppressWarnings("unchecked") final var properties = (Map<String, String>) cache.get(
           PROPERTIES);
       properties.clear();
     } finally {
@@ -1211,7 +1210,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
       final AtomicOperation atomicOperation, final String name, final IndexEngineData engineData) {
     lock.writeLock().lock();
     try {
-      final RID identifiable = btree.get(ENGINE_PREFIX_PROPERTY + name);
+      final var identifiable = btree.get(ENGINE_PREFIX_PROPERTY + name);
       if (identifiable != null) {
         LogManager.instance()
             .warn(
@@ -1244,7 +1243,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
   public Set<String> indexEngines() {
     lock.readLock().lock();
     try {
-      try (Stream<RawPair<String, RID>> stream =
+      try (var stream =
           btree.iterateEntriesMajor(ENGINE_PREFIX_PROPERTY, false, true)) {
         return stream
             .filter((entry) -> entry.first.startsWith(ENGINE_PREFIX_PROPERTY))
@@ -1257,7 +1256,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
   }
 
   private List<IndexEngineData> loadIndexEngines() {
-    try (Stream<RawPair<String, RID>> stream =
+    try (var stream =
         btree.iterateEntriesMajor(ENGINE_PREFIX_PROPERTY, false, true)) {
       return stream
           .filter((entry) -> entry.first.startsWith(ENGINE_PREFIX_PROPERTY))
@@ -1266,7 +1265,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
                 String name = null;
                 try {
                   name = entry.first.substring(ENGINE_PREFIX_PROPERTY.length());
-                  final RawBuffer buffer =
+                  final var buffer =
                       cluster.readRecord(entry.second.getClusterPosition(), false);
                   return deserializeIndexEngineProperty(
                       name, buffer.buffer, Integer.MIN_VALUE, entry.second.getClusterId());
@@ -1288,12 +1287,12 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
   public IndexEngineData getIndexEngine(final String name, int defaultIndexId) {
     lock.readLock().lock();
     try {
-      final RawPairObjectInteger<byte[]> pair = readProperty(ENGINE_PREFIX_PROPERTY + name);
+      final var pair = readProperty(ENGINE_PREFIX_PROPERTY + name);
       if (pair == null) {
         return null;
       }
 
-      final byte[] property = pair.first;
+      final var property = pair.first;
       return deserializeIndexEngineProperty(name, property, defaultIndexId, pair.second);
     } finally {
       lock.readLock().unlock();
@@ -1304,13 +1303,13 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
       AtomicOperation atomicOperation, final StorageClusterConfiguration config) {
     lock.writeLock().lock();
     try {
-      @SuppressWarnings("unchecked") final List<StorageClusterConfiguration> clusters =
+      @SuppressWarnings("unchecked") final var clusters =
           (List<StorageClusterConfiguration>) cache.get(CLUSTERS);
       if (config.getId() < clusters.size()) {
         clusters.set(config.getId(), config);
       } else {
-        final int diff = config.getId() - clusters.size();
-        for (int i = 0; i < diff; i++) {
+        final var diff = config.getId() - clusters.size();
+        for (var i = 0; i < diff; i++) {
           clusters.add(null);
         }
 
@@ -1334,11 +1333,11 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
       final StorageClusterConfiguration.STATUS status) {
     lock.writeLock().lock();
     try {
-      @SuppressWarnings("unchecked") final List<StorageClusterConfiguration> clusters =
+      @SuppressWarnings("unchecked") final var clusters =
           (List<StorageClusterConfiguration>) cache.get(CLUSTERS);
 
       if (clusterId < clusters.size()) {
-        final StorageClusterConfiguration config = clusters.get(clusterId);
+        final var config = clusters.get(clusterId);
         config.setStatus(status);
       }
 
@@ -1347,9 +1346,9 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
         return;
       }
 
-      final byte[] property = pair.first;
+      final var property = pair.first;
       if (property != null) {
-        final StorageClusterConfiguration clusterCfg =
+        final var clusterCfg =
             deserializeStorageClusterConfig(clusterId, property);
         clusterCfg.setStatus(status);
         updateCluster(atomicOperation, clusterCfg);
@@ -1372,24 +1371,24 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
 
   private void preloadClusters() {
     final List<StorageClusterConfiguration> clusters = new ArrayList<>(1024);
-    try (Stream<RawPair<String, RID>> stream =
+    try (var stream =
         btree.iterateEntriesMajor(CLUSTERS_PREFIX_PROPERTY, false, true)) {
 
       stream
           .filter((entry) -> entry.first.startsWith(CLUSTERS_PREFIX_PROPERTY))
           .forEach(
               (entry) -> {
-                final int id =
+                final var id =
                     Integer.parseInt(entry.first.substring(CLUSTERS_PREFIX_PROPERTY.length()));
 
                 try {
-                  final RawBuffer buffer =
+                  final var buffer =
                       cluster.readRecord(entry.second.getClusterPosition(), false);
 
                   if (clusters.size() <= id) {
-                    final int diff = id - clusters.size();
+                    final var diff = id - clusters.size();
 
-                    for (int i = 0; i < diff; i++) {
+                    for (var i = 0; i < diff; i++) {
                       clusters.add(null);
                     }
 
@@ -1416,7 +1415,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
   public void dropCluster(final AtomicOperation atomicOperation, final int clusterId) {
     lock.writeLock().lock();
     try {
-      @SuppressWarnings("unchecked") final List<StorageClusterConfiguration> clusters =
+      @SuppressWarnings("unchecked") final var clusters =
           (List<StorageClusterConfiguration>) cache.get(CLUSTERS);
       if (clusterId < clusters.size()) {
         clusters.set(clusterId, null);
@@ -1439,15 +1438,15 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
   }
 
   private static byte[] serializeIndexEngineProperty(final IndexEngineData indexEngineData) {
-    int totalSize = 0;
+    var totalSize = 0;
     final List<byte[]> entries = new ArrayList<>(16);
 
-    final byte[] numericProperties =
+    final var numericProperties =
         new byte[4 * IntegerSerializer.INT_SIZE + 5 * ByteSerializer.BYTE_SIZE];
     totalSize += numericProperties.length;
     entries.add(numericProperties);
     {
-      int pos = 0;
+      var pos = 0;
       IntegerSerializer.INSTANCE.serializeNative(
           indexEngineData.getVersion(), numericProperties, pos);
       pos += IntegerSerializer.INT_SIZE;
@@ -1474,46 +1473,46 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
           indexEngineData.getIndexId(), numericProperties, pos);
     }
 
-    final byte[] algorithm = serializeStringValue(indexEngineData.getAlgorithm());
+    final var algorithm = serializeStringValue(indexEngineData.getAlgorithm());
     totalSize += algorithm.length;
     entries.add(algorithm);
 
-    final byte[] indexType =
+    final var indexType =
         serializeStringValue(
             indexEngineData.getIndexType() == null ? "" : indexEngineData.getIndexType());
     entries.add(indexType);
     totalSize += indexType.length;
 
-    final byte[] encryption = serializeStringValue(indexEngineData.getEncryption());
+    final var encryption = serializeStringValue(indexEngineData.getEncryption());
     totalSize += encryption.length;
     entries.add(encryption);
 
-    final PropertyType[] keyTypesValue = indexEngineData.getKeyTypes();
-    final byte[] keyTypesSize = new byte[4];
+    final var keyTypesValue = indexEngineData.getKeyTypes();
+    final var keyTypesSize = new byte[4];
     IntegerSerializer.INSTANCE.serializeNative(keyTypesValue.length, keyTypesSize, 0);
     totalSize += keyTypesSize.length;
     entries.add(keyTypesSize);
 
-    for (final PropertyType typeValue : keyTypesValue) {
-      final byte[] keyTypeName = serializeStringValue(typeValue.name());
+    for (final var typeValue : keyTypesValue) {
+      final var keyTypeName = serializeStringValue(typeValue.name());
       totalSize += keyTypeName.length;
       entries.add(keyTypeName);
     }
 
-    final Map<String, String> engineProperties = indexEngineData.getEngineProperties();
-    final byte[] enginePropertiesSize = new byte[IntegerSerializer.INT_SIZE];
+    final var engineProperties = indexEngineData.getEngineProperties();
+    final var enginePropertiesSize = new byte[IntegerSerializer.INT_SIZE];
     totalSize += enginePropertiesSize.length;
     entries.add(enginePropertiesSize);
 
     if (engineProperties != null) {
       IntegerSerializer.INSTANCE.serializeNative(engineProperties.size(), enginePropertiesSize, 0);
 
-      for (final Map.Entry<String, String> engineProperty : engineProperties.entrySet()) {
-        final byte[] key = serializeStringValue(engineProperty.getKey());
+      for (final var engineProperty : engineProperties.entrySet()) {
+        final var key = serializeStringValue(engineProperty.getKey());
         totalSize += key.length;
         entries.add(key);
 
-        final byte[] value = serializeStringValue(engineProperty.getValue());
+        final var value = serializeStringValue(engineProperty.getValue());
         totalSize += value.length;
         entries.add(value);
       }
@@ -1524,35 +1523,35 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
 
   private IndexEngineData deserializeIndexEngineProperty(
       final String name, final byte[] property, final int defaultIndexId, final int binaryVersion) {
-    int pos = 0;
+    var pos = 0;
 
-    final int version = IntegerSerializer.INSTANCE.deserializeNative(property, pos);
+    final var version = IntegerSerializer.INSTANCE.deserializeNative(property, pos);
     pos += IntegerSerializer.INT_SIZE;
 
-    final int apiVersion = IntegerSerializer.INSTANCE.deserializeNative(property, pos);
+    final var apiVersion = IntegerSerializer.INSTANCE.deserializeNative(property, pos);
     pos += IntegerSerializer.INT_SIZE;
 
-    final byte valueSerializerId = property[pos];
+    final var valueSerializerId = property[pos];
     pos++;
 
-    final byte keySerializerId = property[pos];
+    final var keySerializerId = property[pos];
     pos++;
 
-    final boolean isAutomatic = property[pos] == 1;
+    final var isAutomatic = property[pos] == 1;
     pos++;
 
-    final boolean isNullValueSupport = property[pos] == 1;
+    final var isNullValueSupport = property[pos] == 1;
     pos++;
 
-    final boolean isMultiValue = property[pos] == 1;
+    final var isMultiValue = property[pos] == 1;
     pos++;
 
-    final int keySize = IntegerSerializer.INSTANCE.deserializeNative(property, pos);
+    final var keySize = IntegerSerializer.INSTANCE.deserializeNative(property, pos);
     pos += IntegerSerializer.INT_SIZE;
 
     final int indexId;
     if (getVersion() >= 23 || binaryVersion >= 1) {
-      final int iid = IntegerSerializer.INSTANCE.deserializeNative(property, pos);
+      final var iid = IntegerSerializer.INSTANCE.deserializeNative(property, pos);
       if (iid == Integer.MIN_VALUE) {
         indexId = defaultIndexId;
       } else {
@@ -1564,35 +1563,35 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
       indexId = defaultIndexId;
     }
 
-    final String algorithm = deserializeStringValue(property, pos);
+    final var algorithm = deserializeStringValue(property, pos);
     pos += getSerializedStringSize(property, pos);
 
-    final String indexType = deserializeStringValue(property, pos);
+    final var indexType = deserializeStringValue(property, pos);
     pos += getSerializedStringSize(property, pos);
 
-    final String encryption = deserializeStringValue(property, pos);
+    final var encryption = deserializeStringValue(property, pos);
     pos += getSerializedStringSize(property, pos);
 
-    final int keyTypesSize = IntegerSerializer.INSTANCE.deserializeNative(property, pos);
+    final var keyTypesSize = IntegerSerializer.INSTANCE.deserializeNative(property, pos);
     pos += IntegerSerializer.INT_SIZE;
 
-    final PropertyType[] keyTypes = new PropertyType[keyTypesSize];
-    for (int i = 0; i < keyTypesSize; i++) {
-      final String typeName = deserializeStringValue(property, pos);
+    final var keyTypes = new PropertyType[keyTypesSize];
+    for (var i = 0; i < keyTypesSize; i++) {
+      final var typeName = deserializeStringValue(property, pos);
       pos += getSerializedStringSize(property, pos);
 
       keyTypes[i] = PropertyType.valueOf(typeName);
     }
 
     final Map<String, String> engineProperties = new HashMap<>(8);
-    final int enginePropertiesSize = IntegerSerializer.INSTANCE.deserializeNative(property, pos);
+    final var enginePropertiesSize = IntegerSerializer.INSTANCE.deserializeNative(property, pos);
     pos += IntegerSerializer.INT_SIZE;
 
-    for (int i = 0; i < enginePropertiesSize; i++) {
-      final String key = deserializeStringValue(property, pos);
+    for (var i = 0; i < enginePropertiesSize; i++) {
+      final var key = deserializeStringValue(property, pos);
       pos += getSerializedStringSize(property, pos);
 
-      final String value = deserializeStringValue(property, pos);
+      final var value = deserializeStringValue(property, pos);
       pos += getSerializedStringSize(property, pos);
 
       engineProperties.put(key, value);
@@ -1619,9 +1618,9 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
   }
 
   private static byte[] mergeBinaryEntries(final int totalSize, final List<byte[]> entries) {
-    final byte[] property = new byte[totalSize];
-    int pos = 0;
-    for (final byte[] entry : entries) {
+    final var property = new byte[totalSize];
+    var pos = 0;
+    for (final var entry : entries) {
       System.arraycopy(entry, 0, property, pos, entry.length);
       pos += entry.length;
     }
@@ -1631,16 +1630,16 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
   }
 
   private static byte[] updateClusterConfig(final StorageClusterConfiguration cluster) {
-    int totalSize = 0;
+    var totalSize = 0;
     final List<byte[]> entries = new ArrayList<>(8);
 
-    final byte[] name = serializeStringValue(cluster.getName());
+    final var name = serializeStringValue(cluster.getName());
     totalSize += name.length;
     entries.add(name);
 
-    final StoragePaginatedClusterConfiguration paginatedClusterConfiguration =
+    final var paginatedClusterConfiguration =
         (StoragePaginatedClusterConfiguration) cluster;
-    final byte[] numericData = new byte[IntegerSerializer.INT_SIZE + ByteSerializer.BYTE_SIZE];
+    final var numericData = new byte[IntegerSerializer.INT_SIZE + ByteSerializer.BYTE_SIZE];
     totalSize += numericData.length;
     entries.add(numericData);
 
@@ -1649,20 +1648,20 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
     IntegerSerializer.INSTANCE.serializeNative(
         paginatedClusterConfiguration.getBinaryVersion(), numericData, 1);
 
-    final byte[] encryption = serializeStringValue(paginatedClusterConfiguration.encryption);
+    final var encryption = serializeStringValue(paginatedClusterConfiguration.encryption);
     totalSize += encryption.length;
     entries.add(encryption);
 
-    final byte[] conflictStrategy =
+    final var conflictStrategy =
         serializeStringValue(paginatedClusterConfiguration.conflictStrategy);
     totalSize += conflictStrategy.length;
     entries.add(conflictStrategy);
 
-    final byte[] status = serializeStringValue(paginatedClusterConfiguration.getStatus().name());
+    final var status = serializeStringValue(paginatedClusterConfiguration.getStatus().name());
     totalSize += status.length;
     entries.add(status);
 
-    final byte[] compression = serializeStringValue(paginatedClusterConfiguration.compression);
+    final var compression = serializeStringValue(paginatedClusterConfiguration.compression);
     entries.add(compression);
     totalSize += compression.length;
 
@@ -1671,27 +1670,27 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
 
   private StorageClusterConfiguration deserializeStorageClusterConfig(
       final int id, final byte[] property) {
-    int pos = 0;
+    var pos = 0;
 
-    final String name = deserializeStringValue(property, pos);
+    final var name = deserializeStringValue(property, pos);
     pos += getSerializedStringSize(property, pos);
 
-    final boolean useWal = (property[pos] == 1);
+    final var useWal = (property[pos] == 1);
     pos++;
 
-    final int binaryVersion = IntegerSerializer.INSTANCE.deserializeNative(property, pos);
+    final var binaryVersion = IntegerSerializer.INSTANCE.deserializeNative(property, pos);
     pos += IntegerSerializer.INT_SIZE;
 
-    final String encryption = deserializeStringValue(property, pos);
+    final var encryption = deserializeStringValue(property, pos);
     pos += getSerializedStringSize(property, pos);
 
-    final String conflictStrategy = deserializeStringValue(property, pos);
+    final var conflictStrategy = deserializeStringValue(property, pos);
     pos += getSerializedStringSize(property, pos);
 
-    final String status = deserializeStringValue(property, pos);
+    final var status = deserializeStringValue(property, pos);
     pos += getSerializedStringSize(property, pos);
 
-    final String compression = deserializeStringValue(property, pos);
+    final var compression = deserializeStringValue(property, pos);
 
     return new StoragePaginatedClusterConfiguration(
         id,
@@ -1709,13 +1708,13 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
   }
 
   private void dropProperty(final AtomicOperation atomicOperation, final String name) {
-    final RID identifiable = btree.remove(atomicOperation, name);
+    final var identifiable = btree.remove(atomicOperation, name);
 
     if (identifiable != null) {
       cluster.deleteRecord(atomicOperation, identifiable.getClusterPosition());
     }
 
-    final PausedNotificationsState pausedNotificationsState = pauseNotifications.get();
+    final var pausedNotificationsState = pauseNotifications.get();
     if (updateListener != null) {
       if (!pausedNotificationsState.notificationsPaused) {
         updateListener.onUpdate(this);
@@ -1735,7 +1734,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
       cache.put(name, value);
     }
 
-    final byte[] property = serializeStringValue(value);
+    final var property = serializeStringValue(value);
 
     storeProperty(atomicOperation, name, property, 0);
   }
@@ -1745,7 +1744,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
     if (value == null) {
       property = new byte[1];
     } else {
-      final byte[] rawString = value.getBytes(StandardCharsets.UTF_16);
+      final var rawString = value.getBytes(StandardCharsets.UTF_16);
       property = new byte[rawString.length + 1 + IntegerSerializer.INT_SIZE];
       property[0] = 1;
 
@@ -1762,7 +1761,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
       return null;
     }
 
-    final int stringSize = IntegerSerializer.INSTANCE.deserializeNative(raw, start + 1);
+    final var stringSize = IntegerSerializer.INSTANCE.deserializeNative(raw, start + 1);
     return new String(raw, start + 5, stringSize, StandardCharsets.UTF_16);
   }
 
@@ -1778,7 +1777,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
       AtomicOperation atomicOperation, final String name, final int value) {
     cache.put(name, value);
 
-    final byte[] property = new byte[IntegerSerializer.INT_SIZE];
+    final var property = new byte[IntegerSerializer.INT_SIZE];
     IntegerSerializer.INSTANCE.serializeNative(value, property, 0);
 
     storeProperty(atomicOperation, name, property, 0);
@@ -1789,10 +1788,10 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
       final String name,
       final byte[] property,
       final int propertyBinaryVersion) {
-    RID identity = btree.get(name);
+    var identity = btree.get(name);
 
     if (identity == null) {
-      final PhysicalPosition position =
+      final var position =
           cluster.createRecord(property, 0, (byte) 0, null, atomicOperation);
       identity = new RecordId(propertyBinaryVersion, position.clusterPosition);
       btree.put(atomicOperation, name, identity);
@@ -1800,7 +1799,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
       cluster.updateRecord(identity.getClusterPosition(), property, -1, (byte) 0, atomicOperation);
     }
 
-    final PausedNotificationsState pausedNotificationsState = pauseNotifications.get();
+    final var pausedNotificationsState = pauseNotifications.get();
     if (updateListener != null) {
       if (!pausedNotificationsState.notificationsPaused) {
         pausedNotificationsState.pendingChanges = 0;
@@ -1813,12 +1812,12 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
 
   private RawPairObjectInteger<byte[]> readProperty(final String name) {
     try {
-      final RID rid = btree.get(name);
+      final var rid = btree.get(name);
       if (rid == null) {
         return null;
       }
 
-      final RawBuffer buffer = cluster.readRecord(rid.getClusterPosition(), false);
+      final var buffer = cluster.readRecord(rid.getClusterPosition(), false);
       return new RawPairObjectInteger<>(buffer.buffer, rid.getClusterId());
     } catch (final IOException e) {
       throw BaseException.wrapException(
@@ -1836,7 +1835,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
 
   private int readIntProperty(final String name, final boolean useCache) {
     if (useCache) {
-      final Object cachedValue = cache.get(name);
+      final var cachedValue = cache.get(name);
       return (int) cachedValue;
     }
 
@@ -1845,7 +1844,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
       throw new IllegalStateException("Property " + name + " is absent");
     }
 
-    final byte[] property = pair.first;
+    final var property = pair.first;
 
     if (property.length < 4) {
       throw new IllegalStateException(
@@ -1856,7 +1855,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
   }
 
   private void preloadIntProperties() {
-    for (final String name : INT_PROPERTIES) {
+    for (final var name : INT_PROPERTIES) {
       final var pair = readProperty(name);
 
       if (pair != null) {
@@ -1866,7 +1865,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
   }
 
   private void preloadStringProperties() {
-    for (final String name : STRING_PROPERTIES) {
+    for (final var name : STRING_PROPERTIES) {
       final var property = readProperty(name);
       if (property != null) {
         cache.put(name, deserializeStringValue(property.first, 0));
@@ -1909,7 +1908,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
     setSchemaRecordId(atomicOperation, storageConfiguration.getSchemaRecordId());
     setIndexMgrRecordId(atomicOperation, storageConfiguration.getIndexMgrRecordId());
 
-    final TimeZone timeZone = storageConfiguration.getTimeZone();
+    final var timeZone = storageConfiguration.getTimeZone();
     assert timeZone != null;
 
     setTimeZone(atomicOperation, timeZone);
@@ -1923,8 +1922,8 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
     setLocaleCountry(atomicOperation, storageConfiguration.getLocaleCountry());
     setLocaleLanguage(atomicOperation, storageConfiguration.getLocaleLanguage());
 
-    final List<StorageEntryConfiguration> properties = storageConfiguration.getProperties();
-    for (final StorageEntryConfiguration property : properties) {
+    final var properties = storageConfiguration.getProperties();
+    for (final var property : properties) {
       setProperty(atomicOperation, property.name, property.value);
     }
 
@@ -1932,10 +1931,10 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
     setConflictStrategy(atomicOperation, storageConfiguration.getConflictStrategy());
     setValidation(atomicOperation, storageConfiguration.isValidationEnabled());
 
-    int counter = 0;
-    final Set<String> indexEngines = storageConfiguration.indexEngines();
+    var counter = 0;
+    final var indexEngines = storageConfiguration.indexEngines();
 
-    for (final String engine : indexEngines) {
+    for (final var engine : indexEngines) {
       addIndexEngine(atomicOperation, engine, storageConfiguration.getIndexEngine(engine, counter));
       counter++;
     }
@@ -1943,8 +1942,8 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
     setRecordSerializer(atomicOperation, storageConfiguration.getRecordSerializer());
     setRecordSerializerVersion(atomicOperation, storageConfiguration.getRecordSerializerVersion());
 
-    final List<StorageClusterConfiguration> clusters = storageConfiguration.getClusters();
-    for (final StorageClusterConfiguration cluster : clusters) {
+    final var clusters = storageConfiguration.getClusters();
+    for (final var cluster : clusters) {
       if (cluster != null) {
         updateCluster(atomicOperation, cluster);
       }

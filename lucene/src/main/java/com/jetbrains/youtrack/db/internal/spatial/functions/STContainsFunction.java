@@ -48,9 +48,9 @@ public class STContainsFunction extends SpatialFunctionAbstractIndexable {
       return null;
     }
 
-    Shape shape = toShape(iParams[0]);
+    var shape = toShape(iParams[0]);
 
-    Shape shape1 = toShape(iParams[1]);
+    var shape1 = toShape(iParams[1]);
 
     return factory.operation().contains(shape, shape1);
   }

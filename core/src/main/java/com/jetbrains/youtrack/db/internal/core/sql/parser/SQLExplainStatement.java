@@ -41,14 +41,14 @@ public class SQLExplainStatement extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
     ctx.setDatabase(db);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
-      for (int i = 0; i < args.length; i++) {
+      for (var i = 0; i < args.length; i++) {
         params.put(i, args[i]);
       }
     }
@@ -61,7 +61,7 @@ public class SQLExplainStatement extends SQLStatement {
       executionPlan = statement.createExecutionPlanNoCache(ctx, false);
     }
 
-    ExplainResultSet result = new ExplainResultSet(db, executionPlan, new DatabaseStats());
+    var result = new ExplainResultSet(db, executionPlan, new DatabaseStats());
     return result;
   }
 
@@ -69,7 +69,7 @@ public class SQLExplainStatement extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Map<Object, Object> args, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -83,7 +83,7 @@ public class SQLExplainStatement extends SQLStatement {
       executionPlan = statement.createExecutionPlanNoCache(ctx, false);
     }
 
-    ExplainResultSet result = new ExplainResultSet(db, executionPlan, new DatabaseStats());
+    var result = new ExplainResultSet(db, executionPlan, new DatabaseStats());
     return result;
   }
 
@@ -94,7 +94,7 @@ public class SQLExplainStatement extends SQLStatement {
 
   @Override
   public SQLExplainStatement copy() {
-    SQLExplainStatement result = new SQLExplainStatement(-1);
+    var result = new SQLExplainStatement(-1);
     result.statement = statement == null ? null : statement.copy();
     return result;
   }
@@ -108,7 +108,7 @@ public class SQLExplainStatement extends SQLStatement {
       return false;
     }
 
-    SQLExplainStatement that = (SQLExplainStatement) o;
+    var that = (SQLExplainStatement) o;
 
     return Objects.equals(statement, that.statement);
   }

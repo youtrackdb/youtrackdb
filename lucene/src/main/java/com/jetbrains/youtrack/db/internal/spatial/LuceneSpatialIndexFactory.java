@@ -90,10 +90,10 @@ public class LuceneSpatialIndexFactory implements IndexFactory, DatabaseLifecycl
   public IndexInternal createIndex(Storage storage, IndexMetadata im)
       throws ConfigurationException {
     var metadata = im.getMetadata();
-    final String indexType = im.getType();
-    final String algorithm = im.getAlgorithm();
+    final var indexType = im.getType();
+    final var algorithm = im.getAlgorithm();
 
-    BinarySerializer<?> objectSerializer =
+    var objectSerializer =
         storage
             .getComponentsFactory()
             .binarySerializerFactory
@@ -156,8 +156,8 @@ public class LuceneSpatialIndexFactory implements IndexFactory, DatabaseLifecycl
       }
 
       LogManager.instance().debug(this, "Dropping spatial indexes...");
-      final DatabaseSessionInternal internalDb = db;
-      for (Index idx : internalDb.getMetadata().getIndexManagerInternal().getIndexes(internalDb)) {
+      final var internalDb = db;
+      for (var idx : internalDb.getMetadata().getIndexManagerInternal().getIndexes(internalDb)) {
 
         if (idx.getInternal() instanceof LuceneSpatialIndex) {
           LogManager.instance().debug(this, "- index '%s'", idx.getName());

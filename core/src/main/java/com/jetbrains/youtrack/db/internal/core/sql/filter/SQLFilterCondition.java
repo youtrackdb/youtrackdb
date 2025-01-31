@@ -87,7 +87,7 @@ public class SQLFilterCondition {
       final EntityImpl iCurrentResult,
       final CommandContext iContext) {
     var db = iContext.getDatabase();
-    boolean binaryEvaluation =
+    var binaryEvaluation =
         operator != null
             && operator.isSupportingBinaryEvaluate()
             && iCurrentRecord != null
@@ -99,7 +99,7 @@ public class SQLFilterCondition {
       left = ((SQLQuery<?>) left).setContext(iContext).execute(iContext.getDatabase());
     }
 
-    Object l = evaluate(iCurrentRecord, iCurrentResult, left, iContext, binaryEvaluation);
+    var l = evaluate(iCurrentRecord, iCurrentResult, left, iContext, binaryEvaluation);
 
     if (operator == null || operator.canShortCircuit(l)) {
       return l;
@@ -111,24 +111,24 @@ public class SQLFilterCondition {
       right = ((SQLQuery<?>) right).setContext(iContext).execute(iContext.getDatabase());
     }
 
-    Object r = evaluate(iCurrentRecord, iCurrentResult, right, iContext, binaryEvaluation);
-    ImmutableSchema schema =
+    var r = evaluate(iCurrentRecord, iCurrentResult, right, iContext, binaryEvaluation);
+    var schema =
         DatabaseRecordThreadLocal.instance().get().getMetadata().getImmutableSchemaSnapshot();
 
     if (binaryEvaluation && l instanceof BinaryField) {
       if (r != null && !(r instanceof BinaryField)) {
-        final PropertyType type = PropertyType.getTypeByValue(r);
+        final var type = PropertyType.getTypeByValue(r);
 
         if (RecordSerializerBinary.INSTANCE
             .getCurrentSerializer()
             .getComparator()
             .isBinaryComparable(type)) {
-          final BytesContainer bytes = new BytesContainer();
+          final var bytes = new BytesContainer();
           RecordSerializerBinary.INSTANCE
               .getCurrentSerializer()
               .serializeValue(db, bytes, r, type, null, schema, null);
           bytes.offset = 0;
-          final Collate collate =
+          final var collate =
               r instanceof SQLFilterItemField
                   ? ((SQLFilterItemField) r).getCollate(db, iCurrentRecord)
                   : null;
@@ -148,17 +148,17 @@ public class SQLFilterCondition {
 
     if (binaryEvaluation && r instanceof BinaryField) {
       if (l != null && !(l instanceof BinaryField)) {
-        final PropertyType type = PropertyType.getTypeByValue(l);
+        final var type = PropertyType.getTypeByValue(l);
         if (RecordSerializerBinary.INSTANCE
             .getCurrentSerializer()
             .getComparator()
             .isBinaryComparable(type)) {
-          final BytesContainer bytes = new BytesContainer();
+          final var bytes = new BytesContainer();
           RecordSerializerBinary.INSTANCE
               .getCurrentSerializer()
               .serializeValue(db, bytes, l, type, null, schema, null);
           bytes.offset = 0;
-          final Collate collate =
+          final var collate =
               l instanceof SQLFilterItemField
                   ? ((SQLFilterItemField) l).getCollate(db, iCurrentRecord)
                   : null;
@@ -182,9 +182,9 @@ public class SQLFilterCondition {
 
     if (!binaryEvaluation) {
       // no collate for regular expressions, otherwise quotes will result in no match
-      final Collate collate =
+      final var collate =
           operator instanceof QueryOperatorMatches ? null : getCollate(db, iCurrentRecord);
-      final Object[] convertedValues = checkForConversion(db, iCurrentRecord, l, r, collate);
+      final var convertedValues = checkForConversion(db, iCurrentRecord, l, r, collate);
       if (convertedValues != null) {
         l = convertedValues[0];
         r = convertedValues[1];
@@ -281,7 +281,7 @@ public class SQLFilterCondition {
 
   @Override
   public String toString() {
-    StringBuilder buffer = new StringBuilder(128);
+    var buffer = new StringBuilder(128);
 
     buffer.append('(');
     buffer.append(left);
@@ -327,7 +327,7 @@ public class SQLFilterCondition {
       return null;
     }
 
-    final String stringValue = iValue.toString();
+    final var stringValue = iValue.toString();
 
     if (NULL_VALUE.equals(stringValue)) {
       return null;
@@ -349,7 +349,7 @@ public class SQLFilterCondition {
       return null;
     }
 
-    final String stringValue = iValue.toString();
+    final var stringValue = iValue.toString();
 
     if (NULL_VALUE.equals(stringValue)) {
       return null;
@@ -363,16 +363,16 @@ public class SQLFilterCondition {
       return null;
     }
 
-    final StorageConfiguration config =
+    final var config =
         DatabaseRecordThreadLocal.instance().get().getStorageInfo().getConfiguration();
 
     if (value instanceof Long) {
-      Calendar calendar = Calendar.getInstance(config.getTimeZone());
+      var calendar = Calendar.getInstance(config.getTimeZone());
       calendar.setTimeInMillis(((Long) value));
       return calendar.getTime();
     }
 
-    String stringValue = value.toString();
+    var stringValue = value.toString();
 
     if (NULL_VALUE.equals(stringValue)) {
       return null;
@@ -386,7 +386,7 @@ public class SQLFilterCondition {
       return new Date(Long.valueOf(stringValue).longValue());
     }
 
-    SimpleDateFormat formatter = config.getDateFormatInstance();
+    var formatter = config.getDateFormatInstance();
 
     if (stringValue.length() > config.getDateFormat().length())
     // ASSUMES YOU'RE USING THE DATE-TIME FORMATTE
@@ -443,7 +443,7 @@ public class SQLFilterCondition {
         && iCurrentRecord != null
         && !((EntityImpl) iCurrentRecord).isDirty()
         && !iCurrentRecord.getIdentity().isTemporary()) {
-      final BinaryField bField = ((SQLFilterItemField) iValue).getBinaryField(db, iCurrentRecord);
+      final var bField = ((SQLFilterItemField) iValue).getBinaryField(db, iCurrentRecord);
       if (bField != null) {
         return bField;
       }
@@ -467,9 +467,9 @@ public class SQLFilterCondition {
       final Iterable<?> multiValue = MultiValue.getMultiValueIterable(iValue);
 
       // MULTI VALUE: RETURN A COPY
-      final ArrayList<Object> result = new ArrayList<Object>(MultiValue.getSize(iValue));
+      final var result = new ArrayList<Object>(MultiValue.getSize(iValue));
 
-      for (final Object value : multiValue) {
+      for (final var value : multiValue) {
         if (value instanceof SQLFilterItem) {
           result.add(((SQLFilterItem) value).getValue(iCurrentRecord, iCurrentResult, iContext));
         } else {
@@ -488,8 +488,8 @@ public class SQLFilterCondition {
       final Collate collate) {
     Object[] result = null;
 
-    final Object oldL = l;
-    final Object oldR = r;
+    final var oldL = l;
+    final var oldR = r;
     if (collate != null) {
 
       l = collate.transform(l);

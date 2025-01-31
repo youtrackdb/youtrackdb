@@ -31,7 +31,7 @@ public class LuceneQueryErrorTest extends LuceneBaseTest {
 
   @Before
   public void init() {
-    InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
+    var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
 
     db.execute("sql", getScriptFromStream(stream));
 
@@ -41,8 +41,8 @@ public class LuceneQueryErrorTest extends LuceneBaseTest {
   @Test
   public void testQueryError() {
 
-    String query = "select * from Song where search_class(\"\")=true ";
-    ResultSet result = db.query(query);
+    var query = "select * from Song where search_class(\"\")=true ";
+    var result = db.query(query);
 
     Assertions.assertThat(result).isEmpty();
     result.close();

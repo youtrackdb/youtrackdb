@@ -2,7 +2,6 @@ package com.jetbrains.youtrack.db.internal.core.iterator;
 
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.clusterselection.DefaultClusterSelectionStrategy;
@@ -34,7 +33,7 @@ public class ClassIteratorTest extends DbTestBase {
     final Schema schema = db.getMetadata().getSchema();
 
     // Create Person class
-    final SchemaClass personClass = schema.createClass("Person");
+    final var personClass = schema.createClass("Person");
     personClass
         .createProperty(db, "First", PropertyType.STRING)
         .setMandatory(db, true)
@@ -48,7 +47,7 @@ public class ClassIteratorTest extends DbTestBase {
     names.add("Calvin");
     names.add("Daniel");
 
-    for (String name : names) {
+    for (var name : names) {
       createPerson("Person", name);
     }
   }
@@ -61,11 +60,11 @@ public class ClassIteratorTest extends DbTestBase {
     personClass.truncate(db);
 
     // reload the data in a new 'test' cluster
-    int testClusterId = db.addCluster("test");
+    var testClusterId = db.addCluster("test");
     personClass.addClusterId(db, testClusterId);
     personClass.setClusterSelection(db, new DefaultClusterSelectionStrategy());
 
-    for (String name : names) {
+    for (var name : names) {
       createPerson("Person", name);
     }
 
@@ -75,10 +74,10 @@ public class ClassIteratorTest extends DbTestBase {
 
     personIter.setRange(null, null); // open range
 
-    int docNum = 0;
+    var docNum = 0;
     // Explicit iterator loop.
     while (personIter.hasNext()) {
-      final EntityImpl personDoc = personIter.next();
+      final var personDoc = personIter.next();
       Assert.assertTrue(names.contains(personDoc.field("First")));
       Assert.assertTrue(names.remove(personDoc.field("First")));
       System.out.printf("Doc %d: %s\n", docNum++, personDoc);
@@ -89,19 +88,19 @@ public class ClassIteratorTest extends DbTestBase {
 
   @Test
   public void testMultipleClusters() throws Exception {
-    final SchemaClass personClass =
+    final var personClass =
         db.getMetadata().getSchema().createClass("PersonMultipleClusters", 4, null);
-    for (String name : names) {
+    for (var name : names) {
       createPerson("PersonMultipleClusters", name);
     }
 
-    final RecordIteratorClass<EntityImpl> personIter =
+    final var personIter =
         new RecordIteratorClass<EntityImpl>(db, "PersonMultipleClusters", true);
 
-    int docNum = 0;
+    var docNum = 0;
 
     while (personIter.hasNext()) {
-      final EntityImpl personDoc = personIter.next();
+      final var personDoc = personIter.next();
       Assert.assertTrue(names.contains(personDoc.field("First")));
       Assert.assertTrue(names.remove(personDoc.field("First")));
       System.out.printf("Doc %d: %s\n", docNum++, personDoc);

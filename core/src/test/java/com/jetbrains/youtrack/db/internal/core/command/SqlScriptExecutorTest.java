@@ -16,7 +16,7 @@ public class SqlScriptExecutorTest extends DbTestBase {
 
   @Test
   public void testPlain() {
-    String script = "begin;\n";
+    var script = "begin;\n";
     script += "insert into V set name ='a';\n";
     script += "insert into V set name ='b';\n";
     script += "insert into V set name ='c';\n";
@@ -24,8 +24,8 @@ public class SqlScriptExecutorTest extends DbTestBase {
     script += "commit;\n";
     script += "select from v;";
 
-    ResultSet result = db.execute("sql", script);
-    List<Object> list =
+    var result = db.execute("sql", script);
+    var list =
         result.stream().map(x -> x.getProperty("name")).collect(Collectors.toList());
     result.close();
 
@@ -38,7 +38,7 @@ public class SqlScriptExecutorTest extends DbTestBase {
 
   @Test
   public void testWithPositionalParams() {
-    String script = "begin;\n";
+    var script = "begin;\n";
     script += "insert into V set name ='a';\n";
     script += "insert into V set name ='b';\n";
     script += "insert into V set name ='c';\n";
@@ -46,8 +46,8 @@ public class SqlScriptExecutorTest extends DbTestBase {
     script += "commit;\n";
     script += "select from v where name = ?;";
 
-    ResultSet result = db.execute("sql", script, "a");
-    List<Object> list =
+    var result = db.execute("sql", script, "a");
+    var list =
         result.stream().map(x -> x.getProperty("name")).collect(Collectors.toList());
     result.close();
 
@@ -58,7 +58,7 @@ public class SqlScriptExecutorTest extends DbTestBase {
 
   @Test
   public void testWithNamedParams() {
-    String script = "begin;\n";
+    var script = "begin;\n";
     script += "insert into V set name ='a';\n";
     script += "insert into V set name ='b';\n";
     script += "insert into V set name ='c';\n";
@@ -69,8 +69,8 @@ public class SqlScriptExecutorTest extends DbTestBase {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("name", "a");
 
-    ResultSet result = db.execute("sql", script, params);
-    List<Object> list =
+    var result = db.execute("sql", script, params);
+    var list =
         result.stream().map(x -> x.getProperty("name")).collect(Collectors.toList());
     result.close();
 
@@ -81,7 +81,7 @@ public class SqlScriptExecutorTest extends DbTestBase {
 
   @Test
   public void testMultipleCreateEdgeOnTheSameLet() {
-    String script = "begin;";
+    var script = "begin;";
     script += "let $v1 = create vertex v set name = 'Foo';";
     script += "let $v2 = create vertex v set name = 'Bar';";
     script += "create edge from $v1 to $v2;";
@@ -89,7 +89,7 @@ public class SqlScriptExecutorTest extends DbTestBase {
     script += "create edge from $v1 to $v3;";
     script += "commit;";
 
-    ResultSet result = db.execute("sql", script);
+    var result = db.execute("sql", script);
     result.close();
 
     result = db.query("SELECT expand(out()) FROM V WHERE name ='Foo'");

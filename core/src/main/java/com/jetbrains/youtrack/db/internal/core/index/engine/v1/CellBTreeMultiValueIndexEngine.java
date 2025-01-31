@@ -25,7 +25,6 @@ import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.multivalue.v
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.singlevalue.CellBTreeSingleValue;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.singlevalue.v3.CellBTreeSingleValueV3;
 import java.io.IOException;
-import java.util.List;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -109,7 +108,7 @@ public final class CellBTreeMultiValueIndexEngine
         mvTree.create(
             keySerializer, data.getKeyTypes(), data.getKeySize(), atomicOperation);
       } else {
-        final PropertyType[] sbTypes = calculateTypes(data.getKeyTypes());
+        final var sbTypes = calculateTypes(data.getKeyTypes());
         assert svTree != null;
         assert nullTree != null;
 
@@ -152,10 +151,10 @@ public final class CellBTreeMultiValueIndexEngine
   private void doClearMVTree(final AtomicOperation atomicOperation) {
     assert mvTree != null;
 
-    final Object firstKey = mvTree.firstKey();
-    final Object lastKey = mvTree.lastKey();
+    final var firstKey = mvTree.firstKey();
+    final var lastKey = mvTree.lastKey();
 
-    try (Stream<RawPair<Object, RID>> stream =
+    try (var stream =
         mvTree.iterateEntriesBetween(firstKey, true, lastKey, true, true)) {
       stream.forEach(
           (pair) -> {
@@ -168,7 +167,7 @@ public final class CellBTreeMultiValueIndexEngine
           });
     }
 
-    try (final Stream<RID> rids = mvTree.get(null)) {
+    try (final var rids = mvTree.get(null)) {
       rids.forEach(
           (rid) -> {
             try {
@@ -186,10 +185,10 @@ public final class CellBTreeMultiValueIndexEngine
     assert nullTree != null;
 
     {
-      final CompositeKey firstKey = svTree.firstKey();
-      final CompositeKey lastKey = svTree.lastKey();
+      final var firstKey = svTree.firstKey();
+      final var lastKey = svTree.lastKey();
 
-      try (Stream<RawPair<CompositeKey, RID>> stream =
+      try (var stream =
           svTree.iterateEntriesBetween(firstKey, true, lastKey, true, true)) {
         stream.forEach(
             (pair) -> {
@@ -204,11 +203,11 @@ public final class CellBTreeMultiValueIndexEngine
     }
 
     {
-      final Identifiable firstKey = nullTree.firstKey();
-      final Identifiable lastKey = nullTree.lastKey();
+      final var firstKey = nullTree.firstKey();
+      final var lastKey = nullTree.lastKey();
 
       if (firstKey != null && lastKey != null) {
-        try (Stream<RawPair<Identifiable, RID>> stream =
+        try (var stream =
             nullTree.iterateEntriesBetween(firstKey, true, lastKey, true, true)) {
           stream.forEach(
               (pair) -> {
@@ -227,9 +226,9 @@ public final class CellBTreeMultiValueIndexEngine
   @Override
   public void load(IndexEngineData data) {
 
-    String name = data.getName();
-    int keySize = data.getKeySize();
-    PropertyType[] keyTypes = data.getKeyTypes();
+    var name = data.getName();
+    var keySize = data.getKeySize();
+    var keyTypes = data.getKeyTypes();
     BinarySerializer keySerializer = storage.resolveObjectSerializer(data.getKeySerializedId());
 
     if (mvTree != null) {
@@ -239,7 +238,7 @@ public final class CellBTreeMultiValueIndexEngine
       assert svTree != null;
       assert nullTree != null;
 
-      final PropertyType[] sbTypes = calculateTypes(keyTypes);
+      final var sbTypes = calculateTypes(keyTypes);
 
       svTree.load(name, keySize + 1, sbTypes, new IndexMultiValuKeySerializer());
       nullTree.load(
@@ -257,15 +256,15 @@ public final class CellBTreeMultiValueIndexEngine
         if (key != null) {
           assert svTree != null;
 
-          final CompositeKey compositeKey = createCompositeKey(key, value);
+          final var compositeKey = createCompositeKey(key, value);
 
-          final boolean[] removed = new boolean[1];
-          try (Stream<RawPair<CompositeKey, RID>> stream =
+          final var removed = new boolean[1];
+          try (var stream =
               svTree.iterateEntriesBetween(compositeKey, true, compositeKey, true, true)) {
             stream.forEach(
                 (pair) -> {
                   try {
-                    final boolean result = svTree.remove(atomicOperation, pair.first) != null;
+                    final var result = svTree.remove(atomicOperation, pair.first) != null;
                     removed[0] = result || removed[0];
                   } catch (final IOException e) {
                     throw BaseException.wrapException(
@@ -324,8 +323,8 @@ public final class CellBTreeMultiValueIndexEngine
     } else if (key != null) {
       assert svTree != null;
 
-      final CompositeKey firstKey = convertToCompositeKey(key);
-      final CompositeKey lastKey = convertToCompositeKey(key);
+      final var firstKey = convertToCompositeKey(key);
+      final var lastKey = convertToCompositeKey(key);
 
       //noinspection resource
       return svTree
@@ -346,7 +345,7 @@ public final class CellBTreeMultiValueIndexEngine
   @Override
   public Stream<RawPair<Object, RID>> stream(IndexEngineValuesTransformer valuesTransformer) {
     if (mvTree != null) {
-      final Object firstKey = mvTree.firstKey();
+      final var firstKey = mvTree.firstKey();
       if (firstKey == null) {
         return emptyStream();
       }
@@ -355,7 +354,7 @@ public final class CellBTreeMultiValueIndexEngine
     } else {
       assert svTree != null;
 
-      final CompositeKey firstKey = svTree.firstKey();
+      final var firstKey = svTree.firstKey();
       if (firstKey == null) {
         return emptyStream();
       }
@@ -377,7 +376,7 @@ public final class CellBTreeMultiValueIndexEngine
   public Stream<RawPair<Object, RID>> descStream(
       IndexEngineValuesTransformer valuesTransformer) {
     if (mvTree != null) {
-      final Object lastKey = mvTree.lastKey();
+      final var lastKey = mvTree.lastKey();
       if (lastKey == null) {
         return emptyStream();
       }
@@ -385,7 +384,7 @@ public final class CellBTreeMultiValueIndexEngine
     } else {
       assert svTree != null;
 
-      final CompositeKey lastKey = svTree.lastKey();
+      final var lastKey = svTree.lastKey();
       if (lastKey == null) {
         return emptyStream();
       }
@@ -458,11 +457,11 @@ public final class CellBTreeMultiValueIndexEngine
     }
 
     // "from" could be null, then "to" is not (minor)
-    final CompositeKey toKey = convertToCompositeKey(rangeTo);
+    final var toKey = convertToCompositeKey(rangeTo);
     if (rangeFrom == null) {
       return mapSVStream(svTree.iterateEntriesMinor(toKey, toInclusive, ascSortOrder));
     }
-    final CompositeKey fromKey = convertToCompositeKey(rangeFrom);
+    final var fromKey = convertToCompositeKey(rangeFrom);
     // "to" could be null, then "from" is not (major)
     if (rangeTo == null) {
       return mapSVStream(svTree.iterateEntriesMajor(fromKey, fromInclusive, ascSortOrder));
@@ -492,7 +491,7 @@ public final class CellBTreeMultiValueIndexEngine
     }
     assert svTree != null;
 
-    final CompositeKey firstKey = convertToCompositeKey(fromKey);
+    final var firstKey = convertToCompositeKey(fromKey);
     return mapSVStream(svTree.iterateEntriesMajor(firstKey, isInclusive, ascSortOrder));
   }
 
@@ -507,7 +506,7 @@ public final class CellBTreeMultiValueIndexEngine
     }
     assert svTree != null;
 
-    final CompositeKey lastKey = convertToCompositeKey(toKey);
+    final var lastKey = convertToCompositeKey(toKey);
     return mapSVStream(svTree.iterateEntriesMinor(lastKey, isInclusive, ascSortOrder));
   }
 
@@ -528,26 +527,26 @@ public final class CellBTreeMultiValueIndexEngine
 
     // calculate amount of keys
     if (transformer == null) {
-      final Object firstKey = mvTree.firstKey();
-      final Object lastKey = mvTree.lastKey();
+      final var firstKey = mvTree.firstKey();
+      final var lastKey = mvTree.lastKey();
 
       long counter = 0;
 
-      try (Stream<RID> oridStream = mvTree.get(null)) {
+      try (var oridStream = mvTree.get(null)) {
         if (oridStream.iterator().hasNext()) {
           counter++;
         }
       }
 
       if (firstKey != null && lastKey != null) {
-        final Object[] prevKey = new Object[]{new Object()};
-        try (final Stream<RawPair<Object, RID>> stream =
+        final var prevKey = new Object[]{new Object()};
+        try (final var stream =
             mvTree.iterateEntriesBetween(firstKey, true, lastKey, true, true)) {
           counter +=
               stream
                   .filter(
                       (pair) -> {
-                        final boolean result = !prevKey[0].equals(pair.first);
+                        final var result = !prevKey[0].equals(pair.first);
                         prevKey[0] = pair.first;
                         return result;
                       })
@@ -604,7 +603,7 @@ public final class CellBTreeMultiValueIndexEngine
   }
 
   private static CompositeKey createCompositeKey(final Object key, final RID value) {
-    final CompositeKey compositeKey = new CompositeKey(key);
+    final var compositeKey = new CompositeKey(key);
     compositeKey.addKey(value);
     return compositeKey;
   }
@@ -613,7 +612,7 @@ public final class CellBTreeMultiValueIndexEngine
     if (compositeKey == null) {
       return null;
     }
-    final List<Object> keys = compositeKey.getKeys();
+    final var keys = compositeKey.getKeys();
 
     final Object key;
     if (keys.size() == 2) {

@@ -93,20 +93,20 @@ public abstract class BaseHttpTest {
   }
 
   protected boolean isInDevelopmentMode() {
-    final String env = System.getProperty("youtrackdb.test.env");
+    final var env = System.getProperty("youtrackdb.test.env");
     return env == null || env.equals("dev");
   }
 
   protected BaseHttpTest exec() throws IOException {
-    final HttpHost targetHost = new HttpHost(protocol, host, port);
+    final var targetHost = new HttpHost(protocol, host, port);
 
     var credsProvider = new BasicCredentialsProvider();
     credsProvider.setCredentials(
         new AuthScope(targetHost),
         new UsernamePasswordCredentials(userName, userPassword.toCharArray()));
 
-    final BasicCredentialsProvider provider = new BasicCredentialsProvider();
-    AuthScope authScope = new AuthScope(targetHost);
+    final var provider = new BasicCredentialsProvider();
+    var authScope = new AuthScope(targetHost);
     provider.setCredentials(
         authScope, new UsernamePasswordCredentials(userName, userPassword.toCharArray()));
 

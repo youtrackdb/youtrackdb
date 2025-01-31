@@ -58,7 +58,7 @@ public class EngineLocalPaginated extends EngineAbstract {
 
   private static int getOpenFilesLimit() {
     if (GlobalConfiguration.OPEN_FILES_LIMIT.getValueAsInteger() > 0) {
-      final Object[] additionalArgs =
+      final var additionalArgs =
           new Object[]{GlobalConfiguration.OPEN_FILES_LIMIT.getValueAsInteger()};
       LogManager.instance()
           .info(
@@ -68,15 +68,15 @@ public class EngineLocalPaginated extends EngineAbstract {
       return GlobalConfiguration.OPEN_FILES_LIMIT.getValueAsInteger();
     }
 
-    final int defaultLimit = 512;
-    final int recommendedLimit = 256 * 1024;
+    final var defaultLimit = 512;
+    final var recommendedLimit = 256 * 1024;
 
     return Native.instance().getOpenFilesLimit(true, recommendedLimit, defaultLimit);
   }
 
   @Override
   public void startup() {
-    final String userName = System.getProperty("user.name", "unknown");
+    final var userName = System.getProperty("user.name", "unknown");
     LogManager.instance().info(this, "System is started under an effective user : `%s`", userName);
     if (Native.instance().isOsRoot()) {
       LogManager.instance()
@@ -90,23 +90,23 @@ public class EngineLocalPaginated extends EngineAbstract {
     MemoryAndLocalPaginatedEnginesInitializer.INSTANCE.initialize();
     super.startup();
 
-    final long diskCacheSize =
+    final var diskCacheSize =
         calculateReadCacheMaxMemory(
             GlobalConfiguration.DISK_CACHE_SIZE.getValueAsLong() * 1024 * 1024);
-    final int pageSize = GlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024;
+    final var pageSize = GlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024;
 
     if (GlobalConfiguration.DIRECT_MEMORY_PREALLOCATE.getValueAsBoolean()) {
-      final int pageCount = (int) (diskCacheSize / pageSize);
+      final var pageCount = (int) (diskCacheSize / pageSize);
       LogManager.instance().info(this, "Allocation of " + pageCount + " pages.");
 
-      final ByteBufferPool bufferPool = ByteBufferPool.instance(null);
+      final var bufferPool = ByteBufferPool.instance(null);
       final List<Pointer> pages = new ArrayList<>(pageCount);
 
-      for (int i = 0; i < pageCount; i++) {
+      for (var i = 0; i < pageCount; i++) {
         pages.add(bufferPool.acquireDirect(true, Intention.PAGE_PRE_ALLOCATION));
       }
 
-      for (final Pointer pointer : pages) {
+      for (final var pointer : pages) {
         bufferPool.release(pointer);
       }
 
@@ -152,7 +152,7 @@ public class EngineLocalPaginated extends EngineAbstract {
           doubleWriteLogMaxSegSize,
           context);
     } catch (Exception e) {
-      final String message =
+      final var message =
           "Error on opening database: "
               + dbName
               + ". Current location is: "

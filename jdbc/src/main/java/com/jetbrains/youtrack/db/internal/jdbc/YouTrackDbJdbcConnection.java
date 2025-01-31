@@ -66,12 +66,12 @@ public class YouTrackDbJdbcConnection implements Connection {
 
     readOnly = false;
 
-    final String username = info.getProperty("user", "admin");
-    final String password = info.getProperty("password", "admin");
-    final String serverUsername = info.getProperty("serverUser", "");
-    final String serverPassword = info.getProperty("serverPassword", "");
+    final var username = info.getProperty("user", "admin");
+    final var password = info.getProperty("password", "admin");
+    final var serverUsername = info.getProperty("serverUser", "");
+    final var serverPassword = info.getProperty("serverPassword", "");
 
-    DatabaseURLConnection connUrl = URLHelper.parseNew(dbUrl);
+    var connUrl = URLHelper.parseNew(dbUrl);
     youTrackDB =
         new YouTrackDBImpl(
             connUrl.getType() + ":" + connUrl.getPath(),

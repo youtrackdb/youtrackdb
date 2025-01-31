@@ -32,13 +32,13 @@ public class FilterByClassStep extends AbstractExecutionStep {
       throw new IllegalStateException("filter step requires a previous step");
     }
 
-    ExecutionStream resultSet = prev.start(ctx);
+    var resultSet = prev.start(ctx);
     return resultSet.filter(this::filterMap);
   }
 
   private Result filterMap(Result result, CommandContext ctx) {
     if (result.isEntity()) {
-      Optional<SchemaClass> clazz = result.asEntity().getSchemaType();
+      var clazz = result.asEntity().getSchemaType();
       if (clazz.isPresent() && clazz.get().isSubClassOf(className)) {
         return result;
       }
@@ -48,7 +48,7 @@ public class FilterByClassStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    StringBuilder result = new StringBuilder();
+    var result = new StringBuilder();
     result.append(ExecutionStepInternal.getIndent(depth, indent));
     result.append("+ FILTER ITEMS BY CLASS");
     if (profilingEnabled) {
@@ -63,7 +63,7 @@ public class FilterByClassStep extends AbstractExecutionStep {
 
   @Override
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
+    var result = ExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("identifier", identifier.serialize(db));
 
     return result;

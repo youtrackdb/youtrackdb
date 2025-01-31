@@ -45,13 +45,13 @@ public class SQLCreateSystemUserStatement extends SQLSimpleExecServerStatement {
   @Override
   public ExecutionStream executeSimple(ServerCommandContext ctx) {
 
-    SystemDatabase systemDb = ctx.getServer().getSystemDatabase();
+    var systemDb = ctx.getServer().getSystemDatabase();
 
     return systemDb.executeWithDB(
         (db) -> {
           List<Object> params = new ArrayList<>();
           // INSERT INTO OUser SET
-          StringBuilder sb = new StringBuilder();
+          var sb = new StringBuilder();
           sb.append("INSERT INTO OUser SET ");
 
           sb.append(USER_FIELD_NAME);
@@ -93,10 +93,10 @@ public class SQLCreateSystemUserStatement extends SQLSimpleExecServerStatement {
           sb.append(" WHERE ");
           sb.append(ROLE_FIELD_NAME);
           sb.append(" IN [");
-          Security security = db.getMetadata().getSecurity();
-          for (int i = 0; i < this.roles.size(); ++i) {
-            String roleName = this.roles.get(i).getStringValue();
-            Role role = security.getRole(roleName);
+          var security = db.getMetadata().getSecurity();
+          for (var i = 0; i < this.roles.size(); ++i) {
+            var roleName = this.roles.get(i).getStringValue();
+            var role = security.getRole(roleName);
             if (role == null) {
               throw new CommandExecutionException(
                   "Cannot create user " + this.name + ": role " + roleName + " does not exist");
@@ -114,7 +114,7 @@ public class SQLCreateSystemUserStatement extends SQLSimpleExecServerStatement {
             }
           }
           sb.append("])");
-          Stream<Result> stream =
+          var stream =
               db.computeInTx(() -> db.command(sb.toString(), params.toArray()).stream());
           return ExecutionStream.resultIterator(stream.iterator())
               .onClose((context) -> stream.close());
@@ -135,8 +135,8 @@ public class SQLCreateSystemUserStatement extends SQLSimpleExecServerStatement {
     }
     if (!roles.isEmpty()) {
       builder.append(" ROLE [");
-      boolean first = true;
-      for (SQLIdentifier role : roles) {
+      var first = true;
+      for (var role : roles) {
         if (!first) {
           builder.append(", ");
         }
@@ -149,7 +149,7 @@ public class SQLCreateSystemUserStatement extends SQLSimpleExecServerStatement {
 
   @Override
   public SQLCreateSystemUserStatement copy() {
-    SQLCreateSystemUserStatement result = new SQLCreateSystemUserStatement(-1);
+    var result = new SQLCreateSystemUserStatement(-1);
     result.name = name == null ? null : name.copy();
     result.passwordIdentifier = passwordIdentifier == null ? null : passwordIdentifier.copy();
     result.passwordString = passwordString;
@@ -166,7 +166,7 @@ public class SQLCreateSystemUserStatement extends SQLSimpleExecServerStatement {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SQLCreateSystemUserStatement that = (SQLCreateSystemUserStatement) o;
+    var that = (SQLCreateSystemUserStatement) o;
     return Objects.equals(name, that.name)
         && Objects.equals(passwordIdentifier, that.passwordIdentifier)
         && Objects.equals(passwordString, that.passwordString)

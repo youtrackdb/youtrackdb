@@ -69,7 +69,7 @@ public class TrackedList<T> extends ArrayList<T>
 
   @Override
   public boolean add(T element) {
-    final boolean result = super.add(element);
+    final var result = super.add(element);
 
     if (result) {
       addEvent(super.size() - 1, element);
@@ -79,7 +79,7 @@ public class TrackedList<T> extends ArrayList<T>
   }
 
   public boolean addInternal(T element) {
-    final boolean result = super.add(element);
+    final var result = super.add(element);
 
     if (result) {
       addOwnerToEmbeddedDoc(element);
@@ -90,7 +90,7 @@ public class TrackedList<T> extends ArrayList<T>
 
   @Override
   public boolean addAll(final Collection<? extends T> c) {
-    for (T o : c) {
+    for (var o : c) {
       add(o);
     }
     return true;
@@ -103,7 +103,7 @@ public class TrackedList<T> extends ArrayList<T>
   }
 
   public void setInternal(int index, T element) {
-    final T oldValue = super.set(index, element);
+    final var oldValue = super.set(index, element);
 
     if (oldValue != null && !oldValue.equals(element)) {
       if (oldValue instanceof EntityImpl) {
@@ -116,7 +116,7 @@ public class TrackedList<T> extends ArrayList<T>
 
   @Override
   public T set(int index, T element) {
-    final T oldValue = super.set(index, element);
+    final var oldValue = super.set(index, element);
 
     if (oldValue != null && !oldValue.equals(element)) {
       updateEvent(index, oldValue, element);
@@ -137,7 +137,7 @@ public class TrackedList<T> extends ArrayList<T>
 
   @Override
   public T remove(int index) {
-    final T oldValue = super.remove(index);
+    final var oldValue = super.remove(index);
     removeEvent(index, oldValue);
     return oldValue;
   }
@@ -179,7 +179,7 @@ public class TrackedList<T> extends ArrayList<T>
 
   @Override
   public boolean remove(Object o) {
-    final int index = indexOf(o);
+    final var index = indexOf(o);
     if (index >= 0) {
       remove(index);
       return true;
@@ -189,8 +189,8 @@ public class TrackedList<T> extends ArrayList<T>
 
   @Override
   public boolean removeAll(Collection<?> c) {
-    boolean removed = false;
-    for (Object o : c) {
+    var removed = false;
+    for (var o : c) {
       removed = removed | remove(o);
     }
 
@@ -199,8 +199,8 @@ public class TrackedList<T> extends ArrayList<T>
 
   @Override
   public void clear() {
-    for (int i = this.size() - 1; i >= 0; i--) {
-      final T origValue = this.get(i);
+    for (var i = this.size() - 1; i >= 0; i--) {
+      final var origValue = this.get(i);
       removeEvent(i, origValue);
     }
     super.clear();
@@ -235,11 +235,11 @@ public class TrackedList<T> extends ArrayList<T>
       final List<MultiValueChangeEvent<Integer, T>> multiValueChangeEvents) {
     final List<T> reverted = new ArrayList<T>(this);
 
-    final ListIterator<MultiValueChangeEvent<Integer, T>> listIterator =
+    final var listIterator =
         multiValueChangeEvents.listIterator(multiValueChangeEvents.size());
 
     while (listIterator.hasPrevious()) {
-      final MultiValueChangeEvent<Integer, T> event = listIterator.previous();
+      final var event = listIterator.previous();
       switch (event.getChangeType()) {
         case ADD:
           reverted.remove(event.getKey().intValue());

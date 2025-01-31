@@ -68,7 +68,7 @@ public abstract class SL4JLogManager {
             });
 
     if (log.isEnabledForLevel(level)) {
-      String dbName = fetchDbName(requester);
+      var dbName = fetchDbName(requester);
 
       Marker dbMarker = null;
       if (dbName != null) {

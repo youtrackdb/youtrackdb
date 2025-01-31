@@ -98,8 +98,8 @@ public class SQLAlterClassStatement extends DDLStatement {
           if (identifierListValue == null) {
             builder.append("null");
           } else {
-            boolean first = true;
-            for (SQLIdentifier ident : identifierListValue) {
+            var first = true;
+            for (var ident : identifierListValue) {
               if (!first) {
                 builder.append(", ");
               }
@@ -163,8 +163,8 @@ public class SQLAlterClassStatement extends DDLStatement {
           if (identifierListValue == null) {
             builder.append(PARAMETER_PLACEHOLDER);
           } else {
-            boolean first = true;
-            for (SQLIdentifier ident : identifierListValue) {
+            var first = true;
+            for (var ident : identifierListValue) {
               if (!first) {
                 builder.append(", ");
               }
@@ -194,7 +194,7 @@ public class SQLAlterClassStatement extends DDLStatement {
   }
 
   public SQLStatement copy() {
-    SQLAlterClassStatement result = new SQLAlterClassStatement(-1);
+    var result = new SQLAlterClassStatement(-1);
     result.name = name == null ? null : name.copy();
     result.property = property;
     result.identifierValue = identifierValue == null ? null : identifierValue.copy();
@@ -222,7 +222,7 @@ public class SQLAlterClassStatement extends DDLStatement {
       return false;
     }
 
-    SQLAlterClassStatement that = (SQLAlterClassStatement) o;
+    var that = (SQLAlterClassStatement) o;
 
     if (unsafe != that.unsafe) {
       return false;
@@ -262,7 +262,7 @@ public class SQLAlterClassStatement extends DDLStatement {
 
   @Override
   public int hashCode() {
-    int result = name != null ? name.hashCode() : 0;
+    var result = name != null ? name.hashCode() : 0;
     result = 31 * result + (property != null ? property.hashCode() : 0);
     result = 31 * result + (identifierValue != null ? identifierValue.hashCode() : 0);
     result = 31 * result + (identifierListValue != null ? identifierListValue.hashCode() : 0);
@@ -280,7 +280,7 @@ public class SQLAlterClassStatement extends DDLStatement {
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
     var database = ctx.getDatabase();
-    SchemaClassInternal oClass = database.getMetadata().getSchemaInternal()
+    var oClass = database.getMetadata().getSchemaInternal()
         .getClassInternal(name.getStringValue());
     if (oClass == null) {
       throw new CommandExecutionException("Class not found: " + name);
@@ -295,7 +295,7 @@ public class SQLAlterClassStatement extends DDLStatement {
           try {
             oClass.setName(database, identifierValue.getStringValue());
           } catch (Exception e) {
-            BaseException x =
+            var x =
                 BaseException.wrapException(
                     new CommandExecutionException("Invalid class name: " + this), e);
             throw x;
@@ -306,7 +306,7 @@ public class SQLAlterClassStatement extends DDLStatement {
             try {
               oClass.setShortName(database, identifierValue.getStringValue());
             } catch (Exception e) {
-              BaseException x =
+              var x =
                   BaseException.wrapException(
                       new CommandExecutionException("Invalid class name: " + this), e);
               throw x;
@@ -325,7 +325,7 @@ public class SQLAlterClassStatement extends DDLStatement {
           }
           break;
         case REMOVE_CLUSTER:
-          int clusterId = -1;
+          var clusterId = -1;
           if (identifierValue != null) {
             clusterId = ctx.getDatabase().getClusterIdByName(identifierValue.getStringValue());
             if (clusterId < 0) {
@@ -383,7 +383,7 @@ public class SQLAlterClassStatement extends DDLStatement {
       }
     }
 
-    ResultInternal result = new ResultInternal(database);
+    var result = new ResultInternal(database);
     result.setProperty("operation", "ALTER CLASS");
     result.setProperty("className", name.getStringValue());
     result.setProperty("result", "OK");
@@ -391,7 +391,7 @@ public class SQLAlterClassStatement extends DDLStatement {
   }
 
   private void checkNotIndexed(DatabaseSessionInternal session, SchemaClassInternal oClass) {
-    Set<Index> indexes = oClass.getIndexesInternal(session);
+    var indexes = oClass.getIndexesInternal(session);
     if (indexes != null && indexes.size() > 0) {
       throw new CommandExecutionException(
           "Cannot rename class '"
@@ -417,7 +417,7 @@ public class SQLAlterClassStatement extends DDLStatement {
       throw new CommandExecutionException("Invalid superclass name: " + this);
     }
     var database = ctx.getDatabase();
-    SchemaClass superclass =
+    var superclass =
         database.getMetadata().getSchema().getClass(superclassName.getStringValue());
     if (superclass == null) {
       throw new CommandExecutionException("superclass not found: " + this);
@@ -438,8 +438,8 @@ public class SQLAlterClassStatement extends DDLStatement {
       throw new CommandExecutionException("Invalid superclass name: " + this);
     }
     List<SchemaClass> superclasses = new ArrayList<>();
-    for (SQLIdentifier superclassName : superclassNames) {
-      SchemaClass superclass =
+    for (var superclassName : superclassNames) {
+      var superclass =
           ctx.getDatabase().getMetadata().getSchema().getClass(superclassName.getStringValue());
       if (superclass == null) {
         throw new CommandExecutionException("superclass not found: " + this);
@@ -447,11 +447,11 @@ public class SQLAlterClassStatement extends DDLStatement {
       superclasses.add(superclass);
     }
     if (Boolean.TRUE.equals(add)) {
-      for (SchemaClass superclass : superclasses) {
+      for (var superclass : superclasses) {
         oClass.addSuperClass(database, superclass);
       }
     } else if (Boolean.TRUE.equals(remove)) {
-      for (SchemaClass superclass : superclasses) {
+      for (var superclass : superclasses) {
         oClass.removeSuperClass(database, superclass);
       }
     } else {

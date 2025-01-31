@@ -35,45 +35,45 @@ public class LightWeightEdgesTest {
   @Test
   public void testSimpleLightWeight() {
     session.begin();
-    Vertex v = session.newVertex("Vertex");
-    Vertex v1 = session.newVertex("Vertex");
+    var v = session.newVertex("Vertex");
+    var v1 = session.newVertex("Vertex");
     v.addLightWeightEdge(v1, "Edge");
     v.setProperty("name", "aName");
     v1.setProperty("name", "bName");
     session.save(v);
     session.commit();
 
-    try (ResultSet res =
+    try (var res =
         session.query(" select expand(out('Edge')) from `Vertex` where name = 'aName'")) {
       assertTrue(res.hasNext());
-      Result r = res.next();
+      var r = res.next();
       assertEquals(r.getProperty("name"), "bName");
     }
 
-    try (ResultSet res =
+    try (var res =
         session.query(" select expand(in('Edge')) from `Vertex` where name = 'bName'")) {
       assertTrue(res.hasNext());
-      Result r = res.next();
+      var r = res.next();
       assertEquals(r.getProperty("name"), "aName");
     }
   }
 
   @Test
   public void testRegularBySchema() {
-    String vClazz = "VtestRegularBySchema";
-    SchemaClass vClass = session.createVertexClass(vClazz);
+    var vClazz = "VtestRegularBySchema";
+    var vClass = session.createVertexClass(vClazz);
 
-    String eClazz = "EtestRegularBySchema";
-    SchemaClass eClass = session.createEdgeClass(eClazz);
+    var eClazz = "EtestRegularBySchema";
+    var eClass = session.createEdgeClass(eClazz);
 
     vClass.createProperty(session, "out_" + eClazz, PropertyType.LINKBAG, eClass);
     vClass.createProperty(session, "in_" + eClazz, PropertyType.LINKBAG, eClass);
 
     session.begin();
-    Vertex v = session.newVertex(vClass);
+    var v = session.newVertex(vClass);
     v.setProperty("name", "a");
     v.save();
-    Vertex v1 = session.newVertex(vClass);
+    var v1 = session.newVertex(vClass);
     v1.setProperty("name", "b");
     v1.save();
     session.commit();

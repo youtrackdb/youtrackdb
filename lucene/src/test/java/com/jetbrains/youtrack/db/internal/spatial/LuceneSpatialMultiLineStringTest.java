@@ -214,8 +214,8 @@ public class LuceneSpatialMultiLineStringTest extends BaseSpatialLuceneTest {
   @Before
   public void init() {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass v = schema.getClass("V");
-    SchemaClass oClass = schema.createClass("Place");
+    var v = schema.getClass("V");
+    var oClass = schema.createClass("Place");
     oClass.setSuperClass(db, v);
     oClass.createProperty(db, "location", PropertyType.EMBEDDED,
         schema.getClass("OMultiLineString"));
@@ -239,7 +239,7 @@ public class LuceneSpatialMultiLineStringTest extends BaseSpatialLuceneTest {
             "insert into Place set name = 'TestInsert' , location = ST_GeomFromText('" + WKT + "')")
         .close();
 
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Place.location");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Place.location");
 
     Assert.assertEquals(1, index.getInternal().size(db));
     db.commit();
@@ -248,7 +248,7 @@ public class LuceneSpatialMultiLineStringTest extends BaseSpatialLuceneTest {
   }
 
   protected void testQueryMultiLineString() {
-    String query = "select * from Place where location && 'POINT(-157.9159477 21.3433168)' ";
+    var query = "select * from Place where location && 'POINT(-157.9159477 21.3433168)' ";
     List<EntityImpl> docs = db.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(docs.size(), 1);

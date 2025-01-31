@@ -19,7 +19,7 @@ public class LuceneReuseTest extends BaseLuceneTest {
 
     Schema schema = db.getMetadata().getSchema();
 
-    SchemaClass cls = schema.createClass("Reuse");
+    var cls = schema.createClass("Reuse");
     cls.createProperty(db, "name", PropertyType.STRING);
     cls.createProperty(db, "date", PropertyType.DATETIME);
     cls.createProperty(db, "surname", PropertyType.STRING);
@@ -28,7 +28,7 @@ public class LuceneReuseTest extends BaseLuceneTest {
     db.command("create index Reuse.composite on Reuse (name,surname,date,age) UNIQUE").close();
     db.command("create index Reuse.surname on Reuse (surname) FULLTEXT ENGINE LUCENE").close();
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       db.save(
           ((EntityImpl) db.newEntity("Reuse"))
@@ -38,7 +38,7 @@ public class LuceneReuseTest extends BaseLuceneTest {
               .field("age", i));
       db.commit();
     }
-    ResultSet results =
+    var results =
         db.command("SELECT FROM Reuse WHERE name='John' and surname LUCENE 'Reese'");
 
     Assert.assertEquals(10, results.stream().count());
@@ -53,7 +53,7 @@ public class LuceneReuseTest extends BaseLuceneTest {
 
     Schema schema = db.getMetadata().getSchema();
 
-    SchemaClass cls = schema.createClass("Reuse");
+    var cls = schema.createClass("Reuse");
     cls.createProperty(db, "name", PropertyType.STRING);
     cls.createProperty(db, "date", PropertyType.DATETIME);
     cls.createProperty(db, "surname", PropertyType.STRING);
@@ -65,7 +65,7 @@ public class LuceneReuseTest extends BaseLuceneTest {
     db.command("create index Reuse.name_surname on Reuse (name,surname) FULLTEXT ENGINE LUCENE")
         .close();
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       db.save(
           ((EntityImpl) db.newEntity("Reuse"))
@@ -85,7 +85,7 @@ public class LuceneReuseTest extends BaseLuceneTest {
             .field("surname", "Franklin")
             .field("age", 11));
     db.commit();
-    ResultSet results =
+    var results =
         db.command("SELECT FROM Reuse WHERE name='John' and [name,surname] LUCENE 'Reese'");
 
     Assert.assertEquals(10, results.stream().count());

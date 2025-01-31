@@ -139,15 +139,15 @@ public interface Edge extends Entity {
     }
     Set<String> types = new HashSet<>();
 
-    Optional<SchemaClass> typeClass = getSchemaType();
+    var typeClass = getSchemaType();
     if (typeClass.isPresent()) {
       types.add(typeClass.get().getName());
       typeClass.get().getAllSuperClasses().stream().map(SchemaClass::getName).forEach(types::add);
     } else {
       types.add(CLASS_NAME);
     }
-    for (String s : labels) {
-      for (String type : types) {
+    for (var s : labels) {
+      for (var type : types) {
         if (type.equalsIgnoreCase(s)) {
           return true;
         }

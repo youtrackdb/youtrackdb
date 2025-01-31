@@ -27,8 +27,6 @@ import static org.junit.Assert.assertTrue;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
 import org.junit.Test;
@@ -53,8 +51,8 @@ public class CommandExecutorSQLCreateSchemaPropertyTest extends BaseMemoryIntern
     db.command("CREATE class company").close();
     db.command("CREATE property company.name STRING").close();
 
-    SchemaClass companyClass = db.getMetadata().getSchema().getClass("company");
-    SchemaProperty nameProperty = companyClass.getProperty(PROP_NAME);
+    var companyClass = db.getMetadata().getSchema().getClass("company");
+    var nameProperty = companyClass.getProperty(PROP_NAME);
 
     assertEquals(nameProperty.getName(), PROP_NAME);
     assertEquals(nameProperty.getFullName(), PROP_FULL_NAME);
@@ -70,8 +68,8 @@ public class CommandExecutorSQLCreateSchemaPropertyTest extends BaseMemoryIntern
     db.command("CREATE class company").close();
     db.command("CREATE property company.name STRING UNSAFE").close();
 
-    SchemaClass companyClass = db.getMetadata().getSchema().getClass("company");
-    SchemaProperty nameProperty = companyClass.getProperty(PROP_NAME);
+    var companyClass = db.getMetadata().getSchema().getClass("company");
+    var nameProperty = companyClass.getProperty(PROP_NAME);
 
     assertEquals(nameProperty.getName(), PROP_NAME);
     assertEquals(nameProperty.getFullName(), PROP_FULL_NAME);
@@ -88,8 +86,8 @@ public class CommandExecutorSQLCreateSchemaPropertyTest extends BaseMemoryIntern
     db.command("CREATE class company").close();
     db.command("CREATE property company.division LINK division").close();
 
-    SchemaClass companyClass = db.getMetadata().getSchema().getClass("company");
-    SchemaProperty nameProperty = companyClass.getProperty(PROP_DIVISION);
+    var companyClass = db.getMetadata().getSchema().getClass("company");
+    var nameProperty = companyClass.getProperty(PROP_DIVISION);
 
     assertEquals(nameProperty.getName(), PROP_DIVISION);
     assertEquals(nameProperty.getFullName(), PROP_FULL_DIVISION);
@@ -106,8 +104,8 @@ public class CommandExecutorSQLCreateSchemaPropertyTest extends BaseMemoryIntern
     db.command("CREATE Class company").close();
     db.command("CREATE Property company.officers EMBEDDEDLIST STRING").close();
 
-    SchemaClass companyClass = db.getMetadata().getSchema().getClass("company");
-    SchemaProperty nameProperty = companyClass.getProperty(PROP_OFFICERS);
+    var companyClass = db.getMetadata().getSchema().getClass("company");
+    var nameProperty = companyClass.getProperty(PROP_OFFICERS);
 
     assertEquals(nameProperty.getName(), PROP_OFFICERS);
     assertEquals(nameProperty.getFullName(), PROP_FULL_OFFICERS);
@@ -124,8 +122,8 @@ public class CommandExecutorSQLCreateSchemaPropertyTest extends BaseMemoryIntern
     db.command("CREATE class company").close();
     db.command("CREATE property company.name STRING (MANDATORY)").close();
 
-    SchemaClass companyClass = db.getMetadata().getSchema().getClass("company");
-    SchemaProperty nameProperty = companyClass.getProperty(PROP_NAME);
+    var companyClass = db.getMetadata().getSchema().getClass("company");
+    var nameProperty = companyClass.getProperty(PROP_NAME);
 
     assertEquals(nameProperty.getName(), PROP_NAME);
     assertEquals(nameProperty.getFullName(), PROP_FULL_NAME);
@@ -140,8 +138,8 @@ public class CommandExecutorSQLCreateSchemaPropertyTest extends BaseMemoryIntern
     db.command("CREATE class company").close();
     db.command("CREATE property company.name STRING (NOTNULL)").close();
 
-    SchemaClass companyClass = db.getMetadata().getSchema().getClass("company");
-    SchemaProperty nameProperty = companyClass.getProperty(PROP_NAME);
+    var companyClass = db.getMetadata().getSchema().getClass("company");
+    var nameProperty = companyClass.getProperty(PROP_NAME);
 
     assertEquals(nameProperty.getName(), PROP_NAME);
     assertEquals(nameProperty.getFullName(), PROP_FULL_NAME);
@@ -156,8 +154,8 @@ public class CommandExecutorSQLCreateSchemaPropertyTest extends BaseMemoryIntern
     db.command("CREATE class company").close();
     db.command("CREATE property company.name STRING (READONLY)").close();
 
-    SchemaClass companyClass = db.getMetadata().getSchema().getClass("company");
-    SchemaProperty nameProperty = companyClass.getProperty(PROP_NAME);
+    var companyClass = db.getMetadata().getSchema().getClass("company");
+    var nameProperty = companyClass.getProperty(PROP_NAME);
 
     assertEquals(nameProperty.getName(), PROP_NAME);
     assertEquals(nameProperty.getFullName(), PROP_FULL_NAME);
@@ -172,8 +170,8 @@ public class CommandExecutorSQLCreateSchemaPropertyTest extends BaseMemoryIntern
     db.command("CREATE class company").close();
     db.command("CREATE property company.name STRING (READONLY false)").close();
 
-    SchemaClass companyClass = db.getMetadata().getSchema().getClass("company");
-    SchemaProperty nameProperty = companyClass.getProperty(PROP_NAME);
+    var companyClass = db.getMetadata().getSchema().getClass("company");
+    var nameProperty = companyClass.getProperty(PROP_NAME);
 
     assertEquals(nameProperty.getName(), PROP_NAME);
     assertEquals(nameProperty.getFullName(), PROP_FULL_NAME);
@@ -186,8 +184,8 @@ public class CommandExecutorSQLCreateSchemaPropertyTest extends BaseMemoryIntern
     db.command("CREATE Class company").close();
     db.command("CREATE Property company.officers EMBEDDEDLIST STRING (MANDATORY)").close();
 
-    SchemaClass companyClass = db.getMetadata().getSchema().getClass("company");
-    SchemaProperty nameProperty = companyClass.getProperty(PROP_OFFICERS);
+    var companyClass = db.getMetadata().getSchema().getClass("company");
+    var nameProperty = companyClass.getProperty(PROP_OFFICERS);
 
     assertEquals(nameProperty.getName(), PROP_OFFICERS);
     assertEquals(nameProperty.getFullName(), PROP_FULL_OFFICERS);
@@ -204,8 +202,8 @@ public class CommandExecutorSQLCreateSchemaPropertyTest extends BaseMemoryIntern
     db.command("CREATE Class company").close();
     db.command("CREATE Property company.officers EMBEDDEDLIST STRING UNSAFE").close();
 
-    SchemaClass companyClass = db.getMetadata().getSchema().getClass("company");
-    SchemaProperty nameProperty = companyClass.getProperty(PROP_OFFICERS);
+    var companyClass = db.getMetadata().getSchema().getClass("company");
+    var nameProperty = companyClass.getProperty(PROP_OFFICERS);
 
     assertEquals(nameProperty.getName(), PROP_OFFICERS);
     assertEquals(nameProperty.getFullName(), PROP_FULL_OFFICERS);
@@ -222,8 +220,8 @@ public class CommandExecutorSQLCreateSchemaPropertyTest extends BaseMemoryIntern
                 + " UNSAFE")
         .close();
 
-    SchemaClass companyClass = db.getMetadata().getSchema().getClass("company");
-    SchemaProperty nameProperty = companyClass.getProperty(PROP_OFFICERS);
+    var companyClass = db.getMetadata().getSchema().getClass("company");
+    var nameProperty = companyClass.getProperty(PROP_OFFICERS);
 
     assertEquals(nameProperty.getName(), PROP_OFFICERS);
     assertEquals(nameProperty.getFullName(), PROP_FULL_OFFICERS);
@@ -241,8 +239,8 @@ public class CommandExecutorSQLCreateSchemaPropertyTest extends BaseMemoryIntern
     db.command("CREATE PROPERTY company.id EMBEDDEDLIST Integer (DEFAULT 5, MIN 1, MAX 10) UNSAFE")
         .close();
 
-    SchemaClass companyClass = db.getMetadata().getSchema().getClass("company");
-    SchemaProperty idProperty = companyClass.getProperty(PROP_ID);
+    var companyClass = db.getMetadata().getSchema().getClass("company");
+    var idProperty = companyClass.getProperty(PROP_ID);
 
     assertEquals(idProperty.getName(), PROP_ID);
     assertEquals(idProperty.getFullName(), PROP_FULL_ID);
@@ -262,8 +260,8 @@ public class CommandExecutorSQLCreateSchemaPropertyTest extends BaseMemoryIntern
     db.command("CREATE CLASS company").close();
     db.command("CREATE PROPERTY company.id INTEGER (DEFAULT 5, MIN 1, MAX 10) UNSAFE").close();
 
-    SchemaClass companyClass = db.getMetadata().getSchema().getClass("company");
-    SchemaProperty idProperty = companyClass.getProperty(PROP_ID);
+    var companyClass = db.getMetadata().getSchema().getClass("company");
+    var idProperty = companyClass.getProperty(PROP_ID);
 
     assertEquals(idProperty.getName(), PROP_ID);
     assertEquals(idProperty.getFullName(), PROP_FULL_ID);
@@ -283,8 +281,8 @@ public class CommandExecutorSQLCreateSchemaPropertyTest extends BaseMemoryIntern
     db.command("CREATE CLASS company").close();
     db.command("CREATE PROPERTY company.id INTEGER  ( DEFAULT  5 ,  MANDATORY  )  UNSAFE ").close();
 
-    SchemaClass companyClass = db.getMetadata().getSchema().getClass("company");
-    SchemaProperty idProperty = companyClass.getProperty(PROP_ID);
+    var companyClass = db.getMetadata().getSchema().getClass("company");
+    var idProperty = companyClass.getProperty(PROP_ID);
 
     assertEquals(idProperty.getName(), PROP_ID);
     assertEquals(idProperty.getFullName(), PROP_FULL_ID);
@@ -305,8 +303,8 @@ public class CommandExecutorSQLCreateSchemaPropertyTest extends BaseMemoryIntern
                 + " MIN 4, DEFAULT 6)  UNSAFE")
         .close();
 
-    SchemaClass companyClass = db.getMetadata().getSchema().getClass("company");
-    SchemaProperty idProperty = companyClass.getProperty(PROP_ID);
+    var companyClass = db.getMetadata().getSchema().getClass("company");
+    var idProperty = companyClass.getProperty(PROP_ID);
 
     assertEquals(idProperty.getName(), PROP_ID);
     assertEquals(idProperty.getFullName(), PROP_FULL_ID);
@@ -346,9 +344,9 @@ public class CommandExecutorSQLCreateSchemaPropertyTest extends BaseMemoryIntern
     db.command("CREATE CLASS Mandatory").close();
     db.command("CREATE PROPERTY company.id EMBEDDEDLIST Mandatory UNSAFE").close();
 
-    SchemaClass companyClass = db.getMetadata().getSchema().getClass("company");
-    SchemaClass mandatoryClass = db.getMetadata().getSchema().getClass("Mandatory");
-    SchemaProperty idProperty = companyClass.getProperty(PROP_ID);
+    var companyClass = db.getMetadata().getSchema().getClass("company");
+    var mandatoryClass = db.getMetadata().getSchema().getClass("Mandatory");
+    var idProperty = companyClass.getProperty(PROP_ID);
 
     assertEquals(idProperty.getName(), PROP_ID);
     assertEquals(idProperty.getFullName(), PROP_FULL_ID);
@@ -363,8 +361,8 @@ public class CommandExecutorSQLCreateSchemaPropertyTest extends BaseMemoryIntern
     db.command("CREATE class testIfNotExists").close();
     db.command("CREATE property testIfNotExists.name if not exists STRING").close();
 
-    SchemaClass companyClass = db.getMetadata().getSchema().getClass("testIfNotExists");
-    SchemaProperty property = companyClass.getProperty("name");
+    var companyClass = db.getMetadata().getSchema().getClass("testIfNotExists");
+    var property = companyClass.getProperty("name");
     assertEquals(property.getName(), PROP_NAME);
 
     db.command("CREATE property testIfNotExists.name if not exists STRING").close();

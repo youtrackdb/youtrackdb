@@ -41,7 +41,7 @@ public class SQLMethodType extends AbstractSQLMethod {
     if (ioResult == null) {
       return null;
     }
-    final PropertyType t = PropertyType.getTypeByValue(ioResult);
+    final var t = PropertyType.getTypeByValue(ioResult);
 
     if (t != null) {
       return t.toString();

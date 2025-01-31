@@ -55,11 +55,11 @@ public class QueryOperatorContainsKey extends QueryOperatorEqualityNotNulls {
 
     if (iLeft instanceof Map<?, ?>) {
 
-      final Map<String, ?> map = (Map<String, ?>) iLeft;
+      final var map = (Map<String, ?>) iLeft;
       return map.containsKey(iRight);
     } else if (iRight instanceof Map<?, ?>) {
 
-      final Map<String, ?> map = (Map<String, ?>) iRight;
+      final var map = (Map<String, ?>) iRight;
       return map.containsKey(iLeft);
     }
     return false;
@@ -73,10 +73,10 @@ public class QueryOperatorContainsKey extends QueryOperatorEqualityNotNulls {
   @Override
   public Stream<RawPair<Object, RID>> executeIndexQuery(
       CommandContext iContext, Index index, List<Object> keyParams, boolean ascSortOrder) {
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
 
     Stream<RawPair<Object, RID>> stream;
-    final IndexInternal internalIndex = index.getInternal();
+    final var internalIndex = index.getInternal();
     if (!internalIndex.canBeUsedInEqualityOperators()) {
       return null;
     }
@@ -88,7 +88,7 @@ public class QueryOperatorContainsKey extends QueryOperatorEqualityNotNulls {
         return null;
       }
 
-      final Object key =
+      final var key =
           ((IndexDefinitionMultiValue) indexDefinition)
               .createSingleValue(iContext.getDatabase(), keyParams.get(0));
 
@@ -102,7 +102,7 @@ public class QueryOperatorContainsKey extends QueryOperatorEqualityNotNulls {
       // in case of composite keys several items can be returned in case of we perform search
       // using part of composite key stored in index.
 
-      final CompositeIndexDefinition compositeIndexDefinition =
+      final var compositeIndexDefinition =
           (CompositeIndexDefinition) indexDefinition;
 
       if (!((compositeIndexDefinition.getMultiValueDefinition()

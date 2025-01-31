@@ -54,7 +54,7 @@ public class SQLFunctionEval extends SQLFunctionMathAbstract {
       predicate = new SQLPredicate(iContext, String.valueOf(iParams[0]));
     }
 
-    final EntityImpl currentResult =
+    final var currentResult =
         iCurrentResult instanceof EntityImpl ? (EntityImpl) iCurrentResult : null;
     try {
       return predicate.evaluate(

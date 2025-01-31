@@ -17,7 +17,6 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.lucene.test.BaseLuceneTest;
 import com.jetbrains.youtrack.db.internal.spatial.shape.MultiPolygonShapeBuilder;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,10 +25,8 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.LinearRing;
 import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.spatial4j.context.jts.JtsSpatialContext;
 import org.locationtech.spatial4j.shape.Shape;
@@ -96,11 +93,11 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
     hole.add(new Coordinate(100.8, 0.2));
     hole.add(new Coordinate(100.8, 0.8));
     hole.add(new Coordinate(100.2, 0.8));
-    LinearRing linearRing =
+    var linearRing =
         JtsSpatialContext.GEO
             .getGeometryFactory()
             .createLinearRing(outerRing.toArray(new Coordinate[outerRing.size()]));
-    LinearRing holeRing =
+    var holeRing =
         JtsSpatialContext.GEO
             .getGeometryFactory()
             .createLinearRing(hole.toArray(new Coordinate[hole.size()]));
@@ -139,14 +136,14 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
   protected EntityImpl loadMultiPolygon() {
 
     try {
-      InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream("italy.json");
+      var systemResourceAsStream = ClassLoader.getSystemResourceAsStream("italy.json");
 
       EntityImpl doc = ((EntityImpl) db.newEntity()).updateFromJSON(systemResourceAsStream);
 
       Map geometry = doc.field("geometry");
 
-      String type = (String) geometry.get("type");
-      EntityImpl location = ((EntityImpl) db.newEntity("O" + type));
+      var type = (String) geometry.get("type");
+      var location = ((EntityImpl) db.newEntity("O" + type));
       location.field("coordinates", geometry.get("coordinates"));
       return location;
     } catch (Exception e) {
@@ -157,9 +154,9 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
 
   protected GeometryCollection createGeometryCollection() {
 
-    Point point = geometryFactory.createPoint(new Coordinate(4, 6));
+    var point = geometryFactory.createPoint(new Coordinate(4, 6));
 
-    LineString lineString =
+    var lineString =
         geometryFactory.createLineString(
             new Coordinate[]{new Coordinate(4, 6), new Coordinate(7, 10)});
 
@@ -168,7 +165,7 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
 
   protected EntityImpl geometryCollection() {
 
-    final EntityImpl point = ((EntityImpl) db.newEntity("OPoint"));
+    final var point = ((EntityImpl) db.newEntity("OPoint"));
     point.field(
         "coordinates",
         new ArrayList<Double>() {
@@ -178,7 +175,7 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
           }
         });
 
-    final EntityImpl lineString = ((EntityImpl) db.newEntity("OLineString"));
+    final var lineString = ((EntityImpl) db.newEntity("OLineString"));
     lineString.field(
         "coordinates",
         new ArrayList<List<Double>>() {
@@ -188,7 +185,7 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
           }
         });
 
-    EntityImpl geometryCollection = ((EntityImpl) db.newEntity("OGeometryCollection"));
+    var geometryCollection = ((EntityImpl) db.newEntity("OGeometryCollection"));
 
     geometryCollection.field(
         "geometries",
@@ -202,7 +199,7 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
   }
 
   protected EntityImpl lineStringDoc() {
-    EntityImpl point = ((EntityImpl) db.newEntity("OLineString"));
+    var point = ((EntityImpl) db.newEntity("OLineString"));
     point.field(
         "coordinates",
         new ArrayList<List<Double>>() {
@@ -217,9 +214,9 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
 
   protected MultiPolygon createMultiPolygon() throws IOException {
 
-    EntityImpl document = loadMultiPolygon();
+    var document = loadMultiPolygon();
 
-    MultiPolygonShapeBuilder builder = new MultiPolygonShapeBuilder();
+    var builder = new MultiPolygonShapeBuilder();
 
     Shape geometry = builder.fromDoc(document);
 
@@ -227,7 +224,7 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
   }
 
   protected EntityImpl point() {
-    EntityImpl point = ((EntityImpl) db.newEntity("OPoint"));
+    var point = ((EntityImpl) db.newEntity("OPoint"));
     point.field(
         "coordinates",
         new ArrayList<Double>() {
@@ -240,7 +237,7 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
   }
 
   protected EntityImpl multiLineString() {
-    EntityImpl point = ((EntityImpl) db.newEntity("OMultiLineString"));
+    var point = ((EntityImpl) db.newEntity("OMultiLineString"));
     point.field(
         "coordinates",
         new ArrayList<List<List<Double>>>() {
@@ -259,7 +256,7 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
   }
 
   protected EntityImpl multiPoint() {
-    EntityImpl point = ((EntityImpl) db.newEntity("OMultiPoint"));
+    var point = ((EntityImpl) db.newEntity("OMultiPoint"));
     point.field(
         "coordinates",
         new ArrayList<List<Double>>() {
@@ -273,7 +270,7 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
   }
 
   protected EntityImpl rectangle() {
-    EntityImpl polygon = ((EntityImpl) db.newEntity("OPolygon"));
+    var polygon = ((EntityImpl) db.newEntity("OPolygon"));
     polygon.field(
         "coordinates",
         new ArrayList<List<List<Double>>>() {
@@ -294,7 +291,7 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
   }
 
   protected EntityImpl polygon() {
-    EntityImpl polygon = ((EntityImpl) db.newEntity("OPolygon"));
+    var polygon = ((EntityImpl) db.newEntity("OPolygon"));
     polygon.field(
         "coordinates",
         new ArrayList<List<List<Double>>>() {

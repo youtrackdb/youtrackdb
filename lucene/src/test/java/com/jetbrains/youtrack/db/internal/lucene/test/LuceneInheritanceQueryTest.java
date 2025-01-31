@@ -37,19 +37,19 @@ public class LuceneInheritanceQueryTest extends BaseLuceneTest {
   @Test
   public void testQuery() {
     createSchema(db);
-    EntityImpl doc = ((EntityImpl) db.newEntity("C2"));
+    var doc = ((EntityImpl) db.newEntity("C2"));
     doc.field("name", "abc");
     db.begin();
     db.save(doc);
     db.commit();
 
-    ResultSet vertices = db.query("select from C1 where name lucene \"abc\" ");
+    var vertices = db.query("select from C1 where name lucene \"abc\" ");
 
     Assert.assertEquals(1, vertices.stream().count());
   }
 
   protected void createSchema(DatabaseSessionInternal db) {
-    final SchemaClass c1 = db.createVertexClass("C1");
+    final var c1 = db.createVertexClass("C1");
     c1.createProperty(db, "name", PropertyType.STRING);
     c1.createIndex(db, "C1.name", "FULLTEXT", null, null, "LUCENE", new String[]{"name"});
 

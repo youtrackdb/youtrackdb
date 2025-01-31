@@ -50,7 +50,7 @@ public class YouTrackDBConfigBuilderImpl implements YouTrackDBConfigBuilder {
   @Override
   public YouTrackDBConfigBuilderImpl fromGlobalConfigurationParameters(
       Map<GlobalConfiguration, Object> values) {
-    for (Map.Entry<GlobalConfiguration, Object> entry : values.entrySet()) {
+    for (var entry : values.entrySet()) {
       addGlobalConfigurationParameter(entry.getKey(), entry.getValue());
     }
     return this;
@@ -58,7 +58,7 @@ public class YouTrackDBConfigBuilderImpl implements YouTrackDBConfigBuilder {
 
   @Override
   public YouTrackDBConfigBuilderImpl fromMap(Map<String, Object> values) {
-    for (Map.Entry<String, Object> entry : values.entrySet()) {
+    for (var entry : values.entrySet()) {
       configurations.setValue(entry.getKey(), entry.getValue());
     }
     return this;

@@ -26,9 +26,9 @@ public class PointLegecyBuilder implements ShapeBuilderLegacy<Point> {
 
   @Override
   public Point makeShape(DatabaseSessionInternal session, CompositeKey key, SpatialContext ctx) {
-    double lat = ((Double) PropertyType.convert(session, key.getKeys().get(0),
+    var lat = ((Double) PropertyType.convert(session, key.getKeys().get(0),
         Double.class)).doubleValue();
-    double lng = ((Double) PropertyType.convert(session, key.getKeys().get(1),
+    var lng = ((Double) PropertyType.convert(session, key.getKeys().get(1),
         Double.class)).doubleValue();
     return ctx.makePoint(lng, lat);
   }
@@ -36,8 +36,8 @@ public class PointLegecyBuilder implements ShapeBuilderLegacy<Point> {
   @Override
   public boolean canHandle(CompositeKey key) {
 
-    boolean canHandle = key.getKeys().size() == 2;
-    for (Object o : key.getKeys()) {
+    var canHandle = key.getKeys().size() == 2;
+    for (var o : key.getKeys()) {
       if (!(o instanceof Number)) {
         canHandle = false;
         break;

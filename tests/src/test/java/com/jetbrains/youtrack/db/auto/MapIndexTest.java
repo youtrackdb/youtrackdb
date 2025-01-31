@@ -34,7 +34,7 @@ public class MapIndexTest extends BaseDBTest {
       db.getMetadata().getSchema().dropClass("Mapper");
     }
 
-    final SchemaClass mapper = db.getMetadata().getSchema().createClass("Mapper");
+    final var mapper = db.getMetadata().getSchema().createClass("Mapper");
     mapper.createProperty(db, "id", PropertyType.STRING);
     mapper.createProperty(db, "intMap", PropertyType.EMBEDDEDMAP, PropertyType.INTEGER);
 
@@ -42,7 +42,7 @@ public class MapIndexTest extends BaseDBTest {
     mapper.createIndex(db, "mapIndexTestValue", SchemaClass.INDEX_TYPE.NOTUNIQUE,
         "intMap by value");
 
-    final SchemaClass movie = db.getMetadata().getSchema().createClass("MapIndexTestMovie");
+    final var movie = db.getMetadata().getSchema().createClass("MapIndexTestMovie");
     movie.createProperty(db, "title", PropertyType.STRING);
     movie.createProperty(db, "thumbs", PropertyType.EMBEDDEDMAP, PropertyType.INTEGER);
 
@@ -70,7 +70,7 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMap() {
     checkEmbeddedDB();
 
-    final Entity mapper = db.newEntity("Mapper");
+    final var mapper = db.newEntity("Mapper");
     final Map<String, Integer> map = new HashMap<>();
     map.put("key1", 10);
     map.put("key2", 20);
@@ -80,24 +80,24 @@ public class MapIndexTest extends BaseDBTest {
     db.save(mapper);
     db.commit();
 
-    final Index keyIndex = getIndex("mapIndexTestKey");
+    final var keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(db), 2);
-    try (final Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
-      final Iterator<Object> keyIterator = keyStream.iterator();
+    try (final var keyStream = keyIndex.getInternal().keyStream()) {
+      final var keyIterator = keyStream.iterator();
       while (keyIterator.hasNext()) {
-        final String key = (String) keyIterator.next();
+        final var key = (String) keyIterator.next();
         if (!key.equals("key1") && !key.equals("key2")) {
           Assert.fail("Unknown key found: " + key);
         }
       }
     }
 
-    final Index valueIndex = getIndex("mapIndexTestValue");
+    final var valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(db), 2);
-    try (final Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
-      final Iterator<Object> valuesIterator = valueStream.iterator();
+    try (final var valueStream = valueIndex.getInternal().keyStream()) {
+      final var valuesIterator = valueStream.iterator();
       while (valuesIterator.hasNext()) {
-        final Integer value = (Integer) valuesIterator.next();
+        final var value = (Integer) valuesIterator.next();
         if (!value.equals(10) && !value.equals(20)) {
           Assert.fail("Unknown value found: " + value);
         }
@@ -110,7 +110,7 @@ public class MapIndexTest extends BaseDBTest {
 
     try {
       db.begin();
-      final Entity mapper = db.newEntity("Mapper");
+      final var mapper = db.newEntity("Mapper");
       Map<String, Integer> map = new HashMap<>();
 
       map.put("key1", 10);
@@ -124,30 +124,30 @@ public class MapIndexTest extends BaseDBTest {
       throw e;
     }
 
-    Index keyIndex = getIndex("mapIndexTestKey");
+    var keyIndex = getIndex("mapIndexTestKey");
 
     Assert.assertEquals(keyIndex.getInternal().size(db), 2);
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
+    try (var keyStream = keyIndex.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("key1") && !key.equals("key2")) {
           Assert.fail("Unknown key found: " + key);
         }
       }
     }
 
-    Index valueIndex = getIndex("mapIndexTestValue");
+    var valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
-    try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
+    try (var valueStream = valueIndex.getInternal().keyStream()) {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        Integer value = (Integer) valuesIterator.next();
+        var value = (Integer) valuesIterator.next();
         if (!value.equals(10) && !value.equals(20)) {
           Assert.fail("Unknown value found: " + value);
         }
@@ -158,7 +158,7 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateOne() {
     checkEmbeddedDB();
 
-    Entity mapper = db.newEntity("Mapper");
+    var mapper = db.newEntity("Mapper");
     Map<String, Integer> mapOne = new HashMap<>();
 
     mapOne.put("key1", 10);
@@ -182,31 +182,31 @@ public class MapIndexTest extends BaseDBTest {
     db.save(mapper);
     db.commit();
 
-    Index keyIndex = getIndex("mapIndexTestKey");
+    var keyIndex = getIndex("mapIndexTestKey");
 
     Assert.assertEquals(keyIndex.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
+    try (var keyStream = keyIndex.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("key2") && !key.equals("key3")) {
           Assert.fail("Unknown key found: " + key);
         }
       }
     }
 
-    Index valueIndex = getIndex("mapIndexTestValue");
+    var valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
-    try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
+    try (var valueStream = valueIndex.getInternal().keyStream()) {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        Integer value = (Integer) valuesIterator.next();
+        var value = (Integer) valuesIterator.next();
         if (!value.equals(30) && !value.equals(20)) {
           Assert.fail("Unknown key found: " + value);
         }
@@ -217,7 +217,7 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateOneTx() {
     checkEmbeddedDB();
 
-    Entity mapper = db.newEntity("Mapper");
+    var mapper = db.newEntity("Mapper");
     Map<String, Integer> mapOne = new HashMap<>();
 
     mapOne.put("key1", 10);
@@ -244,31 +244,31 @@ public class MapIndexTest extends BaseDBTest {
       throw e;
     }
 
-    Index keyIndex = getIndex("mapIndexTestKey");
+    var keyIndex = getIndex("mapIndexTestKey");
 
     Assert.assertEquals(keyIndex.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
+    try (var keyStream = keyIndex.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("key2") && !key.equals("key3")) {
           Assert.fail("Unknown key found: " + key);
         }
       }
     }
 
-    Index valueIndex = getIndex("mapIndexTestValue");
+    var valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
-    try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
+    try (var valueStream = valueIndex.getInternal().keyStream()) {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        Integer value = (Integer) valuesIterator.next();
+        var value = (Integer) valuesIterator.next();
         if (!value.equals(30) && !value.equals(20)) {
           Assert.fail("Unknown key found: " + value);
         }
@@ -279,7 +279,7 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateOneTxRollback() {
     checkEmbeddedDB();
 
-    Entity mapper = db.newEntity("Mapper");
+    var mapper = db.newEntity("Mapper");
     Map<String, Integer> mapOne = new HashMap<>();
 
     mapOne.put("key1", 10);
@@ -301,30 +301,30 @@ public class MapIndexTest extends BaseDBTest {
     db.save(mapper);
     db.rollback();
 
-    Index keyIndex = getIndex("mapIndexTestKey");
+    var keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
+    try (var keyStream = keyIndex.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("key2") && !key.equals("key1")) {
           Assert.fail("Unknown key found: " + key);
         }
       }
     }
 
-    Index valueIndex = getIndex("mapIndexTestValue");
+    var valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
-    try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
+    try (var valueStream = valueIndex.getInternal().keyStream()) {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        Integer value = (Integer) valuesIterator.next();
+        var value = (Integer) valuesIterator.next();
         if (!value.equals(10) && !value.equals(20)) {
           Assert.fail("Unknown key found: " + value);
         }
@@ -336,7 +336,7 @@ public class MapIndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    Entity mapper = db.newEntity("Mapper");
+    var mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -351,30 +351,30 @@ public class MapIndexTest extends BaseDBTest {
     db.command("UPDATE " + mapper.getIdentity() + " set intMap['key3'] = 30").close();
     db.commit();
 
-    Index keyIndex = getIndex("mapIndexTestKey");
+    var keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(db), 3);
 
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
+    try (var keyStream = keyIndex.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("key1") && !key.equals("key2") && !key.equals("key3")) {
           Assert.fail("Unknown key found: " + key);
         }
       }
     }
 
-    Index valueIndex = getIndex("mapIndexTestValue");
+    var valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(db), 3);
 
     Iterator<Object> valuesIterator;
-    try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
+    try (var valueStream = valueIndex.getInternal().keyStream()) {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        Integer value = (Integer) valuesIterator.next();
+        var value = (Integer) valuesIterator.next();
         if (!value.equals(30) && !value.equals(20) && !value.equals(10)) {
           Assert.fail("Unknown value found: " + value);
         }
@@ -385,7 +385,7 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapAddItemTx() {
     checkEmbeddedDB();
 
-    Entity mapper = db.newEntity("Mapper");
+    var mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -408,30 +408,30 @@ public class MapIndexTest extends BaseDBTest {
       throw e;
     }
 
-    Index keyIndex = getIndex("mapIndexTestKey");
+    var keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(db), 3);
 
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
+    try (var keyStream = keyIndex.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("key1") && !key.equals("key2") && !key.equals("key3")) {
           Assert.fail("Unknown key found: " + key);
         }
       }
     }
 
-    Index valueIndex = getIndex("mapIndexTestValue");
+    var valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(db), 3);
 
     Iterator<Object> valuesIterator;
-    try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
+    try (var valueStream = valueIndex.getInternal().keyStream()) {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        Integer value = (Integer) valuesIterator.next();
+        var value = (Integer) valuesIterator.next();
         if (!value.equals(30) && !value.equals(20) && !value.equals(10)) {
           Assert.fail("Unknown value found: " + value);
         }
@@ -442,7 +442,7 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapAddItemTxRollback() {
     checkEmbeddedDB();
 
-    Entity mapper = db.newEntity("Mapper");
+    var mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -459,31 +459,31 @@ public class MapIndexTest extends BaseDBTest {
     db.save(loadedMapper);
     db.rollback();
 
-    Index keyIndex = getIndex("mapIndexTestKey");
+    var keyIndex = getIndex("mapIndexTestKey");
 
     Assert.assertEquals(keyIndex.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
+    try (var keyStream = keyIndex.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("key1") && !key.equals("key2")) {
           Assert.fail("Unknown key found: " + key);
         }
       }
     }
 
-    Index valueIndex = getIndex("mapIndexTestValue");
+    var valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
-    try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
+    try (var valueStream = valueIndex.getInternal().keyStream()) {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        Integer value = (Integer) valuesIterator.next();
+        var value = (Integer) valuesIterator.next();
         if (!value.equals(20) && !value.equals(10)) {
           Assert.fail("Unknown key found: " + value);
         }
@@ -494,7 +494,7 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateItem() {
     checkEmbeddedDB();
 
-    Entity mapper = db.newEntity("Mapper");
+    var mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -509,31 +509,31 @@ public class MapIndexTest extends BaseDBTest {
     db.command("UPDATE " + mapper.getIdentity() + " set intMap['key2'] = 40").close();
     db.commit();
 
-    Index keyIndex = getIndex("mapIndexTestKey");
+    var keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
+    try (var keyStream = keyIndex.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("key1") && !key.equals("key2")) {
           Assert.fail("Unknown key found: " + key);
         }
       }
     }
 
-    Index valueIndex = getIndex("mapIndexTestValue");
+    var valueIndex = getIndex("mapIndexTestValue");
 
     Assert.assertEquals(valueIndex.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
-    try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
+    try (var valueStream = valueIndex.getInternal().keyStream()) {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        Integer value = (Integer) valuesIterator.next();
+        var value = (Integer) valuesIterator.next();
         if (!value.equals(10) && !value.equals(40)) {
           Assert.fail("Unknown key found: " + value);
         }
@@ -544,7 +544,7 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateItemInTx() {
     checkEmbeddedDB();
 
-    Entity mapper = db.newEntity("Mapper");
+    var mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -566,30 +566,30 @@ public class MapIndexTest extends BaseDBTest {
       throw e;
     }
 
-    Index keyIndex = getIndex("mapIndexTestKey");
+    var keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
+    try (var keyStream = keyIndex.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("key1") && !key.equals("key2")) {
           Assert.fail("Unknown key found: " + key);
         }
       }
     }
 
-    Index valueIndex = getIndex("mapIndexTestValue");
+    var valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
-    try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
+    try (var valueStream = valueIndex.getInternal().keyStream()) {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        Integer value = (Integer) valuesIterator.next();
+        var value = (Integer) valuesIterator.next();
         if (!value.equals(10) && !value.equals(40)) {
           Assert.fail("Unknown value found: " + value);
         }
@@ -600,7 +600,7 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateItemInTxRollback() {
     checkEmbeddedDB();
 
-    Entity mapper = db.newEntity("Mapper");
+    var mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -618,30 +618,30 @@ public class MapIndexTest extends BaseDBTest {
     db.save(loadedMapper);
     db.rollback();
 
-    Index keyIndex = getIndex("mapIndexTestKey");
+    var keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
+    try (var keyStream = keyIndex.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("key1") && !key.equals("key2")) {
           Assert.fail("Unknown key found: " + key);
         }
       }
     }
 
-    Index valueIndex = getIndex("mapIndexTestValue");
+    var valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
-    try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
+    try (var valueStream = valueIndex.getInternal().keyStream()) {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        Integer value = (Integer) valuesIterator.next();
+        var value = (Integer) valuesIterator.next();
         if (!value.equals(10) && !value.equals(20)) {
           Assert.fail("Unknown value found: " + value);
         }
@@ -652,7 +652,7 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapRemoveItem() {
     checkEmbeddedDB();
 
-    Entity mapper = db.newEntity("Mapper");
+    var mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -669,30 +669,30 @@ public class MapIndexTest extends BaseDBTest {
     db.command("UPDATE " + mapper.getIdentity() + " remove intMap = 'key2'").close();
     db.commit();
 
-    Index keyIndex = getIndex("mapIndexTestKey");
+    var keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
+    try (var keyStream = keyIndex.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("key1") && !key.equals("key3")) {
           Assert.fail("Unknown key found: " + key);
         }
       }
     }
 
-    Index valueIndex = getIndex("mapIndexTestValue");
+    var valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
-    try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
+    try (var valueStream = valueIndex.getInternal().keyStream()) {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        Integer value = (Integer) valuesIterator.next();
+        var value = (Integer) valuesIterator.next();
         if (!value.equals(10) && !value.equals(30)) {
           Assert.fail("Unknown value found: " + value);
         }
@@ -703,7 +703,7 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapRemoveItemInTx() {
     checkEmbeddedDB();
 
-    Entity mapper = db.newEntity("Mapper");
+    var mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -726,30 +726,30 @@ public class MapIndexTest extends BaseDBTest {
       throw e;
     }
 
-    Index keyIndex = getIndex("mapIndexTestKey");
+    var keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
+    try (var keyStream = keyIndex.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("key1") && !key.equals("key3")) {
           Assert.fail("Unknown key found: " + key);
         }
       }
     }
 
-    Index valueIndex = getIndex("mapIndexTestValue");
+    var valueIndex = getIndex("mapIndexTestValue");
 
     Assert.assertEquals(valueIndex.getInternal().size(db), 2);
     Iterator<Object> valuesIterator;
-    try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
+    try (var valueStream = valueIndex.getInternal().keyStream()) {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        Integer value = (Integer) valuesIterator.next();
+        var value = (Integer) valuesIterator.next();
         if (!value.equals(10) && !value.equals(30)) {
           Assert.fail("Unknown value found: " + value);
         }
@@ -760,7 +760,7 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapRemoveItemInTxRollback() {
     checkEmbeddedDB();
 
-    Entity mapper = db.newEntity("Mapper");
+    var mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -779,30 +779,30 @@ public class MapIndexTest extends BaseDBTest {
     db.save(loadedMapper);
     db.rollback();
 
-    Index keyIndex = getIndex("mapIndexTestKey");
+    var keyIndex = getIndex("mapIndexTestKey");
 
     Assert.assertEquals(keyIndex.getInternal().size(db), 3);
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
+    try (var keyStream = keyIndex.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("key1") && !key.equals("key2") && !key.equals("key3")) {
           Assert.fail("Unknown key found: " + key);
         }
       }
     }
 
-    Index valueIndex = getIndex("mapIndexTestValue");
+    var valueIndex = getIndex("mapIndexTestValue");
 
     Assert.assertEquals(valueIndex.getInternal().size(db), 3);
     Iterator<Object> valuesIterator;
-    try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
+    try (var valueStream = valueIndex.getInternal().keyStream()) {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        Integer value = (Integer) valuesIterator.next();
+        var value = (Integer) valuesIterator.next();
         if (!value.equals(10) && !value.equals(20) && !value.equals(30)) {
           Assert.fail("Unknown key found: " + value);
         }
@@ -813,7 +813,7 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapRemove() {
     checkEmbeddedDB();
 
-    Entity mapper = db.newEntity("Mapper");
+    var mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -828,10 +828,10 @@ public class MapIndexTest extends BaseDBTest {
     db.delete(db.bindToSession(mapper));
     db.commit();
 
-    Index keyIndex = getIndex("mapIndexTestKey");
+    var keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(db), 0);
 
-    Index valueIndex = getIndex("mapIndexTestValue");
+    var valueIndex = getIndex("mapIndexTestValue");
 
     Assert.assertEquals(valueIndex.getInternal().size(db), 0);
   }
@@ -839,7 +839,7 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapRemoveInTx() {
     checkEmbeddedDB();
 
-    Entity mapper = db.newEntity("Mapper");
+    var mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -860,17 +860,17 @@ public class MapIndexTest extends BaseDBTest {
       throw e;
     }
 
-    Index keyIndex = getIndex("mapIndexTestKey");
+    var keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(db), 0);
 
-    Index valueIndex = getIndex("mapIndexTestValue");
+    var valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(db), 0);
   }
 
   public void testIndexMapRemoveInTxRollback() {
     checkEmbeddedDB();
 
-    Entity mapper = db.newEntity("Mapper");
+    var mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -886,30 +886,30 @@ public class MapIndexTest extends BaseDBTest {
     db.delete(db.bindToSession(mapper));
     db.rollback();
 
-    Index keyIndex = getIndex("mapIndexTestKey");
+    var keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
+    try (var keyStream = keyIndex.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("key1") && !key.equals("key2")) {
           Assert.fail("Unknown key found: " + key);
         }
       }
     }
 
-    Index valueIndex = getIndex("mapIndexTestValue");
+    var valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(db), 2);
 
     Iterator<Object> valuesIterator;
-    try (Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
+    try (var valueStream = valueIndex.getInternal().keyStream()) {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        Integer value = (Integer) valuesIterator.next();
+        var value = (Integer) valuesIterator.next();
         if (!value.equals(10) && !value.equals(20)) {
           Assert.fail("Unknown value found: " + value);
         }
@@ -918,7 +918,7 @@ public class MapIndexTest extends BaseDBTest {
   }
 
   public void testIndexMapSQL() {
-    Entity mapper = db.newEntity("Mapper");
+    var mapper = db.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);

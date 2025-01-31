@@ -64,11 +64,11 @@ public class SymmetricKeyCI implements CredentialInterceptor {
     // These are all used as defaults if the JSON document is missing any fields.
 
     // Defaults to "AES".
-    String algorithm = GlobalConfiguration.CLIENT_CI_KEYALGORITHM.getValueAsString();
+    var algorithm = GlobalConfiguration.CLIENT_CI_KEYALGORITHM.getValueAsString();
     // Defaults to "AES/CBC/PKCS5Padding".
-    String transform = GlobalConfiguration.CLIENT_CI_CIPHERTRANSFORM.getValueAsString();
-    String keystoreFile = GlobalConfiguration.CLIENT_CI_KEYSTORE_FILE.getValueAsString();
-    String keystorePassword = GlobalConfiguration.CLIENT_CI_KEYSTORE_PASSWORD.getValueAsString();
+    var transform = GlobalConfiguration.CLIENT_CI_CIPHERTRANSFORM.getValueAsString();
+    var keystoreFile = GlobalConfiguration.CLIENT_CI_KEYSTORE_FILE.getValueAsString();
+    var keystorePassword = GlobalConfiguration.CLIENT_CI_KEYSTORE_PASSWORD.getValueAsString();
 
     EntityImpl jsonDoc = null;
 

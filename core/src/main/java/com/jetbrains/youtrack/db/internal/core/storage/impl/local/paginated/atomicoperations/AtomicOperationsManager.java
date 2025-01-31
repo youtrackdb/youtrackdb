@@ -39,7 +39,6 @@ import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.LogSequenceNumber;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WriteAheadLog;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 
@@ -79,7 +78,7 @@ public class AtomicOperationsManager {
   }
 
   public AtomicOperation startAtomicOperation(final byte[] metadata) throws IOException {
-    AtomicOperation operation = currentOperation.get();
+    var operation = currentOperation.get();
     if (operation != null) {
       throw new StorageException("Atomic operation already started");
     }
@@ -113,7 +112,7 @@ public class AtomicOperationsManager {
   public <T> T calculateInsideAtomicOperation(final byte[] metadata, final TxFunction<T> function)
       throws IOException {
     Throwable error = null;
-    final AtomicOperation atomicOperation = startAtomicOperation(metadata);
+    final var atomicOperation = startAtomicOperation(metadata);
     try {
       return function.accept(atomicOperation);
     } catch (Exception e) {
@@ -131,7 +130,7 @@ public class AtomicOperationsManager {
   public void executeInsideAtomicOperation(final byte[] metadata, final TxConsumer consumer)
       throws IOException {
     Throwable error = null;
-    final AtomicOperation atomicOperation = startAtomicOperation(metadata);
+    final var atomicOperation = startAtomicOperation(metadata);
     try {
       consumer.accept(atomicOperation);
     } catch (Exception e) {
@@ -218,7 +217,7 @@ public class AtomicOperationsManager {
   }
 
   public void alarmClearOfAtomicOperation() {
-    final AtomicOperation current = currentOperation.get();
+    final var current = currentOperation.get();
 
     if (current != null) {
       currentOperation.set(null);
@@ -242,7 +241,7 @@ public class AtomicOperationsManager {
    * Ends the current atomic operation on this manager.
    */
   public void endAtomicOperation(final Throwable error) throws IOException {
-    final AtomicOperation operation = currentOperation.get();
+    final var operation = currentOperation.get();
 
     if (operation == null) {
       LogManager.instance().error(this, "There is no atomic operation active", null);
@@ -264,7 +263,7 @@ public class AtomicOperationsManager {
           lsn = null;
         }
 
-        final long operationId = operation.getOperationUnitId();
+        final var operationId = operation.getOperationUnitId();
         if (error != null) {
           atomicOperationsTable.rollbackOperation(operationId);
         } else {
@@ -273,11 +272,11 @@ public class AtomicOperationsManager {
         }
 
       } finally {
-        final Iterator<String> lockedObjectIterator = operation.lockedObjects().iterator();
+        final var lockedObjectIterator = operation.lockedObjects().iterator();
 
         try {
           while (lockedObjectIterator.hasNext()) {
-            final String lockedObject = lockedObjectIterator.next();
+            final var lockedObject = lockedObjectIterator.next();
             lockedObjectIterator.remove();
 
             lockManager.releaseLock(this, lockedObject, OneEntryPerKeyLockManager.LOCK.EXCLUSIVE);
@@ -293,12 +292,12 @@ public class AtomicOperationsManager {
   }
 
   public void ensureThatComponentsUnlocked() {
-    final AtomicOperation operation = currentOperation.get();
+    final var operation = currentOperation.get();
     if (operation != null) {
-      final Iterator<String> lockedObjectIterator = operation.lockedObjects().iterator();
+      final var lockedObjectIterator = operation.lockedObjects().iterator();
 
       while (lockedObjectIterator.hasNext()) {
-        final String lockedObject = lockedObjectIterator.next();
+        final var lockedObject = lockedObjectIterator.next();
         lockedObjectIterator.remove();
 
         lockManager.releaseLock(this, lockedObject, OneEntryPerKeyLockManager.LOCK.EXCLUSIVE);
@@ -329,7 +328,7 @@ public class AtomicOperationsManager {
    * {@code durableComponent}.
    */
   public void acquireExclusiveLockTillOperationComplete(DurableComponent durableComponent) {
-    final AtomicOperation operation = currentOperation.get();
+    final var operation = currentOperation.get();
     assert operation != null;
     acquireExclusiveLockTillOperationComplete(operation, durableComponent.getLockName());
   }

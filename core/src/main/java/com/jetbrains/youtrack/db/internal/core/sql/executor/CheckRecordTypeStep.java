@@ -2,12 +2,9 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import java.util.Optional;
 
 /**
  * Checks that all the records from the upstream are of a particular type (or subclasses). Throws
@@ -25,7 +22,7 @@ public class CheckRecordTypeStep extends AbstractExecutionStep {
   @Override
   public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
-    ExecutionStream upstream = prev.start(ctx);
+    var upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 
@@ -33,11 +30,11 @@ public class CheckRecordTypeStep extends AbstractExecutionStep {
     if (!result.isEntity()) {
       throw new CommandExecutionException("record " + result + " is not an instance of " + clazz);
     }
-    Entity entity = result.asEntity();
+    var entity = result.asEntity();
     if (entity == null) {
       throw new CommandExecutionException("record " + result + " is not an instance of " + clazz);
     }
-    Optional<SchemaClass> schema = entity.getSchemaType();
+    var schema = entity.getSchemaType();
 
     if (schema.isEmpty() || !schema.get().isSubClassOf(clazz)) {
       throw new CommandExecutionException("record " + result + " is not an instance of " + clazz);
@@ -47,7 +44,7 @@ public class CheckRecordTypeStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String result = ExecutionStepInternal.getIndent(depth, indent) + "+ CHECK RECORD TYPE";
+    var result = ExecutionStepInternal.getIndent(depth, indent) + "+ CHECK RECORD TYPE";
     if (profilingEnabled) {
       result += " (" + getCostFormatted() + ")";
     }

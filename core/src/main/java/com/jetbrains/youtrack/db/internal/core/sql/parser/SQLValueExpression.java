@@ -102,7 +102,7 @@ public class SQLValueExpression extends SQLExpression {
 
   public SQLValueExpression copy() {
 
-    SQLValueExpression result = new SQLValueExpression(-1);
+    var result = new SQLValueExpression(-1);
     result.value = value;
     return result;
   }
@@ -116,7 +116,7 @@ public class SQLValueExpression extends SQLExpression {
       return false;
     }
 
-    SQLValueExpression that = (SQLValueExpression) o;
+    var that = (SQLValueExpression) o;
     return that.value == this.value;
   }
 

@@ -60,15 +60,15 @@ public class RecordSerializationContext {
   }
 
   public static RecordSerializationContext pushContext() {
-    final Deque<RecordSerializationContext> stack = SERIALIZATION_CONTEXT_STACK.get();
+    final var stack = SERIALIZATION_CONTEXT_STACK.get();
 
-    final RecordSerializationContext context = new RecordSerializationContext();
+    final var context = new RecordSerializationContext();
     stack.push(context);
     return context;
   }
 
   public static RecordSerializationContext getContext() {
-    final Deque<RecordSerializationContext> stack = SERIALIZATION_CONTEXT_STACK.get();
+    final var stack = SERIALIZATION_CONTEXT_STACK.get();
     if (stack.isEmpty()) {
       return null;
     }
@@ -77,7 +77,7 @@ public class RecordSerializationContext {
   }
 
   public static RecordSerializationContext pullContext() {
-    final Deque<RecordSerializationContext> stack = SERIALIZATION_CONTEXT_STACK.get();
+    final var stack = SERIALIZATION_CONTEXT_STACK.get();
     if (stack.isEmpty()) {
       throw new IllegalStateException("Cannot find current serialization context");
     }
@@ -91,7 +91,7 @@ public class RecordSerializationContext {
 
   public void executeOperations(
       AtomicOperation atomicOperation, AbstractPaginatedStorage storage) {
-    for (RecordSerializationOperation operation : operations) {
+    for (var operation : operations) {
       operation.execute(atomicOperation, storage);
     }
   }

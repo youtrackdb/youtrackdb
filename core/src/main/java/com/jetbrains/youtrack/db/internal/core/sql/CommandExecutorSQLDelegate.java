@@ -43,12 +43,12 @@ public class CommandExecutorSQLDelegate extends CommandExecutorSQLAbstract
   public CommandExecutorSQLDelegate parse(DatabaseSessionInternal db,
       final CommandRequest iCommand) {
     if (iCommand instanceof CommandRequestText textRequest) {
-      final String text = textRequest.getText();
+      final var text = textRequest.getText();
       if (text == null) {
         throw new IllegalArgumentException("Command text is null");
       }
 
-      final String textUpperCase = SQLPredicate.upperCase(text);
+      final var textUpperCase = SQLPredicate.upperCase(text);
 
       delegate = SQLEngine.getInstance().getCommand(textUpperCase);
       if (delegate == null) {

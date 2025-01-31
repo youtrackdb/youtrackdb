@@ -31,11 +31,11 @@ public class RemoteConnectionPool
     try {
       LogManager.instance().debug(this, "Trying to connect to the remote host %s...", serverURL);
 
-      int sepPos = serverURL.indexOf(':');
-      final String remoteHost = serverURL.substring(0, sepPos);
-      final int remotePort = Integer.parseInt(serverURL.substring(sepPos + 1));
+      var sepPos = serverURL.indexOf(':');
+      final var remoteHost = serverURL.substring(0, sepPos);
+      final var remotePort = Integer.parseInt(serverURL.substring(sepPos + 1));
 
-      final SocketChannelBinaryAsynchClient ch =
+      final var ch =
           new SocketChannelBinaryAsynchClient(
               remoteHost,
               remotePort,
@@ -64,7 +64,7 @@ public class RemoteConnectionPool
   public boolean reuseResource(
       final String iKey, final Object[] iAdditionalArgs,
       final SocketChannelBinaryAsynchClient iValue) {
-    final boolean canReuse = iValue.isConnected();
+    final var canReuse = iValue.isConnected();
     if (!canReuse)
     // CANNOT REUSE: CLOSE IT PROPERLY
     {
@@ -90,7 +90,7 @@ public class RemoteConnectionPool
   }
 
   public void checkIdle(long timeout) {
-    for (SocketChannelBinaryAsynchClient resource : pool.getResources()) {
+    for (var resource : pool.getResources()) {
       if (!resource.isInUse() && resource.getLastUse() + timeout < System.currentTimeMillis()) {
         resource.close();
       }

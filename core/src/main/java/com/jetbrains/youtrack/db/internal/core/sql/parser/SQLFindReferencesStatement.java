@@ -43,14 +43,14 @@ public class SQLFindReferencesStatement extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
     ctx.setDatabase(db);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
-      for (int i = 0; i < args.length; i++) {
+      for (var i = 0; i < args.length; i++) {
         params.put(i, args[i]);
       }
     }
@@ -69,7 +69,7 @@ public class SQLFindReferencesStatement extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Map<Object, Object> params, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -102,8 +102,8 @@ public class SQLFindReferencesStatement extends SQLStatement {
     }
     if (targets != null) {
       builder.append(" [");
-      boolean first = true;
-      for (SimpleNode node : targets) {
+      var first = true;
+      for (var node : targets) {
         if (!first) {
           builder.append(",");
         }
@@ -126,8 +126,8 @@ public class SQLFindReferencesStatement extends SQLStatement {
     }
     if (targets != null) {
       builder.append(" [");
-      boolean first = true;
-      for (SimpleNode node : targets) {
+      var first = true;
+      for (var node : targets) {
         if (!first) {
           builder.append(",");
         }
@@ -140,7 +140,7 @@ public class SQLFindReferencesStatement extends SQLStatement {
 
   @Override
   public SQLFindReferencesStatement copy() {
-    SQLFindReferencesStatement result = new SQLFindReferencesStatement(-1);
+    var result = new SQLFindReferencesStatement(-1);
     result.rid = rid == null ? null : rid.copy();
     result.subQuery = subQuery == null ? null : subQuery.copy();
     result.targets =
@@ -157,7 +157,7 @@ public class SQLFindReferencesStatement extends SQLStatement {
       return false;
     }
 
-    SQLFindReferencesStatement that = (SQLFindReferencesStatement) o;
+    var that = (SQLFindReferencesStatement) o;
 
     if (!Objects.equals(rid, that.rid)) {
       return false;
@@ -170,7 +170,7 @@ public class SQLFindReferencesStatement extends SQLStatement {
 
   @Override
   public int hashCode() {
-    int result = rid != null ? rid.hashCode() : 0;
+    var result = rid != null ? rid.hashCode() : 0;
     result = 31 * result + (subQuery != null ? subQuery.hashCode() : 0);
     result = 31 * result + (targets != null ? targets.hashCode() : 0);
     return result;

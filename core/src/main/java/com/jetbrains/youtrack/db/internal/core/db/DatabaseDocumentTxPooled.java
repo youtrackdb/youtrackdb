@@ -145,7 +145,7 @@ public class DatabaseDocumentTxPooled extends DatabaseDocumentTx implements Data
     getLocalCache().clear();
 
     if (ownerPool != null) {
-      final DatabaseDocumentPool localCopy = ownerPool;
+      final var localCopy = ownerPool;
       ownerPool = null;
       localCopy.release(this);
     }

@@ -22,15 +22,12 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext.TIMEOUT_STRATEGY;
 import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandExecutorAbstract;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestAbstract;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
@@ -38,7 +35,6 @@ import com.jetbrains.youtrack.db.internal.core.sql.parser.StatementCache;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -113,7 +109,7 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
       return false;
     }
 
-    String word = parserNextWord(true);
+    var word = parserNextWord(true);
 
     try {
       timeoutMs = Long.parseLong(word);
@@ -157,10 +153,10 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
 
     final Set<String> clusters = new HashSet<String>();
 
-    for (String clazz : iClassNames) {
-      final SchemaClass cls = db.getMetadata().getImmutableSchemaSnapshot().getClass(clazz);
+    for (var clazz : iClassNames) {
+      final var cls = db.getMetadata().getImmutableSchemaSnapshot().getClass(clazz);
       if (cls != null) {
-        for (int clId : cls.getPolymorphicClusterIds()) {
+        for (var clId : cls.getPolymorphicClusterIds()) {
           // FILTER THE CLUSTER WHERE THE USER HAS THE RIGHT ACCESS
           if (clId > -1 && checkClusterAccess(db, db.getClusterNameById(clId))) {
             clusters.add(db.getClusterNameById(clId).toLowerCase(Locale.ENGLISH));
@@ -177,8 +173,8 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
 
     final Set<String> clusters = new HashSet<String>();
 
-    for (String cluster : iClusterNames) {
-      final String c = cluster.toLowerCase(Locale.ENGLISH);
+    for (var cluster : iClusterNames) {
+      final var c = cluster.toLowerCase(Locale.ENGLISH);
       // FILTER THE CLUSTER WHERE THE USER HAS THE RIGHT ACCESS
       if (checkClusterAccess(db, c)) {
         clusters.add(c);
@@ -189,20 +185,20 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
   }
 
   protected Set<String> getInvolvedClustersOfIndex(final String iIndexName) {
-    final DatabaseSessionInternal db = getDatabase();
+    final var db = getDatabase();
 
     final Set<String> clusters = new HashSet<String>();
 
-    final MetadataInternal metadata = db.getMetadata();
-    final Index idx = metadata.getIndexManagerInternal().getIndex(db, iIndexName);
+    final var metadata = db.getMetadata();
+    final var idx = metadata.getIndexManagerInternal().getIndex(db, iIndexName);
     if (idx != null && idx.getDefinition() != null) {
-      final String clazz = idx.getDefinition().getClassName();
+      final var clazz = idx.getDefinition().getClassName();
 
       if (clazz != null) {
-        final SchemaClass cls = metadata.getImmutableSchemaSnapshot().getClass(clazz);
+        final var cls = metadata.getImmutableSchemaSnapshot().getClass(clazz);
         if (cls != null) {
-          for (int clId : cls.getClusterIds()) {
-            final String clName = db.getClusterNameById(clId);
+          for (var clId : cls.getClusterIds()) {
+            final var clName = db.getClusterNameById(clId);
             if (clName != null) {
               clusters.add(clName.toLowerCase(Locale.ENGLISH));
             }
@@ -233,16 +229,16 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
   }
 
   protected String preParse(final String queryText, final CommandRequest iRequest) {
-    final boolean strict = getDatabase().getStorageInfo().getConfiguration().isStrictSql();
+    final var strict = getDatabase().getStorageInfo().getConfiguration().isStrictSql();
 
     if (strict) {
       try {
-        final SQLStatement result = StatementCache.get(queryText, getDatabase());
+        final var result = StatementCache.get(queryText, getDatabase());
         preParsedStatement = result;
 
         if (iRequest instanceof CommandRequestAbstract) {
-          final Map<Object, Object> params = ((CommandRequestAbstract) iRequest).getParameters();
-          StringBuilder builder = new StringBuilder();
+          final var params = ((CommandRequestAbstract) iRequest).getParameters();
+          var builder = new StringBuilder();
           result.toString(params, builder);
           return builder.toString();
         }

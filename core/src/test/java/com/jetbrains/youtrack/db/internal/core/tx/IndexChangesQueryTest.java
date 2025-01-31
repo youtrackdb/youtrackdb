@@ -39,7 +39,7 @@ public class IndexChangesQueryTest {
             youTrackDB.open("test", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass cls = schema.createClass(CLASS_NAME);
+    final var cls = schema.createClass(CLASS_NAME);
     cls.createProperty(db, FIELD_NAME, PropertyType.INTEGER);
     cls.createIndex(db, INDEX_NAME, SchemaClass.INDEX_TYPE.NOTUNIQUE, FIELD_NAME);
   }
@@ -54,14 +54,14 @@ public class IndexChangesQueryTest {
   public void testMultiplePut() {
     db.begin();
 
-    final Index index =
+    final var index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX_NAME);
 
-    EntityImpl doc = ((EntityImpl) db.newEntity(CLASS_NAME));
+    var doc = ((EntityImpl) db.newEntity(CLASS_NAME));
     doc.field(FIELD_NAME, 1);
     doc.save();
 
-    EntityImpl doc1 = ((EntityImpl) db.newEntity(CLASS_NAME));
+    var doc1 = ((EntityImpl) db.newEntity(CLASS_NAME));
     doc1.field(FIELD_NAME, 2);
     doc1.save();
     Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX_NAME));
@@ -77,7 +77,7 @@ public class IndexChangesQueryTest {
   }
 
   private Collection<RID> fetchCollectionFromIndex(Index index, int key) {
-    try (Stream<RID> stream = index.getInternal().getRids(db, key)) {
+    try (var stream = index.getInternal().getRids(db, key)) {
       return stream.collect(Collectors.toList());
     }
   }
@@ -86,19 +86,19 @@ public class IndexChangesQueryTest {
   public void testClearAndPut() {
     db.begin();
 
-    EntityImpl doc1 = ((EntityImpl) db.newEntity(CLASS_NAME));
+    var doc1 = ((EntityImpl) db.newEntity(CLASS_NAME));
     doc1.field(FIELD_NAME, 1);
     doc1.save();
 
-    EntityImpl doc2 = ((EntityImpl) db.newEntity(CLASS_NAME));
+    var doc2 = ((EntityImpl) db.newEntity(CLASS_NAME));
     doc2.field(FIELD_NAME, 1);
     doc2.save();
 
-    EntityImpl doc3 = ((EntityImpl) db.newEntity(CLASS_NAME));
+    var doc3 = ((EntityImpl) db.newEntity(CLASS_NAME));
     doc3.field(FIELD_NAME, 2);
     doc3.save();
 
-    final Index index =
+    final var index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX_NAME);
 
     db.commit();
@@ -121,7 +121,7 @@ public class IndexChangesQueryTest {
     doc3.field(FIELD_NAME, 1);
     doc3.save();
 
-    EntityImpl doc = ((EntityImpl) db.newEntity(CLASS_NAME));
+    var doc = ((EntityImpl) db.newEntity(CLASS_NAME));
     doc.field(FIELD_NAME, 2);
     doc.save();
 

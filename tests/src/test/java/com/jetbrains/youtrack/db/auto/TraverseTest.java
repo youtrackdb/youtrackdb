@@ -67,7 +67,7 @@ public class TraverseTest extends BaseDBTest {
 
     totalElements++;
 
-    Vertex megRyan = db.newVertex("Actor");
+    var megRyan = db.newVertex("Actor");
     megRyan.setProperty("name", "Meg Ryan");
     megRyan.save();
 
@@ -139,7 +139,7 @@ public class TraverseTest extends BaseDBTest {
   }
 
   public void traverseAPIAllFromActorNoWhere() {
-    List<Identifiable> result1 =
+    var result1 =
         new Traverse(db).fields("*").target(tomCruise.getIdentity()).execute(db);
     Assert.assertEquals(result1.size(), totalElements);
   }
@@ -165,7 +165,7 @@ public class TraverseTest extends BaseDBTest {
                     "select from ( traverse any() from Movie ) where @class = 'Movie'"))
             .execute(db);
     Assert.assertFalse(result1.isEmpty());
-    for (EntityImpl d : result1) {
+    for (var d : result1) {
       Assert.assertEquals(d.getClassName(), "Movie");
     }
   }
@@ -205,7 +205,7 @@ public class TraverseTest extends BaseDBTest {
                         + " while $depth <= 2 ) where @class = 'Movie'"))
             .execute(db);
     Assert.assertFalse(result2.isEmpty());
-    for (EntityImpl d : result2) {
+    for (var d : result2) {
       Assert.assertEquals(d.getClassName(), "Movie");
     }
 
@@ -219,7 +219,7 @@ public class TraverseTest extends BaseDBTest {
             .execute(db);
     Assert.assertFalse(result3.isEmpty());
     Assert.assertTrue(result3.size() > result2.size());
-    for (EntityImpl d : result3) {
+    for (var d : result3) {
       Assert.assertEquals(d.getClassName(), "Movie");
     }
   }
@@ -287,7 +287,7 @@ public class TraverseTest extends BaseDBTest {
 
   @Test
   public void traverseSQLIterating() {
-    int cycles = 0;
+    var cycles = 0;
     for (Identifiable id :
         new SQLSynchQuery<EntityImpl>("traverse * from Movie while $depth < 2")) {
       cycles++;
@@ -297,8 +297,8 @@ public class TraverseTest extends BaseDBTest {
 
   @Test
   public void traverseAPIIterating() {
-    int cycles = 0;
-    for (Identifiable id :
+    var cycles = 0;
+    for (var id :
         new Traverse(db)
             .target(db.browseClass("Movie").iterator())
             .predicate(
@@ -317,11 +317,11 @@ public class TraverseTest extends BaseDBTest {
 
   @Test
   public void traverseAPIandSQLIterating() {
-    int cycles = 0;
+    var cycles = 0;
     var context = new BasicCommandContext();
     context.setDatabase(db);
 
-    for (Identifiable id :
+    for (var id :
         new Traverse(db)
             .target(db.browseClass("Movie").iterator())
             .predicate(new SQLPredicate(context, "$depth <= 2"))) {
@@ -332,7 +332,7 @@ public class TraverseTest extends BaseDBTest {
 
   @Test
   public void traverseSelectIterable() {
-    int cycles = 0;
+    var cycles = 0;
     for (Identifiable id :
         new SQLSynchQuery<EntityImpl>(
             "select from ( traverse * from Movie while $depth < 2 )")) {
@@ -394,8 +394,8 @@ public class TraverseTest extends BaseDBTest {
                         + ")"))
             .execute(db);
     Assert.assertFalse(result1.isEmpty());
-    boolean found = false;
-    for (EntityImpl doc : result1) {
+    var found = false;
+    for (var doc : result1) {
       String name = doc.field("name");
       if ("Nicole Kidman".equals(name)) {
         found = true;
@@ -419,8 +419,8 @@ public class TraverseTest extends BaseDBTest {
                         + ")"))
             .execute(db, params);
     Assert.assertFalse(result1.isEmpty());
-    boolean found = false;
-    for (EntityImpl doc : result1) {
+    var found = false;
+    for (var doc : result1) {
       String name = doc.field("name");
       if ("Nicole Kidman".equals(name)) {
         found = true;
@@ -439,8 +439,8 @@ public class TraverseTest extends BaseDBTest {
                 + " while $depth < 2)");
     Assert.assertEquals(result1.size(), 2);
 
-    boolean found = false;
-    int i = 0;
+    var found = false;
+    var i = 0;
     for (var res : result1) {
       Integer depth = res.getProperty("d");
       Assert.assertEquals(depth, i++);
@@ -452,14 +452,14 @@ public class TraverseTest extends BaseDBTest {
 
     try {
 
-      String q = "traverse in('married')  from " + nicoleKidman.getIdentity();
-      DatabaseSessionInternal db = this.db.copy();
+      var q = "traverse in('married')  from " + nicoleKidman.getIdentity();
+      var db = this.db.copy();
       DatabaseRecordThreadLocal.instance().set(db);
       List<Object> result1 = db.command(new SQLSynchQuery<EntityImpl>(q)).execute(this.db);
       Assert.assertEquals(result1.size(), 2);
-      boolean found = false;
+      var found = false;
       Integer i = 0;
-      for (Object doc : result1) {
+      for (var doc : result1) {
         Assert.assertTrue(((Entity) doc).isVertex());
       }
     } finally {

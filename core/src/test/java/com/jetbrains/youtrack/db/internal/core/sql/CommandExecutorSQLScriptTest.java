@@ -34,7 +34,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
 
   @Test
   public void testQuery() {
-    String script = """
+    var script = """
         begin
         let $a = select from foo
         commit
@@ -47,7 +47,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
 
   @Test
   public void testTx() {
-    String script =
+    var script =
         """
             begin
             let $a = insert into V set test = 'sql script test'
@@ -61,7 +61,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
 
   @Test
   public void testReturnExpanded() {
-    StringBuilder script = new StringBuilder();
+    var script = new StringBuilder();
     script.append("begin\n");
     script.append("let $a = insert into V set test = 'sql script test'\n");
     script.append("commit\n");
@@ -85,7 +85,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
 
   @Test
   public void testSleep() {
-    long begin = System.currentTimeMillis();
+    var begin = System.currentTimeMillis();
 
     db.command(new CommandScript("sql", "sleep 500")).execute(db);
 
@@ -94,19 +94,19 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
 
   @Test
   public void testConsoleLog() {
-    String script = "LET $a = 'log'\n" + "console.log 'This is a test of log for ${a}'";
+    var script = "LET $a = 'log'\n" + "console.log 'This is a test of log for ${a}'";
     db.command(new CommandScript("sql", script)).execute(db);
   }
 
   @Test
   public void testConsoleOutput() {
-    String script = "LET $a = 'output'\n" + "console.output 'This is a test of log for ${a}'";
+    var script = "LET $a = 'output'\n" + "console.output 'This is a test of log for ${a}'";
     db.command(new CommandScript("sql", script)).execute(db);
   }
 
   @Test
   public void testConsoleError() {
-    String script = "LET $a = 'error'\n" + "console.error 'This is a test of log for ${a}'";
+    var script = "LET $a = 'error'\n" + "console.error 'This is a test of log for ${a}'";
     db.command(new CommandScript("sql", script)).execute(db);
   }
 
@@ -125,7 +125,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
   @Test
   public void testIncrementAndLet() {
 
-    String script =
+    var script =
         """
             CREATE CLASS TestCounter;
             begin;
@@ -143,7 +143,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
   @Ignore
   public void testIncrementAndLetNewApi() {
 
-    String script =
+    var script =
         """
             CREATE CLASS TestCounter;
             begin;
@@ -152,7 +152,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
             UPDATE TestCounter INCREMENT weight = $counter[0].count RETURN AfTER @this;
             commit;
             """;
-    ResultSet qResult = db.execute("sql", script);
+    var qResult = db.execute("sql", script);
 
     assertThat(qResult.next().getEntity().orElseThrow().<Long>getProperty("weight")).isEqualTo(4L);
   }
@@ -160,7 +160,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
   @Test
   public void testIf1() {
 
-    String script =
+    var script =
         """
             let $a = select 1 as one;
             if($a[0].one = 1){;
@@ -177,7 +177,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
   @Test
   public void testIf2() {
 
-    String script =
+    var script =
         """
             let $a = select 1 as one;
             if    ($a[0].one = 1)   {;
@@ -206,7 +206,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
   @Test
   public void testNestedIf2() {
 
-    String script =
+    var script =
         """
             let $a = select 1 as one;
             if($a[0].one = 1){;
@@ -226,7 +226,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
   @Test
   public void testNestedIf3() {
 
-    String script =
+    var script =
         """
             let $a = select 1 as one;
             if($a[0].one = 'zz'){;
@@ -246,7 +246,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
   @Test
   public void testIfRealQuery() {
 
-    String script =
+    var script =
         """
             let $a = select from foo
             if($a is not null and $a.size() = 3){
@@ -254,7 +254,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
             }
             return 'FAIL'
             """;
-    Object qResult = db.command(new CommandScript("sql", script)).execute(db);
+    var qResult = db.command(new CommandScript("sql", script)).execute(db);
 
     Assert.assertNotNull(qResult);
     Assert.assertEquals(3, ((List<?>) qResult).size());
@@ -263,7 +263,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
   @Test
   public void testIfMultipleStatements() {
 
-    String script =
+    var script =
         """
             let $a = select 1 as one;
             if($a[0].one = 1){;
@@ -281,7 +281,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
   @Test
   public void testScriptSubContext() {
 
-    String script =
+    var script =
         """
             let $a = select from foo limit 1
             select from (traverse doesnotexist from $a)
@@ -289,7 +289,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
     Iterable<?> qResult = db.command(new CommandScript("sql", script)).execute(db);
 
     Assert.assertNotNull(qResult);
-    Iterator<?> iterator = qResult.iterator();
+    var iterator = qResult.iterator();
     Assert.assertTrue(iterator.hasNext());
     iterator.next();
     Assert.assertFalse(iterator.hasNext());
@@ -298,7 +298,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
   @Test
   public void testSemicolonInString() {
     // testing parsing problem
-    String script =
+    var script =
         """
             let $a = select 'foo ; bar' as one;
             let $b = select 'foo \\'; bar' as one;
@@ -312,22 +312,22 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
   public void testQuotedRegex() {
     // issue #4996 (simplified)
     db.command("CREATE CLASS QuotedRegex2").close();
-    String batch = "begin;INSERT INTO QuotedRegex2 SET regexp=\"'';\";commit;";
+    var batch = "begin;INSERT INTO QuotedRegex2 SET regexp=\"'';\";commit;";
 
     db.command(new CommandScript(batch)).execute(db);
 
     List<EntityImpl> result = db.query(
         new SQLSynchQuery<EntityImpl>("SELECT FROM QuotedRegex2"));
     Assert.assertEquals(1, result.size());
-    EntityImpl doc = result.get(0);
+    var doc = result.get(0);
     Assert.assertEquals("'';", doc.field("regexp"));
   }
 
   @Test
   public void testParameters1() {
-    String className = "testParameters1";
+    var className = "testParameters1";
     db.createVertexClass(className);
-    String script =
+    var script =
         "BEGIN;"
             + "LET $a = CREATE VERTEX "
             + className
@@ -339,11 +339,11 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
             + "COMMIT;"
             + "RETURN $edge;";
 
-    HashMap<String, Object> map = new HashMap<>();
+    var map = new HashMap<String, Object>();
     map.put("name", "bozo");
     map.put("_name2", "bozi");
 
-    ResultSet rs = db.execute("sql", script, map);
+    var rs = db.execute("sql", script, map);
     rs.close();
 
     rs = db.query("SELECT FROM " + className + " WHERE name = ?", "bozo");
@@ -355,9 +355,9 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
 
   @Test
   public void testPositionalParameters() {
-    String className = "testPositionalParameters";
+    var className = "testPositionalParameters";
     db.createVertexClass(className);
-    String script =
+    var script =
         "BEGIN;"
             + "LET $a = CREATE VERTEX "
             + className
@@ -369,7 +369,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
             + "COMMIT;"
             + "RETURN $edge;";
 
-    ResultSet rs = db.execute("sql", script, "bozo", "bozi");
+    var rs = db.execute("sql", script, "bozo", "bozi");
     rs.close();
 
     rs = db.query("SELECT FROM " + className + " WHERE name = ?", "bozo");

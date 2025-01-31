@@ -42,7 +42,7 @@ public class SQLDropIndexTest extends BaseDBTest {
     super.beforeClass();
 
     final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass oClass = schema.createClass("SQLDropIndexTestClass");
+    final var oClass = schema.createClass("SQLDropIndexTestClass");
     oClass.createProperty(db, "prop1", EXPECTED_PROP1_TYPE);
     oClass.createProperty(db, "prop2", EXPECTED_PROP2_TYPE);
   }
@@ -63,7 +63,7 @@ public class SQLDropIndexTest extends BaseDBTest {
   public void testOldSyntax() throws Exception {
     db.command("CREATE INDEX SQLDropIndexTestClass.prop1 UNIQUE").close();
 
-    Index index =
+    var index =
         db
             .getMetadata()
             .getSchema()
@@ -90,7 +90,7 @@ public class SQLDropIndexTest extends BaseDBTest {
                 + " UNIQUE")
         .close();
 
-    Index index =
+    var index =
         db
             .getMetadata()
             .getSchema()
@@ -111,7 +111,7 @@ public class SQLDropIndexTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "testDropCompositeIndex")
   public void testDropIndexWorkedCorrectly() {
-    Index index =
+    var index =
         db
             .getMetadata()
             .getSchema()

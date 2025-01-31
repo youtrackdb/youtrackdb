@@ -37,7 +37,7 @@ public abstract class CommandExecutorSQLRetryAbstract extends CommandExecutorSQL
   protected void parseRetry() throws CommandSQLParsingException {
     retry = Integer.parseInt(parserNextWord(true));
 
-    String temp = parseOptionalWord(true);
+    var temp = parseOptionalWord(true);
 
     if (temp.equals("WAIT")) {
       wait = Integer.parseInt(parserNextWord(true));

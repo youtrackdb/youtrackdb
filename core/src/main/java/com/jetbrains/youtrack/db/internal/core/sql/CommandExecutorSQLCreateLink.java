@@ -25,8 +25,6 @@ import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -65,20 +63,20 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
 
   public CommandExecutorSQLCreateLink parse(DatabaseSessionInternal db,
       final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
       init((CommandRequestText) iRequest);
 
-      StringBuilder word = new StringBuilder();
+      var word = new StringBuilder();
 
-      int oldPos = 0;
-      int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
+      var oldPos = 0;
+      var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CREATE)) {
         throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_CREATE + " not found. Use " + getSyntax(), parserText, oldPos);
@@ -137,7 +135,7 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
             "Expected <class>.<property>. Use " + getSyntax(), parserText, pos);
       }
 
-      String[] parts = word.toString().split("\\.");
+      var parts = word.toString().split("\\.");
       if (parts.length != 2) {
         throw new CommandSQLParsingException(
             "Expected <class>.<property>. Use " + getSyntax(), parserText, pos);
@@ -200,7 +198,7 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final DatabaseSessionInternal database = getDatabase();
+    final var database = getDatabase();
     if (database.getDatabaseOwner() == null) {
       throw new CommandSQLParsingException(
           "This command supports only the database type DatabaseDocumentTx and type '"
@@ -208,14 +206,13 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
               + "' was found");
     }
 
-
-    SchemaClass sourceClass =
+    var sourceClass =
         database.getMetadata().getImmutableSchemaSnapshot().getClass(sourceClassName);
     if (sourceClass == null) {
       throw new CommandExecutionException("Source class '" + sourceClassName + "' not found");
     }
 
-    SchemaClass destClass = database.getMetadata().getImmutableSchemaSnapshot()
+    var destClass = database.getMetadata().getImmutableSchemaSnapshot()
         .getClass(destClassName);
     if (destClass == null) {
       throw new CommandExecutionException("Destination class '" + destClassName + "' not found");
@@ -223,7 +220,7 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
 
     Object value;
 
-    String cmd = "select from ";
+    var cmd = "select from ";
     if (!EntityHelper.ATTRIBUTE_RID.equals(destField)) {
       cmd = "select from " + destClassName + " where " + destField + " = ";
     }
@@ -248,7 +245,7 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
       multipleRelationship = false;
     }
 
-    long totRecords = db.countClass(sourceClass.getName());
+    var totRecords = db.countClass(sourceClass.getName());
     long currRecord = 0;
 
     if (progressListener != null) {
@@ -257,7 +254,7 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
 
     try {
       // BROWSE ALL THE RECORDS OF THE SOURCE CLASS
-      for (EntityImpl entity : db.browseClass(sourceClass.getName())) {
+      for (var entity : db.browseClass(sourceClass.getName())) {
         value = entity.field(sourceField);
 
         if (value != null) {
@@ -357,7 +354,7 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
       if (total > 0) {
         if (inverse) {
           // REMOVE THE OLD PROPERTY IF ANY
-          SchemaProperty prop = destClass.getProperty(linkName);
+          var prop = destClass.getProperty(linkName);
           destClass = database.getMetadata().getSchema().getClass(destClassName);
           if (prop != null) {
             destClass.dropProperty(database, linkName);
@@ -373,7 +370,7 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
         } else {
 
           // REMOVE THE OLD PROPERTY IF ANY
-          SchemaProperty prop = sourceClass.getProperty(linkName);
+          var prop = sourceClass.getProperty(linkName);
           sourceClass = database.getMetadata().getSchema().getClass(sourceClassName);
           if (prop != null) {
             sourceClass.dropProperty(database, linkName);

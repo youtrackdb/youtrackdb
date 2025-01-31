@@ -26,13 +26,13 @@ public class LuceneRangeTest extends BaseLuceneTest {
   public void setUp() throws Exception {
     Schema schema = db.getMetadata().getSchema();
 
-    SchemaClass cls = schema.createClass("Person");
+    var cls = schema.createClass("Person");
     cls.createProperty(db, "name", PropertyType.STRING);
     cls.createProperty(db, "surname", PropertyType.STRING);
     cls.createProperty(db, "date", PropertyType.DATETIME);
     cls.createProperty(db, "age", PropertyType.INTEGER);
 
-    List<String> names =
+    var names =
         Arrays.asList(
             "John",
             "Robert",
@@ -44,7 +44,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
             "Luis",
             "Gabriel",
             "Sara");
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       db.save(
           ((EntityImpl) db.newEntity("Person"))
@@ -72,7 +72,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
     db.commit();
 
     // range
-    ResultSet results = db.command("SELECT FROM Person WHERE age LUCENE 'age:[5 TO 6]'");
+    var results = db.command("SELECT FROM Person WHERE age LUCENE 'age:[5 TO 6]'");
 
     assertThat(results).hasSize(2);
 
@@ -96,13 +96,13 @@ public class LuceneRangeTest extends BaseLuceneTest {
         .isEqualTo(10);
     db.commit();
 
-    String today = DateTools.timeToString(System.currentTimeMillis(), DateTools.Resolution.MINUTE);
-    String fiveDaysAgo =
+    var today = DateTools.timeToString(System.currentTimeMillis(), DateTools.Resolution.MINUTE);
+    var fiveDaysAgo =
         DateTools.timeToString(
             System.currentTimeMillis() - (5 * 3600 * 24 * 1000), DateTools.Resolution.MINUTE);
 
     // range
-    ResultSet results =
+    var results =
         db.command(
             "SELECT FROM Person WHERE date LUCENE 'date:[" + fiveDaysAgo + " TO " + today + "]'");
 
@@ -126,13 +126,13 @@ public class LuceneRangeTest extends BaseLuceneTest {
         .isEqualTo(10);
     db.commit();
 
-    String today = DateTools.timeToString(System.currentTimeMillis(), DateTools.Resolution.MINUTE);
-    String fiveDaysAgo =
+    var today = DateTools.timeToString(System.currentTimeMillis(), DateTools.Resolution.MINUTE);
+    var fiveDaysAgo =
         DateTools.timeToString(
             System.currentTimeMillis() - (5 * 3600 * 24 * 1000), DateTools.Resolution.MINUTE);
 
     // name and age range
-    ResultSet results =
+    var results =
         db.query(
             "SELECT * FROM Person WHERE [name,surname,date,age] LUCENE 'age:[5 TO 6] name:robert "
                 + " '");
@@ -178,26 +178,26 @@ public class LuceneRangeTest extends BaseLuceneTest {
         .isEqualTo(10);
     db.commit();
 
-    String today = DateTools.timeToString(System.currentTimeMillis(), DateTools.Resolution.MINUTE);
-    String fiveDaysAgo =
+    var today = DateTools.timeToString(System.currentTimeMillis(), DateTools.Resolution.MINUTE);
+    var fiveDaysAgo =
         DateTools.timeToString(
             System.currentTimeMillis() - (5 * 3600 * 24 * 1000), DateTools.Resolution.MINUTE);
 
     // name and age range
-    final Index index =
+    final var index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.composite");
-    try (Stream<RID> stream = index.getInternal().getRids(db, "name:luke  age:[5 TO 6]")) {
+    try (var stream = index.getInternal().getRids(db, "name:luke  age:[5 TO 6]")) {
       assertThat(stream.count()).isEqualTo(2);
     }
 
     // date range
-    try (Stream<RID> stream =
+    try (var stream =
         index.getInternal().getRids(db, "date:[" + fiveDaysAgo + " TO " + today + "]")) {
       assertThat(stream.count()).isEqualTo(5);
     }
 
     // age and date range with MUST
-    try (Stream<RID> stream =
+    try (var stream =
         index
             .getInternal()
             .getRids(db, "+age:[4 TO 7]  +date:[" + fiveDaysAgo + " TO " + today + "]")) {
@@ -219,9 +219,9 @@ public class LuceneRangeTest extends BaseLuceneTest {
         .isEqualTo(10);
     db.commit();
 
-    int cluster = db.getMetadata().getSchema().getClass("Person").getClusterIds()[1];
+    var cluster = db.getMetadata().getSchema().getClass("Person").getClusterIds()[1];
 
-    ResultSet results =
+    var results =
         db.command("SELECT FROM Person WHERE name LUCENE '+_CLUSTER:" + cluster + "'");
 
     assertThat(results).hasSize(2);

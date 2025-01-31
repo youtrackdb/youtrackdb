@@ -58,7 +58,7 @@ public class DateHelper {
     if (db != null && !db.isClosed()) {
       return db.getStorageInfo().getConfiguration().getDateFormatInstance();
     } else {
-      SimpleDateFormat format = new SimpleDateFormat(StorageConfiguration.DEFAULT_DATE_FORMAT);
+      var format = new SimpleDateFormat(StorageConfiguration.DEFAULT_DATE_FORMAT);
       format.setTimeZone(getDatabaseTimeZone());
       return format;
     }
@@ -84,7 +84,7 @@ public class DateHelper {
     if (db != null && !db.isClosed()) {
       return db.getStorageInfo().getConfiguration().getDateTimeFormatInstance();
     } else {
-      SimpleDateFormat format = new SimpleDateFormat(StorageConfiguration.DEFAULT_DATETIME_FORMAT);
+      var format = new SimpleDateFormat(StorageConfiguration.DEFAULT_DATETIME_FORMAT);
       format.setTimeZone(getDatabaseTimeZone());
       return format;
     }

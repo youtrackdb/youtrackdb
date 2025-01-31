@@ -44,10 +44,10 @@ public class MatchStatementExecutionTest extends DbTestBase {
     db.command("CREATE VERTEX Person set name = 'n5'").close();
     db.command("CREATE VERTEX Person set name = 'n6'").close();
 
-    String[][] friendList =
+    var friendList =
         new String[][]{{"n1", "n2"}, {"n1", "n3"}, {"n2", "n4"}, {"n4", "n5"}, {"n4", "n6"}};
 
-    for (String[] pair : friendList) {
+    for (var pair : friendList) {
       db.command(
               "CREATE EDGE Friend from (select from Person where name = ?) to (select from Person"
                   + " where name = ?)",
@@ -84,8 +84,8 @@ public class MatchStatementExecutionTest extends DbTestBase {
     db.command("CREATE property IndexedEdge.in LINK").close();
     db.command("CREATE index IndexedEdge_out_in on IndexedEdge (out, in) NOTUNIQUE").close();
 
-    int nodes = 1000;
-    for (int i = 0; i < nodes; i++) {
+    var nodes = 1000;
+    for (var i = 0; i < nodes; i++) {
       db.begin();
       var doc = db.newEntity("IndexedVertex");
       doc.setProperty("uid", i);
@@ -94,7 +94,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     }
 
     db.begin();
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       db.command(
               "CREATE EDGE IndexedEDGE FROM (SELECT FROM IndexedVertex WHERE uid = 0) TO (SELECT"
                   + " FROM IndexedVertex WHERE uid > "
@@ -105,7 +105,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
           .close();
     }
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       db.command(
               "CREATE EDGE IndexedEDGE FROM (SELECT FROM IndexedVertex WHERE uid > "
                   + ((i * nodes / 100) + 1)
@@ -152,7 +152,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     db.command("CREATE class WorksAt extends E").close();
     db.command("CREATE class ManagerOf extends E").close();
 
-    int[][] deptHierarchy = new int[10][];
+    var deptHierarchy = new int[10][];
     deptHierarchy[0] = new int[]{1, 2};
     deptHierarchy[1] = new int[]{3, 4};
     deptHierarchy[2] = new int[]{5, 6};
@@ -164,9 +164,9 @@ public class MatchStatementExecutionTest extends DbTestBase {
     deptHierarchy[8] = new int[]{};
     deptHierarchy[9] = new int[]{};
 
-    String[] deptManagers = {"a", "b", "d", null, null, null, null, "c", null, null};
+    var deptManagers = new String[]{"a", "b", "d", null, null, null, null, "c", null, null};
 
-    String[][] employees = new String[10][];
+    var employees = new String[10][];
     employees[0] = new String[]{"p1"};
     employees[1] = new String[]{"p2", "p3"};
     employees[2] = new String[]{"p4", "p5"};
@@ -179,13 +179,13 @@ public class MatchStatementExecutionTest extends DbTestBase {
     employees[9] = new String[]{"p12", "p13"};
 
     db.begin();
-    for (int i = 0; i < deptHierarchy.length; i++) {
+    for (var i = 0; i < deptHierarchy.length; i++) {
       db.command("CREATE VERTEX Department set name = 'department" + i + "' ").close();
     }
 
-    for (int parent = 0; parent < deptHierarchy.length; parent++) {
-      int[] children = deptHierarchy[parent];
-      for (int child : children) {
+    for (var parent = 0; parent < deptHierarchy.length; parent++) {
+      var children = deptHierarchy[parent];
+      for (var child : children) {
         db.command(
                 "CREATE EDGE ParentDepartment from (select from Department where name = 'department"
                     + child
@@ -196,8 +196,8 @@ public class MatchStatementExecutionTest extends DbTestBase {
       }
     }
 
-    for (int dept = 0; dept < deptManagers.length; dept++) {
-      String manager = deptManagers[dept];
+    for (var dept = 0; dept < deptManagers.length; dept++) {
+      var manager = deptManagers[dept];
       if (manager != null) {
         db.command("CREATE Vertex Employee set name = '" + manager + "' ").close();
 
@@ -211,9 +211,9 @@ public class MatchStatementExecutionTest extends DbTestBase {
       }
     }
 
-    for (int dept = 0; dept < employees.length; dept++) {
-      String[] employeesForDept = employees[dept];
-      for (String employee : employeesForDept) {
+    for (var dept = 0; dept < employees.length; dept++) {
+      var employeesForDept = employees[dept];
+      for (var employee : employeesForDept) {
         db.command("CREATE Vertex Employee set name = '" + employee + "' ").close();
 
         db.command(
@@ -235,14 +235,14 @@ public class MatchStatementExecutionTest extends DbTestBase {
     db.command("CREATE class TriangleE extends E").close();
 
     db.begin();
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.command("CREATE VERTEX TriangleV set uid = ?", i).close();
     }
-    int[][] edges = {
+    var edges = new int[][]{
         {0, 1}, {0, 2}, {1, 2}, {1, 3}, {2, 4}, {3, 4}, {3, 5}, {4, 0}, {4, 7}, {6, 7}, {7, 8},
         {7, 9}, {8, 9}, {9, 1}, {8, 3}, {8, 4}
     };
-    for (int[] edge : edges) {
+    for (var edge : edges) {
       db.command(
               "CREATE EDGE TriangleE from (select from TriangleV where uid = ?) to (select from"
                   + " TriangleV where uid = ?)",
@@ -258,11 +258,11 @@ public class MatchStatementExecutionTest extends DbTestBase {
     db.command("CREATE class DiamondE extends E").close();
 
     db.begin();
-    for (int i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       db.command("CREATE VERTEX DiamondV set uid = ?", i).close();
     }
-    int[][] edges = {{0, 1}, {0, 2}, {1, 3}, {2, 3}};
-    for (int[] edge : edges) {
+    var edges = new int[][]{{0, 1}, {0, 2}, {1, 3}, {2, 3}};
+    for (var edge : edges) {
       db.command(
               "CREATE EDGE DiamondE from (select from DiamondV where uid = ?) to (select from"
                   + " DiamondV where uid = ?)",
@@ -275,7 +275,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSimple() throws Exception {
-    List<Result> qResult = collect(
+    var qResult = collect(
         db.command("match {class:Person, as: person} return person"));
     assertEquals(6, qResult.size());
     for (var doc : qResult) {
@@ -289,7 +289,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSimpleWhere() throws Exception {
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "match {class:Person, as: person, where: (name = 'n1' or name = 'n2')} return"
@@ -307,7 +307,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSimpleLimit() throws Exception {
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "match {class:Person, as: person, where: (name = 'n1' or name = 'n2')} return"
@@ -318,7 +318,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSimpleLimit2() throws Exception {
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "match {class:Person, as: person, where: (name = 'n1' or name = 'n2')} return"
@@ -329,7 +329,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSimpleLimit3() throws Exception {
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "match {class:Person, as: person, where: (name = 'n1' or name = 'n2')} return"
@@ -340,7 +340,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSimpleUnnamedParams() throws Exception {
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "match {class:Person, as: person, where: (name = ? or name = ?)} return person",
@@ -359,7 +359,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testCommonFriends() {
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
@@ -371,7 +371,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testCommonFriendsArrows() {
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
@@ -384,7 +384,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   @Test
   public void testCommonFriends2() throws Exception {
 
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "match {class:Person, where:(name ="
@@ -396,7 +396,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testCommonFriends2Arrows() {
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "match {class:Person, where:(name = 'n1')}-Friend-{as:friend}-Friend-{class:"
@@ -407,7 +407,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testReturnMethod() {
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "match {class:Person, where:(name ="
@@ -419,7 +419,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testReturnMethodArrows() {
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "match {class:Person, where:(name = 'n1')}-Friend-{as:friend}-Friend-{class:"
@@ -431,7 +431,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testReturnExpression() {
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "match {class:Person, where:(name ="
@@ -443,7 +443,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testReturnExpressionArrows() {
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "match {class:Person, where:(name = 'n1')}-Friend-{as:friend}-Friend-{class:"
@@ -455,7 +455,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testReturnDefaultAlias() throws Exception {
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "match {class:Person, where:(name ="
@@ -467,7 +467,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testReturnDefaultAliasArrows() throws Exception {
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "match {class:Person, where:(name = 'n1')}-Friend-{as:friend}-Friend-{class:"
@@ -479,7 +479,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   @Test
   public void testFriendsOfFriends() throws Exception {
 
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
@@ -491,7 +491,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   @Test
   public void testFriendsOfFriendsArrows() throws Exception {
 
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
@@ -503,7 +503,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   @Test
   public void testFriendsOfFriends2() throws Exception {
 
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name = 'n1'), as:"
@@ -518,7 +518,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   @Test
   public void testFriendsOfFriends2Arrows() throws Exception {
 
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name = 'n1'), as:"
@@ -533,7 +533,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   @Test
   public void testFriendsWithName() throws Exception {
 
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name = 'n1' and 1 + 1"
@@ -546,7 +546,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   @Test
   public void testFriendsWithNameArrows() throws Exception {
 
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name = 'n1' and 1 + 1"
@@ -559,7 +559,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   @Test
   public void testWhile() throws Exception {
 
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
@@ -607,7 +607,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   @Test
   public void testWhileArrows() throws Exception {
 
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
@@ -640,7 +640,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testMaxDepth() throws Exception {
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
@@ -673,7 +673,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testMaxDepthArrow() throws Exception {
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
@@ -720,7 +720,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   }
 
   private EntityImpl getManager(String personName) {
-    String query =
+    var query =
         "select expand(manager) from ("
             + "  match {class:Employee, where: (name = '"
             + personName
@@ -734,13 +734,13 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  return manager"
             + ")";
 
-    List<Identifiable> qResult = collectIdentifiable(db.command(query));
+    var qResult = collectIdentifiable(db.command(query));
     assertEquals(1, qResult.size());
     return qResult.getFirst().getRecord(db);
   }
 
   private EntityImpl getManagerArrows(String personName) {
-    String query =
+    var query =
         "select expand(manager) from ("
             + "  match {class:Employee, where: (name = '"
             + personName
@@ -752,7 +752,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  return manager"
             + ")";
 
-    List<Identifiable> qResult = collectIdentifiable(db.command(query));
+    var qResult = collectIdentifiable(db.command(query));
     assertEquals(1, qResult.size());
     return qResult.getFirst().getRecord(db);
   }
@@ -773,7 +773,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   }
 
   private EntityImpl getManager2(String personName) {
-    String query =
+    var query =
         "select expand(manager) from ("
             + "  match {class:Employee, where: (name = '"
             + personName
@@ -788,13 +788,13 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  return manager"
             + ")";
 
-    List<Identifiable> qResult = collectIdentifiable(db.command(query));
+    var qResult = collectIdentifiable(db.command(query));
     assertEquals(1, qResult.size());
     return qResult.getFirst().getRecord(db);
   }
 
   private EntityImpl getManager2Arrows(String personName) {
-    String query =
+    var query =
         "select expand(manager) from ("
             + "  match {class:Employee, where: (name = '"
             + personName
@@ -807,7 +807,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  return manager"
             + ")";
 
-    List<Identifiable> qResult = collectIdentifiable(db.command(query));
+    var qResult = collectIdentifiable(db.command(query));
     assertEquals(1, qResult.size());
     return qResult.getFirst().getRecord(db);
   }
@@ -816,11 +816,11 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testManaged() {
     // people managed by a manager are people who belong to his department or people who belong to
     // sub-departments without a manager
-    List<Identifiable> managedByA = getManagedBy("a");
+    var managedByA = getManagedBy("a");
     assertEquals(1, managedByA.size());
     assertEquals("p1", ((EntityImpl) managedByA.getFirst().getRecord(db)).getProperty("name"));
 
-    List<Identifiable> managedByB = getManagedBy("b");
+    var managedByB = getManagedBy("b");
     assertEquals(5, managedByB.size());
     Set<String> expectedNames = new HashSet<String>();
     expectedNames.add("p2");
@@ -829,7 +829,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     expectedNames.add("p7");
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
-    for (Identifiable id : managedByB) {
+    for (var id : managedByB) {
       EntityImpl doc = id.getRecord(db);
       String name = doc.getProperty("name");
       names.add(name);
@@ -838,7 +838,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   }
 
   private List<Identifiable> getManagedBy(String managerName) {
-    String query =
+    var query =
         "select expand(managed) from ("
             + "  match {class:Employee, where: (name = '"
             + managerName
@@ -859,11 +859,11 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testManagedArrows() {
     // people managed by a manager are people who belong to his department or people who belong to
     // sub-departments without a manager
-    List<Identifiable> managedByA = getManagedByArrows("a");
+    var managedByA = getManagedByArrows("a");
     assertEquals(1, managedByA.size());
     assertEquals("p1", ((EntityImpl) managedByA.getFirst().getRecord(db)).getProperty("name"));
 
-    List<Identifiable> managedByB = getManagedByArrows("b");
+    var managedByB = getManagedByArrows("b");
     assertEquals(5, managedByB.size());
     Set<String> expectedNames = new HashSet<String>();
     expectedNames.add("p2");
@@ -872,7 +872,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     expectedNames.add("p7");
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
-    for (Identifiable id : managedByB) {
+    for (var id : managedByB) {
       EntityImpl doc = id.getRecord(db);
       String name = doc.getProperty("name");
       names.add(name);
@@ -881,7 +881,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   }
 
   private List<Identifiable> getManagedByArrows(String managerName) {
-    String query =
+    var query =
         "select expand(managed) from ("
             + "  match {class:Employee, where: (name = '"
             + managerName
@@ -900,11 +900,11 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testManaged2() {
     // people managed by a manager are people who belong to his department or people who belong to
     // sub-departments without a manager
-    List<Identifiable> managedByA = getManagedBy2("a");
+    var managedByA = getManagedBy2("a");
     assertEquals(1, managedByA.size());
     assertEquals("p1", ((EntityImpl) managedByA.getFirst().getRecord(db)).getProperty("name"));
 
-    List<Identifiable> managedByB = getManagedBy2("b");
+    var managedByB = getManagedBy2("b");
     assertEquals(5, managedByB.size());
     Set<String> expectedNames = new HashSet<String>();
     expectedNames.add("p2");
@@ -913,7 +913,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     expectedNames.add("p7");
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
-    for (Identifiable id : managedByB) {
+    for (var id : managedByB) {
       EntityImpl doc = id.getRecord(db);
       String name = doc.getProperty("name");
       names.add(name);
@@ -922,7 +922,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   }
 
   private List<Identifiable> getManagedBy2(String managerName) {
-    String query =
+    var query =
         "select expand(managed) from ("
             + "  match {class:Employee, where: (name = '"
             + managerName
@@ -943,11 +943,11 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testManaged2Arrows() {
     // people managed by a manager are people who belong to his department or people who belong to
     // sub-departments without a manager
-    List<Identifiable> managedByA = getManagedBy2Arrows("a");
+    var managedByA = getManagedBy2Arrows("a");
     assertEquals(1, managedByA.size());
     assertEquals("p1", ((EntityImpl) managedByA.getFirst().getRecord(db)).getProperty("name"));
 
-    List<Identifiable> managedByB = getManagedBy2Arrows("b");
+    var managedByB = getManagedBy2Arrows("b");
     assertEquals(5, managedByB.size());
     Set<String> expectedNames = new HashSet<String>();
     expectedNames.add("p2");
@@ -956,7 +956,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     expectedNames.add("p7");
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
-    for (Identifiable id : managedByB) {
+    for (var id : managedByB) {
       EntityImpl doc = id.getRecord(db);
       String name = doc.getProperty("name");
       names.add(name);
@@ -965,7 +965,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   }
 
   private List<Identifiable> getManagedBy2Arrows(String managerName) {
-    String query =
+    var query =
         "select expand(managed) from ("
             + "  match {class:Employee, where: (name = '"
             + managerName
@@ -983,7 +983,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testTriangle1() {
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "  .out('TriangleE'){as: friend2}"
@@ -998,7 +998,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testTriangle1Arrows() {
-    String query =
+    var query =
         "match {class:TriangleV, as: friend1, where: (uid = 0)} -TriangleE-> {as: friend2}"
             + " -TriangleE-> {as: friend3},{class:TriangleV, as: friend1} -TriangleE-> {as:"
             + " friend3}return $matches";
@@ -1009,7 +1009,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testTriangle2Old() {
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1}"
             + "  .out('TriangleE'){class:TriangleV, as: friend2, where: (uid = 1)}"
@@ -1018,7 +1018,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  .out('TriangleE'){as: friend3}"
             + "return $matches";
 
-    List<Result> result = collect(db.command(query));
+    var result = collect(db.command(query));
     assertEquals(1, result.size());
     var doc = result.getFirst();
     EntityImpl friend1 = ((Identifiable) doc.getProperty("friend1")).getRecord(db);
@@ -1031,7 +1031,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testTriangle2() {
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1}"
             + "  .out('TriangleE'){class:TriangleV, as: friend2, where: (uid = 1)}"
@@ -1040,7 +1040,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  .out('TriangleE'){as: friend3}"
             + "return $patterns";
 
-    List<Result> result = collect(db.command(query));
+    var result = collect(db.command(query));
     assertEquals(1, result.size());
     var doc = result.getFirst();
     EntityImpl friend1 = ((Identifiable) doc.getProperty("friend1")).getRecord(db);
@@ -1053,7 +1053,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testTriangle2Arrows() {
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1}"
             + "  -TriangleE->{class:TriangleV, as: friend2, where: (uid = 1)}"
@@ -1062,7 +1062,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  -TriangleE->{as: friend3}"
             + "return $matches";
 
-    List<Result> result = collect(db.command(query));
+    var result = collect(db.command(query));
     assertEquals(1, result.size());
     var doc = result.getFirst();
     EntityImpl friend1 = ((Identifiable) doc.getProperty("friend1")).getRecord(db);
@@ -1075,7 +1075,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testTriangle3() {
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1}"
             + "  -TriangleE->{as: friend2}"
@@ -1084,13 +1084,13 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  -TriangleE->{as: friend3}"
             + "return $matches";
 
-    List<Result> result = collect(db.command(query));
+    var result = collect(db.command(query));
     assertEquals(1, result.size());
   }
 
   @Test
   public void testTriangle4() {
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1}"
             + "  .out('TriangleE'){as: friend2, where: (uid = 1)}"
@@ -1105,7 +1105,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testTriangle4Arrows() {
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1}"
             + "  -TriangleE->{as: friend2, where: (uid = 1)}"
@@ -1120,7 +1120,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testTriangleWithEdges4() {
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1}"
             + "  .outE('TriangleE').inV(){as: friend2, where: (uid = 1)}"
@@ -1135,15 +1135,15 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testCartesianProduct() {
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1, where:(uid = 1)},"
             + "{class:TriangleV, as: friend2, where:(uid = 2 or uid = 3)}"
             + "return $matches";
 
-    List<Identifiable> result = collectIdentifiable(db.command(query));
+    var result = collectIdentifiable(db.command(query));
     assertEquals(2, result.size());
-    for (Identifiable d : result) {
+    for (var d : result) {
       assertEquals(
           1,
           ((EntityImpl) ((EntityImpl) d.getRecord(db)).getProperty("friend1")).<Object>field(
@@ -1153,15 +1153,15 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testCartesianProductLimit() {
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1, where:(uid = 1)},"
             + "{class:TriangleV, as: friend2, where:(uid = 2 or uid = 3)}"
             + "return $matches LIMIT 1";
 
-    List<Identifiable> result = collectIdentifiable(db.command(query));
+    var result = collectIdentifiable(db.command(query));
     assertEquals(1, result.size());
-    for (Identifiable d : result) {
+    for (var d : result) {
       assertEquals(
           1,
           ((EntityImpl) ((EntityImpl) d.getRecord(db)).getProperty("friend1")).<Object>field(
@@ -1171,7 +1171,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testArrayNumber() {
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[0] as foo";
@@ -1179,14 +1179,14 @@ public class MatchStatementExecutionTest extends DbTestBase {
     var result = collect(db.command(query));
     assertEquals(1, result.size());
     var doc = result.getFirst();
-    Object foo = doc.getProperty("foo");
+    var foo = doc.getProperty("foo");
     assertNotNull(foo);
     Assert.assertTrue(((Entity) foo).isVertex());
   }
 
   @Test
   public void testArraySingleSelectors2() {
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[0,1] as foo";
@@ -1194,7 +1194,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     var result = collect(db.command(query));
     assertEquals(1, result.size());
     var doc = result.getFirst();
-    Object foo = doc.getProperty("foo");
+    var foo = doc.getProperty("foo");
     assertNotNull(foo);
     assertTrue(foo instanceof List);
     assertEquals(2, ((List) foo).size());
@@ -1202,7 +1202,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testArrayRangeSelectors1() {
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[0..1] as foo";
@@ -1210,7 +1210,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     var result = collect(db.command(query));
     assertEquals(1, result.size());
     var doc = result.getFirst();
-    Object foo = doc.getProperty("foo");
+    var foo = doc.getProperty("foo");
     assertNotNull(foo);
     assertTrue(foo instanceof List);
     assertEquals(1, ((List) foo).size());
@@ -1218,7 +1218,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testArrayRange2() {
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[0..2] as foo";
@@ -1226,7 +1226,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     var result = collect(db.command(query));
     assertEquals(1, result.size());
     var doc = result.getFirst();
-    Object foo = doc.getProperty("foo");
+    var foo = doc.getProperty("foo");
     assertNotNull(foo);
     assertTrue(foo instanceof List);
     assertEquals(2, ((List) foo).size());
@@ -1234,7 +1234,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testArrayRange3() {
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[0..3] as foo";
@@ -1242,7 +1242,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     var result = collect(db.command(query));
     assertEquals(1, result.size());
     var doc = result.getFirst();
-    Object foo = doc.getProperty("foo");
+    var foo = doc.getProperty("foo");
     assertNotNull(foo);
     assertTrue(foo instanceof List);
     assertEquals(2, ((List) foo).size());
@@ -1250,7 +1250,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testConditionInSquareBrackets() {
-    String query =
+    var query =
         "match "
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[uid = 2] as foo";
@@ -1258,17 +1258,17 @@ public class MatchStatementExecutionTest extends DbTestBase {
     var result = collect(db.command(query));
     assertEquals(1, result.size());
     var doc = result.getFirst();
-    Object foo = doc.getProperty("foo");
+    var foo = doc.getProperty("foo");
     assertNotNull(foo);
     assertTrue(foo instanceof List);
     assertEquals(1, ((List) foo).size());
-    Vertex resultVertex = (Vertex) ((List) foo).getFirst();
+    var resultVertex = (Vertex) ((List) foo).getFirst();
     assertEquals(2, resultVertex.<Object>getProperty("uid"));
   }
 
   @Test
   public void testIndexedEdge() {
-    String query =
+    var query =
         "match "
             + "{class:IndexedVertex, as: one, where: (uid = 0)}"
             + ".out('IndexedEdge'){class:IndexedVertex, as: two, where: (uid = 1)}"
@@ -1280,7 +1280,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testIndexedEdgeArrows() {
-    String query =
+    var query =
         "match "
             + "{class:IndexedVertex, as: one, where: (uid = 0)}"
             + "-IndexedEdge->{class:IndexedVertex, as: two, where: (uid = 1)}"
@@ -1292,12 +1292,12 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testJson() {
-    String query =
+    var query =
         "match "
             + "{class:IndexedVertex, as: one, where: (uid = 0)} "
             + "return {'name':'foo', 'uuid':one.uid}";
 
-    List<Result> result = collect(db.command(query));
+    var result = collect(db.command(query));
     assertEquals(1, result.size());
     //    var doc = result.get(0);
     //    assertEquals("foo", doc.getProperty("name"));
@@ -1306,12 +1306,12 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testJson2() {
-    String query =
+    var query =
         "match "
             + "{class:IndexedVertex, as: one, where: (uid = 0)} "
             + "return {'name':'foo', 'sub': {'uuid':one.uid}}";
 
-    List<Result> result = collect(db.command(query));
+    var result = collect(db.command(query));
     assertEquals(1, result.size());
     //    var doc = result.get(0);
     //    assertEquals("foo", doc.getProperty("name"));
@@ -1320,12 +1320,12 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testJson3() {
-    String query =
+    var query =
         "match "
             + "{class:IndexedVertex, as: one, where: (uid = 0)} "
             + "return {'name':'foo', 'sub': [{'uuid':one.uid}]}";
 
-    List<Result> result = collect(db.command(query));
+    var result = collect(db.command(query));
     assertEquals(1, result.size());
     //    var doc = result.get(0);
     //    assertEquals("foo", doc.getProperty("name"));
@@ -1335,13 +1335,13 @@ public class MatchStatementExecutionTest extends DbTestBase {
   @Test
   @Ignore
   public void testUnique() {
-    StringBuilder query = new StringBuilder();
+    var query = new StringBuilder();
     query.append("match ");
     query.append(
         "{class:DiamondV, as: one, where: (uid = 0)}.out('DiamondE').out('DiamondE'){as: two} ");
     query.append("return one, two");
 
-    List<Entity> result = db.query(query.toString()).toEntityList();
+    var result = db.query(query.toString()).toEntityList();
     assertEquals(1, result.size());
 
     query = new StringBuilder();
@@ -1360,7 +1360,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   @Test
   @Ignore
   public void testManagedElements() {
-    List<? extends Identifiable> managedByB = getManagedElements();
+    var managedByB = getManagedElements();
     assertEquals(6, managedByB.size());
     Set<String> expectedNames = new HashSet<String>();
     expectedNames.add("b");
@@ -1370,7 +1370,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     expectedNames.add("p7");
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
-    for (Identifiable id : managedByB) {
+    for (var id : managedByB) {
       EntityImpl doc = id.getRecord(db);
       String name = doc.getProperty("name");
       names.add(name);
@@ -1379,7 +1379,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   }
 
   private List<? extends Identifiable> getManagedElements() {
-    String query =
+    var query =
         "  match {class:Employee, as:boss, where: (name = '"
             + "b"
             + "')}"
@@ -1395,7 +1395,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   @Test
   @Ignore
   public void testManagedPathElements() {
-    List<? extends Identifiable> managedByB = getManagedPathElements("b");
+    var managedByB = getManagedPathElements("b");
     assertEquals(10, managedByB.size());
     Set<String> expectedNames = new HashSet<String>();
     expectedNames.add("department1");
@@ -1409,7 +1409,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     expectedNames.add("p7");
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
-    for (Identifiable id : managedByB) {
+    for (var id : managedByB) {
       EntityImpl doc = id.getRecord(db);
       String name = doc.getProperty("name");
       names.add(name);
@@ -1419,7 +1419,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testOptional() throws Exception {
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "match {class:Person, as: person} -NonExistingEdge-> {as:b, optional:true} return"
@@ -1436,7 +1436,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testOptional2() throws Exception {
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "match {class:Person, as: person} --> {as:b, optional:true, where:(nonExisting ="
@@ -1453,7 +1453,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testOptional3() throws Exception {
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, as:a, where:(name = 'n1' and"
@@ -1466,7 +1466,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testAliasesWithSubquery() throws Exception {
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "select from ( match {class:Person, as:A} return A.name as namexx ) limit 1"));
@@ -1487,14 +1487,14 @@ public class MatchStatementExecutionTest extends DbTestBase {
     db.command("CREATE VERTEX testEvalInReturn SET name = 'bar'").close();
     db.commit();
 
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "MATCH {class: testEvalInReturn, as: p} RETURN if(eval(\"p.name = 'foo'\"), 1, 2)"
                     + " AS b"));
 
     assertEquals(2, qResult.size());
-    int sum = 0;
+    var sum = 0;
     for (var doc : qResult) {
       sum += ((Number) doc.getProperty("b")).intValue();
     }
@@ -1519,7 +1519,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     db.begin();
     db.command("CREATE VERTEX testCheckClassAsCondition SET name = 'foo'").close();
     db.command("CREATE VERTEX testCheckClassAsCondition1 SET name = 'bar'").close();
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       db.command("CREATE VERTEX testCheckClassAsCondition2 SET name = 'baz'").close();
     }
     db.command(
@@ -1532,7 +1532,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
         .close();
     db.commit();
 
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "MATCH {class: testCheckClassAsCondition, as: p} -E- {class:"
@@ -1544,7 +1544,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   @Test
   public void testInstanceof() {
 
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "MATCH {class: Person, as: p, where: ($currentMatch instanceof 'Person')} return"
@@ -1596,7 +1596,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     schema.createClass("testBigEntryPoint1");
     schema.createClass("testBigEntryPoint2");
 
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       db.begin();
       var doc = db.newInstance("testBigEntryPoint1");
       doc.setProperty("a", i);
@@ -1610,7 +1610,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     doc.save();
     db.commit();
 
-    List<Result> qResult =
+    var qResult =
         collect(
             db.command(
                 "MATCH {class: testBigEntryPoint1, as: a}, {class: testBigEntryPoint2, as: b}"
@@ -1649,7 +1649,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
         .close();
     db.commit();
 
-    ResultSet result =
+    var result =
         db.query(
             """
                 MATCH\s
@@ -1766,7 +1766,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     // - far depends on baz
     // - baz depends on bar
     // - bar depends on far
-    SQLSynchQuery query =
+    var query =
         new SQLSynchQuery(
             """
                 MATCH {
@@ -1812,7 +1812,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     db.commit();
 
     // "bar" in the following query declares a dependency on the alias "baz", which doesn't exist.
-    SQLSynchQuery query =
+    var query =
         new SQLSynchQuery(
             """
                 MATCH {
@@ -1865,7 +1865,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
         .close();
     db.commit();
 
-    String query =
+    var query =
         """
             MATCH {
                 class: testCyclicDeepTraversalV,
@@ -1882,12 +1882,12 @@ public class MatchStatementExecutionTest extends DbTestBase {
                 as: foo
             } RETURN $patterns""";
 
-    ResultSet result = db.query(query);
+    var result = db.query(query);
     assertEquals(1, result.stream().count());
   }
 
   private List<? extends Identifiable> getManagedPathElements(String managerName) {
-    String query =
+    var query =
         "  match {class:Employee, as:boss, where: (name = '"
             + managerName
             + "')}"

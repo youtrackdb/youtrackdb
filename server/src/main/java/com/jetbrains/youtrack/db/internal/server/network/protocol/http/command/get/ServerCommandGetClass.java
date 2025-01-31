@@ -33,7 +33,7 @@ public class ServerCommandGetClass extends ServerCommandAuthenticatedDbAbstract 
 
   @Override
   public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
-    String[] urlParts =
+    var urlParts =
         checkSyntax(iRequest.getUrl(), 3, "Syntax error: class/<database>/<class-name>");
 
     iRequest.getData().commandInfo = "Returns the information of a class in the schema";
@@ -46,8 +46,8 @@ public class ServerCommandGetClass extends ServerCommandAuthenticatedDbAbstract 
 
       if (db.getMetadata().getSchema().existsClass(urlParts[2])) {
         var cls = db.getMetadata().getSchemaInternal().getClassInternal(urlParts[2]);
-        final StringWriter buffer = new StringWriter();
-        final JSONWriter json = new JSONWriter(buffer, HttpResponse.JSON_FORMAT);
+        final var buffer = new StringWriter();
+        final var json = new JSONWriter(buffer, HttpResponse.JSON_FORMAT);
         ServerCommandGetDatabase.exportClass(db, json, cls);
         iResponse.send(
             HttpUtils.STATUS_OK_CODE,

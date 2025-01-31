@@ -64,7 +64,7 @@ public class LuceneOverlapOperator extends LuceneSpatialOperator {
       Object iRight,
       CommandContext iContext,
       final EntitySerializer serializer) {
-    Shape shape = factory.fromDoc((EntityImpl) iLeft);
+    var shape = factory.fromDoc((EntityImpl) iLeft);
 
     // TODO { 'shape' : { 'type' : 'LineString' , 'coordinates' : [[1,2],[4,6]]} }
     // TODO is not translated in map but in array[ { 'type' : 'LineString' , 'coordinates' :
@@ -75,7 +75,7 @@ public class LuceneOverlapOperator extends LuceneSpatialOperator {
     } else {
       filter = iRight;
     }
-    Shape shape1 = factory.fromObject(filter);
+    var shape1 = factory.fromObject(filter);
 
     return SpatialOperation.BBoxIntersects.evaluate(shape, shape1.getBoundingBox());
   }

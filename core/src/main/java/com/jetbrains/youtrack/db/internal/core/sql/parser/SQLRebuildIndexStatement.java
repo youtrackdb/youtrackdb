@@ -26,13 +26,13 @@ public class SQLRebuildIndexStatement extends SQLSimpleExecStatement {
 
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
-    final DatabaseSessionInternal database = ctx.getDatabase();
-    ResultInternal result = new ResultInternal(database);
+    final var database = ctx.getDatabase();
+    var result = new ResultInternal(database);
     result.setProperty("operation", "rebuild index");
 
     if (all) {
       long totalIndexed = 0;
-      for (Index idx : database.getMetadata().getIndexManagerInternal().getIndexes(database)) {
+      for (var idx : database.getMetadata().getIndexManagerInternal().getIndexes(database)) {
         if (idx.isAutomatic()) {
           totalIndexed += idx.rebuild(database);
         }
@@ -40,7 +40,7 @@ public class SQLRebuildIndexStatement extends SQLSimpleExecStatement {
 
       result.setProperty("totalIndexed", totalIndexed);
     } else {
-      final Index idx =
+      final var idx =
           database.getMetadata().getIndexManagerInternal().getIndex(database, name.getValue());
       if (idx == null) {
         throw new CommandExecutionException("Index '" + name + "' not found");
@@ -53,7 +53,7 @@ public class SQLRebuildIndexStatement extends SQLSimpleExecStatement {
                 + "' because it's manual and there aren't indications of what to index");
       }
 
-      long val = idx.rebuild(database);
+      var val = idx.rebuild(database);
       result.setProperty("totalIndexed", val);
     }
     return ExecutionStream.singleton(result);
@@ -81,7 +81,7 @@ public class SQLRebuildIndexStatement extends SQLSimpleExecStatement {
 
   @Override
   public SQLRebuildIndexStatement copy() {
-    SQLRebuildIndexStatement result = new SQLRebuildIndexStatement(-1);
+    var result = new SQLRebuildIndexStatement(-1);
     result.all = all;
     result.name = name == null ? null : name.copy();
     return result;
@@ -96,7 +96,7 @@ public class SQLRebuildIndexStatement extends SQLSimpleExecStatement {
       return false;
     }
 
-    SQLRebuildIndexStatement that = (SQLRebuildIndexStatement) o;
+    var that = (SQLRebuildIndexStatement) o;
 
     if (all != that.all) {
       return false;
@@ -106,7 +106,7 @@ public class SQLRebuildIndexStatement extends SQLSimpleExecStatement {
 
   @Override
   public int hashCode() {
-    int result = (all ? 1 : 0);
+    var result = (all ? 1 : 0);
     result = 31 * result + (name != null ? name.hashCode() : 0);
     return result;
   }

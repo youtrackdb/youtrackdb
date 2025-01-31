@@ -44,10 +44,10 @@ public class ServerDatabaseOperationsTest {
       IllegalAccessException,
       InstantiationException {
     LogManager.instance().setConsoleLevel(Level.OFF.getName());
-    ServerConfiguration conf = new ServerConfiguration();
+    var conf = new ServerConfiguration();
 
     conf.handlers = new ArrayList<>();
-    ServerUserConfiguration rootUser = new ServerUserConfiguration();
+    var rootUser = new ServerUserConfiguration();
     rootUser.name = "root";
     rootUser.password = "root";
     rootUser.resources = "server.listDatabases";
@@ -65,7 +65,7 @@ public class ServerDatabaseOperationsTest {
 
     try (DatabaseSession db = server.openDatabase(
         ServerDatabaseOperationsTest.class.getSimpleName())) {
-      EntityImpl securityConfig = ((EntityImpl) db.newEntity());
+      var securityConfig = ((EntityImpl) db.newEntity());
       securityConfig.updateFromJSON(
           IOUtils.readStreamAsString(
               this.getClass().getClassLoader().getResourceAsStream("security.json")),

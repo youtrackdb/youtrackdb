@@ -59,7 +59,7 @@ public class RecordIteratorCluster<REC extends DBRecord> extends IdentifiableIte
     checkForSystemClusters(iDatabase, new int[]{iClusterId});
 
     current.setClusterId(iClusterId);
-    final long[] range = database.getClusterDataRange(current.getClusterId());
+    final var range = database.getClusterDataRange(current.getClusterId());
 
     if (firstClusterEntry == RID.CLUSTER_POS_INVALID) {
       this.firstClusterEntry = range[0];
@@ -80,7 +80,7 @@ public class RecordIteratorCluster<REC extends DBRecord> extends IdentifiableIte
     if (txEntries != null)
     // ADJUST TOTAL ELEMENT BASED ON CURRENT TRANSACTION'S ENTRIES
     {
-      for (RecordOperation entry : txEntries) {
+      for (var entry : txEntries) {
         switch (entry.type) {
           case RecordOperation.CREATED:
             totalAvailableRecords++;
@@ -111,7 +111,7 @@ public class RecordIteratorCluster<REC extends DBRecord> extends IdentifiableIte
       return false;
     }
 
-    boolean thereAreRecordsToBrowse = getCurrentEntry() > firstClusterEntry;
+    var thereAreRecordsToBrowse = getCurrentEntry() > firstClusterEntry;
 
     if (thereAreRecordsToBrowse) {
       currentRecord = readCurrentRecord(-1);
@@ -309,7 +309,7 @@ public class RecordIteratorCluster<REC extends DBRecord> extends IdentifiableIte
       firstClusterEntry = 0L;
       lastClusterEntry = Long.MAX_VALUE;
     } else {
-      final long[] range = database.getClusterDataRange(current.getClusterId());
+      final var range = database.getClusterDataRange(current.getClusterId());
       firstClusterEntry = range[0];
       lastClusterEntry = range[1];
     }
@@ -321,7 +321,7 @@ public class RecordIteratorCluster<REC extends DBRecord> extends IdentifiableIte
 
   private void updateRangesOnLiveUpdate() {
     if (liveUpdated) {
-      final long[] range = database.getClusterDataRange(current.getClusterId());
+      final var range = database.getClusterDataRange(current.getClusterId());
 
       firstClusterEntry = range[0];
       lastClusterEntry = range[1];

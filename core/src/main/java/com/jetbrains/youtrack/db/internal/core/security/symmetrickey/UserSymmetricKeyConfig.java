@@ -120,7 +120,7 @@ public class UserSymmetricKeyConfig implements SymmetricKeyConfig {
       } else {
         Map<String, Object> ksMap = props.field("keyStore");
 
-        EntityImpl ksDoc = new EntityImpl(null);
+        var ksDoc = new EntityImpl(null);
         ksDoc.updateFromMap(ksMap);
 
         this.keystoreFile = ksDoc.field("file");

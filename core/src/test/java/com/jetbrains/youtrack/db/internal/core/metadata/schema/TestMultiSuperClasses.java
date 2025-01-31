@@ -21,11 +21,11 @@ public class TestMultiSuperClasses extends BaseMemoryInternalDatabase {
   public void testClassCreation() {
     Schema oSchema = db.getMetadata().getSchema();
 
-    SchemaClass aClass = oSchema.createAbstractClass("javaA");
-    SchemaClass bClass = oSchema.createAbstractClass("javaB");
+    var aClass = oSchema.createAbstractClass("javaA");
+    var bClass = oSchema.createAbstractClass("javaB");
     aClass.createProperty(db, "propertyInt", PropertyType.INTEGER);
     bClass.createProperty(db, "propertyDouble", PropertyType.DOUBLE);
-    SchemaClass cClass = oSchema.createClass("javaC", aClass, bClass);
+    var cClass = oSchema.createClass("javaC", aClass, bClass);
     testClassCreationBranch(aClass, bClass, cClass);
     testClassCreationBranch(aClass, bClass, cClass);
     oSchema = db.getMetadata().getImmutableSchemaSnapshot();
@@ -51,7 +51,7 @@ public class TestMultiSuperClasses extends BaseMemoryInternalDatabase {
     assertTrue(aClass.isSuperClassOf(cClass));
     assertTrue(bClass.isSuperClassOf(cClass));
 
-    SchemaProperty property = cClass.getProperty("propertyInt");
+    var property = cClass.getProperty("propertyInt");
     assertEquals(PropertyType.INTEGER, property.getType());
     property = cClass.propertiesMap(db).get("propertyInt");
     assertEquals(PropertyType.INTEGER, property.getType());
@@ -66,9 +66,9 @@ public class TestMultiSuperClasses extends BaseMemoryInternalDatabase {
   public void testSql() {
     final Schema oSchema = db.getMetadata().getSchema();
 
-    SchemaClass aClass = oSchema.createAbstractClass("sqlA");
-    SchemaClass bClass = oSchema.createAbstractClass("sqlB");
-    SchemaClass cClass = oSchema.createClass("sqlC");
+    var aClass = oSchema.createAbstractClass("sqlA");
+    var bClass = oSchema.createAbstractClass("sqlB");
+    var cClass = oSchema.createClass("sqlC");
     db.command("alter class sqlC superclasses sqlA, sqlB").close();
     assertTrue(cClass.isSubClassOf(aClass));
     assertTrue(cClass.isSubClassOf(bClass));
@@ -91,9 +91,9 @@ public class TestMultiSuperClasses extends BaseMemoryInternalDatabase {
     db.command("create class sql2B abstract").close();
     db.command("create class sql2C extends sql2A, sql2B abstract").close();
 
-    SchemaClass aClass = oSchema.getClass("sql2A");
-    SchemaClass bClass = oSchema.getClass("sql2B");
-    SchemaClass cClass = oSchema.getClass("sql2C");
+    var aClass = oSchema.getClass("sql2A");
+    var bClass = oSchema.getClass("sql2B");
+    var cClass = oSchema.getClass("sql2C");
     assertNotNull(aClass);
     assertNotNull(bClass);
     assertNotNull(cClass);
@@ -106,9 +106,9 @@ public class TestMultiSuperClasses extends BaseMemoryInternalDatabase {
   // )
   public void testPreventionOfCycles() {
     final Schema oSchema = db.getMetadata().getSchema();
-    SchemaClass aClass = oSchema.createAbstractClass("cycleA");
-    SchemaClass bClass = oSchema.createAbstractClass("cycleB", aClass);
-    SchemaClass cClass = oSchema.createAbstractClass("cycleC", bClass);
+    var aClass = oSchema.createAbstractClass("cycleA");
+    var bClass = oSchema.createAbstractClass("cycleB", aClass);
+    var cClass = oSchema.createAbstractClass("cycleC", bClass);
 
     aClass.setSuperClasses(db, Collections.singletonList(cClass));
   }
@@ -116,11 +116,11 @@ public class TestMultiSuperClasses extends BaseMemoryInternalDatabase {
   @Test
   public void testParametersImpactGoodScenario() {
     final Schema oSchema = db.getMetadata().getSchema();
-    SchemaClass aClass = oSchema.createAbstractClass("impactGoodA");
+    var aClass = oSchema.createAbstractClass("impactGoodA");
     aClass.createProperty(db, "property", PropertyType.STRING);
-    SchemaClass bClass = oSchema.createAbstractClass("impactGoodB");
+    var bClass = oSchema.createAbstractClass("impactGoodB");
     bClass.createProperty(db, "property", PropertyType.STRING);
-    SchemaClass cClass = oSchema.createAbstractClass("impactGoodC", aClass, bClass);
+    var cClass = oSchema.createAbstractClass("impactGoodC", aClass, bClass);
     assertTrue(cClass.existsProperty("property"));
   }
 
@@ -129,9 +129,9 @@ public class TestMultiSuperClasses extends BaseMemoryInternalDatabase {
   // }, expectedExceptionsMessageRegExp = "(?s).*conflict.*")
   public void testParametersImpactBadScenario() {
     final Schema oSchema = db.getMetadata().getSchema();
-    SchemaClass aClass = oSchema.createAbstractClass("impactBadA");
+    var aClass = oSchema.createAbstractClass("impactBadA");
     aClass.createProperty(db, "property", PropertyType.STRING);
-    SchemaClass bClass = oSchema.createAbstractClass("impactBadB");
+    var bClass = oSchema.createAbstractClass("impactBadB");
     bClass.createProperty(db, "property", PropertyType.INTEGER);
     oSchema.createAbstractClass("impactBadC", aClass, bClass);
   }
@@ -139,12 +139,12 @@ public class TestMultiSuperClasses extends BaseMemoryInternalDatabase {
   @Test
   public void testCreationOfClassWithV() {
     final Schema oSchema = db.getMetadata().getSchema();
-    SchemaClass oRestrictedClass = oSchema.getClass("ORestricted");
-    SchemaClass vClass = oSchema.getClass("V");
+    var oRestrictedClass = oSchema.getClass("ORestricted");
+    var vClass = oSchema.getClass("V");
     vClass.setSuperClasses(db, Collections.singletonList(oRestrictedClass));
-    SchemaClass dummy1Class = oSchema.createClass("Dummy1", oRestrictedClass, vClass);
-    SchemaClass dummy2Class = oSchema.createClass("Dummy2");
-    SchemaClass dummy3Class = oSchema.createClass("Dummy3", dummy1Class, dummy2Class);
+    var dummy1Class = oSchema.createClass("Dummy1", oRestrictedClass, vClass);
+    var dummy2Class = oSchema.createClass("Dummy2");
+    var dummy3Class = oSchema.createClass("Dummy3", dummy1Class, dummy2Class);
     assertNotNull(dummy3Class);
   }
 }

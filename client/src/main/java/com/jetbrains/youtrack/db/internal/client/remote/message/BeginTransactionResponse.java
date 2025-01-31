@@ -31,7 +31,7 @@ public class BeginTransactionResponse implements BinaryResponse {
     channel.writeLong(txId);
     channel.writeInt(updatedIds.size());
 
-    for (Map.Entry<RecordId, RecordId> ids : updatedIds.entrySet()) {
+    for (var ids : updatedIds.entrySet()) {
       channel.writeRID(ids.getKey());
       channel.writeRID(ids.getValue());
     }
@@ -41,11 +41,11 @@ public class BeginTransactionResponse implements BinaryResponse {
   public void read(DatabaseSessionInternal db, ChannelDataInput network,
       StorageRemoteSession session) throws IOException {
     txId = network.readLong();
-    int size = network.readInt();
+    var size = network.readInt();
     updatedIds = new HashMap<>(size);
     while (size-- > 0) {
-      RecordId key = network.readRID();
-      RecordId value = network.readRID();
+      var key = network.readRID();
+      var value = network.readRID();
       updatedIds.put(key, value);
     }
   }

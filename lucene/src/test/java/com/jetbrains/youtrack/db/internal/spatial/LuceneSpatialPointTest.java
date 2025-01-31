@@ -35,13 +35,13 @@ public class LuceneSpatialPointTest extends BaseSpatialLuceneTest {
   public void init() {
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass v = schema.getClass("V");
-    SchemaClass oClass = schema.createClass("City");
+    var v = schema.getClass("V");
+    var oClass = schema.createClass("City");
     oClass.setSuperClass(db, v);
     oClass.createProperty(db, "location", PropertyType.EMBEDDED, schema.getClass("OPoint"));
     oClass.createProperty(db, "name", PropertyType.STRING);
 
-    SchemaClass place = schema.createClass("Place");
+    var place = schema.createClass("Place");
     place.setSuperClass(db, v);
     place.createProperty(db, "latitude", PropertyType.DOUBLE);
     place.createProperty(db, "longitude", PropertyType.DOUBLE);
@@ -52,10 +52,10 @@ public class LuceneSpatialPointTest extends BaseSpatialLuceneTest {
     db.command("CREATE INDEX Place.l_lon ON Place(latitude,longitude) SPATIAL ENGINE LUCENE")
         .close();
 
-    EntityImpl rome = newCity(db, "Rome", 12.5, 41.9);
-    EntityImpl london = newCity(db, "London", -0.1275, 51.507222);
+    var rome = newCity(db, "Rome", 12.5, 41.9);
+    var london = newCity(db, "London", -0.1275, 51.507222);
 
-    EntityImpl rome1 = ((EntityImpl) db.newEntity("Place"));
+    var rome1 = ((EntityImpl) db.newEntity("Place"));
     rome1.field("name", "Rome");
     rome1.field("latitude", 41.9);
     rome1.field("longitude", 12.5);
@@ -88,10 +88,10 @@ public class LuceneSpatialPointTest extends BaseSpatialLuceneTest {
 
   protected void queryPoint() {
     // TODO remove = true when parser will support index function without expression
-    String query =
+    var query =
         "select * from City where  ST_WITHIN(location,{ 'shape' : { 'type' : 'ORectangle' ,"
             + " 'coordinates' : [12.314015,41.8262816,12.6605063,41.963125]} }) = true";
-    ResultSet docs = db.query(query);
+    var docs = db.query(query);
 
     Assert.assertEquals(1, docs.stream().count());
 
@@ -122,7 +122,7 @@ public class LuceneSpatialPointTest extends BaseSpatialLuceneTest {
 
   protected static EntityImpl newCity(DatabaseSession db, String name, final Double longitude,
       final Double latitude) {
-    EntityImpl location = ((EntityImpl) db.newEntity("OPoint"));
+    var location = ((EntityImpl) db.newEntity("OPoint"));
     location.field(
         "coordinates",
         new ArrayList<Double>() {
@@ -132,7 +132,7 @@ public class LuceneSpatialPointTest extends BaseSpatialLuceneTest {
           }
         });
 
-    EntityImpl city = ((EntityImpl) db.newEntity("City"));
+    var city = ((EntityImpl) db.newEntity("City"));
     city.field("name", name);
     city.field("location", location);
     return city;

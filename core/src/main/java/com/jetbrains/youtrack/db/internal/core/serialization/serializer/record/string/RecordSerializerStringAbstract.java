@@ -85,7 +85,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
 
       case EMBEDDED: {
         // EMBEDED RECORD
-        final Object embeddedObject =
+        final var embeddedObject =
             StringSerializerEmbedded.INSTANCE.fromStream(db, (String) iValue);
         if (embeddedObject instanceof EntityImpl) {
           EntityInternalUtils.addOwner((EntityImpl) embeddedObject, entity);
@@ -97,7 +97,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
 
       case CUSTOM:
         // RECORD
-        final Object result = StringSerializerAnyStreamable.INSTANCE.fromStream(db,
+        final var result = StringSerializerAnyStreamable.INSTANCE.fromStream(db,
             (String) iValue);
         if (result instanceof EntityImpl) {
           EntityInternalUtils.addOwner((EntityImpl) result, entity);
@@ -106,13 +106,13 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
 
       case EMBEDDEDSET:
       case EMBEDDEDLIST: {
-        final String value = (String) iValue;
+        final var value = (String) iValue;
         return RecordSerializerSchemaAware2CSV.INSTANCE.embeddedCollectionFromStream(db,
             entity, iType, null, null, value);
       }
 
       case EMBEDDEDMAP: {
-        final String value = (String) iValue;
+        final var value = (String) iValue;
         return RecordSerializerCSVAbstract.embeddedMapFromStream(db,
             entity, null, value, null);
       }
@@ -124,7 +124,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
 
   public static Object convertValue(DatabaseSessionInternal db,
       final String iValue, final PropertyType iExpectedType) {
-    final Object v = getTypeValue(db, iValue);
+    final var v = getTypeValue(db, iValue);
     return PropertyType.convert(db, v, iExpectedType.getDefaultJavaType());
   }
 
@@ -135,7 +135,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
       return;
     }
 
-    final long timer = PROFILER.startChrono();
+    final var timer = PROFILER.startChrono();
 
     if (iType == null) {
       if (iValue instanceof RID) {
@@ -334,7 +334,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
       return null;
     }
 
-    final char firstChar = iValue.charAt(0);
+    final var firstChar = iValue.charAt(0);
 
     if (firstChar == RID.PREFIX)
     // RID
@@ -362,9 +362,9 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
     }
 
     // NUMBER OR STRING?
-    boolean integer = true;
-    for (int index = 0; index < iValue.length(); ++index) {
-      final char c = iValue.charAt(index);
+    var integer = true;
+    for (var index = 0; index < iValue.length(); ++index) {
+      final var c = iValue.charAt(index);
       if (c < '0' || c > '9') {
         if ((index == 0 && (c == '+' || c == '-'))) {
           continue;
@@ -415,7 +415,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
 
     if (integer) {
       // AUTO CONVERT TO LONG IF THE INTEGER IS TOO BIG
-      final int numberLength = iValue.length();
+      final var numberLength = iValue.length();
       if (numberLength > MAX_INTEGER_DIGITS
           || (numberLength == MAX_INTEGER_DIGITS && iValue.compareTo(MAX_INTEGER_AS_STRING) > 0)) {
         return PropertyType.LONG;
@@ -425,7 +425,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
     }
 
     // CHECK IF THE DECIMAL NUMBER IS A FLOAT OR DOUBLE
-    final double dou = Double.parseDouble(iValue);
+    final var dou = Double.parseDouble(iValue);
     if (dou <= Float.MAX_VALUE
         && dou >= Float.MIN_VALUE
         && Double.toString(dou).equals(Float.toString((float) dou))
@@ -471,7 +471,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
       } else if (iValue.charAt(0) == StringSerializerHelper.LIST_BEGIN
           && iValue.charAt(iValue.length() - 1) == StringSerializerHelper.LIST_END) {
         // LIST
-        final ArrayList<String> coll = new ArrayList<String>();
+        final var coll = new ArrayList<String>();
         StringSerializerHelper.getCollection(
             iValue,
             0,
@@ -505,12 +505,12 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
       return new RecordId(iValue);
     }
 
-    boolean integer = true;
+    var integer = true;
     char c;
 
-    boolean stringStarBySign = false;
+    var stringStarBySign = false;
 
-    for (int index = 0; index < iValue.length(); ++index) {
+    for (var index = 0; index < iValue.length(); ++index) {
       c = iValue.charAt(index);
       if (c < '0' || c > '9') {
         if ((index == 0 && (c == '+' || c == '-'))) {
@@ -530,7 +530,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
               }
             }
 
-            final String v = iValue.substring(0, index);
+            final var v = iValue.substring(0, index);
 
             if (c == 'f') {
               return Float.valueOf(v);
@@ -578,7 +578,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
     switch (iType) {
       case STRING:
         if (iValue instanceof String) {
-          final String s = IOUtils.getStringContent(iValue);
+          final var s = IOUtils.getStringContent(iValue);
           return StringSerializerHelper.decode(s);
         }
         return iValue.toString();
@@ -724,7 +724,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
       case DATE:
         if (iValue instanceof Date) {
           // RESET HOURS, MINUTES, SECONDS AND MILLISECONDS
-          final Calendar calendar = DateHelper.getDatabaseCalendar();
+          final var calendar = DateHelper.getDatabaseCalendar();
           calendar.setTime((Date) iValue);
           calendar.set(Calendar.HOUR_OF_DAY, 0);
           calendar.set(Calendar.MINUTE, 0);
@@ -772,7 +772,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
   public RecordAbstract fromStream(
       DatabaseSessionInternal db, final byte[] iSource, final RecordAbstract iRecord,
       final String[] iFields) {
-    final long timer = PROFILER.startChrono();
+    final var timer = PROFILER.startChrono();
 
     try {
       return fromString(db, new String(iSource, StandardCharsets.UTF_8), iRecord, iFields);
@@ -786,7 +786,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
   }
 
   public byte[] toStream(DatabaseSessionInternal db, final RecordAbstract iRecord) {
-    final long timer = PROFILER.startChrono();
+    final var timer = PROFILER.startChrono();
 
     try {
       return toString(db, iRecord, new StringWriter(2048), null, true)

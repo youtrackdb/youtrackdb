@@ -30,11 +30,11 @@ public class YouTrackDbJdbcStatementDMLtest extends YouTrackDbJdbcDbPerMethodTem
   @Test
   public void shouldInsertANewItem() throws Exception {
 
-    Date date = new Date(System.currentTimeMillis());
+    var date = new Date(System.currentTimeMillis());
 
-    Statement stmt = conn.createStatement();
+    var stmt = conn.createStatement();
     stmt.execute("begin");
-    int updated =
+    var updated =
         stmt.executeUpdate(
             "INSERT into Item (stringKey, intKey, text, length, date) values ('100','100','dummy"
                 + " text','10','"
@@ -45,7 +45,7 @@ public class YouTrackDbJdbcStatementDMLtest extends YouTrackDbJdbcDbPerMethodTem
     assertThat(updated).isEqualTo(1);
 
     stmt = conn.createStatement();
-    ResultSet rs =
+    var rs =
         stmt.executeQuery(
             "SELECT stringKey, intKey, text, length, date FROM Item where intKey = '100' ");
     rs.next();
@@ -57,16 +57,16 @@ public class YouTrackDbJdbcStatementDMLtest extends YouTrackDbJdbcDbPerMethodTem
   @Test
   public void shouldUpdateAnItem() throws Exception {
 
-    Statement stmt = conn.createStatement();
+    var stmt = conn.createStatement();
     stmt.execute("begin");
-    int updated = stmt.executeUpdate("UPDATE Item set text = 'UPDATED'  WHERE intKey = '10'");
+    var updated = stmt.executeUpdate("UPDATE Item set text = 'UPDATED'  WHERE intKey = '10'");
     stmt.execute("commit");
 
     assertThat(stmt.getMoreResults()).isFalse();
     assertThat(updated).isEqualTo(1);
 
     stmt = conn.createStatement();
-    ResultSet rs =
+    var rs =
         stmt.executeQuery(
             "SELECT stringKey, intKey, text, length, date FROM Item where intKey = '10' ");
     rs.next();
@@ -76,14 +76,14 @@ public class YouTrackDbJdbcStatementDMLtest extends YouTrackDbJdbcDbPerMethodTem
   @Test
   public void shouldDeleteAnItem() throws Exception {
 
-    Statement stmt = conn.createStatement();
-    int updated = stmt.executeUpdate("DELETE FROM Item WHERE intKey = '10'");
+    var stmt = conn.createStatement();
+    var updated = stmt.executeUpdate("DELETE FROM Item WHERE intKey = '10'");
 
     assertThat(stmt.getMoreResults()).isFalse();
     assertThat(updated).isEqualTo(1);
 
     stmt = conn.createStatement();
-    ResultSet rs =
+    var rs =
         stmt.executeQuery(
             "SELECT stringKey, intKey, text, length, date FROM Item where intKey = '10' ");
     assertThat(rs.next()).isFalse();
@@ -92,7 +92,7 @@ public class YouTrackDbJdbcStatementDMLtest extends YouTrackDbJdbcDbPerMethodTem
   @Test
   public void shoulCreateClassWithProperties() throws IOException, SQLException {
 
-    Statement stmt = conn.createStatement();
+    var stmt = conn.createStatement();
 
     stmt.execute("CREATE CLASS Account ");
     stmt.execute("CREATE PROPERTY Account.id INTEGER ");
@@ -103,7 +103,7 @@ public class YouTrackDbJdbcStatementDMLtest extends YouTrackDbJdbcDbPerMethodTem
     // double value test pattern?
     var database = (DatabaseSessionInternal) conn.getDatabase();
     assertThat(database.getClusterIdByName("account")).isNotNull();
-    SchemaClass account = database.getMetadata().getSchema().getClass("Account");
+    var account = database.getMetadata().getSchema().getClass("Account");
     assertThat(account).isNotNull();
     assertThat(account.getProperty("id").getType()).isEqualTo(PropertyType.INTEGER);
     assertThat(account.getProperty("birthDate").getType()).isEqualTo(PropertyType.DATE);
@@ -113,7 +113,7 @@ public class YouTrackDbJdbcStatementDMLtest extends YouTrackDbJdbcDbPerMethodTem
   @Test
   public void shouldCreateClassWithBatchCommand() throws IOException, SQLException {
 
-    Statement stmt = conn.createStatement();
+    var stmt = conn.createStatement();
 
     stmt.addBatch("CREATE CLASS Account ");
     stmt.addBatch("CREATE PROPERTY Account.id INTEGER ");
@@ -123,9 +123,9 @@ public class YouTrackDbJdbcStatementDMLtest extends YouTrackDbJdbcDbPerMethodTem
     stmt.close();
 
     // double value test pattern?
-    DatabaseSessionInternal database = (DatabaseSessionInternal) conn.getDatabase();
+    var database = (DatabaseSessionInternal) conn.getDatabase();
     assertThat(database.getClusterIdByName("account")).isNotNull();
-    SchemaClass account = database.getMetadata().getSchema().getClass("Account");
+    var account = database.getMetadata().getSchema().getClass("Account");
     assertThat(account).isNotNull();
     assertThat(account.getProperty("id").getType()).isEqualTo(PropertyType.INTEGER);
     assertThat(account.getProperty("birthDate").getType()).isEqualTo(PropertyType.DATE);

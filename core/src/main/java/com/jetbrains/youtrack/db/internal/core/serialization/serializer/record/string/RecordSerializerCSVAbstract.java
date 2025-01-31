@@ -105,7 +105,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
       }
 
       // RECORD
-      DBRecord iLinkedRecord = ((Identifiable) iLinked).getRecord(db);
+      var iLinkedRecord = ((Identifiable) iLinked).getRecord(db);
       rid = (RecordId) iLinkedRecord.getIdentity();
 
       assert ((RecordId) rid.getIdentity()).isValid() || DatabaseRecordThreadLocal.instance().get()
@@ -154,7 +154,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
         }
 
         // REMOVE BEGIN & END COLLECTIONS CHARACTERS IF IT'S A COLLECTION
-        final String value =
+        final var value =
             iValue.startsWith("[") || iValue.startsWith("<")
                 ? iValue.substring(1, iValue.length() - 1)
                 : iValue;
@@ -172,7 +172,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
         }
 
         // REMOVE BEGIN & END MAP CHARACTERS
-        String value = iValue.substring(1, iValue.length() - 1);
+        var value = iValue.substring(1, iValue.length() - 1);
 
         @SuppressWarnings("rawtypes") final Map map = new LinkMap((EntityImpl) iSourceRecord,
             EntityImpl.RECORD_TYPE);
@@ -181,17 +181,17 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
           return map;
         }
 
-        final List<String> items =
+        final var items =
             StringSerializerHelper.smartSplit(
                 value, StringSerializerHelper.RECORD_SEPARATOR, true, false);
 
         // EMBEDDED LITERALS
-        for (String item : items) {
+        for (var item : items) {
           if (item != null && !item.isEmpty()) {
-            final List<String> entry =
+            final var entry =
                 StringSerializerHelper.smartSplit(item, StringSerializerHelper.ENTRY_SEPARATOR);
             if (!entry.isEmpty()) {
-              String mapValue = entry.get(1);
+              var mapValue = entry.get(1);
               if (mapValue != null && !mapValue.isEmpty()) {
                 mapValue = mapValue.substring(1);
               }
@@ -210,7 +210,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
 
       case LINK:
         if (iValue.length() > 1) {
-          int pos = iValue.indexOf(StringSerializerHelper.CLASS_SEPARATOR);
+          var pos = iValue.indexOf(StringSerializerHelper.CLASS_SEPARATOR);
           if (pos > -1) {
             DatabaseRecordThreadLocal.instance()
                 .get()
@@ -221,7 +221,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
             pos = 0;
           }
 
-          final String linkAsString = iValue.substring(pos + 1);
+          final var linkAsString = iValue.substring(pos + 1);
           try {
             return new RecordId(linkAsString);
           } catch (IllegalArgumentException e) {
@@ -242,9 +242,9 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
       case EMBEDDED:
         if (iValue.length() > 2) {
           // REMOVE BEGIN & END EMBEDDED CHARACTERS
-          final String value = iValue.substring(1, iValue.length() - 1);
+          final var value = iValue.substring(1, iValue.length() - 1);
 
-          final Object embeddedObject = StringSerializerEmbedded.INSTANCE.fromStream(db, value);
+          final var embeddedObject = StringSerializerEmbedded.INSTANCE.fromStream(db, value);
           if (embeddedObject instanceof EntityImpl) {
             EntityInternalUtils.addOwner((EntityImpl) embeddedObject, iSourceRecord);
           }
@@ -255,7 +255,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
           return null;
         }
       case LINKBAG:
-        final String value =
+        final var value =
             iValue.charAt(0) == StringSerializerHelper.BAG_BEGIN
                 ? iValue.substring(1, iValue.length() - 1)
                 : iValue;
@@ -275,7 +275,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
     }
 
     // REMOVE BEGIN & END MAP CHARACTERS
-    String value = iValue.substring(1, iValue.length() - 1);
+    var value = iValue.substring(1, iValue.length() - 1);
 
     @SuppressWarnings("rawtypes")
     Map map;
@@ -289,21 +289,21 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
       return map;
     }
 
-    final List<String> items =
+    final var items =
         StringSerializerHelper.smartSplit(
             value, StringSerializerHelper.RECORD_SEPARATOR, true, false);
 
     // EMBEDDED LITERALS
 
-    for (String item : items) {
+    for (var item : items) {
       if (item != null && !item.isEmpty()) {
-        final List<String> entries =
+        final var entries =
             StringSerializerHelper.smartSplit(
                 item, StringSerializerHelper.ENTRY_SEPARATOR, true, false);
         if (!entries.isEmpty()) {
           final Object mapValueObject;
           if (entries.size() > 1) {
-            String mapValue = entries.get(1);
+            var mapValue = entries.get(1);
 
             final PropertyType linkedType;
 
@@ -339,7 +339,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
             mapValueObject = null;
           }
 
-          final Object key = fieldTypeFromStream(db, iSourceDocument, PropertyType.STRING,
+          final var key = fieldTypeFromStream(db, iSourceDocument, PropertyType.STRING,
               entries.get(0));
           try {
             map.put(key, mapValueObject);
@@ -376,7 +376,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
       return;
     }
 
-    final long timer = PROFILER.startChrono();
+    final var timer = PROFILER.startChrono();
 
     switch (iType) {
       case LINK: {
@@ -419,7 +419,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
         final LinkList coll;
         final Iterator<Identifiable> it;
         if (iValue instanceof MultiCollectionIterator<?>) {
-          final MultiCollectionIterator<Identifiable> iterator =
+          final var iterator =
               (MultiCollectionIterator<Identifiable>) iValue;
           iterator.reset();
           it = iterator;
@@ -429,8 +429,8 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
           coll = new LinkList(iRecord);
 
           if (iValue.getClass().isArray()) {
-            Iterable<Object> iterab = MultiValue.getMultiValueIterable(iValue);
-            for (Object i : iterab) {
+            var iterab = MultiValue.getMultiValueIterable(iValue);
+            for (var i : iterab) {
               coll.add((Identifiable) i);
             }
           } else {
@@ -447,15 +447,15 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
         }
 
         if (it != null && it.hasNext()) {
-          final StringWriter buffer = new StringWriter(128);
-          for (int items = 0; it.hasNext(); items++) {
+          final var buffer = new StringWriter(128);
+          for (var items = 0; it.hasNext(); items++) {
             if (items > 0) {
               buffer.append(StringSerializerHelper.RECORD_SEPARATOR);
             }
 
-            final Identifiable item = it.next();
+            final var item = it.next();
 
-            final Identifiable newRid = linkToStream(db, buffer, iRecord, item);
+            final var newRid = linkToStream(db, buffer, iRecord, item);
             if (newRid != null) {
               ((LazyIterator<Identifiable>) it).update(newRid);
             }
@@ -481,7 +481,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
           final Collection<Identifiable> coll;
           // FIRST TIME: CONVERT THE ENTIRE COLLECTION
           if (!(iValue instanceof LinkSet)) {
-            final LinkSet set = new LinkSet(iRecord);
+            final var set = new LinkSet(iRecord);
             set.addAll((Collection<Identifiable>) iValue);
             iRecord.field(iName, set);
             coll = set;
@@ -506,10 +506,10 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
       case LINKMAP: {
         iOutput.append(StringSerializerHelper.MAP_BEGIN);
 
-        Map<String, Object> map = (Map<String, Object>) iValue;
+        var map = (Map<String, Object>) iValue;
 
-        boolean invalidMap = false;
-        int items = 0;
+        var invalidMap = false;
+        var items = 0;
         for (var entry : map.entrySet()) {
           if (items++ > 0) {
             iOutput.append(StringSerializerHelper.RECORD_SEPARATOR);
@@ -527,7 +527,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
         }
 
         if (invalidMap) {
-          final LinkMap newMap = new LinkMap(iRecord, EntityImpl.RECORD_TYPE);
+          final var newMap = new LinkMap(iRecord, EntityImpl.RECORD_TYPE);
 
           // REPLACE ALL CHANGED ITEMS
           for (var entry : map.entrySet()) {
@@ -551,7 +551,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
           toString(db, (DBRecord) iValue, iOutput, null, true);
           iOutput.append(StringSerializerHelper.EMBEDDED_END);
         } else if (iValue instanceof EntitySerializable) {
-          final EntityImpl entity = ((EntitySerializable) iValue).toEntity(db);
+          final var entity = ((EntitySerializable) iValue).toEntity(db);
           entity.field(EntitySerializable.CLASS_NAME, iValue.getClass().getName());
 
           iOutput.append(StringSerializerHelper.EMBEDDED_BEGIN);
@@ -614,9 +614,9 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
     iOutput.append(StringSerializerHelper.MAP_BEGIN);
 
     if (iValue != null) {
-      int items = 0;
+      var items = 0;
       // EMBEDDED OBJECTS
-      for (Entry<String, Object> o : ((Map<String, Object>) iValue).entrySet()) {
+      for (var o : ((Map<String, Object>) iValue).entrySet()) {
         if (items > 0) {
           iOutput.append(StringSerializerHelper.RECORD_SEPARATOR);
         }
@@ -714,10 +714,10 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
 
     PropertyType linkedType;
 
-    final List<String> items =
+    final var items =
         StringSerializerHelper.smartSplit(
             value, StringSerializerHelper.RECORD_SEPARATOR, true, false);
-    for (String item : items) {
+    for (var item : items) {
       Object objectToAdd = null;
       linkedType = null;
 
@@ -735,7 +735,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
           iLinkedClass = StringSerializerHelper.getRecordClassName(item, iLinkedClass);
 
           if (iLinkedClass != null) {
-            EntityImpl entity = new EntityImpl(db);
+            var entity = new EntityImpl(db);
             objectToAdd = fromString(db, item, entity, null);
             EntityInternalUtils.fillClassNameIfNeeded(entity, iLinkedClass.getName());
           } else
@@ -746,7 +746,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
         }
       } else {
         if (linkedType == null) {
-          final char begin = item.length() > 0 ? item.charAt(0) : StringSerializerHelper.LINK;
+          final var begin = item.length() > 0 ? item.charAt(0) : StringSerializerHelper.LINK;
 
           // AUTO-DETERMINE LINKED TYPE
           if (begin == StringSerializerHelper.LINK) {
@@ -790,12 +790,12 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
       final boolean iSet) {
     iOutput.append(iSet ? StringSerializerHelper.SET_BEGIN : StringSerializerHelper.LIST_BEGIN);
 
-    final Iterator<Object> iterator = (Iterator<Object>) MultiValue.getMultiValueIterator(iValue);
+    final var iterator = (Iterator<Object>) MultiValue.getMultiValueIterator(iValue);
 
-    PropertyType linkedType = iLinkedType;
+    var linkedType = iLinkedType;
 
-    for (int i = 0; iterator.hasNext(); ++i) {
-      final Object o = iterator.next();
+    for (var i = 0; iterator.hasNext(); ++i) {
+      final var o = iterator.next();
 
       if (i > 0) {
         iOutput.append(StringSerializerHelper.RECORD_SEPARATOR);
@@ -874,9 +874,9 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
   }
 
   protected static boolean isConvertToLinkedMap(Map<?, ?> map, final PropertyType linkedType) {
-    boolean convert = (linkedType == PropertyType.LINK && !(map instanceof LinkMap));
+    var convert = (linkedType == PropertyType.LINK && !(map instanceof LinkMap));
     if (convert) {
-      for (Object value : map.values()) {
+      for (var value : map.values()) {
         if (!(value instanceof Identifiable)) {
           return false;
         }
@@ -887,8 +887,8 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
 
   private void serializeSet(final Collection<Identifiable> coll, final StringWriter iOutput) {
     iOutput.append(StringSerializerHelper.SET_BEGIN);
-    int i = 0;
-    for (Identifiable rid : coll) {
+    var i = 0;
+    for (var rid : coll) {
       if (i++ > 0) {
         iOutput.append(',');
       }
@@ -900,17 +900,17 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
 
   private LinkList unserializeList(DatabaseSessionInternal db, final EntityImpl iSourceRecord,
       final String value) {
-    final LinkList coll = new LinkList(iSourceRecord);
-    final List<String> items =
+    final var coll = new LinkList(iSourceRecord);
+    final var items =
         StringSerializerHelper.smartSplit(value, StringSerializerHelper.RECORD_SEPARATOR);
-    for (String item : items) {
+    for (var item : items) {
       if (item.isEmpty()) {
         coll.add(new ChangeableRecordId());
       } else {
         if (item.startsWith("#")) {
           coll.add(new RecordId(item));
         } else {
-          final DBRecord entity = fromString(db, item);
+          final var entity = fromString(db, item);
           if (entity instanceof EntityImpl) {
             EntityInternalUtils.addOwner((EntityImpl) entity, iSourceRecord);
           }
@@ -924,17 +924,17 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
 
   private LinkSet unserializeSet(DatabaseSessionInternal db, final EntityImpl iSourceRecord,
       final String value) {
-    final LinkSet coll = new LinkSet(iSourceRecord);
-    final List<String> items =
+    final var coll = new LinkSet(iSourceRecord);
+    final var items =
         StringSerializerHelper.smartSplit(value, StringSerializerHelper.RECORD_SEPARATOR);
-    for (String item : items) {
+    for (var item : items) {
       if (item.isEmpty()) {
         coll.add(new ChangeableRecordId());
       } else {
         if (item.startsWith("#")) {
           coll.add(new RecordId(item));
         } else {
-          final DBRecord entity = fromString(db, item);
+          final var entity = fromString(db, item);
           if (entity instanceof EntityImpl) {
             EntityInternalUtils.addOwner((EntityImpl) entity, iSourceRecord);
           }

@@ -63,7 +63,7 @@ public class SQLParenthesisExpression extends SQLMathExpression {
       if (execPlan instanceof InsertExecutionPlan) {
         ((InsertExecutionPlan) execPlan).executeInternal();
       }
-      LocalResultSet rs = new LocalResultSet(execPlan);
+      var rs = new LocalResultSet(execPlan);
       List<Result> result = new ArrayList<>();
       while (rs.hasNext()) {
         result.add(rs.next());
@@ -137,7 +137,7 @@ public class SQLParenthesisExpression extends SQLMathExpression {
   public SimpleNode splitForAggregation(
       AggregateProjectionSplit aggregateProj, CommandContext ctx) {
     if (isAggregate(ctx.getDatabase())) {
-      SQLParenthesisExpression result = new SQLParenthesisExpression(-1);
+      var result = new SQLParenthesisExpression(-1);
       result.expression = expression.splitForAggregation(aggregateProj, ctx);
       return result;
     } else {
@@ -147,7 +147,7 @@ public class SQLParenthesisExpression extends SQLMathExpression {
 
   @Override
   public SQLParenthesisExpression copy() {
-    SQLParenthesisExpression result = new SQLParenthesisExpression(-1);
+    var result = new SQLParenthesisExpression(-1);
     result.expression = expression == null ? null : expression.copy();
     result.statement = statement == null ? null : statement.copy();
     return result;
@@ -161,7 +161,7 @@ public class SQLParenthesisExpression extends SQLMathExpression {
     if (expression != null) {
       expression.extractSubQueries(collector);
     } else if (statement != null) {
-      SQLIdentifier alias = collector.addStatement(statement);
+      var alias = collector.addStatement(statement);
       statement = null;
       expression = new SQLExpression(alias);
     }
@@ -171,7 +171,7 @@ public class SQLParenthesisExpression extends SQLMathExpression {
     if (expression != null) {
       expression.extractSubQueries(collector);
     } else if (statement != null) {
-      SQLIdentifier alias = collector.addStatement(letAlias, statement);
+      var alias = collector.addStatement(letAlias, statement);
       statement = null;
       expression = new SQLExpression(alias);
     }
@@ -196,7 +196,7 @@ public class SQLParenthesisExpression extends SQLMathExpression {
       return false;
     }
 
-    SQLParenthesisExpression that = (SQLParenthesisExpression) o;
+    var that = (SQLParenthesisExpression) o;
 
     if (!Objects.equals(expression, that.expression)) {
       return false;
@@ -206,7 +206,7 @@ public class SQLParenthesisExpression extends SQLMathExpression {
 
   @Override
   public int hashCode() {
-    int result = super.hashCode();
+    var result = super.hashCode();
     result = 31 * result + (expression != null ? expression.hashCode() : 0);
     result = 31 * result + (statement != null ? statement.hashCode() : 0);
     return result;
@@ -226,7 +226,7 @@ public class SQLParenthesisExpression extends SQLMathExpression {
   }
 
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = (ResultInternal) super.serialize(db);
+    var result = (ResultInternal) super.serialize(db);
     if (expression != null) {
       result.setProperty("expression", expression.serialize(db));
     }

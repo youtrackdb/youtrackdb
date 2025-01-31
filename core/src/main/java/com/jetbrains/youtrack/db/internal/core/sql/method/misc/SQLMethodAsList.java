@@ -71,7 +71,7 @@ public class SQLMethodAsList extends AbstractSQLMethod {
         list = new ArrayList<Object>();
       }
 
-      for (Iterator<Object> iter = (Iterator<Object>) ioResult; iter.hasNext(); ) {
+      for (var iter = (Iterator<Object>) ioResult; iter.hasNext(); ) {
         list.add(iter.next());
       }
       return list;

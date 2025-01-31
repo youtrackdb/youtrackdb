@@ -43,7 +43,7 @@ public class LDAPLibrary {
             DirContext dc = null;
 
             // Set up environment for creating initial context
-            Hashtable<String, String> env = new Hashtable<String, String>();
+            var env = new Hashtable<String, String>();
 
             env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
 
@@ -51,9 +51,9 @@ public class LDAPLibrary {
             // Authenticate by using already established Kerberos credentials
             env.put(Context.SECURITY_AUTHENTICATION, "GSSAPI");
 
-            for (LDAPServer ldap : ldapServers) {
+            for (var ldap : ldapServers) {
               try {
-                String url = ldap.getURL();
+                var url = ldap.getURL();
 
                 // If the LDAPServer info is marked as an alias, then the real hostname needs to be
                 // acquired.
@@ -91,7 +91,7 @@ public class LDAPLibrary {
   // round-robin.
   private static String getRealURL(LDAPServer ldap, final boolean debug)
       throws UnknownHostException {
-    String realURL = ldap.getURL();
+    var realURL = ldap.getURL();
 
     if (ldap.isAlias()) {
       if (debug) {
@@ -103,7 +103,7 @@ public class LDAPLibrary {
 
       // Get the returned IP address from the alias.
       // May throw an UnknownHostException
-      InetAddress ipAddress = InetAddress.getByName(ldap.getHostname());
+      var ipAddress = InetAddress.getByName(ldap.getHostname());
 
       if (debug) {
         LogManager.instance()
@@ -114,7 +114,7 @@ public class LDAPLibrary {
 
       // Now that we have the IP address, use it to get the real hostname.
       // We create a new InetAddress object, because hostnames are cached.
-      InetAddress realAddress = InetAddress.getByName(ipAddress.getHostAddress());
+      var realAddress = InetAddress.getByName(ipAddress.getHostAddress());
 
       if (debug) {
         LogManager.instance()
@@ -145,16 +145,16 @@ public class LDAPLibrary {
         // If we're just obtaining users matching a filterDN, switch to a SearchControl.
         //				traverse(ctx, startingDN, filterDN, principalList, debug);
 
-        SearchControls sctls = new SearchControls();
+        var sctls = new SearchControls();
         sctls.setSearchScope(SearchControls.SUBTREE_SCOPE); // Recursive
 
-        String[] attribFilter = {"userPrincipalName", "altSecurityIdentities"};
+        var attribFilter = new String[]{"userPrincipalName", "altSecurityIdentities"};
         sctls.setReturningAttributes(attribFilter);
 
         NamingEnumeration ne = ctx.search(baseDN, filter, sctls); // "(userPrincipalName=*)"
 
         while (ne.hasMore()) {
-          SearchResult sr = (SearchResult) ne.next();
+          var sr = (SearchResult) ne.next();
 
           addPrincipal(sr, principalList, debug);
         }
@@ -173,7 +173,7 @@ public class LDAPLibrary {
   private static void addPrincipal(
       SearchResult sr, List<String> principalList, final boolean debug) {
     try {
-      Attributes attrs = sr.getAttributes();
+      var attrs = sr.getAttributes();
 
       if (attrs != null) {
         /*
@@ -216,7 +216,7 @@ public class LDAPLibrary {
                 memberOfFilter);
       }
 
-      Attributes attrs = ctx.getAttributes(startingDN);
+      var attrs = ctx.getAttributes(startingDN);
 
       if (attrs != null) {
         if (debug) {
@@ -227,11 +227,11 @@ public class LDAPLibrary {
                   startingDN);
         }
 
-        Attribute member = attrs.get("member");
+        var member = attrs.get("member");
 
         if (member != null) {
           for (NamingEnumeration ae = member.getAll(); ae.hasMore(); ) {
-            String path = (String) ae.next();
+            var path = (String) ae.next();
 
             findMembers(ctx, path, memberOfFilter, principalList, debug);
           }
@@ -266,7 +266,7 @@ public class LDAPLibrary {
       List<String> principalList,
       final boolean debug) {
     try {
-      Attributes attrs = ctx.getAttributes(startingDN);
+      var attrs = ctx.getAttributes(startingDN);
 
       if (attrs != null) {
         if (debug) {
@@ -286,11 +286,11 @@ public class LDAPLibrary {
                     startingDN);
           }
 
-          Attribute member = attrs.get("member");
+          var member = attrs.get("member");
 
           if (member != null) {
             for (NamingEnumeration ae = member.getAll(); ae.hasMore(); ) {
-              String path = (String) ae.next();
+              var path = (String) ae.next();
               findMembers(ctx, path, memberOfFilter, principalList, debug);
             }
           }
@@ -305,7 +305,7 @@ public class LDAPLibrary {
 
           if (isMemberOf(attrs, memberOfFilter)) {
             // userPrincipalName
-            String upn = getUserPrincipalName(attrs);
+            var upn = getUserPrincipalName(attrs);
 
             if (debug) {
               LogManager.instance()
@@ -345,7 +345,7 @@ public class LDAPLibrary {
   private static String getName(final String dn) {
     String name = null;
 
-    String[] names = dn.split(",");
+    var names = dn.split(",");
 
     if (names.length >= 1) {
       // >= 4 because "CN=" is 3
@@ -360,12 +360,12 @@ public class LDAPLibrary {
   private static void fillAttributeList(
       Attributes attrs, String name, List<String> list, final boolean debug) {
     try {
-      Attribute attribute = attrs.get(name);
+      var attribute = attrs.get(name);
 
       if (attribute != null && attribute.size() > 0) {
-        NamingEnumeration<?> ne = attribute.getAll();
+        var ne = attribute.getAll();
         while (ne.hasMore()) {
-          String value = (String) ne.next();
+          var value = (String) ne.next();
 
           // Some UPNs, especially in 'altSecurityIdentities' will store the UPNs as such "Kerberos:
           // user@realm.com"
@@ -382,7 +382,7 @@ public class LDAPLibrary {
 
   private static String getFirstValue(Attributes attrs, String name) {
     try {
-      Attribute attribute = attrs.get(name);
+      var attribute = attrs.get(name);
 
       if (attribute != null && attribute.size() > 0) {
         return (String) attribute.get(0);
@@ -400,10 +400,10 @@ public class LDAPLibrary {
   }
 
   private static boolean isGroup(Attributes attrs) {
-    String objCategoryDN = getFirstValue(attrs, "objectCategory");
+    var objCategoryDN = getFirstValue(attrs, "objectCategory");
 
     if (objCategoryDN != null) {
-      String objCategory = getName(objCategoryDN);
+      var objCategory = getName(objCategoryDN);
 
       return objCategory.equalsIgnoreCase("Group");
     }
@@ -412,10 +412,10 @@ public class LDAPLibrary {
   }
 
   private static boolean isUser(Attributes attrs) {
-    String objCategoryDN = getFirstValue(attrs, "objectCategory");
+    var objCategoryDN = getFirstValue(attrs, "objectCategory");
 
     if (objCategoryDN != null) {
-      String objCategory = getName(objCategoryDN);
+      var objCategory = getName(objCategoryDN);
 
       return objCategory.equalsIgnoreCase("User") || objCategory.equalsIgnoreCase("Person");
     }
@@ -425,11 +425,11 @@ public class LDAPLibrary {
 
   private static boolean isMemberOf(Attributes attrs, String memberOfFilter) {
     try {
-      Attribute memberOfAttr = attrs.get("memberOf");
+      var memberOfAttr = attrs.get("memberOf");
 
       if (memberOfAttr != null) {
         for (NamingEnumeration mo = memberOfAttr.getAll(); mo.hasMore(); ) {
-          String value = (String) mo.next();
+          var value = (String) mo.next();
 
           if (value.equalsIgnoreCase(memberOfFilter)) {
             return true;

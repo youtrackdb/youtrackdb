@@ -27,9 +27,9 @@ public class LuceneQueryBuilderTest {
 
   @Test
   public void testUnmaskedQueryReporting() {
-    final LuceneQueryBuilder builder = new LuceneQueryBuilder(LuceneQueryBuilder.EMPTY_METADATA);
+    final var builder = new LuceneQueryBuilder(LuceneQueryBuilder.EMPTY_METADATA);
 
-    final String invalidQuery = "+(song:private{}private)";
+    final var invalidQuery = "+(song:private{}private)";
     try {
       builder.buildQuery(
           indexDef, invalidQuery, LuceneQueryBuilder.EMPTY_METADATA, new EnglishAnalyzer());
@@ -42,9 +42,9 @@ public class LuceneQueryBuilderTest {
 
   @Test
   public void testMaskedQueryReporting() {
-    final LuceneQueryBuilder builder = new LuceneQueryBuilder(LuceneQueryBuilder.EMPTY_METADATA);
+    final var builder = new LuceneQueryBuilder(LuceneQueryBuilder.EMPTY_METADATA);
 
-    final String invalidQuery = "+(song:private{}private)";
+    final var invalidQuery = "+(song:private{}private)";
     try {
       builder.buildQuery(indexDef, invalidQuery,
           Collections.singletonMap("reportQueryAs", "masked"),

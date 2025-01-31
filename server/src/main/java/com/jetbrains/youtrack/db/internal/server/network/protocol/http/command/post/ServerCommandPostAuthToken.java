@@ -43,23 +43,23 @@ public class ServerCommandPostAuthToken extends ServerCommandAbstract {
   @Override
   public boolean execute(HttpRequest iRequest, HttpResponse iResponse) throws Exception {
     init();
-    String[] urlParts = checkSyntax(iRequest.getUrl(), 2, "Syntax error: token/<database>");
+    var urlParts = checkSyntax(iRequest.getUrl(), 2, "Syntax error: token/<database>");
     iRequest.setDatabaseName(urlParts[1]);
 
     iRequest.getData().commandInfo = "Generate authentication token";
 
     // Parameter names consistent with 4.3.2 (Access Token Request) of RFC 6749
-    Map<String, String> content = iRequest.getUrlEncodedContent();
+    var content = iRequest.getUrlEncodedContent();
     if (content == null) {
-      EntityImpl result = new EntityImpl(null).field("error", "missing_auth_data");
+      var result = new EntityImpl(null).field("error", "missing_auth_data");
       sendError(iRequest, iResponse, result);
       return false;
     }
-    String signedToken = ""; // signedJWT.serialize();
+    var signedToken = ""; // signedJWT.serialize();
 
-    String grantType = content.get("grant_type").toLowerCase(Locale.ENGLISH);
-    String username = content.get("username");
-    String password = content.get("password");
+    var grantType = content.get("grant_type").toLowerCase(Locale.ENGLISH);
+    var username = content.get("username");
+    var password = content.get("password");
     String authenticatedRid;
     EntityImpl result;
 
@@ -71,13 +71,13 @@ public class ServerCommandPostAuthToken extends ServerCommandAbstract {
         // Generate and return a JWT access token
 
         SecurityUser user = null;
-        try (DatabaseSessionInternal db = server.openDatabase(iRequest.getDatabaseName(),
+        try (var db = server.openDatabase(iRequest.getDatabaseName(),
             username,
             password)) {
           user = db.geCurrentUser();
 
           if (user != null) {
-            byte[] tokenBytes = tokenHandler.getSignedWebToken(db, user);
+            var tokenBytes = tokenHandler.getSignedWebToken(db, user);
             signedToken = new String(tokenBytes);
           }
 
@@ -145,12 +145,12 @@ public class ServerCommandPostAuthToken extends ServerCommandAbstract {
       throws IOException {
 
     String header = null;
-    String xRequestedWithHeader = iRequest.getHeader("X-Requested-With");
+    var xRequestedWithHeader = iRequest.getHeader("X-Requested-With");
     if (xRequestedWithHeader == null || !xRequestedWithHeader.equals("XMLHttpRequest")) {
       // Defaults to "WWW-Authenticate: Basic" if not an AJAX Request.
       header = server.getSecurity().getAuthenticationHeader(iDatabaseName);
 
-      Map<String, String> headers = server.getSecurity().getAuthenticationHeaders(iDatabaseName);
+      var headers = server.getSecurity().getAuthenticationHeaders(iDatabaseName);
       headers.entrySet().forEach(s -> iResponse.addHeader(s.getKey(), s.getValue()));
     }
 

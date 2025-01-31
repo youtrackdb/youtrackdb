@@ -15,8 +15,8 @@ public final class RidBagConverter extends AbstractCollectionConverter<RidBag> {
 
   @Override
   public RidBag convert(DatabaseSessionInternal db, RidBag value) {
-    final RidBag result = new RidBag(db);
-    boolean updated = false;
+    final var result = new RidBag(db);
+    var updated = false;
     final ResultCallback callback =
         item -> result.add(((Identifiable) item).getIdentity());
 

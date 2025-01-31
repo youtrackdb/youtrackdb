@@ -35,7 +35,7 @@ public class ComparatorBenchmark {
   KeyNormalizer keyNormalizer;
 
   public static void main(String[] args) throws RunnerException {
-    final Options opt =
+    final var opt =
         new OptionsBuilder()
             .include("ComparatorBenchmark.*")
             .addProfiler(StackProfiler.class, "detailLine=true;excludePackages=true;period=1")
@@ -94,11 +94,11 @@ public class ComparatorBenchmark {
   }
 
   private byte[] getNormalizedKeySingle(final int keyValue, final PropertyType type) {
-    final CompositeKey compositeKey = new CompositeKey();
+    final var compositeKey = new CompositeKey();
     compositeKey.addKey(keyValue);
     Assert.assertEquals(1, compositeKey.getKeys().size());
 
-    final PropertyType[] types = new PropertyType[1];
+    final var types = new PropertyType[1];
     types[0] = type;
 
     return keyNormalizer.normalize(compositeKey, types, Collator.NO_DECOMPOSITION);

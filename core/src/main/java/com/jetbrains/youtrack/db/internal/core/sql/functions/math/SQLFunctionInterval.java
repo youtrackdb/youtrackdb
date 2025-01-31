@@ -42,7 +42,7 @@ public class SQLFunctionInterval extends SQLFunctionMathAbstract {
       return -1;
     }
 
-    for (int i = 1; i < iParams.length; ++i) {
+    for (var i = 1; i < iParams.length; ++i) {
       final Comparable other = (Comparable<?>) iParams[i];
       if (other.compareTo(first) > 0) {
         return i - 1;

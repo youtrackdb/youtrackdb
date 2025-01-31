@@ -40,14 +40,14 @@ public abstract class YouTrackDbJdbcDbPerClassTemplateTest {
   @BeforeClass
   public static void prepareDatabase() throws Exception {
 
-    String dbName = "perClassTestDatabase";
-    Properties info = new Properties();
+    var dbName = "perClassTestDatabase";
+    var info = new Properties();
     info.put("user", "admin");
     info.put("password", "admin");
     info.put("serverUser", "admin");
     info.put("serverPassword", "admin");
 
-    YouTrackDbDataSource ods =
+    var ods =
         new YouTrackDbDataSource("jdbc:youtrackdb:" + "memory:" + dbName, "admin", "admin", info);
     ds =
         new DataSourceWithLetterCase(

@@ -75,7 +75,7 @@ public class StringSerializerEmbedded implements StringSerializer {
 
     if (EntitySerializable.class.isAssignableFrom(clazz)) {
       try {
-        final EntitySerializable entitySerializable =
+        final var entitySerializable =
             (EntitySerializable) clazz.newInstance();
         final EntityImpl docClone = new EmbeddedEntityImpl(db);
         instance.copyTo(docClone);

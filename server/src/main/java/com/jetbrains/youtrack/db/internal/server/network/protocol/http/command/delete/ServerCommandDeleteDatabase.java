@@ -34,7 +34,7 @@ public class ServerCommandDeleteDatabase extends ServerCommandAuthenticatedServe
 
   @Override
   public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
-    String[] urlParts = checkSyntax(iRequest.getUrl(), 2, "Syntax error: database/<database>");
+    var urlParts = checkSyntax(iRequest.getUrl(), 2, "Syntax error: database/<database>");
 
     iRequest.getData().commandInfo = "Drop database";
     iRequest.getData().commandDetail = urlParts[1];

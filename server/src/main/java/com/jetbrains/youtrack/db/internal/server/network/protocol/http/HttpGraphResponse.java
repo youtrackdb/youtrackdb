@@ -94,18 +94,18 @@ public class HttpGraphResponse extends HttpResponseAbstract {
       throw new IllegalArgumentException("Graph mode cannot accept '" + accept + "'");
     }
 
-    DatabaseSessionInternal graph = DatabaseRecordThreadLocal.instance().get();
+    var graph = DatabaseRecordThreadLocal.instance().get();
 
     try {
       // DIVIDE VERTICES FROM EDGES
       final Set<Vertex> vertices = new HashSet<>();
 
       Set<RID> edgeRids = new HashSet<RID>();
-      boolean lightweightFound = false;
+      var lightweightFound = false;
 
-      final Iterator<?> iIterator = MultiValue.getMultiValueIterator(iRecords);
+      final var iIterator = MultiValue.getMultiValueIterator(iRecords);
       while (iIterator.hasNext()) {
-        Object entry = iIterator.next();
+        var entry = iIterator.next();
 
         if (entry != null && entry instanceof Result && ((Result) entry).isEntity()) {
 
@@ -128,7 +128,7 @@ public class HttpGraphResponse extends HttpResponseAbstract {
           if (element.isVertex()) {
             vertices.add(element.asVertex().get());
           } else if (element.isEdge()) {
-            Edge edge = element.asEdge().get();
+            var edge = element.asEdge().get();
             vertices.add(edge.getTo());
             vertices.add(edge.getFrom());
             if (edge.getIdentity() != null) {
@@ -144,22 +144,22 @@ public class HttpGraphResponse extends HttpResponseAbstract {
         }
       }
 
-      final StringWriter buffer = new StringWriter();
-      final JSONWriter json = new JSONWriter(buffer, "");
+      final var buffer = new StringWriter();
+      final var json = new JSONWriter(buffer, "");
       json.beginObject();
       json.beginObject("graph");
 
       // WRITE VERTICES
       json.beginCollection(graph, "vertices");
-      for (Vertex vertex : vertices) {
+      for (var vertex : vertices) {
         json.beginObject();
 
         json.writeAttribute(graph, "@rid", vertex.getIdentity());
         json.writeAttribute(graph, "@class", vertex.getSchemaType().get().getName());
 
         // ADD ALL THE PROPERTIES
-        for (String field : ((VertexInternal) vertex).getPropertyNamesInternal()) {
-          final Object v = ((VertexInternal) vertex).getPropertyInternal(field);
+        for (var field : ((VertexInternal) vertex).getPropertyNamesInternal()) {
+          final var v = ((VertexInternal) vertex).getPropertyInternal(field);
           if (v != null) {
             json.writeAttribute(graph, field, v);
           }
@@ -177,9 +177,9 @@ public class HttpGraphResponse extends HttpResponseAbstract {
       json.beginCollection(graph, "edges");
 
       if (edgeRids.isEmpty()) {
-        for (Vertex vertex : vertices) {
-          for (Edge e : vertex.getEdges(Direction.OUT)) {
-            Edge edge = e;
+        for (var vertex : vertices) {
+          for (var e : vertex.getEdges(Direction.OUT)) {
+            var edge = e;
             if (edgeRids.contains(e.getIdentity())
                 && e.getIdentity() != null /* only for non-lighweight */) {
               continue;
@@ -197,10 +197,10 @@ public class HttpGraphResponse extends HttpResponseAbstract {
           }
         }
       } else {
-        for (RID edgeRid : edgeRids) {
+        for (var edgeRid : edgeRids) {
           try {
             Entity elem = edgeRid.getRecord(graph);
-            Edge edge = elem.asEdge().orElse(null);
+            var edge = elem.asEdge().orElse(null);
 
             if (edge != null) {
               printEdge(graph, json, edge);
@@ -214,9 +214,9 @@ public class HttpGraphResponse extends HttpResponseAbstract {
       json.endCollection();
 
       if (iAdditionalProperties != null) {
-        for (Map.Entry<String, Object> entry : iAdditionalProperties.entrySet()) {
+        for (var entry : iAdditionalProperties.entrySet()) {
 
-          final Object v = entry.getValue();
+          final var v = entry.getValue();
           if (MultiValue.isMultiValue(v)) {
             json.beginCollection(graph, -1, true, entry.getKey());
             formatMultiValue(MultiValue.getMultiValueIterator(v), buffer, null, graph);
@@ -254,8 +254,8 @@ public class HttpGraphResponse extends HttpResponseAbstract {
     json.writeAttribute(db, "out", edge.getVertex(Direction.OUT).getIdentity());
     json.writeAttribute(db, "in", edge.getVertex(Direction.IN).getIdentity());
 
-    for (String field : edge.getPropertyNames()) {
-      final Object v = edge.getProperty(field);
+    for (var field : edge.getPropertyNames()) {
+      final var v = edge.getProperty(field);
       if (v != null) {
         json.writeAttribute(db, field, v);
       }
@@ -322,13 +322,13 @@ public class HttpGraphResponse extends HttpResponseAbstract {
     }
 
     if (additionalHeaders != null) {
-      for (Map.Entry<String, String> entry : additionalHeaders.entrySet()) {
+      for (var entry : additionalHeaders.entrySet()) {
         writeLine(String.format("%s: %s", entry.getKey(), entry.getValue()));
       }
     }
     if (iSize < 0) {
       // SIZE UNKNOWN: USE A MEMORY BUFFER
-      final ByteArrayOutputStream o = new ByteArrayOutputStream();
+      final var o = new ByteArrayOutputStream();
       if (iContent != null) {
         int b;
         while ((b = iContent.read()) > -1) {
@@ -336,7 +336,7 @@ public class HttpGraphResponse extends HttpResponseAbstract {
         }
       }
 
-      byte[] content = o.toByteArray();
+      var content = o.toByteArray();
 
       iContent = new ByteArrayInputStream(content);
       iSize = content.length;
@@ -374,7 +374,7 @@ public class HttpGraphResponse extends HttpResponseAbstract {
 
     writeLine(null);
 
-    final ChunkedResponse chunkedOutput = new ChunkedResponse(this);
+    final var chunkedOutput = new ChunkedResponse(this);
     iWriter.call(chunkedOutput);
     chunkedOutput.close();
 

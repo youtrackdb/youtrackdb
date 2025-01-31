@@ -48,7 +48,7 @@ public class ServerSideScriptInterpreter extends ServerPluginAbstract {
   public void config(final YouTrackDBServer iServer, ServerParameterConfiguration[] iParams) {
 
     this.server = iServer;
-    for (ServerParameterConfiguration param : iParams) {
+    for (var param : iParams) {
       if (param.name.equalsIgnoreCase("enabled")) {
         if (Boolean.parseBoolean(param.value))
         // ENABLE IT
@@ -85,7 +85,7 @@ public class ServerSideScriptInterpreter extends ServerPluginAbstract {
             CommandScript.class,
             CommandExecutorScript.class,
             iArgument -> {
-              final String language =
+              final var language =
                   ((CommandScript) iArgument).getLanguage().toLowerCase(Locale.ENGLISH);
 
               checkLanguage(language);

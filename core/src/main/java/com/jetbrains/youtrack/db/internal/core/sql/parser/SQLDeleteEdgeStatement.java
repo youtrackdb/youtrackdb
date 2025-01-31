@@ -46,7 +46,7 @@ public class SQLDeleteEdgeStatement extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Map<Object, Object> params, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -68,7 +68,7 @@ public class SQLDeleteEdgeStatement extends SQLStatement {
       boolean usePlanCache) {
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
-      for (int i = 0; i < args.length; i++) {
+      for (var i = 0; i < args.length; i++) {
         params.put(i, args[i]);
       }
     }
@@ -76,8 +76,8 @@ public class SQLDeleteEdgeStatement extends SQLStatement {
   }
 
   public InternalExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    DeleteEdgeExecutionPlanner planner = new DeleteEdgeExecutionPlanner(this);
-    InternalExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling, true);
+    var planner = new DeleteEdgeExecutionPlanner(this);
+    var result = planner.createExecutionPlan(ctx, enableProfiling, true);
     result.setStatement(this.originalStatement);
     result.setGenericStatement(this.toGenericStatement());
     return result;
@@ -85,8 +85,8 @@ public class SQLDeleteEdgeStatement extends SQLStatement {
 
   public InternalExecutionPlan createExecutionPlanNoCache(
       CommandContext ctx, boolean enableProfiling) {
-    DeleteEdgeExecutionPlanner planner = new DeleteEdgeExecutionPlanner(this);
-    InternalExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling, false);
+    var planner = new DeleteEdgeExecutionPlanner(this);
+    var result = planner.createExecutionPlan(ctx, enableProfiling, false);
     result.setStatement(this.originalStatement);
     result.setGenericStatement(this.toGenericStatement());
     return result;
@@ -110,8 +110,8 @@ public class SQLDeleteEdgeStatement extends SQLStatement {
     }
     if (rids != null) {
       builder.append(" [");
-      boolean first = true;
-      for (SQLRid rid : rids) {
+      var first = true;
+      for (var rid : rids) {
         if (!first) {
           builder.append(", ");
         }
@@ -160,8 +160,8 @@ public class SQLDeleteEdgeStatement extends SQLStatement {
     }
     if (rids != null) {
       builder.append(" [");
-      boolean first = true;
-      for (SQLRid rid : rids) {
+      var first = true;
+      for (var rid : rids) {
         if (!first) {
           builder.append(", ");
         }
@@ -234,7 +234,7 @@ public class SQLDeleteEdgeStatement extends SQLStatement {
       return false;
     }
 
-    SQLDeleteEdgeStatement that = (SQLDeleteEdgeStatement) o;
+    var that = (SQLDeleteEdgeStatement) o;
 
     if (!Objects.equals(className, that.className)) {
       return false;
@@ -265,7 +265,7 @@ public class SQLDeleteEdgeStatement extends SQLStatement {
 
   @Override
   public int hashCode() {
-    int result = className != null ? className.hashCode() : 0;
+    var result = className != null ? className.hashCode() : 0;
     result = 31 * result + (targetClusterName != null ? targetClusterName.hashCode() : 0);
     result = 31 * result + (rid != null ? rid.hashCode() : 0);
     result = 31 * result + (rids != null ? rids.hashCode() : 0);

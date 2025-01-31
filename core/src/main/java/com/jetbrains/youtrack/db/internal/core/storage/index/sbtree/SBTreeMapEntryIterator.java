@@ -58,14 +58,14 @@ public class SBTreeMapEntryIterator<K, V> implements Iterator<Map.Entry<K, V>> {
 
   private void prefetchData(boolean firstTime) {
     var db = DatabaseRecordThreadLocal.instance().getIfDefined();
-    long begin = System.currentTimeMillis();
+    var begin = System.currentTimeMillis();
     try {
       sbTree.loadEntriesMajor(
           firstKey,
           firstTime,
           true,
           entry -> {
-            final V value = entry.getValue();
+            final var value = entry.getValue();
             final V resultValue;
             resultValue = value;
 
@@ -113,7 +113,7 @@ public class SBTreeMapEntryIterator<K, V> implements Iterator<Map.Entry<K, V>> {
       throw new NoSuchElementException();
     }
 
-    final Map.Entry<K, V> entry = preFetchedValues.removeFirst();
+    final var entry = preFetchedValues.removeFirst();
     if (preFetchedValues.isEmpty()) {
       prefetchData(false);
     }

@@ -46,7 +46,7 @@ public class TraverseContext extends BasicCommandContext {
   }
 
   public Map<String, Object> getVariables() {
-    final HashMap<String, Object> map = new HashMap<String, Object>();
+    final var map = new HashMap<String, Object>();
     map.put("depth", getDepth());
     map.put("path", getPath());
     map.put("stack", memory.getUnderlying());
@@ -56,7 +56,7 @@ public class TraverseContext extends BasicCommandContext {
   }
 
   public Object getVariable(final String iName) {
-    final String name = iName.trim().toUpperCase(Locale.ENGLISH);
+    final var name = iName.trim().toUpperCase(Locale.ENGLISH);
 
     if ("DEPTH".startsWith(name)) {
       return getDepth();
@@ -65,7 +65,7 @@ public class TraverseContext extends BasicCommandContext {
           iName.substring("PATH".length()));
     } else if (name.startsWith("STACK")) {
 
-      Object result =
+      var result =
           EntityHelper.getFieldValue(getDatabase(), memory.getUnderlying(),
               iName.substring("STACK".length()));
       if (result instanceof ArrayDeque) {
@@ -84,7 +84,7 @@ public class TraverseContext extends BasicCommandContext {
 
   public void pop(final Identifiable currentRecord) {
     if (currentRecord != null) {
-      final RID rid = currentRecord.getIdentity();
+      final var rid = currentRecord.getIdentity();
       if (!history.remove(rid)) {
         LogManager.instance().warn(this, "Element '" + rid + "' not found in traverse history");
       }

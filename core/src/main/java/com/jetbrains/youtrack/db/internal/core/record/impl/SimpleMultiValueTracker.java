@@ -81,7 +81,7 @@ public final class SimpleMultiValueTracker<K, V> {
       return;
     }
 
-    final RecordElement entity = this.element.get();
+    final var entity = this.element.get();
     if (entity == null) {
       // entity not alive anymore, do nothing.
       return;

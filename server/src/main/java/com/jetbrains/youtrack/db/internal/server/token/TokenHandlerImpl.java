@@ -74,8 +74,8 @@ public class TokenHandlerImpl implements OTokenHandler {
 
   @Override
   public Token parseWebToken(byte[] tokenBytes) {
-    ParsedToken parsedToken = parseOnlyWebToken(tokenBytes);
-    Token token = parsedToken.getToken();
+    var parsedToken = parseOnlyWebToken(tokenBytes);
+    var token = parsedToken.getToken();
     token.setIsVerified(this.sign.verifyTokenSign(parsedToken));
     return token;
   }
@@ -85,9 +85,9 @@ public class TokenHandlerImpl implements OTokenHandler {
     JsonWebToken token = null;
 
     // / <header>.<payload>.<signature>
-    int firstDot = -1;
-    int secondDot = -1;
-    for (int x = 0; x < tokenBytes.length; x++) {
+    var firstDot = -1;
+    var secondDot = -1;
+    for (var x = 0; x < tokenBytes.length; x++) {
       if (tokenBytes[x] == JWT_DELIMITER) {
         if (firstDot == -1) {
           firstDot = x; // stores reference to first '.' character in JWT token
@@ -105,22 +105,22 @@ public class TokenHandlerImpl implements OTokenHandler {
     if (secondDot == -1) {
       throw new RuntimeException("Token data too short: missed signature");
     }
-    final byte[] decodedHeader =
+    final var decodedHeader =
         Base64.getUrlDecoder().decode(ByteBuffer.wrap(tokenBytes, 0, firstDot)).array();
-    final byte[] decodedPayload =
+    final var decodedPayload =
         Base64.getUrlDecoder()
             .decode(ByteBuffer.wrap(tokenBytes, firstDot + 1, secondDot - (firstDot + 1)))
             .array();
-    final byte[] decodedSignature =
+    final var decodedSignature =
         Base64.getUrlDecoder()
             .decode(ByteBuffer.wrap(tokenBytes, secondDot + 1, tokenBytes.length - (secondDot + 1)))
             .array();
 
-    final YouTrackDBJwtHeader header = deserializeWebHeader(decodedHeader);
-    final JwtPayload deserializeWebPayload =
+    final var header = deserializeWebHeader(decodedHeader);
+    final var deserializeWebPayload =
         deserializeWebPayload(header.getType(), decodedPayload);
     token = new JsonWebToken(header, deserializeWebPayload);
-    byte[] onlyTokenBytes = new byte[secondDot];
+    var onlyTokenBytes = new byte[secondDot];
     System.arraycopy(tokenBytes, 0, onlyTokenBytes, 0, secondDot);
     return new ParsedToken(token, onlyTokenBytes, decodedSignature);
   }
@@ -128,7 +128,7 @@ public class TokenHandlerImpl implements OTokenHandler {
   @Override
   public boolean validateToken(ParsedToken token, String command, String database) {
     if (!token.getToken().getIsVerified()) {
-      boolean value = this.sign.verifyTokenSign(token);
+      var value = this.sign.verifyTokenSign(token);
       token.getToken().setIsVerified(value);
     }
     return token.getToken().getIsVerified() && validateToken(token.getToken(), command, database);
@@ -136,11 +136,11 @@ public class TokenHandlerImpl implements OTokenHandler {
 
   @Override
   public boolean validateToken(final Token token, final String command, final String database) {
-    boolean valid = false;
+    var valid = false;
     if (!(token instanceof JsonWebToken)) {
       return false;
     }
-    final long curTime = System.currentTimeMillis();
+    final var curTime = System.currentTimeMillis();
     if (token.getDatabase().equalsIgnoreCase(database)
         && token.getExpiry() > curTime
         && (token.getExpiry() - (sessionInMills + 1)) < curTime) {
@@ -153,7 +153,7 @@ public class TokenHandlerImpl implements OTokenHandler {
   @Override
   public boolean validateBinaryToken(ParsedToken token) {
     if (!token.getToken().getIsVerified()) {
-      boolean value = this.sign.verifyTokenSign(token);
+      var value = this.sign.verifyTokenSign(token);
       token.getToken().setIsVerified(value);
     }
     return token.getToken().getIsVerified() && validateBinaryToken(token.getToken());
@@ -161,13 +161,13 @@ public class TokenHandlerImpl implements OTokenHandler {
 
   @Override
   public boolean validateBinaryToken(final Token token) {
-    boolean valid = false;
+    var valid = false;
     // The "node" token is for backward compatibility for old ditributed binary, may be removed if
     // we do not support runtime compatiblity with 3.1 or less
     if ("node".equals(token.getHeader().getType())) {
       valid = true;
     } else {
-      final long curTime = System.currentTimeMillis();
+      final var curTime = System.currentTimeMillis();
       if (token.getExpiry() > curTime && (token.getExpiry() - (sessionInMills + 1)) < curTime) {
         valid = true;
       }
@@ -178,22 +178,22 @@ public class TokenHandlerImpl implements OTokenHandler {
   }
 
   public byte[] getSignedWebToken(final DatabaseSessionInternal db, final SecurityUser user) {
-    final ByteArrayOutputStream tokenByteOS = new ByteArrayOutputStream(1024);
-    final YouTrackDBJwtHeader header = new YouTrackDBJwtHeader();
+    final var tokenByteOS = new ByteArrayOutputStream(1024);
+    final var header = new YouTrackDBJwtHeader();
     header.setAlgorithm("HS256");
     header.setKeyId("");
 
-    final JwtPayload payload = createPayload(db, user);
+    final var payload = createPayload(db, user);
     header.setType(getPayloadType(payload));
     try {
-      byte[] bytes = serializeWebHeader(header);
+      var bytes = serializeWebHeader(header);
       tokenByteOS.write(
           Base64.getUrlEncoder().encode(ByteBuffer.wrap(bytes, 0, bytes.length)).array());
       tokenByteOS.write(JWT_DELIMITER);
       bytes = serializeWebPayload(payload);
       tokenByteOS.write(
           Base64.getUrlEncoder().encode(ByteBuffer.wrap(bytes, 0, bytes.length)).array());
-      byte[] unsignedToken = tokenByteOS.toByteArray();
+      var unsignedToken = tokenByteOS.toByteArray();
       tokenByteOS.write(JWT_DELIMITER);
 
       bytes = this.sign.signToken(header, unsignedToken);
@@ -207,22 +207,22 @@ public class TokenHandlerImpl implements OTokenHandler {
   }
 
   public byte[] getSignedWebTokenServerUser(final SecurityUser user) {
-    final ByteArrayOutputStream tokenByteOS = new ByteArrayOutputStream(1024);
-    final YouTrackDBJwtHeader header = new YouTrackDBJwtHeader();
+    final var tokenByteOS = new ByteArrayOutputStream(1024);
+    final var header = new YouTrackDBJwtHeader();
     header.setAlgorithm("HS256");
     header.setKeyId("");
 
-    final JwtPayload payload = createPayloadServerUser(user);
+    final var payload = createPayloadServerUser(user);
     header.setType(getPayloadType(payload));
     try {
-      byte[] bytes = serializeWebHeader(header);
+      var bytes = serializeWebHeader(header);
       tokenByteOS.write(
           Base64.getUrlEncoder().encode(ByteBuffer.wrap(bytes, 0, bytes.length)).array());
       tokenByteOS.write(JWT_DELIMITER);
       bytes = serializeWebPayload(payload);
       tokenByteOS.write(
           Base64.getUrlEncoder().encode(ByteBuffer.wrap(bytes, 0, bytes.length)).array());
-      byte[] unsignedToken = tokenByteOS.toByteArray();
+      var unsignedToken = tokenByteOS.toByteArray();
       tokenByteOS.write(JWT_DELIMITER);
 
       bytes = this.sign.signToken(header, unsignedToken);
@@ -237,11 +237,11 @@ public class TokenHandlerImpl implements OTokenHandler {
 
   @Override
   public boolean validateServerUserToken(Token token, String command, String database) {
-    boolean valid = false;
+    var valid = false;
     if (!(token instanceof JsonWebToken)) {
       return false;
     }
-    final YouTrackDBJwtPayload payload = (YouTrackDBJwtPayload) ((JsonWebToken) token).getPayload();
+    final var payload = (YouTrackDBJwtPayload) ((JsonWebToken) token).getPayload();
     if (token.isNowValid()) {
       valid = true;
     }
@@ -255,16 +255,16 @@ public class TokenHandlerImpl implements OTokenHandler {
       final NetworkProtocolData data) {
     try {
 
-      final BinaryToken token = new BinaryToken();
+      final var token = new BinaryToken();
 
-      long curTime = System.currentTimeMillis();
+      var curTime = System.currentTimeMillis();
 
-      final YouTrackDBJwtHeader header = new YouTrackDBJwtHeader();
+      final var header = new YouTrackDBJwtHeader();
       header.setAlgorithm(this.sign.getAlgorithm());
       header.setKeyId(this.sign.getDefaultKey());
       header.setType("YouTrackDB");
       token.setHeader(header);
-      BinaryTokenPayloadImpl payload = new BinaryTokenPayloadImpl();
+      var payload = new BinaryTokenPayloadImpl();
       if (db != null) {
         payload.setDatabase(db.getName());
         payload.setDatabaseType(db.getStorage().getType());
@@ -292,10 +292,10 @@ public class TokenHandlerImpl implements OTokenHandler {
   }
 
   private byte[] serializeSignedToken(BinaryToken token) throws IOException {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    var baos = new ByteArrayOutputStream();
     binarySerializer.serialize(token, baos);
 
-    final byte[] signature = this.sign.signToken(token.getHeader(), baos.toByteArray());
+    final var signature = this.sign.signToken(token.getHeader(), baos.toByteArray());
     baos.write(signature);
 
     return baos.toByteArray();
@@ -304,7 +304,7 @@ public class TokenHandlerImpl implements OTokenHandler {
   public NetworkProtocolData getProtocolDataFromToken(
       ClientConnection connection, final Token token) {
     if (token instanceof BinaryToken binary) {
-      final NetworkProtocolData data = new NetworkProtocolData();
+      final var data = new NetworkProtocolData();
       // data.clientId = binary.get;
       data.protocolVersion = binary.getProtocolVersion();
       data.setSerializationImpl(binary.getSerializer());
@@ -322,20 +322,20 @@ public class TokenHandlerImpl implements OTokenHandler {
 
   @Override
   public Token parseNotVerifyBinaryToken(byte[] binaryToken) {
-    final ByteArrayInputStream bais = new ByteArrayInputStream(binaryToken);
+    final var bais = new ByteArrayInputStream(binaryToken);
     return deserializeBinaryToken(bais);
   }
 
   @Override
   public ParsedToken parseOnlyBinary(byte[] binaryToken) {
     try {
-      final ByteArrayInputStream bais = new ByteArrayInputStream(binaryToken);
+      final var bais = new ByteArrayInputStream(binaryToken);
 
-      final BinaryToken token = deserializeBinaryToken(bais);
-      final int end = binaryToken.length - bais.available();
-      final byte[] decodedSignature = new byte[bais.available()];
+      final var token = deserializeBinaryToken(bais);
+      final var end = binaryToken.length - bais.available();
+      final var decodedSignature = new byte[bais.available()];
       bais.read(decodedSignature);
-      byte[] onlyTokenBytes = new byte[end];
+      var onlyTokenBytes = new byte[end];
       System.arraycopy(binaryToken, 0, onlyTokenBytes, 0, end);
       return new ParsedToken(token, onlyTokenBytes, decodedSignature);
     } catch (Exception e) {
@@ -344,8 +344,8 @@ public class TokenHandlerImpl implements OTokenHandler {
   }
 
   public Token parseBinaryToken(final byte[] binaryToken) {
-    ParsedToken parsedToken = parseOnlyBinary(binaryToken);
-    Token token = parsedToken.getToken();
+    var parsedToken = parseOnlyBinary(binaryToken);
+    var token = parsedToken.getToken();
     token.setIsVerified(this.sign.verifyTokenSign(parsedToken));
     return token;
   }
@@ -356,10 +356,10 @@ public class TokenHandlerImpl implements OTokenHandler {
       throw new IllegalArgumentException("Token is null");
     }
 
-    final long curTime = System.currentTimeMillis();
+    final var curTime = System.currentTimeMillis();
     if (token.getExpiry() - curTime < (sessionInMills / 2) && token.getExpiry() >= curTime) {
-      final long expiryMinutes = sessionInMills;
-      final long currTime = System.currentTimeMillis();
+      final var expiryMinutes = sessionInMills;
+      final var currTime = System.currentTimeMillis();
       token.setExpiry(currTime + expiryMinutes);
       try {
         if (token instanceof BinaryToken) {
@@ -383,9 +383,9 @@ public class TokenHandlerImpl implements OTokenHandler {
   }
 
   protected static YouTrackDBJwtHeader deserializeWebHeader(final byte[] decodedHeader) {
-    final EntityImpl entity = new EntityImpl(null);
+    final var entity = new EntityImpl(null);
     entity.updateFromJSON(new String(decodedHeader, StandardCharsets.UTF_8));
-    final YouTrackDBJwtHeader header = new YouTrackDBJwtHeader();
+    final var header = new YouTrackDBJwtHeader();
     header.setType(entity.field("typ"));
     header.setAlgorithm(entity.field("alg"));
     header.setKeyId(entity.field("kid"));
@@ -397,9 +397,9 @@ public class TokenHandlerImpl implements OTokenHandler {
     if (!"YouTrackDB".equals(type)) {
       throw new SystemException("Payload class not registered:" + type);
     }
-    final EntityImpl entity = new EntityImpl(null);
+    final var entity = new EntityImpl(null);
     entity.updateFromJSON(new String(decodedPayload, StandardCharsets.UTF_8));
-    final YouTrackDBJwtPayload payload = new YouTrackDBJwtPayload();
+    final var payload = new YouTrackDBJwtPayload();
     payload.setUserName(entity.field("username"));
     payload.setIssuer(entity.field("iss"));
     payload.setExpiry(entity.field("exp"));
@@ -420,7 +420,7 @@ public class TokenHandlerImpl implements OTokenHandler {
       throw new IllegalArgumentException("Token header is null");
     }
 
-    EntityImpl entity = new EntityImpl(null);
+    var entity = new EntityImpl(null);
     entity.field("typ", header.getType());
     entity.field("alg", header.getAlgorithm());
     entity.field("kid", header.getKeyId());
@@ -432,7 +432,7 @@ public class TokenHandlerImpl implements OTokenHandler {
       throw new IllegalArgumentException("Token payload is null");
     }
 
-    final EntityImpl entity = new EntityImpl(null);
+    final var entity = new EntityImpl(null);
     entity.field("username", payload.getUserName());
     entity.field("iss", payload.getIssuer());
     entity.field("exp", payload.getExpiry());
@@ -452,13 +452,13 @@ public class TokenHandlerImpl implements OTokenHandler {
       throw new IllegalArgumentException("User is null");
     }
 
-    final YouTrackDBJwtPayload payload = new YouTrackDBJwtPayload();
+    final var payload = new YouTrackDBJwtPayload();
     payload.setAudience("YouTrackDBServer");
     payload.setDatabase("-");
     payload.setUserRid(ImmutableRecordId.EMPTY_RECORD_ID);
 
-    final long expiryMinutes = sessionInMills;
-    final long currTime = System.currentTimeMillis();
+    final var expiryMinutes = sessionInMills;
+    final var currTime = System.currentTimeMillis();
     payload.setIssuedAt(currTime);
     payload.setNotBefore(currTime);
     payload.setUserName(serverUser.getName(null));
@@ -473,13 +473,13 @@ public class TokenHandlerImpl implements OTokenHandler {
       throw new IllegalArgumentException("User is null");
     }
 
-    final YouTrackDBJwtPayload payload = new YouTrackDBJwtPayload();
+    final var payload = new YouTrackDBJwtPayload();
     payload.setAudience("YouTrackDB");
     payload.setDatabase(db.getName());
     payload.setUserRid(user.getIdentity().getIdentity());
 
-    final long expiryMinutes = sessionInMills;
-    final long currTime = System.currentTimeMillis();
+    final var expiryMinutes = sessionInMills;
+    final var currTime = System.currentTimeMillis();
     payload.setIssuedAt(currTime);
     payload.setNotBefore(currTime);
     payload.setUserName(user.getName(db));

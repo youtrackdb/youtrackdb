@@ -49,10 +49,10 @@ public class CommandExecutorSQLTruncateClass extends CommandExecutorSQLAbstract
   @SuppressWarnings("unchecked")
   public CommandExecutorSQLTruncateClass parse(DatabaseSessionInternal db,
       final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
@@ -61,10 +61,10 @@ public class CommandExecutorSQLTruncateClass extends CommandExecutorSQLAbstract
 
       init((CommandRequestText) iRequest);
 
-      StringBuilder word = new StringBuilder();
+      var word = new StringBuilder();
 
-      int oldPos = 0;
-      int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
+      var oldPos = 0;
+      var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_TRUNCATE)) {
         throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_TRUNCATE + " not found. Use " + getSyntax(), parserText, oldPos);
@@ -84,7 +84,7 @@ public class CommandExecutorSQLTruncateClass extends CommandExecutorSQLAbstract
             "Expected class name. Use " + getSyntax(), parserText, oldPos);
       }
 
-      final String className = word.toString();
+      final var className = word.toString();
       schemaClass = (SchemaClassInternal) database.getMetadata().getSchema().getClass(className);
 
       if (schemaClass == null) {
@@ -96,7 +96,7 @@ public class CommandExecutorSQLTruncateClass extends CommandExecutorSQLAbstract
       pos = nextWord(parserText, parserText, oldPos, word, true);
 
       while (pos > 0) {
-        String nextWord = word.toString();
+        var nextWord = word.toString();
         if (nextWord.toUpperCase(Locale.ENGLISH).equals(KEYWORD_UNSAFE)) {
           unsafe = true;
         } else if (nextWord.toUpperCase(Locale.ENGLISH).equals(KEYWORD_POLYMORPHIC)) {
@@ -122,7 +122,7 @@ public class CommandExecutorSQLTruncateClass extends CommandExecutorSQLAbstract
     }
 
     var database = getDatabase();
-    final long recs = schemaClass.count(database, deep);
+    final var recs = schemaClass.count(database, deep);
     if (recs > 0 && !unsafe) {
       if (schemaClass.isSubClassOf("V")) {
         throw new CommandExecutionException(
@@ -135,10 +135,10 @@ public class CommandExecutorSQLTruncateClass extends CommandExecutorSQLAbstract
       }
     }
 
-    Collection<SchemaClass> subclasses = schemaClass.getAllSubclasses();
+    var subclasses = schemaClass.getAllSubclasses();
     if (deep && !unsafe) { // for multiple inheritance
-      for (SchemaClass subclass : subclasses) {
-        long subclassRecs = schemaClass.count(database);
+      for (var subclass : subclasses) {
+        var subclassRecs = schemaClass.count(database);
         if (subclassRecs > 0) {
           if (subclass.isSubClassOf("V")) {
             throw new CommandExecutionException(
@@ -157,7 +157,7 @@ public class CommandExecutorSQLTruncateClass extends CommandExecutorSQLAbstract
 
     schemaClass.truncate(database);
     if (deep) {
-      for (SchemaClass subclass : subclasses) {
+      for (var subclass : subclasses) {
         ((SchemaClassInternal) subclass).truncate(database);
       }
     }

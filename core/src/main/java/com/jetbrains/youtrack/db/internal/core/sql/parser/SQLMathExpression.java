@@ -203,7 +203,7 @@ public class SQLMathExpression extends SimpleNode {
           return super.apply(left, right);
         }
         if (left instanceof Date || right instanceof Date) {
-          Number result = apply(toLong(left), toLong(right));
+          var result = apply(toLong(left), toLong(right));
           return new Date(result.longValue());
         }
         return String.valueOf(left) + right;
@@ -212,7 +212,7 @@ public class SQLMathExpression extends SimpleNode {
     MINUS(20) {
       @Override
       public Number apply(Integer left, Integer right) {
-        int result = left - right;
+        var result = left - right;
         if (result > 0 && left.intValue() < 0 && right.intValue() > 0)
         // SPECIAL CASE: UPGRADE TO LONG
         {
@@ -254,7 +254,7 @@ public class SQLMathExpression extends SimpleNode {
         } else if (left instanceof Number && right instanceof Number) {
           result = apply((Number) left, this, (Number) right);
         } else if (left instanceof Date || right instanceof Date) {
-          Number r = apply(toLong(left), toLong(right));
+          var r = apply(toLong(left), toLong(right));
           result = new Date(r.longValue());
         }
 
@@ -638,7 +638,7 @@ public class SQLMathExpression extends SimpleNode {
 
   public boolean isCacheable(DatabaseSessionInternal session) {
     if (childExpressions != null) {
-      for (SQLMathExpression exp : childExpressions) {
+      for (var exp : childExpressions) {
         if (!exp.isCacheable(session)) {
           return false;
         }
@@ -660,8 +660,8 @@ public class SQLMathExpression extends SimpleNode {
     }
 
     if (childExpressions.size() == 2) {
-      Object leftValue = childExpressions.get(0).execute(iCurrentRecord, ctx);
-      Object rightValue = childExpressions.get(1).execute(iCurrentRecord, ctx);
+      var leftValue = childExpressions.get(0).execute(iCurrentRecord, ctx);
+      var rightValue = childExpressions.get(1).execute(iCurrentRecord, ctx);
       return operators.get(0).apply(leftValue, rightValue);
     }
 
@@ -680,8 +680,8 @@ public class SQLMathExpression extends SimpleNode {
     }
 
     if (childExpressions.size() == 2) {
-      Object leftValue = childExpressions.get(0).execute(iCurrentRecord, ctx);
-      Object rightValue = childExpressions.get(1).execute(iCurrentRecord, ctx);
+      var leftValue = childExpressions.get(0).execute(iCurrentRecord, ctx);
+      var rightValue = childExpressions.get(1).execute(iCurrentRecord, ctx);
       return operators.get(0).apply(leftValue, rightValue);
     }
 
@@ -692,21 +692,21 @@ public class SQLMathExpression extends SimpleNode {
     Deque valuesStack = new ArrayDeque<>();
     Deque<Operator> operatorsStack = new ArrayDeque<Operator>();
     if (childExpressions != null && operators != null) {
-      SQLMathExpression nextExpression = childExpressions.get(0);
-      Object val = nextExpression.execute(iCurrentRecord, ctx);
+      var nextExpression = childExpressions.get(0);
+      var val = nextExpression.execute(iCurrentRecord, ctx);
       valuesStack.push(val == null ? NULL_VALUE : val);
 
-      for (int i = 0; i < operators.size() && i + 1 < childExpressions.size(); i++) {
-        Operator nextOperator = operators.get(i);
-        Object rightValue = childExpressions.get(i + 1).execute(iCurrentRecord, ctx);
+      for (var i = 0; i < operators.size() && i + 1 < childExpressions.size(); i++) {
+        var nextOperator = operators.get(i);
+        var rightValue = childExpressions.get(i + 1).execute(iCurrentRecord, ctx);
 
         if (!operatorsStack.isEmpty()
             && operatorsStack.peek().getPriority() <= nextOperator.getPriority()) {
-          Object right = valuesStack.poll();
+          var right = valuesStack.poll();
           right = right == NULL_VALUE ? null : right;
-          Object left = valuesStack.poll();
+          var left = valuesStack.poll();
           left = left == NULL_VALUE ? null : left;
-          Object calculatedValue = operatorsStack.poll().apply(left, right);
+          var calculatedValue = operatorsStack.poll().apply(left, right);
           valuesStack.push(calculatedValue == null ? NULL_VALUE : calculatedValue);
         }
         operatorsStack.push(nextOperator);
@@ -722,21 +722,21 @@ public class SQLMathExpression extends SimpleNode {
     Deque valuesStack = new ArrayDeque<>();
     Deque<Operator> operatorsStack = new ArrayDeque<Operator>();
     if (childExpressions != null && operators != null) {
-      SQLMathExpression nextExpression = childExpressions.get(0);
-      Object val = nextExpression.execute(iCurrentRecord, ctx);
+      var nextExpression = childExpressions.get(0);
+      var val = nextExpression.execute(iCurrentRecord, ctx);
       valuesStack.push(val == null ? NULL_VALUE : val);
 
-      for (int i = 0; i < operators.size() && i + 1 < childExpressions.size(); i++) {
-        Operator nextOperator = operators.get(i);
-        Object rightValue = childExpressions.get(i + 1).execute(iCurrentRecord, ctx);
+      for (var i = 0; i < operators.size() && i + 1 < childExpressions.size(); i++) {
+        var nextOperator = operators.get(i);
+        var rightValue = childExpressions.get(i + 1).execute(iCurrentRecord, ctx);
 
         if (!operatorsStack.isEmpty()
             && operatorsStack.peek().getPriority() <= nextOperator.getPriority()) {
-          Object right = valuesStack.poll();
+          var right = valuesStack.poll();
           right = right == NULL_VALUE ? null : right;
-          Object left = valuesStack.poll();
+          var left = valuesStack.poll();
           left = left == NULL_VALUE ? null : left;
-          Object calculatedValue = operatorsStack.poll().apply(left, right);
+          var calculatedValue = operatorsStack.poll().apply(left, right);
           valuesStack.push(calculatedValue == null ? NULL_VALUE : calculatedValue);
         }
         operatorsStack.push(nextOperator);
@@ -762,27 +762,27 @@ public class SQLMathExpression extends SimpleNode {
       valuesStack.push(values.removeLast());
 
       while (!operators.isEmpty()) {
-        Operator nextOperator = operators.removeLast();
-        Object rightValue = values.removeLast();
+        var nextOperator = operators.removeLast();
+        var rightValue = values.removeLast();
 
         if (!operatorsStack.isEmpty()
             && operatorsStack.peek().getPriority() <= nextOperator.getPriority()) {
-          Object right = valuesStack.poll();
+          var right = valuesStack.poll();
           right = right == NULL_VALUE ? null : right;
-          Object left = valuesStack.poll();
+          var left = valuesStack.poll();
           left = left == NULL_VALUE ? null : left;
-          Object calculatedValue = operatorsStack.poll().apply(left, right);
+          var calculatedValue = operatorsStack.poll().apply(left, right);
           valuesStack.push(calculatedValue == null ? NULL_VALUE : calculatedValue);
         }
         operatorsStack.push(nextOperator);
         valuesStack.push(rightValue == null ? NULL_VALUE : rightValue);
       }
       if (!operatorsStack.isEmpty()) {
-        Object right = valuesStack.poll();
+        var right = valuesStack.poll();
         right = right == NULL_VALUE ? null : right;
-        Object left = valuesStack.poll();
+        var left = valuesStack.poll();
         left = left == NULL_VALUE ? null : left;
-        Object val = operatorsStack.poll().apply(left, right);
+        var val = operatorsStack.poll().apply(left, right);
         valuesStack.push(val == null ? NULL_VALUE : val);
       }
 
@@ -828,7 +828,7 @@ public class SQLMathExpression extends SimpleNode {
     if (childExpressions == null || operators == null) {
       return;
     }
-    for (int i = 0; i < childExpressions.size(); i++) {
+    for (var i = 0; i < childExpressions.size(); i++) {
       if (i > 0) {
         builder.append(" ");
         switch (operators.get(i - 1)) {
@@ -876,7 +876,7 @@ public class SQLMathExpression extends SimpleNode {
     if (childExpressions == null || operators == null) {
       return;
     }
-    for (int i = 0; i < childExpressions.size(); i++) {
+    for (var i = 0; i < childExpressions.size(); i++) {
       if (i > 0) {
         builder.append(" ");
         switch (operators.get(i - 1)) {
@@ -922,7 +922,7 @@ public class SQLMathExpression extends SimpleNode {
 
   protected boolean supportsBasicCalculation() {
     if (this.childExpressions != null) {
-      for (SQLMathExpression expr : this.childExpressions) {
+      for (var expr : this.childExpressions) {
         if (!expr.supportsBasicCalculation()) {
           return false;
         }
@@ -1082,7 +1082,7 @@ public class SQLMathExpression extends SimpleNode {
 
   public boolean isEarlyCalculated(CommandContext ctx) {
     if (this.childExpressions != null) {
-      for (SQLMathExpression exp : childExpressions) {
+      for (var exp : childExpressions) {
         if (!exp.isEarlyCalculated(ctx)) {
           return false;
         }
@@ -1093,7 +1093,7 @@ public class SQLMathExpression extends SimpleNode {
 
   public boolean needsAliases(Set<String> aliases) {
     if (this.childExpressions != null) {
-      for (SQLMathExpression expr : childExpressions) {
+      for (var expr : childExpressions) {
         if (expr.needsAliases(aliases)) {
           return true;
         }
@@ -1105,7 +1105,7 @@ public class SQLMathExpression extends SimpleNode {
   public boolean isExpand() {
     if (this.childExpressions != null) {
 
-      for (SQLMathExpression expr : this.childExpressions) {
+      for (var expr : this.childExpressions) {
         if (expr.isExpand()) {
           if (this.childExpressions.size() > 1) {
             throw new CommandExecutionException(
@@ -1120,7 +1120,7 @@ public class SQLMathExpression extends SimpleNode {
 
   public boolean isAggregate(DatabaseSessionInternal session) {
     if (this.childExpressions != null) {
-      for (SQLMathExpression expr : this.childExpressions) {
+      for (var expr : this.childExpressions) {
         if (expr.isAggregate(session)) {
           return true;
         }
@@ -1143,14 +1143,14 @@ public class SQLMathExpression extends SimpleNode {
       AggregateProjectionSplit aggregateProj, CommandContext ctx) {
     var db = ctx.getDatabase();
     if (isAggregate(db)) {
-      SQLMathExpression result = new SQLMathExpression(-1);
+      var result = new SQLMathExpression(-1);
       if (this.childExpressions != null && this.operators != null) {
-        int i = 0;
-        for (SQLMathExpression expr : this.childExpressions) {
+        var i = 0;
+        for (var expr : this.childExpressions) {
           if (i > 0) {
             result.addOperator(operators.get(i - 1));
           }
-          SimpleNode splitResult = expr.splitForAggregation(aggregateProj, ctx);
+          var splitResult = expr.splitForAggregation(aggregateProj, ctx);
           if (splitResult instanceof SQLMathExpression res) {
             if (res.isEarlyCalculated(ctx) || res.isAggregate(db)) {
               result.addChildExpression(res);
@@ -1196,7 +1196,7 @@ public class SQLMathExpression extends SimpleNode {
 
   public void extractSubQueries(SQLIdentifier letAlias, SubQueryCollector collector) {
     if (this.childExpressions != null) {
-      for (SQLMathExpression expr : this.childExpressions) {
+      for (var expr : this.childExpressions) {
         expr.extractSubQueries(letAlias, collector);
       }
     }
@@ -1204,7 +1204,7 @@ public class SQLMathExpression extends SimpleNode {
 
   public void extractSubQueries(SubQueryCollector collector) {
     if (this.childExpressions != null) {
-      for (SQLMathExpression expr : this.childExpressions) {
+      for (var expr : this.childExpressions) {
         expr.extractSubQueries(collector);
       }
     }
@@ -1212,7 +1212,7 @@ public class SQLMathExpression extends SimpleNode {
 
   public boolean refersToParent() {
     if (this.childExpressions != null) {
-      for (SQLMathExpression expr : this.childExpressions) {
+      for (var expr : this.childExpressions) {
         if (expr.refersToParent()) {
           return true;
         }
@@ -1230,7 +1230,7 @@ public class SQLMathExpression extends SimpleNode {
       return false;
     }
 
-    SQLMathExpression that = (SQLMathExpression) o;
+    var that = (SQLMathExpression) o;
 
     if (!Objects.equals(childExpressions, that.childExpressions)) {
       return false;
@@ -1240,7 +1240,7 @@ public class SQLMathExpression extends SimpleNode {
 
   @Override
   public int hashCode() {
-    int result = childExpressions != null ? childExpressions.hashCode() : 0;
+    var result = childExpressions != null ? childExpressions.hashCode() : 0;
     result = 31 * result + (operators != null ? operators.hashCode() : 0);
     return result;
   }
@@ -1248,8 +1248,8 @@ public class SQLMathExpression extends SimpleNode {
   public List<String> getMatchPatternInvolvedAliases() {
     List<String> result = new ArrayList<String>();
     if (this.childExpressions != null) {
-      for (SQLMathExpression exp : childExpressions) {
-        List<String> x = exp.getMatchPatternInvolvedAliases();
+      for (var exp : childExpressions) {
+        var x = exp.getMatchPatternInvolvedAliases();
         if (x != null) {
           result.addAll(x);
         }
@@ -1271,7 +1271,7 @@ public class SQLMathExpression extends SimpleNode {
   public static SQLMathExpression deserializeFromResult(Result fromResult) {
     String className = fromResult.getProperty("__class");
     try {
-      SQLMathExpression result =
+      var result =
           (SQLMathExpression) Class.forName(className).getConstructor(Integer.class)
               .newInstance(-1);
       result.deserialize(fromResult);
@@ -1282,7 +1282,7 @@ public class SQLMathExpression extends SimpleNode {
   }
 
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     result.setProperty("__class", getClass().getName());
     if (childExpressions != null) {
       result.setProperty(

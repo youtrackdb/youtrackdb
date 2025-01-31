@@ -204,11 +204,11 @@ public final class WALRecordsFactory {
       GlobalConfiguration.WAL_MIN_COMPRESSED_RECORD_SIZE.getValueAsInteger();
 
   public static ByteBuffer toStream(final WriteableWALRecord walRecord) {
-    final int contentSize = walRecord.serializedSize() + METADATA_SIZE;
+    final var contentSize = walRecord.serializedSize() + METADATA_SIZE;
 
-    final ByteBuffer content = ByteBuffer.allocate(contentSize).order(ByteOrder.nativeOrder());
+    final var content = ByteBuffer.allocate(contentSize).order(ByteOrder.nativeOrder());
 
-    final int recordId = walRecord.getId();
+    final var recordId = walRecord.getId();
     content.putShort(RECORD_ID_OFFSET, (short) recordId);
     content.position(METADATA_SIZE);
 
@@ -218,16 +218,16 @@ public final class WALRecordsFactory {
       return content;
     }
 
-    final LZ4Compressor compressor = factory.fastCompressor();
-    final int maxCompressedLength = compressor.maxCompressedLength(contentSize - 1);
+    final var compressor = factory.fastCompressor();
+    final var maxCompressedLength = compressor.maxCompressedLength(contentSize - 1);
 
-    final ByteBuffer compressedContent =
+    final var compressedContent =
         ByteBuffer.allocate(maxCompressedLength + COMPRESSED_METADATA_SIZE)
             .order(ByteOrder.nativeOrder());
 
     content.position(OPERATION_ID_OFFSET + OPERATION_ID_SIZE);
     compressedContent.position(COMPRESSED_METADATA_SIZE);
-    final int compressedLength =
+    final var compressedLength =
         compressor.compress(
             content,
             METADATA_SIZE,
@@ -251,11 +251,11 @@ public final class WALRecordsFactory {
     int recordId = ShortSerializer.INSTANCE.deserializeNative(content, RECORD_ID_OFFSET);
 
     if (recordId < 0) {
-      final int originalLen =
+      final var originalLen =
           IntegerSerializer.INSTANCE.deserializeNative(content, ORIGINAL_CONTENT_SIZE_OFFSET);
-      final byte[] restored = new byte[originalLen];
+      final var restored = new byte[originalLen];
 
-      final LZ4FastDecompressor decompressor = factory.fastDecompressor();
+      final var decompressor = factory.fastDecompressor();
       decompressor.decompress(
           content,
           COMPRESSED_METADATA_SIZE,
@@ -266,7 +266,7 @@ public final class WALRecordsFactory {
       content = restored;
     }
 
-    final WriteableWALRecord walRecord = walRecordById(recordId);
+    final var walRecord = walRecordById(recordId);
 
     walRecord.fromStream(content, METADATA_SIZE);
 

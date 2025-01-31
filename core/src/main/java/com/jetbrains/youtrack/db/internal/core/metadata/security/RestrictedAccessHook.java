@@ -38,26 +38,26 @@ public class RestrictedAccessHook {
 
   public static boolean onRecordBeforeCreate(
       final EntityImpl entity, DatabaseSessionInternal database) {
-    final SchemaImmutableClass cls = EntityInternalUtils.getImmutableSchemaClass(database, entity);
+    final var cls = EntityInternalUtils.getImmutableSchemaClass(database, entity);
     if (cls != null && cls.isRestricted()) {
-      String fieldNames = cls.getCustom(SecurityShared.ONCREATE_FIELD);
+      var fieldNames = cls.getCustom(SecurityShared.ONCREATE_FIELD);
       if (fieldNames == null) {
         fieldNames = RestrictedOperation.ALLOW_ALL.getFieldName();
       }
-      final String[] fields = fieldNames.split(",");
-      String identityType = cls.getCustom(SecurityShared.ONCREATE_IDENTITY_TYPE);
+      final var fields = fieldNames.split(",");
+      var identityType = cls.getCustom(SecurityShared.ONCREATE_IDENTITY_TYPE);
       if (identityType == null) {
         identityType = "user";
       }
 
       Identifiable identity = null;
       if (identityType.equals("user")) {
-        final SecurityUser user = database.geCurrentUser();
+        final var user = database.geCurrentUser();
         if (user != null) {
           identity = user.getIdentity();
         }
       } else if (identityType.equals("role")) {
-        final Set<? extends SecurityRole> roles = database.geCurrentUser().getRoles();
+        final var roles = database.geCurrentUser().getRoles();
         if (!roles.isEmpty()) {
           identity = roles.iterator().next().getIdentity();
         }
@@ -73,7 +73,7 @@ public class RestrictedAccessHook {
       }
 
       if (identity != null && ((RecordId) identity.getIdentity()).isValid()) {
-        for (String f : fields) {
+        for (var f : fields) {
           database.getSharedContext().getSecurity().allowIdentity(database, entity, f, identity);
         }
         return true;
@@ -88,7 +88,7 @@ public class RestrictedAccessHook {
       final EntityImpl ent,
       final RestrictedOperation iAllowOperation,
       final boolean iReadOriginal) {
-    final SchemaImmutableClass cls = EntityInternalUtils.getImmutableSchemaClass(database, ent);
+    final var cls = EntityInternalUtils.getImmutableSchemaClass(database, ent);
     if (cls != null && cls.isRestricted()) {
 
       if (database.geCurrentUser() == null) {

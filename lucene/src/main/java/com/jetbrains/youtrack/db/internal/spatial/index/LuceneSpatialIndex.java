@@ -75,7 +75,7 @@ public class LuceneSpatialIndex extends LuceneIndexNotUnique {
   protected Object encodeKey(Object key) {
 
     if (key instanceof EntityImpl) {
-      Shape shape = shapeFactory.fromDoc((EntityImpl) key);
+      var shape = shapeFactory.fromDoc((EntityImpl) key);
       return shapeFactory.toGeometry(shape);
     }
     return key;
@@ -94,12 +94,12 @@ public class LuceneSpatialIndex extends LuceneIndexNotUnique {
       FrontendTransactionIndexChangesPerKey item) {
     // 1. Handle common fast paths.
 
-    List<TransactionIndexEntry> entries = item.getEntriesAsList();
+    var entries = item.getEntriesAsList();
     Map<Identifiable, Integer> counters = new LinkedHashMap<>();
 
-    for (TransactionIndexEntry entry : entries) {
+    for (var entry : entries) {
 
-      Integer counter = counters.get(entry.getValue());
+      var counter = counters.get(entry.getValue());
       if (counter == null) {
         counter = 0;
       }
@@ -116,11 +116,11 @@ public class LuceneSpatialIndex extends LuceneIndexNotUnique {
       counters.put(entry.getValue(), counter);
     }
 
-    FrontendTransactionIndexChangesPerKey changes = new FrontendTransactionIndexChangesPerKey(
+    var changes = new FrontendTransactionIndexChangesPerKey(
         item.key);
 
-    for (Map.Entry<Identifiable, Integer> entry : counters.entrySet()) {
-      Identifiable oIdentifiable = entry.getKey();
+    for (var entry : counters.entrySet()) {
+      var oIdentifiable = entry.getKey();
       switch (entry.getValue()) {
         case 1:
           changes.add(oIdentifiable, FrontendTransactionIndexChanges.OPERATION.PUT);

@@ -67,9 +67,9 @@ public class LuceneIndexType {
   }
 
   public static String extractId(Document doc) {
-    String value = doc.get(RID_HASH);
+    var value = doc.get(RID_HASH);
     if (value != null) {
-      int pos = value.indexOf('|');
+      var pos = value.indexOf('|');
       if (pos > 0) {
         return value.substring(0, pos);
       } else {
@@ -90,7 +90,7 @@ public class LuceneIndexType {
   }
 
   public static String genValueId(final Identifiable id, final Object key) {
-    String value = id.getIdentity().toString() + "|";
+    var value = id.getIdentity().toString() + "|";
     value += hashKey(key);
     return value;
   }
@@ -130,9 +130,9 @@ public class LuceneIndexType {
   public static Query createExactQuery(IndexDefinition index, Object key) {
     Query query = null;
     if (key instanceof String) {
-      final BooleanQuery.Builder queryBuilder = new BooleanQuery.Builder();
+      final var queryBuilder = new BooleanQuery.Builder();
       if (index.getFields().size() > 0) {
-        for (String idx : index.getFields()) {
+        for (var idx : index.getFields()) {
           queryBuilder.add(
               new TermQuery(new Term(idx, key.toString())), BooleanClause.Occur.SHOULD);
         }
@@ -143,10 +143,10 @@ public class LuceneIndexType {
       }
       query = queryBuilder.build();
     } else if (key instanceof CompositeKey keys) {
-      final BooleanQuery.Builder queryBuilder = new BooleanQuery.Builder();
-      int i = 0;
-      for (String idx : index.getFields()) {
-        String val = (String) keys.getKeys().get(i);
+      final var queryBuilder = new BooleanQuery.Builder();
+      var i = 0;
+      for (var idx : index.getFields()) {
+        var val = (String) keys.getKeys().get(i);
         queryBuilder.add(new TermQuery(new Term(idx, val)), BooleanClause.Occur.MUST);
         i++;
       }
@@ -171,8 +171,8 @@ public class LuceneIndexType {
       } else {
         keyString = key.toString();
       }
-      MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-      byte[] bytes = sha256.digest(keyString.getBytes(StandardCharsets.UTF_8));
+      var sha256 = MessageDigest.getInstance("SHA-256");
+      var bytes = sha256.digest(keyString.getBytes(StandardCharsets.UTF_8));
       return Base64.getEncoder().encodeToString(bytes);
     } catch (NoSuchAlgorithmException e) {
       throw BaseException.wrapException(new LuceneIndexException("fail to find sha algorithm"), e);
@@ -183,13 +183,13 @@ public class LuceneIndexType {
       Identifiable value, List<String> fields, Object key) {
 
     // TODO Implementation of Composite keys with Collection
-    final BooleanQuery.Builder filter = new BooleanQuery.Builder();
-    final BooleanQuery.Builder builder = new BooleanQuery.Builder();
+    final var filter = new BooleanQuery.Builder();
+    final var builder = new BooleanQuery.Builder();
     // TODO: Condition on Id and field key only for backward compatibility
     if (value != null) {
       builder.add(createQueryId(value), BooleanClause.Occur.MUST);
     }
-    String field = fields.iterator().next();
+    var field = fields.iterator().next();
     builder.add(
         new TermQuery(new Term(field, key.toString().toLowerCase(Locale.ENGLISH))),
         BooleanClause.Occur.MUST);

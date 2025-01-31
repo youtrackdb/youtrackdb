@@ -39,11 +39,11 @@ public class SQLHaRemoveServerStatement extends SQLStatement {
       Object[] args,
       CommandContext parentContext,
       boolean usePlanCache) {
-    DatabaseSessionInternal internalDb = db;
-    boolean res = internalDb.removeHaServer(serverName.getStringValue());
-    ResultInternal r = new ResultInternal(internalDb);
+    var internalDb = db;
+    var res = internalDb.removeHaServer(serverName.getStringValue());
+    var r = new ResultInternal(internalDb);
     r.setProperty("result", res);
-    InternalResultSet rs = new InternalResultSet();
+    var rs = new InternalResultSet();
     rs.add(r);
     return rs;
   }
@@ -52,11 +52,11 @@ public class SQLHaRemoveServerStatement extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Map<Object, Object> args, CommandContext parentContext,
       boolean usePlanCache) {
-    DatabaseSessionInternal internalDb = db;
-    boolean res = internalDb.removeHaServer(serverName.getStringValue());
-    ResultInternal r = new ResultInternal(internalDb);
+    var internalDb = db;
+    var res = internalDb.removeHaServer(serverName.getStringValue());
+    var r = new ResultInternal(internalDb);
     r.setProperty("result", res);
-    InternalResultSet rs = new InternalResultSet();
+    var rs = new InternalResultSet();
     rs.add(r);
     return rs;
   }

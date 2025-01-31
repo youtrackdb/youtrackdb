@@ -2,7 +2,6 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import java.math.BigDecimal;
 import org.junit.Test;
@@ -18,7 +17,7 @@ public class BigDecimalQuerySupportTest extends DbTestBase {
             "INSERT INTO Test set salary = ?", new BigDecimal("179999999999.99999999999999999999"))
         .close();
     db.commit();
-    try (ResultSet result = db.query("SELECT * FROM Test")) {
+    try (var result = db.query("SELECT * FROM Test")) {
       BigDecimal salary = result.next().getProperty("salary");
       assertEquals(new BigDecimal("179999999999.99999999999999999999"), salary);
     }

@@ -14,7 +14,7 @@ public final class MultiValueEntry implements Comparable<MultiValueEntry> {
 
   @Override
   public int compareTo(final MultiValueEntry o) {
-    int result = Long.compare(id, o.id);
+    var result = Long.compare(id, o.id);
     if (result != 0) {
       return result;
     }

@@ -39,7 +39,7 @@ public class ServerCommandGetExportDatabase extends ServerCommandAuthenticatedDb
   @Override
   public boolean execute(final HttpRequest iRequest, final HttpResponse iResponse)
       throws Exception {
-    String[] urlParts =
+    var urlParts =
         checkSyntax(iRequest.getUrl(), 2, "Syntax error: export/<database>/[<name>][?params*]");
 
     if (urlParts.length <= 2) {
@@ -51,7 +51,7 @@ public class ServerCommandGetExportDatabase extends ServerCommandAuthenticatedDb
   protected void exportStandard(final HttpRequest iRequest, final HttpResponse iResponse)
       throws InterruptedException, IOException {
     iRequest.getData().commandInfo = "Database export";
-    final DatabaseSessionInternal database = getProfiledDatabaseInstance(iRequest);
+    final var database = getProfiledDatabaseInstance(iRequest);
     try {
       iResponse.writeStatus(HttpUtils.STATUS_OK_CODE, HttpUtils.STATUS_OK_DESCRIPTION);
       iResponse.writeHeaders(HttpUtils.CONTENT_GZIP);
@@ -59,7 +59,7 @@ public class ServerCommandGetExportDatabase extends ServerCommandAuthenticatedDb
           "Content-Disposition: attachment; filename=" + database.getName() + ".gz");
       iResponse.writeLine("Date: " + new Date());
       iResponse.writeLine(null);
-      final DatabaseExport export =
+      final var export =
           new DatabaseExport(
               database, new GZIPOutputStream(iResponse.getOutputStream(), 16384), this);
       export.exportDatabase();

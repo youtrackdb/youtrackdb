@@ -39,7 +39,6 @@ import com.jetbrains.youtrack.db.internal.common.serialization.types.ShortSerial
 import com.jetbrains.youtrack.db.internal.common.serialization.types.StringSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.UTF8Serializer;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.CompactedLinkSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.LinkSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.index.CompositeKeySerializer;
@@ -71,7 +70,7 @@ public class BinarySerializerFactory {
   }
 
   public static BinarySerializerFactory create(int binaryFormatVersion) {
-    final BinarySerializerFactory factory = new BinarySerializerFactory();
+    final var factory = new BinarySerializerFactory();
 
     // STATELESS SERIALIER
     factory.registerSerializer(new NullSerializer(), null);
@@ -106,7 +105,7 @@ public class BinarySerializerFactory {
   }
 
   public static BinarySerializerFactory getInstance() {
-    final DatabaseSessionInternal database = DatabaseRecordThreadLocal.instance().getIfDefined();
+    final var database = DatabaseRecordThreadLocal.instance().getIfDefined();
     if (database != null) {
       return database.getSerializerFactory();
     } else {
@@ -143,9 +142,9 @@ public class BinarySerializerFactory {
    * @return OBinarySerializer instance.
    */
   public BinarySerializer<?> getObjectSerializer(final byte identifier) {
-    BinarySerializer<?> impl = serializerIdMap.get(identifier);
+    var impl = serializerIdMap.get(identifier);
     if (impl == null) {
-      final Class<? extends BinarySerializer> cls = serializerClassesIdMap.get(identifier);
+      final var cls = serializerClassesIdMap.get(identifier);
       if (cls != null) {
         try {
           impl = cls.newInstance();

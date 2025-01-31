@@ -61,7 +61,7 @@ public class FunctionLibraryImpl {
     // COPY CALLBACK IN RAM
     final Map<String, CallableFunction<Object, Map<Object, Object>>> callbacks =
         new HashMap<String, CallableFunction<Object, Map<Object, Object>>>();
-    for (Map.Entry<String, Function> entry : functions.entrySet()) {
+    for (var entry : functions.entrySet()) {
       if (entry.getValue().getCallback() != null) {
         callbacks.put(entry.getKey(), entry.getValue().getCallback());
       }
@@ -71,16 +71,16 @@ public class FunctionLibraryImpl {
 
     // LOAD ALL THE FUNCTIONS IN MEMORY
     if (db.getMetadata().getImmutableSchemaSnapshot().existsClass("OFunction")) {
-      try (ResultSet result = db.query("select from OFunction order by name")) {
+      try (var result = db.query("select from OFunction order by name")) {
         while (result.hasNext()) {
-          Result res = result.next();
-          EntityImpl d = (EntityImpl) res.getEntity().orElseThrow();
+          var res = result.next();
+          var d = (EntityImpl) res.getEntity().orElseThrow();
           // skip the function records which do not contain real data
           if (d.fields() == 0) {
             continue;
           }
 
-          final Function f = new Function(db, d);
+          final var f = new Function(db, d);
 
           // RESTORE CALLBACK IF ANY
           f.setCallback(callbacks.get(f.getName()));
@@ -97,8 +97,8 @@ public class FunctionLibraryImpl {
   }
 
   public void createdFunction(DatabaseSessionInternal db, EntityImpl function) {
-    EntityImpl metadataCopy = function.copy();
-    final Function f = new Function(db, metadataCopy);
+    var metadataCopy = function.copy();
+    final var f = new Function(db, metadataCopy);
     functions.put(metadataCopy.field("name").toString().toUpperCase(Locale.ENGLISH), f);
     onFunctionsChanged(DatabaseRecordThreadLocal.instance().get());
   }
@@ -118,7 +118,7 @@ public class FunctionLibraryImpl {
     reloadIfNeeded(DatabaseRecordThreadLocal.instance().get());
 
     database.begin();
-    final Function f = new Function(database).setName(iName);
+    final var f = new Function(database).setName(iName);
     try {
       f.save(database);
       functions.put(iName.toUpperCase(Locale.ENGLISH), f);
@@ -162,7 +162,7 @@ public class FunctionLibraryImpl {
 
   public synchronized void dropFunction(DatabaseSessionInternal session, Function function) {
     reloadIfNeeded(session);
-    String name = function.getName();
+    var name = function.getName();
     function.delete(session);
     functions.remove(name.toUpperCase(Locale.ENGLISH));
   }
@@ -172,7 +172,7 @@ public class FunctionLibraryImpl {
 
     session.executeInTx(
         () -> {
-          Function function = getFunction(iName);
+          var function = getFunction(iName);
           function.delete(session);
           functions.remove(iName.toUpperCase(Locale.ENGLISH));
         });
@@ -180,18 +180,18 @@ public class FunctionLibraryImpl {
 
   public void updatedFunction(DatabaseSessionInternal database, EntityImpl function) {
     reloadIfNeeded(database);
-    String oldName = (String) function.getOriginalValue("name");
+    var oldName = (String) function.getOriginalValue("name");
     if (oldName != null) {
       functions.remove(oldName.toUpperCase(Locale.ENGLISH));
     }
-    EntityImpl metadataCopy = function.copy();
+    var metadataCopy = function.copy();
     CallableFunction<Object, Map<Object, Object>> callBack = null;
-    Function oldFunction = functions.get(metadataCopy.field("name").toString());
+    var oldFunction = functions.get(metadataCopy.field("name").toString());
     if (oldFunction != null) {
       callBack = oldFunction.getCallback();
     }
 
-    final Function f = new Function(database, metadataCopy);
+    final var f = new Function(database, metadataCopy);
     if (callBack != null) {
       f.setCallback(callBack);
     }

@@ -68,7 +68,7 @@ public class LuceneTxChangesSingleRid extends LuceneTxChangesAbstract {
         writer.deleteDocuments(engine.deleteQuery(db.getStorage(), key, value));
       } else {
         deleted.add(value.getIdentity().toString());
-        Document doc = engine.buildDocument(db, key, value);
+        var doc = engine.buildDocument(db, key, value);
         deletedDocs.add(doc);
         deletedIdx.addDocument(doc);
       }

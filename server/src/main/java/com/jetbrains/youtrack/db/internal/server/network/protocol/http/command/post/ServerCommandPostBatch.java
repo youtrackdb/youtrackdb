@@ -88,7 +88,7 @@ public class ServerCommandPostBatch extends ServerCommandDocumentAbstract {
 
     EntityImpl batch = null;
     Object lastResult = null;
-    try (DatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
+    try (var db = getProfiledDatabaseInstance(iRequest)) {
 
       if (db.getTransaction().isActive()) {
         // TEMPORARY PATCH TO UNDERSTAND WHY UNDER HIGH LOAD TX IS NOT COMMITTED AFTER BATCH. MAYBE
@@ -121,44 +121,44 @@ public class ServerCommandPostBatch extends ServerCommandDocumentAbstract {
         throw new IllegalArgumentException("Input JSON has no operations to execute");
       }
 
-      boolean txBegun = false;
+      var txBegun = false;
       if (tx && !db.getTransaction().isActive()) {
         db.begin();
         txBegun = true;
       }
 
       // BROWSE ALL THE OPERATIONS
-      for (Map<Object, Object> operation : operations) {
-        final String type = (String) operation.get("type");
+      for (var operation : operations) {
+        final var type = (String) operation.get("type");
 
         if (type.equals("c")) {
           // CREATE
-          final EntityImpl entity = getRecord(db, operation);
+          final var entity = getRecord(db, operation);
           entity.save();
           lastResult = entity;
         } else if (type.equals("u")) {
           // UPDATE
-          final EntityImpl entity = getRecord(db, operation);
+          final var entity = getRecord(db, operation);
           entity.save();
           lastResult = entity;
         } else if (type.equals("d")) {
           // DELETE
-          final EntityImpl entity = getRecord(db, operation);
+          final var entity = getRecord(db, operation);
           db.delete(entity.getIdentity());
           lastResult = entity.getIdentity();
         } else if (type.equals("cmd")) {
           // COMMAND
-          final String language = (String) operation.get("language");
+          final var language = (String) operation.get("language");
           if (language == null) {
             throw new IllegalArgumentException("language parameter is null");
           }
 
-          final Object command = operation.get("command");
+          final var command = operation.get("command");
           if (command == null) {
             throw new IllegalArgumentException("command parameter is null");
           }
 
-          Object params = operation.get("parameters");
+          var params = operation.get("parameters");
           if (params instanceof Collection) {
             params = ((Collection) params).toArray();
           }
@@ -166,7 +166,7 @@ public class ServerCommandPostBatch extends ServerCommandDocumentAbstract {
           String commandAsString = null;
           if (command != null) {
             if (MultiValue.isMultiValue(command)) {
-              for (Object c : MultiValue.getMultiValueIterable(command)) {
+              for (var c : MultiValue.getMultiValueIterable(command)) {
                 if (commandAsString == null) {
                   commandAsString = c.toString();
                 } else {
@@ -188,21 +188,21 @@ public class ServerCommandPostBatch extends ServerCommandDocumentAbstract {
           result.close();
         } else if (type.equals("script")) {
           // COMMAND
-          final String language = (String) operation.get("language");
+          final var language = (String) operation.get("language");
           if (language == null) {
             throw new IllegalArgumentException("language parameter is null");
           }
 
-          final Object script = operation.get("script");
+          final var script = operation.get("script");
           if (script == null) {
             throw new IllegalArgumentException("script parameter is null");
           }
 
-          StringBuilder text = new StringBuilder(1024);
+          var text = new StringBuilder(1024);
           if (MultiValue.isMultiValue(script)) {
             // ENSEMBLE ALL THE SCRIPT LINES IN JUST ONE SEPARATED BY LINEFEED
-            int i = 0;
-            for (Object o : MultiValue.getMultiValueIterable(script)) {
+            var i = 0;
+            for (var o : MultiValue.getMultiValueIterable(script)) {
               if (o != null) {
                 if (i++ > 0) {
                   if (!text.toString().trim().endsWith(";")) {
@@ -217,7 +217,7 @@ public class ServerCommandPostBatch extends ServerCommandDocumentAbstract {
             text.append(script);
           }
 
-          Object params = operation.get("parameters");
+          var params = operation.get("parameters");
           if (params instanceof Collection) {
             params = ((Collection) params).toArray();
           }
@@ -255,7 +255,7 @@ public class ServerCommandPostBatch extends ServerCommandDocumentAbstract {
   }
 
   public EntityImpl getRecord(DatabaseSessionInternal db, Map<Object, Object> operation) {
-    Object record = operation.get("record");
+    var record = operation.get("record");
 
     EntityImpl entity;
     if (record instanceof Map<?, ?>)

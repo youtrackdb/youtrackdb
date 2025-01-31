@@ -35,7 +35,7 @@ public class YouTrackDBServerShutdownMainTest {
     prevPassword = System.setProperty("YOUTRACKDB_ROOT_PASSWORD", "rootPassword");
     prevOrientHome = System.setProperty("YOUTRACKDB_HOME", "./target/testhome");
 
-    ServerConfiguration conf = new ServerConfiguration();
+    var conf = new ServerConfiguration();
     conf.network = new ServerNetworkConfiguration();
 
     conf.network.protocols = new ArrayList<ServerNetworkProtocolConfiguration>();
@@ -75,7 +75,7 @@ public class YouTrackDBServerShutdownMainTest {
   @Test
   public void shouldShutdownServerWithDirectCall() throws Exception {
 
-    ServerShutdownMain shutdownMain =
+    var shutdownMain =
         new ServerShutdownMain("localhost", "2424", "root", "rootPassword");
     shutdownMain.connect(5000);
 

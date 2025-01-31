@@ -77,7 +77,7 @@ public abstract class SocketChannelBinaryClientAbstract extends SocketChannelBin
       try {
         if (remoteHost.contains(":")) {
           // IPV6
-          final InetAddress[] addresses = Inet6Address.getAllByName(remoteHost);
+          final var addresses = Inet6Address.getAllByName(remoteHost);
           socket.connect(new InetSocketAddress(addresses[0], remotePort), socketTimeout);
 
         } else {
@@ -144,7 +144,7 @@ public abstract class SocketChannelBinaryClientAbstract extends SocketChannelBin
     RuntimeException rootException = null;
     Constructor<?> c = null;
     try {
-      final Class<RuntimeException> excClass = (Class<RuntimeException>) Class.forName(iClassName);
+      final var excClass = (Class<RuntimeException>) Class.forName(iClassName);
       if (iPrevious != null) {
         try {
           c = excClass.getConstructor(String.class, Throwable.class);
@@ -198,7 +198,7 @@ public abstract class SocketChannelBinaryClientAbstract extends SocketChannelBin
    * @return true if it's connected, otherwise false.
    */
   public boolean isConnected() {
-    final Socket s = socket;
+    final var s = socket;
     return s != null
         && !s.isClosed()
         && s.isConnected()
@@ -235,8 +235,8 @@ public abstract class SocketChannelBinaryClientAbstract extends SocketChannelBin
 
       // EXCEPTION
       while (readByte() == 1) {
-        final String excClassName = readString();
-        final String excMessage = readString();
+        final var excClassName = readString();
+        final var excMessage = readString();
         exceptions.add(new Pair<String, String>(excClassName, excMessage));
       }
 
@@ -251,7 +251,7 @@ public abstract class SocketChannelBinaryClientAbstract extends SocketChannelBin
         throwSerializedException(serializedException);
       }
 
-      for (int i = exceptions.size() - 1; i > -1; --i) {
+      for (var i = exceptions.size() - 1; i > -1; --i) {
         previous =
             createException(exceptions.get(i).getKey(), exceptions.get(i).getValue(), previous);
       }
@@ -270,15 +270,15 @@ public abstract class SocketChannelBinaryClientAbstract extends SocketChannelBin
   }
 
   protected void setReadResponseTimeout() throws SocketException {
-    final Socket s = socket;
+    final var s = socket;
     if (s != null && s.isConnected() && !s.isClosed()) {
       s.setSoTimeout(socketTimeout);
     }
   }
 
   protected void throwSerializedException(final byte[] serializedException) throws IOException {
-    final ByteArrayInputStream inputStream = new ByteArrayInputStream(serializedException);
-    final ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+    final var inputStream = new ByteArrayInputStream(serializedException);
+    final var objectInputStream = new ObjectInputStream(inputStream);
 
     Object throwable = null;
     try {
@@ -292,10 +292,10 @@ public abstract class SocketChannelBinaryClientAbstract extends SocketChannelBin
 
     if (throwable instanceof BaseException) {
       try {
-        final Class<? extends BaseException> cls = (Class<? extends BaseException>) throwable.getClass();
+        final var cls = (Class<? extends BaseException>) throwable.getClass();
         final Constructor<? extends BaseException> constructor;
         constructor = cls.getConstructor(cls);
-        final BaseException proxyInstance = constructor.newInstance(throwable);
+        final var proxyInstance = constructor.newInstance(throwable);
 
         throw proxyInstance;
 
@@ -315,7 +315,7 @@ public abstract class SocketChannelBinaryClientAbstract extends SocketChannelBin
           "Exception during response processing", (Throwable) throwable);
     } else {
       // WRAP IT
-      String exceptionType = throwable != null ? throwable.getClass().getName() : "null";
+      var exceptionType = throwable != null ? throwable.getClass().getName() : "null";
       LogManager.instance()
           .error(
               this,

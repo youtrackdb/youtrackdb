@@ -39,15 +39,15 @@ public class StringSerializer implements BinarySerializer<String> {
 
   public void serialize(
       final String object, final byte[] stream, int startPosition, Object... hints) {
-    final int length = object.length();
+    final var length = object.length();
     IntegerSerializer.INSTANCE.serializeLiteral(length, stream, startPosition);
 
     startPosition += IntegerSerializer.INT_SIZE;
-    final char[] stringContent = new char[length];
+    final var stringContent = new char[length];
 
     object.getChars(0, length, stringContent, 0);
 
-    for (char character : stringContent) {
+    for (var character : stringContent) {
       stream[startPosition] = (byte) character;
       startPosition++;
 
@@ -57,12 +57,12 @@ public class StringSerializer implements BinarySerializer<String> {
   }
 
   public String deserialize(final byte[] stream, int startPosition) {
-    final int len = IntegerSerializer.INSTANCE.deserializeLiteral(stream, startPosition);
-    final char[] buffer = new char[len];
+    final var len = IntegerSerializer.INSTANCE.deserializeLiteral(stream, startPosition);
+    final var buffer = new char[len];
 
     startPosition += IntegerSerializer.INT_SIZE;
 
-    for (int i = 0; i < len; i++) {
+    for (var i = 0; i < len; i++) {
       buffer[i] =
           (char) ((0xFF & stream[startPosition]) | ((0xFF & stream[startPosition + 1]) << 8));
       startPosition += 2;
@@ -88,15 +88,15 @@ public class StringSerializer implements BinarySerializer<String> {
   @Override
   public void serializeNativeObject(
       String object, byte[] stream, int startPosition, Object... hints) {
-    int length = object.length();
+    var length = object.length();
     IntegerSerializer.INSTANCE.serializeNative(length, stream, startPosition);
 
     startPosition += IntegerSerializer.INT_SIZE;
-    char[] stringContent = new char[length];
+    var stringContent = new char[length];
 
     object.getChars(0, length, stringContent, 0);
 
-    for (char character : stringContent) {
+    for (var character : stringContent) {
       stream[startPosition] = (byte) character;
       startPosition++;
 
@@ -106,12 +106,12 @@ public class StringSerializer implements BinarySerializer<String> {
   }
 
   public String deserializeNativeObject(byte[] stream, int startPosition) {
-    int len = IntegerSerializer.INSTANCE.deserializeNative(stream, startPosition);
-    char[] buffer = new char[len];
+    var len = IntegerSerializer.INSTANCE.deserializeNative(stream, startPosition);
+    var buffer = new char[len];
 
     startPosition += IntegerSerializer.INT_SIZE;
 
-    for (int i = 0; i < len; i++) {
+    for (var i = 0; i < len; i++) {
       buffer[i] =
           (char) ((0xFF & stream[startPosition]) | ((0xFF & stream[startPosition + 1]) << 8));
       startPosition += 2;
@@ -138,16 +138,16 @@ public class StringSerializer implements BinarySerializer<String> {
    */
   @Override
   public void serializeInByteBufferObject(String object, ByteBuffer buffer, Object... hints) {
-    int length = object.length();
+    var length = object.length();
     buffer.putInt(length);
 
-    byte[] binaryData = new byte[length * 2];
-    char[] stringContent = new char[length];
+    var binaryData = new byte[length * 2];
+    var stringContent = new char[length];
 
     object.getChars(0, length, stringContent, 0);
 
-    int counter = 0;
-    for (char character : stringContent) {
+    var counter = 0;
+    for (var character : stringContent) {
       binaryData[counter] = (byte) character;
       counter++;
 
@@ -163,13 +163,13 @@ public class StringSerializer implements BinarySerializer<String> {
    */
   @Override
   public String deserializeFromByteBufferObject(ByteBuffer buffer) {
-    int len = buffer.getInt();
+    var len = buffer.getInt();
 
-    final char[] chars = new char[len];
-    final byte[] binaryData = new byte[2 * len];
+    final var chars = new char[len];
+    final var binaryData = new byte[2 * len];
     buffer.get(binaryData);
 
-    for (int i = 0; i < len; i++) {
+    for (var i = 0; i < len; i++) {
       chars[i] = (char) ((0xFF & binaryData[i << 1]) | ((0xFF & binaryData[(i << 1) + 1]) << 8));
     }
 
@@ -178,14 +178,14 @@ public class StringSerializer implements BinarySerializer<String> {
 
   @Override
   public String deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
-    int len = buffer.getInt(offset);
+    var len = buffer.getInt(offset);
     offset += IntegerSerializer.INT_SIZE;
 
-    final char[] chars = new char[len];
-    final byte[] binaryData = new byte[2 * len];
+    final var chars = new char[len];
+    final var binaryData = new byte[2 * len];
     buffer.get(offset, binaryData);
 
-    for (int i = 0; i < len; i++) {
+    for (var i = 0; i < len; i++) {
       chars[i] = (char) ((0xFF & binaryData[i << 1]) | ((0xFF & binaryData[(i << 1) + 1]) << 8));
     }
 
@@ -211,14 +211,14 @@ public class StringSerializer implements BinarySerializer<String> {
   @Override
   public String deserializeFromByteBufferObject(
       ByteBuffer buffer, WALChanges walChanges, int offset) {
-    int len = walChanges.getIntValue(buffer, offset);
+    var len = walChanges.getIntValue(buffer, offset);
 
-    final char[] chars = new char[len];
+    final var chars = new char[len];
     offset += IntegerSerializer.INT_SIZE;
 
-    byte[] binaryData = walChanges.getBinaryValue(buffer, offset, 2 * len);
+    var binaryData = walChanges.getBinaryValue(buffer, offset, 2 * len);
 
-    for (int i = 0; i < len; i++) {
+    for (var i = 0; i < len; i++) {
       chars[i] = (char) ((0xFF & binaryData[i << 1]) | ((0xFF & binaryData[(i << 1) + 1]) << 8));
     }
 

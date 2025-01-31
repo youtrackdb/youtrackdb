@@ -57,15 +57,15 @@ public class SystemDatabase {
    * Adds the specified cluster to the class, if it doesn't already exist.
    */
   public void createCluster(final String className, final String clusterName) {
-    final DatabaseSessionInternal currentDB = DatabaseRecordThreadLocal.instance()
+    final var currentDB = DatabaseRecordThreadLocal.instance()
         .getIfDefined();
     try {
-      final DatabaseSessionInternal sysdb = openSystemDatabase();
+      final var sysdb = openSystemDatabase();
       try {
 
         if (!sysdb.existsCluster(clusterName)) {
           Schema schema = sysdb.getMetadata().getSchema();
-          SchemaClass cls = schema.getClass(className);
+          var cls = schema.getClass(className);
 
           if (cls != null) {
             cls.addCluster(sysdb, clusterName);
@@ -103,12 +103,12 @@ public class SystemDatabase {
   public <R> R execute(
       @Nonnull final BiFunction<ResultSet, DatabaseSession, R> callback, final String sql,
       final Object... args) {
-    final DatabaseSessionInternal currentDB = DatabaseRecordThreadLocal.instance()
+    final var currentDB = DatabaseRecordThreadLocal.instance()
         .getIfDefined();
     try {
       // BYPASS SECURITY
       try (final DatabaseSession db = openSystemDatabase()) {
-        try (ResultSet result = db.command(sql, args)) {
+        try (var result = db.command(sql, args)) {
           return callback.apply(result, db);
         }
       }
@@ -126,11 +126,11 @@ public class SystemDatabase {
   }
 
   public EntityImpl save(final EntityImpl entity, final String clusterName) {
-    final DatabaseSessionInternal currentDB = DatabaseRecordThreadLocal.instance()
+    final var currentDB = DatabaseRecordThreadLocal.instance()
         .getIfDefined();
     try {
       // BYPASS SECURITY
-      final DatabaseSessionInternal db = openSystemDatabase();
+      final var db = openSystemDatabase();
       try {
         if (clusterName != null) {
           return db.save(entity, clusterName);
@@ -151,19 +151,19 @@ public class SystemDatabase {
   }
 
   public void init() {
-    final DatabaseRecordThreadLocal tl = DatabaseRecordThreadLocal.instance();
-    final DatabaseSessionInternal oldDbInThread = tl != null ? tl.getIfDefined() : null;
+    final var tl = DatabaseRecordThreadLocal.instance();
+    final var oldDbInThread = tl != null ? tl.getIfDefined() : null;
     try {
       if (!exists()) {
         LogManager.instance()
             .info(this, "Creating the system database '%s' for current server", SYSTEM_DB_NAME);
 
-        YouTrackDBConfig config =
+        var config =
             YouTrackDBConfig.builder()
                 .addGlobalConfigurationParameter(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .addGlobalConfigurationParameter(GlobalConfiguration.CLASS_MINIMUM_CLUSTERS, 1)
                 .build();
-        DatabaseType type = DatabaseType.PLOCAL;
+        var type = DatabaseType.PLOCAL;
         if (context.isMemoryOnly()) {
           type = DatabaseType.MEMORY;
         }
@@ -184,8 +184,8 @@ public class SystemDatabase {
   }
 
   private synchronized void checkServerId() {
-    try (DatabaseSessionInternal db = openSystemDatabase()) {
-      SchemaClass clazz = db.getClass(SERVER_INFO_CLASS);
+    try (var db = openSystemDatabase()) {
+      var clazz = db.getClass(SERVER_INFO_CLASS);
       if (clazz == null) {
         clazz = db.createClass(SERVER_INFO_CLASS);
       }
@@ -214,7 +214,7 @@ public class SystemDatabase {
   }
 
   public <T> T executeWithDB(CallableFunction<T, DatabaseSessionInternal> callback) {
-    final DatabaseSessionInternal currentDB = DatabaseRecordThreadLocal.instance()
+    final var currentDB = DatabaseRecordThreadLocal.instance()
         .getIfDefined();
     try {
       try (final var db = openSystemDatabase()) {

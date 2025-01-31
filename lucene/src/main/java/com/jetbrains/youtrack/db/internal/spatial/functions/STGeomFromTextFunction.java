@@ -41,7 +41,7 @@ public class STGeomFromTextFunction extends SQLFunctionAbstract {
       Object iCurrentResult,
       Object[] iParams,
       CommandContext iContext) {
-    String geom = (String) iParams[0];
+    var geom = (String) iParams[0];
     try {
       return factory.toEntitty(geom);
     } catch (Exception e) {

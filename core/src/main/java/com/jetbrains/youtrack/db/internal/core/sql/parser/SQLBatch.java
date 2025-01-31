@@ -25,7 +25,7 @@ public class SQLBatch extends SimpleNode {
     if (this.num != null) {
       return num.getValue().intValue();
     } else if (inputParam != null) {
-      Object obj = inputParam.getValue(ctx.getInputParameters());
+      var obj = inputParam.getValue(ctx.getInputParameters());
       if (obj == null || !(obj instanceof Number)) {
         throw new CommandExecutionException(obj + " is not a number (BATCH)");
       }
@@ -61,7 +61,7 @@ public class SQLBatch extends SimpleNode {
   }
 
   public SQLBatch copy() {
-    SQLBatch result = new SQLBatch(-1);
+    var result = new SQLBatch(-1);
     result.inputParam = inputParam == null ? null : inputParam.copy();
     result.num = num == null ? null : num.copy();
     return result;
@@ -76,7 +76,7 @@ public class SQLBatch extends SimpleNode {
       return false;
     }
 
-    SQLBatch oBatch = (SQLBatch) o;
+    var oBatch = (SQLBatch) o;
 
     if (!Objects.equals(num, oBatch.num)) {
       return false;
@@ -86,7 +86,7 @@ public class SQLBatch extends SimpleNode {
 
   @Override
   public int hashCode() {
-    int result = num != null ? num.hashCode() : 0;
+    var result = num != null ? num.hashCode() : 0;
     result = 31 * result + (inputParam != null ? inputParam.hashCode() : 0);
     return result;
   }

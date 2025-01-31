@@ -65,12 +65,12 @@ public class LuceneIndexNotUnique extends IndexAbstract implements OLuceneIndex 
       final Identifiable rid) {
 
     if (key != null) {
-      FrontendTransaction transaction = session.getTransaction();
+      var transaction = session.getTransaction();
 
       transaction.addIndexEntry(
           this, super.getName(), FrontendTransactionIndexChanges.OPERATION.REMOVE, encodeKey(key),
           rid);
-      LuceneTxChanges transactionChanges = getTransactionChanges(transaction);
+      var transactionChanges = getTransactionChanges(transaction);
       transactionChanges.remove(session, key, rid);
       return true;
     }
@@ -80,11 +80,11 @@ public class LuceneIndexNotUnique extends IndexAbstract implements OLuceneIndex 
   @Override
   public boolean remove(DatabaseSessionInternal session, final Object key) {
     if (key != null) {
-      FrontendTransaction transaction = session.getTransaction();
+      var transaction = session.getTransaction();
       transaction.addIndexEntry(
           this, super.getName(), FrontendTransactionIndexChanges.OPERATION.REMOVE, encodeKey(key),
           null);
-      LuceneTxChanges transactionChanges = getTransactionChanges(transaction);
+      var transactionChanges = getTransactionChanges(transaction);
       transactionChanges.remove(session, key, null);
       return true;
     }
@@ -121,9 +121,9 @@ public class LuceneIndexNotUnique extends IndexAbstract implements OLuceneIndex 
             indexId,
             engine -> {
               try {
-                LuceneIndexEngine indexEngine = (LuceneIndexEngine) engine;
+                var indexEngine = (LuceneIndexEngine) engine;
 
-                AtomicOperation atomicOperation =
+                var atomicOperation =
                     storage.getAtomicOperationsManager().getCurrentOperation();
                 indexEngine.put(db, atomicOperation, decodeKey(key), rid);
                 return null;
@@ -148,7 +148,7 @@ public class LuceneIndexNotUnique extends IndexAbstract implements OLuceneIndex 
             false,
             indexId,
             engine -> {
-              LuceneIndexEngine indexEngine = (LuceneIndexEngine) engine;
+              var indexEngine = (LuceneIndexEngine) engine;
               indexEngine.remove(storage, decodeKey(key));
               return true;
             });
@@ -170,7 +170,7 @@ public class LuceneIndexNotUnique extends IndexAbstract implements OLuceneIndex 
             false,
             indexId,
             engine -> {
-              LuceneIndexEngine indexEngine = (LuceneIndexEngine) engine;
+              var indexEngine = (LuceneIndexEngine) engine;
               indexEngine.remove(storage, decodeKey(key), rid);
               return true;
             });
@@ -210,7 +210,7 @@ public class LuceneIndexNotUnique extends IndexAbstract implements OLuceneIndex 
             false,
             indexId,
             engine -> {
-              LuceneIndexEngine oIndexEngine = (LuceneIndexEngine) engine;
+              var oIndexEngine = (LuceneIndexEngine) engine;
               oIndexEngine.init(db, im);
               return null;
             });
@@ -227,7 +227,7 @@ public class LuceneIndexNotUnique extends IndexAbstract implements OLuceneIndex 
 
   private LuceneTxChanges getTransactionChanges(FrontendTransaction transaction) {
 
-    LuceneTxChanges changes = (LuceneTxChanges) transaction.getCustomData(getName());
+    var changes = (LuceneTxChanges) transaction.getCustomData(getName());
     if (changes == null) {
       while (true) {
         try {
@@ -236,7 +236,7 @@ public class LuceneIndexNotUnique extends IndexAbstract implements OLuceneIndex 
                   false,
                   indexId,
                   engine -> {
-                    LuceneIndexEngine indexEngine = (LuceneIndexEngine) engine;
+                    var indexEngine = (LuceneIndexEngine) engine;
                     try {
                       return indexEngine.buildTxChanges();
                     } catch (IOException e) {
@@ -258,7 +258,7 @@ public class LuceneIndexNotUnique extends IndexAbstract implements OLuceneIndex 
   @Deprecated
   @Override
   public Collection<Identifiable> get(DatabaseSessionInternal session, final Object key) {
-    try (Stream<RID> stream = getRids(session, key)) {
+    try (var stream = getRids(session, key)) {
       return stream.collect(Collectors.toList());
     }
   }
@@ -268,7 +268,7 @@ public class LuceneIndexNotUnique extends IndexAbstract implements OLuceneIndex 
     while (true) {
       try {
         @SuppressWarnings("unchecked")
-        Set<Identifiable> result = (Set<Identifiable>) storage.getIndexValue(db,
+        var result = (Set<Identifiable>) storage.getIndexValue(db,
             indexId, key);
         return result.stream().map(Identifiable::getIdentity);
         // TODO filter these results based on security
@@ -290,7 +290,7 @@ public class LuceneIndexNotUnique extends IndexAbstract implements OLuceneIndex 
                   false,
                   indexId,
                   engine -> {
-                    LuceneIndexEngine indexEngine = (LuceneIndexEngine) engine;
+                    var indexEngine = (LuceneIndexEngine) engine;
                     return indexEngine.getInTx(db, key, getTransactionChanges(transaction));
                   })
               .stream()
@@ -305,7 +305,7 @@ public class LuceneIndexNotUnique extends IndexAbstract implements OLuceneIndex 
   @Override
   public LuceneIndexNotUnique put(DatabaseSessionInternal db, final Object key,
       final Identifiable value) {
-    final RID rid = value.getIdentity();
+    final var rid = value.getIdentity();
 
     if (!((RecordId) rid).isValid()) {
       if (value instanceof DBRecord) {
@@ -317,8 +317,8 @@ public class LuceneIndexNotUnique extends IndexAbstract implements OLuceneIndex 
       }
     }
     if (key != null) {
-      FrontendTransaction transaction = db.getTransaction();
-      LuceneTxChanges transactionChanges = getTransactionChanges(transaction);
+      var transaction = db.getTransaction();
+      var transactionChanges = getTransactionChanges(transaction);
       transaction.addIndexEntry(
           this, super.getName(), FrontendTransactionIndexChanges.OPERATION.PUT, encodeKey(key),
           value);
@@ -331,7 +331,7 @@ public class LuceneIndexNotUnique extends IndexAbstract implements OLuceneIndex 
                   false,
                   indexId,
                   engine -> {
-                    LuceneIndexEngine oIndexEngine = (LuceneIndexEngine) engine;
+                    var oIndexEngine = (LuceneIndexEngine) engine;
                     return oIndexEngine.buildDocument(db, key, value);
                   });
           break;
@@ -354,8 +354,8 @@ public class LuceneIndexNotUnique extends IndexAbstract implements OLuceneIndex 
               false,
               indexId,
               engine -> {
-                FrontendTransaction transaction = session.getTransaction();
-                LuceneIndexEngine indexEngine = (LuceneIndexEngine) engine;
+                var transaction = session.getTransaction();
+                var indexEngine = (LuceneIndexEngine) engine;
                 return indexEngine.sizeInTx(getTransactionChanges(transaction), storage);
               });
         } catch (InvalidIndexEngineIdException e) {
@@ -370,7 +370,7 @@ public class LuceneIndexNotUnique extends IndexAbstract implements OLuceneIndex 
       Collection<?> keys, boolean ascSortOrder) {
 
     @SuppressWarnings("resource")
-    String query =
+    var query =
         (String)
             keys.stream()
                 .findFirst()
@@ -467,7 +467,7 @@ public class LuceneIndexNotUnique extends IndexAbstract implements OLuceneIndex 
             false,
             indexId,
             engine -> {
-              final LuceneIndexEngine indexEngine = (LuceneIndexEngine) engine;
+              final var indexEngine = (LuceneIndexEngine) engine;
               return indexEngine.searcher(storage);
             });
       } catch (final InvalidIndexEngineIdException e) {

@@ -34,7 +34,7 @@ public class StringsTest extends BaseDBTest {
 
   @Test
   public void splitArray() {
-    List<String> pieces =
+    var pieces =
         StringSerializerHelper.smartSplit(
             "first, orders : ['this is mine', 'that is your']",
             new char[]{','},
@@ -54,8 +54,8 @@ public class StringsTest extends BaseDBTest {
 
   @Test
   public void replaceAll() {
-    String test1 = "test string number 1";
-    String test2 =
+    var test1 = "test string number 1";
+    var test2 =
         "test \\string\\ \"number\" \\2\\ \\\\ \"\"\"\" test String number 2 test string number 2";
     Assert.assertEquals(StringParser.replaceAll(test1, "", ""), test1);
     Assert.assertEquals(StringParser.replaceAll(test1, "1", "10"), test1 + "0");
@@ -75,7 +75,7 @@ public class StringsTest extends BaseDBTest {
         StringParser.replaceAll(test2, "\\\\", "replacement"),
         "test \\string\\ \"number\" \\2\\ replacement \"\"\"\" test String number 2 test string"
             + " number 2");
-    String subsequentReplaceTest = StringParser.replaceAll(test2, "\\", "");
+    var subsequentReplaceTest = StringParser.replaceAll(test2, "\\", "");
     subsequentReplaceTest = StringParser.replaceAll(subsequentReplaceTest, "\"", "");
     subsequentReplaceTest =
         StringParser.replaceAll(
@@ -86,7 +86,7 @@ public class StringsTest extends BaseDBTest {
 
   @Test
   public void testNoEmptyFields() {
-    List<String> pieces =
+    var pieces =
         StringSerializerHelper.split(
             "1811000032;03/27/2014;HA297000610K;+3415.4000;+3215.4500;+0.0000;+1117.0000;+916.7500;3583;890;+64.8700;4;4;+198.0932",
             ';');
@@ -95,7 +95,7 @@ public class StringsTest extends BaseDBTest {
 
   @Test
   public void testEmptyFields() {
-    List<String> pieces =
+    var pieces =
         StringSerializerHelper.split(
             "1811000032;03/27/2014;HA297000960C;+0.0000;+0.0000;+0.0000;+0.0000;+0.0000;0;0;+0.0000;;5;+0.0000",
             ';');
@@ -104,14 +104,14 @@ public class StringsTest extends BaseDBTest {
 
   @Test
   public void testDocumentSelfReference() {
-    EntityImpl document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) db.newEntity());
     document.field("selfref", document);
 
-    EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    var docTwo = ((EntityImpl) db.newEntity());
     docTwo.field("ref", document);
     document.field("ref", docTwo);
 
-    String value = document.toString();
+    var value = document.toString();
 
     Assert.assertEquals(value,
         "O{selfref:<recursion:rid=#-1:-1>,ref:O{ref:<recursion:rid=#-1:-1>}}");

@@ -43,7 +43,7 @@ public class ServerCommandGetServer extends ServerCommandGetConnections {
 
     iRequest.getData().commandInfo = "Server status";
 
-    final String result = ServerInfo.getServerInfo(server);
+    final var result = ServerInfo.getServerInfo(server);
 
     iResponse.send(
         HttpUtils.STATUS_OK_CODE,

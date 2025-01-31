@@ -40,8 +40,8 @@ public class DatabaseImportRemote extends DatabaseImpExpAbstract {
   }
 
   public void importDatabase() throws DatabaseImportException {
-    StorageRemote storage = (StorageRemote) getDatabase().getStorage();
-    File file = new File(getFileName());
+    var storage = (StorageRemote) getDatabase().getStorage();
+    var file = new File(getFileName());
     try {
       storage.importDatabase((DatabaseSessionRemote) database, options, new FileInputStream(file),
           file.getName(),

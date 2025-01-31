@@ -32,7 +32,7 @@ public class InsertValuesStep extends AbstractExecutionStep {
   @Override
   public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
-    ExecutionStream upstream = prev.start(ctx);
+    var upstream = prev.start(ctx);
 
     return upstream.map(
         new ResultMapper() {
@@ -48,7 +48,7 @@ public class InsertValuesStep extends AbstractExecutionStep {
               }
               result = new UpdatableResult(ctx.getDatabase(), result.asEntity());
             }
-            List<SQLExpression> currentValues = values.get(nextValueSet++);
+            var currentValues = values.get(nextValueSet++);
             if (currentValues.size() != identifiers.size()) {
               throw new CommandExecutionException(
                   "Cannot execute INSERT, the number of fields is different from the number of"
@@ -58,9 +58,9 @@ public class InsertValuesStep extends AbstractExecutionStep {
                       + currentValues);
             }
             nextValueSet %= values.size();
-            for (int i = 0; i < currentValues.size(); i++) {
-              SQLIdentifier identifier = identifiers.get(i);
-              Object value = currentValues.get(i).execute(result, ctx);
+            for (var i = 0; i < currentValues.size(); i++) {
+              var identifier = identifiers.get(i);
+              var value = currentValues.get(i).execute(result, ctx);
               value =
                   SQLUpdateItem.convertToPropertyType(
                       (ResultInternal) result, identifier, value, ctx);
@@ -73,13 +73,13 @@ public class InsertValuesStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
-    StringBuilder result = new StringBuilder();
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var result = new StringBuilder();
     result.append(spaces);
     result.append("+ SET VALUES \n");
     result.append(spaces);
     result.append("  (");
-    for (int i = 0; i < identifiers.size(); i++) {
+    for (var i = 0; i < identifiers.size(); i++) {
       if (i > 0) {
         result.append(", ");
       }
@@ -90,14 +90,14 @@ public class InsertValuesStep extends AbstractExecutionStep {
     result.append(spaces);
     result.append("  VALUES\n");
 
-    for (int c = 0; c < this.values.size(); c++) {
+    for (var c = 0; c < this.values.size(); c++) {
       if (c > 0) {
         result.append("\n");
       }
-      List<SQLExpression> exprs = this.values.get(c);
+      var exprs = this.values.get(c);
       result.append(spaces);
       result.append("  (");
-      for (int i = 0; i < exprs.size() && i < 3; i++) {
+      for (var i = 0; i < exprs.size() && i < 3; i++) {
         if (i > 0) {
           result.append(", ");
         }

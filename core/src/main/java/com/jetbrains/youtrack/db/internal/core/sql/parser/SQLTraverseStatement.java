@@ -64,14 +64,14 @@ public class SQLTraverseStatement extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
     ctx.setDatabase(db);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
-      for (int i = 0; i < args.length; i++) {
+      for (var i = 0; i < args.length; i++) {
         params.put(i, args[i]);
       }
     }
@@ -90,7 +90,7 @@ public class SQLTraverseStatement extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Map<Object, Object> params, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -107,8 +107,8 @@ public class SQLTraverseStatement extends SQLStatement {
   }
 
   public InternalExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    TraverseExecutionPlanner planner = new TraverseExecutionPlanner(this);
-    InternalExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling);
+    var planner = new TraverseExecutionPlanner(this);
+    var result = planner.createExecutionPlan(ctx, enableProfiling);
     result.setStatement(originalStatement);
     result.setGenericStatement(this.toGenericStatement());
     return result;
@@ -116,8 +116,8 @@ public class SQLTraverseStatement extends SQLStatement {
 
   public void toString(Map<Object, Object> params, StringBuilder builder) {
     builder.append("TRAVERSE ");
-    boolean first = true;
-    for (SQLTraverseProjectionItem item : projections) {
+    var first = true;
+    for (var item : projections) {
       if (!first) {
         builder.append(", ");
       }
@@ -160,8 +160,8 @@ public class SQLTraverseStatement extends SQLStatement {
 
   public void toGenericStatement(StringBuilder builder) {
     builder.append("TRAVERSE ");
-    boolean first = true;
-    for (SQLTraverseProjectionItem item : projections) {
+    var first = true;
+    for (var item : projections) {
       if (!first) {
         builder.append(", ");
       }
@@ -214,7 +214,7 @@ public class SQLTraverseStatement extends SQLStatement {
 
   @Override
   public SQLStatement copy() {
-    SQLTraverseStatement result = new SQLTraverseStatement(-1);
+    var result = new SQLTraverseStatement(-1);
     result.projections =
         projections == null
             ? null
@@ -236,7 +236,7 @@ public class SQLTraverseStatement extends SQLStatement {
       return false;
     }
 
-    SQLTraverseStatement that = (SQLTraverseStatement) o;
+    var that = (SQLTraverseStatement) o;
 
     if (!Objects.equals(projections, that.projections)) {
       return false;
@@ -258,7 +258,7 @@ public class SQLTraverseStatement extends SQLStatement {
 
   @Override
   public int hashCode() {
-    int result = projections != null ? projections.hashCode() : 0;
+    var result = projections != null ? projections.hashCode() : 0;
     result = 31 * result + (target != null ? target.hashCode() : 0);
     result = 31 * result + (whileClause != null ? whileClause.hashCode() : 0);
     result = 31 * result + (limit != null ? limit.hashCode() : 0);

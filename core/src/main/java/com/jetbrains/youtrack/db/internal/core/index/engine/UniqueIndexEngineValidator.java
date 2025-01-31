@@ -25,7 +25,7 @@ public class UniqueIndexEngineValidator implements IndexEngineValidator<Object, 
       var metadata = indexUnique.getMetadata();
       // CHECK IF THE ID IS THE SAME OF CURRENT: THIS IS THE UPDATE CASE
       if (!oldValue.equals(newValue)) {
-        final Boolean mergeSameKey =
+        final var mergeSameKey =
             metadata != null ? (Boolean) metadata.get(IndexInternal.MERGE_KEYS) : Boolean.FALSE;
         if (mergeSameKey == null || !mergeSameKey) {
           throw new RecordDuplicatedException(

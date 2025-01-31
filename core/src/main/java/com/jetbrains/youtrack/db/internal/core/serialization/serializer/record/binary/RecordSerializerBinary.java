@@ -94,7 +94,7 @@ public class RecordSerializerBinary implements RecordSerializer {
       return iRecord;
     }
 
-    final BytesContainer container = new BytesContainer(iSource).skip(1);
+    final var container = new BytesContainer(iSource).skip(1);
 
     try {
       if (iFields != null && iFields.length > 0) {
@@ -120,12 +120,12 @@ public class RecordSerializerBinary implements RecordSerializer {
     if (record instanceof Blob) {
       return record.toStream();
     } else {
-      EntityImpl documentToSerialize = (EntityImpl) record;
+      var documentToSerialize = (EntityImpl) record;
 
-      final BytesContainer container = new BytesContainer();
+      final var container = new BytesContainer();
 
       // WRITE SERIALIZER VERSION
-      int pos = container.alloc(1);
+      var pos = container.alloc(1);
       container.bytes[pos] = currentSerializerVersion;
       // SERIALIZE RECORD
       serializerByVersion[currentSerializerVersion].serialize(db, documentToSerialize,
@@ -142,7 +142,7 @@ public class RecordSerializerBinary implements RecordSerializer {
       return new String[0];
     }
 
-    final BytesContainer container = new BytesContainer(iSource).skip(1);
+    final var container = new BytesContainer(iSource).skip(1);
 
     try {
       return serializerByVersion[iSource[0]].getFieldNames(reference, container, false);

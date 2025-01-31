@@ -37,7 +37,7 @@ public class TestConcurrentCachedDBSequenceGenerationIT {
     youTrackDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         TestConcurrentCachedDBSequenceGenerationIT.class.getSimpleName());
-    DatabaseSession databaseSession =
+    var databaseSession =
         youTrackDB.open(
             TestConcurrentCachedDBSequenceGenerationIT.class.getSimpleName(), "admin", "admin");
     databaseSession.execute(
@@ -55,7 +55,7 @@ public class TestConcurrentCachedDBSequenceGenerationIT {
 
   @Test
   public void test() throws InterruptedException {
-    AtomicLong failures = new AtomicLong(0);
+    var failures = new AtomicLong(0);
     SessionPool pool =
         new SessionPoolImpl(
             youTrackDB,
@@ -63,15 +63,15 @@ public class TestConcurrentCachedDBSequenceGenerationIT {
             "admin",
             "admin");
     List<Thread> threads = new ArrayList<>();
-    for (int i = 0; i < THREADS; i++) {
-      Thread thread =
+    for (var i = 0; i < THREADS; i++) {
+      var thread =
           new Thread() {
             @Override
             public void run() {
-              try (DatabaseSession db = pool.acquire()) {
-                for (int j = 0; j < RECORDS; j++) {
+              try (var db = pool.acquire()) {
+                for (var j = 0; j < RECORDS; j++) {
                   db.begin();
-                  Vertex vert = db.newVertex("TestSequence");
+                  var vert = db.newVertex("TestSequence");
                   assertNotNull(vert.getProperty("id"));
                   db.save(vert);
                   db.commit();
@@ -85,7 +85,7 @@ public class TestConcurrentCachedDBSequenceGenerationIT {
       threads.add(thread);
       thread.start();
     }
-    for (Thread t : threads) {
+    for (var t : threads) {
       t.join();
     }
     Assert.assertEquals(0, failures.get());

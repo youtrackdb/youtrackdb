@@ -30,23 +30,23 @@ public class SQLGrantStatement extends SQLSimpleExecStatement {
 
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
-    DatabaseSessionInternal db = ctx.getDatabase();
-    Role role = db.getMetadata().getSecurity().getRole(actor.getStringValue());
+    var db = ctx.getDatabase();
+    var role = db.getMetadata().getSecurity().getRole(actor.getStringValue());
     if (role == null) {
       throw new CommandExecutionException("Invalid role: " + actor.getStringValue());
     }
 
-    String resourcePath = securityResource.toString();
+    var resourcePath = securityResource.toString();
     if (permission != null) {
       role.grant(db, resourcePath, toPrivilege(permission.permission));
       role.save(db);
     } else {
-      SecurityInternal security = db.getSharedContext().getSecurity();
-      SecurityPolicyImpl policy = security.getSecurityPolicy(db, policyName.getStringValue());
+      var security = db.getSharedContext().getSecurity();
+      var policy = security.getSecurityPolicy(db, policyName.getStringValue());
       security.setSecurityPolicy(db, role, securityResource.toString(), policy);
     }
 
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     result.setProperty("operation", "grant");
     result.setProperty("role", actor.getStringValue());
     if (permission != null) {
@@ -112,7 +112,7 @@ public class SQLGrantStatement extends SQLSimpleExecStatement {
 
   @Override
   public SQLGrantStatement copy() {
-    SQLGrantStatement result = new SQLGrantStatement(-1);
+    var result = new SQLGrantStatement(-1);
     result.permission = permission == null ? null : permission.copy();
     result.securityResource = securityResource == null ? null : securityResource.copy();
     result.policyName = this.policyName == null ? null : policyName.copy();
@@ -128,7 +128,7 @@ public class SQLGrantStatement extends SQLSimpleExecStatement {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SQLGrantStatement that = (SQLGrantStatement) o;
+    var that = (SQLGrantStatement) o;
     return Objects.equals(permission, that.permission)
         && Objects.equals(policyName, that.policyName)
         && Objects.equals(securityResource, that.securityResource)

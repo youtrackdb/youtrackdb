@@ -14,28 +14,28 @@ public class EdgeKeySerializerTest {
 
   @Test
   public void testSerialization() {
-    final EdgeKey edgeKey = new EdgeKey(42, 24, 67);
-    final EdgeKeySerializer edgeKeySerializer = new EdgeKeySerializer();
+    final var edgeKey = new EdgeKey(42, 24, 67);
+    final var edgeKeySerializer = new EdgeKeySerializer();
 
-    final int serializedSize = edgeKeySerializer.getObjectSize(edgeKey);
-    final byte[] rawKey = new byte[serializedSize + 3];
+    final var serializedSize = edgeKeySerializer.getObjectSize(edgeKey);
+    final var rawKey = new byte[serializedSize + 3];
 
     edgeKeySerializer.serialize(edgeKey, rawKey, 3);
 
     Assert.assertEquals(serializedSize, edgeKeySerializer.getObjectSize(rawKey, 3));
 
-    final EdgeKey deserializedKey = edgeKeySerializer.deserialize(rawKey, 3);
+    final var deserializedKey = edgeKeySerializer.deserialize(rawKey, 3);
 
     Assert.assertEquals(edgeKey, deserializedKey);
   }
 
   @Test
   public void testBufferSerialization() {
-    final EdgeKey edgeKey = new EdgeKey(42, 24, 67);
-    final EdgeKeySerializer edgeKeySerializer = new EdgeKeySerializer();
+    final var edgeKey = new EdgeKey(42, 24, 67);
+    final var edgeKeySerializer = new EdgeKeySerializer();
 
-    final int serializedSize = edgeKeySerializer.getObjectSize(edgeKey);
-    final ByteBuffer buffer = ByteBuffer.allocate(serializedSize + 3);
+    final var serializedSize = edgeKeySerializer.getObjectSize(edgeKey);
+    final var buffer = ByteBuffer.allocate(serializedSize + 3);
 
     buffer.position(3);
     edgeKeySerializer.serializeInByteBufferObject(edgeKey, buffer);
@@ -46,18 +46,18 @@ public class EdgeKeySerializerTest {
     Assert.assertEquals(serializedSize, edgeKeySerializer.getObjectSizeInByteBuffer(buffer));
 
     buffer.position(3);
-    final EdgeKey deserializedKey = edgeKeySerializer.deserializeFromByteBufferObject(buffer);
+    final var deserializedKey = edgeKeySerializer.deserializeFromByteBufferObject(buffer);
 
     Assert.assertEquals(edgeKey, deserializedKey);
   }
 
   @Test
   public void testImmutableBufferPositionSerialization() {
-    final EdgeKey edgeKey = new EdgeKey(42, 24, 67);
-    final EdgeKeySerializer edgeKeySerializer = new EdgeKeySerializer();
+    final var edgeKey = new EdgeKey(42, 24, 67);
+    final var edgeKeySerializer = new EdgeKeySerializer();
 
-    final int serializedSize = edgeKeySerializer.getObjectSize(edgeKey);
-    final ByteBuffer buffer = ByteBuffer.allocate(serializedSize + 3);
+    final var serializedSize = edgeKeySerializer.getObjectSize(edgeKey);
+    final var buffer = ByteBuffer.allocate(serializedSize + 3);
 
     buffer.position(3);
     edgeKeySerializer.serializeInByteBufferObject(edgeKey, buffer);
@@ -69,7 +69,7 @@ public class EdgeKeySerializerTest {
 
     Assert.assertEquals(0, buffer.position());
 
-    final EdgeKey deserializedKey = edgeKeySerializer.deserializeFromByteBufferObject(3, buffer);
+    final var deserializedKey = edgeKeySerializer.deserializeFromByteBufferObject(3, buffer);
     Assert.assertEquals(0, buffer.position());
 
     Assert.assertEquals(edgeKey, deserializedKey);
@@ -77,17 +77,17 @@ public class EdgeKeySerializerTest {
 
   @Test
   public void testChangesSerialization() {
-    final EdgeKey edgeKey = new EdgeKey(42, 24, 67);
-    final EdgeKeySerializer edgeKeySerializer = new EdgeKeySerializer();
+    final var edgeKey = new EdgeKey(42, 24, 67);
+    final var edgeKeySerializer = new EdgeKeySerializer();
 
-    final int serializedSize = edgeKeySerializer.getObjectSize(edgeKey);
+    final var serializedSize = edgeKeySerializer.getObjectSize(edgeKey);
 
     final WALChanges walChanges = new WALPageChangesPortion();
-    final ByteBuffer buffer =
+    final var buffer =
         ByteBuffer.allocate(GlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024)
             .order(ByteOrder.nativeOrder());
 
-    final byte[] rawKey = new byte[serializedSize];
+    final var rawKey = new byte[serializedSize];
 
     edgeKeySerializer.serialize(edgeKey, rawKey, 0);
     walChanges.setBinaryValue(buffer, rawKey, 3);
@@ -95,7 +95,7 @@ public class EdgeKeySerializerTest {
     Assert.assertEquals(
         serializedSize, edgeKeySerializer.getObjectSizeInByteBuffer(buffer, walChanges, 3));
 
-    final EdgeKey deserializedKey =
+    final var deserializedKey =
         edgeKeySerializer.deserializeFromByteBufferObject(buffer, walChanges, 3);
 
     Assert.assertEquals(edgeKey, deserializedKey);

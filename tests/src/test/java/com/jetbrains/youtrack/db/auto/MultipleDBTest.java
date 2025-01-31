@@ -44,15 +44,15 @@ public class MultipleDBTest extends BaseDBTest {
 
   @Test
   public void testObjectMultipleDBsThreaded() throws Exception {
-    final int operations_write = 1000;
-    final int operations_read = 1;
-    final int dbs = 10;
+    final var operations_write = 1000;
+    final var operations_read = 1;
+    final var dbs = 10;
 
     final Set<String> times = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     Set<Future<Void>> threads = new HashSet<>();
-    ExecutorService executorService = Executors.newFixedThreadPool(4);
-    for (int i = 0; i < dbs; i++) {
+    var executorService = Executors.newFixedThreadPool(4);
+    for (var i = 0; i < dbs; i++) {
       var dbName = this.dbName + i;
       Callable<Void> t =
           () -> {
@@ -64,8 +64,8 @@ public class MultipleDBTest extends BaseDBTest {
               db.set(DatabaseSession.ATTRIBUTES.MINIMUM_CLUSTERS, 1);
               db.getMetadata().getSchema().getOrCreateClass("DummyObject");
 
-              long start = System.currentTimeMillis();
-              for (int j = 0; j < operations_write; j++) {
+              var start = System.currentTimeMillis();
+              for (var j = 0; j < operations_write; j++) {
                 var dummy = db.newInstance("DummyObject");
                 dummy.setProperty("name", "name" + j);
 
@@ -76,9 +76,9 @@ public class MultipleDBTest extends BaseDBTest {
                 Assert.assertEquals(
                     dummy.getIdentity().getClusterPosition(), j, "RID was " + dummy.getIdentity());
               }
-              long end = System.currentTimeMillis();
+              var end = System.currentTimeMillis();
 
-              String time =
+              var time =
                   "("
                       + getDbId(db)
                       + ") "
@@ -89,7 +89,7 @@ public class MultipleDBTest extends BaseDBTest {
               times.add(time);
 
               start = System.currentTimeMillis();
-              for (int j = 0; j < operations_read; j++) {
+              for (var j = 0; j < operations_read; j++) {
                 var l = db.query(" select * from DummyObject ").stream().toList();
                 Assert.assertEquals(l.size(), operations_write);
               }
@@ -116,22 +116,22 @@ public class MultipleDBTest extends BaseDBTest {
       threads.add(executorService.submit(t));
     }
 
-    for (Future<Void> future : threads) {
+    for (var future : threads) {
       future.get();
     }
   }
 
   @Test
   public void testDocumentMultipleDBsThreaded() throws Exception {
-    final int operations_write = 1000;
-    final int operations_read = 1;
-    final int dbs = 10;
+    final var operations_write = 1000;
+    final var operations_read = 1;
+    final var dbs = 10;
 
     final Set<String> times = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     Set<Future<Void>> results = new HashSet<>();
-    ExecutorService executorService = Executors.newFixedThreadPool(4);
-    for (int i = 0; i < dbs; i++) {
+    var executorService = Executors.newFixedThreadPool(4);
+    for (var i = 0; i < dbs; i++) {
       var dbName = this.dbName + i;
       Callable<Void> t =
           () -> {
@@ -141,10 +141,10 @@ public class MultipleDBTest extends BaseDBTest {
             try (var db = createSessionInstance(dbName)) {
               db.getMetadata().getSchema().createClass("DummyObject", 1);
 
-              long start = System.currentTimeMillis();
-              for (int j = 0; j < operations_write; j++) {
+              var start = System.currentTimeMillis();
+              for (var j = 0; j < operations_write; j++) {
 
-                EntityImpl dummy = ((EntityImpl) db.newEntity("DummyObject"));
+                var dummy = ((EntityImpl) db.newEntity("DummyObject"));
                 dummy.field("name", "name" + j);
 
                 db.begin();
@@ -154,9 +154,9 @@ public class MultipleDBTest extends BaseDBTest {
                 Assert.assertEquals(
                     dummy.getIdentity().getClusterPosition(), j, "RID was " + dummy.getIdentity());
               }
-              long end = System.currentTimeMillis();
+              var end = System.currentTimeMillis();
 
-              String time =
+              var time =
                   "("
                       + getDbId(db)
                       + ") "
@@ -166,7 +166,7 @@ public class MultipleDBTest extends BaseDBTest {
               times.add(time);
 
               start = System.currentTimeMillis();
-              for (int j = 0; j < operations_read; j++) {
+              for (var j = 0; j < operations_read; j++) {
                 var l = db.query(" select * from DummyObject ").stream().toList();
                 Assert.assertEquals(l.size(), operations_write);
               }
@@ -190,7 +190,7 @@ public class MultipleDBTest extends BaseDBTest {
       results.add(executorService.submit(t));
     }
 
-    for (Future<Void> future : results) {
+    for (var future : results) {
       future.get();
     }
   }

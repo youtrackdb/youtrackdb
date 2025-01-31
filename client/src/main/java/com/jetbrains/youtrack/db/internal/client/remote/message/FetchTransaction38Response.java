@@ -41,8 +41,8 @@ public class FetchTransaction38Response implements BinaryResponse {
 
     this.txId = txId;
     List<RecordOperation38Response> netOperations = new ArrayList<>();
-    for (RecordOperation txEntry : operations) {
-      RecordOperation38Response request = new RecordOperation38Response();
+    for (var txEntry : operations) {
+      var request = new RecordOperation38Response();
       request.setType(txEntry.type);
       request.setVersion(txEntry.record.getVersion());
       request.setId(txEntry.getRecordId());
@@ -55,12 +55,12 @@ public class FetchTransaction38Response implements BinaryResponse {
             database.getStorage()
                 .readRecord(database, entity.getIdentity(), false, false, null);
 
-        EntityImpl entityFromPersistence = new EntityImpl(db, entity.getIdentity());
+        var entityFromPersistence = new EntityImpl(db, entity.getIdentity());
         RecordInternal.unsetDirty(entityFromPersistence);
         entityFromPersistence.fromStream(result.buffer);
         request.setOriginal(
             RecordSerializerNetworkV37Client.INSTANCE.toStream(db, entityFromPersistence));
-        DocumentSerializerDelta delta = DocumentSerializerDelta.instance();
+        var delta = DocumentSerializerDelta.instance();
         request.setRecord(delta.serializeDelta(db, entity));
       } else {
         request.setRecord(
@@ -78,7 +78,7 @@ public class FetchTransaction38Response implements BinaryResponse {
       throws IOException {
     channel.writeLong(txId);
 
-    for (RecordOperation38Response txEntry : operations) {
+    for (var txEntry : operations) {
       writeTransactionEntry(channel, txEntry, serializer);
     }
 
@@ -119,14 +119,14 @@ public class FetchTransaction38Response implements BinaryResponse {
   @Override
   public void read(DatabaseSessionInternal db, ChannelDataInput network,
       StorageRemoteSession session) throws IOException {
-    RecordSerializerNetworkV37Client serializer = RecordSerializerNetworkV37Client.INSTANCE;
+    var serializer = RecordSerializerNetworkV37Client.INSTANCE;
     txId = network.readLong();
     operations = new ArrayList<>();
     byte hasEntry;
     do {
       hasEntry = network.readByte();
       if (hasEntry == 1) {
-        RecordOperation38Response entry = readTransactionEntry(network);
+        var entry = readTransactionEntry(network);
         operations.add(entry);
       }
     } while (hasEntry == 1);
@@ -134,7 +134,7 @@ public class FetchTransaction38Response implements BinaryResponse {
 
   static RecordOperation38Response readTransactionEntry(
       ChannelDataInput channel) throws IOException {
-    RecordOperation38Response entry = new RecordOperation38Response();
+    var entry = new RecordOperation38Response();
     entry.setType(channel.readByte());
     entry.setId(channel.readRID());
     entry.setOldId(channel.readRID());

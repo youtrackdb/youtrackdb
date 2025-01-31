@@ -44,14 +44,14 @@ public class SQLProfileStatement extends SQLStatement {
       DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
     db.resetRecordLoadStats();
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
     ctx.setDatabase(db);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
-      for (int i = 0; i < args.length; i++) {
+      for (var i = 0; i < args.length; i++) {
         params.put(i, args[i]);
       }
     }
@@ -68,13 +68,13 @@ public class SQLProfileStatement extends SQLStatement {
       ((UpdateExecutionPlan) executionPlan).executeInternal();
     }
 
-    LocalResultSet rs = new LocalResultSet((InternalExecutionPlan) executionPlan);
+    var rs = new LocalResultSet((InternalExecutionPlan) executionPlan);
 
     while (rs.hasNext()) {
       rs.next();
     }
-    DatabaseStats dbStats = db.getStats();
-    ExplainResultSet result =
+    var dbStats = db.getStats();
+    var result =
         new ExplainResultSet(db,
             rs.getExecutionPlan()
                 .orElseThrow(
@@ -89,7 +89,7 @@ public class SQLProfileStatement extends SQLStatement {
       DatabaseSessionInternal db, Map<Object, Object> args, CommandContext parentCtx,
       boolean usePlanCache) {
     db.resetRecordLoadStats();
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -103,13 +103,13 @@ public class SQLProfileStatement extends SQLStatement {
       executionPlan = statement.createExecutionPlanNoCache(ctx, true);
     }
 
-    LocalResultSet rs = new LocalResultSet((InternalExecutionPlan) executionPlan);
+    var rs = new LocalResultSet((InternalExecutionPlan) executionPlan);
 
     while (rs.hasNext()) {
       rs.next();
     }
-    DatabaseStats dbStats = db.getStats();
-    ExplainResultSet result =
+    var dbStats = db.getStats();
+    var result =
         new ExplainResultSet(db,
             rs.getExecutionPlan()
                 .orElseThrow(
@@ -126,7 +126,7 @@ public class SQLProfileStatement extends SQLStatement {
 
   @Override
   public SQLProfileStatement copy() {
-    SQLProfileStatement result = new SQLProfileStatement(-1);
+    var result = new SQLProfileStatement(-1);
     result.statement = statement == null ? null : statement.copy();
     return result;
   }
@@ -140,7 +140,7 @@ public class SQLProfileStatement extends SQLStatement {
       return false;
     }
 
-    SQLProfileStatement that = (SQLProfileStatement) o;
+    var that = (SQLProfileStatement) o;
 
     return Objects.equals(statement, that.statement);
   }

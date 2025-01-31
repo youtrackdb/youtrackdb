@@ -79,7 +79,7 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
     super();
 
     indexDefinitions = new ArrayList<>(5);
-    for (IndexDefinition indexDefinition : iIndexes) {
+    for (var indexDefinition : iIndexes) {
       indexDefinitions.add(indexDefinition);
       collate.addCollate(indexDefinition.getCollate());
 
@@ -125,7 +125,7 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
    */
   public List<String> getFields() {
     final List<String> fields = new LinkedList<>();
-    for (final IndexDefinition indexDefinition : indexDefinitions) {
+    for (final var indexDefinition : indexDefinitions) {
       fields.addAll(indexDefinition.getFields());
     }
     return Collections.unmodifiableList(fields);
@@ -136,7 +136,7 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
    */
   public List<String> getFieldsToIndex() {
     final List<String> fields = new LinkedList<>();
-    for (final IndexDefinition indexDefinition : indexDefinitions) {
+    for (final var indexDefinition : indexDefinitions) {
       fields.addAll(indexDefinition.getFieldsToIndex());
     }
     return Collections.unmodifiableList(fields);
@@ -148,13 +148,13 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
   public Object getDocumentValueToIndex(
       DatabaseSessionInternal session, final EntityImpl entity) {
     final List<CompositeKey> compositeKeys = new ArrayList<>(10);
-    final CompositeKey firstKey = new CompositeKey();
-    boolean containsCollection = false;
+    final var firstKey = new CompositeKey();
+    var containsCollection = false;
 
     compositeKeys.add(firstKey);
 
-    for (final IndexDefinition indexDefinition : indexDefinitions) {
-      final Object result = indexDefinition.getDocumentValueToIndex(session, entity);
+    for (final var indexDefinition : indexDefinitions) {
+      final var result = indexDefinition.getDocumentValueToIndex(session, entity);
 
       if (result == null && isNullValuesIgnored()) {
         return null;
@@ -193,25 +193,25 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
    * {@inheritDoc}
    */
   public Object createValue(DatabaseSessionInternal session, final List<?> params) {
-    int currentParamIndex = 0;
-    final CompositeKey firstKey = new CompositeKey();
+    var currentParamIndex = 0;
+    final var firstKey = new CompositeKey();
 
     final List<CompositeKey> compositeKeys = new ArrayList<>(10);
     compositeKeys.add(firstKey);
 
-    boolean containsCollection = false;
+    var containsCollection = false;
 
-    for (final IndexDefinition indexDefinition : indexDefinitions) {
+    for (final var indexDefinition : indexDefinitions) {
       if (currentParamIndex + 1 > params.size()) {
         break;
       }
 
-      final int endIndex =
+      final var endIndex =
           Math.min(currentParamIndex + indexDefinition.getParamCount(), params.size());
-      final List<?> indexParams = params.subList(currentParamIndex, endIndex);
+      final var indexParams = params.subList(currentParamIndex, endIndex);
       currentParamIndex += indexDefinition.getParamCount();
 
-      final Object keyValue = indexDefinition.createValue(session, indexParams);
+      final var keyValue = indexDefinition.createValue(session, indexParams);
 
       if (keyValue == null && isNullValuesIgnored()) {
         return null;
@@ -243,18 +243,18 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
   }
 
   public CompositeKey createSingleValue(DatabaseSessionInternal session, final List<?> params) {
-    final CompositeKey compositeKey = new CompositeKey();
-    int currentParamIndex = 0;
+    final var compositeKey = new CompositeKey();
+    var currentParamIndex = 0;
 
-    for (final IndexDefinition indexDefinition : indexDefinitions) {
+    for (final var indexDefinition : indexDefinitions) {
       if (currentParamIndex + 1 > params.size()) {
         break;
       }
 
-      final int endIndex =
+      final var endIndex =
           Math.min(currentParamIndex + indexDefinition.getParamCount(), params.size());
 
-      final List<?> indexParams = params.subList(currentParamIndex, endIndex);
+      final var indexParams = params.subList(currentParamIndex, endIndex);
       currentParamIndex += indexDefinition.getParamCount();
 
       final Object keyValue;
@@ -301,18 +301,18 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
       // sure we need to expand collection only if collection size more than one, otherwise
       // collection of composite keys already contains original composite key
       {
-        for (int i = 1; i < collectionSize; i++) {
-          final CompositeKey compositeKey = new CompositeKey(firstKey.getKeys());
+        for (var i = 1; i < collectionSize; i++) {
+          final var compositeKey = new CompositeKey(firstKey.getKeys());
           compositeKeys.add(compositeKey);
         }
       } else {
         throw new IndexException("Composite key cannot contain more than one collection item");
       }
 
-      int compositeIndex = 0;
+      var compositeIndex = 0;
       if (!collectionKey.isEmpty()) {
-        for (final Object keyItem : collectionKey) {
-          final CompositeKey compositeKey = compositeKeys.get(compositeIndex);
+        for (final var keyItem : collectionKey) {
+          final var compositeKey = compositeKeys.get(compositeIndex);
           compositeKey.addKey(keyItem);
 
           compositeIndex++;
@@ -323,7 +323,7 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
 
       containsCollection = true;
     } else if (containsCollection) {
-      for (final CompositeKey compositeKey : compositeKeys) {
+      for (final var compositeKey : compositeKeys) {
         compositeKey.addKey(keyValue);
       }
     } else {
@@ -351,14 +351,14 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
       Object2IntOpenHashMap<CompositeKey> keysToRemove,
       Object... params) {
 
-    final IndexDefinitionMultiValue indexDefinitionMultiValue =
+    final var indexDefinitionMultiValue =
         (IndexDefinitionMultiValue) indexDefinitions.get(multiValueDefinitionIndex);
 
-    final CompositeWrapperMap compositeWrapperKeysToAdd =
+    final var compositeWrapperKeysToAdd =
         new CompositeWrapperMap(
             session, keysToAdd, indexDefinitions, params, multiValueDefinitionIndex);
 
-    final CompositeWrapperMap compositeWrapperKeysToRemove =
+    final var compositeWrapperKeysToRemove =
         new CompositeWrapperMap(
             session, keysToRemove, indexDefinitions, params, multiValueDefinitionIndex);
 
@@ -370,8 +370,8 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
    * {@inheritDoc}
    */
   public int getParamCount() {
-    int total = 0;
-    for (final IndexDefinition indexDefinition : indexDefinitions) {
+    var total = 0;
+    for (final var indexDefinition : indexDefinitions) {
       total += indexDefinition.getParamCount();
     }
     return total;
@@ -382,7 +382,7 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
    */
   public PropertyType[] getTypes() {
     final List<PropertyType> types = new LinkedList<>();
-    for (final IndexDefinition indexDefinition : indexDefinitions) {
+    for (final var indexDefinition : indexDefinitions) {
       Collections.addAll(types, indexDefinition.getTypes());
     }
 
@@ -398,7 +398,7 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
       return false;
     }
 
-    final CompositeIndexDefinition that = (CompositeIndexDefinition) o;
+    final var that = (CompositeIndexDefinition) o;
 
     if (!className.equals(that.className)) {
       return false;
@@ -408,7 +408,7 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
 
   @Override
   public int hashCode() {
-    int result = indexDefinitions.hashCode();
+    var result = indexDefinitions.hashCode();
     result = 31 * result + className.hashCode();
     return result;
   }
@@ -441,8 +441,8 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
     final List<String> indClasses = new ArrayList<>(indexDefinitions.size());
 
     entity.setPropertyInternal("className", className);
-    for (final IndexDefinition indexDefinition : indexDefinitions) {
-      final EntityImpl indexEntity = indexDefinition.toStream(db, new EntityImpl(db));
+    for (final var indexDefinition : indexDefinitions) {
+      final var indexEntity = indexDefinition.toStream(db, new EntityImpl(db));
       inds.add(indexEntity);
 
       indClasses.add(indexDefinition.getClass().getName());
@@ -456,10 +456,10 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
    * {@inheritDoc}
    */
   public String toCreateIndexDDL(final String indexName, final String indexType, String engine) {
-    final StringBuilder ddl = new StringBuilder("create index ");
+    final var ddl = new StringBuilder("create index ");
     ddl.append('`').append(indexName).append('`').append(" on ").append(className).append(" ( ");
 
-    final Iterator<String> fieldIterator = getFieldsToIndex().iterator();
+    final var fieldIterator = getFieldsToIndex().iterator();
     if (fieldIterator.hasNext()) {
       ddl.append(quoteFieldName(fieldIterator.next()));
       while (fieldIterator.hasNext()) {
@@ -473,8 +473,8 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
     }
 
     if (multiValueDefinitionIndex == -1) {
-      boolean first = true;
-      for (PropertyType oType : getTypes()) {
+      var first = true;
+      for (var oType : getTypes()) {
         if (first) {
           first = false;
         } else {
@@ -521,11 +521,11 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
 
       collate = new CompositeCollate(this);
 
-      for (int i = 0; i < indClasses.size(); i++) {
-        final Class<?> clazz = Class.forName(indClasses.get(i));
-        final EntityImpl indEntity = inds.get(i);
+      for (var i = 0; i < indClasses.size(); i++) {
+        final var clazz = Class.forName(indClasses.get(i));
+        final var indEntity = inds.get(i);
 
-        final IndexDefinition indexDefinition =
+        final var indexDefinition =
             (IndexDefinition) clazz.getDeclaredConstructor().newInstance();
         indexDefinition.fromStream(indEntity);
 
@@ -588,7 +588,7 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
     }
 
     public boolean containsKey(Object key) {
-      final CompositeKey compositeKey = convertToCompositeKey(session, key);
+      final var compositeKey = convertToCompositeKey(session, key);
 
       return underlying.containsKey(compositeKey);
     }
@@ -619,7 +619,7 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
     }
 
     public int put(Object key, int value) {
-      final CompositeKey compositeKey = convertToCompositeKey(session, key);
+      final var compositeKey = convertToCompositeKey(session, key);
       return underlying.put(compositeKey, value);
     }
 
@@ -648,11 +648,11 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
     }
 
     private CompositeKey convertToCompositeKey(DatabaseSessionInternal session, Object key) {
-      final CompositeKey compositeKey = new CompositeKey();
+      final var compositeKey = new CompositeKey();
 
-      int paramsIndex = 0;
-      for (int i = 0; i < indexDefinitions.size(); i++) {
-        final IndexDefinition indexDefinition = indexDefinitions.get(i);
+      var paramsIndex = 0;
+      for (var i = 0; i < indexDefinitions.size(); i++) {
+        final var indexDefinition = indexDefinitions.get(i);
         if (i != multiValueIndex) {
           compositeKey.addKey(indexDefinition.createValue(session, params[paramsIndex]));
           paramsIndex++;

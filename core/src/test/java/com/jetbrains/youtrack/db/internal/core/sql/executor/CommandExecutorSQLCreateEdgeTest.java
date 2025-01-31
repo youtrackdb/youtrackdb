@@ -1,10 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.HashMap;
 import org.junit.Assert;
@@ -51,16 +49,16 @@ public class CommandExecutorSQLCreateEdgeTest extends DbTestBase {
         .close();
     db.commit();
 
-    ResultSet list = db.query("SELECT FROM link");
+    var list = db.query("SELECT FROM link");
 
-    Result res = list.next();
+    var res = list.next();
     Assert.assertEquals(res.getProperty("foo"), "123");
     Assert.assertFalse(list.hasNext());
   }
 
   @Test
   public void testSubqueryParametersBinding() throws Exception {
-    final HashMap<String, Object> params = new HashMap<String, Object>();
+    final var params = new HashMap<String, Object>();
     params.put("foo", "bar");
     params.put("fromId", 1);
     params.put("toId", 2);
@@ -73,9 +71,9 @@ public class CommandExecutorSQLCreateEdgeTest extends DbTestBase {
         .close();
     db.commit();
 
-    ResultSet list = db.query("SELECT FROM link");
+    var list = db.query("SELECT FROM link");
 
-    Result edge = list.next();
+    var edge = list.next();
     Assert.assertEquals(edge.getProperty("foo"), "bar");
     Assert.assertEquals(edge.getProperty("out"), owner1.getIdentity());
     Assert.assertEquals(edge.getProperty("in"), owner2.getIdentity());
@@ -84,14 +82,14 @@ public class CommandExecutorSQLCreateEdgeTest extends DbTestBase {
 
   @Test
   public void testBatch() throws Exception {
-    for (int i = 0; i < 20; ++i) {
+    for (var i = 0; i < 20; ++i) {
       db.begin();
       db.command("CREATE VERTEX Owner SET testbatch = true, id = ?", i).close();
       db.commit();
     }
 
     db.begin();
-    ResultSet edges =
+    var edges =
         db.command(
             "CREATE EDGE link from (select from owner where testbatch = true and id > 0) TO (select"
                 + " from owner where testbatch = true and id = 0) batch 10",
@@ -100,9 +98,9 @@ public class CommandExecutorSQLCreateEdgeTest extends DbTestBase {
 
     Assert.assertEquals(edges.stream().count(), 19);
 
-    ResultSet list = db.query("select from owner where testbatch = true and id = 0");
+    var list = db.query("select from owner where testbatch = true and id = 0");
 
-    Result res = list.next();
+    var res = list.next();
     Assert.assertEquals(((RidBag) res.getProperty("in_link")).size(), 19);
     Assert.assertFalse(list.hasNext());
   }

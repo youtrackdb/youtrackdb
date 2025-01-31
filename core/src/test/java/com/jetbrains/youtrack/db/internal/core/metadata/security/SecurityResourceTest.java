@@ -117,8 +117,8 @@ public class SecurityResourceTest {
 
   @Test
   public void testCache() {
-    SecurityResource person = SecurityResource.getInstance("database.class.Person");
-    SecurityResource person2 = SecurityResource.getInstance("database.class.Person");
+    var person = SecurityResource.getInstance("database.class.Person");
+    var person2 = SecurityResource.getInstance("database.class.Person");
     Assert.assertSame(person, person2);
   }
 }

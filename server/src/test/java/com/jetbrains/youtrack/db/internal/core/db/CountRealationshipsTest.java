@@ -40,12 +40,12 @@ public class CountRealationshipsTest {
 
   @Test
   public void test() throws Exception {
-    DatabaseSession g =
+    var g =
         youTrackDB.open(CountRealationshipsTest.class.getSimpleName(), "admin", "admin");
     g.begin();
-    Vertex vertex1 = g.newVertex("V");
+    var vertex1 = g.newVertex("V");
     vertex1.save();
-    Vertex vertex2 = g.newVertex("V");
+    var vertex2 = g.newVertex("V");
     vertex2.save();
     g.commit();
 
@@ -116,7 +116,7 @@ public class CountRealationshipsTest {
   }
 
   private int countEdges(Vertex v, Direction dir) throws Exception {
-    int c = 0;
+    var c = 0;
     for (var oEdge : v.getEdges(dir)) {
       c++;
     }

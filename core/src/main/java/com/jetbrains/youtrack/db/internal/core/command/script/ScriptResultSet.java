@@ -23,7 +23,7 @@ public class ScriptResultSet extends IteratorResultSet {
   @Override
   public Result next() {
 
-    Object next = iterator.next();
+    var next = iterator.next();
     return transformer.toResult(db, next);
   }
 }

@@ -30,7 +30,6 @@ import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.common.MilestoneWALRecord;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.common.StartWALRecord;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.common.WriteableWALRecord;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.common.deque.Cursor;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.common.deque.MPSCFAAArrayDequeue;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import java.io.File;
@@ -45,12 +44,9 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
-import java.util.NavigableSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -70,7 +66,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import javax.crypto.BadPaddingException;
@@ -81,7 +76,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import net.jpountz.xxhash.XXHash64;
 import net.jpountz.xxhash.XXHashFactory;
 
 public final class CASDiskWriteAheadLog implements WriteAheadLog {
@@ -246,7 +240,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
     this.aesKey = aesKey;
     this.iv = iv;
 
-    int bufferSize1 = bufferSize * 1024 * 1024;
+    var bufferSize1 = bufferSize * 1024 * 1024;
 
     this.segmentsInterval = segmentsInterval;
     this.callFsync = callFsync;
@@ -293,7 +287,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
     this.segmentAdditionTs = System.nanoTime();
 
     // we log empty record on open so end of WAL will always contain valid value
-    final StartWALRecord startRecord = new StartWALRecord();
+    final var startRecord = new StartWALRecord();
 
     startRecord.setLsn(new LogSequenceNumber(currentSegment, CASWALPage.RECORDS_OFFSET));
     startRecord.setDistance(0);
@@ -334,7 +328,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       final int maxPagesCacheSize,
       final int pageSize,
       @SuppressWarnings("SameParameterValue") final int defaultValue) {
-    long maxCacheSize = (long) maxPagesCacheSize * (long) pageSize;
+    var maxCacheSize = (long) maxPagesCacheSize * (long) pageSize;
     if ((int) maxCacheSize != maxCacheSize) {
       return defaultValue;
     }
@@ -345,7 +339,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       throws IOException {
     final Stream<Path> walFiles;
 
-    final ModifiableLong walSize = new ModifiableLong();
+    final var walSize = new ModifiableLong();
     if (filterWALFiles) {
       walFiles =
           Files.find(
@@ -375,12 +369,12 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
   }
 
   private static long extractSegmentId(final String name) {
-    final Matcher matcher = Pattern.compile("^.*\\.(\\d+)\\.wal$").matcher(name);
+    final var matcher = Pattern.compile("^.*\\.(\\d+)\\.wal$").matcher(name);
 
-    final boolean matches = matcher.find();
+    final var matches = matcher.find();
     assert matches;
 
-    final String order = matcher.group(1);
+    final var order = matcher.group(1);
     try {
       return Long.parseLong(order);
     } catch (final NumberFormatException e) {
@@ -397,19 +391,19 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       return false;
     }
 
-    final int walOrderStartIndex = name.indexOf('.');
+    final var walOrderStartIndex = name.indexOf('.');
     if (walOrderStartIndex == name.length() - 4) {
       return false;
     }
 
-    final String walStorageName = name.substring(0, walOrderStartIndex);
+    final var walStorageName = name.substring(0, walOrderStartIndex);
     if (!storageName.equals(walStorageName)) {
       return false;
     }
 
-    final int walOrderEndIndex = name.indexOf('.', walOrderStartIndex + 1);
+    final var walOrderEndIndex = name.indexOf('.', walOrderStartIndex + 1);
 
-    final String walOrder = name.substring(walOrderStartIndex + 1, walOrderEndIndex);
+    final var walOrder = name.substring(walOrderStartIndex + 1, walOrderEndIndex);
     try {
       Integer.parseInt(walOrder);
     } catch (final NumberFormatException ignore) {
@@ -426,14 +420,14 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       return false;
     }
 
-    final int walOrderStartIndex = name.indexOf('.');
+    final var walOrderStartIndex = name.indexOf('.');
     if (walOrderStartIndex == name.length() - 4) {
       return false;
     }
 
-    final int walOrderEndIndex = name.indexOf('.', walOrderStartIndex + 1);
+    final var walOrderEndIndex = name.indexOf('.', walOrderStartIndex + 1);
 
-    final String walOrder = name.substring(walOrderStartIndex + 1, walOrderEndIndex);
+    final var walOrder = name.substring(walOrderStartIndex + 1, walOrderEndIndex);
     try {
       Integer.parseInt(walOrder);
     } catch (final NumberFormatException ignore) {
@@ -455,8 +449,8 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       throws IOException {
     addCutTillLimit(lsn);
     try {
-      final LogSequenceNumber begin = begin();
-      final LogSequenceNumber endLSN = end.get();
+      final var begin = begin();
+      final var endLSN = end.get();
 
       if (begin.compareTo(lsn) > 0) {
         return Collections.emptyList();
@@ -466,14 +460,14 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
         return Collections.emptyList();
       }
 
-      Cursor<WALRecord> recordCursor = records.peekFirst();
+      var recordCursor = records.peekFirst();
       assert recordCursor != null;
-      WALRecord record = recordCursor.getItem();
-      LogSequenceNumber logRecordLSN = record.getLsn();
+      var record = recordCursor.getItem();
+      var logRecordLSN = record.getLsn();
 
       while (logRecordLSN.getPosition() > 0 && logRecordLSN.compareTo(lsn) <= 0) {
         while (true) {
-          final int compare = logRecordLSN.compareTo(lsn);
+          final var compare = logRecordLSN.compareTo(lsn);
 
           if (compare == 0 && record instanceof WriteableWALRecord) {
             return Collections.singletonList((WriteableWALRecord) record);
@@ -502,7 +496,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       }
 
       // ensure that next record is written on disk
-      LogSequenceNumber writtenLSN = this.writtenUpTo.get().getLsn();
+      var writtenLSN = this.writtenUpTo.get().getLsn();
       while (writtenLSN == null || writtenLSN.compareTo(lsn) < 0) {
         try {
           flushLatch.get().await();
@@ -528,7 +522,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
   }
 
   private void waitTillWriteWillBeFinished() {
-    final Future<?> wf = writeFuture;
+    final var wf = writeFuture;
     if (wf != null) {
       try {
         wf.get();
@@ -554,47 +548,47 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       throws IOException {
     final List<WriteableWALRecord> result = new ArrayList<>();
     long position = lsn.getPosition();
-    long pageIndex = position / pageSize;
-    long segment = lsn.getSegment();
+    var pageIndex = position / pageSize;
+    var segment = lsn.getSegment();
 
-    int pagesRead = 0;
+    var pagesRead = 0;
 
-    final NavigableSet<Long> segs = segments.tailSet(segment);
+    final var segs = segments.tailSet(segment);
     if (segs.isEmpty() || segs.first() > segment) {
       return Collections.emptyList();
     }
-    final Iterator<Long> segmentsIterator = segs.iterator();
+    final var segmentsIterator = segs.iterator();
 
     while (pagesRead < BATCH_READ_SIZE) {
       if (segmentsIterator.hasNext()) {
         byte[] recordContent = null;
-        int recordLen = -1;
+        var recordLen = -1;
 
         byte[] recordLenBytes = null;
-        int recordLenRead = -1;
+        var recordLenRead = -1;
 
-        int bytesRead = 0;
+        var bytesRead = 0;
 
-        int lsnPos = -1;
+        var lsnPos = -1;
 
         segment = segmentsIterator.next();
 
-        final String segmentName = getSegmentName(segment);
-        final Path segmentPath = walLocation.resolve(segmentName);
+        final var segmentName = getSegmentName(segment);
+        final var segmentPath = walLocation.resolve(segmentName);
 
         if (Files.exists(segmentPath)) {
-          try (final WALFile file = WALFile.createReadWALFile(segmentPath, segmentId)) {
-            long chSize = Files.size(segmentPath);
-            final WrittenUpTo written = this.writtenUpTo.get();
+          try (final var file = WALFile.createReadWALFile(segmentPath, segmentId)) {
+            var chSize = Files.size(segmentPath);
+            final var written = this.writtenUpTo.get();
 
             if (segment == written.getLsn().getSegment()) {
               chSize = Math.min(chSize, written.getPosition());
             }
 
-            long filePosition = file.position();
+            var filePosition = file.position();
 
             while (pageIndex * pageSize < chSize) {
-              long expectedFilePosition = pageIndex * pageSize;
+              var expectedFilePosition = pageIndex * pageSize;
               if (filePosition != expectedFilePosition) {
                 file.position(expectedFilePosition);
                 filePosition = expectedFilePosition;
@@ -653,12 +647,12 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
                   recordContent = new byte[recordLen];
                 }
 
-                final int bytesToRead = Math.min(recordLen - bytesRead, buffer.remaining());
+                final var bytesToRead = Math.min(recordLen - bytesRead, buffer.remaining());
                 buffer.get(recordContent, bytesRead, bytesToRead);
                 bytesRead += bytesToRead;
 
                 if (bytesRead == recordLen) {
-                  final WriteableWALRecord walRecord =
+                  final var walRecord =
                       WALRecordsFactory.INSTANCE.fromStream(recordContent);
 
                   walRecord.setLsn(new LogSequenceNumber(segment, lsnPos));
@@ -707,35 +701,35 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       throws IOException {
     addCutTillLimit(lsn);
     try {
-      final LogSequenceNumber begin = begin();
+      final var begin = begin();
 
       if (begin.compareTo(lsn) > 0) {
         return Collections.emptyList();
       }
 
-      final LogSequenceNumber end = this.end.get();
+      final var end = this.end.get();
       if (lsn.compareTo(end) >= 0) {
         return Collections.emptyList();
       }
 
-      Cursor<WALRecord> recordCursor = records.peekFirst();
+      var recordCursor = records.peekFirst();
 
       assert recordCursor != null;
-      WALRecord logRecord = recordCursor.getItem();
-      LogSequenceNumber logRecordLSN = logRecord.getLsn();
+      var logRecord = recordCursor.getItem();
+      var logRecordLSN = logRecord.getLsn();
 
       while (logRecordLSN.getPosition() >= 0 && logRecordLSN.compareTo(lsn) <= 0) {
         while (true) {
-          final int compare = logRecordLSN.compareTo(lsn);
+          final var compare = logRecordLSN.compareTo(lsn);
 
           if (compare == 0) {
             recordCursor = MPSCFAAArrayDequeue.next(recordCursor);
 
             while (recordCursor != null) {
-              final WALRecord nextRecord = recordCursor.getItem();
+              final var nextRecord = recordCursor.getItem();
 
               if (nextRecord instanceof WriteableWALRecord) {
-                final LogSequenceNumber nextLSN = nextRecord.getLsn();
+                final var nextLSN = nextRecord.getLsn();
 
                 if (nextLSN.getPosition() < 0) {
                   return Collections.emptyList();
@@ -779,7 +773,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       }
 
       // ensure that next record is written on disk
-      LogSequenceNumber writtenLSN = this.writtenUpTo.get().getLsn();
+      var writtenLSN = this.writtenUpTo.get().getLsn();
       while (writtenLSN == null || writtenLSN.compareTo(lsn) <= 0) {
         try {
           flushLatch.get().await();
@@ -816,20 +810,20 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
   public void addEventAt(final LogSequenceNumber lsn, final Runnable event) {
     // may be executed by multiple threads simultaneously
 
-    final LogSequenceNumber localFlushedLsn = flushedLSN;
+    final var localFlushedLsn = flushedLSN;
 
-    final EventWrapper wrapper = new EventWrapper(event);
+    final var wrapper = new EventWrapper(event);
 
     if (localFlushedLsn != null && lsn.compareTo(localFlushedLsn) <= 0) {
       event.run();
     } else {
-      final EventWrapper eventWrapper = events.put(lsn, wrapper);
+      final var eventWrapper = events.put(lsn, wrapper);
       if (eventWrapper != null) {
         throw new IllegalStateException(
             "It is impossible to have several wrappers bound to the same LSN - lsn = " + lsn);
       }
 
-      final LogSequenceNumber potentiallyUpdatedLocalFlushedLsn = flushedLSN;
+      final var potentiallyUpdatedLocalFlushedLsn = flushedLSN;
       if (potentiallyUpdatedLocalFlushedLsn != null
           && lsn.compareTo(potentiallyUpdatedLocalFlushedLsn) <= 0) {
         commitExecutor.execute(() -> fireEventsFor(potentiallyUpdatedLocalFlushedLsn));
@@ -838,15 +832,15 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
   }
 
   public void delete() throws IOException {
-    final LongArrayList segmentsToDelete = new LongArrayList(this.segments.size());
+    final var segmentsToDelete = new LongArrayList(this.segments.size());
     segmentsToDelete.addAll(segments);
 
     close(false);
 
-    for (int i = 0; i < segmentsToDelete.size(); i++) {
-      final long segment = segmentsToDelete.getLong(i);
-      final String segmentName = getSegmentName(segment);
-      final Path segmentPath = walLocation.resolve(segmentName);
+    for (var i = 0; i < segmentsToDelete.size(); i++) {
+      final var segment = segmentsToDelete.getLong(i);
+      final var segmentName = getSegmentName(segment);
+      final var segmentPath = walLocation.resolve(segmentName);
       Files.deleteIfExists(segmentPath);
     }
   }
@@ -857,7 +851,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       return true;
     }
 
-    final long magicNumber = buffer.getLong(CASWALPage.MAGIC_NUMBER_OFFSET);
+    final var magicNumber = buffer.getLong(CASWALPage.MAGIC_NUMBER_OFFSET);
 
     if (magicNumber != CASWALPage.MAGIC_NUMBER
         && magicNumber != CASWALPage.MAGIC_NUMBER_WITH_ENCRYPTION) {
@@ -881,9 +875,9 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
     buffer.limit(pageSize);
 
     buffer.position(CASWALPage.RECORDS_OFFSET);
-    final XXHash64 hash64 = xxHashFactory.hash64();
+    final var hash64 = xxHashFactory.hash64();
 
-    final long hash = hash64.hash(buffer, XX_SEED);
+    final var hash = hash64.hash(buffer, XX_SEED);
 
     return hash != buffer.getLong(CASWALPage.XX_OFFSET);
   }
@@ -916,7 +910,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
                   String.format("Limit %s is going to be removed but it was not added", lsn));
             }
 
-            final int newCounter = oldCounter - 1;
+            final var newCounter = oldCounter - 1;
             if (newCounter == 0) {
               return null;
             }
@@ -930,13 +924,13 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
 
   public LogSequenceNumber logAtomicOperationStartRecord(
       final boolean isRollbackSupported, final long unitId) {
-    final AtomicUnitStartRecord record = new AtomicUnitStartRecord(isRollbackSupported, unitId);
+    final var record = new AtomicUnitStartRecord(isRollbackSupported, unitId);
     return log(record);
   }
 
   public LogSequenceNumber logAtomicOperationStartRecord(
       final boolean isRollbackSupported, final long unitId, byte[] metadata) {
-    final AtomicUnitStartMetadataRecord record =
+    final var record =
         new AtomicUnitStartMetadataRecord(isRollbackSupported, unitId, metadata);
     return log(record);
   }
@@ -946,7 +940,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       final boolean rollback,
       final LogSequenceNumber startLsn,
       final Map<String, AtomicOperationMetadata<?>> atomicOperationMetadata) {
-    final AtomicUnitEndRecord record =
+    final var record =
         new AtomicUnitEndRecord(operationUnitId, rollback, atomicOperationMetadata);
     return log(record);
   }
@@ -981,7 +975,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       logSegment = currentSegment;
       recordLSN = doLogRecord(writeableRecord);
 
-      final int diskSize = writeableRecord.getDiskSize();
+      final var diskSize = writeableRecord.getDiskSize();
       segSize = segmentSize.addAndGet(diskSize);
       size = logSize.addAndGet(diskSize);
 
@@ -992,7 +986,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       segmentLock.sharedUnlock();
     }
 
-    long qsize = queueSize.addAndGet(writeableRecord.getDiskSize());
+    var qsize = queueSize.addAndGet(writeableRecord.getDiskSize());
     if (qsize >= maxCacheSize) {
       threadsWaitingCount.increment();
       try {
@@ -1002,7 +996,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
         }
         flushLatch.get().await();
         if (printPerformanceStatistic) {
-          final long endTs = System.nanoTime();
+          final var endTs = System.nanoTime();
           threadsWaitingSum.add(endTs - startTs);
         }
       } catch (final InterruptedException e) {
@@ -1018,18 +1012,18 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
         }
         doFlush(false);
         if (printPerformanceStatistic) {
-          final long endTs = System.nanoTime();
+          final var endTs = System.nanoTime();
           threadsWaitingSum.add(endTs - startTs);
         }
       }
     }
 
     if (keepSingleWALSegment && segments.size() > 1) {
-      for (final CheckpointRequestListener listener : checkpointRequestListeners) {
+      for (final var listener : checkpointRequestListeners) {
         listener.requestCheckpoint();
       }
     } else if (walSizeLimit > -1 && size > walSizeLimit && segments.size() > 1) {
-      for (final CheckpointRequestListener listener : checkpointRequestListeners) {
+      for (final var listener : checkpointRequestListeners) {
         listener.requestCheckpoint();
       }
     }
@@ -1063,7 +1057,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
           segmentId = currentSegment;
         }
 
-        final Map.Entry<LogSequenceNumber, Integer> firsEntry = cutTillLimits.firstEntry();
+        final var firsEntry = cutTillLimits.firstEntry();
 
         if (firsEntry != null) {
           if (segmentId > firsEntry.getKey().getSegment()) {
@@ -1071,7 +1065,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
           }
         }
 
-        final LogSequenceNumber written = writtenUpTo.get().getLsn();
+        final var written = writtenUpTo.get().getLsn();
         if (segmentId > written.getSegment()) {
           segmentId = written.getSegment();
         }
@@ -1080,9 +1074,9 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
           return false;
         }
 
-        RawPairLongObject<WALFile> pair = fileCloseQueue.poll();
+        var pair = fileCloseQueue.poll();
         while (pair != null) {
-          final WALFile file = pair.second;
+          final var file = pair.second;
 
           fileCloseQueueSize.decrementAndGet();
           if (pair.first >= segmentId) {
@@ -1098,18 +1092,18 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
           pair = fileCloseQueue.poll();
         }
 
-        boolean removed = false;
+        var removed = false;
 
-        final Iterator<Long> segmentIterator = segments.iterator();
+        final var segmentIterator = segments.iterator();
         while (segmentIterator.hasNext()) {
           final long segment = segmentIterator.next();
           if (segment < segmentId) {
             segmentIterator.remove();
 
-            final String segmentName = getSegmentName(segment);
-            final Path segmentPath = walLocation.resolve(segmentName);
+            final var segmentName = getSegmentName(segment);
+            final var segmentPath = walLocation.resolve(segmentName);
             if (Files.exists(segmentPath)) {
-              final long length = Files.size(segmentPath);
+              final var length = Files.size(segmentPath);
               Files.delete(segmentPath);
               logSize.addAndGet(-length);
               removed = true;
@@ -1129,7 +1123,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
   }
 
   public boolean cutTill(final LogSequenceNumber lsn) throws IOException {
-    final long segmentId = lsn.getSegment();
+    final var segmentId = lsn.getSegment();
     return cutAllSegmentsSmallerThan(segmentId);
   }
 
@@ -1180,20 +1174,20 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
   }
 
   public void moveLsnAfter(final LogSequenceNumber lsn) {
-    final long segment = lsn.getSegment() + 1;
+    final var segment = lsn.getSegment() + 1;
     appendSegment(segment);
   }
 
   public long[] nonActiveSegments() {
-    final LogSequenceNumber writtenUpTo = this.writtenUpTo.get().getLsn();
+    final var writtenUpTo = this.writtenUpTo.get().getLsn();
 
-    long maxSegment = currentSegment;
+    var maxSegment = currentSegment;
 
     if (writtenUpTo.getSegment() < maxSegment) {
       maxSegment = writtenUpTo.getSegment();
     }
 
-    final LongArrayList result = new LongArrayList();
+    final var result = new LongArrayList();
     for (final long segment : segments) {
       if (segment < maxSegment) {
         result.add(segment);
@@ -1206,15 +1200,15 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
   }
 
   public File[] nonActiveSegments(final long fromSegment) {
-    final long maxSegment = currentSegment;
+    final var maxSegment = currentSegment;
     final List<File> result = new ArrayList<>(8);
 
     for (final long segment : segments.tailSet(fromSegment)) {
       if (segment < maxSegment) {
-        final String segmentName = getSegmentName(segment);
-        final Path segmentPath = walLocation.resolve(segmentName);
+        final var segmentName = getSegmentName(segment);
+        final var segmentPath = walLocation.resolve(segmentName);
 
-        final File segFile = segmentPath.toFile();
+        final var segFile = segmentPath.toFile();
         if (segFile.exists()) {
           result.add(segFile);
         }
@@ -1239,9 +1233,9 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
 
     calculateRecordsLSNs();
 
-    final LogSequenceNumber recordLSN = writeableRecord.getLsn();
+    final var recordLSN = writeableRecord.getLsn();
 
-    LogSequenceNumber endLsn = end.get();
+    var endLsn = end.get();
     while (endLsn == null || recordLSN.compareTo(endLsn) > 0) {
       if (end.compareAndSet(endLsn, recordLSN)) {
         break;
@@ -1284,7 +1278,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
 
     recordsWriterLock.lock();
     try {
-      final Future<?> future = writeFuture;
+      final var future = writeFuture;
       if (future != null) {
         try {
           future.get();
@@ -1296,7 +1290,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
         }
       }
 
-      WALRecord record = records.poll();
+      var record = records.poll();
       while (record != null) {
         if (record instanceof WriteableWALRecord) {
           ((WriteableWALRecord) record).freeBinaryContent();
@@ -1306,7 +1300,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       }
 
       for (var pair : fileCloseQueue) {
-        final WALFile file = pair.second;
+        final var file = pair.second;
 
         if (callFsync) {
           file.force(true);
@@ -1348,7 +1342,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
   public void removeCheckpointListener(final CheckpointRequestListener listener) {
     final List<CheckpointRequestListener> itemsToRemove = new ArrayList<>();
 
-    for (final CheckpointRequestListener fullCheckpointRequestListener :
+    for (final var fullCheckpointRequestListener :
         checkpointRequestListeners) {
       if (fullCheckpointRequestListener.equals(listener)) {
         itemsToRemove.add(fullCheckpointRequestListener);
@@ -1359,7 +1353,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
   }
 
   private void doFlush(final boolean forceSync) {
-    final Future<?> future = commitExecutor.submit(new RecordsWriter(this, forceSync, true));
+    final var future = commitExecutor.submit(new RecordsWriter(this, forceSync, true));
     try {
       future.get();
     } catch (final Exception e) {
@@ -1380,23 +1374,23 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       final int pageSize,
       final ByteBuffer buffer) {
     try {
-      final Cipher cipher = CIPHER.get();
+      final var cipher = CIPHER.get();
       final SecretKey aesKey = new SecretKeySpec(this.aesKey, ALGORITHM_NAME);
 
-      final byte[] updatedIv = new byte[iv.length];
+      final var updatedIv = new byte[iv.length];
 
-      for (int i = 0; i < LongSerializer.LONG_SIZE; i++) {
+      for (var i = 0; i < LongSerializer.LONG_SIZE; i++) {
         updatedIv[i] = (byte) (iv[i] ^ ((pageIndex >>> i) & 0xFF));
       }
 
-      for (int i = 0; i < LongSerializer.LONG_SIZE; i++) {
+      for (var i = 0; i < LongSerializer.LONG_SIZE; i++) {
         updatedIv[i + LongSerializer.LONG_SIZE] =
             (byte) (iv[i + LongSerializer.LONG_SIZE] ^ ((segmentId >>> i) & 0xFF));
       }
 
       cipher.init(mode, aesKey, new IvParameterSpec(updatedIv));
 
-      final ByteBuffer outBuffer =
+      final var outBuffer =
           ByteBuffer.allocate(pageSize - CASWALPage.XX_OFFSET).order(ByteOrder.nativeOrder());
 
       buffer.position(start + CASWALPage.XX_OFFSET);
@@ -1419,11 +1413,11 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
   private void calculateRecordsLSNs() {
     final List<WALRecord> unassignedList = new ArrayList<>();
 
-    Cursor<WALRecord> cursor = records.peekLast();
+    var cursor = records.peekLast();
     while (cursor != null) {
-      final WALRecord record = cursor.getItem();
+      final var record = cursor.getItem();
 
-      final LogSequenceNumber lsn = record.getLsn();
+      final var lsn = record.getLsn();
 
       if (lsn.getPosition() == -1) {
         unassignedList.add(record);
@@ -1432,7 +1426,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
         break;
       }
 
-      final Cursor<WALRecord> nextCursor = MPSCFAAArrayDequeue.prev(cursor);
+      final var nextCursor = MPSCFAAArrayDequeue.prev(cursor);
       if (nextCursor == null && record.getLsn().getPosition() < 0) {
         LogManager.instance().warn(this, cursor.toString());
         throw new IllegalStateException("Invalid last record");
@@ -1442,11 +1436,11 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
     }
 
     if (!unassignedList.isEmpty()) {
-      final ListIterator<WALRecord> unassignedRecordsIterator =
+      final var unassignedRecordsIterator =
           unassignedList.listIterator(unassignedList.size());
 
-      WALRecord prevRecord = unassignedRecordsIterator.previous();
-      final LogSequenceNumber prevLSN = prevRecord.getLsn();
+      var prevRecord = unassignedRecordsIterator.previous();
+      final var prevLSN = prevRecord.getLsn();
 
       if (prevLSN.getPosition() < 0) {
         throw new IllegalStateException(
@@ -1454,12 +1448,12 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       }
 
       while (unassignedRecordsIterator.hasPrevious()) {
-        final WALRecord record = unassignedRecordsIterator.previous();
-        LogSequenceNumber lsn = record.getLsn();
+        final var record = unassignedRecordsIterator.previous();
+        var lsn = record.getLsn();
 
         if (lsn.getPosition() < 0) {
-          final int position = calculatePosition(record, prevRecord, pageSize, maxRecordSize);
-          final LogSequenceNumber newLSN = new LogSequenceNumber(lsn.getSegment(), position);
+          final var position = calculatePosition(record, prevRecord, pageSize, maxRecordSize);
+          final var newLSN = new LogSequenceNumber(lsn.getSegment(), position);
 
           lsn = record.getLsn();
           if (lsn.getPosition() < 0) {
@@ -1473,7 +1467,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
   }
 
   private MilestoneWALRecord logMilestoneRecord() {
-    final MilestoneWALRecord milestoneRecord = new MilestoneWALRecord();
+    final var milestoneRecord = new MilestoneWALRecord();
     milestoneRecord.setLsn(new LogSequenceNumber(currentSegment, -1));
 
     records.offer(milestoneRecord);
@@ -1502,11 +1496,11 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
         record.setDistance(0);
         record.setDiskSize(prevRecord.getDiskSize());
       } else {
-        final int recordLength = ((WriteableWALRecord) record).getBinaryContentLen();
-        final int length = CASWALPage.calculateSerializedSize(recordLength);
+        final var recordLength = ((WriteableWALRecord) record).getBinaryContentLen();
+        final var length = CASWALPage.calculateSerializedSize(recordLength);
 
-        final int pages = length / maxRecordSize;
-        final int offset = length - pages * maxRecordSize;
+        final var pages = length / maxRecordSize;
+        final var offset = length - pages * maxRecordSize;
 
         final int distance;
         if (pages == 0) {
@@ -1536,11 +1530,11 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       } else {
         // we always start from the begging of the page so no need to calculate page offset
         // record is written from the begging of page
-        final int recordLength = ((WriteableWALRecord) record).getBinaryContentLen();
-        final int length = CASWALPage.calculateSerializedSize(recordLength);
+        final var recordLength = ((WriteableWALRecord) record).getBinaryContentLen();
+        final var length = CASWALPage.calculateSerializedSize(recordLength);
 
-        final int pages = length / maxRecordSize;
-        final int offset = length - pages * maxRecordSize;
+        final var pages = length / maxRecordSize;
+        final var offset = length - pages * maxRecordSize;
 
         final int distance;
         if (pages == 0) {
@@ -1569,10 +1563,10 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
     if (record instanceof MilestoneWALRecord) {
       if (prevRecord.getLsn().getSegment() == record.getLsn().getSegment()) {
         final long end = prevRecord.getLsn().getPosition() + prevRecord.getDistance();
-        final long pageIndex = end / pageSize;
+        final var pageIndex = end / pageSize;
 
         final long newPosition;
-        final int pageOffset = (int) (end - pageIndex * pageSize);
+        final var pageOffset = (int) (end - pageIndex * pageSize);
 
         if (pageOffset > CASWALPage.RECORDS_OFFSET) {
           newPosition = (pageIndex + 1) * pageSize + CASWALPage.RECORDS_OFFSET;
@@ -1587,14 +1581,14 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
         return (int) newPosition;
       } else {
         final long prevPosition = prevRecord.getLsn().getPosition();
-        final long end = prevPosition + prevRecord.getDistance();
-        final long pageIndex = end / pageSize;
-        final int pageOffset = (int) (end - pageIndex * pageSize);
+        final var end = prevPosition + prevRecord.getDistance();
+        final var pageIndex = end / pageSize;
+        final var pageOffset = (int) (end - pageIndex * pageSize);
 
         if (pageOffset == CASWALPage.RECORDS_OFFSET) {
           record.setDiskSize(CASWALPage.RECORDS_OFFSET);
         } else {
-          final int pageFreeSpace = pageSize - pageOffset;
+          final var pageFreeSpace = pageSize - pageOffset;
           record.setDiskSize(pageFreeSpace + CASWALPage.RECORDS_OFFSET);
         }
 
@@ -1606,11 +1600,11 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
 
     assert prevRecord.getLsn().getSegment() == record.getLsn().getSegment();
     final long start = prevRecord.getDistance() + prevRecord.getLsn().getPosition();
-    final int freeSpace = pageSize - (int) (start % pageSize);
-    final int startOffset = pageSize - freeSpace;
+    final var freeSpace = pageSize - (int) (start % pageSize);
+    final var startOffset = pageSize - freeSpace;
 
-    final int recordLength = ((WriteableWALRecord) record).getBinaryContentLen();
-    int length = CASWALPage.calculateSerializedSize(recordLength);
+    final var recordLength = ((WriteableWALRecord) record).getBinaryContentLen();
+    var length = CASWALPage.calculateSerializedSize(recordLength);
 
     if (length < freeSpace) {
       record.setDistance(length);
@@ -1624,14 +1618,14 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
     } else {
       length -= freeSpace;
 
-      @SuppressWarnings("UnnecessaryLocalVariable") final int firstChunk = freeSpace;
-      final int pages = length / maxRecordSize;
-      final int offset = length - pages * maxRecordSize;
+      @SuppressWarnings("UnnecessaryLocalVariable") final var firstChunk = freeSpace;
+      final var pages = length / maxRecordSize;
+      final var offset = length - pages * maxRecordSize;
 
-      final int distance = firstChunk + pages * pageSize + offset + CASWALPage.RECORDS_OFFSET;
+      final var distance = firstChunk + pages * pageSize + offset + CASWALPage.RECORDS_OFFSET;
       record.setDistance(distance);
 
-      int diskSize = distance;
+      var diskSize = distance;
 
       if (offset == 0) {
         diskSize -= CASWALPage.RECORDS_OFFSET;
@@ -1650,7 +1644,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
   private void fireEventsFor(final LogSequenceNumber lsn) {
     // may be executed by only one thread at every instant of time
 
-    final Iterator<EventWrapper> eventsToFire = events.headMap(lsn, true).values().iterator();
+    final var eventsToFire = events.headMap(lsn, true).values().iterator();
     while (eventsToFire.hasNext()) {
       eventsToFire.next().fire();
       eventsToFire.remove();
@@ -1672,13 +1666,13 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
         printReport();
       }
 
-      final long ts = System.nanoTime();
-      final boolean makeFSync = forceSync || ts - lastFSyncTs > fsyncInterval * 1_000_000L;
-      final long qSize = queueSize.get();
+      final var ts = System.nanoTime();
+      final var makeFSync = forceSync || ts - lastFSyncTs > fsyncInterval * 1_000_000L;
+      final var qSize = queueSize.get();
 
       // even if queue is empty we need to write buffer content to the disk if needed
       if (qSize > 0 || fullWrite || makeFSync) {
-        final CountDownLatch fl = new CountDownLatch(1);
+        final var fl = new CountDownLatch(1);
         flushLatch.lazySet(fl);
         try {
           // in case of "full write" mode, we log milestone record and iterate over the queue till
@@ -1704,7 +1698,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
             lastRecord = null;
           } else {
 
-            final Cursor<WALRecord> cursor = records.peekLast();
+            final var cursor = records.peekLast();
             assert cursor != null;
 
             lastRecord = cursor.getItem();
@@ -1719,14 +1713,14 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
           }
 
           while (true) {
-            final WALRecord record = records.peek();
+            final var record = records.peek();
 
             if (record == milestoneRecord) {
               break;
             }
 
             assert record != null;
-            final LogSequenceNumber lsn = record.getLsn();
+            final var lsn = record.getLsn();
 
             assert lsn.getSegment() >= segmentId;
 
@@ -1766,20 +1760,20 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
                 currentPosition = 0;
               }
 
-              final WriteableWALRecord writeableRecord = (WriteableWALRecord) record;
+              final var writeableRecord = (WriteableWALRecord) record;
 
               if (!writeableRecord.isWritten()) {
-                int written = 0;
-                final int recordContentBinarySize = writeableRecord.getBinaryContentLen();
-                final int bytesToWrite = IntegerSerializer.INT_SIZE + recordContentBinarySize;
+                var written = 0;
+                final var recordContentBinarySize = writeableRecord.getBinaryContentLen();
+                final var bytesToWrite = IntegerSerializer.INT_SIZE + recordContentBinarySize;
 
-                final ByteBuffer recordContent = writeableRecord.getBinaryContent();
+                final var recordContent = writeableRecord.getBinaryContent();
                 recordContent.position(0);
 
                 byte[] recordSize = null;
-                int recordSizeWritten = -1;
+                var recordSizeWritten = -1;
 
-                boolean recordSizeIsWritten = false;
+                var recordSizeIsWritten = false;
 
                 while (written < bytesToWrite) {
                   if (writeBuffer == null || writeBuffer.remaining() == 0) {
@@ -1813,7 +1807,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
                   assert written != 0
                       || currentPosition + writeBuffer.position() == lsn.getPosition()
                       : (currentPosition + writeBuffer.position()) + " vs " + lsn.getPosition();
-                  final int chunkSize =
+                  final var chunkSize =
                       Math.min(
                           bytesToWrite - written,
                           (writeBufferPageIndex + 1) * pageSize - writeBuffer.position());
@@ -1934,14 +1928,14 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
         startTs = System.nanoTime();
       }
 
-      final int cqSize = fileCloseQueueSize.get();
+      final var cqSize = fileCloseQueueSize.get();
       if (cqSize > 0) {
-        int counter = 0;
+        var counter = 0;
 
         while (counter < cqSize) {
           final var pair = fileCloseQueue.poll();
           if (pair != null) {
-            final WALFile file = pair.second;
+            final var file = pair.second;
 
             assert file.position() % pageSize == 0;
 
@@ -1969,7 +1963,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       fireEventsFor(flushedLSN);
 
       if (printPerformanceStatistic) {
-        final long endTs = System.nanoTime();
+        final var endTs = System.nanoTime();
         //noinspection NonAtomicOperationOnVolatileField
         fsyncTime += (endTs - startTs);
         //noinspection NonAtomicOperationOnVolatileField
@@ -1992,8 +1986,8 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       return;
     }
 
-    int maxPage = (buffer.position() + pageSize - 1) / pageSize;
-    int lastPageSize = buffer.position() - (maxPage - 1) * pageSize;
+    var maxPage = (buffer.position() + pageSize - 1) / pageSize;
+    var lastPageSize = buffer.position() - (maxPage - 1) * pageSize;
 
     if (lastPageSize <= CASWALPage.RECORDS_OFFSET) {
       maxPage--;
@@ -2017,19 +2011,19 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       buffer.putShort(start + CASWALPage.PAGE_SIZE_OFFSET, (short) pageSize);
 
       buffer.position(start + CASWALPage.RECORDS_OFFSET);
-      final XXHash64 xxHash64 = xxHashFactory.hash64();
-      final long hash = xxHash64.hash(buffer, XX_SEED);
+      final var xxHash64 = xxHashFactory.hash64();
+      final var hash = xxHash64.hash(buffer, XX_SEED);
 
       buffer.putLong(start + CASWALPage.XX_OFFSET, hash);
 
       if (aesKey != null) {
-        final long pageIndex = (currentPosition + start) / CASDiskWriteAheadLog.this.pageSize;
+        final var pageIndex = (currentPosition + start) / CASDiskWriteAheadLog.this.pageSize;
         doEncryptionDecryption(segmentId, pageIndex, Cipher.ENCRYPT_MODE, start, pageSize, buffer);
       }
     }
 
     buffer.position(0);
-    final int limit = maxPage * pageSize;
+    final var limit = maxPage * pageSize;
     buffer.limit(limit);
 
     try {
@@ -2046,7 +2040,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
     assert file.position() == currentPosition;
     currentPosition += buffer.limit();
 
-    final long expectedPosition = currentPosition;
+    final var expectedPosition = currentPosition;
 
     writeFuture =
         writeExecutor.submit(
@@ -2076,8 +2070,8 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       assert file.position() == expectedPosition - buffer.limit();
 
       while (buffer.remaining() > 0) {
-        final int initialPos = buffer.position();
-        final int written = file.write(buffer);
+        final var initialPos = buffer.position();
+        final var written = file.write(buffer);
         assert buffer.position() == initialPos + written;
         assert file.position() == expectedPosition - buffer.limit() + initialPos + written
             : "File position "
@@ -2093,7 +2087,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       assert file.position() == expectedPosition;
 
       if (lastLSN != null) {
-        final WrittenUpTo written = writtenUpTo.get();
+        final var written = writtenUpTo.get();
 
         assert written == null || written.getLsn().compareTo(lastLSN) < 0;
 
@@ -2109,7 +2103,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       }
 
       if (printPerformanceStatistic) {
-        final long endTs = System.nanoTime();
+        final var endTs = System.nanoTime();
 
         //noinspection NonAtomicOperationOnVolatileField
         bytesWrittenSum += buffer.limit();
@@ -2123,7 +2117,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
   }
 
   private void printReport() {
-    final long ts = System.nanoTime();
+    final var ts = System.nanoTime();
     final long reportInterval;
 
     if (reportTs == -1) {
@@ -2134,16 +2128,16 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
     }
 
     if (reportInterval >= statisticPrintInterval * 1_000_000_000L) {
-      final long bytesWritten = CASDiskWriteAheadLog.this.bytesWrittenSum;
-      final long writtenTime = CASDiskWriteAheadLog.this.bytesWrittenTime;
+      final var bytesWritten = CASDiskWriteAheadLog.this.bytesWrittenSum;
+      final var writtenTime = CASDiskWriteAheadLog.this.bytesWrittenTime;
 
-      final long fsyncTime = CASDiskWriteAheadLog.this.fsyncTime;
-      final long fsyncCount = CASDiskWriteAheadLog.this.fsyncCount;
+      final var fsyncTime = CASDiskWriteAheadLog.this.fsyncTime;
+      final var fsyncCount = CASDiskWriteAheadLog.this.fsyncCount;
 
-      final long threadsWaitingCount = CASDiskWriteAheadLog.this.threadsWaitingCount.sum();
-      final long threadsWaitingSum = CASDiskWriteAheadLog.this.threadsWaitingSum.sum();
+      final var threadsWaitingCount = CASDiskWriteAheadLog.this.threadsWaitingCount.sum();
+      final var threadsWaitingSum = CASDiskWriteAheadLog.this.threadsWaitingSum.sum();
 
-      final Object[] additionalArgs =
+      final var additionalArgs =
           new Object[]{
               storageName,
               bytesWritten / 1024,

@@ -40,12 +40,12 @@ public class StorageBackupMTIT {
 
   @Test
   public void testParallelBackup() throws Exception {
-    final String buildDirectory = System.getProperty("buildDirectory", ".");
+    final var buildDirectory = System.getProperty("buildDirectory", ".");
     dbName = StorageBackupMTIT.class.getSimpleName();
-    final String dbDirectory =
+    final var dbDirectory =
         buildDirectory + File.separator + "databases" + File.separator + dbName;
-    final File backupDir = new File(buildDirectory, "backupDir");
-    final String backupDbName = StorageBackupMTIT.class.getSimpleName() + "BackUp";
+    final var backupDir = new File(buildDirectory, "backupDir");
+    final var backupDbName = StorageBackupMTIT.class.getSimpleName() + "BackUp";
 
     FileUtils.deleteRecursively(new File(dbDirectory));
 
@@ -59,7 +59,7 @@ public class StorageBackupMTIT {
       var db = (DatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
       final Schema schema = db.getMetadata().getSchema();
-      final SchemaClass backupClass = schema.createClass("BackupClass");
+      final var backupClass = schema.createClass("BackupClass");
       backupClass.createProperty(db, "num", PropertyType.INTEGER);
       backupClass.createProperty(db, "data", PropertyType.BINARY);
 
@@ -71,10 +71,10 @@ public class StorageBackupMTIT {
         Assert.assertTrue(backupDir.mkdirs());
       }
 
-      final ExecutorService executor = Executors.newCachedThreadPool();
+      final var executor = Executors.newCachedThreadPool();
       final List<Future<Void>> futures = new ArrayList<>();
 
-      for (int i = 0; i < 4; i++) {
+      for (var i = 0; i < 4; i++) {
         futures.add(executor.submit(new DataWriterCallable()));
       }
 
@@ -86,7 +86,7 @@ public class StorageBackupMTIT {
 
       stop = true;
 
-      for (Future<Void> future : futures) {
+      for (var future : futures) {
         future.get();
       }
 
@@ -95,12 +95,12 @@ public class StorageBackupMTIT {
 
       youTrackDB.close();
 
-      final String backedUpDbDirectory = buildDirectory + File.separator + backupDbName;
+      final var backedUpDbDirectory = buildDirectory + File.separator + backupDbName;
       FileUtils.deleteRecursively(new File(backedUpDbDirectory));
 
       System.out.println("create and restore");
 
-      YouTrackDBEmbedded embedded =
+      var embedded =
           (YouTrackDBEmbedded)
               YouTrackDBInternal.embedded(buildDirectory, YouTrackDBConfig.defaultConfig());
       embedded.restore(
@@ -114,14 +114,14 @@ public class StorageBackupMTIT {
 
       youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
           YouTrackDBConfig.defaultConfig());
-      final DatabaseCompare compare =
+      final var compare =
           new DatabaseCompare(
               (DatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin"),
               (DatabaseSessionInternal) youTrackDB.open(backupDbName, "admin", "admin"),
               System.out::println);
 
       System.out.println("compare");
-      boolean areSame = compare.compare();
+      var areSame = compare.compare();
       Assert.assertTrue(areSame);
 
     } finally {
@@ -149,15 +149,15 @@ public class StorageBackupMTIT {
 
   @Test
   public void testParallelBackupEncryption() throws Exception {
-    final String buildDirectory = System.getProperty("buildDirectory", ".");
-    final String backupDbName = StorageBackupMTIT.class.getSimpleName() + "BackUp";
-    final String backedUpDbDirectory = buildDirectory + File.separator + backupDbName;
-    final File backupDir = new File(buildDirectory, "backupDir");
+    final var buildDirectory = System.getProperty("buildDirectory", ".");
+    final var backupDbName = StorageBackupMTIT.class.getSimpleName() + "BackUp";
+    final var backedUpDbDirectory = buildDirectory + File.separator + backupDbName;
+    final var backupDir = new File(buildDirectory, "backupDir");
 
     dbName = StorageBackupMTIT.class.getSimpleName();
-    String dbDirectory = buildDirectory + File.separator + dbName;
+    var dbDirectory = buildDirectory + File.separator + dbName;
 
-    final YouTrackDBConfigImpl config =
+    final var config =
         (YouTrackDBConfigImpl) YouTrackDBConfig.builder()
             .addGlobalConfigurationParameter(GlobalConfiguration.STORAGE_ENCRYPTION_KEY,
                 "T1JJRU5UREJfSVNfQ09PTA==")
@@ -174,7 +174,7 @@ public class StorageBackupMTIT {
       var db = (DatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
       final Schema schema = db.getMetadata().getSchema();
-      final SchemaClass backupClass = schema.createClass("BackupClass");
+      final var backupClass = schema.createClass("BackupClass");
       backupClass.createProperty(db, "num", PropertyType.INTEGER);
       backupClass.createProperty(db, "data", PropertyType.BINARY);
 
@@ -186,10 +186,10 @@ public class StorageBackupMTIT {
         Assert.assertTrue(backupDir.mkdirs());
       }
 
-      final ExecutorService executor = Executors.newCachedThreadPool();
+      final var executor = Executors.newCachedThreadPool();
       final List<Future<Void>> futures = new ArrayList<>();
 
-      for (int i = 0; i < 4; i++) {
+      for (var i = 0; i < 4; i++) {
         futures.add(executor.submit(new DataWriterCallable()));
       }
 
@@ -201,7 +201,7 @@ public class StorageBackupMTIT {
 
       stop = true;
 
-      for (Future<Void> future : futures) {
+      for (var future : futures) {
         future.get();
       }
 
@@ -214,7 +214,7 @@ public class StorageBackupMTIT {
 
       System.out.println("create and restore");
 
-      YouTrackDBEmbedded embedded =
+      var embedded =
           (YouTrackDBEmbedded) YouTrackDBInternal.embedded(buildDirectory, config);
       embedded.restore(backupDbName, null, null, null, backupDir.getAbsolutePath(), config);
       embedded.close();
@@ -222,14 +222,14 @@ public class StorageBackupMTIT {
       GlobalConfiguration.STORAGE_ENCRYPTION_KEY.setValue("T1JJRU5UREJfSVNfQ09PTA==");
       youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
           YouTrackDBConfig.defaultConfig());
-      final DatabaseCompare compare =
+      final var compare =
           new DatabaseCompare(
               (DatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin"),
               (DatabaseSessionInternal) youTrackDB.open(backupDbName, "admin", "admin"),
               System.out::println);
       System.out.println("compare");
 
-      boolean areSame = compare.compare();
+      var areSame = compare.compare();
       Assert.assertTrue(areSame);
 
     } finally {
@@ -263,15 +263,15 @@ public class StorageBackupMTIT {
       System.out.println(Thread.currentThread() + " - start writing");
 
       try (var db = youTrackDB.open(dbName, "admin", "admin")) {
-        final Random random = new Random();
+        final var random = new Random();
         while (!stop) {
           try {
-            final byte[] data = new byte[16];
+            final var data = new byte[16];
             random.nextBytes(data);
 
-            final int num = random.nextInt();
+            final var num = random.nextInt();
 
-            final EntityImpl document = ((EntityImpl) db.newEntity("BackupClass"));
+            final var document = ((EntityImpl) db.newEntity("BackupClass"));
             document.field("num", num);
             document.field("data", data);
 

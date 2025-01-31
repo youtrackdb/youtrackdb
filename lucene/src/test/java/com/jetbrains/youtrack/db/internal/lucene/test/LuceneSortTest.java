@@ -555,7 +555,7 @@ public class LuceneSortTest extends BaseLuceneTest {
   public void setUp() throws Exception {
     Schema schema = db.getMetadata().getSchema();
 
-    SchemaClass cls = schema.createClass("Person");
+    var cls = schema.createClass("Person");
     cls.createProperty(db, "name", PropertyType.STRING);
     cls.createProperty(db, "surname", PropertyType.STRING);
     cls.createProperty(db, "description", PropertyType.STRING);
@@ -573,7 +573,7 @@ public class LuceneSortTest extends BaseLuceneTest {
                 + " { \"*_index_sorted\" : false }")
         .close();
 
-    long count =
+    var count =
         db.query("SELECT FROM Person WHERE SEARCH_CLASS(\"verylong\")  = true").stream().count();
 
     Assert.assertEquals(1, count);
@@ -591,7 +591,7 @@ public class LuceneSortTest extends BaseLuceneTest {
                 + " { \"description_index_sorted\" : false }")
         .close();
 
-    long count =
+    var count =
         db.query("SELECT FROM Person WHERE SEARCH_CLASS(\"verylong\") = true ").stream().count();
 
     Assert.assertEquals(1, count);

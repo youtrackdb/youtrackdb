@@ -39,11 +39,11 @@ public class ServerCommandPostDocument extends ServerCommandDocumentAbstract {
     iRequest.getData().commandInfo = "Create document";
 
     EntityImpl d;
-    try (DatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
+    try (var db = getProfiledDatabaseInstance(iRequest)) {
       d =
           db.computeInTx(
               () -> {
-                EntityImpl entity = new EntityImpl(db);
+                var entity = new EntityImpl(db);
                 entity.updateFromJSON(iRequest.getContent());
                 RecordInternal.setVersion(entity, 0);
 

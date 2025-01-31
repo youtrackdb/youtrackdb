@@ -49,14 +49,14 @@ public class CommandExecutorSQLDropClass extends CommandExecutorSQLAbstract
 
   public CommandExecutorSQLDropClass parse(DatabaseSessionInternal db,
       final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
-      final boolean strict = getDatabase().getStorageInfo().getConfiguration().isStrictSql();
+      final var strict = getDatabase().getStorageInfo().getConfiguration().isStrictSql();
       if (strict) {
         this.className = ((SQLDropClassStatement) this.preParsedStatement).name.getStringValue();
         this.unsafe = ((SQLDropClassStatement) this.preParsedStatement).unsafe;
@@ -74,10 +74,10 @@ public class CommandExecutorSQLDropClass extends CommandExecutorSQLAbstract
   private void oldParsing(CommandRequestText iRequest) {
     init(iRequest);
 
-    final StringBuilder word = new StringBuilder();
+    final var word = new StringBuilder();
 
-    int oldPos = 0;
-    int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
+    var oldPos = 0;
+    var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
     if (pos == -1 || !word.toString().equals(KEYWORD_DROP)) {
       throw new CommandSQLParsingException(
           "Keyword " + KEYWORD_DROP + " not found. Use " + getSyntax(), parserText, oldPos);
@@ -110,7 +110,7 @@ public class CommandExecutorSQLDropClass extends CommandExecutorSQLAbstract
 
   @Override
   public long getDistributedTimeout() {
-    final SchemaClassInternal cls = (SchemaClassInternal) getDatabase().getMetadata().getSchema()
+    final var cls = (SchemaClassInternal) getDatabase().getMetadata().getSchema()
         .getClass(className);
     if (className != null && cls != null) {
       return getDatabase()
@@ -137,13 +137,13 @@ public class CommandExecutorSQLDropClass extends CommandExecutorSQLAbstract
     if (ifExists && !database.getMetadata().getSchema().existsClass(className)) {
       return true;
     }
-    final SchemaClassInternal cls = (SchemaClassInternal) database.getMetadata().getSchema()
+    final var cls = (SchemaClassInternal) database.getMetadata().getSchema()
         .getClass(className);
     if (cls == null) {
       return null;
     }
 
-    final long records = cls.count(database, true);
+    final var records = cls.count(database, true);
 
     if (records > 0 && !unsafe) {
       // NOT EMPTY, CHECK IF CLASS IS OF VERTEX OR EDGES

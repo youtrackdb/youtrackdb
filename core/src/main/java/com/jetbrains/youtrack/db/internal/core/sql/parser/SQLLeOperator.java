@@ -28,7 +28,7 @@ public class SQLLeOperator extends SimpleNode implements SQLBinaryCompareOperato
     if (iLeft.getClass() != iRight.getClass()
         && iLeft instanceof Number
         && iRight instanceof Number) {
-      Number[] couple = PropertyType.castComparableNumber((Number) iLeft, (Number) iRight);
+      var couple = PropertyType.castComparableNumber((Number) iLeft, (Number) iRight);
       iLeft = couple[0];
       iRight = couple[1];
     } else {

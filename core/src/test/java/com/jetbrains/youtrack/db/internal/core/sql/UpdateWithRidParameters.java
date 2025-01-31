@@ -22,7 +22,7 @@ public class UpdateWithRidParameters extends DbTestBase {
 
     db.command("INSERT INTO testingClass2 SET id = ?", 456).close();
     RID orid;
-    try (ResultSet docs = db.query("SELECT FROM testingClass2 WHERE id = ?", 456)) {
+    try (var docs = db.query("SELECT FROM testingClass2 WHERE id = ?", 456)) {
       orid = docs.next().getProperty("@rid");
     }
 
@@ -32,7 +32,7 @@ public class UpdateWithRidParameters extends DbTestBase {
     // This does work.
     db.command("UPDATE testingClass set linkedlist = linkedlist || " + orid.toString()).close();
     List<RID> lst;
-    try (ResultSet docs = db.query("SELECT FROM testingClass WHERE id = ?", 123)) {
+    try (var docs = db.query("SELECT FROM testingClass WHERE id = ?", 123)) {
       lst = docs.next().getProperty("linkedlist");
     }
 

@@ -93,10 +93,10 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
     excludeIndexes.add(DatabaseImport.EXPORT_IMPORT_INDEX_NAME);
 
     final Schema schema = databaseTwo.getMetadata().getSchema();
-    final SchemaClass cls = schema.getClass(DatabaseImport.EXPORT_IMPORT_CLASS_NAME);
+    final var cls = schema.getClass(DatabaseImport.EXPORT_IMPORT_CLASS_NAME);
 
     if (cls != null) {
-      final int[] clusterIds = cls.getClusterIds();
+      final var clusterIds = cls.getClusterIds();
       clusterDifference = clusterIds.length;
     }
   }
@@ -128,7 +128,7 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
                 }
 
                 databaseTwo.activateOnCurrentThread();
-                try (final ResultSet resultSet =
+                try (final var resultSet =
                     databaseTwo.query(
                         "select value from "
                             + DatabaseImport.EXPORT_IMPORT_CLASS_NAME
@@ -196,17 +196,17 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
         database1 -> database1.getMetadata().getImmutableSchemaSnapshot());
     Schema schema2 = makeDbCall(databaseTwo,
         database2 -> database2.getMetadata().getImmutableSchemaSnapshot());
-    boolean ok = true;
-    for (SchemaClass clazz : schema1.getClasses(databaseOne)) {
-      SchemaClass clazz2 = schema2.getClass(clazz.getName());
+    var ok = true;
+    for (var clazz : schema1.getClasses(databaseOne)) {
+      var clazz2 = schema2.getClass(clazz.getName());
 
       if (clazz2 == null) {
         listener.onMessage("\n- ERR: Class definition " + clazz.getName() + " for DB2 is null.");
         continue;
       }
 
-      final List<String> sc1 = clazz.getSuperClassesNames();
-      final List<String> sc2 = clazz2.getSuperClassesNames();
+      final var sc1 = clazz.getSuperClassesNames();
+      final var sc2 = clazz2.getSuperClassesNames();
 
       if (!sc1.isEmpty() || !sc2.isEmpty()) {
         if (!new HashSet<>(sc1).containsAll(sc2) || !new HashSet<>(sc2).containsAll(sc1)) {
@@ -242,8 +242,8 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
         ok = false;
       }
 
-      for (SchemaProperty prop : clazz.declaredProperties()) {
-        SchemaProperty prop2 = clazz2.getProperty(prop.getName());
+      for (var prop : clazz.declaredProperties()) {
+        var prop2 = clazz2.getProperty(prop.getName());
         if (prop2 == null) {
           listener.onMessage(
               "\n- ERR: Class definition for "
@@ -371,15 +371,15 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
   private void compareIndexes(EntityHelper.RIDMapper ridMapper) {
     listener.onMessage("\nStarting index comparison:");
 
-    boolean ok = true;
+    var ok = true;
 
-    final IndexManagerAbstract indexManagerOne =
+    final var indexManagerOne =
         makeDbCall(databaseOne, database -> database.getMetadata().getIndexManagerInternal());
 
-    final IndexManagerAbstract indexManagerTwo =
+    final var indexManagerTwo =
         makeDbCall(databaseTwo, database -> database.getMetadata().getIndexManagerInternal());
 
-    final Collection<? extends Index> indexesOne =
+    final var indexesOne =
         makeDbCall(
             databaseOne,
             (DbRelatedCall<Collection<? extends Index>>) indexManagerOne::getIndexes);
@@ -405,22 +405,22 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
       ++differences;
     }
 
-    final Iterator<? extends Index> iteratorOne =
+    final var iteratorOne =
         makeDbCall(
             databaseOne,
             (DbRelatedCall<Iterator<? extends Index>>) database -> indexesOne.iterator());
 
     while (makeDbCall(databaseOne, database -> iteratorOne.hasNext())) {
-      final Index indexOne =
+      final var indexOne =
           makeDbCall(databaseOne, (DbRelatedCall<Index>) database -> iteratorOne.next());
 
-      @SuppressWarnings("ObjectAllocationInLoop") final String indexName = makeDbCall(databaseOne,
+      @SuppressWarnings("ObjectAllocationInLoop") final var indexName = makeDbCall(databaseOne,
           database -> indexOne.getName());
       if (excludeIndexes.contains(indexName)) {
         continue;
       }
 
-      @SuppressWarnings("ObjectAllocationInLoop") final Index indexTwo =
+      @SuppressWarnings("ObjectAllocationInLoop") final var indexTwo =
           makeDbCall(
               databaseTwo, database -> indexManagerTwo.getIndex(database, indexOne.getName()));
 
@@ -547,17 +547,17 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
       if (((compareEntriesForAutomaticIndexes && !indexOne.getType().equals("DICTIONARY"))
           || !indexOne.isAutomatic())) {
 
-        try (final Stream<Object> keyStream =
+        try (final var keyStream =
             makeDbCall(databaseOne, database -> ((IndexInternal) indexOne).keyStream())) {
-          final Iterator<Object> indexKeyIteratorOne =
+          final var indexKeyIteratorOne =
               makeDbCall(databaseOne, database -> keyStream.iterator());
           while (makeDbCall(databaseOne, database -> indexKeyIteratorOne.hasNext())) {
-            final Object indexKey = makeDbCall(databaseOne, database -> indexKeyIteratorOne.next());
+            final var indexKey = makeDbCall(databaseOne, database -> indexKeyIteratorOne.next());
 
-            try (Stream<RID> indexOneStream =
+            try (var indexOneStream =
                 makeDbCall(databaseOne,
                     database -> indexOne.getInternal().getRids(database, indexKey))) {
-              try (Stream<RID> indexTwoValue =
+              try (var indexTwoValue =
                   makeDbCall(databaseTwo,
                       database -> indexTwo.getInternal().getRids(database, indexKey))) {
                 differences +=
@@ -584,16 +584,16 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
       final CommandOutputListener listener) {
     final Set<RID> streamTwoSet = new HashSet<>();
 
-    final Iterator<RID> streamOneIterator = streamOne.iterator();
-    final Iterator<RID> streamTwoIterator = streamTwo.iterator();
+    final var streamOneIterator = streamOne.iterator();
+    final var streamTwoIterator = streamTwo.iterator();
 
-    int differences = 0;
+    var differences = 0;
     while (streamOneIterator.hasNext()) {
       RID rid;
       if (ridMapper == null) {
         rid = streamOneIterator.next();
       } else {
-        final RID streamOneRid = streamOneIterator.next();
+        final var streamOneRid = streamOneIterator.next();
         rid = ridMapper.map(streamOneRid);
         if (rid == null) {
           rid = streamOneRid;
@@ -606,9 +606,9 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
               "\r\nEntry " + indexKey + ":" + rid + " is present in DB1 but absent in DB2");
           differences++;
         } else {
-          boolean found = false;
+          var found = false;
           while (streamTwoIterator.hasNext()) {
-            final RID streamRid = streamTwoIterator.next();
+            final var streamRid = streamTwoIterator.next();
             if (streamRid.equals(rid)) {
               found = true;
               break;
@@ -626,14 +626,14 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
     }
 
     while (streamTwoIterator.hasNext()) {
-      final RID rid = streamTwoIterator.next();
+      final var rid = streamTwoIterator.next();
       listener.onMessage(
           "\r\nEntry " + indexKey + ":" + rid + " is present in DB2 but absent in DB1");
 
       differences++;
     }
 
-    for (final RID rid : streamTwoSet) {
+    for (final var rid : streamTwoSet) {
       listener.onMessage(
           "\r\nEntry " + indexKey + ":" + rid + " is present in DB2 but absent in DB1");
 
@@ -648,10 +648,10 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
 
     listener.onMessage("\nChecking the number of clusters...");
 
-    Collection<String> clusterNames1 =
+    var clusterNames1 =
         makeDbCall(databaseOne, DatabaseSessionInternal::getClusterNames);
 
-    Collection<String> clusterNames2 =
+    var clusterNames2 =
         makeDbCall(databaseTwo, DatabaseSessionInternal::getClusterNames);
 
     if (clusterNames1.size() != clusterNames2.size() - clusterDifference) {
@@ -665,7 +665,7 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
 
     boolean ok;
 
-    for (final String clusterName : clusterNames1) {
+    for (final var clusterName : clusterNames1) {
       // CHECK IF THE CLUSTER IS INCLUDED
       ok = true;
       final int cluster1Id =
@@ -730,20 +730,20 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
     listener.onMessage(
         "\nStarting deep comparison record by record. This may take a few minutes. Wait please...");
 
-    Collection<String> clusterNames1 =
+    var clusterNames1 =
         makeDbCall(databaseOne, DatabaseSessionInternal::getClusterNames);
 
-    for (final String clusterName : clusterNames1) {
+    for (final var clusterName : clusterNames1) {
       // CHECK IF THE CLUSTER IS INCLUDED
       final int clusterId1 =
           makeDbCall(databaseOne, database -> database.getClusterIdByName(clusterName));
 
-      @SuppressWarnings("ObjectAllocationInLoop") final RecordId rid1 = new RecordId(
+      @SuppressWarnings("ObjectAllocationInLoop") final var rid1 = new RecordId(
           clusterId1);
 
-      DatabaseSessionInternal selectedDatabase = databaseOne;
+      var selectedDatabase = databaseOne;
 
-      PhysicalPosition[] physicalPositions =
+      var physicalPositions =
           makeDbCall(
               selectedDatabase,
               database ->
@@ -751,36 +751,36 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
                       .getStorage()
                       .ceilingPhysicalPositions(databaseOne, clusterId1, new PhysicalPosition(0)));
 
-      StorageConfiguration configuration1 =
+      var configuration1 =
           makeDbCall(databaseOne, database -> database.getStorageInfo().getConfiguration());
-      StorageConfiguration configuration2 =
+      var configuration2 =
           makeDbCall(databaseTwo, database -> database.getStorageInfo().getConfiguration());
 
-      String storageType1 = makeDbCall(databaseOne, database -> database.getStorage().getType());
-      String storageType2 = makeDbCall(databaseTwo, database -> database.getStorage().getType());
+      var storageType1 = makeDbCall(databaseOne, database -> database.getStorage().getType());
+      var storageType2 = makeDbCall(databaseTwo, database -> database.getStorage().getType());
 
       long recordsCounter = 0;
       while (physicalPositions.length > 0) {
-        for (PhysicalPosition physicalPosition : physicalPositions) {
+        for (var physicalPosition : physicalPositions) {
           try {
             recordsCounter++;
 
             databaseOne.activateOnCurrentThread();
-            @SuppressWarnings("ObjectAllocationInLoop") final EntityImpl entity1 = new EntityImpl(
+            @SuppressWarnings("ObjectAllocationInLoop") final var entity1 = new EntityImpl(
                 databaseOne);
             databaseTwo.activateOnCurrentThread();
 
-            @SuppressWarnings("ObjectAllocationInLoop") final EntityImpl entity2 = new EntityImpl(
+            @SuppressWarnings("ObjectAllocationInLoop") final var entity2 = new EntityImpl(
                 databaseTwo);
 
-            final long position = physicalPosition.clusterPosition;
+            final var position = physicalPosition.clusterPosition;
             rid1.setClusterPosition(position);
 
             final RecordId rid2;
             if (ridMapper == null) {
               rid2 = rid1;
             } else {
-              final RID newRid = ridMapper.map(rid1);
+              final var newRid = ridMapper.map(rid1);
               if (newRid == null) {
                 rid2 = rid1;
               } else
@@ -795,12 +795,12 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
               continue;
             }
 
-            final RawBuffer buffer1 =
+            final var buffer1 =
                 makeDbCall(
                     databaseOne,
                     database -> database.getStorage()
                         .readRecord(databaseOne, rid1, true, false, null));
-            final RawBuffer buffer2 =
+            final var buffer2 =
                 makeDbCall(
                     databaseTwo,
                     database -> database.getStorage()
@@ -916,9 +916,9 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
                         } else {
                           if (buffer1.buffer.length != buffer2.buffer.length) {
                             // CHECK IF THE TRIMMED SIZE IS THE SAME
-                            @SuppressWarnings("ObjectAllocationInLoop") final String rec1 = new String(
+                            @SuppressWarnings("ObjectAllocationInLoop") final var rec1 = new String(
                                 buffer1.buffer).trim();
-                            @SuppressWarnings("ObjectAllocationInLoop") final String rec2 = new String(
+                            @SuppressWarnings("ObjectAllocationInLoop") final var rec2 = new String(
                                 buffer2.buffer).trim();
 
                             if (rec1.length() != rec2.length()) {
@@ -942,7 +942,7 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
                             }
                           } else {
                             // CHECK BYTE PER BYTE
-                            for (int b = 0; b < buffer1.buffer.length; ++b) {
+                            for (var b = 0; b < buffer1.buffer.length; ++b) {
                               if (buffer1.buffer[b] != buffer2.buffer[b]) {
                                 listener.onMessage(
                                     "\n- ERR: RID="
@@ -976,7 +976,7 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
             throw e;
           }
         }
-        final PhysicalPosition[] curPosition = physicalPositions;
+        final var curPosition = physicalPositions;
         physicalPositions =
             makeDbCall(
                 selectedDatabase,
@@ -1043,7 +1043,7 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
   private static void convertSchemaDoc(final EntityImpl entity) {
     if (entity.field("classes") != null) {
       entity.setFieldType("classes", PropertyType.EMBEDDEDSET);
-      for (EntityImpl classDoc : entity.<Set<EntityImpl>>field("classes")) {
+      for (var classDoc : entity.<Set<EntityImpl>>field("classes")) {
         classDoc.setFieldType("properties", PropertyType.EMBEDDEDSET);
       }
     }

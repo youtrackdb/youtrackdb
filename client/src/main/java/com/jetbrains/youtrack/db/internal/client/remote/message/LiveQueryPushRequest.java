@@ -58,7 +58,7 @@ public class LiveQueryPushRequest implements BinaryPushRequest {
       channel.writeString(errorMessage);
     } else {
       channel.writeInt(events.size());
-      for (LiveQueryResult event : events) {
+      for (var event : events) {
         channel.writeByte(event.getEventType());
         MessageHelper.writeResult(session,
             event.getCurrentValue(), channel, RecordSerializerNetworkV37.INSTANCE);
@@ -79,10 +79,10 @@ public class LiveQueryPushRequest implements BinaryPushRequest {
       errorCode = ErrorCode.getErrorCode(network.readInt());
       errorMessage = network.readString();
     } else {
-      int eventSize = network.readInt();
+      var eventSize = network.readInt();
       events = new ArrayList<>(eventSize);
       while (eventSize-- > 0) {
-        byte type = network.readByte();
+        var type = network.readByte();
         Result currentValue = MessageHelper.readResult(db, network);
         Result oldValue = null;
         if (type == LiveQueryResult.UPDATE_EVENT) {

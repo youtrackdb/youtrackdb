@@ -47,18 +47,18 @@ public class StringSerializerAnyStreamable implements StringSerializer {
 
     SerializableStream instance = null;
 
-    int propertyPos = iStream.indexOf(':');
-    int pos = iStream.indexOf(StringSerializerEmbedded.SEPARATOR);
+    var propertyPos = iStream.indexOf(':');
+    var pos = iStream.indexOf(StringSerializerEmbedded.SEPARATOR);
     if (pos < 0 || propertyPos > -1 && pos > propertyPos) {
       instance = new EntityImpl(db);
       pos = -1;
     } else {
-      final String className = iStream.substring(0, pos);
+      final var className = iStream.substring(0, pos);
       try {
-        final Class<?> clazz = Class.forName(className);
+        final var clazz = Class.forName(className);
         instance = (SerializableStream) clazz.newInstance();
       } catch (Exception e) {
-        final String message = "Error on unmarshalling content. Class: " + className;
+        final var message = "Error on unmarshalling content. Class: " + className;
         LogManager.instance().error(this, message, e);
         throw BaseException.wrapException(new SerializationException(message), e);
       }

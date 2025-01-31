@@ -40,7 +40,7 @@ public class LuceneSpatialFunctionAsGeoJSONTest extends DbTestBase {
 
   protected void queryAndMatch(String wkt, String geoJson) {
 
-    ResultSet query =
+    var query =
         db.query(
             "SELECT ST_GeomFromText(:wkt) as wkt,ST_GeomFromGeoJSON(:geoJson) as geoJson;",
             new HashMap() {
@@ -49,7 +49,7 @@ public class LuceneSpatialFunctionAsGeoJSONTest extends DbTestBase {
                 put("wkt", wkt);
               }
             });
-    Result result = query.stream().findFirst().get();
+    var result = query.stream().findFirst().get();
     Result jsonGeom = result.getProperty("geoJson");
     Result wktGeom = result.getProperty("wkt");
     assertGeometry(wktGeom, jsonGeom);

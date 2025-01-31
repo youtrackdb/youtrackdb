@@ -139,7 +139,7 @@ public class SQLInstanceofCondition extends SQLBooleanExpression {
 
   @Override
   public SQLInstanceofCondition copy() {
-    SQLInstanceofCondition result = new SQLInstanceofCondition(-1);
+    var result = new SQLInstanceofCondition(-1);
     result.left = left.copy();
     result.right = right == null ? null : right.copy();
     result.rightString = rightString;
@@ -165,7 +165,7 @@ public class SQLInstanceofCondition extends SQLBooleanExpression {
       return false;
     }
 
-    SQLInstanceofCondition that = (SQLInstanceofCondition) o;
+    var that = (SQLInstanceofCondition) o;
 
     if (!Objects.equals(left, that.left)) {
       return false;
@@ -178,7 +178,7 @@ public class SQLInstanceofCondition extends SQLBooleanExpression {
 
   @Override
   public int hashCode() {
-    int result = left != null ? left.hashCode() : 0;
+    var result = left != null ? left.hashCode() : 0;
     result = 31 * result + (right != null ? right.hashCode() : 0);
     result = 31 * result + (rightString != null ? rightString.hashCode() : 0);
     return result;

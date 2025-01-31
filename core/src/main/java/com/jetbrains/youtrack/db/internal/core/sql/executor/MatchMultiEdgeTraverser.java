@@ -43,32 +43,32 @@ public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
     //      }
     //    }
 
-    SQLMultiMatchPathItem item = (SQLMultiMatchPathItem) this.item;
+    var item = (SQLMultiMatchPathItem) this.item;
     List<Result> result = new ArrayList<>();
 
     List<Object> nextStep = new ArrayList<>();
     nextStep.add(startingPoint);
 
     var db = iCommandContext.getDatabase();
-    Object oldCurrent = iCommandContext.getVariable("$current");
-    for (SQLMatchPathItem sub : item.getItems()) {
+    var oldCurrent = iCommandContext.getVariable("$current");
+    for (var sub : item.getItems()) {
       List<Result> rightSide = new ArrayList<>();
-      for (Object o : nextStep) {
-        SQLWhereClause whileCond =
+      for (var o : nextStep) {
+        var whileCond =
             sub.getFilter() == null ? null : sub.getFilter().getWhileCondition();
 
-        SQLMethodCall method = sub.getMethod();
+        var method = sub.getMethod();
         if (sub instanceof SQLMatchPathItemFirst) {
           method = ((SQLMatchPathItemFirst) sub).getFunction().toMethod();
         }
 
         if (whileCond != null) {
-          Object current = o;
+          var current = o;
           if (current instanceof Result) {
             current = ((Result) current).getEntity().orElse(null);
           }
-          MatchEdgeTraverser subtraverser = new MatchEdgeTraverser(null, sub);
-          ExecutionStream rightStream =
+          var subtraverser = new MatchEdgeTraverser(null, sub);
+          var rightStream =
               subtraverser.executeTraversal(iCommandContext, sub, (Identifiable) current, 0,
                   null);
           while (rightStream.hasNext(iCommandContext)) {
@@ -77,7 +77,7 @@ public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
 
         } else {
           iCommandContext.setVariable("$current", o);
-          Object nextSteps = method.execute(o, possibleResults, iCommandContext);
+          var nextSteps = method.execute(o, possibleResults, iCommandContext);
           if (nextSteps instanceof Collection) {
             ((Collection<?>) nextSteps)
                 .stream()
@@ -87,7 +87,7 @@ public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
                         matchesCondition(x, sub.getFilter(), iCommandContext))
                 .forEach(i -> rightSide.add(i));
           } else if (nextSteps instanceof Identifiable) {
-            ResultInternal res = new ResultInternal(db, (Identifiable) nextSteps);
+            var res = new ResultInternal(db, (Identifiable) nextSteps);
             if (matchesCondition(res, sub.getFilter(), iCommandContext)) {
               rightSide.add(res);
             }
@@ -96,15 +96,15 @@ public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
               rightSide.add((ResultInternal) nextSteps);
             }
           } else if (nextSteps instanceof Iterable) {
-            for (Object step : (Iterable) nextSteps) {
-              ResultInternal converted = toOResultInternal(db, step);
+            for (var step : (Iterable) nextSteps) {
+              var converted = toOResultInternal(db, step);
               if (matchesCondition(converted, sub.getFilter(), iCommandContext)) {
                 rightSide.add(converted);
               }
             }
           } else if (nextSteps instanceof Iterator iterator) {
             while (iterator.hasNext()) {
-              ResultInternal converted = toOResultInternal(db, iterator.next());
+              var converted = toOResultInternal(db, iterator.next());
               if (matchesCondition(converted, sub.getFilter(), iCommandContext)) {
                 rightSide.add(converted);
               }
@@ -126,7 +126,7 @@ public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
     if (filter == null) {
       return true;
     }
-    SQLWhereClause where = filter.getFilter();
+    var where = filter.getFilter();
     if (where == null) {
       return true;
     }

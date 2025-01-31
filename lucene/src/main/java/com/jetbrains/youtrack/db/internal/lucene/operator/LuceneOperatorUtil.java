@@ -40,14 +40,14 @@ public class LuceneOperatorUtil {
     if (iCondition.getLeft() instanceof Collection left) {
       IndexSearchResult lastResult = null;
 
-      int i = 0;
+      var i = 0;
       Object lastValue = null;
-      for (Object obj : left) {
+      for (var obj : left) {
         if (obj instanceof SQLFilterItemField item) {
 
           Object value = null;
           if (iCondition.getRight() instanceof Collection) {
-            List<Object> right = (List<Object>) iCondition.getRight();
+            var right = (List<Object>) iCondition.getRight();
             value = right.get(i);
           } else {
             value = iCondition.getRight();
@@ -64,7 +64,7 @@ public class LuceneOperatorUtil {
         } else if (obj instanceof SQLFilterItemVariable item) {
           Object value = null;
           if (iCondition.getRight() instanceof Collection) {
-            List<Object> right = (List<Object>) iCondition.getRight();
+            var right = (List<Object>) iCondition.getRight();
             value = right.get(i);
           } else {
             value = iCondition.getRight();
@@ -80,7 +80,7 @@ public class LuceneOperatorUtil {
       }
       return lastResult;
     } else {
-      IndexSearchResult result =
+      var result =
           LuceneOperatorUtil.createIndexedProperty(iCondition, iCondition.getLeft());
       if (result == null) {
         result = LuceneOperatorUtil.createIndexedProperty(iCondition, iCondition.getRight());
@@ -106,11 +106,11 @@ public class LuceneOperatorUtil {
     }
 
     if (result.lastField.isLong()) {
-      final int fieldCount = result.lastField.getItemCount();
-      SchemaClassInternal cls = (SchemaClassInternal) iSchemaClass.getProperty(
+      final var fieldCount = result.lastField.getItemCount();
+      var cls = (SchemaClassInternal) iSchemaClass.getProperty(
           result.lastField.getItemName(0)).getLinkedClass();
 
-      for (int i = 1; i < fieldCount; i++) {
+      for (var i = 1; i < fieldCount; i++) {
         if (cls == null || !cls.areIndexed(session, result.lastField.getItemName(i))) {
           return false;
         }
@@ -137,7 +137,7 @@ public class LuceneOperatorUtil {
       return null;
     }
 
-    final Object origValue =
+    final var origValue =
         iCondition.getLeft() == iItem ? iCondition.getRight() : iCondition.getLeft();
 
     if (iCondition.getOperator() instanceof QueryOperatorBetween
@@ -145,7 +145,7 @@ public class LuceneOperatorUtil {
       return new IndexSearchResult(iCondition.getOperator(), item.getFieldChain(), origValue);
     }
 
-    final Object value = SQLHelper.getValue(origValue);
+    final var value = SQLHelper.getValue(origValue);
 
     if (value == null) {
       return null;

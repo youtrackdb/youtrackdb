@@ -141,7 +141,7 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
       return null;
     }
 
-    final Object v = stringValue == null ? entity.rawField(name) : stringValue;
+    final var v = stringValue == null ? entity.rawField(name) : stringValue;
 
     if (!collatePreset) {
       SchemaClass schemaClass = EntityInternalUtils.getImmutableSchemaClass(entity);
@@ -166,10 +166,10 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
     }
 
     final EntityImpl rec = iRecord.getRecord(db);
-    PropertyEncryption encryption = EntityInternalUtils.getPropertyEncryption(rec);
-    BytesContainer serialized = new BytesContainer(rec.toStream());
-    byte version = serialized.bytes[serialized.offset++];
-    EntitySerializer serializer = RecordSerializerBinary.INSTANCE.getSerializer(version);
+    var encryption = EntityInternalUtils.getPropertyEncryption(rec);
+    var serialized = new BytesContainer(rec.toStream());
+    var version = serialized.bytes[serialized.offset++];
+    var serializer = RecordSerializerBinary.INSTANCE.getSerializer(version);
 
     // check for embedded objects, they have invalid ID and they are serialized with class name
     return serializer.deserializeField(
@@ -214,7 +214,7 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
       return true;
     }
 
-    for (Pair<SQLMethodRuntime, Object[]> pair : operationsChain) {
+    for (var pair : operationsChain) {
       if (!pair.getKey().getMethod().getName().equals(SQLMethodField.NAME)) {
         return false;
       }
@@ -260,11 +260,11 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
     if (!(object instanceof Identifiable)) {
       return null;
     }
-    FieldChain chain = getFieldChain();
+    var chain = getFieldChain();
     try {
       EntityImpl lastDoc = ((Identifiable) object).getRecord(db);
-      for (int i = 0; i < chain.getItemCount() - 1; i++) {
-        Object nextDoc = lastDoc.field(chain.getItemName(i));
+      for (var i = 0; i < chain.getItemCount() - 1; i++) {
+        var nextDoc = lastDoc.field(chain.getItemName(i));
         if (!(nextDoc instanceof Identifiable)) {
           return null;
         }
@@ -274,7 +274,7 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
       if (schemaClass == null) {
         return null;
       }
-      SchemaProperty property = schemaClass.getProperty(
+      var property = schemaClass.getProperty(
           chain.getItemName(chain.getItemCount() - 1));
       if (property == null) {
         return null;

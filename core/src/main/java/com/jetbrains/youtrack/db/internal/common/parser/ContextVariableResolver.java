@@ -53,7 +53,7 @@ public class ContextVariableResolver implements VariableParserListener {
       return null;
     }
 
-    final Object value = context.getVariable(variable);
+    final var value = context.getVariable(variable);
 
     if (value != null) {
       return value.toString();

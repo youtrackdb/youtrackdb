@@ -50,16 +50,16 @@ public class SQLFunctionMin extends SQLFunctionMathAbstract {
     // calculate min value for current record
     // consider both collection of parameters and collection in each parameter
     Object min = null;
-    for (Object item : iParams) {
+    for (var item : iParams) {
       if (item instanceof Collection<?>) {
-        for (Object subitem : ((Collection<?>) item)) {
+        for (var subitem : ((Collection<?>) item)) {
           if (min == null || subitem != null && ((Comparable) subitem).compareTo(min) < 0) {
             min = subitem;
           }
         }
       } else {
         if ((item instanceof Number) && (min instanceof Number)) {
-          Number[] converted = PropertyType.castComparableNumber((Number) item, (Number) min);
+          var converted = PropertyType.castComparableNumber((Number) item, (Number) min);
           item = converted[0];
           min = converted[1];
         }
@@ -78,7 +78,7 @@ public class SQLFunctionMin extends SQLFunctionMathAbstract {
         context = min;
       } else {
         if (context instanceof Number && min instanceof Number) {
-          final Number[] casted = PropertyType.castComparableNumber((Number) context, (Number) min);
+          final var casted = PropertyType.castComparableNumber((Number) context, (Number) min);
           context = casted[0];
           min = casted[1];
         }

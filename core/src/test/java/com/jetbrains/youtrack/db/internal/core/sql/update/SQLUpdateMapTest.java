@@ -19,11 +19,11 @@ public class SQLUpdateMapTest extends DbTestBase {
     db.command("create property vRecord.attrs EMBEDDEDMAP ").close();
 
     db.begin();
-    try (ResultSet rs = db.command("insert into vRecord (title) values('first record')")) {
+    try (var rs = db.command("insert into vRecord (title) values('first record')")) {
       ret = (EntityImpl) rs.next().getRecord().get();
     }
 
-    try (ResultSet rs = db.command("insert into vRecord (title) values('second record')")) {
+    try (var rs = db.command("insert into vRecord (title) values('second record')")) {
       ret1 = (EntityImpl) rs.next().getRecord().get();
     }
     db.commit();

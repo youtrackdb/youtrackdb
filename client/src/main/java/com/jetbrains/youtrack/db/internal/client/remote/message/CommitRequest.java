@@ -46,11 +46,11 @@ public final class CommitRequest implements BinaryRequest<CommitResponse> {
   @Override
   public void write(DatabaseSessionInternal database, ChannelDataOutput network,
       StorageRemoteSession session) throws IOException {
-    RecordSerializer serializer = database.getSerializer();
+    var serializer = database.getSerializer();
     network.writeLong(txId);
     network.writeBoolean(usingLong);
 
-    for (RecordOperationRequest txEntry : operations) {
+    for (var txEntry : operations) {
       network.writeByte((byte) 1);
       MessageHelper.writeTransactionEntry(network, txEntry, serializer);
     }
@@ -71,7 +71,7 @@ public final class CommitRequest implements BinaryRequest<CommitResponse> {
     do {
       hasEntry = channel.readByte();
       if (hasEntry == 1) {
-        RecordOperationRequest entry = MessageHelper.readTransactionEntry(channel, serializer);
+        var entry = MessageHelper.readTransactionEntry(channel, serializer);
         operations.add(entry);
       }
     } while (hasEntry == 1);

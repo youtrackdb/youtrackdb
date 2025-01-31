@@ -19,7 +19,7 @@ public class LuceneQueryParserTest extends LuceneBaseTest {
   @Before
   public void init() {
 
-    InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
+    var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
     db.execute("sql", getScriptFromStream(stream));
   }
 
@@ -32,7 +32,7 @@ public class LuceneQueryParserTest extends LuceneBaseTest {
             + " {\"allowLeadingWildcard\": true}");
 
     // querying with leading wildcard
-    ResultSet docs = db.query("select * from Song where search_class(\"(title:*tain)\") = true");
+    var docs = db.query("select * from Song where search_class(\"(title:*tain)\") = true");
 
     assertThat(docs).hasSize(4);
     docs.close();
@@ -47,7 +47,7 @@ public class LuceneQueryParserTest extends LuceneBaseTest {
             + KeywordAnalyzer.class.getCanonicalName()
             + "\", \"lowercaseExpandedTerms\": false}");
 
-    ResultSet docs = db.query("select * from Song where search_class('Hunter') =true");
+    var docs = db.query("select * from Song where search_class('Hunter') =true");
 
     assertThat(docs).hasSize(97);
     docs.close();
@@ -67,7 +67,7 @@ public class LuceneQueryParserTest extends LuceneBaseTest {
             + " {\"allowLeadingWildcard\": true}");
 
     // querying with leading wildcard
-    ResultSet docs = db.query("select * from Song where search_class ('title:*tain')=true");
+    var docs = db.query("select * from Song where search_class ('title:*tain')=true");
 
     assertThat(docs).hasSize(4);
     docs.close();
@@ -79,10 +79,10 @@ public class LuceneQueryParserTest extends LuceneBaseTest {
     db.command("create index Song.title_author on Song (title,author) FULLTEXT ENGINE LUCENE ");
 
     // querying with boost
-    ResultSet rs =
+    var rs =
         db.query(
             "select * from Song where search_class ('(title:forever)^2 OR author:Boudleaux')=true");
-    List<String> boostedDocs =
+    var boostedDocs =
         rs.stream().map(r -> r.<String>getProperty("title")).collect(Collectors.toList());
 
     assertThat(boostedDocs).hasSize(5);
@@ -101,7 +101,7 @@ public class LuceneQueryParserTest extends LuceneBaseTest {
     rs =
         db.query(
             "select * from Song where search_class ('(title:forever) OR author:Boudleaux')=true");
-    List<String> docs =
+    var docs =
         rs.stream().map(r -> r.<String>getProperty("title")).collect(Collectors.toList());
 
     assertThat(docs).hasSize(5);
@@ -122,11 +122,11 @@ public class LuceneQueryParserTest extends LuceneBaseTest {
     db.command("create index Song.title_author on Song (title,author) FULLTEXT ENGINE LUCENE ");
 
     // querying with boost
-    ResultSet rs =
+    var rs =
         db.query(
             "select * from Song where search_class ('title:forever OR author:Boudleaux' ,"
                 + " {'boost':{ 'title': 2  }  })=true");
-    List<String> boostedDocs =
+    var boostedDocs =
         rs.stream().map(r -> r.<String>getProperty("title")).collect(Collectors.toList());
 
     assertThat(boostedDocs).hasSize(5);
@@ -145,7 +145,7 @@ public class LuceneQueryParserTest extends LuceneBaseTest {
     rs =
         db.query(
             "select * from Song where search_class ('(title:forever) OR author:Boudleaux')=true");
-    List<String> docs =
+    var docs =
         rs.stream().map(r -> r.<String>getProperty("title")).collect(Collectors.toList());
 
     assertThat(docs).hasSize(5);
@@ -167,11 +167,11 @@ public class LuceneQueryParserTest extends LuceneBaseTest {
     db.command("create index Song.title_author on Song (title,author) FULLTEXT ENGINE LUCENE ");
 
     // querying with boost
-    ResultSet rs =
+    var rs =
         db.query(
             "select $score from Song where search_class ('title:forever OR author:Boudleaux' ,"
                 + " {'boost':{ 'title': 2  }  })=true order by $score desc");
-    List<Float> boostedDocs =
+    var boostedDocs =
         rs.stream().map(r -> r.<Float>getProperty("$score")).collect(Collectors.toList());
 
     assertThat(boostedDocs).hasSize(5);
@@ -182,7 +182,7 @@ public class LuceneQueryParserTest extends LuceneBaseTest {
         db.query(
             "select $score from Song where search_class ('(title:forever)^2 OR"
                 + " author:Boudleaux')=true order by $score desc");
-    List<Float> docs =
+    var docs =
         rs.stream().map(r -> r.<Float>getProperty("$score")).collect(Collectors.toList());
 
     assertThat(docs).hasSize(5);
@@ -201,7 +201,7 @@ public class LuceneQueryParserTest extends LuceneBaseTest {
     db.command("create index Song.title_author on Song (title,author) FULLTEXT ENGINE LUCENE ");
 
     // querying with boost
-    ResultSet resultSet =
+    var resultSet =
         db.query(
             "select * from Song where search_class ('title:forever OR author:boudleaux' , "
                 + "{'customAnalysis': true, "

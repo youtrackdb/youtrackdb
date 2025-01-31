@@ -58,7 +58,7 @@ public final class SBTreeNullBucketV1<V> extends DurablePage {
       return null;
     }
 
-    final boolean isLink = getByteValue(NEXT_FREE_POSITION + 1) == 0;
+    final var isLink = getByteValue(NEXT_FREE_POSITION + 1) == 0;
     assert !isLink;
 
     return new SBTreeValue<>(
@@ -74,7 +74,7 @@ public final class SBTreeNullBucketV1<V> extends DurablePage {
       return null;
     }
 
-    final boolean isLink = getByteValue(NEXT_FREE_POSITION + 1) == 0;
+    final var isLink = getByteValue(NEXT_FREE_POSITION + 1) == 0;
     assert !isLink;
 
     return getBinaryValue(

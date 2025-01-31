@@ -44,7 +44,7 @@ public class FetchFromRidsStep extends AbstractExecutionStep {
 
   @Override
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
+    var result = ExecutionStepInternal.basicSerialize(db, this);
     if (rids != null) {
       result.setProperty(
           "rids", rids.stream().map(RecordId::toString).collect(Collectors.toList()));

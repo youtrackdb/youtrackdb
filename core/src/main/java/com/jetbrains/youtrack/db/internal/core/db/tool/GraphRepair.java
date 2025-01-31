@@ -49,9 +49,9 @@ public class GraphRepair {
       final Map<String, List<String>> options) {
     message(outputListener, "Repair of graph '" + graph.getURL() + "' is started ...\n");
 
-    final long beginTime = System.currentTimeMillis();
+    final var beginTime = System.currentTimeMillis();
 
-    final RepairStats stats = new RepairStats();
+    final var stats = new RepairStats();
 
     // SCAN AND CLEAN ALL THE EDGES FIRST (IF ANY)
     repairEdges(graph, stats, outputListener, options, false);
@@ -81,9 +81,9 @@ public class GraphRepair {
       final Map<String, List<String>> options) {
     message(outputListener, "Check of graph '" + graph.getURL() + "' is started...\n");
 
-    final long beginTime = System.currentTimeMillis();
+    final var beginTime = System.currentTimeMillis();
 
-    final RepairStats stats = new RepairStats();
+    final var stats = new RepairStats();
 
     // SCAN AND CLEAN ALL THE EDGES FIRST (IF ANY)
     repairEdges(graph, stats, outputListener, options, true);
@@ -113,19 +113,19 @@ public class GraphRepair {
       final CommandOutputListener outputListener,
       final Map<String, List<String>> options,
       final boolean checkOnly) {
-    final DatabaseSessionInternal db = (DatabaseSessionInternal) graph;
+    final var db = (DatabaseSessionInternal) graph;
     db.executeInTx(
         () -> {
           final Metadata metadata = db.getMetadata();
           final Schema schema = metadata.getSchema();
 
-          final boolean useVertexFieldsForEdgeLabels = true; // db.isUseVertexFieldsForEdgeLabels();
+          final var useVertexFieldsForEdgeLabels = true; // db.isUseVertexFieldsForEdgeLabels();
 
-          final SchemaClass edgeClass = schema.getClass(SchemaClass.EDGE_CLASS_NAME);
+          final var edgeClass = schema.getClass(SchemaClass.EDGE_CLASS_NAME);
           if (edgeClass != null) {
-            final long countEdges = db.countClass(edgeClass.getName());
+            final var countEdges = db.countClass(edgeClass.getName());
 
-            long skipEdges = 0L;
+            var skipEdges = 0L;
             if (options != null && options.get("-skipEdges") != null) {
               skipEdges = Long.parseLong(options.get("-skipEdges").get(0));
             }
@@ -134,10 +134,10 @@ public class GraphRepair {
                 outputListener,
                 "Scanning " + countEdges + " edges (skipEdges=" + skipEdges + ")...\n");
 
-            long parsedEdges = 0L;
-            final long beginTime = System.currentTimeMillis();
+            var parsedEdges = 0L;
+            final var beginTime = System.currentTimeMillis();
 
-            for (EntityImpl edge : db.browseClass(edgeClass.getName())) {
+            for (var edge : db.browseClass(edgeClass.getName())) {
               if (!edge.isEdge()) {
                 continue;
               }
@@ -155,12 +155,12 @@ public class GraphRepair {
               }
 
               if (outputListener != null && stats.scannedEdges % 100000 == 0) {
-                long speedPerSecond =
+                var speedPerSecond =
                     (long) (parsedEdges / ((System.currentTimeMillis() - beginTime) / 1000.0));
                 if (speedPerSecond < 1) {
                   speedPerSecond = 1;
                 }
-                final long remaining = (countEdges - parsedEdges) / speedPerSecond;
+                final var remaining = (countEdges - parsedEdges) / speedPerSecond;
 
                 message(
                     outputListener,
@@ -173,9 +173,9 @@ public class GraphRepair {
                         + " secs)\n");
               }
 
-              boolean outVertexMissing = false;
+              var outVertexMissing = false;
 
-              String removalReason = "";
+              var removalReason = "";
 
               final Identifiable out = edge.asEdge().get().getFrom();
               if (out == null) {
@@ -191,11 +191,11 @@ public class GraphRepair {
                 if (outVertex == null) {
                   outVertexMissing = true;
                 } else {
-                  final String outFieldName =
+                  final var outFieldName =
                       VertexInternal.getEdgeLinkFieldName(
                           Direction.OUT, edge.getClassName(), useVertexFieldsForEdgeLabels);
 
-                  final Object outEdges = outVertex.field(outFieldName);
+                  final var outEdges = outVertex.field(outFieldName);
                   if (outEdges == null) {
                     outVertexMissing = true;
                   } else if (outEdges instanceof RidBag) {
@@ -218,7 +218,7 @@ public class GraphRepair {
                 removalReason = "outgoing vertex (" + out + ") does not contain the edge";
               }
 
-              boolean inVertexMissing = false;
+              var inVertexMissing = false;
 
               final Identifiable in = edge.asEdge().get().getTo();
               if (in == null) {
@@ -235,11 +235,11 @@ public class GraphRepair {
                 if (inVertex == null) {
                   inVertexMissing = true;
                 } else {
-                  final String inFieldName =
+                  final var inFieldName =
                       VertexInternal.getEdgeLinkFieldName(
                           Direction.IN, edge.getClassName(), useVertexFieldsForEdgeLabels);
 
-                  final Object inEdges = inVertex.field(inFieldName);
+                  final var inEdges = inVertex.field(inFieldName);
                   if (inEdges == null) {
                     inVertexMissing = true;
                   } else if (inEdges instanceof RidBag) {
@@ -302,45 +302,45 @@ public class GraphRepair {
       final CommandOutputListener outputListener,
       final Map<String, List<String>> options,
       final boolean checkOnly) {
-    final DatabaseSessionInternal db = (DatabaseSessionInternal) graph;
+    final var db = (DatabaseSessionInternal) graph;
     final Metadata metadata = db.getMetadata();
     final Schema schema = metadata.getSchema();
 
-    final SchemaClass vertexClass = schema.getClass(SchemaClass.VERTEX_CLASS_NAME);
+    final var vertexClass = schema.getClass(SchemaClass.VERTEX_CLASS_NAME);
     if (vertexClass != null) {
-      final long countVertices = db.countClass(vertexClass.getName());
+      final var countVertices = db.countClass(vertexClass.getName());
       graph.executeInTx(
           () -> {
-            long skipVertices = 0L;
+            var skipVertices = 0L;
             if (options != null && options.get("-skipVertices") != null) {
               skipVertices = Long.parseLong(options.get("-skipVertices").get(0));
             }
 
             message(outputListener, "Scanning " + countVertices + " vertices...\n");
 
-            long[] parsedVertices = new long[]{0L};
-            final long beginTime = System.currentTimeMillis();
+            var parsedVertices = new long[]{0L};
+            final var beginTime = System.currentTimeMillis();
 
-            for (EntityImpl vertex : db.browseClass(vertexClass.getName())) {
+            for (var vertex : db.browseClass(vertexClass.getName())) {
               parsedVertices[0]++;
               if (skipVertices > 0 && parsedVertices[0] <= skipVertices) {
                 continue;
               }
 
-              boolean vertexCorrupted = false;
+              var vertexCorrupted = false;
               stats.scannedVertices++;
               if (eventListener != null) {
                 eventListener.onScannedVertex(vertex);
               }
 
               if (outputListener != null && stats.scannedVertices % 100000 == 0) {
-                long speedPerSecond =
+                var speedPerSecond =
                     (long)
                         (parsedVertices[0] / ((System.currentTimeMillis() - beginTime) / 1000.0));
                 if (speedPerSecond < 1) {
                   speedPerSecond = 1;
                 }
-                final long remaining = (countVertices - parsedVertices[0]) / speedPerSecond;
+                final var remaining = (countVertices - parsedVertices[0]) / speedPerSecond;
 
                 message(
                     outputListener,
@@ -353,20 +353,20 @@ public class GraphRepair {
                         + " secs)\n");
               }
 
-              final Vertex v = vertex.asVertex().orElse(null);
+              final var v = vertex.asVertex().orElse(null);
               if (v == null) {
                 return;
               }
 
-              for (String fieldName : vertex.fieldNames()) {
-                final Pair<Direction, String> connection =
+              for (var fieldName : vertex.fieldNames()) {
+                final var connection =
                     VertexInternal.getConnection(
                         db.getMetadata().getSchema(), Direction.BOTH, fieldName);
                 if (connection == null) {
                   continue;
                 }
 
-                final Object fieldValue = vertex.rawField(fieldName);
+                final var fieldValue = vertex.rawField(fieldName);
                 if (fieldValue != null) {
                   if (fieldValue instanceof Identifiable) {
 
@@ -392,8 +392,8 @@ public class GraphRepair {
 
                   } else if (fieldValue instanceof Collection<?> coll) {
 
-                    for (Iterator<?> it = coll.iterator(); it.hasNext(); ) {
-                      final Object o = it.next();
+                    for (var it = coll.iterator(); it.hasNext(); ) {
+                      final var o = it.next();
 
                       if (isEdgeBroken(db,
                           vertex, fieldName, connection.getKey(), (Identifiable) o,
@@ -424,7 +424,7 @@ public class GraphRepair {
                       vertex.setDirty();
                     }
                     for (Iterator<?> it = ridbag.iterator(); it.hasNext(); ) {
-                      final Object o = it.next();
+                      final var o = it.next();
                       if (isEdgeBroken(db,
                           vertex, fieldName, connection.getKey(), (Identifiable) o,
                           stats, true)) {
@@ -505,7 +505,7 @@ public class GraphRepair {
       final boolean useVertexFieldsForEdgeLabels) {
     onScannedLink(stats, edgeRID);
 
-    boolean broken = false;
+    var broken = false;
 
     if (edgeRID == null)
     // RID NULL
@@ -524,7 +524,7 @@ public class GraphRepair {
       {
         broken = true;
       } else {
-        final SchemaImmutableClass immutableClass = EntityInternalUtils.getImmutableSchemaClass(
+        final var immutableClass = EntityInternalUtils.getImmutableSchemaClass(
             record);
         if (immutableClass == null
             || (!immutableClass.isVertexType() && !immutableClass.isEdgeType()))
@@ -534,11 +534,11 @@ public class GraphRepair {
         } else {
           if (immutableClass.isVertexType()) {
             // VERTEX -> LIGHTWEIGHT EDGE
-            final String inverseFieldName =
+            final var inverseFieldName =
                 getInverseConnectionFieldName(fieldName, useVertexFieldsForEdgeLabels);
 
             // CHECK THE VERTEX IS IN INVERSE EDGE CONTAINS
-            final Object inverseEdgeContainer = record.field(inverseFieldName);
+            final var inverseEdgeContainer = record.field(inverseFieldName);
             if (inverseEdgeContainer == null)
             // NULL CONTAINER
             {
@@ -568,7 +568,7 @@ public class GraphRepair {
             }
           } else {
             // EDGE -> REGULAR EDGE, OK
-            Edge edge = record.asEdge().orElse(null);
+            var edge = record.asEdge().orElse(null);
             if (edge != null) {
               final Identifiable backRID = edge.getVertex(direction);
               if (backRID == null || !backRID.equals(vertex))

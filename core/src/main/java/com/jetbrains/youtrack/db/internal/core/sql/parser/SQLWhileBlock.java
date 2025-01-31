@@ -39,14 +39,14 @@ public class SQLWhileBlock extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
     ctx.setDatabase(db);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
-      for (int i = 0; i < args.length; i++) {
+      for (var i = 0; i < args.length; i++) {
         params.put(i, args[i]);
       }
     }
@@ -67,7 +67,7 @@ public class SQLWhileBlock extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Map<Object, Object> params, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -86,21 +86,21 @@ public class SQLWhileBlock extends SQLStatement {
   }
 
   public UpdateExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    ForEachExecutionPlan plan = new ForEachExecutionPlan(ctx);
+    var plan = new ForEachExecutionPlan(ctx);
     plan.chain(new WhileStep(condition, statements, ctx, enableProfiling));
     return plan;
   }
 
   @Override
   public SQLStatement copy() {
-    SQLWhileBlock result = new SQLWhileBlock(-1);
+    var result = new SQLWhileBlock(-1);
     result.condition = condition.copy();
     result.statements = statements.stream().map(x -> x.copy()).collect(Collectors.toList());
     return result;
   }
 
   public boolean containsReturn() {
-    for (SQLStatement stm : this.statements) {
+    for (var stm : this.statements) {
       if (stm instanceof SQLReturnStatement) {
         return true;
       }
@@ -126,7 +126,7 @@ public class SQLWhileBlock extends SQLStatement {
       return false;
     }
 
-    SQLWhileBlock that = (SQLWhileBlock) o;
+    var that = (SQLWhileBlock) o;
 
     if (!Objects.equals(condition, that.condition)) {
       return false;
@@ -136,7 +136,7 @@ public class SQLWhileBlock extends SQLStatement {
 
   @Override
   public int hashCode() {
-    int result = condition != null ? condition.hashCode() : 0;
+    var result = condition != null ? condition.hashCode() : 0;
     result = 31 * result + (statements != null ? statements.hashCode() : 0);
     return result;
   }
@@ -145,7 +145,7 @@ public class SQLWhileBlock extends SQLStatement {
     builder.append("WHILE (");
     condition.toString(params, builder);
     builder.append(") {\n");
-    for (SQLStatement stm : statements) {
+    for (var stm : statements) {
       stm.toString(params, builder);
       builder.append("\n");
     }
@@ -156,7 +156,7 @@ public class SQLWhileBlock extends SQLStatement {
     builder.append("WHILE (");
     condition.toGenericStatement(builder);
     builder.append(") {\n");
-    for (SQLStatement stm : statements) {
+    for (var stm : statements) {
       stm.toGenericStatement(builder);
       builder.append("\n");
     }

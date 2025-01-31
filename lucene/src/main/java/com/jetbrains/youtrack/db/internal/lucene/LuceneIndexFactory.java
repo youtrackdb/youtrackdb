@@ -86,9 +86,9 @@ public class LuceneIndexFactory implements IndexFactory, DatabaseLifecycleListen
   @Override
   public IndexInternal createIndex(Storage storage, IndexMetadata im)
       throws ConfigurationException {
-    Map<String, ?> metadata = im.getMetadata();
-    final String indexType = im.getType();
-    final String algorithm = im.getAlgorithm();
+    var metadata = im.getMetadata();
+    final var indexType = im.getType();
+    final var algorithm = im.getAlgorithm();
 
     if (metadata == null || !metadata.containsKey("analyzer")) {
       HashMap<String, Object> met;
@@ -143,7 +143,7 @@ public class LuceneIndexFactory implements IndexFactory, DatabaseLifecycleListen
 
       LogManager.instance().debug(this, "Dropping Lucene indexes...");
 
-      final DatabaseSessionInternal internal = db;
+      final var internal = db;
       internal.getMetadata().getIndexManagerInternal().getIndexes(internal).stream()
           .filter(idx -> idx.getInternal() instanceof LuceneFullTextIndex)
           .peek(idx -> LogManager.instance().debug(this, "deleting index " + idx.getName()))

@@ -32,8 +32,8 @@ public class SQLArraySingleValuesSelector extends SimpleNode {
   }
 
   public void toString(Map<Object, Object> params, StringBuilder builder) {
-    boolean first = true;
-    for (SQLArraySelector item : items) {
+    var first = true;
+    for (var item : items) {
       if (!first) {
         builder.append(",");
       }
@@ -44,8 +44,8 @@ public class SQLArraySingleValuesSelector extends SimpleNode {
 
   @Override
   public void toGenericStatement(StringBuilder builder) {
-    boolean first = true;
-    for (SQLArraySelector item : items) {
+    var first = true;
+    for (var item : items) {
       if (!first) {
         builder.append(",");
       }
@@ -56,8 +56,8 @@ public class SQLArraySingleValuesSelector extends SimpleNode {
 
   public Object execute(Identifiable iCurrentRecord, Object iResult, CommandContext ctx) {
     List<Object> result = new ArrayList<Object>();
-    for (SQLArraySelector item : items) {
-      Object index = item.getValue(iCurrentRecord, iResult, ctx);
+    for (var item : items) {
+      var index = item.getValue(iCurrentRecord, iResult, ctx);
       if (index == null) {
         return null;
       }
@@ -70,7 +70,7 @@ public class SQLArraySingleValuesSelector extends SimpleNode {
         } else if (iResult instanceof Entity && index instanceof String) {
           result.add(((Entity) iResult).getProperty((String) index));
         } else if (MultiValue.isMultiValue(iResult)) {
-          Iterator<?> iter = MultiValue.getMultiValueIterator(iResult);
+          var iter = MultiValue.getMultiValueIterator(iResult);
           while (iter.hasNext()) {
             result.add(calculateValue(iter.next(), index));
           }
@@ -88,8 +88,8 @@ public class SQLArraySingleValuesSelector extends SimpleNode {
 
   public Object execute(Result iCurrentRecord, Object iResult, CommandContext ctx) {
     List<Object> result = new ArrayList<Object>();
-    for (SQLArraySelector item : items) {
-      Object index = item.getValue(iCurrentRecord, iResult, ctx);
+    for (var item : items) {
+      var index = item.getValue(iCurrentRecord, iResult, ctx);
       if (index == null) {
         return null;
       }
@@ -102,7 +102,7 @@ public class SQLArraySingleValuesSelector extends SimpleNode {
         } else if (iResult instanceof Entity && index instanceof String) {
           result.add(((Entity) iResult).getProperty((String) index));
         } else if (MultiValue.isMultiValue(iResult)) {
-          Iterator<?> iter = MultiValue.getMultiValueIterator(iResult);
+          var iter = MultiValue.getMultiValueIterator(iResult);
           while (iter.hasNext()) {
             result.add(calculateValue(iter.next(), index));
           }
@@ -126,7 +126,7 @@ public class SQLArraySingleValuesSelector extends SimpleNode {
     } else if (item instanceof Entity && index instanceof String) {
       return ((Entity) item).getProperty((String) index);
     } else if (MultiValue.isMultiValue(item)) {
-      Iterator<?> iter = MultiValue.getMultiValueIterator(item);
+      var iter = MultiValue.getMultiValueIterator(item);
       List<Object> result = new ArrayList<>();
       while (iter.hasNext()) {
         result.add(calculateValue(iter.next(), index));
@@ -138,7 +138,7 @@ public class SQLArraySingleValuesSelector extends SimpleNode {
   }
 
   public boolean needsAliases(Set<String> aliases) {
-    for (SQLArraySelector item : items) {
+    for (var item : items) {
       if (item.needsAliases(aliases)) {
         return true;
       }
@@ -147,7 +147,7 @@ public class SQLArraySingleValuesSelector extends SimpleNode {
   }
 
   public SQLArraySingleValuesSelector copy() {
-    SQLArraySingleValuesSelector result = new SQLArraySingleValuesSelector(-1);
+    var result = new SQLArraySingleValuesSelector(-1);
     result.items = items.stream().map(x -> x.copy()).collect(Collectors.toList());
     return result;
   }
@@ -161,7 +161,7 @@ public class SQLArraySingleValuesSelector extends SimpleNode {
       return false;
     }
 
-    SQLArraySingleValuesSelector that = (SQLArraySingleValuesSelector) o;
+    var that = (SQLArraySingleValuesSelector) o;
 
     return Objects.equals(items, that.items);
   }
@@ -173,7 +173,7 @@ public class SQLArraySingleValuesSelector extends SimpleNode {
 
   public void extractSubQueries(SubQueryCollector collector) {
     if (items != null) {
-      for (SQLArraySelector item : items) {
+      for (var item : items) {
         item.extractSubQueries(collector);
       }
     }
@@ -181,7 +181,7 @@ public class SQLArraySingleValuesSelector extends SimpleNode {
 
   public boolean refersToParent() {
     if (items != null) {
-      for (SQLArraySelector item : items) {
+      for (var item : items) {
         if (item.refersToParent()) {
           return true;
         }
@@ -192,7 +192,7 @@ public class SQLArraySingleValuesSelector extends SimpleNode {
 
   public void setValue(Result currentRecord, Object target, Object value, CommandContext ctx) {
     if (items != null) {
-      for (SQLArraySelector item : items) {
+      for (var item : items) {
         item.setValue(currentRecord, target, value, ctx);
       }
     }
@@ -210,7 +210,7 @@ public class SQLArraySingleValuesSelector extends SimpleNode {
     if (currentValue instanceof List) {
       List<Object> list = (List) currentValue;
       Collections.sort(values, this::compareKeysForRemoval);
-      for (Object val : values) {
+      for (var val : values) {
         if (val instanceof Integer) {
           list.remove((int) (Integer) val);
         } else {
@@ -218,20 +218,20 @@ public class SQLArraySingleValuesSelector extends SimpleNode {
         }
       }
     } else if (currentValue instanceof Set set) {
-      Iterator iterator = set.iterator();
-      int count = 0;
+      var iterator = set.iterator();
+      var count = 0;
       while (iterator.hasNext()) {
-        Object item = iterator.next();
+        var item = iterator.next();
         if (values.contains(count) || values.contains(item)) {
           iterator.remove();
         }
       }
     } else if (currentValue instanceof Map) {
-      for (Object val : values) {
+      for (var val : values) {
         ((Map) currentValue).remove(val);
       }
     } else if (currentValue instanceof Entity) {
-      for (Object val : values) {
+      for (var val : values) {
         ((Entity) currentValue).removeProperty("" + val);
       }
     } else {
@@ -259,7 +259,7 @@ public class SQLArraySingleValuesSelector extends SimpleNode {
   }
 
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     if (items != null) {
       result.setProperty(
           "items", items.stream().map(x -> x.serialize(db)).collect(Collectors.toList()));
@@ -272,8 +272,8 @@ public class SQLArraySingleValuesSelector extends SimpleNode {
     if (fromResult.getProperty("items") != null) {
       List<Result> ser = fromResult.getProperty("items");
       items = new ArrayList<>();
-      for (Result r : ser) {
-        SQLArraySelector exp = new SQLArraySelector(-1);
+      for (var r : ser) {
+        var exp = new SQLArraySelector(-1);
         exp.deserialize(r);
         items.add(exp);
       }

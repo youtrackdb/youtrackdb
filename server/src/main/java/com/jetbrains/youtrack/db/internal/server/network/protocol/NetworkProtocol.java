@@ -52,7 +52,7 @@ public abstract class NetworkProtocol extends SoftThread {
   public abstract SocketChannel getChannel();
 
   public String getListeningAddress() {
-    final SocketChannel c = getChannel();
+    final var c = getChannel();
     if (c != null) {
       return c.socket.getLocalAddress().getHostAddress();
     }

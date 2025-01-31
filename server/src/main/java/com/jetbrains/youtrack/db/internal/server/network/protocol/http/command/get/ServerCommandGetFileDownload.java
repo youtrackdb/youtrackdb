@@ -40,13 +40,13 @@ public class ServerCommandGetFileDownload extends ServerCommandAuthenticatedDbAb
 
   @Override
   public boolean execute(HttpRequest iRequest, HttpResponse iResponse) throws Exception {
-    String[] urlParts =
+    var urlParts =
         checkSyntax(
             iRequest.getUrl(),
             3,
             "Syntax error: fileDownload/<database>/rid/[/<fileName>][/<fileType>].");
 
-    final String fileName = urlParts.length > 3 ? encodeResponseText(urlParts[3]) : "unknown";
+    final var fileName = urlParts.length > 3 ? encodeResponseText(urlParts[3]) : "unknown";
 
     final String fileType;
     if (urlParts.length > 5) {
@@ -55,7 +55,7 @@ public class ServerCommandGetFileDownload extends ServerCommandAuthenticatedDbAb
       fileType = (urlParts.length > 4 ? encodeResponseText(urlParts[4]) : "");
     }
 
-    final String rid = urlParts[2];
+    final var rid = urlParts[2];
 
     iRequest.getData().commandInfo = "Download";
     iRequest.getData().commandDetail = rid;
@@ -74,7 +74,7 @@ public class ServerCommandGetFileDownload extends ServerCommandAuthenticatedDbAb
               (Blob) response,
               fileName);
         } else if (response instanceof EntityImpl) {
-          for (SchemaProperty prop :
+          for (var prop :
               EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) response)).properties(db)) {
             if (prop.getType().equals(PropertyType.BINARY)) {
               sendBinaryFieldFileContent(

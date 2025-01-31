@@ -76,12 +76,12 @@ public class CommandScript extends CommandRequestTextAbstract {
   public CommandRequestText fromStream(DatabaseSessionInternal db, byte[] iStream,
       RecordSerializerNetwork serializer)
       throws SerializationException {
-    final MemoryStream buffer = new MemoryStream(iStream);
+    final var buffer = new MemoryStream(iStream);
     language = buffer.getAsString();
 
     // FIX TO HANDLE USAGE OF EXECUTION MODE STARTING FROM v2.1.3
-    final int currPosition = buffer.getPosition();
-    final String value = buffer.getAsString();
+    final var currPosition = buffer.getPosition();
+    final var value = buffer.getAsString();
     try {
       executionMode = CommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE.valueOf(value);
     } catch (IllegalArgumentException ignore) {
@@ -95,7 +95,7 @@ public class CommandScript extends CommandRequestTextAbstract {
 
   public byte[] toStream(DatabaseSessionInternal db, RecordSerializerNetwork serializer)
       throws SerializationException {
-    final MemoryStream buffer = new MemoryStream();
+    final var buffer = new MemoryStream();
     buffer.setUtf8(language);
     buffer.setUtf8(executionMode.name());
     return toStream(buffer);

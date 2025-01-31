@@ -50,30 +50,30 @@ public class ServerCommandPostCommand extends ServerCommandAuthenticatedDbAbstra
 
   @Override
   public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
-    final String[] urlParts =
+    final var urlParts =
         checkSyntax(
             iRequest.getUrl(),
             3,
             "Syntax error: command/<database>/<language>/<command-text>[/limit][/<fetchPlan>]");
 
     // TRY TO GET THE COMMAND FROM THE URL, THEN FROM THE CONTENT
-    final String language = urlParts.length > 2 ? urlParts[2].trim() : "sql";
-    String text = urlParts.length > 3 ? urlParts[3].trim() : iRequest.getContent();
-    int limit = urlParts.length > 4 ? Integer.parseInt(urlParts[4].trim()) : -1;
-    String fetchPlan = urlParts.length > 5 ? urlParts[5] : null;
-    final String accept = iRequest.getHeader("accept");
+    final var language = urlParts.length > 2 ? urlParts[2].trim() : "sql";
+    var text = urlParts.length > 3 ? urlParts[3].trim() : iRequest.getContent();
+    var limit = urlParts.length > 4 ? Integer.parseInt(urlParts[4].trim()) : -1;
+    var fetchPlan = urlParts.length > 5 ? urlParts[5] : null;
+    final var accept = iRequest.getHeader("accept");
 
     Object params = null;
-    String mode = "resultset";
+    var mode = "resultset";
 
-    boolean returnExecutionPlan = true;
+    var returnExecutionPlan = true;
 
-    long begin = System.currentTimeMillis();
+    var begin = System.currentTimeMillis();
     if (iRequest.getContent() != null && !iRequest.getContent().isEmpty()) {
       // CONTENT REPLACES TEXT
       if (iRequest.getContent().startsWith("{")) {
         // JSON PAYLOAD
-        final EntityImpl entity = new EntityImpl(null);
+        final var entity = new EntityImpl(null);
         entity.updateFromJSON(iRequest.getContent());
         text = entity.field("command");
         params = entity.field("parameters");
@@ -86,7 +86,7 @@ public class ServerCommandPostCommand extends ServerCommandAuthenticatedDbAbstra
         }
 
         if (params instanceof Collection) {
-          final Object[] paramArray = new Object[((Collection) params).size()];
+          final var paramArray = new Object[((Collection) params).size()];
           ((Collection) params).toArray(paramArray);
           params = paramArray;
         }
@@ -108,25 +108,25 @@ public class ServerCommandPostCommand extends ServerCommandAuthenticatedDbAbstra
 
     DatabaseSessionInternal db = null;
 
-    boolean ok = false;
-    boolean txBegun = false;
+    var ok = false;
+    var txBegun = false;
     try {
       db = getProfiledDatabaseInstance(iRequest);
       db.resetRecordLoadStats();
-      SQLStatement stm = parseStatement(language, text, db);
+      var stm = parseStatement(language, text, db);
 
       if (stm != null && !(stm instanceof DDLStatement)) {
         db.begin();
         txBegun = true;
       }
 
-      ResultSet result = executeStatement(language, text, params, db);
+      var result = executeStatement(language, text, params, db);
       limit = getLimitFromStatement(stm, limit);
-      String localFetchPlan = getFetchPlanFromStatement(stm);
+      var localFetchPlan = getFetchPlanFromStatement(stm);
       if (localFetchPlan != null) {
         fetchPlan = localFetchPlan;
       }
-      int i = 0;
+      var i = 0;
       List response = new ArrayList();
       TimerTask commandInterruptTimer = null;
       if (db.getConfiguration().getValueAsLong(GlobalConfiguration.COMMAND_TIMEOUT) > 0
@@ -154,7 +154,7 @@ public class ServerCommandPostCommand extends ServerCommandAuthenticatedDbAbstra
       }
 
       result.close();
-      long elapsedMs = System.currentTimeMillis() - begin;
+      var elapsedMs = System.currentTimeMillis() - begin;
 
       String format = null;
       if (fetchPlan != null) {
@@ -166,7 +166,7 @@ public class ServerCommandPostCommand extends ServerCommandAuthenticatedDbAbstra
       }
 
       additionalContent.put("elapsedMs", elapsedMs);
-      DatabaseStats dbStats = db.getStats();
+      var dbStats = db.getStats();
       additionalContent.put("dbStats", dbStats.toResult(db).toMap());
 
       iResponse.writeResult(response, format, accept, additionalContent, mode, db);
@@ -191,7 +191,7 @@ public class ServerCommandPostCommand extends ServerCommandAuthenticatedDbAbstra
 
   public static String getFetchPlanFromStatement(SQLStatement statement) {
     if (statement instanceof SQLSelectStatement) {
-      SQLFetchPlan fp = ((SQLSelectStatement) statement).getFetchPlan();
+      var fp = ((SQLSelectStatement) statement).getFetchPlan();
       if (fp != null) {
         return fp.toString().substring("FETCHPLAN ".length());
       }

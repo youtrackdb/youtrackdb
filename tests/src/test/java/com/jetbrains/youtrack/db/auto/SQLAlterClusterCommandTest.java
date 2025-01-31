@@ -29,7 +29,7 @@ public class SQLAlterClusterCommandTest extends BaseDBTest {
 
   @Test
   public void testCreateCluster() {
-    int expectedClusters = db.getClusters();
+    var expectedClusters = db.getClusters();
     try {
       db.command("create cluster europe");
       Assert.assertEquals(db.getClusters(), expectedClusters + 1);
@@ -45,7 +45,7 @@ public class SQLAlterClusterCommandTest extends BaseDBTest {
       db.command("create cluster europe");
       db.command("ALTER CLUSTER europe NAME \"my_orient\"");
 
-      int clusterId = db.getClusterIdByName("my_orient");
+      var clusterId = db.getClusterIdByName("my_orient");
       Assert.assertEquals(clusterId, 18);
     } finally {
       db.command("drop cluster my_orient");

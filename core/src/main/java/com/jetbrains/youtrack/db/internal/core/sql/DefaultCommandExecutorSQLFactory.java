@@ -194,7 +194,7 @@ public class DefaultCommandExecutorSQLFactory implements CommandExecutorSQLFacto
    * {@inheritDoc}
    */
   public CommandExecutor createCommand(final String name) throws CommandExecutionException {
-    final Class<? extends CommandExecutor> clazz = COMMANDS.get(name);
+    final var clazz = COMMANDS.get(name);
 
     if (clazz == null) {
       throw new CommandExecutionException("Unknowned command name :" + name);

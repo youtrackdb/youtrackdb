@@ -37,7 +37,7 @@ public class IndexTxAwareOneValueGetValuesTest extends BaseDBTest {
     super.beforeClass();
 
     final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass cls = schema.createClass(CLASS_NAME);
+    final var cls = schema.createClass(CLASS_NAME);
     cls.createProperty(db, FIELD_NAME, PropertyType.INTEGER);
     cls.createIndex(db, INDEX_NAME, SchemaClass.INDEX_TYPE.UNIQUE, FIELD_NAME);
   }
@@ -58,7 +58,7 @@ public class IndexTxAwareOneValueGetValuesTest extends BaseDBTest {
     }
 
     db.begin();
-    final Index index =
+    final var index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX_NAME);
 
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1).save();
@@ -68,7 +68,7 @@ public class IndexTxAwareOneValueGetValuesTest extends BaseDBTest {
     Assert.assertNull(db.getTransaction().getIndexChanges(INDEX_NAME));
 
     Set<Identifiable> resultOne = new HashSet<>();
-    Stream<RawPair<Object, RID>> stream =
+    var stream =
         index.getInternal().streamEntries(db, Arrays.asList(1, 2), true);
     streamToSet(stream, resultOne);
     Assert.assertEquals(resultOne.size(), 2);
@@ -100,7 +100,7 @@ public class IndexTxAwareOneValueGetValuesTest extends BaseDBTest {
     }
 
     db.begin();
-    final Index index =
+    final var index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX_NAME);
 
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1).save();
@@ -109,7 +109,7 @@ public class IndexTxAwareOneValueGetValuesTest extends BaseDBTest {
     db.commit();
 
     Assert.assertNull(db.getTransaction().getIndexChanges(INDEX_NAME));
-    Stream<RawPair<Object, RID>> stream =
+    var stream =
         index.getInternal().streamEntries(db, Arrays.asList(1, 2), true);
     Set<Identifiable> resultOne = new HashSet<>();
     streamToSet(stream, resultOne);
@@ -117,7 +117,7 @@ public class IndexTxAwareOneValueGetValuesTest extends BaseDBTest {
 
     db.begin();
 
-    try (Stream<RID> rids = index.getInternal().getRids(db, 1)) {
+    try (var rids = index.getInternal().getRids(db, 1)) {
       rids.map(rid -> rid.getRecord(db)).forEach(record -> ((EntityImpl) record).delete());
     }
 
@@ -143,7 +143,7 @@ public class IndexTxAwareOneValueGetValuesTest extends BaseDBTest {
     }
 
     db.begin();
-    final Index index =
+    final var index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX_NAME);
 
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1).save();
@@ -153,14 +153,14 @@ public class IndexTxAwareOneValueGetValuesTest extends BaseDBTest {
 
     Assert.assertNull(db.getTransaction().getIndexChanges(INDEX_NAME));
     Set<Identifiable> resultOne = new HashSet<>();
-    Stream<RawPair<Object, RID>> stream =
+    var stream =
         index.getInternal().streamEntries(db, Arrays.asList(1, 2), true);
     streamToSet(stream, resultOne);
     Assert.assertEquals(resultOne.size(), 2);
 
     db.begin();
 
-    try (Stream<RID> ridStream = index.getInternal().getRids(db, 1)) {
+    try (var ridStream = index.getInternal().getRids(db, 1)) {
       ridStream.map(rid -> rid.getRecord(db)).forEach(record -> ((EntityImpl) record).delete());
     }
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1).save();
@@ -182,10 +182,10 @@ public class IndexTxAwareOneValueGetValuesTest extends BaseDBTest {
 
     db.begin();
 
-    final Index index =
+    final var index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX_NAME);
 
-    final EntityImpl document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
+    final var document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
     document.save();
     document.field(FIELD_NAME, 0);
     document.field(FIELD_NAME, 1);
@@ -195,7 +195,7 @@ public class IndexTxAwareOneValueGetValuesTest extends BaseDBTest {
 
     Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX_NAME));
     Set<Identifiable> result = new HashSet<>();
-    Stream<RawPair<Object, RID>> stream =
+    var stream =
         index.getInternal().streamEntries(db, Arrays.asList(1, 2), true);
     streamToSet(stream, result);
 
@@ -216,7 +216,7 @@ public class IndexTxAwareOneValueGetValuesTest extends BaseDBTest {
 
     db.begin();
 
-    final Index index =
+    final var index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX_NAME);
 
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1).save();
@@ -225,7 +225,7 @@ public class IndexTxAwareOneValueGetValuesTest extends BaseDBTest {
     Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX_NAME));
 
     Set<Identifiable> result = new HashSet<>();
-    Stream<RawPair<Object, RID>> stream =
+    var stream =
         index.getInternal().streamEntries(db, Arrays.asList(1, 2), true);
     streamToSet(stream, result);
 
@@ -250,19 +250,19 @@ public class IndexTxAwareOneValueGetValuesTest extends BaseDBTest {
 
     db.begin();
 
-    final Index index =
+    final var index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX_NAME);
 
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1).save();
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 2).save();
 
-    try (Stream<RID> ridStream = index.getInternal().getRids(db, 1)) {
+    try (var ridStream = index.getInternal().getRids(db, 1)) {
       ridStream.map(rid -> rid.getRecord(db)).forEach(record -> ((EntityImpl) record).delete());
     }
 
     Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX_NAME));
     Set<Identifiable> result = new HashSet<>();
-    Stream<RawPair<Object, RID>> stream =
+    var stream =
         index.getInternal().streamEntries(db, Arrays.asList(1, 2), true);
     streamToSet(stream, result);
     Assert.assertEquals(result.size(), 1);
@@ -282,19 +282,19 @@ public class IndexTxAwareOneValueGetValuesTest extends BaseDBTest {
 
     db.begin();
 
-    final Index index =
+    final var index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX_NAME);
 
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1).save();
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 2).save();
 
-    try (Stream<RID> ridStream = index.getInternal().getRids(db, 1)) {
+    try (var ridStream = index.getInternal().getRids(db, 1)) {
       ridStream.map(rid -> rid.getRecord(db)).forEach(record -> ((EntityImpl) record).delete());
     }
 
     Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX_NAME));
     Set<Identifiable> result = new HashSet<>();
-    Stream<RawPair<Object, RID>> stream =
+    var stream =
         index.getInternal().streamEntries(db, Arrays.asList(1, 2), true);
     streamToSet(stream, result);
     Assert.assertEquals(result.size(), 1);
@@ -314,20 +314,20 @@ public class IndexTxAwareOneValueGetValuesTest extends BaseDBTest {
 
     db.begin();
 
-    final Index index =
+    final var index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX_NAME);
 
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1).save();
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 2).save();
 
-    try (Stream<RID> ridStream = index.getInternal().getRids(db, 1)) {
+    try (var ridStream = index.getInternal().getRids(db, 1)) {
       ridStream.map(rid -> rid.getRecord(db)).forEach(record -> ((EntityImpl) record).delete());
     }
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1).save();
 
     Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX_NAME));
     Set<Identifiable> result = new HashSet<>();
-    Stream<RawPair<Object, RID>> stream =
+    var stream =
         index.getInternal().streamEntries(db, Arrays.asList(1, 2), true);
     streamToSet(stream, result);
 

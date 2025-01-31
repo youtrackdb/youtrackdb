@@ -15,12 +15,12 @@ public final class SetConverter extends AbstractCollectionConverter<Set> {
 
   @Override
   public Set convert(DatabaseSessionInternal db, Set value) {
-    boolean updated = false;
+    var updated = false;
     final Set result;
 
     result = new HashSet();
 
-    final ResultCallback callback =
+    final var callback =
         new ResultCallback() {
           @Override
           public void add(Object item) {
@@ -28,7 +28,7 @@ public final class SetConverter extends AbstractCollectionConverter<Set> {
           }
         };
 
-    for (Object item : value) {
+    for (var item : value) {
       updated = convertSingleValue(db, item, callback, updated);
     }
 

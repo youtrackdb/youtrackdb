@@ -40,9 +40,9 @@ public class MoveVertexStatementExecutionTest {
 
   @Test
   public void testMoveVertex() {
-    String vertexClassName1 = "testMoveVertexV1";
-    String vertexClassName2 = "testMoveVertexV2";
-    String edgeClassName = "testMoveVertexE";
+    var vertexClassName1 = "testMoveVertexV1";
+    var vertexClassName2 = "testMoveVertexV2";
+    var edgeClassName = "testMoveVertexE";
     db.createVertexClass(vertexClassName1);
     db.createVertexClass(vertexClassName2);
     db.createEdgeClass(edgeClassName);
@@ -66,7 +66,7 @@ public class MoveVertexStatementExecutionTest {
             + vertexClassName2);
     db.commit();
 
-    ResultSet rs = db.query("select from " + vertexClassName1);
+    var rs = db.query("select from " + vertexClassName1);
     Assert.assertTrue(rs.hasNext());
     rs.next();
     Assert.assertFalse(rs.hasNext());
@@ -93,9 +93,9 @@ public class MoveVertexStatementExecutionTest {
 
   @Test
   public void testMoveVertexBatch() {
-    String vertexClassName1 = "testMoveVertexBatchV1";
-    String vertexClassName2 = "testMoveVertexBatchV2";
-    String edgeClassName = "testMoveVertexBatchE";
+    var vertexClassName1 = "testMoveVertexBatchV1";
+    var vertexClassName2 = "testMoveVertexBatchV2";
+    var edgeClassName = "testMoveVertexBatchE";
     db.createVertexClass(vertexClassName1);
     db.createVertexClass(vertexClassName2);
     db.createEdgeClass(edgeClassName);
@@ -120,7 +120,7 @@ public class MoveVertexStatementExecutionTest {
             + " BATCH 2");
     db.commit();
 
-    ResultSet rs = db.query("select from " + vertexClassName1);
+    var rs = db.query("select from " + vertexClassName1);
     Assert.assertTrue(rs.hasNext());
     rs.next();
     Assert.assertFalse(rs.hasNext());

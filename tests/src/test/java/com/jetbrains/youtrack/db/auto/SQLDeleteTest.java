@@ -37,12 +37,12 @@ public class SQLDeleteTest extends BaseDBTest {
 
     final Long total = db.countClass("Profile");
 
-    ResultSet resultset =
+    var resultset =
         db.query("select from Profile where sex = 'female' and salary = 2100");
-    long queryCount = resultset.stream().count();
+    var queryCount = resultset.stream().count();
 
     db.begin();
-    ResultSet result =
+    var result =
         db.command("delete from Profile where sex = 'female' and salary = 2100");
     db.commit();
     long count = result.next().getProperty("count");
@@ -54,17 +54,17 @@ public class SQLDeleteTest extends BaseDBTest {
 
   @Test
   public void deleteInPool() {
-    DatabaseSessionInternal db = acquireSession();
+    var db = acquireSession();
 
     final Long total = db.countClass("Profile");
 
-    ResultSet resultset =
+    var resultset =
         db.query("select from Profile where sex = 'male' and salary > 120 and salary <= 133");
 
-    long queryCount = resultset.stream().count();
+    var queryCount = resultset.stream().count();
 
     db.begin();
-    ResultSet records =
+    var records =
         db.command("delete from Profile where sex = 'male' and salary > 120 and salary <= 133");
     db.commit();
 

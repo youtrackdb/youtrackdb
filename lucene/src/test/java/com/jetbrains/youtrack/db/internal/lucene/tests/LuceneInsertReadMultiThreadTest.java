@@ -50,7 +50,7 @@ public class LuceneInsertReadMultiThreadTest extends LuceneBaseTest {
   public void init() {
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass oClass = schema.createClass("City");
+    var oClass = schema.createClass("City");
 
     oClass.createProperty(db, "name", PropertyType.STRING);
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE");
@@ -59,7 +59,7 @@ public class LuceneInsertReadMultiThreadTest extends LuceneBaseTest {
   @Test
   public void testConcurrentInsertWithIndex() throws Exception {
 
-    List<CompletableFuture<Void>> futures =
+    var futures =
         IntStream.range(0, THREADS)
             .boxed()
             .map(i -> CompletableFuture.runAsync(new LuceneInsert(pool, CYCLE)))
@@ -73,11 +73,11 @@ public class LuceneInsertReadMultiThreadTest extends LuceneBaseTest {
 
     futures.forEach(cf -> cf.join());
 
-    DatabaseSessionInternal db1 = (DatabaseSessionInternal) pool.acquire();
+    var db1 = (DatabaseSessionInternal) pool.acquire();
     db1.getMetadata().reload();
     var schema = db1.getMetadata().getSchema();
 
-    Index idx = schema.getClassInternal("City").getClassIndex(db, "City.name");
+    var idx = schema.getClassInternal("City").getClassIndex(db, "City.name");
 
     db1.begin();
     Assert.assertEquals(idx.getInternal().size(db1), THREADS * CYCLE);
@@ -100,12 +100,12 @@ public class LuceneInsertReadMultiThreadTest extends LuceneBaseTest {
     @Override
     public void run() {
 
-      final DatabaseSession db = pool.acquire();
+      final var db = pool.acquire();
       db.activateOnCurrentThread();
       db.begin();
-      int i = 0;
+      var i = 0;
       for (; i < cycle; i++) {
-        Entity doc = db.newEntity("City");
+        var doc = db.newEntity("City");
 
         doc.setProperty("name", "Rome");
 
@@ -133,14 +133,14 @@ public class LuceneInsertReadMultiThreadTest extends LuceneBaseTest {
     @Override
     public void run() {
 
-      final DatabaseSessionInternal db = (DatabaseSessionInternal) pool.acquire();
+      final var db = (DatabaseSessionInternal) pool.acquire();
       db.activateOnCurrentThread();
       var schema = db.getMetadata().getSchema();
       schema.getClassInternal("City").getClassIndex(db, "City.name");
 
-      for (int i = 0; i < cycle; i++) {
+      for (var i = 0; i < cycle; i++) {
 
-        ResultSet resultSet =
+        var resultSet =
             db.query("select from City where SEARCH_FIELDS(['name'], 'Rome') =true ");
 
         if (resultSet.hasNext()) {

@@ -39,7 +39,7 @@ public abstract class LuceneSearchFunctionTemplate extends SQLFunctionAbstract
       Object rightValue,
       CommandContext ctx,
       SQLExpression... args) {
-    LuceneFullTextIndex index = searchForIndex(target, ctx, args);
+    var index = searchForIndex(target, ctx, args);
     return index != null;
   }
 
@@ -61,7 +61,7 @@ public abstract class LuceneSearchFunctionTemplate extends SQLFunctionAbstract
       CommandContext ctx,
       SQLExpression... args) {
 
-    Iterable<Identifiable> a = searchFromTarget(target, operator, rightValue, ctx, args);
+    var a = searchFromTarget(target, operator, rightValue, ctx, args);
     if (a instanceof LuceneResultSet) {
       return ((LuceneResultSet) a).size();
     }
@@ -74,7 +74,7 @@ public abstract class LuceneSearchFunctionTemplate extends SQLFunctionAbstract
   }
 
   protected static Map<String, ?> getMetadata(SQLExpression metadata, CommandContext ctx) {
-    final Object md = metadata.execute((Identifiable) null, ctx);
+    final var md = metadata.execute((Identifiable) null, ctx);
     if (md instanceof EntityImpl document) {
       return document.toMap();
     } else if (md instanceof Map map) {

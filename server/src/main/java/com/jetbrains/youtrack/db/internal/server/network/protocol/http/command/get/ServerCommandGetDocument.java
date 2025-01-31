@@ -34,20 +34,20 @@ public class ServerCommandGetDocument extends ServerCommandAuthenticatedDbAbstra
 
   @Override
   public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
-    final String[] urlParts =
+    final var urlParts =
         checkSyntax(
             iRequest.getUrl(), 3, "Syntax error: document/<database>/<record-id>[/fetchPlan]");
 
-    final String fetchPlan = urlParts.length > 3 ? urlParts[3] : null;
+    final var fetchPlan = urlParts.length > 3 ? urlParts[3] : null;
 
     iRequest.getData().commandInfo = "Load document";
 
     final DBRecord rec;
 
-    final int parametersPos = urlParts[2].indexOf('?');
-    final String rid = parametersPos > -1 ? urlParts[2].substring(0, parametersPos) : urlParts[2];
+    final var parametersPos = urlParts[2].indexOf('?');
+    final var rid = parametersPos > -1 ? urlParts[2].substring(0, parametersPos) : urlParts[2];
 
-    try (DatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
+    try (var db = getProfiledDatabaseInstance(iRequest)) {
       try {
         rec = db.load(new RecordId(rid));
       } catch (RecordNotFoundException e) {
@@ -70,7 +70,7 @@ public class ServerCommandGetDocument extends ServerCommandAuthenticatedDbAbstra
             null,
             HttpUtils.HEADER_ETAG + rec.getVersion());
       } else {
-        final String ifNoneMatch = iRequest.getHeader("If-None-Match");
+        final var ifNoneMatch = iRequest.getHeader("If-None-Match");
         if (ifNoneMatch != null && Integer.toString(rec.getVersion()).equals(ifNoneMatch)) {
           // SAME CONTENT, DON'T SEND BACK RECORD
           iResponse.send(

@@ -45,11 +45,11 @@ public class SQLFunctionIn extends SQLFunctionMoveFiltered {
       return Collections.emptyList();
     }
 
-    Object edges = v2e(graph, iRecord, Direction.IN, iLabels);
+    var edges = v2e(graph, iRecord, Direction.IN, iLabels);
     if (edges instanceof Sizeable) {
-      int size = ((Sizeable) edges).size();
+      var size = ((Sizeable) edges).size();
       if (size > supernodeThreshold) {
-        Object result = fetchFromIndex(graph, iRecord, iPossibleResults, iLabels);
+        var result = fetchFromIndex(graph, iRecord, iPossibleResults, iLabels);
         if (result != null) {
           return result;
         }
@@ -80,16 +80,16 @@ public class SQLFunctionIn extends SQLFunctionMoveFiltered {
     if (edgeClass == null) {
       return null;
     }
-    Set<Index> indexes = edgeClass.getInvolvedIndexesInternal(graph, "in", "out");
+    var indexes = edgeClass.getInvolvedIndexesInternal(graph, "in", "out");
     if (indexes == null || indexes.isEmpty()) {
       return null;
     }
-    Index index = indexes.iterator().next();
+    var index = indexes.iterator().next();
 
-    MultiCollectionIterator<Vertex> result = new MultiCollectionIterator<Vertex>();
-    for (Identifiable identifiable : to) {
-      CompositeKey key = new CompositeKey(iFrom, identifiable);
-      try (Stream<RID> stream = index.getInternal()
+    var result = new MultiCollectionIterator<Vertex>();
+    for (var identifiable : to) {
+      var key = new CompositeKey(iFrom, identifiable);
+      try (var stream = index.getInternal()
           .getRids((DatabaseSessionInternal) graph, key)) {
         result.add(
             stream

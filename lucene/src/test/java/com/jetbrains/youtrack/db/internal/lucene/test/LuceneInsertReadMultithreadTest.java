@@ -45,7 +45,7 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
 
     url = db.getURL();
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass oClass = schema.createClass("City");
+    var oClass = schema.createClass("City");
 
     oClass.createProperty(db, "name", PropertyType.STRING);
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
@@ -57,16 +57,16 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
     db.getMetadata().reload();
     Schema schema = db.getMetadata().getSchema();
 
-    Thread[] threads = new Thread[THREADS + RTHREADS];
-    for (int i = 0; i < THREADS; ++i) {
+    var threads = new Thread[THREADS + RTHREADS];
+    for (var i = 0; i < THREADS; ++i) {
       threads[i] = new Thread(new LuceneInsertThread(CYCLE), "ConcurrentWriteTest" + i);
     }
 
-    for (int i = THREADS; i < THREADS + RTHREADS; ++i) {
+    for (var i = THREADS; i < THREADS + RTHREADS; ++i) {
       threads[i] = new Thread(new LuceneReadThread(CYCLE), "ConcurrentReadTest" + i);
     }
 
-    for (int i = 0; i < THREADS + RTHREADS; ++i) {
+    for (var i = 0; i < THREADS + RTHREADS; ++i) {
       threads[i].start();
     }
 
@@ -75,13 +75,13 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
             + threads.length
             + " threads to complete...");
 
-    for (int i = 0; i < THREADS + RTHREADS; ++i) {
+    for (var i = 0; i < THREADS + RTHREADS; ++i) {
       threads[i].join();
     }
 
     System.out.println("LuceneInsertReadMultithreadBaseTest all threads completed");
 
-    Index idx = db.getClassInternal("City").getClassIndex(db, "City.name");
+    var idx = db.getClassInternal("City").getClassIndex(db, "City.name");
 
     db.begin();
     Assert.assertEquals(idx.getInternal().size(db), THREADS * CYCLE);
@@ -104,8 +104,8 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
       db = openDatabase();
 
       db.begin();
-      for (int i = 0; i < cycle; i++) {
-        EntityImpl doc = ((EntityImpl) db.newEntity("City"));
+      for (var i = 0; i < cycle; i++) {
+        var doc = ((EntityImpl) db.newEntity("City"));
 
         doc.field("name", "Rome");
 
@@ -136,9 +136,9 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
       databaseDocumentTx = openDatabase();
 
       Schema schema = databaseDocumentTx.getMetadata().getSchema();
-      Index idx = databaseDocumentTx.getClassInternal("City").getClassIndex(db, "City.name");
+      var idx = databaseDocumentTx.getClassInternal("City").getClassIndex(db, "City.name");
 
-      for (int i = 0; i < cycle; i++) {
+      for (var i = 0; i < cycle; i++) {
 
         databaseDocumentTx.query("select from city where name LUCENE 'Rome'");
       }

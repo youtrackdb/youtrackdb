@@ -25,7 +25,6 @@ import com.jetbrains.youtrack.db.internal.common.parser.VariableParserListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.SystemDatabase;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.security.AuditingOperation;
@@ -181,8 +180,8 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
 
     final EntityImpl classesCfg = iConfiguration.field("classes");
     if (classesCfg != null) {
-      for (String c : classesCfg.fieldNames()) {
-        final AuditingClassConfig cfg = new AuditingClassConfig(classesCfg.field(c));
+      for (var c : classesCfg.fieldNames()) {
+        final var cfg = new AuditingClassConfig(classesCfg.field(c));
         if (c.equals("*")) {
           defaultConfig = cfg;
         } else {
@@ -208,7 +207,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
 
     if (commandCfg != null) {
 
-      for (EntityImpl cfg : commandCfg) {
+      for (var cfg : commandCfg) {
         commands.add(new AuditingCommandConfig(cfg));
       }
     }
@@ -298,12 +297,12 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
   public void onRecordAfterUpdate(DatabaseSession db, final DBRecord iRecord) {
 
     if (iRecord instanceof EntityImpl entity) {
-      SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(
+      var clazz = EntityInternalUtils.getImmutableSchemaClass(
           (DatabaseSessionInternal) db, entity);
 
       if (clazz.isUser() && Arrays.asList(entity.getDirtyFields()).contains("password")) {
         String name = entity.getProperty("name");
-        String message = String.format("The password for user '%s' has been changed", name);
+        var message = String.format("The password for user '%s' has been changed", name);
         log(db, AuditingOperation.CHANGED_PWD, db.getName(), db.geCurrentUser(), message);
       }
     }
@@ -333,9 +332,9 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
       return;
     }
 
-    for (AuditingCommandConfig cfg : commands) {
+    for (var cfg : commands) {
       if (command.matches(cfg.regex)) {
-        final DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().get();
+        final var db = DatabaseRecordThreadLocal.instance().get();
 
         final Map<String, ?> entity =
             createLogEntry(db
@@ -372,7 +371,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
       return;
     }
 
-    final AuditingClassConfig cfg = getAuditConfiguration(iRecord);
+    final var cfg = getAuditConfiguration(iRecord);
     if (cfg == null)
     // SKIP
     {
@@ -402,8 +401,8 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
         if (iRecord instanceof EntityImpl entity && cfg.onUpdateChanges) {
           changes = new EntityImpl((DatabaseSessionInternal) db);
 
-          for (String f : entity.getDirtyFields()) {
-            EntityImpl fieldChanges = new EntityImpl(null);
+          for (var f : entity.getDirtyFields()) {
+            var fieldChanges = new EntityImpl(null);
             fieldChanges.field("from", entity.getOriginalValue(f));
             fieldChanges.field("to", (Object) entity.rawField(f));
             changes.field(f, fieldChanges, PropertyType.EMBEDDED);
@@ -453,7 +452,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
               public Object resolve(final String iVariable) {
                 if (iVariable.startsWith("field.")) {
                   if (iRecord instanceof EntityImpl) {
-                    final String fieldName = iVariable.substring("field.".length());
+                    final var fieldName = iVariable.substring("field.".length());
                     return ((EntityImpl) iRecord).field(fieldName);
                   }
                 }
@@ -466,7 +465,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
     AuditingClassConfig cfg = null;
 
     if (iRecord instanceof EntityImpl) {
-      SchemaClass cls = ((EntityImpl) iRecord).getSchemaClass();
+      var cls = ((EntityImpl) iRecord).getSchemaClass();
       if (cls != null) {
 
         if (cls.getName().equals(DefaultAuditing.AUDITING_LOG_CLASSNAME))
@@ -509,9 +508,9 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
   }
 
   protected void logClass(final AuditingOperation operation, final String note) {
-    final DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().get();
+    final var db = DatabaseRecordThreadLocal.instance().get();
 
-    final SecurityUser user = db.geCurrentUser();
+    final var user = db.geCurrentUser();
 
     var entity = createLogEntry(db, operation, db.getName(), user, note);
     auditingQueue.offer(entity);
@@ -546,7 +545,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
       final String dbName,
       SecurityUser user,
       final String message) {
-    final HashMap<String, Object> entity = new HashMap<>();
+    final var entity = new HashMap<String, Object>();
 
     entity.put("date", System.currentTimeMillis());
     entity.put("operation", operation.getByte());

@@ -34,23 +34,23 @@ public class LuceneInheritanceQueryTest extends LuceneBaseTest {
 
   @Before
   public void setUp() throws Exception {
-    final SchemaClass c1 = db.createVertexClass("C1");
+    final var c1 = db.createVertexClass("C1");
     c1.createProperty(db, "name", PropertyType.STRING);
     c1.createIndex(db, "C1.name", "FULLTEXT", null, null, "LUCENE", new String[]{"name"});
 
-    final SchemaClass c2 = db.createClass("C2", "C1");
+    final var c2 = db.createClass("C2", "C1");
   }
 
   @Test
   public void testQuery() {
-    EntityImpl doc = ((EntityImpl) db.newEntity("C2"));
+    var doc = ((EntityImpl) db.newEntity("C2"));
     doc.field("name", "abc");
 
     db.begin();
     db.save(doc);
     db.commit();
 
-    ResultSet resultSet = db.query("select from C1 where search_class(\"abc\")=true ");
+    var resultSet = db.query("select from C1 where search_class(\"abc\")=true ");
 
     assertThat(resultSet).hasSize(1);
     resultSet.close();

@@ -41,10 +41,10 @@ public class SocketChannelText extends SocketChannel {
   public int read(final byte[] iBuffer, final int iStartingPosition, final int iContentLength)
       throws IOException {
     int pos;
-    int read = 0;
+    var read = 0;
     pos = iStartingPosition;
 
-    for (int required = iContentLength; required > 0; required -= read) {
+    for (var required = iContentLength; required > 0; required -= read) {
       read = inStream.read(iBuffer, pos, required);
       pos += read;
     }
@@ -59,7 +59,7 @@ public class SocketChannelText extends SocketChannel {
   }
 
   public byte[] readBytes(final int iTotal) throws IOException {
-    final byte[] buffer = new byte[iTotal];
+    final var buffer = new byte[iTotal];
     updateMetricReceivedBytes(iTotal);
     inStream.read(buffer);
     return buffer;

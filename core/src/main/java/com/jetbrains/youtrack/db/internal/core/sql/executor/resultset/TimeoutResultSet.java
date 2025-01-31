@@ -29,7 +29,7 @@ public final class TimeoutResultSet implements ExecutionStream {
     if (timedOut) {
       return false;
     }
-    long begin = System.nanoTime();
+    var begin = System.nanoTime();
 
     try {
       return internal.hasNext(ctx);
@@ -46,7 +46,7 @@ public final class TimeoutResultSet implements ExecutionStream {
         return new ResultInternal(ctx.getDatabase());
       }
     }
-    long begin = System.nanoTime();
+    var begin = System.nanoTime();
     try {
       return internal.next(ctx);
     } finally {

@@ -14,8 +14,8 @@ public class TestSqlEmbeddedResult extends DbTestBase {
     db.getMetadata().getSchema().createClass("Test");
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("Test"));
-    EntityImpl doc1 = ((EntityImpl) db.newEntity());
+    var doc = ((EntityImpl) db.newEntity("Test"));
+    var doc1 = ((EntityImpl) db.newEntity());
     doc1.setProperty("format", 1);
     Set<EntityImpl> docs = new HashSet<EntityImpl>();
     docs.add(doc1);

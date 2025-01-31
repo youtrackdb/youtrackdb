@@ -17,15 +17,15 @@ public class DropSchemaPropertyStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testPlain() {
-    String className = "testPlain";
-    String propertyName = "foo";
+    var className = "testPlain";
+    var propertyName = "foo";
     Schema schema = db.getMetadata().getSchema();
     schema.createClass(className).createProperty(db, propertyName, PropertyType.STRING);
 
     Assert.assertNotNull(schema.getClass(className).getProperty(propertyName));
-    ResultSet result = db.command("drop property " + className + "." + propertyName);
+    var result = db.command("drop property " + className + "." + propertyName);
     Assert.assertTrue(result.hasNext());
-    Result next = result.next();
+    var next = result.next();
     Assert.assertEquals("drop property", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -35,8 +35,8 @@ public class DropSchemaPropertyStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testDropIndexForce() {
-    String className = "testDropIndexForce";
-    String propertyName = "foo";
+    var className = "testDropIndexForce";
+    var propertyName = "foo";
     Schema schema = db.getMetadata().getSchema();
     schema
         .createClass(className)
@@ -44,8 +44,8 @@ public class DropSchemaPropertyStatementExecutionTest extends DbTestBase {
         .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     Assert.assertNotNull(schema.getClass(className).getProperty(propertyName));
-    ResultSet result = db.command("drop property " + className + "." + propertyName + " force");
-    for (int i = 0; i < 2; i++) {
+    var result = db.command("drop property " + className + "." + propertyName + " force");
+    for (var i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
       result.next();
     }
@@ -60,8 +60,8 @@ public class DropSchemaPropertyStatementExecutionTest extends DbTestBase {
   @Test
   public void testDropIndex() {
 
-    String className = "testDropIndex";
-    String propertyName = "foo";
+    var className = "testDropIndex";
+    var propertyName = "foo";
     Schema schema = db.getMetadata().getSchema();
     schema
         .createClass(className)

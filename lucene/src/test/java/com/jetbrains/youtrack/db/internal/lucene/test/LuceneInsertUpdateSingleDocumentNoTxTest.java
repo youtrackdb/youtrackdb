@@ -44,7 +44,7 @@ public class LuceneInsertUpdateSingleDocumentNoTxTest extends BaseLuceneTest {
   public void init() {
     Schema schema = db.getMetadata().getSchema();
 
-    SchemaClass oClass = schema.createClass("City");
+    var oClass = schema.createClass("City");
     oClass.createProperty(db, "name", PropertyType.STRING);
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
@@ -54,9 +54,9 @@ public class LuceneInsertUpdateSingleDocumentNoTxTest extends BaseLuceneTest {
     db.close();
     db = openDatabase();
     Schema schema = db.getMetadata().getSchema();
-    EntityImpl doc = ((EntityImpl) db.newEntity("City"));
+    var doc = ((EntityImpl) db.newEntity("City"));
     doc.field("name", "");
-    EntityImpl doc1 = ((EntityImpl) db.newEntity("City"));
+    var doc1 = ((EntityImpl) db.newEntity("City"));
     doc1.field("name", "");
     db.begin();
     doc = db.save(doc);
@@ -73,15 +73,15 @@ public class LuceneInsertUpdateSingleDocumentNoTxTest extends BaseLuceneTest {
     db.save(doc1);
     db.commit();
 
-    Index idx = db.getClassInternal("City").getClassIndex(db, "City.name");
+    var idx = db.getClassInternal("City").getClassIndex(db, "City.name");
 
     Collection<?> coll;
 
-    try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (var stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(2, coll.size());
-    try (Stream<RID> stream = idx.getInternal().getRids(db, "")) {
+    try (var stream = idx.getInternal().getRids(db, "")) {
       coll = stream.collect(Collectors.toList());
     }
 

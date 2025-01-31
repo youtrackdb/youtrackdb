@@ -67,8 +67,8 @@ public class ImmutableSchema implements SchemaInternal {
     clustersToClasses = new Int2ObjectOpenHashMap<>(schemaShared.getClasses(database).size() * 3);
     classes = new HashMap<>(schemaShared.getClasses(database).size());
 
-    for (SchemaClass oClass : schemaShared.getClasses(database)) {
-      final SchemaImmutableClass immutableClass = new SchemaImmutableClass(database,
+    for (var oClass : schemaShared.getClasses(database)) {
+      final var immutableClass = new SchemaImmutableClass(database,
           (SchemaClassInternal) oClass, this);
 
       classes.put(immutableClass.getName().toLowerCase(Locale.ENGLISH), immutableClass);
@@ -76,7 +76,7 @@ public class ImmutableSchema implements SchemaInternal {
         classes.put(immutableClass.getShortName().toLowerCase(Locale.ENGLISH), immutableClass);
       }
 
-      for (int clusterId : immutableClass.getClusterIds()) {
+      for (var clusterId : immutableClass.getClusterIds()) {
         clustersToClasses.put(clusterId, immutableClass);
       }
     }
@@ -263,7 +263,7 @@ public class ImmutableSchema implements SchemaInternal {
     var sessionInternal = (DatabaseSessionInternal) db;
     sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_READ);
 
-    final int clusterId = sessionInternal.getClusterIdByName(clusterName);
+    final var clusterId = sessionInternal.getClusterIdByName(clusterName);
     final Set<SchemaClass> result = new HashSet<SchemaClass>();
     for (SchemaClass c : classes.values()) {
       if (ArrayUtils.contains(c.getPolymorphicClusterIds(), clusterId)) {

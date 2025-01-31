@@ -46,7 +46,7 @@ public class SecurityRemote implements SecurityInternal {
       final EntityImpl entity,
       final RestrictedOperation iOperation,
       final String iRoleName) {
-    final RID role = getRoleRID(session, iRoleName);
+    final var role = getRoleRID(session, iRoleName);
     if (role == null) {
       throw new IllegalArgumentException("Role '" + iRoleName + "' not found");
     }
@@ -60,7 +60,7 @@ public class SecurityRemote implements SecurityInternal {
       final EntityImpl entity,
       final RestrictedOperation iOperation,
       final String iUserName) {
-    final RID user = getUserRID(session, iUserName);
+    final var user = getUserRID(session, iUserName);
     if (user == null) {
       throw new IllegalArgumentException("User '" + iUserName + "' not found");
     }
@@ -74,7 +74,7 @@ public class SecurityRemote implements SecurityInternal {
       final EntityImpl entity,
       final RestrictedOperation iOperation,
       final String iUserName) {
-    final RID user = getUserRID(session, iUserName);
+    final var user = getUserRID(session, iUserName);
     if (user == null) {
       throw new IllegalArgumentException("User '" + iUserName + "' not found");
     }
@@ -88,7 +88,7 @@ public class SecurityRemote implements SecurityInternal {
       final EntityImpl entity,
       final RestrictedOperation iOperation,
       final String iRoleName) {
-    final RID role = getRoleRID(session, iRoleName);
+    final var role = getRoleRID(session, iRoleName);
     if (role == null) {
       throw new IllegalArgumentException("Role '" + iRoleName + "' not found");
     }
@@ -115,7 +115,7 @@ public class SecurityRemote implements SecurityInternal {
       return null;
     }
 
-    try (final ResultSet result =
+    try (final var result =
         session.query("select @rid as rid from " + Role.CLASS_NAME + " where name = ? limit 1",
             iRoleName)) {
 
@@ -127,7 +127,7 @@ public class SecurityRemote implements SecurityInternal {
   }
 
   public RID getUserRID(final DatabaseSession session, final String userName) {
-    try (ResultSet result =
+    try (var result =
         session.query("select @rid as rid from OUser where name = ? limit 1", userName)) {
 
       if (result.hasNext()) {
@@ -161,9 +161,9 @@ public class SecurityRemote implements SecurityInternal {
       final String iUserName,
       final String iUserPassword,
       final String... iRoles) {
-    final SecurityUserImpl user = new SecurityUserImpl(session, iUserName, iUserPassword);
+    final var user = new SecurityUserImpl(session, iUserName, iUserPassword);
     if (iRoles != null) {
-      for (String r : iRoles) {
+      for (var r : iRoles) {
         user.addRole(session, r);
       }
     }
@@ -177,10 +177,10 @@ public class SecurityRemote implements SecurityInternal {
       final String userName,
       final String userPassword,
       final Role... roles) {
-    final SecurityUserImpl user = new SecurityUserImpl(session, userName, userPassword);
+    final var user = new SecurityUserImpl(session, userName, userPassword);
 
     if (roles != null) {
-      for (Role r : roles) {
+      for (var r : roles) {
         user.addRole(session, r);
       }
     }
@@ -205,14 +205,14 @@ public class SecurityRemote implements SecurityInternal {
       final DatabaseSessionInternal session,
       final String iRoleName,
       final Role iParent) {
-    final Role role = new Role(session, iRoleName, iParent);
+    final var role = new Role(session, iRoleName, iParent);
     role.save(session);
     return role;
   }
 
   @Override
   public SecurityUserImpl getUser(final DatabaseSession session, final String iUserName) {
-    try (ResultSet result = session.query("select from OUser where name = ? limit 1",
+    try (var result = session.query("select from OUser where name = ? limit 1",
         iUserName)) {
       if (result.hasNext()) {
         return new SecurityUserImpl((DatabaseSessionInternal) session,
@@ -237,7 +237,7 @@ public class SecurityRemote implements SecurityInternal {
 
   public Role getRole(final DatabaseSession session, final Identifiable iRole) {
     final EntityImpl entity = session.load(iRole.getIdentity());
-    SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
+    var clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
     if (clazz != null && clazz.isRole()) {
       return new Role((DatabaseSessionInternal) session, entity);
     }
@@ -250,7 +250,7 @@ public class SecurityRemote implements SecurityInternal {
       return null;
     }
 
-    try (final ResultSet result =
+    try (final var result =
         session.query("select from " + Role.CLASS_NAME + " where name = ? limit 1", iRoleName)) {
       if (result.hasNext()) {
         return new Role((DatabaseSessionInternal) session,
@@ -262,14 +262,14 @@ public class SecurityRemote implements SecurityInternal {
   }
 
   public List<EntityImpl> getAllUsers(final DatabaseSession session) {
-    try (ResultSet rs = session.query("select from OUser")) {
+    try (var rs = session.query("select from OUser")) {
       return rs.stream().map((e) -> (EntityImpl) e.getEntity().get())
           .collect(Collectors.toList());
     }
   }
 
   public List<EntityImpl> getAllRoles(final DatabaseSession session) {
-    try (ResultSet rs = session.query("select from " + Role.CLASS_NAME)) {
+    try (var rs = session.query("select from " + Role.CLASS_NAME)) {
       return rs.stream().map((e) -> (EntityImpl) e.getEntity().get())
           .collect(Collectors.toList());
     }

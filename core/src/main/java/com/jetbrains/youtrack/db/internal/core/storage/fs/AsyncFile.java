@@ -22,7 +22,6 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -76,12 +75,12 @@ public final class AsyncFile implements File {
 
   private void initSize() throws IOException {
     if (fileChannel.size() < HEADER_SIZE) {
-      final ByteBuffer buffer = ByteBuffer.allocate(HEADER_SIZE);
+      final var buffer = ByteBuffer.allocate(HEADER_SIZE);
 
-      int written = 0;
+      var written = 0;
       do {
         buffer.position(written);
-        final Future<Integer> writeFuture = fileChannel.write(buffer, written);
+        final var writeFuture = fileChannel.write(buffer, written);
         try {
           written += writeFuture.get();
         } catch (java.lang.InterruptedException e) {
@@ -96,10 +95,10 @@ public final class AsyncFile implements File {
       dirtyCounter.incrementAndGet();
     }
 
-    long currentSize = fileChannel.size() - HEADER_SIZE;
+    var currentSize = fileChannel.size() - HEADER_SIZE;
 
     if (currentSize % pageSize != 0) {
-      final long initialSize = currentSize;
+      final var initialSize = currentSize;
 
       currentSize = (currentSize / pageSize) * pageSize;
       fileChannel.truncate(currentSize + HEADER_SIZE);
@@ -189,10 +188,10 @@ public final class AsyncFile implements File {
       checkPosition(offset);
       checkPosition(offset + buffer.limit() - 1);
 
-      int written = 0;
+      var written = 0;
       do {
         buffer.position(written);
-        final Future<Integer> writeFuture =
+        final var writeFuture =
             fileChannel.write(buffer, offset + HEADER_SIZE + written);
         try {
           written += writeFuture.get();
@@ -215,12 +214,12 @@ public final class AsyncFile implements File {
 
   @Override
   public IOResult write(List<RawPairLongObject<ByteBuffer>> buffers) {
-    final CountDownLatch latch = new CountDownLatch(buffers.size());
-    final AsyncIOResult asyncIOResult = new AsyncIOResult(latch);
+    final var latch = new CountDownLatch(buffers.size());
+    final var asyncIOResult = new AsyncIOResult(latch);
 
     syncSemaphore.acquireUninterruptibly(buffers.size());
-    for (final RawPairLongObject<ByteBuffer> pair : buffers) {
-      final ByteBuffer byteBuffer = pair.second;
+    for (final var pair : buffers) {
+      final var byteBuffer = pair.second;
       byteBuffer.rewind();
       lock.sharedLock();
       try {
@@ -228,7 +227,7 @@ public final class AsyncFile implements File {
         checkPosition(pair.first);
         checkPosition(pair.first + pair.second.limit() - 1);
 
-        final long position = pair.first + HEADER_SIZE;
+        final var position = pair.first + HEADER_SIZE;
         fileChannel.write(
             byteBuffer,
             position,
@@ -249,10 +248,10 @@ public final class AsyncFile implements File {
       checkForClose();
       checkPosition(offset);
 
-      int read = 0;
+      var read = 0;
       do {
         buffer.position(read);
-        final Future<Integer> readFuture = fileChannel.read(buffer, offset + HEADER_SIZE + read);
+        final var readFuture = fileChannel.read(buffer, offset + HEADER_SIZE + read);
         final int bytesRead;
         try {
           bytesRead = readFuture.get();
@@ -311,7 +310,7 @@ public final class AsyncFile implements File {
     syncSemaphore.acquireUninterruptibly(Integer.MAX_VALUE);
     try {
       synchronized (flushSemaphore) {
-        long dirtyCounterValue = dirtyCounter.get();
+        var dirtyCounterValue = dirtyCounter.get();
         if (dirtyCounterValue > 0) {
           try {
             fileChannel.force(true);
@@ -399,7 +398,7 @@ public final class AsyncFile implements File {
   }
 
   private void checkPosition(long offset) {
-    final long fileSize = size.get();
+    final var fileSize = size.get();
     if (offset < 0 || offset >= fileSize) {
       throw new StorageException(
           "You are going to access region outside of allocated file position. File size = "

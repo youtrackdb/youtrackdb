@@ -40,15 +40,15 @@ public class SpatialStrategyFactory {
       DatabaseSessionInternal db,
       IndexDefinition indexDefinition) {
 
-    SchemaClass aClass =
+    var aClass =
         db.getMetadata().getImmutableSchemaSnapshot().getClass(indexDefinition.getClassName());
 
-    SchemaProperty property = aClass.getProperty(indexDefinition.getFields().get(0));
+    var property = aClass.getProperty(indexDefinition.getFields().get(0));
 
-    SchemaClass linkedClass = property.getLinkedClass();
+    var linkedClass = property.getLinkedClass();
 
     if ("OPoint".equalsIgnoreCase(linkedClass.getName())) {
-      RecursivePrefixTreeStrategy strategy =
+      var strategy =
           new RecursivePrefixTreeStrategy(new GeohashPrefixTree(ctx, 11), "location");
       strategy.setDistErrPct(0);
       return strategy;

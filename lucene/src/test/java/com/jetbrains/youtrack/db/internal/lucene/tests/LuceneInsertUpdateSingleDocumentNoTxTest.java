@@ -41,10 +41,10 @@ public class LuceneInsertUpdateSingleDocumentNoTxTest extends LuceneBaseTest {
   public void init() {
     Schema schema = db.getMetadata().getSchema();
 
-    SchemaClass oClass = schema.createClass("City");
+    var oClass = schema.createClass("City");
     oClass.createProperty(db, "name", PropertyType.STRING);
     //noinspection EmptyTryBlock
-    try (ResultSet command =
+    try (var command =
         db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE")) {
     }
   }
@@ -53,9 +53,9 @@ public class LuceneInsertUpdateSingleDocumentNoTxTest extends LuceneBaseTest {
   public void testInsertUpdateTransactionWithIndex() {
 
     var schema = db.getMetadata().getSchema();
-    EntityImpl doc = ((EntityImpl) db.newEntity("City"));
+    var doc = ((EntityImpl) db.newEntity("City"));
     doc.field("name", "");
-    EntityImpl doc1 = ((EntityImpl) db.newEntity("City"));
+    var doc1 = ((EntityImpl) db.newEntity("City"));
     doc1.field("name", "");
 
     db.begin();
@@ -74,9 +74,9 @@ public class LuceneInsertUpdateSingleDocumentNoTxTest extends LuceneBaseTest {
     db.commit();
 
     db.begin();
-    Index idx = schema.getClassInternal("City").getClassIndex(db, "City.name");
+    var idx = schema.getClassInternal("City").getClassIndex(db, "City.name");
     Collection<?> coll;
-    try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (var stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.toList();
     }
 

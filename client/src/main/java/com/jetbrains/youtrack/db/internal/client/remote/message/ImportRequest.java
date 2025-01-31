@@ -35,7 +35,7 @@ public class ImportRequest implements BinaryRequest<ImportResponse> {
       StorageRemoteSession session) throws IOException {
     network.writeString(options);
     network.writeString(name);
-    byte[] buffer = new byte[1024];
+    var buffer = new byte[1024];
     int size;
     while ((size = inputStream.read(buffer)) > 0) {
       network.writeBytes(buffer, size);
@@ -49,8 +49,8 @@ public class ImportRequest implements BinaryRequest<ImportResponse> {
       throws IOException {
     options = channel.readString();
     name = channel.readString();
-    File file = File.createTempFile("import", name);
-    FileOutputStream output = new FileOutputStream(file);
+    var file = File.createTempFile("import", name);
+    var output = new FileOutputStream(file);
     byte[] bytes;
     while ((bytes = channel.readBytes()) != null) {
       output.write(bytes);

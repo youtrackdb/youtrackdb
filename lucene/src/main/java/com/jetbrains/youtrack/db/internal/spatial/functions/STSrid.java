@@ -41,7 +41,7 @@ public class STSrid extends SQLFunctionAbstract {
       Object[] iParams,
       CommandContext iContext) {
 
-    Shape shape = factory.fromObject(iParams[0]);
+    var shape = factory.fromObject(iParams[0]);
     return factory.getSRID(shape);
   }
 

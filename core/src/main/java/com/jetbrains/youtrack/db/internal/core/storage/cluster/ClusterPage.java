@@ -89,13 +89,13 @@ public final class ClusterPage extends DurablePage {
       final byte[] record,
       final int requestedPosition,
       final IntSet bookedRecordPositions) {
-    int freePosition = getFreePosition();
-    final int indexesLength = getPageIndexesLength();
+    var freePosition = getFreePosition();
+    final var indexesLength = getPageIndexesLength();
 
-    final int lastEntryIndexPosition = computePointerPosition(indexesLength);
+    final var lastEntryIndexPosition = computePointerPosition(indexesLength);
 
-    int entrySize = record.length + 3 * IntegerSerializer.INT_SIZE;
-    int freeListHeader = getFreeListHeader();
+    var entrySize = record.length + 3 * IntegerSerializer.INT_SIZE;
+    var freeListHeader = getFreeListHeader();
 
     if (!checkSpace(entrySize)) {
       return -1;
@@ -103,13 +103,13 @@ public final class ClusterPage extends DurablePage {
 
     if (freePosition - entrySize < lastEntryIndexPosition + INDEX_ITEM_SIZE) {
       if (requestedPosition < 0) {
-        final int[] findHole = findHole(entrySize, freePosition);
+        final var findHole = findHole(entrySize, freePosition);
 
         if (findHole != null) {
-          final int entryPosition = findHole[0];
-          final int holeSize = findHole[1];
+          final var entryPosition = findHole[0];
+          final var holeSize = findHole[1];
 
-          final RawPairIntegerBoolean entry =
+          final var entry =
               findFirstEmptySlot(
                   recordVersion,
                   entryPosition,
@@ -122,7 +122,7 @@ public final class ClusterPage extends DurablePage {
           if (entry != null) {
             assert entry.second; // allocated from free list
 
-            final int entryIndex = entry.first;
+            final var entryIndex = entry.first;
 
             assert holeSize >= entrySize;
             if (holeSize != entrySize) {
@@ -145,7 +145,7 @@ public final class ClusterPage extends DurablePage {
     int entryIndex;
 
     if (requestedPosition < 0) {
-      final RawPairIntegerBoolean entry =
+      final var entry =
           findFirstEmptySlot(
               recordVersion,
               freePosition,
@@ -218,16 +218,16 @@ public final class ClusterPage extends DurablePage {
    * @return position and size of the hole.
    */
   private int[] findHole(int requestedSize, int freePosition) {
-    int currentPosition = freePosition;
+    var currentPosition = freePosition;
 
-    int holeSize = 0;
-    int initialHolePosition = 0;
+    var holeSize = 0;
+    var initialHolePosition = 0;
 
     while (currentPosition < PAGE_SIZE) {
-      final int size = getIntValue(currentPosition);
+      final var size = getIntValue(currentPosition);
 
       if (size < 0) {
-        final int currentSize = -size;
+        final var currentSize = -size;
 
         if (initialHolePosition == 0) {
           initialHolePosition = currentPosition;
@@ -265,21 +265,21 @@ public final class ClusterPage extends DurablePage {
       final int entrySize,
       final int requestedPosition,
       final int freeListHeader) {
-    boolean allocatedFromFreeList = false;
-    int indexesLength = getPageIndexesLength();
+    var allocatedFromFreeList = false;
+    var indexesLength = getPageIndexesLength();
     // 1. requested position is first free slot inside of list of pointers
     if (indexesLength == requestedPosition) {
       setPageIndexesLength(indexesLength + 1);
       setFreeSpace(getFreeSpace() - entrySize - INDEX_ITEM_SIZE);
 
-      int entryIndexPosition = computePointerPosition(requestedPosition);
+      var entryIndexPosition = computePointerPosition(requestedPosition);
       setPointerAt(entryIndexPosition, freePosition);
 
       setVersionAt(entryIndexPosition, recordVersion);
     } else if (indexesLength > requestedPosition) {
       // 2 requested position inside of list of pointers
-      final int entryIndexPosition = computePointerPosition(requestedPosition);
-      int entryPointer = getPointerAt(entryIndexPosition);
+      final var entryIndexPosition = computePointerPosition(requestedPosition);
+      var entryPointer = getPointerAt(entryIndexPosition);
       // 2.1 requested position already occupied by other record, should not really happen
       if ((entryPointer & MARKED_AS_DELETED_FLAG) == 0) {
         throw new StorageException(
@@ -290,11 +290,11 @@ public final class ClusterPage extends DurablePage {
       // 2.2 requested position is already removed, read free list of removed pointers till we will
       // not find one which we need
       // remove
-      int prevFreeListItem = -1;
-      int currentFreeListItem = freeListHeader - 1;
+      var prevFreeListItem = -1;
+      var currentFreeListItem = freeListHeader - 1;
       while (true) {
-        final int tombstonePointer = getPointerAt(computePointerPosition(currentFreeListItem));
-        final int nextEntryPosition = (tombstonePointer & POSITION_MASK);
+        final var tombstonePointer = getPointerAt(computePointerPosition(currentFreeListItem));
+        final var nextEntryPosition = (tombstonePointer & POSITION_MASK);
 
         if (currentFreeListItem == requestedPosition) {
           if (prevFreeListItem >= 0) {
@@ -340,17 +340,17 @@ public final class ClusterPage extends DurablePage {
       int freeListHeader,
       boolean useOnlyFreeList,
       IntSet bookedRecordPositions) {
-    boolean allocatedFromFreeList = false;
+    var allocatedFromFreeList = false;
     int entryIndex;
     if (freeListHeader > 0) {
       // iterate over free list of times to find first not booked position to reuse
       entryIndex = -1;
 
-      int prevFreeListItem = -1;
-      int currentFreeListItem = freeListHeader - 1;
+      var prevFreeListItem = -1;
+      var currentFreeListItem = freeListHeader - 1;
       while (true) {
-        final int tombstonePointer = getPointer(currentFreeListItem);
-        final int nextEntryPosition = (tombstonePointer & POSITION_MASK);
+        final var tombstonePointer = getPointer(currentFreeListItem);
+        final var nextEntryPosition = (tombstonePointer & POSITION_MASK);
 
         if (!bookedRecordPositions.contains(currentFreeListItem)) {
           if (prevFreeListItem >= 0) {
@@ -374,7 +374,7 @@ public final class ClusterPage extends DurablePage {
       if (entryIndex >= 0) {
         setFreeSpace(getFreeSpace() - entrySize);
 
-        int entryIndexPosition = computePointerPosition(entryIndex);
+        var entryIndexPosition = computePointerPosition(entryIndex);
         setPointerAt(entryIndexPosition, entryPosition);
 
         setVersionAt(entryIndexPosition, recordVersion);
@@ -405,7 +405,7 @@ public final class ClusterPage extends DurablePage {
     setPageIndexesLength(indexesLength + 1);
     setFreeSpace(getFreeSpace() - entrySize - INDEX_ITEM_SIZE);
 
-    int entryIndexPosition = computePointerPosition(entryIndex);
+    var entryIndexPosition = computePointerPosition(entryIndex);
     setPointerAt(entryIndexPosition, freePosition);
 
     setVersionAt(entryIndexPosition, recordVersion);
@@ -413,15 +413,15 @@ public final class ClusterPage extends DurablePage {
   }
 
   public byte[] replaceRecord(int entryIndex, byte[] record, final int recordVersion) {
-    int entryIndexPosition = computePointerPosition(entryIndex);
+    var entryIndexPosition = computePointerPosition(entryIndex);
 
     if (recordVersion != -1) {
       setVersionAt(entryIndexPosition, recordVersion);
     }
 
-    int entryPosition = getPointerValuePositionAt(entryIndexPosition);
+    var entryPosition = getPointerValuePositionAt(entryIndexPosition);
 
-    int recordSize = getRecordEntrySize(entryPosition) - 3 * IntegerSerializer.INT_SIZE;
+    var recordSize = getRecordEntrySize(entryPosition) - 3 * IntegerSerializer.INT_SIZE;
     if (recordSize != record.length) {
       throw new IllegalStateException(
           "Length of passed in and stored records are different. Stored record length = "
@@ -430,7 +430,7 @@ public final class ClusterPage extends DurablePage {
               + record.length);
     }
 
-    final byte[] oldRecord = getRecordEntryBytes(entryPosition, recordSize);
+    final var oldRecord = getRecordEntryBytes(entryPosition, recordSize);
 
     setRecordEntryBytesLength(entryPosition, record.length);
     setRecordEntryBytes(entryPosition, record);
@@ -439,13 +439,13 @@ public final class ClusterPage extends DurablePage {
   }
 
   public int getRecordVersion(int position) {
-    int indexesLength = getPageIndexesLength();
+    var indexesLength = getPageIndexesLength();
     if (position >= indexesLength) {
       return -1;
     }
 
-    final int entryIndexPosition = computePointerPosition(position);
-    final int entryPointer = getPointerAt(entryIndexPosition);
+    final var entryIndexPosition = computePointerPosition(position);
+    final var entryPointer = getPointerAt(entryIndexPosition);
 
     if ((entryPointer & MARKED_AS_DELETED_FLAG) != 0) {
       return -1;
@@ -462,23 +462,23 @@ public final class ClusterPage extends DurablePage {
   }
 
   public byte[] deleteRecord(int position, boolean preserveFreeListPointer) {
-    int indexesLength = getPageIndexesLength();
+    var indexesLength = getPageIndexesLength();
     if (position >= indexesLength) {
       return null;
     }
 
-    int entryIndexPosition = computePointerPosition(position);
-    final int entryPointer = getPointerAt(entryIndexPosition);
+    var entryIndexPosition = computePointerPosition(position);
+    final var entryPointer = getPointerAt(entryIndexPosition);
 
     if ((entryPointer & MARKED_AS_DELETED_FLAG) != 0) {
       return null;
     }
 
-    final int oldVersion = getVersionAt(entryIndexPosition);
-    int entryPosition = entryPointer & POSITION_MASK;
+    final var oldVersion = getVersionAt(entryIndexPosition);
+    var entryPosition = entryPointer & POSITION_MASK;
 
     if (preserveFreeListPointer) {
-      int freeListHeader = getFreeListHeader();
+      var freeListHeader = getFreeListHeader();
       if (freeListHeader <= 0) {
         setPointerAt(entryIndexPosition, MARKED_AS_DELETED_FLAG);
       } else {
@@ -496,45 +496,45 @@ public final class ClusterPage extends DurablePage {
       setFreeSpace(getFreeSpace() + INDEX_ITEM_SIZE);
     }
 
-    final int entrySize = getRecordEntrySize(entryPosition);
+    final var entrySize = getRecordEntrySize(entryPosition);
     assert entrySize + entryPosition <= PAGE_SIZE;
     assert entrySize > 0;
 
-    final int recordSize = getRecordEntryBytesLength(entryPosition);
+    final var recordSize = getRecordEntryBytesLength(entryPosition);
 
     setRecordEntrySize(entryPosition, -entrySize);
     setFreeSpace(getFreeSpace() + entrySize);
 
     decrementEntriesCount();
 
-    final byte[] oldRecord = getRecordEntryBytes(entryPosition, recordSize);
+    final var oldRecord = getRecordEntryBytes(entryPosition, recordSize);
 
     return oldRecord;
   }
 
   public boolean isDeleted(final int position) {
-    final int indexesLength = getPageIndexesLength();
+    final var indexesLength = getPageIndexesLength();
     if (position >= indexesLength) {
       return true;
     }
 
-    int entryPointer = getPointer(position);
+    var entryPointer = getPointer(position);
 
     return (entryPointer & MARKED_AS_DELETED_FLAG) != 0;
   }
 
   public int getRecordSize(final int position) {
-    final int indexesLength = getPageIndexesLength();
+    final var indexesLength = getPageIndexesLength();
     if (position >= indexesLength) {
       return -1;
     }
 
-    final int entryPointer = getPointer(position);
+    final var entryPointer = getPointer(position);
     if ((entryPointer & MARKED_AS_DELETED_FLAG) != 0) {
       return -1;
     }
 
-    final int entryPosition = entryPointer & POSITION_MASK;
+    final var entryPosition = entryPointer & POSITION_MASK;
     assert getRecordEntrySize(entryPosition) + entryPosition <= PAGE_SIZE;
     assert getRecordEntryBytesLength(entryPosition) <= PAGE_SIZE;
 
@@ -542,9 +542,9 @@ public final class ClusterPage extends DurablePage {
   }
 
   int findFirstDeletedRecord(final int position) {
-    final int indexesLength = getPageIndexesLength();
-    for (int i = position; i < indexesLength; i++) {
-      int entryPointer = getPointer(i);
+    final var indexesLength = getPageIndexesLength();
+    for (var i = position; i < indexesLength; i++) {
+      var entryPointer = getPointer(i);
       if ((entryPointer & MARKED_AS_DELETED_FLAG) != 0) {
         return i;
       }
@@ -554,9 +554,9 @@ public final class ClusterPage extends DurablePage {
   }
 
   int findFirstRecord(final int position) {
-    final int indexesLength = getPageIndexesLength();
-    for (int i = position; i < indexesLength; i++) {
-      final int entryPointer = getPointer(i);
+    final var indexesLength = getPageIndexesLength();
+    for (var i = position; i < indexesLength; i++) {
+      final var entryPointer = getPointer(i);
       if ((entryPointer & MARKED_AS_DELETED_FLAG) == 0) {
         return i;
       }
@@ -566,11 +566,11 @@ public final class ClusterPage extends DurablePage {
   }
 
   int findLastRecord(final int position) {
-    final int indexesLength = getPageIndexesLength();
+    final var indexesLength = getPageIndexesLength();
 
-    final int endIndex = Math.min(indexesLength - 1, position);
-    for (int i = endIndex; i >= 0; i--) {
-      final int entryPointer = getPointer(i);
+    final var endIndex = Math.min(indexesLength - 1, position);
+    for (var i = endIndex; i >= 0; i--) {
+      final var entryPointer = getPointer(i);
       if ((entryPointer & MARKED_AS_DELETED_FLAG) == 0) {
         return i;
       }
@@ -584,9 +584,9 @@ public final class ClusterPage extends DurablePage {
   }
 
   public int getMaxRecordSize() {
-    final int maxEntrySize = getFreeSpace() - INDEX_ITEM_SIZE;
+    final var maxEntrySize = getFreeSpace() - INDEX_ITEM_SIZE;
 
-    final int result = maxEntrySize - 3 * IntegerSerializer.INT_SIZE;
+    final var result = maxEntrySize - 3 * IntegerSerializer.INT_SIZE;
     return Math.max(result, 0);
   }
 
@@ -613,16 +613,16 @@ public final class ClusterPage extends DurablePage {
   public void setRecordLongValue(final int recordPosition, final int offset, final long value) {
     assert isPositionInsideInterval(recordPosition);
 
-    final int entryPosition = getPointerValuePosition(recordPosition);
+    final var entryPosition = getPointerValuePosition(recordPosition);
 
     if (offset >= 0) {
       assert insideRecordBounds(entryPosition, offset, LongSerializer.LONG_SIZE);
-      final int valueOffset = entryPosition + offset + 3 * IntegerSerializer.INT_SIZE;
+      final var valueOffset = entryPosition + offset + 3 * IntegerSerializer.INT_SIZE;
       setLongValue(valueOffset, value);
     } else {
-      final int recordSize = getRecordEntryBytesLength(entryPosition);
+      final var recordSize = getRecordEntryBytesLength(entryPosition);
       assert insideRecordBounds(entryPosition, recordSize + offset, LongSerializer.LONG_SIZE);
-      final int valueOffset = entryPosition + 3 * IntegerSerializer.INT_SIZE + recordSize + offset;
+      final var valueOffset = entryPosition + 3 * IntegerSerializer.INT_SIZE + recordSize + offset;
       setLongValue(valueOffset, value);
     }
   }
@@ -630,13 +630,13 @@ public final class ClusterPage extends DurablePage {
   public long getRecordLongValue(final int recordPosition, final int offset) {
     assert isPositionInsideInterval(recordPosition);
 
-    final int entryPosition = getPointerValuePosition(recordPosition);
+    final var entryPosition = getPointerValuePosition(recordPosition);
 
     if (offset >= 0) {
       assert insideRecordBounds(entryPosition, offset, LongSerializer.LONG_SIZE);
       return getLongValue(entryPosition + offset + 3 * IntegerSerializer.INT_SIZE);
     } else {
-      final int recordSize = getRecordEntryBytesLength(entryPosition);
+      final var recordSize = getRecordEntryBytesLength(entryPosition);
       assert insideRecordBounds(entryPosition, recordSize + offset, LongSerializer.LONG_SIZE);
       return getLongValue(entryPosition + 3 * IntegerSerializer.INT_SIZE + recordSize + offset);
     }
@@ -645,19 +645,19 @@ public final class ClusterPage extends DurablePage {
   public byte[] getRecordBinaryValue(final int recordPosition, final int offset, final int size) {
     assert isPositionInsideInterval(recordPosition);
 
-    final int entryPointer = getPointer(recordPosition);
+    final var entryPointer = getPointer(recordPosition);
     if ((entryPointer & MARKED_AS_DELETED_FLAG) != 0) {
       return null;
     }
 
-    final int entryPosition = entryPointer & POSITION_MASK;
+    final var entryPosition = entryPointer & POSITION_MASK;
 
     if (offset >= 0) {
       assert insideRecordBounds(entryPosition, offset, size);
 
       return getBinaryValue(entryPosition + offset + 3 * IntegerSerializer.INT_SIZE, size);
     } else {
-      final int recordSize = getRecordEntryBytesLength(entryPosition);
+      final var recordSize = getRecordEntryBytesLength(entryPosition);
       assert insideRecordBounds(entryPosition, recordSize + offset, LongSerializer.LONG_SIZE);
 
       return getBinaryValue(
@@ -668,13 +668,13 @@ public final class ClusterPage extends DurablePage {
   public byte getRecordByteValue(final int recordPosition, final int offset) {
     assert isPositionInsideInterval(recordPosition);
 
-    final int entryPosition = getPointerValuePosition(recordPosition);
+    final var entryPosition = getPointerValuePosition(recordPosition);
 
     if (offset >= 0) {
       assert insideRecordBounds(entryPosition, offset, ByteSerializer.BYTE_SIZE);
       return getByteValue(entryPosition + offset + 3 * IntegerSerializer.INT_SIZE);
     } else {
-      final int recordSize = getRecordEntryBytesLength(entryPosition);
+      final var recordSize = getRecordEntryBytesLength(entryPosition);
       assert insideRecordBounds(entryPosition, recordSize + offset, ByteSerializer.BYTE_SIZE);
       return getByteValue(entryPosition + 3 * IntegerSerializer.INT_SIZE + recordSize + offset);
     }
@@ -682,7 +682,7 @@ public final class ClusterPage extends DurablePage {
 
   private boolean insideRecordBounds(
       final int entryPosition, final int offset, final int contentSize) {
-    final int recordSize = getRecordEntryBytesLength(entryPosition);
+    final var recordSize = getRecordEntryBytesLength(entryPosition);
     return offset >= 0 && offset + contentSize <= recordSize;
   }
 
@@ -695,27 +695,27 @@ public final class ClusterPage extends DurablePage {
   }
 
   private boolean isPositionInsideInterval(final int recordPosition) {
-    final int indexesLength = getPageIndexesLength();
+    final var indexesLength = getPageIndexesLength();
     return recordPosition < indexesLength;
   }
 
   private void doDefragmentation() {
-    final int recordsCount = getRecordsCount();
-    final int freePosition = getFreePosition();
+    final var recordsCount = getRecordsCount();
+    final var freePosition = getFreePosition();
 
     // 1. Build the entries "map" and merge consecutive holes.
 
-    final int maxEntries =
+    final var maxEntries =
         recordsCount /* live records */ + recordsCount + 1 /* max holes after merging */;
-    final int[] positions = new int[maxEntries];
-    final int[] sizes = new int[maxEntries];
+    final var positions = new int[maxEntries];
+    final var sizes = new int[maxEntries];
 
-    int count = 0;
-    int currentPosition = freePosition;
-    int lastEntryKind = ENTRY_KIND_UNKNOWN;
+    var count = 0;
+    var currentPosition = freePosition;
+    var lastEntryKind = ENTRY_KIND_UNKNOWN;
     while (currentPosition < PAGE_SIZE) {
-      final int size = getIntValue(currentPosition);
-      final int entryKind = Integer.signum(size);
+      final var size = getIntValue(currentPosition);
+      final var entryKind = Integer.signum(size);
       assert entryKind != ENTRY_KIND_UNKNOWN;
 
       if (entryKind == ENTRY_KIND_HOLE && lastEntryKind == ENTRY_KIND_HOLE) {
@@ -735,18 +735,18 @@ public final class ClusterPage extends DurablePage {
     // 2. Iterate entries in reverse, update data offsets, merge consecutive data segments and move
     // them in a single operation.
 
-    int shift = 0;
-    int lastDataPosition = 0;
-    int mergedDataSize = 0;
-    for (int i = count - 1; i >= 0; --i) {
-      final int position = positions[i];
-      final int size = sizes[i];
+    var shift = 0;
+    var lastDataPosition = 0;
+    var mergedDataSize = 0;
+    for (var i = count - 1; i >= 0; --i) {
+      final var position = positions[i];
+      final var size = sizes[i];
 
-      final int entryKind = Integer.signum(size);
+      final var entryKind = Integer.signum(size);
       assert entryKind != ENTRY_KIND_UNKNOWN;
 
       if (entryKind == ENTRY_KIND_DATA && shift > 0) {
-        final int positionIndex = getIntValue(position + IntegerSerializer.INT_SIZE);
+        final var positionIndex = getIntValue(position + IntegerSerializer.INT_SIZE);
         setPointer(positionIndex, position + shift);
 
         lastDataPosition = position;
@@ -803,7 +803,7 @@ public final class ClusterPage extends DurablePage {
   }
 
   public int getPointerValuePositionAt(int entryIndexPosition) {
-    int valuePosition = getPointerAt(entryIndexPosition);
+    var valuePosition = getPointerAt(entryIndexPosition);
     return valuePosition & POSITION_MASK;
   }
 

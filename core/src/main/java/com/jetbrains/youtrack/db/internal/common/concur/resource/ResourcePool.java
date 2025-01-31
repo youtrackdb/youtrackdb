@@ -64,8 +64,8 @@ public class ResourcePool<K, V> {
     this.listener = listener;
     sem = new Semaphore(maxResources, true);
     unmodifiableresources = Collections.unmodifiableCollection(resources);
-    for (int i = 0; i < min; i++) {
-      V res = listener.createNewResource(null, null);
+    for (var i = 0; i < min; i++) {
+      var res = listener.createNewResource(null, null);
       created.incrementAndGet();
       resources.add(res);
     }

@@ -27,7 +27,7 @@ public class LiveQueryShutdownTest {
     server.startup(getClass().getResourceAsStream("youtrackdb-server-config.xml"));
     server.activate();
 
-    ServerAdmin server = new ServerAdmin("remote:localhost");
+    var server = new ServerAdmin("remote:localhost");
     server.connect("root", "root");
     server.createDatabase(LiveQueryShutdownTest.class.getSimpleName(), "graph", "memory");
   }
@@ -42,7 +42,7 @@ public class LiveQueryShutdownTest {
   @Test
   public void testShutDown() throws Exception {
     bootServer();
-    final CountDownLatch end = new CountDownLatch(1);
+    final var end = new CountDownLatch(1);
     try (var youTrackDbManager = YourTracks.remote("remote:localhost", "root", "root")) {
       youTrackDbManager.createIfNotExists(LiveQueryShutdownTest.class.getSimpleName(),
           DatabaseType.MEMORY, "admin", "admin", "admin");

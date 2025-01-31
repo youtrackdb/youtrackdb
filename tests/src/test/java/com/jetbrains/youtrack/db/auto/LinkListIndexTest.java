@@ -32,7 +32,7 @@ public class LinkListIndexTest extends BaseDBTest {
 
   @BeforeClass
   public void setupSchema() {
-    final SchemaClass linkListIndexTestClass =
+    final var linkListIndexTestClass =
         db.getMetadata().getSchema().createClass("LinkListIndexTestClass");
 
     linkListIndexTestClass.createProperty(db, "linkCollection", PropertyType.LINKLIST);
@@ -53,11 +53,11 @@ public class LinkListIndexTest extends BaseDBTest {
     db.command("DELETE FROM LinkListIndexTestClass").close();
     db.commit();
 
-    ResultSet result = db.query("select from LinkListIndexTestClass");
+    var result = db.query("select from LinkListIndexTestClass");
     Assert.assertEquals(result.stream().count(), 0);
 
     if (!db.getStorage().isRemote()) {
-      final Index index = getIndex("linkCollectionIndex");
+      final var index = getIndex("linkCollectionIndex");
       Assert.assertEquals(index.getInternal().size(db), 0);
     }
 
@@ -68,28 +68,28 @@ public class LinkListIndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.save();
 
-    final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    final var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
     document.save();
     db.commit();
 
-    Index index = getIndex("linkCollectionIndex");
+    var index = getIndex("linkCollectionIndex");
     Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keyIterator;
-    try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
+    try (var indexKeyStream = index.getInternal().keyStream()) {
       keyIterator = indexKeyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        Identifiable key = (Identifiable) keyIterator.next();
+        var key = (Identifiable) keyIterator.next();
 
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())) {
@@ -103,16 +103,16 @@ public class LinkListIndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.save();
     db.commit();
 
     try {
       db.begin();
-      final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+      final var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
       document.field(
           "linkCollection",
           new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -123,15 +123,15 @@ public class LinkListIndexTest extends BaseDBTest {
       throw e;
     }
 
-    Index index = getIndex("linkCollectionIndex");
+    var index = getIndex("linkCollectionIndex");
     Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keyIterator;
-    try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
+    try (var indexKeyStream = index.getInternal().keyStream()) {
       keyIterator = indexKeyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        Identifiable key = (Identifiable) keyIterator.next();
+        var key = (Identifiable) keyIterator.next();
 
         if (!key.getIdentity().equals(docOne.getIdentity()) && !key.equals(docTwo.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -144,16 +144,16 @@ public class LinkListIndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.save();
 
-    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) db.newEntity());
     docThree.save();
 
-    final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    final var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
 
     document.field(
         "linkCollection",
@@ -166,15 +166,15 @@ public class LinkListIndexTest extends BaseDBTest {
     document.save();
     db.commit();
 
-    Index index = getIndex("linkCollectionIndex");
+    var index = getIndex("linkCollectionIndex");
     Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keyIterator;
-    try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
+    try (var indexKeyStream = index.getInternal().keyStream()) {
       keyIterator = indexKeyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        Identifiable key = (Identifiable) keyIterator.next();
+        var key = (Identifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docThree.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -187,16 +187,16 @@ public class LinkListIndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.save();
 
-    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) db.newEntity());
     docThree.save();
 
-    EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -217,15 +217,15 @@ public class LinkListIndexTest extends BaseDBTest {
       throw e;
     }
 
-    Index index = getIndex("linkCollectionIndex");
+    var index = getIndex("linkCollectionIndex");
     Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keyIterator;
-    try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
+    try (var indexKeyStream = index.getInternal().keyStream()) {
       keyIterator = indexKeyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        Identifiable key = (Identifiable) keyIterator.next();
+        var key = (Identifiable) keyIterator.next();
 
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docThree.getIdentity())) {
@@ -239,16 +239,16 @@ public class LinkListIndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.save();
 
-    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) db.newEntity());
     docThree.save();
 
-    EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -264,15 +264,15 @@ public class LinkListIndexTest extends BaseDBTest {
     document.save();
     db.rollback();
 
-    Index index = getIndex("linkCollectionIndex");
+    var index = getIndex("linkCollectionIndex");
     Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keyIterator;
-    try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
+    try (var indexKeyStream = index.getInternal().keyStream()) {
       keyIterator = indexKeyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        Identifiable key = (Identifiable) keyIterator.next();
+        var key = (Identifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -285,16 +285,16 @@ public class LinkListIndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.save();
 
-    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) db.newEntity());
     docThree.save();
 
-    final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    final var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -311,15 +311,15 @@ public class LinkListIndexTest extends BaseDBTest {
         .close();
     db.commit();
 
-    Index index = getIndex("linkCollectionIndex");
+    var index = getIndex("linkCollectionIndex");
     Assert.assertEquals(index.getInternal().size(db), 3);
 
     Iterator<Object> keyIterator;
-    try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
+    try (var indexKeyStream = index.getInternal().keyStream()) {
       keyIterator = indexKeyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        Identifiable key = (Identifiable) keyIterator.next();
+        var key = (Identifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())
             && !key.getIdentity().equals(docThree.getIdentity())) {
@@ -333,16 +333,16 @@ public class LinkListIndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.save();
 
-    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) db.newEntity());
     docThree.save();
 
-    final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    final var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -360,15 +360,15 @@ public class LinkListIndexTest extends BaseDBTest {
       throw e;
     }
 
-    Index index = getIndex("linkCollectionIndex");
+    var index = getIndex("linkCollectionIndex");
     Assert.assertEquals(index.getInternal().size(db), 3);
 
     Iterator<Object> keyIterator;
-    try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
+    try (var indexKeyStream = index.getInternal().keyStream()) {
       keyIterator = indexKeyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        Identifiable key = (Identifiable) keyIterator.next();
+        var key = (Identifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())
             && !key.getIdentity().equals(docThree.getIdentity())) {
@@ -382,16 +382,16 @@ public class LinkListIndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.save();
 
-    final EntityImpl docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) db.newEntity());
     docThree.save();
 
-    final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    final var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -404,15 +404,15 @@ public class LinkListIndexTest extends BaseDBTest {
     loadedDocument.save();
     db.rollback();
 
-    Index index = getIndex("linkCollectionIndex");
+    var index = getIndex("linkCollectionIndex");
     Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keyIterator;
-    try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
+    try (var indexKeyStream = index.getInternal().keyStream()) {
       keyIterator = indexKeyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        Identifiable key = (Identifiable) keyIterator.next();
+        var key = (Identifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -425,13 +425,13 @@ public class LinkListIndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.save();
 
-    final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    final var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -449,15 +449,15 @@ public class LinkListIndexTest extends BaseDBTest {
       throw e;
     }
 
-    Index index = getIndex("linkCollectionIndex");
+    var index = getIndex("linkCollectionIndex");
     Assert.assertEquals(index.getInternal().size(db), 1);
 
     Iterator<Object> keyIterator;
-    try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
+    try (var indexKeyStream = index.getInternal().keyStream()) {
       keyIterator = indexKeyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        Identifiable key = (Identifiable) keyIterator.next();
+        var key = (Identifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
         }
@@ -469,13 +469,13 @@ public class LinkListIndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.save();
 
-    final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    final var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -488,15 +488,15 @@ public class LinkListIndexTest extends BaseDBTest {
     loadedDocument.save();
     db.rollback();
 
-    Index index = getIndex("linkCollectionIndex");
+    var index = getIndex("linkCollectionIndex");
     Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keyIterator;
-    try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
+    try (var indexKeyStream = index.getInternal().keyStream()) {
       keyIterator = indexKeyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        Identifiable key = (Identifiable) keyIterator.next();
+        var key = (Identifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -509,13 +509,13 @@ public class LinkListIndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.save();
 
-    final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    final var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -527,15 +527,15 @@ public class LinkListIndexTest extends BaseDBTest {
         "UPDATE " + document.getIdentity() + " remove linkCollection = " + docTwo.getIdentity());
     db.commit();
 
-    Index index = getIndex("linkCollectionIndex");
+    var index = getIndex("linkCollectionIndex");
     Assert.assertEquals(index.getInternal().size(db), 1);
 
     Iterator<Object> keyIterator;
-    try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
+    try (var indexKeyStream = index.getInternal().keyStream()) {
       keyIterator = indexKeyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        Identifiable key = (Identifiable) keyIterator.next();
+        var key = (Identifiable) keyIterator.next();
 
         if (!key.getIdentity().equals(docOne.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -548,13 +548,13 @@ public class LinkListIndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.save();
 
-    EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -566,7 +566,7 @@ public class LinkListIndexTest extends BaseDBTest {
     document.delete();
     db.commit();
 
-    Index index = getIndex("linkCollectionIndex");
+    var index = getIndex("linkCollectionIndex");
 
     Assert.assertEquals(index.getInternal().size(db), 0);
   }
@@ -575,13 +575,13 @@ public class LinkListIndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.save();
 
-    EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -598,7 +598,7 @@ public class LinkListIndexTest extends BaseDBTest {
       throw e;
     }
 
-    Index index = getIndex("linkCollectionIndex");
+    var index = getIndex("linkCollectionIndex");
     Assert.assertEquals(index.getInternal().size(db), 0);
   }
 
@@ -606,13 +606,13 @@ public class LinkListIndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.save();
 
-    final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    final var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -623,16 +623,16 @@ public class LinkListIndexTest extends BaseDBTest {
     db.bindToSession(document).delete();
     db.rollback();
 
-    Index index = getIndex("linkCollectionIndex");
+    var index = getIndex("linkCollectionIndex");
 
     Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keyIterator;
-    try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
+    try (var indexKeyStream = index.getInternal().keyStream()) {
       keyIterator = indexKeyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        Identifiable key = (Identifiable) keyIterator.next();
+        var key = (Identifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -643,20 +643,20 @@ public class LinkListIndexTest extends BaseDBTest {
 
   public void testIndexCollectionSQL() {
     db.begin();
-    final EntityImpl docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) db.newEntity());
     docOne.save();
 
-    final EntityImpl docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) db.newEntity());
     docTwo.save();
 
-    final EntityImpl document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    final var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
     document.save();
     db.commit();
 
-    ResultSet result =
+    var result =
         db.query(
             "select * from LinkListIndexTestClass where linkCollection contains ?",
             docOne.getIdentity());

@@ -8,7 +8,7 @@ public class SecuritySharedTest extends DbTestBase {
 
   @Test
   public void testCreateSecurityPolicy() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
     db.begin();
     security.createSecurityPolicy(db, "testPolicy");
     db.commit();
@@ -17,7 +17,7 @@ public class SecuritySharedTest extends DbTestBase {
 
   @Test
   public void testDeleteSecurityPolicy() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
     db.begin();
     security.createSecurityPolicy(db, "testPolicy");
     db.commit();
@@ -31,9 +31,9 @@ public class SecuritySharedTest extends DbTestBase {
 
   @Test
   public void testUpdateSecurityPolicy() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
+    var policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(db, true);
     policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
@@ -46,12 +46,12 @@ public class SecuritySharedTest extends DbTestBase {
 
   @Test
   public void testBindPolicyToRole() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
+    var policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(db, true);
     policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
@@ -68,12 +68,12 @@ public class SecuritySharedTest extends DbTestBase {
 
   @Test
   public void testUnbindPolicyFromRole() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
+    var policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(db, true);
     policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);

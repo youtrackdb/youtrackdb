@@ -10,7 +10,6 @@ import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -84,9 +83,9 @@ public class BTreeRidBagConcurrencyMultiBasedRidBag {
     }
 
     db.create();
-    for (int i = 0; i < 100; i++) {
-      EntityImpl document = ((EntityImpl) db.newEntity());
-      RidBag ridBag = new RidBag(db);
+    for (var i = 0; i < 100; i++) {
+      var document = ((EntityImpl) db.newEntity());
+      var ridBag = new RidBag(db);
       document.field("ridBag", ridBag);
 
       document.save();
@@ -97,17 +96,17 @@ public class BTreeRidBagConcurrencyMultiBasedRidBag {
 
     final List<Future<?>> futures = new ArrayList<Future<?>>();
 
-    Random random = new Random();
-    for (int i = 0; i < 5; i++) {
+    var random = new Random();
+    for (var i = 0; i < 5; i++) {
       addDocExecutor.scheduleAtFixedRate(
           new DocumentAdder(), random.nextInt(250), 250, TimeUnit.MILLISECONDS);
     }
 
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       futures.add(threadExecutor.submit(new RidAdder(i)));
     }
 
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       futures.add(threadExecutor.submit(new RidDeleter(i)));
     }
 
@@ -122,16 +121,16 @@ public class BTreeRidBagConcurrencyMultiBasedRidBag {
 
     cont = false;
 
-    for (Future<?> future : futures) {
+    for (var future : futures) {
       future.get();
     }
 
     long amountOfRids = 0;
-    for (RID rid : ridTreePerDocument.keySet()) {
+    for (var rid : ridTreePerDocument.keySet()) {
       EntityImpl document = db.load(rid);
       document.setLazyLoad(false);
 
-      final ConcurrentSkipListSet<RID> ridTree = ridTreePerDocument.get(rid);
+      final var ridTree = ridTreePerDocument.get(rid);
 
       final RidBag ridBag = document.field("ridBag");
 
@@ -158,8 +157,8 @@ public class BTreeRidBagConcurrencyMultiBasedRidBag {
       db.open("admin", "admin");
 
       try {
-        EntityImpl document = ((EntityImpl) db.newEntity());
-        RidBag ridBag = new RidBag(db);
+        var document = ((EntityImpl) db.newEntity());
+        var ridBag = new RidBag(db);
         document.field("ridBag", ridBag);
 
         document.save();
@@ -195,19 +194,19 @@ public class BTreeRidBagConcurrencyMultiBasedRidBag {
 
     @Override
     public Void call() throws Exception {
-      final Random random = new Random();
+      final var random = new Random();
       long addedRecords = 0;
-      int retries = 0;
+      var retries = 0;
 
       DatabaseSessionInternal db = new DatabaseDocumentTx(URL);
       db.open("admin", "admin");
 
-      final int defaultClusterId = db.getDefaultClusterId();
+      final var defaultClusterId = db.getDefaultClusterId();
       latch.await();
       try {
         while (cont) {
           List<RID> ridsToAdd = new ArrayList<RID>();
-          for (int i = 0; i < 10; i++) {
+          for (var i = 0; i < 10; i++) {
             ridsToAdd.add(new RecordId(0, positionCounter.incrementAndGet()));
           }
 
@@ -219,7 +218,7 @@ public class BTreeRidBagConcurrencyMultiBasedRidBag {
             document.setLazyLoad(false);
 
             RidBag ridBag = document.field("ridBag");
-            for (RID rid : ridsToAdd) {
+            for (var rid : ridsToAdd) {
               ridBag.add(rid);
             }
 
@@ -233,7 +232,7 @@ public class BTreeRidBagConcurrencyMultiBasedRidBag {
             break;
           }
 
-          final ConcurrentSkipListSet<RID> ridTree = ridTreePerDocument.get(orid);
+          final var ridTree = ridTreePerDocument.get(orid);
           ridTree.addAll(ridsToAdd);
           addedRecords += ridsToAdd.size();
         }
@@ -266,14 +265,14 @@ public class BTreeRidBagConcurrencyMultiBasedRidBag {
 
     @Override
     public Void call() throws Exception {
-      final Random random = new Random();
+      final var random = new Random();
       long deletedRecords = 0;
-      int retries = 0;
+      var retries = 0;
 
       DatabaseSessionInternal db = new DatabaseDocumentTx(URL);
       db.open("admin", "admin");
 
-      final int defaultClusterId = db.getDefaultClusterId();
+      final var defaultClusterId = db.getDefaultClusterId();
       latch.await();
       try {
         while (cont) {
@@ -284,10 +283,10 @@ public class BTreeRidBagConcurrencyMultiBasedRidBag {
             EntityImpl document = db.load(orid);
             document.setLazyLoad(false);
             RidBag ridBag = document.field("ridBag");
-            Iterator<RID> iterator = ridBag.iterator();
+            var iterator = ridBag.iterator();
 
             List<RID> ridsToDelete = new ArrayList<RID>();
-            int counter = 0;
+            var counter = 0;
             while (iterator.hasNext()) {
               Identifiable identifiable = iterator.next();
               if (random.nextBoolean()) {
@@ -308,7 +307,7 @@ public class BTreeRidBagConcurrencyMultiBasedRidBag {
               continue;
             }
 
-            final ConcurrentSkipListSet<RID> ridTree = ridTreePerDocument.get(orid);
+            final var ridTree = ridTreePerDocument.get(orid);
             ridTree.removeAll(ridsToDelete);
 
             deletedRecords += ridsToDelete.size();

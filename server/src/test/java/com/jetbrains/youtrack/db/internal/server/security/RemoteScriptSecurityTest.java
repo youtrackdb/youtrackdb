@@ -51,9 +51,9 @@ public class RemoteScriptSecurityTest {
     // CREATE A SEPARATE CONTEXT TO MAKE SURE IT LOAD STAFF FROM SCRATCH
     try (YouTrackDB writerOrient = new YouTrackDBImpl("remote:localhost",
         YouTrackDBConfig.defaultConfig())) {
-      try (DatabaseSession writer =
+      try (var writer =
           writerOrient.open("RemoteScriptSecurityTest", "reader", "reader")) {
-        try (ResultSet rs = writer.execute("javascript", "1+1;")) {
+        try (var rs = writer.execute("javascript", "1+1;")) {
         }
       }
     }
@@ -64,10 +64,10 @@ public class RemoteScriptSecurityTest {
     // CREATE A SEPARATE CONTEXT TO MAKE SURE IT LOAD STAFF FROM SCRATCH
     try (YouTrackDB writerOrient = new YouTrackDBImpl("remote:localhost",
         YouTrackDBConfig.defaultConfig())) {
-      try (DatabaseSession writer =
+      try (var writer =
           writerOrient.open("RemoteScriptSecurityTest", "reader", "reader")) {
 
-        try (ResultSet rs = writer.execute("ecmascript", "1+1;")) {
+        try (var rs = writer.execute("ecmascript", "1+1;")) {
         }
       }
     }

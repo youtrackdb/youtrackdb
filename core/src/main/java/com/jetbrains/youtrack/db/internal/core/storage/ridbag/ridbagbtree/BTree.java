@@ -46,13 +46,13 @@ public final class BTree extends DurableComponent {
           try {
             fileId = addFile(atomicOperation, getFullName());
 
-            try (final CacheEntry entryPointCacheEntry = addPage(atomicOperation, fileId)) {
-              final EntryPoint entryPoint = new EntryPoint(entryPointCacheEntry);
+            try (final var entryPointCacheEntry = addPage(atomicOperation, fileId)) {
+              final var entryPoint = new EntryPoint(entryPointCacheEntry);
               entryPoint.init();
             }
 
-            try (final CacheEntry rootCacheEntry = addPage(atomicOperation, fileId)) {
-              final Bucket rootBucket = new Bucket(rootCacheEntry);
+            try (final var rootCacheEntry = addPage(atomicOperation, fileId)) {
+              final var rootBucket = new Bucket(rootCacheEntry);
               rootBucket.init(true);
             }
           } finally {
@@ -64,7 +64,7 @@ public final class BTree extends DurableComponent {
   public void load() {
     acquireExclusiveLock();
     try {
-      final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+      final var atomicOperation = atomicOperationsManager.getCurrentOperation();
 
       fileId = openFile(atomicOperation, getFullName());
     } catch (final IOException e) {
@@ -93,17 +93,17 @@ public final class BTree extends DurableComponent {
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
-        final BucketSearchResult bucketSearchResult = findBucket(key, atomicOperation);
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var bucketSearchResult = findBucket(key, atomicOperation);
         if (bucketSearchResult.getItemIndex() < 0) {
           return -1;
         }
 
-        final long pageIndex = bucketSearchResult.getPageIndex();
+        final var pageIndex = bucketSearchResult.getPageIndex();
 
-        try (final CacheEntry keyBucketCacheEntry =
+        try (final var keyBucketCacheEntry =
             loadPageForRead(atomicOperation, fileId, pageIndex)) {
-          final Bucket keyBucket = new Bucket(keyBucketCacheEntry);
+          final var keyBucket = new Bucket(keyBucketCacheEntry);
           return keyBucket.getValue(bucketSearchResult.getItemIndex());
         }
       } finally {
@@ -126,14 +126,14 @@ public final class BTree extends DurableComponent {
           final boolean result;
           acquireExclusiveLock();
           try {
-            final byte[] serializedKey =
+            final var serializedKey =
                 EdgeKeySerializer.INSTANCE.serializeNativeAsWhole(key, (Object[]) null);
-            UpdateBucketSearchResult bucketSearchResult = findBucketForUpdate(key, atomicOperation);
+            var bucketSearchResult = findBucketForUpdate(key, atomicOperation);
 
-            CacheEntry keyBucketCacheEntry =
+            var keyBucketCacheEntry =
                 loadPageForWrite(
                     atomicOperation, fileId, bucketSearchResult.getLastPathItem(), true);
-            Bucket keyBucket = new Bucket(keyBucketCacheEntry);
+            var keyBucket = new Bucket(keyBucketCacheEntry);
             final byte[] oldRawValue;
 
             if (bucketSearchResult.getItemIndex() > -1) {
@@ -144,7 +144,7 @@ public final class BTree extends DurableComponent {
               result = true;
             }
 
-            final byte[] serializedValue =
+            final var serializedValue =
                 IntSerializer.INSTANCE.serializeNativeAsWhole(value, (Object[]) null);
 
             int insertionIndex;
@@ -180,7 +180,7 @@ public final class BTree extends DurableComponent {
 
               insertionIndex = bucketSearchResult.getItemIndex();
 
-              final long pageIndex = bucketSearchResult.getLastPathItem();
+              final var pageIndex = bucketSearchResult.getLastPathItem();
 
               if (pageIndex != keyBucketCacheEntry.getPageIndex()) {
                 keyBucketCacheEntry.close();
@@ -210,18 +210,18 @@ public final class BTree extends DurableComponent {
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
 
-        final Optional<BucketSearchResult> searchResult = firstItem(atomicOperation);
+        final var searchResult = firstItem(atomicOperation);
         if (searchResult.isEmpty()) {
           return null;
         }
 
-        final BucketSearchResult result = searchResult.get();
+        final var result = searchResult.get();
 
-        try (final CacheEntry cacheEntry =
+        try (final var cacheEntry =
             loadPageForRead(atomicOperation, fileId, result.getPageIndex())) {
-          final Bucket bucket = new Bucket(cacheEntry);
+          final var bucket = new Bucket(cacheEntry);
           return bucket.getKey(result.getItemIndex());
         }
       } finally {
@@ -237,20 +237,20 @@ public final class BTree extends DurableComponent {
 
   private Optional<BucketSearchResult> firstItem(final AtomicOperation atomicOperation)
       throws IOException {
-    final LinkedList<PagePathItemUnit> path = new LinkedList<>();
+    final var path = new LinkedList<PagePathItemUnit>();
 
     long bucketIndex = ROOT_INDEX;
 
-    CacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, bucketIndex);
-    int itemIndex = 0;
+    var cacheEntry = loadPageForRead(atomicOperation, fileId, bucketIndex);
+    var itemIndex = 0;
     try {
-      Bucket bucket = new Bucket(cacheEntry);
+      var bucket = new Bucket(cacheEntry);
 
       while (true) {
         if (!bucket.isLeaf()) {
           if (bucket.isEmpty() || itemIndex > bucket.size()) {
             if (!path.isEmpty()) {
-              final PagePathItemUnit pagePathItemUnit = path.removeLast();
+              final var pagePathItemUnit = path.removeLast();
 
               bucketIndex = pagePathItemUnit.getPageIndex();
               itemIndex = pagePathItemUnit.getItemIndex() + 1;
@@ -272,7 +272,7 @@ public final class BTree extends DurableComponent {
         } else {
           if (bucket.isEmpty()) {
             if (!path.isEmpty()) {
-              final PagePathItemUnit pagePathItemUnit = path.removeLast();
+              final var pagePathItemUnit = path.removeLast();
 
               bucketIndex = pagePathItemUnit.getPageIndex();
               itemIndex = pagePathItemUnit.getItemIndex() + 1;
@@ -300,18 +300,18 @@ public final class BTree extends DurableComponent {
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
 
-        final Optional<BucketSearchResult> searchResult = lastItem(atomicOperation);
+        final var searchResult = lastItem(atomicOperation);
         if (searchResult.isEmpty()) {
           return null;
         }
 
-        final BucketSearchResult result = searchResult.get();
+        final var result = searchResult.get();
 
-        try (final CacheEntry cacheEntry =
+        try (final var cacheEntry =
             loadPageForRead(atomicOperation, fileId, result.getPageIndex())) {
-          final Bucket bucket = new Bucket(cacheEntry);
+          final var bucket = new Bucket(cacheEntry);
           return bucket.getKey(result.getItemIndex());
         }
       } finally {
@@ -327,21 +327,21 @@ public final class BTree extends DurableComponent {
 
   private Optional<BucketSearchResult> lastItem(final AtomicOperation atomicOperation)
       throws IOException {
-    final LinkedList<PagePathItemUnit> path = new LinkedList<>();
+    final var path = new LinkedList<PagePathItemUnit>();
 
     long bucketIndex = ROOT_INDEX;
 
-    CacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, bucketIndex);
+    var cacheEntry = loadPageForRead(atomicOperation, fileId, bucketIndex);
 
-    Bucket bucket = new Bucket(cacheEntry);
+    var bucket = new Bucket(cacheEntry);
 
-    int itemIndex = bucket.size() - 1;
+    var itemIndex = bucket.size() - 1;
     try {
       while (true) {
         if (!bucket.isLeaf()) {
           if (itemIndex < -1) {
             if (!path.isEmpty()) {
-              final PagePathItemUnit pagePathItemUnit = path.removeLast();
+              final var pagePathItemUnit = path.removeLast();
 
               bucketIndex = pagePathItemUnit.getPageIndex();
               itemIndex = pagePathItemUnit.getItemIndex() - 1;
@@ -363,7 +363,7 @@ public final class BTree extends DurableComponent {
         } else {
           if (bucket.isEmpty()) {
             if (!path.isEmpty()) {
-              final PagePathItemUnit pagePathItemUnit = path.removeLast();
+              final var pagePathItemUnit = path.removeLast();
 
               bucketIndex = pagePathItemUnit.getPageIndex();
               itemIndex = pagePathItemUnit.getItemIndex() - 1;
@@ -398,16 +398,16 @@ public final class BTree extends DurableComponent {
       final int keyIndex,
       final AtomicOperation atomicOperation)
       throws IOException {
-    final boolean splitLeaf = bucketToSplit.isLeaf();
-    final int bucketSize = bucketToSplit.size();
+    final var splitLeaf = bucketToSplit.isLeaf();
+    final var bucketSize = bucketToSplit.size();
 
-    final int indexToSplit = bucketSize >>> 1;
-    final EdgeKey separationKey = bucketToSplit.getKey(indexToSplit);
+    final var indexToSplit = bucketSize >>> 1;
+    final var separationKey = bucketToSplit.getKey(indexToSplit);
     final List<byte[]> rightEntries = new ArrayList<>(indexToSplit);
 
-    final int startRightIndex = splitLeaf ? indexToSplit : indexToSplit + 1;
+    final var startRightIndex = splitLeaf ? indexToSplit : indexToSplit + 1;
 
-    for (int i = startRightIndex; i < bucketSize; i++) {
+    for (var i = startRightIndex; i < bucketSize; i++) {
       rightEntries.add(bucketToSplit.getRawEntry(i));
     }
 
@@ -450,10 +450,10 @@ public final class BTree extends DurableComponent {
       throws IOException {
 
     final CacheEntry rightBucketEntry;
-    try (final CacheEntry entryPointCacheEntry =
+    try (final var entryPointCacheEntry =
         loadPageForWrite(atomicOperation, fileId, ENTRY_POINT_INDEX, true)) {
-      final EntryPoint entryPoint = new EntryPoint(entryPointCacheEntry);
-      int pageSize = entryPoint.getPagesSize();
+      final var entryPoint = new EntryPoint(entryPointCacheEntry);
+      var pageSize = entryPoint.getPagesSize();
 
       if (pageSize < getFilledUpTo(atomicOperation, fileId) - 1) {
         pageSize++;
@@ -468,14 +468,14 @@ public final class BTree extends DurableComponent {
     }
 
     try {
-      final Bucket newRightBucket = new Bucket(rightBucketEntry);
+      final var newRightBucket = new Bucket(rightBucketEntry);
       newRightBucket.init(splitLeaf);
       newRightBucket.addAll(rightEntries);
 
       bucketToSplit.shrink(indexToSplit);
 
       if (splitLeaf) {
-        final long rightSiblingPageIndex = bucketToSplit.getRightSibling();
+        final var rightSiblingPageIndex = bucketToSplit.getRightSibling();
 
         newRightBucket.setRightSibling(rightSiblingPageIndex);
         newRightBucket.setLeftSibling(pageIndex);
@@ -484,26 +484,26 @@ public final class BTree extends DurableComponent {
 
         if (rightSiblingPageIndex >= 0) {
 
-          try (final CacheEntry rightSiblingBucketEntry =
+          try (final var rightSiblingBucketEntry =
               loadPageForWrite(atomicOperation, fileId, rightSiblingPageIndex, true)) {
-            final Bucket rightSiblingBucket = new Bucket(rightSiblingBucketEntry);
+            final var rightSiblingBucket = new Bucket(rightSiblingBucketEntry);
             rightSiblingBucket.setLeftSibling(rightBucketEntry.getPageIndex());
           }
         }
       }
 
       long parentIndex = path.getInt(path.size() - 2);
-      CacheEntry parentCacheEntry = loadPageForWrite(atomicOperation, fileId, parentIndex, true);
+      var parentCacheEntry = loadPageForWrite(atomicOperation, fileId, parentIndex, true);
       try {
-        Bucket parentBucket = new Bucket(parentCacheEntry);
-        int insertionIndex = itemPointers.getInt(itemPointers.size() - 2);
+        var parentBucket = new Bucket(parentCacheEntry);
+        var insertionIndex = itemPointers.getInt(itemPointers.size() - 2);
         while (!parentBucket.addNonLeafEntry(
             insertionIndex,
             pageIndex,
             rightBucketEntry.getPageIndex(),
             EdgeKeySerializer.INSTANCE.serializeNativeAsWhole(separationKey, (Object[]) null),
             true)) {
-          final UpdateBucketSearchResult bucketSearchResult =
+          final var bucketSearchResult =
               splitBucket(
                   parentBucket,
                   parentCacheEntry,
@@ -533,8 +533,8 @@ public final class BTree extends DurableComponent {
       rightBucketEntry.close();
     }
 
-    final IntArrayList resultPath = new IntArrayList(path.subList(0, path.size() - 1));
-    final IntArrayList resultItemPointers =
+    final var resultPath = new IntArrayList(path.subList(0, path.size() - 1));
+    final var resultItemPointers =
         new IntArrayList(itemPointers.subList(0, itemPointers.size() - 1));
 
     if (keyIndex <= indexToSplit) {
@@ -544,7 +544,7 @@ public final class BTree extends DurableComponent {
       return new UpdateBucketSearchResult(resultItemPointers, resultPath, keyIndex);
     }
 
-    final int parentIndex = resultItemPointers.size() - 1;
+    final var parentIndex = resultItemPointers.size() - 1;
     resultItemPointers.set(parentIndex, resultItemPointers.getInt(parentIndex) + 1);
     resultPath.add(rightBucketEntry.getPageIndex());
 
@@ -570,19 +570,19 @@ public final class BTree extends DurableComponent {
       throws IOException {
     final List<byte[]> leftEntries = new ArrayList<>(indexToSplit);
 
-    for (int i = 0; i < indexToSplit; i++) {
+    for (var i = 0; i < indexToSplit; i++) {
       leftEntries.add(bucketToSplit.getRawEntry(i));
     }
 
     final CacheEntry leftBucketEntry;
     final CacheEntry rightBucketEntry;
 
-    try (final CacheEntry entryPointCacheEntry =
+    try (final var entryPointCacheEntry =
         loadPageForWrite(atomicOperation, fileId, ENTRY_POINT_INDEX, true)) {
-      final EntryPoint entryPoint = new EntryPoint(entryPointCacheEntry);
-      int pageSize = entryPoint.getPagesSize();
+      final var entryPoint = new EntryPoint(entryPointCacheEntry);
+      var pageSize = entryPoint.getPagesSize();
 
-      final int filledUpTo = (int) getFilledUpTo(atomicOperation, fileId);
+      final var filledUpTo = (int) getFilledUpTo(atomicOperation, fileId);
 
       if (pageSize < filledUpTo - 1) {
         pageSize++;
@@ -606,7 +606,7 @@ public final class BTree extends DurableComponent {
     }
 
     try {
-      final Bucket newLeftBucket = new Bucket(leftBucketEntry);
+      final var newLeftBucket = new Bucket(leftBucketEntry);
       newLeftBucket.init(splitLeaf);
       newLeftBucket.addAll(leftEntries);
 
@@ -619,7 +619,7 @@ public final class BTree extends DurableComponent {
     }
 
     try {
-      final Bucket newRightBucket = new Bucket(rightBucketEntry);
+      final var newRightBucket = new Bucket(rightBucketEntry);
       newRightBucket.init(splitLeaf);
       newRightBucket.addAll(rightEntries);
 
@@ -643,10 +643,10 @@ public final class BTree extends DurableComponent {
         EdgeKeySerializer.INSTANCE.serializeNativeAsWhole(separationKey, (Object[]) null),
         true);
 
-    final IntArrayList resultPath = new IntArrayList(8);
+    final var resultPath = new IntArrayList(8);
     resultPath.add(ROOT_INDEX);
 
-    final IntArrayList itemPointers = new IntArrayList(8);
+    final var itemPointers = new IntArrayList(8);
 
     if (keyIndex <= indexToSplit) {
       itemPointers.add(-1);
@@ -670,19 +670,19 @@ public final class BTree extends DurableComponent {
 
   private void updateSize(final long diffSize, final AtomicOperation atomicOperation)
       throws IOException {
-    try (final CacheEntry entryPointCacheEntry =
+    try (final var entryPointCacheEntry =
         loadPageForWrite(atomicOperation, fileId, ENTRY_POINT_INDEX, true)) {
-      final EntryPoint entryPoint = new EntryPoint(entryPointCacheEntry);
+      final var entryPoint = new EntryPoint(entryPointCacheEntry);
       entryPoint.setTreeSize(entryPoint.getTreeSize() + diffSize);
     }
   }
 
   private UpdateBucketSearchResult findBucketForUpdate(
       final EdgeKey key, final AtomicOperation atomicOperation) throws IOException {
-    int pageIndex = ROOT_INDEX;
+    var pageIndex = ROOT_INDEX;
 
-    final IntArrayList path = new IntArrayList(8);
-    final IntArrayList itemIndexes = new IntArrayList(8);
+    final var path = new IntArrayList(8);
+    final var itemIndexes = new IntArrayList(8);
 
     while (true) {
       if (path.size() > MAX_PATH_LENGTH) {
@@ -693,9 +693,9 @@ public final class BTree extends DurableComponent {
 
       path.add(pageIndex);
 
-      try (final CacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
-        final Bucket keyBucket = new Bucket(bucketEntry);
-        final int index = keyBucket.find(key);
+      try (final var bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
+        final var keyBucket = new Bucket(bucketEntry);
+        final var index = keyBucket.find(key);
 
         if (keyBucket.isLeaf()) {
           itemIndexes.add(index);
@@ -706,7 +706,7 @@ public final class BTree extends DurableComponent {
           pageIndex = keyBucket.getRight(index);
           itemIndexes.add(index + 1);
         } else {
-          final int insertionIndex = -index - 1;
+          final var insertionIndex = -index - 1;
 
           if (insertionIndex >= keyBucket.size()) {
             pageIndex = keyBucket.getRight(insertionIndex - 1);
@@ -724,7 +724,7 @@ public final class BTree extends DurableComponent {
       throws IOException {
     long pageIndex = ROOT_INDEX;
 
-    int depth = 0;
+    var depth = 0;
     while (true) {
       depth++;
       if (depth > MAX_PATH_LENGTH) {
@@ -733,9 +733,9 @@ public final class BTree extends DurableComponent {
                 + " corrupted state. You should rebuild index related to given query.");
       }
 
-      try (final CacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
-        final Bucket keyBucket = new Bucket(bucketEntry);
-        final int index = keyBucket.find(key);
+      try (final var bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
+        final var keyBucket = new Bucket(bucketEntry);
+        final var index = keyBucket.find(key);
 
         if (keyBucket.isLeaf()) {
           return new BucketSearchResult(index, pageIndex);
@@ -744,7 +744,7 @@ public final class BTree extends DurableComponent {
         if (index >= 0) {
           pageIndex = keyBucket.getRight(index);
         } else {
-          final int insertionIndex = -index - 1;
+          final var insertionIndex = -index - 1;
           if (insertionIndex >= keyBucket.size()) {
             pageIndex = keyBucket.getRight(insertionIndex - 1);
           } else {
@@ -762,18 +762,18 @@ public final class BTree extends DurableComponent {
           acquireExclusiveLock();
           try {
             final int removedValue;
-            final BucketSearchResult bucketSearchResult = findBucket(key, atomicOperation);
+            final var bucketSearchResult = findBucket(key, atomicOperation);
 
             if (bucketSearchResult.getItemIndex() < 0) {
               return -1;
             }
 
-            final byte[] serializedKey = EdgeKeySerializer.INSTANCE.serializeNativeAsWhole(key);
+            final var serializedKey = EdgeKeySerializer.INSTANCE.serializeNativeAsWhole(key);
             final byte[] rawValue;
-            try (final CacheEntry keyBucketCacheEntry =
+            try (final var keyBucketCacheEntry =
                 loadPageForWrite(
                     atomicOperation, fileId, bucketSearchResult.getPageIndex(), true)) {
-              final Bucket keyBucket = new Bucket(keyBucketCacheEntry);
+              final var keyBucket = new Bucket(keyBucketCacheEntry);
               rawValue = keyBucket.getRawValue(bucketSearchResult.getItemIndex());
               keyBucket.removeLeafEntry(
                   bucketSearchResult.getItemIndex(), serializedKey.length, rawValue.length);
@@ -894,7 +894,7 @@ public final class BTree extends DurableComponent {
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
         if (iter.getPageIndex() > -1) {
           if (readKeysFromBucketsForward(iter, atomicOperation)) {
             return;
@@ -908,7 +908,7 @@ public final class BTree extends DurableComponent {
           // iteration just started
           if (lastKey == null) {
             if (iter.getFromKey() != null) {
-              final BucketSearchResult searchResult =
+              final var searchResult =
                   findBucket(iter.getFromKey(), atomicOperation);
               iter.setPageIndex((int) searchResult.getPageIndex());
 
@@ -922,9 +922,9 @@ public final class BTree extends DurableComponent {
                 iter.setItemIndex(-searchResult.getItemIndex() - 1);
               }
             } else {
-              final Optional<BucketSearchResult> bucketSearchResult = firstItem(atomicOperation);
+              final var bucketSearchResult = firstItem(atomicOperation);
               if (bucketSearchResult.isPresent()) {
-                final BucketSearchResult searchResult = bucketSearchResult.get();
+                final var searchResult = bucketSearchResult.get();
                 iter.setPageIndex((int) searchResult.getPageIndex());
                 iter.setItemIndex(searchResult.getItemIndex());
               } else {
@@ -933,7 +933,7 @@ public final class BTree extends DurableComponent {
             }
 
           } else {
-            final BucketSearchResult bucketSearchResult = findBucket(lastKey, atomicOperation);
+            final var bucketSearchResult = findBucket(lastKey, atomicOperation);
 
             iter.setPageIndex((int) bucketSearchResult.getPageIndex());
             if (bucketSearchResult.getItemIndex() >= 0) {
@@ -957,13 +957,13 @@ public final class BTree extends DurableComponent {
 
   private boolean readKeysFromBucketsForward(
       SpliteratorForward iter, AtomicOperation atomicOperation) throws IOException {
-    CacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, iter.getPageIndex());
+    var cacheEntry = loadPageForRead(atomicOperation, fileId, iter.getPageIndex());
     try {
-      Bucket bucket = new Bucket(cacheEntry);
+      var bucket = new Bucket(cacheEntry);
       if (iter.getLastLSN() == null
           || bucket.getLsn().equals(iter.getLastLSN()) && atomicOperation == null) {
         while (true) {
-          int bucketSize = bucket.size();
+          var bucketSize = bucket.size();
           if (iter.getItemIndex() >= bucketSize) {
             iter.setPageIndex((int) bucket.getRightSibling());
 
@@ -986,7 +986,7 @@ public final class BTree extends DurableComponent {
               iter.getItemIndex() < bucketSize && iter.getDataCache().size() < 10;
               iter.incrementItemIndex()) {
             @SuppressWarnings("ObjectAllocationInLoop")
-            TreeEntry entry = bucket.getEntry(iter.getItemIndex());
+            var entry = bucket.getEntry(iter.getItemIndex());
 
             if (iter.getToKey() != null) {
               if (iter.isToKeyInclusive()) {
@@ -1028,7 +1028,7 @@ public final class BTree extends DurableComponent {
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
         if (iter.getPageIndex() > -1) {
           if (readKeysFromBucketsBackward(iter, atomicOperation)) {
             return;
@@ -1042,7 +1042,7 @@ public final class BTree extends DurableComponent {
           // iteration just started
           if (lastKey == null) {
             if (iter.getToKey() != null) {
-              final BucketSearchResult searchResult = findBucket(iter.getToKey(), atomicOperation);
+              final var searchResult = findBucket(iter.getToKey(), atomicOperation);
               iter.setPageIndex((int) searchResult.getPageIndex());
 
               if (searchResult.getItemIndex() >= 0) {
@@ -1055,9 +1055,9 @@ public final class BTree extends DurableComponent {
                 iter.setItemIndex(-searchResult.getItemIndex() - 2);
               }
             } else {
-              final Optional<BucketSearchResult> bucketSearchResult = lastItem(atomicOperation);
+              final var bucketSearchResult = lastItem(atomicOperation);
               if (bucketSearchResult.isPresent()) {
-                final BucketSearchResult searchResult = bucketSearchResult.get();
+                final var searchResult = bucketSearchResult.get();
                 iter.setPageIndex((int) searchResult.getPageIndex());
                 iter.setItemIndex(searchResult.getItemIndex());
               } else {
@@ -1066,7 +1066,7 @@ public final class BTree extends DurableComponent {
             }
 
           } else {
-            final BucketSearchResult bucketSearchResult = findBucket(lastKey, atomicOperation);
+            final var bucketSearchResult = findBucket(lastKey, atomicOperation);
 
             iter.setPageIndex((int) bucketSearchResult.getPageIndex());
             if (bucketSearchResult.getItemIndex() >= 0) {
@@ -1090,9 +1090,9 @@ public final class BTree extends DurableComponent {
 
   private boolean readKeysFromBucketsBackward(
       SpliteratorBackward iter, AtomicOperation atomicOperation) throws IOException {
-    CacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, iter.getPageIndex());
+    var cacheEntry = loadPageForRead(atomicOperation, fileId, iter.getPageIndex());
     try {
-      Bucket bucket = new Bucket(cacheEntry);
+      var bucket = new Bucket(cacheEntry);
       if (iter.getLastLSN() == null
           || bucket.getLsn().equals(iter.getLastLSN()) && atomicOperation == null) {
         while (true) {
@@ -1107,7 +1107,7 @@ public final class BTree extends DurableComponent {
 
             cacheEntry = loadPageForRead(atomicOperation, fileId, iter.getPageIndex());
             bucket = new Bucket(cacheEntry);
-            final int bucketSize = bucket.size();
+            final var bucketSize = bucket.size();
             iter.setItemIndex(bucketSize - 1);
           }
 
@@ -1115,7 +1115,7 @@ public final class BTree extends DurableComponent {
 
           for (; iter.getItemIndex() >= 0 && iter.getDataCache().size() < 10; iter.decItemIndex()) {
             @SuppressWarnings("ObjectAllocationInLoop")
-            TreeEntry entry = bucket.getEntry(iter.getItemIndex());
+            var entry = bucket.getEntry(iter.getItemIndex());
 
             if (iter.getFromKey() != null) {
               if (iter.isFromKeyInclusive()) {

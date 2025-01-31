@@ -101,7 +101,7 @@ public class SQLArraySelector extends SimpleNode {
   }
 
   public SQLArraySelector copy() {
-    SQLArraySelector result = new SQLArraySelector(-1);
+    var result = new SQLArraySelector(-1);
 
     result.rid = rid == null ? null : rid.copy();
     result.inputParam = inputParam == null ? null : inputParam.copy();
@@ -120,7 +120,7 @@ public class SQLArraySelector extends SimpleNode {
       return false;
     }
 
-    SQLArraySelector that = (SQLArraySelector) o;
+    var that = (SQLArraySelector) o;
 
     if (!Objects.equals(rid, that.rid)) {
       return false;
@@ -136,7 +136,7 @@ public class SQLArraySelector extends SimpleNode {
 
   @Override
   public int hashCode() {
-    int result = rid != null ? rid.hashCode() : 0;
+    var result = rid != null ? rid.hashCode() : 0;
     result = 31 * result + (inputParam != null ? inputParam.hashCode() : 0);
     result = 31 * result + (expression != null ? expression.hashCode() : 0);
     result = 31 * result + (integer != null ? integer.hashCode() : 0);
@@ -177,8 +177,8 @@ public class SQLArraySelector extends SimpleNode {
   }
 
   public void setValue(List target, int idx, Object value, CommandContext ctx) {
-    int originalSize = target.size();
-    for (int i = originalSize; i <= idx; i++) {
+    var originalSize = target.size();
+    for (var i = originalSize; i <= idx; i++) {
       if (i >= originalSize) {
         target.add(null);
       }
@@ -188,10 +188,10 @@ public class SQLArraySelector extends SimpleNode {
 
   public void setValue(Set target, int idx, Object value, CommandContext ctx) {
     Set result = new LinkedHashSet<>();
-    int originalSize = target.size();
-    int max = Math.max(idx, originalSize - 1);
-    Iterator targetIterator = target.iterator();
-    for (int i = 0; i <= max; i++) {
+    var originalSize = target.size();
+    var max = Math.max(idx, originalSize - 1);
+    var targetIterator = target.iterator();
+    for (var i = 0; i <= max; i++) {
       Object next = null;
       if (targetIterator.hasNext()) {
         next = targetIterator.next();
@@ -219,7 +219,7 @@ public class SQLArraySelector extends SimpleNode {
   }
 
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     if (rid != null) {
       result.setProperty("rid", rid.serialize(db));
     }

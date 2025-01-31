@@ -35,15 +35,15 @@ public class DBRecordSerializerBinaryDebugTest extends DbTestBase {
   @Test
   public void testSimpleDocumentDebug() {
 
-    EntityImpl doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) db.newEntity();
     doc.field("test", "test");
     doc.field("anInt", 2);
     doc.field("anDouble", 2D);
 
-    byte[] bytes = doc.toStream();
+    var bytes = doc.toStream();
 
-    RecordSerializerBinaryDebug debugger = new RecordSerializerBinaryDebug();
-    RecordSerializationDebug debug = debugger.deserializeDebug(bytes, db);
+    var debugger = new RecordSerializerBinaryDebug();
+    var debug = debugger.deserializeDebug(bytes, db);
 
     assertEquals(debug.properties.size(), 3);
     assertEquals(debug.properties.get(0).name, "test");
@@ -61,18 +61,18 @@ public class DBRecordSerializerBinaryDebugTest extends DbTestBase {
 
   @Test
   public void testSchemaFullDocumentDebug() {
-    SchemaClass clazz = db.getMetadata().getSchema().createClass("some");
+    var clazz = db.getMetadata().getSchema().createClass("some");
     clazz.createProperty(db, "testP", PropertyType.STRING);
     clazz.createProperty(db, "theInt", PropertyType.INTEGER);
-    EntityImpl doc = (EntityImpl) db.newEntity("some");
+    var doc = (EntityImpl) db.newEntity("some");
     doc.field("testP", "test");
     doc.field("theInt", 2);
     doc.field("anDouble", 2D);
 
-    byte[] bytes = doc.toStream();
+    var bytes = doc.toStream();
 
-    RecordSerializerBinaryDebug debugger = new RecordSerializerBinaryDebug();
-    RecordSerializationDebug debug = debugger.deserializeDebug(bytes, db);
+    var debugger = new RecordSerializerBinaryDebug();
+    var debug = debugger.deserializeDebug(bytes, db);
 
     assertEquals(debug.properties.size(), 3);
     assertEquals(debug.properties.get(0).name, "testP");
@@ -90,17 +90,17 @@ public class DBRecordSerializerBinaryDebugTest extends DbTestBase {
 
   @Test
   public void testSimpleBrokenDocumentDebug() {
-    EntityImpl doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) db.newEntity();
     doc.field("test", "test");
     doc.field("anInt", 2);
     doc.field("anDouble", 2D);
 
-    byte[] bytes = doc.toStream();
-    byte[] brokenBytes = new byte[bytes.length - 10];
+    var bytes = doc.toStream();
+    var brokenBytes = new byte[bytes.length - 10];
     System.arraycopy(bytes, 0, brokenBytes, 0, bytes.length - 10);
 
-    RecordSerializerBinaryDebug debugger = new RecordSerializerBinaryDebug();
-    RecordSerializationDebug debug = debugger.deserializeDebug(brokenBytes, db);
+    var debugger = new RecordSerializerBinaryDebug();
+    var debug = debugger.deserializeDebug(brokenBytes, db);
 
     assertEquals(debug.properties.size(), 3);
     assertEquals(debug.properties.get(0).name, "test");
@@ -121,20 +121,20 @@ public class DBRecordSerializerBinaryDebugTest extends DbTestBase {
 
   @Test
   public void testBrokenSchemaFullDocumentDebug() {
-    SchemaClass clazz = db.getMetadata().getSchema().createClass("some");
+    var clazz = db.getMetadata().getSchema().createClass("some");
     clazz.createProperty(db, "testP", PropertyType.STRING);
     clazz.createProperty(db, "theInt", PropertyType.INTEGER);
-    EntityImpl doc = (EntityImpl) db.newEntity("some");
+    var doc = (EntityImpl) db.newEntity("some");
     doc.field("testP", "test");
     doc.field("theInt", 2);
     doc.field("anDouble", 2D);
 
-    byte[] bytes = doc.toStream();
-    byte[] brokenBytes = new byte[bytes.length - 10];
+    var bytes = doc.toStream();
+    var brokenBytes = new byte[bytes.length - 10];
     System.arraycopy(bytes, 0, brokenBytes, 0, bytes.length - 10);
 
-    RecordSerializerBinaryDebug debugger = new RecordSerializerBinaryDebug();
-    RecordSerializationDebug debug = debugger.deserializeDebug(brokenBytes, db);
+    var debugger = new RecordSerializerBinaryDebug();
+    var debug = debugger.deserializeDebug(brokenBytes, db);
 
     assertEquals(debug.properties.size(), 3);
     assertEquals(debug.properties.get(0).name, "testP");

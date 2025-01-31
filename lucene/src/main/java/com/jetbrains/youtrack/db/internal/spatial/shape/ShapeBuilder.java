@@ -51,7 +51,7 @@ public abstract class ShapeBuilder<T extends Shape> {
   private static final DecimalFormat doubleFormat;
 
   static {
-    JtsSpatialContextFactory factory = new JtsSpatialContextFactory();
+    var factory = new JtsSpatialContextFactory();
     factory.geo = true;
     factory.validationRule = ValidationRule.none;
 
@@ -67,7 +67,7 @@ public abstract class ShapeBuilder<T extends Shape> {
     join.put("mitre", 2);
     join.put("bevel", 3);
 
-    DecimalFormatSymbols sym = new DecimalFormatSymbols();
+    var sym = new DecimalFormatSymbols();
     sym.setDecimalSeparator('.');
     doubleFormat = new DecimalFormat("0", sym);
     doubleFormat.setMaximumFractionDigits(16);
@@ -98,7 +98,7 @@ public abstract class ShapeBuilder<T extends Shape> {
   }
 
   public T fromMapGeoJson(Map<String, Object> geoJsonMap) {
-    EntityImpl doc = new EntityImpl(null, getName());
+    var doc = new EntityImpl(null, getName());
     doc.field(COORDINATES, geoJsonMap.get(COORDINATES));
     return fromDoc(doc);
   }
@@ -110,9 +110,9 @@ public abstract class ShapeBuilder<T extends Shape> {
   }
 
   public byte[] asBinary(T shape) {
-    WKBWriter writer = new WKBWriter();
+    var writer = new WKBWriter();
 
-    Geometry geom = SHAPE_FACTORY.getGeometryFrom(shape);
+    var geom = SHAPE_FACTORY.getGeometryFrom(shape);
     return writer.write(geom);
   }
 
@@ -137,7 +137,7 @@ public abstract class ShapeBuilder<T extends Shape> {
   }
 
   public EntityImpl fromGeoJson(String geoJson) throws IOException, ParseException {
-    Shape shape = SPATIAL_CONTEXT.getFormats().getGeoJsonReader().read(geoJson);
+    var shape = SPATIAL_CONTEXT.getFormats().getGeoJsonReader().read(geoJson);
     return toEntitty((T) shape);
   }
 
@@ -160,7 +160,7 @@ public abstract class ShapeBuilder<T extends Shape> {
     Object entity = SPATIAL_CONTEXT.getWktShapeParser().parse(wkt);
 
     if (entity instanceof Rectangle) {
-      Geometry geometryFrom = SHAPE_FACTORY.getGeometryFrom((Shape) entity);
+      var geometryFrom = SHAPE_FACTORY.getGeometryFrom((Shape) entity);
       entity = SHAPE_FACTORY.makeShape(geometryFrom);
     }
     return (T) entity;
@@ -177,7 +177,7 @@ public abstract class ShapeBuilder<T extends Shape> {
 
   public EntityImpl toEntitty(String wkt)
       throws ParseException, org.locationtech.jts.io.ParseException {
-    T parsed = fromText(wkt);
+    var parsed = fromText(wkt);
     return toEntitty(
         parsed,
         GlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()
@@ -186,17 +186,17 @@ public abstract class ShapeBuilder<T extends Shape> {
   }
 
   public int getSRID(Shape shape) {
-    Geometry geometry = toGeometry(shape);
+    var geometry = toGeometry(shape);
     return geometry.getSRID();
   }
 
   public Shape buffer(Shape shape, Double distance, Map<String, Object> params) {
-    Geometry geometry = toGeometry(shape);
-    BufferParameters parameters = new BufferParameters();
+    var geometry = toGeometry(shape);
+    var parameters = new BufferParameters();
     if (params != null) {
       bindParameters(parameters, params);
     }
-    BufferOp ops = new BufferOp(geometry, parameters);
+    var ops = new BufferOp(geometry, parameters);
     return toShape(ops.getResultGeometry(distance));
   }
 
@@ -212,10 +212,10 @@ public abstract class ShapeBuilder<T extends Shape> {
   }
 
   private void bindCap(BufferParameters parameters, Map<String, Object> params) {
-    String endCap = (String) params.get("endCap");
+    var endCap = (String) params.get("endCap");
 
     if (endCap != null) {
-      Integer style = capStyles.get(endCap);
+      var style = capStyles.get(endCap);
       if (style != null) {
         parameters.setEndCapStyle(style);
       }
@@ -223,9 +223,9 @@ public abstract class ShapeBuilder<T extends Shape> {
   }
 
   private void bindJoin(BufferParameters parameters, Map<String, Object> params) {
-    String join = (String) params.get("join");
+    var join = (String) params.get("join");
     if (join != null) {
-      Integer style = ShapeBuilder.join.get(join);
+      var style = ShapeBuilder.join.get(join);
       if (style != null) {
         parameters.setJoinStyle(style);
       }
@@ -233,7 +233,7 @@ public abstract class ShapeBuilder<T extends Shape> {
   }
 
   private void bindMitre(BufferParameters parameters, Map<String, Object> params) {
-    Number mitre = (Number) params.get("mitre");
+    var mitre = (Number) params.get("mitre");
 
     if (mitre != null) {
       parameters.setMitreLimit(mitre.doubleValue());
@@ -241,7 +241,7 @@ public abstract class ShapeBuilder<T extends Shape> {
   }
 
   private void bindQuad(BufferParameters parameters, Map<String, Object> params) {
-    Number quadSegs = (Number) params.get("quadSegs");
+    var quadSegs = (Number) params.get("quadSegs");
 
     if (quadSegs != null) {
       parameters.setQuadrantSegments(quadSegs.intValue());

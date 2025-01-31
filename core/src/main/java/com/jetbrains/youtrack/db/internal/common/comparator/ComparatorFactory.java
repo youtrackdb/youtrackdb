@@ -35,10 +35,10 @@ public class ComparatorFactory {
   private static final boolean unsafeWasDetected;
 
   static {
-    boolean unsafeDetected = false;
+    var unsafeDetected = false;
 
     try {
-      Class<?> sunClass = Class.forName("sun.misc.Unsafe");
+      var sunClass = Class.forName("sun.misc.Unsafe");
       unsafeDetected = sunClass != null;
     } catch (ClassNotFoundException ignore) {
       // Ignore
@@ -56,7 +56,7 @@ public class ComparatorFactory {
    */
   @SuppressWarnings("unchecked")
   public <T> Comparator<T> getComparator(Class<T> clazz) {
-    boolean useUnsafe = GlobalConfiguration.MEMORY_USE_UNSAFE.getValueAsBoolean();
+    var useUnsafe = GlobalConfiguration.MEMORY_USE_UNSAFE.getValueAsBoolean();
 
     if (clazz.equals(byte[].class)) {
       if (useUnsafe && unsafeWasDetected) {

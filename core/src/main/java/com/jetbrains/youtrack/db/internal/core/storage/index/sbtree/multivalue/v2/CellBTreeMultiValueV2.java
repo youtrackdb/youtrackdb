@@ -161,20 +161,20 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
 
             nullBucketFileId = addFile(atomicOperation, getName() + nullFileExtension);
 
-            try (final CacheEntry entryPointCacheEntry = addPage(atomicOperation, fileId)) {
-              final CellBTreeMultiValueV2EntryPoint<K> entryPoint =
-                  new CellBTreeMultiValueV2EntryPoint<>(entryPointCacheEntry);
+            try (final var entryPointCacheEntry = addPage(atomicOperation, fileId)) {
+              final var entryPoint =
+                  new CellBTreeMultiValueV2EntryPoint<K>(entryPointCacheEntry);
               entryPoint.init();
             }
 
-            try (final CacheEntry rootCacheEntry = addPage(atomicOperation, fileId)) {
-              @SuppressWarnings("unused") final CellBTreeMultiValueV2Bucket<K> rootBucket =
-                  new CellBTreeMultiValueV2Bucket<>(rootCacheEntry);
+            try (final var rootCacheEntry = addPage(atomicOperation, fileId)) {
+              @SuppressWarnings("unused") final var rootBucket =
+                  new CellBTreeMultiValueV2Bucket<K>(rootCacheEntry);
               rootBucket.init(true);
             }
 
-            try (final CacheEntry nullBucketEntry = addPage(atomicOperation, nullBucketFileId)) {
-              final CellBTreeMultiValueV2NullBucket nullBucket =
+            try (final var nullBucketEntry = addPage(atomicOperation, nullBucketFileId)) {
+              final var nullBucket =
                   new CellBTreeMultiValueV2NullBucket(nullBucketEntry);
               nullBucket.init(incrementMId(atomicOperation));
             }
@@ -199,26 +199,26 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
         if (key != null) {
           key = keySerializer.preprocess(key, (Object[]) keyTypes);
 
-          final BucketSearchResult bucketSearchResult = findBucket(key, atomicOperation);
+          final var bucketSearchResult = findBucket(key, atomicOperation);
           if (bucketSearchResult.itemIndex < 0) {
             return Stream.empty();
           }
 
-          final long pageIndex = bucketSearchResult.pageIndex;
-          final int itemIndex = bucketSearchResult.itemIndex;
+          final var pageIndex = bucketSearchResult.pageIndex;
+          final var itemIndex = bucketSearchResult.itemIndex;
 
           long leftSibling = -1;
           long rightSibling = -1;
 
           final List<RID> result = new ArrayList<>(8);
 
-          try (CacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
-            final CellBTreeMultiValueV2Bucket<K> bucket =
-                new CellBTreeMultiValueV2Bucket<>(cacheEntry);
+          try (var cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
+            final var bucket =
+                new CellBTreeMultiValueV2Bucket<K>(cacheEntry);
             fetchValues(itemIndex, result, bucket);
 
             if (itemIndex == 0) {
@@ -232,10 +232,10 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
 
           while (leftSibling >= 0) {
 
-            try (CacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, leftSibling)) {
-              @SuppressWarnings("ObjectAllocationInLoop") final CellBTreeMultiValueV2Bucket<K> bucket =
-                  new CellBTreeMultiValueV2Bucket<>(cacheEntry);
-              final int size = bucket.size();
+            try (var cacheEntry = loadPageForRead(atomicOperation, fileId, leftSibling)) {
+              @SuppressWarnings("ObjectAllocationInLoop") final var bucket =
+                  new CellBTreeMultiValueV2Bucket<K>(cacheEntry);
+              final var size = bucket.size();
 
               if (size > 0) {
                 if (bucket.getKey(size - 1, keySerializer).equals(key)) {
@@ -257,10 +257,10 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
 
           while (rightSibling >= 0) {
 
-            try (CacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, rightSibling)) {
-              final CellBTreeMultiValueV2Bucket<K> bucket =
-                  new CellBTreeMultiValueV2Bucket<>(cacheEntry);
-              final int size = bucket.size();
+            try (var cacheEntry = loadPageForRead(atomicOperation, fileId, rightSibling)) {
+              final var bucket =
+                  new CellBTreeMultiValueV2Bucket<K>(cacheEntry);
+              final var size = bucket.size();
 
               if (size > 0) {
                 if (bucket.getKey(0, keySerializer).equals(key)) {
@@ -283,16 +283,16 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
           return result.stream();
         } else {
 
-          try (final CacheEntry nullCacheEntry =
+          try (final var nullCacheEntry =
               loadPageForRead(atomicOperation, nullBucketFileId, 0)) {
-            final CellBTreeMultiValueV2NullBucket nullBucket =
+            final var nullBucket =
                 new CellBTreeMultiValueV2NullBucket(nullCacheEntry);
-            final int size = nullBucket.getSize();
-            final List<RID> values = nullBucket.getValues();
+            final var size = nullBucket.getSize();
+            final var values = nullBucket.getValues();
             if (values.size() < size) {
-              final long mId = nullBucket.getMid();
+              final var mId = nullBucket.getMid();
 
-              try (final Stream<RawPair<MultiValueEntry, Byte>> stream =
+              try (final var stream =
                   multiContainer.iterateEntriesBetween(
                       new MultiValueEntry(mId, 0, 0),
                       true,
@@ -303,7 +303,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
                     stream
                         .map(
                             (pair) -> {
-                              final MultiValueEntry entry = pair.first;
+                              final var entry = pair.first;
                               return new RecordId(entry.clusterId, entry.clusterPosition);
                             })
                         .toList());
@@ -327,11 +327,11 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
 
   private void fetchValues(
       int itemIndex, List<RID> result, CellBTreeMultiValueV2Bucket<K> bucket) {
-    final CellBTreeMultiValueV2Bucket.LeafEntry entry =
+    final var entry =
         bucket.getLeafEntry(itemIndex, keySerializer);
     result.addAll(entry.values);
     if (entry.values.size() < entry.entriesCount) {
-      try (final Stream<RawPair<MultiValueEntry, Byte>> stream =
+      try (final var stream =
           multiContainer.iterateEntriesBetween(
               new MultiValueEntry(entry.mId, 0, 0),
               true,
@@ -343,7 +343,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
             stream
                 .map(
                     (pair) -> {
-                      final MultiValueEntry multiValueEntry = pair.first;
+                      final var multiValueEntry = pair.first;
                       return new RecordId(
                           multiValueEntry.clusterId, multiValueEntry.clusterPosition);
                     })
@@ -357,19 +357,19 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
       final K key,
       final List<RawPair<K, RID>> result,
       final CellBTreeMultiValueV2Bucket<K> bucket) {
-    final CellBTreeMultiValueV2Bucket.LeafEntry entry =
+    final var entry =
         bucket.getLeafEntry(itemIndex, keySerializer);
     fetchMapEntriesFromLeafEntry(key, result, entry);
   }
 
   private void fetchMapEntriesFromLeafEntry(
       K key, List<RawPair<K, RID>> result, CellBTreeMultiValueV2Bucket.LeafEntry entry) {
-    for (final RID rid : entry.values) {
+    for (final var rid : entry.values) {
       result.add(new RawPair<>(key, rid));
     }
 
     if (entry.values.size() < entry.entriesCount) {
-      try (final Stream<RawPair<MultiValueEntry, Byte>> stream =
+      try (final var stream =
           multiContainer.iterateEntriesBetween(
               new MultiValueEntry(entry.mId, 0, 0),
               true,
@@ -381,7 +381,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
             stream
                 .map(
                     (pair) -> {
-                      final MultiValueEntry multiValueEntry = pair.first;
+                      final var multiValueEntry = pair.first;
                       return new RawPair<K, RID>(
                           key,
                           new RecordId(
@@ -398,12 +398,12 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
         operation -> {
           acquireExclusiveLock();
           try {
-            K key = pk;
+            var key = pk;
 
             if (key != null) {
 
               key = keySerializer.preprocess(key, (Object[]) keyTypes);
-              final byte[] serializedKey =
+              final var serializedKey =
                   keySerializer.serializeNativeAsWhole(key, (Object[]) keyTypes);
 
               if (keySize > MAX_KEY_SIZE) {
@@ -415,14 +415,14 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
                     getName());
               }
 
-              UpdateBucketSearchResult bucketSearchResult =
+              var bucketSearchResult =
                   findBucketForUpdate(key, atomicOperation);
 
-              CacheEntry keyBucketCacheEntry =
+              var keyBucketCacheEntry =
                   loadPageForWrite(
                       atomicOperation, fileId, bucketSearchResult.getLastPathItem(), true);
-              CellBTreeMultiValueV2Bucket<K> keyBucket =
-                  new CellBTreeMultiValueV2Bucket<>(keyBucketCacheEntry);
+              var keyBucket =
+                  new CellBTreeMultiValueV2Bucket<K>(keyBucketCacheEntry);
 
               final byte[] keyToInsert;
               keyToInsert = serializedKey;
@@ -451,7 +451,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
 
                 insertionIndex = bucketSearchResult.itemIndex;
 
-                final long pageIndex = bucketSearchResult.getLastPathItem();
+                final var pageIndex = bucketSearchResult.getLastPathItem();
 
                 if (pageIndex != keyBucketCacheEntry.getPageIndex()) {
                   keyBucketCacheEntry.close();
@@ -466,11 +466,11 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
 
             } else {
 
-              try (final CacheEntry nullCacheEntry =
+              try (final var nullCacheEntry =
                   loadPageForWrite(atomicOperation, nullBucketFileId, 0, true)) {
-                final CellBTreeMultiValueV2NullBucket nullBucket =
+                final var nullBucket =
                     new CellBTreeMultiValueV2NullBucket(nullCacheEntry);
-                final long result = nullBucket.addValue(value);
+                final var result = nullBucket.addValue(value);
                 if (result >= 0) {
                   multiContainer.validatedPut(
                       atomicOperation,
@@ -497,11 +497,11 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
       throws IOException {
 
     if (isNew) {
-      final long mId = incrementMId(atomicOperation);
+      final var mId = incrementMId(atomicOperation);
       return bucketMultiValue.createMainLeafEntry(index, key, value, mId);
     }
 
-    final long result = bucketMultiValue.appendNewLeafEntry(index, value);
+    final var result = bucketMultiValue.appendNewLeafEntry(index, value);
     if (result >= 0) {
       multiContainer.validatedPut(
           atomicOperation,
@@ -515,13 +515,13 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
   }
 
   private long incrementMId(final AtomicOperation atomicOperation) throws IOException {
-    final long idCounter = mIdCounter.getValue();
+    final var idCounter = mIdCounter.getValue();
 
     if ((idCounter & (M_ID_BATCH_SIZE - 1)) == 0) {
-      try (final CacheEntry cacheEntryPoint =
+      try (final var cacheEntryPoint =
           loadPageForWrite(atomicOperation, fileId, ENTRY_POINT_INDEX, true)) {
-        final CellBTreeMultiValueV2EntryPoint<K> entryPoint =
-            new CellBTreeMultiValueV2EntryPoint<>(cacheEntryPoint);
+        final var entryPoint =
+            new CellBTreeMultiValueV2EntryPoint<K>(cacheEntryPoint);
         entryPoint.setEntryId(idCounter + M_ID_BATCH_SIZE);
       }
     }
@@ -565,7 +565,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
       final BinarySerializer<K> keySerializer) {
     acquireExclusiveLock();
     try {
-      final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+      final var atomicOperation = atomicOperationsManager.getCurrentOperation();
 
       fileId = openFile(atomicOperation, getFullName());
       nullBucketFileId = openFile(atomicOperation, name + nullFileExtension);
@@ -584,10 +584,10 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
           false
       );
 
-      try (final CacheEntry entryPointCacheEntry =
+      try (final var entryPointCacheEntry =
           loadPageForRead(atomicOperation, fileId, ENTRY_POINT_INDEX)) {
-        final CellBTreeMultiValueV2EntryPoint<K> entryPoint =
-            new CellBTreeMultiValueV2EntryPoint<>(entryPointCacheEntry);
+        final var entryPoint =
+            new CellBTreeMultiValueV2EntryPoint<K>(entryPointCacheEntry);
         mIdCounter.setValue(entryPoint.getEntryId());
       }
 
@@ -604,12 +604,12 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
 
-        try (final CacheEntry entryPointCacheEntry =
+        try (final var entryPointCacheEntry =
             loadPageForRead(atomicOperation, fileId, ENTRY_POINT_INDEX)) {
-          final CellBTreeMultiValueV2EntryPoint<K> entryPoint =
-              new CellBTreeMultiValueV2EntryPoint<>(entryPointCacheEntry);
+          final var entryPoint =
+              new CellBTreeMultiValueV2EntryPoint<K>(entryPointCacheEntry);
           return entryPoint.getTreeSize();
         }
       } finally {
@@ -629,31 +629,31 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
     return calculateInsideComponentOperation(
         atomicOperation,
         operation -> {
-          K key = k;
+          var key = k;
           boolean removed;
           acquireExclusiveLock();
           try {
             if (key != null) {
               key = keySerializer.preprocess(key, (Object[]) keyTypes);
 
-              final int serializeKeySize =
+              final var serializeKeySize =
                   keySerializer.getObjectSize(key);
 
-              final BucketSearchResult bucketSearchResult = findBucket(key, atomicOperation);
+              final var bucketSearchResult = findBucket(key, atomicOperation);
               if (bucketSearchResult.itemIndex < 0) {
                 return false;
               }
 
-              final long pageIndex = bucketSearchResult.pageIndex;
-              final int itemIndex = bucketSearchResult.itemIndex;
+              final var pageIndex = bucketSearchResult.pageIndex;
+              final var itemIndex = bucketSearchResult.itemIndex;
 
               long leftSibling = -1;
               long rightSibling = -1;
 
-              try (CacheEntry cacheEntry =
+              try (var cacheEntry =
                   loadPageForWrite(atomicOperation, fileId, pageIndex, true)) {
-                final CellBTreeMultiValueV2Bucket<K> bucket =
-                    new CellBTreeMultiValueV2Bucket<>(cacheEntry);
+                final var bucket =
+                    new CellBTreeMultiValueV2Bucket<K>(cacheEntry);
 
                 removed = removeEntry(atomicOperation, itemIndex, serializeKeySize, value, bucket);
                 if (!removed) {
@@ -669,11 +669,11 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
 
               while (!removed && leftSibling >= 0) {
 
-                try (CacheEntry cacheEntry =
+                try (var cacheEntry =
                     loadPageForWrite(atomicOperation, fileId, leftSibling, true)) {
-                  final CellBTreeMultiValueV2Bucket<K> bucket =
-                      new CellBTreeMultiValueV2Bucket<>(cacheEntry);
-                  final int size = bucket.size();
+                  final var bucket =
+                      new CellBTreeMultiValueV2Bucket<K>(cacheEntry);
+                  final var size = bucket.size();
 
                   if (size > 0) {
                     removed = removeEntry(atomicOperation, size - 1, keySize, value, bucket);
@@ -693,11 +693,11 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
 
               while (!removed && rightSibling >= 0) {
 
-                try (CacheEntry cacheEntry =
+                try (var cacheEntry =
                     loadPageForWrite(atomicOperation, fileId, rightSibling, true)) {
-                  final CellBTreeMultiValueV2Bucket<K> bucket =
-                      new CellBTreeMultiValueV2Bucket<>(cacheEntry);
-                  final int size = bucket.size();
+                  final var bucket =
+                      new CellBTreeMultiValueV2Bucket<K>(cacheEntry);
+                  final var size = bucket.size();
 
                   if (size > 0) {
                     removed = removeEntry(atomicOperation, 0, serializeKeySize, value, bucket);
@@ -717,11 +717,11 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
 
             } else {
 
-              try (final CacheEntry nullBucketCacheEntry =
+              try (final var nullBucketCacheEntry =
                   loadPageForWrite(atomicOperation, nullBucketFileId, 0, true)) {
-                final CellBTreeMultiValueV2NullBucket nullBucket =
+                final var nullBucket =
                     new CellBTreeMultiValueV2NullBucket(nullBucketCacheEntry);
-                final int result = nullBucket.removeValue(value);
+                final var result = nullBucket.removeValue(value);
                 if (result == 0) {
                   removed =
                       multiContainer.remove(
@@ -756,14 +756,14 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
       final int keySize,
       final RID value,
       final CellBTreeMultiValueV2Bucket<K> bucket) {
-    final int entriesCount = bucket.removeLeafEntry(itemIndex, value);
+    final var entriesCount = bucket.removeLeafEntry(itemIndex, value);
     if (entriesCount == 0) {
       bucket.removeMainLeafEntry(itemIndex, keySize);
     }
 
-    boolean removed = entriesCount >= 0;
+    var removed = entriesCount >= 0;
     if (!removed && bucket.hasExternalEntries(itemIndex)) {
-      final long mId = bucket.getMid(itemIndex);
+      final var mId = bucket.getMid(itemIndex);
       removed =
           multiContainer.remove(
               atomicOperation,
@@ -822,17 +822,17 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
 
-        final BucketSearchResult searchResult = firstItem(atomicOperation);
+        final var searchResult = firstItem(atomicOperation);
         if (searchResult == null) {
           return null;
         }
 
-        try (final CacheEntry cacheEntry =
+        try (final var cacheEntry =
             loadPageForRead(atomicOperation, fileId, searchResult.pageIndex)) {
-          final CellBTreeMultiValueV2Bucket<K> bucket =
-              new CellBTreeMultiValueV2Bucket<>(cacheEntry);
+          final var bucket =
+              new CellBTreeMultiValueV2Bucket<K>(cacheEntry);
           return bucket.getKey(searchResult.itemIndex, keySerializer);
         }
       } finally {
@@ -853,17 +853,17 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
 
-        final BucketSearchResult searchResult = lastItem(atomicOperation);
+        final var searchResult = lastItem(atomicOperation);
         if (searchResult == null) {
           return null;
         }
 
-        try (final CacheEntry cacheEntry =
+        try (final var cacheEntry =
             loadPageForRead(atomicOperation, fileId, searchResult.pageIndex)) {
-          final CellBTreeMultiValueV2Bucket<K> bucket =
-              new CellBTreeMultiValueV2Bucket<>(cacheEntry);
+          final var bucket =
+              new CellBTreeMultiValueV2Bucket<K>(cacheEntry);
           return bucket.getKey(searchResult.itemIndex, keySerializer);
         }
       } finally {
@@ -884,8 +884,8 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
-        final BucketSearchResult searchResult = firstItem(atomicOperation);
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var searchResult = firstItem(atomicOperation);
         if (searchResult == null) {
           return StreamSupport.stream(Spliterators.emptySpliterator(), false);
         }
@@ -939,10 +939,10 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
 
   private void updateSize(final long diffSize, final AtomicOperation atomicOperation)
       throws IOException {
-    try (final CacheEntry entryPointCacheEntry =
+    try (final var entryPointCacheEntry =
         loadPageForWrite(atomicOperation, fileId, ENTRY_POINT_INDEX, true)) {
-      final CellBTreeMultiValueV2EntryPoint<K> entryPoint =
-          new CellBTreeMultiValueV2EntryPoint<>(entryPointCacheEntry);
+      final var entryPoint =
+          new CellBTreeMultiValueV2EntryPoint<K>(entryPointCacheEntry);
       entryPoint.setTreeSize(entryPoint.getTreeSize() + diffSize);
     }
   }
@@ -1030,20 +1030,20 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
   }
 
   private BucketSearchResult firstItem(final AtomicOperation atomicOperation) throws IOException {
-    final LinkedList<PagePathItemUnit> path = new LinkedList<>();
+    final var path = new LinkedList<PagePathItemUnit>();
 
-    long bucketIndex = ROOT_INDEX;
+    var bucketIndex = ROOT_INDEX;
 
-    CacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, bucketIndex);
-    int itemIndex = 0;
+    var cacheEntry = loadPageForRead(atomicOperation, fileId, bucketIndex);
+    var itemIndex = 0;
     try {
-      CellBTreeMultiValueV2Bucket<K> bucket = new CellBTreeMultiValueV2Bucket<>(cacheEntry);
+      var bucket = new CellBTreeMultiValueV2Bucket<K>(cacheEntry);
 
       while (true) {
         if (!bucket.isLeaf()) {
           if (bucket.isEmpty() || itemIndex > bucket.size()) {
             if (!path.isEmpty()) {
-              final PagePathItemUnit pagePathItemUnit = path.removeLast();
+              final var pagePathItemUnit = path.removeLast();
 
               bucketIndex = pagePathItemUnit.pageIndex;
               itemIndex = pagePathItemUnit.itemIndex + 1;
@@ -1064,7 +1064,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
         } else {
           if (bucket.isEmpty()) {
             if (!path.isEmpty()) {
-              final PagePathItemUnit pagePathItemUnit = path.removeLast();
+              final var pagePathItemUnit = path.removeLast();
 
               bucketIndex = pagePathItemUnit.pageIndex;
               itemIndex = pagePathItemUnit.itemIndex + 1;
@@ -1088,21 +1088,21 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
   }
 
   private BucketSearchResult lastItem(final AtomicOperation atomicOperation) throws IOException {
-    final LinkedList<PagePathItemUnit> path = new LinkedList<>();
+    final var path = new LinkedList<PagePathItemUnit>();
 
-    long bucketIndex = ROOT_INDEX;
+    var bucketIndex = ROOT_INDEX;
 
-    CacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, bucketIndex);
+    var cacheEntry = loadPageForRead(atomicOperation, fileId, bucketIndex);
 
-    CellBTreeMultiValueV2Bucket<K> bucket = new CellBTreeMultiValueV2Bucket<>(cacheEntry);
+    var bucket = new CellBTreeMultiValueV2Bucket<K>(cacheEntry);
 
-    int itemIndex = bucket.size() - 1;
+    var itemIndex = bucket.size() - 1;
     try {
       while (true) {
         if (!bucket.isLeaf()) {
           if (itemIndex < -1) {
             if (!path.isEmpty()) {
-              final PagePathItemUnit pagePathItemUnit = path.removeLast();
+              final var pagePathItemUnit = path.removeLast();
 
               bucketIndex = pagePathItemUnit.pageIndex;
               itemIndex = pagePathItemUnit.itemIndex - 1;
@@ -1123,7 +1123,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
         } else {
           if (bucket.isEmpty()) {
             if (!path.isEmpty()) {
-              final PagePathItemUnit pagePathItemUnit = path.removeLast();
+              final var pagePathItemUnit = path.removeLast();
 
               bucketIndex = pagePathItemUnit.pageIndex;
               itemIndex = pagePathItemUnit.itemIndex - 1;
@@ -1228,22 +1228,22 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
       final K keyToInsert,
       final AtomicOperation atomicOperation)
       throws IOException {
-    final boolean splitLeaf = bucketToSplit.isLeaf();
-    final int bucketSize = bucketToSplit.size();
+    final var splitLeaf = bucketToSplit.isLeaf();
+    final var bucketSize = bucketToSplit.size();
 
-    final int indexToSplit = bucketSize >>> 1;
-    final byte[] serializedSeparationKey =
+    final var indexToSplit = bucketSize >>> 1;
+    final var serializedSeparationKey =
         bucketToSplit.getRawKey(indexToSplit, keySerializer);
 
     final List<CellBTreeMultiValueV2Bucket.Entry> rightEntries = new ArrayList<>(indexToSplit);
 
-    final int startRightIndex = splitLeaf ? indexToSplit : indexToSplit + 1;
+    final var startRightIndex = splitLeaf ? indexToSplit : indexToSplit + 1;
     if (splitLeaf) {
-      for (int i = startRightIndex; i < bucketSize; i++) {
+      for (var i = startRightIndex; i < bucketSize; i++) {
         rightEntries.add(bucketToSplit.getLeafEntry(i, keySerializer));
       }
     } else {
-      for (int i = startRightIndex; i < bucketSize; i++) {
+      for (var i = startRightIndex; i < bucketSize; i++) {
         rightEntries.add(bucketToSplit.getNonLeafEntry(i, keySerializer));
       }
     }
@@ -1294,11 +1294,11 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
       throws IOException {
 
     final CacheEntry rightBucketEntry;
-    try (final CacheEntry entryPointCacheEntry =
+    try (final var entryPointCacheEntry =
         loadPageForWrite(atomicOperation, fileId, ENTRY_POINT_INDEX, true)) {
-      final CellBTreeMultiValueV2EntryPoint<K> entryPoint =
-          new CellBTreeMultiValueV2EntryPoint<>(entryPointCacheEntry);
-      final int pageSize = entryPoint.getPagesSize();
+      final var entryPoint =
+          new CellBTreeMultiValueV2EntryPoint<K>(entryPointCacheEntry);
+      final var pageSize = entryPoint.getPagesSize();
 
       if (pageSize < getFilledUpTo(atomicOperation, fileId) - 1) {
         rightBucketEntry = loadPageForWrite(atomicOperation, fileId, pageSize + 1, false);
@@ -1314,8 +1314,8 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
     K separationKey = null;
 
     try {
-      final CellBTreeMultiValueV2Bucket<K> newRightBucket =
-          new CellBTreeMultiValueV2Bucket<>(rightBucketEntry);
+      final var newRightBucket =
+          new CellBTreeMultiValueV2Bucket<K>(rightBucketEntry);
       newRightBucket.init(splitLeaf);
 
       newRightBucket.addAll(rightEntries);
@@ -1324,7 +1324,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
       bucketToSplit.shrink(indexToSplit, keySerializer);
 
       if (splitLeaf) {
-        final long rightSiblingPageIndex = bucketToSplit.getRightSibling();
+        final var rightSiblingPageIndex = bucketToSplit.getRightSibling();
 
         newRightBucket.setRightSibling(rightSiblingPageIndex);
         newRightBucket.setLeftSibling(pageIndex);
@@ -1332,21 +1332,21 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
         bucketToSplit.setRightSibling(rightBucketEntry.getPageIndex());
 
         if (rightSiblingPageIndex >= 0) {
-          try (final CacheEntry rightSiblingBucketEntry =
+          try (final var rightSiblingBucketEntry =
               loadPageForWrite(atomicOperation, fileId, rightSiblingPageIndex, true)) {
-            final CellBTreeMultiValueV2Bucket<K> rightSiblingBucket =
-                new CellBTreeMultiValueV2Bucket<>(rightSiblingBucketEntry);
+            final var rightSiblingBucket =
+                new CellBTreeMultiValueV2Bucket<K>(rightSiblingBucketEntry);
             rightSiblingBucket.setLeftSibling(rightBucketEntry.getPageIndex());
           }
         }
       }
 
-      long parentIndex = path.getLong(path.size() - 2);
-      CacheEntry parentCacheEntry = loadPageForWrite(atomicOperation, fileId, parentIndex, true);
+      var parentIndex = path.getLong(path.size() - 2);
+      var parentCacheEntry = loadPageForWrite(atomicOperation, fileId, parentIndex, true);
       try {
-        CellBTreeMultiValueV2Bucket<K> parentBucket =
-            new CellBTreeMultiValueV2Bucket<>(parentCacheEntry);
-        int insertionIndex = insertionIndexes.getInt(insertionIndexes.size() - 2);
+        var parentBucket =
+            new CellBTreeMultiValueV2Bucket<K>(parentCacheEntry);
+        var insertionIndex = insertionIndexes.getInt(insertionIndexes.size() - 2);
 
         while (!parentBucket.addNonLeafEntry(
             insertionIndex,
@@ -1358,7 +1358,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
             separationKey = deserializeKey(serializedSeparationKey);
           }
 
-          final UpdateBucketSearchResult bucketSearchResult =
+          final var bucketSearchResult =
               splitBucket(
                   parentBucket,
                   parentCacheEntry,
@@ -1387,8 +1387,8 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
       rightBucketEntry.close();
     }
 
-    final LongArrayList resultPath = new LongArrayList(path.subList(0, path.size() - 1));
-    final IntArrayList resultInsertionIndexes =
+    final var resultPath = new LongArrayList(path.subList(0, path.size() - 1));
+    final var resultInsertionIndexes =
         new IntArrayList(insertionIndexes.subList(0, insertionIndexes.size() - 1));
 
     if (keyIndex < indexToSplit) {
@@ -1424,7 +1424,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
       final long rightPageIndex,
       final LongArrayList resultPath,
       final IntArrayList resultItemPointers) {
-    final int parentIndex = resultItemPointers.size() - 1;
+    final var parentIndex = resultItemPointers.size() - 1;
     resultItemPointers.set(parentIndex, resultItemPointers.getInt(parentIndex) + 1);
     resultPath.add(rightPageIndex);
 
@@ -1433,7 +1433,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
       return new UpdateBucketSearchResult(resultItemPointers, resultPath, keyIndex - indexToSplit);
     }
 
-    final int insertionIndex = keyIndex - indexToSplit - 1;
+    final var insertionIndex = keyIndex - indexToSplit - 1;
 
     resultItemPointers.add(insertionIndex);
     return new UpdateBucketSearchResult(resultItemPointers, resultPath, insertionIndex);
@@ -1465,7 +1465,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
 
     if (splitLeaf) {
       if (bucketToSplit.size() > 1) {
-        for (int i = 0; i < indexToSplit; i++) {
+        for (var i = 0; i < indexToSplit; i++) {
           leftEntries.add(bucketToSplit.getLeafEntry(i, keySerializer));
         }
       } else {
@@ -1473,7 +1473,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
             "Bucket should have at least two entries to be able to split");
       }
     } else {
-      for (int i = 0; i < indexToSplit; i++) {
+      for (var i = 0; i < indexToSplit; i++) {
         leftEntries.add(bucketToSplit.getNonLeafEntry(i, keySerializer));
       }
     }
@@ -1481,13 +1481,13 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
     final CacheEntry leftBucketEntry;
     final CacheEntry rightBucketEntry;
 
-    try (final CacheEntry entryPointCacheEntry =
+    try (final var entryPointCacheEntry =
         loadPageForWrite(atomicOperation, fileId, ENTRY_POINT_INDEX, true)) {
-      final CellBTreeMultiValueV2EntryPoint<K> entryPoint =
-          new CellBTreeMultiValueV2EntryPoint<>(entryPointCacheEntry);
-      int pageSize = entryPoint.getPagesSize();
+      final var entryPoint =
+          new CellBTreeMultiValueV2EntryPoint<K>(entryPointCacheEntry);
+      var pageSize = entryPoint.getPagesSize();
 
-      final int filledUpTo = (int) getFilledUpTo(atomicOperation, fileId);
+      final var filledUpTo = (int) getFilledUpTo(atomicOperation, fileId);
 
       if (pageSize < filledUpTo - 1) {
         pageSize++;
@@ -1513,8 +1513,8 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
     }
 
     try {
-      final CellBTreeMultiValueV2Bucket<K> newLeftBucket =
-          new CellBTreeMultiValueV2Bucket<>(leftBucketEntry);
+      final var newLeftBucket =
+          new CellBTreeMultiValueV2Bucket<K>(leftBucketEntry);
       newLeftBucket.init(splitLeaf);
 
       newLeftBucket.addAll(leftEntries);
@@ -1528,8 +1528,8 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
     }
 
     try {
-      final CellBTreeMultiValueV2Bucket<K> newRightBucket =
-          new CellBTreeMultiValueV2Bucket<>(rightBucketEntry);
+      final var newRightBucket =
+          new CellBTreeMultiValueV2Bucket<K>(rightBucketEntry);
       newRightBucket.init(splitLeaf);
 
       newRightBucket.addAll(rightEntries);
@@ -1554,10 +1554,10 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
         rightBucketEntry.getPageIndex(),
         true);
 
-    final LongArrayList resultPath = new LongArrayList(8);
+    final var resultPath = new LongArrayList(8);
     resultPath.add(ROOT_INDEX);
 
-    final IntArrayList itemPointers = new IntArrayList(8);
+    final var itemPointers = new IntArrayList(8);
 
     if (keyIndex < indexToSplit) {
       return addToTheLeftRootBucket(keyIndex, leftBucketEntry, resultPath, itemPointers);
@@ -1587,7 +1587,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
       return new UpdateBucketSearchResult(itemPointers, resultPath, keyIndex - indexToSplit);
     }
 
-    final int itemPointer = keyIndex - indexToSplit - 1;
+    final var itemPointer = keyIndex - indexToSplit - 1;
     itemPointers.add(itemPointer);
 
     return new UpdateBucketSearchResult(itemPointers, resultPath, itemPointer);
@@ -1607,9 +1607,9 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
 
   private BucketSearchResult findBucket(final K key, final AtomicOperation atomicOperation)
       throws IOException {
-    long pageIndex = ROOT_INDEX;
+    var pageIndex = ROOT_INDEX;
 
-    int depth = 0;
+    var depth = 0;
     while (true) {
       depth++;
       if (depth > MAX_PATH_LENGTH) {
@@ -1619,10 +1619,10 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
             this);
       }
 
-      try (final CacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
-        final CellBTreeMultiValueV2Bucket<K> keyBucket =
-            new CellBTreeMultiValueV2Bucket<>(bucketEntry);
-        final int index = keyBucket.find(key, keySerializer);
+      try (final var bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
+        final var keyBucket =
+            new CellBTreeMultiValueV2Bucket<K>(bucketEntry);
+        final var index = keyBucket.find(key, keySerializer);
 
         if (keyBucket.isLeaf()) {
           return new BucketSearchResult(index, pageIndex);
@@ -1631,7 +1631,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
         if (index >= 0) {
           pageIndex = keyBucket.getRight(index);
         } else {
-          final int insertionIndex = -index - 1;
+          final var insertionIndex = -index - 1;
           if (insertionIndex >= keyBucket.size()) {
             pageIndex = keyBucket.getRight(insertionIndex - 1);
           } else {
@@ -1644,10 +1644,10 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
 
   private UpdateBucketSearchResult findBucketForUpdate(
       final K key, final AtomicOperation atomicOperation) throws IOException {
-    long pageIndex = ROOT_INDEX;
+    var pageIndex = ROOT_INDEX;
 
-    final LongArrayList path = new LongArrayList(8);
-    final IntArrayList insertionIndexes = new IntArrayList(8);
+    final var path = new LongArrayList(8);
+    final var insertionIndexes = new IntArrayList(8);
 
     while (true) {
       if (path.size() > MAX_PATH_LENGTH) {
@@ -1659,11 +1659,11 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
 
       path.add(pageIndex);
 
-      try (final CacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
+      try (final var bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
 
-        final CellBTreeMultiValueV2Bucket<K> keyBucket =
-            new CellBTreeMultiValueV2Bucket<>(bucketEntry);
-        final int index = keyBucket.find(key, keySerializer);
+        final var keyBucket =
+            new CellBTreeMultiValueV2Bucket<K>(bucketEntry);
+        final var index = keyBucket.find(key, keySerializer);
 
         if (keyBucket.isLeaf()) {
           insertionIndexes.add(index);
@@ -1674,7 +1674,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
           pageIndex = keyBucket.getRight(index);
           insertionIndexes.add(index + 1);
         } else {
-          final int insertionIndex = -index - 1;
+          final var insertionIndex = -index - 1;
 
           if (insertionIndex >= keyBucket.size()) {
             pageIndex = keyBucket.getRight(insertionIndex - 1);
@@ -1696,8 +1696,8 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
     if (!(keySize == 1
         || compositeKey.getKeys().size() == keySize
         || partialSearchMode.equals(PartialSearchMode.NONE))) {
-      final CompositeKey fullKey = new CompositeKey(compositeKey);
-      final int itemsToAdd = keySize - fullKey.getKeys().size();
+      final var fullKey = new CompositeKey(compositeKey);
+      final var itemsToAdd = keySize - fullKey.getKeys().size();
 
       final Comparable<?> keyItem;
       if (partialSearchMode.equals(PartialSearchMode.HIGHEST_BOUNDARY)) {
@@ -1706,7 +1706,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
         keyItem = ALWAYS_LESS_KEY;
       }
 
-      for (int i = 0; i < itemsToAdd; i++) {
+      for (var i = 0; i < itemsToAdd; i++) {
         fullKey.addKey(keyItem);
       }
 
@@ -1803,35 +1803,35 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
 
       keysCache.clear();
 
-      final int prefetchSize = GlobalConfiguration.INDEX_CURSOR_PREFETCH_SIZE.getValueAsInteger();
+      final var prefetchSize = GlobalConfiguration.INDEX_CURSOR_PREFETCH_SIZE.getValueAsInteger();
 
       atomicOperationsManager.acquireReadLock(CellBTreeMultiValueV2.this);
       try {
         acquireSharedLock();
         try {
-          final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+          final var atomicOperation = atomicOperationsManager.getCurrentOperation();
 
           while (keysCache.size() < prefetchSize) {
             if (pageIndex == -1) {
               break;
             }
 
-            try (final CacheEntry entryPointCacheEntry =
+            try (final var entryPointCacheEntry =
                 loadPageForRead(atomicOperation, fileId, ENTRY_POINT_INDEX)) {
-              final CellBTreeMultiValueV2EntryPoint<K> entryPoint =
-                  new CellBTreeMultiValueV2EntryPoint<>(entryPointCacheEntry);
+              final var entryPoint =
+                  new CellBTreeMultiValueV2EntryPoint<K>(entryPointCacheEntry);
               if (pageIndex >= entryPoint.getPagesSize() + 1) {
                 pageIndex = -1;
                 break;
               }
             }
 
-            try (final CacheEntry cacheEntry =
+            try (final var cacheEntry =
                 loadPageForRead(atomicOperation, fileId, pageIndex)) {
-              final CellBTreeMultiValueV2Bucket<K> bucket =
-                  new CellBTreeMultiValueV2Bucket<>(cacheEntry);
+              final var bucket =
+                  new CellBTreeMultiValueV2Bucket<K>(cacheEntry);
 
-              final int bucketSize = bucket.size();
+              final var bucketSize = bucket.size();
               if (itemIndex >= bucketSize) {
                 pageIndex = bucket.getRightSibling();
                 itemIndex = 0;
@@ -1922,7 +1922,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
       }
 
       if (dataCacheIterator.hasNext()) {
-        final RawPair<K, RID> entry = dataCacheIterator.next();
+        final var entry = dataCacheIterator.next();
 
         fromKey = entry.first;
         fromKeyInclusive = false;
@@ -1933,13 +1933,13 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
 
       dataCache.clear();
 
-      final int prefetchSize = GlobalConfiguration.INDEX_CURSOR_PREFETCH_SIZE.getValueAsInteger();
+      final var prefetchSize = GlobalConfiguration.INDEX_CURSOR_PREFETCH_SIZE.getValueAsInteger();
 
       atomicOperationsManager.acquireReadLock(CellBTreeMultiValueV2.this);
       try {
         acquireSharedLock();
         try {
-          final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+          final var atomicOperation = atomicOperationsManager.getCurrentOperation();
 
           final BucketSearchResult bucketSearchResult;
 
@@ -1954,7 +1954,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
             return false;
           }
 
-          long pageIndex = bucketSearchResult.pageIndex;
+          var pageIndex = bucketSearchResult.pageIndex;
           int itemIndex;
 
           if (bucketSearchResult.itemIndex >= 0) {
@@ -1966,33 +1966,33 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
 
           K lastKey = null;
 
-          boolean firstTry = true;
+          var firstTry = true;
           mainCycle:
           while (true) {
             if (pageIndex == -1) {
               break;
             }
 
-            try (final CacheEntry cacheEntry =
+            try (final var cacheEntry =
                 loadPageForRead(atomicOperation, fileId, pageIndex)) {
-              final CellBTreeMultiValueV2Bucket<K> bucket =
-                  new CellBTreeMultiValueV2Bucket<>(cacheEntry);
+              final var bucket =
+                  new CellBTreeMultiValueV2Bucket<K>(cacheEntry);
               if (firstTry
                   && fromKey != null
                   && fromKeyInclusive
                   && bucketSearchResult.itemIndex == 0) {
-                int leftSibling = (int) bucket.getLeftSibling();
+                var leftSibling = (int) bucket.getLeftSibling();
                 while (leftSibling > 0) {
-                  try (final CacheEntry siblingCacheEntry =
+                  try (final var siblingCacheEntry =
                       loadPageForRead(atomicOperation, fileId, leftSibling)) {
-                    final CellBTreeMultiValueV2Bucket<K> siblingBucket =
-                        new CellBTreeMultiValueV2Bucket<>(siblingCacheEntry);
+                    final var siblingBucket =
+                        new CellBTreeMultiValueV2Bucket<K>(siblingCacheEntry);
 
-                    final int bucketSize = siblingBucket.size();
+                    final var bucketSize = siblingBucket.size();
                     if (bucketSize == 0) {
                       leftSibling = (int) siblingBucket.getLeftSibling();
                     } else if (bucketSize == 1) {
-                      final K key = siblingBucket.getKey(0, keySerializer);
+                      final var key = siblingBucket.getKey(0, keySerializer);
 
                       if (key.equals(fromKey)) {
                         lastKey = key;
@@ -2004,7 +2004,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
                         leftSibling = -1;
                       }
                     } else {
-                      final K key = siblingBucket.getKey(bucketSize - 1, keySerializer);
+                      final var key = siblingBucket.getKey(bucketSize - 1, keySerializer);
                       if (key.equals(fromKey)) {
                         lastKey = key;
 
@@ -2025,11 +2025,11 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
                   continue mainCycle;
                 }
 
-                final CellBTreeMultiValueV2Bucket.LeafEntry leafEntry =
+                final var leafEntry =
                     bucket.getLeafEntry(itemIndex, keySerializer);
                 itemIndex++;
 
-                final K key = deserializeKey(leafEntry.key);
+                final var key = deserializeKey(leafEntry.key);
                 if (dataCache.size() >= prefetchSize && (lastKey == null || !lastKey.equals(key))) {
                   break mainCycle;
                 }
@@ -2078,7 +2078,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
 
       dataCacheIterator = dataCache.iterator();
 
-      final RawPair<K, RID> entry = dataCacheIterator.next();
+      final var entry = dataCacheIterator.next();
 
       fromKey = entry.first;
       fromKeyInclusive = false;
@@ -2140,7 +2140,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
       }
 
       if (dataCacheIterator.hasNext()) {
-        final RawPair<K, RID> entry = dataCacheIterator.next();
+        final var entry = dataCacheIterator.next();
         toKey = entry.first;
 
         toKeyInclusive = false;
@@ -2151,12 +2151,12 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
 
       dataCache.clear();
 
-      final int prefetchSize = GlobalConfiguration.INDEX_CURSOR_PREFETCH_SIZE.getValueAsInteger();
+      final var prefetchSize = GlobalConfiguration.INDEX_CURSOR_PREFETCH_SIZE.getValueAsInteger();
       atomicOperationsManager.acquireReadLock(CellBTreeMultiValueV2.this);
       try {
         acquireSharedLock();
         try {
-          final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+          final var atomicOperation = atomicOperationsManager.getCurrentOperation();
 
           final BucketSearchResult bucketSearchResult;
 
@@ -2171,7 +2171,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
             return false;
           }
 
-          long pageIndex = bucketSearchResult.pageIndex;
+          var pageIndex = bucketSearchResult.pageIndex;
 
           int itemIndex;
           if (bucketSearchResult.itemIndex >= 0) {
@@ -2181,7 +2181,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
             itemIndex = -bucketSearchResult.itemIndex - 2;
           }
 
-          boolean firstTry = true;
+          var firstTry = true;
           K lastKey = null;
           mainCycle:
           while (true) {
@@ -2189,26 +2189,26 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
               break;
             }
 
-            try (final CacheEntry cacheEntry =
+            try (final var cacheEntry =
                 loadPageForRead(atomicOperation, fileId, pageIndex)) {
-              final CellBTreeMultiValueV2Bucket<K> bucket =
-                  new CellBTreeMultiValueV2Bucket<>(cacheEntry);
+              final var bucket =
+                  new CellBTreeMultiValueV2Bucket<K>(cacheEntry);
               if (firstTry
                   && toKey != null
                   && toKeyInclusive
                   && bucketSearchResult.itemIndex == 0) {
-                int rightSibling = (int) bucket.getRightSibling();
+                var rightSibling = (int) bucket.getRightSibling();
                 while (rightSibling > 0) {
-                  try (final CacheEntry siblingCacheEntry =
+                  try (final var siblingCacheEntry =
                       loadPageForRead(atomicOperation, fileId, rightSibling)) {
-                    final CellBTreeMultiValueV2Bucket<K> siblingBucket =
-                        new CellBTreeMultiValueV2Bucket<>(siblingCacheEntry);
+                    final var siblingBucket =
+                        new CellBTreeMultiValueV2Bucket<K>(siblingCacheEntry);
 
-                    final int bucketSize = siblingBucket.size();
+                    final var bucketSize = siblingBucket.size();
                     if (bucketSize == 0) {
                       rightSibling = (int) siblingBucket.getRightSibling();
                     } else if (bucketSize == 1) {
-                      final K key = siblingBucket.getKey(0, keySerializer);
+                      final var key = siblingBucket.getKey(0, keySerializer);
 
                       if (key.equals(fromKey)) {
                         lastKey = key;
@@ -2219,7 +2219,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
                         rightSibling = -1;
                       }
                     } else {
-                      final K key = siblingBucket.getKey(0, keySerializer);
+                      final var key = siblingBucket.getKey(0, keySerializer);
                       if (key.equals(fromKey)) {
                         lastKey = key;
 
@@ -2245,11 +2245,11 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
                   continue mainCycle;
                 }
 
-                final CellBTreeMultiValueV2Bucket.LeafEntry leafEntry =
+                final var leafEntry =
                     bucket.getLeafEntry(itemIndex, keySerializer);
                 itemIndex--;
 
-                final K key = deserializeKey(leafEntry.key);
+                final var key = deserializeKey(leafEntry.key);
                 if (dataCache.size() >= prefetchSize && (lastKey == null || !lastKey.equals(key))) {
                   break mainCycle;
                 }
@@ -2299,7 +2299,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
 
       dataCacheIterator = dataCache.iterator();
 
-      final RawPair<K, RID> entry = dataCacheIterator.next();
+      final var entry = dataCacheIterator.next();
 
       toKey = entry.first;
       toKeyInclusive = false;

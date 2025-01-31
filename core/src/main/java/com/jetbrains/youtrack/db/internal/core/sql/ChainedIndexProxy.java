@@ -24,7 +24,6 @@ import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
-import com.jetbrains.youtrack.db.internal.common.profiler.Profiler;
 import com.jetbrains.youtrack.db.internal.common.profiler.ProfilerStub;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
@@ -95,7 +94,7 @@ public class ChainedIndexProxy<T> implements IndexInternal {
       DatabaseSessionInternal session, SchemaClassInternal iSchemaClass, FieldChain longChain) {
     List<ChainedIndexProxy<T>> proxies = new ArrayList<>();
 
-    for (List<Index> indexChain : getIndexesForChain(session, iSchemaClass, longChain)) {
+    for (var indexChain : getIndexesForChain(session, iSchemaClass, longChain)) {
       //noinspection ObjectAllocationInLoop
       proxies.add(new ChainedIndexProxy<>(session, indexChain));
     }
@@ -109,16 +108,16 @@ public class ChainedIndexProxy<T> implements IndexInternal {
 
   private static Iterable<List<Index>> getIndexesForChain(
       DatabaseSessionInternal session, SchemaClassInternal iSchemaClass, FieldChain fieldChain) {
-    List<Index> baseIndexes = prepareBaseIndexes(session, iSchemaClass, fieldChain);
+    var baseIndexes = prepareBaseIndexes(session, iSchemaClass, fieldChain);
 
     if (baseIndexes == null) {
       return Collections.emptyList();
     }
 
-    Collection<Index> lastIndexes = prepareLastIndexVariants(session, iSchemaClass, fieldChain);
+    var lastIndexes = prepareLastIndexVariants(session, iSchemaClass, fieldChain);
 
     Collection<List<Index>> result = new ArrayList<>();
-    for (Index lastIndex : lastIndexes) {
+    for (var lastIndex : lastIndexes) {
       @SuppressWarnings("ObjectAllocationInLoop") final List<Index> indexes = new ArrayList<>(
           fieldChain.getItemCount());
       indexes.addAll(baseIndexes);
@@ -132,10 +131,10 @@ public class ChainedIndexProxy<T> implements IndexInternal {
 
   private static Collection<Index> prepareLastIndexVariants(
       DatabaseSessionInternal session, SchemaClassInternal iSchemaClass, FieldChain fieldChain) {
-    SchemaClassInternal oClass = iSchemaClass;
+    var oClass = iSchemaClass;
     final Collection<Index> result = new ArrayList<>();
 
-    for (int i = 0; i < fieldChain.getItemCount() - 1; i++) {
+    for (var i = 0; i < fieldChain.getItemCount() - 1; i++) {
       oClass = (SchemaClassInternal) oClass.getProperty(fieldChain.getItemName(i)).getLinkedClass();
       if (oClass == null) {
         return result;
@@ -150,7 +149,7 @@ public class ChainedIndexProxy<T> implements IndexInternal {
             fieldChain.getItemName(fieldChain.getItemCount() - 1)));
     final Collection<Class<? extends Index>> indexTypes = new HashSet<>(3);
 
-    for (Index involvedIndex : involvedIndexes) {
+    for (var involvedIndex : involvedIndexes) {
       if (!indexTypes.contains(involvedIndex.getInternal().getClass())) {
         result.add(involvedIndex);
         indexTypes.add(involvedIndex.getInternal().getClass());
@@ -164,11 +163,11 @@ public class ChainedIndexProxy<T> implements IndexInternal {
       DatabaseSessionInternal session, SchemaClassInternal iSchemaClass, FieldChain fieldChain) {
     List<Index> result = new ArrayList<>(fieldChain.getItemCount() - 1);
 
-    SchemaClassInternal oClass = iSchemaClass;
-    for (int i = 0; i < fieldChain.getItemCount() - 1; i++) {
-      final Set<Index> involvedIndexes = oClass.getInvolvedIndexesInternal(session,
+    var oClass = iSchemaClass;
+    for (var i = 0; i < fieldChain.getItemCount() - 1; i++) {
+      final var involvedIndexes = oClass.getInvolvedIndexesInternal(session,
           fieldChain.getItemName(i));
-      final Index bestIndex = findBestIndex(involvedIndexes);
+      final var bestIndex = findBestIndex(involvedIndexes);
 
       if (bestIndex == null) {
         return null;
@@ -198,7 +197,7 @@ public class ChainedIndexProxy<T> implements IndexInternal {
    */
   protected static Index findBestIndex(Iterable<Index> indexes) {
     Index bestIndex = null;
-    for (Index index : indexes) {
+    for (var index : indexes) {
       if (priorityOfUsage(index) > priorityOfUsage(bestIndex)) {
         bestIndex = index;
       }
@@ -211,11 +210,11 @@ public class ChainedIndexProxy<T> implements IndexInternal {
       return -1;
     }
 
-    final SchemaClass.INDEX_TYPE indexType = SchemaClass.INDEX_TYPE.valueOf(index.getType());
-    final boolean isComposite = isComposite(index);
-    final boolean supportNullValues = supportNullValues(index);
+    final var indexType = SchemaClass.INDEX_TYPE.valueOf(index.getType());
+    final var isComposite = isComposite(index);
+    final var supportNullValues = supportNullValues(index);
 
-    int priority = 1;
+    var priority = 1;
 
     if (isComposite) {
       if (!supportNullValues) {
@@ -261,7 +260,7 @@ public class ChainedIndexProxy<T> implements IndexInternal {
       return false;
     }
 
-    final Boolean ignoreNullValues = (Boolean) metadata.get("ignoreNullValues");
+    final var ignoreNullValues = (Boolean) metadata.get("ignoreNullValues");
     return Boolean.FALSE.equals(ignoreNullValues);
   }
 
@@ -270,8 +269,8 @@ public class ChainedIndexProxy<T> implements IndexInternal {
   }
 
   public List<String> getIndexNames() {
-    final ArrayList<String> names = new ArrayList<>(indexChain.size());
-    for (Index index : indexChain) {
+    final var names = new ArrayList<String>(indexChain.size());
+    for (var index : indexChain) {
       names.add(index.getName());
     }
 
@@ -280,11 +279,11 @@ public class ChainedIndexProxy<T> implements IndexInternal {
 
   @Override
   public String getName() {
-    final StringBuilder res = new StringBuilder("IndexChain{");
-    final List<String> indexNames = getIndexNames();
+    final var res = new StringBuilder("IndexChain{");
+    final var indexNames = getIndexNames();
 
-    for (int i = 0; i < indexNames.size(); i++) {
-      String indexName = indexNames.get(i);
+    for (var i = 0; i < indexNames.size(); i++) {
+      var indexName = indexNames.get(i);
       if (i > 0) {
         res.append(", ");
       }
@@ -303,7 +302,7 @@ public class ChainedIndexProxy<T> implements IndexInternal {
   @Deprecated
   public T get(DatabaseSessionInternal session, Object key) {
     final List<RID> lastIndexResult;
-    try (Stream<RID> stream = lastIndex.getInternal().getRids(session, key)) {
+    try (var stream = lastIndex.getInternal().getRids(session, key)) {
       lastIndexResult = stream.collect(Collectors.toList());
     }
 
@@ -315,7 +314,7 @@ public class ChainedIndexProxy<T> implements IndexInternal {
   @Override
   public Stream<RID> getRidsIgnoreTx(DatabaseSessionInternal db, Object key) {
     final List<RID> lastIndexResult;
-    try (Stream<RID> stream = lastIndex.getInternal().getRids(db, key)) {
+    try (var stream = lastIndex.getInternal().getRids(db, key)) {
       lastIndexResult = stream.collect(Collectors.toList());
     }
 
@@ -327,7 +326,7 @@ public class ChainedIndexProxy<T> implements IndexInternal {
   @Override
   public Stream<RID> getRids(DatabaseSessionInternal db, Object key) {
     final List<RID> lastIndexResult;
-    try (Stream<RID> stream = lastIndex.getInternal().getRids(db, key)) {
+    try (var stream = lastIndex.getInternal().getRids(db, key)) {
       lastIndexResult = stream.collect(Collectors.toList());
     }
 
@@ -353,25 +352,25 @@ public class ChainedIndexProxy<T> implements IndexInternal {
 
   private List<RID> applyTailIndexes(
       DatabaseSessionInternal session, final Object lastIndexResult) {
-    final Index beforeTheLastIndex = indexChain.get(indexChain.size() - 2);
-    Set<Comparable> currentKeys = prepareKeys(session, beforeTheLastIndex, lastIndexResult);
+    final var beforeTheLastIndex = indexChain.get(indexChain.size() - 2);
+    var currentKeys = prepareKeys(session, beforeTheLastIndex, lastIndexResult);
 
-    for (int j = indexChain.size() - 2; j > 0; j--) {
-      final Index currentIndex = indexChain.get(j);
-      final Index nextIndex = indexChain.get(j - 1);
+    for (var j = indexChain.size() - 2; j > 0; j--) {
+      final var currentIndex = indexChain.get(j);
+      final var nextIndex = indexChain.get(j - 1);
 
       final Set<Comparable> newKeys;
       if (isComposite(currentIndex)) {
         //noinspection ObjectAllocationInLoop
         newKeys = new TreeSet<>();
-        for (Comparable currentKey : currentKeys) {
-          final List<RID> currentResult = getFromCompositeIndex(session, currentKey,
+        for (var currentKey : currentKeys) {
+          final var currentResult = getFromCompositeIndex(session, currentKey,
               currentIndex);
           newKeys.addAll(prepareKeys(session, nextIndex, currentResult));
         }
       } else {
         final List<Identifiable> keys;
-        try (Stream<RawPair<Object, RID>> stream =
+        try (var stream =
             currentIndex.getInternal().streamEntries(session, currentKeys, true)) {
           keys = stream.map((pair) -> pair.second).collect(Collectors.toList());
         }
@@ -391,11 +390,11 @@ public class ChainedIndexProxy<T> implements IndexInternal {
     final List<RID> result;
     if (isComposite(firstIndex)) {
       result = new ArrayList<>();
-      for (Comparable key : currentKeys) {
+      for (var key : currentKeys) {
         result.addAll(getFromCompositeIndex(session, key, firstIndex));
       }
     } else {
-      try (Stream<RawPair<Object, RID>> stream =
+      try (var stream =
           firstIndex.getInternal().streamEntries(session, currentKeys, true)) {
         result = stream.map((pair) -> pair.second).collect(Collectors.toList());
       }
@@ -408,7 +407,7 @@ public class ChainedIndexProxy<T> implements IndexInternal {
 
   private static List<RID> getFromCompositeIndex(DatabaseSessionInternal session,
       Comparable currentKey, Index currentIndex) {
-    try (Stream<RawPair<Object, RID>> stream =
+    try (var stream =
         currentIndex.getInternal()
             .streamEntriesBetween(session, currentKey, true, currentKey, true, true)) {
       return stream.map((pair) -> pair.second).collect(Collectors.toList());
@@ -425,10 +424,10 @@ public class ChainedIndexProxy<T> implements IndexInternal {
    */
   private static Set<Comparable> prepareKeys(
       DatabaseSessionInternal session, Index index, Object keys) {
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
     if (keys instanceof Collection) {
       final Set<Comparable> newKeys = new TreeSet<>();
-      for (Object o : ((Collection) keys)) {
+      for (var o : ((Collection) keys)) {
         newKeys.add((Comparable) indexDefinition.createValue(session, o));
       }
       return newKeys;
@@ -444,7 +443,7 @@ public class ChainedIndexProxy<T> implements IndexInternal {
    */
   private static void updateStatistic(Index index) {
 
-    final Profiler profiler = YouTrackDBEnginesManager.instance().getProfiler();
+    final var profiler = YouTrackDBEnginesManager.instance().getProfiler();
     if (profiler.isRecording()) {
       YouTrackDBEnginesManager.instance()
           .getProfiler()
@@ -453,9 +452,9 @@ public class ChainedIndexProxy<T> implements IndexInternal {
               "Used index in query",
               +1);
 
-      final int paramCount = index.getDefinition().getParamCount();
+      final var paramCount = index.getDefinition().getParamCount();
       if (paramCount > 1) {
-        final String profiler_prefix =
+        final var profiler_prefix =
             profiler.getDatabaseMetric(index.getDatabaseName(), "query.compositeIndexUsed");
         profiler.updateCounter(profiler_prefix, "Used composite index in query", +1);
         profiler.updateCounter(

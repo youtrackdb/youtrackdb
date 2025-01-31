@@ -63,8 +63,8 @@ public class AuditingLoggingThread extends Thread {
             session -> {
               Schema schema = session.getMetadata().getSchema();
               if (!schema.existsClass(className)) {
-                SchemaClass clazz = schema.getClass(DefaultAuditing.AUDITING_LOG_CLASSNAME);
-                SchemaClass cls = schema.createClass(className, clazz);
+                var clazz = schema.getClass(DefaultAuditing.AUDITING_LOG_CLASSNAME);
+                var cls = schema.createClass(className, clazz);
                 cls.createIndex(session, className + ".date", SchemaClass.INDEX_TYPE.NOTUNIQUE,
                     "date");
               }
@@ -90,7 +90,7 @@ public class AuditingLoggingThread extends Thread {
                 log.updateFromMap(logEntry);
 
                 if (security.getSyslog() != null) {
-                  byte byteOp = AuditingOperation.UNSPECIFIED.getByte();
+                  var byteOp = AuditingOperation.UNSPECIFIED.getByte();
 
                   if (log.hasProperty("operation")) {
                     byteOp = log.getProperty("operation");

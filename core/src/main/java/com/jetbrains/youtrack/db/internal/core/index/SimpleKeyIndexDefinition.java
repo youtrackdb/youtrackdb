@@ -51,15 +51,15 @@ public class SimpleKeyIndexDefinition extends AbstractIndexDefinition {
     this.keyTypes = Arrays.copyOf(keyTypes2, keyTypes2.length);
 
     if (keyTypes.length > 1) {
-      CompositeCollate collate = new CompositeCollate(this);
+      var collate = new CompositeCollate(this);
       if (collatesList != null) {
-        for (Collate oCollate : collatesList) {
+        for (var oCollate : collatesList) {
           collate.addCollate(oCollate);
         }
       } else {
-        final int typesSize = keyTypes.length;
-        final Collate defCollate = SQLEngine.getCollate(DefaultCollate.NAME);
-        for (int i = 0; i < typesSize; i++) {
+        final var typesSize = keyTypes.length;
+        final var defCollate = SQLEngine.getCollate(DefaultCollate.NAME);
+        for (var i = 0; i < typesSize; i++) {
           collate.addCollate(defCollate);
         }
       }
@@ -93,10 +93,10 @@ public class SimpleKeyIndexDefinition extends AbstractIndexDefinition {
           keyTypes[0].getDefaultJavaType());
     }
 
-    final CompositeKey compositeKey = new CompositeKey();
+    final var compositeKey = new CompositeKey();
 
-    for (int i = 0; i < params.length; ++i) {
-      final Comparable<?> paramValue =
+    for (var i = 0; i < params.length; ++i) {
+      final var paramValue =
           (Comparable<?>)
               PropertyType.convert(session, refreshRid(session, params[i]),
                   keyTypes[i].getDefaultJavaType());
@@ -130,14 +130,14 @@ public class SimpleKeyIndexDefinition extends AbstractIndexDefinition {
 
     final List<String> keyTypeNames = new ArrayList<>(keyTypes.length);
 
-    for (final PropertyType keyType : keyTypes) {
+    for (final var keyType : keyTypes) {
       keyTypeNames.add(keyType.toString());
     }
 
     entity.field("keyTypes", keyTypeNames, PropertyType.EMBEDDEDLIST);
     if (collate instanceof CompositeCollate) {
       List<String> collatesNames = new ArrayList<>();
-      for (Collate curCollate : ((CompositeCollate) this.collate).getCollates()) {
+      for (var curCollate : ((CompositeCollate) this.collate).getCollates()) {
         collatesNames.add(curCollate.getName());
       }
       entity.field("collates", collatesNames, PropertyType.EMBEDDEDLIST);
@@ -160,8 +160,8 @@ public class SimpleKeyIndexDefinition extends AbstractIndexDefinition {
     final List<String> keyTypeNames = entity.field("keyTypes");
     keyTypes = new PropertyType[keyTypeNames.size()];
 
-    int i = 0;
-    for (final String keyTypeName : keyTypeNames) {
+    var i = 0;
+    for (final var keyTypeName : keyTypeNames) {
       keyTypes[i] = PropertyType.valueOf(keyTypeName);
       i++;
     }
@@ -171,8 +171,8 @@ public class SimpleKeyIndexDefinition extends AbstractIndexDefinition {
     } else {
       final List<String> collatesNames = entity.field("collates");
       if (collatesNames != null) {
-        CompositeCollate collates = new CompositeCollate(this);
-        for (String collateName : collatesNames) {
+        var collates = new CompositeCollate(this);
+        for (var collateName : collatesNames) {
           collates.addCollate(SQLEngine.getCollate(collateName));
         }
         this.collate = collates;
@@ -196,13 +196,13 @@ public class SimpleKeyIndexDefinition extends AbstractIndexDefinition {
       return false;
     }
 
-    final SimpleKeyIndexDefinition that = (SimpleKeyIndexDefinition) o;
+    final var that = (SimpleKeyIndexDefinition) o;
     return Arrays.equals(keyTypes, that.keyTypes);
   }
 
   @Override
   public int hashCode() {
-    int result = super.hashCode();
+    var result = super.hashCode();
     result = 31 * result + (keyTypes != null ? Arrays.hashCode(keyTypes) : 0);
     return result;
   }
@@ -223,12 +223,12 @@ public class SimpleKeyIndexDefinition extends AbstractIndexDefinition {
    */
   public String toCreateIndexDDL(
       final String indexName, final String indexType, final String engine) {
-    final StringBuilder ddl = new StringBuilder("create index `");
+    final var ddl = new StringBuilder("create index `");
     ddl.append(indexName).append("` ").append(indexType).append(' ');
 
     if (keyTypes != null && keyTypes.length > 0) {
       ddl.append(keyTypes[0].toString());
-      for (int i = 1; i < keyTypes.length; i++) {
+      for (var i = 1; i < keyTypes.length; i++) {
         ddl.append(", ").append(keyTypes[i].toString());
       }
     }

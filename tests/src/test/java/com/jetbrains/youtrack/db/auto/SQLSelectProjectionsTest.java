@@ -381,7 +381,7 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
 
     Set<RID> rids = new HashSet<>();
     for (var d : resultset) {
-      final RID rid = d.getIdentity().orElseThrow();
+      final var rid = d.getIdentity().orElseThrow();
       Assert.assertFalse(rids.contains(rid));
 
       rids.add(rid);
@@ -390,9 +390,9 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
       Assert.assertNotNull(embeddedList);
       Assert.assertFalse(embeddedList.isEmpty());
 
-      for (Identifiable embedded : embeddedList) {
+      for (var embedded : embeddedList) {
         if (embedded != null) {
-          final RID embeddedRid = embedded.getIdentity();
+          final var embeddedRid = embedded.getIdentity();
 
           Assert.assertFalse(rids.contains(embeddedRid));
           rids.add(rid);

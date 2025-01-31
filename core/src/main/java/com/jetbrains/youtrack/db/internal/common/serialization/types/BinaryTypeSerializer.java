@@ -44,13 +44,13 @@ public class BinaryTypeSerializer implements BinarySerializer<byte[]> {
 
   public void serialize(
       final byte[] object, final byte[] stream, final int startPosition, final Object... hints) {
-    int len = object.length;
+    var len = object.length;
     IntegerSerializer.INSTANCE.serializeLiteral(len, stream, startPosition);
     System.arraycopy(object, 0, stream, startPosition + IntegerSerializer.INT_SIZE, len);
   }
 
   public byte[] deserialize(final byte[] stream, final int startPosition) {
-    final int len = IntegerSerializer.INSTANCE.deserializeLiteral(stream, startPosition);
+    final var len = IntegerSerializer.INSTANCE.deserializeLiteral(stream, startPosition);
     return Arrays.copyOfRange(
         stream,
         startPosition + IntegerSerializer.INT_SIZE,
@@ -69,13 +69,13 @@ public class BinaryTypeSerializer implements BinarySerializer<byte[]> {
 
   public void serializeNativeObject(
       byte[] object, byte[] stream, int startPosition, Object... hints) {
-    final int len = object.length;
+    final var len = object.length;
     IntegerSerializer.INSTANCE.serializeNative(len, stream, startPosition);
     System.arraycopy(object, 0, stream, startPosition + IntegerSerializer.INT_SIZE, len);
   }
 
   public byte[] deserializeNativeObject(byte[] stream, int startPosition) {
-    final int len = IntegerSerializer.INSTANCE.deserializeNative(stream, startPosition);
+    final var len = IntegerSerializer.INSTANCE.deserializeNative(stream, startPosition);
     return Arrays.copyOfRange(
         stream,
         startPosition + IntegerSerializer.INT_SIZE,
@@ -104,7 +104,7 @@ public class BinaryTypeSerializer implements BinarySerializer<byte[]> {
    */
   @Override
   public void serializeInByteBufferObject(byte[] object, ByteBuffer buffer, Object... hints) {
-    final int len = object.length;
+    final var len = object.length;
     buffer.putInt(len);
     buffer.put(object);
   }
@@ -114,18 +114,18 @@ public class BinaryTypeSerializer implements BinarySerializer<byte[]> {
    */
   @Override
   public byte[] deserializeFromByteBufferObject(ByteBuffer buffer) {
-    final int len = buffer.getInt();
-    final byte[] result = new byte[len];
+    final var len = buffer.getInt();
+    final var result = new byte[len];
     buffer.get(result);
     return result;
   }
 
   @Override
   public byte[] deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
-    final int len = buffer.getInt(offset);
+    final var len = buffer.getInt(offset);
     offset += Integer.BYTES;
 
-    final byte[] result = new byte[len];
+    final var result = new byte[len];
     buffer.get(offset, result);
 
     return result;
@@ -150,7 +150,7 @@ public class BinaryTypeSerializer implements BinarySerializer<byte[]> {
   @Override
   public byte[] deserializeFromByteBufferObject(
       ByteBuffer buffer, WALChanges walChanges, int offset) {
-    final int len = walChanges.getIntValue(buffer, offset);
+    final var len = walChanges.getIntValue(buffer, offset);
     offset += IntegerSerializer.INT_SIZE;
     return walChanges.getBinaryValue(buffer, offset, len);
   }

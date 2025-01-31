@@ -65,7 +65,7 @@ public final class ReadRecordResponse implements BinaryResponse {
         network.writeVersion(version);
         network.writeBytes(record);
       }
-      for (RecordAbstract d : recordsToSend) {
+      for (var d : recordsToSend) {
         if (d.getIdentity().isValid()) {
           network.writeByte((byte) 2); // CLIENT CACHE
           // RECORD. IT ISN'T PART OF THE RESULT SET
@@ -80,15 +80,15 @@ public final class ReadRecordResponse implements BinaryResponse {
   @Override
   public void read(DatabaseSessionInternal db, ChannelDataInput network,
       StorageRemoteSession session) throws IOException {
-    RecordSerializerNetworkV37Client serializer = RecordSerializerNetworkV37Client.INSTANCE;
+    var serializer = RecordSerializerNetworkV37Client.INSTANCE;
     if (network.readByte() == 0) {
       return;
     }
 
     final RawBuffer buffer;
-    final byte type = network.readByte();
-    final int recVersion = network.readVersion();
-    final byte[] bytes = network.readBytes();
+    final var type = network.readByte();
+    final var recVersion = network.readVersion();
+    final var bytes = network.readBytes();
     buffer = new RawBuffer(bytes, recVersion, type);
 
     // TODO: This should not be here, move it in a callback or similar

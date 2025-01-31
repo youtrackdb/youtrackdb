@@ -68,7 +68,7 @@ public class SQLFunctionDifference extends SQLFunctionMultiValueAbstract<Set<Obj
       return Set.of();
     }
 
-    for (int i = 1; i < iParams.length; i++) {
+    for (var i = 1; i < iParams.length; i++) {
       // if the parameter is null, ignoring it, it will not affect the difference result
       if (iParams[i] == null) {
         continue;

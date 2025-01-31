@@ -74,18 +74,18 @@ public class SQLScriptEngine implements ScriptEngine {
 
   @Override
   public Object eval(String script, Bindings n) throws ScriptException {
-    DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
+    var db = DatabaseRecordThreadLocal.instance().getIfDefined();
     if (db == null) {
       throw new CommandExecutionException("No database available in threadlocal");
     }
-    Map<Object, Object> params = convertToParameters(n);
+    var params = convertToParameters(n);
     ResultSet queryResult;
     if (params.keySet().stream().anyMatch(x -> !(x instanceof String))) {
       queryResult = db.execute("sql", script, params);
     } else {
       queryResult = db.execute("sql", script, (Map) params);
     }
-    try (ResultSet res = queryResult) {
+    try (var res = queryResult) {
       LegacyResultSet finalResult = new BasicLegacyResultSet();
       res.stream().forEach(x -> finalResult.add(x));
       return finalResult;
@@ -107,8 +107,8 @@ public class SQLScriptEngine implements ScriptEngine {
       }
 
       params = new HashMap<Object, Object>(iArgs.length);
-      for (int i = 0; i < iArgs.length; ++i) {
-        Object par = iArgs[i];
+      for (var i = 0; i < iArgs.length; ++i) {
+        var par = iArgs[i];
 
         if (par instanceof Identifiable
             && ((RecordId) ((Identifiable) par).getIdentity()).isValid())
@@ -125,8 +125,8 @@ public class SQLScriptEngine implements ScriptEngine {
 
   @Override
   public Object eval(Reader reader, Bindings n) throws ScriptException {
-    DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
-    final StringBuilder buffer = new StringBuilder();
+    var db = DatabaseRecordThreadLocal.instance().getIfDefined();
+    final var buffer = new StringBuilder();
     try {
       while (reader.ready()) {
         buffer.append((char) reader.read());

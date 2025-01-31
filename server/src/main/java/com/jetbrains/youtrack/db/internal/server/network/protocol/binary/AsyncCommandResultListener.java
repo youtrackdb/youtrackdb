@@ -99,7 +99,7 @@ public class AsyncCommandResultListener extends AbstractCommandResultListener {
 
   @Override
   public void linkdedBySimpleValue(DatabaseSessionInternal db, EntityImpl entity) {
-    RemoteFetchListener listener =
+    var listener =
         new RemoteFetchListener() {
           @Override
           protected void sendRecord(RecordAbstract iLinked) {

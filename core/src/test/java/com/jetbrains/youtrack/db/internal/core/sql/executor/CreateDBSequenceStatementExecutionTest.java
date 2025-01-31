@@ -17,9 +17,9 @@ public class CreateDBSequenceStatementExecutionTest extends DbTestBase {
   public void testSimple() {
     db.command("CREATE SEQUENCE Sequence1 TYPE ORDERED");
 
-    ResultSet results = db.query("select sequence('Sequence1').next() as val");
+    var results = db.query("select sequence('Sequence1').next() as val");
     Assert.assertTrue(results.hasNext());
-    Result result = results.next();
+    var result = results.next();
     assertThat((Long) result.getProperty("val")).isEqualTo(1L);
     Assert.assertFalse(results.hasNext());
     results.close();
@@ -43,9 +43,9 @@ public class CreateDBSequenceStatementExecutionTest extends DbTestBase {
   public void testIncrement() {
     db.command("CREATE SEQUENCE SequenceIncrement TYPE ORDERED INCREMENT 3");
 
-    ResultSet results = db.query("select sequence('SequenceIncrement').next() as val");
+    var results = db.query("select sequence('SequenceIncrement').next() as val");
     Assert.assertTrue(results.hasNext());
-    Result result = results.next();
+    var result = results.next();
     assertThat((Long) result.getProperty("val")).isEqualTo(3L);
     Assert.assertFalse(results.hasNext());
     results.close();
@@ -69,9 +69,9 @@ public class CreateDBSequenceStatementExecutionTest extends DbTestBase {
   public void testStart() {
     db.command("CREATE SEQUENCE SequenceStart TYPE ORDERED START 3");
 
-    ResultSet results = db.query("select sequence('SequenceStart').next() as val");
+    var results = db.query("select sequence('SequenceStart').next() as val");
     Assert.assertTrue(results.hasNext());
-    Result result = results.next();
+    var result = results.next();
     assertThat((Long) result.getProperty("val")).isEqualTo(4L);
     Assert.assertFalse(results.hasNext());
     results.close();
@@ -95,9 +95,9 @@ public class CreateDBSequenceStatementExecutionTest extends DbTestBase {
   public void testStartIncrement() {
     db.command("CREATE SEQUENCE SequenceStartIncrement TYPE ORDERED START 3 INCREMENT 10");
 
-    ResultSet results = db.query("select sequence('SequenceStartIncrement').next() as val");
+    var results = db.query("select sequence('SequenceStartIncrement').next() as val");
     Assert.assertTrue(results.hasNext());
-    Result result = results.next();
+    var result = results.next();
     assertThat((Long) result.getProperty("val")).isEqualTo(13L);
     Assert.assertFalse(results.hasNext());
     results.close();
@@ -121,7 +121,7 @@ public class CreateDBSequenceStatementExecutionTest extends DbTestBase {
   public void testCreateSequenceIfNotExists() {
     db.command("CREATE SEQUENCE SequenceIfNotExists if not exists TYPE ORDERED").close();
 
-    ResultSet result =
+    var result =
         db.command("CREATE SEQUENCE SequenceIfNotExists if not exists TYPE ORDERED");
 
     Assert.assertFalse(result.hasNext());

@@ -31,7 +31,7 @@ public class RemoteProtocolCommandsTest extends BaseDBTest {
 
   @Test(enabled = false)
   public void testConnect() throws Exception {
-    final ServerAdmin admin =
+    final var admin =
         new ServerAdmin("remote:localhost:" + serverPort)
             .connect("root", SERVER_PASSWORD);
     admin.close();
@@ -39,19 +39,19 @@ public class RemoteProtocolCommandsTest extends BaseDBTest {
 
   @Test
   public void testListDatabasesMemoryDB() throws Exception {
-    final ServerAdmin admin =
+    final var admin =
         new ServerAdmin("remote:localhost")
             .connect("root", SERVER_PASSWORD);
     try {
-      final Random random = new Random();
+      final var random = new Random();
 
-      final String plocalDatabaseName = "plocalTestListDatabasesMemoryDB" + random.nextInt();
+      final var plocalDatabaseName = "plocalTestListDatabasesMemoryDB" + random.nextInt();
       admin.createDatabase(plocalDatabaseName, "graph", "plocal");
 
-      final String memoryDatabaseName = "memoryTestListDatabasesMemoryDB" + random.nextInt();
+      final var memoryDatabaseName = "memoryTestListDatabasesMemoryDB" + random.nextInt();
       admin.createDatabase(memoryDatabaseName, "graph", "memory");
 
-      final Map<String, String> list = admin.listDatabases();
+      final var list = admin.listDatabases();
 
       Assert.assertTrue(list.containsKey(plocalDatabaseName), "Check plocal db is in list");
       Assert.assertTrue(list.containsKey(memoryDatabaseName), "Check memory db is in list");
@@ -64,17 +64,17 @@ public class RemoteProtocolCommandsTest extends BaseDBTest {
   // This is not supported anymore direct record operations are removed from the storage, only tx is
   // available
   public void testRawCreateWithoutIDTest() {
-    SchemaClass clazz = this.db.getMetadata().getSchema().createClass("RidCreationTestClass");
-    AbstractPaginatedStorage storage = (AbstractPaginatedStorage) this.db.getStorage();
-    EntityImpl doc = ((EntityImpl) db.newEntity("RidCreationTestClass"));
+    var clazz = this.db.getMetadata().getSchema().createClass("RidCreationTestClass");
+    var storage = (AbstractPaginatedStorage) this.db.getStorage();
+    var doc = ((EntityImpl) db.newEntity("RidCreationTestClass"));
     doc.field("test", "test");
-    RecordId bad = new RecordId(-1, -1);
-    StorageOperationResult<PhysicalPosition> res =
+    var bad = new RecordId(-1, -1);
+    var res =
         storage.createRecord(bad, doc.toStream(), doc.getVersion(), EntityImpl.RECORD_TYPE, null);
 
     // assertTrue(" the cluster is not valid", bad.clusterId >= 0);
-    String ids = "";
-    for (int aId : clazz.getClusterIds()) {
+    var ids = "";
+    for (var aId : clazz.getClusterIds()) {
       ids += aId;
     }
 

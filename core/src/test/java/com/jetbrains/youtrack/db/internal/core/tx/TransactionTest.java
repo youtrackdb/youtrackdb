@@ -29,7 +29,7 @@ public class TransactionTest {
   @Test
   public void test() {
     db.begin();
-    Vertex v = db.newVertex("V");
+    var v = db.newVertex("V");
     v.setProperty("name", "Foo");
     db.save(v);
     db.commit();

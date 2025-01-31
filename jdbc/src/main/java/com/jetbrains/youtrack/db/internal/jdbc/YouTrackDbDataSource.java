@@ -113,17 +113,17 @@ public class YouTrackDbDataSource implements DataSource {
 
     if (youTrackDB == null) {
 
-      Properties info = new Properties(this.info);
+      var info = new Properties(this.info);
       info.put("user", username);
       info.put("password", password);
 
-      final String serverUsername = info.getProperty("serverUser", "");
-      final String serverPassword = info.getProperty("serverPassword", "");
+      final var serverUsername = info.getProperty("serverUser", "");
+      final var serverPassword = info.getProperty("serverPassword", "");
 
-      String youTrackDbUrl = dbUrl.replace("jdbc:youtrackdb:", "");
+      var youTrackDbUrl = dbUrl.replace("jdbc:youtrackdb:", "");
 
-      DatabaseURLConnection connUrl = URLHelper.parseNew(youTrackDbUrl);
-      YouTrackDBConfig settings =
+      var connUrl = URLHelper.parseNew(youTrackDbUrl);
+      var settings =
           YouTrackDBConfig.builder()
               .addGlobalConfigurationParameter(
                   GlobalConfiguration.DB_POOL_MIN,

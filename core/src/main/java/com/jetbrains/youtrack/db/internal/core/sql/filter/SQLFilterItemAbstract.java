@@ -56,7 +56,7 @@ public abstract class SQLFilterItemAbstract implements SQLFilterItem {
 
   public SQLFilterItemAbstract(DatabaseSessionInternal session, final BaseParser iQueryToParse,
       final String iText) {
-    final List<String> parts =
+    final var parts =
         StringSerializerHelper.smartSplit(
             iText,
             new char[]{'.', '[', ']'},
@@ -76,19 +76,19 @@ public abstract class SQLFilterItemAbstract implements SQLFilterItem {
       operationsChain = new ArrayList<Pair<SQLMethodRuntime, Object[]>>();
 
       // GET ALL SPECIAL OPERATIONS
-      for (int i = 1; i < parts.size(); ++i) {
-        final String part = parts.get(i);
+      for (var i = 1; i < parts.size(); ++i) {
+        final var part = parts.get(i);
 
-        final int pindex = part.indexOf('(');
+        final var pindex = part.indexOf('(');
         if (part.charAt(0) == '[') {
           operationsChain.add(
               new Pair<SQLMethodRuntime, Object[]>(
                   new SQLMethodRuntime(SQLEngine.getMethod(SQLMethodMultiValue.NAME)),
                   new Object[]{part}));
         } else if (pindex > -1) {
-          final String methodName = part.substring(0, pindex).trim().toLowerCase(Locale.ENGLISH);
+          final var methodName = part.substring(0, pindex).trim().toLowerCase(Locale.ENGLISH);
 
-          SQLMethod method = SQLEngine.getMethod(methodName);
+          var method = SQLEngine.getMethod(methodName);
           final Object[] arguments;
           if (method != null) {
             if (method.getMaxParams(session) == -1 || method.getMaxParams(session) > 0) {
@@ -118,7 +118,7 @@ public abstract class SQLFilterItemAbstract implements SQLFilterItem {
 
           } else {
             // LOOK FOR FUNCTION
-            final SQLFunction f = SQLEngine.getInstance().getFunction(session, methodName);
+            final var f = SQLEngine.getInstance().getFunction(session, methodName);
 
             if (f == null)
             // ERROR: METHOD/FUNCTION NOT FOUND OR MISPELLED
@@ -159,7 +159,7 @@ public abstract class SQLFilterItemAbstract implements SQLFilterItem {
             method = new SQLMethodFunctionDelegate(f);
           }
 
-          final SQLMethodRuntime runtimeMethod = new SQLMethodRuntime(method);
+          final var runtimeMethod = new SQLMethodRuntime(method);
 
           // SPECIAL OPERATION FOUND: ADD IT IN TO THE CHAIN
           operationsChain.add(new Pair<SQLMethodRuntime, Object[]>(runtimeMethod, arguments));
@@ -182,7 +182,7 @@ public abstract class SQLFilterItemAbstract implements SQLFilterItem {
       // APPLY OPERATIONS FOLLOWING THE STACK ORDER
       SQLMethodRuntime method = null;
 
-      for (Pair<SQLMethodRuntime, Object[]> op : operationsChain) {
+      for (var op : operationsChain) {
         method = op.getKey();
 
         // DON'T PASS THE CURRENT RECORD TO FORCE EVALUATING TEMPORARY RESULT
@@ -211,20 +211,20 @@ public abstract class SQLFilterItemAbstract implements SQLFilterItem {
   public String toString() {
     var db = DatabaseRecordThreadLocal.instance().getIfDefined();
     if (db != null) {
-      final StringBuilder buffer = new StringBuilder(128);
-      final String root = getRoot(db);
+      final var buffer = new StringBuilder(128);
+      final var root = getRoot(db);
       if (root != null) {
         buffer.append(root);
       }
       if (operationsChain != null) {
-        for (Pair<SQLMethodRuntime, Object[]> op : operationsChain) {
+        for (var op : operationsChain) {
           buffer.append('.');
           buffer.append(op.getKey());
           if (op.getValue() != null) {
-            final Object[] values = op.getValue();
+            final var values = op.getValue();
             buffer.append('(');
-            int i = 0;
-            for (Object v : values) {
+            var i = 0;
+            for (var v : values) {
               if (i++ > 0) {
                 buffer.append(',');
               }
@@ -245,7 +245,7 @@ public abstract class SQLFilterItemAbstract implements SQLFilterItem {
 
   protected Collate getCollateForField(final SchemaClass iClass, final String iFieldName) {
     if (iClass != null) {
-      final SchemaProperty p = iClass.getProperty(iFieldName);
+      final var p = iClass.getProperty(iFieldName);
       if (p != null) {
         return p.getCollate();
       }

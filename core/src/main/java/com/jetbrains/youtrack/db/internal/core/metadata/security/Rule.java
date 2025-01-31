@@ -108,7 +108,7 @@ public class Rule implements Serializable {
     }
 
     private static void register(ResourceGeneric resource) {
-      String legacyNameLowCase = resource.legacyName.toLowerCase(Locale.ENGLISH);
+      var legacyNameLowCase = resource.legacyName.toLowerCase(Locale.ENGLISH);
       if (nameToGenericMap.containsKey(resource.name)
           || legacyToGenericMap.containsKey(resource.legacyName.toLowerCase(Locale.ENGLISH))
           || genericToLegacyMap.containsKey(resource)) {
@@ -155,7 +155,7 @@ public class Rule implements Serializable {
   }
 
   public static ResourceGeneric mapLegacyResourceToGenericResource(final String resource) {
-    final Map.Entry<String, ResourceGeneric> found =
+    final var found =
         ResourceGeneric.legacyToGenericMap.floorEntry(resource.toLowerCase(Locale.ENGLISH));
     if (found == null) {
       return null;
@@ -177,7 +177,7 @@ public class Rule implements Serializable {
   }
 
   public static String mapLegacyResourceToSpecificResource(final String resource) {
-    Map.Entry<String, ResourceGeneric> found =
+    var found =
         ResourceGeneric.legacyToGenericMap.floorEntry(resource.toLowerCase(Locale.ENGLISH));
 
     if (found == null) {
@@ -216,7 +216,7 @@ public class Rule implements Serializable {
       access = grant((byte) operation, access);
     } else {
       resource = resource.toLowerCase(Locale.ENGLISH);
-      Byte ac = specificResources.get(resource);
+      var ac = specificResources.get(resource);
       specificResources.put(resource, grant((byte) operation, ac));
     }
   }
@@ -243,7 +243,7 @@ public class Rule implements Serializable {
       access = revoke((byte) operation, access);
     } else {
       resource = resource.toLowerCase(Locale.ENGLISH);
-      final Byte ac = specificResources.get(resource);
+      final var ac = specificResources.get(resource);
       specificResources.put(resource, revoke((byte) operation, ac));
     }
   }
@@ -268,8 +268,8 @@ public class Rule implements Serializable {
       return isAllowed(null, operation);
     }
 
-    final Byte ac = specificResources.get(name.toLowerCase(Locale.ENGLISH));
-    final Boolean allowed = allowed((byte) operation, ac);
+    final var ac = specificResources.get(name.toLowerCase(Locale.ENGLISH));
+    final var allowed = allowed((byte) operation, ac);
     if (allowed == null) {
       return isAllowed(null, operation);
     }
@@ -282,7 +282,7 @@ public class Rule implements Serializable {
       return null;
     }
 
-    final byte mask = operation;
+    final var mask = operation;
 
     return (ac.byteValue() & mask) == mask;
   }

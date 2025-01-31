@@ -33,17 +33,17 @@ public abstract class ServerCommandDocumentAbstract extends ServerCommandAuthent
       throw new IllegalArgumentException("HTTP Request content is empty");
     }
 
-    final String req = iRequest.getContent();
+    final var req = iRequest.getContent();
 
     // PARSE PARAMETERS
     String className = null;
 
-    final String[] params = req.split("&");
+    final var params = req.split("&");
     String value;
 
-    for (String p : params) {
+    for (var p : params) {
       if (StringSerializerHelper.contains(p, '=')) {
-        String[] pairs = p.split("=");
+        var pairs = p.split("=");
         value = pairs.length == 1 ? null : pairs[1];
 
         if ("0".equals(pairs[0]) && iRid != null) {

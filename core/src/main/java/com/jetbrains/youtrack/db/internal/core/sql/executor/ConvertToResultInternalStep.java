@@ -22,7 +22,7 @@ public class ConvertToResultInternalStep extends AbstractExecutionStep {
     if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
     }
-    ExecutionStream resultSet = prev.start(ctx);
+    var resultSet = prev.start(ctx);
     return resultSet.filter(ConvertToResultInternalStep::filterMap);
   }
 
@@ -39,7 +39,7 @@ public class ConvertToResultInternalStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String result =
+    var result =
         ExecutionStepInternal.getIndent(depth, indent) + "+ CONVERT TO REGULAR RESULT ITEM";
     if (profilingEnabled) {
       result += " (" + getCostFormatted() + ")";

@@ -626,14 +626,14 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
   public ResultSet getProcedures(String catalog, String schemaPattern, String procedureNamePattern)
       throws SQLException {
     database.activateOnCurrentThread();
-    final InternalResultSet resultSet = new InternalResultSet();
+    final var resultSet = new InternalResultSet();
 
-    FunctionLibrary functionLibrary = database.getMetadata().getFunctionLibrary();
+    var functionLibrary = database.getMetadata().getFunctionLibrary();
 
-    for (String functionName : functionLibrary.getFunctionNames()) {
+    for (var functionName : functionLibrary.getFunctionNames()) {
 
       if (YouTrackDbJdbcUtils.like(functionName, procedureNamePattern)) {
-        ResultInternal element = new ResultInternal(database);
+        var element = new ResultInternal(database);
         element.setProperty("PROCEDURE_CAT", null);
         element.setProperty("PROCEDURE_SCHEM", null);
         element.setProperty("PROCEDURE_NAME", functionName);
@@ -658,17 +658,17 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
       throws SQLException {
     database.activateOnCurrentThread();
 
-    final InternalResultSet resultSet = new InternalResultSet();
-    FunctionLibrary functionLibrary = database.getMetadata().getFunctionLibrary();
+    final var resultSet = new InternalResultSet();
+    var functionLibrary = database.getMetadata().getFunctionLibrary();
 
-    for (String functionName : functionLibrary.getFunctionNames()) {
+    for (var functionName : functionLibrary.getFunctionNames()) {
 
       if (YouTrackDbJdbcUtils.like(functionName, procedureNamePattern)) {
 
-        final Function f = functionLibrary.getFunction(procedureNamePattern);
+        final var f = functionLibrary.getFunction(procedureNamePattern);
 
-        for (String p : f.getParameters()) {
-          final ResultInternal entity = new ResultInternal(database);
+        for (var p : f.getParameters()) {
+          final var entity = new ResultInternal(database);
           entity.setProperty("PROCEDURE_CAT", database.getName());
           entity.setProperty("PROCEDURE_SCHEM", database.getName());
           entity.setProperty("PROCEDURE_NAME", f.getName());
@@ -680,7 +680,7 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
           resultSet.add(entity);
         }
 
-        final ResultInternal entity = new ResultInternal(database);
+        final var entity = new ResultInternal(database);
 
         entity.setProperty("PROCEDURE_CAT", database.getName());
         entity.setProperty("PROCEDURE_SCHEM", database.getName());
@@ -707,13 +707,13 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
       String catalog, String schemaPattern, String tableNamePattern, String[] types)
       throws SQLException {
     database.activateOnCurrentThread();
-    final Collection<SchemaClass> classes = database.getMetadata().getSchema().getClasses(database);
+    final var classes = database.getMetadata().getSchema().getClasses(database);
 
-    InternalResultSet resultSet = new InternalResultSet();
+    var resultSet = new InternalResultSet();
 
     final List tableTypes = types != null ? Arrays.asList(types) : TABLE_TYPES;
-    for (SchemaClass cls : classes) {
-      final String className = cls.getName();
+    for (var cls : classes) {
+      final var className = cls.getName();
       final String type;
 
       if (MetadataInternal.SYSTEM_CLUSTER.contains(cls.getName().toLowerCase(Locale.ENGLISH))) {
@@ -727,7 +727,7 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
           || tableNamePattern.equals("%")
           || tableNamePattern.equalsIgnoreCase(className))) {
 
-        ResultInternal entity = new ResultInternal(database);
+        var entity = new ResultInternal(database);
 
         entity.setProperty("TABLE_CAT", database.getName());
         entity.setProperty("TABLE_SCHEM", database.getName());
@@ -751,9 +751,9 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
   @Override
   public ResultSet getSchemas() throws SQLException {
     database.activateOnCurrentThread();
-    InternalResultSet resultSet = new InternalResultSet();
+    var resultSet = new InternalResultSet();
 
-    final ResultInternal field = new ResultInternal(database);
+    final var field = new ResultInternal(database);
     field.setProperty("TABLE_SCHEM", database.getName());
     field.setProperty("TABLE_CATALOG", database.getName());
 
@@ -770,9 +770,9 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
   public ResultSet getCatalogs() throws SQLException {
     database.activateOnCurrentThread();
 
-    InternalResultSet resultSet = new InternalResultSet();
+    var resultSet = new InternalResultSet();
 
-    final ResultInternal field = new ResultInternal(database);
+    final var field = new ResultInternal(database);
     field.setProperty("TABLE_CAT", database.getName());
 
     resultSet.add(field);
@@ -789,9 +789,9 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
   public ResultSet getTableTypes() throws SQLException {
     database.activateOnCurrentThread();
 
-    InternalResultSet resultSet = new InternalResultSet();
-    for (String tableType : TABLE_TYPES) {
-      final ResultInternal field = new ResultInternal(database);
+    var resultSet = new InternalResultSet();
+    for (var tableType : TABLE_TYPES) {
+      final var field = new ResultInternal(database);
       field.setProperty("TABLE_TYPE", tableType);
       resultSet.add(field);
     }
@@ -813,13 +813,13 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
       throws SQLException {
     database.activateOnCurrentThread();
 
-    final InternalResultSet resultSet = new InternalResultSet();
+    final var resultSet = new InternalResultSet();
 
     final Schema schema = database.getMetadata().getImmutableSchemaSnapshot();
 
-    for (SchemaClass clazz : schema.getClasses(database)) {
+    for (var clazz : schema.getClasses(database)) {
       if (YouTrackDbJdbcUtils.like(clazz.getName(), tableNamePattern)) {
-        for (SchemaProperty prop : clazz.properties(database)) {
+        for (var prop : clazz.properties(database)) {
           if (columnNamePattern == null) {
             resultSet.add(getPropertyAsDocument(clazz, prop));
           } else {
@@ -867,23 +867,23 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
   public ResultSet getPrimaryKeys(final String catalog, final String schema, final String table)
       throws SQLException {
     database.activateOnCurrentThread();
-    final Set<Index> classIndexes =
+    final var classIndexes =
         database.getMetadata().getIndexManagerInternal().getClassIndexes(database, table);
 
     final Set<Index> uniqueIndexes = new HashSet<>();
 
-    for (Index index : classIndexes) {
+    for (var index : classIndexes) {
       if (index.getType().equals(INDEX_TYPE.UNIQUE.name())) {
         uniqueIndexes.add(index);
       }
     }
 
-    final InternalResultSet resultSet = new InternalResultSet();
+    final var resultSet = new InternalResultSet();
 
-    for (Index unique : uniqueIndexes) {
-      int keyFiledSeq = 1;
-      for (String keyFieldName : unique.getDefinition().getFields()) {
-        final ResultInternal res = new ResultInternal(database);
+    for (var unique : uniqueIndexes) {
+      var keyFiledSeq = 1;
+      for (var keyFieldName : unique.getDefinition().getFields()) {
+        final var res = new ResultInternal(database);
         res.setProperty("TABLE_CAT", catalog);
         res.setProperty("TABLE_SCHEM", catalog);
         res.setProperty("TABLE_NAME", table);
@@ -909,7 +909,7 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
 
     database.activateOnCurrentThread();
 
-    SchemaClass aClass = database.getMetadata().getSchema().getClass(table);
+    var aClass = database.getMetadata().getSchema().getClass(table);
 
     aClass.declaredProperties().stream().forEach(p -> p.getType());
     return getEmptyResultSet();
@@ -945,9 +945,9 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
   }
 
   public ResultSet getTypeInfo() throws SQLException {
-    final InternalResultSet resultSet = new InternalResultSet();
+    final var resultSet = new InternalResultSet();
 
-    ResultInternal res = new ResultInternal(database);
+    var res = new ResultInternal(database);
     res.setProperty("TYPE_NAME", PropertyType.BINARY.toString());
     res.setProperty("DATA_TYPE", Types.BINARY);
     res.setProperty("NULLABLE", DatabaseMetaData.typeNullable);
@@ -1087,29 +1087,29 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
       String catalog, String schema, String table, boolean unique, boolean approximate)
       throws SQLException {
     database.activateOnCurrentThread();
-    MetadataInternal metadata = database.getMetadata();
+    var metadata = database.getMetadata();
     if (!approximate) {
       metadata.getIndexManagerInternal().reload(database);
     }
 
-    final Set<Index> classIndexes =
+    final var classIndexes =
         metadata.getIndexManagerInternal().getClassIndexes(database, table);
 
     final Set<Index> indexes = new HashSet<>();
 
-    for (Index index : classIndexes) {
+    for (var index : classIndexes) {
       if (!unique || index.getType().equals(INDEX_TYPE.UNIQUE.name())) {
         indexes.add(index);
       }
     }
 
-    final InternalResultSet resultSet = new InternalResultSet();
-    for (Index idx : indexes) {
-      boolean notUniqueIndex = !(idx.getType().equals(INDEX_TYPE.UNIQUE.name()));
+    final var resultSet = new InternalResultSet();
+    for (var idx : indexes) {
+      var notUniqueIndex = !(idx.getType().equals(INDEX_TYPE.UNIQUE.name()));
 
-      final String fieldNames = idx.getDefinition().getFields().toString();
+      final var fieldNames = idx.getDefinition().getFields().toString();
 
-      ResultInternal res = new ResultInternal(database);
+      var res = new ResultInternal(database);
       res.setProperty("TABLE_CAT", catalog);
       res.setProperty("TABLE_SCHEM", schema);
       res.setProperty("TABLE_NAME", table);
@@ -1195,11 +1195,11 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
       String catalog, String schemaPattern, String typeNamePattern, int[] types)
       throws SQLException {
     database.activateOnCurrentThread();
-    final Collection<SchemaClass> classes = database.getMetadata().getSchema().getClasses(database);
+    final var classes = database.getMetadata().getSchema().getClasses(database);
 
-    InternalResultSet resultSet = new InternalResultSet();
-    for (SchemaClass cls : classes) {
-      final ResultInternal res = new ResultInternal(database);
+    var resultSet = new InternalResultSet();
+    for (var cls : classes) {
+      final var res = new ResultInternal(database);
       res.setProperty("TYPE_CAT", null);
       res.setProperty("TYPE_SCHEM", null);
       res.setProperty("TYPE_NAME", cls.getName());
@@ -1244,11 +1244,11 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
   public ResultSet getSuperTypes(String catalog, String schemaPattern, String typeNamePattern)
       throws SQLException {
     database.activateOnCurrentThread();
-    final SchemaClass cls = database.getMetadata().getSchema().getClass(typeNamePattern);
+    final var cls = database.getMetadata().getSchema().getClass(typeNamePattern);
 
-    final InternalResultSet resultSet = new InternalResultSet();
+    final var resultSet = new InternalResultSet();
     if (cls != null && cls.getSuperClass() != null) {
-      final ResultInternal res = new ResultInternal(database);
+      final var res = new ResultInternal(database);
       res.setProperty("TABLE_CAT", catalog);
       res.setProperty("TABLE_SCHEM", catalog);
       res.setProperty("TABLE_NAME", cls.getName());
@@ -1270,11 +1270,11 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
       final String catalog, final String schemaPattern, final String tableNamePattern)
       throws SQLException {
     database.activateOnCurrentThread();
-    final SchemaClass cls = database.getMetadata().getSchema().getClass(tableNamePattern);
-    final InternalResultSet resultSet = new InternalResultSet();
+    final var cls = database.getMetadata().getSchema().getClass(tableNamePattern);
+    final var resultSet = new InternalResultSet();
 
     if (cls != null && cls.getSuperClass() != null) {
-      final ResultInternal res = new ResultInternal(database);
+      final var res = new ResultInternal(database);
 
       res.setProperty("TABLE_CAT", catalog);
       res.setProperty("TABLE_SCHEM", catalog);
@@ -1371,9 +1371,9 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
       throws SQLException {
 
     database.activateOnCurrentThread();
-    InternalResultSet resultSet = new InternalResultSet();
-    for (String fName : database.getMetadata().getFunctionLibrary().getFunctionNames()) {
-      final ResultInternal res = new ResultInternal(database);
+    var resultSet = new InternalResultSet();
+    for (var fName : database.getMetadata().getFunctionLibrary().getFunctionNames()) {
+      final var res = new ResultInternal(database);
       res.setProperty("FUNCTION_CAT", null);
       res.setProperty("FUNCTION_SCHEM", null);
       res.setProperty("FUNCTION_NAME", fName);
@@ -1396,13 +1396,13 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
       String catalog, String schemaPattern, String functionNamePattern, String columnNamePattern)
       throws SQLException {
     database.activateOnCurrentThread();
-    final InternalResultSet resultSet = new InternalResultSet();
+    final var resultSet = new InternalResultSet();
 
-    final Function f =
+    final var f =
         database.getMetadata().getFunctionLibrary().getFunction(functionNamePattern);
 
-    for (String p : f.getParameters()) {
-      final ResultInternal res = new ResultInternal(database);
+    for (var p : f.getParameters()) {
+      final var res = new ResultInternal(database);
       res.setProperty("FUNCTION_CAT", null);
       res.setProperty("FUNCTION_SCHEM", null);
       res.setProperty("FUNCTION_NAME", f.getName());
@@ -1413,7 +1413,7 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
       resultSet.add(res);
     }
 
-    final ResultInternal res = new ResultInternal(database);
+    final var res = new ResultInternal(database);
     res.setProperty("FUNCTION_CAT", null);
     res.setProperty("FUNCTION_SCHEM", null);
     res.setProperty("FUNCTION_NAME", f.getName());
@@ -1443,8 +1443,8 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
 
   private ResultInternal getPropertyAsDocument(final SchemaClass clazz, final SchemaProperty prop) {
     database.activateOnCurrentThread();
-    final PropertyType type = prop.getType();
-    ResultInternal res = new ResultInternal(database);
+    final var type = prop.getType();
+    var res = new ResultInternal(database);
     res.setProperty("TABLE_CAT", database.getName());
     res.setProperty("TABLE_SCHEM", database.getName());
     res.setProperty("TABLE_NAME", clazz.getName());

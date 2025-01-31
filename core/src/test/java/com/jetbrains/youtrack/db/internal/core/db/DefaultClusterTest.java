@@ -18,12 +18,12 @@ public class DefaultClusterTest {
         CreateDatabaseUtil.createDatabase("test",
             DbTestBase.embeddedDBUrl(getClass()),
             CreateDatabaseUtil.TYPE_MEMORY);
-    try (final DatabaseSession db =
+    try (final var db =
         context.open("test", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
       var v =
           db.computeInTx(
               () -> {
-                final Vertex vertex = db.newVertex("V");
+                final var vertex = db.newVertex("V");
                 vertex.setProperty("embedded", db.newEntity(), PropertyType.EMBEDDED);
                 db.save(vertex);
                 return vertex;

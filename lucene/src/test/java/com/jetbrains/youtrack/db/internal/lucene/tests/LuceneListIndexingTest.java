@@ -45,19 +45,19 @@ public class LuceneListIndexingTest extends LuceneBaseTest {
 
     Schema schema = db.getMetadata().getSchema();
 
-    SchemaClass person = schema.createClass("Person");
+    var person = schema.createClass("Person");
     person.createProperty(db, "name", PropertyType.STRING);
     person.createProperty(db, "tags", PropertyType.EMBEDDEDLIST, PropertyType.STRING);
     //noinspection EmptyTryBlock
-    try (ResultSet command =
+    try (var command =
         db.command("create index Person.name_tags on Person (name,tags) FULLTEXT ENGINE LUCENE")) {
     }
 
-    SchemaClass city = schema.createClass("City");
+    var city = schema.createClass("City");
     city.createProperty(db, "name", PropertyType.STRING);
     city.createProperty(db, "tags", PropertyType.EMBEDDEDLIST, PropertyType.STRING);
     //noinspection EmptyTryBlock
-    try (ResultSet command =
+    try (var command =
         db.command("create index City.tags on City (tags) FULLTEXT ENGINE LUCENE")) {
     }
   }
@@ -67,7 +67,7 @@ public class LuceneListIndexingTest extends LuceneBaseTest {
     var schema = db.getMetadata().getSchema();
 
     // Rome
-    EntityImpl doc = ((EntityImpl) db.newEntity("City"));
+    var doc = ((EntityImpl) db.newEntity("City"));
     doc.field("name", "Rome");
     doc.field("tags", Arrays.asList("Beautiful", "Touristic", "Sunny"));
 
@@ -77,7 +77,7 @@ public class LuceneListIndexingTest extends LuceneBaseTest {
 
     var tagsIndex = schema.getClassInternal("City").getClassIndex(db, "City.tags");
     Collection<?> coll;
-    try (Stream<RID> stream = tagsIndex.getInternal().getRids(db, "Sunny")) {
+    try (var stream = tagsIndex.getInternal().getRids(db, "Sunny")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(1);
@@ -96,7 +96,7 @@ public class LuceneListIndexingTest extends LuceneBaseTest {
     db.commit();
 
     db.begin();
-    try (Stream<RID> stream = tagsIndex.getInternal().getRids(db, "Sunny")) {
+    try (var stream = tagsIndex.getInternal().getRids(db, "Sunny")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(2);
@@ -110,22 +110,22 @@ public class LuceneListIndexingTest extends LuceneBaseTest {
     db.save(doc);
     db.commit();
 
-    try (Stream<RID> stream = tagsIndex.getInternal().getRids(db, "Rainy")) {
+    try (var stream = tagsIndex.getInternal().getRids(db, "Rainy")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(1);
 
-    try (Stream<RID> stream = tagsIndex.getInternal().getRids(db, "Beautiful")) {
+    try (var stream = tagsIndex.getInternal().getRids(db, "Beautiful")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(2);
 
-    try (Stream<RID> stream = tagsIndex.getInternal().getRids(db, "Sunny")) {
+    try (var stream = tagsIndex.getInternal().getRids(db, "Sunny")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(1);
 
-    try (ResultSet query = db.query("select from City where search_class('Beautiful') =true ")) {
+    try (var query = db.query("select from City where search_class('Beautiful') =true ")) {
 
       assertThat(query).hasSize(2);
     }
@@ -137,7 +137,7 @@ public class LuceneListIndexingTest extends LuceneBaseTest {
     db.begin();
     var schema = db.getMetadata().getSchema();
 
-    EntityImpl doc = ((EntityImpl) db.newEntity("Person"));
+    var doc = ((EntityImpl) db.newEntity("Person"));
     doc.field("name", "Enrico");
     doc.field("tags", Arrays.asList("Funny", "Tall", "Geek"));
 
@@ -147,7 +147,7 @@ public class LuceneListIndexingTest extends LuceneBaseTest {
     db.begin();
     var idx = schema.getClassInternal("Person").getClassIndex(db, "Person.name_tags");
     Collection<?> coll;
-    try (Stream<RID> stream = idx.getInternal().getRids(db, "Enrico")) {
+    try (var stream = idx.getInternal().getRids(db, "Enrico")) {
       coll = stream.collect(Collectors.toList());
     }
 
@@ -161,7 +161,7 @@ public class LuceneListIndexingTest extends LuceneBaseTest {
     db.commit();
 
     db.begin();
-    try (Stream<RID> stream = idx.getInternal().getRids(db, "Jared")) {
+    try (var stream = idx.getInternal().getRids(db, "Jared")) {
       coll = stream.collect(Collectors.toList());
     }
 
@@ -175,36 +175,36 @@ public class LuceneListIndexingTest extends LuceneBaseTest {
     db.save(doc);
     db.commit();
 
-    try (Stream<RID> stream = idx.getInternal().getRids(db, "Funny")) {
+    try (var stream = idx.getInternal().getRids(db, "Funny")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(1);
 
-    try (Stream<RID> stream = idx.getInternal().getRids(db, "Geek")) {
+    try (var stream = idx.getInternal().getRids(db, "Geek")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(2);
 
-    try (ResultSet query =
+    try (var query =
         db.query("select from Person where search_class('name:Enrico') =true ")) {
       assertThat(query).hasSize(1);
-      try (ResultSet queryTwo =
+      try (var queryTwo =
           db.query("select from (select from Person search_class('name:Enrico')=true)")) {
 
         assertThat(queryTwo).hasSize(1);
-        try (ResultSet queryThree =
+        try (var queryThree =
             db.query("select from Person where search_class('Jared')=true")) {
 
           assertThat(queryThree).hasSize(1);
-          try (ResultSet queryFour =
+          try (var queryFour =
               db.query("select from Person where search_class('Funny') =true")) {
 
             assertThat(queryFour).hasSize(1);
-            try (ResultSet queryFive =
+            try (var queryFive =
                 db.query("select from Person where search_class('Geek')=true")) {
 
               assertThat(queryFive).hasSize(2);
-              try (ResultSet querySix =
+              try (var querySix =
                   db.query(
                       "select from Person where search_class('(name:Enrico AND tags:Geek)"
                           + " ')=true")) {

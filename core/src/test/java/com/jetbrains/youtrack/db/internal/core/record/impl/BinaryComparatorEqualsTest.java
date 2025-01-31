@@ -7,7 +7,6 @@ import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BinaryField;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -57,11 +56,11 @@ public class BinaryComparatorEqualsTest extends AbstractComparatorTest {
   public void testDatetime() throws ParseException {
     testEquals(PropertyType.DATETIME, 10L);
 
-    final SimpleDateFormat format =
+    final var format =
         new SimpleDateFormat(StorageConfiguration.DEFAULT_DATETIME_FORMAT);
 
-    String now1 = format.format(new Date());
-    Date now = format.parse(now1);
+    var now1 = format.format(new Date());
+    var now = format.parse(now1);
 
     Assert.assertTrue(
         comparator.isEqual(field(db, PropertyType.DATETIME, now),
@@ -78,9 +77,9 @@ public class BinaryComparatorEqualsTest extends AbstractComparatorTest {
 
   @Test
   public void testBinary() throws ParseException {
-    final byte[] b1 = new byte[]{0, 1, 2, 3};
-    final byte[] b2 = new byte[]{0, 1, 2, 4};
-    final byte[] b3 = new byte[]{1, 1, 2, 4};
+    final var b1 = new byte[]{0, 1, 2, 3};
+    final var b2 = new byte[]{0, 1, 2, 4};
+    final var b3 = new byte[]{1, 1, 2, 4};
 
     Assert.assertTrue(
         comparator.isEqual(field(db, PropertyType.BINARY, b1), field(db, PropertyType.BINARY, b1)));
@@ -271,7 +270,7 @@ public class BinaryComparatorEqualsTest extends AbstractComparatorTest {
 
   @Test
   public void testBinaryFieldCopy() {
-    final BinaryField f = field(db, PropertyType.BYTE, 10, new CaseInsensitiveCollate()).copy();
+    final var f = field(db, PropertyType.BYTE, 10, new CaseInsensitiveCollate()).copy();
     Assert.assertEquals(f.type, PropertyType.BYTE);
     Assert.assertNotNull(f.bytes);
     Assert.assertEquals(f.collate.getName(), CaseInsensitiveCollate.NAME);
@@ -279,7 +278,7 @@ public class BinaryComparatorEqualsTest extends AbstractComparatorTest {
 
   @Test
   public void testBinaryComparable() {
-    for (PropertyType t : PropertyType.values()) {
+    for (var t : PropertyType.values()) {
       switch (t) {
         case INTEGER:
         case LONG:
@@ -304,12 +303,12 @@ public class BinaryComparatorEqualsTest extends AbstractComparatorTest {
   }
 
   protected void testEquals(PropertyType sourceType, Number value10AsSourceType) {
-    PropertyType[] numberTypes =
+    var numberTypes =
         new PropertyType[]{PropertyType.BYTE, PropertyType.DOUBLE, PropertyType.FLOAT,
             PropertyType.SHORT, PropertyType.INTEGER,
             PropertyType.LONG};
 
-    for (PropertyType t : numberTypes) {
+    for (var t : numberTypes) {
       if (sourceType == PropertyType.DATETIME && t == PropertyType.BYTE)
       // SKIP TEST
       {
@@ -319,7 +318,7 @@ public class BinaryComparatorEqualsTest extends AbstractComparatorTest {
       testEquals(db, sourceType, t);
     }
 
-    for (PropertyType t : numberTypes) {
+    for (var t : numberTypes) {
       testEquals(db, t, sourceType);
     }
 

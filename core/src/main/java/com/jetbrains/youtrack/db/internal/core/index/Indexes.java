@@ -68,7 +68,7 @@ public final class Indexes {
   private static synchronized Set<IndexFactory> getFactories() {
     if (FACTORIES == null) {
 
-      final Iterator<IndexFactory> ite =
+      final var ite =
           lookupProviderWithYouTrackDBClassLoader(IndexFactory.class, youTrackDbClassLoader);
 
       final Set<IndexFactory> factories = new HashSet<>();
@@ -95,7 +95,7 @@ public final class Indexes {
    */
   private static Set<String> getIndexTypes() {
     final Set<String> types = new HashSet<>();
-    final Iterator<IndexFactory> ite = getAllFactories();
+    final var ite = getAllFactories();
     while (ite.hasNext()) {
       types.addAll(ite.next().getTypes());
     }
@@ -109,7 +109,7 @@ public final class Indexes {
    */
   public static Set<String> getIndexEngines() {
     final Set<String> engines = new HashSet<>();
-    final Iterator<IndexFactory> ite = getAllFactories();
+    final var ite = getAllFactories();
     while (ite.hasNext()) {
       engines.addAll(ite.next().getAlgorithms());
     }
@@ -123,10 +123,10 @@ public final class Indexes {
 
     if (algorithm != null) {
       algorithm = algorithm.toUpperCase(Locale.ENGLISH);
-      final Iterator<IndexFactory> ite = getAllFactories();
+      final var ite = getAllFactories();
 
       while (ite.hasNext()) {
-        final IndexFactory factory = ite.next();
+        final var factory = ite.next();
         if (factory.getTypes().contains(indexType) && factory.getAlgorithms().contains(algorithm)) {
           return factory;
         }
@@ -146,15 +146,15 @@ public final class Indexes {
    */
   public static IndexInternal createIndex(Storage storage, IndexMetadata metadata)
       throws ConfigurationException, IndexException {
-    String indexType = metadata.getType();
-    String algorithm = metadata.getAlgorithm();
+    var indexType = metadata.getType();
+    var algorithm = metadata.getAlgorithm();
 
     return findFactoryByAlgorithmAndType(algorithm, indexType).createIndex(storage, metadata);
   }
 
   private static IndexFactory findFactoryByAlgorithmAndType(String algorithm, String indexType) {
 
-    for (IndexFactory factory : getFactories()) {
+    for (var factory : getFactories()) {
       if (indexType == null
           || indexType.isEmpty()
           || (factory.getTypes().contains(indexType))
@@ -174,7 +174,7 @@ public final class Indexes {
   public static BaseIndexEngine createIndexEngine(
       final Storage storage, final IndexEngineData metadata) {
 
-    final IndexFactory factory =
+    final var factory =
         findFactoryByAlgorithmAndType(metadata.getAlgorithm(), metadata.getIndexType());
 
     return factory.createIndexEngine(storage, metadata);

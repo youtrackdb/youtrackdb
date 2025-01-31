@@ -33,7 +33,7 @@ public class InsertUnionValueTest {
 
   @Test
   public void testUnionInsert() {
-    try (DatabaseSession session =
+    try (var session =
         youTrackDB.open(InsertUnionValueTest.class.getSimpleName(), "admin", "admpwd")) {
       session.command("create class example extends V").close();
       session.command("create property example.metadata EMBEDDEDMAP").close();
@@ -54,7 +54,7 @@ public class InsertUnionValueTest {
                     commit;\
                   """)
           .close();
-      long entries =
+      var entries =
           session.query("select expand(metadata.something) from example").stream().count();
       assertEquals(2, entries);
     }

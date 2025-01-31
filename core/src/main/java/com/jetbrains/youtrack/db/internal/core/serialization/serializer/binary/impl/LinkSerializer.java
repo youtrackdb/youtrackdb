@@ -115,7 +115,7 @@ public class LinkSerializer implements BinarySerializer<RID> {
       RID r, ByteBuffer buffer, Object... hints) {
     buffer.putShort((short) r.getClusterId());
     // Wrong implementation but needed for binary compatibility
-    byte[] stream = new byte[LongSerializer.LONG_SIZE];
+    var stream = new byte[LongSerializer.LONG_SIZE];
     LongSerializer.INSTANCE.serialize(r.getClusterPosition(), stream, 0);
     buffer.put(stream);
   }
@@ -127,7 +127,7 @@ public class LinkSerializer implements BinarySerializer<RID> {
   public RID deserializeFromByteBufferObject(ByteBuffer buffer) {
     final int clusterId = buffer.getShort();
 
-    final byte[] stream = new byte[LongSerializer.LONG_SIZE];
+    final var stream = new byte[LongSerializer.LONG_SIZE];
     buffer.get(stream);
     // Wrong implementation but needed for binary compatibility
     final long clusterPosition = LongSerializer.INSTANCE.deserialize(stream, 0);
@@ -140,7 +140,7 @@ public class LinkSerializer implements BinarySerializer<RID> {
     final int clusterId = buffer.getShort(offset);
     offset += Short.BYTES;
 
-    final byte[] stream = new byte[LongSerializer.LONG_SIZE];
+    final var stream = new byte[LongSerializer.LONG_SIZE];
     buffer.get(offset, stream);
     // Wrong implementation but needed for binary compatibility
     final long clusterPosition = LongSerializer.INSTANCE.deserialize(stream, 0);

@@ -59,10 +59,10 @@ public class LiveQuery<T> extends SQLSynchQuery<T> {
   @Override
   public <RET> RET execute(@Nonnull DatabaseSessionInternal db, Object... iArgs) {
     if (db.isRemote()) {
-      BackwardLiveQueryResultListener listener = new BackwardLiveQueryResultListener();
-      LiveQueryMonitor monitor = db.live(getText(), listener, iArgs);
+      var listener = new BackwardLiveQueryResultListener();
+      var monitor = db.live(getText(), listener, iArgs);
       listener.token = monitor.getMonitorId();
-      EntityImpl entity = new EntityImpl(null);
+      var entity = new EntityImpl(null);
       entity.setProperty("token", listener.token);
       LegacyResultSet<EntityImpl> result = new BasicLegacyResultSet<>();
       result.add(entity);

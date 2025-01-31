@@ -28,7 +28,7 @@ public class SchemaPropertyTypeConvertTest extends DbTestBase {
 
   @Test
   public void testSameType() {
-    ArrayList<Object> aList = new ArrayList<Object>();
+    var aList = new ArrayList<Object>();
     aList.add(1);
     aList.add("2");
     Object result = PropertyType.convert(db, aList, ArrayList.class);
@@ -38,7 +38,7 @@ public class SchemaPropertyTypeConvertTest extends DbTestBase {
 
   @Test
   public void testAssignableType() {
-    ArrayList<Object> aList = new ArrayList<Object>();
+    var aList = new ArrayList<Object>();
     aList.add(1);
     aList.add("2");
     Object result = PropertyType.convert(db, aList, List.class);
@@ -322,7 +322,7 @@ public class SchemaPropertyTypeConvertTest extends DbTestBase {
 
   @Test
   public void testToDateFromDate() {
-    Date d = Calendar.getInstance().getTime();
+    var d = Calendar.getInstance().getTime();
     Object result = PropertyType.convert(db, d, Date.class);
     assertEquals(result, d);
   }
@@ -354,7 +354,7 @@ public class SchemaPropertyTypeConvertTest extends DbTestBase {
 
   @Test
   public void testToSetFromSet() {
-    HashSet<Object> set = new HashSet<Object>();
+    var set = new HashSet<Object>();
     set.add(1);
     set.add("2");
     Object result = PropertyType.convert(db, set, Set.class);
@@ -363,13 +363,13 @@ public class SchemaPropertyTypeConvertTest extends DbTestBase {
 
   @Test
   public void testToSetFromCollection() {
-    ArrayList<Object> list = new ArrayList<Object>();
+    var list = new ArrayList<Object>();
     list.add(1);
     list.add("2");
 
     Object result = PropertyType.convert(db, list, Set.class);
 
-    HashSet<Object> expected = new HashSet<Object>();
+    var expected = new HashSet<Object>();
     expected.add(1);
     expected.add("2");
     assertEquals(result, expected);
@@ -377,7 +377,7 @@ public class SchemaPropertyTypeConvertTest extends DbTestBase {
 
   @Test
   public void testToSetFromNonCollection() {
-    HashSet<Object> set = new HashSet<Object>();
+    var set = new HashSet<Object>();
     set.add(1);
     Object result = PropertyType.convert(db, 1, Set.class);
     assertEquals(result, set);
@@ -389,7 +389,7 @@ public class SchemaPropertyTypeConvertTest extends DbTestBase {
 
   @Test
   public void testToListFromList() {
-    ArrayList<Object> list = new ArrayList<Object>();
+    var list = new ArrayList<Object>();
     list.add(1);
     list.add("2");
     Object result = PropertyType.convert(db, list, List.class);
@@ -398,12 +398,12 @@ public class SchemaPropertyTypeConvertTest extends DbTestBase {
 
   @Test
   public void testToListFromCollection() {
-    HashSet<Object> set = new HashSet<Object>();
+    var set = new HashSet<Object>();
     set.add(1);
     set.add("2");
 
     @SuppressWarnings("unchecked")
-    List<Object> result = (List<Object>) PropertyType.convert(db, set, List.class);
+    var result = (List<Object>) PropertyType.convert(db, set, List.class);
 
     assertEquals(result.size(), 2);
     assertTrue(result.containsAll(set));
@@ -411,7 +411,7 @@ public class SchemaPropertyTypeConvertTest extends DbTestBase {
 
   @Test
   public void testToListFromNonCollection() {
-    ArrayList<Object> expected = new ArrayList<Object>();
+    var expected = new ArrayList<Object>();
     expected.add(1);
     Object result = PropertyType.convert(db, 1, List.class);
     assertEquals(result, expected);
@@ -423,7 +423,7 @@ public class SchemaPropertyTypeConvertTest extends DbTestBase {
 
   @Test
   public void testToCollectionFromList() {
-    ArrayList<Object> list = new ArrayList<Object>();
+    var list = new ArrayList<Object>();
     list.add(1);
     list.add("2");
     Object result = PropertyType.convert(db, list, Collection.class);
@@ -432,12 +432,12 @@ public class SchemaPropertyTypeConvertTest extends DbTestBase {
 
   @Test
   public void testToCollectionFromCollection() {
-    HashSet<Object> set = new HashSet<Object>();
+    var set = new HashSet<Object>();
     set.add(1);
     set.add("2");
 
     @SuppressWarnings("unchecked")
-    Collection<Object> result = (Collection<Object>) PropertyType.convert(db, set,
+    var result = (Collection<Object>) PropertyType.convert(db, set,
         Collection.class);
 
     assertEquals(result.size(), 2);
@@ -447,7 +447,7 @@ public class SchemaPropertyTypeConvertTest extends DbTestBase {
   @Test
   public void testToCollectionFromNonCollection() {
     @SuppressWarnings("unchecked")
-    Collection<Object> result = (Collection<Object>) PropertyType.convert(db, 1, Collection.class);
+    var result = (Collection<Object>) PropertyType.convert(db, 1, Collection.class);
 
     assertEquals(result.size(), 1);
     assertTrue(result.contains(1));

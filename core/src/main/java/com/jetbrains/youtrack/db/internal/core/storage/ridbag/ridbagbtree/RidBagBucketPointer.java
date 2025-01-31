@@ -57,7 +57,7 @@ public class RidBagBucketPointer {
       return false;
     }
 
-    RidBagBucketPointer that = (RidBagBucketPointer) o;
+    var that = (RidBagBucketPointer) o;
 
     if (pageIndex != that.pageIndex) {
       return false;
@@ -67,7 +67,7 @@ public class RidBagBucketPointer {
 
   @Override
   public int hashCode() {
-    int result = (int) (pageIndex ^ (pageIndex >>> 32));
+    var result = (int) (pageIndex ^ (pageIndex >>> 32));
     result = 31 * result + pageOffset;
     return result;
   }

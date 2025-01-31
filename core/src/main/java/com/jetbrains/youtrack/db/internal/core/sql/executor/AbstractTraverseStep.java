@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  *
@@ -33,7 +32,7 @@ public abstract class AbstractTraverseStep extends AbstractExecutionStep {
     this.whileClause = whileClause;
     this.maxDepth = maxDepth;
 
-    try (final Stream<SQLTraverseProjectionItem> stream = projections.stream()) {
+    try (final var stream = projections.stream()) {
       this.projections = stream.map(SQLTraverseProjectionItem::copy).collect(Collectors.toList());
     }
   }
@@ -42,7 +41,7 @@ public abstract class AbstractTraverseStep extends AbstractExecutionStep {
   public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
 
-    ExecutionStream resultSet = prev.start(ctx);
+    var resultSet = prev.start(ctx);
     return new ExecutionStream() {
       private final List<Result> entryPoints = new ArrayList<>();
       private final List<Result> results = new ArrayList<>();
@@ -61,7 +60,7 @@ public abstract class AbstractTraverseStep extends AbstractExecutionStep {
         if (!hasNext(ctx)) {
           throw new IllegalStateException();
         }
-        Result result = results.removeFirst();
+        var result = results.removeFirst();
         if (result.isEntity()) {
           this.traversed.add(result.asEntity().getIdentity());
         }

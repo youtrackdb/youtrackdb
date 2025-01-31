@@ -71,7 +71,7 @@ public abstract class SocketChannelBinary extends SocketChannel
     if (debug) {
       LogManager.instance()
           .info(this, "%s - Reading byte (1 byte)...", socket.getRemoteSocketAddress());
-      final byte value = in.readByte();
+      final var value = in.readByte();
       LogManager.instance()
           .info(this, "%s - Read byte: %d", socket.getRemoteSocketAddress(), (int) value);
       return value;
@@ -86,7 +86,7 @@ public abstract class SocketChannelBinary extends SocketChannel
     if (debug) {
       LogManager.instance()
           .info(this, "%s - Reading boolean (1 byte)...", socket.getRemoteSocketAddress());
-      final boolean value = in.readBoolean();
+      final var value = in.readBoolean();
       LogManager.instance()
           .info(this, "%s - Read boolean: %b", socket.getRemoteSocketAddress(), value);
       return value;
@@ -101,7 +101,7 @@ public abstract class SocketChannelBinary extends SocketChannel
     if (debug) {
       LogManager.instance()
           .info(this, "%s - Reading int (4 bytes)...", socket.getRemoteSocketAddress());
-      final int value = in.readInt();
+      final var value = in.readInt();
       LogManager.instance()
           .info(this, "%s - Read int: %d", socket.getRemoteSocketAddress(), value);
       return value;
@@ -116,7 +116,7 @@ public abstract class SocketChannelBinary extends SocketChannel
     if (debug) {
       LogManager.instance()
           .info(this, "%s - Reading long (8 bytes)...", socket.getRemoteSocketAddress());
-      final long value = in.readLong();
+      final var value = in.readLong();
       LogManager.instance()
           .info(this, "%s - Read long: %d", socket.getRemoteSocketAddress(), value);
       return value;
@@ -131,7 +131,7 @@ public abstract class SocketChannelBinary extends SocketChannel
     if (debug) {
       LogManager.instance()
           .info(this, "%s - Reading short (2 bytes)...", socket.getRemoteSocketAddress());
-      final short value = in.readShort();
+      final var value = in.readShort();
       LogManager.instance()
           .info(this, "%s - Read short: %d", socket.getRemoteSocketAddress(), value);
       return value;
@@ -144,7 +144,7 @@ public abstract class SocketChannelBinary extends SocketChannel
     if (debug) {
       LogManager.instance()
           .info(this, "%s - Reading string (4+N bytes)...", socket.getRemoteSocketAddress());
-      final int len = in.readInt();
+      final var len = in.readInt();
       if (len > maxChunkSize) {
         throw new IOException(
             "Impossible to read a string chunk of length:"
@@ -162,23 +162,23 @@ public abstract class SocketChannelBinary extends SocketChannel
       }
 
       // REUSE STATIC BUFFER?
-      final byte[] tmp = new byte[len];
+      final var tmp = new byte[len];
       in.readFully(tmp);
 
       updateMetricReceivedBytes(BinaryProtocol.SIZE_INT + len);
 
-      final String value = new String(tmp, StandardCharsets.UTF_8);
+      final var value = new String(tmp, StandardCharsets.UTF_8);
       LogManager.instance()
           .info(this, "%s - Read string: %s", socket.getRemoteSocketAddress(), value);
       return value;
     }
 
-    final int len = in.readInt();
+    final var len = in.readInt();
     if (len < 0) {
       return null;
     }
 
-    final byte[] tmp = new byte[len];
+    final var tmp = new byte[len];
     in.readFully(tmp);
 
     updateMetricReceivedBytes(BinaryProtocol.SIZE_INT + len);
@@ -195,7 +195,7 @@ public abstract class SocketChannelBinary extends SocketChannel
               socket.getRemoteSocketAddress());
     }
 
-    final int len = in.readInt();
+    final var len = in.readInt();
     if (len > maxChunkSize) {
       throw new IOException(
           "Impossible to read a chunk of length:"
@@ -221,7 +221,7 @@ public abstract class SocketChannelBinary extends SocketChannel
     }
 
     // REUSE STATIC BUFFER?
-    final byte[] tmp = new byte[len];
+    final var tmp = new byte[len];
     in.readFully(tmp);
 
     if (debug) {
@@ -239,7 +239,7 @@ public abstract class SocketChannelBinary extends SocketChannel
 
   public RecordId readRID() throws IOException {
     final int clusterId = readShort();
-    final long clusterPosition = readLong();
+    final var clusterPosition = readLong();
     return new RecordId(clusterId, clusterPosition);
   }
 
@@ -320,7 +320,7 @@ public abstract class SocketChannelBinary extends SocketChannel
       out.writeInt(-1);
       updateMetricTransmittedBytes(BinaryProtocol.SIZE_INT);
     } else {
-      final byte[] buffer = iContent.getBytes(StandardCharsets.UTF_8);
+      final var buffer = iContent.getBytes(StandardCharsets.UTF_8);
       if (buffer.length > maxChunkSize) {
         throw new InvalidBinaryChunkException(
             "Impossible to write a chunk of length:"
@@ -389,10 +389,10 @@ public abstract class SocketChannelBinary extends SocketChannel
       return;
     }
 
-    final StringBuilder dirtyBuffer = new StringBuilder(MAX_LENGTH_DEBUG);
-    int i = 0;
+    final var dirtyBuffer = new StringBuilder(MAX_LENGTH_DEBUG);
+    var i = 0;
     while (in.available() > 0) {
-      char c = (char) in.read();
+      var c = (char) in.read();
       ++i;
 
       if (dirtyBuffer.length() < MAX_LENGTH_DEBUG) {
@@ -401,7 +401,7 @@ public abstract class SocketChannelBinary extends SocketChannel
     }
     updateMetricReceivedBytes(i);
 
-    final String message =
+    final var message =
         "Received unread response from "
             + socket.getRemoteSocketAddress()
             + " probably corrupted data from the network connection. Cleared dirty data in the"
@@ -474,21 +474,21 @@ public abstract class SocketChannelBinary extends SocketChannel
   }
 
   public void setWaitResponseTimeout() throws SocketException {
-    final Socket s = socket;
+    final var s = socket;
     if (s != null) {
       s.setSoTimeout(responseTimeout);
     }
   }
 
   public void setWaitRequestTimeout() throws SocketException {
-    final Socket s = socket;
+    final var s = socket;
     if (s != null) {
       s.setSoTimeout(0);
     }
   }
 
   public void setReadRequestTimeout() throws SocketException {
-    final Socket s = socket;
+    final var s = socket;
     if (s != null) {
       s.setSoTimeout(networkTimeout);
     }

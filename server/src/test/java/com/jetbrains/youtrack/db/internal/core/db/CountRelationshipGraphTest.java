@@ -38,11 +38,11 @@ public class CountRelationshipGraphTest extends AbstractRemoteTest {
 
   @Test
   public void test() throws Exception {
-    DatabaseSession g = youTrackDB.open(name.getMethodName(), "admin", "admin");
+    var g = youTrackDB.open(name.getMethodName(), "admin", "admin");
     g.begin();
-    Vertex vertex1 = g.newVertex("V");
+    var vertex1 = g.newVertex("V");
     vertex1.save();
-    Vertex vertex2 = g.newVertex("V");
+    var vertex2 = g.newVertex("V");
     vertex2.save();
     g.commit();
 
@@ -113,7 +113,7 @@ public class CountRelationshipGraphTest extends AbstractRemoteTest {
   }
 
   private int countEdges(Vertex v, Direction dir) throws Exception {
-    int c = 0;
+    var c = 0;
     Iterator it = v.getEdges(dir).iterator();
     while (it.hasNext()) {
       c++;

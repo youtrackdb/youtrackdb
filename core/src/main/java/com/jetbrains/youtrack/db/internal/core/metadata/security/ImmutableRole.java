@@ -34,7 +34,7 @@ public class ImmutableRole implements SecurityRole {
     this.name = role.getName(session);
     this.rid = role.getIdentity().getIdentity();
 
-    for (Rule rule : role.getRuleSet()) {
+    for (var rule : role.getRuleSet()) {
       rules.put(rule.getResourceGeneric(), rule);
     }
     var policies = role.getPolicies(session);
@@ -64,13 +64,13 @@ public class ImmutableRole implements SecurityRole {
       final Rule.ResourceGeneric resourceGeneric,
       final String resourceSpecific,
       final int iCRUDOperation) {
-    Rule rule = rules.get(resourceGeneric);
+    var rule = rules.get(resourceGeneric);
     if (rule == null) {
       rule = rules.get(Rule.ResourceGeneric.ALL);
     }
 
     if (rule != null) {
-      final Boolean allowed = rule.isAllowed(resourceSpecific, iCRUDOperation);
+      final var allowed = rule.isAllowed(resourceSpecific, iCRUDOperation);
       if (allowed != null) {
         return allowed;
       }
@@ -86,7 +86,7 @@ public class ImmutableRole implements SecurityRole {
   }
 
   public boolean hasRule(final Rule.ResourceGeneric resourceGeneric, String resourceSpecific) {
-    Rule rule = rules.get(resourceGeneric);
+    var rule = rules.get(resourceGeneric);
 
     if (rule == null) {
       return false;
@@ -116,8 +116,8 @@ public class ImmutableRole implements SecurityRole {
   @Deprecated
   @Override
   public boolean allow(String iResource, int iCRUDOperation) {
-    final String specificResource = Rule.mapLegacyResourceToSpecificResource(iResource);
-    final Rule.ResourceGeneric resourceGeneric =
+    final var specificResource = Rule.mapLegacyResourceToSpecificResource(iResource);
+    final var resourceGeneric =
         Rule.mapLegacyResourceToGenericResource(iResource);
 
     if (specificResource == null || specificResource.equals("*")) {
@@ -130,8 +130,8 @@ public class ImmutableRole implements SecurityRole {
   @Deprecated
   @Override
   public boolean hasRule(String iResource) {
-    final String specificResource = Rule.mapLegacyResourceToSpecificResource(iResource);
-    final Rule.ResourceGeneric resourceGeneric =
+    final var specificResource = Rule.mapLegacyResourceToSpecificResource(iResource);
+    final var resourceGeneric =
         Rule.mapLegacyResourceToGenericResource(iResource);
 
     if (specificResource == null || specificResource.equals("*")) {

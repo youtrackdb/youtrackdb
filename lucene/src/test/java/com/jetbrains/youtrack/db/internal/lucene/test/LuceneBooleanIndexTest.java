@@ -43,8 +43,8 @@ public class LuceneBooleanIndexTest extends BaseLuceneTest {
   @Before
   public void init() {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass v = schema.getClass("V");
-    SchemaClass song = schema.createClass("Person");
+    var v = schema.getClass("V");
+    var song = schema.createClass("Person");
     song.setSuperClass(db, v);
     song.createProperty(db, "isDeleted", PropertyType.BOOLEAN);
 
@@ -55,15 +55,15 @@ public class LuceneBooleanIndexTest extends BaseLuceneTest {
   @Test
   public void insertPerson() {
 
-    for (int i = 0; i < 1000; i++) {
-      EntityImpl doc = ((EntityImpl) db.newEntity("Person"));
+    for (var i = 0; i < 1000; i++) {
+      var doc = ((EntityImpl) db.newEntity("Person"));
       doc.field("isDeleted", i % 2 == 0);
       db.begin();
       db.save(doc);
       db.commit();
     }
 
-    ResultSet docs = db.query("select from Person where isDeleted lucene false");
+    var docs = db.query("select from Person where isDeleted lucene false");
 
     Assert.assertEquals(
         500, docs.stream().filter((doc) -> !((Boolean) doc.getProperty("isDeleted"))).count());
@@ -74,17 +74,17 @@ public class LuceneBooleanIndexTest extends BaseLuceneTest {
   @Test
   public void testMemoryIndex() throws ParseException {
     // TODO To be used in evaluate Record
-    MemoryIndex index = new MemoryIndex();
+    var index = new MemoryIndex();
 
-    Document doc = new Document();
+    var doc = new Document();
     doc.add(new StringField("text", "my text", Field.Store.YES));
-    StandardAnalyzer analyzer = new StandardAnalyzer();
+    var analyzer = new StandardAnalyzer();
 
-    for (IndexableField field : doc.getFields()) {
+    for (var field : doc.getFields()) {
       index.addField(field.name(), field.stringValue(), analyzer);
     }
 
-    QueryParser parser = new QueryParser("text", analyzer);
-    float score = index.search(parser.parse("+text:my"));
+    var parser = new QueryParser("text", analyzer);
+    var score = index.search(parser.parse("+text:my"));
   }
 }

@@ -95,7 +95,7 @@ public class PropertyIndexDefinition extends AbstractIndexDefinition {
       return false;
     }
 
-    final PropertyIndexDefinition that = (PropertyIndexDefinition) o;
+    final var that = (PropertyIndexDefinition) o;
 
     if (!className.equals(that.className)) {
       return false;
@@ -108,7 +108,7 @@ public class PropertyIndexDefinition extends AbstractIndexDefinition {
 
   @Override
   public int hashCode() {
-    int result = super.hashCode();
+    var result = super.hashCode();
     result = 31 * result + className.hashCode();
     result = 31 * result + field.hashCode();
     result = 31 * result + keyType.hashCode();
@@ -200,14 +200,14 @@ public class PropertyIndexDefinition extends AbstractIndexDefinition {
 
   protected StringBuilder createIndexDDLWithFieldType(
       String indexName, String indexType, String engine) {
-    final StringBuilder ddl = createIndexDDLWithoutFieldType(indexName, indexType, engine);
+    final var ddl = createIndexDDLWithoutFieldType(indexName, indexType, engine);
     ddl.append(' ').append(keyType.name());
     return ddl;
   }
 
   protected StringBuilder createIndexDDLWithoutFieldType(
       final String indexName, final String indexType, final String engine) {
-    final StringBuilder ddl = new StringBuilder("create index `");
+    final var ddl = new StringBuilder("create index `");
 
     ddl.append(indexName).append("` on `");
     ddl.append(className).append("` ( `").append(field).append("`");
@@ -233,16 +233,16 @@ public class PropertyIndexDefinition extends AbstractIndexDefinition {
       return;
     }
 
-    final int removeCount = keysToRemove.getInt(value);
+    final var removeCount = keysToRemove.getInt(value);
     if (removeCount > 0) {
-      int newRemoveCount = removeCount - 1;
+      var newRemoveCount = removeCount - 1;
       if (newRemoveCount > 0) {
         keysToRemove.put(value, newRemoveCount);
       } else {
         keysToRemove.removeInt(value);
       }
     } else {
-      final int addCount = keysToAdd.getInt(value);
+      final var addCount = keysToAdd.getInt(value);
       if (addCount > 0) {
         keysToAdd.put(value, addCount + 1);
       } else {
@@ -259,16 +259,16 @@ public class PropertyIndexDefinition extends AbstractIndexDefinition {
       return;
     }
 
-    final int addCount = keysToAdd.getInt(value);
+    final var addCount = keysToAdd.getInt(value);
     if (addCount > 0) {
-      int newAddCount = addCount - 1;
+      var newAddCount = addCount - 1;
       if (newAddCount > 0) {
         keysToAdd.put(value, newAddCount);
       } else {
         keysToAdd.removeInt(value);
       }
     } else {
-      final int removeCount = keysToRemove.getInt(value);
+      final var removeCount = keysToRemove.getInt(value);
       if (removeCount > 0) {
         keysToRemove.put(value, removeCount + 1);
       } else {

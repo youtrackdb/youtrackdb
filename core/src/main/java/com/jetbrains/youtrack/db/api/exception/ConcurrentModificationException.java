@@ -108,9 +108,9 @@ public class ConcurrentModificationException extends NeedRetryException
 
   private static String makeMessage(
       int recordOperation, RID rid, int databaseVersion, int recordVersion) {
-    final String operation = RecordOperation.getName(recordOperation);
+    final var operation = RecordOperation.getName(recordOperation);
 
-    String sb =
+    var sb =
         "Cannot "
             + operation
             + " the record "

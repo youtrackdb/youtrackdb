@@ -70,17 +70,17 @@ public class QueryOperatorContains extends QueryOperatorEqualityNotNulls {
     var db = iContext.getDatabase();
     if (iLeft instanceof Iterable<?>) {
 
-      final Iterable<Object> iterable = (Iterable<Object>) iLeft;
+      final var iterable = (Iterable<Object>) iLeft;
       if (condition != null) {
         // CHECK AGAINST A CONDITION
 
-        for (final Object o : iterable) {
+        for (final var o : iterable) {
           final Identifiable id;
           if (o instanceof Identifiable) {
             id = (Identifiable) o;
           } else if (o instanceof Map<?, ?>) {
-            final Iterator<Object> iter = ((Map<?, Object>) o).values().iterator();
-            final Object v = iter.hasNext() ? iter.next() : null;
+            final var iter = ((Map<?, Object>) o).values().iterator();
+            final var v = iter.hasNext() ? iter.next() : null;
             if (v instanceof Identifiable) {
               id = (Identifiable) v;
             } else
@@ -90,7 +90,7 @@ public class QueryOperatorContains extends QueryOperatorEqualityNotNulls {
             }
 
           } else if (o instanceof Iterable<?>) {
-            final Iterator<Identifiable> iter = ((Iterable<Identifiable>) o).iterator();
+            final var iter = ((Iterable<Identifiable>) o).iterator();
             id = iter.hasNext() ? iter.next() : null;
           } else {
             continue;
@@ -107,12 +107,12 @@ public class QueryOperatorContains extends QueryOperatorEqualityNotNulls {
         if (iCondition.getLeft() instanceof SQLFilterItemField
             && ((SQLFilterItemField) iCondition.getLeft()).isFieldChain()
             && ((SQLFilterItemField) iCondition.getLeft()).getFieldChain().getItemCount() == 1) {
-          String fieldName =
+          var fieldName =
               ((SQLFilterItemField) iCondition.getLeft()).getFieldChain().getItemName(0);
           if (fieldName != null) {
             Object record = iRecord.getRecord(db);
             if (record instanceof EntityImpl) {
-              SchemaProperty property =
+              var property =
                   EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) record))
                       .getProperty(fieldName);
               if (property != null && property.getType().isMultiValue()) {
@@ -121,7 +121,7 @@ public class QueryOperatorContains extends QueryOperatorEqualityNotNulls {
             }
           }
         }
-        for (final Object o : iterable) {
+        for (final var o : iterable) {
           if (QueryOperatorEquals.equals(database, iRight, o, type)) {
             return true;
           }
@@ -130,10 +130,10 @@ public class QueryOperatorContains extends QueryOperatorEqualityNotNulls {
     } else if (iRight instanceof Iterable<?>) {
 
       // CHECK AGAINST A CONDITION
-      final Iterable<Identifiable> iterable = (Iterable<Identifiable>) iRight;
+      final var iterable = (Iterable<Identifiable>) iRight;
 
       if (condition != null) {
-        for (final Identifiable o : iterable) {
+        for (final var o : iterable) {
           if (condition.evaluate(o, null, iContext) == Boolean.TRUE) {
             return true;
           }
@@ -163,10 +163,10 @@ public class QueryOperatorContains extends QueryOperatorEqualityNotNulls {
   public Stream<RawPair<Object, RID>> executeIndexQuery(
       CommandContext iContext, Index index, List<Object> keyParams, boolean ascSortOrder) {
     var database = iContext.getDatabase();
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
 
     Stream<RawPair<Object, RID>> stream;
-    final IndexInternal internalIndex = index.getInternal();
+    final var internalIndex = index.getInternal();
     if (!internalIndex.canBeUsedInEqualityOperators()) {
       return null;
     }
@@ -190,7 +190,7 @@ public class QueryOperatorContains extends QueryOperatorEqualityNotNulls {
       // in case of composite keys several items can be returned in case of we perform search
       // using part of composite key stored in index.
 
-      final CompositeIndexDefinition compositeIndexDefinition =
+      final var compositeIndexDefinition =
           (CompositeIndexDefinition) indexDefinition;
 
       final Object keyOne = compositeIndexDefinition.createSingleValue(database, keyParams);
@@ -204,7 +204,7 @@ public class QueryOperatorContains extends QueryOperatorEqualityNotNulls {
         stream = index.getInternal().streamEntriesBetween(database, keyOne, true, keyTwo, true,
             ascSortOrder);
       } else {
-        int indexParamCount = indexDefinition.getParamCount();
+        var indexParamCount = indexDefinition.getParamCount();
         if (indexParamCount == keyParams.size()) {
           stream = index.getInternal().getRids(database, keyOne)
               .map((rid) -> new RawPair<>(keyOne, rid));

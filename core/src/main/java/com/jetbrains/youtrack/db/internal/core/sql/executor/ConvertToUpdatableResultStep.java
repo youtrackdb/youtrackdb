@@ -22,7 +22,7 @@ public class ConvertToUpdatableResultStep extends AbstractExecutionStep {
     if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
     }
-    ExecutionStream resultSet = prev.start(ctx);
+    var resultSet = prev.start(ctx);
     return resultSet.filter(ConvertToUpdatableResultStep::filterMap);
   }
 
@@ -39,7 +39,7 @@ public class ConvertToUpdatableResultStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String result = ExecutionStepInternal.getIndent(depth, indent) + "+ CONVERT TO UPDATABLE ITEM";
+    var result = ExecutionStepInternal.getIndent(depth, indent) + "+ CONVERT TO UPDATABLE ITEM";
     if (profilingEnabled) {
       result += " (" + getCostFormatted() + ")";
     }

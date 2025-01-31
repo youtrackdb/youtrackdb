@@ -48,7 +48,7 @@ public class SQLUpdateStatement extends SQLStatement {
       target.toString(params, builder);
     }
 
-    for (SQLUpdateOperations ops : this.operations) {
+    for (var ops : this.operations) {
       builder.append(" ");
       ops.toString(params, builder);
     }
@@ -90,7 +90,7 @@ public class SQLUpdateStatement extends SQLStatement {
       target.toGenericStatement(builder);
     }
 
-    for (SQLUpdateOperations ops : this.operations) {
+    for (var ops : this.operations) {
       builder.append(" ");
       ops.toGenericStatement(builder);
     }
@@ -158,14 +158,14 @@ public class SQLUpdateStatement extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
     ctx.setDatabase(db);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
-      for (int i = 0; i < args.length; i++) {
+      for (var i = 0; i < args.length; i++) {
         params.put(i, args[i]);
       }
     }
@@ -184,7 +184,7 @@ public class SQLUpdateStatement extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Map<Object, Object> params, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -201,8 +201,8 @@ public class SQLUpdateStatement extends SQLStatement {
   }
 
   public UpdateExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    UpdateExecutionPlanner planner = new UpdateExecutionPlanner(this);
-    UpdateExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling);
+    var planner = new UpdateExecutionPlanner(this);
+    var result = planner.createExecutionPlan(ctx, enableProfiling);
     result.setStatement(this.originalStatement);
     result.setGenericStatement(this.toGenericStatement());
     return result;
@@ -217,7 +217,7 @@ public class SQLUpdateStatement extends SQLStatement {
       return false;
     }
 
-    SQLUpdateStatement that = (SQLUpdateStatement) o;
+    var that = (SQLUpdateStatement) o;
 
     if (upsert != that.upsert) {
       return false;
@@ -248,7 +248,7 @@ public class SQLUpdateStatement extends SQLStatement {
 
   @Override
   public int hashCode() {
-    int result = target != null ? target.hashCode() : 0;
+    var result = target != null ? target.hashCode() : 0;
     result = 31 * result + (operations != null ? operations.hashCode() : 0);
     result = 31 * result + (upsert ? 1 : 0);
     result = 31 * result + (returnBefore ? 1 : 0);

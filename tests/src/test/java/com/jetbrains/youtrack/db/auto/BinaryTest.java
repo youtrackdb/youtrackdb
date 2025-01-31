@@ -38,7 +38,7 @@ public class BinaryTest extends BaseDBTest {
   @Test
   public void testMixedCreateEmbedded() {
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity());
+    var doc = ((EntityImpl) db.newEntity());
     doc.field("binary", "Binary data".getBytes());
 
     doc.save();
@@ -72,7 +72,7 @@ public class BinaryTest extends BaseDBTest {
   public void testMixedCreateExternal() {
     db.begin();
 
-    EntityImpl doc = ((EntityImpl) db.newEntity());
+    var doc = ((EntityImpl) db.newEntity());
     doc.field("binary", new RecordBytes(db, "Binary data".getBytes()));
 
     doc.save();

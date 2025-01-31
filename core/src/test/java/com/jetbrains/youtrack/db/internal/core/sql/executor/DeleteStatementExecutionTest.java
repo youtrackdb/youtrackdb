@@ -19,9 +19,9 @@ public class DeleteStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSimple() {
-    String className = "testSimple";
+    var className = "testSimple";
     db.getMetadata().getSchema().createClass(className);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -30,11 +30,11 @@ public class DeleteStatementExecutionTest extends DbTestBase {
     }
 
     db.begin();
-    ResultSet result = db.command("delete from  " + className + " where name = 'name4'");
+    var result = db.command("delete from  " + className + " where name = 'name4'");
     printExecutionPlan(result);
-    for (int i = 0; i < 1; i++) {
+    for (var i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals((Object) 1L, item.getProperty("count"));
     }
@@ -42,9 +42,9 @@ public class DeleteStatementExecutionTest extends DbTestBase {
     db.commit();
 
     result = db.query("select from " + className);
-    for (int i = 0; i < 9; i++) {
+    for (var i = 0; i < 9; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotEquals("name4", item.getProperty("name"));
     }
@@ -54,13 +54,13 @@ public class DeleteStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testUnsafe1() {
-    String className = "testUnsafe1";
-    SchemaClass v = db.getMetadata().getSchema().getClass("V");
+    var className = "testUnsafe1";
+    var v = db.getMetadata().getSchema().getClass("V");
     if (v == null) {
       db.getMetadata().getSchema().createClass("V");
     }
     db.getMetadata().getSchema().createClass(className, v);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -68,7 +68,7 @@ public class DeleteStatementExecutionTest extends DbTestBase {
       db.commit();
     }
     try {
-      ResultSet result = db.command("delete from  " + className + " where name = 'name4'");
+      var result = db.command("delete from  " + className + " where name = 'name4'");
       Assert.fail();
     } catch (CommandExecutionException ex) {
 
@@ -79,13 +79,13 @@ public class DeleteStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testUnsafe2() {
-    String className = "testUnsafe2";
-    SchemaClass v = db.getMetadata().getSchema().getClass("V");
+    var className = "testUnsafe2";
+    var v = db.getMetadata().getSchema().getClass("V");
     if (v == null) {
       db.getMetadata().getSchema().createClass("V");
     }
     db.getMetadata().getSchema().createClass(className, v);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -94,12 +94,12 @@ public class DeleteStatementExecutionTest extends DbTestBase {
     }
 
     db.begin();
-    ResultSet result = db.command("delete from  " + className + " where name = 'name4' unsafe");
+    var result = db.command("delete from  " + className + " where name = 'name4' unsafe");
 
     printExecutionPlan(result);
-    for (int i = 0; i < 1; i++) {
+    for (var i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals((Object) 1L, item.getProperty("count"));
     }
@@ -107,9 +107,9 @@ public class DeleteStatementExecutionTest extends DbTestBase {
     db.commit();
 
     result = db.query("select from " + className);
-    for (int i = 0; i < 9; i++) {
+    for (var i = 0; i < 9; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotEquals("name4", item.getProperty("name"));
     }
@@ -119,11 +119,11 @@ public class DeleteStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testReturnBefore() {
-    String className = "testReturnBefore";
+    var className = "testReturnBefore";
     db.getMetadata().getSchema().createClass(className);
     RID fourthId = null;
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -136,12 +136,12 @@ public class DeleteStatementExecutionTest extends DbTestBase {
     }
 
     db.begin();
-    ResultSet result =
+    var result =
         db.command("delete from  " + className + " return before where name = 'name4' ");
     printExecutionPlan(result);
-    for (int i = 0; i < 1; i++) {
+    for (var i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals(fourthId, item.getRecordId());
     }
@@ -149,9 +149,9 @@ public class DeleteStatementExecutionTest extends DbTestBase {
     db.commit();
 
     result = db.query("select from " + className);
-    for (int i = 0; i < 9; i++) {
+    for (var i = 0; i < 9; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotEquals("name4", item.getProperty("name"));
     }
@@ -161,9 +161,9 @@ public class DeleteStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testLimit() {
-    String className = "testLimit";
+    var className = "testLimit";
     db.getMetadata().getSchema().createClass(className);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -171,11 +171,11 @@ public class DeleteStatementExecutionTest extends DbTestBase {
       db.commit();
     }
     db.begin();
-    ResultSet result = db.command("delete from  " + className + " limit 5");
+    var result = db.command("delete from  " + className + " limit 5");
     printExecutionPlan(result);
-    for (int i = 0; i < 1; i++) {
+    for (var i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals((Object) 5L, item.getProperty("count"));
     }
@@ -183,9 +183,9 @@ public class DeleteStatementExecutionTest extends DbTestBase {
     db.commit();
 
     result = db.query("select from " + className);
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertNotNull(item);
     }
     Assert.assertFalse(result.hasNext());

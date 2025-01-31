@@ -154,10 +154,10 @@ public class HttpRequestWrapper {
    * @return The number of parameters found between the passed ones
    */
   public int hasParameters(final String... iNames) {
-    int found = 0;
+    var found = 0;
 
     if (iNames != null && request.getParameters() != null) {
-      for (String name : iNames) {
+      for (var name : iNames) {
         found += request.getParameters().containsKey(name) ? 1 : 0;
       }
     }

@@ -61,12 +61,12 @@ public class SQLCreateClassStatement extends DDLStatement {
     }
     checkSuperclasses(schema, ctx);
 
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     result.setProperty("operation", "create class");
     result.setProperty("className", name.getStringValue());
 
     SchemaClass clazz = null;
-    SchemaClass[] superclasses = getSuperClasses(schema);
+    var superclasses = getSuperClasses(schema);
     if (abstractClass) {
       clazz = schema.createAbstractClass(name.getStringValue(), superclasses);
       result.setProperty("abstract", abstractClass);
@@ -76,8 +76,8 @@ public class SQLCreateClassStatement extends DDLStatement {
               name.getStringValue(), totalClusterNo.getValue().intValue(), superclasses);
     } else if (clusters != null) {
       clusters.stream().map(x -> x.getValue().intValue()).toList();
-      int[] clusterIds = new int[clusters.size()];
-      for (int i = 0; i < clusters.size(); i++) {
+      var clusterIds = new int[clusters.size()];
+      for (var i = 0; i < clusters.size(); i++) {
         clusterIds[i] = clusters.get(i).getValue().intValue();
       }
       clazz = schema.createClass(name.getStringValue(), clusterIds, superclasses);
@@ -101,7 +101,7 @@ public class SQLCreateClassStatement extends DDLStatement {
 
   private void checkSuperclasses(Schema schema, CommandContext ctx) {
     if (superclasses != null) {
-      for (SQLIdentifier superclass : superclasses) {
+      for (var superclass : superclasses) {
         if (!schema.existsClass(superclass.getStringValue())) {
           throw new CommandExecutionException("Superclass " + superclass + " not found");
         }
@@ -118,8 +118,8 @@ public class SQLCreateClassStatement extends DDLStatement {
     }
     if (superclasses != null && superclasses.size() > 0) {
       builder.append(" EXTENDS ");
-      boolean first = true;
-      for (SQLIdentifier sup : superclasses) {
+      var first = true;
+      for (var sup : superclasses) {
         if (!first) {
           builder.append(", ");
         }
@@ -129,8 +129,8 @@ public class SQLCreateClassStatement extends DDLStatement {
     }
     if (clusters != null && clusters.size() > 0) {
       builder.append(" CLUSTER ");
-      boolean first = true;
-      for (SQLInteger cluster : clusters) {
+      var first = true;
+      for (var cluster : clusters) {
         if (!first) {
           builder.append(",");
         }
@@ -156,8 +156,8 @@ public class SQLCreateClassStatement extends DDLStatement {
     }
     if (superclasses != null && superclasses.size() > 0) {
       builder.append(" EXTENDS ");
-      boolean first = true;
-      for (SQLIdentifier sup : superclasses) {
+      var first = true;
+      for (var sup : superclasses) {
         if (!first) {
           builder.append(", ");
         }
@@ -167,8 +167,8 @@ public class SQLCreateClassStatement extends DDLStatement {
     }
     if (clusters != null && clusters.size() > 0) {
       builder.append(" CLUSTER ");
-      boolean first = true;
-      for (SQLInteger cluster : clusters) {
+      var first = true;
+      for (var cluster : clusters) {
         if (!first) {
           builder.append(",");
         }
@@ -187,7 +187,7 @@ public class SQLCreateClassStatement extends DDLStatement {
 
   @Override
   public SQLCreateClassStatement copy() {
-    SQLCreateClassStatement result = new SQLCreateClassStatement(-1);
+    var result = new SQLCreateClassStatement(-1);
     result.name = name == null ? null : name.copy();
     result.superclasses =
         superclasses == null
@@ -210,7 +210,7 @@ public class SQLCreateClassStatement extends DDLStatement {
       return false;
     }
 
-    SQLCreateClassStatement that = (SQLCreateClassStatement) o;
+    var that = (SQLCreateClassStatement) o;
 
     if (abstractClass != that.abstractClass) {
       return false;
@@ -232,7 +232,7 @@ public class SQLCreateClassStatement extends DDLStatement {
 
   @Override
   public int hashCode() {
-    int result = name != null ? name.hashCode() : 0;
+    var result = name != null ? name.hashCode() : 0;
     result = 31 * result + (superclasses != null ? superclasses.hashCode() : 0);
     result = 31 * result + (clusters != null ? clusters.hashCode() : 0);
     result = 31 * result + (totalClusterNo != null ? totalClusterNo.hashCode() : 0);

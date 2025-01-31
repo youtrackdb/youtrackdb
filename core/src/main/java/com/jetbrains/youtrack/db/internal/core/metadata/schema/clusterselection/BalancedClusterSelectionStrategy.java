@@ -48,10 +48,10 @@ public class BalancedClusterSelectionStrategy implements ClusterSelectionStrateg
 
     if (lastCount < 0 || System.currentTimeMillis() - lastCount > REFRESH_TIMEOUT) {
       // REFRESH COUNTERS
-      long min = Long.MAX_VALUE;
+      var min = Long.MAX_VALUE;
 
-      for (int cluster : clusters) {
-        final long count = db.countClusterElements(cluster);
+      for (var cluster : clusters) {
+        final var count = db.countClusterElements(cluster);
         if (count < min) {
           min = count;
           smallerClusterId = cluster;

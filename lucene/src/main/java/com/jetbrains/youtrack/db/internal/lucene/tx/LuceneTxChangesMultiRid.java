@@ -69,7 +69,7 @@ public class LuceneTxChangesMultiRid extends LuceneTxChangesAbstract {
         deleted.putIfAbsent(value.getIdentity().toString(), new ArrayList<>());
         deleted.get(value.getIdentity().toString()).add(key.toString());
 
-        final Document doc = engine.buildDocument(db, key, value);
+        final var doc = engine.buildDocument(db, key, value);
         deletedDocs.add(doc);
         deletedIdx.addDocument(doc);
       }
@@ -91,14 +91,14 @@ public class LuceneTxChangesMultiRid extends LuceneTxChangesAbstract {
 
   public boolean isDeleted(Storage storage, final Document document, final Object key,
       final Identifiable value) {
-    boolean match = false;
-    final List<String> strings = deleted.get(value.getIdentity().toString());
+    var match = false;
+    final var strings = deleted.get(value.getIdentity().toString());
     if (strings != null) {
-      final MemoryIndex memoryIndex = new MemoryIndex();
-      for (final String string : strings) {
-        final Query q = engine.deleteQuery(storage, string, value);
+      final var memoryIndex = new MemoryIndex();
+      for (final var string : strings) {
+        final var q = engine.deleteQuery(storage, string, value);
         memoryIndex.reset();
-        for (final IndexableField field : document.getFields()) {
+        for (final var field : document.getFields()) {
           memoryIndex.addField(field.name(), field.stringValue(), new KeywordAnalyzer());
         }
         match = match || (memoryIndex.search(q) > 0.0f);

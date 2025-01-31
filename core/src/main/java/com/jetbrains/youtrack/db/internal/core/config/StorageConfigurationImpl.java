@@ -263,7 +263,7 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
   private void autoInitClusters() {
     if (getContextConfiguration().getValueAsInteger(GlobalConfiguration.CLASS_MINIMUM_CLUSTERS)
         == 0) {
-      final int cpus = Runtime.getRuntime().availableProcessors();
+      final var cpus = Runtime.getRuntime().availableProcessors();
       getContextConfiguration()
           .setValue(GlobalConfiguration.CLASS_MINIMUM_CLUSTERS, cpus > 64 ? 64 : cpus);
     }
@@ -306,7 +306,7 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
     try {
       initConfiguration(configuration);
 
-      final byte[] record = storage.readRecord(null, CONFIG_RID, false, false, null).buffer;
+      final var record = storage.readRecord(null, CONFIG_RID, false, false, null).buffer;
 
       if (record == null) {
         throw new StorageException(
@@ -324,7 +324,7 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
   public void update() throws SerializationException {
     lock.writeLock().lock();
     try {
-      final byte[] record = toStream(streamCharset);
+      final var record = toStream(streamCharset);
       storage.updateRecord(CONFIG_RID, true, record, -1, Blob.RECORD_TYPE, 0, null);
       if (updateListener != null) {
         updateListener.onUpdate(this);
@@ -377,7 +377,7 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
   public SimpleDateFormat getDateFormatInstance() {
     lock.readLock().lock();
     try {
-      final SimpleDateFormat dateFormatInstance = new SimpleDateFormat(dateFormat);
+      final var dateFormatInstance = new SimpleDateFormat(dateFormat);
       dateFormatInstance.setLenient(false);
       dateFormatInstance.setTimeZone(timeZone);
 
@@ -390,7 +390,7 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
   public SimpleDateFormat getDateTimeFormatInstance() {
     lock.readLock().lock();
     try {
-      final SimpleDateFormat dateTimeFormatInstance = new SimpleDateFormat(dateTimeFormat);
+      final var dateTimeFormatInstance = new SimpleDateFormat(dateTimeFormat);
       dateTimeFormatInstance.setLenient(false);
       dateTimeFormatInstance.setTimeZone(timeZone);
       return dateTimeFormatInstance;
@@ -405,8 +405,8 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
     try {
       clear();
 
-      final String[] values = new String(stream, offset, length, charset).split("\\|");
-      int index = 0;
+      final var values = new String(stream, offset, length, charset).split("\\|");
+      var index = 0;
       version = Integer.parseInt(read(values[index++]));
 
       if (version < 14) {
@@ -425,7 +425,7 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
 
       // @COMPATIBILITY with 2.1 version, in this version locale was not mandatory
       if (localeLanguage == null || localeCountry == null) {
-        final Locale locale = Locale.getDefault();
+        final var locale = Locale.getDefault();
 
         if (localeLanguage == null) {
           LogManager.instance()
@@ -454,32 +454,32 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
       timeZone = TimeZone.getTimeZone(read(values[index++]));
       this.charset = read(values[index++]);
 
-      final RecordConflictStrategyFactory conflictStrategyFactory =
+      final var conflictStrategyFactory =
           YouTrackDBEnginesManager.instance().getRecordConflictStrategy();
       conflictStrategy = conflictStrategyFactory.getStrategy(read(values[index++])).getName();
 
       // @COMPATIBILITY
       index = phySegmentFromStream(values, index, fileTemplate);
 
-      int size = Integer.parseInt(read(values[index++]));
+      var size = Integer.parseInt(read(values[index++]));
 
       // PREPARE THE LIST OF CLUSTERS
       clusters.clear();
 
       String determineStorageCompression = null;
 
-      for (int i = 0; i < size; ++i) {
-        final int clusterId = Integer.parseInt(read(values[index++]));
+      for (var i = 0; i < size; ++i) {
+        final var clusterId = Integer.parseInt(read(values[index++]));
 
         if (clusterId == -1) {
           continue;
         }
 
-        final String clusterName = read(values[index++]);
+        final var clusterName = read(values[index++]);
         //noinspection ResultOfMethodCallIgnored
         read(values[index++]);
 
-        final String clusterType = read(values[index++]);
+        final var clusterType = read(values[index++]);
 
         final StorageClusterConfiguration currentCluster;
 
@@ -489,7 +489,7 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
             final float bb = Float.valueOf(read(values[index++]));
             final float aa = Float.valueOf(read(values[index++]));
 
-            final String clusterCompression = read(values[index++]);
+            final var clusterCompression = read(values[index++]);
 
             if (determineStorageCompression == null)
             // TRY TO DETERMINE THE STORAGE COMPRESSION. BEFORE VERSION 11 IT WASN'T STORED IN
@@ -504,7 +504,7 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
               clusterEncryption = read(values[index++]);
             }
 
-            final String clusterConflictStrategy = read(values[index++]);
+            final var clusterConflictStrategy = read(values[index++]);
 
             StorageClusterConfiguration.STATUS status;
             status = StorageClusterConfiguration.STATUS.valueOf(read(values[index++]));
@@ -541,7 +541,7 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
         }
 
         // MAKE ROOMS, EVENTUALLY FILLING EMPTIES ENTRIES
-        for (int c = clusters.size(); c <= clusterId; ++c) {
+        for (var c = clusters.size(); c <= clusterId; ++c) {
           clusters.add(null);
         }
 
@@ -550,7 +550,7 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
 
       size = Integer.parseInt(read(values[index++]));
       clearProperties();
-      for (int i = 0; i < size; ++i) {
+      for (var i = 0; i < size; ++i) {
         setProperty(read(values[index++]), read(values[index++]));
       }
 
@@ -566,12 +566,12 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
       recordSerializerVersion = Integer.parseInt(read(values[index++]));
 
       // READ THE CONFIGURATION
-      final int cfgSize = Integer.parseInt(read(values[index++]));
-      for (int i = 0; i < cfgSize; ++i) {
-        final String key = read(values[index++]);
+      final var cfgSize = Integer.parseInt(read(values[index++]));
+      for (var i = 0; i < cfgSize; ++i) {
+        final var key = read(values[index++]);
         final Object value = read(values[index++]);
 
-        final GlobalConfiguration cfg = GlobalConfiguration.findByKey(key);
+        final var cfg = GlobalConfiguration.findByKey(key);
         if (cfg != null) {
           if (value != null) {
             configuration.setValue(key, PropertyType.convert(null, value, cfg.getType()));
@@ -583,11 +583,11 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
       }
 
       if (version > 15) {
-        final int enginesSize = Integer.parseInt(read(values[index++]));
+        final var enginesSize = Integer.parseInt(read(values[index++]));
 
-        for (int i = 0; i < enginesSize; i++) {
-          final String name = read(values[index++]);
-          final String algorithm = read(values[index++]);
+        for (var i = 0; i < enginesSize; i++) {
+          final var name = read(values[index++]);
+          final var algorithm = read(values[index++]);
           final String indexType;
 
           if (version > 16) {
@@ -596,10 +596,10 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
             indexType = "";
           }
 
-          final byte valueSerializerId = Byte.parseByte(read(values[index++]));
-          final byte keySerializerId = Byte.parseByte(read(values[index++]));
+          final var valueSerializerId = Byte.parseByte(read(values[index++]));
+          final var keySerializerId = Byte.parseByte(read(values[index++]));
 
-          final boolean isAutomatic = Boolean.parseBoolean(read((values[index++])));
+          final var isAutomatic = Boolean.parseBoolean(read((values[index++])));
           final Boolean durableInNonTxMode;
 
           if (read(values[index]) == null) {
@@ -609,9 +609,9 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
             durableInNonTxMode = Boolean.parseBoolean(read(values[index++]));
           }
 
-          final int version = Integer.parseInt(read(values[index++]));
-          final boolean nullValuesSupport = Boolean.parseBoolean(read((values[index++])));
-          final int keySize = Integer.parseInt(read(values[index++]));
+          final var version = Integer.parseInt(read(values[index++]));
+          final var nullValuesSupport = Boolean.parseBoolean(read((values[index++])));
+          final var keySize = Integer.parseInt(read(values[index++]));
 
           String encryption = null;
           String encryptionOptions = null;
@@ -620,23 +620,23 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
             encryptionOptions = read(values[index++]);
           }
 
-          final int typesLength = Integer.parseInt(read(values[index++]));
-          final PropertyType[] types = new PropertyType[typesLength];
+          final var typesLength = Integer.parseInt(read(values[index++]));
+          final var types = new PropertyType[typesLength];
 
-          for (int n = 0; n < types.length; n++) {
-            final PropertyType type = PropertyType.valueOf(read(values[index++]));
+          for (var n = 0; n < types.length; n++) {
+            final var type = PropertyType.valueOf(read(values[index++]));
             types[n] = type;
           }
 
-          final int propertiesSize = Integer.parseInt(read(values[index++]));
+          final var propertiesSize = Integer.parseInt(read(values[index++]));
           final Map<String, String> engineProperties;
           if (propertiesSize == 0) {
             engineProperties = null;
           } else {
             engineProperties = new HashMap<>(propertiesSize);
-            for (int n = 0; n < propertiesSize; n++) {
-              final String key = read(values[index++]);
-              final String value = read(values[index++]);
+            for (var n = 0; n < propertiesSize; n++) {
+              final var key = read(values[index++]);
+              final var value = read(values[index++]);
               engineProperties.put(key, value);
             }
           }
@@ -652,7 +652,7 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
             mulitvalue = false;
           }
 
-          final IndexEngineData indexEngineData =
+          final var indexEngineData =
               new IndexEngineData(
                   Integer.MIN_VALUE,
                   name,
@@ -721,7 +721,7 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
       throws SerializationException {
     lock.readLock().lock();
     try {
-      final StringBuilder buffer = new StringBuilder(8192);
+      final var buffer = new StringBuilder(8192);
 
       write(buffer, CURRENT_VERSION);
       write(buffer, name);
@@ -744,7 +744,7 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
       phySegmentToStream(buffer, fileTemplate);
 
       write(buffer, clusters.size());
-      for (StorageClusterConfiguration c : clusters) {
+      for (var c : clusters) {
         if (c == null) {
           write(buffer, -1);
           continue;
@@ -790,7 +790,7 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
       }
       synchronized (properties) {
         write(buffer, properties.size());
-        for (StorageEntryConfiguration e : properties) {
+        for (var e : properties) {
           entryToStream(buffer, e);
         }
       }
@@ -805,8 +805,8 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
 
         // WRITE CONFIGURATION
         write(buffer, configuration.getContextSize());
-        for (String k : configuration.getContextKeys()) {
-          final GlobalConfiguration cfg = GlobalConfiguration.findByKey(k);
+        for (var k : configuration.getContextKeys()) {
+          final var cfg = GlobalConfiguration.findByKey(k);
           write(buffer, k);
           if (cfg != null) {
             write(buffer, cfg.isHidden() ? null : configuration.getValueAsString(cfg));
@@ -823,7 +823,7 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
       }
 
       write(buffer, indexEngines.size());
-      for (IndexEngineData engineData : indexEngines.values()) {
+      for (var engineData : indexEngines.values()) {
         write(buffer, engineData.getName());
         write(buffer, engineData.getAlgorithm());
         write(buffer, engineData.getIndexType() == null ? "" : engineData.getIndexType());
@@ -842,7 +842,7 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
 
         if (engineData.getKeyTypes() != null) {
           write(buffer, engineData.getKeyTypes().length);
-          for (PropertyType type : engineData.getKeyTypes()) {
+          for (var type : engineData.getKeyTypes()) {
             write(buffer, type.name());
           }
         } else {
@@ -853,7 +853,7 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
           write(buffer, 0);
         } else {
           write(buffer, engineData.getEngineProperties().size());
-          for (Map.Entry<String, String> property : engineData.getEngineProperties().entrySet()) {
+          for (var property : engineData.getEngineProperties().entrySet()) {
             write(buffer, property.getKey());
             write(buffer, property.getValue());
           }
@@ -921,8 +921,8 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
     lock.writeLock().lock();
     try {
       if (clusters.size() <= config.id) {
-        final int diff = config.id - clusters.size();
-        for (int i = 0; i < diff; i++) {
+        final var diff = config.id - clusters.size();
+        for (var i = 0; i < diff; i++) {
           clusters.add(null);
         }
 
@@ -947,7 +947,7 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
   public void addIndexEngine(String name, IndexEngineData engineData) {
     lock.writeLock().lock();
     try {
-      final IndexEngineData oldEngine = indexEngines.putIfAbsent(name, engineData);
+      final var oldEngine = indexEngines.putIfAbsent(name, engineData);
 
       if (oldEngine != null) {
         LogManager.instance()
@@ -997,7 +997,7 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
       final int clusterId, final StorageClusterConfiguration.STATUS iStatus) {
     lock.writeLock().lock();
     try {
-      final StorageClusterConfiguration clusterCfg = clusters.get(clusterId);
+      final var clusterCfg = clusters.get(clusterId);
       if (clusterCfg != null) {
         clusterCfg.setStatus(iStatus);
       }
@@ -1120,7 +1120,7 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
   public int getMinimumClusters() {
     lock.readLock().lock();
     try {
-      final int mc =
+      final var mc =
           getContextConfiguration().getValueAsInteger(GlobalConfiguration.CLASS_MINIMUM_CLUSTERS);
       if (mc == 0) {
         autoInitClusters();
@@ -1201,7 +1201,7 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
         validation = "true".equalsIgnoreCase(iValue);
       }
 
-      for (final StorageEntryConfiguration e : properties) {
+      for (final var e : properties) {
         if (e.name.equalsIgnoreCase(iName)) {
           // FOUND: OVERWRITE IT
           e.value = iValue;
@@ -1219,7 +1219,7 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
   public String getProperty(final String iName) {
     lock.readLock().lock();
     try {
-      for (final StorageEntryConfiguration e : properties) {
+      for (final var e : properties) {
         if (e.name.equalsIgnoreCase(iName)) {
           return e.value;
         }
@@ -1233,8 +1233,8 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
   public void removeProperty(final String iName) {
     lock.writeLock().lock();
     try {
-      for (Iterator<StorageEntryConfiguration> it = properties.iterator(); it.hasNext(); ) {
-        final StorageEntryConfiguration e = it.next();
+      for (var it = properties.iterator(); it.hasNext(); ) {
+        final var e = it.next();
         if (e.name.equalsIgnoreCase(iName)) {
           it.remove();
           break;
@@ -1277,17 +1277,17 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
     iSegment.fileIncrementSize = read(values[index++]);
     iSegment.defrag = read(values[index++]);
 
-    @SuppressWarnings("ConstantConditions") final int size = Integer.parseInt(
+    @SuppressWarnings("ConstantConditions") final var size = Integer.parseInt(
         read(values[index++]));
     iSegment.infoFiles = new StorageFileConfiguration[size];
     String fileName;
-    for (int i = 0; i < size; ++i) {
+    for (var i = 0; i < size; ++i) {
       fileName = read(values[index++]);
 
       //noinspection ConstantConditions
       if (!fileName.contains("$")) {
         // @COMPATIBILITY 0.9.25
-        int pos = fileName.indexOf("/databases");
+        var pos = fileName.indexOf("/databases");
         if (pos > -1) {
           fileName =
               "${" + YouTrackDBEnginesManager.YOUTRACKDB_HOME + "}" + fileName.substring(pos);
@@ -1317,7 +1317,7 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
     write(iBuffer, iSegment.defrag);
 
     write(iBuffer, iSegment.infoFiles.length);
-    for (StorageFileConfiguration f : iSegment.infoFiles) {
+    for (var f : iSegment.infoFiles) {
       fileToStream(iBuffer, f);
     }
   }

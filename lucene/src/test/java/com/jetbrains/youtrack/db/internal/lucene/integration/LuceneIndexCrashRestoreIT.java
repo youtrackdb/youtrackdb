@@ -81,22 +81,22 @@ public class LuceneIndexCrashRestoreIT {
     GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(3);
     GlobalConfiguration.FILE_LOCK.setValue(false);
 
-    final File buildDir = new File(BUILD_DIRECTORY);
+    final var buildDir = new File(BUILD_DIRECTORY);
     if (buildDir.exists()) {
       FileUtils.deleteRecursively(buildDir);
     }
 
     buildDir.mkdirs();
 
-    final File mutexFile = new File(buildDir, "mutex.ct");
-    final RandomAccessFile mutex = new RandomAccessFile(mutexFile, "rw");
+    final var mutexFile = new File(buildDir, "mutex.ct");
+    final var mutex = new RandomAccessFile(mutexFile, "rw");
     mutex.seek(0);
     mutex.write(0);
 
-    String javaExec = System.getProperty("java.home") + "/bin/java";
+    var javaExec = System.getProperty("java.home") + "/bin/java";
     javaExec = new File(javaExec).getCanonicalPath();
 
-    ProcessBuilder processBuilder =
+    var processBuilder =
         new ProcessBuilder(
             javaExec,
             "-Xmx2048m",
@@ -109,7 +109,7 @@ public class LuceneIndexCrashRestoreIT {
     processBuilder.inheritIO();
     serverProcess = processBuilder.start();
 
-    boolean started = false;
+    var started = false;
     do {
       System.out.println(": Wait for server start");
       TimeUnit.SECONDS.sleep(5);
@@ -124,7 +124,7 @@ public class LuceneIndexCrashRestoreIT {
 
   @After
   public void tearDown() {
-    File buildDir = new File("./target/databases");
+    var buildDir = new File("./target/databases");
     FileUtils.deleteRecursively(buildDir);
     Assert.assertFalse(buildDir.exists());
   }
@@ -137,7 +137,7 @@ public class LuceneIndexCrashRestoreIT {
     try {
       createSchema(sessionPool);
 
-      for (int i = 0; i < 1; i++) {
+      for (var i = 0; i < 1; i++) {
         // first round
         System.out.println("Start data propagation ::" + i);
 
@@ -187,10 +187,10 @@ public class LuceneIndexCrashRestoreIT {
     System.out.println("START AGAIN");
 
     // start embedded
-    YouTrackDBServer server = ServerMain.create(true);
+    var server = ServerMain.create(true);
     server.setServerRootDirectory(BUILD_DIRECTORY);
 
-    InputStream conf = RemoteDBRunner.class.getResourceAsStream("index-crash-config.xml");
+    var conf = RemoteDBRunner.class.getResourceAsStream("index-crash-config.xml");
 
     server.startup(conf);
     server.activate();
@@ -209,7 +209,7 @@ public class LuceneIndexCrashRestoreIT {
     db = (DatabaseSessionInternal) sessionPool.acquire();
     db.getMetadata().reload();
 
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.name");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.name");
     assertThat(index).isNotNull();
 
     // sometimes the metadata is null!!!!!
@@ -235,7 +235,7 @@ public class LuceneIndexCrashRestoreIT {
   }
 
   private void stopLoaders(List<DataPropagationTask> futures) {
-    for (DataPropagationTask future : futures) {
+    for (var future : futures) {
 
       future.stop();
     }
@@ -243,8 +243,8 @@ public class LuceneIndexCrashRestoreIT {
 
   private List<DataPropagationTask> startLoaders() {
     List<DataPropagationTask> futures = new ArrayList<>();
-    for (int i = 0; i < 4; i++) {
-      final DataPropagationTask loader = new DataPropagationTask(sessionPool);
+    for (var i = 0; i < 4; i++) {
+      final var loader = new DataPropagationTask(sessionPool);
       executorService.submit(loader);
       futures.add(loader);
     }
@@ -253,7 +253,7 @@ public class LuceneIndexCrashRestoreIT {
 
   private void createSchema(SessionPool pool) {
 
-    final DatabaseSessionInternal db = (DatabaseSessionInternal) pool.acquire();
+    final var db = (DatabaseSessionInternal) pool.acquire();
 
     System.out.println("create index for db:: " + db.getURL());
     db.command("Create class Person");
@@ -286,17 +286,17 @@ public class LuceneIndexCrashRestoreIT {
       GlobalConfiguration.WAL_FUZZY_CHECKPOINT_INTERVAL.setValue(100000000);
 
       //      System.out.println("create server instance");
-      YouTrackDBServer server = ServerMain.create();
-      InputStream conf = RemoteDBRunner.class.getResourceAsStream("index-crash-config.xml");
+      var server = ServerMain.create();
+      var conf = RemoteDBRunner.class.getResourceAsStream("index-crash-config.xml");
 
       LogManager.instance().installCustomFormatter();
       server.startup(conf);
       server.activate();
 
-      final String mutexFile = System.getProperty("mutexFile");
+      final var mutexFile = System.getProperty("mutexFile");
       //      System.out.println("mutexFile = " + mutexFile);
 
-      final RandomAccessFile mutex = new RandomAccessFile(mutexFile, "rw");
+      final var mutex = new RandomAccessFile(mutexFile, "rw");
       mutex.seek(0);
       mutex.write(1);
       mutex.close();
@@ -325,15 +325,15 @@ public class LuceneIndexCrashRestoreIT {
       try {
         testDB = pool.acquire();
         while (!stop) {
-          long id = idGen.getAndIncrement();
-          long ts = System.currentTimeMillis();
+          var id = idGen.getAndIncrement();
+          var ts = System.currentTimeMillis();
 
           if (id % 1000 == 0) {
             System.out.println(Thread.currentThread().getName() + " inserted:: " + id);
             testDB.commit();
           }
           if (id % 2000 == 0) {
-            final ResultSet resultSet =
+            final var resultSet =
                 testDB.command("delete from Person where name lucene 'Robert' ");
             System.out.println(
                 Thread.currentThread().getName()
@@ -341,14 +341,14 @@ public class LuceneIndexCrashRestoreIT {
                     + resultSet.next().getProperty("count"));
             testDB.commit();
           }
-          int nameIdx = (int) (id % names.size());
+          var nameIdx = (int) (id % names.size());
 
-          for (int i = 0; i < 10; i++) {
+          for (var i = 0; i < 10; i++) {
             if (id % 1000 == 0) {
-              String insert = "insert into person (name) values ('" + names.get(nameIdx) + "')";
+              var insert = "insert into person (name) values ('" + names.get(nameIdx) + "')";
               testDB.command(insert).close();
             } else {
-              String insert =
+              var insert =
                   "insert into person (name,surname) values ('"
                       + names.get(nameIdx)
                       + "','"

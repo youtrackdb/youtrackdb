@@ -48,13 +48,13 @@ public class LocalPaginatedStorageRestoreTx {
   private final ExecutorService executorService = Executors.newCachedThreadPool();
 
   private static void copyFile(String from, String to) throws IOException {
-    final File fromFile = new File(from);
-    FileInputStream fromInputStream = new FileInputStream(fromFile);
-    BufferedInputStream fromBufferedStream = new BufferedInputStream(fromInputStream);
+    final var fromFile = new File(from);
+    var fromInputStream = new FileInputStream(fromFile);
+    var fromBufferedStream = new BufferedInputStream(fromInputStream);
 
-    FileOutputStream toOutputStream = new FileOutputStream(to);
-    byte[] data = new byte[1024];
-    int bytesRead = fromBufferedStream.read(data);
+    var toOutputStream = new FileOutputStream(to);
+    var data = new byte[1024];
+    var bytesRead = fromBufferedStream.read(data);
     while (bytesRead > 0) {
       toOutputStream.write(data, 0, bytesRead);
       bytesRead = fromBufferedStream.read(data);
@@ -68,7 +68,7 @@ public class LocalPaginatedStorageRestoreTx {
   public void beforeClass() {
     GlobalConfiguration.FILE_LOCK.setValue(false);
 
-    String buildDirectory = System.getProperty("buildDirectory", ".");
+    var buildDirectory = System.getProperty("buildDirectory", ".");
     buildDirectory += "/localPaginatedStorageRestoreFromTx";
 
     buildDir = new File(buildDirectory);
@@ -107,17 +107,17 @@ public class LocalPaginatedStorageRestoreTx {
   public void testSimpleRestore() throws Exception {
     List<Future<Void>> futures = new ArrayList<Future<Void>>();
 
-    for (int i = 0; i < 8; i++) {
+    for (var i = 0; i < 8; i++) {
       futures.add(executorService.submit(new DataPropagationTask()));
     }
 
-    for (Future<Void> future : futures) {
+    for (var future : futures) {
       future.get();
     }
 
     Thread.sleep(1500);
     copyDataFromTestWithoutClose();
-    Storage storage = baseDocumentTx.getStorage();
+    var storage = baseDocumentTx.getStorage();
     baseDocumentTx.close();
     storage.close(baseDocumentTx);
 
@@ -127,7 +127,7 @@ public class LocalPaginatedStorageRestoreTx {
     testDocumentTx.open("admin", "admin");
     testDocumentTx.close();
 
-    DatabaseCompare databaseCompare =
+    var databaseCompare =
         new DatabaseCompare(
             testDocumentTx,
             baseDocumentTx,
@@ -143,20 +143,20 @@ public class LocalPaginatedStorageRestoreTx {
   }
 
   private void copyDataFromTestWithoutClose() throws Exception {
-    final String testStoragePath = baseDocumentTx.getURL().substring("plocal:".length());
-    final String copyTo =
+    final var testStoragePath = baseDocumentTx.getURL().substring("plocal:".length());
+    final var copyTo =
         buildDir.getAbsolutePath() + File.separator + "testLocalPaginatedStorageRestoreFromTx";
 
-    final File testStorageDir = new File(testStoragePath);
-    final File copyToDir = new File(copyTo);
+    final var testStorageDir = new File(testStoragePath);
+    final var copyToDir = new File(copyTo);
 
     Assert.assertFalse(copyToDir.exists());
     Assert.assertTrue(copyToDir.mkdir());
 
-    File[] storageFiles = testStorageDir.listFiles();
+    var storageFiles = testStorageDir.listFiles();
     Assert.assertNotNull(storageFiles);
 
-    for (File storageFile : storageFiles) {
+    for (var storageFile : storageFiles) {
       String copyToPath;
       if (storageFile.getAbsolutePath().endsWith("baseLocalPaginatedStorageRestoreFromTx.wmr")) {
         copyToPath =
@@ -249,7 +249,7 @@ public class LocalPaginatedStorageRestoreTx {
     DatabaseRecordThreadLocal.instance().set(databaseDocumentTx);
 
     Schema schema = databaseDocumentTx.getMetadata().getSchema();
-    SchemaClass testOneClass = schema.createClass("TestOne");
+    var testOneClass = schema.createClass("TestOne");
 
     testOneClass.createProperty(databaseDocumentTx, "intProp", PropertyType.INTEGER);
     testOneClass.createProperty(databaseDocumentTx, "stringProp", PropertyType.STRING);
@@ -257,7 +257,7 @@ public class LocalPaginatedStorageRestoreTx {
         PropertyType.STRING);
     testOneClass.createProperty(databaseDocumentTx, "linkMap", PropertyType.LINKMAP);
 
-    SchemaClass testTwoClass = schema.createClass("TestTwo");
+    var testTwoClass = schema.createClass("TestTwo");
 
     testTwoClass.createProperty(databaseDocumentTx, "stringList", PropertyType.EMBEDDEDLIST,
         PropertyType.STRING);
@@ -268,33 +268,33 @@ public class LocalPaginatedStorageRestoreTx {
     @Override
     public Void call() throws Exception {
 
-      Random random = new Random();
+      var random = new Random();
 
       final DatabaseSessionInternal db = new DatabaseDocumentTx(baseDocumentTx.getURL());
       db.open("admin", "admin");
-      int rollbacksCount = 0;
+      var rollbacksCount = 0;
       try {
         List<RID> secondDocs = new ArrayList<RID>();
         List<RID> firstDocs = new ArrayList<RID>();
 
-        SchemaClass classOne = db.getMetadata().getSchema().getClass("TestOne");
-        SchemaClass classTwo = db.getMetadata().getSchema().getClass("TestTwo");
+        var classOne = db.getMetadata().getSchema().getClass("TestOne");
+        var classTwo = db.getMetadata().getSchema().getClass("TestTwo");
 
-        for (int i = 0; i < 20000; i++) {
+        for (var i = 0; i < 20000; i++) {
           try {
             db.begin();
 
-            EntityImpl docOne = ((EntityImpl) db.newEntity(classOne));
+            var docOne = ((EntityImpl) db.newEntity(classOne));
             docOne.field("intProp", random.nextInt());
 
-            byte[] stringData = new byte[256];
+            var stringData = new byte[256];
             random.nextBytes(stringData);
-            String stringProp = new String(stringData);
+            var stringProp = new String(stringData);
 
             docOne.field("stringProp", stringProp);
 
             Set<String> stringSet = new HashSet<String>();
-            for (int n = 0; n < 5; n++) {
+            for (var n = 0; n < 5; n++) {
               stringSet.add("str" + random.nextInt());
             }
             docOne.field("stringSet", stringSet);
@@ -308,7 +308,7 @@ public class LocalPaginatedStorageRestoreTx {
 
               List<String> stringList = new ArrayList<String>();
 
-              for (int n = 0; n < 5; n++) {
+              for (var n = 0; n < 5; n++) {
                 stringList.add("strnd" + random.nextInt());
               }
 
@@ -317,13 +317,13 @@ public class LocalPaginatedStorageRestoreTx {
             }
 
             if (!secondDocs.isEmpty()) {
-              int startIndex = random.nextInt(secondDocs.size());
-              int endIndex = random.nextInt(secondDocs.size() - startIndex) + startIndex;
+              var startIndex = random.nextInt(secondDocs.size());
+              var endIndex = random.nextInt(secondDocs.size() - startIndex) + startIndex;
 
               Map<String, RID> linkMap = new HashMap<String, RID>();
 
-              for (int n = startIndex; n < endIndex; n++) {
-                RID docTwoRid = secondDocs.get(n);
+              for (var n = startIndex; n < endIndex; n++) {
+                var docTwoRid = secondDocs.get(n);
                 linkMap.put(docTwoRid.toString(), docTwoRid);
               }
 
@@ -331,21 +331,21 @@ public class LocalPaginatedStorageRestoreTx {
               docOne.save();
             }
 
-            int deleteIndex = -1;
+            var deleteIndex = -1;
             if (!firstDocs.isEmpty()) {
-              boolean deleteDoc = random.nextDouble() <= 0.2;
+              var deleteDoc = random.nextDouble() <= 0.2;
 
               if (deleteDoc) {
                 deleteIndex = random.nextInt(firstDocs.size());
                 if (deleteIndex >= 0) {
-                  RID rid = firstDocs.get(deleteIndex);
+                  var rid = firstDocs.get(deleteIndex);
                   db.delete(rid);
                 }
               }
             }
 
             if (!secondDocs.isEmpty() && (random.nextDouble() <= 0.2)) {
-              EntityImpl conflictDocTwo = ((EntityImpl) db.newEntity());
+              var conflictDocTwo = ((EntityImpl) db.newEntity());
               RecordInternal.setIdentity(conflictDocTwo, new RecordId(secondDocs.get(0)));
               conflictDocTwo.setDirty();
               conflictDocTwo.save();

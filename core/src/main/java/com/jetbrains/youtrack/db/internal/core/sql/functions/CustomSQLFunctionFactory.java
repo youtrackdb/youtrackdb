@@ -27,25 +27,25 @@ public class CustomSQLFunctionFactory implements SQLFunctionFactory {
   }
 
   public static void register(final String prefix, final Class<?> clazz) {
-    final Map<String, List<Method>> methodsMap =
+    final var methodsMap =
         Arrays.stream(clazz.getMethods())
             .filter(m -> Modifier.isStatic(m.getModifiers()))
             .collect(Collectors.groupingBy(Method::getName));
 
-    for (Map.Entry<String, List<Method>> entry : methodsMap.entrySet()) {
-      final String name = prefix + entry.getKey();
+    for (var entry : methodsMap.entrySet()) {
+      final var name = prefix + entry.getKey();
       if (FUNCTIONS.containsKey(name)) {
         LogManager.instance()
             .warn(
                 CustomSQLFunctionFactory.class,
                 "Unable to register reflective function with name " + name);
       } else {
-        List<Method> methodsList = methodsMap.get(entry.getKey());
-        Method[] methods = new Method[methodsList.size()];
-        int i = 0;
-        int minParams = 0;
-        int maxParams = 0;
-        for (Method m : methodsList) {
+        var methodsList = methodsMap.get(entry.getKey());
+        var methods = new Method[methodsList.size()];
+        var i = 0;
+        var minParams = 0;
+        var maxParams = 0;
+        for (var m : methodsList) {
           methods[i++] = m;
           minParams =
               minParams < m.getParameterTypes().length ? minParams : m.getParameterTypes().length;
@@ -77,7 +77,7 @@ public class CustomSQLFunctionFactory implements SQLFunctionFactory {
 
   @Override
   public SQLFunction createFunction(final String name) {
-    final Object obj = FUNCTIONS.get(name);
+    final var obj = FUNCTIONS.get(name);
 
     if (obj == null) {
       throw new CommandExecutionException("Unknown function name :" + name);
@@ -87,7 +87,7 @@ public class CustomSQLFunctionFactory implements SQLFunctionFactory {
       return (SQLFunction) obj;
     } else {
       // it's a class
-      final Class<?> clazz = (Class<?>) obj;
+      final var clazz = (Class<?>) obj;
       try {
         return (SQLFunction) clazz.newInstance();
       } catch (Exception e) {

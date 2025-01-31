@@ -98,7 +98,7 @@ public class SQLUpdateItem extends SimpleNode {
   }
 
   public SQLUpdateItem copy() {
-    SQLUpdateItem result = new SQLUpdateItem(-1);
+    var result = new SQLUpdateItem(-1);
     result.left = left == null ? null : left.copy();
     result.leftModifier = leftModifier == null ? null : leftModifier.copy();
     result.operator = operator;
@@ -115,7 +115,7 @@ public class SQLUpdateItem extends SimpleNode {
       return false;
     }
 
-    SQLUpdateItem that = (SQLUpdateItem) o;
+    var that = (SQLUpdateItem) o;
 
     if (operator != that.operator) {
       return false;
@@ -131,7 +131,7 @@ public class SQLUpdateItem extends SimpleNode {
 
   @Override
   public int hashCode() {
-    int result = left != null ? left.hashCode() : 0;
+    var result = left != null ? left.hashCode() : 0;
     result = 31 * result + (leftModifier != null ? leftModifier.hashCode() : 0);
     result = 31 * result + operator;
     result = 31 * result + (right != null ? right.hashCode() : 0);
@@ -139,14 +139,14 @@ public class SQLUpdateItem extends SimpleNode {
   }
 
   public void applyUpdate(ResultInternal entity, CommandContext ctx) {
-    Object rightValue = right.execute(entity, ctx);
-    SchemaClass linkedType = calculateLinkedTypeForThisItem(entity, ctx);
+    var rightValue = right.execute(entity, ctx);
+    var linkedType = calculateLinkedTypeForThisItem(entity, ctx);
     if (leftModifier == null) {
       applyOperation(entity, left, rightValue, ctx);
     } else {
       var propertyName = left.getStringValue();
       rightValue = convertToType(rightValue, null, linkedType, ctx);
-      Object val = entity.getProperty(propertyName);
+      var val = entity.getProperty(propertyName);
       if (val == null) {
         val = initSchemafullCollections(entity, propertyName);
       }
@@ -155,11 +155,11 @@ public class SQLUpdateItem extends SimpleNode {
   }
 
   private Object initSchemafullCollections(ResultInternal entity, String propName) {
-    SchemaClass oClass = entity.getEntity().flatMap(x -> x.getSchemaType()).orElse(null);
+    var oClass = entity.getEntity().flatMap(x -> x.getSchemaType()).orElse(null);
     if (oClass == null) {
       return null;
     }
-    SchemaProperty prop = oClass.getProperty(propName);
+    var prop = oClass.getProperty(propName);
 
     Object result = null;
     if (prop == null) {
@@ -188,7 +188,7 @@ public class SQLUpdateItem extends SimpleNode {
     if (entity.isEntity()) {
       var elem = entity.asEntity();
 
-      SchemaClass clazz = elem.getSchemaType().orElse(null);
+      var clazz = elem.getSchemaType().orElse(null);
       if (clazz == null) {
         return null;
       }
@@ -202,7 +202,7 @@ public class SQLUpdateItem extends SimpleNode {
 
     switch (operator) {
       case OPERATOR_EQ:
-        Object newValue = convertResultToDocument(rightValue);
+        var newValue = convertResultToDocument(rightValue);
         newValue = convertToPropertyType(entity, attrName, newValue, ctx);
         entity.setProperty(attrName.getStringValue(), cleanValue(newValue));
         break;
@@ -244,19 +244,19 @@ public class SQLUpdateItem extends SimpleNode {
   public static Object convertToPropertyType(
       ResultInternal res, SQLIdentifier attrName, Object newValue, CommandContext ctx) {
 
-    Entity entity = res.asEntity();
-    Optional<SchemaClass> optSchema = entity.getSchemaType();
+    var entity = res.asEntity();
+    var optSchema = entity.getSchemaType();
     if (optSchema.isEmpty()) {
       return newValue;
     }
 
-    SchemaProperty prop = optSchema.get().getProperty(attrName.getStringValue());
+    var prop = optSchema.get().getProperty(attrName.getStringValue());
     if (prop == null) {
       return newValue;
     }
 
-    PropertyType type = prop.getType();
-    SchemaClass linkedClass = prop.getLinkedClass();
+    var type = prop.getType();
+    var linkedClass = prop.getLinkedClass();
     return convertToType(newValue, type, linkedClass, ctx);
   }
 
@@ -317,12 +317,12 @@ public class SQLUpdateItem extends SimpleNode {
 
   private static Object convertToType(Object item, SchemaClass linkedClass, CommandContext ctx) {
     if (item instanceof Entity) {
-      SchemaClass currentType = ((Entity) item).getSchemaType().orElse(null);
+      var currentType = ((Entity) item).getSchemaType().orElse(null);
       if (currentType == null || !currentType.isSubClassOf(linkedClass)) {
         var db = ctx.getDatabase();
-        Entity result = db.newEmbededEntity(linkedClass);
+        var result = db.newEmbededEntity(linkedClass);
 
-        for (String prop : ((Entity) item).getPropertyNames()) {
+        for (var prop : ((Entity) item).getPropertyNames()) {
           result.setProperty(prop, ((Entity) item).getProperty(prop));
         }
 
@@ -331,7 +331,7 @@ public class SQLUpdateItem extends SimpleNode {
         return item;
       }
     } else if (item instanceof Map) {
-      Entity result = ctx.getDatabase().newEmbededEntity(linkedClass.getName());
+      var result = ctx.getDatabase().newEmbededEntity(linkedClass.getName());
 
       ((Map<String, Object>) item)
           .entrySet().stream().forEach(x -> result.setProperty(x.getKey(), x.getValue()));
@@ -364,11 +364,11 @@ public class SQLUpdateItem extends SimpleNode {
 
   private Object calculateNewValue(
       ResultInternal entity, CommandContext ctx, SQLMathExpression.Operator explicitOperator) {
-    SQLExpression leftEx = new SQLExpression(left.copy());
+    var leftEx = new SQLExpression(left.copy());
     if (leftModifier != null) {
       ((SQLBaseExpression) leftEx.mathExpression).modifier = leftModifier.copy();
     }
-    SQLMathExpression mathExp = new SQLMathExpression(-1);
+    var mathExp = new SQLMathExpression(-1);
     mathExp.addChildExpression(leftEx.getMathExpression());
     mathExp.addChildExpression(new SQLParenthesisExpression(right.copy()));
     mathExp.addOperator(explicitOperator);

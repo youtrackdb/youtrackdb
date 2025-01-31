@@ -33,7 +33,7 @@ public class FilterStep extends AbstractExecutionStep {
       throw new IllegalStateException("filter step requires a previous step");
     }
 
-    ExecutionStream resultSet = prev.start(ctx);
+    var resultSet = prev.start(ctx);
     resultSet = resultSet.filter(this::filterMap);
     if (timeoutMillis > 0) {
       resultSet = new ExpireResultSet(resultSet, timeoutMillis, this::sendTimeout);
@@ -50,7 +50,7 @@ public class FilterStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    StringBuilder result = new StringBuilder();
+    var result = new StringBuilder();
     result.append(ExecutionStepInternal.getIndent(depth, indent)).append("+ FILTER ITEMS WHERE ");
     if (profilingEnabled) {
       result.append(" (").append(getCostFormatted()).append(")");
@@ -64,7 +64,7 @@ public class FilterStep extends AbstractExecutionStep {
 
   @Override
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
+    var result = ExecutionStepInternal.basicSerialize(db, this);
     if (whereClause != null) {
       result.setProperty("whereClause", whereClause.serialize(db));
     }

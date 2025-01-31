@@ -48,9 +48,9 @@ public class SQLMethodSubString extends AbstractSQLMethod {
     }
 
     if (iParams.length > 1) {
-      int from = Integer.parseInt(iParams[0].toString());
-      int to = Integer.parseInt(iParams[1].toString());
-      String thisString = iThis.toString();
+      var from = Integer.parseInt(iParams[0].toString());
+      var to = Integer.parseInt(iParams[1].toString());
+      var thisString = iThis.toString();
       if (from < 0) {
         from = 0;
       }
@@ -66,8 +66,8 @@ public class SQLMethodSubString extends AbstractSQLMethod {
 
       return thisString.substring(from, to);
     } else {
-      int from = Integer.parseInt(iParams[0].toString());
-      String thisString = iThis.toString();
+      var from = Integer.parseInt(iParams[0].toString());
+      var thisString = iThis.toString();
       if (from < 0) {
         from = 0;
       }

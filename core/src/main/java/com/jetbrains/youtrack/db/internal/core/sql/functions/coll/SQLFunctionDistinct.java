@@ -45,7 +45,7 @@ public class SQLFunctionDistinct extends SQLFunctionAbstract {
       Object iCurrentResult,
       final Object[] iParams,
       CommandContext iContext) {
-    final Object value = iParams[0];
+    final var value = iParams[0];
 
     if (value != null && !context.contains(value)) {
       context.add(value);

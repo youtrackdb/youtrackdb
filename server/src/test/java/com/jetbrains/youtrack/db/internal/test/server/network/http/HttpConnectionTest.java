@@ -24,19 +24,19 @@ public class HttpConnectionTest extends BaseHttpDatabaseTest {
       return;
     }
 
-    final int originalMax =
+    final var originalMax =
         GlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS.getValueAsInteger();
     try {
 
-      int MAX = 10;
-      int TOTAL = 30;
+      var MAX = 10;
+      var TOTAL = 30;
 
-      int good = 0;
-      int bad = 0;
+      var good = 0;
+      var bad = 0;
       GlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS.setValue(MAX);
-      for (int i = 0; i < TOTAL; ++i) {
+      for (var i = 0; i < TOTAL; ++i) {
         try {
-          final int response =
+          final var response =
               get("connect/" + getDatabaseName()).setRetry(0).getResponse().getCode();
           Assert.assertEquals(response, 204);
           good++;
@@ -72,12 +72,12 @@ public class HttpConnectionTest extends BaseHttpDatabaseTest {
       return;
     }
 
-    final int max = GlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS.getValueAsInteger();
+    final var max = GlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS.getValueAsInteger();
 
-    int TOTAL = max * 3;
+    var TOTAL = max * 3;
 
-    for (int i = 0; i < TOTAL; ++i) {
-      final int response = get("connect/" + getDatabaseName()).setRetry(0).getResponse().getCode();
+    for (var i = 0; i < TOTAL; ++i) {
+      final var response = get("connect/" + getDatabaseName()).setRetry(0).getResponse().getCode();
       Assert.assertEquals(response, 204);
 
       if (i % 100 == 0) {
@@ -88,7 +88,7 @@ public class HttpConnectionTest extends BaseHttpDatabaseTest {
     System.out.print("\nTest completed");
 
     Collection<EntityImpl> conns = null;
-    for (int i = 0; i < 20; ++i) {
+    for (var i = 0; i < 20; ++i) {
       Assert.assertEquals(
           get("server")
               .setKeepAlive(false)
@@ -102,7 +102,7 @@ public class HttpConnectionTest extends BaseHttpDatabaseTest {
           new EntityImpl(null).updateFromJSON(getResponse().getEntity().getContent());
       conns = serverStatus.field("connections");
 
-      final int openConnections = conns.size();
+      final var openConnections = conns.size();
 
       System.out.printf("\nConnections still open: " + openConnections);
 

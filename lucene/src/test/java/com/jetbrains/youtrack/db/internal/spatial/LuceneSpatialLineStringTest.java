@@ -40,15 +40,15 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
   @Before
   public void initMore() {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass v = schema.getClass("V");
-    SchemaClass oClass = schema.createClass("Place");
+    var v = schema.getClass("V");
+    var oClass = schema.createClass("Place");
     oClass.setSuperClass(db, v);
     oClass.createProperty(db, "location", PropertyType.EMBEDDED, schema.getClass("OLineString"));
     oClass.createProperty(db, "name", PropertyType.STRING);
 
     db.command("CREATE INDEX Place.location ON Place(location) SPATIAL ENGINE LUCENE").close();
 
-    EntityImpl linestring1 = ((EntityImpl) db.newEntity("Place"));
+    var linestring1 = ((EntityImpl) db.newEntity("Place"));
     linestring1.field("name", "LineString1");
     linestring1.field(
         "location",
@@ -60,7 +60,7 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
               }
             }));
 
-    EntityImpl linestring2 = ((EntityImpl) db.newEntity("Place"));
+    var linestring2 = ((EntityImpl) db.newEntity("Place"));
     linestring2.field("name", "LineString2");
     linestring2.field(
         "location",
@@ -87,7 +87,7 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
   }
 
   public EntityImpl createLineString(List<List<Double>> coordinates) {
-    EntityImpl location = ((EntityImpl) db.newEntity("OLineString"));
+    var location = ((EntityImpl) db.newEntity("OLineString"));
     location.field("coordinates", coordinates);
     return location;
   }
@@ -99,7 +99,7 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
   }
 
   protected void queryLineString() {
-    String query =
+    var query =
         "select * from Place where location && { 'shape' : { 'type' : 'OLineString' , 'coordinates'"
             + " : [[1,2],[4,6]]} } ";
     var docs = db.query(query).toEntityList();
@@ -129,7 +129,7 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
   @Ignore
   public void testIndexingLineString() throws IOException {
 
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Place.location");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Place.location");
 
     db.begin();
     Assert.assertEquals(3, index.getInternal().size(db));

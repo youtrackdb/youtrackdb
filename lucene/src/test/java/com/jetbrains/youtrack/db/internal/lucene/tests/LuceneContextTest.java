@@ -35,7 +35,7 @@ public class LuceneContextTest extends LuceneBaseTest {
 
   @Before
   public void init() {
-    InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
+    var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
 
     db.execute("sql", getScriptFromStream(stream));
 
@@ -45,16 +45,16 @@ public class LuceneContextTest extends LuceneBaseTest {
   @Test
   public void shouldReturnScore() {
 
-    ResultSet docs =
+    var docs =
         db.query("select *,$score from Song where search_index('Song.title', 'title:man')= true ");
 
-    List<Result> results = docs.stream().collect(Collectors.toList());
+    var results = docs.stream().collect(Collectors.toList());
 
     assertThat(results).hasSize(14);
     Float latestScore = 100f;
 
     // results are ordered by score desc
-    for (Result doc : results) {
+    for (var doc : results) {
       Float score = doc.getProperty("$score");
       assertThat(score).isNotNull().isLessThanOrEqualTo(latestScore);
       latestScore = score;
@@ -64,15 +64,15 @@ public class LuceneContextTest extends LuceneBaseTest {
 
   @Test
   public void shouldReturnTotalHits() throws Exception {
-    ResultSet docs =
+    var docs =
         db.query(
             "select *,$totalHits,$Song_title_totalHits from Song where search_class('title:man')="
                 + " true  limit 1");
 
-    List<Result> results = docs.stream().collect(Collectors.toList());
+    var results = docs.stream().collect(Collectors.toList());
     assertThat(results).hasSize(1);
 
-    Result result = results.get(0);
+    var result = results.get(0);
     System.out.println("doc.toEntity().toJSON() = " + result.toJSON());
 
     assertThat(result.<Long>getProperty("$totalHits")).isEqualTo(14L);

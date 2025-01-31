@@ -80,7 +80,7 @@ public abstract class LuceneSpatialIndexEngineAbstract extends LuceneIndexEngine
 
   @Override
   public IndexWriter createIndexWriter(Directory directory) throws IOException {
-    LuceneIndexWriterFactory fc = new LuceneIndexWriterFactory();
+    var fc = new LuceneIndexWriterFactory();
 
     LogManager.instance().debug(this, "Creating Lucene index in '%s'...", directory);
 
@@ -140,11 +140,11 @@ public abstract class LuceneSpatialIndexEngineAbstract extends LuceneIndexEngine
   protected Document newGeoDocument(Identifiable oIdentifiable, Shape shape,
       EntityImpl shapeDoc) {
 
-    FieldType ft = new FieldType();
+    var ft = new FieldType();
     ft.setIndexOptions(IndexOptions.DOCS);
     ft.setStored(true);
 
-    Document doc = new Document();
+    var doc = new Document();
     doc.add(LuceneIndexType.createOldIdField(oIdentifiable));
     doc.add(LuceneIndexType.createIdField(oIdentifiable, shapeDoc));
 

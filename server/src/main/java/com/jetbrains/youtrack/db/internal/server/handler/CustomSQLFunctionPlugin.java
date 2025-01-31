@@ -33,7 +33,7 @@ public class CustomSQLFunctionPlugin extends ServerPluginAbstract {
   public void config(YouTrackDBServer youTrackDBServer, ServerParameterConfiguration[] iParams) {
     configuration = new EntityImpl(null);
 
-    final File configFile =
+    final var configFile =
         Arrays.stream(iParams)
             .filter(p -> p.name.equalsIgnoreCase("config"))
             .map(p -> p.value.trim())
@@ -47,7 +47,7 @@ public class CustomSQLFunctionPlugin extends ServerPluginAbstract {
                         "Custom SQL functions configuration file not found"));
 
     try {
-      String configurationContent = IOUtils.readFileAsString(configFile);
+      var configurationContent = IOUtils.readFileAsString(configFile);
       configurationContent = removeComments(configurationContent);
       configuration = new EntityImpl(null);
       configuration.updateFromJSON(configurationContent);
@@ -65,11 +65,11 @@ public class CustomSQLFunctionPlugin extends ServerPluginAbstract {
     if (configurationContent == null) {
       return null;
     }
-    StringBuilder result = new StringBuilder();
-    String[] split = configurationContent.split("\n");
-    boolean first = true;
-    for (int i = 0; i < split.length; i++) {
-      String row = split[i];
+    var result = new StringBuilder();
+    var split = configurationContent.split("\n");
+    var first = true;
+    for (var i = 0; i < split.length; i++) {
+      var row = split[i];
       if (row.trim().startsWith("//")) {
         continue;
       }
@@ -86,9 +86,9 @@ public class CustomSQLFunctionPlugin extends ServerPluginAbstract {
   public void startup() {
     if (Boolean.TRUE.equals(configuration.field("enabled"))) {
       List<Map<String, String>> functions = configuration.field("functions");
-      for (Map<String, String> function : functions) {
-        final String prefix = function.get("prefix");
-        final String clazz = function.get("class");
+      for (var function : functions) {
+        final var prefix = function.get("prefix");
+        final var clazz = function.get("class");
         if (prefix == null || clazz == null) {
           throw new ConfigurationException(
               "Unable to load functions without prefix and / or class ");

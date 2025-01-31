@@ -63,12 +63,12 @@ public class EntityComparator implements Comparator<Identifiable> {
     Object fieldValue1;
     Object fieldValue2;
 
-    int partialResult = 0;
+    var partialResult = 0;
 
     var db = context.getDatabase();
-    for (Pair<String, String> field : orderCriteria) {
-      final String fieldName = field.getKey();
-      final String ordering = field.getValue();
+    for (var field : orderCriteria) {
+      final var fieldName = field.getKey();
+      final var ordering = field.getValue();
 
       fieldValue1 = ((EntityImpl) ind1.getRecord(db)).field(fieldName);
       fieldValue2 = ((EntityImpl) ind2.getRecord(db)).field(fieldName);

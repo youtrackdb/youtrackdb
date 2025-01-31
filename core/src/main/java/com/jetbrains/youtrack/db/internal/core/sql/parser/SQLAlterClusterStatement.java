@@ -63,7 +63,7 @@ public class SQLAlterClusterStatement extends DDLStatement {
 
   @Override
   public SQLAlterClusterStatement copy() {
-    SQLAlterClusterStatement result = new SQLAlterClusterStatement(-1);
+    var result = new SQLAlterClusterStatement(-1);
     result.name = name == null ? null : name.copy();
     result.attributeName = attributeName == null ? null : attributeName.copy();
     result.starred = starred;
@@ -74,11 +74,11 @@ public class SQLAlterClusterStatement extends DDLStatement {
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
     List<Result> result = new ArrayList<>();
-    IntArrayList clustersToUpdate = getClusters(ctx);
+    var clustersToUpdate = getClusters(ctx);
 
-    Object finalValue = attributeValue.execute((Identifiable) null, ctx);
+    var finalValue = attributeValue.execute((Identifiable) null, ctx);
 
-    final StorageCluster.ATTRIBUTES attribute =
+    final var attribute =
         Arrays.stream(StorageCluster.ATTRIBUTES.values())
             .filter(e -> e.name().equalsIgnoreCase(notNull(attributeName.getStringValue())))
             .findAny()
@@ -90,11 +90,11 @@ public class SQLAlterClusterStatement extends DDLStatement {
                             + "'. Supported attributes are: "
                             + noDeprecatedValues(StorageCluster.ATTRIBUTES.values())));
 
-    final Storage storage = ctx.getDatabase().getStorage();
+    final var storage = ctx.getDatabase().getStorage();
     for (final int clusterId : clustersToUpdate) {
       storage.setClusterAttribute(clusterId, attribute, finalValue);
 
-      ResultInternal resultItem = new ResultInternal(ctx.getDatabase());
+      var resultItem = new ResultInternal(ctx.getDatabase());
       resultItem.setProperty("cluster", storage.getClusterName(ctx.getDatabase(), clusterId));
       result.add(resultItem);
     }
@@ -108,7 +108,7 @@ public class SQLAlterClusterStatement extends DDLStatement {
         .filter(
             value -> {
               try {
-                final Field field = StorageCluster.ATTRIBUTES.class.getField(value.name());
+                final var field = StorageCluster.ATTRIBUTES.class.getField(value.name());
                 return !field.isAnnotationPresent(Deprecated.class);
               } catch (final NoSuchFieldException | SecurityException e) {
                 return false;
@@ -122,17 +122,17 @@ public class SQLAlterClusterStatement extends DDLStatement {
   }
 
   private IntArrayList getClusters(CommandContext ctx) {
-    DatabaseSessionInternal database = ctx.getDatabase();
+    var database = ctx.getDatabase();
     if (starred) {
-      IntArrayList result = new IntArrayList();
-      for (String clusterName : database.getClusterNames()) {
+      var result = new IntArrayList();
+      for (var clusterName : database.getClusterNames()) {
         if (clusterName.startsWith(name.getStringValue())) {
           result.add(database.getClusterIdByName(clusterName));
         }
       }
       return result;
     } else {
-      final int clusterId = database.getClusterIdByName(name.getStringValue());
+      final var clusterId = database.getClusterIdByName(name.getStringValue());
       if (clusterId <= 0) {
         throw new CommandExecutionException("Cannot find cluster " + name);
       }
@@ -150,7 +150,7 @@ public class SQLAlterClusterStatement extends DDLStatement {
       return false;
     }
 
-    SQLAlterClusterStatement that = (SQLAlterClusterStatement) o;
+    var that = (SQLAlterClusterStatement) o;
 
     if (starred != that.starred) {
       return false;
@@ -166,7 +166,7 @@ public class SQLAlterClusterStatement extends DDLStatement {
 
   @Override
   public int hashCode() {
-    int result = name != null ? name.hashCode() : 0;
+    var result = name != null ? name.hashCode() : 0;
     result = 31 * result + (attributeName != null ? attributeName.hashCode() : 0);
     result = 31 * result + (starred ? 1 : 0);
     result = 31 * result + (attributeValue != null ? attributeValue.hashCode() : 0);

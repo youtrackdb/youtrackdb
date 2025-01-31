@@ -48,14 +48,14 @@ public abstract class SQLFilterItemFieldMultiAbstract extends SQLFilterItemAbstr
     names = iNames;
     clazz = iClass;
 
-    for (String n : iNames) {
+    for (var n : iNames) {
       collates.add(getCollateForField(iClass, n));
     }
   }
 
   public Object getValue(
       final Identifiable iRecord, Object iCurrentResult, CommandContext iContext) {
-    final EntityImpl entity = ((EntityImpl) iRecord);
+    final var entity = ((EntityImpl) iRecord);
 
     if (names.size() == 1) {
       return transformValue(
@@ -63,18 +63,18 @@ public abstract class SQLFilterItemFieldMultiAbstract extends SQLFilterItemAbstr
           EntityHelper.getIdentifiableValue(iContext.getDatabase(), iRecord, names.getFirst()));
     }
 
-    final String[] fieldNames = entity.fieldNames();
-    final Object[] values = new Object[fieldNames.length];
+    final var fieldNames = entity.fieldNames();
+    final var values = new Object[fieldNames.length];
 
     collates.clear();
-    for (int i = 0; i < values.length; ++i) {
+    for (var i = 0; i < values.length; ++i) {
       values[i] = entity.field(fieldNames[i]);
       collates.add(getCollateForField(clazz, fieldNames[i]));
     }
 
     if (hasChainOperators()) {
       // TRANSFORM ALL THE VALUES
-      for (int i = 0; i < values.length; ++i) {
+      for (var i = 0; i < values.length; ++i) {
         values[i] = transformValue(iRecord, iContext, values[i]);
       }
     }

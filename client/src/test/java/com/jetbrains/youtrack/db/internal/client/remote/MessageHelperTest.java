@@ -40,13 +40,13 @@ public class MessageHelperTest {
     youTrackDB.execute(
         "create database testIdentifiable memory users (admin identified by 'admin' role admin)");
 
-    DatabaseSessionInternal db =
+    var db =
         (DatabaseSessionInternal) youTrackDB.open("testIdentifiable", "admin", "admin");
-    int id = db.getClusterIdByName("V");
+    var id = db.getClusterIdByName("V");
     try {
-      MockChannel channel = new MockChannel();
-      EntityImpl doc = ((EntityImpl) db.newEntity("Test"));
-      RidBag bags = new RidBag(db);
+      var channel = new MockChannel();
+      var doc = ((EntityImpl) db.newEntity("Test"));
+      var bags = new RidBag(db);
       bags.add(new RecordId(id, 0));
       doc.field("bag", bags);
 
@@ -58,7 +58,7 @@ public class MessageHelperTest {
           channel, doc, RecordSerializerNetworkFactory.current());
       channel.close();
 
-      EntityImpl newDoc =
+      var newDoc =
           (EntityImpl)
               MessageHelper.readIdentifiable(db,
                   channel, RecordSerializerNetworkFactory.current());
@@ -76,7 +76,7 @@ public class MessageHelperTest {
 
   @Test
   public void testReadWriteTransactionEntry() {
-    RecordOperationRequest request = new RecordOperationRequest();
+    var request = new RecordOperationRequest();
 
     request.setType(RecordOperation.UPDATED);
     request.setRecordType(RecordOperation.UPDATED);
@@ -85,7 +85,7 @@ public class MessageHelperTest {
     request.setVersion(100);
     request.setContentChanged(true);
 
-    ByteArrayOutputStream outArray = new ByteArrayOutputStream();
+    var outArray = new ByteArrayOutputStream();
     DataOutput out = new DataOutputStream(outArray);
 
     try {
@@ -95,10 +95,10 @@ public class MessageHelperTest {
       Assert.fail();
     }
 
-    DataInputStream in = new DataInputStream(new ByteArrayInputStream(outArray.toByteArray()));
+    var in = new DataInputStream(new ByteArrayInputStream(outArray.toByteArray()));
 
     try {
-      RecordOperationRequest result = MessageHelper.readTransactionEntry(in);
+      var result = MessageHelper.readTransactionEntry(in);
       Assert.assertEquals(request.getType(), result.getType());
       Assert.assertEquals(request.getRecordType(), result.getRecordType());
       Assert.assertEquals(request.getType(), result.getType());

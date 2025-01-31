@@ -60,14 +60,14 @@ public class ShapeFactory extends ComplexShapeBuilder {
 
   @Override
   public void initClazz(DatabaseSessionInternal db) {
-    for (ShapeBuilder f : factories.values()) {
+    for (var f : factories.values()) {
       f.initClazz(db);
     }
   }
 
   @Override
   public Shape fromDoc(EntityImpl document) {
-    ShapeBuilder shapeBuilder = factories.get(document.getClassName());
+    var shapeBuilder = factories.get(document.getClassName());
     if (shapeBuilder != null) {
       return shapeBuilder.fromDoc(document);
     }
@@ -89,11 +89,11 @@ public class ShapeFactory extends ComplexShapeBuilder {
       return fromDoc((EntityImpl) obj);
     }
     if (obj instanceof Result) {
-      Entity entity = ((Result) obj).asEntity();
+      var entity = ((Result) obj).asEntity();
       return fromDoc((EntityImpl) entity);
     }
     if (obj instanceof Map) {
-      Map map = (Map) ((Map) obj).get("shape");
+      var map = (Map) ((Map) obj).get("shape");
       if (map == null) {
         map = (Map) obj;
       }
@@ -104,8 +104,8 @@ public class ShapeFactory extends ComplexShapeBuilder {
 
   @Override
   public String asText(EntityImpl document) {
-    String className = document.getClassName();
-    ShapeBuilder shapeBuilder = factories.get(className);
+    var className = document.getClassName();
+    var shapeBuilder = factories.get(className);
     if (shapeBuilder != null) {
       return shapeBuilder.asText(document);
     } else if (className.endsWith("Z")) {
@@ -123,14 +123,14 @@ public class ShapeFactory extends ComplexShapeBuilder {
   public String asText(Object obj) {
 
     if (obj instanceof Result) {
-      Entity entity = ((Result) obj).asEntity();
+      var entity = ((Result) obj).asEntity();
       return asText((EntityImpl) entity);
     }
     if (obj instanceof EntityImpl) {
       return asText((EntityImpl) obj);
     }
     if (obj instanceof Map) {
-      Map map = (Map) ((Map) obj).get("shape");
+      var map = (Map) ((Map) obj).get("shape");
       if (map == null) {
         map = (Map) obj;
       }
@@ -142,15 +142,15 @@ public class ShapeFactory extends ComplexShapeBuilder {
   public byte[] asBinary(Object obj) {
 
     if (obj instanceof EntityImpl) {
-      Shape shape = fromDoc((EntityImpl) obj);
+      var shape = fromDoc((EntityImpl) obj);
       return asBinary(shape);
     }
     if (obj instanceof Map) {
-      Map map = (Map) ((Map) obj).get("shape");
+      var map = (Map) ((Map) obj).get("shape");
       if (map == null) {
         map = (Map) obj;
       }
-      Shape shape = fromMapGeoJson(map);
+      var shape = fromMapGeoJson(map);
 
       return asBinary(shape);
     }
@@ -167,12 +167,12 @@ public class ShapeFactory extends ComplexShapeBuilder {
     } else if (Rectangle.class.isAssignableFrom(shape.getClass())) {
       doc = factories.get(RectangleShapeBuilder.NAME).toEntitty(shape);
     } else if (JtsGeometry.class.isAssignableFrom(shape.getClass())) {
-      JtsGeometry geometry = (JtsGeometry) shape;
-      Geometry geom = geometry.getGeom();
+      var geometry = (JtsGeometry) shape;
+      var geom = geometry.getGeom();
       doc = factories.get("O" + geom.getClass().getSimpleName()).toEntitty(shape);
 
     } else if (ShapeCollection.class.isAssignableFrom(shape.getClass())) {
-      ShapeCollection collection = (ShapeCollection) shape;
+      var collection = (ShapeCollection) shape;
 
       if (isMultiPolygon(collection)) {
         doc = factories.get("OMultiPolygon").toEntitty(createMultiPolygon(collection));
@@ -204,7 +204,7 @@ public class ShapeFactory extends ComplexShapeBuilder {
 
   @Override
   public Shape fromMapGeoJson(Map geoJsonMap) {
-    ShapeBuilder shapeBuilder = factories.get(geoJsonMap.get("type"));
+    var shapeBuilder = factories.get(geoJsonMap.get("type"));
 
     if (shapeBuilder == null) {
       shapeBuilder = factories.get(geoJsonMap.get("@class"));
@@ -218,10 +218,10 @@ public class ShapeFactory extends ComplexShapeBuilder {
 
   public Geometry toGeometry(Shape shape) {
     if (shape instanceof ShapeCollection) {
-      ShapeCollection<Shape> shapes = (ShapeCollection<Shape>) shape;
-      Geometry[] geometries = new Geometry[shapes.size()];
-      int i = 0;
-      for (Shape shapeItem : shapes) {
+      var shapes = (ShapeCollection<Shape>) shape;
+      var geometries = new Geometry[shapes.size()];
+      var i = 0;
+      for (var shapeItem : shapes) {
         geometries[i] = SPATIAL_CONTEXT.getGeometryFrom(shapeItem);
         i++;
       }
@@ -233,13 +233,13 @@ public class ShapeFactory extends ComplexShapeBuilder {
 
   public EntityImpl toEntitty(Geometry geometry) {
     if (geometry instanceof org.locationtech.jts.geom.Point point) {
-      Point point1 = context().makePoint(point.getX(), point.getY());
+      var point1 = context().makePoint(point.getX(), point.getY());
       return toEntitty(point1);
     }
     if (geometry instanceof org.locationtech.jts.geom.GeometryCollection gc) {
       List<Shape> shapes = new ArrayList<Shape>();
-      for (int i = 0; i < gc.getNumGeometries(); i++) {
-        Geometry geo = gc.getGeometryN(i);
+      for (var i = 0; i < gc.getNumGeometries(); i++) {
+        var geo = gc.getGeometryN(i);
         Shape shape = null;
         if (geo instanceof org.locationtech.jts.geom.Point point) {
           shape = context().makePoint(point.getX(), point.getY());

@@ -35,7 +35,7 @@ public class SQLRightBinaryCondition extends SimpleNode {
 
   @Override
   public SQLRightBinaryCondition copy() {
-    SQLRightBinaryCondition result = new SQLRightBinaryCondition(-1);
+    var result = new SQLRightBinaryCondition(-1);
     result.operator = operator == null ? null : operator.copy();
     result.not = not;
     result.inOperator = inOperator == null ? null : inOperator.copy();
@@ -94,7 +94,7 @@ public class SQLRightBinaryCondition extends SimpleNode {
 
     List result = new ArrayList();
     while (iterator.hasNext()) {
-      Object element = iterator.next();
+      var element = iterator.next();
       if (matchesFilters(iCurrentRecord, element, ctx)) {
         result.add(element);
       }
@@ -120,7 +120,7 @@ public class SQLRightBinaryCondition extends SimpleNode {
 
     List result = new ArrayList();
     while (iterator.hasNext()) {
-      Object element = iterator.next();
+      var element = iterator.next();
       if (matchesFilters(iCurrentRecord, element, ctx)) {
         result.add(element);
       }
@@ -134,11 +134,11 @@ public class SQLRightBinaryCondition extends SimpleNode {
       operator.execute(element, right.execute(iCurrentRecord, ctx));
     } else if (inOperator != null) {
 
-      Object rightVal = evaluateRight(iCurrentRecord, ctx);
+      var rightVal = evaluateRight(iCurrentRecord, ctx);
       if (rightVal == null) {
         return false;
       }
-      boolean result = SQLInCondition.evaluateExpression(ctx.getDatabase(), element, rightVal);
+      var result = SQLInCondition.evaluateExpression(ctx.getDatabase(), element, rightVal);
       if (not) {
         result = !result;
       }
@@ -152,11 +152,11 @@ public class SQLRightBinaryCondition extends SimpleNode {
       return operator.execute(element, right.execute(iCurrentRecord, ctx));
     } else if (inOperator != null) {
 
-      Object rightVal = evaluateRight(iCurrentRecord, ctx);
+      var rightVal = evaluateRight(iCurrentRecord, ctx);
       if (rightVal == null) {
         return false;
       }
-      boolean result = SQLInCondition.evaluateExpression(ctx.getDatabase(), element, rightVal);
+      var result = SQLInCondition.evaluateExpression(ctx.getDatabase(), element, rightVal);
       if (not) {
         result = !result;
       }
@@ -188,7 +188,7 @@ public class SQLRightBinaryCondition extends SimpleNode {
   }
 
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     result.setProperty("operator", operator.getClass().getName());
     result.setProperty("not", not);
     result.setProperty("in", inOperator != null);

@@ -32,9 +32,9 @@ public class StorageEncryptionTestIT {
 
   @Test
   public void testEncryption() {
-    final File dbDirectoryFile = cleanAndGetDirectory();
+    final var dbDirectoryFile = cleanAndGetDirectory();
 
-    final YouTrackDBConfig youTrackDBConfig =
+    final var youTrackDBConfig =
         YouTrackDBConfig.builder()
             .addGlobalConfigurationParameter(GlobalConfiguration.STORAGE_ENCRYPTION_KEY,
                 "T1JJRU5UREJfSVNfQ09PTA==")
@@ -46,15 +46,15 @@ public class StorageEncryptionTestIT {
       try (var session = (DatabaseSessionInternal) youTrackDB.open("encryption", "admin",
           "admin")) {
         final Schema schema = session.getMetadata().getSchema();
-        final SchemaClass cls = schema.createClass("EncryptedData");
+        final var cls = schema.createClass("EncryptedData");
         cls.createProperty(session, "id", PropertyType.INTEGER);
         cls.createProperty(session, "value", PropertyType.STRING);
 
         cls.createIndex(session, "EncryptedTree", SchemaClass.INDEX_TYPE.UNIQUE, "id");
         cls.createIndex(session, "EncryptedHash", SchemaClass.INDEX_TYPE.UNIQUE, "id");
 
-        for (int i = 0; i < 10_000; i++) {
-          final EntityImpl document = ((EntityImpl) session.newEntity(cls));
+        for (var i = 0; i < 10_000; i++) {
+          final var document = ((EntityImpl) session.newEntity(cls));
           document.setProperty("id", i);
           document.setProperty(
               "value",
@@ -66,11 +66,11 @@ public class StorageEncryptionTestIT {
         }
 
         final Random random = ThreadLocalRandom.current();
-        for (int i = 0; i < 1_000; i++) {
-          try (ResultSet resultSet =
+        for (var i = 0; i < 1_000; i++) {
+          try (var resultSet =
               session.query("select from EncryptedData where id = ?", random.nextInt(10_000_000))) {
             if (resultSet.hasNext()) {
-              final Result result = resultSet.next();
+              final var result = resultSet.next();
               result.getEntity().ifPresent(DBRecord::delete);
             }
           }
@@ -82,7 +82,7 @@ public class StorageEncryptionTestIT {
         new YouTrackDBImpl(
             DbTestBase.embeddedDBUrl(getClass()), YouTrackDBConfig.defaultConfig())) {
       try {
-        try (final DatabaseSession session = youTrackDB.open("encryption", "admin", "admin")) {
+        try (final var session = youTrackDB.open("encryption", "admin", "admin")) {
           Assert.fail();
         }
       } catch (Exception e) {
@@ -90,7 +90,7 @@ public class StorageEncryptionTestIT {
       }
     }
 
-    final YouTrackDBConfig wrongKeyOneYouTrackDBConfig =
+    final var wrongKeyOneYouTrackDBConfig =
         YouTrackDBConfig.builder()
             .addGlobalConfigurationParameter(
                 GlobalConfiguration.STORAGE_ENCRYPTION_KEY,
@@ -99,7 +99,7 @@ public class StorageEncryptionTestIT {
     try (final YouTrackDB youTrackDB =
         new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()), wrongKeyOneYouTrackDBConfig)) {
       try {
-        try (final DatabaseSession session = youTrackDB.open("encryption", "admin", "admin")) {
+        try (final var session = youTrackDB.open("encryption", "admin", "admin")) {
           Assert.fail();
         }
       } catch (Exception e) {
@@ -107,7 +107,7 @@ public class StorageEncryptionTestIT {
       }
     }
 
-    final YouTrackDBConfig wrongKeyTwoYouTrackDBConfig =
+    final var wrongKeyTwoYouTrackDBConfig =
         YouTrackDBConfig.builder()
             .addGlobalConfigurationParameter(
                 GlobalConfiguration.STORAGE_ENCRYPTION_KEY,
@@ -116,7 +116,7 @@ public class StorageEncryptionTestIT {
     try (final YouTrackDB youTrackDB =
         new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()), wrongKeyTwoYouTrackDBConfig)) {
       try {
-        try (final DatabaseSession session = youTrackDB.open("encryption", "admin", "admin")) {
+        try (final var session = youTrackDB.open("encryption", "admin", "admin")) {
           Assert.fail();
         }
       } catch (Exception e) {
@@ -126,20 +126,20 @@ public class StorageEncryptionTestIT {
 
     try (final YouTrackDB youTrackDB =
         new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()), youTrackDBConfig)) {
-      try (final DatabaseSessionInternal session =
+      try (final var session =
           (DatabaseSessionInternal) youTrackDB.open("encryption", "admin", "admin")) {
-        final IndexManagerAbstract indexManager = session.getMetadata().getIndexManagerInternal();
-        final Index treeIndex = indexManager.getIndex(session, "EncryptedTree");
-        final Index hashIndex = indexManager.getIndex(session, "EncryptedHash");
+        final var indexManager = session.getMetadata().getIndexManagerInternal();
+        final var treeIndex = indexManager.getIndex(session, "EncryptedTree");
+        final var hashIndex = indexManager.getIndex(session, "EncryptedHash");
 
-        for (final EntityImpl document : session.browseClass("EncryptedData")) {
+        for (final var document : session.browseClass("EncryptedData")) {
           final int id = document.getProperty("id");
           final RID treeRid;
-          try (Stream<RID> rids = treeIndex.getInternal().getRids(session, id)) {
+          try (var rids = treeIndex.getInternal().getRids(session, id)) {
             treeRid = rids.findFirst().orElse(null);
           }
           final RID hashRid;
-          try (Stream<RID> rids = hashIndex.getInternal().getRids(session, id)) {
+          try (var rids = hashIndex.getInternal().getRids(session, id)) {
             hashRid = rids.findFirst().orElse(null);
           }
 
@@ -156,21 +156,21 @@ public class StorageEncryptionTestIT {
   }
 
   private File cleanAndGetDirectory() {
-    final String dbDirectory =
+    final var dbDirectory =
         "./target/databases" + File.separator + StorageEncryptionTestIT.class.getSimpleName();
-    final File dbDirectoryFile = new File(dbDirectory);
+    final var dbDirectoryFile = new File(dbDirectory);
     FileUtils.deleteRecursively(dbDirectoryFile);
     return dbDirectoryFile;
   }
 
   @Test
   public void testEncryptionSingleDatabase() {
-    final File dbDirectoryFile = cleanAndGetDirectory();
+    final var dbDirectoryFile = cleanAndGetDirectory();
 
     try (final YouTrackDB youTrackDB =
         new YouTrackDBImpl(
             DbTestBase.embeddedDBUrl(getClass()), YouTrackDBConfig.defaultConfig())) {
-      final YouTrackDBConfig youTrackDBConfig =
+      final var youTrackDBConfig =
           YouTrackDBConfig.builder()
               .addGlobalConfigurationParameter(GlobalConfiguration.STORAGE_ENCRYPTION_KEY,
                   "T1JJRU5UREJfSVNfQ09PTA==")
@@ -182,7 +182,7 @@ public class StorageEncryptionTestIT {
     try (final YouTrackDB youTrackDB =
         new YouTrackDBImpl(
             DbTestBase.embeddedDBUrl(getClass()), YouTrackDBConfig.defaultConfig())) {
-      final YouTrackDBConfigImpl youTrackDBConfig =
+      final var youTrackDBConfig =
           (YouTrackDBConfigImpl) YouTrackDBConfig.builder()
               .addGlobalConfigurationParameter(GlobalConfiguration.STORAGE_ENCRYPTION_KEY,
                   "T1JJRU5UREJfSVNfQ09PTA==")
@@ -191,9 +191,9 @@ public class StorageEncryptionTestIT {
           (DatabaseSessionInternal) youTrackDB.open("encryption", "admin", "admin",
               youTrackDBConfig)) {
         final Schema schema = db.getMetadata().getSchema();
-        final SchemaClass cls = schema.createClass("EncryptedData");
+        final var cls = schema.createClass("EncryptedData");
 
-        final EntityImpl document = ((EntityImpl) db.newEntity(cls));
+        final var document = ((EntityImpl) db.newEntity(cls));
         document.setProperty("id", 10);
         document.setProperty(
             "value",
@@ -203,7 +203,7 @@ public class StorageEncryptionTestIT {
                 + " ");
         document.save();
 
-        try (ResultSet resultSet = db.query("select from EncryptedData where id = ?", 10)) {
+        try (var resultSet = db.query("select from EncryptedData where id = ?", 10)) {
           assertTrue(resultSet.hasNext());
         }
       }

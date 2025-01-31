@@ -19,7 +19,7 @@ public class LuceneSearchOnIndexFunctionTest extends BaseLuceneTest {
 
   @Before
   public void setUp() throws Exception {
-    InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
+    var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
 
     //    db.execute("sql", getScriptFromStream(stream)).close();
     db.execute("sql", getScriptFromStream(stream));
@@ -35,7 +35,7 @@ public class LuceneSearchOnIndexFunctionTest extends BaseLuceneTest {
   @Test
   public void shouldSearchOnSingleIndex() throws Exception {
 
-    ResultSet resultSet =
+    var resultSet =
         db.query("SELECT from Song where SEARCH_INDEX('Song.title', 'BELIEVE') = true");
 
     //    resultSet.getExecutionPlan().ifPresent(x -> System.out.println(x.prettyPrint(0, 2)));
@@ -58,7 +58,7 @@ public class LuceneSearchOnIndexFunctionTest extends BaseLuceneTest {
   @Test
   public void shouldFindNothingOnEmptyQuery() throws Exception {
 
-    ResultSet resultSet = db.query(
+    var resultSet = db.query(
         "SELECT from Song where SEARCH_INDEX('Song.title', '') = true");
 
     //    resultSet.getExecutionPlan().ifPresent(x -> System.out.println(x.prettyPrint(0, 2)));
@@ -72,7 +72,7 @@ public class LuceneSearchOnIndexFunctionTest extends BaseLuceneTest {
   public void shouldSearchOnSingleIndexWithLeadingWildcard() throws Exception {
 
     // TODO: metadata still not used
-    ResultSet resultSet =
+    var resultSet =
         db.query(
             "SELECT from Song where SEARCH_INDEX('Song.title', '*EVE*', {'allowLeadingWildcard':"
                 + " true}) = true");
@@ -86,7 +86,7 @@ public class LuceneSearchOnIndexFunctionTest extends BaseLuceneTest {
   @Test
   public void shouldSearchOnTwoIndexesInOR() throws Exception {
 
-    ResultSet resultSet =
+    var resultSet =
         db.query(
             "SELECT from Song where SEARCH_INDEX('Song.title', 'BELIEVE') = true OR"
                 + " SEARCH_INDEX('Song.author', 'Bob') = true ");
@@ -98,7 +98,7 @@ public class LuceneSearchOnIndexFunctionTest extends BaseLuceneTest {
   @Test
   public void shouldSearchOnTwoIndexesInAND() throws Exception {
 
-    ResultSet resultSet =
+    var resultSet =
         db.query(
             "SELECT from Song where SEARCH_INDEX('Song.title', 'tambourine') = true AND"
                 + " SEARCH_INDEX('Song.author', 'Bob') = true ");
@@ -110,7 +110,7 @@ public class LuceneSearchOnIndexFunctionTest extends BaseLuceneTest {
   @Test
   public void shouldSearchOnTwoIndexesWithLeadingWildcardInAND() throws Exception {
 
-    ResultSet resultSet =
+    var resultSet =
         db.query(
             "SELECT from Song where SEARCH_INDEX('Song.title', 'tambourine') = true AND"
                 + " SEARCH_INDEX('Song.author', 'Bob', {'allowLeadingWildcard': true}) = true ");
@@ -127,7 +127,7 @@ public class LuceneSearchOnIndexFunctionTest extends BaseLuceneTest {
 
   @Test
   public void shouldSupportParameterizedMetadata() throws Exception {
-    final String query = "SELECT from Song where SEARCH_INDEX('Song.title', '*EVE*', ?) = true";
+    final var query = "SELECT from Song where SEARCH_INDEX('Song.title', '*EVE*', ?) = true";
 
     db.query(query, "{'allowLeadingWildcard': true}").close();
     db.query(query, new EntityImpl(db, "allowLeadingWildcard", Boolean.TRUE)).close();

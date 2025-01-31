@@ -40,7 +40,7 @@ public class ServerCommandPostProperty extends ServerCommandAuthenticatedDbAbstr
 
   @Override
   public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
-    try (DatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
+    try (var db = getProfiledDatabaseInstance(iRequest)) {
       if (iRequest.getContent() == null || iRequest.getContent().length() <= 0) {
         return addSingleProperty(iRequest, iResponse, db);
       } else {
@@ -54,7 +54,7 @@ public class ServerCommandPostProperty extends ServerCommandAuthenticatedDbAbstr
       final HttpRequest iRequest, final HttpResponse iResponse,
       final DatabaseSessionInternal db)
       throws InterruptedException, IOException {
-    String[] urlParts =
+    var urlParts =
         checkSyntax(
             iRequest.getUrl(),
             4,
@@ -68,11 +68,11 @@ public class ServerCommandPostProperty extends ServerCommandAuthenticatedDbAbstr
       throw new IllegalArgumentException("Invalid class '" + urlParts[2] + "'");
     }
 
-    final SchemaClass cls = db.getMetadata().getSchema().getClass(urlParts[2]);
+    final var cls = db.getMetadata().getSchema().getClass(urlParts[2]);
 
-    final String propertyName = urlParts[3];
+    final var propertyName = urlParts[3];
 
-    final PropertyType propertyType =
+    final var propertyType =
         urlParts.length > 4 ? PropertyType.valueOf(urlParts[4]) : PropertyType.STRING;
 
     switch (propertyType) {
@@ -101,17 +101,17 @@ public class ServerCommandPostProperty extends ServerCommandAuthenticatedDbAbstr
         }
 
         if (linkType != null) {
-          final SchemaProperty prop = cls.createProperty(db, propertyName, propertyType, linkType);
+          final var prop = cls.createProperty(db, propertyName, propertyType, linkType);
         } else if (linkClass != null) {
-          final SchemaProperty prop = cls.createProperty(db, propertyName, propertyType, linkClass);
+          final var prop = cls.createProperty(db, propertyName, propertyType, linkClass);
         } else {
-          final SchemaProperty prop = cls.createProperty(db, propertyName, propertyType);
+          final var prop = cls.createProperty(db, propertyName, propertyType);
         }
         break;
       }
 
       default:
-        final SchemaProperty prop = cls.createProperty(db, propertyName, propertyType);
+        final var prop = cls.createProperty(db, propertyName, propertyType);
         break;
     }
 
@@ -130,7 +130,7 @@ public class ServerCommandPostProperty extends ServerCommandAuthenticatedDbAbstr
       final HttpRequest iRequest, final HttpResponse iResponse,
       final DatabaseSessionInternal db)
       throws IOException {
-    String[] urlParts =
+    var urlParts =
         checkSyntax(iRequest.getUrl(), 3, "Syntax error: property/<database>/<class-name>");
 
     iRequest.getData().commandInfo = "Create property";
@@ -140,25 +140,25 @@ public class ServerCommandPostProperty extends ServerCommandAuthenticatedDbAbstr
       throw new IllegalArgumentException("Invalid class '" + urlParts[2] + "'");
     }
 
-    final SchemaClass cls = db.getMetadata().getSchema().getClass(urlParts[2]);
+    final var cls = db.getMetadata().getSchema().getClass(urlParts[2]);
 
-    final EntityImpl propertiesDoc = new EntityImpl(null);
+    final var propertiesDoc = new EntityImpl(null);
     propertiesDoc.updateFromJSON(iRequest.getContent());
 
-    for (String propertyName : propertiesDoc.fieldNames()) {
+    for (var propertyName : propertiesDoc.fieldNames()) {
       final Map<String, String> entity = propertiesDoc.field(propertyName);
-      final PropertyType propertyType = PropertyType.valueOf(entity.get(PROPERTY_TYPE_JSON_FIELD));
+      final var propertyType = PropertyType.valueOf(entity.get(PROPERTY_TYPE_JSON_FIELD));
       switch (propertyType) {
         case LINKLIST:
         case LINKMAP:
         case LINKSET: {
-          final String linkType = entity.get(LINKED_TYPE_JSON_FIELD);
-          final String linkClass = entity.get(LINKED_CLASS_JSON_FIELD);
+          final var linkType = entity.get(LINKED_TYPE_JSON_FIELD);
+          final var linkClass = entity.get(LINKED_CLASS_JSON_FIELD);
           if (linkType != null) {
-            final SchemaProperty prop =
+            final var prop =
                 cls.createProperty(db, propertyName, propertyType, PropertyType.valueOf(linkType));
           } else if (linkClass != null) {
-            final SchemaProperty prop =
+            final var prop =
                 cls.createProperty(db,
                     propertyName, propertyType, db.getMetadata().getSchema().getClass(linkClass));
           } else {
@@ -172,9 +172,9 @@ public class ServerCommandPostProperty extends ServerCommandAuthenticatedDbAbstr
           break;
         }
         case LINK: {
-          final String linkClass = entity.get(LINKED_CLASS_JSON_FIELD);
+          final var linkClass = entity.get(LINKED_CLASS_JSON_FIELD);
           if (linkClass != null) {
-            final SchemaProperty prop =
+            final var prop =
                 cls.createProperty(db,
                     propertyName, propertyType, db.getMetadata().getSchema().getClass(linkClass));
           } else {
@@ -189,7 +189,7 @@ public class ServerCommandPostProperty extends ServerCommandAuthenticatedDbAbstr
         }
 
         default:
-          final SchemaProperty prop = cls.createProperty(db, propertyName, propertyType);
+          final var prop = cls.createProperty(db, propertyName, propertyType);
           break;
       }
     }

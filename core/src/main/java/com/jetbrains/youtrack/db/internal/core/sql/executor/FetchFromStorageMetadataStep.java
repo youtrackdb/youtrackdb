@@ -33,10 +33,10 @@ public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
   }
 
   private Result produce(CommandContext ctx) {
-    DatabaseSessionInternal db = ctx.getDatabase();
-    ResultInternal result = new ResultInternal(db);
+    var db = ctx.getDatabase();
+    var result = new ResultInternal(db);
 
-    Storage storage = db.getStorage();
+    var storage = db.getStorage();
     result.setProperty("clusters", toResult(db, storage.getClusterInstances()));
     result.setProperty("defaultClusterId", storage.getDefaultClusterId());
     result.setProperty("totalClusters", storage.getClusters());
@@ -56,7 +56,7 @@ public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
 
   private static Object toResult(DatabaseSessionInternal db,
       StorageConfiguration configuration) {
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     result.setProperty("charset", configuration.getCharset());
     result.setProperty("clusterSelection", configuration.getClusterSelection());
     result.setProperty("conflictStrategy", configuration.getConflictStrategy());
@@ -74,8 +74,8 @@ public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
       List<StorageEntryConfiguration> properties) {
     List<Result> result = new ArrayList<>();
     if (properties != null) {
-      for (StorageEntryConfiguration entry : properties) {
-        ResultInternal item = new ResultInternal(db);
+      for (var entry : properties) {
+        var item = new ResultInternal(db);
         item.setProperty("name", entry.name);
         item.setProperty("value", entry.value);
         result.add(item);
@@ -88,8 +88,8 @@ public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
       Collection<? extends StorageCluster> clusterInstances) {
     List<Result> result = new ArrayList<>();
     if (clusterInstances != null) {
-      for (StorageCluster cluster : clusterInstances) {
-        ResultInternal item = new ResultInternal(db);
+      for (var cluster : clusterInstances) {
+        var item = new ResultInternal(db);
         item.setProperty("name", cluster.getName());
         item.setProperty("fileName", cluster.getFileName());
         item.setProperty("id", cluster.getId());
@@ -108,8 +108,8 @@ public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
-    String result = spaces + "+ FETCH STORAGE METADATA";
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var result = spaces + "+ FETCH STORAGE METADATA";
     if (profilingEnabled) {
       result += " (" + getCostFormatted() + ")";
     }

@@ -33,7 +33,7 @@ public class SQLCreateClusterStatement extends DDLStatement {
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
     var db = ctx.getDatabase();
-    int existingId = db.getClusterIdByName(name.getStringValue());
+    var existingId = db.getClusterIdByName(name.getStringValue());
     if (existingId >= 0) {
       if (ifNotExists) {
         return ExecutionStream.empty();
@@ -43,7 +43,7 @@ public class SQLCreateClusterStatement extends DDLStatement {
       }
     }
     if (id != null) {
-      String existingName = db.getClusterNameById(id.getValue().intValue());
+      var existingName = db.getClusterNameById(id.getValue().intValue());
       if (existingName != null) {
         if (ifNotExists) {
           return ExecutionStream.empty();
@@ -53,12 +53,12 @@ public class SQLCreateClusterStatement extends DDLStatement {
       }
     }
 
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     result.setProperty("operation", "create cluster");
     result.setProperty("clusterName", name.getStringValue());
 
-    int requestedId = id == null ? -1 : id.getValue().intValue();
-    int finalId = -1;
+    var requestedId = id == null ? -1 : id.getValue().intValue();
+    var finalId = -1;
     if (blob) {
       if (requestedId == -1) {
         finalId = db.addBlobCluster(name.getStringValue());
@@ -115,7 +115,7 @@ public class SQLCreateClusterStatement extends DDLStatement {
 
   @Override
   public SQLCreateClusterStatement copy() {
-    SQLCreateClusterStatement result = new SQLCreateClusterStatement(-1);
+    var result = new SQLCreateClusterStatement(-1);
     result.name = name == null ? null : name.copy();
     result.ifNotExists = this.ifNotExists;
     result.id = id == null ? null : id.copy();
@@ -132,7 +132,7 @@ public class SQLCreateClusterStatement extends DDLStatement {
       return false;
     }
 
-    SQLCreateClusterStatement that = (SQLCreateClusterStatement) o;
+    var that = (SQLCreateClusterStatement) o;
 
     if (ifNotExists != that.ifNotExists) {
       return false;
@@ -148,7 +148,7 @@ public class SQLCreateClusterStatement extends DDLStatement {
 
   @Override
   public int hashCode() {
-    int result = name != null ? name.hashCode() : 0;
+    var result = name != null ? name.hashCode() : 0;
     result = 31 * result + (ifNotExists ? 1 : 0);
     result = 31 * result + (id != null ? id.hashCode() : 0);
     result = 31 * result + (blob ? 1 : 0);

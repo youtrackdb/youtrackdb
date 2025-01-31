@@ -27,7 +27,7 @@ public class DeleteVertexExecutionPlanner {
   }
 
   public DeleteExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    DeleteExecutionPlan result = new DeleteExecutionPlan(ctx);
+    var result = new DeleteExecutionPlan(ctx);
 
     if (handleIndexAsTarget(result, fromClause.getItem().getIndex(), whereClause, ctx)) {
       if (limit != null) {
@@ -99,10 +99,10 @@ public class DeleteVertexExecutionPlanner {
       SQLFromClause target,
       SQLWhereClause whereClause,
       boolean profilingEnabled) {
-    SQLSelectStatement sourceStatement = new SQLSelectStatement(-1);
+    var sourceStatement = new SQLSelectStatement(-1);
     sourceStatement.setTarget(target);
     sourceStatement.setWhereClause(whereClause);
-    SelectExecutionPlanner planner = new SelectExecutionPlanner(sourceStatement);
+    var planner = new SelectExecutionPlanner(sourceStatement);
     result.chain(
         new SubQueryStep(
             planner.createExecutionPlan(ctx, profilingEnabled, false), ctx, ctx, profilingEnabled));

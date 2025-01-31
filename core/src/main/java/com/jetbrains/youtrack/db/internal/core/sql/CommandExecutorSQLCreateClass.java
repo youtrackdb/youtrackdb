@@ -30,7 +30,6 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCreateClassStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -60,21 +59,21 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
 
   public CommandExecutorSQLCreateClass parse(DatabaseSessionInternal db,
       final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
-      final DatabaseSessionInternal database = getDatabase();
+      final var database = getDatabase();
       init((CommandRequestText) iRequest);
 
-      StringBuilder word = new StringBuilder();
+      var word = new StringBuilder();
 
-      int oldPos = 0;
-      int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
+      var oldPos = 0;
+      var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CREATE)) {
         throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_CREATE + " not found. Use " + getSyntax(), parserText, oldPos);
@@ -104,10 +103,10 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
       oldPos = pos;
 
       while ((pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true)) > -1) {
-        final String k = word.toString();
+        final var k = word.toString();
         if (k.equals(KEYWORD_EXTENDS)) {
           boolean hasNext;
-          boolean newParser = this.preParsedStatement != null;
+          var newParser = this.preParsedStatement != null;
           SchemaClass superClass;
           do {
             oldPos = pos;
@@ -121,7 +120,7 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
                   parserText,
                   oldPos);
             }
-            String superclassName = decodeClassName(word.toString());
+            var superclassName = decodeClassName(word.toString());
 
             if (!database.getMetadata().getImmutableSchemaSnapshot().existsClass(superclassName)
                 && !newParser) {
@@ -132,7 +131,7 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
             superClasses.add(superClass);
             hasNext = false;
             for (; pos < parserText.length(); pos++) {
-              char ch = parserText.charAt(pos);
+              var ch = parserText.charAt(pos);
               if (ch == ',') {
                 hasNext = true;
               } else if (Character.isLetterOrDigit(ch)) {
@@ -143,11 +142,11 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
             }
           } while (hasNext);
           if (newParser) {
-            SQLCreateClassStatement statement = (SQLCreateClassStatement) this.preParsedStatement;
-            List<SQLIdentifier> superclasses = statement.getSuperclasses();
+            var statement = (SQLCreateClassStatement) this.preParsedStatement;
+            var superclasses = statement.getSuperclasses();
             this.superClasses.clear();
-            for (SQLIdentifier superclass : superclasses) {
-              String superclassName = superclass.getStringValue();
+            for (var superclass : superclasses) {
+              var superclassName = superclass.getStringValue();
               if (!database.getMetadata().getSchema().existsClass(superclassName)) {
                 throw new CommandSQLParsingException(
                     "Super-class " + word + " not exists", parserText, oldPos);
@@ -169,10 +168,10 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
                 oldPos);
           }
 
-          final String[] clusterIdsAsStrings = word.toString().split(",");
+          final var clusterIdsAsStrings = word.toString().split(",");
           if (clusterIdsAsStrings.length > 0) {
             clusterIds = new int[clusterIdsAsStrings.length];
-            for (int i = 0; i < clusterIdsAsStrings.length; ++i) {
+            for (var i = 0; i < clusterIdsAsStrings.length; ++i) {
               if (Character.isDigit(clusterIdsAsStrings[i].charAt(0)))
               // GET CLUSTER ID FROM NAME
               {
@@ -189,7 +188,7 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
               }
 
               try {
-                String clusterName = database.getClusterNameById(clusterIds[i]);
+                var clusterName = database.getClusterNameById(clusterIds[i]);
                 if (clusterName == null) {
                   throw new ClusterDoesNotExistException(
                       "Cluster with id "
@@ -255,7 +254,7 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
       }
 
       if (clusterIds == null) {
-        final int clusterId = database.getClusterIdByName(className);
+        final var clusterId = database.getClusterIdByName(className);
         if (clusterId > -1) {
           clusterIds = new int[]{clusterId};
         }
@@ -295,7 +294,7 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
 
     final var database = getDatabase();
 
-    boolean alreadyExists = database.getMetadata().getSchema().existsClass(className);
+    var alreadyExists = database.getMetadata().getSchema().existsClass(className);
     if (!alreadyExists || !ifNotExists) {
       if (clusters != null) {
         database

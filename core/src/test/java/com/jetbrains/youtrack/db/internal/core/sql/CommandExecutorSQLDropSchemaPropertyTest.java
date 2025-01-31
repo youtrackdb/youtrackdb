@@ -31,7 +31,7 @@ public class CommandExecutorSQLDropSchemaPropertyTest extends DbTestBase {
   @Test
   public void test() {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass foo = schema.createClass("Foo");
+    var foo = schema.createClass("Foo");
 
     foo.createProperty(db, "name", PropertyType.STRING);
     Assert.assertTrue(schema.getClass("Foo").existsProperty("name"));
@@ -57,7 +57,7 @@ public class CommandExecutorSQLDropSchemaPropertyTest extends DbTestBase {
   @Test
   public void testIfExists() {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass testIfExistsClass = schema.createClass("testIfExists");
+    var testIfExistsClass = schema.createClass("testIfExists");
 
     testIfExistsClass.createProperty(db, "name", PropertyType.STRING);
     Assert.assertTrue(schema.getClass("testIfExists").existsProperty("name"));

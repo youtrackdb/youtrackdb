@@ -57,14 +57,14 @@ public abstract class SpatialFunctionAbstractIndexable extends SpatialFunctionAb
   protected LuceneSpatialIndex searchForIndex(DatabaseSessionInternal session,
       SQLFromClause target,
       SQLExpression[] args) {
-    MetadataInternal dbMetadata = getDb().getMetadata();
+    var dbMetadata = getDb().getMetadata();
 
-    SQLFromItem item = target.getItem();
-    SQLIdentifier identifier = item.getIdentifier();
-    String fieldName = args[0].toString();
+    var item = target.getItem();
+    var identifier = item.getIdentifier();
+    var fieldName = args[0].toString();
 
-    String className = identifier.getStringValue();
-    List<LuceneSpatialIndex> indices =
+    var className = identifier.getStringValue();
+    var indices =
         dbMetadata.getImmutableSchemaSnapshot().getClassInternal(className)
             .getIndexesInternal(session).stream()
             .filter(idx -> idx instanceof LuceneSpatialIndex)
@@ -100,7 +100,7 @@ public abstract class SpatialFunctionAbstractIndexable extends SpatialFunctionAb
     Object shape;
     var db = ctx.getDatabase();
     if (args[1].getValue() instanceof SQLJson json) {
-      EntityImpl doc = new EntityImpl(null);
+      var doc = new EntityImpl(null);
       doc.updateFromJSON(json.toString());
       shape = doc.toMap();
     } else {
@@ -108,19 +108,19 @@ public abstract class SpatialFunctionAbstractIndexable extends SpatialFunctionAb
     }
 
     if (shape instanceof Collection) {
-      int size = ((Collection) shape).size();
+      var size = ((Collection) shape).size();
 
       if (size == 0) {
         return new LuceneResultSetEmpty();
       }
       if (size == 1) {
 
-        Object next = ((Collection) shape).iterator().next();
+        var next = ((Collection) shape).iterator().next();
 
         if (next instanceof Result inner) {
           var propertyNames = inner.getPropertyNames();
           if (propertyNames.size() == 1) {
-            Object property = inner.getProperty(propertyNames.iterator().next());
+            var property = inner.getProperty(propertyNames.iterator().next());
             if (property instanceof Result) {
               shape = ((Result) property).asEntity();
             }
@@ -140,7 +140,7 @@ public abstract class SpatialFunctionAbstractIndexable extends SpatialFunctionAb
 
     onAfterParsing(queryParams, args, ctx, rightValue);
 
-    Set<String> indexes = (Set<String>) ctx.getVariable("involvedIndexes");
+    var indexes = (Set<String>) ctx.getVariable("involvedIndexes");
     if (indexes == null) {
       indexes = new HashSet<>();
       ctx.setVariable("involvedIndexes", indexes);
@@ -177,7 +177,7 @@ public abstract class SpatialFunctionAbstractIndexable extends SpatialFunctionAb
     if (!isValidBinaryOperator(operator)) {
       return false;
     }
-    LuceneSpatialIndex index = searchForIndex(ctx.getDatabase(), target, args);
+    var index = searchForIndex(ctx.getDatabase(), target, args);
 
     return index != null;
   }
@@ -200,12 +200,12 @@ public abstract class SpatialFunctionAbstractIndexable extends SpatialFunctionAb
       CommandContext ctx,
       SQLExpression... args) {
 
-    LuceneSpatialIndex index = searchForIndex(ctx.getDatabase(), target, args);
+    var index = searchForIndex(ctx.getDatabase(), target, args);
     return index == null ? -1 : index.size(ctx.getDatabase());
   }
 
   public static <T> boolean intersect(List<T> list1, List<T> list2) {
-    for (T t : list1) {
+    for (var t : list1) {
       if (list2.contains(t)) {
         return true;
       }

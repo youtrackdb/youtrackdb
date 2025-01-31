@@ -35,18 +35,18 @@ public class GetValueFromIndexEntryStep extends AbstractExecutionStep {
     if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
     }
-    ExecutionStream resultSet = prev.start(ctx);
+    var resultSet = prev.start(ctx);
     return resultSet.filter(this::filterMap);
   }
 
   private Result filterMap(Result result, CommandContext ctx) {
-    Object finalVal = result.getProperty("rid");
+    var finalVal = result.getProperty("rid");
     if (filterClusterIds != null) {
       if (!(finalVal instanceof Identifiable)) {
         return null;
       }
-      RID rid = ((Identifiable) finalVal).getIdentity();
-      boolean found = false;
+      var rid = ((Identifiable) finalVal).getIdentity();
+      var found = false;
       for (int filterClusterId : filterClusterIds) {
         if (rid.getClusterId() < 0 || filterClusterId == rid.getClusterId()) {
           found = true;
@@ -68,8 +68,8 @@ public class GetValueFromIndexEntryStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
-    String result = spaces + "+ EXTRACT VALUE FROM INDEX ENTRY";
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var result = spaces + "+ EXTRACT VALUE FROM INDEX ENTRY";
     if (profilingEnabled) {
       result += " (" + getCostFormatted() + ")";
     }

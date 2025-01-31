@@ -106,7 +106,7 @@ public class RidBag
   public RidBag(DatabaseSessionInternal session, final RidBag ridBag) {
     initThresholds(session);
     init();
-    for (RID identifiable : ridBag) {
+    for (var identifiable : ridBag) {
       add(identifiable);
     }
   }
@@ -140,12 +140,12 @@ public class RidBag
   }
 
   public static RidBag fromStream(DatabaseSessionInternal session, final String value) {
-    final byte[] stream = Base64.getDecoder().decode(value);
+    final var stream = Base64.getDecoder().decode(value);
     return new RidBag(session, stream);
   }
 
   public RidBag copy(DatabaseSessionInternal session) {
-    final RidBag copy = new RidBag(session);
+    final var copy = new RidBag(session);
     copy.topThreshold = topThreshold;
     copy.bottomThreshold = bottomThreshold;
     copy.uuid = uuid;
@@ -227,23 +227,23 @@ public class RidBag
 
     checkAndConvert();
 
-    final UUID oldUuid = uuid;
-    final BTreeCollectionManager bTreeCollectionManager = db.getSbTreeCollectionManager();
+    final var oldUuid = uuid;
+    final var bTreeCollectionManager = db.getSbTreeCollectionManager();
     if (bTreeCollectionManager != null) {
       uuid = bTreeCollectionManager.listenForChanges(this);
     } else {
       uuid = null;
     }
 
-    boolean hasUuid = uuid != null;
+    var hasUuid = uuid != null;
 
-    final int serializedSize =
+    final var serializedSize =
         ByteSerializer.BYTE_SIZE
             + delegate.getSerializedSize()
             + ((hasUuid) ? UUIDSerializer.UUID_SIZE : 0);
-    int pointer = bytesContainer.alloc(serializedSize);
-    int offset = pointer;
-    final byte[] stream = bytesContainer.bytes;
+    var pointer = bytesContainer.alloc(serializedSize);
+    var offset = pointer;
+    final var stream = bytesContainer.bytes;
 
     byte configByte = 0;
     if (isEmbedded()) {
@@ -266,7 +266,7 @@ public class RidBag
   }
 
   public void checkAndConvert() {
-    DatabaseSessionInternal database = DatabaseRecordThreadLocal.instance().getIfDefined();
+    var database = DatabaseRecordThreadLocal.instance().getIfDefined();
     if (database != null && !database.isRemote()) {
       if (isEmbedded()
           && DatabaseRecordThreadLocal.instance().get().getSbTreeCollectionManager() != null
@@ -279,13 +279,13 @@ public class RidBag
   }
 
   private void convertToEmbedded() {
-    RidBagDelegate oldDelegate = delegate;
-    boolean isTransactionModified = oldDelegate.isTransactionModified();
+    var oldDelegate = delegate;
+    var isTransactionModified = oldDelegate.isTransactionModified();
     delegate = new EmbeddedRidBag();
 
-    final RecordElement owner = oldDelegate.getOwner();
+    final var owner = oldDelegate.getOwner();
     delegate.disableTracking(owner);
-    for (RID identifiable : oldDelegate) {
+    for (var identifiable : oldDelegate) {
       delegate.add(identifiable);
     }
 
@@ -302,13 +302,13 @@ public class RidBag
   }
 
   private void convertToTree() {
-    RidBagDelegate oldDelegate = delegate;
-    boolean isTransactionModified = oldDelegate.isTransactionModified();
+    var oldDelegate = delegate;
+    var isTransactionModified = oldDelegate.isTransactionModified();
     delegate = new BTreeBasedRidBag();
 
-    final RecordElement owner = oldDelegate.getOwner();
+    final var owner = oldDelegate.getOwner();
     delegate.disableTracking(owner);
-    for (RID identifiable : oldDelegate) {
+    for (var identifiable : oldDelegate) {
       delegate.add(identifiable);
     }
 
@@ -326,7 +326,7 @@ public class RidBag
   @Override
   public StringWriterSerializable toStream(DatabaseSessionInternal db, StringWriter output)
       throws SerializationException {
-    final BytesContainer container = new BytesContainer();
+    final var container = new BytesContainer();
     toStream(db, container);
     output.append(Base64.getEncoder().encodeToString(container.fitBytes()));
     return this;
@@ -344,7 +344,7 @@ public class RidBag
   @Override
   public StringWriterSerializable fromStream(DatabaseSessionInternal db, StringWriter input)
       throws SerializationException {
-    final byte[] stream = Base64.getDecoder().decode(input.toString());
+    final var stream = Base64.getDecoder().decode(input.toString());
     fromStream(db, stream);
     return this;
   }
@@ -354,7 +354,7 @@ public class RidBag
   }
 
   public void fromStream(DatabaseSessionInternal db, BytesContainer stream) {
-    final byte first = stream.bytes[stream.offset++];
+    final var first = stream.bytes[stream.offset++];
     if ((first & 1) == 1) {
       delegate = new EmbeddedRidBag();
     } else {
@@ -439,8 +439,8 @@ public class RidBag
    */
   public boolean tryMerge(final RidBag otherValue, boolean iMergeSingleItemsOfMultiValueFields) {
     if (!isEmbedded() && !otherValue.isEmbedded()) {
-      final BTreeBasedRidBag thisTree = (BTreeBasedRidBag) delegate;
-      final BTreeBasedRidBag otherTree = (BTreeBasedRidBag) otherValue.delegate;
+      final var thisTree = (BTreeBasedRidBag) delegate;
+      final var otherTree = (BTreeBasedRidBag) otherValue.delegate;
       if (thisTree.getCollectionPointer().equals(otherTree.getCollectionPointer())) {
 
         thisTree.mergeChanges(otherTree);
@@ -450,10 +450,10 @@ public class RidBag
         return true;
       }
     } else if (iMergeSingleItemsOfMultiValueFields) {
-      for (RID value : otherValue) {
+      for (var value : otherValue) {
         if (value != null) {
-          final Iterator<RID> localIter = iterator();
-          boolean found = false;
+          final var localIter = iterator();
+          var found = false;
           while (localIter.hasNext()) {
             final Identifiable v = localIter.next();
             if (value.equals(v)) {
@@ -473,7 +473,7 @@ public class RidBag
 
   protected void initThresholds(@Nonnull DatabaseSessionInternal session) {
     assert session.assertIfNotActive();
-    ContextConfiguration conf = session.getConfiguration();
+    var conf = session.getConfiguration();
     topThreshold =
         conf.getValueAsInteger(GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD);
 
@@ -501,7 +501,7 @@ public class RidBag
    */
   private void replaceWithSBTree(BonsaiCollectionPointer pointer) {
     delegate.requestDelete();
-    final RemoteTreeRidBag treeBag = new RemoteTreeRidBag(pointer);
+    final var treeBag = new RemoteTreeRidBag(pointer);
     treeBag.setRecordAndField(ownerRecord, fieldName);
     treeBag.setOwner(delegate.getOwner());
     treeBag.setTracker(delegate.getTracker());
@@ -531,8 +531,8 @@ public class RidBag
       return false;
     }
 
-    Iterator<RID> firstIter = delegate.iterator();
-    Iterator<RID> secondIter = otherRidbag.delegate.iterator();
+    var firstIter = delegate.iterator();
+    var secondIter = otherRidbag.delegate.iterator();
     while (firstIter.hasNext()) {
       if (!secondIter.hasNext()) {
         return false;

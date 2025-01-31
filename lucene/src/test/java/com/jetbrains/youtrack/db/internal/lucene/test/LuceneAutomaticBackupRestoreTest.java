@@ -77,11 +77,11 @@ public class LuceneAutomaticBackupRestoreTest {
   @Before
   public void setUp() throws Exception {
 
-    final String os = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
+    final var os = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
     Assume.assumeFalse(os.contains("win"));
 
-    final String buildDirectory = System.getProperty("buildDirectory", "target");
-    final File buildDirectoryFile = new File(buildDirectory);
+    final var buildDirectory = System.getProperty("buildDirectory", "target");
+    final var buildDirectoryFile = new File(buildDirectory);
 
     tempFolder = new File(buildDirectoryFile, name.getMethodName());
     FileUtils.deleteRecursively(tempFolder);
@@ -89,12 +89,12 @@ public class LuceneAutomaticBackupRestoreTest {
 
     System.setProperty("YOUTRACKDB_HOME", tempFolder.getCanonicalPath());
 
-    String path = tempFolder.getCanonicalPath() + File.separator + "databases";
+    var path = tempFolder.getCanonicalPath() + File.separator + "databases";
     server =
         new YouTrackDBServer(false) {
           @Override
           public Map<String, String> getAvailableStorageNames() {
-            HashMap<String, String> result = new HashMap<>();
+            var result = new HashMap<String, String>();
             result.put(DBNAME, URL);
             return result;
           }
@@ -109,7 +109,7 @@ public class LuceneAutomaticBackupRestoreTest {
 
     BACKUFILE = BACKUPDIR + File.separator + DBNAME;
 
-    File config = new File(tempFolder, "config");
+    var config = new File(tempFolder, "config");
     Assert.assertTrue(config.mkdirs());
 
     dropIfExists();
@@ -123,7 +123,7 @@ public class LuceneAutomaticBackupRestoreTest {
     db.command("create property City.name string");
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE");
 
-    EntityImpl doc = ((EntityImpl) db.newEntity("City"));
+    var doc = ((EntityImpl) db.newEntity("City"));
     doc.field("name", "Rome");
 
     db.begin();
@@ -140,7 +140,7 @@ public class LuceneAutomaticBackupRestoreTest {
 
   @After
   public void tearDown() throws Exception {
-    final String os = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
+    final var os = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
     if (!os.contains("win")) {
       dropIfExists();
 
@@ -150,7 +150,7 @@ public class LuceneAutomaticBackupRestoreTest {
 
   @AfterClass
   public static void afterClass() {
-    final YouTrackDBEnginesManager youTrack = YouTrackDBEnginesManager.instance();
+    final var youTrack = YouTrackDBEnginesManager.instance();
 
     if (youTrack != null) {
       youTrack.shutdown();
@@ -161,15 +161,15 @@ public class LuceneAutomaticBackupRestoreTest {
   @Test
   public void shouldExportImport() throws IOException, InterruptedException {
 
-    try (ResultSet query = db.query("select from City where name lucene 'Rome'")) {
+    try (var query = db.query("select from City where name lucene 'Rome'")) {
       assertThat(query).hasSize(1);
     }
 
-    String jsonConfig =
+    var jsonConfig =
         IOUtils.readStreamAsString(
             getClass().getClassLoader().getResourceAsStream("automatic-backup.json"));
 
-    EntityImpl doc = ((EntityImpl) db.newEntity());
+    var doc = ((EntityImpl) db.newEntity());
     doc.updateFromJSON(jsonConfig);
 
     doc.field("enabled", true);
@@ -186,12 +186,12 @@ public class LuceneAutomaticBackupRestoreTest {
 
     IOUtils.writeFile(new File(tempFolder, "config/automatic-backup.json"), doc.toJSON());
 
-    final AutomaticBackup aBackup = new AutomaticBackup();
+    final var aBackup = new AutomaticBackup();
 
-    final ServerParameterConfiguration[] config = new ServerParameterConfiguration[]{};
+    final var config = new ServerParameterConfiguration[]{};
 
     aBackup.config(server, config);
-    final CountDownLatch latch = new CountDownLatch(1);
+    final var latch = new CountDownLatch(1);
 
     aBackup.registerListener(
         new AutomaticBackup.OAutomaticBackupListener() {
@@ -215,7 +215,7 @@ public class LuceneAutomaticBackupRestoreTest {
 
     db = createAndOpen();
 
-    try (final GZIPInputStream stream =
+    try (final var stream =
         new GZIPInputStream(new FileInputStream(BACKUFILE + ".json.gz"))) {
       new DatabaseImport(db, stream, s -> {
       }).importDatabase();
@@ -228,7 +228,7 @@ public class LuceneAutomaticBackupRestoreTest {
 
     assertThat(db.countClass("City")).isEqualTo(1);
 
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.name");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.name");
 
     assertThat(index).isNotNull();
     assertThat(index.getType()).isEqualTo(SchemaClass.INDEX_TYPE.FULLTEXT.name());

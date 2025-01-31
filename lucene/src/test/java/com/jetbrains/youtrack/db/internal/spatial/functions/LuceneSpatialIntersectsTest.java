@@ -27,9 +27,9 @@ public class LuceneSpatialIntersectsTest extends BaseSpatialLuceneTest {
   @Test
   public void testIntersectsNoIndex() {
 
-    ResultSet execute =
+    var execute =
         db.query("SELECT ST_Intersects('POINT(0 0)', 'LINESTRING ( 2 0, 0 2 )') as ST_Intersects");
-    Result next = execute.next();
+    var next = execute.next();
 
     Assert.assertEquals(next.getProperty("ST_Intersects"), false);
     execute.close();
@@ -55,7 +55,7 @@ public class LuceneSpatialIntersectsTest extends BaseSpatialLuceneTest {
     db.commit();
 
     db.command("create index L.g on Lines (geometry) SPATIAL engine lucene").close();
-    ResultSet execute =
+    var execute =
         db.query("SELECT from lines where ST_Intersects(geometry, 'POINT(0 0)') = true");
 
     Assert.assertEquals(execute.stream().count(), 1);

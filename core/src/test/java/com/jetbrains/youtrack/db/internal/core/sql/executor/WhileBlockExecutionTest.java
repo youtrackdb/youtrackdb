@@ -14,11 +14,11 @@ public class WhileBlockExecutionTest extends DbTestBase {
   @Test
   public void testPlain() {
 
-    String className = "testPlain";
+    var className = "testPlain";
 
     db.createClass(className);
 
-    String script = "";
+    var script = "";
     script += "LET $i = 0;";
     script += "WHILE ($i < 3){\n";
     script += "  begin;\n";
@@ -27,12 +27,12 @@ public class WhileBlockExecutionTest extends DbTestBase {
     script += "  commit;";
     script += "}";
     script += "SELECT FROM " + className;
-    ResultSet results = db.execute("sql", script);
+    var results = db.execute("sql", script);
 
-    int tot = 0;
-    int sum = 0;
+    var tot = 0;
+    var sum = 0;
     while (results.hasNext()) {
-      Result item = results.next();
+      var item = results.next();
       sum += item.<Integer>getProperty("value");
       tot++;
     }
@@ -43,11 +43,11 @@ public class WhileBlockExecutionTest extends DbTestBase {
 
   @Test
   public void testReturn() {
-    String className = "testReturn";
+    var className = "testReturn";
 
     db.createClass(className);
 
-    String script = "";
+    var script = "";
     script += "LET $i = 0;";
     script += "WHILE ($i < 3){\n";
     script += "  begin;\n";
@@ -59,14 +59,14 @@ public class WhileBlockExecutionTest extends DbTestBase {
     script += "  LET $i = $i + 1;";
     script += "}";
 
-    ResultSet results = db.execute("sql", script);
+    var results = db.execute("sql", script);
     results.close();
     results = db.query("SELECT FROM " + className);
 
-    int tot = 0;
-    int sum = 0;
+    var tot = 0;
+    var sum = 0;
     while (results.hasNext()) {
-      Result item = results.next();
+      var item = results.next();
       sum += item.<Integer>getProperty("value");
       tot++;
     }

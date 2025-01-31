@@ -46,8 +46,8 @@ public class Commit38Request implements BinaryRequest<Commit37Response> {
     this.usingLog = usingLong;
     if (hasContent) {
       List<RecordOperationRequest> netOperations = new ArrayList<>();
-      for (RecordOperation txEntry : operations) {
-        RecordOperationRequest request = new RecordOperationRequest();
+      for (var txEntry : operations) {
+        var request = new RecordOperationRequest();
         request.setType(txEntry.type);
         request.setVersion(txEntry.record.getVersion());
         request.setId(txEntry.record.getIdentity());
@@ -61,7 +61,7 @@ public class Commit38Request implements BinaryRequest<Commit37Response> {
           case RecordOperation.UPDATED:
             if (EntityImpl.RECORD_TYPE == RecordInternal.getRecordType(db, txEntry.record)) {
               request.setRecordType(DocumentSerializerDelta.DELTA_RECORD_TYPE);
-              DocumentSerializerDelta delta = DocumentSerializerDelta.instance();
+              var delta = DocumentSerializerDelta.instance();
               request.setRecord(delta.serializeDelta(db, (EntityImpl) txEntry.record));
               request.setContentChanged(RecordInternal.isContentChanged(txEntry.record));
             } else {
@@ -82,12 +82,12 @@ public class Commit38Request implements BinaryRequest<Commit37Response> {
   public void write(DatabaseSessionInternal db, ChannelDataOutput network,
       StorageRemoteSession session) throws IOException {
     // from 3.0 the the serializer is bound to the protocol
-    RecordSerializerNetworkV37Client serializer = RecordSerializerNetworkV37Client.INSTANCE;
+    var serializer = RecordSerializerNetworkV37Client.INSTANCE;
     network.writeLong(txId);
     network.writeBoolean(hasContent);
     network.writeBoolean(usingLog);
     if (hasContent) {
-      for (RecordOperationRequest txEntry : operations) {
+      for (var txEntry : operations) {
         network.writeByte((byte) 1);
         MessageHelper.writeTransactionEntry(network, txEntry, serializer);
       }
@@ -110,7 +110,7 @@ public class Commit38Request implements BinaryRequest<Commit37Response> {
       do {
         hasEntry = channel.readByte();
         if (hasEntry == 1) {
-          RecordOperationRequest entry = MessageHelper.readTransactionEntry(channel, serializer);
+          var entry = MessageHelper.readTransactionEntry(channel, serializer);
           operations.add(entry);
         }
       } while (hasEntry == 1);

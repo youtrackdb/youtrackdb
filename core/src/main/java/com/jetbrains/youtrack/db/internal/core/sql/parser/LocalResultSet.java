@@ -30,7 +30,7 @@ public class LocalResultSet implements ResultSet {
   }
 
   private boolean start() {
-    long begin = System.currentTimeMillis();
+    var begin = System.currentTimeMillis();
     try {
       if (stream == null) {
         startTime = begin;
@@ -48,7 +48,7 @@ public class LocalResultSet implements ResultSet {
 
   @Override
   public boolean hasNext() {
-    boolean next = stream.hasNext(executionPlan.getContext());
+    var next = stream.hasNext(executionPlan.getContext());
     if (!next) {
       logProfiling();
     }
@@ -66,10 +66,10 @@ public class LocalResultSet implements ResultSet {
   private void logProfiling() {
     if (executionPlan.getStatement() != null && YouTrackDBEnginesManager.instance().getProfiler()
         .isRecording()) {
-      final DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
+      final var db = DatabaseRecordThreadLocal.instance().getIfDefined();
       if (db != null) {
-        final SecurityUser user = db.geCurrentUser();
-        final String userString = user != null ? user.toString() : null;
+        final var user = db.geCurrentUser();
+        final var userString = user != null ? user.toString() : null;
         YouTrackDBEnginesManager.instance()
             .getProfiler()
             .stopChrono(

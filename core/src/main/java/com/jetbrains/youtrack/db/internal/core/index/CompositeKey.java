@@ -66,7 +66,7 @@ public class CompositeKey
   public CompositeKey(final List<?> keys) {
     this.keys = new ArrayList<>(keys.size());
 
-    for (final Object key : keys) {
+    for (final var key : keys) {
       addKey(key);
     }
   }
@@ -74,7 +74,7 @@ public class CompositeKey
   public CompositeKey(final Object... keys) {
     this.keys = new ArrayList<>(keys.length);
 
-    for (final Object key : keys) {
+    for (final var key : keys) {
       addKey(key);
     }
   }
@@ -113,7 +113,7 @@ public class CompositeKey
    */
   public void addKey(final Object key) {
     if (key instanceof CompositeKey compositeKey) {
-      for (final Object inKey : compositeKey.keys) {
+      for (final var inKey : compositeKey.keys) {
         addKey(inKey);
       }
     } else {
@@ -142,12 +142,12 @@ public class CompositeKey
    * or greater than the specified object.
    */
   public int compareTo(final CompositeKey otherKey) {
-    final Iterator<Object> inIter = keys.iterator();
-    final Iterator<Object> outIter = otherKey.keys.iterator();
+    final var inIter = keys.iterator();
+    final var outIter = otherKey.keys.iterator();
 
     while (inIter.hasNext() && outIter.hasNext()) {
-      final Object inKey = inIter.next();
-      final Object outKey = outIter.next();
+      final var inKey = inIter.next();
+      final var outKey = outIter.next();
 
       if (outKey instanceof AlwaysGreaterKey) {
         return -1;
@@ -165,7 +165,7 @@ public class CompositeKey
         return -1;
       }
 
-      final int result = DefaultComparator.INSTANCE.compare(inKey, outKey);
+      final var result = DefaultComparator.INSTANCE.compare(inKey, outKey);
       if (result != 0) {
         return result;
       }
@@ -185,7 +185,7 @@ public class CompositeKey
       return false;
     }
 
-    final CompositeKey that = (CompositeKey) o;
+    final var that = (CompositeKey) o;
 
     return keys.equals(that.keys);
   }
@@ -208,8 +208,8 @@ public class CompositeKey
 
   @Override
   public EntityImpl toEntity(DatabaseSessionInternal db) {
-    final EntityImpl entity = new EntityImpl(db);
-    for (int i = 0; i < keys.size(); i++) {
+    final var entity = new EntityImpl(db);
+    for (var i = 0; i < keys.size(); i++) {
       entity.field("key" + i, keys.get(i));
     }
 
@@ -220,13 +220,13 @@ public class CompositeKey
   public void fromDocument(EntityImpl entity) {
     entity.setLazyLoad(false);
 
-    final String[] fieldNames = entity.fieldNames();
+    final var fieldNames = entity.fieldNames();
 
     final SortedMap<Integer, Object> keyMap = new TreeMap<>();
 
-    for (String fieldName : fieldNames) {
+    for (var fieldName : fieldNames) {
       if (fieldName.startsWith("key")) {
-        final String keyIndex = fieldName.substring(3);
+        final var keyIndex = fieldName.substring(3);
         keyMap.put(Integer.valueOf(keyIndex), entity.field(fieldName));
       }
     }
@@ -238,17 +238,17 @@ public class CompositeKey
   // Alternative (de)serialization methods that avoid converting the CompositeKey to a entity.
   public void toStream(DatabaseSessionInternal db, RecordSerializerNetworkV37 serializer,
       DataOutput out) throws IOException {
-    int l = keys.size();
+    var l = keys.size();
     out.writeInt(l);
-    for (Object key : keys) {
+    for (var key : keys) {
       if (key instanceof CompositeKey) {
         throw new SerializationException("Cannot serialize unflattened nested composite key.");
       }
       if (key == null) {
         out.writeByte((byte) -1);
       } else {
-        PropertyType type = PropertyType.getTypeByValue(key);
-        byte[] bytes = serializer.serializeValue(db, key, type);
+        var type = PropertyType.getTypeByValue(key);
+        var bytes = serializer.serializeValue(db, key, type);
         out.writeByte((byte) type.getId());
         out.writeInt(bytes.length);
         out.write(bytes);
@@ -258,17 +258,17 @@ public class CompositeKey
 
   public void fromStream(DatabaseSessionInternal db, RecordSerializerNetworkV37 serializer,
       DataInput in) throws IOException {
-    int l = in.readInt();
-    for (int i = 0; i < l; i++) {
-      byte b = in.readByte();
+    var l = in.readInt();
+    for (var i = 0; i < l; i++) {
+      var b = in.readByte();
       if (b == -1) {
         addKey(null);
       } else {
-        int len = in.readInt();
-        byte[] bytes = new byte[len];
+        var len = in.readInt();
+        var bytes = new byte[len];
         in.readFully(bytes);
-        PropertyType type = PropertyType.getById(b);
-        Object k = serializer.deserializeValue(db, bytes, type);
+        var type = PropertyType.getById(b);
+        var k = serializer.deserializeValue(db, bytes, type);
         addKey(k);
       }
     }
@@ -298,7 +298,7 @@ public class CompositeKey
 
   private void fireBeforeIdentityChange() {
     if (this.identityChangeListeners != null) {
-      for (IdentityChangeListener listener : this.identityChangeListeners) {
+      for (var listener : this.identityChangeListeners) {
         listener.onBeforeIdentityChange(this);
       }
     }
@@ -306,7 +306,7 @@ public class CompositeKey
 
   private void fireAfterIdentityChange() {
     if (this.identityChangeListeners != null) {
-      for (IdentityChangeListener listener : this.identityChangeListeners) {
+      for (var listener : this.identityChangeListeners) {
         listener.onAfterIdentityChange(this);
       }
     }

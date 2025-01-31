@@ -21,9 +21,9 @@ public class IndexClusterTest extends BaseDBTest {
   public void indexAfterRebuildShouldIncludeAllClusters() {
     // given
     Schema schema = db.getMetadata().getSchema();
-    String className = "IndexClusterTest";
+    var className = "IndexClusterTest";
 
-    SchemaClass oclass = schema.createClass(className);
+    var oclass = schema.createClass(className);
     oclass.createProperty(db, "key", PropertyType.STRING);
     oclass.createProperty(db, "value", PropertyType.INTEGER);
     oclass.createIndex(db, className + "index1", SchemaClass.INDEX_TYPE.NOTUNIQUE, "key");
@@ -32,7 +32,7 @@ public class IndexClusterTest extends BaseDBTest {
     db.<EntityImpl>newInstance(className).field("key", "a").field("value", 1).save();
     db.commit();
 
-    int clId = db.addCluster(className + "secondCluster");
+    var clId = db.addCluster(className + "secondCluster");
     oclass.addClusterId(db, clId);
 
     db.begin();

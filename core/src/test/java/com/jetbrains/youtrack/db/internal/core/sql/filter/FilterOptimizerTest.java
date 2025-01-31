@@ -16,12 +16,12 @@ public class FilterOptimizerTest extends DbTestBase {
     var context = new BasicCommandContext();
     context.setDatabase(db);
 
-    final SQLFilter filter = SQLEngine.parseCondition("a = 3", context,
+    final var filter = SQLEngine.parseCondition("a = 3", context,
         "WHERE");
 
-    final SQLFilterCondition condition = filter.getRootCondition();
+    final var condition = filter.getRootCondition();
 
-    final IndexSearchResult searchResult =
+    final var searchResult =
         new IndexSearchResult(
             condition.getOperator(),
             ((SQLFilterItemField) condition.getLeft()).getFieldChain(),
@@ -37,23 +37,23 @@ public class FilterOptimizerTest extends DbTestBase {
     var context = new BasicCommandContext();
     context.setDatabase(db);
 
-    final SQLFilter filter =
+    final var filter =
         SQLEngine.parseCondition("a = 3 and b = 4", context, "WHERE");
 
-    final SQLFilterCondition condition = filter.getRootCondition();
+    final var condition = filter.getRootCondition();
 
     final IndexSearchResult searchResult;
     {
       final IndexSearchResult searchResult1;
       {
-        final SQLFilterCondition cnd = (SQLFilterCondition) condition.getLeft();
+        final var cnd = (SQLFilterCondition) condition.getLeft();
         searchResult1 =
             new IndexSearchResult(
                 cnd.getOperator(), ((SQLFilterItemField) cnd.getLeft()).getFieldChain(), 3);
       }
       final IndexSearchResult searchResult2;
       {
-        final SQLFilterCondition cnd = (SQLFilterCondition) condition.getRight();
+        final var cnd = (SQLFilterCondition) condition.getRight();
         searchResult2 =
             new IndexSearchResult(
                 cnd.getOperator(), ((SQLFilterItemField) cnd.getLeft()).getFieldChain(), 4);
@@ -71,12 +71,12 @@ public class FilterOptimizerTest extends DbTestBase {
     var context = new BasicCommandContext();
     context.setDatabase(db);
 
-    final SQLFilter filter =
+    final var filter =
         SQLEngine.parseCondition("a = 3 and b > 5", context, "WHERE");
 
-    final SQLFilterCondition condition = filter.getRootCondition();
+    final var condition = filter.getRootCondition();
 
-    final IndexSearchResult searchResult =
+    final var searchResult =
         new IndexSearchResult(
             ((SQLFilterCondition) condition.getLeft()).getOperator(),
             ((SQLFilterItemField) ((SQLFilterCondition) condition.getLeft()).getLeft())
@@ -93,13 +93,13 @@ public class FilterOptimizerTest extends DbTestBase {
     var context = new BasicCommandContext();
     context.setDatabase(db);
 
-    final SQLFilter filter =
+    final var filter =
         SQLEngine.parseCondition("a = 3 and b.asFloat() > 3.14", context,
             "WHERE");
 
-    final SQLFilterCondition condition = filter.getRootCondition();
+    final var condition = filter.getRootCondition();
 
-    final IndexSearchResult searchResult =
+    final var searchResult =
         new IndexSearchResult(
             ((SQLFilterCondition) condition.getLeft()).getOperator(),
             ((SQLFilterItemField) ((SQLFilterCondition) condition.getLeft()).getLeft())

@@ -18,12 +18,10 @@ package com.jetbrains.youtrack.db.auto;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -44,7 +42,7 @@ public class CollectionIndexTest extends BaseDBTest {
     if (db.getMetadata().getSchema().existsClass("Collector")) {
       db.getMetadata().getSchema().dropClass("Collector");
     }
-    final SchemaClass collector = db.createClass("Collector");
+    final var collector = db.createClass("Collector");
     collector.createProperty(db, "id", PropertyType.STRING);
     collector
         .createProperty(db, "stringCollection", PropertyType.EMBEDDEDLIST,
@@ -65,21 +63,21 @@ public class CollectionIndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    Entity collector = db.newEntity("Collector");
+    var collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
 
     db.save(collector);
     db.commit();
 
-    final Index index = getIndex("Collector.stringCollection");
+    final var index = getIndex("Collector.stringCollection");
     Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = index.getInternal().keyStream()) {
+    try (var keyStream = index.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("spam") && !key.equals("eggs")) {
           Assert.fail("Unknown key found: " + key);
         }
@@ -92,7 +90,7 @@ public class CollectionIndexTest extends BaseDBTest {
 
     try {
       db.begin();
-      Entity collector = db.newEntity("Collector");
+      var collector = db.newEntity("Collector");
       collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
       db.save(collector);
       db.commit();
@@ -101,14 +99,14 @@ public class CollectionIndexTest extends BaseDBTest {
       throw e;
     }
 
-    final Index index = getIndex("Collector.stringCollection");
+    final var index = getIndex("Collector.stringCollection");
     Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = index.getInternal().keyStream()) {
+    try (var keyStream = index.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("spam") && !key.equals("eggs")) {
           Assert.fail("Unknown key found: " + key);
         }
@@ -120,22 +118,22 @@ public class CollectionIndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    Entity collector = db.newEntity("Collector");
+    var collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     collector = db.save(collector);
     collector.setProperty("stringCollection", Arrays.asList("spam", "bacon"));
     db.save(collector);
     db.commit();
 
-    final Index index = getIndex("Collector.stringCollection");
+    final var index = getIndex("Collector.stringCollection");
     Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = index.getInternal().keyStream()) {
+    try (var keyStream = index.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("spam") && !key.equals("bacon")) {
           Assert.fail("Unknown key found: " + key);
         }
@@ -146,7 +144,7 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateInTx() {
     checkEmbeddedDB();
 
-    Entity collector = db.newEntity("Collector");
+    var collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     db.begin();
     collector = db.save(collector);
@@ -162,15 +160,15 @@ public class CollectionIndexTest extends BaseDBTest {
       throw e;
     }
 
-    final Index index = getIndex("Collector.stringCollection");
+    final var index = getIndex("Collector.stringCollection");
 
     Assert.assertEquals(index.getInternal().size(db), 2);
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = index.getInternal().keyStream()) {
+    try (var keyStream = index.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("spam") && !key.equals("bacon")) {
           Assert.fail("Unknown key found: " + key);
         }
@@ -182,7 +180,7 @@ public class CollectionIndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    Entity collector = db.newEntity("Collector");
+    var collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     collector = db.save(collector);
     db.commit();
@@ -193,16 +191,16 @@ public class CollectionIndexTest extends BaseDBTest {
     db.save(collector);
     db.rollback();
 
-    final Index index = getIndex("Collector.stringCollection");
+    final var index = getIndex("Collector.stringCollection");
 
     Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = index.getInternal().keyStream()) {
+    try (var keyStream = index.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("spam") && !key.equals("eggs")) {
           Assert.fail("Unknown key found: " + key);
         }
@@ -213,7 +211,7 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateAddItem() {
     checkEmbeddedDB();
 
-    Entity collector = db.newEntity("Collector");
+    var collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
 
     db.begin();
@@ -229,15 +227,15 @@ public class CollectionIndexTest extends BaseDBTest {
         .close();
     db.commit();
 
-    final Index index = getIndex("Collector.stringCollection");
+    final var index = getIndex("Collector.stringCollection");
     Assert.assertEquals(index.getInternal().size(db), 3);
 
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = index.getInternal().keyStream()) {
+    try (var keyStream = index.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("spam") && !key.equals("eggs") && !key.equals("cookies")) {
           Assert.fail("Unknown key found: " + key);
         }
@@ -248,7 +246,7 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateAddItemInTx() {
     checkEmbeddedDB();
 
-    Entity collector = db.newEntity("Collector");
+    var collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", new ArrayList<>(Arrays.asList("spam", "eggs")));
     db.begin();
     collector = db.save(collector);
@@ -265,16 +263,16 @@ public class CollectionIndexTest extends BaseDBTest {
       throw e;
     }
 
-    final Index index = getIndex("Collector.stringCollection");
+    final var index = getIndex("Collector.stringCollection");
 
     Assert.assertEquals(index.getInternal().size(db), 3);
 
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = index.getInternal().keyStream()) {
+    try (var keyStream = index.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("spam") && !key.equals("eggs") && !key.equals("cookies")) {
           Assert.fail("Unknown key found: " + key);
         }
@@ -285,7 +283,7 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateAddItemInTxRollback() {
     checkEmbeddedDB();
 
-    Entity collector = db.newEntity("Collector");
+    var collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", new ArrayList<>(Arrays.asList("spam", "eggs")));
     db.begin();
     collector = db.save(collector);
@@ -297,15 +295,15 @@ public class CollectionIndexTest extends BaseDBTest {
     db.save(loadedCollector);
     db.rollback();
 
-    final Index index = getIndex("Collector.stringCollection");
+    final var index = getIndex("Collector.stringCollection");
     Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = index.getInternal().keyStream()) {
+    try (var keyStream = index.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("spam") && !key.equals("eggs")) {
           Assert.fail("Unknown key found: " + key);
         }
@@ -316,7 +314,7 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateRemoveItemInTx() {
     checkEmbeddedDB();
 
-    Entity collector = db.newEntity("Collector");
+    var collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", new ArrayList<>(Arrays.asList("spam", "eggs")));
     db.begin();
     collector = db.save(collector);
@@ -333,15 +331,15 @@ public class CollectionIndexTest extends BaseDBTest {
       throw e;
     }
 
-    final Index index = getIndex("Collector.stringCollection");
+    final var index = getIndex("Collector.stringCollection");
     Assert.assertEquals(index.getInternal().size(db), 1);
 
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = index.getInternal().keyStream()) {
+    try (var keyStream = index.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("eggs")) {
           Assert.fail("Unknown key found: " + key);
         }
@@ -352,7 +350,7 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateRemoveItemInTxRollback() {
     checkEmbeddedDB();
 
-    Entity collector = db.newEntity("Collector");
+    var collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", new ArrayList<>(Arrays.asList("spam", "eggs")));
     db.begin();
     collector = db.save(collector);
@@ -364,15 +362,15 @@ public class CollectionIndexTest extends BaseDBTest {
     db.save(loadedCollector);
     db.rollback();
 
-    final Index index = getIndex("Collector.stringCollection");
+    final var index = getIndex("Collector.stringCollection");
     Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = index.getInternal().keyStream()) {
+    try (var keyStream = index.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("spam") && !key.equals("eggs")) {
           Assert.fail("Unknown key found: " + key);
         }
@@ -383,7 +381,7 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateRemoveItem() {
     checkEmbeddedDB();
 
-    Entity collector = db.newEntity("Collector");
+    var collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     db.begin();
     collector = db.save(collector);
@@ -395,14 +393,14 @@ public class CollectionIndexTest extends BaseDBTest {
         .close();
     db.commit();
 
-    final Index index = getIndex("Collector.stringCollection");
+    final var index = getIndex("Collector.stringCollection");
 
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = index.getInternal().keyStream()) {
+    try (var keyStream = index.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("eggs")) {
           Assert.fail("Unknown key found: " + key);
         }
@@ -413,14 +411,14 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionRemove() {
     checkEmbeddedDB();
 
-    Entity collector = db.newEntity("Collector");
+    var collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     db.begin();
     collector = db.save(collector);
     db.delete(collector);
     db.commit();
 
-    final Index index = getIndex("Collector.stringCollection");
+    final var index = getIndex("Collector.stringCollection");
 
     Assert.assertEquals(index.getInternal().size(db), 0);
   }
@@ -428,7 +426,7 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionRemoveInTx() {
     checkEmbeddedDB();
 
-    Entity collector = db.newEntity("Collector");
+    var collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     db.begin();
     collector = db.save(collector);
@@ -442,7 +440,7 @@ public class CollectionIndexTest extends BaseDBTest {
       throw e;
     }
 
-    final Index index = getIndex("Collector.stringCollection");
+    final var index = getIndex("Collector.stringCollection");
 
     Assert.assertEquals(index.getInternal().size(db), 0);
   }
@@ -450,7 +448,7 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionRemoveInTxRollback() {
     checkEmbeddedDB();
 
-    Entity collector = db.newEntity("Collector");
+    var collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     db.begin();
     collector = db.save(collector);
@@ -460,15 +458,15 @@ public class CollectionIndexTest extends BaseDBTest {
     db.delete(db.bindToSession(collector));
     db.rollback();
 
-    final Index index = getIndex("Collector.stringCollection");
+    final var index = getIndex("Collector.stringCollection");
     Assert.assertEquals(index.getInternal().size(db), 2);
 
     Iterator<Object> keysIterator;
-    try (Stream<Object> keyStream = index.getInternal().keyStream()) {
+    try (var keyStream = index.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        String key = (String) keysIterator.next();
+        var key = (String) keysIterator.next();
         if (!key.equals("spam") && !key.equals("eggs")) {
           Assert.fail("Unknown key found: " + key);
         }
@@ -477,7 +475,7 @@ public class CollectionIndexTest extends BaseDBTest {
   }
 
   public void testIndexCollectionSQL() {
-    Entity collector = db.newEntity("Collector");
+    var collector = db.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
 
     db.begin();

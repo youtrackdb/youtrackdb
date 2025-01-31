@@ -97,9 +97,9 @@ public class LuceneResultSet implements Set<Identifiable> {
     highlighted =
         Optional.ofNullable((List<String>) highlight.get("fields")).orElse(Collections.emptyList());
 
-    final String startElement = (String) Optional.ofNullable(highlight.get("start")).orElse("<B>");
+    final var startElement = (String) Optional.ofNullable(highlight.get("start")).orElse("<B>");
 
-    final String endElement = (String) Optional.ofNullable(highlight.get("end")).orElse("</B>");
+    final var endElement = (String) Optional.ofNullable(highlight.get("end")).orElse("</B>");
 
     final Scorer scorer = new QueryTermScorer(queryContext.getQuery());
     final Formatter formatter = new SimpleHTMLFormatter(startElement, endElement);
@@ -110,7 +110,7 @@ public class LuceneResultSet implements Set<Identifiable> {
 
   protected void fetchFirstBatch() {
     try {
-      final IndexSearcher searcher = queryContext.getSearcher();
+      final var searcher = queryContext.getSearcher();
       if (queryContext.getSort() == null) {
         topDocs = searcher.search(query, PAGE_SIZE);
       } else {
@@ -213,9 +213,9 @@ public class LuceneResultSet implements Set<Identifiable> {
 
     @Override
     public boolean hasNext() {
-      final boolean hasNext = index < (totalHits - deletedMatchCount);
+      final var hasNext = index < (totalHits - deletedMatchCount);
       if (!hasNext && !closed) {
-        final IndexSearcher searcher = queryContext.getSearcher();
+        final var searcher = queryContext.getSearcher();
         if (searcher.getIndexReader().getRefCount() > 1) {
           assert db.assertIfNotActive();
           engine.release(db.getStorage(), searcher);
@@ -247,7 +247,7 @@ public class LuceneResultSet implements Set<Identifiable> {
         localIndex = 0;
         fetchMoreResult();
       }
-      final ScoreDoc score = scoreDocs[localIndex++];
+      final var score = scoreDocs[localIndex++];
       return score;
     }
 
@@ -261,18 +261,18 @@ public class LuceneResultSet implements Set<Identifiable> {
     }
 
     private ContextualRecordId toRecordId(final Document doc, final ScoreDoc score) {
-      final String rId = doc.get(LuceneIndexEngineAbstract.RID);
-      final ContextualRecordId res = new ContextualRecordId(rId);
+      final var rId = doc.get(LuceneIndexEngineAbstract.RID);
+      final var res = new ContextualRecordId(rId);
 
-      final IndexReader indexReader = queryContext.getSearcher().getIndexReader();
+      final var indexReader = queryContext.getSearcher().getIndexReader();
       try {
-        for (final String field : highlighted) {
-          final String text = doc.get(field);
+        for (final var field : highlighted) {
+          final var text = doc.get(field);
           if (text != null) {
-            TokenStream tokenStream =
+            var tokenStream =
                 TokenSources.getAnyTokenStream(
                     indexReader, score.doc, field, doc, engine.indexAnalyzer());
-            TextFragment[] frag =
+            var frag =
                 highlighter.getBestTextFragments(tokenStream, text, true, maxNumFragments);
             queryContext.addHighlightFragment(field, frag);
           }
@@ -292,7 +292,7 @@ public class LuceneResultSet implements Set<Identifiable> {
     private void fetchMoreResult() {
       TopDocs topDocs = null;
       try {
-        final IndexSearcher searcher = queryContext.getSearcher();
+        final var searcher = queryContext.getSearcher();
         if (queryContext.getSort() == null) {
           topDocs = searcher.searchAfter(scoreDocs[scoreDocs.length - 1], query, PAGE_SIZE);
         } else {

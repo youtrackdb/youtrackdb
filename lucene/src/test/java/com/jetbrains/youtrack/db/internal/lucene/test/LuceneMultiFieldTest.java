@@ -42,7 +42,7 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
 
   @Before
   public void init() throws Exception {
-    try (InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql")) {
+    try (var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql")) {
       //noinspection deprecation
       db.execute("sql", getScriptFromStream(stream)).close();
     }
@@ -71,7 +71,7 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
   @Test
   public void testSelectSingleDocumentWithAndOperator() {
 
-    ResultSet docs =
+    var docs =
         db.query(
             "select * from Song where [title,author] LUCENE \"(title:mountain AND"
                 + " author:Fabbio)\"");
@@ -80,7 +80,7 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
 
   @Test
   public void testSelectSingleDocumentWithAndOperatorNEwExec() {
-    try (ResultSet docs =
+    try (var docs =
         db.query(
             "select * from Song where [title,author] LUCENE \"(title:mountain AND"
                 + " author:Fabbio)\"")) {
@@ -93,7 +93,7 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
 
   @Test
   public void testSelectMultipleDocumentsWithOrOperator() {
-    ResultSet docs =
+    var docs =
         db.query(
             "select * from Song where [title,author] LUCENE \"(title:mountain OR author:Fabbio)\"");
 
@@ -102,14 +102,14 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
 
   @Test
   public void testSelectOnTitleAndAuthorWithMatchOnTitle() {
-    ResultSet docs = db.query("select * from Song where [title,author] LUCENE \"mountain\"");
+    var docs = db.query("select * from Song where [title,author] LUCENE \"mountain\"");
 
     assertThat(docs).hasSize(5);
   }
 
   @Test
   public void testSelectOnTitleAndAuthorWithMatchOnAuthor() {
-    ResultSet docs = db.query("select * from Song where [title,author] LUCENE \"author:fabbio\"");
+    var docs = db.query("select * from Song where [title,author] LUCENE \"author:fabbio\"");
 
     assertThat(docs).hasSize(87);
   }
@@ -117,7 +117,7 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
   @Test
   @Ignore
   public void testSelectOnAuthorWithMatchOnAuthor() {
-    ResultSet docs = db.query("select * from Song where [author,title] LUCENE \"(fabbio)\"");
+    var docs = db.query("select * from Song where [author,title] LUCENE \"(fabbio)\"");
 
     assertThat(docs).hasSize(87);
   }
@@ -125,7 +125,7 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
   @Test
   public void testSelectOnIndexWithIgnoreNullValuesToFalse() {
     // #5579
-    String script =
+    var script =
         """
             create class Item;
             create property Item.Title string;
@@ -140,7 +140,7 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
             """;
     db.execute("sql", script).close();
 
-    ResultSet docs = db.query("select * from Item where Title lucene 'te*'");
+    var docs = db.query("select * from Item where Title lucene 'te*'");
     assertThat(docs).hasSize(1);
 
     //noinspection deprecation
@@ -149,8 +149,8 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
     assertThat(docs).hasSize(1);
 
     // nidex api
-    final Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Item.i_lucene");
-    try (Stream<RID> stream = index.getInternal().getRids(db, "(Title:test )")) {
+    final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Item.i_lucene");
+    try (var stream = index.getInternal().getRids(db, "(Title:test )")) {
       assertThat(stream.findAny().isPresent()).isTrue();
     }
   }

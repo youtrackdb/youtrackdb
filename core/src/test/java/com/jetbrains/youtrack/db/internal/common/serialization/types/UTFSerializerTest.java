@@ -49,7 +49,7 @@ public class UTFSerializerTest {
     stream = new byte[stringSerializer.getObjectSize(OBJECT) + 7];
     stringSerializer.serializeNativeObject(OBJECT, stream, 7);
 
-    ByteBuffer buffer = ByteBuffer.allocateDirect(stream.length).order(ByteOrder.nativeOrder());
+    var buffer = ByteBuffer.allocateDirect(stream.length).order(ByteOrder.nativeOrder());
     buffer.put(stream);
     buffer.position(7);
 
@@ -60,7 +60,7 @@ public class UTFSerializerTest {
   public void testNativeDirectMemoryCompatibilityAsWhole() {
     stream = stringSerializer.serializeNativeAsWhole(OBJECT);
 
-    ByteBuffer buffer = ByteBuffer.allocateDirect(stream.length).order(ByteOrder.nativeOrder());
+    var buffer = ByteBuffer.allocateDirect(stream.length).order(ByteOrder.nativeOrder());
     buffer.put(stream);
     buffer.position(0);
 
@@ -69,14 +69,14 @@ public class UTFSerializerTest {
 
   @Test
   public void testSerializeInByteBuffer() {
-    final int serializationOffset = 5;
-    final ByteBuffer buffer =
+    final var serializationOffset = 5;
+    final var buffer =
         ByteBuffer.allocate(stringSerializer.getObjectSize(OBJECT) + serializationOffset);
 
     buffer.position(serializationOffset);
     stringSerializer.serializeInByteBufferObject(OBJECT, buffer);
 
-    final int binarySize = buffer.position() - serializationOffset;
+    final var binarySize = buffer.position() - serializationOffset;
     Assert.assertEquals(binarySize, stringSerializer.getObjectSize(OBJECT));
 
     buffer.position(serializationOffset);
@@ -92,14 +92,14 @@ public class UTFSerializerTest {
 
   @Test
   public void testSerializeInImmutableByteBufferPosition() {
-    final int serializationOffset = 5;
-    final ByteBuffer buffer =
+    final var serializationOffset = 5;
+    final var buffer =
         ByteBuffer.allocate(stringSerializer.getObjectSize(OBJECT) + serializationOffset);
 
     buffer.position(serializationOffset);
     stringSerializer.serializeInByteBufferObject(OBJECT, buffer);
 
-    final int binarySize = buffer.position() - serializationOffset;
+    final var binarySize = buffer.position() - serializationOffset;
     Assert.assertEquals(binarySize, stringSerializer.getObjectSize(OBJECT));
 
     buffer.position(0);
@@ -115,15 +115,15 @@ public class UTFSerializerTest {
 
   @Test
   public void testSerializeWALChanges() {
-    final int serializationOffset = 5;
-    final ByteBuffer buffer =
+    final var serializationOffset = 5;
+    final var buffer =
         ByteBuffer.allocateDirect(
                 stringSerializer.getObjectSize(OBJECT)
                     + serializationOffset
                     + WALPageChangesPortion.PORTION_BYTES)
             .order(ByteOrder.nativeOrder());
 
-    final byte[] data = new byte[stringSerializer.getObjectSize(OBJECT)];
+    final var data = new byte[stringSerializer.getObjectSize(OBJECT)];
     stringSerializer.serializeNativeObject(OBJECT, data, 0);
 
     WALChanges walChanges = new WALPageChangesPortion();

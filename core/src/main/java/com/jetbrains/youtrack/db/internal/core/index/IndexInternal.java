@@ -191,7 +191,7 @@ public interface IndexInternal extends Index {
     if (idx.getDefinition() == null) {
       return item;
     }
-    String indexClass = idx.getDefinition().getClassName();
+    var indexClass = idx.getDefinition().getClassName();
     if (indexClass == null) {
       return item;
     }
@@ -200,7 +200,7 @@ public interface IndexInternal extends Index {
       return item;
     }
 
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
     if (isReadRestrictedBySecurityPolicy(indexClass, db, security)) {
       try {
         item = item.getRecord(db);
@@ -212,7 +212,7 @@ public interface IndexInternal extends Index {
       return null;
     }
     if (idx.getDefinition().getFields().size() == 1) {
-      String indexProp = idx.getDefinition().getFields().get(0);
+      var indexProp = idx.getDefinition().getFields().get(0);
       if (isLabelSecurityDefined(db, security, indexClass, indexProp)) {
         try {
           item = item.getRecord(db);
@@ -225,7 +225,7 @@ public interface IndexInternal extends Index {
         if (!(item instanceof EntityImpl)) {
           return item;
         }
-        PropertyAccess access = EntityInternalUtils.getPropertyAccess((EntityImpl) item);
+        var access = EntityInternalUtils.getPropertyAccess((EntityImpl) item);
         if (access != null && !access.isReadable(indexProp)) {
           return null;
         }
@@ -241,17 +241,17 @@ public interface IndexInternal extends Index {
       String propertyName) {
     Set<String> classesToCheck = new HashSet<>();
     classesToCheck.add(indexClass);
-    SchemaClass clazz = database.getClass(indexClass);
+    var clazz = database.getClass(indexClass);
     if (clazz == null) {
       return false;
     }
     clazz.getAllSubclasses().forEach(x -> classesToCheck.add(x.getName()));
     clazz.getAllSuperClasses().forEach(x -> classesToCheck.add(x.getName()));
-    Set<SecurityResourceProperty> allFilteredProperties =
+    var allFilteredProperties =
         security.getAllFilteredProperties(database);
 
-    for (String className : classesToCheck) {
-      Optional<SecurityResourceProperty> item =
+    for (var className : classesToCheck) {
+      var item =
           allFilteredProperties.stream()
               .filter(x -> x.getClassName().equalsIgnoreCase(className))
               .filter(x -> x.getPropertyName().equals(propertyName))
@@ -270,10 +270,10 @@ public interface IndexInternal extends Index {
       return true;
     }
 
-    SchemaClass clazz = db.getClass(indexClass);
+    var clazz = db.getClass(indexClass);
     if (clazz != null) {
-      Collection<SchemaClass> sub = clazz.getSubclasses();
-      for (SchemaClass subClass : sub) {
+      var sub = clazz.getSubclasses();
+      for (var subClass : sub) {
         if (isReadRestrictedBySecurityPolicy(subClass.getName(), db, security)) {
           return true;
         }

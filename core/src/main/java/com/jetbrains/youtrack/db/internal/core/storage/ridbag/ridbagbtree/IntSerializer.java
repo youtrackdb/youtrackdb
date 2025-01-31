@@ -12,9 +12,9 @@ public final class IntSerializer implements BinarySerializer<Integer> {
   public int getObjectSize(Integer object, Object... hints) {
     int value = object;
 
-    final int zeroBits = Integer.numberOfLeadingZeros(value);
-    final int zerosTillFullByte = zeroBits & 7;
-    final int numberSize = 4 - (zeroBits - zerosTillFullByte) / 8;
+    final var zeroBits = Integer.numberOfLeadingZeros(value);
+    final var zerosTillFullByte = zeroBits & 7;
+    final var numberSize = 4 - (zeroBits - zerosTillFullByte) / 8;
 
     return numberSize + 1;
   }
@@ -74,13 +74,13 @@ public final class IntSerializer implements BinarySerializer<Integer> {
   public void serializeInByteBufferObject(Integer object, ByteBuffer buffer, Object... hints) {
     int value = object;
 
-    final int zeroBits = Integer.numberOfLeadingZeros(value);
-    final int zerosTillFullByte = zeroBits & 7;
-    final int numberSize = 4 - (zeroBits - zerosTillFullByte) / 8;
+    final var zeroBits = Integer.numberOfLeadingZeros(value);
+    final var zerosTillFullByte = zeroBits & 7;
+    final var numberSize = 4 - (zeroBits - zerosTillFullByte) / 8;
 
     buffer.put((byte) numberSize);
 
-    for (int i = 0; i < numberSize; i++) {
+    for (var i = 0; i < numberSize; i++) {
       buffer.put((byte) ((0xFF) & value));
       value = value >>> 8;
     }
@@ -90,8 +90,8 @@ public final class IntSerializer implements BinarySerializer<Integer> {
   public Integer deserializeFromByteBufferObject(ByteBuffer buffer) {
     final int numberSize = buffer.get();
 
-    int value = 0;
-    for (int i = 0; i < numberSize; i++) {
+    var value = 0;
+    for (var i = 0; i < numberSize; i++) {
       value = value | ((0xFF & buffer.get()) << (i * 8));
     }
 
@@ -103,8 +103,8 @@ public final class IntSerializer implements BinarySerializer<Integer> {
     final int numberSize = buffer.get(offset);
     offset++;
 
-    int value = 0;
-    for (int i = 0; i < numberSize; i++) {
+    var value = 0;
+    for (var i = 0; i < numberSize; i++) {
       value = value | ((0xFF & buffer.get(offset)) << (i * 8));
       offset++;
     }
@@ -128,8 +128,8 @@ public final class IntSerializer implements BinarySerializer<Integer> {
     final int numberSize = walChanges.getByteValue(buffer, offset);
     offset++;
 
-    int value = 0;
-    for (int i = 0; i < numberSize; i++) {
+    var value = 0;
+    for (var i = 0; i < numberSize; i++) {
       value = value | ((0xFF & walChanges.getByteValue(buffer, offset)) << (i * 8));
       offset++;
     }
@@ -143,14 +143,14 @@ public final class IntSerializer implements BinarySerializer<Integer> {
   }
 
   public int serializePrimitive(final byte[] stream, int startPosition, int value) {
-    final int zeroBits = Integer.numberOfLeadingZeros(value);
-    final int zerosTillFullByte = zeroBits & 7;
-    final int numberSize = 4 - (zeroBits - zerosTillFullByte) / 8;
+    final var zeroBits = Integer.numberOfLeadingZeros(value);
+    final var zerosTillFullByte = zeroBits & 7;
+    final var numberSize = 4 - (zeroBits - zerosTillFullByte) / 8;
 
     stream[startPosition] = (byte) numberSize;
     startPosition++;
 
-    for (int i = 0; i < numberSize; i++) {
+    for (var i = 0; i < numberSize; i++) {
       stream[startPosition + i] = (byte) ((0xFF) & value);
       value = value >>> 8;
     }
@@ -162,8 +162,8 @@ public final class IntSerializer implements BinarySerializer<Integer> {
     final int numberSize = stream[startPosition];
     startPosition++;
 
-    int value = 0;
-    for (int i = 0; i < numberSize; i++) {
+    var value = 0;
+    for (var i = 0; i < numberSize; i++) {
       value = value | ((0xFF & stream[startPosition + i]) << (i * 8));
     }
 

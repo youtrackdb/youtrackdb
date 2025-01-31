@@ -3,8 +3,6 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence;
@@ -25,7 +23,7 @@ public class AlterDBSequenceStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSetIncrement() {
-    String sequenceName = "testSetStart";
+    var sequenceName = "testSetStart";
     db.executeInTx(
         () -> {
           try {
@@ -39,10 +37,10 @@ public class AlterDBSequenceStatementExecutionTest extends DbTestBase {
         });
 
     db.begin();
-    ResultSet result = db.command("alter sequence " + sequenceName + " increment 20");
+    var result = db.command("alter sequence " + sequenceName + " increment 20");
     Assert.assertNotNull(result);
     Assert.assertTrue(result.hasNext());
-    Result next = result.next();
+    var next = result.next();
     Assert.assertNotNull(next);
     Assert.assertEquals((Object) 20, next.getProperty("increment"));
     result.close();
@@ -50,7 +48,7 @@ public class AlterDBSequenceStatementExecutionTest extends DbTestBase {
 
     db.executeInTx(
         () -> {
-          DBSequence seq = db.getMetadata().getSequenceLibrary().getSequence(sequenceName);
+          var seq = db.getMetadata().getSequenceLibrary().getSequence(sequenceName);
           Assert.assertNotNull(seq);
           try {
             Assert.assertEquals(20, seq.next(db));

@@ -30,7 +30,7 @@ public interface ExecutionStep {
   }
 
   default Result toResult(DatabaseSession db) {
-    ResultInternal result = new ResultInternal((DatabaseSessionInternal) db);
+    var result = new ResultInternal((DatabaseSessionInternal) db);
     result.setProperty("name", getName());
     result.setProperty("type", getType());
     result.setProperty(InternalExecutionPlan.JAVA_TYPE, getClass().getName());

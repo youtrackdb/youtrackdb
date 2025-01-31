@@ -35,15 +35,15 @@ public class CollectionNetworkSerializer {
 
   public BonsaiCollectionPointer readCollectionPointer(ChannelDataInput client)
       throws IOException {
-    final long fileId = client.readLong();
-    final RidBagBucketPointer rootPointer = readBonsaiBucketPointer(client);
+    final var fileId = client.readLong();
+    final var rootPointer = readBonsaiBucketPointer(client);
     return new BonsaiCollectionPointer(fileId, rootPointer);
   }
 
   private RidBagBucketPointer readBonsaiBucketPointer(ChannelDataInput client)
       throws IOException {
-    long pageIndex = client.readLong();
-    int pageOffset = client.readInt();
+    var pageIndex = client.readLong();
+    var pageOffset = client.readInt();
     return new RidBagBucketPointer(pageIndex, pageOffset);
   }
 

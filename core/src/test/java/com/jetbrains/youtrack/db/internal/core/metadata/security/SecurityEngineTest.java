@@ -61,18 +61,18 @@ public class SecurityEngineTest {
 
   @Test
   public void testAllClasses() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
     db.createClass("Person");
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
+    var policy = security.createSecurityPolicy(db, "policy1");
     policy.setActive(db, true);
     policy.setReadRule(db, "name = 'admin'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.*", policy);
     db.commit();
 
-    SQLBooleanExpression pred =
+    var pred =
         SecurityEngine.getPredicateForSecurityResource(
             db, (SecurityShared) security, "database.class.Person", SecurityPolicy.Scope.READ);
 
@@ -81,19 +81,19 @@ public class SecurityEngineTest {
 
   @Test
   public void testSingleClass() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
+    var policy = security.createSecurityPolicy(db, "policy1");
     policy.setActive(db, true);
     policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.Person", policy);
     db.commit();
 
-    SQLBooleanExpression pred =
+    var pred =
         SecurityEngine.getPredicateForSecurityResource(
             db, (SecurityShared) security, "database.class.Person", SecurityPolicy.Scope.READ);
 
@@ -102,20 +102,20 @@ public class SecurityEngineTest {
 
   @Test
   public void testSuperclass() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
     db.createClass("Employee", "Person");
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
+    var policy = security.createSecurityPolicy(db, "policy1");
     policy.setActive(db, true);
     policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.Person", policy);
     db.commit();
 
-    SQLBooleanExpression pred =
+    var pred =
         SecurityEngine.getPredicateForSecurityResource(
             db, (SecurityShared) security, "database.class.Employee", SecurityPolicy.Scope.READ);
 
@@ -124,13 +124,13 @@ public class SecurityEngineTest {
 
   @Test
   public void testSuperclass2() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
     db.createClass("Employee", "Person");
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
+    var policy = security.createSecurityPolicy(db, "policy1");
     policy.setActive(db, true);
     policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
@@ -144,7 +144,7 @@ public class SecurityEngineTest {
         db, security.getRole(db, "admin"), "database.class.Employee", policy);
     db.commit();
 
-    SQLBooleanExpression pred =
+    var pred =
         SecurityEngine.getPredicateForSecurityResource(
             db, (SecurityShared) security, "database.class.Employee", SecurityPolicy.Scope.READ);
 
@@ -153,13 +153,13 @@ public class SecurityEngineTest {
 
   @Test
   public void testSuperclass3() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
     db.createClass("Employee", "Person");
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
+    var policy = security.createSecurityPolicy(db, "policy1");
     policy.setActive(db, true);
     policy.setReadRule(db, "name = 'admin'");
     security.saveSecurityPolicy(db, policy);
@@ -172,7 +172,7 @@ public class SecurityEngineTest {
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.*", policy);
     db.commit();
 
-    SQLBooleanExpression pred =
+    var pred =
         SecurityEngine.getPredicateForSecurityResource(
             db, (SecurityShared) security, "database.class.Employee", SecurityPolicy.Scope.READ);
 
@@ -181,14 +181,14 @@ public class SecurityEngineTest {
 
   @Test
   public void testTwoSuperclasses() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
     db.createClass("Foo");
     db.createClass("Employee", "Person", "Foo");
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
+    var policy = security.createSecurityPolicy(db, "policy1");
     policy.setActive(db, true);
     policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
@@ -201,7 +201,7 @@ public class SecurityEngineTest {
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.Foo", policy);
     db.commit();
 
-    SQLBooleanExpression pred =
+    var pred =
         SecurityEngine.getPredicateForSecurityResource(
             db, (SecurityShared) security, "database.class.Employee", SecurityPolicy.Scope.READ);
 
@@ -224,12 +224,12 @@ public class SecurityEngineTest {
         (DatabaseSessionInternal)
             youTrackDB.open(DB_NAME, "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
+    var policy = security.createSecurityPolicy(db, "policy1");
     policy.setActive(db, true);
     policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
@@ -242,7 +242,7 @@ public class SecurityEngineTest {
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
     db.commit();
 
-    SQLBooleanExpression pred =
+    var pred =
         SecurityEngine.getPredicateForSecurityResource(
             db, (SecurityShared) security, "database.class.Person", SecurityPolicy.Scope.READ);
 
@@ -253,13 +253,13 @@ public class SecurityEngineTest {
 
   @Test
   public void testRecordFiltering() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
     var rec1 =
         db.computeInTx(
             () -> {
-              Entity record1 = db.newEntity("Person");
+              var record1 = db.newEntity("Person");
               record1.setProperty("name", "foo");
               record1.save();
               return record1;
@@ -268,14 +268,14 @@ public class SecurityEngineTest {
     var rec2 =
         db.computeInTx(
             () -> {
-              Entity record2 = db.newEntity("Person");
+              var record2 = db.newEntity("Person");
               record2.setProperty("name", "bar");
               record2.save();
               return record2;
             });
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
+    var policy = security.createSecurityPolicy(db, "policy1");
     policy.setActive(db, true);
     policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);

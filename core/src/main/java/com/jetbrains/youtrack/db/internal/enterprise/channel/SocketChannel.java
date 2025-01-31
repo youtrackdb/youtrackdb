@@ -58,7 +58,7 @@ public abstract class SocketChannel {
   private String profilerMetric;
 
   static {
-    final String profilerMetric = PROFILER.getProcessMetric("network.channel.binary");
+    final var profilerMetric = PROFILER.getProcessMetric("network.channel.binary");
 
     PROFILER.registerHookValue(
         profilerMetric + ".transmittedBytes",
@@ -105,15 +105,15 @@ public abstract class SocketChannel {
 
   public static String getLocalIpAddress(final boolean iFavoriteIp4) throws SocketException {
     String bestAddress = null;
-    final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+    final var interfaces = NetworkInterface.getNetworkInterfaces();
     while (interfaces.hasMoreElements()) {
-      final NetworkInterface current = interfaces.nextElement();
+      final var current = interfaces.nextElement();
       if (!current.isUp() || current.isLoopback() || current.isVirtual()) {
         continue;
       }
-      Enumeration<InetAddress> addresses = current.getInetAddresses();
+      var addresses = current.getInetAddresses();
       while (addresses.hasMoreElements()) {
-        final InetAddress current_addr = addresses.nextElement();
+        final var current_addr = addresses.nextElement();
         if (current_addr.isLoopbackAddress()) {
           continue;
         }
@@ -195,7 +195,7 @@ public abstract class SocketChannel {
   }
 
   public void connected() {
-    final String dictProfilerMetric = PROFILER.getProcessMetric("network.channel.binary.*");
+    final var dictProfilerMetric = PROFILER.getProcessMetric("network.channel.binary.*");
 
     profilerMetric =
         PROFILER.getProcessMetric(

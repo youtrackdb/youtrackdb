@@ -8,20 +8,20 @@ public final class MPSCLinkedQueue<E> {
   private final AtomicReference<Node<E>> tail = new AtomicReference<>();
 
   public MPSCLinkedQueue() {
-    final Node<E> dummyNode = new Node<>(null);
+    final var dummyNode = new Node<E>(null);
     head.set(dummyNode);
     tail.set(dummyNode);
   }
 
   public void offer(final E item) {
-    final Node<E> newNode = new Node<>(item);
-    final Node<E> prev = tail.getAndSet(newNode);
+    final var newNode = new Node<E>(item);
+    final var prev = tail.getAndSet(newNode);
 
     prev.lazySetNext(newNode);
   }
 
   public E poll() {
-    final Node<E> head = this.head.get();
+    final var head = this.head.get();
     Node<E> next;
 
     if ((next = head.getNext()) != null) {
@@ -30,7 +30,7 @@ public final class MPSCLinkedQueue<E> {
       return next.getItem();
     }
 
-    final Node<E> tail = this.tail.get();
+    final var tail = this.tail.get();
     if (head == tail) {
       return null;
     }

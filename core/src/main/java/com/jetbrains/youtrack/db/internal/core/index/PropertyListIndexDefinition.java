@@ -58,9 +58,9 @@ public class PropertyListIndexDefinition extends PropertyIndexDefinition
       params = Collections.singletonList(params);
     }
 
-    final Collection<?> multiValueCollection = (Collection<?>) params.get(0);
+    final var multiValueCollection = (Collection<?>) params.get(0);
     final List<Object> values = new ArrayList<>(multiValueCollection.size());
-    for (final Object item : multiValueCollection) {
+    for (final var item : multiValueCollection) {
       values.add(createSingleValue(session, item));
     }
     return values;
@@ -68,7 +68,7 @@ public class PropertyListIndexDefinition extends PropertyIndexDefinition
 
   @Override
   public Object createValue(DatabaseSessionInternal session, final Object... params) {
-    Object param = params[0];
+    var param = params[0];
     if (!(param instanceof Collection<?>)) {
       try {
         return PropertyType.convert(session, param, keyType.getDefaultJavaType());
@@ -80,7 +80,7 @@ public class PropertyListIndexDefinition extends PropertyIndexDefinition
     @SuppressWarnings("PatternVariableCanBeUsed")
     var multiValueCollection = (Collection<?>) param;
     final List<Object> values = new ArrayList<>(multiValueCollection.size());
-    for (final Object item : multiValueCollection) {
+    for (final var item : multiValueCollection) {
       values.add(createSingleValue(session, item));
     }
     return values;

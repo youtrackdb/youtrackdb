@@ -26,7 +26,6 @@ import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
@@ -64,10 +63,10 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
   @SuppressWarnings("unchecked")
   public CommandExecutorSQLCreateEdge parse(DatabaseSessionInternal db,
       final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
@@ -79,8 +78,8 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
 
       String className = null;
 
-      String tempLower = parseOptionalWord(false);
-      String temp = tempLower == null ? null : tempLower.toUpperCase(Locale.ENGLISH);
+      var tempLower = parseOptionalWord(false);
+      var temp = tempLower == null ? null : tempLower.toUpperCase(Locale.ENGLISH);
 
       while (temp != null) {
         if (temp.equals("CLUSTER")) {
@@ -129,11 +128,11 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
 
             try {
               Schema schema = db.getMetadata().getSchema();
-              SchemaClass e = schema.getClass("E");
+              var e = schema.getClass("E");
               clazz = (SchemaClassInternal) schema.createClass(className, e);
             } finally {
               // RESTART TRANSACTION
-              for (int i = 0; i < committed; ++i) {
+              for (var i = 0; i < committed; ++i) {
                 db.begin();
               }
             }
@@ -183,13 +182,13 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
       toIds = SQLEngine.getInstance().parseRIDTarget(db, to, context, iArgs);
 
       // CREATE EDGES
-      for (Identifiable from : fromIds) {
-        final Vertex fromVertex = toVertex(from);
+      for (var from : fromIds) {
+        final var fromVertex = toVertex(from);
         if (fromVertex == null) {
           throw new CommandExecutionException("Source vertex '" + from + "' does not exist");
         }
 
-        for (Identifiable to : toIds) {
+        for (var to : toIds) {
           final Vertex toVertex;
           if (from.equals(to)) {
             toVertex = fromVertex;
@@ -203,7 +202,7 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
           if (fields != null)
           // EVALUATE FIELDS
           {
-            for (final Pair<String, Object> f : fields) {
+            for (final var f : fields) {
               if (f.getValue() instanceof SQLFunctionRuntime) {
                 f.setValue(((SQLFunctionRuntime) f.getValue()).getValue(to, null, context));
               } else if (f.getValue() instanceof SQLFilterItem) {

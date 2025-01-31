@@ -76,10 +76,10 @@ public class FetchHelper {
     try {
       if (rootRecord instanceof EntityImpl record) {
         // SCHEMA AWARE
-        final Object2IntOpenHashMap<RID> parsedRecords = new Object2IntOpenHashMap<>();
+        final var parsedRecords = new Object2IntOpenHashMap<RID>();
         parsedRecords.defaultReturnValue(-1);
 
-        final boolean isEmbedded = record.isEmbedded() || !record.getIdentity().isPersistent();
+        final var isEmbedded = record.isEmbedded() || !record.getIdentity().isPersistent();
         if (!isEmbedded) {
           parsedRecords.put(rootRecord.getIdentity(), 0);
         }
@@ -100,10 +100,10 @@ public class FetchHelper {
 
     if (iFetchPlan != null && !iFetchPlan.isEmpty()) {
       // CHECK IF THERE IS SOME FETCH-DEPTH
-      final List<String> planParts = StringSerializerHelper.split(iFetchPlan, ' ');
+      final var planParts = StringSerializerHelper.split(iFetchPlan, ' ');
       if (!planParts.isEmpty()) {
-        for (String planPart : planParts) {
-          final List<String> parts = StringSerializerHelper.split(planPart, ':');
+        for (var planPart : planParts) {
+          final var parts = StringSerializerHelper.split(planPart, ':');
           if (parts.size() != 2) {
             throw new IllegalArgumentException("Fetch plan '" + iFetchPlan + "' is invalid");
           }
@@ -140,9 +140,9 @@ public class FetchHelper {
     }
 
     Object fieldValue;
-    for (String fieldName : record.getPropertyNamesInternal()) {
+    for (var fieldName : record.getPropertyNamesInternal()) {
       int depthLevel;
-      final String fieldPath =
+      final var fieldPath =
           !iFieldPathFromRoot.isEmpty() ? iFieldPathFromRoot + "." + fieldName : fieldName;
 
       depthLevel = getDepthLevel(iFetchPlan, fieldPath, iCurrentLevel);
@@ -174,7 +174,7 @@ public class FetchHelper {
         continue;
       } else {
         try {
-          final boolean isEmbedded = isEmbedded(fieldValue);
+          final var isEmbedded = isEmbedded(fieldValue);
           if (!(isEmbedded && iContext.fetchEmbeddedDocuments())
               && !iFetchPlan.has(fieldPath, iCurrentLevel)
               && depthLevel > -1
@@ -184,7 +184,7 @@ public class FetchHelper {
             continue;
           }
 
-          final int nextLevel = isEmbedded ? iLevelFromRoot : iLevelFromRoot + 1;
+          final var nextLevel = isEmbedded ? iLevelFromRoot : iLevelFromRoot + 1;
 
           if (fieldValue instanceof RecordId) {
             fieldValue = ((RecordId) fieldValue).getRecord(db);
@@ -286,8 +286,8 @@ public class FetchHelper {
       final Object2IntOpenHashMap<RID> parsedRecords,
       final String iFieldPathFromRoot,
       final FetchContext iContext) {
-    final Iterable<Identifiable> linked = (Iterable<Identifiable>) fieldValue;
-    for (Identifiable d : linked) {
+    final var linked = (Iterable<Identifiable>) fieldValue;
+    for (var d : linked) {
       if (d != null) {
         // GO RECURSIVELY
         d = d.getRecord(db);
@@ -314,7 +314,7 @@ public class FetchHelper {
       final String iFieldPathFromRoot,
       final FetchContext iContext) {
     if (fieldValue instanceof EntityImpl[] linked) {
-      for (EntityImpl d : linked)
+      for (var d : linked)
       // GO RECURSIVELY
       {
         updateRidMap(db,
@@ -339,8 +339,8 @@ public class FetchHelper {
       final Object2IntOpenHashMap<RID> parsedRecords,
       final String iFieldPathFromRoot,
       final FetchContext iContext) {
-    final Map<String, EntityImpl> linked = (Map<String, EntityImpl>) fieldValue;
-    for (EntityImpl d : (linked).values())
+    final var linked = (Map<String, EntityImpl>) fieldValue;
+    for (var d : (linked).values())
     // GO RECURSIVELY
     {
       updateRidMap(db,
@@ -367,15 +367,15 @@ public class FetchHelper {
       return;
     }
 
-    final int fetchedLevel = parsedRecords.getInt(fieldValue.getIdentity());
-    int currentLevel = iCurrentLevel + 1;
-    int fieldDepthLevel = iFieldDepthLevel;
+    final var fetchedLevel = parsedRecords.getInt(fieldValue.getIdentity());
+    var currentLevel = iCurrentLevel + 1;
+    var fieldDepthLevel = iFieldDepthLevel;
     if (iFetchPlan != null && iFetchPlan.has(iFieldPathFromRoot, iCurrentLevel)) {
       currentLevel = 1;
       fieldDepthLevel = iFetchPlan.getDepthLevel(iFieldPathFromRoot, iCurrentLevel);
     }
 
-    final boolean isEmbedded = isEmbedded(fieldValue);
+    final var isEmbedded = isEmbedded(fieldValue);
 
     if (isEmbedded || fetchedLevel == -1) {
       if (!isEmbedded) {
@@ -411,13 +411,13 @@ public class FetchHelper {
     if (!fetchListener.requireFieldProcessing() && fetchPlan == FetchHelper.DEFAULT_FETCHPLAN) {
       return;
     }
-    final RecordSerializerJSON.FormatSettings settings =
+    final var settings =
         new RecordSerializerJSON.FormatSettings(format);
 
     // Pre-process to gather fieldTypes
     fetchContext.onBeforeFetch(record);
     if (settings.keepTypes) {
-      for (final String fieldName : record.getPropertyNamesInternal()) {
+      for (final var fieldName : record.getPropertyNamesInternal()) {
         processFieldTypes(
             record,
             userObject,
@@ -435,7 +435,7 @@ public class FetchHelper {
 
     fetchContext.onBeforeFetch(record);
     final Set<String> toRemove = new HashSet<>();
-    for (final String fieldName : record.getPropertyNamesInternal()) {
+    for (final var fieldName : record.getPropertyNamesInternal()) {
       process(db,
           record,
           userObject,
@@ -450,7 +450,7 @@ public class FetchHelper {
           format,
           toRemove, fieldName);
     }
-    for (final String fieldName : toRemove) {
+    for (final var fieldName : toRemove) {
       fetchListener.skipStandardField(record, fieldName, fetchContext, userObject, format);
     }
     if (settings.keepTypes) {
@@ -470,7 +470,7 @@ public class FetchHelper {
       Set<String> toRemove,
       String fieldName) {
     Object fieldValue;
-    final String fieldPath =
+    final var fieldPath =
         !fieldPathFromRoot.isEmpty() ? fieldPathFromRoot + "." + fieldName : fieldName;
     int depthLevel;
     depthLevel = getDepthLevel(fetchPlan, fieldPath, currentLevel);
@@ -483,14 +483,14 @@ public class FetchHelper {
     }
 
     fieldValue = EntityInternalUtils.getRawProperty(record, fieldName);
-    final PropertyType fieldType = record.getPropertyType(fieldName);
-    boolean fetch =
+    final var fieldType = record.getPropertyType(fieldName);
+    var fetch =
         !format.contains("shallow")
             && (!(fieldValue instanceof Identifiable)
             || depthLevel == -1
             || currentLevel <= depthLevel
             || (fetchPlan != null && fetchPlan.has(fieldPath, currentLevel)));
-    final boolean isEmbedded = isEmbedded(fieldValue);
+    final var isEmbedded = isEmbedded(fieldValue);
 
     if (!fetch && isEmbedded && fetchContext.fetchEmbeddedDocuments()) {
       // EMBEDDED, GO DEEPER
@@ -523,11 +523,11 @@ public class FetchHelper {
       final String format,
       final Set<String> toRemove,
       final String fieldName) {
-    final RecordSerializerJSON.FormatSettings settings =
+    final var settings =
         new RecordSerializerJSON.FormatSettings(format);
 
     Object fieldValue;
-    final String fieldPath =
+    final var fieldPath =
         !fieldPathFromRoot.isEmpty() ? fieldPathFromRoot + "." + fieldName : fieldName;
     int depthLevel;
     depthLevel = getDepthLevel(fetchPlan, fieldPath, currentLevel);
@@ -540,14 +540,14 @@ public class FetchHelper {
     }
 
     fieldValue = EntityInternalUtils.getRawProperty(record, fieldName);
-    final PropertyType fieldType = record.getPropertyType(fieldName);
-    boolean fetch =
+    final var fieldType = record.getPropertyType(fieldName);
+    var fetch =
         !format.contains("shallow")
             && (!(fieldValue instanceof Identifiable)
             || depthLevel == -1
             || currentLevel <= depthLevel
             || (fetchPlan != null && fetchPlan.has(fieldPath, currentLevel)));
-    final boolean isEmbedded = isEmbedded(fieldValue);
+    final var isEmbedded = isEmbedded(fieldValue);
 
     if (!fetch && isEmbedded && fetchContext.fetchEmbeddedDocuments()) {
       // EMBEDDED, GO DEEPER
@@ -572,7 +572,7 @@ public class FetchHelper {
     } else {
       try {
         if (fetch) {
-          final int nextLevel = isEmbedded ? levelFromRoot : levelFromRoot + 1;
+          final var nextLevel = isEmbedded ? levelFromRoot : levelFromRoot + 1;
           fetch(db,
               record,
               userObject,
@@ -598,7 +598,7 @@ public class FetchHelper {
     if (!MultiValue.isMultiValue(fieldValue)) {
       return false;
     }
-    for (Object item : MultiValue.getMultiValueIterable(fieldValue)) {
+    for (var item : MultiValue.getMultiValueIterable(fieldValue)) {
       if (item instanceof Identifiable) {
         return true;
       }
@@ -610,7 +610,7 @@ public class FetchHelper {
   }
 
   public static boolean isEmbedded(Object fieldValue) {
-    boolean isEmbedded =
+    var isEmbedded =
         fieldValue instanceof EntityImpl
             && (((EntityImpl) fieldValue).isEmbedded()
             || !((EntityImpl) fieldValue).getIdentity().isPersistent());
@@ -621,7 +621,7 @@ public class FetchHelper {
     }
     if (!isEmbedded) {
       try {
-        final Object f = MultiValue.getFirstValue(fieldValue);
+        final var f = MultiValue.getFirstValue(fieldValue);
         isEmbedded =
             f != null
                 && (f instanceof EntityImpl
@@ -650,8 +650,8 @@ public class FetchHelper {
       final FetchContext iContext,
       final FormatSettings settings)
       throws IOException {
-    int currentLevel = iCurrentLevel + 1;
-    int fieldDepthLevel = iFieldDepthLevel;
+    var currentLevel = iCurrentLevel + 1;
+    var fieldDepthLevel = iFieldDepthLevel;
     if (iFetchPlan != null && iFetchPlan.has(iFieldPathFromRoot, iCurrentLevel)) {
       currentLevel = 0;
       fieldDepthLevel = iFetchPlan.getDepthLevel(iFieldPathFromRoot, iCurrentLevel);
@@ -734,11 +734,11 @@ public class FetchHelper {
       final FetchListener iListener,
       final FetchContext iContext,
       final FormatSettings settings) {
-    final Map<String, Object> linked = (Map<String, Object>) fieldValue;
+    final var linked = (Map<String, Object>) fieldValue;
     iContext.onBeforeMap(iRootRecord, fieldName, iUserObject);
 
     for (Object key : linked.keySet()) {
-      final Object o = linked.get(key.toString());
+      final var o = linked.get(key.toString());
 
       if (o instanceof Identifiable identifiable) {
         DBRecord r = null;
@@ -749,12 +749,12 @@ public class FetchHelper {
         if (r != null) {
           if (r instanceof EntityImpl d) {
             // GO RECURSIVELY
-            final int fieldDepthLevel = parsedRecords.getInt(d.getIdentity());
+            final var fieldDepthLevel = parsedRecords.getInt(d.getIdentity());
             if (!d.getIdentity().isValid()
                 || (fieldDepthLevel > -1 && fieldDepthLevel == iLevelFromRoot)) {
               removeParsedFromMap(parsedRecords, d);
               iContext.onBeforeDocument(db, iRootRecord, d, key.toString(), iUserObject);
-              final Object userObject =
+              final var userObject =
                   iListener.fetchLinkedMapEntry(
                       iRootRecord, iUserObject, fieldName, key.toString(), d, iContext);
               processRecord(db,
@@ -804,14 +804,14 @@ public class FetchHelper {
       FormatSettings settings) {
     if (fieldValue instanceof EntityImpl[] linked) {
       context.onBeforeArray(db, rootRecord, fieldName, iUserObject, linked);
-      for (final EntityImpl entity : linked) {
+      for (final var entity : linked) {
         // GO RECURSIVELY
-        final int fieldDepthLevel = parsedRecords.getInt(entity.getIdentity());
+        final var fieldDepthLevel = parsedRecords.getInt(entity.getIdentity());
         if (!entity.getIdentity().isValid()
             || (fieldDepthLevel > -1 && fieldDepthLevel == iLevelFromRoot)) {
           removeParsedFromMap(parsedRecords, entity);
           context.onBeforeDocument(db, rootRecord, entity, fieldName, iUserObject);
-          final Object userObject =
+          final var userObject =
               iListener.fetchLinked(rootRecord, iUserObject, fieldName, entity, context);
           processRecord(db,
               entity,
@@ -867,18 +867,18 @@ public class FetchHelper {
       throw new IllegalStateException("Unrecognized type: " + fieldValue.getClass());
     }
 
-    final Iterator<?> iter = linked.iterator();
+    final var iter = linked.iterator();
 
     try {
       while (iter.hasNext()) {
-        final Object recordLazyMultiValue = iter.next();
+        final var recordLazyMultiValue = iter.next();
         if (recordLazyMultiValue == null) {
           continue;
         }
 
         if (recordLazyMultiValue instanceof Identifiable identifiable) {
           // GO RECURSIVELY
-          final int fieldDepthLevel = parsedRecords.getInt(identifiable.getIdentity());
+          final var fieldDepthLevel = parsedRecords.getInt(identifiable.getIdentity());
           if (!identifiable.getIdentity().isPersistent()
               || (fieldDepthLevel > -1 && fieldDepthLevel == iLevelFromRoot)) {
             removeParsedFromMap(parsedRecords, identifiable);
@@ -890,7 +890,7 @@ public class FetchHelper {
               } else {
                 context.onBeforeDocument(db,
                     iRootRecord, (EntityImpl) identifiable, fieldName, iUserObject);
-                final Object userObject =
+                final var userObject =
                     iListener.fetchLinkedCollectionValue(
                         iRootRecord, iUserObject, fieldName, (EntityImpl) identifiable, context);
                 processRecord(db,
@@ -984,7 +984,7 @@ public class FetchHelper {
       return;
     }
 
-    final int fieldDepthLevel = parsedRecords.getInt(fieldValue.getIdentity());
+    final var fieldDepthLevel = parsedRecords.getInt(fieldValue.getIdentity());
     if (!((RecordId) fieldValue.getIdentity()).isValid()
         || (fieldDepthLevel > -1 && fieldDepthLevel == iLevelFromRoot)) {
       removeParsedFromMap(parsedRecords, fieldValue);
@@ -996,7 +996,7 @@ public class FetchHelper {
       }
 
       iContext.onBeforeDocument(db, iRootRecord, linked, fieldName, iUserObject);
-      Object userObject =
+      var userObject =
           iListener.fetchLinked(iRootRecord, iUserObject, fieldName, linked, iContext);
       processRecord(db,
           linked,
@@ -1018,7 +1018,7 @@ public class FetchHelper {
   }
 
   private static String getTypesFormat(final boolean keepTypes) {
-    final StringBuilder sb = new StringBuilder();
+    final var sb = new StringBuilder();
     if (keepTypes) {
       sb.append("keepTypes");
     }

@@ -117,9 +117,9 @@ public class LiveQueryRemoteTest {
 
   @Test
   public void testRidSelect() throws InterruptedException {
-    MyLiveQueryListener listener = new MyLiveQueryListener(new CountDownLatch(1));
+    var listener = new MyLiveQueryListener(new CountDownLatch(1));
     db.begin();
-    Vertex item = db.newVertex();
+    var item = db.newVertex();
     item.save();
     db.commit();
 
@@ -139,9 +139,9 @@ public class LiveQueryRemoteTest {
     db.getMetadata().getSchema().createClass("test");
     db.getMetadata().getSchema().createClass("test2");
 
-    MyLiveQueryListener listener = new MyLiveQueryListener(new CountDownLatch(2));
+    var listener = new MyLiveQueryListener(new CountDownLatch(2));
 
-    LiveQueryMonitor monitor = db.live("select from test", listener);
+    var monitor = db.live("select from test", listener);
     Assert.assertNotNull(monitor);
 
     db.begin();
@@ -162,7 +162,7 @@ public class LiveQueryRemoteTest {
     db.commit();
 
     Assert.assertEquals(2, listener.ops.size());
-    for (Result doc : listener.ops) {
+    for (var doc : listener.ops) {
       Assert.assertEquals("test", doc.getProperty("@class"));
       Assert.assertEquals("foo", doc.getProperty("name"));
       RID rid = doc.getProperty("@rid");
@@ -174,28 +174,28 @@ public class LiveQueryRemoteTest {
   @Ignore
   public void testRestrictedLiveInsert() throws ExecutionException, InterruptedException {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass oRestricted = schema.getClass("ORestricted");
+    var oRestricted = schema.getClass("ORestricted");
     schema.createClass("test", oRestricted);
 
-    int liveMatch = 1;
-    ResultSet query = db.query("select from OUSer where name = 'reader'");
+    var liveMatch = 1;
+    var query = db.query("select from OUSer where name = 'reader'");
 
     final Identifiable reader = query.next().getIdentity().orElse(null);
-    final Identifiable current = db.geCurrentUser().getIdentity();
+    final var current = db.geCurrentUser().getIdentity();
 
-    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    var executorService = Executors.newSingleThreadExecutor();
 
-    final CountDownLatch latch = new CountDownLatch(1);
-    final CountDownLatch dataArrived = new CountDownLatch(1);
-    Future<Integer> future =
+    final var latch = new CountDownLatch(1);
+    final var dataArrived = new CountDownLatch(1);
+    var future =
         executorService.submit(
             new Callable<Integer>() {
               @Override
               public Integer call() throws Exception {
-                DatabaseSession db =
+                var db =
                     youTrackDB.open(LiveQueryRemoteTest.class.getSimpleName(), "reader", "reader");
 
-                final AtomicInteger integer = new AtomicInteger(0);
+                final var integer = new AtomicInteger(0);
                 db.live(
                     "live select from test",
                     new LiveQueryResultListener() {
@@ -248,7 +248,7 @@ public class LiveQueryRemoteTest {
           }
         });
 
-    Integer integer = future.get();
+    var integer = future.get();
     Assert.assertEquals(liveMatch, integer.intValue());
   }
 
@@ -258,16 +258,16 @@ public class LiveQueryRemoteTest {
     db.getMetadata().getSchema().createClass("test");
     db.getMetadata().getSchema().createClass("test2");
 
-    int txSize = 100;
+    var txSize = 100;
 
-    MyLiveQueryListener listener = new MyLiveQueryListener(new CountDownLatch(txSize));
+    var listener = new MyLiveQueryListener(new CountDownLatch(txSize));
 
-    LiveQueryMonitor monitor = db.live("select from test", listener);
+    var monitor = db.live("select from test", listener);
     Assert.assertNotNull(monitor);
 
     db.begin();
-    for (int i = 0; i < txSize; i++) {
-      Entity elem = db.newEntity("test");
+    for (var i = 0; i < txSize; i++) {
+      var elem = db.newEntity("test");
       elem.setProperty("name", "foo");
       elem.setProperty("surname", "bar" + i);
       elem.save();
@@ -277,7 +277,7 @@ public class LiveQueryRemoteTest {
     Assert.assertTrue(listener.latch.await(1, TimeUnit.MINUTES));
 
     Assert.assertEquals(txSize, listener.ops.size());
-    for (Result doc : listener.ops) {
+    for (var doc : listener.ops) {
       Assert.assertEquals("test", doc.getProperty("@class"));
       Assert.assertEquals("foo", doc.getProperty("name"));
       RID rid = doc.getProperty("@rid");

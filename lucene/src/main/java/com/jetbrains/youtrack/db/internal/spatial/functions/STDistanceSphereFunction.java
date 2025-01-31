@@ -49,16 +49,16 @@ public class STDistanceSphereFunction extends SpatialFunctionAbstractIndexable {
       return null;
     }
 
-    Shape shape = toShape(iParams[0]);
-    Shape shape1 = toShape(iParams[1]);
+    var shape = toShape(iParams[0]);
+    var shape1 = toShape(iParams[1]);
 
     if (shape == null || shape1 == null) {
       return null;
     }
 
-    double distance =
+    var distance =
         factory.context().getDistCalc().distance(shape.getCenter(), shape1.getCenter());
-    final double docDistInKM =
+    final var docDistInKM =
         DistanceUtils.degrees2Dist(distance, DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM);
     return docDistInKM * 1000;
   }
@@ -102,7 +102,7 @@ public class STDistanceSphereFunction extends SpatialFunctionAbstractIndexable {
   protected void onAfterParsing(
       Map<String, Object> params, SQLExpression[] args, CommandContext ctx, Object rightValue) {
 
-    Number parsedNumber = (Number) rightValue;
+    var parsedNumber = (Number) rightValue;
 
     params.put("distance", parsedNumber.doubleValue());
   }

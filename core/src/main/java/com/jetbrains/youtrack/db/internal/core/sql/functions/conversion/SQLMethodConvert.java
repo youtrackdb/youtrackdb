@@ -50,7 +50,7 @@ public class SQLMethodConvert extends AbstractSQLMethod {
       return null;
     }
 
-    final String destType = iParams[0].toString();
+    final var destType = iParams[0].toString();
 
     var db = iContext.getDatabase();
     if (destType.contains(".")) {
@@ -60,7 +60,7 @@ public class SQLMethodConvert extends AbstractSQLMethod {
         LogManager.instance().error(this, "Class for destination type was not found", e);
       }
     } else {
-      final PropertyType youTrackDbType = PropertyType.valueOf(
+      final var youTrackDbType = PropertyType.valueOf(
           destType.toUpperCase(Locale.ENGLISH));
       return PropertyType.convert(db, iThis, youTrackDbType.getDefaultJavaType());
     }

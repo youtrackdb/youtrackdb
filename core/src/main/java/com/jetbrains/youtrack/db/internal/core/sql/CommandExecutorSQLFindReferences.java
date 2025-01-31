@@ -49,9 +49,9 @@ public class CommandExecutorSQLFindReferences extends CommandExecutorSQLEarlyRes
 
   public CommandExecutorSQLFindReferences parse(DatabaseSessionInternal db,
       final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    final var textRequest = (CommandRequestText) iRequest;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
@@ -60,7 +60,7 @@ public class CommandExecutorSQLFindReferences extends CommandExecutorSQLEarlyRes
 
       parserRequiredKeyword(KEYWORD_FIND);
       parserRequiredKeyword(KEYWORD_REFERENCES);
-      final String target = parserRequiredWord(true, "Expected <target>", " =><,\r\n");
+      final var target = parserRequiredWord(true, "Expected <target>", " =><,\r\n");
 
       if (target.charAt(0) == '(') {
         subQuery = new StringBuilder();
@@ -69,7 +69,7 @@ public class CommandExecutorSQLFindReferences extends CommandExecutorSQLEarlyRes
                 parserText, parserGetPreviousPosition(), -1, subQuery));
       } else {
         try {
-          final RecordId rid = new RecordId(target);
+          final var rid = new RecordId(target);
           if (!rid.isValid()) {
             throwParsingException("Record ID " + target + " is not valid");
           }
@@ -113,7 +113,7 @@ public class CommandExecutorSQLFindReferences extends CommandExecutorSQLEarlyRes
     if (subQuery != null) {
       final List<Identifiable> result = new CommandSQL(subQuery.toString()).execute(
           db);
-      for (Identifiable id : result) {
+      for (var id : result) {
         recordIds.add(id.getIdentity());
       }
     }

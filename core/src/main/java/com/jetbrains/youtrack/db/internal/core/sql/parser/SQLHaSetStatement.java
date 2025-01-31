@@ -30,14 +30,14 @@ public class SQLHaSetStatement extends SQLSimpleExecStatement {
   public ExecutionStream executeSimple(CommandContext ctx) {
     List<Result> result = new ArrayList<>();
 
-    String operation = this.operation.getStringValue();
+    var operation = this.operation.getStringValue();
     var db = ctx.getDatabase();
-    Object key = this.key.execute(new ResultInternal(db), ctx);
+    var key = this.key.execute(new ResultInternal(db), ctx);
     if (key == null) {
       key = this.key.getDefaultAlias();
     }
 
-    Object value = this.value.execute(new ResultInternal(db), ctx);
+    var value = this.value.execute(new ResultInternal(db), ctx);
     if (value == null) {
       value = this.value.getDefaultAlias();
       if (value.equals("null")) {
@@ -45,7 +45,7 @@ public class SQLHaSetStatement extends SQLSimpleExecStatement {
       }
     }
 
-    EnterpriseEndpoint ee = db.getEnterpriseEndpoint();
+    var ee = db.getEnterpriseEndpoint();
     if (ee == null) {
       throw new CommandExecutionException(
           "HA SET statements are only supported in YouTrackDB Enterprise Edition");
@@ -58,7 +58,7 @@ public class SQLHaSetStatement extends SQLSimpleExecStatement {
       } catch (UnsupportedOperationException e) {
         finalResult = e.getMessage();
       }
-      ResultInternal item = new ResultInternal(db);
+      var item = new ResultInternal(db);
       item.setProperty("operation", "ha set status");
       item.setProperty("result", finalResult);
       result.add(item);
@@ -70,7 +70,7 @@ public class SQLHaSetStatement extends SQLSimpleExecStatement {
       } catch (UnsupportedOperationException e) {
         finalResult = e.getMessage();
       }
-      ResultInternal item = new ResultInternal(db);
+      var item = new ResultInternal(db);
       item.setProperty("operation", "ha set owner");
       item.setProperty("result", finalResult);
       result.add(item);
@@ -82,7 +82,7 @@ public class SQLHaSetStatement extends SQLSimpleExecStatement {
       } catch (UnsupportedOperationException e) {
         finalResult = e.getMessage();
       }
-      ResultInternal item = new ResultInternal(db);
+      var item = new ResultInternal(db);
       item.setProperty("operation", "ha set role");
       item.setProperty("result", finalResult);
       result.add(item);

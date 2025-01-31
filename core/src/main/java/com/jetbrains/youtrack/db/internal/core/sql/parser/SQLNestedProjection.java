@@ -78,9 +78,9 @@ public class SQLNestedProjection extends SimpleNode {
   }
 
   private Object apply(SQLExpression expression, Result elem, CommandContext ctx, int recursion) {
-    ResultInternal result = new ResultInternal(ctx.getDatabase());
+    var result = new ResultInternal(ctx.getDatabase());
     if (starItem != null || includeItems.isEmpty()) {
-      for (String property : elem.getPropertyNames()) {
+      for (var property : elem.getPropertyNames()) {
         if (isExclude(property)) {
           continue;
         }
@@ -91,12 +91,12 @@ public class SQLNestedProjection extends SimpleNode {
     }
     if (!includeItems.isEmpty()) {
       // TODO manage wildcards!
-      for (SQLNestedProjectionItem item : includeItems) {
-        String alias =
+      for (var item : includeItems) {
+        var alias =
             item.alias != null
                 ? item.alias.getStringValue()
                 : item.expression.getDefaultAlias().getStringValue();
-        Object value = item.expression.execute(elem, ctx);
+        var value = item.expression.execute(elem, ctx);
         if (item.expansion != null) {
           value = item.expand(expression, alias, value, ctx, recursion - 1);
         }
@@ -107,7 +107,7 @@ public class SQLNestedProjection extends SimpleNode {
   }
 
   private boolean isExclude(String propertyName) {
-    for (SQLNestedProjectionItem item : excludeItems) {
+    for (var item : excludeItems) {
       if (item.matches(propertyName)) {
         return true;
       }
@@ -121,7 +121,7 @@ public class SQLNestedProjection extends SimpleNode {
     if (this.starItem != null && starItem.expansion != null) {
       return starItem.expand(rootExpr, propName, propValue, ctx, recursion);
     }
-    for (SQLNestedProjectionItem item : includeItems) {
+    for (var item : includeItems) {
       if (item.matches(propName) && item.expansion != null) {
         return item.expand(rootExpr, propName, propValue, ctx, recursion);
       }
@@ -143,9 +143,9 @@ public class SQLNestedProjection extends SimpleNode {
         return input;
       }
     }
-    ResultInternal result = new ResultInternal(ctx.getDatabase());
+    var result = new ResultInternal(ctx.getDatabase());
     if (starItem != null || includeItems.isEmpty()) {
-      for (String property : elem.getPropertyNames()) {
+      for (var property : elem.getPropertyNames()) {
         if (isExclude(property)) {
           continue;
         }
@@ -157,12 +157,12 @@ public class SQLNestedProjection extends SimpleNode {
 
     if (includeItems.size() > 0) {
       // TODO manage wildcards!
-      for (SQLNestedProjectionItem item : includeItems) {
-        String alias =
+      for (var item : includeItems) {
+        var alias =
             item.alias != null
                 ? item.alias.getStringValue()
                 : item.expression.getDefaultAlias().getStringValue();
-        Object value = item.expression.execute(elem, ctx);
+        var value = item.expression.execute(elem, ctx);
         if (item.expansion != null) {
           value = item.expand(expression, alias, value, ctx, recursion - 1);
         }
@@ -174,10 +174,10 @@ public class SQLNestedProjection extends SimpleNode {
 
   private Object apply(
       SQLExpression expression, Map<String, Object> input, CommandContext ctx, int recursion) {
-    ResultInternal result = new ResultInternal(ctx.getDatabase());
+    var result = new ResultInternal(ctx.getDatabase());
 
     if (starItem != null || includeItems.size() == 0) {
-      for (String property : input.keySet()) {
+      for (var property : input.keySet()) {
         if (isExclude(property)) {
           continue;
         }
@@ -188,14 +188,14 @@ public class SQLNestedProjection extends SimpleNode {
     }
     if (!includeItems.isEmpty()) {
       // TODO manage wildcards!
-      for (SQLNestedProjectionItem item : includeItems) {
-        String alias =
+      for (var item : includeItems) {
+        var alias =
             item.alias != null
                 ? item.alias.getStringValue()
                 : item.expression.getDefaultAlias().getStringValue();
-        ResultInternal elem = new ResultInternal(ctx.getDatabase());
+        var elem = new ResultInternal(ctx.getDatabase());
         input.forEach(elem::setProperty);
-        Object value = item.expression.execute(elem, ctx);
+        var value = item.expression.execute(elem, ctx);
         if (item.expansion != null) {
           value = item.expand(expression, alias, value, ctx, recursion - 1);
         }
@@ -208,19 +208,19 @@ public class SQLNestedProjection extends SimpleNode {
   @Override
   public void toString(Map<Object, Object> params, StringBuilder builder) {
     builder.append(":{");
-    boolean first = true;
+    var first = true;
     if (starItem != null) {
       starItem.toString(params, builder);
       first = false;
     }
-    for (SQLNestedProjectionItem item : includeItems) {
+    for (var item : includeItems) {
       if (!first) {
         builder.append(", ");
       }
       item.toString(params, builder);
       first = false;
     }
-    for (SQLNestedProjectionItem item : excludeItems) {
+    for (var item : excludeItems) {
       if (!first) {
         builder.append(", ");
       }
@@ -239,19 +239,19 @@ public class SQLNestedProjection extends SimpleNode {
   @Override
   public void toGenericStatement(StringBuilder builder) {
     builder.append(":{");
-    boolean first = true;
+    var first = true;
     if (starItem != null) {
       starItem.toGenericStatement(builder);
       first = false;
     }
-    for (SQLNestedProjectionItem item : includeItems) {
+    for (var item : includeItems) {
       if (!first) {
         builder.append(", ");
       }
       item.toGenericStatement(builder);
       first = false;
     }
-    for (SQLNestedProjectionItem item : excludeItems) {
+    for (var item : excludeItems) {
       if (!first) {
         builder.append(", ");
       }
@@ -268,7 +268,7 @@ public class SQLNestedProjection extends SimpleNode {
   }
 
   public SQLNestedProjection copy() {
-    SQLNestedProjection result = new SQLNestedProjection(-1);
+    var result = new SQLNestedProjection(-1);
     result.includeItems = includeItems.stream().map(x -> x.copy()).collect(Collectors.toList());
     result.excludeItems = excludeItems.stream().map(x -> x.copy()).collect(Collectors.toList());
     result.starItem = starItem == null ? null : starItem.copy();
@@ -285,7 +285,7 @@ public class SQLNestedProjection extends SimpleNode {
       return false;
     }
 
-    SQLNestedProjection that = (SQLNestedProjection) o;
+    var that = (SQLNestedProjection) o;
 
     if (!Objects.equals(includeItems, that.includeItems)) {
       return false;
@@ -301,7 +301,7 @@ public class SQLNestedProjection extends SimpleNode {
 
   @Override
   public int hashCode() {
-    int result = includeItems != null ? includeItems.hashCode() : 0;
+    var result = includeItems != null ? includeItems.hashCode() : 0;
     result = 31 * result + (excludeItems != null ? excludeItems.hashCode() : 0);
     result = 31 * result + (starItem != null ? starItem.hashCode() : 0);
     result = 31 * result + (recursion != null ? recursion.hashCode() : 0);
@@ -318,7 +318,7 @@ public class SQLNestedProjection extends SimpleNode {
   }
 
   public Result serialize(DatabaseSessionInternal database) {
-    ResultInternal result = new ResultInternal(database);
+    var result = new ResultInternal(database);
     if (includeItems != null) {
       result.setProperty(
           "includeItems",
@@ -344,8 +344,8 @@ public class SQLNestedProjection extends SimpleNode {
     if (fromResult.getProperty("includeItems") != null) {
       includeItems = new ArrayList<>();
       List<Result> ser = fromResult.getProperty("includeItems");
-      for (Result x : ser) {
-        SQLNestedProjectionItem item = new SQLNestedProjectionItem(-1);
+      for (var x : ser) {
+        var item = new SQLNestedProjectionItem(-1);
         item.deserialize(x);
         includeItems.add(item);
       }
@@ -353,8 +353,8 @@ public class SQLNestedProjection extends SimpleNode {
     if (fromResult.getProperty("excludeItems") != null) {
       excludeItems = new ArrayList<>();
       List<Result> ser = fromResult.getProperty("excludeItems");
-      for (Result x : ser) {
-        SQLNestedProjectionItem item = new SQLNestedProjectionItem(-1);
+      for (var x : ser) {
+        var item = new SQLNestedProjectionItem(-1);
         item.deserialize(x);
         excludeItems.add(item);
       }

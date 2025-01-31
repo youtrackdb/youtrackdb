@@ -35,14 +35,14 @@ public class PushDistributedConfigurationRequest
   public void write(DatabaseSessionInternal session, ChannelDataOutput channel)
       throws IOException {
     channel.writeInt(hosts.size());
-    for (String host : hosts) {
+    for (var host : hosts) {
       channel.writeString(host);
     }
   }
 
   @Override
   public void read(DatabaseSessionInternal db, ChannelDataInput network) throws IOException {
-    int size = network.readInt();
+    var size = network.readInt();
     hosts = new ArrayList<>(size);
     while (size-- > 0) {
       hosts.add(network.readString());

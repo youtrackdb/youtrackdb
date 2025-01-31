@@ -15,7 +15,7 @@ public class URLHelperTest {
 
   @Test
   public void testSimpleUrl() {
-    DatabaseURLConnection parsed = URLHelper.parse("plocal:/path/test/to");
+    var parsed = URLHelper.parse("plocal:/path/test/to");
     assertEquals("plocal", parsed.getType());
     assertEquals(parsed.getPath(), new File("/path/test").getAbsolutePath());
     assertEquals("to", parsed.getDbName());
@@ -33,7 +33,7 @@ public class URLHelperTest {
 
   @Test
   public void testSimpleNewUrl() {
-    DatabaseURLConnection parsed = URLHelper.parseNew("plocal:/path/test/to");
+    var parsed = URLHelper.parseNew("plocal:/path/test/to");
     assertEquals("embedded", parsed.getType());
     assertEquals(parsed.getPath(), new File("/path/test").getAbsolutePath());
     assertEquals("to", parsed.getDbName());
@@ -66,7 +66,7 @@ public class URLHelperTest {
 
   @Test()
   public void testRemoteNoDatabase() {
-    DatabaseURLConnection parsed = URLHelper.parseNew("remote:localhost");
+    var parsed = URLHelper.parseNew("remote:localhost");
     assertEquals("remote", parsed.getType());
     assertEquals("localhost", parsed.getPath());
     assertEquals("", parsed.getDbName());

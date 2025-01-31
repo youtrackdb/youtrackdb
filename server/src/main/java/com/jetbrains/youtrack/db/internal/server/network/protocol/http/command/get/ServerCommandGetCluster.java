@@ -35,7 +35,7 @@ public class ServerCommandGetCluster extends ServerCommandAuthenticatedDbAbstrac
 
   @Override
   public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
-    String[] urlParts =
+    var urlParts =
         checkSyntax(
             iRequest.getUrl(),
             3,
@@ -51,10 +51,10 @@ public class ServerCommandGetCluster extends ServerCommandAuthenticatedDbAbstrac
       db = getProfiledDatabaseInstance(iRequest);
 
       if (db.getClusterIdByName(urlParts[2]) > -1) {
-        final int limit = urlParts.length > 3 ? Integer.parseInt(urlParts[3]) : 20;
+        final var limit = urlParts.length > 3 ? Integer.parseInt(urlParts[3]) : 20;
 
         final List<Identifiable> response = new ArrayList<Identifiable>();
-        for (DBRecord rec : db.browseCluster(urlParts[2])) {
+        for (var rec : db.browseCluster(urlParts[2])) {
           if (limit > 0 && response.size() >= limit) {
             break;
           }

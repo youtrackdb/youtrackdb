@@ -54,7 +54,7 @@ public class SQLDeleteEdgeTest extends BaseDBTest {
         .close();
     db.commit();
 
-    ResultSet resultTwo =
+    var resultTwo =
         db.query("select expand(outE()) from " + result.get(1).getIdentity());
 
     Assert.assertEquals(resultTwo.stream().count(), 2);
@@ -108,7 +108,7 @@ public class SQLDeleteEdgeTest extends BaseDBTest {
         .close();
     db.commit();
 
-    ResultSet resultTwo =
+    var resultTwo =
         db.query("select expand(outE()) from " + result.get(1).getIdentity());
 
     Assert.assertEquals(resultTwo.stream().count(), 2);
@@ -163,7 +163,7 @@ public class SQLDeleteEdgeTest extends BaseDBTest {
         .close();
     db.commit();
 
-    ResultSet resultTwo =
+    var resultTwo =
         db.query("select expand(outE()) from " + result.get(1).getIdentity());
 
     Assert.assertEquals(resultTwo.stream().count(), 2);
@@ -305,7 +305,7 @@ public class SQLDeleteEdgeTest extends BaseDBTest {
         .close();
     db.commit();
 
-    ResultSet result = db.query("SELECT expand(out()[name = ' FROM ']) FROM FromInStringV");
+    var result = db.query("SELECT expand(out()[name = ' FROM ']) FROM FromInStringV");
     Assert.assertEquals(result.stream().count(), 1);
 
     result = db.query("SELECT expand(in()[name = ' from ']) FROM FromInStringV");

@@ -43,7 +43,7 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DbTestBase {
 
   public void beforeTest() throws Exception {
     super.beforeTest();
-    final SchemaClass class_ = db.getMetadata().getSchema().createClass("Person");
+    final var class_ = db.getMetadata().getSchema().createClass("Person");
     var indexName =
         class_
             .createProperty(db, "name", PropertyType.STRING)
@@ -303,7 +303,7 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DbTestBase {
     final Set<Integer> unseen = new HashSet<Integer>();
 
     db.begin();
-    for (int i = 0; i < FrontendTransactionIndexChangesPerKey.SET_ADD_THRESHOLD * 2; ++i) {
+    for (var i = 0; i < FrontendTransactionIndexChangesPerKey.SET_ADD_THRESHOLD * 2; ++i) {
       EntityImpl pers = db.newInstance("Person");
       pers.field("name", "Name");
       pers.field("serial", i);
@@ -313,7 +313,7 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DbTestBase {
     db.commit();
 
     // verify index state
-    try (Stream<RID> stream = index.getInternal().getRids(db, "Name")) {
+    try (var stream = index.getInternal().getRids(db, "Name")) {
       stream.forEach(
           (rid) -> {
             final EntityImpl document = db.load(rid);
@@ -326,7 +326,7 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DbTestBase {
   @SuppressWarnings("unchecked")
   private void assertRids(String indexKey, Identifiable... rids) {
     final Set<RID> actualRids;
-    try (Stream<RID> stream = index.getInternal().getRids(db, indexKey)) {
+    try (var stream = index.getInternal().getRids(db, indexKey)) {
       actualRids = stream.collect(Collectors.toSet());
     }
     Assert.assertEquals(actualRids, new HashSet<Object>(Arrays.asList(rids)));

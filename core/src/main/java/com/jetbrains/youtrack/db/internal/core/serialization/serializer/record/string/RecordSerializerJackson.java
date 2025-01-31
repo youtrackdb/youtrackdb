@@ -79,7 +79,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
   @Override
   public <T extends DBRecord> T fromString(DatabaseSessionInternal db, String source,
       RecordAbstract record, final String[] fields) {
-    try (JsonParser jsonParser = JSON_FACTORY.createParser(source)) {
+    try (var jsonParser = JSON_FACTORY.createParser(source)) {
       //noinspection unchecked
       return (T) recordFromJson(db, record, jsonParser);
     } catch (Exception e) {
@@ -108,7 +108,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
 
     String defaultClassName;
 
-    byte defaultRecordType = record != null ? record.getRecordType() : EntityImpl.RECORD_TYPE;
+    var defaultRecordType = record != null ? record.getRecordType() : EntityImpl.RECORD_TYPE;
     if (record instanceof EntityImpl entity) {
       defaultClassName = entity.getClassName();
     } else if (defaultRecordType == EntityImpl.RECORD_TYPE) {
@@ -202,11 +202,11 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
       @Nullable String defaultClassName, byte defaultRecordType) throws IOException {
     var token = jsonParser.nextToken();
     RecordId recordId = null;
-    byte recordType = defaultRecordType;
-    String className = defaultClassName;
+    var recordType = defaultRecordType;
+    var className = defaultClassName;
     Map<String, String> fieldTypes = new HashMap<>();
 
-    int fieldsCount = 0;
+    var fieldsCount = 0;
     while (token != JsonToken.END_OBJECT) {
       if (token == JsonToken.FIELD_NAME) {
         var fieldName = jsonParser.currentName();
@@ -343,7 +343,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
       final String format,
       boolean autoDetectCollectionType) {
     try (var jsonGenerator = JSON_FACTORY.createGenerator(output)) {
-      final FormatSettings settings = new FormatSettings(format);
+      final var settings = new FormatSettings(format);
       recordToJson(record, jsonGenerator, settings);
       return output;
     } catch (final IOException e) {
@@ -355,7 +355,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
   public static void recordToJson(DBRecord record, JsonGenerator jsonGenerator,
       @Nullable String format) {
     try {
-      final FormatSettings settings = new FormatSettings(format);
+      final var settings = new FormatSettings(format);
       recordToJson(record, jsonGenerator, settings);
     } catch (final IOException e) {
       throw BaseException.wrapException(
@@ -423,7 +423,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
       if (formatSettings.keepTypes) {
         var fieldTypes = new HashMap<String, String>();
         for (var propertyName : entity.getPropertyNames()) {
-          PropertyType type = fetchPropertyType(entity, propertyName,
+          var type = fetchPropertyType(entity, propertyName,
               schemaClass);
 
           if (type != null) {
@@ -639,7 +639,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
   public static void serializeEmbeddedMap(JsonGenerator jsonGenerator,
       Map<String, ?> trackedMap, String format) {
     try {
-      final FormatSettings settings = new FormatSettings(format);
+      final var settings = new FormatSettings(format);
       serializeEmbeddedMap(jsonGenerator, settings, trackedMap);
     } catch (final IOException e) {
       throw BaseException.wrapException(

@@ -43,8 +43,8 @@ public class FetchFromClustersExecutionStep extends AbstractExecutionStep {
 
     subSteps = new ArrayList<>();
     sortClusers(clusterIds);
-    for (int clusterId : clusterIds) {
-      FetchFromClusterExecutionStep step =
+    for (var clusterId : clusterIds) {
+      var step =
           new FetchFromClusterExecutionStep(clusterId, ctx, profilingEnabled);
       if (orderByRidAsc) {
         step.setOrder(FetchFromClusterExecutionStep.ORDER_ASC);
@@ -61,8 +61,8 @@ public class FetchFromClustersExecutionStep extends AbstractExecutionStep {
     } else if (orderByRidDesc) {
       Arrays.sort(clusterIds);
       // revert order
-      for (int i = 0; i < clusterIds.length / 2; i++) {
-        int old = clusterIds[i];
+      for (var i = 0; i < clusterIds.length / 2; i++) {
+        var old = clusterIds[i];
         clusterIds[i] = clusterIds[clusterIds.length - 1 - i];
         clusterIds[clusterIds.length - 1 - i] = old;
       }
@@ -75,15 +75,15 @@ public class FetchFromClustersExecutionStep extends AbstractExecutionStep {
       prev.start(ctx).close(ctx);
     }
 
-    List<ExecutionStep> stepsIter = subSteps;
+    var stepsIter = subSteps;
 
-    ExecutionStreamProducer res =
+    var res =
         new ExecutionStreamProducer() {
           private final Iterator<ExecutionStep> iter = stepsIter.iterator();
 
           @Override
           public ExecutionStream next(CommandContext ctx) {
-            ExecutionStep step = iter.next();
+            var step = iter.next();
             return ((AbstractExecutionStep) step).start(ctx);
           }
 
@@ -102,7 +102,7 @@ public class FetchFromClustersExecutionStep extends AbstractExecutionStep {
 
   @Override
   public void sendTimeout() {
-    for (ExecutionStep step : subSteps) {
+    for (var step : subSteps) {
       ((AbstractExecutionStep) step).sendTimeout();
     }
 
@@ -113,7 +113,7 @@ public class FetchFromClustersExecutionStep extends AbstractExecutionStep {
 
   @Override
   public void close() {
-    for (ExecutionStep step : subSteps) {
+    for (var step : subSteps) {
       ((AbstractExecutionStep) step).close();
     }
     if (prev != null) {
@@ -123,16 +123,16 @@ public class FetchFromClustersExecutionStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    StringBuilder builder = new StringBuilder();
-    String ind = ExecutionStepInternal.getIndent(depth, indent);
+    var builder = new StringBuilder();
+    var ind = ExecutionStepInternal.getIndent(depth, indent);
     builder.append(ind);
     builder.append("+ FETCH FROM CLUSTERS");
     if (profilingEnabled) {
       builder.append(" (").append(getCostFormatted()).append(")");
     }
     builder.append("\n");
-    for (int i = 0; i < subSteps.size(); i++) {
-      ExecutionStepInternal step = (ExecutionStepInternal) subSteps.get(i);
+    for (var i = 0; i < subSteps.size(); i++) {
+      var step = (ExecutionStepInternal) subSteps.get(i);
       builder.append(step.prettyPrint(depth + 1, indent));
       if (i < subSteps.size() - 1) {
         builder.append("\n");
@@ -148,7 +148,7 @@ public class FetchFromClustersExecutionStep extends AbstractExecutionStep {
 
   @Override
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
+    var result = ExecutionStepInternal.basicSerialize(db, this);
 
     result.setProperty("orderByRidAsc", orderByRidAsc);
     result.setProperty("orderByRidDesc", orderByRidDesc);

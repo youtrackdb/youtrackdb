@@ -45,7 +45,7 @@ public class CaseInsensitiveCollate extends DefaultComparator implements Collate
 
     if (obj instanceof Set) {
       Set result = new HashSet();
-      for (Object o : (Set) obj) {
+      for (var o : (Set) obj) {
         result.add(transform(o));
       }
       return result;
@@ -53,7 +53,7 @@ public class CaseInsensitiveCollate extends DefaultComparator implements Collate
 
     if (obj instanceof List) {
       List result = new ArrayList();
-      for (Object o : (List) obj) {
+      for (var o : (List) obj) {
         result.add(transform(o));
       }
       return result;
@@ -72,16 +72,16 @@ public class CaseInsensitiveCollate extends DefaultComparator implements Collate
       return false;
     }
 
-    final CaseInsensitiveCollate that = (CaseInsensitiveCollate) obj;
+    final var that = (CaseInsensitiveCollate) obj;
 
     return NAME.equals(NAME);
   }
 
   @Override
   public int compareForOrderBy(Object objectOne, Object objectTwo) {
-    Object newObj1 = transform(objectOne);
-    Object newObj2 = transform(objectTwo);
-    int result = super.compare(newObj1, newObj2);
+    var newObj1 = transform(objectOne);
+    var newObj2 = transform(objectTwo);
+    var result = super.compare(newObj1, newObj2);
     if (result == 0) {
       // case insensitive are the same, fall back to case sensitive to have a decent ordering of
       // upper vs lower case

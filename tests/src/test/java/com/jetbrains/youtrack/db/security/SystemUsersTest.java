@@ -12,7 +12,7 @@ public class SystemUsersTest {
 
   @Test
   public void test() {
-    final String buildDirectory = System.getProperty("buildDirectory", ".");
+    final var buildDirectory = System.getProperty("buildDirectory", ".");
     System.setProperty(
         "YOUTRACKDB_HOME",
         buildDirectory + File.separator + SystemUsersTest.class.getSimpleName());
@@ -30,7 +30,7 @@ public class SystemUsersTest {
           "create database " + "test" + " memory users ( admin identified by 'admin' role admin)");
 
       youTrackDB.execute("create system user systemxx identified by systemxx role admin").close();
-      DatabaseSession db = youTrackDB.open("test", "systemxx", "systemxx");
+      var db = youTrackDB.open("test", "systemxx", "systemxx");
 
       db.close();
     } finally {

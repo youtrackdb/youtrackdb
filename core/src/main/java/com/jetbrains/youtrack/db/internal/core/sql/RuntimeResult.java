@@ -51,7 +51,7 @@ public class RuntimeResult {
 
 
   private static boolean entriesPersistent(Collection<Identifiable> projectionValue) {
-    for (Identifiable rec : projectionValue) {
+    for (var rec : projectionValue) {
       if (rec != null && !rec.getIdentity().isPersistent()) {
         return false;
       }
@@ -64,15 +64,15 @@ public class RuntimeResult {
       DatabaseSessionInternal session, final ResultInternal iValue,
       final Map<String, Object> iProjections) {
     if (iValue != null) {
-      boolean canExcludeResult = false;
+      var canExcludeResult = false;
 
-      for (Entry<String, Object> projection : iProjections.entrySet()) {
+      for (var projection : iProjections.entrySet()) {
         if (!iValue.hasProperty(projection.getKey())) {
           // ONLY IF NOT ALREADY CONTAINS A VALUE, OTHERWISE HAS BEEN SET MANUALLY (INDEX?)
-          final Object v = projection.getValue();
+          final var v = projection.getValue();
           if (v instanceof SQLFunctionRuntime f) {
             canExcludeResult = f.filterResult();
-            Object fieldValue = f.getResult(session);
+            var fieldValue = f.getResult(session);
             if (fieldValue != null) {
               iValue.setProperty(projection.getKey(), fieldValue);
             }

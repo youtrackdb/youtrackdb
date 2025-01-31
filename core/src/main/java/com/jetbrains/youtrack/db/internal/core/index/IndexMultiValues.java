@@ -66,7 +66,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
   @Override
   public Collection<RID> get(DatabaseSessionInternal session, Object key) {
     final List<RID> rids;
-    try (Stream<RID> stream = getRids(session, key)) {
+    try (var stream = getRids(session, key)) {
       rids = stream.collect(Collectors.toList());
     }
     return rids;
@@ -74,7 +74,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
 
   @Override
   public Stream<RID> getRidsIgnoreTx(DatabaseSessionInternal db, Object key) {
-    final Object collatedKey = getCollatingValue(key);
+    final var collatedKey = getCollatingValue(key);
     Stream<RID> backedStream;
     acquireSharedLock();
     try {
@@ -83,7 +83,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
         try {
           if (apiVersion == 0) {
             //noinspection unchecked
-            final Collection<RID> values =
+            final var values =
                 (Collection<RID>) storage.getIndexValue(db, indexId, collatedKey);
             if (values != null) {
               stream = values.stream();
@@ -109,14 +109,14 @@ public abstract class IndexMultiValues extends IndexAbstract {
 
   @Override
   public Stream<RID> getRids(DatabaseSessionInternal db, Object key) {
-    final Object collatedKey = getCollatingValue(key);
-    Stream<RID> backedStream = getRidsIgnoreTx(db, key);
-    final FrontendTransactionIndexChanges indexChanges =
+    final var collatedKey = getCollatingValue(key);
+    var backedStream = getRidsIgnoreTx(db, key);
+    final var indexChanges =
         db.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return backedStream;
     }
-    Set<Identifiable> txChanges = calculateTxValue(collatedKey, indexChanges);
+    var txChanges = calculateTxValue(collatedKey, indexChanges);
     if (txChanges == null) {
       txChanges = Collections.emptySet();
     }
@@ -132,7 +132,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
 
   public IndexMultiValues put(DatabaseSessionInternal db, Object key,
       final Identifiable singleValue) {
-    final RecordId rid = (RecordId) singleValue.getIdentity();
+    final var rid = (RecordId) singleValue.getIdentity();
 
     if (!rid.isValid()) {
       if (singleValue instanceof DBRecord) {
@@ -146,7 +146,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
 
     key = getCollatingValue(key);
 
-    FrontendTransaction singleTx = db.getTransaction();
+    var singleTx = db.getTransaction();
     singleTx.addIndexEntry(
         this, super.getName(), FrontendTransactionIndexChanges.OPERATION.PUT, key, singleValue);
     return this;
@@ -234,7 +234,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
       releaseSharedLock();
     }
 
-    final FrontendTransactionIndexChanges indexChanges =
+    final var indexChanges =
         db.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
@@ -286,7 +286,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
       releaseSharedLock();
     }
 
-    final FrontendTransactionIndexChanges indexChanges =
+    final var indexChanges =
         session.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
@@ -294,7 +294,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
 
     final Stream<RawPair<Object, RID>> txStream;
 
-    final Object lastKey = indexChanges.getLastKey();
+    final var lastKey = indexChanges.getLastKey();
     if (ascOrder) {
       txStream =
           StreamSupport.stream(
@@ -341,7 +341,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
       releaseSharedLock();
     }
 
-    final FrontendTransactionIndexChanges indexChanges =
+    final var indexChanges =
         session.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
@@ -349,7 +349,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
 
     final Stream<RawPair<Object, RID>> txStream;
 
-    final Object firstKey = indexChanges.getFirstKey();
+    final var firstKey = indexChanges.getFirstKey();
     if (ascOrder) {
       txStream =
           StreamSupport.stream(
@@ -385,11 +385,11 @@ public abstract class IndexMultiValues extends IndexAbstract {
 
     sortedKeys.sort(comparator);
 
-    Stream<RawPair<Object, RID>> stream =
+    var stream =
         IndexStreamSecurityDecorator.decorateStream(
             this, sortedKeys.stream().flatMap(key1 -> streamForKey(db, key1)));
 
-    final FrontendTransactionIndexChanges indexChanges = db.getTransaction()
+    final var indexChanges = db.getTransaction()
         .getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
@@ -402,7 +402,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
       keyComparator = DescComparator.INSTANCE;
     }
 
-    final Stream<RawPair<Object, RID>> txStream =
+    final var txStream =
         keys.stream()
             .flatMap((key) -> txStramForKey(indexChanges, key))
             .filter(Objects::nonNull)
@@ -418,7 +418,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
 
   private Stream<RawPair<Object, RID>> txStramForKey(
       final FrontendTransactionIndexChanges indexChanges, Object key) {
-    final Set<Identifiable> result = calculateTxValue(getCollatingValue(key), indexChanges);
+    final var result = calculateTxValue(getCollatingValue(key), indexChanges);
     if (result != null) {
       return result.stream()
           .map((rid) -> new RawPair<>(getCollatingValue(key), rid.getIdentity()));
@@ -430,7 +430,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
       Object key) {
     key = getCollatingValue(key);
 
-    final Object entryKey = key;
+    final var entryKey = key;
     acquireSharedLock();
     try {
       while (true) {
@@ -460,12 +460,12 @@ public abstract class IndexMultiValues extends IndexAbstract {
   public static Set<Identifiable> calculateTxValue(
       final Object key, FrontendTransactionIndexChanges indexChanges) {
     final List<Identifiable> result = new ArrayList<>();
-    final FrontendTransactionIndexChangesPerKey changesPerKey = indexChanges.getChangesPerKey(key);
+    final var changesPerKey = indexChanges.getChangesPerKey(key);
     if (changesPerKey.isEmpty()) {
       return null;
     }
 
-    for (TransactionIndexEntry entry : changesPerKey.getEntriesAsList()) {
+    for (var entry : changesPerKey.getEntriesAsList()) {
       if (entry.getOperation() == OPERATION.REMOVE) {
         if (entry.getValue() == null) {
           result.clear();
@@ -500,10 +500,10 @@ public abstract class IndexMultiValues extends IndexAbstract {
       releaseSharedLock();
     }
 
-    final FrontendTransactionIndexChanges indexChanges =
+    final var indexChanges =
         session.getTransaction().getIndexChanges(getName());
     if (indexChanges != null) {
-      try (Stream<RawPair<Object, RID>> stream = stream(session)) {
+      try (var stream = stream(session)) {
         return stream.count();
       }
     }
@@ -531,13 +531,13 @@ public abstract class IndexMultiValues extends IndexAbstract {
       releaseSharedLock();
     }
 
-    final FrontendTransactionIndexChanges indexChanges =
+    final var indexChanges =
         session.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
     }
 
-    final Stream<RawPair<Object, RID>> txStream =
+    final var txStream =
         StreamSupport.stream(
             new PureTxMultiValueBetweenIndexForwardSpliterator(
                 this, null, true, null, true, indexChanges),
@@ -573,13 +573,13 @@ public abstract class IndexMultiValues extends IndexAbstract {
   private RawPair<Object, RID> calculateTxIndexEntry(
       Object key, final RID backendValue, FrontendTransactionIndexChanges indexChanges) {
     key = getCollatingValue(key);
-    final FrontendTransactionIndexChangesPerKey changesPerKey = indexChanges.getChangesPerKey(key);
+    final var changesPerKey = indexChanges.getChangesPerKey(key);
     if (changesPerKey.isEmpty()) {
       return new RawPair<>(key, backendValue);
     }
 
-    int putCounter = 1;
-    for (TransactionIndexEntry entry : changesPerKey.getEntriesAsList()) {
+    var putCounter = 1;
+    for (var entry : changesPerKey.getEntriesAsList()) {
       if (entry.getOperation() == OPERATION.PUT && entry.getValue().equals(backendValue)) {
         putCounter++;
       } else if (entry.getOperation() == OPERATION.REMOVE) {
@@ -617,13 +617,13 @@ public abstract class IndexMultiValues extends IndexAbstract {
       releaseSharedLock();
     }
 
-    final FrontendTransactionIndexChanges indexChanges =
+    final var indexChanges =
         session.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
     }
 
-    final Stream<RawPair<Object, RID>> txStream =
+    final var txStream =
         StreamSupport.stream(
             new PureTxMultiValueBetweenIndexBackwardSplititerator(
                 this, null, true, null, true, indexChanges),

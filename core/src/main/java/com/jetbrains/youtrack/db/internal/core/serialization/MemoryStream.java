@@ -85,8 +85,8 @@ public class MemoryStream extends OutputStream {
       return;
     }
 
-    final int to = iFrom + iPosition;
-    final int size = iPosition > 0 ? buffer.length - to : buffer.length - iFrom;
+    final var to = iFrom + iPosition;
+    final var size = iPosition > 0 ? buffer.length - to : buffer.length - iFrom;
 
     System.arraycopy(buffer, iFrom, buffer, to, size);
   }
@@ -120,10 +120,10 @@ public class MemoryStream extends OutputStream {
       return buffer;
     }
 
-    final int pos = position;
+    final var pos = position;
 
-    final byte[] destinBuffer = new byte[pos];
-    final byte[] sourceBuffer = buffer;
+    final var destinBuffer = new byte[pos];
+    final var sourceBuffer = buffer;
 
     if (pos < NATIVE_COPY_THRESHOLD) {
       System.arraycopy(sourceBuffer, 0, destinBuffer, 0, pos);
@@ -151,12 +151,12 @@ public class MemoryStream extends OutputStream {
 
   @Override
   public final void write(final byte[] iBuffer, final int iOffset, final int iLength) {
-    final int pos = position;
-    final int tot = pos + iLength;
+    final var pos = position;
+    final var tot = pos + iLength;
 
     assureSpaceFor(iLength);
 
-    final byte[] localBuffer = buffer;
+    final var localBuffer = buffer;
 
     if (iLength < NATIVE_COPY_THRESHOLD) {
       if (iLength >= 0) {
@@ -196,7 +196,7 @@ public class MemoryStream extends OutputStream {
       return -1;
     }
 
-    final int begin = position;
+    final var begin = position;
 
     assureSpaceFor(BinaryProtocol.SIZE_INT + iContent.length);
 
@@ -233,14 +233,14 @@ public class MemoryStream extends OutputStream {
   }
 
   public int set(final boolean iContent) {
-    final int begin = position;
+    final var begin = position;
     write((byte) (iContent ? 1 : 0));
     return begin;
   }
 
   public int set(final char iContent) {
     assureSpaceFor(BinaryProtocol.SIZE_CHAR);
-    final int begin = position;
+    final var begin = position;
     BinaryProtocol.char2bytes(iContent, buffer, position);
     position += BinaryProtocol.SIZE_CHAR;
     return begin;
@@ -248,7 +248,7 @@ public class MemoryStream extends OutputStream {
 
   public int set(final int iContent) {
     assureSpaceFor(BinaryProtocol.SIZE_INT);
-    final int begin = position;
+    final var begin = position;
     BinaryProtocol.int2bytes(iContent, buffer, position);
     position += BinaryProtocol.SIZE_INT;
     return begin;
@@ -256,7 +256,7 @@ public class MemoryStream extends OutputStream {
 
   public int set(final long iContent) {
     assureSpaceFor(BinaryProtocol.SIZE_LONG);
-    final int begin = position;
+    final var begin = position;
     BinaryProtocol.long2bytes(iContent, buffer, position);
     position += BinaryProtocol.SIZE_LONG;
     return begin;
@@ -264,7 +264,7 @@ public class MemoryStream extends OutputStream {
 
   public int set(final short iContent) {
     assureSpaceFor(BinaryProtocol.SIZE_SHORT);
-    final int begin = position;
+    final var begin = position;
     BinaryProtocol.short2bytes(iContent, buffer, position);
     position += BinaryProtocol.SIZE_SHORT;
     return begin;
@@ -280,16 +280,16 @@ public class MemoryStream extends OutputStream {
   }
 
   private void assureSpaceFor(final int iLength) {
-    final byte[] localBuffer = buffer;
-    final int pos = position;
-    final int capacity = position + iLength;
+    final var localBuffer = buffer;
+    final var pos = position;
+    final var capacity = position + iLength;
 
-    final int bufferLength = localBuffer.length;
+    final var bufferLength = localBuffer.length;
 
     if (bufferLength < capacity) {
       metricResize++;
 
-      final byte[] newbuf = new byte[Math.max(bufferLength << 1, capacity)];
+      final var newbuf = new byte[Math.max(bufferLength << 1, capacity)];
 
       if (pos < NATIVE_COPY_THRESHOLD) {
         if (pos >= 0) {
@@ -339,7 +339,7 @@ public class MemoryStream extends OutputStream {
       return null;
     }
 
-    final byte[] portion = ArrayUtils.copyOfRange(buffer, position, position + iSize);
+    final var portion = ArrayUtils.copyOfRange(buffer, position, position + iSize);
     position += iSize;
 
     return portion;
@@ -354,9 +354,9 @@ public class MemoryStream extends OutputStream {
       return -1;
     }
 
-    final int begin = position;
+    final var begin = position;
 
-    final int size = BinaryProtocol.bytes2int(buffer, position);
+    final var size = BinaryProtocol.bytes2int(buffer, position);
     position += BinaryProtocol.SIZE_INT + size;
 
     return begin;
@@ -386,7 +386,7 @@ public class MemoryStream extends OutputStream {
       return null;
     }
 
-    final int size = BinaryProtocol.bytes2int(buffer, iOffset);
+    final var size = BinaryProtocol.bytes2int(buffer, iOffset);
 
     if (size == 0) {
       return null;
@@ -402,10 +402,10 @@ public class MemoryStream extends OutputStream {
       return null;
     }
 
-    final int size = BinaryProtocol.bytes2int(buffer, position);
+    final var size = BinaryProtocol.bytes2int(buffer, position);
     position += BinaryProtocol.SIZE_INT;
 
-    final byte[] portion = ArrayUtils.copyOfRange(buffer, position, position + size);
+    final var portion = ArrayUtils.copyOfRange(buffer, position, position + size);
     position += size;
 
     return portion;
@@ -423,8 +423,8 @@ public class MemoryStream extends OutputStream {
       return null;
     }
 
-    final int size = getVariableSize();
-    String str = new String(buffer, position, size, charset);
+    final var size = getVariableSize();
+    var str = new String(buffer, position, size, charset);
     position += size;
     return str;
   }
@@ -434,7 +434,7 @@ public class MemoryStream extends OutputStream {
   }
 
   public char getAsChar() {
-    final char value = BinaryProtocol.bytes2char(buffer, position);
+    final var value = BinaryProtocol.bytes2char(buffer, position);
     position += BinaryProtocol.SIZE_CHAR;
     return value;
   }
@@ -444,19 +444,19 @@ public class MemoryStream extends OutputStream {
   }
 
   public long getAsLong() {
-    final long value = BinaryProtocol.bytes2long(buffer, position);
+    final var value = BinaryProtocol.bytes2long(buffer, position);
     position += BinaryProtocol.SIZE_LONG;
     return value;
   }
 
   public int getAsInteger() {
-    final int value = BinaryProtocol.bytes2int(buffer, position);
+    final var value = BinaryProtocol.bytes2int(buffer, position);
     position += BinaryProtocol.SIZE_INT;
     return value;
   }
 
   public short getAsShort() {
-    final short value = BinaryProtocol.bytes2short(buffer, position);
+    final var value = BinaryProtocol.bytes2short(buffer, position);
     position += BinaryProtocol.SIZE_SHORT;
     return value;
   }
@@ -475,9 +475,9 @@ public class MemoryStream extends OutputStream {
       return null;
     }
 
-    final int size = position > 0 ? position : buffer.length;
+    final var size = position > 0 ? position : buffer.length;
 
-    final byte[] copy = new byte[size];
+    final var copy = new byte[size];
     System.arraycopy(buffer, 0, copy, 0, size);
     return copy;
   }
@@ -487,7 +487,7 @@ public class MemoryStream extends OutputStream {
       return -1;
     }
 
-    final int size = BinaryProtocol.bytes2int(buffer, position);
+    final var size = BinaryProtocol.bytes2int(buffer, position);
     position += BinaryProtocol.SIZE_INT;
 
     return size;

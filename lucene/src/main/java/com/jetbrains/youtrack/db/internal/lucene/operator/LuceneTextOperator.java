@@ -124,14 +124,14 @@ public class LuceneTextOperator extends QueryTargetOperator {
       CommandContext iContext,
       final EntitySerializer serializer) {
 
-    LuceneFullTextIndex index = involvedIndex(iContext.getDatabase(), iRecord, iCurrentResult,
+    var index = involvedIndex(iContext.getDatabase(), iRecord, iCurrentResult,
         iCondition, iLeft,
         iRight);
     if (index == null) {
       return false;
     }
 
-    MemoryIndex memoryIndex = (MemoryIndex) iContext.getVariable(MEMORY_INDEX);
+    var memoryIndex = (MemoryIndex) iContext.getVariable(MEMORY_INDEX);
     if (memoryIndex == null) {
       memoryIndex = new MemoryIndex();
       iContext.setVariable(MEMORY_INDEX, memoryIndex);
@@ -161,7 +161,7 @@ public class LuceneTextOperator extends QueryTargetOperator {
       DatabaseSessionInternal session, Object iLeft, Object iRight, LuceneFullTextIndex index,
       MemoryIndex memoryIndex)
       throws IOException, ParseException {
-    for (IndexableField field : index.buildDocument(session, iLeft).getFields()) {
+    for (var field : index.buildDocument(session, iLeft).getFields()) {
       memoryIndex.addField(field, index.indexAnalyzer());
     }
     return memoryIndex.search(index.buildQuery(iRight)) > 0.0f;
@@ -171,9 +171,9 @@ public class LuceneTextOperator extends QueryTargetOperator {
       DatabaseSessionInternal session, List iLeft, Object iRight, LuceneFullTextIndex index,
       MemoryIndex memoryIndex)
       throws IOException, ParseException {
-    boolean match = false;
-    List<Object> collections = transformInput(iLeft, iRight, index, memoryIndex);
-    for (Object collection : collections) {
+    var match = false;
+    var collections = transformInput(iLeft, iRight, index, memoryIndex);
+    for (var collection : collections) {
       memoryIndex.reset();
       match = match || matchField(session, collection, iRight, index, memoryIndex);
       if (match) {
@@ -186,7 +186,7 @@ public class LuceneTextOperator extends QueryTargetOperator {
   private List<Object> transformInput(
       List iLeft, Object iRight, LuceneFullTextIndex index, MemoryIndex memoryIndex) {
 
-    Integer collectionIndex = getCollectionIndex(iLeft);
+    var collectionIndex = getCollectionIndex(iLeft);
     if (collectionIndex == -1) {
       // collection not found;
       return iLeft;
@@ -195,12 +195,12 @@ public class LuceneTextOperator extends QueryTargetOperator {
       throw new UnsupportedOperationException("Index of collection cannot be > 1");
     }
     // otherwise the input is [val,[]] or [[],val]
-    Collection collection = (Collection) iLeft.get(collectionIndex);
+    var collection = (Collection) iLeft.get(collectionIndex);
     if (iLeft.size() == 1) {
       return new ArrayList<Object>(collection);
     }
     List<Object> transformed = new ArrayList<Object>(collection.size());
-    for (Object o : collection) {
+    for (var o : collection) {
       List<Object> objects = new ArrayList<Object>();
       //  [[],val]
       if (collectionIndex == 0) {
@@ -217,8 +217,8 @@ public class LuceneTextOperator extends QueryTargetOperator {
   }
 
   private Integer getCollectionIndex(List iLeft) {
-    int i = 0;
-    for (Object o : iLeft) {
+    var i = 0;
+    for (var o : iLeft) {
       if (o instanceof Collection) {
         return i;
       }
@@ -242,11 +242,11 @@ public class LuceneTextOperator extends QueryTargetOperator {
 
         if (isChained(iCondition.getLeft())) {
 
-          SQLFilterItemField chained = (SQLFilterItemField) iCondition.getLeft();
+          var chained = (SQLFilterItemField) iCondition.getLeft();
 
-          SQLFilterItemField.FieldChain fieldChain = chained.getFieldChain();
-          SchemaClassInternal oClass = cls;
-          for (int i = 0; i < fieldChain.getItemCount() - 1; i++) {
+          var fieldChain = chained.getFieldChain();
+          var oClass = cls;
+          for (var i = 0; i < fieldChain.getItemCount() - 1; i++) {
             oClass = (SchemaClassInternal) oClass.getProperty(fieldChain.getItemName(i))
                 .getLinkedClass();
           }
@@ -254,10 +254,10 @@ public class LuceneTextOperator extends QueryTargetOperator {
             cls = oClass;
           }
         }
-        Set<Index> classInvolvedIndexes = cls.getInvolvedIndexesInternal(db,
+        var classInvolvedIndexes = cls.getInvolvedIndexesInternal(db,
             fields(iCondition));
         LuceneFullTextIndex idx = null;
-        for (Index classInvolvedIndex : classInvolvedIndexes) {
+        for (var classInvolvedIndex : classInvolvedIndexes) {
 
           if (classInvolvedIndex.getInternal() instanceof LuceneFullTextIndex) {
             idx = (LuceneFullTextIndex) classInvolvedIndex.getInternal();
@@ -283,16 +283,16 @@ public class LuceneTextOperator extends QueryTargetOperator {
   // returns a list of field names
   protected Collection<String> fields(SQLFilterCondition iCondition) {
 
-    Object left = iCondition.getLeft();
+    var left = iCondition.getLeft();
 
     if (left instanceof String fName) {
       return List.of(fName);
     }
     if (left instanceof Collection) {
-      Collection<SQLFilterItemField> f = (Collection<SQLFilterItemField>) left;
+      var f = (Collection<SQLFilterItemField>) left;
 
       List<String> fields = new ArrayList<String>();
-      for (SQLFilterItemField field : f) {
+      for (var field : f) {
         fields.add(field.toString());
       }
       return fields;
@@ -300,7 +300,7 @@ public class LuceneTextOperator extends QueryTargetOperator {
     if (left instanceof SQLFilterItemField fName) {
 
       if (fName.isFieldChain()) {
-        int itemCount = fName.getFieldChain().getItemCount();
+        var itemCount = fName.getFieldChain().getItemCount();
         return Collections.singletonList(fName.getFieldChain().getItemName(itemCount - 1));
       } else {
         return Collections.singletonList(fName.toString());

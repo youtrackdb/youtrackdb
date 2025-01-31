@@ -30,7 +30,7 @@ public class SchemaEmbedded extends SchemaShared {
       final String className,
       int[] clusterIds,
       SchemaClass... superClasses) {
-    final Character wrongCharacter = SchemaShared.checkClassNameIfValid(className);
+    final var wrongCharacter = SchemaShared.checkClassNameIfValid(className);
     //noinspection ConstantValue
     if (wrongCharacter != null) {
       throw new SchemaException(
@@ -42,7 +42,7 @@ public class SchemaEmbedded extends SchemaShared {
     }
 
     SchemaClass result;
-    int retry = 0;
+    var retry = 0;
 
     while (true) {
       try {
@@ -62,7 +62,7 @@ public class SchemaEmbedded extends SchemaShared {
       final String className,
       int clusters,
       SchemaClass... superClasses) {
-    final Character wrongCharacter = SchemaShared.checkClassNameIfValid(className);
+    final var wrongCharacter = SchemaShared.checkClassNameIfValid(className);
     //noinspection ConstantValue
     if (wrongCharacter != null) {
       throw new SchemaException(
@@ -90,13 +90,13 @@ public class SchemaEmbedded extends SchemaShared {
     acquireSchemaWriteLock(database);
     try {
 
-      final String key = className.toLowerCase(Locale.ENGLISH);
+      final var key = className.toLowerCase(Locale.ENGLISH);
       if (classes.containsKey(key)) {
         throw new SchemaException("Class '" + className + "' already exists in current database");
       }
       List<SchemaClass> superClassesList = new ArrayList<>();
       if (superClasses != null) {
-        for (SchemaClass superClass : superClasses) {
+        for (var superClass : superClasses) {
           // Filtering for null
           if (superClass != null) {
             superClassesList.add(superClass);
@@ -116,14 +116,14 @@ public class SchemaEmbedded extends SchemaShared {
 
       result = classes.get(className.toLowerCase(Locale.ENGLISH));
       // WAKE UP DB LIFECYCLE LISTENER
-      for (Iterator<DatabaseLifecycleListener> it = YouTrackDBEnginesManager.instance()
+      for (var it = YouTrackDBEnginesManager.instance()
           .getDbLifecycleListeners();
           it.hasNext(); ) {
         //noinspection deprecation
         it.next().onCreateClass(database, result);
       }
 
-      for (SessionListener oSessionListener : database.getListeners()) {
+      for (var oSessionListener : database.getListeners()) {
         oSessionListener.onCreateClass(database, result);
       }
 
@@ -172,28 +172,28 @@ public class SchemaEmbedded extends SchemaShared {
 
       database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_CREATE);
 
-      final String key = className.toLowerCase(Locale.ENGLISH);
+      final var key = className.toLowerCase(Locale.ENGLISH);
 
       if (classes.containsKey(key)) {
         throw new SchemaException("Class '" + className + "' already exists in current database");
       }
 
-      SchemaClassImpl cls = createClassInstance(className, clusterIds);
+      var cls = createClassInstance(className, clusterIds);
 
       classes.put(key, cls);
 
       if (superClasses != null && !superClasses.isEmpty()) {
         cls.setSuperClassesInternal(database, superClasses);
-        for (SchemaClass superClass : superClasses) {
+        for (var superClass : superClasses) {
           // UPDATE INDEXES
-          final int[] clustersToIndex = superClass.getPolymorphicClusterIds();
-          final String[] clusterNames = new String[clustersToIndex.length];
-          for (int i = 0; i < clustersToIndex.length; i++) {
+          final var clustersToIndex = superClass.getPolymorphicClusterIds();
+          final var clusterNames = new String[clustersToIndex.length];
+          for (var i = 0; i < clustersToIndex.length; i++) {
             clusterNames[i] = database.getClusterNameById(clustersToIndex[i]);
           }
 
-          for (Index index : ((SchemaClassInternal) superClass).getIndexesInternal(database)) {
-            for (String clusterName : clusterNames) {
+          for (var index : ((SchemaClassInternal) superClass).getIndexesInternal(database)) {
+            for (var clusterName : clusterNames) {
               if (clusterName != null) {
                 database
                     .getMetadata()
@@ -236,7 +236,7 @@ public class SchemaEmbedded extends SchemaShared {
     SchemaClass cls;
 
     int[] clusterIds = null;
-    int retry = 0;
+    var retry = 0;
 
     while (true) {
       try {
@@ -278,7 +278,7 @@ public class SchemaEmbedded extends SchemaShared {
     acquireSchemaWriteLock(database);
     try {
 
-      final String key = className.toLowerCase(Locale.ENGLISH);
+      final var key = className.toLowerCase(Locale.ENGLISH);
       if (classes.containsKey(key) && retry == 0) {
         throw new SchemaException("Class '" + className + "' already exists in current database");
       }
@@ -294,7 +294,7 @@ public class SchemaEmbedded extends SchemaShared {
       }
       List<SchemaClass> superClassesList = new ArrayList<>();
       if (superClasses != null) {
-        for (SchemaClass superClass : superClasses) {
+        for (var superClass : superClasses) {
           if (superClass != null) {
             superClassesList.add(superClass);
           }
@@ -306,14 +306,14 @@ public class SchemaEmbedded extends SchemaShared {
       result = classes.get(className.toLowerCase(Locale.ENGLISH));
 
       // WAKE UP DB LIFECYCLE LISTENER
-      for (Iterator<DatabaseLifecycleListener> it = YouTrackDBEnginesManager.instance()
+      for (var it = YouTrackDBEnginesManager.instance()
           .getDbLifecycleListeners();
           it.hasNext(); ) {
         //noinspection deprecation
         it.next().onCreateClass(database, result);
       }
 
-      for (SessionListener oSessionListener : database.getListeners()) {
+      for (var oSessionListener : database.getListeners()) {
         oSessionListener.onCreateClass(database, result);
       }
 
@@ -344,7 +344,7 @@ public class SchemaEmbedded extends SchemaShared {
     clusterIds[0] = database.getClusterIdByName(className);
     if (clusterIds[0] > -1) {
       // CHECK THE CLUSTER HAS NOT BEEN ALREADY ASSIGNED
-      final SchemaClass cls = clustersToClasses.get(clusterIds[0]);
+      final var cls = clustersToClasses.get(clusterIds[0]);
       if (cls != null) {
         clusterIds[0] = database.addCluster(getNextAvailableClusterName(database, className));
       }
@@ -354,7 +354,7 @@ public class SchemaEmbedded extends SchemaShared {
       clusterIds[0] = database.addCluster(className);
     }
 
-    for (int i = 1; i < minimumClusters; ++i) {
+    for (var i = 1; i < minimumClusters; ++i) {
       clusterIds[i] = database.addCluster(getNextAvailableClusterName(database, className));
     }
 
@@ -363,8 +363,8 @@ public class SchemaEmbedded extends SchemaShared {
 
   private static String getNextAvailableClusterName(
       DatabaseSessionInternal database, final String className) {
-    for (int i = 1; ; ++i) {
-      final String clusterName = className + "_" + i;
+    for (var i = 1; ; ++i) {
+      final var clusterName = className + "_" + i;
       if (database.getClusterIdByName(clusterName) < 0)
       // FREE NAME
       {
@@ -378,7 +378,7 @@ public class SchemaEmbedded extends SchemaShared {
       return;
     }
 
-    for (int clusterId : iClusterIds) {
+    for (var clusterId : iClusterIds) {
       if (clusterId < 0) {
         continue;
       }
@@ -406,7 +406,7 @@ public class SchemaEmbedded extends SchemaShared {
 
       database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_DELETE);
 
-      final String key = className.toLowerCase(Locale.ENGLISH);
+      final var key = className.toLowerCase(Locale.ENGLISH);
 
       SchemaClass cls = classes.get(key);
 
@@ -426,7 +426,7 @@ public class SchemaEmbedded extends SchemaShared {
       doDropClass(database, className);
 
       var localCache = database.getLocalCache();
-      for (int clusterId : cls.getClusterIds()) {
+      for (var clusterId : cls.getClusterIds()) {
         localCache.freeCluster(clusterId);
       }
     } finally {
@@ -451,7 +451,7 @@ public class SchemaEmbedded extends SchemaShared {
 
       database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_DELETE);
 
-      final String key = className.toLowerCase(Locale.ENGLISH);
+      final var key = className.toLowerCase(Locale.ENGLISH);
 
       final SchemaClass cls = classes.get(key);
       if (cls == null) {
@@ -469,11 +469,11 @@ public class SchemaEmbedded extends SchemaShared {
 
       checkEmbedded();
 
-      for (SchemaClass superClass : cls.getSuperClasses()) {
+      for (var superClass : cls.getSuperClasses()) {
         // REMOVE DEPENDENCY FROM SUPERCLASS
         ((SchemaClassImpl) superClass).removeBaseClassInternal(database, cls);
       }
-      for (int id : cls.getClusterIds()) {
+      for (var id : cls.getClusterIds()) {
         if (id != -1) {
           deleteCluster(database, id);
         }
@@ -492,14 +492,14 @@ public class SchemaEmbedded extends SchemaShared {
       removeClusterClassMap(cls);
 
       // WAKE UP DB LIFECYCLE LISTENER
-      for (Iterator<DatabaseLifecycleListener> it = YouTrackDBEnginesManager.instance()
+      for (var it = YouTrackDBEnginesManager.instance()
           .getDbLifecycleListeners();
           it.hasNext(); ) {
         //noinspection deprecation
         it.next().onDropClass(database, cls);
       }
 
-      for (SessionListener oSessionListener : database.getListeners()) {
+      for (var oSessionListener : database.getListeners()) {
         oSessionListener.onDropClass(database, cls);
       }
     } finally {
@@ -513,17 +513,17 @@ public class SchemaEmbedded extends SchemaShared {
 
 
   private static void dropClassIndexes(DatabaseSessionInternal database, final SchemaClass cls) {
-    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final var indexManager = database.getMetadata().getIndexManagerInternal();
 
-    for (final Index index : indexManager.getClassIndexes(database, cls.getName())) {
+    for (final var index : indexManager.getClassIndexes(database, cls.getName())) {
       indexManager.dropIndex(database, index.getName());
     }
   }
 
   private static void deleteCluster(final DatabaseSessionInternal db, final int clusterId) {
-    final String clusterName = db.getClusterNameById(clusterId);
+    final var clusterName = db.getClusterNameById(clusterId);
     if (clusterName != null) {
-      final RecordIteratorCluster<DBRecord> iteratorCluster = db.browseCluster(clusterName);
+      final var iteratorCluster = db.browseCluster(clusterName);
       if (iteratorCluster != null) {
         db.executeInTxBatches(
             (Iterable<DBRecord>) iteratorCluster, (session, record) -> record.delete());
@@ -535,7 +535,7 @@ public class SchemaEmbedded extends SchemaShared {
   }
 
   private void removeClusterClassMap(final SchemaClass cls) {
-    for (int clusterId : cls.getClusterIds()) {
+    for (var clusterId : cls.getClusterIds()) {
       if (clusterId < 0) {
         continue;
       }
@@ -557,7 +557,7 @@ public class SchemaEmbedded extends SchemaShared {
 
       checkEmbedded();
 
-      final SchemaClass existingCls = clustersToClasses.get(clusterId);
+      final var existingCls = clustersToClasses.get(clusterId);
       if (existingCls != null && !cls.equals(existingCls)) {
         throw new SchemaException(
             "Cluster with id "

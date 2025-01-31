@@ -44,8 +44,8 @@ public class SQLFunctionDecode extends SQLFunctionAbstract {
       final Object[] iParams,
       CommandContext iContext) {
 
-    final String candidate = iParams[0].toString();
-    final String format = iParams[1].toString();
+    final var candidate = iParams[0].toString();
+    final var format = iParams[1].toString();
 
     if (SQLFunctionEncode.FORMAT_BASE64.equalsIgnoreCase(format)) {
       return Base64.getDecoder().decode(candidate);

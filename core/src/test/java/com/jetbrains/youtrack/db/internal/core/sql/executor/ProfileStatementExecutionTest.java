@@ -19,7 +19,7 @@ public class ProfileStatementExecutionTest extends DbTestBase {
     db.command("insert into testProfile set name ='bar'");
     db.commit();
 
-    ResultSet result = db.query("PROFILE SELECT FROM testProfile WHERE name ='bar'");
+    var result = db.query("PROFILE SELECT FROM testProfile WHERE name ='bar'");
     Assert.assertTrue(result.getExecutionPlan().get().prettyPrint(0, 2).contains("μs"));
 
     result.close();

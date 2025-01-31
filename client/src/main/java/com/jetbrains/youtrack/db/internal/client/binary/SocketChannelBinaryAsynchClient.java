@@ -135,7 +135,7 @@ public class SocketChannelBinaryAsynchClient extends SocketChannelBinary {
     RuntimeException rootException = null;
     Constructor<?> c = null;
     try {
-      final Class<RuntimeException> excClass = (Class<RuntimeException>) Class.forName(iClassName);
+      final var excClass = (Class<RuntimeException>) Class.forName(iClassName);
       if (iPrevious != null) {
         try {
           c = excClass.getConstructor(String.class, Throwable.class);
@@ -276,7 +276,7 @@ public class SocketChannelBinaryAsynchClient extends SocketChannelBinary {
    * @return true if it's connected, otherwise false.
    */
   public boolean isConnected() {
-    final Socket s = socket;
+    final var s = socket;
     return s != null
         && !s.isClosed()
         && s.isConnected()
@@ -317,16 +317,16 @@ public class SocketChannelBinaryAsynchClient extends SocketChannelBinary {
       return iClientTxId;
     } else if (iResult == ChannelBinaryProtocol.RESPONSE_STATUS_ERROR) {
 
-      Error37Response response = new Error37Response();
+      var response = new Error37Response();
       response.read(db, this, null);
-      byte[] serializedException = response.getVerbose();
+      var serializedException = response.getVerbose();
       Exception previous = null;
       if (serializedException != null && serializedException.length > 0) {
-        Throwable deserializeException = deserializeException(serializedException);
+        var deserializeException = deserializeException(serializedException);
         exceptionHandler.onException(deserializeException);
       }
 
-      for (Map.Entry<String, String> entry : response.getMessages().entrySet()) {
+      for (var entry : response.getMessages().entrySet()) {
         previous = createException(entry.getKey(), entry.getValue(), previous);
       }
 
@@ -352,15 +352,15 @@ public class SocketChannelBinaryAsynchClient extends SocketChannelBinary {
   }
 
   private void setReadResponseTimeout() throws SocketException {
-    final Socket s = socket;
+    final var s = socket;
     if (s != null && s.isConnected() && !s.isClosed()) {
       s.setSoTimeout(socketTimeout);
     }
   }
 
   private Throwable deserializeException(final byte[] serializedException) throws IOException {
-    final ByteArrayInputStream inputStream = new ByteArrayInputStream(serializedException);
-    final ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+    final var inputStream = new ByteArrayInputStream(serializedException);
+    final var objectInputStream = new ObjectInputStream(inputStream);
 
     Object throwable = null;
     try {
@@ -377,10 +377,10 @@ public class SocketChannelBinaryAsynchClient extends SocketChannelBinary {
   public void handleException(Throwable throwable) {
     if (throwable instanceof BaseException) {
       try {
-        final Class<? extends BaseException> cls = (Class<? extends BaseException>) throwable.getClass();
+        final var cls = (Class<? extends BaseException>) throwable.getClass();
         final Constructor<? extends BaseException> constructor;
         constructor = cls.getConstructor(cls);
-        final BaseException proxyInstance = constructor.newInstance(throwable);
+        final var proxyInstance = constructor.newInstance(throwable);
         proxyInstance.addSuppressed(throwable);
         throw proxyInstance;
 
@@ -399,7 +399,7 @@ public class SocketChannelBinaryAsynchClient extends SocketChannelBinary {
       throw new ResponseProcessingException("Exception during response processing", throwable);
     } else {
       // WRAP IT
-      String exceptionType = throwable != null ? throwable.getClass().getName() : "null";
+      var exceptionType = throwable != null ? throwable.getClass().getName() : "null";
       LogManager.instance()
           .error(
               this,
@@ -412,7 +412,7 @@ public class SocketChannelBinaryAsynchClient extends SocketChannelBinary {
 
   public void beginRequest(final byte iCommand, final StorageRemoteSession session)
       throws IOException {
-    final StorageRemoteNodeSession nodeSession = session.getServerSession(serverURL);
+    final var nodeSession = session.getServerSession(serverURL);
     beginRequest(iCommand, nodeSession);
   }
 

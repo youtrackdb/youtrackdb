@@ -51,7 +51,7 @@ public class SequenceHelper {
   }
 
   public static DBSequence createSequence(EntityImpl entity) {
-    SEQUENCE_TYPE sequenceType = DBSequence.getSequenceType(entity);
+    var sequenceType = DBSequence.getSequenceType(entity);
     return createSequence(sequenceType, entity);
   }
 }

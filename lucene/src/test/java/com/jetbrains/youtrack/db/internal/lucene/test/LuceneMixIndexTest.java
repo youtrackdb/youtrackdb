@@ -32,7 +32,7 @@ public class LuceneMixIndexTest extends BaseLuceneTest {
   @Before
   public void initLocal() {
 
-    InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
+    var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
 
     db.execute("sql", getScriptFromStream(stream)).close();
 
@@ -44,7 +44,7 @@ public class LuceneMixIndexTest extends BaseLuceneTest {
   @Test
   public void testMixQuery() {
 
-    ResultSet docs =
+    var docs =
         db.query(
             "select * from Song where  author = 'Hornsby' and [title,lyrics]  LUCENE"
                 + " \"(title:mountain)\" ");
@@ -75,7 +75,7 @@ public class LuceneMixIndexTest extends BaseLuceneTest {
   //  @Ignore
   public void testMixCompositeQuery() {
 
-    ResultSet docs =
+    var docs =
         db.query(
             "select * from Song where  author = 'Hornsby' and [title,lyrics] LUCENE"
                 + " \"title:mountain\" ");

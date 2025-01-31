@@ -74,10 +74,10 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
 
   @SuppressWarnings("unchecked")
   public CommandExecutorSQLInsert parse(DatabaseSessionInternal db, final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
@@ -101,9 +101,9 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
       parserRequiredKeyword("INSERT");
       parserRequiredKeyword("INTO");
 
-      String subjectName =
+      var subjectName =
           parserRequiredWord(false, "Invalid subject name. Expected cluster, class or index");
-      String subjectNameUpper = subjectName.toUpperCase(Locale.ENGLISH);
+      var subjectNameUpper = subjectName.toUpperCase(Locale.ENGLISH);
       if (subjectNameUpper.startsWith(CommandExecutorSQLAbstract.CLUSTER_PREFIX))
       // CLUSTER
       {
@@ -118,7 +118,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
           subjectName = subjectName.substring(CommandExecutorSQLAbstract.CLASS_PREFIX.length());
         }
 
-        final SchemaClass cls =
+        final var cls =
             database.getMetadata().getImmutableSchemaSnapshot().getClass(subjectName);
         if (cls == null) {
           throwParsingException("Class " + subjectName + " not found in database");
@@ -140,7 +140,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
       }
 
       if (clusterName != null && className == null) {
-        final int clusterId = db.getClusterIdByName(clusterName);
+        final var clusterId = db.getClusterIdByName(clusterName);
         if (clusterId >= 0) {
           clazz = db.getMetadata().getSchema().getClassByClusterId(clusterId);
           if (clazz != null) {
@@ -155,7 +155,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
             "Set of fields is missed. Example: (name, surname) or SET name = 'Bill'");
       }
 
-      final String temp = parseOptionalWord(true);
+      final var temp = parseOptionalWord(true);
       if (parserGetLastWord().equalsIgnoreCase("cluster")) {
         clusterName = parserRequiredWord(false);
 
@@ -219,13 +219,13 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
    * Execute the INSERT and return the EntityImpl object created.
    */
   public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
-    final DatabaseSessionInternal database = getDatabase();
+    final var database = getDatabase();
     if (newRecords == null && content == null && subQuery == null) {
       throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final CommandParameters commandParameters = new CommandParameters(iArgs);
+    final var commandParameters = new CommandParameters(iArgs);
     if (indexName != null) {
       if (newRecords == null) {
         throw new CommandExecutionException("No key/value found");
@@ -233,7 +233,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
 
       IndexAbstract.manualIndexesWarning();
 
-      final Index index =
+      final var index =
           database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
       if (index == null) {
         throw new CommandExecutionException("Target index '" + indexName + "' not found");
@@ -242,9 +242,9 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
       // BIND VALUES
       Map<String, Object> result = new HashMap<String, Object>();
 
-      for (Map<String, Object> candidate : newRecords) {
-        Object indexKey = getIndexKeyValue(database, commandParameters, candidate);
-        Identifiable indexValue = getIndexValue(database, commandParameters, candidate);
+      for (var candidate : newRecords) {
+        var indexKey = getIndexKeyValue(database, commandParameters, candidate);
+        var indexValue = getIndexValue(database, commandParameters, candidate);
         index.put(database, indexKey, indexValue);
 
         result.put(KEYWORD_KEY, indexKey);
@@ -257,8 +257,8 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
       // CREATE NEW DOCUMENTS
       final List<EntityImpl> docs = new ArrayList<EntityImpl>();
       if (newRecords != null) {
-        for (Map<String, Object> candidate : newRecords) {
-          final EntityImpl entity =
+        for (var candidate : newRecords) {
+          final var entity =
               className != null ? new EntityImpl(db, className) : new EntityImpl(db);
           SQLHelper.bindParameters(entity, candidate, commandParameters, context);
 
@@ -272,7 +272,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
           return prepareReturnResult(db, docs);
         }
       } else if (content != null) {
-        final EntityImpl entity =
+        final var entity =
             className != null ? new EntityImpl(db, className) : new EntityImpl(db);
         entity.merge(content, true, false);
         saveRecord(entity);
@@ -326,7 +326,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
     if (oldRecord instanceof EntityImpl) {
       oldClass = EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) oldRecord));
     }
-    final RecordAbstract rec = oldRecord.copy();
+    final var rec = oldRecord.copy();
 
     // RESET THE IDENTITY TO AVOID UPDATE
     rec.getIdentity().reset();
@@ -338,7 +338,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
     }
 
     if (rec instanceof Entity) {
-      EntityInternal entity = (EntityInternal) rec;
+      var entity = (EntityInternal) rec;
 
       if (oldClass != null && oldClass.isSubClassOf("V")) {
         LogManager.instance()
@@ -347,10 +347,10 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
                 "WARNING: copying vertex record "
                     + entity
                     + " with INSERT/SELECT, the edge pointers won't be copied");
-        String[] fields = ((EntityImpl) rec).fieldNames();
-        for (String field : fields) {
+        var fields = ((EntityImpl) rec).fieldNames();
+        for (var field : fields) {
           if (field.startsWith("out_") || field.startsWith("in_")) {
-            Object edges = entity.getPropertyInternal(field);
+            var edges = entity.getPropertyInternal(field);
             if (edges instanceof Identifiable) {
               EntityImpl edgeRec = ((Identifiable) edges).getRecord(db);
               SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass(edgeRec);
@@ -358,7 +358,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
                 entity.removeProperty(field);
               }
             } else if (edges instanceof Iterable) {
-              for (Object edge : (Iterable) edges) {
+              for (var edge : (Iterable) edges) {
                 if (edge instanceof Identifiable) {
                   Entity edgeRec = ((Identifiable) edge).getRecord(db);
                   if (edgeRec.getSchemaType().isPresent()
@@ -392,8 +392,8 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
     if (returnExpression == null) {
       return res; // No transformation
     }
-    final ArrayList<Object> ret = new ArrayList<Object>();
-    for (EntityImpl resItem : res) {
+    final var ret = new ArrayList<Object>();
+    for (var resItem : res) {
       ret.add(prepareReturnItem(db, resItem));
     }
     return ret;
@@ -405,11 +405,11 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
     }
 
     this.getContext().setVariable("current", item);
-    final Object res = SQLHelper.getValue(returnExpression, item, this.getContext());
+    final var res = SQLHelper.getValue(returnExpression, item, this.getContext());
     if (res instanceof Identifiable) {
       return res;
     } else { // wrapping entity
-      final EntityImpl wrappingDoc = new EntityImpl(db, "result", res);
+      final var wrappingDoc = new EntityImpl(db, "result", res);
       wrappingDoc.field(
           "rid", item.getIdentity()); // passing record id.In many cases usable on client side
       wrappingDoc.field("version", item.getVersion()); // passing record version
@@ -427,19 +427,19 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
   }
 
   protected void parseValues() {
-    final int beginFields = parserGetCurrentPosition();
+    final var beginFields = parserGetCurrentPosition();
 
-    final int endFields = parserText.indexOf(')', beginFields + 1);
+    final var endFields = parserText.indexOf(')', beginFields + 1);
     if (endFields == -1) {
       throwSyntaxErrorException("Missed closed brace");
     }
 
-    final ArrayList<String> fieldNamesQuoted = new ArrayList<String>();
+    final var fieldNamesQuoted = new ArrayList<String>();
     parserSetCurrentPosition(
         StringSerializerHelper.getParameters(
             parserText, beginFields, endFields, fieldNamesQuoted));
-    final ArrayList<String> fieldNames = new ArrayList<String>();
-    for (String fieldName : fieldNamesQuoted) {
+    final var fieldNames = new ArrayList<String>();
+    for (var fieldName : fieldNamesQuoted) {
       fieldNames.add(decodeClassName(fieldName));
     }
 
@@ -448,7 +448,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
     }
 
     // REMOVE QUOTATION MARKS IF ANY
-    for (int i = 0; i < fieldNames.size(); ++i) {
+    for (var i = 0; i < fieldNames.size(); ++i) {
       fieldNames.set(i, StringSerializerHelper.removeQuotationMarks(fieldNames.get(i)));
     }
 
@@ -458,13 +458,13 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
       throwParsingException("Set of values is missed. Example: ('Bill', 'Stuart', 300)");
     }
 
-    int blockStart = parserGetCurrentPosition();
-    int blockEnd = parserGetCurrentPosition();
+    var blockStart = parserGetCurrentPosition();
+    var blockEnd = parserGetCurrentPosition();
 
-    final List<String> records =
+    final var records =
         StringSerializerHelper.smartSplit(
             parserText, new char[]{','}, blockStart, -1, true, true, false, false);
-    for (String record : records) {
+    for (var record : records) {
 
       final List<String> values = new ArrayList<String>();
       blockEnd += StringSerializerHelper.getParameters(record, 0, -1, values);
@@ -488,7 +488,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
 
       // TRANSFORM FIELD VALUES
       final Map<String, Object> fields = new LinkedHashMap<String, Object>();
-      for (int i = 0; i < values.size(); ++i) {
+      for (var i = 0; i < values.size(); ++i) {
         fields.put(
             fieldNames.get(i),
             SQLHelper.parseValue(
@@ -505,7 +505,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
    */
   protected void parseReturn(Boolean subQueryExpected) throws CommandSQLParsingException {
     parserNextWord(false, " ");
-    String returning = parserGetLastWord().trim();
+    var returning = parserGetLastWord().trim();
     if (returning.startsWith("$") || returning.startsWith("@")) {
       if (subQueryExpected) {
         queryResult = new ArrayList<EntityImpl>();
@@ -523,7 +523,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
   private Object getIndexKeyValue(
       DatabaseSession session, CommandParameters commandParameters,
       Map<String, Object> candidate) {
-    final Object parsedKey = candidate.get(KEYWORD_KEY);
+    final var parsedKey = candidate.get(KEYWORD_KEY);
     if (parsedKey instanceof SQLFilterItemField f) {
       if (f.getRoot(session).equals("?"))
       // POSITIONAL PARAMETER
@@ -541,7 +541,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
   private Identifiable getIndexValue(
       DatabaseSession session, CommandParameters commandParameters,
       Map<String, Object> candidate) {
-    final Object parsedRid = candidate.get(KEYWORD_RID);
+    final var parsedRid = candidate.get(KEYWORD_RID);
     if (parsedRid instanceof SQLFilterItemField f) {
       if (f.getRoot(session).equals("?"))
       // POSITIONAL PARAMETER

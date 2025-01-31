@@ -35,10 +35,10 @@ public class CommandExecutorSQLCreateSequence extends CommandExecutorSQLAbstract
   @Override
   public CommandExecutorSQLCreateSequence parse(DatabaseSessionInternal db,
       CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
@@ -57,7 +57,7 @@ public class CommandExecutorSQLCreateSequence extends CommandExecutorSQLAbstract
         }
 
         if (temp.equals(KEYWORD_TYPE)) {
-          String typeAsString = parserRequiredWord(true, "Expected <sequence type>");
+          var typeAsString = parserRequiredWord(true, "Expected <sequence type>");
           try {
             this.sequenceType = SequenceHelper.getSequenceTyeFromString(typeAsString);
           } catch (IllegalArgumentException e) {
@@ -70,13 +70,13 @@ public class CommandExecutorSQLCreateSequence extends CommandExecutorSQLAbstract
                 e);
           }
         } else if (temp.equals(KEYWORD_START)) {
-          String startAsString = parserRequiredWord(true, "Expected <start value>");
+          var startAsString = parserRequiredWord(true, "Expected <start value>");
           this.params.setStart(Long.parseLong(startAsString));
         } else if (temp.equals(KEYWORD_INCREMENT)) {
-          String incrementAsString = parserRequiredWord(true, "Expected <increment value>");
+          var incrementAsString = parserRequiredWord(true, "Expected <increment value>");
           this.params.setIncrement(Integer.parseInt(incrementAsString));
         } else if (temp.equals(KEYWORD_CACHE)) {
-          String cacheAsString = parserRequiredWord(true, "Expected <cache value>");
+          var cacheAsString = parserRequiredWord(true, "Expected <cache value>");
           this.params.setCacheSize(Integer.parseInt(cacheAsString));
         }
       }
@@ -105,7 +105,7 @@ public class CommandExecutorSQLCreateSequence extends CommandExecutorSQLAbstract
           .getSequenceLibrary()
           .createSequence(this.sequenceName, this.sequenceType, this.params);
     } catch (DatabaseException exc) {
-      String message = "Unable to execute command: " + exc.getMessage();
+      var message = "Unable to execute command: " + exc.getMessage();
       LogManager.instance().error(this, message, exc, (Object) null);
       throw new CommandExecutionException(message);
     }

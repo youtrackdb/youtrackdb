@@ -15,13 +15,13 @@ public class UniqueHashIndexForDate extends DbTestBase {
 
   @Test
   public void testSimpleUniqueDateIndex() throws ParseException {
-    SchemaClass clazz = db.getMetadata().getSchema().createClass("test_edge");
-    SchemaProperty prop = clazz.createProperty(db, "date", PropertyType.DATETIME);
+    var clazz = db.getMetadata().getSchema().createClass("test_edge");
+    var prop = clazz.createProperty(db, "date", PropertyType.DATETIME);
     prop.createIndex(db, INDEX_TYPE.UNIQUE);
-    EntityImpl doc = (EntityImpl) db.newEntity("test_edge");
+    var doc = (EntityImpl) db.newEntity("test_edge");
     doc.field("date", "2015-03-24 08:54:49");
 
-    EntityImpl doc1 = (EntityImpl) db.newEntity("test_edge");
+    var doc1 = (EntityImpl) db.newEntity("test_edge");
     doc1.field("date", "2015-03-24 08:54:49");
 
     db.save(doc);

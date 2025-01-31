@@ -56,7 +56,7 @@ public class SQLFunctionPercentile extends SQLFunctionAbstract {
       CommandContext iContext) {
 
     if (quantiles.isEmpty()) { // set quantiles once
-      for (int i = 1; i < iParams.length; ++i) {
+      for (var i = 1; i < iParams.length; ++i) {
         this.quantiles.add(Double.parseDouble(iParams[i].toString()));
       }
     }
@@ -64,7 +64,7 @@ public class SQLFunctionPercentile extends SQLFunctionAbstract {
     if (iParams[0] instanceof Number) {
       addValue((Number) iParams[0]);
     } else if (MultiValue.isMultiValue(iParams[0])) {
-      for (Object n : MultiValue.getMultiValueIterable(iParams[0])) {
+      for (var n : MultiValue.getMultiValueIterable(iParams[0])) {
         addValue((Number) n);
       }
     }
@@ -98,7 +98,7 @@ public class SQLFunctionPercentile extends SQLFunctionAbstract {
     }
     if (quantiles.size() > 1) {
       List<Number> results = new ArrayList<Number>();
-      for (Double q : this.quantiles) {
+      for (var q : this.quantiles) {
         results.add(this.evaluate(iValues, q));
       }
       return results;
@@ -120,7 +120,7 @@ public class SQLFunctionPercentile extends SQLFunctionAbstract {
         });
 
     double n = iValues.size();
-    double pos = iQuantile * (n + 1);
+    var pos = iQuantile * (n + 1);
 
     if (pos < 1) {
       return iValues.get(0);
@@ -129,12 +129,12 @@ public class SQLFunctionPercentile extends SQLFunctionAbstract {
       return iValues.get((int) n - 1);
     }
 
-    double fpos = Math.floor(pos);
-    int intPos = (int) fpos;
-    double dif = pos - fpos;
+    var fpos = Math.floor(pos);
+    var intPos = (int) fpos;
+    var dif = pos - fpos;
 
-    double lower = iValues.get(intPos - 1).doubleValue();
-    double upper = iValues.get(intPos).doubleValue();
+    var lower = iValues.get(intPos - 1).doubleValue();
+    var upper = iValues.get(intPos).doubleValue();
     return lower + dif * (upper - lower);
   }
 }

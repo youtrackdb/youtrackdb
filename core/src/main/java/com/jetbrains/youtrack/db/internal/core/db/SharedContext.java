@@ -113,7 +113,7 @@ public abstract class SharedContext extends ListenerManger<MetadataUpdateListene
       resources = new HashMap<>();
     }
     @SuppressWarnings("unchecked")
-    T resource = (T) resources.get(name);
+    var resource = (T) resources.get(name);
     if (resource == null) {
       try {
         resource = factory.call();

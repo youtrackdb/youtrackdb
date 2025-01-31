@@ -38,7 +38,7 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
       Set<RID> traversed) {
     // Doing max batch of 100 entry points for now
     while (nextN.hasNext(ctx) && entryPoints.size() < 100) {
-      Result item = toTraverseResult(ctx.getDatabase(), nextN.next(ctx));
+      var item = toTraverseResult(ctx.getDatabase(), nextN.next(ctx));
       if (item == null) {
         continue;
       }
@@ -75,7 +75,7 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
       res = new TraverseResult(db, item.getEntity().get());
       res.depth = 0;
     } else if (item.getPropertyNames().size() == 1) {
-      Object val = item.getProperty(item.getPropertyNames().iterator().next());
+      var val = item.getProperty(item.getPropertyNames().iterator().next());
       if (val instanceof Identifiable) {
         res = new TraverseResult(db, (Identifiable) val);
         res.depth = 0;
@@ -83,10 +83,10 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
       }
     } else {
       res = new TraverseResult(db);
-      for (String key : item.getPropertyNames()) {
+      for (var key : item.getPropertyNames()) {
         res.setProperty(key, convert(item.getProperty(key)));
       }
-      for (String md : item.getMetadataKeys()) {
+      for (var md : item.getMetadataKeys()) {
         res.setMetadata(md, item.getMetadata(md));
       }
     }
@@ -108,11 +108,11 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
       CommandContext ctx, List<Result> results, List<Result> entryPoints,
       Set<RID> traversed) {
     if (!entryPoints.isEmpty()) {
-      TraverseResult item = (TraverseResult) entryPoints.remove(0);
+      var item = (TraverseResult) entryPoints.remove(0);
       results.add(item);
-      for (SQLTraverseProjectionItem proj : projections) {
-        Object nextStep = proj.execute(item, ctx);
-        Integer depth = item.depth != null ? item.depth : (Integer) item.getMetadata("$depth");
+      for (var proj : projections) {
+        var nextStep = proj.execute(item, ctx);
+        var depth = item.depth != null ? item.depth : (Integer) item.getMetadata("$depth");
         if (this.maxDepth == null || this.maxDepth.getValue().intValue() > depth) {
           addNextEntryPoints(
               nextStep,
@@ -173,7 +173,7 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
     if (traversed.contains(nextStep.getIdentity())) {
       return;
     }
-    TraverseResult res = new TraverseResult(ctx.getDatabase(), nextStep);
+    var res = new TraverseResult(ctx.getDatabase(), nextStep);
     res.depth = depth;
     res.setMetadata("$depth", depth);
 
@@ -223,7 +223,7 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
 
       tryAddEntryPoint(nextStep, ctx, entryPoints, traversed);
     } else {
-      TraverseResult res = new TraverseResult(ctx.getDatabase(), nextStep.getEntity().get());
+      var res = new TraverseResult(ctx.getDatabase(), nextStep.getEntity().get());
       res.depth = depth;
       res.setMetadata("$depth", depth);
       List<Identifiable> newPath = new ArrayList<>();
@@ -272,8 +272,8 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
-    StringBuilder result = new StringBuilder();
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var result = new StringBuilder();
     result.append(spaces);
     result.append("+ DEPTH-FIRST TRAVERSE \n");
     result.append(spaces);

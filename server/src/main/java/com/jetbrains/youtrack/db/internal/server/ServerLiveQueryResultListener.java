@@ -61,8 +61,8 @@ class ServerLiveQueryResultListener implements LiveQueryBatchResultListener {
   public void onError(DatabaseSession database, BaseException exception) {
     try {
       // TODO: resolve error identifier
-      int errorIdentifier = 0;
-      ErrorCode code = ErrorCode.GENERIC_ERROR;
+      var errorIdentifier = 0;
+      var code = ErrorCode.GENERIC_ERROR;
       if (exception instanceof CoreException) {
         code = ((CoreException) exception).getErrorCode();
       }
@@ -94,7 +94,7 @@ class ServerLiveQueryResultListener implements LiveQueryBatchResultListener {
     if (toSend.isEmpty()) {
       return;
     }
-    List<LiveQueryResult> events = toSend;
+    var events = toSend;
     toSend = new ArrayList<>();
 
     try {

@@ -48,7 +48,7 @@ public class SQLMethodFormat extends AbstractSQLMethod {
 
     var db = iContext.getDatabase();
     // TRY TO RESOLVE AS DYNAMIC VALUE
-    Object v = getParameterValue(db, iRecord, iParams[0].toString());
+    var v = getParameterValue(db, iRecord, iParams[0].toString());
     if (v == null)
     // USE STATIC ONE
     {
@@ -58,8 +58,8 @@ public class SQLMethodFormat extends AbstractSQLMethod {
     if (v != null) {
       if (isCollectionOfDates(ioResult)) {
         List<String> result = new ArrayList<String>();
-        Iterator<?> iterator = MultiValue.getMultiValueIterator(ioResult);
-        final SimpleDateFormat format = new SimpleDateFormat(v.toString());
+        var iterator = MultiValue.getMultiValueIterator(ioResult);
+        final var format = new SimpleDateFormat(v.toString());
         if (iParams.length > 1) {
           format.setTimeZone(TimeZone.getTimeZone(iParams[1].toString()));
         } else {
@@ -70,7 +70,7 @@ public class SQLMethodFormat extends AbstractSQLMethod {
         }
         ioResult = result;
       } else if (ioResult instanceof Date) {
-        final SimpleDateFormat format = new SimpleDateFormat(v.toString());
+        final var format = new SimpleDateFormat(v.toString());
         if (iParams.length > 1) {
           format.setTimeZone(TimeZone.getTimeZone(iParams[1].toString()));
         } else {
@@ -87,9 +87,9 @@ public class SQLMethodFormat extends AbstractSQLMethod {
 
   private boolean isCollectionOfDates(Object ioResult) {
     if (MultiValue.isMultiValue(ioResult)) {
-      Iterator<?> iterator = MultiValue.getMultiValueIterator(ioResult);
+      var iterator = MultiValue.getMultiValueIterator(ioResult);
       while (iterator.hasNext()) {
-        Object item = iterator.next();
+        var item = iterator.next();
         if (item != null && !(item instanceof Date)) {
           return false;
         }

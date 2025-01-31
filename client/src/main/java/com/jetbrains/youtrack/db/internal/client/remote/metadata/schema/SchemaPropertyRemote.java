@@ -40,7 +40,7 @@ public class SchemaPropertyRemote extends SchemaPropertyImpl {
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
     acquireSchemaWriteLock(database);
     try {
-      final String cmd =
+      final var cmd =
           String.format(
               "alter property %s type %s", getFullNameQuoted(), quoteString(type.toString()));
       database.command(cmd).close();
@@ -56,7 +56,7 @@ public class SchemaPropertyRemote extends SchemaPropertyImpl {
 
     acquireSchemaWriteLock(database);
     try {
-      final String cmd =
+      final var cmd =
           String.format("alter property %s name %s", getFullNameQuoted(), quoteString(name));
       database.command(cmd).close();
 
@@ -74,7 +74,7 @@ public class SchemaPropertyRemote extends SchemaPropertyImpl {
 
     acquireSchemaWriteLock(database);
     try {
-      final String cmd =
+      final var cmd =
           String.format(
               "alter property %s description %s", getFullNameQuoted(), quoteString(iDescription));
       database.command(cmd).close();
@@ -95,7 +95,7 @@ public class SchemaPropertyRemote extends SchemaPropertyImpl {
 
     acquireSchemaWriteLock(database);
     try {
-      final String cmd =
+      final var cmd =
           String.format("alter property %s collate %s", getFullNameQuoted(), quoteString(collate));
       database.command(cmd).close();
     } finally {
@@ -111,7 +111,7 @@ public class SchemaPropertyRemote extends SchemaPropertyImpl {
 
     acquireSchemaWriteLock(database);
     try {
-      final String cmd = String.format("alter property %s custom clear", getFullNameQuoted());
+      final var cmd = String.format("alter property %s custom clear", getFullNameQuoted());
       database.command(cmd).close();
     } finally {
       releaseSchemaWriteLock(database);
@@ -125,7 +125,7 @@ public class SchemaPropertyRemote extends SchemaPropertyImpl {
 
     acquireSchemaWriteLock(database);
     try {
-      final String cmd =
+      final var cmd =
           String.format(
               "alter property %s custom %s=%s", getFullNameQuoted(), name, quoteString(value));
       database.command(cmd).close();
@@ -142,7 +142,7 @@ public class SchemaPropertyRemote extends SchemaPropertyImpl {
 
     acquireSchemaWriteLock(database);
     try {
-      final String cmd =
+      final var cmd =
           String.format("alter property %s regexp %s", getFullNameQuoted(), quoteString(regexp));
       database.command(cmd).close();
     } finally {
@@ -159,7 +159,7 @@ public class SchemaPropertyRemote extends SchemaPropertyImpl {
 
     acquireSchemaWriteLock(database);
     try {
-      final String cmd =
+      final var cmd =
           String.format(
               "alter property %s linkedclass %s",
               getFullNameQuoted(), quoteString(linkedClass.getName()));
@@ -180,7 +180,7 @@ public class SchemaPropertyRemote extends SchemaPropertyImpl {
 
     acquireSchemaWriteLock(database);
     try {
-      final String cmd =
+      final var cmd =
           String.format(
               "alter property %s linkedtype %s",
               getFullNameQuoted(), quoteString(linkedType.toString()));
@@ -199,7 +199,7 @@ public class SchemaPropertyRemote extends SchemaPropertyImpl {
 
     acquireSchemaWriteLock(database);
     try {
-      final String cmd =
+      final var cmd =
           String.format("alter property %s notnull %s", getFullNameQuoted(), isNotNull);
       database.command(cmd).close();
 
@@ -215,7 +215,7 @@ public class SchemaPropertyRemote extends SchemaPropertyImpl {
 
     acquireSchemaWriteLock(database);
     try {
-      final String cmd =
+      final var cmd =
           String.format(
               "alter property %s default %s", getFullNameQuoted(), quoteString(defaultValue));
       database.command(cmd).close();
@@ -233,7 +233,7 @@ public class SchemaPropertyRemote extends SchemaPropertyImpl {
 
     acquireSchemaWriteLock(database);
     try {
-      final String cmd =
+      final var cmd =
           String.format("alter property %s max %s", getFullNameQuoted(), quoteString(max));
       database.command(cmd).close();
     } finally {
@@ -249,7 +249,7 @@ public class SchemaPropertyRemote extends SchemaPropertyImpl {
 
     acquireSchemaWriteLock(database);
     try {
-      final String cmd =
+      final var cmd =
           String.format("alter property %s min %s", getFullNameQuoted(), quoteString(min));
       database.command(cmd).close();
     } finally {
@@ -265,7 +265,7 @@ public class SchemaPropertyRemote extends SchemaPropertyImpl {
 
     acquireSchemaWriteLock(database);
     try {
-      final String cmd =
+      final var cmd =
           String.format("alter property %s readonly %s", getFullNameQuoted(), isReadonly);
       database.command(cmd).close();
 
@@ -282,7 +282,7 @@ public class SchemaPropertyRemote extends SchemaPropertyImpl {
 
     acquireSchemaWriteLock(database);
     try {
-      final String cmd =
+      final var cmd =
           String.format("alter property %s mandatory %s", getFullNameQuoted(), isMandatory);
       database.command(cmd).close();
     } finally {
@@ -321,11 +321,11 @@ public class SchemaPropertyRemote extends SchemaPropertyImpl {
   public SchemaPropertyImpl dropIndexes(DatabaseSessionInternal session) {
     session.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_DELETE);
 
-    final IndexManagerAbstract indexManager = session.getMetadata().getIndexManagerInternal();
+    final var indexManager = session.getMetadata().getIndexManagerInternal();
 
-    final ArrayList<Index> relatedIndexes = new ArrayList<Index>();
-    for (final Index index : indexManager.getClassIndexes(session, owner.getName())) {
-      final IndexDefinition definition = index.getDefinition();
+    final var relatedIndexes = new ArrayList<Index>();
+    for (final var index : indexManager.getClassIndexes(session, owner.getName())) {
+      final var definition = index.getDefinition();
 
       if (Collections.indexOf(
           definition.getFields(), globalRef.getName(), new CaseInsentiveComparator())
@@ -342,7 +342,7 @@ public class SchemaPropertyRemote extends SchemaPropertyImpl {
       }
     }
 
-    for (final Index index : relatedIndexes) {
+    for (final var index : relatedIndexes) {
       session.getMetadata().getIndexManagerInternal().dropIndex(session, index.getName());
     }
 

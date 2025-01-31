@@ -8,8 +8,6 @@ import static org.junit.Assert.fail;
 import com.jetbrains.youtrack.db.api.exception.SchemaException;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -19,8 +17,8 @@ public class AlterSchemaPropertyTest extends DbTestBase {
   @Test
   public void testPropertyRenaming() {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass classA = schema.createClass("TestPropertyRenaming");
-    SchemaProperty property = classA.createProperty(db, "propertyOld", PropertyType.STRING);
+    var classA = schema.createClass("TestPropertyRenaming");
+    var property = classA.createProperty(db, "propertyOld", PropertyType.STRING);
     assertEquals(property, classA.getProperty("propertyOld"));
     assertNull(classA.getProperty("propertyNew"));
     property.setName(db, "propertyNew");
@@ -31,8 +29,8 @@ public class AlterSchemaPropertyTest extends DbTestBase {
   @Test
   public void testPropertyRenamingReload() {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass classA = schema.createClass("TestPropertyRenaming");
-    SchemaProperty property = classA.createProperty(db, "propertyOld", PropertyType.STRING);
+    var classA = schema.createClass("TestPropertyRenaming");
+    var property = classA.createProperty(db, "propertyOld", PropertyType.STRING);
     assertEquals(property, classA.getProperty("propertyOld"));
     assertNull(classA.getProperty("propertyNew"));
     property.setName(db, "propertyNew");
@@ -44,7 +42,7 @@ public class AlterSchemaPropertyTest extends DbTestBase {
   @Test
   public void testLinkedMapPropertyLinkedType() {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass classA = schema.createClass("TestMapProperty");
+    var classA = schema.createClass("TestMapProperty");
     try {
       classA.createProperty(db, "propertyMap", PropertyType.LINKMAP, PropertyType.STRING);
       fail("create linkmap property should not allow linked type");
@@ -52,15 +50,15 @@ public class AlterSchemaPropertyTest extends DbTestBase {
 
     }
 
-    SchemaProperty prop = classA.getProperty("propertyMap");
+    var prop = classA.getProperty("propertyMap");
     assertNull(prop);
   }
 
   @Test
   public void testLinkedMapPropertyLinkedClass() {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass classA = schema.createClass("TestMapProperty");
-    SchemaClass classLinked = schema.createClass("LinkedClass");
+    var classA = schema.createClass("TestMapProperty");
+    var classLinked = schema.createClass("LinkedClass");
     try {
       classA.createProperty(db, "propertyString", PropertyType.STRING, classLinked);
       fail("create linkmap property should not allow linked type");
@@ -68,16 +66,16 @@ public class AlterSchemaPropertyTest extends DbTestBase {
 
     }
 
-    SchemaProperty prop = classA.getProperty("propertyString");
+    var prop = classA.getProperty("propertyString");
     assertNull(prop);
   }
 
   @Test
   public void testRemoveLinkedClass() {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass classA = schema.createClass("TestRemoveLinkedClass");
-    SchemaClass classLinked = schema.createClass("LinkedClass");
-    SchemaProperty prop = classA.createProperty(db, "propertyLink", PropertyType.LINK, classLinked);
+    var classA = schema.createClass("TestRemoveLinkedClass");
+    var classLinked = schema.createClass("LinkedClass");
+    var prop = classA.createProperty(db, "propertyLink", PropertyType.LINK, classLinked);
     assertNotNull(prop.getLinkedClass());
     prop.setLinkedClass(db, null);
     assertNull(prop.getLinkedClass());
@@ -86,9 +84,9 @@ public class AlterSchemaPropertyTest extends DbTestBase {
   @Test
   public void testRemoveLinkedClassSQL() {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass classA = schema.createClass("TestRemoveLinkedClass");
-    SchemaClass classLinked = schema.createClass("LinkedClass");
-    SchemaProperty prop = classA.createProperty(db, "propertyLink", PropertyType.LINK, classLinked);
+    var classA = schema.createClass("TestRemoveLinkedClass");
+    var classLinked = schema.createClass("LinkedClass");
+    var prop = classA.createProperty(db, "propertyLink", PropertyType.LINK, classLinked);
     assertNotNull(prop.getLinkedClass());
     db.command("alter property TestRemoveLinkedClass.propertyLink linkedclass null").close();
     assertNull(prop.getLinkedClass());
@@ -97,8 +95,8 @@ public class AlterSchemaPropertyTest extends DbTestBase {
   @Test
   public void testMax() {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass classA = schema.createClass("TestWrongMax");
-    SchemaProperty prop = classA.createProperty(db, "dates", PropertyType.EMBEDDEDLIST,
+    var classA = schema.createClass("TestWrongMax");
+    var prop = classA.createProperty(db, "dates", PropertyType.EMBEDDEDLIST,
         PropertyType.DATE);
 
     db.command("alter property TestWrongMax.dates max 2016-05-25").close();
@@ -125,8 +123,8 @@ public class AlterSchemaPropertyTest extends DbTestBase {
   @Test
   public void testAlterCustomAttributeInProperty() {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass oClass = schema.createClass("TestCreateCustomAttributeClass");
-    SchemaProperty property = oClass.createProperty(db, "property", PropertyType.STRING);
+    var oClass = schema.createClass("TestCreateCustomAttributeClass");
+    var property = oClass.createProperty(db, "property", PropertyType.STRING);
 
     property.setCustom(db, "customAttribute", "value1");
     assertEquals("value1", property.getCustom("customAttribute"));

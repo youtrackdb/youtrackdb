@@ -29,13 +29,13 @@ public class LuceneSpatialWithinTest extends BaseSpatialLuceneTest {
   @Test
   public void testWithinNoIndex() {
 
-    ResultSet execute =
+    var execute =
         db.query(
             "select ST_Within(smallc,smallc) as smallinsmall,ST_Within(smallc, bigc) As smallinbig,"
                 + " ST_Within(bigc,smallc) As biginsmall from (SELECT"
                 + " ST_Buffer(ST_GeomFromText('POINT(50 50)'), 20) As"
                 + " smallc,ST_Buffer(ST_GeomFromText('POINT(50 50)'), 40) As bigc)");
-    Result next = execute.next();
+    var next = execute.next();
 
     Assert.assertEquals(next.getProperty("smallinsmall"), true);
     Assert.assertEquals(next.getProperty("smallinbig"), true);
@@ -56,7 +56,7 @@ public class LuceneSpatialWithinTest extends BaseSpatialLuceneTest {
     db.commit();
 
     db.command("create index Polygon.g on Polygon (geometry) SPATIAL engine lucene").close();
-    ResultSet execute =
+    var execute =
         db.query(
             "SELECT from Polygon where ST_Within(geometry, ST_Buffer(ST_GeomFromText('POINT(50"
                 + " 50)'), 50)) = true");
@@ -82,7 +82,7 @@ public class LuceneSpatialWithinTest extends BaseSpatialLuceneTest {
     db.commit();
 
     db.command("create index Polygon.g on Polygon(geometry) SPATIAL ENGINE LUCENE");
-    ResultSet execute =
+    var execute =
         db.query(
             "SELECT from Polygon where ST_Within(geometry, ST_Buffer(ST_GeomFromText('POINT(50"
                 + " 50)'), 50)) = true");

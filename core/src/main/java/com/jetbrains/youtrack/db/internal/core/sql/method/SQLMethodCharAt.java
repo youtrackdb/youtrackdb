@@ -47,7 +47,7 @@ public class SQLMethodCharAt extends AbstractSQLMethod {
       return null;
     }
 
-    int index = Integer.parseInt(iParams[0].toString());
+    var index = Integer.parseInt(iParams[0].toString());
     return "" + iThis.toString().charAt(index);
   }
 }

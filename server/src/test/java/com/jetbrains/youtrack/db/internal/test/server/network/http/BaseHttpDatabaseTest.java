@@ -20,7 +20,7 @@ public abstract class BaseHttpDatabaseTest extends BaseHttpTest {
             .getCanonicalPath();
 
     super.startServer();
-    EntityImpl pass = new EntityImpl(null);
+    var pass = new EntityImpl(null);
     pass.setProperty("adminPassword", "admin");
     Assert.assertEquals(
         200,

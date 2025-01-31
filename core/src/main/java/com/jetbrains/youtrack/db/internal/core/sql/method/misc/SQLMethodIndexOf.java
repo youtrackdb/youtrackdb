@@ -38,8 +38,8 @@ public class SQLMethodIndexOf extends AbstractSQLMethod {
       CommandContext iContext,
       Object ioResult,
       Object[] iParams) {
-    final String toFind = IOUtils.getStringContent(iParams[0].toString());
-    int startIndex = iParams.length > 1 ? Integer.parseInt(iParams[1].toString()) : 0;
+    final var toFind = IOUtils.getStringContent(iParams[0].toString());
+    var startIndex = iParams.length > 1 ? Integer.parseInt(iParams[1].toString()) : 0;
 
     return iThis != null ? iThis.toString().indexOf(toFind, startIndex) : null;
   }

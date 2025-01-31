@@ -104,7 +104,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
     private final Iterator<RID> indexValuesIterator;
 
     private IndexValuesIterator(String indexName, boolean ascOrder) {
-      final DatabaseSessionInternal database = getDatabase();
+      final var database = getDatabase();
       if (ascOrder) {
         indexValuesIterator =
             database
@@ -149,7 +149,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
    */
   public CommandExecutorSQLResultsetAbstract parse(DatabaseSessionInternal db,
       final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
     init(textRequest);
 
@@ -242,13 +242,13 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
               }
             } else {
               if (parsedTarget.getTargetVariable() != null) {
-                final Object var = getContext().getVariable(parsedTarget.getTargetVariable());
+                final var var = getContext().getVariable(parsedTarget.getTargetVariable());
                 if (var == null) {
                   target = Collections.EMPTY_LIST.iterator();
                   return true;
                 } else {
                   if (var instanceof Identifiable) {
-                    final ArrayList<Identifiable> list = new ArrayList<Identifiable>();
+                    final var list = new ArrayList<Identifiable>();
                     list.add((Identifiable) var);
                     target = list.iterator();
                   } else {
@@ -280,7 +280,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
   protected Object getResult(DatabaseSessionInternal db) {
     try {
       if (tempResult != null) {
-        int fetched = 0;
+        var fetched = 0;
 
         for (Object d : tempResult) {
           if (d != null) {
@@ -333,12 +333,12 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
     if (iRecord != null) {
       resultCount++;
 
-      Identifiable identifiable =
+      var identifiable =
           iRecord instanceof DBRecord ? ((DBRecord) iRecord) : iRecord.getIdentity();
 
       // CALL THE LISTENER NOW
       if (identifiable != null && request.getResultListener() != null) {
-        final boolean result = pushResult(iContext.getDatabase(), identifiable);
+        final var result = pushResult(iContext.getDatabase(), identifiable);
         if (!result) {
           return false;
         }
@@ -353,17 +353,17 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
   protected void parseLet(DatabaseSessionInternal session) {
     let = new LinkedHashMap<String, Object>();
 
-    boolean stop = false;
+    var stop = false;
     while (!stop) {
       // PARSE THE KEY
-      final String letName = parserNextWord(false);
+      final var letName = parserNextWord(false);
 
       parserOptionalKeyword("=");
 
       parserNextWord(false, " =><,\r\n", true);
 
       // PARSE THE VALUE
-      String letValueAsString = parserGetLastWord();
+      var letValueAsString = parserGetLastWord();
       final Object letValue;
 
       // TRY TO PARSE AS FUNCTION
@@ -397,7 +397,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
       return -1;
     }
 
-    final String word = parserNextWord(true);
+    final var word = parserNextWord(true);
 
     try {
       limit = Integer.parseInt(word);
@@ -429,7 +429,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
       return -1;
     }
 
-    final String word = parserNextWord(true);
+    final var word = parserNextWord(true);
 
     try {
       skip = Integer.parseInt(word);
@@ -454,10 +454,10 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
   protected boolean filter(final DBRecord iRecord, final CommandContext iContext) {
     if (iRecord instanceof EntityImpl recordSchemaAware) {
       // CHECK THE TARGET CLASS
-      Map<String, String> targetClasses = parsedTarget.getTargetClasses();
+      var targetClasses = parsedTarget.getTargetClasses();
       // check only classes that specified in query will go to result set
       if ((targetClasses != null) && (!targetClasses.isEmpty())) {
-        for (String targetClass : targetClasses.keySet()) {
+        for (var targetClass : targetClasses.keySet()) {
           if (!getDatabase()
               .getMetadata()
               .getImmutableSchemaSnapshot()
@@ -481,24 +481,24 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
     if (compiledFilter == null) {
       return true;
     }
-    Boolean evaluate = (Boolean) compiledFilter.evaluate(iRecord, null, iContext);
+    var evaluate = (Boolean) compiledFilter.evaluate(iRecord, null, iContext);
     return evaluate != null && evaluate;
   }
 
   protected void assignLetClauses(DatabaseSession session, final DBRecord iRecord) {
     if (let != null && !let.isEmpty()) {
       // BIND CONTEXT VARIABLES
-      for (Map.Entry<String, Object> entry : let.entrySet()) {
-        String varName = entry.getKey();
+      for (var entry : let.entrySet()) {
+        var varName = entry.getKey();
         if (varName.startsWith("$")) {
           varName = varName.substring(1);
         }
 
-        final Object letValue = entry.getValue();
+        final var letValue = entry.getValue();
 
         Object varValue;
         if (letValue instanceof SQLSynchQuery<?>) {
-          final SQLSynchQuery<Object> subQuery = (SQLSynchQuery<Object>) letValue;
+          final var subQuery = (SQLSynchQuery<Object>) letValue;
           subQuery.reset();
           subQuery.resetPagination();
           subQuery.getContext().setParent(context);
@@ -519,7 +519,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
             }
           } else {
             if (letValue instanceof String) {
-              SQLPredicate pred = new SQLPredicate(getContext(), ((String) letValue).trim());
+              var pred = new SQLPredicate(getContext(), ((String) letValue).trim());
               varValue = pred.evaluate(iRecord, (EntityImpl) iRecord, context);
             } else {
               varValue = letValue;
@@ -537,7 +537,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
   }
 
   protected void searchInClasses(final boolean iAscendentOrder) {
-    final String cls = parsedTarget.getTargetClasses().keySet().iterator().next();
+    final var cls = parsedTarget.getTargetClasses().keySet().iterator().next();
     target =
         searchInClasses(
             getDatabase().getMetadata().getImmutableSchemaSnapshot().getClass(cls),
@@ -548,13 +548,13 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
   protected Iterator<? extends Identifiable> searchInClasses(
       final SchemaClass iCls, final boolean iPolymorphic, final boolean iAscendentOrder) {
 
-    final DatabaseSessionInternal database = getDatabase();
+    final var database = getDatabase();
     database.checkSecurity(
         Rule.ResourceGeneric.CLASS,
         Role.PERMISSION_READ,
         iCls.getName().toLowerCase(Locale.ENGLISH));
 
-    final RID[] range = getRange(database);
+    final var range = getRange(database);
     if (iAscendentOrder) {
       return new RecordIteratorClass<DBRecord>(database, iCls.getName(), iPolymorphic, false)
           .setRange(range[0], range[1]);
@@ -570,10 +570,10 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
   }
 
   protected void searchInClusters() {
-    final DatabaseSessionInternal database = getDatabase();
+    final var database = getDatabase();
 
-    final IntOpenHashSet clusterIds = new IntOpenHashSet();
-    for (String clusterName : parsedTarget.getTargetClusters().keySet()) {
+    final var clusterIds = new IntOpenHashSet();
+    for (var clusterName : parsedTarget.getTargetClusters().keySet()) {
       if (clusterName == null || clusterName.isEmpty()) {
         throw new CommandExecutionException("No cluster or schema class selected in query");
       }
@@ -585,7 +585,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
 
       if (Character.isDigit(clusterName.charAt(0))) {
         // GET THE CLUSTER NUMBER
-        for (int clusterId : StringSerializerHelper.splitIntArray(clusterName)) {
+        for (var clusterId : StringSerializerHelper.splitIntArray(clusterName)) {
           if (clusterId == -1) {
             throw new CommandExecutionException("Cluster '" + clusterName + "' not found");
           }
@@ -594,7 +594,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
         }
       } else {
         // GET THE CLUSTER NUMBER BY THE CLASS NAME
-        final int clusterId = database.getClusterIdByName(clusterName.toLowerCase(Locale.ENGLISH));
+        final var clusterId = database.getClusterIdByName(clusterName.toLowerCase(Locale.ENGLISH));
         if (clusterId == -1) {
           throw new CommandExecutionException("Cluster '" + clusterName + "' not found");
         }
@@ -603,7 +603,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
       }
     }
 
-    final RID[] range = getRange(database);
+    final var range = getRange(database);
     target =
         new RecordIteratorClusters<>(database, clusterIds.toIntArray())
             .setRange(range[0], range[1]);
@@ -615,14 +615,14 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
 
       // APPLY LIMIT
       if (tempResult instanceof List<?>) {
-        final List<Identifiable> t = (List<Identifiable>) tempResult;
-        final int start = Math.min(skip, t.size());
+        final var t = (List<Identifiable>) tempResult;
+        final var start = Math.min(skip, t.size());
 
-        int tot = t.size();
+        var tot = t.size();
         if (limit > -1) {
           tot = Math.min(limit + start, tot);
         }
-        for (int i = start; i < tot; ++i) {
+        for (var i = start; i < tot; ++i) {
           newList.add(t.get(i));
         }
 
@@ -677,7 +677,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
       return;
     }
 
-    Object left = iCondition.getLeft();
+    var left = iCondition.getLeft();
 
     if (left instanceof SQLFilterCondition) {
       // ANALYSE LEFT RECURSIVELY
@@ -689,7 +689,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
       }
     }
 
-    Object right = iCondition.getRight();
+    var right = iCondition.getRight();
 
     if (right instanceof SQLFilterCondition) {
       // ANALYSE RIGHT RECURSIVELY
@@ -701,7 +701,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
       }
     }
 
-    final QueryOperator oper = iCondition.getOperator();
+    final var oper = iCondition.getOperator();
 
     Object result = null;
 
@@ -742,7 +742,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
     final RID beginRange;
     final RID endRange;
 
-    final SQLFilterCondition rootCondition =
+    final var rootCondition =
         compiledFilter == null ? null : compiledFilter.getRootCondition();
     if (compiledFilter == null || rootCondition == null) {
       if (request instanceof SQLSynchQuery) {
@@ -752,8 +752,8 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
       }
       endRange = null;
     } else {
-      final RID conditionBeginRange = rootCondition.getBeginRidRange(session);
-      final RID conditionEndRange = rootCondition.getEndRidRange(session);
+      final var conditionBeginRange = rootCondition.getBeginRidRange(session);
+      final var conditionEndRange = rootCondition.getEndRidRange(session);
       final RID nextPageRid;
 
       if (request instanceof SQLSynchQuery) {
@@ -811,13 +811,13 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
     }
 
     // TODO: DELEGATE MERGE AT EVERY COMMAND
-    final ArrayList<Object> mergedResult = new ArrayList<Object>();
+    final var mergedResult = new ArrayList<Object>();
 
-    final Object firstResult = results.values().iterator().next();
+    final var firstResult = results.values().iterator().next();
 
-    for (Map.Entry<String, Object> entry : results.entrySet()) {
-      final String nodeName = entry.getKey();
-      final Object nodeResult = entry.getValue();
+    for (var entry : results.entrySet()) {
+      final var nodeName = entry.getKey();
+      final var nodeResult = entry.getValue();
 
       if (nodeResult instanceof Collection) {
         mergedResult.addAll((Collection<?>) nodeResult);

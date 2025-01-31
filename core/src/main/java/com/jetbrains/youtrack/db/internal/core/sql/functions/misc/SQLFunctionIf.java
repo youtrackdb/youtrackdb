@@ -82,7 +82,7 @@ public class SQLFunctionIf extends SQLFunctionAbstract {
     boolean result;
 
     try {
-      Object condition = iParams[0];
+      var condition = iParams[0];
       if (condition instanceof Boolean) {
         result = (Boolean) condition;
       } else if (condition instanceof String) {

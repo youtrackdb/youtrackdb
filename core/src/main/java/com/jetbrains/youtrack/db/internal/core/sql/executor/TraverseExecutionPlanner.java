@@ -71,7 +71,7 @@ public class TraverseExecutionPlanner {
   }
 
   public InternalExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    SelectExecutionPlan result = new SelectExecutionPlan(ctx);
+    var result = new SelectExecutionPlan(ctx);
 
     handleFetchFromTarger(result, ctx, enableProfiling);
 
@@ -107,7 +107,7 @@ public class TraverseExecutionPlanner {
   private void handleFetchFromTarger(
       SelectExecutionPlan result, CommandContext ctx, boolean profilingEnabled) {
 
-    SQLFromItem target = this.target == null ? null : this.target.getItem();
+    var target = this.target == null ? null : this.target.getItem();
     if (target == null) {
       handleNoTarget(result, ctx, profilingEnabled);
     } else if (target.getIdentifier() != null) {
@@ -141,29 +141,29 @@ public class TraverseExecutionPlanner {
       SQLInputParameter inputParam,
       CommandContext ctx,
       boolean profilingEnabled) {
-    Object paramValue = inputParam.getValue(ctx.getInputParameters());
+    var paramValue = inputParam.getValue(ctx.getInputParameters());
     if (paramValue == null) {
       result.chain(new EmptyStep(ctx, profilingEnabled)); // nothing to return
     } else if (paramValue instanceof SchemaClass) {
-      SQLFromClause from = new SQLFromClause(-1);
-      SQLFromItem item = new SQLFromItem(-1);
+      var from = new SQLFromClause(-1);
+      var item = new SQLFromItem(-1);
       from.setItem(item);
       item.setIdentifier(new SQLIdentifier(((SchemaClass) paramValue).getName()));
       handleClassAsTarget(result, from, ctx, profilingEnabled);
     } else if (paramValue instanceof String) {
       // strings are treated as classes
-      SQLFromClause from = new SQLFromClause(-1);
-      SQLFromItem item = new SQLFromItem(-1);
+      var from = new SQLFromClause(-1);
+      var item = new SQLFromItem(-1);
       from.setItem(item);
       item.setIdentifier(new SQLIdentifier((String) paramValue));
       handleClassAsTarget(result, from, ctx, profilingEnabled);
     } else if (paramValue instanceof Identifiable) {
-      RID orid = ((Identifiable) paramValue).getIdentity();
+      var orid = ((Identifiable) paramValue).getIdentity();
 
-      SQLRid rid = new SQLRid(-1);
-      SQLInteger cluster = new SQLInteger(-1);
+      var rid = new SQLRid(-1);
+      var cluster = new SQLInteger(-1);
       cluster.setValue(orid.getClusterId());
-      SQLInteger position = new SQLInteger(-1);
+      var position = new SQLInteger(-1);
       position.setValue(orid.getClusterPosition());
       rid.setLegacy(true);
       rid.setCluster(cluster);
@@ -173,16 +173,16 @@ public class TraverseExecutionPlanner {
     } else if (paramValue instanceof Iterable) {
       // try list of RIDs
       List<SQLRid> rids = new ArrayList<>();
-      for (Object x : (Iterable) paramValue) {
+      for (var x : (Iterable) paramValue) {
         if (!(x instanceof Identifiable)) {
           throw new CommandExecutionException("Cannot use colleciton as target: " + paramValue);
         }
-        RID orid = ((Identifiable) x).getIdentity();
+        var orid = ((Identifiable) x).getIdentity();
 
-        SQLRid rid = new SQLRid(-1);
-        SQLInteger cluster = new SQLInteger(-1);
+        var rid = new SQLRid(-1);
+        var cluster = new SQLInteger(-1);
         cluster.setValue(orid.getClusterId());
-        SQLInteger position = new SQLInteger(-1);
+        var position = new SQLInteger(-1);
         position.setValue(orid.getClusterPosition());
         rid.setCluster(cluster);
         rid.setPosition(position);
@@ -205,9 +205,9 @@ public class TraverseExecutionPlanner {
       SQLIndexIdentifier indexIdentifier,
       CommandContext ctx,
       boolean profilingEnabled) {
-    String indexName = indexIdentifier.getIndexName();
-    final DatabaseSessionInternal database = ctx.getDatabase();
-    Index index = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
+    var indexName = indexIdentifier.getIndexName();
+    final var database = ctx.getDatabase();
+    var index = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
     if (index == null) {
       throw new CommandExecutionException("Index not found: " + indexName);
     }
@@ -261,14 +261,14 @@ public class TraverseExecutionPlanner {
     } else {
       throw new UnsupportedOperationException("Invalid metadata: " + metadata.getName());
     }
-    RecordId schemaRid = new RecordId(schemaRecordIdAsString);
+    var schemaRid = new RecordId(schemaRecordIdAsString);
     plan.chain(new FetchFromRidsStep(Collections.singleton(schemaRid), ctx, profilingEnabled));
   }
 
   private void handleRidsAsTarget(
       SelectExecutionPlan plan, List<SQLRid> rids, CommandContext ctx, boolean profilingEnabled) {
     List<RecordId> actualRids = new ArrayList<>();
-    for (SQLRid rid : rids) {
+    for (var rid : rids) {
       actualRids.add(rid.toRecordId((Result) null, ctx));
     }
     plan.chain(new FetchFromRidsStep(actualRids, ctx, profilingEnabled));
@@ -279,10 +279,10 @@ public class TraverseExecutionPlanner {
       SQLFromClause queryTarget,
       CommandContext ctx,
       boolean profilingEnabled) {
-    SQLIdentifier identifier = queryTarget.getItem().getIdentifier();
+    var identifier = queryTarget.getItem().getIdentifier();
 
     Boolean orderByRidAsc = null; // null: no order. true: asc, false:desc
-    FetchFromClassExecutionStep fetcher =
+    var fetcher =
         new FetchFromClassExecutionStep(
             identifier.getStringValue(), null, ctx, orderByRidAsc, profilingEnabled);
     plan.chain(fetcher);
@@ -296,15 +296,15 @@ public class TraverseExecutionPlanner {
     var db = ctx.getDatabase();
     Boolean orderByRidAsc = null; // null: no order. true: asc, false:desc
     if (clusters.size() == 1) {
-      SQLCluster cluster = clusters.get(0);
-      Integer clusterId = cluster.getClusterNumber();
+      var cluster = clusters.get(0);
+      var clusterId = cluster.getClusterNumber();
       if (clusterId == null) {
         clusterId = db.getClusterIdByName(cluster.getClusterName());
       }
       if (clusterId == null) {
         throw new CommandExecutionException("Cluster " + cluster + " does not exist");
       }
-      FetchFromClusterExecutionStep step =
+      var step =
           new FetchFromClusterExecutionStep(clusterId, ctx, profilingEnabled);
       if (Boolean.TRUE.equals(orderByRidAsc)) {
         step.setOrder(FetchFromClusterExecutionStep.ORDER_ASC);
@@ -313,10 +313,10 @@ public class TraverseExecutionPlanner {
       }
       plan.chain(step);
     } else {
-      int[] clusterIds = new int[clusters.size()];
-      for (int i = 0; i < clusters.size(); i++) {
-        SQLCluster cluster = clusters.get(i);
-        Integer clusterId = cluster.getClusterNumber();
+      var clusterIds = new int[clusters.size()];
+      for (var i = 0; i < clusters.size(); i++) {
+        var cluster = clusters.get(i);
+        var clusterId = cluster.getClusterNumber();
         if (clusterId == null) {
           clusterId = db.getClusterIdByName(cluster.getClusterName());
         }
@@ -325,7 +325,7 @@ public class TraverseExecutionPlanner {
         }
         clusterIds[i] = clusterId;
       }
-      FetchFromClustersExecutionStep step =
+      var step =
           new FetchFromClustersExecutionStep(clusterIds, ctx, orderByRidAsc, profilingEnabled);
       plan.chain(step);
     }
@@ -336,10 +336,10 @@ public class TraverseExecutionPlanner {
       SQLStatement subQuery,
       CommandContext ctx,
       boolean profilingEnabled) {
-    BasicCommandContext subCtx = new BasicCommandContext();
+    var subCtx = new BasicCommandContext();
     subCtx.setDatabase(ctx.getDatabase());
     subCtx.setParent(ctx);
-    InternalExecutionPlan subExecutionPlan =
+    var subExecutionPlan =
         subQuery.createExecutionPlan(subCtx, profilingEnabled);
     plan.chain(new SubQueryStep(subExecutionPlan, ctx, subCtx, profilingEnabled));
   }

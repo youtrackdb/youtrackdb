@@ -51,8 +51,8 @@ public class SignalHandler implements sun.misc.SignalHandler {
   }
 
   public void listenTo(final String name, final sun.misc.SignalHandler iListener) {
-    Signal signal = new Signal(name);
-    sun.misc.SignalHandler redefinedHandler = Signal.handle(signal, iListener);
+    var signal = new Signal(name);
+    var redefinedHandler = Signal.handle(signal, iListener);
     if (redefinedHandler != null) {
       redefinedHandlers.put(signal, redefinedHandler);
     }
@@ -61,7 +61,7 @@ public class SignalHandler implements sun.misc.SignalHandler {
   public void handle(final Signal signal) {
     LogManager.instance().warn(this, "Received signal: %s", signal);
 
-    final String s = signal.toString().trim();
+    final var s = signal.toString().trim();
 
     if (YouTrackDBEnginesManager.instance().isSelfManagedShutdown()
         && (s.equals("SIGKILL")
@@ -78,13 +78,13 @@ public class SignalHandler implements sun.misc.SignalHandler {
       System.out.println();
       System.out.println(YouTrackDBEnginesManager.instance().getProfiler().threadDump());
     } else {
-      sun.misc.SignalHandler redefinedHandler = redefinedHandlers.get(signal);
+      var redefinedHandler = redefinedHandlers.get(signal);
       if (redefinedHandler != null) {
         redefinedHandler.handle(signal);
       }
     }
 
-    for (SignalListener l : listeners) {
+    for (var l : listeners) {
       l.onSignal(signal);
     }
   }
@@ -116,7 +116,7 @@ public class SignalHandler implements sun.misc.SignalHandler {
   }
 
   public void cancel() {
-    for (Entry<Signal, sun.misc.SignalHandler> entry : redefinedHandlers.entrySet()) {
+    for (var entry : redefinedHandlers.entrySet()) {
       try {
         // re-install the original handler we replaced
         Signal.handle(entry.getKey(), entry.getValue());

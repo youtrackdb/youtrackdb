@@ -64,7 +64,7 @@ public class HttpResponseImpl extends HttpResponseAbstract {
       }
     }
 
-    final boolean empty = getContent() == null || getContent().length() == 0;
+    final var empty = getContent() == null || getContent().length() == 0;
 
     if (this.getCode() > 0) {
       writeStatus(this.getCode(), iReason);
@@ -78,7 +78,7 @@ public class HttpResponseImpl extends HttpResponseAbstract {
     }
 
     if (getSessionId() != null) {
-      String sameSite = (isSameSiteCookie() ? "SameSite=Strict;" : "");
+      var sameSite = (isSameSiteCookie() ? "SameSite=Strict;" : "");
       writeLine(
           "Set-Cookie: "
               + HttpUtils.OSESSIONID
@@ -156,13 +156,13 @@ public class HttpResponseImpl extends HttpResponseAbstract {
     }
 
     if (additionalHeaders != null) {
-      for (Map.Entry<String, String> entry : additionalHeaders.entrySet()) {
+      for (var entry : additionalHeaders.entrySet()) {
         writeLine(String.format("%s: %s", entry.getKey(), entry.getValue()));
       }
     }
     if (iSize < 0) {
       // SIZE UNKNOWN: USE A MEMORY BUFFER
-      final ByteArrayOutputStream o = new ByteArrayOutputStream();
+      final var o = new ByteArrayOutputStream();
       if (iContent != null) {
         int b;
         while ((b = iContent.read()) > -1) {
@@ -170,7 +170,7 @@ public class HttpResponseImpl extends HttpResponseAbstract {
         }
       }
 
-      byte[] content = o.toByteArray();
+      var content = o.toByteArray();
 
       iContent = new ByteArrayInputStream(content);
       iSize = content.length;
@@ -208,7 +208,7 @@ public class HttpResponseImpl extends HttpResponseAbstract {
 
     writeLine(null);
 
-    final ChunkedResponse chunkedOutput = new ChunkedResponse(this);
+    final var chunkedOutput = new ChunkedResponse(this);
     iWriter.call(chunkedOutput);
     chunkedOutput.close();
 

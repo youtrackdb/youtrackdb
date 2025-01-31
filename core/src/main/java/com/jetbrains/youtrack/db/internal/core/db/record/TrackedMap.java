@@ -74,9 +74,9 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
     if (key == null) {
       throw new IllegalArgumentException("null key not supported by embedded map");
     }
-    boolean containsKey = containsKey(key);
+    var containsKey = containsKey(key);
 
-    T oldValue = super.put(key, value);
+    var oldValue = super.put(key, value);
 
     if (containsKey && oldValue == value) {
       return oldValue;
@@ -96,9 +96,9 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
     if (key == null) {
       throw new IllegalArgumentException("null key not supported by embedded map");
     }
-    boolean containsKey = containsKey(key);
+    var containsKey = containsKey(key);
 
-    T oldValue = super.put(key, value);
+    var oldValue = super.put(key, value);
 
     if (containsKey && oldValue == value) {
       return oldValue;
@@ -123,10 +123,10 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
 
   @Override
   public T remove(final Object key) {
-    boolean containsKey = containsKey(key);
+    var containsKey = containsKey(key);
 
     if (containsKey) {
-      final T oldValue = super.remove(key);
+      final var oldValue = super.remove(key);
       removeEvent(key.toString(), oldValue);
       return oldValue;
     } else {
@@ -137,7 +137,7 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
 
   @Override
   public void clear() {
-    for (Map.Entry<String, T> entry : super.entrySet()) {
+    for (var entry : super.entrySet()) {
       removeEvent(entry.getKey(), entry.getValue());
     }
     super.clear();
@@ -145,7 +145,7 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
 
   @Override
   public void putAll(Map<? extends String, ? extends T> m) {
-    for (Map.Entry<? extends String, ? extends T> entry : m.entrySet()) {
+    for (var entry : m.entrySet()) {
       put(entry.getKey(), entry.getValue());
     }
   }
@@ -175,11 +175,11 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
       final List<MultiValueChangeEvent<String, T>> multiValueChangeEvents) {
     final Map<Object, T> reverted = new HashMap<Object, T>(this);
 
-    final ListIterator<MultiValueChangeEvent<String, T>> listIterator =
+    final var listIterator =
         multiValueChangeEvents.listIterator(multiValueChangeEvents.size());
 
     while (listIterator.hasPrevious()) {
-      final MultiValueChangeEvent<String, T> event = listIterator.previous();
+      final var event = listIterator.previous();
       switch (event.getChangeType()) {
         case ADD:
           reverted.remove(event.getKey());

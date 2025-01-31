@@ -54,7 +54,7 @@ public class SQLMethodField extends AbstractSQLMethod {
     }
 
     var db = iContext.getDatabase();
-    final String paramAsString = iParams[0].toString();
+    final var paramAsString = iParams[0].toString();
 
     if (ioResult != null) {
       if (ioResult instanceof Result result && result.isEntity()) {
@@ -82,13 +82,13 @@ public class SQLMethodField extends AbstractSQLMethod {
           || ioResult instanceof Iterator<?>
           || ioResult.getClass().isArray()) {
         final List<Object> result = new ArrayList<Object>(MultiValue.getSize(ioResult));
-        for (Object o : MultiValue.getMultiValueIterable(ioResult)) {
-          Object newlyAdded = EntityHelper.getFieldValue(db, o, paramAsString);
+        for (var o : MultiValue.getMultiValueIterable(ioResult)) {
+          var newlyAdded = EntityHelper.getFieldValue(db, o, paramAsString);
           if (MultiValue.isMultiValue(newlyAdded)) {
             if (newlyAdded instanceof Map || newlyAdded instanceof Identifiable) {
               result.add(newlyAdded);
             } else {
-              for (Object item : MultiValue.getMultiValueIterable(newlyAdded)) {
+              for (var item : MultiValue.getMultiValueIterable(newlyAdded)) {
                 result.add(item);
               }
             }

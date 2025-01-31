@@ -44,12 +44,12 @@ public class ConfigurableStatefulFactory<K, V> {
       throw new IllegalArgumentException("Cannot create implementation for type null");
     }
 
-    final Class<? extends V> cls = registry.get(iKey);
+    final var cls = registry.get(iKey);
     if (cls != null) {
       try {
         return cls.newInstance();
       } catch (Exception e) {
-        final SystemException exception =
+        final var exception =
             new SystemException(
                 String.format(
                     "Error on creating new instance of class '%s' registered in factory with key"

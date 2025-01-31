@@ -64,8 +64,8 @@ public class RecordIteratorClusters<REC extends DBRecord> extends IdentifiableIt
   }
 
   public RecordIteratorClusters<REC> setRange(final RID iBegin, final RID iEnd) {
-    final RID oldBegin = beginRange;
-    final RID oldEnd = endRange;
+    final var oldBegin = beginRange;
+    final var oldEnd = endRange;
 
     beginRange = iBegin;
     endRange = iEnd;
@@ -438,7 +438,7 @@ public class RecordIteratorClusters<REC extends DBRecord> extends IdentifiableIt
     }
 
     current.setClusterId(clusterIds[currentClusterIdx]);
-    final long[] range = database.getClusterDataRange(current.getClusterId());
+    final var range = database.getClusterDataRange(current.getClusterId());
 
     if (beginRange != null
         && beginRange.getClusterId() == current.getClusterId()
@@ -475,7 +475,7 @@ public class RecordIteratorClusters<REC extends DBRecord> extends IdentifiableIt
     if (txEntries != null)
     // ADJUST TOTAL ELEMENT BASED ON CURRENT TRANSACTION'S ENTRIES
     {
-      for (RecordOperation entry : txEntries) {
+      for (var entry : txEntries) {
         if (!entry.record.getIdentity().isPersistent() && entry.type != RecordOperation.DELETED) {
           totalAvailableRecords++;
         } else if (entry.type == RecordOperation.DELETED) {

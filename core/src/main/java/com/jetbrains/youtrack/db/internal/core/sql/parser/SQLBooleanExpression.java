@@ -231,7 +231,7 @@ public abstract class SQLBooleanExpression extends SimpleNode {
     if (item instanceof SQLAndBlock) {
       return (SQLAndBlock) item;
     }
-    SQLAndBlock result = new SQLAndBlock(-1);
+    var result = new SQLAndBlock(-1);
     result.subBlocks.add(item);
     return result;
   }
@@ -269,7 +269,7 @@ public abstract class SQLBooleanExpression extends SimpleNode {
 
   public static SQLBooleanExpression deserializeFromOResult(Result res) {
     try {
-      SQLBooleanExpression result =
+      var result =
           (SQLBooleanExpression)
               Class.forName(res.getProperty("__class"))
                   .getConstructor(Integer.class)
@@ -282,7 +282,7 @@ public abstract class SQLBooleanExpression extends SimpleNode {
   }
 
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     result.setProperty("__class", getClass().getName());
     return result;
   }

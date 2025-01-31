@@ -37,9 +37,9 @@ public class QueryOperatorTest {
   public void testOperatorOrder() {
 
     // check operator are the correct order
-    final QueryOperator[] operators = SQLEngine.INSTANCE.getRecordOperators();
+    final var operators = SQLEngine.INSTANCE.getRecordOperators();
 
-    int i = 0;
+    var i = 0;
     Assert.assertTrue(operators[i++] instanceof QueryOperatorEquals);
     Assert.assertTrue(operators[i++] instanceof QueryOperatorAnd);
     Assert.assertTrue(operators[i++] instanceof QueryOperatorOr);

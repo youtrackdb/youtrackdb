@@ -36,7 +36,7 @@ public class LuceneIndexCreateDropTest extends LuceneBaseTest {
 
   @Before
   public void init() {
-    SchemaClass type = db.createVertexClass("City");
+    var type = db.createVertexClass("City");
     type.createProperty(db, "name", PropertyType.STRING);
 
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE");
@@ -47,7 +47,7 @@ public class LuceneIndexCreateDropTest extends LuceneBaseTest {
 
     db.command("drop index City.name");
 
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.name");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.name");
 
     assertThat(index).isNull();
   }

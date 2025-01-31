@@ -115,7 +115,7 @@ public class SessionPoolImpl implements SessionPool {
    */
   public SessionPoolImpl(String url, String user, String password,
       YouTrackDBConfigImpl configuration) {
-    DatabaseURLConnection val = URLHelper.parseNew(url);
+    var val = URLHelper.parseNew(url);
     youTrackDb = new YouTrackDBImpl(val.getType() + ":" + val.getPath(),
         (YouTrackDBConfigImpl) configuration);
     autoclose = true;

@@ -47,17 +47,17 @@ public class CheckSafeDeleteStepTest extends TestUtilsFixture {
         break;
     }
 
-    CheckSafeDeleteStep step = new CheckSafeDeleteStep(context, false);
-    AbstractExecutionStep previous =
+    var step = new CheckSafeDeleteStep(context, false);
+    var previous =
         new AbstractExecutionStep(context, false) {
           boolean done = false;
 
           @Override
           public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
             List<Result> result = new ArrayList<>();
-            String simpleClassName = createClassInstance().getName();
+            var simpleClassName = createClassInstance().getName();
             if (!done) {
-              for (int i = 0; i < 10; i++) {
+              for (var i = 0; i < 10; i++) {
                 result.add(
                     new ResultInternal(db,
                         db.newEntity(i % 2 == 0 ? simpleClassName : className)));
@@ -69,7 +69,7 @@ public class CheckSafeDeleteStepTest extends TestUtilsFixture {
         };
 
     step.setPrevious(previous);
-    ExecutionStream result = step.start(context);
+    var result = step.start(context);
     while (result.hasNext(context)) {
       result.next(context);
     }
@@ -78,8 +78,8 @@ public class CheckSafeDeleteStepTest extends TestUtilsFixture {
   @Test
   public void shouldSafelyDeleteRecord() {
     CommandContext context = new BasicCommandContext();
-    CheckSafeDeleteStep step = new CheckSafeDeleteStep(context, false);
-    AbstractExecutionStep previous =
+    var step = new CheckSafeDeleteStep(context, false);
+    var previous =
         new AbstractExecutionStep(context, false) {
           boolean done = false;
 
@@ -87,7 +87,7 @@ public class CheckSafeDeleteStepTest extends TestUtilsFixture {
           public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
             List<Result> result = new ArrayList<>();
             if (!done) {
-              for (int i = 0; i < 10; i++) {
+              for (var i = 0; i < 10; i++) {
                 result.add(
                     new ResultInternal(db,
                         (EntityImpl) db.newEntity(createClassInstance().getName())));
@@ -99,7 +99,7 @@ public class CheckSafeDeleteStepTest extends TestUtilsFixture {
         };
 
     step.setPrevious(previous);
-    ExecutionStream result = step.start(context);
+    var result = step.start(context);
     Assert.assertEquals(10, result.stream(context).count());
     Assert.assertFalse(result.hasNext(context));
   }

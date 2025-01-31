@@ -30,7 +30,7 @@ public class IndexTxAwareMultiValueGetTest extends BaseDBTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final SchemaClass cls = db.getMetadata().getSchema().createClass(CLASS_NAME);
+    final var cls = db.getMetadata().getSchema().createClass(CLASS_NAME);
     cls.createProperty(db, FIELD_NAME, PropertyType.INTEGER);
     cls.createIndex(db, INDEX_NAME, SchemaClass.INDEX_TYPE.NOTUNIQUE, FIELD_NAME);
   }
@@ -49,7 +49,7 @@ public class IndexTxAwareMultiValueGetTest extends BaseDBTest {
     }
 
     db.begin();
-    final Index index =
+    final var index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX_NAME);
 
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1).save();
@@ -60,10 +60,10 @@ public class IndexTxAwareMultiValueGetTest extends BaseDBTest {
     db.commit();
 
     Assert.assertNull(db.getTransaction().getIndexChanges(INDEX_NAME));
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertEquals(stream.count(), 2);
     }
-    try (Stream<RID> stream = index.getInternal().getRids(db, 2)) {
+    try (var stream = index.getInternal().getRids(db, 2)) {
       Assert.assertEquals(stream.count(), 1);
     }
 
@@ -72,17 +72,17 @@ public class IndexTxAwareMultiValueGetTest extends BaseDBTest {
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 2).save();
 
     Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX_NAME));
-    try (Stream<RID> stream = index.getInternal().getRids(db, 2)) {
+    try (var stream = index.getInternal().getRids(db, 2)) {
       Assert.assertEquals(stream.count(), 2);
     }
 
     db.rollback();
 
     Assert.assertNull(db.getTransaction().getIndexChanges(INDEX_NAME));
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertEquals(stream.count(), 2);
     }
-    try (Stream<RID> stream = index.getInternal().getRids(db, 2)) {
+    try (var stream = index.getInternal().getRids(db, 2)) {
       Assert.assertEquals(stream.count(), 1);
     }
   }
@@ -94,12 +94,12 @@ public class IndexTxAwareMultiValueGetTest extends BaseDBTest {
     }
 
     db.begin();
-    final Index index =
+    final var index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX_NAME);
 
-    EntityImpl docOne = ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
+    var docOne = ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
     docOne.save();
-    EntityImpl docTwo = ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
+    var docTwo = ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
     docTwo.save();
 
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 2).save();
@@ -107,10 +107,10 @@ public class IndexTxAwareMultiValueGetTest extends BaseDBTest {
     db.commit();
 
     Assert.assertNull(db.getTransaction().getIndexChanges(INDEX_NAME));
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertEquals(stream.count(), 2);
     }
-    try (Stream<RID> stream = index.getInternal().getRids(db, 2)) {
+    try (var stream = index.getInternal().getRids(db, 2)) {
       Assert.assertEquals(stream.count(), 1);
     }
 
@@ -123,20 +123,20 @@ public class IndexTxAwareMultiValueGetTest extends BaseDBTest {
     docTwo.delete();
 
     Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX_NAME));
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = index.getInternal().getRids(db, 2)) {
+    try (var stream = index.getInternal().getRids(db, 2)) {
       Assert.assertEquals(stream.count(), 1);
     }
 
     db.rollback();
 
     Assert.assertNull(db.getTransaction().getIndexChanges(INDEX_NAME));
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertEquals(stream.count(), 2);
     }
-    try (Stream<RID> stream = index.getInternal().getRids(db, 2)) {
+    try (var stream = index.getInternal().getRids(db, 2)) {
       Assert.assertEquals(stream.count(), 1);
     }
   }
@@ -148,10 +148,10 @@ public class IndexTxAwareMultiValueGetTest extends BaseDBTest {
     }
 
     db.begin();
-    final Index index =
+    final var index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX_NAME);
 
-    EntityImpl document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
+    var document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
     document.save();
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1).save();
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 2).save();
@@ -159,10 +159,10 @@ public class IndexTxAwareMultiValueGetTest extends BaseDBTest {
     db.commit();
 
     Assert.assertNull(db.getTransaction().getIndexChanges(INDEX_NAME));
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertEquals(stream.count(), 2);
     }
-    try (Stream<RID> stream = index.getInternal().getRids(db, 2)) {
+    try (var stream = index.getInternal().getRids(db, 2)) {
       Assert.assertEquals(stream.count(), 1);
     }
 
@@ -172,20 +172,20 @@ public class IndexTxAwareMultiValueGetTest extends BaseDBTest {
     document.delete();
 
     Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX_NAME));
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertEquals(stream.count(), 1);
     }
-    try (Stream<RID> stream = index.getInternal().getRids(db, 2)) {
+    try (var stream = index.getInternal().getRids(db, 2)) {
       Assert.assertEquals(stream.count(), 1);
     }
 
     db.rollback();
 
     Assert.assertNull(db.getTransaction().getIndexChanges(INDEX_NAME));
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertEquals(stream.count(), 2);
     }
-    try (Stream<RID> stream = index.getInternal().getRids(db, 2)) {
+    try (var stream = index.getInternal().getRids(db, 2)) {
       Assert.assertEquals(stream.count(), 1);
     }
   }
@@ -198,12 +198,12 @@ public class IndexTxAwareMultiValueGetTest extends BaseDBTest {
 
     db.begin();
 
-    final Index index =
+    final var index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX_NAME);
 
-    final EntityImpl document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
+    final var document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
     document.save();
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertEquals(stream.count(), 1);
     }
 
@@ -212,12 +212,12 @@ public class IndexTxAwareMultiValueGetTest extends BaseDBTest {
     document.save();
 
     Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX_NAME));
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertEquals(stream.count(), 1);
     }
     db.commit();
 
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertEquals(stream.count(), 1);
     }
   }
@@ -230,13 +230,13 @@ public class IndexTxAwareMultiValueGetTest extends BaseDBTest {
 
     db.begin();
 
-    final Index index =
+    final var index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX_NAME);
 
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1).save();
 
     Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX_NAME));
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertEquals(stream.count(), 1);
     }
     db.commit();
@@ -245,7 +245,7 @@ public class IndexTxAwareMultiValueGetTest extends BaseDBTest {
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1).save();
     db.commit();
 
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertEquals(stream.count(), 2);
     }
   }
@@ -258,21 +258,21 @@ public class IndexTxAwareMultiValueGetTest extends BaseDBTest {
 
     db.begin();
 
-    final Index index =
+    final var index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX_NAME);
 
-    final EntityImpl document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
+    final var document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
     document.save();
     document.delete();
 
     Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX_NAME));
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
 
     db.commit();
 
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertEquals(stream.count(), 0);
     }
   }
@@ -285,22 +285,22 @@ public class IndexTxAwareMultiValueGetTest extends BaseDBTest {
 
     db.begin();
 
-    final Index index =
+    final var index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX_NAME);
 
-    final EntityImpl document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
+    final var document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
     document.save();
     document.removeField(FIELD_NAME);
     document.save();
 
     document.field(FIELD_NAME, 1).save();
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertEquals(stream.count(), 1);
     }
 
     db.commit();
 
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertEquals(stream.count(), 1);
     }
   }

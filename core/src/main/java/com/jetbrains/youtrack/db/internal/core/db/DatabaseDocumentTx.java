@@ -130,7 +130,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   public static void closeAll() {
     embeddedLock.lock();
     try {
-      for (YouTrackDBInternal factory : embedded.values()) {
+      for (var factory : embedded.values()) {
         factory.close();
       }
       embedded.clear();
@@ -140,7 +140,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
 
     remoteLock.lock();
     try {
-      for (YouTrackDBInternal factory : remote.values()) {
+      for (var factory : remote.values()) {
         factory.close();
       }
       remote.clear();
@@ -205,7 +205,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
 
   protected DatabaseDocumentTx(String url, boolean ownerProtection) {
 
-    DatabaseURLConnection connection = URLHelper.parse(url);
+    var connection = URLHelper.parse(url);
     this.url = connection.getUrl();
     baseUrl = connection.getPath();
     dbName = connection.getDbName();
@@ -456,7 +456,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
 
   @Override
   public DatabaseSessionInternal getDatabaseOwner() {
-    DatabaseSessionInternal current = databaseOwner;
+    var current = databaseOwner;
 
     while (current != null && current != this && current.getDatabaseOwner() != current) {
       current = current.getDatabaseOwner();
@@ -832,8 +832,8 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
       return;
     }
 
-    final Thread current = Thread.currentThread();
-    final Thread o = owner.get();
+    final var current = Thread.currentThread();
+    final var o = owner.get();
 
     if (o != null || !owner.compareAndSet(null, current)) {
       throw new IllegalStateException(

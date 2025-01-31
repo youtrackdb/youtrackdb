@@ -36,8 +36,8 @@ public class EdgeToVertexIterable implements Iterable<Vertex>, Sizeable {
     if (edges instanceof Collection) {
       return ((Collection) edges).size();
     }
-    Iterator<Edge> iterator = edges.iterator();
-    int count = 0;
+    var iterator = edges.iterator();
+    var count = 0;
     while (iterator.hasNext()) {
       count++;
     }

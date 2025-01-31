@@ -62,7 +62,7 @@ public class StatementCache {
       return parse(statement);
     }
 
-    StatementCache resource = db.getSharedContext().getStatementCache();
+    var resource = db.getSharedContext().getStatementCache();
     return resource.get(statement);
   }
 
@@ -115,7 +115,7 @@ public class StatementCache {
    */
   protected static SQLStatement parse(String statement) throws CommandSQLParsingException {
     try {
-      DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
+      var db = DatabaseRecordThreadLocal.instance().getIfDefined();
       InputStream is;
 
       if (db == null) {
@@ -154,7 +154,7 @@ public class StatementCache {
           osql = new YouTrackDBSql(is);
         }
       }
-      SQLStatement result = osql.parse();
+      var result = osql.parse();
       result.originalStatement = statement;
 
       return result;
@@ -177,8 +177,8 @@ public class StatementCache {
       throws CommandSQLParsingException {
     try {
       InputStream is = new ByteArrayInputStream(statement.getBytes());
-      YouTrackDBSql osql = new YouTrackDBSql(is);
-      SQLServerStatement result = osql.parseServerStatement();
+      var osql = new YouTrackDBSql(is);
+      var result = osql.parseServerStatement();
       //      result.originalStatement = statement;
 
       return result;

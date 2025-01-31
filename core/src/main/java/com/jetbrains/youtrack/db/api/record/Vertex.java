@@ -352,7 +352,7 @@ public interface Vertex extends Entity {
     }
 
     // PREFIX "out_" or "in_" TO THE FIELD NAME
-    final String prefix = direction == Direction.OUT ? DIRECTION_OUT_PREFIX : DIRECTION_IN_PREFIX;
+    final var prefix = direction == Direction.OUT ? DIRECTION_OUT_PREFIX : DIRECTION_IN_PREFIX;
     if (className == null || className.isEmpty() || className.equals(Edge.CLASS_NAME)) {
       return prefix;
     }

@@ -68,7 +68,7 @@ public class QueryOperatorPlus extends QueryOperator {
     } else if (iRight instanceof String) {
       return iLeft.toString() + iRight;
     } else if (iLeft instanceof Number l && iRight instanceof Number r) {
-      Class maxPrecisionClass = QueryOperatorMultiply.getMaxPrecisionClass(l, r);
+      var maxPrecisionClass = QueryOperatorMultiply.getMaxPrecisionClass(l, r);
       if (Integer.class.equals(maxPrecisionClass)) {
         return QueryOperatorMultiply.tryDownscaleToInt(l.longValue() + r.longValue());
       } else if (Long.class.equals(maxPrecisionClass)) {

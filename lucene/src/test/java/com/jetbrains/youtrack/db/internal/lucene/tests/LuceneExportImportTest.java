@@ -46,12 +46,12 @@ public class LuceneExportImportTest extends LuceneBaseTest {
   public void init() {
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass city = schema.createClass("City");
+    var city = schema.createClass("City");
     city.createProperty(db, "name", PropertyType.STRING);
 
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE");
 
-    EntityImpl doc = ((EntityImpl) db.newEntity("City"));
+    var doc = ((EntityImpl) db.newEntity("City"));
     doc.field("name", "Rome");
 
     db.begin();
@@ -62,9 +62,9 @@ public class LuceneExportImportTest extends LuceneBaseTest {
   @Test
   public void testExportImport() throws Throwable {
 
-    String file = "./target/exportTest.json";
+    var file = "./target/exportTest.json";
 
-    ResultSet query = db.query("select from City where search_class('Rome')=true");
+    var query = db.query("select from City where search_class('Rome')=true");
 
     assertThat(query).hasSize(1);
 
@@ -80,7 +80,7 @@ public class LuceneExportImportTest extends LuceneBaseTest {
       dropDatabase();
       createDatabase();
 
-      GZIPInputStream stream = new GZIPInputStream(new FileInputStream(file + ".gz"));
+      var stream = new GZIPInputStream(new FileInputStream(file + ".gz"));
       new DatabaseImport(db, stream, s -> {
       }).importDatabase();
 
@@ -89,7 +89,7 @@ public class LuceneExportImportTest extends LuceneBaseTest {
     }
 
     assertThat(db.countClass("City")).isEqualTo(1);
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.name");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.name");
 
     assertThat(index.getType()).isEqualTo(FULLTEXT.toString());
 

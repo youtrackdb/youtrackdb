@@ -38,7 +38,7 @@ public class LuceneSpatialFunctionFromGeoJSONTest extends BaseSpatialLuceneTest 
 
   protected void queryAndMatch(String input, String match) {
 
-    ResultSet query =
+    var query =
         db.query(
             "SELECT ST_AsGeoJSON(ST_GeomFromText(:geo)) as geo;",
             new HashMap() {
@@ -46,7 +46,7 @@ public class LuceneSpatialFunctionFromGeoJSONTest extends BaseSpatialLuceneTest 
                 put("geo", input);
               }
             });
-    Result result = query.stream().findFirst().get();
+    var result = query.stream().findFirst().get();
     String geo = result.getProperty("geo");
     Assert.assertEquals(match, geo);
   }

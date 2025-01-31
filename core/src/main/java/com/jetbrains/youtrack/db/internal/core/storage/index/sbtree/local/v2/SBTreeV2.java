@@ -158,8 +158,8 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
               nullBucketFileId = addFile(atomicOperation, getName() + nullFileExtension);
             }
 
-            try (final CacheEntry rootCacheEntry = addPage(atomicOperation, fileId)) {
-              final SBTreeBucketV2<K, V> rootBucket = new SBTreeBucketV2<>(rootCacheEntry);
+            try (final var rootCacheEntry = addPage(atomicOperation, fileId)) {
+              final var rootBucket = new SBTreeBucketV2<K, V>(rootCacheEntry);
               rootBucket.init(true);
               rootBucket.setTreeSize(0);
             }
@@ -187,22 +187,22 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
       try {
         checkNullSupport(key);
 
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
         if (key != null) {
           key = keySerializer.preprocess(key, (Object[]) keyTypes);
 
-          final BucketSearchResult bucketSearchResult = findBucket(key, atomicOperation);
+          final var bucketSearchResult = findBucket(key, atomicOperation);
           if (bucketSearchResult.itemIndex < 0) {
             return null;
           }
 
-          final long pageIndex = bucketSearchResult.getLastPathItem();
+          final var pageIndex = bucketSearchResult.getLastPathItem();
 
-          try (final CacheEntry keyBucketCacheEntry =
+          try (final var keyBucketCacheEntry =
               loadPageForRead(atomicOperation, fileId, pageIndex)) {
-            final SBTreeBucketV2<K, V> keyBucket = new SBTreeBucketV2<>(keyBucketCacheEntry);
+            final var keyBucket = new SBTreeBucketV2<K, V>(keyBucketCacheEntry);
 
-            final SBTreeBucketV2.SBTreeEntry<K, V> treeEntry =
+            final var treeEntry =
                 keyBucket.getEntry(bucketSearchResult.itemIndex, keySerializer, valueSerializer);
             return treeEntry.value.getValue();
           }
@@ -211,11 +211,11 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
             return null;
           }
 
-          try (final CacheEntry nullBucketCacheEntry =
+          try (final var nullBucketCacheEntry =
               loadPageForRead(atomicOperation, nullBucketFileId, 0)) {
-            final SBTreeNullBucketV2<V> nullBucket =
-                new SBTreeNullBucketV2<>(nullBucketCacheEntry);
-            final SBTreeValue<V> treeValue = nullBucket.getValue(valueSerializer);
+            final var nullBucket =
+                new SBTreeNullBucketV2<V>(nullBucketCacheEntry);
+            final var treeValue = nullBucket.getValue(valueSerializer);
             if (treeValue == null) {
               return null;
             }
@@ -270,12 +270,12 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
         operation -> {
           acquireExclusiveLock();
           try {
-            K key = k;
+            var key = k;
             checkNullSupport(key);
 
             if (key != null) {
               key = keySerializer.preprocess(key, (Object[]) keyTypes);
-              final byte[] serializedKey =
+              final var serializedKey =
                   keySerializer.serializeNativeAsWhole(key, (Object[]) keyTypes);
 
               if (keySize > MAX_KEY_SIZE) {
@@ -287,12 +287,12 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
                     getName());
               }
 
-              BucketSearchResult bucketSearchResult = findBucket(key, atomicOperation);
+              var bucketSearchResult = findBucket(key, atomicOperation);
 
-              CacheEntry keyBucketCacheEntry =
+              var keyBucketCacheEntry =
                   loadPageForWrite(
                       atomicOperation, fileId, bucketSearchResult.getLastPathItem(), true);
-              SBTreeBucketV2<K, V> keyBucket = new SBTreeBucketV2<>(keyBucketCacheEntry);
+              var keyBucket = new SBTreeBucketV2<K, V>(keyBucketCacheEntry);
               final byte[] oldRawValue;
               if (bucketSearchResult.itemIndex > -1) {
                 oldRawValue =
@@ -308,17 +308,17 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
                 oldValue = valueSerializer.deserializeNativeObject(oldRawValue, 0);
               }
 
-              final IndexUpdateAction<V> updatedValue = updater.update(oldValue, bonsayFileId);
+              final var updatedValue = updater.update(oldValue, bonsayFileId);
               if (updatedValue.isChange()) {
-                V value = updatedValue.getValue();
+                var value = updatedValue.getValue();
 
                 if (validator != null) {
-                  boolean failure = true; // assuming validation throws by default
-                  boolean ignored = false;
+                  var failure = true; // assuming validation throws by default
+                  var ignored = false;
 
                   try {
 
-                    final Object result = validator.validate(key, oldValue, value);
+                    final var result = validator.validate(key, oldValue, value);
                     if (result == IndexEngineValidator.IGNORE) {
                       ignored = true;
                       failure = false;
@@ -334,11 +334,11 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
                   }
                 }
 
-                final int valueSize = valueSerializer.getObjectSize(value);
-                final byte[] serializeValue = new byte[valueSize];
+                final var valueSize = valueSerializer.getObjectSize(value);
+                final var serializeValue = new byte[valueSize];
                 valueSerializer.serializeNativeObject(value, serializeValue, 0);
 
-                final boolean createLinkToTheValue = valueSize > MAX_EMBEDDED_VALUE_SIZE;
+                final var createLinkToTheValue = valueSize > MAX_EMBEDDED_VALUE_SIZE;
                 assert !createLinkToTheValue;
 
                 int insertionIndex;
@@ -391,7 +391,7 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
               }
             } else {
               final CacheEntry cacheEntry;
-              boolean isNew = false;
+              var isNew = false;
 
               if (getFilledUpTo(atomicOperation, nullBucketFileId) == 0) {
                 cacheEntry = addPage(atomicOperation, nullBucketFileId);
@@ -400,25 +400,25 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
                 cacheEntry = loadPageForWrite(atomicOperation, nullBucketFileId, 0, true);
               }
 
-              int sizeDiff = 0;
+              var sizeDiff = 0;
 
               try {
-                final SBTreeNullBucketV2<V> nullBucket = new SBTreeNullBucketV2<>(cacheEntry);
+                final var nullBucket = new SBTreeNullBucketV2<V>(cacheEntry);
                 if (isNew) {
                   nullBucket.init();
                 }
-                final byte[] oldRawValue = nullBucket.getRawValue(valueSerializer);
-                final V oldValue =
+                final var oldRawValue = nullBucket.getRawValue(valueSerializer);
+                final var oldValue =
                     Optional.ofNullable(oldRawValue)
                         .map(rawValue -> valueSerializer.deserializeNativeObject(rawValue, 0))
                         .orElse(null);
 
-                final IndexUpdateAction<V> updatedValue = updater.update(oldValue, bonsayFileId);
+                final var updatedValue = updater.update(oldValue, bonsayFileId);
                 if (updatedValue.isChange()) {
-                  final V value = updatedValue.getValue();
-                  final int valueSize = valueSerializer.getObjectSize(value);
+                  final var value = updatedValue.getValue();
+                  final var valueSize = valueSerializer.getObjectSize(value);
                   if (validator != null) {
-                    final Object result = validator.validate(null, oldValue, value);
+                    final var result = validator.validate(null, oldValue, value);
                     if (result == IndexEngineValidator.IGNORE) {
                       return false;
                     }
@@ -428,7 +428,7 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
                     sizeDiff = -1;
                   }
 
-                  final byte[] serializeValue = new byte[valueSize];
+                  final var serializeValue = new byte[valueSize];
                   valueSerializer.serializeNativeObject(value, serializeValue, 0);
 
                   nullBucket.setValue(serializeValue, valueSerializer);
@@ -509,7 +509,7 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
 
       this.nullPointerSupport = nullPointerSupport;
 
-      final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+      final var atomicOperation = atomicOperationsManager.getCurrentOperation();
 
       fileId = openFile(atomicOperation, getFullName());
       if (nullPointerSupport) {
@@ -532,11 +532,11 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
 
-        try (final CacheEntry rootCacheEntry =
+        try (final var rootCacheEntry =
             loadPageForRead(atomicOperation, fileId, ROOT_INDEX)) {
-          final SBTreeBucketV2<K, V> rootBucket = new SBTreeBucketV2<>(rootCacheEntry);
+          final var rootBucket = new SBTreeBucketV2<K, V>(rootCacheEntry);
           return rootBucket.getTreeSize();
         }
       } finally {
@@ -558,17 +558,17 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
           acquireExclusiveLock();
           try {
             final V removedValue;
-            K key = k;
+            var key = k;
             if (key != null) {
               key = keySerializer.preprocess(key, (Object[]) keyTypes);
 
-              final BucketSearchResult bucketSearchResult = findBucket(key, atomicOperation);
+              final var bucketSearchResult = findBucket(key, atomicOperation);
               if (bucketSearchResult.itemIndex < 0) {
                 return null;
               }
 
-              final byte[] serializedKey = keySerializer.serializeNativeAsWhole(key);
-              final byte[] rawRemovedValue =
+              final var serializedKey = keySerializer.serializeNativeAsWhole(key);
+              final var rawRemovedValue =
                   removeKey(atomicOperation, bucketSearchResult, serializedKey);
               removedValue = valueSerializer.deserializeNativeObject(rawRemovedValue, 0);
             } else {
@@ -587,10 +587,10 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
 
   private V removeNullBucket(final AtomicOperation atomicOperation) throws IOException {
     V removedValue;
-    try (final CacheEntry nullCacheEntry =
+    try (final var nullCacheEntry =
         loadPageForWrite(atomicOperation, nullBucketFileId, 0, true)) {
-      final SBTreeNullBucketV2<V> nullBucket = new SBTreeNullBucketV2<>(nullCacheEntry);
-      final SBTreeValue<V> treeValue = nullBucket.getValue(valueSerializer);
+      final var nullBucket = new SBTreeNullBucketV2<V>(nullCacheEntry);
+      final var treeValue = nullBucket.getValue(valueSerializer);
 
       if (treeValue != null) {
         removedValue = treeValue.getValue();
@@ -612,9 +612,9 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
       final byte[] rawKey)
       throws IOException {
     byte[] removedValue;
-    try (final CacheEntry keyBucketCacheEntry =
+    try (final var keyBucketCacheEntry =
         loadPageForWrite(atomicOperation, fileId, bucketSearchResult.getLastPathItem(), true)) {
-      final SBTreeBucketV2<K, V> keyBucket = new SBTreeBucketV2<>(keyBucketCacheEntry);
+      final var keyBucket = new SBTreeBucketV2<K, V>(keyBucketCacheEntry);
 
       removedValue =
           keyBucket.getRawValue(bucketSearchResult.itemIndex, keySerializer, valueSerializer);
@@ -651,18 +651,18 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
 
-        final Optional<BucketSearchResult> searchResult = firstItem(atomicOperation);
+        final var searchResult = firstItem(atomicOperation);
         if (searchResult.isEmpty()) {
           return null;
         }
 
-        final BucketSearchResult result = searchResult.get();
+        final var result = searchResult.get();
 
-        try (final CacheEntry cacheEntry =
+        try (final var cacheEntry =
             loadPageForRead(atomicOperation, fileId, result.getLastPathItem())) {
-          final SBTreeBucketV2<K, V> bucket = new SBTreeBucketV2<>(cacheEntry);
+          final var bucket = new SBTreeBucketV2<K, V>(cacheEntry);
           return bucket.getKey(result.itemIndex, keySerializer);
         }
       } finally {
@@ -684,18 +684,18 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
     try {
       acquireSharedLock();
       try {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
 
-        final Optional<BucketSearchResult> searchResult = lastItem(atomicOperation);
+        final var searchResult = lastItem(atomicOperation);
         if (searchResult.isEmpty()) {
           return null;
         }
 
-        final BucketSearchResult result = searchResult.get();
+        final var result = searchResult.get();
 
-        try (final CacheEntry cacheEntry =
+        try (final var cacheEntry =
             loadPageForRead(atomicOperation, fileId, result.getLastPathItem())) {
-          final SBTreeBucketV2<K, V> bucket = new SBTreeBucketV2<>(cacheEntry);
+          final var bucket = new SBTreeBucketV2<K, V>(cacheEntry);
           return bucket.getKey(result.itemIndex, keySerializer);
         }
       } finally {
@@ -775,9 +775,9 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
 
   private void updateSize(final long diffSize, final AtomicOperation atomicOperation)
       throws IOException {
-    try (final CacheEntry rootCacheEntry =
+    try (final var rootCacheEntry =
         loadPageForWrite(atomicOperation, fileId, ROOT_INDEX, true)) {
-      final SBTreeBucketV2<K, V> rootBucket = new SBTreeBucketV2<>(rootCacheEntry);
+      final var rootBucket = new SBTreeBucketV2<K, V>(rootCacheEntry);
       rootBucket.setTreeSize(rootBucket.getTreeSize() + diffSize);
     }
   }
@@ -860,20 +860,20 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
 
   private Optional<BucketSearchResult> firstItem(final AtomicOperation atomicOperation)
       throws IOException {
-    final LinkedList<PagePathItemUnit> path = new LinkedList<>();
+    final var path = new LinkedList<PagePathItemUnit>();
 
-    long bucketIndex = ROOT_INDEX;
+    var bucketIndex = ROOT_INDEX;
 
-    CacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, bucketIndex);
-    int itemIndex = 0;
+    var cacheEntry = loadPageForRead(atomicOperation, fileId, bucketIndex);
+    var itemIndex = 0;
     try {
-      SBTreeBucketV2<K, V> bucket = new SBTreeBucketV2<>(cacheEntry);
+      var bucket = new SBTreeBucketV2<K, V>(cacheEntry);
 
       while (true) {
         if (!bucket.isLeaf()) {
           if (bucket.isEmpty() || itemIndex > bucket.size()) {
             if (!path.isEmpty()) {
-              final PagePathItemUnit pagePathItemUnit = path.removeLast();
+              final var pagePathItemUnit = path.removeLast();
 
               bucketIndex = pagePathItemUnit.pageIndex;
               itemIndex = pagePathItemUnit.itemIndex + 1;
@@ -885,11 +885,11 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
             path.add(new PagePathItemUnit(bucketIndex, itemIndex));
 
             if (itemIndex < bucket.size()) {
-              @SuppressWarnings("ObjectAllocationInLoop") final SBTreeBucketV2.SBTreeEntry<K, V> entry =
+              @SuppressWarnings("ObjectAllocationInLoop") final var entry =
                   bucket.getEntry(itemIndex, keySerializer, valueSerializer);
               bucketIndex = entry.leftChild;
             } else {
-              @SuppressWarnings("ObjectAllocationInLoop") final SBTreeBucketV2.SBTreeEntry<K, V> entry =
+              @SuppressWarnings("ObjectAllocationInLoop") final var entry =
                   bucket.getEntry(itemIndex - 1, keySerializer, valueSerializer);
               bucketIndex = entry.rightChild;
             }
@@ -899,7 +899,7 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
         } else {
           if (bucket.isEmpty()) {
             if (!path.isEmpty()) {
-              final PagePathItemUnit pagePathItemUnit = path.removeLast();
+              final var pagePathItemUnit = path.removeLast();
 
               bucketIndex = pagePathItemUnit.pageIndex;
               itemIndex = pagePathItemUnit.itemIndex + 1;
@@ -907,8 +907,8 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
               return Optional.empty();
             }
           } else {
-            final LongArrayList resultPath = new LongArrayList(path.size() + 1);
-            for (final PagePathItemUnit pathItemUnit : path) {
+            final var resultPath = new LongArrayList(path.size() + 1);
+            for (final var pathItemUnit : path) {
               resultPath.add(pathItemUnit.pageIndex);
             }
 
@@ -931,21 +931,21 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
 
   private Optional<BucketSearchResult> lastItem(final AtomicOperation atomicOperation)
       throws IOException {
-    final LinkedList<PagePathItemUnit> path = new LinkedList<>();
+    final var path = new LinkedList<PagePathItemUnit>();
 
-    long bucketIndex = ROOT_INDEX;
+    var bucketIndex = ROOT_INDEX;
 
-    CacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, bucketIndex);
+    var cacheEntry = loadPageForRead(atomicOperation, fileId, bucketIndex);
 
-    SBTreeBucketV2<K, V> bucket = new SBTreeBucketV2<>(cacheEntry);
+    var bucket = new SBTreeBucketV2<K, V>(cacheEntry);
 
-    int itemIndex = bucket.size() - 1;
+    var itemIndex = bucket.size() - 1;
     try {
       while (true) {
         if (!bucket.isLeaf()) {
           if (itemIndex < -1) {
             if (!path.isEmpty()) {
-              final PagePathItemUnit pagePathItemUnit = path.removeLast();
+              final var pagePathItemUnit = path.removeLast();
 
               bucketIndex = pagePathItemUnit.pageIndex;
               itemIndex = pagePathItemUnit.itemIndex - 1;
@@ -957,11 +957,11 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
             path.add(new PagePathItemUnit(bucketIndex, itemIndex));
 
             if (itemIndex > -1) {
-              @SuppressWarnings("ObjectAllocationInLoop") final SBTreeBucketV2.SBTreeEntry<K, V> entry =
+              @SuppressWarnings("ObjectAllocationInLoop") final var entry =
                   bucket.getEntry(itemIndex, keySerializer, valueSerializer);
               bucketIndex = entry.rightChild;
             } else {
-              @SuppressWarnings("ObjectAllocationInLoop") final SBTreeBucketV2.SBTreeEntry<K, V> entry =
+              @SuppressWarnings("ObjectAllocationInLoop") final var entry =
                   bucket.getEntry(0, keySerializer, valueSerializer);
               bucketIndex = entry.leftChild;
             }
@@ -971,7 +971,7 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
         } else {
           if (bucket.isEmpty()) {
             if (!path.isEmpty()) {
-              final PagePathItemUnit pagePathItemUnit = path.removeLast();
+              final var pagePathItemUnit = path.removeLast();
 
               bucketIndex = pagePathItemUnit.pageIndex;
               itemIndex = pagePathItemUnit.itemIndex - 1;
@@ -979,8 +979,8 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
               return Optional.empty();
             }
           } else {
-            final LongArrayList resultPath = new LongArrayList(path.size() + 1);
-            for (final PagePathItemUnit pathItemUnit : path) {
+            final var resultPath = new LongArrayList(path.size() + 1);
+            for (final var pathItemUnit : path) {
               resultPath.add(pathItemUnit.pageIndex);
             }
 
@@ -1081,22 +1081,22 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
       final K keyToInsert,
       final AtomicOperation atomicOperation)
       throws IOException {
-    final long pageIndex = path.getLong(path.size() - 1);
+    final var pageIndex = path.getLong(path.size() - 1);
 
-    try (final CacheEntry bucketEntry =
+    try (final var bucketEntry =
         loadPageForWrite(atomicOperation, fileId, pageIndex, true)) {
-      final SBTreeBucketV2<K, V> bucketToSplit = new SBTreeBucketV2<>(bucketEntry);
+      final var bucketToSplit = new SBTreeBucketV2<K, V>(bucketEntry);
 
-      final boolean splitLeaf = bucketToSplit.isLeaf();
-      final int bucketSize = bucketToSplit.size();
+      final var splitLeaf = bucketToSplit.isLeaf();
+      final var bucketSize = bucketToSplit.size();
 
-      final int indexToSplit = bucketSize >>> 1;
-      final K separationKey = bucketToSplit.getKey(indexToSplit, keySerializer);
+      final var indexToSplit = bucketSize >>> 1;
+      final var separationKey = bucketToSplit.getKey(indexToSplit, keySerializer);
       final List<byte[]> rightEntries = new ArrayList<>(indexToSplit);
 
-      final int startRightIndex = splitLeaf ? indexToSplit : indexToSplit + 1;
+      final var startRightIndex = splitLeaf ? indexToSplit : indexToSplit + 1;
 
-      for (int i = startRightIndex; i < bucketSize; i++) {
+      for (var i = startRightIndex; i < bucketSize; i++) {
         rightEntries.add(bucketToSplit.getRawEntry(i, keySerializer, valueSerializer));
       }
 
@@ -1141,16 +1141,16 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
       final AtomicOperation atomicOperation)
       throws IOException {
     long rightPageIndex;
-    try (final CacheEntry rightBucketEntry = addPage(atomicOperation, fileId)) {
+    try (final var rightBucketEntry = addPage(atomicOperation, fileId)) {
       rightPageIndex = rightBucketEntry.getPageIndex();
-      final SBTreeBucketV2<K, V> newRightBucket = new SBTreeBucketV2<>(rightBucketEntry);
+      final var newRightBucket = new SBTreeBucketV2<K, V>(rightBucketEntry);
       newRightBucket.init(splitLeaf);
       newRightBucket.addAll(rightEntries, keySerializer, valueSerializer);
 
       bucketToSplit.shrink(indexToSplit, keySerializer, valueSerializer);
 
       if (splitLeaf) {
-        final long rightSiblingPageIndex = bucketToSplit.getRightSibling();
+        final var rightSiblingPageIndex = bucketToSplit.getRightSibling();
 
         newRightBucket.setRightSibling(rightSiblingPageIndex);
         newRightBucket.setLeftSibling(pageIndex);
@@ -1159,22 +1159,22 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
 
         if (rightSiblingPageIndex >= 0) {
 
-          try (final CacheEntry rightSiblingBucketEntry =
+          try (final var rightSiblingBucketEntry =
               loadPageForWrite(atomicOperation, fileId, rightSiblingPageIndex, true)) {
-            final SBTreeBucketV2<K, V> rightSiblingBucket =
-                new SBTreeBucketV2<>(rightSiblingBucketEntry);
+            final var rightSiblingBucket =
+                new SBTreeBucketV2<K, V>(rightSiblingBucketEntry);
             rightSiblingBucket.setLeftSibling(rightBucketEntry.getPageIndex());
           }
         }
       }
 
-      long parentIndex = path.getLong(path.size() - 2);
-      CacheEntry parentCacheEntry = loadPageForWrite(atomicOperation, fileId, parentIndex, true);
+      var parentIndex = path.getLong(path.size() - 2);
+      var parentCacheEntry = loadPageForWrite(atomicOperation, fileId, parentIndex, true);
       try {
-        SBTreeBucketV2<K, V> parentBucket = new SBTreeBucketV2<>(parentCacheEntry);
-        final byte[] rawSeparationKey = keySerializer.serializeNativeAsWhole(separationKey);
+        var parentBucket = new SBTreeBucketV2<K, V>(parentCacheEntry);
+        final var rawSeparationKey = keySerializer.serializeNativeAsWhole(separationKey);
 
-        int insertionIndex = parentBucket.find(separationKey, keySerializer);
+        var insertionIndex = parentBucket.find(separationKey, keySerializer);
         assert insertionIndex < 0;
 
         insertionIndex = -insertionIndex - 1;
@@ -1182,7 +1182,7 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
             insertionIndex, rawSeparationKey, pageIndex, rightBucketEntry.getPageIndex(), true)) {
           parentCacheEntry.close();
 
-          final BucketSearchResult bucketSearchResult =
+          final var bucketSearchResult =
               splitBucket(
                   path.subList(0, path.size() - 1), insertionIndex, separationKey, atomicOperation);
 
@@ -1200,7 +1200,7 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
       }
     }
 
-    final LongArrayList resultPath = new LongArrayList(path.subList(0, path.size() - 1));
+    final var resultPath = new LongArrayList(path.subList(0, path.size() - 1));
 
     if (comparator.compare(keyToInsert, separationKey) < 0) {
       resultPath.add(pageIndex);
@@ -1228,19 +1228,19 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
       final List<byte[]> rightEntries,
       final AtomicOperation atomicOperation)
       throws IOException {
-    final long treeSize = bucketToSplit.getTreeSize();
+    final var treeSize = bucketToSplit.getTreeSize();
 
     final List<byte[]> leftEntries = new ArrayList<>(indexToSplit);
 
-    for (int i = 0; i < indexToSplit; i++) {
+    for (var i = 0; i < indexToSplit; i++) {
       leftEntries.add(bucketToSplit.getRawEntry(i, keySerializer, valueSerializer));
     }
 
-    final CacheEntry leftBucketEntry = addPage(atomicOperation, fileId);
+    final var leftBucketEntry = addPage(atomicOperation, fileId);
 
-    final CacheEntry rightBucketEntry = addPage(atomicOperation, fileId);
+    final var rightBucketEntry = addPage(atomicOperation, fileId);
     try {
-      final SBTreeBucketV2<K, V> newLeftBucket = new SBTreeBucketV2<>(leftBucketEntry);
+      final var newLeftBucket = new SBTreeBucketV2<K, V>(leftBucketEntry);
       newLeftBucket.init(splitLeaf);
       newLeftBucket.addAll(leftEntries, keySerializer, valueSerializer);
 
@@ -1253,7 +1253,7 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
     }
 
     try {
-      final SBTreeBucketV2<K, V> newRightBucket = new SBTreeBucketV2<>(rightBucketEntry);
+      final var newRightBucket = new SBTreeBucketV2<K, V>(rightBucketEntry);
       newRightBucket.init(splitLeaf);
       newRightBucket.addAll(rightEntries, keySerializer, valueSerializer);
 
@@ -1279,7 +1279,7 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
         rightBucketEntry.getPageIndex(),
         true);
 
-    final LongArrayList resultPath = new LongArrayList(path.subList(0, path.size() - 1));
+    final var resultPath = new LongArrayList(path.subList(0, path.size() - 1));
 
     if (comparator.compare(keyToInsert, separationKey) < 0) {
       resultPath.add(leftBucketEntry.getPageIndex());
@@ -1297,8 +1297,8 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
 
   private BucketSearchResult findBucket(final K key, final AtomicOperation atomicOperation)
       throws IOException {
-    long pageIndex = ROOT_INDEX;
-    final LongArrayList path = new LongArrayList(8);
+    var pageIndex = ROOT_INDEX;
+    final var path = new LongArrayList(8);
 
     while (true) {
       if (path.size() > MAX_PATH_LENGTH) {
@@ -1312,10 +1312,10 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
 
       final SBTreeBucketV2.SBTreeEntry<K, V> entry;
 
-      try (final CacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
-        @SuppressWarnings("ObjectAllocationInLoop") final SBTreeBucketV2<K, V> keyBucket = new SBTreeBucketV2<>(
+      try (final var bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
+        @SuppressWarnings("ObjectAllocationInLoop") final var keyBucket = new SBTreeBucketV2<K, V>(
             bucketEntry);
-        final int index = keyBucket.find(key, keySerializer);
+        final var index = keyBucket.find(key, keySerializer);
 
         if (keyBucket.isLeaf()) {
           return new BucketSearchResult(index, path);
@@ -1325,7 +1325,7 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
           //noinspection ObjectAllocationInLoop
           entry = keyBucket.getEntry(index, keySerializer, valueSerializer);
         } else {
-          final int insertionIndex = -index - 1;
+          final var insertionIndex = -index - 1;
           if (insertionIndex >= keyBucket.size()) {
             //noinspection ObjectAllocationInLoop
             entry = keyBucket.getEntry(insertionIndex - 1, keySerializer, valueSerializer);
@@ -1352,8 +1352,8 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
     if (!(keySize == 1
         || compositeKey.getKeys().size() == keySize
         || partialSearchMode.equals(PartialSearchMode.NONE))) {
-      final CompositeKey fullKey = new CompositeKey(compositeKey);
-      final int itemsToAdd = keySize - fullKey.getKeys().size();
+      final var fullKey = new CompositeKey(compositeKey);
+      final var itemsToAdd = keySize - fullKey.getKeys().size();
 
       final Comparable<?> keyItem;
       if (partialSearchMode.equals(PartialSearchMode.HIGHEST_BOUNDARY)) {
@@ -1362,7 +1362,7 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
         keyItem = ALWAYS_LESS_KEY;
       }
 
-      for (int i = 0; i < itemsToAdd; i++) {
+      for (var i = 0; i < itemsToAdd; i++) {
         fullKey.addKey(keyItem);
       }
 
@@ -1486,7 +1486,7 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
       try {
         acquireSharedLock();
         try {
-          final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+          final var atomicOperation = atomicOperationsManager.getCurrentOperation();
           if (pageIndex > -1) {
             if (readKeysFromBuckets(atomicOperation)) {
               return;
@@ -1500,7 +1500,7 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
             // iteration just started
             if (lastKey == null) {
               if (this.fromKey != null) {
-                final BucketSearchResult searchResult = findBucket(fromKey, atomicOperation);
+                final var searchResult = findBucket(fromKey, atomicOperation);
                 pageIndex = (int) searchResult.getLastPathItem();
 
                 if (searchResult.itemIndex >= 0) {
@@ -1513,9 +1513,9 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
                   itemIndex = -searchResult.itemIndex - 1;
                 }
               } else {
-                final Optional<BucketSearchResult> bucketSearchResult = firstItem(atomicOperation);
+                final var bucketSearchResult = firstItem(atomicOperation);
                 if (bucketSearchResult.isPresent()) {
-                  final BucketSearchResult searchResult = bucketSearchResult.get();
+                  final var searchResult = bucketSearchResult.get();
                   pageIndex = (int) searchResult.getLastPathItem();
                   itemIndex = searchResult.itemIndex;
                 } else {
@@ -1524,7 +1524,7 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
               }
 
             } else {
-              final BucketSearchResult bucketSearchResult = findBucket(lastKey, atomicOperation);
+              final var bucketSearchResult = findBucket(lastKey, atomicOperation);
 
               pageIndex = (int) bucketSearchResult.getLastPathItem();
               if (bucketSearchResult.itemIndex >= 0) {
@@ -1547,19 +1547,19 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
     }
 
     private boolean readKeysFromBuckets(AtomicOperation atomicOperation) throws IOException {
-      CacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex);
+      var cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex);
       try {
-        SBTreeBucketV2<K, V> bucket = new SBTreeBucketV2<>(cacheEntry);
+        var bucket = new SBTreeBucketV2<K, V>(cacheEntry);
         if (lastLSN == null || bucket.getLsn().equals(lastLSN)) {
           while (true) {
-            final int bucketSize = bucket.size();
+            final var bucketSize = bucket.size();
             lastLSN = bucket.getLsn();
 
             for (;
                 itemIndex < bucketSize && dataCache.size() < SPLITERATOR_CACHE_SIZE;
                 itemIndex++) {
               @SuppressWarnings("ObjectAllocationInLoop")
-              SBTreeBucketV2.SBTreeEntry<K, V> entry =
+              var entry =
                   bucket.getEntry(itemIndex, keySerializer, valueSerializer);
 
               if (toKey != null) {
@@ -1691,7 +1691,7 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
       try {
         acquireSharedLock();
         try {
-          final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+          final var atomicOperation = atomicOperationsManager.getCurrentOperation();
           if (pageIndex > -1) {
             if (readKeysFromBuckets(atomicOperation)) {
               return;
@@ -1705,7 +1705,7 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
             // iteration just started
             if (lastKey == null) {
               if (this.toKey != null) {
-                final BucketSearchResult searchResult = findBucket(toKey, atomicOperation);
+                final var searchResult = findBucket(toKey, atomicOperation);
                 pageIndex = (int) searchResult.getLastPathItem();
 
                 if (searchResult.itemIndex >= 0) {
@@ -1718,9 +1718,9 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
                   itemIndex = -searchResult.itemIndex - 2;
                 }
               } else {
-                final Optional<BucketSearchResult> bucketSearchResult = lastItem(atomicOperation);
+                final var bucketSearchResult = lastItem(atomicOperation);
                 if (bucketSearchResult.isPresent()) {
-                  final BucketSearchResult searchResult = bucketSearchResult.get();
+                  final var searchResult = bucketSearchResult.get();
                   pageIndex = (int) searchResult.getLastPathItem();
                   itemIndex = searchResult.itemIndex;
                 } else {
@@ -1729,7 +1729,7 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
               }
 
             } else {
-              final BucketSearchResult bucketSearchResult = findBucket(lastKey, atomicOperation);
+              final var bucketSearchResult = findBucket(lastKey, atomicOperation);
 
               pageIndex = (int) bucketSearchResult.getLastPathItem();
               if (bucketSearchResult.itemIndex >= 0) {
@@ -1752,12 +1752,12 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
     }
 
     private boolean readKeysFromBuckets(AtomicOperation atomicOperation) throws IOException {
-      CacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex);
+      var cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex);
       try {
-        SBTreeBucketV2<K, V> bucket = new SBTreeBucketV2<>(cacheEntry);
+        var bucket = new SBTreeBucketV2<K, V>(cacheEntry);
         if (lastLSN == null || bucket.getLsn().equals(lastLSN)) {
           while (true) {
-            final int bucketSize = bucket.size();
+            final var bucketSize = bucket.size();
             if (itemIndex == Integer.MIN_VALUE) {
               itemIndex = bucketSize - 1;
             } else if (itemIndex < -1) {
@@ -1768,7 +1768,7 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
 
             for (; itemIndex >= 0 && dataCache.size() < SPLITERATOR_CACHE_SIZE; itemIndex--) {
               @SuppressWarnings("ObjectAllocationInLoop")
-              SBTreeBucketV2.SBTreeEntry<K, V> entry =
+              var entry =
                   bucket.getEntry(itemIndex, keySerializer, valueSerializer);
 
               if (fromKey != null) {

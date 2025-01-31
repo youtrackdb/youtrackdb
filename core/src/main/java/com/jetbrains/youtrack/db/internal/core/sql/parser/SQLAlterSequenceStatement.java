@@ -36,7 +36,7 @@ public class SQLAlterSequenceStatement extends DDLStatement {
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
 
-    String sequenceName = name.getStringValue();
+    var sequenceName = name.getStringValue();
 
     if (sequenceName == null) {
       throw new CommandExecutionException(
@@ -48,25 +48,25 @@ public class SQLAlterSequenceStatement extends DDLStatement {
       throw new CommandExecutionException("Sequence not found: " + sequenceName);
     }
 
-    DBSequence.CreateParams params = new DBSequence.CreateParams();
+    var params = new DBSequence.CreateParams();
     params.resetNull();
 
     if (start != null) {
-      Object val = start.execute((Identifiable) null, ctx);
+      var val = start.execute((Identifiable) null, ctx);
       if (!(val instanceof Number)) {
         throw new CommandExecutionException("invalid start value for a sequence: " + val);
       }
       params.setStart(((Number) val).longValue());
     }
     if (increment != null) {
-      Object val = increment.execute((Identifiable) null, ctx);
+      var val = increment.execute((Identifiable) null, ctx);
       if (!(val instanceof Number)) {
         throw new CommandExecutionException("invalid increment value for a sequence: " + val);
       }
       params.setIncrement(((Number) val).intValue());
     }
     if (cache != null) {
-      Object val = cache.execute((Identifiable) null, ctx);
+      var val = cache.execute((Identifiable) null, ctx);
       if (!(val instanceof Number)) {
         throw new CommandExecutionException("invalid cache value for a sequence: " + val);
       }
@@ -80,7 +80,7 @@ public class SQLAlterSequenceStatement extends DDLStatement {
       params.setRecyclable(cyclic);
     }
     if (limitValue != null) {
-      Object val = limitValue.execute((Identifiable) null, ctx);
+      var val = limitValue.execute((Identifiable) null, ctx);
       if (!(val instanceof Number)) {
         throw new CommandExecutionException("invalid cache value for a sequence: " + val);
       }
@@ -93,12 +93,12 @@ public class SQLAlterSequenceStatement extends DDLStatement {
     try {
       sequence.updateParams(db, params);
     } catch (DatabaseException exc) {
-      String message = "Unable to execute command: " + exc.getMessage();
+      var message = "Unable to execute command: " + exc.getMessage();
       LogManager.instance().error(this, message, exc, (Object) null);
       throw new CommandExecutionException(message);
     }
 
-    ResultInternal item = new ResultInternal(ctx.getDatabase());
+    var item = new ResultInternal(ctx.getDatabase());
     item.setProperty("operation", "alter sequence");
     item.setProperty("sequenceName", sequenceName);
     if (params.getStart() != null) {
@@ -195,7 +195,7 @@ public class SQLAlterSequenceStatement extends DDLStatement {
 
   @Override
   public SQLAlterSequenceStatement copy() {
-    SQLAlterSequenceStatement result = new SQLAlterSequenceStatement(-1);
+    var result = new SQLAlterSequenceStatement(-1);
     result.name = name == null ? null : name.copy();
     result.start = start == null ? null : start.copy();
     result.increment = increment == null ? null : increment.copy();
@@ -215,7 +215,7 @@ public class SQLAlterSequenceStatement extends DDLStatement {
       return false;
     }
 
-    SQLAlterSequenceStatement that = (SQLAlterSequenceStatement) o;
+    var that = (SQLAlterSequenceStatement) o;
 
     if (!Objects.equals(name, that.name)) {
       return false;
@@ -243,7 +243,7 @@ public class SQLAlterSequenceStatement extends DDLStatement {
 
   @Override
   public int hashCode() {
-    int result = name != null ? name.hashCode() : 0;
+    var result = name != null ? name.hashCode() : 0;
     result = 31 * result + (start != null ? start.hashCode() : 0);
     result = 31 * result + (increment != null ? increment.hashCode() : 0);
     result = 31 * result + (cache != null ? cache.hashCode() : 0);

@@ -51,7 +51,7 @@ public abstract class RecordsReturnHandler implements ReturnHandler {
   }
 
   protected void storeResult(final EntityImpl result) {
-    final EntityImpl processedResult = preprocess(result);
+    final var processedResult = preprocess(result);
 
     results.add(evaluateExpression(processedResult));
   }

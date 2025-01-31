@@ -59,7 +59,7 @@ public class GlobalPropertyImpl implements GlobalProperty {
   }
 
   public EntityImpl toEntity(DatabaseSessionInternal db) {
-    final EntityImpl entity = new EntityImpl(db);
+    final var entity = new EntityImpl(db);
     entity.field("name", name);
     entity.field("type", type.name());
     entity.field("id", id);

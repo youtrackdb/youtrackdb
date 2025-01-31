@@ -28,7 +28,7 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
   public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     var prev = this.prev;
     assert prev != null;
-    ExecutionStream upstream = prev.start(ctx);
+    var upstream = prev.start(ctx);
     return upstream.map(UpdateEdgePointersStep::mapResult);
   }
 
@@ -43,7 +43,7 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
     return spaces + "+ UPDATE EDGE POINTERS";
   }
 
@@ -54,11 +54,11 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
    * @param db
    */
   private static void handleUpdateEdge(EntityImpl record, DatabaseSessionInternal db) {
-    Object currentOut = record.field("out");
-    Object currentIn = record.field("in");
+    var currentOut = record.field("out");
+    var currentIn = record.field("in");
 
-    Object prevOut = record.getOriginalValue("out");
-    Object prevIn = record.getOriginalValue("in");
+    var prevOut = record.getOriginalValue("out");
+    var prevIn = record.getOriginalValue("in");
 
     if (currentOut instanceof Collection<?> col && col.size() == 1) {
       currentOut = col.iterator().next();

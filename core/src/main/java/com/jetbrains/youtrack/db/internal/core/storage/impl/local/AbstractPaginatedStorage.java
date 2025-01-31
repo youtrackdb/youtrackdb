@@ -41,7 +41,6 @@ import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.common.concur.NeedRetryException;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.ScalableRWLock;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.ThreadInterruptedException;
@@ -98,9 +97,7 @@ import com.jetbrains.youtrack.db.internal.core.index.engine.V1IndexEngine;
 import com.jetbrains.youtrack.db.internal.core.index.engine.v1.CellBTreeMultiValueIndexEngine;
 import com.jetbrains.youtrack.db.internal.core.index.engine.v1.CellBTreeSingleValueIndexEngine;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.query.QueryAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordVersionHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -117,8 +114,6 @@ import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster.ATTRIBUTES;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageOperationResult;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.PageDataVerificationError;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.ReadCache;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.WriteCache;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.local.BackgroundExceptionListener;
@@ -148,14 +143,11 @@ import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALRecord;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WriteAheadLog;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.common.EmptyWALRecord;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.common.WriteableWALRecord;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeBasedRidBag;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManagerShared;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChangesPerKey;
-import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChangesPerKey.TransactionIndexEntry;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
 import com.jetbrains.youtrack.db.internal.core.tx.TransactionInternal;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -197,7 +189,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
@@ -225,11 +216,11 @@ public abstract class AbstractPaginatedStorage
   protected static final ScheduledExecutorService fuzzyCheckpointExecutor;
 
   static {
-    ThreadGroup parentThreadGroup = Thread.currentThread().getThreadGroup();
+    var parentThreadGroup = Thread.currentThread().getThreadGroup();
 
-    final ThreadGroup parentThreadGroupBackup = parentThreadGroup;
+    final var parentThreadGroupBackup = parentThreadGroup;
 
-    boolean found = false;
+    var found = false;
 
     while (parentThreadGroup.getParent() != null) {
       if (parentThreadGroup.equals(YouTrackDBEnginesManager.instance().getThreadGroup())) {
@@ -341,8 +332,8 @@ public abstract class AbstractPaginatedStorage
   }
 
   protected static String normalizeName(String name) {
-    final int firstIndexOf = name.lastIndexOf('/');
-    final int secondIndexOf = name.lastIndexOf(File.separator);
+    final var firstIndexOf = name.lastIndexOf('/');
+    final var secondIndexOf = name.lastIndexOf(File.separator);
 
     if (firstIndexOf >= 0 || secondIndexOf >= 0) {
       return name.substring(Math.max(firstIndexOf, secondIndexOf) + 1);
@@ -354,9 +345,9 @@ public abstract class AbstractPaginatedStorage
   public static String checkName(String name) {
     name = normalizeName(name);
 
-    Pattern pattern = Pattern.compile("^\\p{L}[\\p{L}\\d_$-]*$");
-    Matcher matcher = pattern.matcher(name);
-    boolean isValid = matcher.matches();
+    var pattern = Pattern.compile("^\\p{L}[\\p{L}\\d_$-]*$");
+    var matcher = pattern.matcher(name);
+    var isValid = matcher.matches();
     if (!isValid) {
       throw new InvalidDatabaseNameException(
           "Invalid name for database. ("
@@ -414,7 +405,7 @@ public abstract class AbstractPaginatedStorage
   public long countRecords(DatabaseSessionInternal session) {
     long tot = 0;
 
-    for (StorageCluster c : getClusterInstances()) {
+    for (var c : getClusterInstances()) {
       if (c != null) {
         tot += c.getEntries() - c.getTombstonesCount();
       }
@@ -460,7 +451,7 @@ public abstract class AbstractPaginatedStorage
     try {
       doShutdown();
     } catch (final IOException e) {
-      final String message = "Error on closing of storage '" + name;
+      final var message = "Error on closing of storage '" + name;
       LogManager.instance().error(this, message, e);
 
       throw BaseException.wrapException(new StorageException(message), e);
@@ -470,8 +461,8 @@ public abstract class AbstractPaginatedStorage
   }
 
   private static void checkPageSizeAndRelatedParametersInGlobalConfiguration() {
-    final int pageSize = GlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() << 10;
-    int maxKeySize = GlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger();
+    final var pageSize = GlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() << 10;
+    var maxKeySize = GlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger();
     var bTreeMaxKeySize = (int) (pageSize * 0.3);
 
     if (maxKeySize <= 0) {
@@ -561,8 +552,8 @@ public abstract class AbstractPaginatedStorage
           initWalAndDiskCache(contextConfiguration);
           transaction = new ThreadLocal<>();
 
-          final StartupMetadata startupMetadata = checkIfStorageDirty();
-          final long lastTxId = startupMetadata.lastTxId;
+          final var startupMetadata = checkIfStorageDirty();
+          final var lastTxId = startupMetadata.lastTxId;
           if (lastTxId > 0) {
             idGen.setStartId(lastTxId + 1);
           } else {
@@ -595,7 +586,7 @@ public abstract class AbstractPaginatedStorage
           atomicOperationsManager.executeInsideAtomicOperation(
               null,
               (atomicOperation) -> {
-                String uuid = configuration.getUuid();
+                var uuid = configuration.getUuid();
                 if (uuid == null) {
                   uuid = UUID.randomUUID().toString();
                   configuration.setUuid(atomicOperation, uuid);
@@ -615,7 +606,7 @@ public abstract class AbstractPaginatedStorage
           atomicOperationsManager.executeInsideAtomicOperation(
               null,
               (atomicOperation) -> {
-                final String cs = configuration.getConflictStrategy();
+                final var cs = configuration.getConflictStrategy();
                 if (cs != null) {
                   // SET THE CONFLICT STORAGE STRATEGY FROM THE LOADED CONFIGURATION
                   doSetConflictStrategy(
@@ -710,7 +701,7 @@ public abstract class AbstractPaginatedStorage
       }
     }
 
-    final Object[] additionalArgs = new Object[]{getURL(), YouTrackDBConstants.getVersion()};
+    final var additionalArgs = new Object[]{getURL(), YouTrackDBConstants.getVersion()};
     LogManager.instance()
         .info(this, "Storage '%s' is opened under YouTrackDB distribution : %s", additionalArgs);
   }
@@ -729,25 +720,25 @@ public abstract class AbstractPaginatedStorage
   }
 
   protected final void openIndexes() {
-    final CurrentStorageComponentsFactory cf = componentsFactory;
+    final var cf = componentsFactory;
     if (cf == null) {
       throw new StorageException("Storage '" + name + "' is not properly initialized");
     }
-    final Set<String> indexNames = configuration.indexEngines();
-    int counter = 0;
+    final var indexNames = configuration.indexEngines();
+    var counter = 0;
 
     // avoid duplication of index engine ids
-    for (final String indexName : indexNames) {
-      final IndexEngineData engineData = configuration.getIndexEngine(indexName, -1);
+    for (final var indexName : indexNames) {
+      final var engineData = configuration.getIndexEngine(indexName, -1);
       if (counter <= engineData.getIndexId()) {
         counter = engineData.getIndexId() + 1;
       }
     }
 
-    for (final String indexName : indexNames) {
-      final IndexEngineData engineData = configuration.getIndexEngine(indexName, counter);
+    for (final var indexName : indexNames) {
+      final var engineData = configuration.getIndexEngine(indexName, counter);
 
-      final BaseIndexEngine engine = Indexes.createIndexEngine(this, engineData);
+      final var engine = Indexes.createIndexEngine(this, engineData);
 
       engine.load(engineData);
 
@@ -765,9 +756,9 @@ public abstract class AbstractPaginatedStorage
     int pos;
 
     // REGISTER CLUSTER
-    final List<StorageClusterConfiguration> configurationClusters = configuration.getClusters();
-    for (int i = 0; i < configurationClusters.size(); ++i) {
-      final StorageClusterConfiguration clusterConfig = configurationClusters.get(i);
+    final var configurationClusters = configuration.getClusters();
+    for (var i = 0; i < configurationClusters.size(); ++i) {
+      final var clusterConfig = configurationClusters.get(i);
 
       if (clusterConfig != null) {
         pos = createClusterFromConfig(clusterConfig);
@@ -806,9 +797,9 @@ public abstract class AbstractPaginatedStorage
   }
 
   private void checkRidBagsPresence(final AtomicOperation operation) {
-    for (final StorageCluster cluster : clusters) {
+    for (final var cluster : clusters) {
       if (cluster != null) {
-        final int clusterId = cluster.getId();
+        final var clusterId = cluster.getId();
 
         if (!BTreeCollectionManagerShared.isComponentPresent(operation, clusterId)) {
           LogManager.instance()
@@ -850,14 +841,14 @@ public abstract class AbstractPaginatedStorage
       throw logAndPrepareForRethrow(t);
     }
 
-    boolean fsyncAfterCreate =
+    var fsyncAfterCreate =
         contextConfiguration.getValueAsBoolean(
             GlobalConfiguration.STORAGE_MAKE_FULL_CHECKPOINT_AFTER_CREATE);
     if (fsyncAfterCreate) {
       synch();
     }
 
-    final Object[] additionalArgs = new Object[]{getURL(), YouTrackDBConstants.getVersion()};
+    final var additionalArgs = new Object[]{getURL(), YouTrackDBConstants.getVersion()};
     LogManager.instance()
         .info(this, "Storage '%s' is created under YouTrackDB distribution : %s", additionalArgs);
   }
@@ -874,8 +865,8 @@ public abstract class AbstractPaginatedStorage
       throw new InvalidDatabaseNameException("Database name can not be empty");
     }
 
-    final Pattern namePattern = Pattern.compile("[^\\w$_-]+");
-    final Matcher matcher = namePattern.matcher(name);
+    final var namePattern = Pattern.compile("[^\\w$_-]+");
+    final var matcher = namePattern.matcher(name);
     if (matcher.find()) {
       throw new InvalidDatabaseNameException(
           "Only letters, numbers, `$`, `_` and `-` are allowed in database name. Provided name :`"
@@ -975,7 +966,7 @@ public abstract class AbstractPaginatedStorage
   }
 
   protected UUID readDatabaseInstanceId() {
-    String id = configuration.getProperty(DATABASE_INSTANCE_ID);
+    var id = configuration.getProperty(DATABASE_INSTANCE_ID);
     if (id != null) {
       return UUID.fromString(id);
     } else {
@@ -985,7 +976,7 @@ public abstract class AbstractPaginatedStorage
 
   @SuppressWarnings("unused")
   protected void checkDatabaseInstanceId(UUID backupUUID) {
-    UUID dbUUID = readDatabaseInstanceId();
+    var dbUUID = readDatabaseInstanceId();
     if (backupUUID == null) {
       throw new InvalidInstanceIdException(
           "The Database Instance Id do not mach, backup UUID is null");
@@ -1003,8 +994,8 @@ public abstract class AbstractPaginatedStorage
   protected abstract void initIv() throws IOException;
 
   private void checkPageSizeAndRelatedParameters() {
-    final int pageSize = GlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() << 10;
-    final int maxKeySize = GlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger();
+    final var pageSize = GlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() << 10;
+    final var maxKeySize = GlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger();
 
     if (configuration.getPageSize() != -1 && configuration.getPageSize() != pageSize) {
       throw new StorageException(
@@ -1070,7 +1061,7 @@ public abstract class AbstractPaginatedStorage
   @Override
   public final void delete() {
     try {
-      final long timer = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
+      final var timer = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
       stateLock.writeLock().lock();
       try {
         doDelete();
@@ -1103,17 +1094,17 @@ public abstract class AbstractPaginatedStorage
 
       stateLock.readLock().lock();
       try {
-        final long lockId = atomicOperationsManager.freezeAtomicOperations(null, null);
+        final var lockId = atomicOperationsManager.freezeAtomicOperations(null, null);
         try {
 
           checkOpennessAndMigration();
 
-          final long start = System.currentTimeMillis();
+          final var start = System.currentTimeMillis();
 
-          final PageDataVerificationError[] pageErrors =
+          final var pageErrors =
               writeCache.checkStoredPages(verbose ? listener : null);
 
-          String errors =
+          var errors =
               pageErrors.length > 0 ? pageErrors.length + " with errors." : " without errors.";
           listener.onMessage(
               "Check of storage completed in "
@@ -1286,7 +1277,7 @@ public abstract class AbstractPaginatedStorage
         checkOpennessAndMigration();
 
         checkClusterId(clusterId);
-        final StorageCluster cluster = clusters.get(clusterId);
+        final var cluster = clusters.get(clusterId);
         if (cluster == null) {
           throwClusterDoesNotExist(clusterId);
         }
@@ -1314,7 +1305,7 @@ public abstract class AbstractPaginatedStorage
         checkOpennessAndMigration();
 
         checkClusterId(clusterId);
-        final StorageCluster cluster = clusters.get(clusterId);
+        final var cluster = clusters.get(clusterId);
         if (cluster == null) {
           throwClusterDoesNotExist(clusterId);
         }
@@ -1342,7 +1333,7 @@ public abstract class AbstractPaginatedStorage
 
         checkOpennessAndMigration();
 
-        final StorageCluster cluster = clusterMap.get(clusterName.toLowerCase());
+        final var cluster = clusterMap.get(clusterName.toLowerCase());
         if (cluster == null) {
           throwClusterDoesNotExist(clusterName);
         }
@@ -1369,7 +1360,7 @@ public abstract class AbstractPaginatedStorage
         checkOpennessAndMigration();
 
         checkClusterId(clusterId);
-        final StorageCluster cluster = clusters.get(clusterId);
+        final var cluster = clusters.get(clusterId);
         if (cluster == null) {
           throwClusterDoesNotExist(clusterId);
         }
@@ -1398,7 +1389,7 @@ public abstract class AbstractPaginatedStorage
         checkOpennessAndMigration();
 
         checkClusterId(clusterId);
-        final StorageCluster cluster = clusters.get(clusterId);
+        final var cluster = clusters.get(clusterId);
         if (cluster == null) {
           throwClusterDoesNotExist(clusterId);
         }
@@ -1425,7 +1416,7 @@ public abstract class AbstractPaginatedStorage
         checkOpennessAndMigration();
 
         checkClusterId(clusterId);
-        final StorageCluster cluster = clusters.get(clusterId);
+        final var cluster = clusters.get(clusterId);
         if (cluster == null) {
           throwClusterDoesNotExist(clusterId);
         }
@@ -1452,7 +1443,7 @@ public abstract class AbstractPaginatedStorage
         checkOpennessAndMigration();
 
         checkClusterId(clusterId);
-        final StorageCluster cluster = clusters.get(clusterId);
+        final var cluster = clusters.get(clusterId);
         if (cluster == null) {
           throwClusterDoesNotExist(clusterId);
         }
@@ -1478,9 +1469,9 @@ public abstract class AbstractPaginatedStorage
 
         checkOpennessAndMigration();
 
-        final int clusterId = rid.getClusterId();
+        final var clusterId = rid.getClusterId();
         checkClusterId(clusterId);
-        final StorageCluster cluster = clusters.get(clusterId);
+        final var cluster = clusters.get(clusterId);
         if (cluster == null) {
           throwClusterDoesNotExist(clusterId);
         }
@@ -1529,13 +1520,13 @@ public abstract class AbstractPaginatedStorage
     }
 
     final StorageCluster newCluster;
-    final int clusterId = cluster.getId();
+    final var clusterId = cluster.getId();
     if (iStatus == StorageClusterConfiguration.STATUS.OFFLINE) {
       cluster.close(true);
       newCluster = new OfflineCluster(this, clusterId, cluster.getName());
 
-      boolean configured = false;
-      for (final StorageClusterConfiguration clusterConfiguration : configuration.getClusters()) {
+      var configured = false;
+      for (final var clusterConfiguration : configuration.getClusters()) {
         if (clusterConfiguration.getId() == cluster.getId()) {
           newCluster.configure(this, clusterConfiguration);
           configured = true;
@@ -1596,7 +1587,7 @@ public abstract class AbstractPaginatedStorage
 
         checkOpennessAndMigration();
 
-        final StorageCluster cluster = clusters.get(clusterId);
+        final var cluster = clusters.get(clusterId);
         if (cluster == null) {
           return 0;
         }
@@ -1700,14 +1691,14 @@ public abstract class AbstractPaginatedStorage
 
         checkOpennessAndMigration();
 
-        for (final int iClusterId : iClusterIds) {
+        for (final var iClusterId : iClusterIds) {
           if (iClusterId >= clusters.size()) {
             throw new ConfigurationException(
                 "Cluster id " + iClusterId + " was not found in database '" + name + "'");
           }
 
           if (iClusterId > -1) {
-            final StorageCluster c = clusters.get(iClusterId);
+            final var c = clusters.get(iClusterId);
             if (c != null) {
               tot += c.getEntries() - (countTombstones ? 0L : c.getTombstonesCount());
             }
@@ -1735,9 +1726,9 @@ public abstract class AbstractPaginatedStorage
       final RecordCallback<Long> callback) {
     try {
 
-      final StorageCluster cluster = doGetAndCheckCluster(rid.getClusterId());
+      final var cluster = doGetAndCheckCluster(rid.getClusterId());
       if (transaction.get() != null) {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
         return doCreateRecord(
             atomicOperation, rid, content, recordVersion, recordType, callback, cluster, null);
       }
@@ -1784,10 +1775,10 @@ public abstract class AbstractPaginatedStorage
       stateLock.readLock().lock();
       try {
 
-        final StorageCluster cluster = doGetAndCheckCluster(rid.getClusterId());
+        final var cluster = doGetAndCheckCluster(rid.getClusterId());
         checkOpennessAndMigration();
 
-        final PhysicalPosition ppos =
+        final var ppos =
             cluster.getPhysicalPosition(new PhysicalPosition(rid.getClusterPosition()));
         if (ppos == null) {
           return null;
@@ -1847,7 +1838,7 @@ public abstract class AbstractPaginatedStorage
             if (!hasNext()) {
               throw new NoSuchElementException();
             }
-            final ClusterBrowsePage curPage = page;
+            final var curPage = page;
             page = null;
             return curPage;
           }
@@ -1871,7 +1862,7 @@ public abstract class AbstractPaginatedStorage
 
         checkOpennessAndMigration();
 
-        final StorageCluster cluster = doGetAndCheckCluster(clusterId);
+        final var cluster = doGetAndCheckCluster(clusterId);
         return cluster.nextPage(lastPosition);
       } finally {
         stateLock.readLock().unlock();
@@ -1888,7 +1879,7 @@ public abstract class AbstractPaginatedStorage
   private StorageCluster doGetAndCheckCluster(final int clusterId) {
     checkClusterSegmentIndexRange(clusterId);
 
-    final StorageCluster cluster = clusters.get(clusterId);
+    final var cluster = clusters.get(clusterId);
     if (cluster == null) {
       throw new IllegalArgumentException("Cluster " + clusterId + " is null");
     }
@@ -1928,14 +1919,14 @@ public abstract class AbstractPaginatedStorage
         checkOpennessAndMigration();
 
         // GET THE SHARED LOCK AND GET AN EXCLUSIVE LOCK AGAINST THE RECORD
-        final Lock lock = recordVersionManager.get(rid);
+        final var lock = recordVersionManager.get(rid);
         lock.lock();
         try {
           checkOpennessAndMigration();
 
           makeStorageDirty();
 
-          final StorageCluster cluster = doGetAndCheckCluster(rid.getClusterId());
+          final var cluster = doGetAndCheckCluster(rid.getClusterId());
           atomicOperationsManager.calculateInsideAtomicOperation(
               null,
               atomicOperation ->
@@ -1987,7 +1978,7 @@ public abstract class AbstractPaginatedStorage
 
         checkOpennessAndMigration();
 
-        final StorageCluster cluster = doGetAndCheckCluster(rid.getClusterId());
+        final var cluster = doGetAndCheckCluster(rid.getClusterId());
 
         makeStorageDirty();
 
@@ -2044,7 +2035,7 @@ public abstract class AbstractPaginatedStorage
 
         // SEARCH IT BETWEEN PHYSICAL CLUSTERS
 
-        final StorageCluster segment = clusterMap.get(clusterName.toLowerCase());
+        final var segment = clusterMap.get(clusterName.toLowerCase());
         if (segment != null) {
           return segment.getId();
         }
@@ -2071,15 +2062,15 @@ public abstract class AbstractPaginatedStorage
   public void preallocateRids(final TransactionInternal clientTx) {
     try {
       final Iterable<RecordOperation> entries = clientTx.getRecordOperations();
-      final TreeMap<Integer, StorageCluster> clustersToLock = new TreeMap<>();
+      final var clustersToLock = new TreeMap<Integer, StorageCluster>();
 
       final Set<RecordOperation> newRecords = new TreeSet<>(COMMIT_RECORD_OPERATION_COMPARATOR);
 
-      for (final RecordOperation txEntry : entries) {
+      for (final var txEntry : entries) {
 
         if (txEntry.type == RecordOperation.CREATED) {
           newRecords.add(txEntry);
-          final int clusterId = txEntry.getRecordId().getClusterId();
+          final var clusterId = txEntry.getRecordId().getClusterId();
           clustersToLock.put(clusterId, doGetAndCheckCluster(clusterId));
         }
       }
@@ -2095,15 +2086,15 @@ public abstract class AbstractPaginatedStorage
               lockClusters(clustersToLock);
 
               var db = clientTx.getDatabase();
-              for (final RecordOperation txEntry : newRecords) {
+              for (final var txEntry : newRecords) {
                 final DBRecord rec = txEntry.record;
                 if (!rec.getIdentity().isPersistent()) {
                   if (rec.isDirty()) {
                     // This allocate a position for a new record
-                    final RecordId rid = ((RecordId) rec.getIdentity()).copy();
-                    final RecordId oldRID = rid.copy();
-                    final StorageCluster cluster = doGetAndCheckCluster(rid.getClusterId());
-                    final PhysicalPosition ppos =
+                    final var rid = ((RecordId) rec.getIdentity()).copy();
+                    final var oldRID = rid.copy();
+                    final var cluster = doGetAndCheckCluster(rid.getClusterId());
+                    final var ppos =
                         cluster.allocatePosition(
                             RecordInternal.getRecordType(db, rec), atomicOperation);
                     rid.setClusterPosition(ppos.clusterPosition);
@@ -2112,12 +2103,12 @@ public abstract class AbstractPaginatedStorage
                 } else {
                   // This allocate position starting from a valid rid, used in distributed for
                   // allocate the same position on other nodes
-                  final RecordId rid = (RecordId) rec.getIdentity();
-                  final PaginatedCluster cluster =
+                  final var rid = (RecordId) rec.getIdentity();
+                  final var cluster =
                       (PaginatedCluster) doGetAndCheckCluster(rid.getClusterId());
-                  RECORD_STATUS recordStatus = cluster.getRecordStatus(rid.getClusterPosition());
+                  var recordStatus = cluster.getRecordStatus(rid.getClusterPosition());
                   if (recordStatus == RECORD_STATUS.NOT_EXISTENT) {
-                    PhysicalPosition ppos =
+                    var ppos =
                         cluster.allocatePosition(
                             RecordInternal.getRecordType(db, rec), atomicOperation);
                     while (ppos.clusterPosition < rid.getClusterPosition()) {
@@ -2131,7 +2122,7 @@ public abstract class AbstractPaginatedStorage
                     }
                   } else if (recordStatus == RECORD_STATUS.PRESENT
                       || recordStatus == RECORD_STATUS.REMOVED) {
-                    final PhysicalPosition ppos =
+                    final var ppos =
                         cluster.allocatePosition(
                             RecordInternal.getRecordType(db, rec), atomicOperation);
                     throw new ConcurrentCreateException(
@@ -2202,18 +2193,18 @@ public abstract class AbstractPaginatedStorage
     try {
       txBegun.increment();
 
-      final DatabaseSessionInternal database = transaction.getDatabase();
-      final TreeMap<String, FrontendTransactionIndexChanges> indexOperations =
+      final var database = transaction.getDatabase();
+      final var indexOperations =
           getSortedIndexOperations(transaction);
 
       database.getMetadata().makeThreadLocalSchemaSnapshot();
 
-      final Collection<RecordOperation> recordOperations = transaction.getRecordOperations();
-      final TreeMap<Integer, StorageCluster> clustersToLock = new TreeMap<>();
+      final var recordOperations = transaction.getRecordOperations();
+      final var clustersToLock = new TreeMap<Integer, StorageCluster>();
       final Map<RecordOperation, Integer> clusterOverrides = new IdentityHashMap<>(8);
 
       final Set<RecordOperation> newRecords = new TreeSet<>(COMMIT_RECORD_OPERATION_COMPARATOR);
-      for (final RecordOperation recordOperation : recordOperations) {
+      for (final var recordOperation : recordOperations) {
         var record = recordOperation.record;
 
         if (record.isUnloaded()) {
@@ -2230,21 +2221,21 @@ public abstract class AbstractPaginatedStorage
 
         if (recordOperation.type == RecordOperation.UPDATED
             || recordOperation.type == RecordOperation.DELETED) {
-          final int clusterId = recordOperation.record.getIdentity().getClusterId();
+          final var clusterId = recordOperation.record.getIdentity().getClusterId();
           clustersToLock.put(clusterId, doGetAndCheckCluster(clusterId));
         } else if (recordOperation.type == RecordOperation.CREATED) {
           newRecords.add(recordOperation);
 
           final RID rid = record.getIdentity();
 
-          int clusterId = rid.getClusterId();
+          var clusterId = rid.getClusterId();
 
           if (record.isDirty()
               && clusterId == RID.CLUSTER_ID_INVALID
               && record instanceof EntityImpl) {
             // TRY TO FIX CLUSTER ID TO THE DEFAULT CLUSTER ID DEFINED IN SCHEMA CLASS
 
-            final SchemaImmutableClass class_ =
+            final var class_ =
                 EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) record));
             if (class_ != null) {
               clusterId = class_.getClusterForNewInstance((EntityImpl) record);
@@ -2266,11 +2257,11 @@ public abstract class AbstractPaginatedStorage
           Throwable error = null;
           startStorageTx(transaction);
           try {
-            final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+            final var atomicOperation = atomicOperationsManager.getCurrentOperation();
             lockClusters(clustersToLock);
 
             final Map<RecordOperation, PhysicalPosition> positions = new IdentityHashMap<>(8);
-            for (final RecordOperation recordOperation : newRecords) {
+            for (final var recordOperation : newRecords) {
               final DBRecord rec = recordOperation.record;
 
               if (allocated) {
@@ -2284,16 +2275,16 @@ public abstract class AbstractPaginatedStorage
                           + " commit");
                 }
               } else if (rec.isDirty() && !rec.getIdentity().isPersistent()) {
-                final RecordId rid = ((RecordId) rec.getIdentity()).copy();
-                final RecordId oldRID = rid.copy();
+                final var rid = ((RecordId) rec.getIdentity()).copy();
+                final var oldRID = rid.copy();
 
-                final Integer clusterOverride = clusterOverrides.get(recordOperation);
+                final var clusterOverride = clusterOverrides.get(recordOperation);
                 final int clusterId =
                     Optional.ofNullable(clusterOverride).orElseGet(rid::getClusterId);
 
-                final StorageCluster cluster = doGetAndCheckCluster(clusterId);
+                final var cluster = doGetAndCheckCluster(clusterId);
 
-                PhysicalPosition physicalPosition =
+                var physicalPosition =
                     cluster.allocatePosition(
                         RecordInternal.getRecordType(transaction.getDatabase(), rec),
                         atomicOperation);
@@ -2324,7 +2315,7 @@ public abstract class AbstractPaginatedStorage
             }
             lockRidBags(clustersToLock);
 
-            for (final RecordOperation recordOperation : recordOperations) {
+            for (final var recordOperation : recordOperations) {
               commitEntry(
                   transaction,
                   atomicOperation,
@@ -2383,14 +2374,14 @@ public abstract class AbstractPaginatedStorage
 
   private void commitIndexes(DatabaseSessionInternal db,
       final Map<String, FrontendTransactionIndexChanges> indexesToCommit) {
-    for (final FrontendTransactionIndexChanges changes : indexesToCommit.values()) {
+    for (final var changes : indexesToCommit.values()) {
       var index = changes.getIndex();
       try {
         if (changes.cleared) {
           clearIndex(index.getIndexId());
         }
 
-        for (final FrontendTransactionIndexChangesPerKey changesPerKey : changes.changesPerKey.values()) {
+        for (final var changesPerKey : changes.changesPerKey.values()) {
           applyTxChanges(db, changesPerKey, index);
         }
 
@@ -2405,7 +2396,7 @@ public abstract class AbstractPaginatedStorage
       FrontendTransactionIndexChangesPerKey changes, IndexInternal index)
       throws InvalidIndexEngineIdException {
     assert !(changes.key instanceof RID orid) || orid.isPersistent();
-    for (TransactionIndexEntry op : index.interpretTxKeyChanges(changes)) {
+    for (var op : index.interpretTxKeyChanges(changes)) {
       switch (op.getOperation()) {
         case PUT:
           index.doPut(session, this, changes.key, op.getValue().getIdentity());
@@ -2431,11 +2422,11 @@ public abstract class AbstractPaginatedStorage
 
         checkOpennessAndMigration();
 
-        final BaseIndexEngine engine = indexEngineNameMap.get(name);
+        final var engine = indexEngineNameMap.get(name);
         if (engine == null) {
           return -1;
         }
-        final int indexId = indexEngines.indexOf(engine);
+        final var indexId = indexEngines.indexOf(engine);
         assert indexId == engine.getId();
         return generateIndexId(indexId, engine);
       } finally {
@@ -2452,7 +2443,7 @@ public abstract class AbstractPaginatedStorage
 
   public int loadExternalIndexEngine(
       final IndexMetadata indexMetadata, final Map<String, String> engineProperties) {
-    final IndexDefinition indexDefinition = indexMetadata.getIndexDefinition();
+    final var indexDefinition = indexMetadata.getIndexDefinition();
     try {
       stateLock.writeLock().lock();
       try {
@@ -2469,17 +2460,17 @@ public abstract class AbstractPaginatedStorage
         }
         makeStorageDirty();
 
-        final byte valueSerializerId = StreamSerializerRID.INSTANCE.getId();
+        final var valueSerializerId = StreamSerializerRID.INSTANCE.getId();
 
-        final BinarySerializer<?> keySerializer = determineKeySerializer(indexDefinition);
+        final var keySerializer = determineKeySerializer(indexDefinition);
         if (keySerializer == null) {
           throw new IndexException("Can not determine key serializer");
         }
-        final int keySize = determineKeySize(indexDefinition);
-        final PropertyType[] keyTypes =
+        final var keySize = determineKeySize(indexDefinition);
+        final var keyTypes =
             Optional.of(indexDefinition).map(IndexDefinition::getTypes).orElse(null);
-        int generatedId = indexEngines.size();
-        final IndexEngineData engineData =
+        var generatedId = indexEngines.size();
+        final var engineData =
             new IndexEngineData(
                 generatedId,
                 indexMetadata,
@@ -2492,7 +2483,7 @@ public abstract class AbstractPaginatedStorage
                 null,
                 engineProperties);
 
-        final BaseIndexEngine engine = Indexes.createIndexEngine(this, engineData);
+        final var engine = Indexes.createIndexEngine(this, engineData);
 
         engine.load(engineData);
 
@@ -2525,23 +2516,23 @@ public abstract class AbstractPaginatedStorage
   public int addIndexEngine(
       final IndexMetadata indexMetadata,
       final Map<String, String> engineProperties) {
-    final IndexDefinition indexDefinition = indexMetadata.getIndexDefinition();
+    final var indexDefinition = indexMetadata.getIndexDefinition();
 
     try {
       if (indexDefinition == null) {
         throw new IndexException("Index definition has to be provided");
       }
-      final PropertyType[] keyTypes = indexDefinition.getTypes();
+      final var keyTypes = indexDefinition.getTypes();
       if (keyTypes == null) {
         throw new IndexException("Types of indexed keys have to be provided");
       }
 
-      final BinarySerializer<?> keySerializer = determineKeySerializer(indexDefinition);
+      final var keySerializer = determineKeySerializer(indexDefinition);
       if (keySerializer == null) {
         throw new IndexException("Can not determine key serializer");
       }
 
-      final int keySize = determineKeySize(indexDefinition);
+      final var keySize = determineKeySize(indexDefinition);
 
       checkBackupRunning();
       stateLock.writeLock().lock();
@@ -2560,7 +2551,7 @@ public abstract class AbstractPaginatedStorage
                         this,
                         "Index with name '%s' already exists, removing it and re-create the index",
                         indexMetadata.getName());
-                final BaseIndexEngine engine = indexEngineNameMap.remove(indexMetadata.getName());
+                final var engine = indexEngineNameMap.remove(indexMetadata.getName());
                 if (engine != null) {
                   indexEngines.set(engine.getId(), null);
 
@@ -2569,13 +2560,13 @@ public abstract class AbstractPaginatedStorage
                       .deleteIndexEngine(atomicOperation, indexMetadata.getName());
                 }
               }
-              final byte valueSerializerId =
+              final var valueSerializerId =
                   StreamSerializerRID.INSTANCE.getId();
-              final ContextConfiguration ctxCfg = configuration.getContextConfiguration();
-              final String cfgEncryptionKey =
+              final var ctxCfg = configuration.getContextConfiguration();
+              final var cfgEncryptionKey =
                   ctxCfg.getValueAsString(GlobalConfiguration.STORAGE_ENCRYPTION_KEY);
-              int genenrateId = indexEngines.size();
-              final IndexEngineData engineData =
+              var genenrateId = indexEngines.size();
+              final var engineData =
                   new IndexEngineData(
                       genenrateId,
                       indexMetadata,
@@ -2588,7 +2579,7 @@ public abstract class AbstractPaginatedStorage
                       cfgEncryptionKey,
                       engineProperties);
 
-              final BaseIndexEngine engine = Indexes.createIndexEngine(this, engineData);
+              final var engine = Indexes.createIndexEngine(this, engineData);
 
               engine.create(atomicOperation, engineData);
               indexEngineNameMap.put(indexMetadata.getName(), engine);
@@ -2651,7 +2642,7 @@ public abstract class AbstractPaginatedStorage
       throw new StorageException("Index definition has to be provided");
     }
 
-    final PropertyType[] keyTypes = indexDefinition.getTypes();
+    final var keyTypes = indexDefinition.getTypes();
     if (keyTypes == null || keyTypes.length == 0) {
       throw new StorageException("Types of index keys has to be defined");
     }
@@ -2668,13 +2659,13 @@ public abstract class AbstractPaginatedStorage
     if (indexDefinition.getTypes().length > 1) {
       keySerializer = CompositeKeySerializer.INSTANCE;
     } else {
-      final PropertyType keyType = indexDefinition.getTypes()[0];
+      final var keyType = indexDefinition.getTypes()[0];
 
       if (keyType == PropertyType.STRING && configuration.getBinaryFormatVersion() >= 13) {
         return UTF8Serializer.INSTANCE;
       }
 
-      final CurrentStorageComponentsFactory currentStorageComponentsFactory = componentsFactory;
+      final var currentStorageComponentsFactory = componentsFactory;
       if (currentStorageComponentsFactory != null) {
         keySerializer =
             currentStorageComponentsFactory.binarySerializerFactory.getObjectSerializer(keyType);
@@ -2689,7 +2680,7 @@ public abstract class AbstractPaginatedStorage
 
   public void deleteIndexEngine(int indexId)
       throws InvalidIndexEngineIdException {
-    final int internalIndexId = extractInternalId(indexId);
+    final var internalIndexId = extractInternalId(indexId);
 
     try {
       checkBackupRunning();
@@ -2705,9 +2696,9 @@ public abstract class AbstractPaginatedStorage
         atomicOperationsManager.executeInsideAtomicOperation(
             null,
             atomicOperation -> {
-              final BaseIndexEngine engine =
+              final var engine =
                   deleteIndexEngineInternal(atomicOperation, internalIndexId);
-              final String engineName = engine.getName();
+              final var engineName = engine.getName();
               ((ClusterBasedStorageConfiguration) configuration)
                   .deleteIndexEngine(atomicOperation, engineName);
             });
@@ -2731,12 +2722,12 @@ public abstract class AbstractPaginatedStorage
   private BaseIndexEngine deleteIndexEngineInternal(
       final AtomicOperation atomicOperation, final int indexId)
       throws IOException {
-    final BaseIndexEngine engine = indexEngines.get(indexId);
+    final var engine = indexEngines.get(indexId);
     assert indexId == engine.getId();
     indexEngines.set(indexId, null);
     engine.delete(atomicOperation);
 
-    final String engineName = engine.getName();
+    final var engineName = engine.getName();
     indexEngineNameMap.remove(engineName);
     return engine;
   }
@@ -2750,11 +2741,11 @@ public abstract class AbstractPaginatedStorage
 
   public boolean removeKeyFromIndex(final int indexId, final Object key)
       throws InvalidIndexEngineIdException {
-    final int internalIndexId = extractInternalId(indexId);
+    final var internalIndexId = extractInternalId(indexId);
 
     try {
       assert transaction.get() != null;
-      final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+      final var atomicOperation = atomicOperationsManager.getCurrentOperation();
       return removeKeyFromIndexInternal(atomicOperation, internalIndexId, key);
     } catch (final InvalidIndexEngineIdException ie) {
       throw logAndPrepareForRethrow(ie);
@@ -2773,11 +2764,11 @@ public abstract class AbstractPaginatedStorage
     try {
       checkIndexId(indexId);
 
-      final BaseIndexEngine engine = indexEngines.get(indexId);
+      final var engine = indexEngines.get(indexId);
       if (engine.getEngineAPIVersion() == IndexEngine.VERSION) {
         return ((IndexEngine) engine).remove(this, atomicOperation, key);
       } else {
-        final V1IndexEngine v1IndexEngine = (V1IndexEngine) engine;
+        final var v1IndexEngine = (V1IndexEngine) engine;
         if (!v1IndexEngine.isMultiValue()) {
           return ((SingleValueIndexEngine) engine).remove(atomicOperation, key);
         } else {
@@ -2797,12 +2788,12 @@ public abstract class AbstractPaginatedStorage
       throws InvalidIndexEngineIdException {
     try {
       if (transaction.get() != null) {
-        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final var atomicOperation = atomicOperationsManager.getCurrentOperation();
         doClearIndex(atomicOperation, indexId);
         return;
       }
 
-      final int internalIndexId = extractInternalId(indexId);
+      final var internalIndexId = extractInternalId(indexId);
       stateLock.readLock().lock();
       try {
 
@@ -2832,7 +2823,7 @@ public abstract class AbstractPaginatedStorage
     try {
       checkIndexId(indexId);
 
-      final BaseIndexEngine engine = indexEngines.get(indexId);
+      final var engine = indexEngines.get(indexId);
       assert indexId == engine.getId();
 
       engine.clear(this, atomicOperation);
@@ -2869,20 +2860,20 @@ public abstract class AbstractPaginatedStorage
   private Object doGetIndexValue(DatabaseSessionInternal db, final int indexId,
       final Object key)
       throws InvalidIndexEngineIdException {
-    final int engineAPIVersion = extractEngineAPIVersion(indexId);
+    final var engineAPIVersion = extractEngineAPIVersion(indexId);
     if (engineAPIVersion != 0) {
       throw new IllegalStateException(
           "Unsupported version of index engine API. Required 0 but found " + engineAPIVersion);
     }
     checkIndexId(indexId);
-    final BaseIndexEngine engine = indexEngines.get(indexId);
+    final var engine = indexEngines.get(indexId);
     assert indexId == engine.getId();
     return ((IndexEngine) engine).get(db, key);
   }
 
   public Stream<RID> getIndexValues(int indexId, final Object key)
       throws InvalidIndexEngineIdException {
-    final int engineAPIVersion = extractEngineAPIVersion(indexId);
+    final var engineAPIVersion = extractEngineAPIVersion(indexId);
     if (engineAPIVersion != 1) {
       throw new IllegalStateException(
           "Unsupported version of index engine API. Required 1 but found " + engineAPIVersion);
@@ -2919,7 +2910,7 @@ public abstract class AbstractPaginatedStorage
       throws InvalidIndexEngineIdException {
     checkIndexId(indexId);
 
-    final BaseIndexEngine engine = indexEngines.get(indexId);
+    final var engine = indexEngines.get(indexId);
     assert indexId == engine.getId();
 
     return ((V1IndexEngine) engine).get(key);
@@ -2936,7 +2927,7 @@ public abstract class AbstractPaginatedStorage
 
         checkOpennessAndMigration();
 
-        final BaseIndexEngine engine = indexEngines.get(indexId);
+        final var engine = indexEngines.get(indexId);
         assert indexId == engine.getId();
         return engine;
       } finally {
@@ -2987,15 +2978,15 @@ public abstract class AbstractPaginatedStorage
       throws InvalidIndexEngineIdException {
     checkIndexId(indexId);
 
-    final BaseIndexEngine engine = indexEngines.get(indexId);
+    final var engine = indexEngines.get(indexId);
 
     return callback.callEngine(engine);
   }
 
   public void putRidIndexEntry(int indexId, final Object key, final RID value)
       throws InvalidIndexEngineIdException {
-    final int engineAPIVersion = extractEngineAPIVersion(indexId);
-    final int internalIndexId = extractInternalId(indexId);
+    final var engineAPIVersion = extractEngineAPIVersion(indexId);
+    final var internalIndexId = extractInternalId(indexId);
 
     if (engineAPIVersion != 1) {
       throw new IllegalStateException(
@@ -3004,7 +2995,7 @@ public abstract class AbstractPaginatedStorage
 
     try {
       assert transaction.get() != null;
-      final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+      final var atomicOperation = atomicOperationsManager.getCurrentOperation();
       assert atomicOperation != null;
       putRidIndexEntryInternal(atomicOperation, internalIndexId, key, value);
     } catch (final InvalidIndexEngineIdException ie) {
@@ -3024,7 +3015,7 @@ public abstract class AbstractPaginatedStorage
       throws InvalidIndexEngineIdException {
     checkIndexId(indexId);
 
-    final BaseIndexEngine engine = indexEngines.get(indexId);
+    final var engine = indexEngines.get(indexId);
     assert engine.getId() == indexId;
 
     ((V1IndexEngine) engine).put(atomicOperation, key, value);
@@ -3032,8 +3023,8 @@ public abstract class AbstractPaginatedStorage
 
   public boolean removeRidIndexEntry(int indexId, final Object key, final RID value)
       throws InvalidIndexEngineIdException {
-    final int engineAPIVersion = extractEngineAPIVersion(indexId);
-    final int internalIndexId = extractInternalId(indexId);
+    final var engineAPIVersion = extractEngineAPIVersion(indexId);
+    final var internalIndexId = extractInternalId(indexId);
 
     if (engineAPIVersion != 1) {
       throw new IllegalStateException(
@@ -3042,7 +3033,7 @@ public abstract class AbstractPaginatedStorage
 
     try {
       assert transaction.get() != null;
-      final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+      final var atomicOperation = atomicOperationsManager.getCurrentOperation();
       assert atomicOperation != null;
       return removeRidIndexEntryInternal(atomicOperation, internalIndexId, key, value);
 
@@ -3063,7 +3054,7 @@ public abstract class AbstractPaginatedStorage
       throws InvalidIndexEngineIdException {
     checkIndexId(indexId);
 
-    final BaseIndexEngine engine = indexEngines.get(indexId);
+    final var engine = indexEngines.get(indexId);
     assert engine.getId() == indexId;
 
     return ((MultiValueIndexEngine) engine).remove(atomicOperation, key, value);
@@ -3087,11 +3078,11 @@ public abstract class AbstractPaginatedStorage
       final RID value,
       final IndexEngineValidator<Object, RID> validator)
       throws InvalidIndexEngineIdException {
-    final int internalIndexId = extractInternalId(indexId);
+    final var internalIndexId = extractInternalId(indexId);
 
     try {
       assert transaction.get() != null;
-      final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+      final var atomicOperation = atomicOperationsManager.getCurrentOperation();
       assert atomicOperation != null;
       return doValidatedPutIndexValue(atomicOperation, internalIndexId, key, value, validator);
     } catch (final InvalidIndexEngineIdException ie) {
@@ -3115,7 +3106,7 @@ public abstract class AbstractPaginatedStorage
     try {
       checkIndexId(indexId);
 
-      final BaseIndexEngine engine = indexEngines.get(indexId);
+      final var engine = indexEngines.get(indexId);
       assert indexId == engine.getId();
 
       if (engine instanceof IndexEngine) {
@@ -3186,7 +3177,7 @@ public abstract class AbstractPaginatedStorage
       throws InvalidIndexEngineIdException {
     checkIndexId(indexId);
 
-    final BaseIndexEngine engine = indexEngines.get(indexId);
+    final var engine = indexEngines.get(indexId);
     assert indexId == engine.getId();
 
     return engine.iterateEntriesBetween(db
@@ -3236,7 +3227,7 @@ public abstract class AbstractPaginatedStorage
       throws InvalidIndexEngineIdException {
     checkIndexId(indexId);
 
-    final BaseIndexEngine engine = indexEngines.get(indexId);
+    final var engine = indexEngines.get(indexId);
     assert indexId == engine.getId();
 
     return engine.iterateEntriesMajor(fromKey, isInclusive, ascSortOrder, transformer);
@@ -3285,7 +3276,7 @@ public abstract class AbstractPaginatedStorage
       throws InvalidIndexEngineIdException {
     checkIndexId(indexId);
 
-    final BaseIndexEngine engine = indexEngines.get(indexId);
+    final var engine = indexEngines.get(indexId);
     assert indexId == engine.getId();
 
     return engine.iterateEntriesMinor(toKey, isInclusive, ascSortOrder, transformer);
@@ -3326,7 +3317,7 @@ public abstract class AbstractPaginatedStorage
       throws InvalidIndexEngineIdException {
     checkIndexId(indexId);
 
-    final BaseIndexEngine engine = indexEngines.get(indexId);
+    final var engine = indexEngines.get(indexId);
     assert indexId == engine.getId();
 
     return engine.stream(valuesTransformer);
@@ -3367,7 +3358,7 @@ public abstract class AbstractPaginatedStorage
       throws InvalidIndexEngineIdException {
     checkIndexId(indexId);
 
-    final BaseIndexEngine engine = indexEngines.get(indexId);
+    final var engine = indexEngines.get(indexId);
     assert indexId == engine.getId();
 
     return engine.descStream(valuesTransformer);
@@ -3405,7 +3396,7 @@ public abstract class AbstractPaginatedStorage
       throws InvalidIndexEngineIdException {
     checkIndexId(indexId);
 
-    final BaseIndexEngine engine = indexEngines.get(indexId);
+    final var engine = indexEngines.get(indexId);
     assert indexId == engine.getId();
 
     return engine.keyStream();
@@ -3444,7 +3435,7 @@ public abstract class AbstractPaginatedStorage
       throws InvalidIndexEngineIdException {
     checkIndexId(indexId);
 
-    final BaseIndexEngine engine = indexEngines.get(indexId);
+    final var engine = indexEngines.get(indexId);
     assert indexId == engine.getId();
 
     return engine.size(this, transformer);
@@ -3481,7 +3472,7 @@ public abstract class AbstractPaginatedStorage
   private boolean doHasRangeQuerySupport(final int indexId) throws InvalidIndexEngineIdException {
     checkIndexId(indexId);
 
-    final BaseIndexEngine engine = indexEngines.get(indexId);
+    final var engine = indexEngines.get(indexId);
     assert indexId == engine.getId();
 
     return engine.hasRangeQuerySupport();
@@ -3524,13 +3515,13 @@ public abstract class AbstractPaginatedStorage
       stateLock.readLock().lock();
       try {
 
-        final long timer = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
-        final long lockId = atomicOperationsManager.freezeAtomicOperations(null, null);
+        final var timer = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
+        final var lockId = atomicOperationsManager.freezeAtomicOperations(null, null);
         try {
           checkOpennessAndMigration();
 
           if (!isInError()) {
-            for (final BaseIndexEngine indexEngine : indexEngines) {
+            for (final var indexEngine : indexEngines) {
               try {
                 if (indexEngine != null) {
                   indexEngine.flush();
@@ -3643,7 +3634,7 @@ public abstract class AbstractPaginatedStorage
 
           checkOpennessAndMigration();
 
-          for (final StorageCluster c : clusters) {
+          for (final var c : clusters) {
             if (c != null) {
               size += c.getRecordsSize();
             }
@@ -3698,7 +3689,7 @@ public abstract class AbstractPaginatedStorage
         final Set<StorageCluster> result = new HashSet<>(1024);
 
         // ADD ALL THE CLUSTERS
-        for (final StorageCluster c : clusters) {
+        for (final var c : clusters) {
           if (c != null) {
             result.add(c);
           }
@@ -3745,7 +3736,7 @@ public abstract class AbstractPaginatedStorage
 
         final List<FreezableStorageComponent> frozenIndexes = new ArrayList<>(indexEngines.size());
         try {
-          for (final BaseIndexEngine indexEngine : indexEngines) {
+          for (final var indexEngine : indexEngines) {
             if (indexEngine instanceof FreezableStorageComponent) {
               ((FreezableStorageComponent) indexEngine).freeze(db, false);
               frozenIndexes.add((FreezableStorageComponent) indexEngine);
@@ -3753,7 +3744,7 @@ public abstract class AbstractPaginatedStorage
           }
         } catch (final Exception e) {
           // RELEASE ALL THE FROZEN INDEXES
-          for (final FreezableStorageComponent indexEngine : frozenIndexes) {
+          for (final var indexEngine : frozenIndexes) {
             indexEngine.release(db);
           }
 
@@ -3777,7 +3768,7 @@ public abstract class AbstractPaginatedStorage
   @Override
   public final void release(DatabaseSessionInternal db) {
     try {
-      for (final BaseIndexEngine indexEngine : indexEngines) {
+      for (final var indexEngine : indexEngines) {
         if (indexEngine instanceof FreezableStorageComponent) {
           ((FreezableStorageComponent) indexEngine).release(db);
         }
@@ -3878,7 +3869,7 @@ public abstract class AbstractPaginatedStorage
 
       while (true) {
         try {
-          final CommandExecutor executor =
+          final var executor =
               db.getSharedContext()
                   .getYouTrackDB()
                   .getScriptManager()
@@ -3913,10 +3904,10 @@ public abstract class AbstractPaginatedStorage
       if (iCommand.isIdempotent() && !executor.isIdempotent()) {
         throw new CommandExecutionException("Cannot execute non idempotent command");
       }
-      final long beginTime = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
+      final var beginTime = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
       try {
         // EXECUTE THE COMMAND
-        final Map<Object, Object> params = iCommand.getParameters();
+        final var params = iCommand.getParameters();
         return executor.execute(session, params);
 
       } catch (final BaseException e) {
@@ -3928,10 +3919,10 @@ public abstract class AbstractPaginatedStorage
 
       } finally {
         if (YouTrackDBEnginesManager.instance().getProfiler().isRecording()) {
-          final DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
+          final var db = DatabaseRecordThreadLocal.instance().getIfDefined();
           if (db != null) {
-            final SecurityUser user = db.geCurrentUser();
-            final String userString = Optional.ofNullable(user).map(Object::toString).orElse(null);
+            final var user = db.geCurrentUser();
+            final var userString = Optional.ofNullable(user).map(Object::toString).orElse(null);
             YouTrackDBEnginesManager.instance()
                 .getProfiler()
                 .stopChrono(
@@ -3970,7 +3961,7 @@ public abstract class AbstractPaginatedStorage
 
         checkOpennessAndMigration();
 
-        final StorageCluster cluster = doGetAndCheckCluster(currentClusterId);
+        final var cluster = doGetAndCheckCluster(currentClusterId);
         return cluster.higherPositions(physicalPosition);
       } catch (final IOException ioe) {
         throw BaseException.wrapException(
@@ -4003,7 +3994,7 @@ public abstract class AbstractPaginatedStorage
 
         checkOpennessAndMigration();
 
-        final StorageCluster cluster = doGetAndCheckCluster(clusterId);
+        final var cluster = doGetAndCheckCluster(clusterId);
         return cluster.ceilingPositions(physicalPosition);
       } catch (final IOException ioe) {
         throw BaseException.wrapException(
@@ -4036,7 +4027,7 @@ public abstract class AbstractPaginatedStorage
 
         checkOpennessAndMigration();
 
-        final StorageCluster cluster = doGetAndCheckCluster(currentClusterId);
+        final var cluster = doGetAndCheckCluster(currentClusterId);
 
         return cluster.lowerPositions(physicalPosition);
       } catch (final IOException ioe) {
@@ -4069,7 +4060,7 @@ public abstract class AbstractPaginatedStorage
       try {
 
         checkOpennessAndMigration();
-        final StorageCluster cluster = doGetAndCheckCluster(clusterId);
+        final var cluster = doGetAndCheckCluster(clusterId);
 
         return cluster.floorPositions(physicalPosition);
       } catch (final IOException ioe) {
@@ -4173,7 +4164,7 @@ public abstract class AbstractPaginatedStorage
   protected final void checkOpennessAndMigration() {
     checkErrorState();
 
-    final STATUS status = this.status;
+    final var status = this.status;
 
     if (status == STATUS.MIGRATION) {
       throw new StorageException(
@@ -4224,10 +4215,10 @@ public abstract class AbstractPaginatedStorage
         return;
       }
 
-      LogSequenceNumber beginLSN = writeAheadLog.begin();
-      LogSequenceNumber endLSN = writeAheadLog.end();
+      var beginLSN = writeAheadLog.begin();
+      var endLSN = writeAheadLog.end();
 
-      final Long minLSNSegment = writeCache.getMinimalNotFlushedSegment();
+      final var minLSNSegment = writeCache.getMinimalNotFlushedSegment();
 
       long fuzzySegment;
 
@@ -4242,7 +4233,7 @@ public abstract class AbstractPaginatedStorage
       }
 
       atomicOperationsTable.compactTable();
-      final long minAtomicOperationSegment =
+      final var minAtomicOperationSegment =
           atomicOperationsTable.getSegmentEarliestNotPersistedOperation();
       if (minAtomicOperationSegment >= 0 && fuzzySegment > minAtomicOperationSegment) {
         fuzzySegment = minAtomicOperationSegment;
@@ -4292,7 +4283,7 @@ public abstract class AbstractPaginatedStorage
   }
 
   private void deleteTreeRidBag(BTreeBasedRidBag ridBag, AtomicOperation atomicOperation) {
-    final BonsaiCollectionPointer collectionPointer = ridBag.getCollectionPointer();
+    final var collectionPointer = ridBag.getCollectionPointer();
     checkOpennessAndMigration();
 
     try {
@@ -4323,7 +4314,7 @@ public abstract class AbstractPaginatedStorage
       writeCache.flush();
 
       atomicOperationsTable.compactTable();
-      final long operationSegment = atomicOperationsTable.getSegmentEarliestOperationInProgress();
+      final var operationSegment = atomicOperationsTable.getSegmentEarliestOperationInProgress();
       if (operationSegment >= 0) {
         throw new IllegalStateException(
             "Can not perform full checkpoint if some of atomic operations in progress");
@@ -4475,20 +4466,20 @@ public abstract class AbstractPaginatedStorage
   }
 
   private void startStorageTx(final TransactionInternal clientTx) throws IOException {
-    final StorageTransaction storageTx = transaction.get();
+    final var storageTx = transaction.get();
     assert storageTx == null || storageTx.getClientTx().getId() == clientTx.getId();
     assert atomicOperationsManager.getCurrentOperation() == null;
     transaction.set(new StorageTransaction(clientTx));
     try {
-      final AtomicOperation atomicOperation =
+      final var atomicOperation =
           atomicOperationsManager.startAtomicOperation(clientTx.getMetadata());
       if (clientTx.getMetadata() != null) {
         this.lastMetadata = clientTx.getMetadata();
       }
       clientTx.storageBegun();
-      Iterator<byte[]> ops = clientTx.getSerializedOperations();
+      var ops = clientTx.getSerializedOperations();
       while (ops.hasNext()) {
-        byte[] next = ops.next();
+        var next = ops.next();
         writeAheadLog.log(
             new HighLevelTransactionChangeRecord(atomicOperation.getOperationUnitId(), next));
       }
@@ -4517,7 +4508,7 @@ public abstract class AbstractPaginatedStorage
                   + name
                   + "' was not closed properly. Will try to recover from write ahead log");
       try {
-        final String openedAtVersion = getOpenedAtVersion();
+        final var openedAtVersion = getOpenedAtVersion();
 
         if (openedAtVersion != null && !openedAtVersion.equals(
             YouTrackDBConstants.getRawVersion())) {
@@ -4571,7 +4562,7 @@ public abstract class AbstractPaginatedStorage
       ppos = cluster.createRecord(content, recordVersion, recordType, allocated, atomicOperation);
       rid.setClusterPosition(ppos.clusterPosition);
 
-      final RecordSerializationContext context = RecordSerializationContext.getContext();
+      final var context = RecordSerializationContext.getContext();
       if (context != null) {
         context.executeOperations(atomicOperation, this);
       }
@@ -4608,10 +4599,10 @@ public abstract class AbstractPaginatedStorage
     YouTrackDBEnginesManager.instance().getProfiler().startChrono();
     try {
 
-      final PhysicalPosition ppos =
+      final var ppos =
           cluster.getPhysicalPosition(new PhysicalPosition(rid.getClusterPosition()));
       if (!checkForRecordValidity(ppos)) {
-        final int recordVersion = -1;
+        final var recordVersion = -1;
         if (callback != null) {
           callback.call(rid, recordVersion);
         }
@@ -4619,12 +4610,12 @@ public abstract class AbstractPaginatedStorage
         return new StorageOperationResult<>(recordVersion);
       }
 
-      boolean contentModified = false;
+      var contentModified = false;
       if (updateContent) {
-        final AtomicInteger recVersion = new AtomicInteger(version);
-        final AtomicInteger dbVersion = new AtomicInteger(ppos.recordVersion);
+        final var recVersion = new AtomicInteger(version);
+        final var dbVersion = new AtomicInteger(ppos.recordVersion);
 
-        final byte[] newContent = checkAndIncrementVersion(rid, recVersion, dbVersion);
+        final var newContent = checkAndIncrementVersion(rid, recVersion, dbVersion);
 
         ppos.recordVersion = dbVersion.get();
 
@@ -4642,7 +4633,7 @@ public abstract class AbstractPaginatedStorage
             rid.getClusterPosition(), content, ppos.recordVersion, recordType, atomicOperation);
       }
 
-      final RecordSerializationContext context = RecordSerializationContext.getContext();
+      final var context = RecordSerializationContext.getContext();
       if (context != null) {
         context.executeOperations(atomicOperation, this);
       }
@@ -4692,7 +4683,7 @@ public abstract class AbstractPaginatedStorage
     YouTrackDBEnginesManager.instance().getProfiler().startChrono();
     try {
 
-      final PhysicalPosition ppos =
+      final var ppos =
           cluster.getPhysicalPosition(new PhysicalPosition(rid.getClusterPosition()));
 
       if (ppos == null) {
@@ -4714,7 +4705,7 @@ public abstract class AbstractPaginatedStorage
 
       cluster.deleteRecord(atomicOperation, ppos.clusterPosition);
 
-      final RecordSerializationContext context = RecordSerializationContext.getContext();
+      final var context = RecordSerializationContext.getContext();
       if (context != null) {
         context.executeOperations(atomicOperation, this);
       }
@@ -4739,7 +4730,7 @@ public abstract class AbstractPaginatedStorage
       final StorageCluster clusterSegment, final RecordId rid, final boolean prefetchRecords) {
     try {
 
-      final RawBuffer buff = clusterSegment.readRecord(rid.getClusterPosition(), prefetchRecords);
+      final var buff = clusterSegment.readRecord(rid.getClusterPosition(), prefetchRecords);
 
       if (LogManager.instance().isDebugEnabled()) {
         LogManager.instance()
@@ -4771,7 +4762,7 @@ public abstract class AbstractPaginatedStorage
 
   private int createClusterFromConfig(final StorageClusterConfiguration config)
       throws IOException {
-    StorageCluster cluster = clusterMap.get(config.getName().toLowerCase());
+    var cluster = clusterMap.get(config.getName().toLowerCase());
 
     if (cluster != null) {
       cluster.configure(this, config);
@@ -4837,8 +4828,8 @@ public abstract class AbstractPaginatedStorage
   private int doAddCluster(final AtomicOperation atomicOperation, final String clusterName)
       throws IOException {
     // FIND THE FIRST AVAILABLE CLUSTER ID
-    int clusterPos = clusters.size();
-    for (int i = 0; i < clusters.size(); ++i) {
+    var clusterPos = clusters.size();
+    for (var i = 0; i < clusters.size(); ++i) {
       if (clusters.get(i) == null) {
         clusterPos = i;
         break;
@@ -4868,7 +4859,7 @@ public abstract class AbstractPaginatedStorage
       cluster = null;
     }
 
-    int createdClusterId = -1;
+    var createdClusterId = -1;
 
     if (cluster != null) {
       cluster.create(atomicOperation);
@@ -4895,7 +4886,7 @@ public abstract class AbstractPaginatedStorage
         return false;
       }
 
-      final StorageCluster cluster = clusters.get(id);
+      final var cluster = clusters.get(id);
 
       if (cluster == null) {
         return false;
@@ -4923,12 +4914,12 @@ public abstract class AbstractPaginatedStorage
       final Object value,
       final StorageCluster cluster)
       throws IOException {
-    final String stringValue = Optional.ofNullable(value).map(Object::toString).orElse(null);
+    final var stringValue = Optional.ofNullable(value).map(Object::toString).orElse(null);
     switch (attribute) {
       case NAME:
         Objects.requireNonNull(stringValue);
 
-        final String oldName = cluster.getName();
+        final var oldName = cluster.getName();
         cluster.setClusterName(stringValue);
         clusterMap.remove(oldName.toLowerCase());
         clusterMap.put(stringValue.toLowerCase(), cluster);
@@ -4958,7 +4949,7 @@ public abstract class AbstractPaginatedStorage
 
   private boolean dropClusterInternal(final AtomicOperation atomicOperation, final int clusterId)
       throws IOException {
-    final StorageCluster cluster = clusters.get(clusterId);
+    final var cluster = clusters.get(clusterId);
 
     if (cluster == null) {
       return true;
@@ -4973,7 +4964,7 @@ public abstract class AbstractPaginatedStorage
   }
 
   protected void doShutdown() throws IOException {
-    final long timer = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
+    final var timer = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
     try {
       if (status == STATUS.CLOSED) {
         return;
@@ -4996,7 +4987,7 @@ public abstract class AbstractPaginatedStorage
             atomicOperation -> {
               // we close all files inside cache system so we only clear index metadata and close
               // non core indexes
-              for (final BaseIndexEngine engine : indexEngines) {
+              for (final var engine : indexEngines) {
                 if (engine != null
                     && !(engine instanceof CellBTreeSingleValueIndexEngine
                     || engine instanceof CellBTreeMultiValueIndexEngine)) {
@@ -5062,7 +5053,7 @@ public abstract class AbstractPaginatedStorage
       if (!isInError()) {
         preCloseSteps();
 
-        for (final BaseIndexEngine engine : indexEngines) {
+        for (final var engine : indexEngines) {
           if (engine != null
               && !(engine instanceof CellBTreeSingleValueIndexEngine
               || engine instanceof CellBTreeMultiValueIndexEngine)) {
@@ -5105,7 +5096,7 @@ public abstract class AbstractPaginatedStorage
       migration = new CountDownLatch(1);
       status = STATUS.CLOSED;
     } catch (final IOException e) {
-      final String message = "Error on closing of storage '" + name;
+      final var message = "Error on closing of storage '" + name;
       LogManager.instance().error(this, message, e);
 
       throw BaseException.wrapException(new StorageException(message), e);
@@ -5114,7 +5105,7 @@ public abstract class AbstractPaginatedStorage
 
   @SuppressWarnings("unused")
   protected void closeClusters() throws IOException {
-    for (final StorageCluster cluster : clusters) {
+    for (final var cluster : clusters) {
       if (cluster != null) {
         cluster.close(true);
       }
@@ -5125,7 +5116,7 @@ public abstract class AbstractPaginatedStorage
 
   @SuppressWarnings("unused")
   protected void closeIndexes(final AtomicOperation atomicOperation) {
-    for (final BaseIndexEngine engine : indexEngines) {
+    for (final var engine : indexEngines) {
       if (engine != null) {
         engine.close();
       }
@@ -5137,7 +5128,7 @@ public abstract class AbstractPaginatedStorage
 
   private static byte[] checkAndIncrementVersion(
       final RecordId rid, final AtomicInteger version, final AtomicInteger iDatabaseVersion) {
-    final int v = version.get();
+    final var v = version.get();
     switch (v) {
       // DOCUMENT UPDATE, NO VERSION CONTROL
       case -1:
@@ -5173,13 +5164,13 @@ public abstract class AbstractPaginatedStorage
       final RecordOperation txEntry,
       final PhysicalPosition allocated,
       final RecordSerializer serializer) {
-    final RecordAbstract rec = txEntry.record;
+    final var rec = txEntry.record;
     if (txEntry.type != RecordOperation.DELETED && !rec.isDirty())
     // NO OPERATION
     {
       return;
     }
-    final RecordId rid = rec.getIdentity();
+    final var rid = rec.getIdentity();
 
     if (txEntry.type == RecordOperation.UPDATED && rid.isNew())
     // OVERWRITE OPERATION AS CREATE
@@ -5189,7 +5180,7 @@ public abstract class AbstractPaginatedStorage
 
     RecordSerializationContext.pushContext();
     try {
-      final StorageCluster cluster = doGetAndCheckCluster(rid.getClusterId());
+      final var cluster = doGetAndCheckCluster(rid.getClusterId());
 
       if (cluster.getName().equals(MetadataDefault.CLUSTER_INDEX_NAME)
           || cluster.getName().equals(MetadataDefault.CLUSTER_MANUAL_INDEX_NAME))
@@ -5210,7 +5201,7 @@ public abstract class AbstractPaginatedStorage
           }
           if (allocated != null) {
             final PhysicalPosition ppos;
-            final byte recordType = RecordInternal.getRecordType(db, rec);
+            final var recordType = RecordInternal.getRecordType(db, rec);
             ppos =
                 doCreateRecord(
                     atomicOperation,
@@ -5225,7 +5216,7 @@ public abstract class AbstractPaginatedStorage
 
             RecordInternal.setVersion(rec, ppos.recordVersion);
           } else {
-            final StorageOperationResult<Integer> updateRes =
+            final var updateRes =
                 doUpdateRecord(
                     atomicOperation,
                     rid,
@@ -5252,7 +5243,7 @@ public abstract class AbstractPaginatedStorage
                 new CommitSerializationException("Error During Record Serialization"), e);
           }
 
-          final StorageOperationResult<Integer> updateRes =
+          final var updateRes =
               doUpdateRecord(
                   atomicOperation,
                   rid,
@@ -5305,7 +5296,7 @@ public abstract class AbstractPaginatedStorage
   }
 
   private void restoreFromWAL() throws IOException {
-    final LogSequenceNumber begin = writeAheadLog.begin();
+    final var begin = writeAheadLog.begin();
     if (begin == null) {
       LogManager.instance()
           .error(this, "Restore is not possible because write ahead log is empty.", null);
@@ -5362,7 +5353,7 @@ public abstract class AbstractPaginatedStorage
   private void restoreFromBeginning() throws IOException {
     LogManager.instance().info(this, "Data restore procedure is started.");
 
-    final LogSequenceNumber lsn = writeAheadLog.begin();
+    final var lsn = writeAheadLog.begin();
 
     writeCache.restoreModeOn();
     try {
@@ -5375,27 +5366,27 @@ public abstract class AbstractPaginatedStorage
   @SuppressWarnings("UnusedReturnValue")
   protected LogSequenceNumber restoreFrom(WriteAheadLog writeAheadLog, LogSequenceNumber lsn)
       throws IOException {
-    final ModifiableBoolean atLeastOnePageUpdate = new ModifiableBoolean();
+    final var atLeastOnePageUpdate = new ModifiableBoolean();
 
     long recordsProcessed = 0;
 
-    final int reportBatchSize =
+    final var reportBatchSize =
         GlobalConfiguration.WAL_REPORT_AFTER_OPERATIONS_DURING_RESTORE.getValueAsInteger();
-    final Long2ObjectOpenHashMap<List<WALRecord>> operationUnits =
-        new Long2ObjectOpenHashMap<>(1024);
+    final var operationUnits =
+        new Long2ObjectOpenHashMap<List<WALRecord>>(1024);
     final Map<Long, byte[]> operationMetadata = new LinkedHashMap<>(1024);
 
     long lastReportTime = 0;
     LogSequenceNumber lastUpdatedLSN = null;
 
     try {
-      List<WriteableWALRecord> records = writeAheadLog.read(lsn, 1_000);
+      var records = writeAheadLog.read(lsn, 1_000);
 
       while (!records.isEmpty()) {
-        for (final WriteableWALRecord walRecord : records) {
+        for (final var walRecord : records) {
           switch (walRecord) {
             case AtomicUnitEndRecord atomicUnitEndRecord -> {
-              final List<WALRecord> atomicUnit =
+              final var atomicUnit =
                   operationUnits.remove(atomicUnitEndRecord.getOperationUnitId());
 
               // in case of data restore from fuzzy checkpoint part of operations may be already
@@ -5408,14 +5399,14 @@ public abstract class AbstractPaginatedStorage
                   lastUpdatedLSN = walRecord.getLsn();
                 }
               }
-              byte[] metadata = operationMetadata.remove(atomicUnitEndRecord.getOperationUnitId());
+              var metadata = operationMetadata.remove(atomicUnitEndRecord.getOperationUnitId());
               if (metadata != null) {
                 this.lastMetadata = metadata;
               }
             }
             case AtomicUnitStartRecord oAtomicUnitStartRecord -> {
               if (walRecord instanceof AtomicUnitStartMetadataRecord) {
-                byte[] metadata = ((AtomicUnitStartMetadataRecord) walRecord).getMetadata();
+                var metadata = ((AtomicUnitStartMetadataRecord) walRecord).getMetadata();
                 operationMetadata.put(
                     ((AtomicUnitStartRecord) walRecord).getOperationUnitId(), metadata);
               }
@@ -5428,7 +5419,7 @@ public abstract class AbstractPaginatedStorage
               operationList.add(walRecord);
             }
             case OperationUnitRecord operationUnitRecord -> {
-              List<WALRecord> operationList =
+              var operationList =
                   operationUnits.computeIfAbsent(
                       operationUnitRecord.getOperationUnitId(), k -> new ArrayList<>(1024));
               operationList.add(operationUnitRecord);
@@ -5453,10 +5444,10 @@ public abstract class AbstractPaginatedStorage
 
           recordsProcessed++;
 
-          final long currentTime = System.currentTimeMillis();
+          final var currentTime = System.currentTimeMillis();
           if (reportBatchSize > 0 && recordsProcessed % reportBatchSize == 0
               || currentTime - lastReportTime > WAL_RESTORE_REPORT_INTERVAL) {
-            final Object[] additionalArgs =
+            final var additionalArgs =
                 new Object[]{recordsProcessed, walRecord.getLsn(), writeAheadLog.end()};
             LogManager.instance()
                 .info(
@@ -5492,7 +5483,7 @@ public abstract class AbstractPaginatedStorage
       final List<WALRecord> atomicUnit, final ModifiableBoolean atLeastOnePageUpdate)
       throws IOException {
     assert atomicUnit.getLast() instanceof AtomicUnitEndRecord;
-    for (final WALRecord walRecord : atomicUnit) {
+    for (final var walRecord : atomicUnit) {
       switch (walRecord) {
         case FileDeletedWALRecord fileDeletedWALRecord -> {
           if (writeCache.exists(fileDeletedWALRecord.getFileId())) {
@@ -5508,9 +5499,9 @@ public abstract class AbstractPaginatedStorage
           }
         }
         case UpdatePageRecord updatePageRecord -> {
-          long fileId = updatePageRecord.getFileId();
+          var fileId = updatePageRecord.getFileId();
           if (!writeCache.exists(fileId)) {
-            final String fileName = writeCache.restoreFileById(fileId);
+            final var fileName = writeCache.restoreFileById(fileId);
 
             if (fileName == null) {
               throw new StorageException(
@@ -5527,10 +5518,10 @@ public abstract class AbstractPaginatedStorage
             }
           }
 
-          final long pageIndex = updatePageRecord.getPageIndex();
+          final var pageIndex = updatePageRecord.getPageIndex();
           fileId = writeCache.externalFileId(writeCache.internalFileId(fileId));
 
-          CacheEntry cacheEntry = readCache.loadForWrite(fileId, pageIndex, writeCache, true, null);
+          var cacheEntry = readCache.loadForWrite(fileId, pageIndex, writeCache, true, null);
           if (cacheEntry == null) {
             do {
               if (cacheEntry != null) {
@@ -5542,7 +5533,7 @@ public abstract class AbstractPaginatedStorage
           }
 
           try {
-            final DurablePage durablePage = new DurablePage(cacheEntry);
+            final var durablePage = new DurablePage(cacheEntry);
             var pageLsn = durablePage.getLsn();
             if (durablePage.getLsn().compareTo(walRecord.getLsn()) < 0) {
               if (!pageLsn.equals(updatePageRecord.getInitialLsn())) {
@@ -5643,9 +5634,9 @@ public abstract class AbstractPaginatedStorage
   @SuppressWarnings("unused")
   protected static Int2ObjectMap<List<RecordId>> getRidsGroupedByCluster(
       final Collection<RecordId> rids) {
-    final Int2ObjectOpenHashMap<List<RecordId>> ridsPerCluster = new Int2ObjectOpenHashMap<>(8);
-    for (final RecordId rid : rids) {
-      final List<RecordId> group =
+    final var ridsPerCluster = new Int2ObjectOpenHashMap<List<RecordId>>(8);
+    for (final var rid : rids) {
+      final var group =
           ridsPerCluster.computeIfAbsent(rid.getClusterId(), k -> new ArrayList<>(rids.size()));
       group.add(rid);
     }
@@ -5653,22 +5644,22 @@ public abstract class AbstractPaginatedStorage
   }
 
   private static void lockIndexes(final TreeMap<String, FrontendTransactionIndexChanges> indexes) {
-    for (final FrontendTransactionIndexChanges changes : indexes.values()) {
+    for (final var changes : indexes.values()) {
       changes.getIndex().acquireAtomicExclusiveLock();
     }
   }
 
   private static void lockClusters(final TreeMap<Integer, StorageCluster> clustersToLock) {
-    for (final StorageCluster cluster : clustersToLock.values()) {
+    for (final var cluster : clustersToLock.values()) {
       cluster.acquireAtomicExclusiveLock();
     }
   }
 
   private void lockRidBags(
       final TreeMap<Integer, StorageCluster> clusters) {
-    final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+    final var atomicOperation = atomicOperationsManager.getCurrentOperation();
 
-    for (final Integer clusterId : clusters.keySet()) {
+    for (final var clusterId : clusters.keySet()) {
       atomicOperationsManager.acquireExclusiveLockTillOperationComplete(
           atomicOperation, BTreeCollectionManagerShared.generateLockName(clusterId));
     }
@@ -5771,7 +5762,7 @@ public abstract class AbstractPaginatedStorage
         || runtimeException instanceof NeedRetryException
         || runtimeException instanceof InternalErrorException
         || runtimeException instanceof IllegalArgumentException)) {
-      final Object[] iAdditionalArgs =
+      final var iAdditionalArgs =
           new Object[]{
               System.identityHashCode(runtimeException), getURL(), YouTrackDBConstants.getVersion()
           };
@@ -5792,7 +5783,7 @@ public abstract class AbstractPaginatedStorage
         setInError(error);
       }
 
-      final Object[] iAdditionalArgs =
+      final var iAdditionalArgs =
           new Object[]{System.identityHashCode(error), getURL(), YouTrackDBConstants.getVersion()};
       LogManager.instance()
           .error(this, "Exception `%08X` in storage `%s`: %s", error, iAdditionalArgs);
@@ -5813,7 +5804,7 @@ public abstract class AbstractPaginatedStorage
       if (putInReadOnlyMode) {
         setInError(throwable);
       }
-      final Object[] iAdditionalArgs =
+      final var iAdditionalArgs =
           new Object[]{System.identityHashCode(throwable), getURL(),
               YouTrackDBConstants.getVersion()};
       LogManager.instance()
@@ -5824,7 +5815,7 @@ public abstract class AbstractPaginatedStorage
 
   private InvalidIndexEngineIdException logAndPrepareForRethrow(
       final InvalidIndexEngineIdException exception) {
-    final Object[] iAdditionalArgs =
+    final var iAdditionalArgs =
         new Object[]{System.identityHashCode(exception), getURL(),
             YouTrackDBConstants.getVersion()};
     LogManager.instance()
@@ -5844,7 +5835,7 @@ public abstract class AbstractPaginatedStorage
 
       checkOpennessAndMigration();
 
-      final ClusterBasedStorageConfiguration storageConfiguration =
+      final var storageConfiguration =
           (ClusterBasedStorageConfiguration) configuration;
 
       makeStorageDirty();
@@ -5871,7 +5862,7 @@ public abstract class AbstractPaginatedStorage
 
       checkOpennessAndMigration();
 
-      final ClusterBasedStorageConfiguration storageConfiguration =
+      final var storageConfiguration =
           (ClusterBasedStorageConfiguration) configuration;
 
       makeStorageDirty();
@@ -5896,7 +5887,7 @@ public abstract class AbstractPaginatedStorage
 
       checkOpennessAndMigration();
 
-      final ClusterBasedStorageConfiguration storageConfiguration =
+      final var storageConfiguration =
           (ClusterBasedStorageConfiguration) configuration;
 
       makeStorageDirty();
@@ -5922,7 +5913,7 @@ public abstract class AbstractPaginatedStorage
 
       checkOpennessAndMigration();
 
-      final ClusterBasedStorageConfiguration storageConfiguration =
+      final var storageConfiguration =
           (ClusterBasedStorageConfiguration) configuration;
 
       makeStorageDirty();
@@ -5947,7 +5938,7 @@ public abstract class AbstractPaginatedStorage
 
       checkOpennessAndMigration();
 
-      final ClusterBasedStorageConfiguration storageConfiguration =
+      final var storageConfiguration =
           (ClusterBasedStorageConfiguration) configuration;
 
       makeStorageDirty();
@@ -5972,7 +5963,7 @@ public abstract class AbstractPaginatedStorage
 
       checkOpennessAndMigration();
 
-      final ClusterBasedStorageConfiguration storageConfiguration =
+      final var storageConfiguration =
           (ClusterBasedStorageConfiguration) configuration;
 
       makeStorageDirty();
@@ -5999,7 +5990,7 @@ public abstract class AbstractPaginatedStorage
 
       checkOpennessAndMigration();
 
-      final ClusterBasedStorageConfiguration storageConfiguration =
+      final var storageConfiguration =
           (ClusterBasedStorageConfiguration) configuration;
 
       makeStorageDirty();
@@ -6026,7 +6017,7 @@ public abstract class AbstractPaginatedStorage
 
       checkOpennessAndMigration();
 
-      final ClusterBasedStorageConfiguration storageConfiguration =
+      final var storageConfiguration =
           (ClusterBasedStorageConfiguration) configuration;
 
       makeStorageDirty();
@@ -6052,7 +6043,7 @@ public abstract class AbstractPaginatedStorage
 
       checkOpennessAndMigration();
 
-      final ClusterBasedStorageConfiguration storageConfiguration =
+      final var storageConfiguration =
           (ClusterBasedStorageConfiguration) configuration;
 
       makeStorageDirty();
@@ -6079,7 +6070,7 @@ public abstract class AbstractPaginatedStorage
 
       checkOpennessAndMigration();
 
-      final ClusterBasedStorageConfiguration storageConfiguration =
+      final var storageConfiguration =
           (ClusterBasedStorageConfiguration) configuration;
 
       makeStorageDirty();
@@ -6103,7 +6094,7 @@ public abstract class AbstractPaginatedStorage
 
       checkOpennessAndMigration();
 
-      final ClusterBasedStorageConfiguration storageConfiguration =
+      final var storageConfiguration =
           (ClusterBasedStorageConfiguration) configuration;
 
       makeStorageDirty();
@@ -6128,7 +6119,7 @@ public abstract class AbstractPaginatedStorage
 
       checkOpennessAndMigration();
 
-      final ClusterBasedStorageConfiguration storageConfiguration =
+      final var storageConfiguration =
           (ClusterBasedStorageConfiguration) configuration;
 
       makeStorageDirty();
@@ -6153,7 +6144,7 @@ public abstract class AbstractPaginatedStorage
 
       checkOpennessAndMigration();
 
-      final ClusterBasedStorageConfiguration storageConfiguration =
+      final var storageConfiguration =
           (ClusterBasedStorageConfiguration) configuration;
 
       makeStorageDirty();
@@ -6179,7 +6170,7 @@ public abstract class AbstractPaginatedStorage
 
       checkOpennessAndMigration();
 
-      final ClusterBasedStorageConfiguration storageConfiguration =
+      final var storageConfiguration =
           (ClusterBasedStorageConfiguration) configuration;
 
       makeStorageDirty();
@@ -6208,7 +6199,7 @@ public abstract class AbstractPaginatedStorage
 
       checkOpennessAndMigration();
 
-      final ClusterBasedStorageConfiguration storageConfiguration =
+      final var storageConfiguration =
           (ClusterBasedStorageConfiguration) configuration;
 
       makeStorageDirty();
@@ -6238,7 +6229,7 @@ public abstract class AbstractPaginatedStorage
         return;
       }
 
-      final long[] nonActiveSegments = writeAheadLog.nonActiveSegments();
+      final var nonActiveSegments = writeAheadLog.nonActiveSegments();
       if (nonActiveSegments.length == 0) {
         return;
       }
@@ -6257,14 +6248,14 @@ public abstract class AbstractPaginatedStorage
 
         // we should take active segment BEFORE min write cache LSN call
         // to avoid case when new data are changed before call
-        final long activeSegment = writeAheadLog.activeSegment();
-        final Long minLSNSegment = writeCache.getMinimalNotFlushedSegment();
+        final var activeSegment = writeAheadLog.activeSegment();
+        final var minLSNSegment = writeCache.getMinimalNotFlushedSegment();
 
         minDirtySegment = Objects.requireNonNullElse(minLSNSegment, activeSegment);
       } while (minDirtySegment < flushTillSegmentId);
 
       atomicOperationsTable.compactTable();
-      final long operationSegment = atomicOperationsTable.getSegmentEarliestNotPersistedOperation();
+      final var operationSegment = atomicOperationsTable.getSegmentEarliestNotPersistedOperation();
       if (operationSegment >= 0 && minDirtySegment > operationSegment) {
         minDirtySegment = operationSegment;
       }
@@ -6293,9 +6284,9 @@ public abstract class AbstractPaginatedStorage
       try {
 
         checkOpennessAndMigration();
-        int[] result = new int[filterClusters.size()];
-        int i = 0;
-        for (String clusterName : filterClusters) {
+        var result = new int[filterClusters.size()];
+        var i = 0;
+        for (var clusterName : filterClusters) {
           if (clusterName == null) {
             throw new IllegalArgumentException("Cluster name is null");
           }
@@ -6305,7 +6296,7 @@ public abstract class AbstractPaginatedStorage
           }
 
           // SEARCH IT BETWEEN PHYSICAL CLUSTERS
-          final StorageCluster segment = clusterMap.get(clusterName.toLowerCase());
+          final var segment = clusterMap.get(clusterName.toLowerCase());
           if (segment != null) {
             result[i] = segment.getId();
           } else {

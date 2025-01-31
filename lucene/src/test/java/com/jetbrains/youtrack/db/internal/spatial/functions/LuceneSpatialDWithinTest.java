@@ -27,12 +27,12 @@ public class LuceneSpatialDWithinTest extends BaseSpatialLuceneTest {
   @Test
   public void testDWithinNoIndex() {
 
-    ResultSet execute =
+    var execute =
         db.query(
             "SELECT ST_DWithin(ST_GeomFromText('POLYGON((0 0, 10 0, 10 5, 0 5, 0 0))'),"
                 + " ST_GeomFromText('POLYGON((12 0, 14 0, 14 6, 12 6, 12 0))'), 2.0d) as distance");
 
-    Result next = execute.next();
+    var next = execute.next();
 
     Assert.assertEquals(true, next.getProperty("distance"));
     Assert.assertFalse(execute.hasNext());
@@ -55,14 +55,14 @@ public class LuceneSpatialDWithinTest extends BaseSpatialLuceneTest {
 
     db.command("create index Polygon.g on Polygon (geometry) SPATIAL engine lucene").close();
 
-    ResultSet execute =
+    var execute =
         db.query(
             "SELECT from Polygon where ST_DWithin(geometry, ST_GeomFromText('POLYGON((12 0, 14 0,"
                 + " 14 6, 12 6, 12 0))'), 2.0) = true");
 
     Assert.assertEquals(1, execute.stream().count());
 
-    ResultSet resultSet =
+    var resultSet =
         db.query(
             "SELECT from Polygon where ST_DWithin(geometry, ST_GeomFromText('POLYGON((12 0, 14 0,"
                 + " 14 6, 12 6, 12 0))'), 2.0) = true");

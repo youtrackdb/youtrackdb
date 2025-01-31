@@ -49,8 +49,8 @@ public class SQLFunctionEncode extends SQLFunctionAbstract {
       final Object[] iParams,
       CommandContext iContext) {
 
-    final Object candidate = iParams[0];
-    final String format = iParams[1].toString();
+    final var candidate = iParams[0];
+    final var format = iParams[1].toString();
 
     byte[] data = null;
     if (candidate instanceof byte[]) {

@@ -27,7 +27,7 @@ public class TestBinaryRecordsQuery extends DbTestBase {
     db.save(db.newBlob("blabla".getBytes()), "BlobCluster");
     db.commit();
 
-    ResultSet res = db.query("select from cluster:BlobCluster");
+    var res = db.query("select from cluster:BlobCluster");
 
     assertEquals(1, res.stream().count());
   }
@@ -38,7 +38,7 @@ public class TestBinaryRecordsQuery extends DbTestBase {
     db.save(db.newBlob("blabla".getBytes()), "BlobCluster");
     db.commit();
 
-    ResultSet res = db.query("select @rid from cluster:BlobCluster");
+    var res = db.query("select @rid from cluster:BlobCluster");
     assertEquals(1, res.stream().count());
   }
 
@@ -49,7 +49,7 @@ public class TestBinaryRecordsQuery extends DbTestBase {
     db.commit();
 
     db.begin();
-    ResultSet res = db.command("delete from (select from cluster:BlobCluster)");
+    var res = db.command("delete from (select from cluster:BlobCluster)");
     db.commit();
 
     assertEquals(1, (long) res.next().getProperty("count"));
@@ -70,13 +70,13 @@ public class TestBinaryRecordsQuery extends DbTestBase {
     db.getMetadata().getSchema().createClass("RecordPointer");
 
     db.begin();
-    EntityImpl doc = (EntityImpl) db.newEntity("RecordPointer");
+    var doc = (EntityImpl) db.newEntity("RecordPointer");
     doc.field("ref", db.bindToSession(rec));
     db.save(doc);
     db.commit();
 
     db.begin();
-    ResultSet res =
+    var res =
         db.command("delete from cluster:BlobCluster where @rid in (select ref from RecordPointer)");
     db.commit();
 
@@ -99,19 +99,19 @@ public class TestBinaryRecordsQuery extends DbTestBase {
     db.getMetadata().getSchema().createClass("RecordPointer");
 
     db.begin();
-    EntityImpl doc = (EntityImpl) db.newEntity("RecordPointer");
+    var doc = (EntityImpl) db.newEntity("RecordPointer");
     doc.field("ref", db.bindToSession(rec));
     db.save(doc);
     db.commit();
 
     db.begin();
-    EntityImpl doc1 = (EntityImpl) db.newEntity("RecordPointer");
+    var doc1 = (EntityImpl) db.newEntity("RecordPointer");
     doc1.field("ref", db.bindToSession(rec1));
     db.save(doc1);
     db.commit();
 
     db.begin();
-    ResultSet res = db.command("delete from (select expand(ref) from RecordPointer)");
+    var res = db.command("delete from (select expand(ref) from RecordPointer)");
     assertEquals(2, (long) res.next().getProperty("count"));
     db.commit();
 

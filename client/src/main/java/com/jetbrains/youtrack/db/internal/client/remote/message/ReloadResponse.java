@@ -44,7 +44,7 @@ public class ReloadResponse implements BinaryResponse {
   @Override
   public void read(DatabaseSessionInternal db, ChannelDataInput network,
       StorageRemoteSession session) throws IOException {
-    final RawPair<String[], int[]> clusters = MessageHelper.readClustersArray(network);
+    final var clusters = MessageHelper.readClustersArray(network);
     clusterNames = clusters.first;
     clusterIds = clusters.second;
   }

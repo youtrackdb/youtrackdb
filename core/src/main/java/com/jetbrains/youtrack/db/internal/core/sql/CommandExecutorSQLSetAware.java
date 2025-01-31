@@ -74,7 +74,7 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
       fieldValue = parserRequiredWord(false, "Value expected", " =><,\r\n");
 
       // INSERT TRANSFORMED FIELD VALUE
-      final Object v = convertValue(db, iClass, fieldName,
+      final var v = convertValue(db, iClass, fieldName,
           getFieldValueCountingParameters(fieldValue));
 
       fields.add(new Pair(fieldName, v));
@@ -111,18 +111,18 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
     if (iTarget
         .toUpperCase(Locale.ENGLISH)
         .startsWith(CommandExecutorSQLAbstract.CLUSTER_PREFIX)) {
-      String clusterName =
+      var clusterName =
           iTarget.substring(CommandExecutorSQLAbstract.CLUSTER_PREFIX.length()).trim();
-      DatabaseSessionInternal db = getDatabase();
+      var db = getDatabase();
       if (clusterName.startsWith("[") && clusterName.endsWith("]")) {
-        String[] clusterNames = clusterName.substring(1, clusterName.length() - 1).split(",");
+        var clusterNames = clusterName.substring(1, clusterName.length() - 1).split(",");
         SchemaClass candidateClass = null;
-        for (String cName : clusterNames) {
-          final int clusterId = db.getClusterIdByName(cName.trim());
+        for (var cName : clusterNames) {
+          final var clusterId = db.getClusterIdByName(cName.trim());
           if (clusterId < 0) {
             return null;
           }
-          SchemaClass aClass =
+          var aClass =
               db.getMetadata().getImmutableSchemaSnapshot().getClassByClusterId(clusterId);
           if (aClass == null) {
             return null;
@@ -137,7 +137,7 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
         }
         return candidateClass;
       } else {
-        final int clusterId = db.getClusterIdByName(clusterName);
+        final var clusterId = db.getClusterIdByName(clusterName);
         if (clusterId >= 0) {
           return db.getMetadata().getImmutableSchemaSnapshot().getClassByClusterId(clusterId);
         }
@@ -150,9 +150,9 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
       String fieldName, Object v) {
     if (iClass != null) {
       // CHECK TYPE AND CONVERT IF NEEDED
-      final SchemaProperty p = iClass.getProperty(fieldName);
+      final var p = iClass.getProperty(fieldName);
       if (p != null) {
-        final SchemaClass embeddedType = p.getLinkedClass();
+        final var embeddedType = p.getLinkedClass();
 
         switch (p.getType()) {
           case EMBEDDED:
@@ -169,9 +169,9 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
             } else if (MultiValue.isMultiValue(v)) {
               final Set set = new HashSet();
 
-              for (Object o : MultiValue.getMultiValueIterable(v)) {
+              for (var o : MultiValue.getMultiValueIterable(v)) {
                 if (o instanceof Map) {
-                  final EntityImpl entity =
+                  final var entity =
                       createEntityFromMap(db, embeddedType, (Map<String, Object>) o);
                   set.add(entity);
                 } else if (o instanceof Identifiable) {
@@ -192,9 +192,9 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
             } else if (MultiValue.isMultiValue(v)) {
               final List set = new ArrayList();
 
-              for (Object o : MultiValue.getMultiValueIterable(v)) {
+              for (var o : MultiValue.getMultiValueIterable(v)) {
                 if (o instanceof Map) {
-                  final EntityImpl entity =
+                  final var entity =
                       createEntityFromMap(db, embeddedType, (Map<String, Object>) o);
                   set.add(entity);
                 } else if (o instanceof Identifiable) {
@@ -213,9 +213,9 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
             if (v instanceof Map) {
               final Map<String, Object> map = new HashMap<String, Object>();
 
-              for (Map.Entry<String, Object> entry : ((Map<String, Object>) v).entrySet()) {
+              for (var entry : ((Map<String, Object>) v).entrySet()) {
                 if (entry.getValue() instanceof Map) {
-                  final EntityImpl entity =
+                  final var entity =
                       createEntityFromMap(db, embeddedType, (Map<String, Object>) entry.getValue());
                   map.put(entry.getKey(), entity);
                 } else if (entry.getValue() instanceof Identifiable) {
@@ -262,8 +262,8 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
   }
 
   protected EntityImpl parseJSON(DatabaseSessionInternal db) {
-    final String contentAsString = parserRequiredWord(false, "JSON expected").trim();
-    final EntityImpl json = new EntityImpl(db);
+    final var contentAsString = parserRequiredWord(false, "JSON expected").trim();
+    final var json = new EntityImpl(db);
     json.updateFromJSON(contentAsString);
     parserSkipWhiteSpaces();
     return json;

@@ -2,11 +2,9 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +20,9 @@ public class CheckDBRecordTypeStepTest extends TestUtilsFixture {
   public void shouldCheckRecordsOfOneType() {
     CommandContext context = new BasicCommandContext();
     context.setDatabase(db);
-    String className = createClassInstance().getName();
-    CheckRecordTypeStep step = new CheckRecordTypeStep(context, className, false);
-    AbstractExecutionStep previous =
+    var className = createClassInstance().getName();
+    var step = new CheckRecordTypeStep(context, className, false);
+    var previous =
         new AbstractExecutionStep(context, false) {
           boolean done = false;
 
@@ -32,7 +30,7 @@ public class CheckDBRecordTypeStepTest extends TestUtilsFixture {
           public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
             List<Result> result = new ArrayList<>();
             if (!done) {
-              for (int i = 0; i < 10; i++) {
+              for (var i = 0; i < 10; i++) {
                 result.add(new ResultInternal(ctx.getDatabase(), db.newEntity(className)));
               }
               done = true;
@@ -42,7 +40,7 @@ public class CheckDBRecordTypeStepTest extends TestUtilsFixture {
         };
 
     step.setPrevious(previous);
-    ExecutionStream result = step.start(context);
+    var result = step.start(context);
     Assert.assertEquals(10, result.stream(context).count());
     Assert.assertFalse(result.hasNext(context));
   }
@@ -51,10 +49,10 @@ public class CheckDBRecordTypeStepTest extends TestUtilsFixture {
   public void shouldCheckRecordsOfSubclasses() {
     CommandContext context = new BasicCommandContext();
     context.setDatabase(db);
-    SchemaClass parentClass = createClassInstance();
-    SchemaClass childClass = createChildClassInstance(parentClass);
-    CheckRecordTypeStep step = new CheckRecordTypeStep(context, parentClass.getName(), false);
-    AbstractExecutionStep previous =
+    var parentClass = createClassInstance();
+    var childClass = createChildClassInstance(parentClass);
+    var step = new CheckRecordTypeStep(context, parentClass.getName(), false);
+    var previous =
         new AbstractExecutionStep(context, false) {
           boolean done = false;
 
@@ -62,7 +60,7 @@ public class CheckDBRecordTypeStepTest extends TestUtilsFixture {
           public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
             List<Result> result = new ArrayList<>();
             if (!done) {
-              for (int i = 0; i < 10; i++) {
+              for (var i = 0; i < 10; i++) {
                 result.add(
                     new ResultInternal(ctx.getDatabase(),
                         db.newEntity(i % 2 == 0 ? parentClass : childClass)));
@@ -74,7 +72,7 @@ public class CheckDBRecordTypeStepTest extends TestUtilsFixture {
         };
 
     step.setPrevious(previous);
-    ExecutionStream result = step.start(context);
+    var result = step.start(context);
     Assert.assertEquals(10, result.stream(context).count());
     Assert.assertFalse(result.hasNext(context));
   }
@@ -83,10 +81,10 @@ public class CheckDBRecordTypeStepTest extends TestUtilsFixture {
   public void shouldThrowExceptionWhenTypeIsDifferent() {
     CommandContext context = new BasicCommandContext();
     context.setDatabase(db);
-    String firstClassName = createClassInstance().getName();
-    String secondClassName = createClassInstance().getName();
-    CheckRecordTypeStep step = new CheckRecordTypeStep(context, firstClassName, false);
-    AbstractExecutionStep previous =
+    var firstClassName = createClassInstance().getName();
+    var secondClassName = createClassInstance().getName();
+    var step = new CheckRecordTypeStep(context, firstClassName, false);
+    var previous =
         new AbstractExecutionStep(context, false) {
           boolean done = false;
 
@@ -94,7 +92,7 @@ public class CheckDBRecordTypeStepTest extends TestUtilsFixture {
           public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
             List<Result> result = new ArrayList<>();
             if (!done) {
-              for (int i = 0; i < 10; i++) {
+              for (var i = 0; i < 10; i++) {
                 result.add(
                     new ResultInternal(ctx.getDatabase(),
                         db.newEntity(i % 2 == 0 ? firstClassName : secondClassName)));
@@ -106,7 +104,7 @@ public class CheckDBRecordTypeStepTest extends TestUtilsFixture {
         };
 
     step.setPrevious(previous);
-    ExecutionStream result = step.start(context);
+    var result = step.start(context);
     while (result.hasNext(context)) {
       result.next(context);
     }

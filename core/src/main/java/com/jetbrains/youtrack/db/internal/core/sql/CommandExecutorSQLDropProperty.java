@@ -51,20 +51,20 @@ public class CommandExecutorSQLDropProperty extends CommandExecutorSQLAbstract
 
   public CommandExecutorSQLDropProperty parse(DatabaseSessionInternal db,
       final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
       init((CommandRequestText) iRequest);
 
-      final StringBuilder word = new StringBuilder();
+      final var word = new StringBuilder();
 
-      int oldPos = 0;
-      int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
+      var oldPos = 0;
+      var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_DROP)) {
         throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_DROP + " not found. Use " + getSyntax(), parserText, oldPos);
@@ -82,7 +82,7 @@ public class CommandExecutorSQLDropProperty extends CommandExecutorSQLAbstract
             "Expected <class>.<property>. Use " + getSyntax(), parserText, pos);
       }
 
-      String[] parts = word.toString().split("\\.");
+      var parts = word.toString().split("\\.");
       if (parts.length != 2) {
         throw new CommandSQLParsingException(
             "Expected <class>.<property>. Use " + getSyntax(), parserText, pos);
@@ -96,7 +96,7 @@ public class CommandExecutorSQLDropProperty extends CommandExecutorSQLAbstract
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, false);
       if (pos != -1) {
-        final String forceParameter = word.toString();
+        final var forceParameter = word.toString();
         if ("FORCE".equals(forceParameter)) {
           force = true;
         } else if ("IF".contentEquals(word)) {
@@ -138,15 +138,15 @@ public class CommandExecutorSQLDropProperty extends CommandExecutorSQLAbstract
       return null;
     }
 
-    final List<Index> indexes = relatedIndexes(fieldName);
+    final var indexes = relatedIndexes(fieldName);
     if (!indexes.isEmpty()) {
       if (force) {
         dropRelatedIndexes(indexes);
       } else {
-        final StringBuilder indexNames = new StringBuilder();
+        final var indexNames = new StringBuilder();
 
-        boolean first = true;
-        for (final Index index : sourceClass.getClassInvolvedIndexesInternal(database, fieldName)) {
+        var first = true;
+        for (final var index : sourceClass.getClassInvolvedIndexesInternal(database, fieldName)) {
           if (!first) {
             indexNames.append(", ");
           } else {
@@ -182,7 +182,7 @@ public class CommandExecutorSQLDropProperty extends CommandExecutorSQLAbstract
 
   private void dropRelatedIndexes(final List<Index> indexes) {
     var database = getDatabase();
-    for (final Index index : indexes) {
+    for (final var index : indexes) {
       database.command("DROP INDEX " + index.getName()).close();
     }
   }
@@ -190,8 +190,8 @@ public class CommandExecutorSQLDropProperty extends CommandExecutorSQLAbstract
   private List<Index> relatedIndexes(final String fieldName) {
     final List<Index> result = new ArrayList<Index>();
 
-    final DatabaseSessionInternal database = getDatabase();
-    for (final Index index :
+    final var database = getDatabase();
+    for (final var index :
         database.getMetadata().getIndexManagerInternal().getClassIndexes(database, className)) {
       if (Collections.indexOf(
           index.getDefinition().getFields(), fieldName, new CaseInsentiveComparator())

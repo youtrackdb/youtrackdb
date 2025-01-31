@@ -80,12 +80,12 @@ public class StreamableHelper {
       out.writeBoolean((Boolean) object);
     } else if (object instanceof Serializable) {
       out.writeByte(SERIALIZABLE);
-      final ByteArrayOutputStream mem = new ByteArrayOutputStream();
-      final ObjectOutputStream oos = new ObjectOutputStream(mem);
+      final var mem = new ByteArrayOutputStream();
+      final var oos = new ObjectOutputStream(mem);
       try {
         oos.writeObject(object);
         oos.flush();
-        final byte[] buffer = mem.toByteArray();
+        final var buffer = mem.toByteArray();
         out.writeInt(buffer.length);
         out.write(buffer);
       } finally {
@@ -100,12 +100,12 @@ public class StreamableHelper {
   public static Object fromStream(final DataInput in) throws IOException {
     Object object = null;
 
-    final byte objectType = in.readByte();
+    final var objectType = in.readByte();
     switch (objectType) {
       case NULL:
         return null;
       case STREAMABLE:
-        final String payloadClassName = in.readUTF();
+        final var payloadClassName = in.readUTF();
         try {
           if (streamableClassLoader != null) {
             object = streamableClassLoader.loadClass(payloadClassName).newInstance();
@@ -119,9 +119,9 @@ public class StreamableHelper {
         }
         break;
       case SERIALIZABLE:
-        final byte[] buffer = new byte[in.readInt()];
+        final var buffer = new byte[in.readInt()];
         in.readFully(buffer);
-        final ByteArrayInputStream mem = new ByteArrayInputStream(buffer);
+        final var mem = new ByteArrayInputStream(buffer);
         final ObjectInputStream ois;
         if (streamableClassLoader != null) {
           ois =

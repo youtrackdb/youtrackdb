@@ -42,12 +42,12 @@ public class LineStringShapeBuilder extends ComplexShapeBuilder<JtsGeometry> {
   public void initClazz(DatabaseSessionInternal db) {
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass lineString = schema.createAbstractClass(getName(), superClass(db));
+    var lineString = schema.createAbstractClass(getName(), superClass(db));
     lineString.createProperty(db, COORDINATES, PropertyType.EMBEDDEDLIST,
         PropertyType.EMBEDDEDLIST);
 
     if (GlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()) {
-      SchemaClass lineStringZ = schema.createAbstractClass(getName() + "Z", superClass(db));
+      var lineStringZ = schema.createAbstractClass(getName() + "Z", superClass(db));
       lineStringZ.createProperty(db, COORDINATES, PropertyType.EMBEDDEDLIST,
           PropertyType.EMBEDDEDLIST);
     }
@@ -59,9 +59,9 @@ public class LineStringShapeBuilder extends ComplexShapeBuilder<JtsGeometry> {
     validate(document);
     List<List<Number>> coordinates = document.field(COORDINATES);
 
-    Coordinate[] coords = new Coordinate[coordinates.size()];
-    int i = 0;
-    for (List<Number> coordinate : coordinates) {
+    var coords = new Coordinate[coordinates.size()];
+    var i = 0;
+    for (var coordinate : coordinates) {
       coords[i] = new Coordinate(coordinate.get(0).doubleValue(), coordinate.get(1).doubleValue());
       i++;
     }
@@ -70,8 +70,8 @@ public class LineStringShapeBuilder extends ComplexShapeBuilder<JtsGeometry> {
 
   @Override
   public EntityImpl toEntitty(JtsGeometry shape) {
-    EntityImpl doc = new EntityImpl(null, getName());
-    LineString lineString = (LineString) shape.getGeom();
+    var doc = new EntityImpl(null, getName());
+    var lineString = (LineString) shape.getGeom();
     doc.field(COORDINATES, coordinatesFromLineString(lineString));
     return doc;
   }
@@ -82,7 +82,7 @@ public class LineStringShapeBuilder extends ComplexShapeBuilder<JtsGeometry> {
       return toEntitty(shape);
     }
 
-    EntityImpl doc = new EntityImpl(null, getName() + "Z");
+    var doc = new EntityImpl(null, getName() + "Z");
     doc.field(COORDINATES, coordinatesFromLineStringZ(geometry));
     return doc;
   }
@@ -92,7 +92,7 @@ public class LineStringShapeBuilder extends ComplexShapeBuilder<JtsGeometry> {
     if (document.getClassName().equals("OLineStringZ")) {
       List<List<Double>> coordinates = document.getProperty("coordinates");
 
-      String result =
+      var result =
           coordinates.stream()
               .map(
                   point ->

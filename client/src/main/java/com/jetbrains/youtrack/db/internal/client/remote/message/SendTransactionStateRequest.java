@@ -34,8 +34,8 @@ public class SendTransactionStateRequest implements BinaryRequest<SendTransactio
     this.txId = txId;
     this.operations = new ArrayList<>();
 
-    for (RecordOperation txEntry : operations) {
-      RecordOperationRequest request = new RecordOperationRequest();
+    for (var txEntry : operations) {
+      var request = new RecordOperationRequest();
       request.setType(txEntry.type);
       request.setVersion(txEntry.record.getVersion());
       request.setId(txEntry.record.getIdentity());
@@ -59,7 +59,7 @@ public class SendTransactionStateRequest implements BinaryRequest<SendTransactio
       StorageRemoteSession session) throws IOException {
     network.writeLong(txId);
 
-    for (RecordOperationRequest txEntry : operations) {
+    for (var txEntry : operations) {
       BeginTransaction38Request.writeTransactionEntry(network, txEntry);
     }
 
@@ -78,7 +78,7 @@ public class SendTransactionStateRequest implements BinaryRequest<SendTransactio
     do {
       hasEntry = channel.readByte();
       if (hasEntry == 1) {
-        RecordOperationRequest entry = BeginTransaction38Request.readTransactionEntry(channel);
+        var entry = BeginTransaction38Request.readTransactionEntry(channel);
         operations.add(entry);
       }
     } while (hasEntry == 1);

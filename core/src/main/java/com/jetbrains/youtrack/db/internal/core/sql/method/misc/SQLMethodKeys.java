@@ -55,7 +55,7 @@ public class SQLMethodKeys extends AbstractSQLMethod {
     }
     if (ioResult instanceof Collection) {
       List result = new ArrayList();
-      for (Object o : (Collection) ioResult) {
+      for (var o : (Collection) ioResult) {
         result.addAll((Collection) execute(iThis, iCurrentRecord, iContext, o, iParams));
       }
       return result;

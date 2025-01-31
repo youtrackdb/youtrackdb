@@ -129,7 +129,7 @@ public enum Facility implements Comparable<Facility> {
       new HashMap<Integer, Facility>();
 
   static {
-    for (Facility facility : Facility.values()) {
+    for (var facility : Facility.values()) {
       facilityFromLabel.put(facility.label, facility);
       facilityFromNumericalCode.put(facility.numericalCode, facility);
     }
@@ -157,7 +157,7 @@ public enum Facility implements Comparable<Facility> {
    *                                  numerical code
    */
   public static Facility fromNumericalCode(int numericalCode) throws IllegalArgumentException {
-    Facility facility = facilityFromNumericalCode.get(numericalCode);
+    var facility = facilityFromNumericalCode.get(numericalCode);
     if (facility == null) {
       throw new IllegalArgumentException("Invalid facility '" + numericalCode + "'");
     }
@@ -174,7 +174,7 @@ public enum Facility implements Comparable<Facility> {
       return null;
     }
 
-    Facility facility = facilityFromLabel.get(label);
+    var facility = facilityFromLabel.get(label);
     if (facility == null) {
       throw new IllegalArgumentException("Invalid facility '" + label + "'");
     }

@@ -52,7 +52,7 @@ public class ServerCommandGetListDatabases extends ServerCommandAuthenticatedSer
 
     iRequest.getData().commandInfo = "Server status";
 
-    final EntityImpl result = new EntityImpl(null);
+    final var result = new EntityImpl(null);
 
     // We copy the returned set so that we can modify it, and we use a LinkedHashSet to preserve the
     // ordering.

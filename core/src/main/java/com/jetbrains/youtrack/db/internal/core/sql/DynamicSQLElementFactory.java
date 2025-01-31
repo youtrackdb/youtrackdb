@@ -56,7 +56,7 @@ public class DynamicSQLElementFactory
   }
 
   public SQLFunction createFunction(final String name) throws CommandExecutionException {
-    final Object obj = FUNCTIONS.get(name);
+    final var obj = FUNCTIONS.get(name);
 
     if (obj == null) {
       throw new CommandExecutionException("Unknown function name :" + name);
@@ -66,7 +66,7 @@ public class DynamicSQLElementFactory
       return (SQLFunction) obj;
     } else {
       // it's a class
-      final Class<?> clazz = (Class<?>) obj;
+      final var clazz = (Class<?>) obj;
       try {
         return (SQLFunction) clazz.newInstance();
       } catch (Exception e) {
@@ -87,7 +87,7 @@ public class DynamicSQLElementFactory
 
   public CommandExecutorSQLAbstract createCommand(final String name)
       throws CommandExecutionException {
-    final Class<? extends CommandExecutorSQLAbstract> clazz = COMMANDS.get(name);
+    final var clazz = COMMANDS.get(name);
 
     if (clazz == null) {
       throw new CommandExecutionException("Unknown command name :" + name);

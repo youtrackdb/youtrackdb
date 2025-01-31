@@ -36,7 +36,6 @@ import com.jetbrains.youtrack.db.internal.common.serialization.types.DecimalSeri
 import com.jetbrains.youtrack.db.internal.core.collate.DefaultCollate;
 import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.math.BigDecimal;
@@ -84,53 +83,53 @@ public class BinaryComparatorV0 implements BinaryComparator {
    */
   @Override
   public boolean isEqual(final BinaryField iField1, final BinaryField iField2) {
-    final BytesContainer fieldValue1 = iField1.bytes;
-    final int offset1 = fieldValue1.offset;
+    final var fieldValue1 = iField1.bytes;
+    final var offset1 = fieldValue1.offset;
 
-    final BytesContainer fieldValue2 = iField2.bytes;
-    final int offset2 = fieldValue2.offset;
+    final var fieldValue2 = iField2.bytes;
+    final var offset2 = fieldValue2.offset;
 
     try {
       switch (iField1.type) {
         case INTEGER: {
-          final int value1 = VarIntSerializer.readAsInteger(fieldValue1);
+          final var value1 = VarIntSerializer.readAsInteger(fieldValue1);
 
           switch (iField2.type) {
             case INTEGER: {
-              final int value2 = VarIntSerializer.readAsInteger(fieldValue2);
+              final var value2 = VarIntSerializer.readAsInteger(fieldValue2);
               return value1 == value2;
             }
             case LONG:
             case DATETIME: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2);
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2);
               return value1 == value2;
             }
             case DATE: {
-              final long value2 =
+              final var value2 =
                   (VarIntSerializer.readAsLong(fieldValue2) * MILLISEC_PER_DAY);
               return value1 == value2;
             }
             case SHORT: {
-              final short value2 = VarIntSerializer.readAsShort(fieldValue2);
+              final var value2 = VarIntSerializer.readAsShort(fieldValue2);
               return value1 == value2;
             }
             case BYTE: {
-              final byte value2 = readByte(fieldValue2);
+              final var value2 = readByte(fieldValue2);
               return value1 == value2;
             }
             case FLOAT: {
-              final float value2 = Float.intBitsToFloat(readInteger(fieldValue2));
+              final var value2 = Float.intBitsToFloat(readInteger(fieldValue2));
               return value1 == value2;
             }
             case DOUBLE: {
-              final double value2 = Double.longBitsToDouble(readLong(fieldValue2));
+              final var value2 = Double.longBitsToDouble(readLong(fieldValue2));
               return value1 == value2;
             }
             case STRING: {
               return Integer.parseInt(readString(fieldValue2)) == value1;
             }
             case DECIMAL: {
-              final BigDecimal value2 =
+              final var value2 =
                   DecimalSerializer.INSTANCE.deserialize(
                       fieldValue2.bytes, fieldValue2.offset);
               return value1 == value2.intValue();
@@ -140,44 +139,44 @@ public class BinaryComparatorV0 implements BinaryComparator {
         }
 
         case LONG: {
-          final long value1 = VarIntSerializer.readAsLong(fieldValue1);
+          final var value1 = VarIntSerializer.readAsLong(fieldValue1);
 
           switch (iField2.type) {
             case INTEGER: {
-              final int value2 = VarIntSerializer.readAsInteger(fieldValue2);
+              final var value2 = VarIntSerializer.readAsInteger(fieldValue2);
               return value1 == value2;
             }
             case LONG:
             case DATETIME: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2);
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2);
               return value1 == value2;
             }
             case DATE: {
-              final long value2 =
+              final var value2 =
                   (VarIntSerializer.readAsLong(fieldValue2) * MILLISEC_PER_DAY);
               return value1 == value2;
             }
             case SHORT: {
-              final short value2 = VarIntSerializer.readAsShort(fieldValue2);
+              final var value2 = VarIntSerializer.readAsShort(fieldValue2);
               return value1 == value2;
             }
             case BYTE: {
-              final byte value2 = readByte(fieldValue2);
+              final var value2 = readByte(fieldValue2);
               return value1 == value2;
             }
             case FLOAT: {
-              final float value2 = Float.intBitsToFloat(readInteger(fieldValue2));
+              final var value2 = Float.intBitsToFloat(readInteger(fieldValue2));
               return value1 == value2;
             }
             case DOUBLE: {
-              final double value2 = Double.longBitsToDouble(readLong(fieldValue2));
+              final var value2 = Double.longBitsToDouble(readLong(fieldValue2));
               return value1 == value2;
             }
             case STRING: {
               return Long.parseLong(readString(fieldValue2)) == value1;
             }
             case DECIMAL: {
-              final BigDecimal value2 =
+              final var value2 =
                   DecimalSerializer.INSTANCE.deserialize(
                       fieldValue2.bytes, fieldValue2.offset);
               return value1 == value2.longValue();
@@ -187,44 +186,44 @@ public class BinaryComparatorV0 implements BinaryComparator {
         }
 
         case SHORT: {
-          final short value1 = VarIntSerializer.readAsShort(fieldValue1);
+          final var value1 = VarIntSerializer.readAsShort(fieldValue1);
 
           switch (iField2.type) {
             case INTEGER: {
-              final int value2 = VarIntSerializer.readAsInteger(fieldValue2);
+              final var value2 = VarIntSerializer.readAsInteger(fieldValue2);
               return value1 == value2;
             }
             case LONG:
             case DATETIME: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2);
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2);
               return value1 == value2;
             }
             case DATE: {
-              final long value2 =
+              final var value2 =
                   (VarIntSerializer.readAsLong(fieldValue2) * MILLISEC_PER_DAY);
               return value1 == value2;
             }
             case SHORT: {
-              final short value2 = VarIntSerializer.readAsShort(fieldValue2);
+              final var value2 = VarIntSerializer.readAsShort(fieldValue2);
               return value1 == value2;
             }
             case BYTE: {
-              final byte value2 = readByte(fieldValue2);
+              final var value2 = readByte(fieldValue2);
               return value1 == value2;
             }
             case FLOAT: {
-              final float value2 = Float.intBitsToFloat(readInteger(fieldValue2));
+              final var value2 = Float.intBitsToFloat(readInteger(fieldValue2));
               return value1 == value2;
             }
             case DOUBLE: {
-              final double value2 = Double.longBitsToDouble(readLong(fieldValue2));
+              final var value2 = Double.longBitsToDouble(readLong(fieldValue2));
               return value1 == value2;
             }
             case STRING: {
               return Short.parseShort(readString(fieldValue2)) == value1;
             }
             case DECIMAL: {
-              final BigDecimal value2 =
+              final var value2 =
                   DecimalSerializer.INSTANCE.deserialize(
                       fieldValue2.bytes, fieldValue2.offset);
               return value1 == value2.shortValue();
@@ -236,37 +235,37 @@ public class BinaryComparatorV0 implements BinaryComparator {
         case STRING: {
           switch (iField2.type) {
             case INTEGER: {
-              final int value2 = VarIntSerializer.readAsInteger(fieldValue2);
+              final var value2 = VarIntSerializer.readAsInteger(fieldValue2);
               return Integer.parseInt(readString(fieldValue1)) == value2;
             }
             case LONG:
             case DATETIME: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2);
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2);
               return Long.parseLong(readString(fieldValue1)) == value2;
             }
             case DATE: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2) * MILLISEC_PER_DAY;
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2) * MILLISEC_PER_DAY;
               return Long.parseLong(readString(fieldValue1)) == value2;
             }
             case SHORT: {
-              final short value2 = VarIntSerializer.readAsShort(fieldValue2);
+              final var value2 = VarIntSerializer.readAsShort(fieldValue2);
               return Short.parseShort(readString(fieldValue1)) == value2;
             }
             case BYTE: {
-              final byte value2 = readByte(fieldValue2);
+              final var value2 = readByte(fieldValue2);
               return Byte.parseByte(readString(fieldValue1)) == value2;
             }
             case FLOAT: {
-              final float value2 = Float.intBitsToFloat(readInteger(fieldValue2));
+              final var value2 = Float.intBitsToFloat(readInteger(fieldValue2));
               return Float.parseFloat(readString(fieldValue1)) == value2;
             }
             case DOUBLE: {
-              final double value2 = Double.longBitsToDouble(readLong(fieldValue2));
+              final var value2 = Double.longBitsToDouble(readLong(fieldValue2));
               return Double.parseDouble(readString(fieldValue1)) == value2;
             }
             case STRING: {
-              final int len1 = VarIntSerializer.readAsInteger(fieldValue1);
-              final int len2 = VarIntSerializer.readAsInteger(fieldValue2);
+              final var len1 = VarIntSerializer.readAsInteger(fieldValue1);
+              final var len2 = VarIntSerializer.readAsInteger(fieldValue2);
 
               if (len1 != len2) {
                 return false;
@@ -284,11 +283,11 @@ public class BinaryComparatorV0 implements BinaryComparator {
               }
 
               if (collate != null) {
-                final String str1 =
+                final var str1 =
                     (String)
                         collate.transform(
                             stringFromBytes(fieldValue1.bytes, fieldValue1.offset, len1));
-                final String str2 =
+                final var str2 =
                     (String)
                         collate.transform(
                             stringFromBytes(fieldValue2.bytes, fieldValue2.offset, len2));
@@ -296,7 +295,7 @@ public class BinaryComparatorV0 implements BinaryComparator {
                 return str1.equals(str2);
 
               } else {
-                for (int i = 0; i < len1; ++i) {
+                for (var i = 0; i < len1; ++i) {
                   if (fieldValue1.bytes[fieldValue1.offset + i]
                       != fieldValue2.bytes[fieldValue2.offset + i]) {
                     return false;
@@ -306,13 +305,13 @@ public class BinaryComparatorV0 implements BinaryComparator {
               return true;
             }
             case DECIMAL: {
-              final BigDecimal value2 =
+              final var value2 =
                   DecimalSerializer.INSTANCE.deserialize(
                       fieldValue2.bytes, fieldValue2.offset);
               return new BigDecimal(readString(fieldValue1)).equals(value2);
             }
             case BOOLEAN: {
-              final boolean value2 = readByte(fieldValue2) == 1;
+              final var value2 = readByte(fieldValue2) == 1;
               return Boolean.parseBoolean(readString(fieldValue1)) == value2;
             }
           }
@@ -320,33 +319,33 @@ public class BinaryComparatorV0 implements BinaryComparator {
         }
 
         case DOUBLE: {
-          final long value1AsLong = readLong(fieldValue1);
+          final var value1AsLong = readLong(fieldValue1);
 
           switch (iField2.type) {
             case INTEGER: {
-              final double value1 = Double.longBitsToDouble(value1AsLong);
-              final int value2 = VarIntSerializer.readAsInteger(fieldValue2);
+              final var value1 = Double.longBitsToDouble(value1AsLong);
+              final var value2 = VarIntSerializer.readAsInteger(fieldValue2);
               return value1 == value2;
             }
             case LONG:
             case DATETIME: {
-              final double value1 = Double.longBitsToDouble(value1AsLong);
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2);
+              final var value1 = Double.longBitsToDouble(value1AsLong);
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2);
               return value1 == value2;
             }
             case SHORT: {
-              final double value1 = Double.longBitsToDouble(value1AsLong);
-              final short value2 = VarIntSerializer.readAsShort(fieldValue2);
+              final var value1 = Double.longBitsToDouble(value1AsLong);
+              final var value2 = VarIntSerializer.readAsShort(fieldValue2);
               return value1 == value2;
             }
             case BYTE: {
-              final double value1 = Double.longBitsToDouble(value1AsLong);
-              final byte value2 = readByte(fieldValue2);
+              final var value1 = Double.longBitsToDouble(value1AsLong);
+              final var value2 = readByte(fieldValue2);
               return value1 == value2;
             }
             case FLOAT: {
-              final double value1 = Double.longBitsToDouble(value1AsLong);
-              final float value2 = Float.intBitsToFloat(readInteger(fieldValue2));
+              final var value1 = Double.longBitsToDouble(value1AsLong);
+              final var value2 = Float.intBitsToFloat(readInteger(fieldValue2));
               return value1 == value2;
             }
             case DOUBLE: {
@@ -354,12 +353,12 @@ public class BinaryComparatorV0 implements BinaryComparator {
               return value1AsLong == value2AsLong;
             }
             case STRING: {
-              final double value1 = Double.longBitsToDouble(value1AsLong);
+              final var value1 = Double.longBitsToDouble(value1AsLong);
               return Double.parseDouble(readString(fieldValue2)) == value1;
             }
             case DECIMAL: {
-              final double value1 = Double.longBitsToDouble(value1AsLong);
-              final BigDecimal value2 =
+              final var value1 = Double.longBitsToDouble(value1AsLong);
+              final var value2 =
                   DecimalSerializer.INSTANCE.deserialize(
                       fieldValue2.bytes, fieldValue2.offset);
               return value1 == value2.doubleValue();
@@ -369,28 +368,28 @@ public class BinaryComparatorV0 implements BinaryComparator {
         }
 
         case FLOAT: {
-          final int value1AsInt = readInteger(fieldValue1);
+          final var value1AsInt = readInteger(fieldValue1);
 
           switch (iField2.type) {
             case INTEGER: {
-              final float value1 = Float.intBitsToFloat(value1AsInt);
-              final int value2 = VarIntSerializer.readAsInteger(fieldValue2);
+              final var value1 = Float.intBitsToFloat(value1AsInt);
+              final var value2 = VarIntSerializer.readAsInteger(fieldValue2);
               return value1 == value2;
             }
             case LONG:
             case DATETIME: {
-              final float value1 = Float.intBitsToFloat(value1AsInt);
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2);
+              final var value1 = Float.intBitsToFloat(value1AsInt);
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2);
               return value1 == value2;
             }
             case SHORT: {
-              final float value1 = Float.intBitsToFloat(value1AsInt);
-              final short value2 = VarIntSerializer.readAsShort(fieldValue2);
+              final var value1 = Float.intBitsToFloat(value1AsInt);
+              final var value2 = VarIntSerializer.readAsShort(fieldValue2);
               return value1 == value2;
             }
             case BYTE: {
-              final float value1 = Float.intBitsToFloat(value1AsInt);
-              final byte value2 = readByte(fieldValue2);
+              final var value1 = Float.intBitsToFloat(value1AsInt);
+              final var value2 = readByte(fieldValue2);
               return value1 == value2;
             }
             case FLOAT: {
@@ -398,17 +397,17 @@ public class BinaryComparatorV0 implements BinaryComparator {
               return value1AsInt == value2AsInt;
             }
             case DOUBLE: {
-              final float value1 = Float.intBitsToFloat(value1AsInt);
-              final double value2 = Double.longBitsToDouble(readLong(fieldValue2));
+              final var value1 = Float.intBitsToFloat(value1AsInt);
+              final var value2 = Double.longBitsToDouble(readLong(fieldValue2));
               return value1 == value2;
             }
             case STRING: {
-              final float value1 = Float.intBitsToFloat(value1AsInt);
+              final var value1 = Float.intBitsToFloat(value1AsInt);
               return Float.parseFloat(readString(fieldValue2)) == value1;
             }
             case DECIMAL: {
-              final float value1 = Float.intBitsToFloat(value1AsInt);
-              final BigDecimal value2 =
+              final var value1 = Float.intBitsToFloat(value1AsInt);
+              final var value2 =
                   DecimalSerializer.INSTANCE.deserialize(
                       fieldValue2.bytes, fieldValue2.offset);
               return value1 == value2.floatValue();
@@ -418,40 +417,40 @@ public class BinaryComparatorV0 implements BinaryComparator {
         }
 
         case BYTE: {
-          final byte value1 = readByte(fieldValue1);
+          final var value1 = readByte(fieldValue1);
 
           switch (iField2.type) {
             case INTEGER: {
-              final int value2 = VarIntSerializer.readAsInteger(fieldValue2);
+              final var value2 = VarIntSerializer.readAsInteger(fieldValue2);
               return value1 == value2;
             }
             case LONG:
             case DATETIME: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2);
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2);
               return value1 == value2;
             }
             case SHORT: {
-              final short value2 = VarIntSerializer.readAsShort(fieldValue2);
+              final var value2 = VarIntSerializer.readAsShort(fieldValue2);
               return value1 == value2;
             }
             case BYTE: {
-              final byte value2 = readByte(fieldValue2);
+              final var value2 = readByte(fieldValue2);
               return value1 == value2;
             }
             case FLOAT: {
-              final float value2 = Float.intBitsToFloat(readInteger(fieldValue2));
+              final var value2 = Float.intBitsToFloat(readInteger(fieldValue2));
               return value1 == value2;
             }
             case DOUBLE: {
-              final double value2 = Double.longBitsToDouble(readLong(fieldValue2));
+              final var value2 = Double.longBitsToDouble(readLong(fieldValue2));
               return value1 == value2;
             }
             case STRING: {
-              final byte value2 = Byte.parseByte((readString(fieldValue2)));
+              final var value2 = Byte.parseByte((readString(fieldValue2)));
               return value1 == value2;
             }
             case DECIMAL: {
-              final BigDecimal value2 =
+              final var value2 =
                   DecimalSerializer.INSTANCE.deserialize(
                       fieldValue2.bytes, fieldValue2.offset);
               return value1 == value2.byteValue();
@@ -461,15 +460,15 @@ public class BinaryComparatorV0 implements BinaryComparator {
         }
 
         case BOOLEAN: {
-          final boolean value1 = readByte(fieldValue1) == 1;
+          final var value1 = readByte(fieldValue1) == 1;
 
           switch (iField2.type) {
             case BOOLEAN: {
-              final boolean value2 = readByte(fieldValue2) == 1;
+              final var value2 = readByte(fieldValue2) == 1;
               return value1 == value2;
             }
             case STRING: {
-              final String str = readString(fieldValue2);
+              final var str = readString(fieldValue2);
               return Boolean.parseBoolean(str) == value1;
             }
           }
@@ -477,41 +476,41 @@ public class BinaryComparatorV0 implements BinaryComparator {
         }
 
         case DATE: {
-          final long value1 = VarIntSerializer.readAsLong(fieldValue1) * MILLISEC_PER_DAY;
+          final var value1 = VarIntSerializer.readAsLong(fieldValue1) * MILLISEC_PER_DAY;
 
           switch (iField2.type) {
             case INTEGER: {
-              final int value2 = VarIntSerializer.readAsInteger(fieldValue2);
+              final var value2 = VarIntSerializer.readAsInteger(fieldValue2);
               return value1 == value2;
             }
             case LONG:
             case DATETIME: {
-              long value2 = VarIntSerializer.readAsLong(fieldValue2);
+              var value2 = VarIntSerializer.readAsLong(fieldValue2);
               value2 =
                   convertDayToTimezone(
                       DateHelper.getDatabaseTimeZone(), TimeZone.getTimeZone("GMT"), value2);
               return value1 == value2;
             }
             case DATE: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2) * MILLISEC_PER_DAY;
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2) * MILLISEC_PER_DAY;
               return value1 == value2;
             }
             case SHORT: {
-              final short value2 = VarIntSerializer.readAsShort(fieldValue2);
+              final var value2 = VarIntSerializer.readAsShort(fieldValue2);
               return value1 == value2;
             }
             case FLOAT: {
-              final float value2 = Float.intBitsToFloat(readInteger(fieldValue2));
+              final var value2 = Float.intBitsToFloat(readInteger(fieldValue2));
               return value1 == value2;
             }
             case DOUBLE: {
-              final double value2 = Double.longBitsToDouble(readLong(fieldValue2));
+              final var value2 = Double.longBitsToDouble(readLong(fieldValue2));
               return value1 == value2;
             }
             case STRING: {
             }
             case DECIMAL: {
-              final BigDecimal value2 =
+              final var value2 =
                   DecimalSerializer.INSTANCE.deserialize(
                       fieldValue2.bytes, fieldValue2.offset);
               return value1 == value2.longValue();
@@ -521,43 +520,43 @@ public class BinaryComparatorV0 implements BinaryComparator {
         }
 
         case DATETIME: {
-          final long value1 = VarIntSerializer.readAsLong(fieldValue1);
+          final var value1 = VarIntSerializer.readAsLong(fieldValue1);
 
           switch (iField2.type) {
             case INTEGER: {
-              final int value2 = VarIntSerializer.readAsInteger(fieldValue2);
+              final var value2 = VarIntSerializer.readAsInteger(fieldValue2);
               return value1 == value2;
             }
             case LONG:
             case DATETIME: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2);
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2);
               return value1 == value2;
             }
             case DATE: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2) * MILLISEC_PER_DAY;
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2) * MILLISEC_PER_DAY;
               return value1 == value2;
             }
             case SHORT: {
-              final short value2 = VarIntSerializer.readAsShort(fieldValue2);
+              final var value2 = VarIntSerializer.readAsShort(fieldValue2);
               return value1 == value2;
             }
             case FLOAT: {
-              final float value2 = Float.intBitsToFloat(readInteger(fieldValue2));
+              final var value2 = Float.intBitsToFloat(readInteger(fieldValue2));
               return value1 == value2;
             }
             case DOUBLE: {
-              final double value2 = Double.longBitsToDouble(readLong(fieldValue2));
+              final var value2 = Double.longBitsToDouble(readLong(fieldValue2));
               return value1 == value2;
             }
             case STRING: {
-              final String value2AsString = readString(fieldValue2);
+              final var value2AsString = readString(fieldValue2);
 
               if (IOUtils.isLong(value2AsString)) {
-                final long value2 = Long.parseLong(value2AsString);
+                final var value2 = Long.parseLong(value2AsString);
                 return value1 == value2;
               }
 
-              final DatabaseSessionInternal db =
+              final var db =
                   DatabaseRecordThreadLocal.instance().getIfDefined();
               try {
                 final DateFormat dateFormat;
@@ -568,8 +567,8 @@ public class BinaryComparatorV0 implements BinaryComparator {
                       new SimpleDateFormat(StorageConfiguration.DEFAULT_DATETIME_FORMAT);
                 }
 
-                final Date value2AsDate = dateFormat.parse(value2AsString);
-                final long value2 = value2AsDate.getTime();
+                final var value2AsDate = dateFormat.parse(value2AsString);
+                final var value2 = value2AsDate.getTime();
                 return value1 == value2;
               } catch (ParseException ignore) {
                 try {
@@ -581,8 +580,8 @@ public class BinaryComparatorV0 implements BinaryComparator {
                         new SimpleDateFormat(StorageConfiguration.DEFAULT_DATE_FORMAT);
                   }
 
-                  final Date value2AsDate = dateFormat.parse(value2AsString);
-                  final long value2 = value2AsDate.getTime();
+                  final var value2AsDate = dateFormat.parse(value2AsString);
+                  final var value2 = value2AsDate.getTime();
                   return value1 == value2;
                 } catch (ParseException ignored) {
                   return new Date(value1).toString().equals(value2AsString);
@@ -590,7 +589,7 @@ public class BinaryComparatorV0 implements BinaryComparator {
               }
             }
             case DECIMAL: {
-              final BigDecimal value2 =
+              final var value2 =
                   DecimalSerializer.INSTANCE.deserialize(
                       fieldValue2.bytes, fieldValue2.offset);
               return value1 == value2.longValue();
@@ -602,13 +601,13 @@ public class BinaryComparatorV0 implements BinaryComparator {
         case BINARY: {
           switch (iField2.type) {
             case BINARY: {
-              final int length1 = VarIntSerializer.readAsInteger(fieldValue1);
-              final int length2 = VarIntSerializer.readAsInteger(fieldValue2);
+              final var length1 = VarIntSerializer.readAsInteger(fieldValue1);
+              final var length2 = VarIntSerializer.readAsInteger(fieldValue2);
               if (length1 != length2) {
                 return false;
               }
 
-              for (int i = 0; i < length1; ++i) {
+              for (var i = 0; i < length1; ++i) {
                 if (fieldValue1.bytes[fieldValue1.offset + i]
                     != fieldValue2.bytes[fieldValue2.offset + i]) {
                   return false;
@@ -623,14 +622,14 @@ public class BinaryComparatorV0 implements BinaryComparator {
         case LINK: {
           switch (iField2.type) {
             case LINK: {
-              final int clusterId1 = VarIntSerializer.readAsInteger(fieldValue1);
-              final int clusterId2 = VarIntSerializer.readAsInteger(fieldValue2);
+              final var clusterId1 = VarIntSerializer.readAsInteger(fieldValue1);
+              final var clusterId2 = VarIntSerializer.readAsInteger(fieldValue2);
               if (clusterId1 != clusterId2) {
                 return false;
               }
 
-              final long clusterPos1 = VarIntSerializer.readAsLong(fieldValue1);
-              final long clusterPos2 = VarIntSerializer.readAsLong(fieldValue2);
+              final var clusterPos1 = VarIntSerializer.readAsLong(fieldValue1);
+              final var clusterPos2 = VarIntSerializer.readAsLong(fieldValue2);
               if (clusterPos1 == clusterPos2) {
                 return true;
               }
@@ -646,36 +645,36 @@ public class BinaryComparatorV0 implements BinaryComparator {
         }
 
         case DECIMAL: {
-          final BigDecimal value1 =
+          final var value1 =
               DecimalSerializer.INSTANCE.deserialize(fieldValue1.bytes, fieldValue1.offset);
 
           switch (iField2.type) {
             case INTEGER: {
-              final int value2 = VarIntSerializer.readAsInteger(fieldValue2);
+              final var value2 = VarIntSerializer.readAsInteger(fieldValue2);
               return value1.equals(new BigDecimal(value2));
             }
             case LONG:
             case DATETIME: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2);
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2);
               return value1.equals(new BigDecimal(value2));
             }
             case SHORT: {
-              final short value2 = VarIntSerializer.readAsShort(fieldValue2);
+              final var value2 = VarIntSerializer.readAsShort(fieldValue2);
               return value1.equals(new BigDecimal(value2));
             }
             case FLOAT: {
-              final float value2 = Float.intBitsToFloat(readInteger(fieldValue2));
+              final var value2 = Float.intBitsToFloat(readInteger(fieldValue2));
               return value1.equals(new BigDecimal(value2));
             }
             case DOUBLE: {
-              final double value2 = Double.longBitsToDouble(readLong(fieldValue2));
+              final var value2 = Double.longBitsToDouble(readLong(fieldValue2));
               return value1.equals(new BigDecimal(value2));
             }
             case STRING: {
               return value1.toString().equals(readString(fieldValue2));
             }
             case DECIMAL: {
-              final BigDecimal value2 =
+              final var value2 =
                   DecimalSerializer.INSTANCE.deserialize(
                       fieldValue2.bytes, fieldValue2.offset);
               return value1.equals(value2);
@@ -701,53 +700,53 @@ public class BinaryComparatorV0 implements BinaryComparator {
    */
   @Override
   public int compare(final BinaryField iField1, final BinaryField iField2) {
-    final BytesContainer fieldValue1 = iField1.bytes;
-    final int offset1 = fieldValue1.offset;
+    final var fieldValue1 = iField1.bytes;
+    final var offset1 = fieldValue1.offset;
 
-    final BytesContainer fieldValue2 = iField2.bytes;
-    final int offset2 = fieldValue2.offset;
+    final var fieldValue2 = iField2.bytes;
+    final var offset2 = fieldValue2.offset;
 
     try {
       switch (iField1.type) {
         case INTEGER: {
-          final int value1 = VarIntSerializer.readAsInteger(fieldValue1);
+          final var value1 = VarIntSerializer.readAsInteger(fieldValue1);
 
           switch (iField2.type) {
             case INTEGER: {
-              final int value2 = VarIntSerializer.readAsInteger(fieldValue2);
+              final var value2 = VarIntSerializer.readAsInteger(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case LONG:
             case DATETIME: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2);
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case DATE: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2) * MILLISEC_PER_DAY;
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2) * MILLISEC_PER_DAY;
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case SHORT: {
-              final short value2 = VarIntSerializer.readAsShort(fieldValue2);
+              final var value2 = VarIntSerializer.readAsShort(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case BYTE: {
-              final byte value2 = readByte(fieldValue2);
+              final var value2 = readByte(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case FLOAT: {
-              final float value2 = Float.intBitsToFloat(readInteger(fieldValue2));
+              final var value2 = Float.intBitsToFloat(readInteger(fieldValue2));
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case DOUBLE: {
-              final double value2 = Double.longBitsToDouble(readLong(fieldValue2));
+              final var value2 = Double.longBitsToDouble(readLong(fieldValue2));
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case STRING: {
-              final String value2 = readString(fieldValue2);
+              final var value2 = readString(fieldValue2);
               return Integer.toString(value1).compareTo(value2);
             }
             case DECIMAL: {
-              final int value2 =
+              final var value2 =
                   DecimalSerializer.INSTANCE
                       .deserialize(fieldValue2.bytes, fieldValue2.offset)
                       .intValue();
@@ -758,44 +757,44 @@ public class BinaryComparatorV0 implements BinaryComparator {
         }
 
         case LONG: {
-          final long value1 = VarIntSerializer.readAsLong(fieldValue1);
+          final var value1 = VarIntSerializer.readAsLong(fieldValue1);
 
           switch (iField2.type) {
             case INTEGER: {
-              final int value2 = VarIntSerializer.readAsInteger(fieldValue2);
+              final var value2 = VarIntSerializer.readAsInteger(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case LONG:
             case DATETIME: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2);
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case DATE: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2) * MILLISEC_PER_DAY;
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2) * MILLISEC_PER_DAY;
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case SHORT: {
-              final short value2 = VarIntSerializer.readAsShort(fieldValue2);
+              final var value2 = VarIntSerializer.readAsShort(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case BYTE: {
-              final byte value2 = readByte(fieldValue2);
+              final var value2 = readByte(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case FLOAT: {
-              final float value2 = Float.intBitsToFloat(readInteger(fieldValue2));
+              final var value2 = Float.intBitsToFloat(readInteger(fieldValue2));
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case DOUBLE: {
-              final double value2 = Double.longBitsToDouble(readLong(fieldValue2));
+              final var value2 = Double.longBitsToDouble(readLong(fieldValue2));
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case STRING: {
-              final String value2 = readString(fieldValue2);
+              final var value2 = readString(fieldValue2);
               return Long.toString(value1).compareTo(value2);
             }
             case DECIMAL: {
-              final long value2 =
+              final var value2 =
                   DecimalSerializer.INSTANCE
                       .deserialize(fieldValue2.bytes, fieldValue2.offset)
                       .longValue();
@@ -806,44 +805,44 @@ public class BinaryComparatorV0 implements BinaryComparator {
         }
 
         case SHORT: {
-          final short value1 = VarIntSerializer.readAsShort(fieldValue1);
+          final var value1 = VarIntSerializer.readAsShort(fieldValue1);
 
           switch (iField2.type) {
             case INTEGER: {
-              final int value2 = VarIntSerializer.readAsInteger(fieldValue2);
+              final var value2 = VarIntSerializer.readAsInteger(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case LONG:
             case DATETIME: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2);
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case DATE: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2) * MILLISEC_PER_DAY;
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2) * MILLISEC_PER_DAY;
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case SHORT: {
-              final short value2 = VarIntSerializer.readAsShort(fieldValue2);
+              final var value2 = VarIntSerializer.readAsShort(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case BYTE: {
-              final byte value2 = readByte(fieldValue2);
+              final var value2 = readByte(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case FLOAT: {
-              final float value2 = Float.intBitsToFloat(readInteger(fieldValue2));
+              final var value2 = Float.intBitsToFloat(readInteger(fieldValue2));
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case DOUBLE: {
-              final double value2 = Double.longBitsToDouble(readLong(fieldValue2));
+              final var value2 = Double.longBitsToDouble(readLong(fieldValue2));
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case STRING: {
-              final String value2 = readString(fieldValue2);
+              final var value2 = readString(fieldValue2);
               return Short.toString(value1).compareTo(value2);
             }
             case DECIMAL: {
-              final short value2 =
+              final var value2 =
                   DecimalSerializer.INSTANCE
                       .deserialize(fieldValue2.bytes, fieldValue2.offset)
                       .shortValue();
@@ -854,40 +853,40 @@ public class BinaryComparatorV0 implements BinaryComparator {
         }
 
         case STRING: {
-          final String value1 = readString(fieldValue1);
+          final var value1 = readString(fieldValue1);
 
           switch (iField2.type) {
             case INTEGER: {
-              final int value2 = VarIntSerializer.readAsInteger(fieldValue2);
+              final var value2 = VarIntSerializer.readAsInteger(fieldValue2);
               return value1.compareTo(Integer.toString(value2));
             }
             case LONG:
             case DATETIME: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2);
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2);
               return value1.compareTo(Long.toString(value2));
             }
             case DATE: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2) * MILLISEC_PER_DAY;
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2) * MILLISEC_PER_DAY;
               return value1.compareTo(Long.toString(value2));
             }
             case SHORT: {
-              final short value2 = VarIntSerializer.readAsShort(fieldValue2);
+              final var value2 = VarIntSerializer.readAsShort(fieldValue2);
               return value1.compareTo(Short.toString(value2));
             }
             case BYTE: {
-              final byte value2 = readByte(fieldValue2);
+              final var value2 = readByte(fieldValue2);
               return value1.compareTo(Byte.toString(value2));
             }
             case FLOAT: {
-              final float value2 = Float.intBitsToFloat(readInteger(fieldValue2));
+              final var value2 = Float.intBitsToFloat(readInteger(fieldValue2));
               return value1.compareTo(Float.toString(value2));
             }
             case DOUBLE: {
-              final double value2 = Double.longBitsToDouble(readLong(fieldValue2));
+              final var value2 = Double.longBitsToDouble(readLong(fieldValue2));
               return value1.compareTo(Double.toString(value2));
             }
             case STRING: {
-              final String value2 = readString(fieldValue2);
+              final var value2 = readString(fieldValue2);
 
               final Collate collate;
               if (iField1.collate != null
@@ -901,19 +900,19 @@ public class BinaryComparatorV0 implements BinaryComparator {
               }
 
               if (collate != null) {
-                final String str1 = (String) collate.transform(value1);
-                final String str2 = (String) collate.transform(value2);
+                final var str1 = (String) collate.transform(value1);
+                final var str2 = (String) collate.transform(value2);
                 return str1.compareTo(str2);
               }
 
               return value1.compareTo(value2);
             }
             case BOOLEAN: {
-              final boolean value2 = readByte(fieldValue2) == 1;
+              final var value2 = readByte(fieldValue2) == 1;
               return value1.compareTo(Boolean.toString(value2));
             }
             case DECIMAL: {
-              final BigDecimal value2 =
+              final var value2 =
                   DecimalSerializer.INSTANCE.deserialize(
                       fieldValue2.bytes, fieldValue2.offset);
               return new BigDecimal(value1).compareTo(value2);
@@ -923,40 +922,40 @@ public class BinaryComparatorV0 implements BinaryComparator {
         }
 
         case DOUBLE: {
-          final double value1 = Double.longBitsToDouble(readLong(fieldValue1));
+          final var value1 = Double.longBitsToDouble(readLong(fieldValue1));
 
           switch (iField2.type) {
             case INTEGER: {
-              final int value2 = VarIntSerializer.readAsInteger(fieldValue2);
+              final var value2 = VarIntSerializer.readAsInteger(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case LONG:
             case DATETIME: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2);
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case SHORT: {
-              final short value2 = VarIntSerializer.readAsShort(fieldValue2);
+              final var value2 = VarIntSerializer.readAsShort(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case BYTE: {
-              final byte value2 = readByte(fieldValue2);
+              final var value2 = readByte(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case FLOAT: {
-              final float value2 = Float.intBitsToFloat(readInteger(fieldValue2));
+              final var value2 = Float.intBitsToFloat(readInteger(fieldValue2));
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case DOUBLE: {
-              final double value2 = Double.longBitsToDouble(readLong(fieldValue2));
+              final var value2 = Double.longBitsToDouble(readLong(fieldValue2));
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case STRING: {
-              final String value2 = readString(fieldValue2);
+              final var value2 = readString(fieldValue2);
               return Double.toString(value1).compareTo(value2);
             }
             case DECIMAL: {
-              final double value2 =
+              final var value2 =
                   DecimalSerializer.INSTANCE
                       .deserialize(fieldValue2.bytes, fieldValue2.offset)
                       .doubleValue();
@@ -967,40 +966,40 @@ public class BinaryComparatorV0 implements BinaryComparator {
         }
 
         case FLOAT: {
-          final float value1 = Float.intBitsToFloat(readInteger(fieldValue1));
+          final var value1 = Float.intBitsToFloat(readInteger(fieldValue1));
 
           switch (iField2.type) {
             case INTEGER: {
-              final int value2 = VarIntSerializer.readAsInteger(fieldValue2);
+              final var value2 = VarIntSerializer.readAsInteger(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case LONG:
             case DATETIME: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2);
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case SHORT: {
-              final short value2 = VarIntSerializer.readAsShort(fieldValue2);
+              final var value2 = VarIntSerializer.readAsShort(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case BYTE: {
-              final byte value2 = readByte(fieldValue2);
+              final var value2 = readByte(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case FLOAT: {
-              final float value2 = Float.intBitsToFloat(readInteger(fieldValue2));
+              final var value2 = Float.intBitsToFloat(readInteger(fieldValue2));
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case DOUBLE: {
-              final double value2 = Double.longBitsToDouble(readLong(fieldValue2));
+              final var value2 = Double.longBitsToDouble(readLong(fieldValue2));
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case STRING: {
-              final String value2 = readString(fieldValue2);
+              final var value2 = readString(fieldValue2);
               return Float.toString(value1).compareTo(value2);
             }
             case DECIMAL: {
-              final String value2 = readString(fieldValue2);
+              final var value2 = readString(fieldValue2);
               return Float.toString(value1).compareTo(value2);
             }
           }
@@ -1008,40 +1007,40 @@ public class BinaryComparatorV0 implements BinaryComparator {
         }
 
         case BYTE: {
-          final byte value1 = readByte(fieldValue1);
+          final var value1 = readByte(fieldValue1);
 
           switch (iField2.type) {
             case INTEGER: {
-              final int value2 = VarIntSerializer.readAsInteger(fieldValue2);
+              final var value2 = VarIntSerializer.readAsInteger(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case LONG:
             case DATETIME: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2);
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case SHORT: {
-              final short value2 = VarIntSerializer.readAsShort(fieldValue2);
+              final var value2 = VarIntSerializer.readAsShort(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case BYTE: {
-              final byte value2 = readByte(fieldValue2);
+              final var value2 = readByte(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case FLOAT: {
-              final float value2 = Float.intBitsToFloat(readInteger(fieldValue2));
+              final var value2 = Float.intBitsToFloat(readInteger(fieldValue2));
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case DOUBLE: {
-              final double value2 = Double.longBitsToDouble(readLong(fieldValue2));
+              final var value2 = Double.longBitsToDouble(readLong(fieldValue2));
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case STRING: {
-              final String value2 = readString(fieldValue2);
+              final var value2 = readString(fieldValue2);
               return Byte.toString(value1).compareTo(value2);
             }
             case DECIMAL: {
-              final byte value2 =
+              final var value2 =
                   DecimalSerializer.INSTANCE
                       .deserialize(fieldValue2.bytes, fieldValue2.offset)
                       .byteValue();
@@ -1052,15 +1051,15 @@ public class BinaryComparatorV0 implements BinaryComparator {
         }
 
         case BOOLEAN: {
-          final boolean value1 = readByte(fieldValue1) == 1;
+          final var value1 = readByte(fieldValue1) == 1;
 
           switch (iField2.type) {
             case BOOLEAN: {
-              final boolean value2 = readByte(fieldValue2) == 1;
+              final var value2 = readByte(fieldValue2) == 1;
               return (value1 == value2) ? 0 : value1 ? 1 : -1;
             }
             case STRING: {
-              final boolean value2 = Boolean.parseBoolean(readString(fieldValue2));
+              final var value2 = Boolean.parseBoolean(readString(fieldValue2));
               return (value1 == value2) ? 0 : value1 ? 1 : -1;
             }
           }
@@ -1068,56 +1067,56 @@ public class BinaryComparatorV0 implements BinaryComparator {
         }
 
         case DATETIME: {
-          final long value1 = VarIntSerializer.readAsLong(fieldValue1);
+          final var value1 = VarIntSerializer.readAsLong(fieldValue1);
 
           switch (iField2.type) {
             case INTEGER: {
-              final int value2 = VarIntSerializer.readAsInteger(fieldValue2);
+              final var value2 = VarIntSerializer.readAsInteger(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case LONG:
             case DATETIME: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2);
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case DATE: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2) * MILLISEC_PER_DAY;
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2) * MILLISEC_PER_DAY;
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case SHORT: {
-              final short value2 = VarIntSerializer.readAsShort(fieldValue2);
+              final var value2 = VarIntSerializer.readAsShort(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case BYTE: {
-              final byte value2 = readByte(fieldValue2);
+              final var value2 = readByte(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case FLOAT: {
-              final float value2 = Float.intBitsToFloat(readInteger(fieldValue2));
+              final var value2 = Float.intBitsToFloat(readInteger(fieldValue2));
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case DOUBLE: {
-              final double value2 = Double.longBitsToDouble(readLong(fieldValue2));
+              final var value2 = Double.longBitsToDouble(readLong(fieldValue2));
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case STRING: {
-              final String value2AsString = readString(fieldValue2);
+              final var value2AsString = readString(fieldValue2);
 
               if (IOUtils.isLong(value2AsString)) {
-                final long value2 = Long.parseLong(value2AsString);
+                final var value2 = Long.parseLong(value2AsString);
                 return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
               }
               try {
-                final DateFormat dateFormat = DateHelper.getDateTimeFormatInstance();
-                final Date value2AsDate = dateFormat.parse(value2AsString);
-                final long value2 = value2AsDate.getTime();
+                final var dateFormat = DateHelper.getDateTimeFormatInstance();
+                final var value2AsDate = dateFormat.parse(value2AsString);
+                final var value2 = value2AsDate.getTime();
                 return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
               } catch (ParseException ignored) {
                 try {
-                  DateFormat dateFormat = DateHelper.getDateFormatInstance();
+                  var dateFormat = DateHelper.getDateFormatInstance();
 
-                  final Date value2AsDate = dateFormat.parse(value2AsString);
-                  final long value2 = value2AsDate.getTime();
+                  final var value2AsDate = dateFormat.parse(value2AsString);
+                  final var value2 = value2AsDate.getTime();
                   return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
                 } catch (ParseException ignore) {
                   return new Date(value1).toString().compareTo(value2AsString);
@@ -1125,7 +1124,7 @@ public class BinaryComparatorV0 implements BinaryComparator {
               }
             }
             case DECIMAL: {
-              final long value2 =
+              final var value2 =
                   DecimalSerializer.INSTANCE
                       .deserialize(fieldValue2.bytes, fieldValue2.offset)
                       .longValue();
@@ -1136,43 +1135,43 @@ public class BinaryComparatorV0 implements BinaryComparator {
         }
 
         case DATE: {
-          final long value1 = VarIntSerializer.readAsLong(fieldValue1) * MILLISEC_PER_DAY;
+          final var value1 = VarIntSerializer.readAsLong(fieldValue1) * MILLISEC_PER_DAY;
 
           switch (iField2.type) {
             case INTEGER: {
-              final int value2 = VarIntSerializer.readAsInteger(fieldValue2);
+              final var value2 = VarIntSerializer.readAsInteger(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case LONG:
             case DATETIME: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2);
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case DATE: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2) * MILLISEC_PER_DAY;
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2) * MILLISEC_PER_DAY;
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case SHORT: {
-              final short value2 = VarIntSerializer.readAsShort(fieldValue2);
+              final var value2 = VarIntSerializer.readAsShort(fieldValue2);
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case FLOAT: {
-              final float value2 = Float.intBitsToFloat(readInteger(fieldValue2));
+              final var value2 = Float.intBitsToFloat(readInteger(fieldValue2));
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case DOUBLE: {
-              final double value2 = Double.longBitsToDouble(readLong(fieldValue2));
+              final var value2 = Double.longBitsToDouble(readLong(fieldValue2));
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
             case STRING: {
-              final String value2AsString = readString(fieldValue2);
+              final var value2AsString = readString(fieldValue2);
 
               if (IOUtils.isLong(value2AsString)) {
-                final long value2 = Long.parseLong(value2AsString);
+                final var value2 = Long.parseLong(value2AsString);
                 return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
               }
 
-              final DatabaseSessionInternal db =
+              final var db =
                   DatabaseRecordThreadLocal.instance().getIfDefined();
               try {
                 final DateFormat dateFormat;
@@ -1181,8 +1180,8 @@ public class BinaryComparatorV0 implements BinaryComparator {
                 } else {
                   dateFormat = new SimpleDateFormat(StorageConfiguration.DEFAULT_DATE_FORMAT);
                 }
-                final Date value2AsDate = dateFormat.parse(value2AsString);
-                long value2 = value2AsDate.getTime();
+                final var value2AsDate = dateFormat.parse(value2AsString);
+                var value2 = value2AsDate.getTime();
                 value2 =
                     convertDayToTimezone(
                         DateHelper.getDatabaseTimeZone(), TimeZone.getTimeZone("GMT"), value2);
@@ -1197,8 +1196,8 @@ public class BinaryComparatorV0 implements BinaryComparator {
                         new SimpleDateFormat(StorageConfiguration.DEFAULT_DATETIME_FORMAT);
                   }
 
-                  final Date value2AsDate = dateFormat.parse(value2AsString);
-                  long value2 = value2AsDate.getTime();
+                  final var value2AsDate = dateFormat.parse(value2AsString);
+                  var value2 = value2AsDate.getTime();
                   value2 =
                       convertDayToTimezone(
                           DateHelper.getDatabaseTimeZone(),
@@ -1211,7 +1210,7 @@ public class BinaryComparatorV0 implements BinaryComparator {
               }
             }
             case DECIMAL: {
-              final long value2 =
+              final var value2 =
                   DecimalSerializer.INSTANCE
                       .deserialize(fieldValue2.bytes, fieldValue2.offset)
                       .longValue();
@@ -1224,13 +1223,13 @@ public class BinaryComparatorV0 implements BinaryComparator {
         case BINARY: {
           switch (iField2.type) {
             case BINARY: {
-              final int length1 = VarIntSerializer.readAsInteger(fieldValue1);
-              final int length2 = VarIntSerializer.readAsInteger(fieldValue2);
+              final var length1 = VarIntSerializer.readAsInteger(fieldValue1);
+              final var length2 = VarIntSerializer.readAsInteger(fieldValue2);
 
-              final int max = Math.min(length1, length2);
-              for (int i = 0; i < max; ++i) {
-                final byte b1 = fieldValue1.bytes[fieldValue1.offset + i];
-                final byte b2 = fieldValue2.bytes[fieldValue2.offset + i];
+              final var max = Math.min(length1, length2);
+              for (var i = 0; i < max; ++i) {
+                final var b1 = fieldValue1.bytes[fieldValue1.offset + i];
+                final var b2 = fieldValue2.bytes[fieldValue2.offset + i];
 
                 if (b1 > b2) {
                   return 1;
@@ -1255,15 +1254,15 @@ public class BinaryComparatorV0 implements BinaryComparator {
         case LINK: {
           switch (iField2.type) {
             case LINK: {
-              final int clusterId1 = VarIntSerializer.readAsInteger(fieldValue1);
-              final int clusterId2 = VarIntSerializer.readAsInteger(fieldValue2);
+              final var clusterId1 = VarIntSerializer.readAsInteger(fieldValue1);
+              final var clusterId2 = VarIntSerializer.readAsInteger(fieldValue2);
               if (clusterId1 > clusterId2) {
                 return 1;
               } else if (clusterId1 < clusterId2) {
                 return -1;
               } else {
-                final long clusterPos1 = VarIntSerializer.readAsLong(fieldValue1);
-                final long clusterPos2 = VarIntSerializer.readAsLong(fieldValue2);
+                final var clusterPos1 = VarIntSerializer.readAsLong(fieldValue1);
+                final var clusterPos2 = VarIntSerializer.readAsLong(fieldValue2);
                 if (clusterPos1 > clusterPos2) {
                   return 1;
                 } else if (clusterPos1 < clusterPos2) {
@@ -1282,43 +1281,43 @@ public class BinaryComparatorV0 implements BinaryComparator {
         }
 
         case DECIMAL: {
-          final BigDecimal value1 =
+          final var value1 =
               DecimalSerializer.INSTANCE.deserialize(fieldValue1.bytes, fieldValue1.offset);
 
           switch (iField2.type) {
             case INTEGER: {
-              final int value2 = VarIntSerializer.readAsInteger(fieldValue2);
+              final var value2 = VarIntSerializer.readAsInteger(fieldValue2);
               return value1.compareTo(new BigDecimal(value2));
             }
             case LONG:
             case DATETIME: {
-              final long value2 = VarIntSerializer.readAsLong(fieldValue2);
+              final var value2 = VarIntSerializer.readAsLong(fieldValue2);
               return value1.compareTo(new BigDecimal(value2));
             }
             case SHORT: {
-              final short value2 = VarIntSerializer.readAsShort(fieldValue2);
+              final var value2 = VarIntSerializer.readAsShort(fieldValue2);
               return value1.compareTo(new BigDecimal(value2));
             }
             case FLOAT: {
-              final float value2 = Float.intBitsToFloat(readInteger(fieldValue2));
+              final var value2 = Float.intBitsToFloat(readInteger(fieldValue2));
               return value1.compareTo(new BigDecimal(value2));
             }
             case DOUBLE: {
-              final double value2 = Double.longBitsToDouble(readLong(fieldValue2));
+              final var value2 = Double.longBitsToDouble(readLong(fieldValue2));
               return value1.compareTo(new BigDecimal(value2));
             }
             case STRING: {
-              final String value2 = readString(fieldValue2);
+              final var value2 = readString(fieldValue2);
               return value1.toString().compareTo(value2);
             }
             case DECIMAL: {
-              final BigDecimal value2 =
+              final var value2 =
                   DecimalSerializer.INSTANCE.deserialize(
                       fieldValue2.bytes, fieldValue2.offset);
               return value1.compareTo(value2);
             }
             case BYTE: {
-              final byte value2 = readByte(fieldValue2);
+              final var value2 = readByte(fieldValue2);
               return value1.compareTo(new BigDecimal(value2));
             }
           }

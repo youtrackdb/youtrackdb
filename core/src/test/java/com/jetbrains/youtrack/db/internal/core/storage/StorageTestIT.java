@@ -38,7 +38,7 @@ public class StorageTestIT {
 
   @BeforeClass
   public static void beforeClass() throws IOException {
-    String buildDirectory = System.getProperty("buildDirectory", ".");
+    var buildDirectory = System.getProperty("buildDirectory", ".");
     buildPath = Paths.get(buildDirectory).resolve("databases")
         .resolve(StorageTestIT.class.getSimpleName());
     Files.createDirectories(buildPath);
@@ -47,7 +47,7 @@ public class StorageTestIT {
   @Test
   public void testCheckSumFailureReadOnly() throws Exception {
 
-    YouTrackDBConfigImpl config =
+    var config =
         (YouTrackDBConfigImpl) YouTrackDBConfig.builder()
             .addGlobalConfigurationParameter(
                 GlobalConfiguration.STORAGE_CHECKSUM_MODE,
@@ -68,33 +68,33 @@ public class StorageTestIT {
     Schema schema = metadata.getSchema();
     schema.createClass("PageBreak");
 
-    for (int i = 0; i < 10; i++) {
-      EntityImpl document = ((EntityImpl) session.newEntity("PageBreak"));
+    for (var i = 0; i < 10; i++) {
+      var document = ((EntityImpl) session.newEntity("PageBreak"));
       document.field("value", "value");
       document.save();
     }
 
-    LocalPaginatedStorage storage =
+    var storage =
         (LocalPaginatedStorage) session.getStorage();
-    WriteCache wowCache = storage.getWriteCache();
-    SharedContext ctx = session.getSharedContext();
+    var wowCache = storage.getWriteCache();
+    var ctx = session.getSharedContext();
     session.close();
 
-    final Path storagePath = storage.getStoragePath();
+    final var storagePath = storage.getStoragePath();
 
-    long fileId = wowCache.fileIdByName("pagebreak.pcl");
-    String nativeFileName = wowCache.nativeFileNameById(fileId);
+    var fileId = wowCache.fileIdByName("pagebreak.pcl");
+    var nativeFileName = wowCache.nativeFileNameById(fileId);
 
     storage.shutdown();
     ctx.close();
 
-    int position = 3 * 1024;
+    var position = 3 * 1024;
 
-    RandomAccessFile file =
+    var file =
         new RandomAccessFile(storagePath.resolve(nativeFileName).toFile(), "rw");
     file.seek(position);
 
-    int bt = file.read();
+    var bt = file.read();
     file.seek(position);
     file.write(bt + 1);
     file.close();
@@ -113,7 +113,7 @@ public class StorageTestIT {
 
   @Test
   public void testCheckMagicNumberReadOnly() throws Exception {
-    YouTrackDBConfigImpl config =
+    var config =
         (YouTrackDBConfigImpl) YouTrackDBConfig.builder()
             .addGlobalConfigurationParameter(
                 GlobalConfiguration.STORAGE_CHECKSUM_MODE,
@@ -134,29 +134,29 @@ public class StorageTestIT {
     Schema schema = metadata.getSchema();
     schema.createClass("PageBreak");
 
-    for (int i = 0; i < 10; i++) {
-      EntityImpl document = ((EntityImpl) db.newEntity("PageBreak"));
+    for (var i = 0; i < 10; i++) {
+      var document = ((EntityImpl) db.newEntity("PageBreak"));
       document.field("value", "value");
       document.save();
     }
 
-    LocalPaginatedStorage storage =
+    var storage =
         (LocalPaginatedStorage) db.getStorage();
-    WriteCache wowCache = storage.getWriteCache();
-    SharedContext ctx = db.getSharedContext();
+    var wowCache = storage.getWriteCache();
+    var ctx = db.getSharedContext();
     db.close();
 
-    final Path storagePath = storage.getStoragePath();
+    final var storagePath = storage.getStoragePath();
 
-    long fileId = wowCache.fileIdByName("pagebreak.pcl");
-    String nativeFileName = wowCache.nativeFileNameById(fileId);
+    var fileId = wowCache.fileIdByName("pagebreak.pcl");
+    var nativeFileName = wowCache.nativeFileNameById(fileId);
 
     storage.shutdown();
     ctx.close();
 
-    int position = File.HEADER_SIZE + DurablePage.MAGIC_NUMBER_OFFSET;
+    var position = File.HEADER_SIZE + DurablePage.MAGIC_NUMBER_OFFSET;
 
-    RandomAccessFile file =
+    var file =
         new RandomAccessFile(storagePath.resolve(nativeFileName).toFile(), "rw");
     file.seek(position);
     file.write(1);
@@ -177,7 +177,7 @@ public class StorageTestIT {
   @Test
   public void testCheckMagicNumberVerify() throws Exception {
 
-    YouTrackDBConfigImpl config =
+    var config =
         (YouTrackDBConfigImpl) YouTrackDBConfig.builder()
             .addGlobalConfigurationParameter(GlobalConfiguration.STORAGE_CHECKSUM_MODE,
                 ChecksumMode.StoreAndVerify)
@@ -197,29 +197,29 @@ public class StorageTestIT {
     Schema schema = metadata.getSchema();
     schema.createClass("PageBreak");
 
-    for (int i = 0; i < 10; i++) {
-      EntityImpl document = ((EntityImpl) db.newEntity("PageBreak"));
+    for (var i = 0; i < 10; i++) {
+      var document = ((EntityImpl) db.newEntity("PageBreak"));
       document.field("value", "value");
       document.save();
     }
 
-    LocalPaginatedStorage storage =
+    var storage =
         (LocalPaginatedStorage) db.getStorage();
-    WriteCache wowCache = storage.getWriteCache();
-    SharedContext ctx = db.getSharedContext();
+    var wowCache = storage.getWriteCache();
+    var ctx = db.getSharedContext();
     db.close();
 
-    final Path storagePath = storage.getStoragePath();
+    final var storagePath = storage.getStoragePath();
 
-    long fileId = wowCache.fileIdByName("pagebreak.pcl");
-    String nativeFileName = wowCache.nativeFileNameById(fileId);
+    var fileId = wowCache.fileIdByName("pagebreak.pcl");
+    var nativeFileName = wowCache.nativeFileNameById(fileId);
 
     storage.shutdown();
     ctx.close();
 
-    int position = File.HEADER_SIZE + DurablePage.MAGIC_NUMBER_OFFSET;
+    var position = File.HEADER_SIZE + DurablePage.MAGIC_NUMBER_OFFSET;
 
-    RandomAccessFile file =
+    var file =
         new RandomAccessFile(storagePath.resolve(nativeFileName).toFile(), "rw");
     file.seek(position);
     file.write(1);
@@ -231,7 +231,7 @@ public class StorageTestIT {
 
     Thread.sleep(100); // lets wait till event will be propagated
 
-    EntityImpl document = ((EntityImpl) db.newEntity("PageBreak"));
+    var document = ((EntityImpl) db.newEntity("PageBreak"));
     document.field("value", "value");
 
     document.save();
@@ -242,7 +242,7 @@ public class StorageTestIT {
   @Test
   public void testCheckSumFailureVerifyAndLog() throws Exception {
 
-    YouTrackDBConfigImpl config =
+    var config =
         (YouTrackDBConfigImpl) YouTrackDBConfig.builder()
             .addGlobalConfigurationParameter(GlobalConfiguration.STORAGE_CHECKSUM_MODE,
                 ChecksumMode.StoreAndVerify)
@@ -262,33 +262,33 @@ public class StorageTestIT {
     Schema schema = metadata.getSchema();
     schema.createClass("PageBreak");
 
-    for (int i = 0; i < 10; i++) {
-      EntityImpl document = ((EntityImpl) db.newEntity("PageBreak"));
+    for (var i = 0; i < 10; i++) {
+      var document = ((EntityImpl) db.newEntity("PageBreak"));
       document.field("value", "value");
       document.save();
     }
 
-    LocalPaginatedStorage storage =
+    var storage =
         (LocalPaginatedStorage) db.getStorage();
-    WriteCache wowCache = storage.getWriteCache();
-    SharedContext ctx = db.getSharedContext();
+    var wowCache = storage.getWriteCache();
+    var ctx = db.getSharedContext();
     db.close();
 
-    final Path storagePath = storage.getStoragePath();
+    final var storagePath = storage.getStoragePath();
 
-    long fileId = wowCache.fileIdByName("pagebreak.pcl");
-    String nativeFileName = wowCache.nativeFileNameById(fileId);
+    var fileId = wowCache.fileIdByName("pagebreak.pcl");
+    var nativeFileName = wowCache.nativeFileNameById(fileId);
 
     storage.shutdown();
     ctx.close();
 
-    int position = 3 * 1024;
+    var position = 3 * 1024;
 
-    RandomAccessFile file =
+    var file =
         new RandomAccessFile(storagePath.resolve(nativeFileName).toFile(), "rw");
     file.seek(position);
 
-    int bt = file.read();
+    var bt = file.read();
     file.seek(position);
     file.write(bt + 1);
     file.close();
@@ -299,7 +299,7 @@ public class StorageTestIT {
 
     Thread.sleep(100); // lets wait till event will be propagated
 
-    EntityImpl document = ((EntityImpl) db.newEntity("PageBreak"));
+    var document = ((EntityImpl) db.newEntity("PageBreak"));
     document.field("value", "value");
 
     document.save();
@@ -317,12 +317,12 @@ public class StorageTestIT {
             + StorageTestIT.class.getSimpleName()
             + " plocal users ( admin identified by 'admin' role admin)");
 
-    final DatabaseSession session =
+    final var session =
         youTrackDB.open(StorageTestIT.class.getSimpleName(), "admin", "admin");
-    try (ResultSet resultSet = session.query("SELECT FROM metadata:storage")) {
+    try (var resultSet = session.query("SELECT FROM metadata:storage")) {
       Assert.assertTrue(resultSet.hasNext());
 
-      final Result result = resultSet.next();
+      final var result = resultSet.next();
       Assert.assertEquals(YouTrackDBConstants.getVersion(), result.getProperty("createdAtVersion"));
     }
   }

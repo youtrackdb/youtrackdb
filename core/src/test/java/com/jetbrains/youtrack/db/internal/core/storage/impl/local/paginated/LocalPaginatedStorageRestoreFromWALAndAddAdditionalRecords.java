@@ -55,7 +55,7 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
     GlobalConfiguration.STORAGE_COMPRESSION_METHOD.setValue("nothing");
     GlobalConfiguration.FILE_LOCK.setValue(false);
 
-    String buildDirectory = System.getProperty("buildDirectory", ".");
+    var buildDirectory = System.getProperty("buildDirectory", ".");
     buildDirectory += "/localPaginatedStorageRestoreFromWALAndAddAdditionalRecords";
 
     buildDir = new File(buildDirectory);
@@ -105,19 +105,19 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
   public void testRestoreAndAddNewItems() throws Exception {
     List<Future<Void>> futures = new ArrayList<Future<Void>>();
 
-    Random random = new Random();
+    var random = new Random();
 
-    long[] seeds = new long[5];
-    for (int i = 0; i < 5; i++) {
+    var seeds = new long[5];
+    for (var i = 0; i < 5; i++) {
       seeds[i] = random.nextLong();
       System.out.println("Seed [" + i + "] = " + seeds[i]);
     }
 
-    for (long seed : seeds) {
+    for (var seed : seeds) {
       futures.add(executorService.submit(new DataPropagationTask(seed)));
     }
 
-    for (Future<Void> future : futures) {
+    for (var future : futures) {
       future.get();
     }
 
@@ -125,7 +125,7 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
 
     Thread.sleep(1500);
     copyDataFromTestWithoutClose();
-    Storage storage = baseDocumentTx.getStorage();
+    var storage = baseDocumentTx.getStorage();
     baseDocumentTx.close();
     storage.close(baseDocumentTx);
 
@@ -137,17 +137,17 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
     testDocumentTx.open("admin", "admin");
     testDocumentTx.close();
 
-    long dataAddSeed = random.nextLong();
+    var dataAddSeed = random.nextLong();
     System.out.println("Data add seed = " + dataAddSeed);
-    for (int i = 0; i < 1; i++) {
+    for (var i = 0; i < 1; i++) {
       futures.add(executorService.submit(new DataPropagationTask(dataAddSeed)));
     }
 
-    for (Future<Void> future : futures) {
+    for (var future : futures) {
       future.get();
     }
 
-    DatabaseCompare databaseCompare =
+    var databaseCompare =
         new DatabaseCompare(
             testDocumentTx,
             baseDocumentTx,
@@ -163,10 +163,10 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
   }
 
   private void copyDataFromTestWithoutClose() throws Exception {
-    final Path testStoragePath = Paths.get(baseDocumentTx.getURL().substring("plocal:".length()));
-    Path buildPath = Paths.get(buildDir.toURI());
+    final var testStoragePath = Paths.get(baseDocumentTx.getURL().substring("plocal:".length()));
+    var buildPath = Paths.get(buildDir.toURI());
 
-    final Path copyTo =
+    final var copyTo =
         buildPath.resolve("testLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords");
 
     Files.copy(testStoragePath, copyTo);
@@ -177,7 +177,7 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
           @Override
           public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
               throws IOException {
-            Path fileToCopy = copyTo.resolve(testStoragePath.relativize(file));
+            var fileToCopy = copyTo.resolve(testStoragePath.relativize(file));
             if (fileToCopy.endsWith(
                 "baseLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.wmr")) {
               fileToCopy =
@@ -265,7 +265,7 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
     DatabaseRecordThreadLocal.instance().set(databaseDocumentTx);
 
     Schema schema = databaseDocumentTx.getMetadata().getSchema();
-    SchemaClass testOneClass = schema.createClass("TestOne");
+    var testOneClass = schema.createClass("TestOne");
 
     testOneClass.createProperty(databaseDocumentTx, "intProp", PropertyType.INTEGER);
     testOneClass.createProperty(databaseDocumentTx, "stringProp", PropertyType.STRING);
@@ -273,7 +273,7 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
         PropertyType.STRING);
     testOneClass.createProperty(databaseDocumentTx, "linkMap", PropertyType.LINKMAP);
 
-    SchemaClass testTwoClass = schema.createClass("TestTwo");
+    var testTwoClass = schema.createClass("TestTwo");
 
     testTwoClass.createProperty(databaseDocumentTx, "stringList", PropertyType.EMBEDDEDLIST,
         PropertyType.STRING);
@@ -300,7 +300,7 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
     @Override
     public Void call() throws Exception {
 
-      Random random = new Random(seed);
+      var random = new Random(seed);
 
       DatabaseRecordThreadLocal.instance().set(baseDB);
 
@@ -308,21 +308,21 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
         List<RID> testTwoList = new ArrayList<RID>();
         List<RID> firstDocs = new ArrayList<RID>();
 
-        SchemaClass classOne = baseDB.getMetadata().getSchema().getClass("TestOne");
-        SchemaClass classTwo = baseDB.getMetadata().getSchema().getClass("TestTwo");
+        var classOne = baseDB.getMetadata().getSchema().getClass("TestOne");
+        var classTwo = baseDB.getMetadata().getSchema().getClass("TestTwo");
 
-        for (int i = 0; i < 10000; i++) {
-          EntityImpl docOne = ((EntityImpl) baseDB.newEntity(classOne));
+        for (var i = 0; i < 10000; i++) {
+          var docOne = ((EntityImpl) baseDB.newEntity(classOne));
           docOne.field("intProp", random.nextInt());
 
-          byte[] stringData = new byte[256];
+          var stringData = new byte[256];
           random.nextBytes(stringData);
-          String stringProp = new String(stringData);
+          var stringProp = new String(stringData);
 
           docOne.field("stringProp", stringProp);
 
           Set<String> stringSet = new HashSet<String>();
-          for (int n = 0; n < 5; n++) {
+          for (var n = 0; n < 5; n++) {
             stringSet.add("str" + random.nextInt());
           }
           docOne.field("stringSet", stringSet);
@@ -332,11 +332,11 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
           firstDocs.add(docOne.getIdentity());
 
           if (random.nextBoolean()) {
-            EntityImpl docTwo = ((EntityImpl) baseDB.newEntity(classTwo));
+            var docTwo = ((EntityImpl) baseDB.newEntity(classTwo));
 
             List<String> stringList = new ArrayList<String>();
 
-            for (int n = 0; n < 5; n++) {
+            for (var n = 0; n < 5; n++) {
               stringList.add("strnd" + random.nextInt());
             }
 
@@ -346,13 +346,13 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
           }
 
           if (!testTwoList.isEmpty()) {
-            int startIndex = random.nextInt(testTwoList.size());
-            int endIndex = random.nextInt(testTwoList.size() - startIndex) + startIndex;
+            var startIndex = random.nextInt(testTwoList.size());
+            var endIndex = random.nextInt(testTwoList.size() - startIndex) + startIndex;
 
             Map<String, RID> linkMap = new HashMap<String, RID>();
 
-            for (int n = startIndex; n < endIndex; n++) {
-              RID docTwoRid = testTwoList.get(n);
+            for (var n = startIndex; n < endIndex; n++) {
+              var docTwoRid = testTwoList.get(n);
               linkMap.put(docTwoRid.toString(), docTwoRid);
             }
 
@@ -361,9 +361,9 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
             saveDoc(docOne);
           }
 
-          boolean deleteDoc = random.nextDouble() <= 0.2;
+          var deleteDoc = random.nextDouble() <= 0.2;
           if (deleteDoc) {
-            RID rid = firstDocs.remove(random.nextInt(firstDocs.size()));
+            var rid = firstDocs.remove(random.nextInt(firstDocs.size()));
 
             deleteDoc(rid);
           }
@@ -381,7 +381,7 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
     private void saveDoc(EntityImpl document) {
       DatabaseRecordThreadLocal.instance().set(baseDB);
 
-      EntityImpl testDoc = ((EntityImpl) baseDB.newEntity());
+      var testDoc = ((EntityImpl) baseDB.newEntity());
       document.copyTo(testDoc);
       document.save();
 

@@ -72,7 +72,7 @@ public class BasicLegacyResultSet<T> implements LegacyResultSet<T> {
 
   @Override
   public boolean isEmpty() {
-    boolean empty = underlying.isEmpty();
+    var empty = underlying.isEmpty();
     if (empty) {
       empty = underlying.isEmpty();
     }
@@ -130,7 +130,7 @@ public class BasicLegacyResultSet<T> implements LegacyResultSet<T> {
       return false;
     }
 
-    final boolean result = underlying.add(t);
+    final var result = underlying.add(t);
     return result;
   }
 
@@ -236,7 +236,7 @@ public class BasicLegacyResultSet<T> implements LegacyResultSet<T> {
   }
 
   public BasicLegacyResultSet<T> copy() {
-    final BasicLegacyResultSet<T> newValue = new BasicLegacyResultSet<T>();
+    final var newValue = new BasicLegacyResultSet<T>();
     newValue.underlying.addAll(underlying);
     return newValue;
   }

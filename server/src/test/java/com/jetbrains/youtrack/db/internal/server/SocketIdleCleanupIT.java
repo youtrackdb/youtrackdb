@@ -38,7 +38,7 @@ public class SocketIdleCleanupIT {
       NotCompliantMBeanException,
       ClassNotFoundException,
       MalformedObjectNameException {
-    String classpath = System.getProperty("java.class.path");
+    var classpath = System.getProperty("java.class.path");
     System.out.println("Class path " + classpath);
     server =
         YouTrackDBServer.startFromStreamConfig(
@@ -47,24 +47,24 @@ public class SocketIdleCleanupIT {
 
   @Test
   public void test() throws InterruptedException {
-    YouTrackDBConfig config =
+    var config =
         YouTrackDBConfig.builder()
             .addGlobalConfigurationParameter(GlobalConfiguration.CLIENT_CHANNEL_IDLE_CLOSE, true)
             .addGlobalConfigurationParameter(GlobalConfiguration.CLIENT_CHANNEL_IDLE_TIMEOUT, 1)
             .build();
-    YouTrackDBImpl youTrackDb = new YouTrackDBImpl("remote:localhost", "root", "root",
+    var youTrackDb = new YouTrackDBImpl("remote:localhost", "root", "root",
         config);
     youTrackDb.execute(
         "create database test memory users (admin identified by 'admin' role admin)");
-    DatabaseSession session = youTrackDb.open("test", "admin", "admin");
+    var session = youTrackDb.open("test", "admin", "admin");
     session.save(session.newVertex("V"));
     Thread.sleep(2000);
-    YouTrackDBRemote remote = (YouTrackDBRemote) YouTrackDBInternal.extract(youTrackDb);
-    RemoteConnectionManager connectionManager = remote.getConnectionManager();
-    RemoteConnectionPool pool =
+    var remote = (YouTrackDBRemote) YouTrackDBInternal.extract(youTrackDb);
+    var connectionManager = remote.getConnectionManager();
+    var pool =
         connectionManager.getPool(connectionManager.getURLs().iterator().next());
     assertFalse(pool.getPool().getResources().iterator().next().isConnected());
-    try (ResultSet result = session.query("select from V")) {
+    try (var result = session.query("select from V")) {
       assertEquals(result.stream().count(), 1);
     }
   }

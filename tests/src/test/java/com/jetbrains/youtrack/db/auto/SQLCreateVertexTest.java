@@ -29,7 +29,7 @@ public class SQLCreateVertexTest extends BaseDBTest {
 
     Schema schema = db.getMetadata().getSchema();
     if (!schema.existsClass("CreateVertexByContent")) {
-      SchemaClass vClass = schema.createClass("CreateVertexByContent", schema.getClass("V"));
+      var vClass = schema.createClass("CreateVertexByContent", schema.getClass("V"));
       vClass.createProperty(db, "message", PropertyType.STRING);
     }
 
@@ -41,7 +41,7 @@ public class SQLCreateVertexTest extends BaseDBTest {
         .close();
     db.commit();
 
-    List<Result> result =
+    var result =
         db.query("select from CreateVertexByContent").stream().collect(Collectors.toList());
     Assert.assertEquals(result.size(), 2);
 
@@ -51,7 +51,7 @@ public class SQLCreateVertexTest extends BaseDBTest {
 
     List<String> resultMessages = new ArrayList<String>();
 
-    for (Result document : result) {
+    for (var document : result) {
       resultMessages.add(document.getProperty("message"));
     }
 
@@ -63,10 +63,10 @@ public class SQLCreateVertexTest extends BaseDBTest {
   }
 
   private String toString(List<String> resultMessages) {
-    StringBuilder result = new StringBuilder();
+    var result = new StringBuilder();
     result.append("[");
-    boolean first = true;
-    for (String msg : resultMessages) {
+    var first = true;
+    for (var msg : resultMessages) {
       if (!first) {
         result.append(", ");
       }

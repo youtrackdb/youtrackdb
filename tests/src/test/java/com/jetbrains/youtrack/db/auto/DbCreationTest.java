@@ -70,7 +70,7 @@ public class DbCreationTest {
               "D2AFD02F20640EC8B7A5140F34FCA49D2289DB1F0D0598BB9DE8AAA75A0792F3",
               configBuilder.build());
     } else {
-      final String buildDirectory = System.getProperty("buildDirectory", ".");
+      final var buildDirectory = System.getProperty("buildDirectory", ".");
       youTrackDB = YourTracks.embedded(buildDirectory + "/test-db", configBuilder.build());
     }
   }
@@ -100,7 +100,7 @@ public class DbCreationTest {
   public void testDbOpenWithLastAsSlash() {
     youTrackDB.close();
 
-    String url = calculateURL() + "/";
+    var url = calculateURL() + "/";
 
     var configBuilder = YouTrackDBConfig.builder();
     configBuilder.addGlobalConfigurationParameter(GlobalConfiguration.NON_TX_READS_WARNING_MODE,
@@ -119,7 +119,7 @@ public class DbCreationTest {
     if (remoteDB) {
       url = "remote:localhost";
     } else {
-      final String buildDirectory = System.getProperty("buildDirectory", ".");
+      final var buildDirectory = System.getProperty("buildDirectory", ".");
       url = "plocal:" + buildDirectory + "/test-db";
     }
     return url;
@@ -202,7 +202,7 @@ public class DbCreationTest {
 
   @Test(dependsOnMethods = {"testSubFolderDbCreateConnPool"})
   public void testOpenCloseConnectionPool() {
-    for (int i = 0; i < 500; i++) {
+    for (var i = 0; i < 500; i++) {
       youTrackDB.cachedPool(DB_NAME, "admin", "admin").acquire().close();
     }
   }
@@ -213,8 +213,8 @@ public class DbCreationTest {
       return;
     }
 
-    for (int i = 0; i < 3; ++i) {
-      String dbName = "a" + i + "$db";
+    for (var i = 0; i < 3; ++i) {
+      var dbName = "a" + i + "$db";
       try {
         youTrackDB.drop(dbName);
         Assert.fail();
@@ -228,8 +228,8 @@ public class DbCreationTest {
       youTrackDB.open(dbName, "admin", "admin").close();
     }
 
-    for (int i = 0; i < 3; ++i) {
-      String dbName = "a" + i + "$db";
+    for (var i = 0; i < 3; ++i) {
+      var dbName = "a" + i + "$db";
       Assert.assertTrue(youTrackDB.exists(dbName));
       youTrackDB.drop(dbName);
       Assert.assertFalse(youTrackDB.exists(dbName));
@@ -247,7 +247,7 @@ public class DbCreationTest {
     }
 
     if (!remoteDB) {
-      final String buildDirectory = System.getProperty("buildDirectory", ".");
+      final var buildDirectory = System.getProperty("buildDirectory", ".");
       var path = buildDirectory + "/test-db/" + DB_NAME + "Remove";
       Assert.assertTrue(new File(path).exists());
     }

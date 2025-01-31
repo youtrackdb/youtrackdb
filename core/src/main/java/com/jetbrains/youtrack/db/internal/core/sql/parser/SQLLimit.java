@@ -53,7 +53,7 @@ public class SQLLimit extends SimpleNode {
       return num.getValue().intValue();
     }
     if (inputParam != null) {
-      Object paramValue = inputParam.getValue(ctx.getInputParameters());
+      var paramValue = inputParam.getValue(ctx.getInputParameters());
       if (paramValue instanceof Number) {
         return ((Number) paramValue).intValue();
       } else {
@@ -64,7 +64,7 @@ public class SQLLimit extends SimpleNode {
   }
 
   public SQLLimit copy() {
-    SQLLimit result = new SQLLimit(-1);
+    var result = new SQLLimit(-1);
     result.num = num == null ? null : num.copy();
     result.inputParam = inputParam == null ? null : inputParam.copy();
     return result;
@@ -79,7 +79,7 @@ public class SQLLimit extends SimpleNode {
       return false;
     }
 
-    SQLLimit oLimit = (SQLLimit) o;
+    var oLimit = (SQLLimit) o;
 
     if (!Objects.equals(num, oLimit.num)) {
       return false;
@@ -89,13 +89,13 @@ public class SQLLimit extends SimpleNode {
 
   @Override
   public int hashCode() {
-    int result = num != null ? num.hashCode() : 0;
+    var result = num != null ? num.hashCode() : 0;
     result = 31 * result + (inputParam != null ? inputParam.hashCode() : 0);
     return result;
   }
 
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     if (num != null) {
       result.setProperty("num", num.serialize(db));
     }

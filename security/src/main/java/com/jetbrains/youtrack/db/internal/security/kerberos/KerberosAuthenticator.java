@@ -71,12 +71,12 @@ public class KerberosAuthenticator extends SecurityAuthenticatorAbstract {
    */
   // Called once the Server is running.
   public void active() {
-    ExpirationTask task = new ExpirationTask();
+    var task = new ExpirationTask();
     expirationTimer = new Timer(true);
     expirationTimer.scheduleAtFixedRate(
         task, 30000, ticketRelayExpiration); // Wait 30 seconds before starting
 
-    RenewalTask renewalTask = new RenewalTask();
+    var renewalTask = new RenewalTask();
     renewalTimer = new Timer(true);
     renewalTimer.scheduleAtFixedRate(
         renewalTask,
@@ -120,7 +120,7 @@ public class KerberosAuthenticator extends SecurityAuthenticatorAbstract {
           // username, and we compare
           // the service ticket's hash code.  If they match, we return the principal.
 
-          TicketItem ti = getTicket(Integer.toString(password.hashCode()));
+          var ti = getTicket(Integer.toString(password.hashCode()));
 
           if (ti != null && ti.getHashCode() == password.hashCode()) {
             if (isDebug()) {
@@ -140,7 +140,7 @@ public class KerberosAuthenticator extends SecurityAuthenticatorAbstract {
 
             principal = ti.getPrincipal();
           } else {
-            byte[] ticket = Base64.getDecoder().decode(password.getBytes(StandardCharsets.UTF_8));
+            var ticket = Base64.getDecoder().decode(password.getBytes(StandardCharsets.UTF_8));
 
             // Temporary, for Java 7 support.
             //						byte[] ticket = new BASE64Decoder().decodeBuffer(password);
@@ -360,7 +360,7 @@ public class KerberosAuthenticator extends SecurityAuthenticatorAbstract {
       LogManager.instance()
           .info(this, "createServiceSubject() Service Principal: " + servicePrincipal);
 
-      LoginContext lc = new LoginContext("ignore", null, null, cfg);
+      var lc = new LoginContext("ignore", null, null, cfg);
       lc.login();
 
       serviceSubject = lc.getSubject();
@@ -396,7 +396,7 @@ public class KerberosAuthenticator extends SecurityAuthenticatorAbstract {
       LogManager.instance()
           .info(this, "createSpnegoSubject() SPNEGO Principal: " + spnegoPrincipal);
 
-      LoginContext lc = new LoginContext("ignore", null, null, cfg);
+      var lc = new LoginContext("ignore", null, null, cfg);
       lc.login();
 
       spnegoSubject = lc.getSubject();
@@ -440,7 +440,7 @@ public class KerberosAuthenticator extends SecurityAuthenticatorAbstract {
       LogManager.instance()
           .info(this, "createClientSubject() Client Principal: " + clientPrincipal);
 
-      LoginContext lc = new LoginContext("ignore", null, null, cfg);
+      var lc = new LoginContext("ignore", null, null, cfg);
       lc.login();
 
       clientSubject = lc.getSubject();
@@ -485,9 +485,9 @@ public class KerberosAuthenticator extends SecurityAuthenticatorAbstract {
 
   private void checkTicketExpirations() {
     synchronized (ticketRelayMap) {
-      long currTime = System.currentTimeMillis();
+      var currTime = System.currentTimeMillis();
 
-      for (Map.Entry<String, TicketItem> entry : ticketRelayMap.entrySet()) {
+      for (var entry : ticketRelayMap.entrySet()) {
         if (entry.getValue().hasExpired(currTime)) {
           //					LogManager.instance().info(this, "~~~~~~~~ checkTicketExpirations() Ticket has
           // expired: " + entry.getValue().getHashCode() + "\n");

@@ -29,22 +29,22 @@ public class SQLRevokeStatement extends SQLSimpleExecStatement {
 
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
-    DatabaseSessionInternal db = ctx.getDatabase();
-    Role role = db.getMetadata().getSecurity().getRole(actor.getStringValue());
+    var db = ctx.getDatabase();
+    var role = db.getMetadata().getSecurity().getRole(actor.getStringValue());
     if (role == null) {
       throw new CommandExecutionException("Invalid role: " + actor.getStringValue());
     }
 
-    String resourcePath = securityResource.toString();
+    var resourcePath = securityResource.toString();
     if (permission != null) {
       role.revoke(db, resourcePath, toPrivilege(permission.permission));
       role.save(db);
     } else {
-      SecurityInternal security = db.getSharedContext().getSecurity();
+      var security = db.getSharedContext().getSecurity();
       security.removeSecurityPolicy(db, role, resourcePath);
     }
 
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     result.setProperty("operation", "grant");
     result.setProperty("role", actor.getStringValue());
     if (permission != null) {
@@ -106,7 +106,7 @@ public class SQLRevokeStatement extends SQLSimpleExecStatement {
 
   @Override
   public SQLRevokeStatement copy() {
-    SQLRevokeStatement result = new SQLRevokeStatement(-1);
+    var result = new SQLRevokeStatement(-1);
     result.permission = permission == null ? null : permission.copy();
     result.securityResource = securityResource == null ? null : securityResource.copy();
     result.revokePolicy = revokePolicy;
@@ -122,7 +122,7 @@ public class SQLRevokeStatement extends SQLSimpleExecStatement {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SQLRevokeStatement that = (SQLRevokeStatement) o;
+    var that = (SQLRevokeStatement) o;
     return revokePolicy == that.revokePolicy
         && Objects.equals(permission, that.permission)
         && Objects.equals(securityResource, that.securityResource)

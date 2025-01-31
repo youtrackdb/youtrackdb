@@ -96,9 +96,9 @@ public class QueryOperatorIs extends QueryOperatorEquality {
   public Stream<RawPair<Object, RID>> executeIndexQuery(
       CommandContext iContext, Index index, List<Object> keyParams, boolean ascSortOrder) {
 
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
 
-    final IndexInternal internalIndex = index.getInternal();
+    final var internalIndex = index.getInternal();
     Stream<RawPair<Object, RID>> stream;
     if (!internalIndex.canBeUsedInEqualityOperators()) {
       return null;
@@ -120,7 +120,7 @@ public class QueryOperatorIs extends QueryOperatorEquality {
       // in case of composite keys several items can be returned in case we perform search
       // using part of composite key stored in index
 
-      final CompositeIndexDefinition compositeIndexDefinition =
+      final var compositeIndexDefinition =
           (CompositeIndexDefinition) indexDefinition;
 
       final Object keyOne =

@@ -71,17 +71,17 @@ public class LiveQueryTest extends BaseDBTest implements CommandOutputListener {
 
   @Test(enabled = false)
   public void checkLiveQuery1() throws IOException, InterruptedException {
-    final String className1 = "LiveQueryTest1_1";
-    final String className2 = "LiveQueryTest1_2";
+    final var className1 = "LiveQueryTest1_1";
+    final var className2 = "LiveQueryTest1_2";
     db.getMetadata().getSchema().createClass(className1);
     db.getMetadata().getSchema().createClass(className2);
 
-    MyLiveQueryListener listener = new MyLiveQueryListener();
+    var listener = new MyLiveQueryListener();
 
     LegacyResultSet<EntityImpl> tokens =
         db.query(new LiveQuery<EntityImpl>("live select from " + className1, listener));
     Assert.assertEquals(tokens.size(), 1);
-    EntityImpl tokenDoc = tokens.get(0);
+    var tokenDoc = tokens.get(0);
     int token = tokenDoc.field("token");
     Assert.assertNotNull(token);
 
@@ -94,7 +94,7 @@ public class LiveQueryTest extends BaseDBTest implements CommandOutputListener {
     db.command("live unsubscribe " + token).close();
     db.command("insert into " + className1 + " set name = 'foo', surname = 'bax'").close();
     Assert.assertEquals(listener.ops.size(), 2);
-    for (RecordOperation doc : listener.ops) {
+    for (var doc : listener.ops) {
       Assert.assertEquals(doc.type, RecordOperation.CREATED);
       Assert.assertEquals(((EntityImpl) doc.record).field("name"), "foo");
     }

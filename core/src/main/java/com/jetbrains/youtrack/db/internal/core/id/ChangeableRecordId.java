@@ -75,7 +75,7 @@ public class ChangeableRecordId extends RecordId implements ChangeableIdentity {
 
   private void fireBeforeIdentityChange() {
     if (this.identityChangeListeners != null) {
-      for (IdentityChangeListener listener : this.identityChangeListeners) {
+      for (var listener : this.identityChangeListeners) {
         listener.onBeforeIdentityChange(this);
       }
     }
@@ -83,7 +83,7 @@ public class ChangeableRecordId extends RecordId implements ChangeableIdentity {
 
   private void fireAfterIdentityChange() {
     if (this.identityChangeListeners != null) {
-      for (IdentityChangeListener listener : this.identityChangeListeners) {
+      for (var listener : this.identityChangeListeners) {
         listener.onAfterIdentityChange(this);
       }
     }
@@ -105,7 +105,7 @@ public class ChangeableRecordId extends RecordId implements ChangeableIdentity {
     if (!(obj instanceof Identifiable)) {
       return false;
     }
-    final RecordId other = (RecordId) ((Identifiable) obj).getIdentity();
+    final var other = (RecordId) ((Identifiable) obj).getIdentity();
 
     if (clusterId == other.clusterId && clusterPosition == other.clusterPosition) {
       if (clusterId != CLUSTER_ID_INVALID || clusterPosition != CLUSTER_POS_INVALID) {
@@ -137,9 +137,9 @@ public class ChangeableRecordId extends RecordId implements ChangeableIdentity {
     }
 
     var otherIdentity = other.getIdentity();
-    final int otherClusterId = otherIdentity.getClusterId();
+    final var otherClusterId = otherIdentity.getClusterId();
     if (clusterId == otherClusterId) {
-      final long otherClusterPos = other.getIdentity().getClusterPosition();
+      final var otherClusterPos = other.getIdentity().getClusterPosition();
 
       if (clusterPosition == otherClusterPos) {
         if ((clusterId == CLUSTER_ID_INVALID && clusterPosition == CLUSTER_POS_INVALID)

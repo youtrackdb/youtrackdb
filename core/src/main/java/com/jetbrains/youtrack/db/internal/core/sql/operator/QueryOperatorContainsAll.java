@@ -58,9 +58,9 @@ public class QueryOperatorContainsAll extends QueryOperatorEqualityNotNulls {
     if (iLeft.getClass().isArray()) {
       if (iRight.getClass().isArray()) {
         // ARRAY VS ARRAY
-        int matches = 0;
-        for (final Object l : (Object[]) iLeft) {
-          for (final Object r : (Object[]) iRight) {
+        var matches = 0;
+        for (final var l : (Object[]) iLeft) {
+          for (final var r : (Object[]) iRight) {
             if (QueryOperatorEquals.equals(database, l, r)) {
               ++matches;
               break;
@@ -70,9 +70,9 @@ public class QueryOperatorContainsAll extends QueryOperatorEqualityNotNulls {
         return matches == ((Object[]) iRight).length;
       } else if (iRight instanceof Collection<?>) {
         // ARRAY VS ARRAY
-        int matches = 0;
-        for (final Object l : (Object[]) iLeft) {
-          for (final Object r : (Collection<?>) iRight) {
+        var matches = 0;
+        for (final var l : (Object[]) iLeft) {
+          for (final var r : (Collection<?>) iRight) {
             if (QueryOperatorEquals.equals(database, l, r)) {
               ++matches;
               break;
@@ -84,11 +84,11 @@ public class QueryOperatorContainsAll extends QueryOperatorEqualityNotNulls {
 
     } else if (iLeft instanceof Collection<?>) {
 
-      final Collection<EntityImpl> collection = (Collection<EntityImpl>) iLeft;
+      final var collection = (Collection<EntityImpl>) iLeft;
 
       if (condition != null) {
         // CHECK AGAINST A CONDITION
-        for (final EntityImpl o : collection) {
+        for (final var o : collection) {
           if (condition.evaluate(o, null, iContext) == Boolean.FALSE) {
             return false;
           }
@@ -104,10 +104,10 @@ public class QueryOperatorContainsAll extends QueryOperatorEqualityNotNulls {
     } else if (iRight instanceof Collection<?>) {
 
       // CHECK AGAINST A CONDITION
-      final Collection<EntityImpl> collection = (Collection<EntityImpl>) iRight;
+      final var collection = (Collection<EntityImpl>) iRight;
 
       if (condition != null) {
-        for (final EntityImpl o : collection) {
+        for (final var o : collection) {
           if (condition.evaluate(o, null, iContext) == Boolean.FALSE) {
             return false;
           }

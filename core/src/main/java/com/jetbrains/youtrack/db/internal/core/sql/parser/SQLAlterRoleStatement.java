@@ -51,18 +51,18 @@ public class SQLAlterRoleStatement extends SQLSimpleExecStatement {
   public ExecutionStream executeSimple(CommandContext ctx) {
     List<Result> rs = new ArrayList<>();
     var db = ctx.getDatabase();
-    SecurityInternal security = db.getSharedContext().getSecurity();
-    Role role = db.getMetadata().getSecurity().getRole(name.getStringValue());
+    var security = db.getSharedContext().getSecurity();
+    var role = db.getMetadata().getSecurity().getRole(name.getStringValue());
     if (role == null) {
       throw new CommandExecutionException("role not found: " + name.getStringValue());
     }
-    for (Op op : operations) {
-      ResultInternal result = new ResultInternal(db);
+    for (var op : operations) {
+      var result = new ResultInternal(db);
       result.setProperty("operation", "alter role");
       result.setProperty("name", name.getStringValue());
       result.setProperty("resource", op.resource.toString());
       if (op.type == Op.TYPE_ADD) {
-        SecurityPolicyImpl policy = security.getSecurityPolicy(db, op.policyName.getStringValue());
+        var policy = security.getSecurityPolicy(db, op.policyName.getStringValue());
         result.setProperty("operation", "ADD POLICY");
         result.setProperty("policyName", op.policyName.getStringValue());
         try {
@@ -90,7 +90,7 @@ public class SQLAlterRoleStatement extends SQLSimpleExecStatement {
     builder.append("ALTER ROLE ");
     name.toString(params, builder);
 
-    for (Op operation : operations) {
+    for (var operation : operations) {
       if (operation.type == Op.TYPE_ADD) {
         builder.append(" SET POLICY ");
         operation.policyName.toString(params, builder);
@@ -108,7 +108,7 @@ public class SQLAlterRoleStatement extends SQLSimpleExecStatement {
     builder.append("ALTER ROLE ");
     name.toGenericStatement(builder);
 
-    for (Op operation : operations) {
+    for (var operation : operations) {
       if (operation.type == Op.TYPE_ADD) {
         builder.append(" SET POLICY ");
         operation.policyName.toGenericStatement(builder);

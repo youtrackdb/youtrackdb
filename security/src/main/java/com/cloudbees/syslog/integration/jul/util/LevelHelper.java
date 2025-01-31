@@ -47,7 +47,7 @@ public class LevelHelper {
   static {
     Map<String, Level> levelsByNameMap = new HashMap<String, Level>();
     Map<Integer, Level> levelsByValueMap = new HashMap<Integer, Level>();
-    for (Level level : levels) {
+    for (var level : levels) {
       levelsByNameMap.put(level.getName(), level);
       levelsByValueMap.put(level.intValue(), level);
     }

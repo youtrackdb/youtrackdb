@@ -13,18 +13,18 @@ public class ReloadMessageTest extends DbTestBase {
 
   @Test
   public void testWriteReadResponse() throws IOException {
-    StorageConfiguration configuration =
+    var configuration =
         db.getStorage().getConfiguration();
-    ReloadResponse37 responseWrite = new ReloadResponse37(configuration);
-    MockChannel channel = new MockChannel();
+    var responseWrite = new ReloadResponse37(configuration);
+    var channel = new MockChannel();
     responseWrite.write(db, channel,
         ChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION, null);
     channel.close();
-    ReloadResponse37 responseRead = new ReloadResponse37();
+    var responseRead = new ReloadResponse37();
     responseRead.read(db, channel, null);
-    StorageConfigurationPayload payload = responseRead.getPayload();
+    var payload = responseRead.getPayload();
     assertEquals(configuration.getProperties().size(), payload.getProperties().size());
-    for (int i = 0; i < configuration.getProperties().size(); i++) {
+    for (var i = 0; i < configuration.getProperties().size(); i++) {
       assertEquals(configuration.getProperties().get(i).name, payload.getProperties().get(i).name);
       assertEquals(
           configuration.getProperties().get(i).value, payload.getProperties().get(i).value);
@@ -50,7 +50,7 @@ public class ReloadMessageTest extends DbTestBase {
     assertEquals(configuration.getBinaryFormatVersion(), payload.getBinaryFormatVersion());
 
     assertEquals(configuration.getClusters().size(), payload.getClusters().size());
-    for (int i = 0; i < configuration.getClusters().size(); i++) {
+    for (var i = 0; i < configuration.getClusters().size(); i++) {
       assertEquals(
           configuration.getClusters().get(i).getId(), payload.getClusters().get(i).getId());
       assertEquals(

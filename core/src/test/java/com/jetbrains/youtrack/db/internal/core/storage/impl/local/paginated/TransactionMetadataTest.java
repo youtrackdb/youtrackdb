@@ -43,10 +43,10 @@ public class TransactionMetadataTest {
   @Test
   public void testBackupRestore() {
     db.begin();
-    byte[] metadata = new byte[]{1, 2, 4};
+    var metadata = new byte[]{1, 2, 4};
     ((TransactionInternal) db.getTransaction())
         .setMetadataHolder(new TestTransacationMetadataHolder(metadata));
-    Vertex v = db.newVertex("V");
+    var v = db.newVertex("V");
     v.setProperty("name", "Foo");
     db.save(v);
     db.commit();
@@ -60,8 +60,8 @@ public class TransactionMetadataTest {
             DatabaseType.PLOCAL,
             "target/backup_metadata",
             YouTrackDBConfig.defaultConfig());
-    DatabaseSession db1 = youTrackDB.open(DB_NAME + "_re", "admin", "admin");
-    Optional<byte[]> fromStorage =
+    var db1 = youTrackDB.open(DB_NAME + "_re", "admin", "admin");
+    var fromStorage =
         ((AbstractPaginatedStorage) ((DatabaseSessionInternal) db1).getStorage())
             .getLastMetadata();
     assertTrue(fromStorage.isPresent());

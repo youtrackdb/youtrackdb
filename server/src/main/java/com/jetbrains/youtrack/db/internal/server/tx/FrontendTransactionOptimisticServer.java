@@ -44,14 +44,14 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
     operations.sort(Comparator.comparingInt(RecordOperationRequest::getType).reversed());
 
     final HashMap<RID, RecordOperation> tempEntries = new LinkedHashMap<>();
-    final HashMap<RID, RecordOperation> createdRecords = new HashMap<>();
-    final HashMap<RecordId, RecordAbstract> updatedRecords = new HashMap<>();
+    final var createdRecords = new HashMap<RID, RecordOperation>();
+    final var updatedRecords = new HashMap<RecordId, RecordAbstract>();
 
     try {
-      for (RecordOperationRequest operation : operations) {
-        final byte recordStatus = operation.getType();
+      for (var operation : operations) {
+        final var recordStatus = operation.getType();
 
-        final RecordId rid = (RecordId) operation.getId();
+        final var rid = (RecordId) operation.getId();
 
         @Nonnull final RecordOperation entry;
         switch (recordStatus) {
@@ -67,7 +67,7 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
 
               mergeChanges(operation, entry.record, operation.getRecordType());
             } else {
-              RecordAbstract record =
+              var record =
                   YouTrackDBEnginesManager.instance()
                       .getRecordFactoryManager()
                       .newInstance(operation.getRecordType(), rid, getDatabase());
@@ -82,7 +82,7 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
           break;
 
           case RecordOperation.UPDATED: {
-            byte type = operation.getRecordType();
+            var type = operation.getRecordType();
 
             var txEntry = getRecordEntry(rid);
             if (txEntry != null && txEntry.type == RecordOperation.DELETED) {
@@ -119,7 +119,7 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
 
             RecordAbstract rec = rid.getRecord(database);
             entry = new RecordOperation(rec, RecordOperation.DELETED);
-            int deleteVersion = operation.getVersion();
+            var deleteVersion = operation.getVersion();
             RecordInternal.setVersion(rec, deleteVersion);
             break;
           default:
@@ -132,7 +132,7 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
 
       var txOperations = new ArrayList<RecordOperation>(tempEntries.size());
       try {
-        for (Map.Entry<RID, RecordOperation> entry : tempEntries.entrySet()) {
+        for (var entry : tempEntries.entrySet()) {
           var operation = entry.getValue();
           txOperations.add(preAddRecord(operation.record, entry.getValue().type));
         }
@@ -150,7 +150,7 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
 
       newRecordsPositionsGenerator = (createdRecords.size() + 2) * -1;
       // UNMARSHALL ALL THE RECORD AT THE END TO BE SURE ALL THE RECORD ARE LOADED IN LOCAL TX
-      for (RecordOperation recordOperation : createdRecords.values()) {
+      for (var recordOperation : createdRecords.values()) {
         var record = recordOperation.record;
         unmarshallRecord(record);
         if (record instanceof EntityImpl) {
@@ -177,7 +177,7 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
       EntityInternalUtils.clearTransactionTrackData(entity);
 
       if (recordType == DocumentSerializerDelta.DELTA_RECORD_TYPE) {
-        DocumentSerializerDelta delta = DocumentSerializerDelta.instance();
+        var delta = DocumentSerializerDelta.instance();
         delta.deserializeDelta(getDatabase(), operation.getRecord(), entity);
       } else {
         var phantom = (EntityImpl) RecordSerializerNetworkV37.INSTANCE.fromStream(
@@ -198,7 +198,7 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
   }
 
   private boolean checkCallHooks(RecordId id, byte type) {
-    RecordOperation entry = recordOperations.get(id);
+    var entry = recordOperations.get(id);
     return entry == null || entry.type != type;
   }
 
@@ -206,7 +206,7 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
     changed = true;
     checkTransactionValid();
 
-    boolean callHooks = checkCallHooks(record.getIdentity(), iStatus);
+    var callHooks = checkCallHooks(record.getIdentity(), iStatus);
     if (callHooks) {
       switch (iStatus) {
         case RecordOperation.CREATED: {
@@ -224,21 +224,21 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
       }
     }
     try {
-      final RecordId rid = record.getIdentity();
+      final var rid = record.getIdentity();
 
       if (!rid.isPersistent() && !rid.isTemporary()) {
-        RecordId oldRid = rid.copy();
+        var oldRid = rid.copy();
         if (rid.getClusterPosition() == RecordId.CLUSTER_POS_INVALID) {
           rid.setClusterPosition(newRecordsPositionsGenerator--);
           generatedOriginalRecordIdMap.put(rid, oldRid);
         }
       }
 
-      RecordOperation txEntry = getRecordEntry(rid);
+      var txEntry = getRecordEntry(rid);
 
       if (txEntry == null) {
         // NEW ENTRY: JUST REGISTER IT
-        byte status = iStatus;
+        var status = iStatus;
         if (status == RecordOperation.UPDATED && record.getIdentity().isTemporary()) {
           status = RecordOperation.CREATED;
         }
@@ -272,7 +272,7 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
       }
 
       if (!rid.isPersistent() && !rid.isTemporary()) {
-        RecordId oldRid = rid.copy();
+        var oldRid = rid.copy();
         if (rid.getClusterId() == RecordId.CLUSTER_ID_INVALID) {
           database.assignAndCheckCluster(record, null);
           generatedOriginalRecordIdMap.put(rid, oldRid);

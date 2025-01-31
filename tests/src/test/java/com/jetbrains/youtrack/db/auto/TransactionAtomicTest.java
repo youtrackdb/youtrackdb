@@ -42,13 +42,13 @@ public class TransactionAtomicTest extends BaseDBTest {
 
   @Test
   public void testTransactionAtomic() {
-    DatabaseSessionInternal db1 = acquireSession();
-    DatabaseSessionInternal db2 = acquireSession();
+    var db1 = acquireSession();
+    var db2 = acquireSession();
 
 
 
     db2.begin();
-    EntityImpl record1 = ((EntityImpl) db2.newEntity());
+    var record1 = ((EntityImpl) db2.newEntity());
     record1
         .field("value", "This is the first version")
         .save();
@@ -81,7 +81,7 @@ public class TransactionAtomicTest extends BaseDBTest {
   @Test
   public void testMVCC() throws IOException {
 
-    EntityImpl doc = ((EntityImpl) db.newEntity("Account"));
+    var doc = ((EntityImpl) db.newEntity("Account"));
     db.begin();
     doc.field("version", 0);
     doc.save();
@@ -104,14 +104,14 @@ public class TransactionAtomicTest extends BaseDBTest {
   @Test
   public void testTransactionPreListenerRollback() throws IOException {
     db.begin();
-    EntityImpl record1 = ((EntityImpl) db.newEntity());
+    var record1 = ((EntityImpl) db.newEntity());
 
     record1
         .field("value", "This is the first version")
         .save();
     db.commit();
 
-    final SessionListener listener =
+    final var listener =
         new SessionListener() {
 
           @Override
@@ -155,7 +155,7 @@ public class TransactionAtomicTest extends BaseDBTest {
 
   @Test
   public void testTransactionWithDuplicateUniqueIndexValues() {
-    SchemaClass fruitClass = db.getMetadata().getSchema().getClass("Fruit");
+    var fruitClass = db.getMetadata().getSchema().getClass("Fruit");
 
     if (fruitClass == null) {
       fruitClass = db.getMetadata().getSchema().createClass("Fruit");
@@ -176,13 +176,13 @@ public class TransactionAtomicTest extends BaseDBTest {
     try {
       db.begin();
 
-      EntityImpl apple = ((EntityImpl) db.newEntity("Fruit")).field("name", "Apple")
+      var apple = ((EntityImpl) db.newEntity("Fruit")).field("name", "Apple")
           .field("color", "Red");
-      EntityImpl orange = ((EntityImpl) db.newEntity("Fruit")).field("name", "Orange")
+      var orange = ((EntityImpl) db.newEntity("Fruit")).field("name", "Orange")
           .field("color", "Orange");
-      EntityImpl banana = ((EntityImpl) db.newEntity("Fruit")).field("name", "Banana")
+      var banana = ((EntityImpl) db.newEntity("Fruit")).field("name", "Banana")
           .field("color", "Yellow");
-      EntityImpl kumquat = ((EntityImpl) db.newEntity("Fruit")).field("name", "Kumquat")
+      var kumquat = ((EntityImpl) db.newEntity("Fruit")).field("name", "Kumquat")
           .field("color", "Orange");
 
       apple.save();
@@ -209,7 +209,7 @@ public class TransactionAtomicTest extends BaseDBTest {
 
   @Test
   public void testTransactionalSQL() {
-    long prev = db.countClass("Account");
+    var prev = db.countClass("Account");
 
     db.begin();
     db
@@ -222,7 +222,7 @@ public class TransactionAtomicTest extends BaseDBTest {
 
   @Test
   public void testTransactionalSQLJoinTx() {
-    long prev = db.countClass("Account");
+    var prev = db.countClass("Account");
 
     db.begin();
     db

@@ -22,13 +22,13 @@ public class TrackedSetTest extends DbTestBase {
 
   @Test
   public void testAddOne() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
+    final var trackedSet = new TrackedSet<String>(doc);
     trackedSet.enableTracking(doc);
-    MultiValueChangeEvent<Object, Object> event =
+    var event =
         new MultiValueChangeEvent<Object, Object>(
             ChangeType.ADD, "value1", "value1", null);
     trackedSet.add("value1");
@@ -39,11 +39,11 @@ public class TrackedSetTest extends DbTestBase {
 
   @Test
   public void testAddTwo() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
+    final var trackedSet = new TrackedSet<String>(doc);
     doc.setProperty("tracked", trackedSet);
     trackedSet.add("value1");
     Assert.assertTrue(doc.isDirty());
@@ -51,11 +51,11 @@ public class TrackedSetTest extends DbTestBase {
 
   @Test
   public void testAddThree() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
+    final var trackedSet = new TrackedSet<String>(doc);
     trackedSet.enableTracking(doc);
     trackedSet.addInternal("value1");
 
@@ -65,11 +65,11 @@ public class TrackedSetTest extends DbTestBase {
 
   @Test
   public void testAddFour() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
+    final var trackedSet = new TrackedSet<String>(doc);
 
     trackedSet.add("value1");
 
@@ -86,11 +86,11 @@ public class TrackedSetTest extends DbTestBase {
 
   @Test
   public void testRemoveNotificationOne() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
+    final var trackedSet = new TrackedSet<String>(doc);
     trackedSet.add("value1");
     trackedSet.add("value2");
     trackedSet.add("value3");
@@ -100,7 +100,7 @@ public class TrackedSetTest extends DbTestBase {
 
     trackedSet.enableTracking(doc);
     trackedSet.remove("value2");
-    MultiValueChangeEvent<Object, Object> event =
+    var event =
         new MultiValueChangeEvent<Object, Object>(
             ChangeType.REMOVE, "value2", null, "value2");
     Assert.assertEquals(trackedSet.getTimeLine().getMultiValueChangeEvents().get(0), event);
@@ -110,11 +110,11 @@ public class TrackedSetTest extends DbTestBase {
 
   @Test
   public void testRemoveNotificationTwo() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
+    final var trackedSet = new TrackedSet<String>(doc);
     doc.setProperty("tracked", trackedSet);
     trackedSet.add("value1");
     trackedSet.add("value2");
@@ -129,11 +129,11 @@ public class TrackedSetTest extends DbTestBase {
 
   @Test
   public void testRemoveNotificationFour() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
+    final var trackedSet = new TrackedSet<String>(doc);
     trackedSet.add("value1");
     trackedSet.add("value2");
     trackedSet.add("value3");
@@ -149,11 +149,11 @@ public class TrackedSetTest extends DbTestBase {
 
   @Test
   public void testClearOne() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
+    final var trackedSet = new TrackedSet<String>(doc);
     trackedSet.add("value1");
     trackedSet.add("value2");
     trackedSet.add("value3");
@@ -182,11 +182,11 @@ public class TrackedSetTest extends DbTestBase {
 
   @Test
   public void testClearThree() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
+    final var trackedSet = new TrackedSet<String>(doc);
     trackedSet.add("value1");
     trackedSet.add("value2");
     trackedSet.add("value3");
@@ -201,9 +201,9 @@ public class TrackedSetTest extends DbTestBase {
 
   @Test
   public void testReturnOriginalState() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
 
-    final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
+    final var trackedSet = new TrackedSet<String>(doc);
     trackedSet.add("value1");
     trackedSet.add("value2");
     trackedSet.add("value3");
@@ -247,19 +247,19 @@ public class TrackedSetTest extends DbTestBase {
       }
     }
 
-    final TrackedSet<String> beforeSerialization =
+    final var beforeSerialization =
         new TrackedSet<String>(new NotSerializableEntityImpl(db));
     beforeSerialization.add("firstVal");
     beforeSerialization.add("secondVal");
 
-    final MemoryStream memoryStream = new MemoryStream();
-    ObjectOutputStream out = new ObjectOutputStream(memoryStream);
+    final var memoryStream = new MemoryStream();
+    var out = new ObjectOutputStream(memoryStream);
     out.writeObject(beforeSerialization);
     out.close();
 
-    final ObjectInputStream input =
+    final var input =
         new ObjectInputStream(new ByteArrayInputStream(memoryStream.copy()));
-    @SuppressWarnings("unchecked") final Set<String> afterSerialization = (Set<String>) input.readObject();
+    @SuppressWarnings("unchecked") final var afterSerialization = (Set<String>) input.readObject();
 
     Assert.assertEquals(afterSerialization.size(), beforeSerialization.size());
     Assert.assertTrue(beforeSerialization.containsAll(afterSerialization));
@@ -267,8 +267,8 @@ public class TrackedSetTest extends DbTestBase {
 
   @Test
   public void testStackOverflowOnRecursion() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
-    final TrackedSet<EntityImpl> trackedSet = new TrackedSet<>(doc);
+    final var doc = (EntityImpl) db.newEntity();
+    final var trackedSet = new TrackedSet<EntityImpl>(doc);
     trackedSet.add(doc);
   }
 }

@@ -79,17 +79,17 @@ public class DeleteEdgeExecutionPlanner {
 
   public InternalExecutionPlan createExecutionPlan(
       CommandContext ctx, boolean enableProfiling, boolean useCache) {
-    DatabaseSessionInternal db = ctx.getDatabase();
+    var db = ctx.getDatabase();
     if (useCache && !enableProfiling && statement.executinPlanCanBeCached(db)) {
-      ExecutionPlan plan = ExecutionPlanCache.get(statement.getOriginalStatement(), ctx, db);
+      var plan = ExecutionPlanCache.get(statement.getOriginalStatement(), ctx, db);
       if (plan != null) {
         return (InternalExecutionPlan) plan;
       }
     }
-    long planningStart = System.currentTimeMillis();
+    var planningStart = System.currentTimeMillis();
 
     init();
-    DeleteExecutionPlan result = new DeleteExecutionPlan(ctx);
+    var result = new DeleteExecutionPlan(ctx);
 
     if (leftExpression != null || rightExpression != null) {
       handleGlobalLet(
@@ -118,8 +118,8 @@ public class DeleteEdgeExecutionPlanner {
           enableProfiling);
       handleWhere(result, ctx, whereClause, enableProfiling);
     } else if (whereClause != null) {
-      SQLFromClause fromClause = new SQLFromClause(-1);
-      SQLFromItem item = new SQLFromItem(-1);
+      var fromClause = new SQLFromClause(-1);
+      var item = new SQLFromItem(-1);
       if (className == null) {
         item.setIdentifier(new SQLIdentifier("E"));
       } else {
@@ -197,8 +197,8 @@ public class DeleteEdgeExecutionPlanner {
       SQLIdentifier targetClusterName,
       boolean profilingEnabled) {
     if (targetClusterName != null) {
-      String name = targetClusterName.getStringValue();
-      int clusterId = ctx.getDatabase().getClusterIdByName(name);
+      var name = targetClusterName.getStringValue();
+      var clusterId = ctx.getDatabase().getClusterIdByName(name);
       if (clusterId < 0) {
         throw new CommandExecutionException("Cluster not found: " + name);
       }
@@ -258,10 +258,10 @@ public class DeleteEdgeExecutionPlanner {
       SQLFromClause target,
       SQLWhereClause whereClause,
       boolean profilingEnabled) {
-    SQLSelectStatement sourceStatement = new SQLSelectStatement(-1);
+    var sourceStatement = new SQLSelectStatement(-1);
     sourceStatement.setTarget(target);
     sourceStatement.setWhereClause(whereClause);
-    SelectExecutionPlanner planner = new SelectExecutionPlanner(sourceStatement);
+    var planner = new SelectExecutionPlanner(sourceStatement);
     result.chain(
         new SubQueryStep(
             planner.createExecutionPlan(ctx, profilingEnabled, false), ctx, ctx, profilingEnabled));

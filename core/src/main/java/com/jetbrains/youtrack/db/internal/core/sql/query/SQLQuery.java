@@ -62,7 +62,7 @@ public abstract class SQLQuery<T> extends QueryAbstract<T> implements CommandReq
    */
   @SuppressWarnings("unchecked")
   public List<T> run(final Object... iArgs) {
-    final DatabaseSessionInternal database = DatabaseRecordThreadLocal.instance().get();
+    final var database = DatabaseRecordThreadLocal.instance().get();
     if (database == null) {
       throw new QueryParsingException("No database configured");
     }
@@ -70,7 +70,7 @@ public abstract class SQLQuery<T> extends QueryAbstract<T> implements CommandReq
     database.getMetadata().makeThreadLocalSchemaSnapshot();
     try {
       setParameters(iArgs);
-      Object o = database.getStorage().command(database, this);
+      var o = database.getStorage().command(database, this);
       if (o instanceof List) {
         return (List<T>) o;
       } else {
@@ -108,7 +108,7 @@ public abstract class SQLQuery<T> extends QueryAbstract<T> implements CommandReq
   public CommandRequestText fromStream(DatabaseSessionInternal db, final byte[] iStream,
       RecordSerializerNetwork serializer)
       throws SerializationException {
-    final MemoryStream buffer = new MemoryStream(iStream);
+    final var buffer = new MemoryStream(iStream);
 
     queryFromStream(db, buffer, serializer);
 
@@ -122,7 +122,7 @@ public abstract class SQLQuery<T> extends QueryAbstract<T> implements CommandReq
 
   protected MemoryStream queryToStream(DatabaseSessionInternal db,
       RecordSerializerNetwork serializer) {
-    final MemoryStream buffer = new MemoryStream();
+    final var buffer = new MemoryStream();
 
     buffer.setUtf8(text); // TEXT AS STRING
     buffer.set(limit); // LIMIT AS INTEGER
@@ -140,7 +140,7 @@ public abstract class SQLQuery<T> extends QueryAbstract<T> implements CommandReq
 
     setFetchPlan(buffer.getAsString());
 
-    final byte[] paramBuffer = buffer.getAsByteArray();
+    final var paramBuffer = buffer.getAsByteArray();
     parameters = deserializeQueryParameters(db, paramBuffer, serializer);
   }
 
@@ -155,7 +155,7 @@ public abstract class SQLQuery<T> extends QueryAbstract<T> implements CommandReq
         PropertyType.EMBEDDEDMAP);
 
     final Map<Object, Object> result = new HashMap<>();
-    for (Entry<String, ?> p : params.entrySet()) {
+    for (var p : params.entrySet()) {
       if (Character.isDigit(p.getKey().charAt(0))) {
         result.put(Integer.parseInt(p.getKey()), p.getValue());
       } else {
@@ -181,8 +181,8 @@ public abstract class SQLQuery<T> extends QueryAbstract<T> implements CommandReq
   private static Map<Object, Object> convertToRIDsIfPossible(final Map<Object, Object> params) {
     final Map<Object, Object> newParams = new HashMap<>(params.size());
 
-    for (Entry<Object, Object> entry : params.entrySet()) {
-      final Object value = entry.getValue();
+    for (var entry : params.entrySet()) {
+      final var value = entry.getValue();
 
       switch (value) {
         case Set<?> objects when !objects.isEmpty() && objects.iterator()
@@ -190,7 +190,7 @@ public abstract class SQLQuery<T> extends QueryAbstract<T> implements CommandReq
           // CONVERT RECORDS AS RIDS
           final Set<RID> newSet = new HashSet<>();
           //noinspection unchecked
-          for (DBRecord rec : (Set<DBRecord>) value) {
+          for (var rec : (Set<DBRecord>) value) {
             newSet.add(rec.getIdentity());
           }
           newParams.put(entry.getKey(), newSet);
@@ -209,7 +209,7 @@ public abstract class SQLQuery<T> extends QueryAbstract<T> implements CommandReq
           // CONVERT RECORDS AS RIDS
           final Map<Object, RID> newMap = new HashMap<>();
           //noinspection unchecked
-          for (Entry<?, DBRecord> mapEntry : ((Map<?, DBRecord>) value).entrySet()) {
+          for (var mapEntry : ((Map<?, DBRecord>) value).entrySet()) {
             newMap.put(mapEntry.getKey(), mapEntry.getValue().getIdentity());
           }
           newParams.put(entry.getKey(), newMap);

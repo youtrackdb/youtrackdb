@@ -30,8 +30,8 @@ public class ServerCommandGetSSO extends ServerCommandAbstract {
 
   private void getJSON(final HttpResponse iResponse) {
     try {
-      final StringWriter buffer = new StringWriter();
-      final JSONWriter json = new JSONWriter(buffer, HttpResponse.JSON_FORMAT);
+      final var buffer = new StringWriter();
+      final var json = new JSONWriter(buffer, HttpResponse.JSON_FORMAT);
 
       json.beginObject();
 

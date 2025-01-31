@@ -45,9 +45,9 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
   @Test
   public void testAddTwoNewDocuments() {
     db.begin();
-    EntityImpl rootDoc = (EntityImpl) db.newEntity();
+    var rootDoc = (EntityImpl) db.newEntity();
 
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
     rootDoc.field("ridBag", ridBag);
 
     rootDoc.save();
@@ -58,8 +58,8 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     rootDoc = db.bindToSession(rootDoc);
     ridBag = rootDoc.field("ridBag");
 
-    EntityImpl docOne = (EntityImpl) db.newEntity();
-    EntityImpl docTwo = (EntityImpl) db.newEntity();
+    var docOne = (EntityImpl) db.newEntity();
+    var docTwo = (EntityImpl) db.newEntity();
 
     ridBag.add(docOne.getIdentity());
     ridBag.add(docTwo.getIdentity());
@@ -78,14 +78,14 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
   public void testAddTwoNewDocumentsWithCME() throws Exception {
     db.begin();
 
-    EntityImpl cmeDoc = (EntityImpl) db.newEntity();
+    var cmeDoc = (EntityImpl) db.newEntity();
     cmeDoc.save();
     db.commit();
 
     db.begin();
-    EntityImpl rootDoc = (EntityImpl) db.newEntity();
+    var rootDoc = (EntityImpl) db.newEntity();
 
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
     rootDoc.field("ridBag", ridBag);
 
     rootDoc.save();
@@ -106,8 +106,8 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     cmeDoc.field("v", "v234");
     cmeDoc.save();
 
-    EntityImpl docOne = (EntityImpl) db.newEntity();
-    EntityImpl docTwo = (EntityImpl) db.newEntity();
+    var docOne = (EntityImpl) db.newEntity();
+    var docTwo = (EntityImpl) db.newEntity();
 
     ridBag.add(docOne.getIdentity());
     ridBag.add(docTwo.getIdentity());
@@ -130,13 +130,13 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
   public void testAddTwoAdditionalNewDocuments() {
     db.begin();
 
-    EntityImpl rootDoc = (EntityImpl) db.newEntity();
+    var rootDoc = (EntityImpl) db.newEntity();
 
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
     rootDoc.field("ridBag", ridBag);
 
-    EntityImpl docOne = (EntityImpl) db.newEntity();
-    EntityImpl docTwo = (EntityImpl) db.newEntity();
+    var docOne = (EntityImpl) db.newEntity();
+    var docTwo = (EntityImpl) db.newEntity();
 
     ridBag.add(docOne.getIdentity());
     ridBag.add(docTwo.getIdentity());
@@ -145,14 +145,14 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
 
     db.commit();
 
-    long recordsCount = db.countClusterElements(db.getDefaultClusterId());
+    var recordsCount = db.countClusterElements(db.getDefaultClusterId());
 
     db.begin();
     rootDoc = db.bindToSession(rootDoc);
     ridBag = rootDoc.field("ridBag");
 
-    EntityImpl docThree = (EntityImpl) db.newEntity();
-    EntityImpl docFour = (EntityImpl) db.newEntity();
+    var docThree = (EntityImpl) db.newEntity();
+    var docFour = (EntityImpl) db.newEntity();
 
     ridBag.add(docThree.getIdentity());
     ridBag.add(docFour.getIdentity());
@@ -168,7 +168,7 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
 
     Assert.assertEquals(2, ridBag.size());
 
-    Iterator<RID> iterator = ridBag.iterator();
+    var iterator = ridBag.iterator();
     List<RID> addedDocs = new ArrayList<>(
         Arrays.asList(docOne.getIdentity(), docTwo.getIdentity()));
 
@@ -179,25 +179,25 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
   @Test
   public void testAddingDocsDontUpdateVersion() {
     db.begin();
-    EntityImpl rootDoc = (EntityImpl) db.newEntity();
+    var rootDoc = (EntityImpl) db.newEntity();
 
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
     rootDoc.field("ridBag", ridBag);
 
-    EntityImpl docOne = (EntityImpl) db.newEntity();
+    var docOne = (EntityImpl) db.newEntity();
 
     ridBag.add(docOne.getIdentity());
 
     rootDoc.save();
     db.commit();
 
-    final int version = rootDoc.getVersion();
+    final var version = rootDoc.getVersion();
 
     db.begin();
     rootDoc = db.bindToSession(rootDoc);
     ridBag = rootDoc.field("ridBag");
 
-    EntityImpl docTwo = (EntityImpl) db.newEntity();
+    var docTwo = (EntityImpl) db.newEntity();
     ridBag.add(docTwo.getIdentity());
 
     rootDoc.save();
@@ -217,12 +217,12 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
   public void testAddingDocsDontUpdateVersionInTx() {
     db.begin();
 
-    EntityImpl rootDoc = (EntityImpl) db.newEntity();
+    var rootDoc = (EntityImpl) db.newEntity();
 
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
     rootDoc.field("ridBag", ridBag);
 
-    EntityImpl docOne = (EntityImpl) db.newEntity();
+    var docOne = (EntityImpl) db.newEntity();
 
     ridBag.add(docOne.getIdentity());
 
@@ -230,13 +230,13 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
 
     db.commit();
 
-    final int version = rootDoc.getVersion();
+    final var version = rootDoc.getVersion();
 
     db.begin();
     rootDoc = db.bindToSession(rootDoc);
     ridBag = rootDoc.field("ridBag");
 
-    EntityImpl docTwo = (EntityImpl) db.newEntity();
+    var docTwo = (EntityImpl) db.newEntity();
     ridBag.add(docTwo.getIdentity());
 
     rootDoc.save();
@@ -255,19 +255,19 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
   @Test
   public void testAddTwoAdditionalNewDocumentsWithCME() throws Exception {
     db.begin();
-    EntityImpl cmeDoc = (EntityImpl) db.newEntity();
+    var cmeDoc = (EntityImpl) db.newEntity();
     cmeDoc.save();
     db.commit();
 
     db.begin();
 
-    EntityImpl rootDoc = (EntityImpl) db.newEntity();
+    var rootDoc = (EntityImpl) db.newEntity();
 
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
     rootDoc.field("ridBag", ridBag);
 
-    EntityImpl docOne = (EntityImpl) db.newEntity();
-    EntityImpl docTwo = (EntityImpl) db.newEntity();
+    var docOne = (EntityImpl) db.newEntity();
+    var docTwo = (EntityImpl) db.newEntity();
 
     ridBag.add(docOne.getIdentity());
     ridBag.add(docTwo.getIdentity());
@@ -276,7 +276,7 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
 
     db.commit();
 
-    long recordsCount = db.countClusterElements(db.getDefaultClusterId());
+    var recordsCount = db.countClusterElements(db.getDefaultClusterId());
 
     db.begin();
 
@@ -286,8 +286,8 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     rootDoc = db.load(rootDoc.getIdentity());
     ridBag = rootDoc.field("ridBag");
 
-    EntityImpl docThree = (EntityImpl) db.newEntity();
-    EntityImpl docFour = (EntityImpl) db.newEntity();
+    var docThree = (EntityImpl) db.newEntity();
+    var docFour = (EntityImpl) db.newEntity();
 
     ridBag.add(docThree.getIdentity());
     ridBag.add(docFour.getIdentity());
@@ -309,7 +309,7 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
 
     Assert.assertEquals(2, ridBag.size());
 
-    Iterator<RID> iterator = ridBag.iterator();
+    var iterator = ridBag.iterator();
     List<RID> addedDocs = new ArrayList<>(
         Arrays.asList(docOne.getIdentity(), docTwo.getIdentity()));
 
@@ -319,18 +319,18 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
 
   @Test
   public void testAddTwoSavedDocuments() {
-    long recordsCount = db.countClusterElements(db.getDefaultClusterId());
+    var recordsCount = db.countClusterElements(db.getDefaultClusterId());
 
     db.begin();
 
-    EntityImpl rootDoc = (EntityImpl) db.newEntity();
+    var rootDoc = (EntityImpl) db.newEntity();
 
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
     rootDoc.field("ridBag", ridBag);
 
-    EntityImpl docOne = (EntityImpl) db.newEntity();
+    var docOne = (EntityImpl) db.newEntity();
     docOne.save();
-    EntityImpl docTwo = (EntityImpl) db.newEntity();
+    var docTwo = (EntityImpl) db.newEntity();
     docTwo.save();
 
     ridBag.add(docOne.getIdentity());
@@ -347,13 +347,13 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
   public void testAddTwoAdditionalSavedDocuments() {
     db.begin();
 
-    EntityImpl rootDoc = (EntityImpl) db.newEntity();
+    var rootDoc = (EntityImpl) db.newEntity();
 
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
     rootDoc.field("ridBag", ridBag);
 
-    EntityImpl docOne = (EntityImpl) db.newEntity();
-    EntityImpl docTwo = (EntityImpl) db.newEntity();
+    var docOne = (EntityImpl) db.newEntity();
+    var docTwo = (EntityImpl) db.newEntity();
 
     ridBag.add(docOne.getIdentity());
     ridBag.add(docTwo.getIdentity());
@@ -362,7 +362,7 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
 
     db.commit();
 
-    long recordsCount = db.countClusterElements(db.getDefaultClusterId());
+    var recordsCount = db.countClusterElements(db.getDefaultClusterId());
 
     rootDoc = db.load(rootDoc.getIdentity());
 
@@ -370,9 +370,9 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     rootDoc = db.bindToSession(rootDoc);
     ridBag = rootDoc.field("ridBag");
 
-    EntityImpl docThree = (EntityImpl) db.newEntity();
+    var docThree = (EntityImpl) db.newEntity();
     docThree.save();
-    EntityImpl docFour = (EntityImpl) db.newEntity();
+    var docFour = (EntityImpl) db.newEntity();
     docFour.save();
 
     ridBag.add(docThree.getIdentity());
@@ -391,7 +391,7 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
 
     List<Identifiable> addedDocs = new ArrayList<>(Arrays.asList(docOne, docTwo));
 
-    Iterator<RID> iterator = ridBag.iterator();
+    var iterator = ridBag.iterator();
     Assert.assertTrue(addedDocs.remove(iterator.next()));
     Assert.assertTrue(addedDocs.remove(iterator.next()));
   }
@@ -399,19 +399,19 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
   @Test
   public void testAddTwoAdditionalSavedDocumentsWithCME() throws Exception {
     db.begin();
-    EntityImpl cmeDoc = (EntityImpl) db.newEntity();
+    var cmeDoc = (EntityImpl) db.newEntity();
     cmeDoc.save();
     db.commit();
 
     db.begin();
 
-    EntityImpl rootDoc = (EntityImpl) db.newEntity();
+    var rootDoc = (EntityImpl) db.newEntity();
 
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
     rootDoc.field("ridBag", ridBag);
 
-    EntityImpl docOne = (EntityImpl) db.newEntity();
-    EntityImpl docTwo = (EntityImpl) db.newEntity();
+    var docOne = (EntityImpl) db.newEntity();
+    var docTwo = (EntityImpl) db.newEntity();
 
     ridBag.add(docOne.getIdentity());
     ridBag.add(docTwo.getIdentity());
@@ -420,7 +420,7 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
 
     db.commit();
 
-    long recordsCount = db.countClusterElements(db.getDefaultClusterId());
+    var recordsCount = db.countClusterElements(db.getDefaultClusterId());
 
     rootDoc = db.load(rootDoc.getIdentity());
     db.begin();
@@ -429,9 +429,9 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     cmeDoc.field("v", "v");
     cmeDoc.save();
 
-    EntityImpl docThree = (EntityImpl) db.newEntity();
+    var docThree = (EntityImpl) db.newEntity();
     docThree.save();
-    EntityImpl docFour = (EntityImpl) db.newEntity();
+    var docFour = (EntityImpl) db.newEntity();
     docFour.save();
 
     rootDoc = db.bindToSession(rootDoc);
@@ -459,7 +459,7 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     List<RID> addedDocs = new ArrayList<>(
         Arrays.asList(docOne.getIdentity(), docTwo.getIdentity()));
 
-    Iterator<RID> iterator = ridBag.iterator();
+    var iterator = ridBag.iterator();
     Assert.assertTrue(addedDocs.remove(iterator.next()));
     Assert.assertTrue(addedDocs.remove(iterator.next()));
   }
@@ -468,15 +468,15 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
   public void testAddInternalDocumentsAndSubDocuments() {
     db.begin();
 
-    EntityImpl rootDoc = (EntityImpl) db.newEntity();
+    var rootDoc = (EntityImpl) db.newEntity();
 
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
     rootDoc.field("ridBag", ridBag);
 
-    EntityImpl docOne = (EntityImpl) db.newEntity();
+    var docOne = (EntityImpl) db.newEntity();
     docOne.save();
 
-    EntityImpl docTwo = (EntityImpl) db.newEntity();
+    var docTwo = (EntityImpl) db.newEntity();
     docTwo.save();
 
     ridBag.add(docOne.getIdentity());
@@ -486,13 +486,13 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
 
     db.commit();
 
-    long recordsCount = db.countClusterElements(db.getDefaultClusterId());
+    var recordsCount = db.countClusterElements(db.getDefaultClusterId());
 
     db.begin();
-    EntityImpl docThree = (EntityImpl) db.newEntity();
+    var docThree = (EntityImpl) db.newEntity();
     docThree.save();
 
-    EntityImpl docFour = (EntityImpl) db.newEntity();
+    var docFour = (EntityImpl) db.newEntity();
     docFour.save();
 
     rootDoc = db.bindToSession(rootDoc);
@@ -503,26 +503,26 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
 
     rootDoc.save();
 
-    EntityImpl docThreeOne = (EntityImpl) db.newEntity();
+    var docThreeOne = (EntityImpl) db.newEntity();
     docThreeOne.save();
 
-    EntityImpl docThreeTwo = (EntityImpl) db.newEntity();
+    var docThreeTwo = (EntityImpl) db.newEntity();
     docThreeTwo.save();
 
-    RidBag ridBagThree = new RidBag(db);
+    var ridBagThree = new RidBag(db);
     ridBagThree.add(docThreeOne.getIdentity());
     ridBagThree.add(docThreeTwo.getIdentity());
     docThree.field("ridBag", ridBagThree);
 
     docThree.save();
 
-    EntityImpl docFourOne = (EntityImpl) db.newEntity();
+    var docFourOne = (EntityImpl) db.newEntity();
     docFourOne.save();
 
-    EntityImpl docFourTwo = (EntityImpl) db.newEntity();
+    var docFourTwo = (EntityImpl) db.newEntity();
     docFourTwo.save();
 
-    RidBag ridBagFour = new RidBag(db);
+    var ridBagFour = new RidBag(db);
     ridBagFour.add(docFourOne.getIdentity());
     ridBagFour.add(docFourTwo.getIdentity());
 
@@ -539,7 +539,7 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     rootDoc = db.load(rootDoc.getIdentity());
     ridBag = rootDoc.field("ridBag");
 
-    Iterator<RID> iterator = ridBag.iterator();
+    var iterator = ridBag.iterator();
     Assert.assertTrue(addedDocs.remove(iterator.next()));
     Assert.assertTrue(addedDocs.remove(iterator.next()));
   }
@@ -547,20 +547,20 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
   @Test
   public void testAddInternalDocumentsAndSubDocumentsWithCME() throws Exception {
     db.begin();
-    EntityImpl cmeDoc = (EntityImpl) db.newEntity();
+    var cmeDoc = (EntityImpl) db.newEntity();
     cmeDoc.save();
     db.commit();
 
     db.begin();
-    EntityImpl rootDoc = (EntityImpl) db.newEntity();
+    var rootDoc = (EntityImpl) db.newEntity();
 
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
     rootDoc.field("ridBag", ridBag);
 
-    EntityImpl docOne = (EntityImpl) db.newEntity();
+    var docOne = (EntityImpl) db.newEntity();
     docOne.save();
 
-    EntityImpl docTwo = (EntityImpl) db.newEntity();
+    var docTwo = (EntityImpl) db.newEntity();
     docTwo.save();
 
     ridBag.add(docOne.getIdentity());
@@ -570,17 +570,17 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
 
     db.commit();
 
-    long recordsCount = db.countClusterElements(db.getDefaultClusterId());
+    var recordsCount = db.countClusterElements(db.getDefaultClusterId());
 
     db.begin();
     cmeDoc = db.bindToSession(cmeDoc);
     cmeDoc.field("v", "v2");
     cmeDoc.save();
 
-    EntityImpl docThree = (EntityImpl) db.newEntity();
+    var docThree = (EntityImpl) db.newEntity();
     docThree.save();
 
-    EntityImpl docFour = (EntityImpl) db.newEntity();
+    var docFour = (EntityImpl) db.newEntity();
     docFour.save();
 
     rootDoc = db.bindToSession(rootDoc);
@@ -591,26 +591,26 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
 
     rootDoc.save();
 
-    EntityImpl docThreeOne = (EntityImpl) db.newEntity();
+    var docThreeOne = (EntityImpl) db.newEntity();
     docThreeOne.save();
 
-    EntityImpl docThreeTwo = (EntityImpl) db.newEntity();
+    var docThreeTwo = (EntityImpl) db.newEntity();
     docThreeTwo.save();
 
-    RidBag ridBagThree = new RidBag(db);
+    var ridBagThree = new RidBag(db);
     ridBagThree.add(docThreeOne.getIdentity());
     ridBagThree.add(docThreeTwo.getIdentity());
     docThree.field("ridBag", ridBagThree);
 
     docThree.save();
 
-    EntityImpl docFourOne = (EntityImpl) db.newEntity();
+    var docFourOne = (EntityImpl) db.newEntity();
     docFourOne.save();
 
-    EntityImpl docFourTwo = (EntityImpl) db.newEntity();
+    var docFourTwo = (EntityImpl) db.newEntity();
     docFourTwo.save();
 
-    RidBag ridBagFour = new RidBag(db);
+    var ridBagFour = new RidBag(db);
     ridBagFour.add(docFourOne.getIdentity());
     ridBagFour.add(docFourTwo.getIdentity());
 
@@ -632,7 +632,7 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     rootDoc = db.load(rootDoc.getIdentity());
     ridBag = rootDoc.field("ridBag");
 
-    Iterator<RID> iterator = ridBag.iterator();
+    var iterator = ridBag.iterator();
     Assert.assertTrue(addedDocs.remove(iterator.next()));
     Assert.assertTrue(addedDocs.remove(iterator.next()));
   }
@@ -648,7 +648,7 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
   }
 
   private void testRandomChangedInTx(final int levels) {
-    Random rnd = new Random();
+    var rnd = new Random();
 
     final List<Integer> amountOfAddedDocsPerLevel = new ArrayList<>();
     final List<Integer> amountOfAddedDocsAfterSavePerLevel = new ArrayList<>();
@@ -656,14 +656,14 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     Map<LevelKey, List<Identifiable>> addedDocPerLevel =
         new HashMap<>();
 
-    for (int i = 0; i < levels; i++) {
+    for (var i = 0; i < levels; i++) {
       amountOfAddedDocsPerLevel.add(rnd.nextInt(5) + 10);
       amountOfAddedDocsAfterSavePerLevel.add(rnd.nextInt(5) + 5);
       amountOfDeletedDocsPerLevel.add(rnd.nextInt(5) + 5);
     }
 
     db.begin();
-    EntityImpl rootDoc = (EntityImpl) db.newEntity();
+    var rootDoc = (EntityImpl) db.newEntity();
     createDocsForLevel(amountOfAddedDocsPerLevel, 0, levels, addedDocPerLevel, rootDoc);
     db.commit();
 
@@ -682,20 +682,20 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
   @Test
   public void testRandomChangedInTxWithCME() throws Exception {
     db.begin();
-    EntityImpl cmeDoc = (EntityImpl) db.newEntity();
+    var cmeDoc = (EntityImpl) db.newEntity();
     cmeDoc.save();
     db.commit();
 
-    Random rnd = new Random();
+    var rnd = new Random();
 
-    final int levels = rnd.nextInt(2) + 1;
+    final var levels = rnd.nextInt(2) + 1;
     final List<Integer> amountOfAddedDocsPerLevel = new ArrayList<>();
     final List<Integer> amountOfAddedDocsAfterSavePerLevel = new ArrayList<>();
     final List<Integer> amountOfDeletedDocsPerLevel = new ArrayList<>();
     Map<LevelKey, List<Identifiable>> addedDocPerLevel =
         new HashMap<>();
 
-    for (int i = 0; i < levels; i++) {
+    for (var i = 0; i < levels; i++) {
       amountOfAddedDocsPerLevel.add(rnd.nextInt(5) + 10);
       amountOfAddedDocsAfterSavePerLevel.add(rnd.nextInt(5) + 5);
       amountOfDeletedDocsPerLevel.add(rnd.nextInt(5) + 5);
@@ -708,7 +708,7 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     db.commit();
 
     db.begin();
-    EntityImpl rootDoc = (EntityImpl) db.newEntity();
+    var rootDoc = (EntityImpl) db.newEntity();
     createDocsForLevel(amountOfAddedDocsPerLevel, 0, levels, addedDocPerLevel, rootDoc);
     db.commit();
 
@@ -742,9 +742,9 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     List<Identifiable> docsToAdd = new ArrayList<>();
 
     db.begin();
-    EntityImpl document = (EntityImpl) db.newEntity();
+    var document = (EntityImpl) db.newEntity();
 
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
     document.field("ridBag", ridBag);
     document.save();
     db.commit();
@@ -752,8 +752,8 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     db.begin();
     document = db.bindToSession(document);
     ridBag = document.field("ridBag");
-    for (int i = 0; i < 3; i++) {
-      EntityImpl docToAdd = (EntityImpl) db.newEntity();
+    for (var i = 0; i < 3; i++) {
+      var docToAdd = (EntityImpl) db.newEntity();
       docToAdd.save();
       ridBag.add(docToAdd.getIdentity());
       docsToAdd.add(docToAdd);
@@ -773,8 +773,8 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     document = db.bindToSession(document);
     ridBag = document.field("ridBag");
 
-    for (int i = 0; i < 3; i++) {
-      EntityImpl docToAdd = (EntityImpl) db.newEntity();
+    for (var i = 0; i < 3; i++) {
+      var docToAdd = (EntityImpl) db.newEntity();
       docToAdd.save();
       ridBag.add(docToAdd.getIdentity());
     }
@@ -801,7 +801,7 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     GlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(5);
 
     db.begin();
-    EntityImpl cmeDocument = (EntityImpl) db.newEntity();
+    var cmeDocument = (EntityImpl) db.newEntity();
     cmeDocument.field("v", "v1");
     cmeDocument.save();
     db.commit();
@@ -809,9 +809,9 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     db.begin();
     List<RID> docsToAdd = new ArrayList<>();
 
-    EntityImpl document = (EntityImpl) db.newEntity();
+    var document = (EntityImpl) db.newEntity();
 
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
     document.field("ridBag", ridBag);
     document.save();
     db.commit();
@@ -820,8 +820,8 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     document = db.bindToSession(document);
     ridBag = document.field("ridBag");
 
-    for (int i = 0; i < 3; i++) {
-      EntityImpl docToAdd = (EntityImpl) db.newEntity();
+    for (var i = 0; i < 3; i++) {
+      var docToAdd = (EntityImpl) db.newEntity();
       docToAdd.save();
       ridBag.add(docToAdd.getIdentity());
       docsToAdd.add(docToAdd.getIdentity());
@@ -847,8 +847,8 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
 
     document = db.bindToSession(document);
     ridBag = document.field("ridBag");
-    for (int i = 0; i < 3; i++) {
-      EntityImpl docToAdd = (EntityImpl) db.newEntity();
+    for (var i = 0; i < 3; i++) {
+      var docToAdd = (EntityImpl) db.newEntity();
       docToAdd.save();
       ridBag.add(docToAdd.getIdentity());
     }
@@ -867,7 +867,7 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     ridBag = document.field("ridBag");
 
     Assert.assertTrue(ridBag.isEmbedded());
-    for (RID identifiable : ridBag) {
+    for (var identifiable : ridBag) {
       Assert.assertTrue(docsToAdd.remove(identifiable));
     }
 
@@ -882,9 +882,9 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     List<Identifiable> docsToAdd = new ArrayList<>();
 
     db.begin();
-    EntityImpl document = (EntityImpl) db.newEntity();
+    var document = (EntityImpl) db.newEntity();
 
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
     document.field("ridBag", ridBag);
     document.save();
     db.commit();
@@ -892,8 +892,8 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     db.begin();
     document = db.bindToSession(document);
     ridBag = document.field("ridBag");
-    for (int i = 0; i < 3; i++) {
-      EntityImpl docToAdd = (EntityImpl) db.newEntity();
+    for (var i = 0; i < 3; i++) {
+      var docToAdd = (EntityImpl) db.newEntity();
       docToAdd.save();
       ridBag.add(docToAdd.getIdentity());
       docsToAdd.add(docToAdd);
@@ -912,8 +912,8 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     db.begin();
     document = db.bindToSession(document);
     ridBag = document.field("ridBag");
-    for (int i = 0; i < 3; i++) {
-      EntityImpl docToAdd = (EntityImpl) db.newEntity();
+    for (var i = 0; i < 3; i++) {
+      var docToAdd = (EntityImpl) db.newEntity();
       docToAdd.save();
       ridBag.add(docToAdd.getIdentity());
     }
@@ -965,9 +965,9 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     List<Identifiable> docsToAdd = new ArrayList<>();
 
     db.begin();
-    EntityImpl document = (EntityImpl) db.newEntity();
+    var document = (EntityImpl) db.newEntity();
 
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
     document.field("ridBag", ridBag);
     document.save();
     db.commit();
@@ -976,8 +976,8 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     document = db.bindToSession(document);
     ridBag = document.field("ridBag");
 
-    for (int i = 0; i < 10; i++) {
-      EntityImpl docToAdd = (EntityImpl) db.newEntity();
+    for (var i = 0; i < 10; i++) {
+      var docToAdd = (EntityImpl) db.newEntity();
       docToAdd.save();
       ridBag.add(docToAdd.getIdentity());
       docsToAdd.add(docToAdd);
@@ -997,8 +997,8 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     db.begin();
     document = db.bindToSession(document);
     ridBag = document.field("ridBag");
-    for (int i = 0; i < 4; i++) {
-      Identifiable docToRemove = docsToAdd.get(i);
+    for (var i = 0; i < 4; i++) {
+      var docToRemove = docsToAdd.get(i);
       ridBag.remove(docToRemove.getIdentity());
     }
 
@@ -1025,16 +1025,16 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     GlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(7);
 
     db.begin();
-    EntityImpl cmeDoc = (EntityImpl) db.newEntity();
+    var cmeDoc = (EntityImpl) db.newEntity();
     cmeDoc.save();
     db.commit();
 
     db.begin();
     List<Identifiable> docsToAdd = new ArrayList<>();
 
-    EntityImpl document = (EntityImpl) db.newEntity();
+    var document = (EntityImpl) db.newEntity();
 
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
     document.field("ridBag", ridBag);
     document.save();
     db.commit();
@@ -1043,8 +1043,8 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     document = db.bindToSession(document);
     ridBag = document.field("ridBag");
 
-    for (int i = 0; i < 10; i++) {
-      EntityImpl docToAdd = (EntityImpl) db.newEntity();
+    for (var i = 0; i < 10; i++) {
+      var docToAdd = (EntityImpl) db.newEntity();
       docToAdd.save();
       ridBag.add(docToAdd.getIdentity());
       docsToAdd.add(docToAdd);
@@ -1067,8 +1067,8 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
 
     document = db.bindToSession(document);
     ridBag = document.field("ridBag");
-    for (int i = 0; i < 4; i++) {
-      Identifiable docToRemove = docsToAdd.get(i);
+    for (var i = 0; i < 4; i++) {
+      var docToRemove = docsToAdd.get(i);
       ridBag.remove(docToRemove.getIdentity());
     }
 
@@ -1107,11 +1107,11 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     List<Identifiable> addedDocs = new ArrayList<>();
     addedDocPerLevel.put(new LevelKey(rootDoc.getIdentity(), level), addedDocs);
 
-    RidBag ridBag = new RidBag(db);
+    var ridBag = new RidBag(db);
     rootDoc.field("ridBag", ridBag);
 
-    for (int i = 0; i < docs; i++) {
-      EntityImpl docToAdd = (EntityImpl) db.newEntity();
+    for (var i = 0; i < docs; i++) {
+      var docToAdd = (EntityImpl) db.newEntity();
       docToAdd.save();
 
       addedDocs.add(docToAdd.getIdentity());
@@ -1144,8 +1144,8 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
 
     int docs = amountOfDeletedDocsPerLevel.get(level);
 
-    int k = 0;
-    Iterator<RID> iterator = ridBag.iterator();
+    var k = 0;
+    var iterator = ridBag.iterator();
     while (k < docs && iterator.hasNext()) {
       iterator.next();
 
@@ -1178,8 +1178,8 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
     }
 
     int docs = amountOfAddedDocsAfterSavePerLevel.get(level);
-    for (int i = 0; i < docs; i++) {
-      EntityImpl docToAdd = (EntityImpl) db.newEntity();
+    for (var i = 0; i < docs; i++) {
+      var docToAdd = (EntityImpl) db.newEntity();
       docToAdd.save();
 
       ridBag.add(docToAdd.getIdentity());
@@ -1221,7 +1221,7 @@ public class RidBagAtomicUpdateTest extends DbTestBase {
         return false;
       }
 
-      LevelKey levelKey = (LevelKey) o;
+      var levelKey = (LevelKey) o;
 
       if (level != levelKey.level) {
         return false;

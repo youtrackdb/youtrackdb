@@ -89,7 +89,7 @@ public class RemoteTreeRidBag implements RidBagDelegate {
       if (!hasNext()) {
         throw new NoSuchElementException();
       }
-      RID val = next;
+      var val = next;
       removeNext = next;
       next = null;
       return val;
@@ -135,15 +135,15 @@ public class RemoteTreeRidBag implements RidBagDelegate {
 
   @Override
   public @Nonnull Iterator<RID> iterator() {
-    List<RID> set = loadElements();
+    var set = loadElements();
     return new RemovableIterator(set.iterator());
   }
 
   private List<RID> loadElements() {
-    DatabaseSessionInternal database = DatabaseRecordThreadLocal.instance().get();
+    var database = DatabaseRecordThreadLocal.instance().get();
     List<RID> list;
 
-    try (ResultSet result =
+    try (var result =
         database.query("select list(@this.field(?)) as entities from ?", fieldName,
             ownerRecord.getIdentity())) {
       if (result.hasNext()) {
@@ -159,7 +159,7 @@ public class RemoteTreeRidBag implements RidBagDelegate {
 
   @Override
   public void addAll(Collection<RID> values) {
-    for (RID identifiable : values) {
+    for (var identifiable : values) {
       add(identifiable);
     }
   }
@@ -226,16 +226,16 @@ public class RemoteTreeRidBag implements RidBagDelegate {
   public Object returnOriginalState(
       DatabaseSessionInternal session,
       List<MultiValueChangeEvent<RID, RID>> multiValueChangeEvents) {
-    final RemoteTreeRidBag reverted = new RemoteTreeRidBag(this.collectionPointer);
-    for (RID identifiable : this) {
+    final var reverted = new RemoteTreeRidBag(this.collectionPointer);
+    for (var identifiable : this) {
       reverted.add(identifiable);
     }
 
-    final ListIterator<MultiValueChangeEvent<RID, RID>> listIterator =
+    final var listIterator =
         multiValueChangeEvents.listIterator(multiValueChangeEvents.size());
 
     while (listIterator.hasPrevious()) {
-      final MultiValueChangeEvent<RID, RID> event = listIterator.previous();
+      final var event = listIterator.previous();
       switch (event.getChangeType()) {
         case ADD:
           reverted.remove(event.getKey());

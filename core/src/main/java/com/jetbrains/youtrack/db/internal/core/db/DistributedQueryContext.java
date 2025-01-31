@@ -39,7 +39,7 @@ public class DistributedQueryContext {
   }
 
   public List<Result> fetchNextPage() {
-    DatabaseSessionInternal prev = DatabaseRecordThreadLocal.instance().getIfDefined();
+    var prev = DatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       db.activateOnCurrentThread();
       resultSet.close();
@@ -55,7 +55,7 @@ public class DistributedQueryContext {
   }
 
   public void close() {
-    DatabaseSessionInternal prev = DatabaseRecordThreadLocal.instance().getIfDefined();
+    var prev = DatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       db.activateOnCurrentThread();
       resultSet.close();

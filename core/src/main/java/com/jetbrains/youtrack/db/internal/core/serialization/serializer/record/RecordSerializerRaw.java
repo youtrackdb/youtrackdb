@@ -72,7 +72,7 @@ public class RecordSerializerRaw implements RecordSerializer {
     try {
       return iSource.toStream();
     } catch (Exception e) {
-      final String message =
+      final var message =
           "Error on unmarshalling object in binary format: " + iSource.getIdentity();
       LogManager.instance().error(this, message, e);
       throw BaseException.wrapException(new SerializationException(message), e);

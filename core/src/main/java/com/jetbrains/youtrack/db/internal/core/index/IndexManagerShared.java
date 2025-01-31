@@ -124,7 +124,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
       final String indexName) {
     acquireSharedLock();
     try {
-      final Index index = indexes.get(indexName);
+      final var index = indexes.get(indexName);
       if (index.getInternal().getClusters().contains(clusterName)) {
         return;
       }
@@ -133,7 +133,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
     }
     acquireExclusiveLock();
     try {
-      final Index index = indexes.get(indexName);
+      final var index = indexes.get(indexName);
       if (index == null) {
         throw new IndexException("Index with name " + indexName + " does not exist.");
       }
@@ -154,7 +154,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
       final String indexName) {
     acquireSharedLock();
     try {
-      final Index index = indexes.get(indexName);
+      final var index = indexes.get(indexName);
       if (!index.getInternal().getClusters().contains(clusterName)) {
         return;
       }
@@ -163,7 +163,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
     }
     acquireExclusiveLock();
     try {
-      final Index index = indexes.get(indexName);
+      final var index = indexes.get(indexName);
       if (index == null) {
         throw new IndexException("Index with name " + indexName + " does not exist.");
       }
@@ -191,12 +191,12 @@ public class IndexManagerShared implements IndexManagerAbstract {
   }
 
   public Index getRawIndex(final String iName) {
-    final Index index = indexes.get(iName);
+    final var index = indexes.get(iName);
     return index;
   }
 
   public Index getIndex(DatabaseSessionInternal database, final String iName) {
-    final Index index = indexes.get(iName);
+    final var index = indexes.get(iName);
     return index;
   }
 
@@ -241,17 +241,17 @@ public class IndexManagerShared implements IndexManagerAbstract {
 
   public Set<Index> getClassInvolvedIndexes(
       DatabaseSessionInternal database, final String className, Collection<String> fields) {
-    final MultiKey multiKey = new MultiKey(fields);
+    final var multiKey = new MultiKey(fields);
 
-    final Map<MultiKey, Set<Index>> propertyIndex = getIndexOnProperty(className);
+    final var propertyIndex = getIndexOnProperty(className);
 
     if (propertyIndex == null || !propertyIndex.containsKey(multiKey)) {
       return Collections.emptySet();
     }
 
-    final Set<Index> rawResult = propertyIndex.get(multiKey);
+    final var rawResult = propertyIndex.get(multiKey);
     final Set<Index> transactionalResult = new HashSet<>(rawResult.size());
-    for (final Index index : rawResult) {
+    for (final var index : rawResult) {
       // ignore indexes that ignore null values on partial match
       if (fields.size() == index.getDefinition().getFields().size()
           || !index.getDefinition().isNullValuesIgnored()) {
@@ -268,9 +268,9 @@ public class IndexManagerShared implements IndexManagerAbstract {
   }
 
   public boolean areIndexed(final String className, Collection<String> fields) {
-    final MultiKey multiKey = new MultiKey(fields);
+    final var multiKey = new MultiKey(fields);
 
-    final Map<MultiKey, Set<Index>> propertyIndex = getIndexOnProperty(className);
+    final var propertyIndex = getIndexOnProperty(className);
 
     if (propertyIndex == null) {
       return false;
@@ -284,7 +284,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
   }
 
   public Set<Index> getClassIndexes(DatabaseSessionInternal database, final String className) {
-    final HashSet<Index> coll = new HashSet<Index>(4);
+    final var coll = new HashSet<Index>(4);
     getClassIndexes(database, className, coll);
     return coll;
   }
@@ -292,37 +292,37 @@ public class IndexManagerShared implements IndexManagerAbstract {
   public void getClassIndexes(
       DatabaseSessionInternal database, final String className,
       final Collection<Index> indexes) {
-    final Map<MultiKey, Set<Index>> propertyIndex = getIndexOnProperty(className);
+    final var propertyIndex = getIndexOnProperty(className);
 
     if (propertyIndex == null) {
       return;
     }
 
-    for (final Set<Index> propertyIndexes : propertyIndex.values()) {
-      for (final Index index : propertyIndexes) {
+    for (final var propertyIndexes : propertyIndex.values()) {
+      for (final var index : propertyIndexes) {
         indexes.add(index);
       }
     }
   }
 
   public void getClassRawIndexes(final String className, final Collection<Index> indexes) {
-    final Map<MultiKey, Set<Index>> propertyIndex = getIndexOnProperty(className);
+    final var propertyIndex = getIndexOnProperty(className);
 
     if (propertyIndex == null) {
       return;
     }
 
-    for (final Set<Index> propertyIndexes : propertyIndex.values()) {
+    for (final var propertyIndexes : propertyIndex.values()) {
       indexes.addAll(propertyIndexes);
     }
   }
 
   public IndexUnique getClassUniqueIndex(final String className) {
-    final Map<MultiKey, Set<Index>> propertyIndex = getIndexOnProperty(className);
+    final var propertyIndex = getIndexOnProperty(className);
 
     if (propertyIndex != null) {
-      for (final Set<Index> propertyIndexes : propertyIndex.values()) {
-        for (final Index index : propertyIndexes) {
+      for (final var propertyIndexes : propertyIndex.values()) {
+        for (final var index : propertyIndexes) {
           if (index instanceof IndexUnique) {
             return (IndexUnique) index;
           }
@@ -337,7 +337,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
       DatabaseSessionInternal database, String className, String indexName) {
     className = className.toLowerCase();
 
-    final Index index = indexes.get(indexName);
+    final var index = indexes.get(indexName);
     if (index != null
         && index.getDefinition() != null
         && index.getDefinition().getClassName() != null
@@ -361,9 +361,9 @@ public class IndexManagerShared implements IndexManagerAbstract {
   }
 
   void internalAcquireExclusiveLock() {
-    final DatabaseSessionInternal databaseRecord = getDatabaseIfDefined();
+    final var databaseRecord = getDatabaseIfDefined();
     if (databaseRecord != null && !databaseRecord.isClosed()) {
-      final MetadataInternal metadata = databaseRecord.getMetadata();
+      final var metadata = databaseRecord.getMetadata();
       if (metadata != null) {
         metadata.makeThreadLocalSchemaSnapshot();
       }
@@ -378,7 +378,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
   }
 
   protected void releaseExclusiveLock(DatabaseSessionInternal session, boolean save) {
-    int val = writeLockNesting.decrementAndGet();
+    var val = writeLockNesting.decrementAndGet();
     try {
       if (val == 0) {
         if (save) {
@@ -399,7 +399,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
   void internalReleaseExclusiveLock() {
     lock.writeLock().unlock();
 
-    final DatabaseSessionInternal databaseRecord = getDatabaseIfDefined();
+    final var databaseRecord = getDatabaseIfDefined();
     if (databaseRecord != null && !databaseRecord.isClosed()) {
       databaseRecord.endExclusiveMetadataChange();
       final Metadata metadata = databaseRecord.getMetadata();
@@ -435,12 +435,12 @@ public class IndexManagerShared implements IndexManagerAbstract {
   private void addIndexInternalNoLock(final Index index) {
     indexes.put(index.getName(), index);
 
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
     if (indexDefinition == null || indexDefinition.getClassName() == null) {
       return;
     }
 
-    Map<MultiKey, Set<Index>> propertyIndex = getIndexOnProperty(indexDefinition.getClassName());
+    var propertyIndex = getIndexOnProperty(indexDefinition.getClassName());
 
     if (propertyIndex == null) {
       propertyIndex = new HashMap<>();
@@ -448,12 +448,12 @@ public class IndexManagerShared implements IndexManagerAbstract {
       propertyIndex = new HashMap<>(propertyIndex);
     }
 
-    final int paramCount = indexDefinition.getParamCount();
+    final var paramCount = indexDefinition.getParamCount();
 
-    for (int i = 1; i <= paramCount; i++) {
-      final List<String> fields = indexDefinition.getFields().subList(0, i);
-      final MultiKey multiKey = new MultiKey(fields);
-      Set<Index> indexSet = propertyIndex.get(multiKey);
+    for (var i = 1; i <= paramCount; i++) {
+      final var fields = indexDefinition.getFields().subList(0, i);
+      final var multiKey = new MultiKey(fields);
+      var indexSet = propertyIndex.get(multiKey);
 
       if (indexSet == null) {
         indexSet = new HashSet<>();
@@ -472,7 +472,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
   static Map<MultiKey, Set<Index>> copyPropertyMap(Map<MultiKey, Set<Index>> original) {
     final Map<MultiKey, Set<Index>> result = new HashMap<>();
 
-    for (Map.Entry<MultiKey, Set<Index>> entry : original.entrySet()) {
+    for (var entry : original.entrySet()) {
       Set<Index> indexes = new HashSet<>(entry.getValue());
       assert indexes.equals(entry.getValue());
 
@@ -548,7 +548,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
       Map<String, ?> metadata,
       String algorithm) {
 
-    final boolean manualIndexesAreUsed =
+    final var manualIndexesAreUsed =
         indexDefinition == null
             || indexDefinition.getClassName() == null
             || indexDefinition.getFields() == null
@@ -562,7 +562,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
       throw new IllegalStateException("Cannot create a new index inside a transaction");
     }
 
-    final Character c = SchemaShared.checkIndexNameIfValid(iName);
+    final var c = SchemaShared.checkIndexNameIfValid(iName);
     if (c != null) {
       throw new IllegalArgumentException(
           "Invalid index name '" + iName + "'. Character '" + c + "' is invalid");
@@ -589,8 +589,8 @@ public class IndexManagerShared implements IndexManagerAbstract {
         metadata = new HashMap<>();
       }
 
-      final Set<String> clustersToIndex = findClustersByIds(clusterIdsToIndex, database);
-      Object ignoreNullValues = metadata.get("ignoreNullValues");
+      final var clustersToIndex = findClustersByIds(clusterIdsToIndex, database);
+      var ignoreNullValues = metadata.get("ignoreNullValues");
       if (Boolean.TRUE.equals(ignoreNullValues)) {
         indexDefinition.setNullValuesIgnored(true);
       } else if (Boolean.FALSE.equals(ignoreNullValues)) {
@@ -603,7 +603,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
                 .getValueAsBoolean(GlobalConfiguration.INDEX_IGNORE_NULL_VALUES_DEFAULT));
       }
 
-      IndexMetadata im =
+      var im =
           new IndexMetadata(
               iName,
               indexDefinition,
@@ -628,7 +628,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
       DatabaseSessionInternal session, Storage storage, IndexMetadata indexMetadata,
       ProgressListener progressListener) {
 
-    IndexInternal index = Indexes.createIndex(storage, indexMetadata);
+    var index = Indexes.createIndex(storage, indexMetadata);
     if (progressListener == null)
     // ASSIGN DEFAULT PROGRESS LISTENER
     {
@@ -648,28 +648,28 @@ public class IndexManagerShared implements IndexManagerAbstract {
   private static void checkSecurityConstraintsForIndexCreate(
       DatabaseSessionInternal database, IndexDefinition indexDefinition) {
 
-    SecurityInternal security = database.getSharedContext().getSecurity();
+    var security = database.getSharedContext().getSecurity();
 
-    String indexClass = indexDefinition.getClassName();
-    List<String> indexedFields = indexDefinition.getFields();
+    var indexClass = indexDefinition.getClassName();
+    var indexedFields = indexDefinition.getFields();
     if (indexedFields.size() == 1) {
       return;
     }
 
     Set<String> classesToCheck = new HashSet<>();
     classesToCheck.add(indexClass);
-    SchemaClass clazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(indexClass);
+    var clazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(indexClass);
     if (clazz == null) {
       return;
     }
     clazz.getAllSubclasses().forEach(x -> classesToCheck.add(x.getName()));
     clazz.getAllSuperClasses().forEach(x -> classesToCheck.add(x.getName()));
-    Set<SecurityResourceProperty> allFilteredProperties =
+    var allFilteredProperties =
         security.getAllFilteredProperties(database);
 
-    for (String className : classesToCheck) {
+    for (var className : classesToCheck) {
       Set<SecurityResourceProperty> indexedAndFilteredProperties;
-      try (Stream<SecurityResourceProperty> stream = allFilteredProperties.stream()) {
+      try (var stream = allFilteredProperties.stream()) {
         indexedAndFilteredProperties =
             stream
                 .filter(x -> x.getClassName().equalsIgnoreCase(className))
@@ -678,7 +678,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
       }
 
       if (indexedAndFilteredProperties.size() > 0) {
-        try (Stream<SecurityResourceProperty> stream = indexedAndFilteredProperties.stream()) {
+        try (var stream = indexedAndFilteredProperties.stream()) {
           throw new IndexException(
               "Cannot create index on "
                   + indexClass
@@ -697,8 +697,8 @@ public class IndexManagerShared implements IndexManagerAbstract {
       int[] clusterIdsToIndex, DatabaseSessionInternal database) {
     Set<String> clustersToIndex = new HashSet<>();
     if (clusterIdsToIndex != null) {
-      for (int clusterId : clusterIdsToIndex) {
-        final String clusterNameToIndex = database.getClusterNameById(clusterId);
+      for (var clusterId : clusterIdsToIndex) {
+        final var clusterNameToIndex = database.getClusterNameById(clusterId);
         if (clusterNameToIndex == null) {
           throw new IndexException("Cluster with id " + clusterId + " does not exist.");
         }
@@ -722,11 +722,11 @@ public class IndexManagerShared implements IndexManagerAbstract {
     try {
       idx = indexes.get(iIndexName);
       if (idx != null) {
-        final Set<String> clusters = idx.getClusters();
+        final var clusters = idx.getClusters();
         if (clusters != null && !clusters.isEmpty()) {
           clusterIdsToIndex = new int[clusters.size()];
-          int i = 0;
-          for (String cl : clusters) {
+          var i = 0;
+          for (var cl : clusters) {
             clusterIdsToIndex[i++] = database.getClusterIdByName(cl);
           }
         }
@@ -748,9 +748,9 @@ public class IndexManagerShared implements IndexManagerAbstract {
     internalAcquireExclusiveLock();
     try {
       EntityImpl entity = session.load(identity);
-      final TrackedSet<EntityImpl> indexes = new TrackedSet<>(entity);
+      final var indexes = new TrackedSet<EntityImpl>(entity);
 
-      for (final Index i : this.indexes.values()) {
+      for (final var i : this.indexes.values()) {
         var indexInternal = (IndexInternal) i;
         indexes.add(indexInternal.updateConfiguration(session));
       }
@@ -813,7 +813,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
       return false;
     }
 
-    final Storage storage = database.getStorage();
+    final var storage = database.getStorage();
     if (storage instanceof AbstractPaginatedStorage paginatedStorage) {
       return paginatedStorage.wereDataRestoredAfterOpen()
           && paginatedStorage.wereNonTxOperationsPerformedInPreviousOpen();
@@ -832,21 +832,21 @@ public class IndexManagerShared implements IndexManagerAbstract {
 
       if (indexEntities != null) {
         IndexInternal index;
-        boolean configUpdated = false;
-        Iterator<EntityImpl> indexConfigurationIterator = indexEntities.iterator();
+        var configUpdated = false;
+        var indexConfigurationIterator = indexEntities.iterator();
         while (indexConfigurationIterator.hasNext()) {
-          final EntityImpl d = indexConfigurationIterator.next();
+          final var d = indexConfigurationIterator.next();
           try {
 
-            final IndexMetadata newIndexMetadata = IndexAbstract.loadMetadataFromDoc(d);
+            final var newIndexMetadata = IndexAbstract.loadMetadataFromDoc(d);
 
             index = Indexes.createIndex(storage, newIndexMetadata);
 
-            final String normalizedName = newIndexMetadata.getName();
+            final var normalizedName = newIndexMetadata.getName();
 
-            Index oldIndex = oldIndexes.remove(normalizedName);
+            var oldIndex = oldIndexes.remove(normalizedName);
             if (oldIndex != null) {
-              IndexMetadata oldIndexMetadata =
+              var oldIndexMetadata =
                   oldIndex.getInternal().loadMetadata(oldIndex.getConfiguration(session));
 
               if (!(oldIndexMetadata.equals(newIndexMetadata)
@@ -875,7 +875,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
           }
         }
 
-        for (Index oldIndex : oldIndexes.values()) {
+        for (var oldIndex : oldIndexes.values()) {
           try {
             LogManager.instance()
                 .warn(
@@ -903,12 +903,12 @@ public class IndexManagerShared implements IndexManagerAbstract {
   public void removeClassPropertyIndex(DatabaseSessionInternal session, final Index idx) {
     acquireExclusiveLock();
     try {
-      final IndexDefinition indexDefinition = idx.getDefinition();
+      final var indexDefinition = idx.getDefinition();
       if (indexDefinition == null || indexDefinition.getClassName() == null) {
         return;
       }
 
-      Map<MultiKey, Set<Index>> map =
+      var map =
           classPropertyIndex.get(indexDefinition.getClassName().toLowerCase());
 
       if (map == null) {
@@ -917,13 +917,13 @@ public class IndexManagerShared implements IndexManagerAbstract {
 
       map = new HashMap<>(map);
 
-      final int paramCount = indexDefinition.getParamCount();
+      final var paramCount = indexDefinition.getParamCount();
 
-      for (int i = 1; i <= paramCount; i++) {
-        final List<String> fields = indexDefinition.getFields().subList(0, i);
-        final MultiKey multiKey = new MultiKey(fields);
+      for (var i = 1; i <= paramCount; i++) {
+        final var fields = indexDefinition.getFields().subList(0, i);
+        final var multiKey = new MultiKey(fields);
 
-        Set<Index> indexSet = map.get(multiKey);
+        var indexSet = map.get(multiKey);
         if (indexSet == null) {
           continue;
         }
@@ -963,7 +963,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
 
   private void internalSave(DatabaseSessionInternal session) {
     session.begin();
-    EntityImpl entity = toStream(session);
+    var entity = toStream(session);
     entity.save();
     session.commit();
   }

@@ -18,7 +18,7 @@ public class LuceneSearchOnClassFunctionTest extends LuceneBaseTest {
 
   @Before
   public void setUp() throws Exception {
-    final InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
+    final var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
     db.execute("sql", getScriptFromStream(stream));
     db.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE ");
   }
@@ -26,7 +26,7 @@ public class LuceneSearchOnClassFunctionTest extends LuceneBaseTest {
   @Test
   public void shouldSearchOnClass() throws Exception {
 
-    ResultSet resultSet = db.query("SELECT from Song where SEARCH_Class('BELIEVE') = true");
+    var resultSet = db.query("SELECT from Song where SEARCH_Class('BELIEVE') = true");
 
     assertThat(resultSet).hasSize(2);
 
@@ -36,7 +36,7 @@ public class LuceneSearchOnClassFunctionTest extends LuceneBaseTest {
   @Test
   public void shouldSearchOnSingleFieldWithLeadingWildcard() throws Exception {
 
-    ResultSet resultSet =
+    var resultSet =
         db.query(
             "SELECT from Song where SEARCH_CLASS( '*EVE*', {'allowLeadingWildcard': true}) = true");
 
@@ -48,7 +48,7 @@ public class LuceneSearchOnClassFunctionTest extends LuceneBaseTest {
   @Test
   public void shouldSearchInOr() throws Exception {
 
-    ResultSet resultSet =
+    var resultSet =
         db.query(
             "SELECT from Song where SEARCH_CLASS('BELIEVE') = true OR SEARCH_CLASS('GOODNIGHT') ="
                 + " true ");
@@ -60,7 +60,7 @@ public class LuceneSearchOnClassFunctionTest extends LuceneBaseTest {
   @Test
   public void shouldSearchInAnd() throws Exception {
 
-    ResultSet resultSet =
+    var resultSet =
         db.query(
             "SELECT from Song where SEARCH_CLASS('GOODNIGHT') = true AND SEARCH_CLASS( 'Irene',"
                 + " {'allowLeadingWildcard': true}) = true ");
@@ -71,7 +71,7 @@ public class LuceneSearchOnClassFunctionTest extends LuceneBaseTest {
 
   public void shouldThrowExceptionWithWrongClass() throws Exception {
 
-    ResultSet resultSet =
+    var resultSet =
         db.query(
             "SELECT from Author where SEARCH_CLASS('(description:happiness) (lyrics:sad)  ') = true"
                 + " ");
@@ -83,7 +83,7 @@ public class LuceneSearchOnClassFunctionTest extends LuceneBaseTest {
 
     db.command("create index Song.author on Song (author) FULLTEXT ENGINE LUCENE ");
 
-    ResultSet resultSet =
+    var resultSet =
         db.query("SELECT from Song where SEARCH_CLASS('not important, will fail') = true ");
     resultSet.close();
   }
@@ -91,7 +91,7 @@ public class LuceneSearchOnClassFunctionTest extends LuceneBaseTest {
   @Test
   public void shouldHighlightTitle() throws Exception {
 
-    ResultSet resultSet =
+    var resultSet =
         db.query(
             "SELECT title, $title_hl from Song where SEARCH_CLASS('believe', {highlight: { fields:"
                 + " ['title'], 'start': '<span>', 'end': '</span>' } }) = true ");
@@ -116,7 +116,7 @@ public class LuceneSearchOnClassFunctionTest extends LuceneBaseTest {
     db.command("insert into Song set description = 'shouldHighlightWithNullValues'");
     db.commit();
 
-    ResultSet resultSet =
+    var resultSet =
         db.query(
             "SELECT title, $title_hl,description, $description_hl  from Song where"
                 + " SEARCH_CLASS('shouldHighlightWithNullValues', {highlight: { fields:"
@@ -132,7 +132,7 @@ public class LuceneSearchOnClassFunctionTest extends LuceneBaseTest {
 
   @Test
   public void shouldSupportParameterizedMetadata() throws Exception {
-    final String query = "SELECT from Song where SEARCH_CLASS('*EVE*', ?) = true";
+    final var query = "SELECT from Song where SEARCH_CLASS('*EVE*', ?) = true";
 
     db.query(query, "{'allowLeadingWildcard': true}").close();
     db.query(query, new EntityImpl(db, "allowLeadingWildcard", Boolean.TRUE)).close();

@@ -34,7 +34,7 @@ public class SQLMoveVertexStatement extends SQLStatement {
       boolean usePlanCache) {
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
-      for (int i = 0; i < args.length; i++) {
+      for (var i = 0; i < args.length; i++) {
         params.put(i, args[i]);
       }
     }
@@ -45,7 +45,7 @@ public class SQLMoveVertexStatement extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Map<Object, Object> params, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -62,7 +62,7 @@ public class SQLMoveVertexStatement extends SQLStatement {
   }
 
   public UpdateExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    MoveVertexExecutionPlanner planner = new MoveVertexExecutionPlanner(this);
+    var planner = new MoveVertexExecutionPlanner(this);
     return planner.createExecutionPlan(ctx, enableProfiling);
   }
 
@@ -112,7 +112,7 @@ public class SQLMoveVertexStatement extends SQLStatement {
 
   @Override
   public SQLMoveVertexStatement copy() {
-    SQLMoveVertexStatement result = new SQLMoveVertexStatement(-1);
+    var result = new SQLMoveVertexStatement(-1);
     result.source = source.copy();
     result.targetClass = targetClass == null ? null : targetClass.copy();
     result.targetCluster = targetCluster == null ? null : targetCluster.copy();
@@ -130,7 +130,7 @@ public class SQLMoveVertexStatement extends SQLStatement {
       return false;
     }
 
-    SQLMoveVertexStatement that = (SQLMoveVertexStatement) o;
+    var that = (SQLMoveVertexStatement) o;
 
     if (!source.equals(that.source)) {
       return false;
@@ -149,7 +149,7 @@ public class SQLMoveVertexStatement extends SQLStatement {
 
   @Override
   public int hashCode() {
-    int result = source.hashCode();
+    var result = source.hashCode();
     result = 31 * result + (targetCluster != null ? targetCluster.hashCode() : 0);
     result = 31 * result + (targetClass != null ? targetClass.hashCode() : 0);
     result = 31 * result + (updateOperations != null ? updateOperations.hashCode() : 0);

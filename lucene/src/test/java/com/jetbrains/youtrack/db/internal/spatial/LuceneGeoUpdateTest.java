@@ -37,7 +37,7 @@ public class LuceneGeoUpdateTest extends BaseSpatialLuceneTest {
         .close();
     db.commit();
 
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
 
     db.begin();
     db.command(

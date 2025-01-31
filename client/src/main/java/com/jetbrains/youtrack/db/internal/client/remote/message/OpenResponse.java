@@ -58,7 +58,7 @@ public class OpenResponse implements BinaryResponse {
       StorageRemoteSession session) throws IOException {
     sessionId = network.readInt();
     sessionToken = network.readBytes();
-    final RawPair<String[], int[]> clusters = MessageHelper.readClustersArray(network);
+    final var clusters = MessageHelper.readClustersArray(network);
     distributedConfiguration = network.readBytes();
     serverVersion = network.readString();
   }

@@ -69,10 +69,10 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
   @SuppressWarnings("unchecked")
   public CommandExecutorSQLDeleteVertex parse(DatabaseSessionInternal db,
       final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
@@ -86,16 +86,16 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
       SchemaClass clazz = null;
       String where = null;
 
-      int limit = -1;
-      String word = parseOptionalWord(true);
+      var limit = -1;
+      var word = parseOptionalWord(true);
       while (word != null) {
 
         if (word.startsWith("#")) {
           rid = new RecordId(word);
 
         } else if (word.equalsIgnoreCase("from")) {
-          final StringBuilder q = new StringBuilder();
-          final int newPos =
+          final var q = new StringBuilder();
+          final var newPos =
               StringSerializerHelper.getEmbedded(parserText, parserGetCurrentPosition(), -1, q);
 
           query = database.command(new SQLAsynchQuery<EntityImpl>(q.toString(), this));
@@ -157,7 +157,7 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
       }
 
       if (query == null && rid == null) {
-        StringBuilder queryString = new StringBuilder();
+        var queryString = new StringBuilder();
         queryString.append("select from `");
         if (clazz == null) {
           queryString.append("V");
@@ -197,7 +197,7 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
     if (rid != null) {
       // REMOVE PUNCTUAL RID
       db.begin();
-      final Vertex v = toVertex(rid);
+      final var v = toVertex(rid);
       if (v != null) {
         v.delete();
         removed = 1;
@@ -232,10 +232,10 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
    * Delete the current vertex.
    */
   public boolean result(DatabaseSessionInternal db, final Object iRecord) {
-    final Identifiable id = (Identifiable) iRecord;
+    final var id = (Identifiable) iRecord;
     if (((RecordId) id.getIdentity()).isValid()) {
       final EntityImpl record = id.getRecord(db);
-      final Vertex v = toVertex(record);
+      final var v = toVertex(record);
       if (v != null) {
         v.delete();
 
@@ -268,7 +268,7 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
 
   @Override
   public void end() {
-    DatabaseSessionInternal db = getDatabase();
+    var db = getDatabase();
     if (!txAlreadyBegun) {
       db.commit();
     }
@@ -283,7 +283,7 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
    * Parses the returning keyword if found.
    */
   protected String parseReturn() throws CommandSQLParsingException {
-    final String returning = parserNextWord(true);
+    final var returning = parserNextWord(true);
 
     if (!returning.equalsIgnoreCase("COUNT") && !returning.equalsIgnoreCase("BEFORE")) {
       throwParsingException(
@@ -314,11 +314,11 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
 
   @Override
   public Set<String> getInvolvedClusters() {
-    final HashSet<String> result = new HashSet<String>();
+    final var result = new HashSet<String>();
     if (rid != null) {
       result.add(database.getClusterNameById(rid.getClusterId()));
     } else if (query != null) {
-      final CommandExecutor executor =
+      final var executor =
           database
               .getSharedContext()
               .getYouTrackDB()

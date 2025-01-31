@@ -12,7 +12,7 @@ public abstract class SecurityResource {
   private static final Map<String, SecurityResource> cache = new ConcurrentHashMap<>();
 
   public static SecurityResource getInstance(String resource) {
-    SecurityResource result = cache.get(resource);
+    var result = cache.get(resource);
     if (result == null) {
       result = parseResource(resource);
       if (result != null) {
@@ -72,24 +72,24 @@ public abstract class SecurityResource {
       return SecurityResourceServerOp.ADMIN;
     }
     try {
-      SQLSecurityResourceSegment parsed = SQLEngine.parseSecurityResource(resource);
+      var parsed = SQLEngine.parseSecurityResource(resource);
 
       if (resource.startsWith("database.class.")) {
-        SQLSecurityResourceSegment classElement = parsed.getNext().getNext();
+        var classElement = parsed.getNext().getNext();
         String className;
-        boolean allClasses = false;
+        var allClasses = false;
         if (classElement.getIdentifier() != null) {
           className = classElement.getIdentifier().getStringValue();
         } else {
           className = null;
           allClasses = true;
         }
-        SQLSecurityResourceSegment propertyModifier = classElement.getNext();
+        var propertyModifier = classElement.getNext();
         if (propertyModifier != null) {
           if (propertyModifier.getNext() != null) {
             throw new SecurityException("Invalid resource: " + resource);
           }
-          String propertyName = propertyModifier.getIdentifier().getStringValue();
+          var propertyName = propertyModifier.getIdentifier().getStringValue();
           if (allClasses) {
             return new SecurityResourceProperty(resource, propertyName);
           } else {
@@ -99,22 +99,22 @@ public abstract class SecurityResource {
           return new SecurityResourceClass(resource, className);
         }
       } else if (resource.startsWith("database.cluster.")) {
-        SQLSecurityResourceSegment clusterElement = parsed.getNext().getNext();
-        String clusterName = clusterElement.getIdentifier().getStringValue();
+        var clusterElement = parsed.getNext().getNext();
+        var clusterName = clusterElement.getIdentifier().getStringValue();
         if (clusterElement.getNext() != null) {
           throw new SecurityException("Invalid resource: " + resource);
         }
         return new SecurityResourceCluster(resource, clusterName);
       } else if (resource.startsWith("database.function.")) {
-        SQLSecurityResourceSegment functionElement = parsed.getNext().getNext();
-        String functionName = functionElement.getIdentifier().getStringValue();
+        var functionElement = parsed.getNext().getNext();
+        var functionName = functionElement.getIdentifier().getStringValue();
         if (functionElement.getNext() != null) {
           throw new SecurityException("Invalid resource: " + resource);
         }
         return new SecurityResourceFunction(resource, functionName);
       } else if (resource.startsWith("database.systemclusters.")) {
-        SQLSecurityResourceSegment clusterElement = parsed.getNext().getNext();
-        String clusterName = clusterElement.getIdentifier().getStringValue();
+        var clusterElement = parsed.getNext().getNext();
+        var clusterName = clusterElement.getIdentifier().getStringValue();
         if (clusterElement.getNext() != null) {
           throw new SecurityException("Invalid resource: " + resource);
         }
@@ -146,7 +146,7 @@ public abstract class SecurityResource {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SecurityResource that = (SecurityResource) o;
+    var that = (SecurityResource) o;
     return Objects.equals(resourceString, that.resourceString);
   }
 

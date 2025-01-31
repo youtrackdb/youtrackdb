@@ -60,7 +60,7 @@ public class ByteSerializerTest {
   public void testNativeDirectMemoryCompatibility() {
     byteSerializer.serializeNative(OBJECT, stream, 0);
 
-    final ByteBuffer buffer =
+    final var buffer =
         ByteBuffer.allocateDirect(stream.length).order(ByteOrder.nativeOrder());
     buffer.position(0);
     buffer.put(stream);
@@ -71,40 +71,40 @@ public class ByteSerializerTest {
 
   @Test
   public void testSerializeInByteBuffer() {
-    final int serializationOffset = 5;
+    final var serializationOffset = 5;
 
-    final ByteBuffer buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
+    final var buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
     buffer.position(serializationOffset);
     byteSerializer.serializeInByteBufferObject(OBJECT, buffer);
 
-    final int binarySize = buffer.position() - serializationOffset;
+    final var binarySize = buffer.position() - serializationOffset;
     Assert.assertEquals(binarySize, FIELD_SIZE);
 
     buffer.position(serializationOffset);
     Assert.assertEquals(byteSerializer.getObjectSizeInByteBuffer(buffer), FIELD_SIZE);
 
     buffer.position(serializationOffset);
-    final Byte result = byteSerializer.deserializeFromByteBufferObject(buffer);
+    final var result = byteSerializer.deserializeFromByteBufferObject(buffer);
 
     Assert.assertEquals(result, OBJECT);
   }
 
   @Test
   public void testSerializeInImmutableByteBufferPosition() {
-    final int serializationOffset = 5;
+    final var serializationOffset = 5;
 
-    final ByteBuffer buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
+    final var buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
     buffer.position(serializationOffset);
     byteSerializer.serializeInByteBufferObject(OBJECT, buffer);
 
-    final int binarySize = buffer.position() - serializationOffset;
+    final var binarySize = buffer.position() - serializationOffset;
     Assert.assertEquals(binarySize, FIELD_SIZE);
 
     buffer.position(0);
     Assert.assertEquals(
         byteSerializer.getObjectSizeInByteBuffer(serializationOffset, buffer), FIELD_SIZE);
     Assert.assertEquals(0, buffer.position());
-    final Byte result = byteSerializer.deserializeFromByteBufferObject(serializationOffset, buffer);
+    final var result = byteSerializer.deserializeFromByteBufferObject(serializationOffset, buffer);
 
     Assert.assertEquals(0, buffer.position());
     Assert.assertEquals(result, OBJECT);
@@ -112,14 +112,14 @@ public class ByteSerializerTest {
 
   @Test
   public void testSerializationInWALChanges() {
-    final int serializationOffset = 5;
-    final ByteBuffer buffer =
+    final var serializationOffset = 5;
+    final var buffer =
         ByteBuffer.allocateDirect(
                 FIELD_SIZE + serializationOffset + WALPageChangesPortion.PORTION_BYTES)
             .order(ByteOrder.nativeOrder());
 
     final WALChanges walChanges = new WALPageChangesPortion();
-    final byte[] data = new byte[FIELD_SIZE];
+    final var data = new byte[FIELD_SIZE];
     byteSerializer.serializeNative(OBJECT, data, 0);
     walChanges.setBinaryValue(buffer, data, serializationOffset);
 

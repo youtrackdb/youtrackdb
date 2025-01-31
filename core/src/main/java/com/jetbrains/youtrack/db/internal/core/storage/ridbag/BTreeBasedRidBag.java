@@ -43,8 +43,6 @@ import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPagina
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.RecordSerializationContext;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.RidBagDeleteSerializationOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.RidBagUpdateSerializationOperation;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperationsManager;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.EdgeBTree;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.RidBagBucketPointer;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionAbstract;
@@ -56,7 +54,6 @@ import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
@@ -172,7 +169,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
       }
 
       if (newEntryIterator.hasNext()) {
-        Map.Entry<RID, ModifiableInteger> entry = newEntryIterator.next();
+        var entry = newEntryIterator.next();
         currentValue = entry.getKey();
         currentFinalCounter = entry.getValue().intValue();
         currentCounter = 1;
@@ -230,7 +227,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
           size--;
         }
       } else {
-        Change counter = changedValues.get(currentValue);
+        var counter = changedValues.get(currentValue);
         if (counter != null) {
           counter.decrement();
           if (size >= 0) {
@@ -314,7 +311,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
 
     @Override
     public Map.Entry<RID, Integer> next() {
-      final Map.Entry<RID, Integer> entry = preFetchedValues.removeFirst();
+      final var entry = preFetchedValues.removeFirst();
       if (preFetchedValues.isEmpty()) {
         prefetchData(false);
       }
@@ -333,7 +330,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
     }
 
     private void prefetchData(boolean firstTime) {
-      final EdgeBTree<RID, Integer> tree = loadTree();
+      final var tree = loadTree();
       if (tree == null) {
         throw new IllegalStateException(
             "RidBag is not properly initialized, can not load tree implementation");
@@ -377,7 +374,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
     }
 
     private void init() {
-      EdgeBTree<RID, Integer> tree = loadTree();
+      var tree = loadTree();
       if (tree == null) {
         throw new IllegalStateException(
             "RidBag is not properly initialized, can not load tree implementation");
@@ -436,13 +433,13 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   }
 
   public void mergeChanges(BTreeBasedRidBag treeRidBag) {
-    for (Map.Entry<RID, ModifiableInteger> entry : treeRidBag.newEntries.entrySet()) {
+    for (var entry : treeRidBag.newEntries.entrySet()) {
       mergeDiffEntry(entry.getKey(), entry.getValue().getValue());
     }
 
-    for (Map.Entry<RID, Change> entry : treeRidBag.changes.entrySet()) {
-      final RID rec = entry.getKey();
-      final Change change = entry.getValue();
+    for (var entry : treeRidBag.changes.entrySet()) {
+      final var rec = entry.getKey();
+      final var change = entry.getValue();
       final int diff;
       if (change instanceof DiffChange) {
         diff = change.getValue();
@@ -475,7 +472,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
     }
 
     if (((RecordId) rid.getIdentity()).isValid()) {
-      Change counter = changes.get(rid);
+      var counter = changes.get(rid);
       if (counter == null) {
         changes.put(rid, new DiffChange(1));
       } else {
@@ -486,7 +483,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
         counter.increment();
       }
     } else {
-      final ModifiableInteger counter = newEntries.get(rid);
+      final var counter = newEntries.get(rid);
       if (counter == null) {
         newEntries.put(rid, new ModifiableInteger(1));
       } else {
@@ -508,7 +505,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
         size--;
       }
     } else {
-      final Change counter = changes.get(rid);
+      final var counter = changes.get(rid);
       if (counter == null) {
         // Not persistent keys can only be in changes or newEntries
         if (rid.getIdentity().isPersistent()) {
@@ -541,10 +538,10 @@ public class BTreeBasedRidBag implements RidBagDelegate {
       return true;
     }
 
-    Change counter = changes.get(identifiable);
+    var counter = changes.get(identifiable);
 
     if (counter != null) {
-      AbsoluteChange absoluteValue = getAbsoluteValue(identifiable);
+      var absoluteValue = getAbsoluteValue(identifiable);
 
       if (counter.isUndefined()) {
         changes.put(identifiable, absoluteValue);
@@ -590,16 +587,16 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   public Object returnOriginalState(
       DatabaseSessionInternal session,
       List<MultiValueChangeEvent<RID, RID>> multiValueChangeEvents) {
-    final BTreeBasedRidBag reverted = new BTreeBasedRidBag();
+    final var reverted = new BTreeBasedRidBag();
     for (var rid : this) {
       reverted.add(rid);
     }
 
-    final ListIterator<MultiValueChangeEvent<RID, RID>> listIterator =
+    final var listIterator =
         multiValueChangeEvents.listIterator(multiValueChangeEvents.size());
 
     while (listIterator.hasPrevious()) {
-      final MultiValueChangeEvent<RID, RID> event = listIterator.previous();
+      final var event = listIterator.previous();
       switch (event.getChangeType()) {
         case ADD:
           reverted.remove(event.getKey());
@@ -617,7 +614,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
 
   @Override
   public int getSerializedSize() {
-    int result = 2 * LongSerializer.LONG_SIZE + 3 * IntegerSerializer.INT_SIZE;
+    var result = 2 * LongSerializer.LONG_SIZE + 3 * IntegerSerializer.INT_SIZE;
     if (DatabaseRecordThreadLocal.instance().get().isRemote()
         || RecordSerializationContext.getContext() == null) {
       result += getChangesSerializedSize();
@@ -626,8 +623,8 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   }
 
   private void rearrangeChanges() {
-    DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
-    for (Entry<RID, Change> change : this.changes.entrySet()) {
+    var db = DatabaseRecordThreadLocal.instance().getIfDefined();
+    for (var change : this.changes.entrySet()) {
       Identifiable key = change.getKey();
       if (db != null && db.getTransaction().isActive()) {
         if (!key.getIdentity().isPersistent()) {
@@ -659,7 +656,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
       throw new DatabaseException("Changes are not supported outside of transactions");
     }
 
-    boolean remoteMode = db.isRemote();
+    var remoteMode = db.isRemote();
     if (remoteMode) {
       context = null;
     } else {
@@ -669,13 +666,13 @@ public class BTreeBasedRidBag implements RidBagDelegate {
     // make sure that we really save underlying record.
     if (collectionPointer == null) {
       if (context != null) {
-        final int clusterId = getHighLevelDocClusterId();
+        final var clusterId = getHighLevelDocClusterId();
         assert clusterId > -1;
         try {
-          final AtomicOperationsManager atomicOperationsManager =
+          final var atomicOperationsManager =
               ((AbstractPaginatedStorage) db.getStorage())
                   .getAtomicOperationsManager();
-          final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+          final var atomicOperation = atomicOperationsManager.getCurrentOperation();
           assert atomicOperation != null;
           collectionPointer =
               db
@@ -695,7 +692,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
     LongSerializer.INSTANCE.serializeLiteral(collectionPointer.getFileId(), stream, offset);
     offset += LongSerializer.LONG_SIZE;
 
-    RidBagBucketPointer rootPointer = collectionPointer.getRootPointer();
+    var rootPointer = collectionPointer.getRootPointer();
     LongSerializer.INSTANCE.serializeLiteral(rootPointer.getPageIndex(), stream, offset);
     offset += LongSerializer.LONG_SIZE;
 
@@ -720,12 +717,12 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   }
 
   public void applyNewEntries() {
-    for (Entry<RID, ModifiableInteger> entry : newEntries.entrySet()) {
-      RID rid = entry.getKey();
+    for (var entry : newEntries.entrySet()) {
+      var rid = entry.getKey();
       assert rid instanceof DBRecord;
-      Change c = changes.get(rid);
+      var c = changes.get(rid);
 
-      final int delta = entry.getValue().intValue();
+      final var delta = entry.getValue().intValue();
       if (c == null) {
         changes.put(rid, new DiffChange(delta));
       } else {
@@ -741,7 +738,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
 
   @Override
   public void requestDelete() {
-    final RecordSerializationContext context = RecordSerializationContext.getContext();
+    final var context = RecordSerializationContext.getContext();
     if (context != null && collectionPointer != null) {
       context.push(new RidBagDeleteSerializationOperation(this));
     }
@@ -756,13 +753,13 @@ public class BTreeBasedRidBag implements RidBagDelegate {
 
   @Override
   public int deserialize(DatabaseSessionInternal db, byte[] stream, int offset) {
-    final long fileId = LongSerializer.INSTANCE.deserializeLiteral(stream, offset);
+    final var fileId = LongSerializer.INSTANCE.deserializeLiteral(stream, offset);
     offset += LongSerializer.LONG_SIZE;
 
-    final long pageIndex = LongSerializer.INSTANCE.deserializeLiteral(stream, offset);
+    final var pageIndex = LongSerializer.INSTANCE.deserializeLiteral(stream, offset);
     offset += LongSerializer.LONG_SIZE;
 
-    final int pageOffset = IntegerSerializer.INSTANCE.deserializeLiteral(stream, offset);
+    final var pageOffset = IntegerSerializer.INSTANCE.deserializeLiteral(stream, offset);
     offset += IntegerSerializer.INT_SIZE;
 
     // Cached bag size. Not used after 1.7.5
@@ -811,18 +808,18 @@ public class BTreeBasedRidBag implements RidBagDelegate {
 
   private void mergeDiffEntry(RID key, int diff) {
     if (diff > 0) {
-      for (int i = 0; i < diff; i++) {
+      for (var i = 0; i < diff; i++) {
         add(key);
       }
     } else {
-      for (int i = diff; i < 0; i++) {
+      for (var i = diff; i < 0; i++) {
         remove(key);
       }
     }
   }
 
   private AbsoluteChange getAbsoluteValue(RID rid) {
-    final EdgeBTree<RID, Integer> tree = loadTree();
+    final var tree = loadTree();
     try {
       Integer oldValue;
 
@@ -836,7 +833,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
         oldValue = 0;
       }
 
-      final Change change = changes.get(rid);
+      final var change = changes.get(rid);
 
       return new AbsoluteChange(change == null ? oldValue : change.applyTo(oldValue));
     } finally {
@@ -850,9 +847,9 @@ public class BTreeBasedRidBag implements RidBagDelegate {
    * @return real size
    */
   private int updateSize() {
-    int size = 0;
+    var size = 0;
     if (collectionPointer != null) {
-      final EdgeBTree<RID, Integer> tree = loadTree();
+      final var tree = loadTree();
       if (tree == null) {
         throw new IllegalStateException(
             "RidBag is not properly initialized, can not load tree implementation");
@@ -864,12 +861,12 @@ public class BTreeBasedRidBag implements RidBagDelegate {
         releaseTree();
       }
     } else {
-      for (Change change : changes.values()) {
+      for (var change : changes.values()) {
         size += change.applyTo(0);
       }
     }
 
-    for (ModifiableInteger diff : newEntries.values()) {
+    for (var diff : newEntries.values()) {
       size += diff.getValue();
     }
 
@@ -884,7 +881,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   }
 
   private int getHighLevelDocClusterId() {
-    RecordElement owner = this.owner;
+    var owner = this.owner;
     while (owner != null && owner.getOwner() != null) {
       owner = owner.getOwner();
     }
@@ -903,7 +900,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
    * @return true if entry have been removed
    */
   private boolean removeFromNewEntries(final RID rid) {
-    ModifiableInteger counter = newEntries.get(rid);
+    var counter = newEntries.get(rid);
     if (counter == null) {
       return false;
     } else {
@@ -919,13 +916,13 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   private Map.Entry<RID, Integer> nextChangedNotRemovedSBTreeEntry(
       Iterator<Map.Entry<RID, Integer>> iterator) {
     while (iterator.hasNext()) {
-      final Map.Entry<RID, Integer> entry = iterator.next();
-      final Change change = changes.get(entry.getKey());
+      final var entry = iterator.next();
+      final var change = changes.get(entry.getKey());
       if (change == null) {
         return entry;
       }
 
-      final int newValue = change.applyTo(entry.getValue());
+      final var newValue = change.applyTo(entry.getValue());
 
       if (newValue > 0) {
         return new IdentifiableIntegerEntry(entry, newValue);

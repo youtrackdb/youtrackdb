@@ -13,10 +13,10 @@ public class STAsTextFunctionTest extends BaseSpatialLuceneTest {
 
   @Test
   public void test() {
-    boolean prevValue = GlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean();
+    var prevValue = GlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean();
     GlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.setValue(true);
 
-    String[] values = {
+    var values = new String[]{
         "POINT (100.1 80.2)",
         "POINT Z (100.1 80.2 0.3)",
         "LINESTRING (1 1, 1 2, 1 3, 2 2)",
@@ -27,14 +27,14 @@ public class STAsTextFunctionTest extends BaseSpatialLuceneTest {
         "MULTILINESTRING Z((10 10 0, 20 20 1, 10 40 2), (40 40 3, 30 30 4, 40 20 5, 30 10 6))",
     };
     try {
-      STGeomFromTextFunction func = new STGeomFromTextFunction();
-      STAsTextFunction func2 = new STAsTextFunction();
+      var func = new STGeomFromTextFunction();
+      var func2 = new STAsTextFunction();
 
-      for (String value : values) {
-        EntityImpl item = (EntityImpl) func.execute(null, null, null, new Object[]{value},
+      for (var value : values) {
+        var item = (EntityImpl) func.execute(null, null, null, new Object[]{value},
             null);
 
-        String result = (String) func2.execute(null, null, null, new Object[]{item}, null);
+        var result = (String) func2.execute(null, null, null, new Object[]{item}, null);
 
         Assert.assertEquals(value, result);
       }

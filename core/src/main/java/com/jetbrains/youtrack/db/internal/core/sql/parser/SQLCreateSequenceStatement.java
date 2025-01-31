@@ -42,7 +42,7 @@ public class SQLCreateSequenceStatement extends SQLSimpleExecStatement {
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
     var db = ctx.getDatabase();
-    DBSequence seq =
+    var seq =
         db
             .getMetadata()
             .getSequenceLibrary()
@@ -55,14 +55,14 @@ public class SQLCreateSequenceStatement extends SQLSimpleExecStatement {
             "Sequence " + name.getStringValue() + " already exists");
       }
     }
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     result.setProperty("operation", "create sequence");
     result.setProperty("name", name.getStringValue());
 
     try {
       executeInternal(ctx, result);
     } catch (ExecutionException | InterruptedException exc) {
-      String message = "Unable to execute command: " + exc.getMessage();
+      var message = "Unable to execute command: " + exc.getMessage();
       LogManager.instance().error(this, message, exc, (Object) null);
       throw new CommandExecutionException(message);
     }
@@ -72,8 +72,8 @@ public class SQLCreateSequenceStatement extends SQLSimpleExecStatement {
 
   private void executeInternal(CommandContext ctx, ResultInternal result)
       throws ExecutionException, InterruptedException {
-    DBSequence.CreateParams params = createParams(ctx, result);
-    DBSequence.SEQUENCE_TYPE seqType =
+    var params = createParams(ctx, result);
+    var seqType =
         type == TYPE_CACHED ? DBSequence.SEQUENCE_TYPE.CACHED : DBSequence.SEQUENCE_TYPE.ORDERED;
     result.setProperty("type", seqType.toString());
     ctx.getDatabase()
@@ -83,9 +83,9 @@ public class SQLCreateSequenceStatement extends SQLSimpleExecStatement {
   }
 
   private DBSequence.CreateParams createParams(CommandContext ctx, ResultInternal result) {
-    DBSequence.CreateParams params = new DBSequence.CreateParams();
+    var params = new DBSequence.CreateParams();
     if (start != null) {
-      Object o = start.execute((Identifiable) null, ctx);
+      var o = start.execute((Identifiable) null, ctx);
       if (o instanceof Number) {
         params.setStart(((Number) o).longValue());
         result.setProperty("start", o);
@@ -94,7 +94,7 @@ public class SQLCreateSequenceStatement extends SQLSimpleExecStatement {
       }
     }
     if (increment != null) {
-      Object o = increment.execute((Identifiable) null, ctx);
+      var o = increment.execute((Identifiable) null, ctx);
       if (o instanceof Number) {
         params.setIncrement(((Number) o).intValue());
         result.setProperty("increment", o);
@@ -103,7 +103,7 @@ public class SQLCreateSequenceStatement extends SQLSimpleExecStatement {
       }
     }
     if (cache != null) {
-      Object o = cache.execute((Identifiable) null, ctx);
+      var o = cache.execute((Identifiable) null, ctx);
       if (o instanceof Number) {
         params.setCacheSize(((Number) o).intValue());
         result.setProperty("cacheSize", o);
@@ -113,7 +113,7 @@ public class SQLCreateSequenceStatement extends SQLSimpleExecStatement {
     }
 
     if (limitValue != null) {
-      Object o = limitValue.execute((Identifiable) null, ctx);
+      var o = limitValue.execute((Identifiable) null, ctx);
       if (o instanceof Number) {
         params.setLimitValue(((Number) o).longValue());
         result.setProperty("limitValue", o);
@@ -223,7 +223,7 @@ public class SQLCreateSequenceStatement extends SQLSimpleExecStatement {
 
   @Override
   public SQLCreateSequenceStatement copy() {
-    SQLCreateSequenceStatement result = new SQLCreateSequenceStatement(-1);
+    var result = new SQLCreateSequenceStatement(-1);
     result.name = name == null ? null : name.copy();
     result.ifNotExists = this.ifNotExists;
     result.type = type;
@@ -245,7 +245,7 @@ public class SQLCreateSequenceStatement extends SQLSimpleExecStatement {
       return false;
     }
 
-    SQLCreateSequenceStatement that = (SQLCreateSequenceStatement) o;
+    var that = (SQLCreateSequenceStatement) o;
 
     if (ifNotExists != that.ifNotExists) {
       return false;
@@ -276,7 +276,7 @@ public class SQLCreateSequenceStatement extends SQLSimpleExecStatement {
 
   @Override
   public int hashCode() {
-    int result = name != null ? name.hashCode() : 0;
+    var result = name != null ? name.hashCode() : 0;
     result = 31 * result + (ifNotExists ? 1 : 0);
     result = 31 * result + type;
     result = 31 * result + (start != null ? start.hashCode() : 0);

@@ -43,15 +43,15 @@ public class CompositeKeySerializer implements BinarySerializer<CompositeKey> {
   public static final byte ID = 14;
 
   public int getObjectSize(CompositeKey compositeKey, Object... hints) {
-    final PropertyType[] types = getKeyTypes(hints);
+    final var types = getKeyTypes(hints);
 
-    final List<Object> keys = compositeKey.getKeys();
+    final var keys = compositeKey.getKeys();
 
-    int size = 2 * IntegerSerializer.INT_SIZE;
+    var size = 2 * IntegerSerializer.INT_SIZE;
 
-    final BinarySerializerFactory factory = BinarySerializerFactory.getInstance();
-    for (int i = 0; i < keys.size(); i++) {
-      final Object key = keys.get(i);
+    final var factory = BinarySerializerFactory.getInstance();
+    for (var i = 0; i < keys.size(); i++) {
+      final var key = keys.get(i);
 
       if (key != null) {
         final PropertyType type;
@@ -76,12 +76,12 @@ public class CompositeKeySerializer implements BinarySerializer<CompositeKey> {
 
   public void serialize(
       CompositeKey compositeKey, byte[] stream, int startPosition, Object... hints) {
-    final PropertyType[] types = getKeyTypes(hints);
+    final var types = getKeyTypes(hints);
 
-    final List<Object> keys = compositeKey.getKeys();
-    final int keysSize = keys.size();
+    final var keys = compositeKey.getKeys();
+    final var keysSize = keys.size();
 
-    final int oldStartPosition = startPosition;
+    final var oldStartPosition = startPosition;
 
     startPosition += IntegerSerializer.INT_SIZE;
 
@@ -89,10 +89,10 @@ public class CompositeKeySerializer implements BinarySerializer<CompositeKey> {
 
     startPosition += IntegerSerializer.INT_SIZE;
 
-    final BinarySerializerFactory factory = BinarySerializerFactory.getInstance();
+    final var factory = BinarySerializerFactory.getInstance();
 
-    for (int i = 0; i < keys.size(); i++) {
-      final Object key = keys.get(i);
+    for (var i = 0; i < keys.size(); i++) {
+      final var key = keys.get(i);
 
       BinarySerializer<Object> binarySerializer;
       if (key != null) {
@@ -121,21 +121,21 @@ public class CompositeKeySerializer implements BinarySerializer<CompositeKey> {
 
   @SuppressWarnings("unchecked")
   public CompositeKey deserialize(byte[] stream, int startPosition) {
-    final CompositeKey compositeKey = new CompositeKey();
+    final var compositeKey = new CompositeKey();
 
     startPosition += IntegerSerializer.INT_SIZE;
 
-    final int keysSize = IntegerSerializer.INSTANCE.deserializeLiteral(stream, startPosition);
+    final var keysSize = IntegerSerializer.INSTANCE.deserializeLiteral(stream, startPosition);
     startPosition += IntegerSerializer.INSTANCE.getObjectSize(keysSize);
 
-    final BinarySerializerFactory factory = BinarySerializerFactory.getInstance();
-    for (int i = 0; i < keysSize; i++) {
-      final byte serializerId = stream[startPosition];
+    final var factory = BinarySerializerFactory.getInstance();
+    for (var i = 0; i < keysSize; i++) {
+      final var serializerId = stream[startPosition];
       startPosition += BinarySerializerFactory.TYPE_IDENTIFIER_SIZE;
 
-      BinarySerializer<Object> binarySerializer =
+      var binarySerializer =
           (BinarySerializer<Object>) factory.getObjectSerializer(serializerId);
-      final Object key = binarySerializer.deserialize(stream, startPosition);
+      final var key = binarySerializer.deserialize(stream, startPosition);
       compositeKey.addKey(key);
 
       startPosition += binarySerializer.getObjectSize(key);
@@ -158,12 +158,12 @@ public class CompositeKeySerializer implements BinarySerializer<CompositeKey> {
 
   public void serializeNativeObject(
       CompositeKey compositeKey, byte[] stream, int startPosition, Object... hints) {
-    final PropertyType[] types = getKeyTypes(hints);
+    final var types = getKeyTypes(hints);
 
-    final List<Object> keys = compositeKey.getKeys();
-    final int keysSize = keys.size();
+    final var keys = compositeKey.getKeys();
+    final var keysSize = keys.size();
 
-    final int oldStartPosition = startPosition;
+    final var oldStartPosition = startPosition;
 
     startPosition += IntegerSerializer.INT_SIZE;
 
@@ -171,10 +171,10 @@ public class CompositeKeySerializer implements BinarySerializer<CompositeKey> {
 
     startPosition += IntegerSerializer.INT_SIZE;
 
-    final BinarySerializerFactory factory = BinarySerializerFactory.getInstance();
+    final var factory = BinarySerializerFactory.getInstance();
 
-    for (int i = 0; i < keys.size(); i++) {
-      final Object key = keys.get(i);
+    for (var i = 0; i < keys.size(); i++) {
+      final var key = keys.get(i);
       BinarySerializer<Object> binarySerializer;
       if (key != null) {
         final PropertyType type;
@@ -201,22 +201,22 @@ public class CompositeKeySerializer implements BinarySerializer<CompositeKey> {
   }
 
   public CompositeKey deserializeNativeObject(byte[] stream, int startPosition) {
-    final CompositeKey compositeKey = new CompositeKey();
+    final var compositeKey = new CompositeKey();
 
     startPosition += IntegerSerializer.INT_SIZE;
 
-    final int keysSize = IntegerSerializer.INSTANCE.deserializeNative(stream, startPosition);
+    final var keysSize = IntegerSerializer.INSTANCE.deserializeNative(stream, startPosition);
     startPosition += IntegerSerializer.INSTANCE.getObjectSize(keysSize);
 
-    final BinarySerializerFactory factory = BinarySerializerFactory.getInstance();
-    for (int i = 0; i < keysSize; i++) {
-      final byte serializerId = stream[startPosition];
+    final var factory = BinarySerializerFactory.getInstance();
+    for (var i = 0; i < keysSize; i++) {
+      final var serializerId = stream[startPosition];
       startPosition += BinarySerializerFactory.TYPE_IDENTIFIER_SIZE;
 
       @SuppressWarnings("unchecked")
-      BinarySerializer<Object> binarySerializer =
+      var binarySerializer =
           (BinarySerializer<Object>) factory.getObjectSerializer(serializerId);
-      final Object key = binarySerializer.deserializeNativeObject(stream, startPosition);
+      final var key = binarySerializer.deserializeNativeObject(stream, startPosition);
       compositeKey.addKey(key);
 
       startPosition += binarySerializer.getObjectSize(key);
@@ -250,14 +250,14 @@ public class CompositeKeySerializer implements BinarySerializer<CompositeKey> {
       return null;
     }
 
-    final PropertyType[] types = getKeyTypes(hints);
+    final var types = getKeyTypes(hints);
 
-    final List<Object> keys = value.getKeys();
-    final CompositeKey compositeKey = new CompositeKey();
+    final var keys = value.getKeys();
+    final var compositeKey = new CompositeKey();
 
-    final BinarySerializerFactory factory = BinarySerializerFactory.getInstance();
-    for (int i = 0; i < keys.size(); i++) {
-      Object key = keys.get(i);
+    final var factory = BinarySerializerFactory.getInstance();
+    for (var i = 0; i < keys.size(); i++) {
+      var key = keys.get(i);
 
       if (key != null) {
         final PropertyType type;
@@ -267,7 +267,7 @@ public class CompositeKeySerializer implements BinarySerializer<CompositeKey> {
           type = PropertyType.getTypeByClass(key.getClass());
         }
 
-        BinarySerializer<Object> keySerializer = factory.getObjectSerializer(type);
+        var keySerializer = factory.getObjectSerializer(type);
         if (key instanceof Map
             && !(type == PropertyType.EMBEDDEDMAP || type == PropertyType.LINKMAP)
             && ((Map<?, ?>) key).size() == 1
@@ -294,19 +294,19 @@ public class CompositeKeySerializer implements BinarySerializer<CompositeKey> {
   @Override
   public void serializeInByteBufferObject(
       CompositeKey object, ByteBuffer buffer, Object... hints) {
-    final PropertyType[] types = getKeyTypes(hints);
+    final var types = getKeyTypes(hints);
 
-    final List<Object> keys = object.getKeys();
-    final int keysSize = keys.size();
+    final var keys = object.getKeys();
+    final var keysSize = keys.size();
 
-    final int oldStartOffset = buffer.position();
+    final var oldStartOffset = buffer.position();
     buffer.position(oldStartOffset + IntegerSerializer.INT_SIZE);
 
     buffer.putInt(keysSize);
-    final BinarySerializerFactory factory = BinarySerializerFactory.getInstance();
+    final var factory = BinarySerializerFactory.getInstance();
 
-    for (int i = 0; i < keys.size(); i++) {
-      final Object key = keys.get(i);
+    for (var i = 0; i < keys.size(); i++) {
+      final var key = keys.get(i);
 
       BinarySerializer<Object> binarySerializer;
       if (key != null) {
@@ -326,8 +326,8 @@ public class CompositeKeySerializer implements BinarySerializer<CompositeKey> {
       binarySerializer.serializeInByteBufferObject(key, buffer);
     }
 
-    final int finalPosition = buffer.position();
-    final int serializedSize = buffer.position() - oldStartOffset;
+    final var finalPosition = buffer.position();
+    final var serializedSize = buffer.position() - oldStartOffset;
 
     buffer.position(oldStartOffset);
     buffer.putInt(serializedSize);
@@ -340,18 +340,18 @@ public class CompositeKeySerializer implements BinarySerializer<CompositeKey> {
    */
   @Override
   public CompositeKey deserializeFromByteBufferObject(ByteBuffer buffer) {
-    final CompositeKey compositeKey = new CompositeKey();
+    final var compositeKey = new CompositeKey();
 
     buffer.position(buffer.position() + IntegerSerializer.INT_SIZE);
-    final int keysSize = buffer.getInt();
+    final var keysSize = buffer.getInt();
 
-    final BinarySerializerFactory factory = BinarySerializerFactory.getInstance();
-    for (int i = 0; i < keysSize; i++) {
-      final byte serializerId = buffer.get();
+    final var factory = BinarySerializerFactory.getInstance();
+    for (var i = 0; i < keysSize; i++) {
+      final var serializerId = buffer.get();
       @SuppressWarnings("unchecked")
-      BinarySerializer<Object> binarySerializer =
+      var binarySerializer =
           (BinarySerializer<Object>) factory.getObjectSerializer(serializerId);
-      final Object key = binarySerializer.deserializeFromByteBufferObject(buffer);
+      final var key = binarySerializer.deserializeFromByteBufferObject(buffer);
       compositeKey.addKey(key);
     }
 
@@ -363,22 +363,22 @@ public class CompositeKeySerializer implements BinarySerializer<CompositeKey> {
    */
   @Override
   public CompositeKey deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
-    final CompositeKey compositeKey = new CompositeKey();
+    final var compositeKey = new CompositeKey();
 
     offset += IntegerSerializer.INT_SIZE;
-    final int keysSize = buffer.getInt(offset);
+    final var keysSize = buffer.getInt(offset);
     offset += IntegerSerializer.INT_SIZE;
 
-    final BinarySerializerFactory factory = BinarySerializerFactory.getInstance();
-    for (int i = 0; i < keysSize; i++) {
-      final byte serializerId = buffer.get(offset);
+    final var factory = BinarySerializerFactory.getInstance();
+    for (var i = 0; i < keysSize; i++) {
+      final var serializerId = buffer.get(offset);
       offset++;
       @SuppressWarnings("unchecked")
-      BinarySerializer<Object> binarySerializer =
+      var binarySerializer =
           (BinarySerializer<Object>) factory.getObjectSerializer(serializerId);
 
       var delta = binarySerializer.getObjectSizeInByteBuffer(offset, buffer);
-      final Object key = binarySerializer.deserializeFromByteBufferObject(offset, buffer);
+      final var key = binarySerializer.deserializeFromByteBufferObject(offset, buffer);
       offset += delta;
 
       compositeKey.addKey(key);
@@ -406,22 +406,22 @@ public class CompositeKeySerializer implements BinarySerializer<CompositeKey> {
   @Override
   public CompositeKey deserializeFromByteBufferObject(
       ByteBuffer buffer, WALChanges walChanges, int offset) {
-    final CompositeKey compositeKey = new CompositeKey();
+    final var compositeKey = new CompositeKey();
 
     offset += IntegerSerializer.INT_SIZE;
 
-    final int keysSize = walChanges.getIntValue(buffer, offset);
+    final var keysSize = walChanges.getIntValue(buffer, offset);
     offset += IntegerSerializer.INT_SIZE;
 
-    final BinarySerializerFactory factory = BinarySerializerFactory.getInstance();
-    for (int i = 0; i < keysSize; i++) {
-      final byte serializerId = walChanges.getByteValue(buffer, offset);
+    final var factory = BinarySerializerFactory.getInstance();
+    for (var i = 0; i < keysSize; i++) {
+      final var serializerId = walChanges.getByteValue(buffer, offset);
       offset += BinarySerializerFactory.TYPE_IDENTIFIER_SIZE;
 
       @SuppressWarnings("unchecked")
-      BinarySerializer<Object> binarySerializer =
+      var binarySerializer =
           (BinarySerializer<Object>) factory.getObjectSerializer(serializerId);
-      final Object key =
+      final var key =
           binarySerializer.deserializeFromByteBufferObject(buffer, walChanges, offset);
       compositeKey.addKey(key);
 

@@ -45,7 +45,7 @@ public class RemoteTokenExpireTest {
 
     server.activate();
 
-    TokenHandlerImpl token = (TokenHandlerImpl) server.getTokenHandler();
+    var token = (TokenHandlerImpl) server.getTokenHandler();
     token.setSessionInMills(expireTimeout);
 
     youTrackDB = new YouTrackDBImpl("remote:localhost", "root", "root",
@@ -92,7 +92,7 @@ public class RemoteTokenExpireTest {
 
     session.activateOnCurrentThread();
 
-    try (ResultSet res = session.query("select from Some")) {
+    try (var res = session.query("select from Some")) {
 
       Assert.assertEquals(0, res.stream().count());
 
@@ -110,7 +110,7 @@ public class RemoteTokenExpireTest {
     session.activateOnCurrentThread();
 
     session.begin();
-    try (ResultSet res = session.command("insert into V set name = 'foo'")) {
+    try (var res = session.command("insert into V set name = 'foo'")) {
       session.commit();
 
       Assert.assertEquals(1, res.stream().count());
@@ -128,7 +128,7 @@ public class RemoteTokenExpireTest {
 
     session.activateOnCurrentThread();
 
-    try (ResultSet res = session.execute("sql", "begin;insert into V set name = 'foo';commit;")) {
+    try (var res = session.execute("sql", "begin;insert into V set name = 'foo';commit;")) {
 
       Assert.assertEquals(1, res.stream().count());
 
@@ -143,7 +143,7 @@ public class RemoteTokenExpireTest {
 
     QUERY_REMOTE_RESULTSET_PAGE_SIZE.setValue(1);
 
-    try (ResultSet res = session.query("select from ORole")) {
+    try (var res = session.query("select from ORole")) {
 
       waitAndClean();
       session.activateOnCurrentThread();
@@ -168,7 +168,7 @@ public class RemoteTokenExpireTest {
 
     session.save(session.newEntity("Some"));
 
-    try (ResultSet res = session.query("select from Some")) {
+    try (var res = session.query("select from Some")) {
       Assert.assertEquals(1, res.stream().count());
     } catch (TokenSecurityException e) {
       Assert.fail("It should not get the expire exception");
@@ -184,7 +184,7 @@ public class RemoteTokenExpireTest {
 
     session.save(session.newEntity("Some"));
 
-    try (ResultSet resultSet = session.query("select from Some")) {
+    try (var resultSet = session.query("select from Some")) {
       Assert.assertEquals(1, resultSet.stream().count());
     }
     waitAndClean();
@@ -215,9 +215,9 @@ public class RemoteTokenExpireTest {
                     StorageRemote.CONNECTION_STRATEGY.ROUND_ROBIN_CONNECT)
                 .build());
 
-    DatabaseSession session = pool.acquire();
+    var session = pool.acquire();
 
-    try (ResultSet resultSet = session.query("select from Some")) {
+    try (var resultSet = session.query("select from Some")) {
       Assert.assertEquals(0, resultSet.stream().count());
     }
 
@@ -226,7 +226,7 @@ public class RemoteTokenExpireTest {
     session.activateOnCurrentThread();
 
     try {
-      try (ResultSet resultSet = session.query("select from Some")) {
+      try (var resultSet = session.query("select from Some")) {
         Assert.assertEquals(0, resultSet.stream().count());
       }
     } catch (TokenSecurityException e) {

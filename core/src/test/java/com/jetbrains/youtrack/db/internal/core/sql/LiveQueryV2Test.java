@@ -89,9 +89,9 @@ public class LiveQueryV2Test extends DbTestBase {
   public void testLiveInsert() throws InterruptedException {
     db.getMetadata().getSchema().createClass("test");
     db.getMetadata().getSchema().createClass("test2");
-    MyLiveQueryListener listener = new MyLiveQueryListener(new CountDownLatch(2));
+    var listener = new MyLiveQueryListener(new CountDownLatch(2));
 
-    LiveQueryMonitor monitor = db.live("select from test", listener);
+    var monitor = db.live("select from test", listener);
     Assert.assertNotNull(monitor);
 
     db.begin();
@@ -111,7 +111,7 @@ public class LiveQueryV2Test extends DbTestBase {
     db.commit();
 
     Assert.assertEquals(2, listener.ops.size());
-    for (Result doc : listener.ops) {
+    for (var doc : listener.ops) {
       Assert.assertEquals("test", doc.getProperty("@class"));
       Assert.assertEquals("foo", doc.getProperty("name"));
       RID rid = doc.getProperty("@rid");
@@ -121,12 +121,12 @@ public class LiveQueryV2Test extends DbTestBase {
 
   @Test
   public void testLiveInsertOnCluster() {
-    SchemaClass clazz = db.getMetadata().getSchema().createClass("test");
+    var clazz = db.getMetadata().getSchema().createClass("test");
 
-    int defaultCluster = clazz.getClusterIds()[0];
-    String clusterName = db.getStorage().getClusterNameById(defaultCluster);
+    var defaultCluster = clazz.getClusterIds()[0];
+    var clusterName = db.getStorage().getClusterNameById(defaultCluster);
 
-    LiveQueryV2Test.MyLiveQueryListener listener =
+    var listener =
         new MyLiveQueryListener(new CountDownLatch(1));
 
     db.live(" select from cluster:" + clusterName, listener);
@@ -141,7 +141,7 @@ public class LiveQueryV2Test extends DbTestBase {
       throw new RuntimeException(e);
     }
     Assert.assertEquals(1, listener.ops.size());
-    for (Result doc : listener.ops) {
+    for (var doc : listener.ops) {
       Assert.assertEquals("foo", doc.getProperty("name"));
       RID rid = doc.getProperty("@rid");
       Assert.assertTrue(rid.isPersistent());
@@ -153,7 +153,7 @@ public class LiveQueryV2Test extends DbTestBase {
   public void testLiveWithWhereCondition() {
     db.getMetadata().getSchema().createClass("test");
 
-    LiveQueryV2Test.MyLiveQueryListener listener =
+    var listener =
         new MyLiveQueryListener(new CountDownLatch(1));
 
     db.live("select from V where id = 1", listener);
@@ -168,7 +168,7 @@ public class LiveQueryV2Test extends DbTestBase {
       throw new RuntimeException(e);
     }
     Assert.assertEquals(1, listener.ops.size());
-    for (Result doc : listener.ops) {
+    for (var doc : listener.ops) {
       Assert.assertEquals(doc.getProperty("id"), Integer.valueOf(1));
       RID rid = doc.getProperty("@rid");
       Assert.assertTrue(rid.isPersistent());
@@ -179,25 +179,25 @@ public class LiveQueryV2Test extends DbTestBase {
   @Test
   public void testRestrictedLiveInsert() throws ExecutionException, InterruptedException {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass oRestricted = schema.getClass("ORestricted");
+    var oRestricted = schema.getClass("ORestricted");
     schema.createClass("test", oRestricted);
 
-    int liveMatch = 2;
-    List<Entity> query =
+    var liveMatch = 2;
+    var query =
         db.query("select from OUSer where name = 'reader'").toEntityList();
 
     final Identifiable reader = query.getFirst().getIdentity();
-    final Identifiable current = db.geCurrentUser().getIdentity();
+    final var current = db.geCurrentUser().getIdentity();
 
-    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    var executorService = Executors.newSingleThreadExecutor();
 
-    final CountDownLatch latch = new CountDownLatch(1);
-    final CountDownLatch dataArrived = new CountDownLatch(liveMatch);
-    Future<Integer> future =
+    final var latch = new CountDownLatch(1);
+    final var dataArrived = new CountDownLatch(liveMatch);
+    var future =
         executorService.submit(
             () -> {
               try (var db = openDatabase(readerUser, readerPassword)) {
-                final AtomicInteger integer = new AtomicInteger(0);
+                final var integer = new AtomicInteger(0);
                 db.live(
                     "live select from test",
                     new LiveQueryResultListener() {
@@ -251,7 +251,7 @@ public class LiveQueryV2Test extends DbTestBase {
         .close();
     db.commit();
 
-    Integer integer = future.get();
+    var integer = future.get();
     Assert.assertEquals(liveMatch, integer.intValue());
   }
 
@@ -259,9 +259,9 @@ public class LiveQueryV2Test extends DbTestBase {
   public void testLiveProjections() throws InterruptedException {
     db.getMetadata().getSchema().createClass("test");
     db.getMetadata().getSchema().createClass("test2");
-    MyLiveQueryListener listener = new MyLiveQueryListener(new CountDownLatch(2));
+    var listener = new MyLiveQueryListener(new CountDownLatch(2));
 
-    LiveQueryMonitor monitor = db.live("select @class, @rid as rid, name from test", listener);
+    var monitor = db.live("select @class, @rid as rid, name from test", listener);
     Assert.assertNotNull(monitor);
 
     db.begin();
@@ -281,7 +281,7 @@ public class LiveQueryV2Test extends DbTestBase {
     db.commit();
 
     Assert.assertEquals(2, listener.ops.size());
-    for (Result doc : listener.ops) {
+    for (var doc : listener.ops) {
       Assert.assertEquals("test", doc.getProperty("@class"));
       Assert.assertEquals("foo", doc.getProperty("name"));
       Assert.assertNull(doc.getProperty("surname"));

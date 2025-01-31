@@ -41,13 +41,13 @@ public class STBufferFunction extends SQLFunctionAbstract {
       Object iCurrentResult,
       Object[] iParams,
       CommandContext iContext) {
-    Shape shape = factory.fromObject(iParams[0]);
-    Number distance = (Number) iParams[1];
+    var shape = factory.fromObject(iParams[0]);
+    var distance = (Number) iParams[1];
     Map params = null;
     if (iParams.length > 2) {
       params = (Map) iParams[2];
     }
-    Shape buffer = factory.buffer(shape, distance.doubleValue(), params);
+    var buffer = factory.buffer(shape, distance.doubleValue(), params);
     return factory.toEntitty(buffer);
   }
 

@@ -64,17 +64,17 @@ public class ZIPCompressionUtil {
   public static void uncompressDirectory(
       final InputStream in, final String out, final CommandOutputListener iListener)
       throws IOException {
-    final File outdir = new File(out);
-    final String targetDirPath = outdir.getCanonicalPath() + File.separator;
+    final var outdir = new File(out);
+    final var targetDirPath = outdir.getCanonicalPath() + File.separator;
 
-    try (ZipInputStream zin = new ZipInputStream(in)) {
+    try (var zin = new ZipInputStream(in)) {
       ZipEntry entry;
       String name;
       String dir;
       while ((entry = zin.getNextEntry()) != null) {
         name = entry.getName();
 
-        final File file = new File(outdir, name);
+        final var file = new File(outdir, name);
         if (!file.getCanonicalPath().startsWith(targetDirPath)) {
           throw new IOException(
               "Expanding '"
@@ -112,22 +112,22 @@ public class ZIPCompressionUtil {
       iListener.onMessage("\n- Uncompressing file " + name + "...");
     }
 
-    try (BufferedOutputStream out =
+    try (var out =
         new BufferedOutputStream(new FileOutputStream(new File(outdir, name)))) {
       IOUtils.copyStream(in, out);
     }
   }
 
   private static void mkdirs(final File outdir, final String path) {
-    final File d = new File(outdir, path);
+    final var d = new File(outdir, path);
     if (!d.exists()) {
       d.mkdirs();
     }
   }
 
   private static String getDirectoryPart(final String name) {
-    Path path = Paths.get(name);
-    Path parent = path.getParent();
+    var path = Paths.get(name);
+    var parent = path.getParent();
     if (parent != null) {
       return parent.toString();
     }
@@ -144,10 +144,10 @@ public class ZIPCompressionUtil {
       final List<String> iCompressedFiles)
       throws IOException {
 
-    File f = new File(path);
+    var f = new File(path);
     if (!f.exists()) {
-      String entryName = path.substring(baseFolderName.length() + 1);
-      for (String skip : iSkipFileExtensions) {
+      var entryName = path.substring(baseFolderName.length() + 1);
+      for (var skip : iSkipFileExtensions) {
         if (entryName.endsWith(skip)) {
           return;
         }
@@ -155,9 +155,9 @@ public class ZIPCompressionUtil {
     }
     if (f.exists()) {
       if (f.isDirectory()) {
-        final File[] files = f.listFiles();
+        final var files = f.listFiles();
         if (files != null) {
-          for (File file : files) {
+          for (var file : files) {
             addFolder(
                 zos,
                 file.getAbsolutePath(),
@@ -170,10 +170,10 @@ public class ZIPCompressionUtil {
       } else {
         // add file
         // extract the relative name for entry purpose
-        String entryName = path.substring(baseFolderName.length() + 1);
+        var entryName = path.substring(baseFolderName.length() + 1);
 
         if (iSkipFileExtensions != null) {
-          for (String skip : iSkipFileExtensions) {
+          for (var skip : iSkipFileExtensions) {
             if (entryName.endsWith(skip)) {
               return;
             }
@@ -207,11 +207,11 @@ public class ZIPCompressionUtil {
       CommandOutputListener listener,
       int compressionLevel)
       throws IOException {
-    final ZipOutputStream zipOutputStream = new ZipOutputStream(output);
+    final var zipOutputStream = new ZipOutputStream(output);
     zipOutputStream.setComment("YouTrackDB Backup executed on " + new Date());
     try {
       zipOutputStream.setLevel(compressionLevel);
-      for (Map.Entry<String, String> entry : fileNames.entrySet()) {
+      for (var entry : fileNames.entrySet()) {
         addFile(zipOutputStream, baseDirectory + "/" + entry.getKey(), entry.getValue(), listener);
       }
     } finally {
@@ -225,16 +225,16 @@ public class ZIPCompressionUtil {
       final String entryName,
       final CommandOutputListener iOutput)
       throws IOException {
-    final long begin = System.currentTimeMillis();
+    final var begin = System.currentTimeMillis();
 
     if (iOutput != null) {
       iOutput.onMessage("\n- Compressing file " + entryName + "...");
     }
 
-    final ZipEntry ze = new ZipEntry(entryName);
+    final var ze = new ZipEntry(entryName);
     zos.putNextEntry(ze);
     try {
-      final FileInputStream in = new FileInputStream(folderName);
+      final var in = new FileInputStream(folderName);
       try {
         IOUtils.copyStream(in, zos);
       } finally {
@@ -253,7 +253,7 @@ public class ZIPCompressionUtil {
     }
 
     if (iOutput != null) {
-      final long ratio = ze.getSize() > 0 ? 100 - (ze.getCompressedSize() * 100 / ze.getSize()) : 0;
+      final var ratio = ze.getSize() > 0 ? 100 - (ze.getCompressedSize() * 100 / ze.getSize()) : 0;
 
       iOutput.onMessage(
           "ok size="

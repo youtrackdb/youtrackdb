@@ -64,16 +64,16 @@ public class QueryOperatorIn extends QueryOperatorEqualityNotNulls {
   @Override
   public Stream<RawPair<Object, RID>> executeIndexQuery(
       CommandContext iContext, Index index, List<Object> keyParams, boolean ascSortOrder) {
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
 
-    final IndexInternal internalIndex = index.getInternal();
+    final var internalIndex = index.getInternal();
     Stream<RawPair<Object, RID>> stream;
     if (!internalIndex.canBeUsedInEqualityOperators()) {
       return null;
     }
 
     if (indexDefinition.getParamCount() == 1) {
-      final Object inKeyValue = keyParams.get(0);
+      final var inKeyValue = keyParams.get(0);
       Collection<Object> inParams;
       if (inKeyValue instanceof List<?>) {
         inParams = (Collection<Object>) inKeyValue;
@@ -86,9 +86,9 @@ public class QueryOperatorIn extends QueryOperatorEqualityNotNulls {
 
       if (inParams instanceof LegacyResultSet) { // manage IN (subquery)
         Set newInParams = new HashSet();
-        for (Object o : inParams) {
+        for (var o : inParams) {
           if (o instanceof EntityImpl entity && entity.getIdentity().getClusterId() < -1) {
-            String[] fieldNames = entity.fieldNames();
+            var fieldNames = entity.fieldNames();
             if (fieldNames.length == 1) {
               newInParams.add(entity.field(fieldNames[0]));
             } else {
@@ -102,8 +102,8 @@ public class QueryOperatorIn extends QueryOperatorEqualityNotNulls {
       }
       final List<Object> inKeys = new ArrayList<Object>();
 
-      boolean containsNotCompatibleKey = false;
-      for (final Object keyValue : inParams) {
+      var containsNotCompatibleKey = false;
+      for (final var keyValue : inParams) {
         final Object key;
         if (indexDefinition instanceof IndexDefinitionMultiValue) {
           key =
@@ -130,7 +130,7 @@ public class QueryOperatorIn extends QueryOperatorEqualityNotNulls {
       partialKey.addAll(keyParams);
       partialKey.remove(keyParams.size() - 1);
 
-      final Object inKeyValue = keyParams.get(keyParams.size() - 1);
+      final var inKeyValue = keyParams.get(keyParams.size() - 1);
 
       final Collection<Object> inParams;
       if (inKeyValue instanceof List<?>) {
@@ -144,11 +144,11 @@ public class QueryOperatorIn extends QueryOperatorEqualityNotNulls {
 
       final List<Object> inKeys = new ArrayList<Object>();
 
-      final CompositeIndexDefinition compositeIndexDefinition =
+      final var compositeIndexDefinition =
           (CompositeIndexDefinition) indexDefinition;
 
-      boolean containsNotCompatibleKey = false;
-      for (final Object keyValue : inParams) {
+      var containsNotCompatibleKey = false;
+      for (final var keyValue : inParams) {
         List<Object> fullKey = new ArrayList<Object>();
         fullKey.addAll(partialKey);
         fullKey.add(keyValue);
@@ -199,7 +199,7 @@ public class QueryOperatorIn extends QueryOperatorEqualityNotNulls {
       return null;
     }
 
-    final List<RID> rids = addRangeResults(ridCollection, ridSize);
+    final var rids = addRangeResults(ridCollection, ridSize);
 
     return rids == null ? null : Collections.min(rids);
   }
@@ -228,7 +228,7 @@ public class QueryOperatorIn extends QueryOperatorEqualityNotNulls {
       return null;
     }
 
-    final List<RID> rids = addRangeResults(ridCollection, ridSize);
+    final var rids = addRangeResults(ridCollection, ridSize);
 
     return rids == null ? null : Collections.max(rids);
   }
@@ -245,11 +245,11 @@ public class QueryOperatorIn extends QueryOperatorEqualityNotNulls {
     if (MultiValue.isMultiValue(iLeft)) {
       if (iRight instanceof Collection<?>) {
         // AGAINST COLLECTION OF ITEMS
-        final Collection<Object> collectionToMatch = (Collection<Object>) iRight;
+        final var collectionToMatch = (Collection<Object>) iRight;
 
-        boolean found = false;
-        for (final Object o1 : MultiValue.getMultiValueIterable(iLeft)) {
-          for (final Object o2 : collectionToMatch) {
+        var found = false;
+        for (final var o1 : MultiValue.getMultiValueIterable(iLeft)) {
+          for (final var o2 : collectionToMatch) {
             if (QueryOperatorEquals.equals(database, o1, o2)) {
               found = true;
               break;
@@ -263,7 +263,7 @@ public class QueryOperatorIn extends QueryOperatorEqualityNotNulls {
           return ((Set) iLeft).contains(iRight);
         }
 
-        for (final Object o : MultiValue.getMultiValueIterable(iLeft)) {
+        for (final var o : MultiValue.getMultiValueIterable(iLeft)) {
           if (QueryOperatorEquals.equals(database, iRight, o)) {
             return true;
           }
@@ -275,21 +275,21 @@ public class QueryOperatorIn extends QueryOperatorEqualityNotNulls {
         return ((Set) iRight).contains(iLeft);
       }
 
-      for (final Object o : MultiValue.getMultiValueIterable(iRight)) {
+      for (final var o : MultiValue.getMultiValueIterable(iRight)) {
         if (QueryOperatorEquals.equals(database, iLeft, o)) {
           return true;
         }
       }
     } else if (iLeft.getClass().isArray()) {
 
-      for (final Object o : (Object[]) iLeft) {
+      for (final var o : (Object[]) iLeft) {
         if (QueryOperatorEquals.equals(database, iRight, o)) {
           return true;
         }
       }
     } else if (iRight.getClass().isArray()) {
 
-      for (final Object o : (Object[]) iRight) {
+      for (final var o : (Object[]) iRight) {
         if (QueryOperatorEquals.equals(database, iLeft, o)) {
           return true;
         }
@@ -305,13 +305,13 @@ public class QueryOperatorIn extends QueryOperatorEqualityNotNulls {
     }
 
     List<RID> rids = null;
-    for (Object rid : ridCollection) {
+    for (var rid : ridCollection) {
       if (rid instanceof SQLFilterItemParameter) {
         rid = ((SQLFilterItemParameter) rid).getValue(null, null, null);
       }
 
       if (rid instanceof Identifiable) {
-        final RID r = ((Identifiable) rid).getIdentity();
+        final var r = ((Identifiable) rid).getIdentity();
         if (r.isPersistent()) {
           if (rids == null)
           // LAZY CREATE IT

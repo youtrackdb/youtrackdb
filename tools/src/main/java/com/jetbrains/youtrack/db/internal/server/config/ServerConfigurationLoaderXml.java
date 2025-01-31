@@ -56,8 +56,8 @@ public class ServerConfigurationLoaderXml {
       if (file != null) {
         fileLastModified = file.lastModified();
 
-        String path = FileUtils.getPath(file.getAbsolutePath());
-        String current = FileUtils.getPath(new File("").getAbsolutePath());
+        var path = FileUtils.getPath(file.getAbsolutePath());
+        var current = FileUtils.getPath(new File("").getAbsolutePath());
         if (path.startsWith(current)) {
           path = path.substring(current.length() + 1);
         }
@@ -67,7 +67,7 @@ public class ServerConfigurationLoaderXml {
       }
 
       context = JAXBContext.newInstance(rootClass);
-      Unmarshaller unmarshaller = context.createUnmarshaller();
+      var unmarshaller = context.createUnmarshaller();
       unmarshaller.setSchema(null);
 
       final ServerConfiguration obj;
@@ -88,7 +88,7 @@ public class ServerConfigurationLoaderXml {
       // AUTO CONFIGURE SYSTEM CONFIGURATION
       GlobalConfiguration config;
       if (obj.properties != null) {
-        for (ServerEntryConfiguration prop : obj.properties) {
+        for (var prop : obj.properties) {
           try {
             config = GlobalConfiguration.findByKey(prop.name);
             if (config != null) {
@@ -107,7 +107,7 @@ public class ServerConfigurationLoaderXml {
 
       try {
         context = JAXBContext.newInstance(rootClass);
-        Marshaller marshaller = context.createMarshaller();
+        var marshaller = context.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
         Object example =
             rootClass.getConstructor(ServerConfigurationLoaderXml.class).newInstance(this);
@@ -123,7 +123,7 @@ public class ServerConfigurationLoaderXml {
     if (file != null) {
       try {
         context = JAXBContext.newInstance(rootClass);
-        Marshaller marshaller = context.createMarshaller();
+        var marshaller = context.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
         marshaller.marshal(iRootObject, new FileWriter(file));
         fileLastModified = file.lastModified();

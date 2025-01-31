@@ -64,10 +64,10 @@ public class SQLUpdateTest extends BaseDBTest {
   @Test
   public void updateWithWhereOperator() {
 
-    List<RID> positions = getAddressValidPositions();
+    var positions = getAddressValidPositions();
 
     db.begin();
-    ResultSet records =
+    var records =
         db.command(
             "update Profile set salary = 120.30, location = "
                 + positions.get(2)
@@ -80,14 +80,14 @@ public class SQLUpdateTest extends BaseDBTest {
   @Test
   public void updateWithWhereRid() {
 
-    List<Result> result =
+    var result =
         db.command("select @rid as rid from Profile where surname = 'Obama'").stream()
             .toList();
 
     Assert.assertEquals(result.size(), 3);
 
     db.begin();
-    ResultSet records =
+    var records =
         db.command(
             "update Profile set salary = 133.00 where @rid = ?",
             result.get(0).<Object>getProperty("rid"));
@@ -100,7 +100,7 @@ public class SQLUpdateTest extends BaseDBTest {
   public void updateUpsertOperator() {
 
     db.begin();
-    ResultSet result =
+    var result =
         db.command(
             "UPDATE Profile SET surname='Merkel' RETURN AFTER where surname = 'Merkel'");
     db.commit();
@@ -147,11 +147,11 @@ public class SQLUpdateTest extends BaseDBTest {
   @Test(dependsOnMethods = "updateCollectionsRemoveWithWhereOperator")
   public void updateCollectionsWithSetOperator() {
 
-    List<Result> docs = db.query("select from Account").stream().toList();
+    var docs = db.query("select from Account").stream().toList();
 
-    List<RID> positions = getAddressValidPositions();
+    var positions = getAddressValidPositions();
 
-    for (Result doc : docs) {
+    for (var doc : docs) {
 
       db.begin();
       final long records =
@@ -188,7 +188,7 @@ public class SQLUpdateTest extends BaseDBTest {
   public void updateMapsWithSetOperator() {
 
     db.begin();
-    Entity element =
+    var element =
         db
             .command(
                 "insert into O (equaledges, name, properties) values ('no',"
@@ -229,7 +229,7 @@ public class SQLUpdateTest extends BaseDBTest {
   @Test(dependsOnMethods = "updateCollectionsRemoveWithWhereOperator")
   public void updateAllOperator() {
 
-    long total = db.countClass("Profile");
+    var total = db.countClass("Profile");
 
     db.begin();
     Long records = db.command("update Profile set sex = 'male'").next().getProperty("count");
@@ -257,7 +257,7 @@ public class SQLUpdateTest extends BaseDBTest {
 
     db.createClass("Person");
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("Person"));
+    var doc = ((EntityImpl) db.newEntity("Person"));
     doc.field("name", "Raf");
     doc.field("city", "Torino");
     doc.field("gender", "fmale");
@@ -300,7 +300,7 @@ public class SQLUpdateTest extends BaseDBTest {
   }
 
   public void updateWithReturn() {
-    EntityImpl doc = ((EntityImpl) db.newEntity("Data"));
+    var doc = ((EntityImpl) db.newEntity("Data"));
     db.begin();
     doc.field("name", "Pawel");
     doc.field("city", "Wroclaw");
@@ -309,9 +309,9 @@ public class SQLUpdateTest extends BaseDBTest {
     db.commit();
 
     // check AFTER
-    String sqlString = "UPDATE " + doc.getIdentity().toString() + " SET gender='male' RETURN AFTER";
+    var sqlString = "UPDATE " + doc.getIdentity().toString() + " SET gender='male' RETURN AFTER";
     db.begin();
-    List<Result> result1 = db.command(sqlString).stream().toList();
+    var result1 = db.command(sqlString).stream().toList();
     db.commit();
     Assert.assertEquals(result1.size(), 1);
     Assert.assertEquals(result1.get(0).getRecordId(), doc.getIdentity());
@@ -345,7 +345,7 @@ public class SQLUpdateTest extends BaseDBTest {
 
   @Test
   public void updateWithNamedParameters() {
-    EntityImpl doc = ((EntityImpl) db.newEntity("Data"));
+    var doc = ((EntityImpl) db.newEntity("Data"));
 
     db.begin();
     doc.field("name", "Raf");
@@ -354,7 +354,7 @@ public class SQLUpdateTest extends BaseDBTest {
     doc.save();
     db.commit();
 
-    String updatecommand = "update Data set gender = :gender , city = :city where name = :name";
+    var updatecommand = "update Data set gender = :gender , city = :city where name = :name";
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("gender", "f");
     params.put("city", "TOR");
@@ -364,8 +364,8 @@ public class SQLUpdateTest extends BaseDBTest {
     db.command(updatecommand, params);
     db.commit();
 
-    ResultSet result = db.query("select * from Data");
-    Result oDoc = result.next();
+    var result = db.query("select * from Data");
+    var oDoc = result.next();
     Assert.assertEquals("Raf", oDoc.getProperty("name"));
     Assert.assertEquals("TOR", oDoc.getProperty("city"));
     Assert.assertEquals("f", oDoc.getProperty("gender"));
@@ -374,7 +374,7 @@ public class SQLUpdateTest extends BaseDBTest {
 
   public void updateIncrement() {
 
-    List<Result> result1 =
+    var result1 =
         db.query("select salary from Account where salary is defined").stream().toList();
     Assert.assertFalse(result1.isEmpty());
 
@@ -388,12 +388,12 @@ public class SQLUpdateTest extends BaseDBTest {
 
     Assert.assertTrue(updatedRecords > 0);
 
-    List<Result> result2 =
+    var result2 =
         db.query("select salary from Account where salary is defined").stream().toList();
     Assert.assertFalse(result2.isEmpty());
     Assert.assertEquals(result2.size(), result1.size());
 
-    for (int i = 0; i < result1.size(); ++i) {
+    for (var i = 0; i < result1.size(); ++i) {
       float salary1 = result1.get(i).getProperty("salary");
       float salary2 = result2.get(i).getProperty("salary");
       Assert.assertEquals(salary2, salary1 + 10);
@@ -409,12 +409,12 @@ public class SQLUpdateTest extends BaseDBTest {
 
     Assert.assertTrue(updatedRecords > 0);
 
-    List<Result> result3 =
+    var result3 =
         db.command("select salary from Account where salary is defined").stream().toList();
     Assert.assertFalse(result3.isEmpty());
     Assert.assertEquals(result3.size(), result1.size());
 
-    for (int i = 0; i < result1.size(); ++i) {
+    for (var i = 0; i < result1.size(); ++i) {
       float salary1 = result1.get(i).getProperty("salary");
       float salary3 = result3.get(i).getProperty("salary");
       Assert.assertEquals(salary3, salary1);
@@ -423,7 +423,7 @@ public class SQLUpdateTest extends BaseDBTest {
 
   public void updateSetMultipleFields() {
 
-    List<Result> result1 =
+    var result1 =
         db.query("select salary from Account where salary is defined").stream().toList();
     Assert.assertFalse(result1.isEmpty());
 
@@ -438,12 +438,12 @@ public class SQLUpdateTest extends BaseDBTest {
 
     Assert.assertTrue(updatedRecords > 0);
 
-    List<Result> result2 =
+    var result2 =
         db.query("select from Account where salary is defined").stream().toList();
     Assert.assertFalse(result2.isEmpty());
     Assert.assertEquals(result2.size(), result1.size());
 
-    for (int i = 0; i < result1.size(); ++i) {
+    for (var i = 0; i < result1.size(); ++i) {
       float salary1 = result1.get(i).getProperty("salary");
       float salary2 = result2.get(i).getProperty("salary2");
       Assert.assertEquals(salary2, salary1);
@@ -463,7 +463,7 @@ public class SQLUpdateTest extends BaseDBTest {
 
     Assert.assertTrue(updatedRecords > 0);
 
-    List<Result> result2 =
+    var result2 =
         db.command("select from Account where myCollection is defined").stream().toList();
     Assert.assertEquals(result2.size(), 1);
 
@@ -478,7 +478,7 @@ public class SQLUpdateTest extends BaseDBTest {
     schema.createClass("FormatEscapingTest");
 
     db.begin();
-    EntityImpl document = ((EntityImpl) db.newEntity("FormatEscapingTest"));
+    var document = ((EntityImpl) db.newEntity("FormatEscapingTest"));
     document.save();
     db.commit();
 
@@ -564,19 +564,19 @@ public class SQLUpdateTest extends BaseDBTest {
 
   public void testUpdateVertexContent() {
     final Schema schema = db.getMetadata().getSchema();
-    SchemaClass vertex = schema.getClass("V");
+    var vertex = schema.getClass("V");
     schema.createClass("UpdateVertexContent", vertex);
 
     db.begin();
-    final RID vOneId = db.command("create vertex UpdateVertexContent").next().getRecordId();
-    final RID vTwoId = db.command("create vertex UpdateVertexContent").next().getRecordId();
+    final var vOneId = db.command("create vertex UpdateVertexContent").next().getRecordId();
+    final var vTwoId = db.command("create vertex UpdateVertexContent").next().getRecordId();
 
     db.command("create edge from " + vOneId + " to " + vTwoId).close();
     db.command("create edge from " + vOneId + " to " + vTwoId).close();
     db.command("create edge from " + vOneId + " to " + vTwoId).close();
     db.commit();
 
-    List<Result> result =
+    var result =
         db
             .query("select sum(outE().size(), inE().size()) as sum from UpdateVertexContent")
             .stream()
@@ -584,7 +584,7 @@ public class SQLUpdateTest extends BaseDBTest {
 
     Assert.assertEquals(result.size(), 2);
 
-    for (Result doc : result) {
+    for (var doc : result) {
       Assert.assertEquals(doc.<Object>getProperty("sum"), 3);
     }
 
@@ -605,42 +605,42 @@ public class SQLUpdateTest extends BaseDBTest {
 
     Assert.assertEquals(result.size(), 2);
 
-    for (Result doc : result) {
+    for (var doc : result) {
       Assert.assertEquals(doc.<Object>getProperty("sum"), 3);
     }
 
     result =
         db.query("select from UpdateVertexContent").stream().collect(Collectors.toList());
     Assert.assertEquals(result.size(), 2);
-    for (Result doc : result) {
+    for (var doc : result) {
       Assert.assertEquals(doc.getProperty("value"), "val");
     }
   }
 
   public void testUpdateEdgeContent() {
     final Schema schema = db.getMetadata().getSchema();
-    SchemaClass vertex = schema.getClass("V");
-    SchemaClass edge = schema.getClass("E");
+    var vertex = schema.getClass("V");
+    var edge = schema.getClass("E");
 
     schema.createClass("UpdateEdgeContentV", vertex);
     schema.createClass("UpdateEdgeContentE", edge);
 
     db.begin();
-    final RID vOneId = db.command("create vertex UpdateEdgeContentV").next().getRecordId();
-    final RID vTwoId = db.command("create vertex UpdateEdgeContentV").next().getRecordId();
+    final var vOneId = db.command("create vertex UpdateEdgeContentV").next().getRecordId();
+    final var vTwoId = db.command("create vertex UpdateEdgeContentV").next().getRecordId();
 
     db.command("create edge UpdateEdgeContentE from " + vOneId + " to " + vTwoId).close();
     db.command("create edge UpdateEdgeContentE from " + vOneId + " to " + vTwoId).close();
     db.command("create edge UpdateEdgeContentE from " + vOneId + " to " + vTwoId).close();
     db.commit();
 
-    List<Result> result =
+    var result =
         db.query("select outV() as outV, inV() as inV from UpdateEdgeContentE").stream()
             .collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 3);
 
-    for (Result doc : result) {
+    for (var doc : result) {
       Assert.assertEquals(doc.getProperty("outV"), vOneId);
       Assert.assertEquals(doc.getProperty("inV"), vTwoId);
     }
@@ -655,22 +655,22 @@ public class SQLUpdateTest extends BaseDBTest {
 
     Assert.assertEquals(result.size(), 3);
 
-    for (Result doc : result) {
+    for (var doc : result) {
       Assert.assertEquals(doc.getProperty("outV"), vOneId);
       Assert.assertEquals(doc.getProperty("inV"), vTwoId);
     }
 
     result = db.query("select from UpdateEdgeContentE").stream().collect(Collectors.toList());
     Assert.assertEquals(result.size(), 3);
-    for (Result doc : result) {
+    for (var doc : result) {
       Assert.assertEquals(doc.getProperty("value"), "val");
     }
   }
 
   private void checkUpdatedDoc(
       DatabaseSession database, String expectedCity, String expectedGender) {
-    ResultSet result = database.query("select * from person");
-    Result oDoc = result.next();
+    var result = database.query("select * from person");
+    var oDoc = result.next();
     Assert.assertEquals("Raf", oDoc.getProperty("name"));
     Assert.assertEquals(expectedCity, oDoc.getProperty("city"));
     Assert.assertEquals(expectedGender, oDoc.getProperty("gender"));
@@ -681,11 +681,11 @@ public class SQLUpdateTest extends BaseDBTest {
 
     final var iteratorClass = db.browseClass("Address");
 
-    for (int i = 0; i < 7; i++) {
+    for (var i = 0; i < 7; i++) {
       if (!iteratorClass.hasNext()) {
         break;
       }
-      EntityImpl doc = iteratorClass.next();
+      var doc = iteratorClass.next();
       positions.add(doc.getIdentity());
     }
     return positions;
@@ -718,7 +718,7 @@ public class SQLUpdateTest extends BaseDBTest {
   }
 
   public void testAutoConversionOfEmbeddededListWithLinkedClass() {
-    SchemaClass c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
+    var c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
     if (!c.existsProperty("embeddedListWithLinkedClass")) {
       c.createProperty(db,
           "embeddedListWithLinkedClass",
@@ -727,7 +727,7 @@ public class SQLUpdateTest extends BaseDBTest {
     }
 
     db.begin();
-    RID id =
+    var id =
         db
             .command(
                 "INSERT INTO TestConvert SET name = 'embeddedListWithLinkedClass',"
@@ -764,14 +764,14 @@ public class SQLUpdateTest extends BaseDBTest {
     Assert.assertEquals(((Collection) doc.getProperty("embeddedListWithLinkedClass")).size(), 3);
 
     List addr = doc.getProperty("embeddedListWithLinkedClass");
-    for (Object o : addr) {
+    for (var o : addr) {
       Assert.assertTrue(o instanceof EntityImpl);
       Assert.assertEquals(((EntityImpl) o).getClassName(), "TestConvertLinkedClass");
     }
   }
 
   public void testPutListOfMaps() {
-    String className = "testPutListOfMaps";
+    var className = "testPutListOfMaps";
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
@@ -781,13 +781,13 @@ public class SQLUpdateTest extends BaseDBTest {
     db.command("UPDATE " + className + " set list = list || [{\"kkk\":4}]").close();
     db.commit();
 
-    List<Result> result =
+    var result =
         db.query("select from " + className).stream().collect(Collectors.toList());
     Assert.assertEquals(result.size(), 1);
-    Result doc = result.get(0);
+    var doc = result.get(0);
     List list = doc.getProperty("list");
     Assert.assertEquals(list.size(), 4);
-    Object fourth = list.get(3);
+    var fourth = list.get(3);
 
     Assert.assertTrue(fourth instanceof Map);
     Assert.assertEquals(((Map) fourth).keySet().iterator().next(), "kkk");

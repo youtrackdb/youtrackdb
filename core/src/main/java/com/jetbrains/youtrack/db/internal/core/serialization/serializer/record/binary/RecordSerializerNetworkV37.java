@@ -90,16 +90,16 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
   public void deserializePartial(
       DatabaseSessionInternal db, final EntityImpl entity, final BytesContainer bytes,
       final String[] iFields) {
-    final String className = readString(bytes);
+    final var className = readString(bytes);
     if (!className.isEmpty()) {
       EntityInternalUtils.fillClassNameIfNeeded(entity, className);
     }
 
     String fieldName;
     PropertyType type;
-    int size = VarIntSerializer.readAsInteger(bytes);
+    var size = VarIntSerializer.readAsInteger(bytes);
 
-    int matched = 0;
+    var matched = 0;
     while ((size--) > 0) {
       fieldName = readString(bytes);
       type = readOType(bytes);
@@ -114,7 +114,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
       }
       EntityInternalUtils.rawField(entity, fieldName, value, type);
 
-      for (String field : iFields) {
+      for (var field : iFields) {
         if (field.equals(fieldName)) {
           matched++;
         }
@@ -127,7 +127,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
 
   public void deserialize(DatabaseSessionInternal db, final EntityImpl entity,
       final BytesContainer bytes) {
-    final String className = readString(bytes);
+    final var className = readString(bytes);
     if (!className.isEmpty()) {
       EntityInternalUtils.fillClassNameIfNeeded(entity, className);
     }
@@ -135,7 +135,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
     String fieldName;
     PropertyType type;
     Object value;
-    int size = VarIntSerializer.readAsInteger(bytes);
+    var size = VarIntSerializer.readAsInteger(bytes);
     while ((size--) > 0) {
       // PARSE FIELD NAME
       fieldName = readString(bytes);
@@ -158,14 +158,14 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
       final BytesContainer bytes) {
     RecordInternal.checkForBinding(entity);
     serializeClass(entity, bytes);
-    final Collection<Entry<String, EntityEntry>> fields = fetchEntries(entity);
+    final var fields = fetchEntries(entity);
     VarIntSerializer.write(bytes, fields.size());
-    for (Entry<String, EntityEntry> entry : fields) {
-      EntityEntry docEntry = entry.getValue();
+    for (var entry : fields) {
+      var docEntry = entry.getValue();
       writeString(bytes, entry.getKey());
-      final Object value = docEntry.value;
+      final var value = docEntry.value;
       if (value != null) {
-        final PropertyType type = getFieldType(docEntry);
+        final var type = getFieldType(docEntry);
         if (type == null) {
           throw new SerializationException(
               "Impossible serialize value of type "
@@ -187,12 +187,12 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
   public String[] getFieldNames(DatabaseSessionInternal db, EntityImpl reference,
       final BytesContainer bytes) {
     // SKIP CLASS NAME
-    final int classNameLen = VarIntSerializer.readAsInteger(bytes);
+    final var classNameLen = VarIntSerializer.readAsInteger(bytes);
     bytes.skip(classNameLen);
 
     final List<String> result = new ArrayList<String>();
 
-    int size = VarIntSerializer.readAsInteger(bytes);
+    var size = VarIntSerializer.readAsInteger(bytes);
     String fieldName;
     PropertyType type;
     while ((size--) > 0) {
@@ -238,13 +238,13 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
   }
 
   public byte[] serializeValue(DatabaseSessionInternal db, Object value, PropertyType type) {
-    BytesContainer bytes = new BytesContainer();
+    var bytes = new BytesContainer();
     serializeValue(db, bytes, value, type, null);
     return bytes.fitBytes();
   }
 
   public Object deserializeValue(DatabaseSessionInternal db, byte[] val, PropertyType type) {
-    BytesContainer bytes = new BytesContainer(val);
+    var bytes = new BytesContainer(val);
     return deserializeValue(db, bytes, type, null);
   }
 
@@ -281,7 +281,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
         value = new Date(VarIntSerializer.readAsLong(bytes));
         break;
       case DATE:
-        long savedTime = VarIntSerializer.readAsLong(bytes) * MILLISEC_PER_DAY;
+        var savedTime = VarIntSerializer.readAsLong(bytes) * MILLISEC_PER_DAY;
         savedTime =
             convertDayToTimezone(
                 TimeZone.getTimeZone("GMT"), DateHelper.getDatabaseTimeZone(), savedTime);
@@ -293,8 +293,8 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
         if (((EntityImpl) value).containsField(EntitySerializable.CLASS_NAME)) {
           String className = ((EntityImpl) value).field(EntitySerializable.CLASS_NAME);
           try {
-            Class<?> clazz = Class.forName(className);
-            EntitySerializable newValue = (EntitySerializable) clazz.newInstance();
+            var clazz = Class.forName(className);
+            var newValue = (EntitySerializable) clazz.newInstance();
             newValue.fromDocument((EntityImpl) value);
             value = newValue;
           } catch (Exception e) {
@@ -334,7 +334,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
         bytes.skip(DecimalSerializer.INSTANCE.getObjectSize(bytes.bytes, bytes.offset));
         break;
       case LINKBAG:
-        RidBag bag = readRidBag(db, bytes);
+        var bag = readRidBag(db, bytes);
         bag.setOwner(owner);
         value = bag;
         break;
@@ -342,9 +342,9 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
         break;
       case CUSTOM:
         try {
-          String className = readString(bytes);
-          Class<?> clazz = Class.forName(className);
-          SerializableStream stream = (SerializableStream) clazz.newInstance();
+          var className = readString(bytes);
+          var clazz = Class.forName(className);
+          var stream = (SerializableStream) clazz.newInstance();
           stream.fromStream(readBinary(bytes));
           if (stream instanceof SerializableWrapper) {
             value = ((SerializableWrapper) stream).getSerializable();
@@ -362,7 +362,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
   }
 
   private void writeRidBag(DatabaseSessionInternal db, BytesContainer bytes, RidBag bag) {
-    final BTreeCollectionManager bTreeCollectionManager =
+    final var bTreeCollectionManager =
         DatabaseRecordThreadLocal.instance().get().getSbTreeCollectionManager();
     UUID uuid = null;
     if (bTreeCollectionManager != null) {
@@ -371,11 +371,11 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
     if (uuid == null) {
       uuid = new UUID(-1, -1);
     }
-    int uuidPos = bytes.alloc(UUIDSerializer.UUID_SIZE);
+    var uuidPos = bytes.alloc(UUIDSerializer.UUID_SIZE);
     UUIDSerializer.INSTANCE.serialize(uuid, bytes.bytes, uuidPos);
 
     if (bag.isToSerializeEmbedded()) {
-      int pos = bytes.alloc(1);
+      var pos = bytes.alloc(1);
       bytes.bytes[pos] = 1;
       VarIntSerializer.write(bytes, bag.size());
       for (Identifiable itemValue : bag) {
@@ -386,9 +386,9 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
         }
       }
     } else {
-      int pos = bytes.alloc(1);
+      var pos = bytes.alloc(1);
       bytes.bytes[pos] = 2;
-      BonsaiCollectionPointer pointer = bag.getPointer();
+      var pointer = bag.getPointer();
       if (pointer == null || pointer == BonsaiCollectionPointer.INVALID) {
         throw new IllegalStateException("RidBag with invalid pointer was found");
       }
@@ -402,7 +402,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
         VarIntSerializer.write(bytes, changes.size());
         for (var change : changes.entrySet()) {
           writeOptimizedLink(db, bytes, change.getKey());
-          int posAll = bytes.alloc(1);
+          var posAll = bytes.alloc(1);
           bytes.bytes[posAll] = change.getValue().getType();
           VarIntSerializer.write(bytes, change.getValue().getValue());
         }
@@ -413,19 +413,19 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
   }
 
   protected RidBag readRidBag(DatabaseSessionInternal db, BytesContainer bytes) {
-    UUID uuid = UUIDSerializer.INSTANCE.deserialize(bytes.bytes, bytes.offset);
+    var uuid = UUIDSerializer.INSTANCE.deserialize(bytes.bytes, bytes.offset);
     bytes.skip(UUIDSerializer.UUID_SIZE);
     if (uuid.getMostSignificantBits() == -1 && uuid.getLeastSignificantBits() == -1) {
       uuid = null;
     }
-    byte b = bytes.bytes[bytes.offset];
+    var b = bytes.bytes[bytes.offset];
     bytes.skip(1);
     if (b == 1) {
-      RidBag bag = new RidBag(db, uuid);
+      var bag = new RidBag(db, uuid);
       // enable tracking due to timeline issue, which must not be NULL (i.e. tracker.isEnabled()).
       bag.enableTracking(null);
-      int size = VarIntSerializer.readAsInteger(bytes);
-      for (int i = 0; i < size; i++) {
+      var size = VarIntSerializer.readAsInteger(bytes);
+      for (var i = 0; i < size; i++) {
         Identifiable id = readOptimizedLink(db, bytes);
         if (id.equals(NULL_RECORD_ID)) {
           bag.add(null);
@@ -437,18 +437,18 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
       bag.transactionClear();
       return bag;
     } else {
-      long fileId = VarIntSerializer.readAsLong(bytes);
-      long pageIndex = VarIntSerializer.readAsLong(bytes);
-      int pageOffset = VarIntSerializer.readAsInteger(bytes);
-      int bagSize = VarIntSerializer.readAsInteger(bytes);
+      var fileId = VarIntSerializer.readAsLong(bytes);
+      var pageIndex = VarIntSerializer.readAsLong(bytes);
+      var pageOffset = VarIntSerializer.readAsInteger(bytes);
+      var bagSize = VarIntSerializer.readAsInteger(bytes);
 
       Map<RID, Change> changes = new HashMap<>();
-      int size = VarIntSerializer.readAsInteger(bytes);
+      var size = VarIntSerializer.readAsInteger(bytes);
       while (size-- > 0) {
         var link = readOptimizedLink(db, bytes);
-        byte type = bytes.bytes[bytes.offset];
+        var type = bytes.bytes[bytes.offset];
         bytes.skip(1);
-        int change = VarIntSerializer.readAsInteger(bytes);
+        var change = VarIntSerializer.readAsInteger(bytes);
         changes.put(link, ChangeSerializationHelper.createChangeInstance(type, change));
       }
 
@@ -462,8 +462,8 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
   }
 
   private static byte[] readBinary(BytesContainer bytes) {
-    int n = VarIntSerializer.readAsInteger(bytes);
-    byte[] newValue = new byte[n];
+    var n = VarIntSerializer.readAsInteger(bytes);
+    var newValue = new byte[n];
     System.arraycopy(bytes.bytes, bytes.offset, newValue, 0, newValue.length);
     bytes.skip(n);
     return newValue;
@@ -471,11 +471,11 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
 
   private Map<String, Identifiable> readLinkMap(
       DatabaseSessionInternal db, final BytesContainer bytes, final RecordElement owner) {
-    int size = VarIntSerializer.readAsInteger(bytes);
-    LinkMap result = new LinkMap(owner);
+    var size = VarIntSerializer.readAsInteger(bytes);
+    var result = new LinkMap(owner);
     while ((size--) > 0) {
-      PropertyType keyType = readOType(bytes);
-      Object key = deserializeValue(db, bytes, keyType, result);
+      var keyType = readOType(bytes);
+      var key = deserializeValue(db, bytes, keyType, result);
       Identifiable value = readOptimizedLink(db, bytes);
       if (value.equals(NULL_RECORD_ID)) {
         result.putInternal(key.toString(), null);
@@ -488,11 +488,11 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
 
   private Object readEmbeddedMap(DatabaseSessionInternal db, final BytesContainer bytes,
       final RecordElement owner) {
-    int size = VarIntSerializer.readAsInteger(bytes);
+    var size = VarIntSerializer.readAsInteger(bytes);
     final TrackedMap result = new TrackedMap<>(owner);
     while ((size--) > 0) {
-      String key = readString(bytes);
-      PropertyType valType = readOType(bytes);
+      var key = readString(bytes);
+      var valType = readOType(bytes);
       Object value = null;
       if (valType != null) {
         value = deserializeValue(db, bytes, valType, result);
@@ -504,9 +504,9 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
 
   private static Collection<Identifiable> readLinkList(
       DatabaseSessionInternal db, BytesContainer bytes, RecordElement owner) {
-    LinkList found = new LinkList(owner);
-    final int items = VarIntSerializer.readAsInteger(bytes);
-    for (int i = 0; i < items; i++) {
+    var found = new LinkList(owner);
+    final var items = VarIntSerializer.readAsInteger(bytes);
+    for (var i = 0; i < items; i++) {
       Identifiable id = readOptimizedLink(db, bytes);
       if (id.equals(NULL_RECORD_ID)) {
         found.addInternal(null);
@@ -520,9 +520,9 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
   private static Collection<Identifiable> readLinkSet(DatabaseSessionInternal db,
       BytesContainer bytes,
       RecordElement owner) {
-    LinkSet found = new LinkSet(owner);
-    final int items = VarIntSerializer.readAsInteger(bytes);
-    for (int i = 0; i < items; i++) {
+    var found = new LinkSet(owner);
+    final var items = VarIntSerializer.readAsInteger(bytes);
+    for (var i = 0; i < items; i++) {
       Identifiable id = readOptimizedLink(db, bytes);
       if (id.equals(NULL_RECORD_ID)) {
         found.addInternal(null);
@@ -535,7 +535,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
 
   protected static RID readOptimizedLink(DatabaseSessionInternal db,
       final BytesContainer bytes) {
-    RecordId id =
+    var id =
         new RecordId(VarIntSerializer.readAsInteger(bytes), VarIntSerializer.readAsLong(bytes));
     if (id.isTemporary()) {
       try {
@@ -550,10 +550,10 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
 
   private Collection<?> readEmbeddedList(DatabaseSessionInternal db, final BytesContainer bytes,
       final RecordElement owner) {
-    TrackedList<Object> found = new TrackedList<>(owner);
-    final int items = VarIntSerializer.readAsInteger(bytes);
-    for (int i = 0; i < items; i++) {
-      PropertyType itemType = readOType(bytes);
+    var found = new TrackedList<Object>(owner);
+    final var items = VarIntSerializer.readAsInteger(bytes);
+    for (var i = 0; i < items; i++) {
+      var itemType = readOType(bytes);
       if (itemType == null) {
         found.addInternal(null);
       } else {
@@ -565,10 +565,10 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
 
   private Collection<?> readEmbeddedSet(DatabaseSessionInternal db, final BytesContainer bytes,
       final RecordElement owner) {
-    TrackedSet<Object> found = new TrackedSet<>(owner);
-    final int items = VarIntSerializer.readAsInteger(bytes);
-    for (int i = 0; i < items; i++) {
-      PropertyType itemType = readOType(bytes);
+    var found = new TrackedSet<Object>(owner);
+    final var items = VarIntSerializer.readAsInteger(bytes);
+    for (var i = 0; i < items; i++) {
+      var itemType = readOType(bytes);
       if (itemType == null) {
         found.addInternal(null);
       } else {
@@ -585,7 +585,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
     }
     SchemaClass immutableClass = EntityInternalUtils.getImmutableSchemaClass(entity);
     if (immutableClass != null) {
-      SchemaProperty prop = immutableClass.getProperty(key);
+      var prop = immutableClass.getProperty(key);
       if (prop != null) {
         return prop.getLinkedType();
       }
@@ -608,12 +608,12 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
         writeString(bytes, value.toString());
         break;
       case DOUBLE:
-        long dg = Double.doubleToLongBits((Double) value);
+        var dg = Double.doubleToLongBits((Double) value);
         pointer = bytes.alloc(LongSerializer.LONG_SIZE);
         LongSerializer.INSTANCE.serializeLiteral(dg, bytes.bytes, pointer);
         break;
       case FLOAT:
-        int fg = Float.floatToIntBits((Float) value);
+        var fg = Float.floatToIntBits((Float) value);
         pointer = bytes.alloc(IntegerSerializer.INT_SIZE);
         IntegerSerializer.INSTANCE.serializeLiteral(fg, bytes.bytes, pointer);
         break;
@@ -646,7 +646,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
         break;
       case EMBEDDED:
         if (value instanceof EntitySerializable) {
-          EntityImpl cur = ((EntitySerializable) value).toEntity(db);
+          var cur = ((EntitySerializable) value).toEntity(db);
           cur.field(EntitySerializable.CLASS_NAME, value.getClass().getName());
           serialize(db, cur, bytes);
         } else {
@@ -662,7 +662,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
         }
         break;
       case DECIMAL:
-        BigDecimal decimalValue = (BigDecimal) value;
+        var decimalValue = (BigDecimal) value;
         pointer = bytes.alloc(DecimalSerializer.INSTANCE.getObjectSize(decimalValue));
         DecimalSerializer.INSTANCE.serialize(decimalValue, bytes.bytes, pointer);
         break;
@@ -671,7 +671,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
         break;
       case LINKSET:
       case LINKLIST:
-        Collection<Identifiable> ridCollection = (Collection<Identifiable>) value;
+        var ridCollection = (Collection<Identifiable>) value;
         writeLinkCollection(db, bytes, ridCollection);
         break;
       case LINK:
@@ -711,10 +711,10 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
   private void writeLinkMap(DatabaseSessionInternal db, final BytesContainer bytes,
       final Map<Object, Identifiable> map) {
     VarIntSerializer.write(bytes, map.size());
-    for (Entry<Object, Identifiable> entry : map.entrySet()) {
+    for (var entry : map.entrySet()) {
       // TODO:check skip of complex types
       // FIXME: changed to support only string key on map
-      final PropertyType type = PropertyType.STRING;
+      final var type = PropertyType.STRING;
       writeOType(bytes, bytes.alloc(1), type);
       writeString(bytes, entry.getKey().toString());
       if (entry.getValue() == null) {
@@ -728,11 +728,11 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
   private void writeEmbeddedMap(DatabaseSessionInternal db, BytesContainer bytes,
       Map<Object, Object> map) {
     VarIntSerializer.write(bytes, map.size());
-    for (Entry<Object, Object> entry : map.entrySet()) {
+    for (var entry : map.entrySet()) {
       writeString(bytes, entry.getKey().toString());
-      final Object value = entry.getValue();
+      final var value = entry.getValue();
       if (value != null) {
-        final PropertyType type = getTypeFromValueEmbedded(value);
+        final var type = getTypeFromValueEmbedded(value);
         if (type == null) {
           throw new SerializationException(
               "Impossible serialize value of type "
@@ -770,7 +770,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
       final Collection<Identifiable> value) {
     VarIntSerializer.write(bytes, value.size());
 
-    for (Identifiable itemValue : value) {
+    for (var itemValue : value) {
       // TODO: handle the null links
       if (itemValue == null) {
         writeNullLink(bytes);
@@ -785,7 +785,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
       final PropertyType linkedType) {
     VarIntSerializer.write(bytes, value.size());
     // TODO manage embedded type from schema and auto-determined.
-    for (Object itemValue : value) {
+    for (var itemValue : value) {
       // TODO:manage in a better way null entry
       if (itemValue == null) {
         writeOType(bytes, bytes.alloc(1), null);
@@ -810,9 +810,9 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
   }
 
   private PropertyType getFieldType(final EntityEntry entry) {
-    PropertyType type = entry.type;
+    var type = entry.type;
     if (type == null) {
-      final SchemaProperty prop = entry.property;
+      final var prop = entry.property;
       if (prop != null) {
         type = prop.getType();
       }
@@ -824,7 +824,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
   }
 
   private PropertyType getTypeFromValueEmbedded(final Object fieldValue) {
-    PropertyType type = PropertyType.getTypeByValue(fieldValue);
+    var type = PropertyType.getTypeByValue(fieldValue);
     if (type == PropertyType.LINK
         && fieldValue instanceof EntityImpl
         && !((EntityImpl) fieldValue).getIdentity().isValid()) {
@@ -834,14 +834,14 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
   }
 
   protected String readString(final BytesContainer bytes) {
-    final int len = VarIntSerializer.readAsInteger(bytes);
-    final String res = stringFromBytes(bytes.bytes, bytes.offset, len);
+    final var len = VarIntSerializer.readAsInteger(bytes);
+    final var res = stringFromBytes(bytes.bytes, bytes.offset, len);
     bytes.skip(len);
     return res;
   }
 
   protected int readInteger(final BytesContainer container) {
-    final int value =
+    final var value =
         IntegerSerializer.INSTANCE.deserializeLiteral(container.bytes, container.offset);
     container.offset += IntegerSerializer.INT_SIZE;
     return value;
@@ -852,7 +852,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
   }
 
   private long readLong(final BytesContainer container) {
-    final long value =
+    final var value =
         LongSerializer.INSTANCE.deserializeLiteral(container.bytes, container.offset);
     container.offset += LongSerializer.LONG_SIZE;
     return value;
@@ -863,9 +863,9 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
   }
 
   private int writeString(final BytesContainer bytes, final String toWrite) {
-    final byte[] nameBytes = bytesFromString(toWrite);
-    final int pointer = VarIntSerializer.write(bytes, nameBytes.length);
-    final int start = bytes.alloc(nameBytes.length);
+    final var nameBytes = bytesFromString(toWrite);
+    final var pointer = VarIntSerializer.write(bytes, nameBytes.length);
+    final var start = bytes.alloc(nameBytes.length);
     System.arraycopy(nameBytes, 0, bytes.bytes, start, nameBytes.length);
     return pointer;
   }
@@ -879,9 +879,9 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
   }
 
   private long convertDayToTimezone(TimeZone from, TimeZone to, long time) {
-    Calendar fromCalendar = Calendar.getInstance(from);
+    var fromCalendar = Calendar.getInstance(from);
     fromCalendar.setTimeInMillis(time);
-    Calendar toCalendar = Calendar.getInstance(to);
+    var toCalendar = Calendar.getInstance(to);
     toCalendar.setTimeInMillis(0);
     toCalendar.set(Calendar.ERA, fromCalendar.get(Calendar.ERA));
     toCalendar.set(Calendar.YEAR, fromCalendar.get(Calendar.YEAR));
@@ -915,7 +915,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
       }
     }
     RecordInternal.setRecordSerializer(iRecord, this);
-    BytesContainer container = new BytesContainer(iSource);
+    var container = new BytesContainer(iSource);
 
     try {
       if (iFields != null && iFields.length > 0) {
@@ -941,8 +941,8 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
       return iSource.toStream();
     } else {
 
-      final BytesContainer container = new BytesContainer();
-      EntityImpl entity = (EntityImpl) iSource;
+      final var container = new BytesContainer();
+      var entity = (EntityImpl) iSource;
       // SERIALIZE RECORD
       serialize(db, entity, container);
       return container.fitBytes();
@@ -976,7 +976,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
       return new String[0];
     }
 
-    final BytesContainer container = new BytesContainer(iSource);
+    final var container = new BytesContainer(iSource);
 
     try {
       return getFieldNames(db, reference, container);

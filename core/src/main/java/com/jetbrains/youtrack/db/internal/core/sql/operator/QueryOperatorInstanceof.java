@@ -51,8 +51,8 @@ public class QueryOperatorInstanceof extends QueryOperatorEqualityNotNulls {
     final Schema schema =
         DatabaseRecordThreadLocal.instance().get().getMetadata().getImmutableSchemaSnapshot();
 
-    final String baseClassName = iRight.toString();
-    final SchemaClass baseClass = schema.getClass(baseClassName);
+    final var baseClassName = iRight.toString();
+    final var baseClass = schema.getClass(baseClassName);
     if (baseClass == null) {
       throw new CommandExecutionException(
           "Class '" + baseClassName + "' is not defined in database schema");

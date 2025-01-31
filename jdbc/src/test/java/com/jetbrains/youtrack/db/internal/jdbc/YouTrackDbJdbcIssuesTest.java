@@ -13,7 +13,7 @@ public class YouTrackDbJdbcIssuesTest extends YouTrackDbJdbcDbPerMethodTemplateT
   @Test
   public void shouldMapNullValues_ph8555() throws Exception {
 
-    String commands =
+    var commands =
         "CREATE CLASS Demo;\n"
             //        + "CREATE PROPERTY Demo.firstName STRING\n"
             //        + "CREATE PROPERTY Demo.lastName STRING\n"
@@ -24,7 +24,7 @@ public class YouTrackDbJdbcIssuesTest extends YouTrackDbJdbcDbPerMethodTemplateT
             + "INSERT INTO Demo(firstName, lastName, amount) VALUES (\"Lars\", \"Lar\", 2232);\n"
             + "INSERT INTO Demo(firstName, amount) VALUES (\"Lars\", 2232);";
 
-    Statement stmt = conn.createStatement();
+    var stmt = conn.createStatement();
     stmt.addBatch("CREATE CLASS Demo;");
     stmt.addBatch("begin;");
     stmt.addBatch(
@@ -38,18 +38,18 @@ public class YouTrackDbJdbcIssuesTest extends YouTrackDbJdbcDbPerMethodTemplateT
     stmt.close();
 
     stmt = conn.createStatement();
-    YouTrackDbJdbcResultSet resSet =
+    var resSet =
         (YouTrackDbJdbcResultSet)
             stmt.executeQuery("select firstName , lastName , address, amount from Demo");
 
     while (resSet.next()) {
-      HashMap<String, Object> item = new HashMap<String, Object>();
+      var item = new HashMap<String, Object>();
 
-      int numCols = resSet.getMetaData().getColumnCount();
+      var numCols = resSet.getMetaData().getColumnCount();
 
-      for (int i = 1; i <= numCols; i++) {
-        String colName = resSet.getMetaData().getColumnName(i);
-        Object value = resSet.getObject(colName);
+      for (var i = 1; i <= numCols; i++) {
+        var colName = resSet.getMetaData().getColumnName(i);
+        var value = resSet.getObject(colName);
         item.put(colName, value);
       }
 

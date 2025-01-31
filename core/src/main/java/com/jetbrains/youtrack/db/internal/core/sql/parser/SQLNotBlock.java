@@ -35,7 +35,7 @@ public class SQLNotBlock extends SQLBooleanExpression {
     if (sub == null) {
       return true;
     }
-    boolean result = sub.evaluate(currentRecord, ctx);
+    var result = sub.evaluate(currentRecord, ctx);
     if (negate) {
       return !result;
     }
@@ -47,7 +47,7 @@ public class SQLNotBlock extends SQLBooleanExpression {
     if (sub == null) {
       return true;
     }
-    boolean result = sub.evaluate(currentRecord, ctx);
+    var result = sub.evaluate(currentRecord, ctx);
     if (negate) {
       return !result;
     }
@@ -125,7 +125,7 @@ public class SQLNotBlock extends SQLBooleanExpression {
 
   @Override
   public SQLNotBlock copy() {
-    SQLNotBlock result = new SQLNotBlock(-1);
+    var result = new SQLNotBlock(-1);
     result.sub = sub.copy();
     result.negate = negate;
     return result;
@@ -150,7 +150,7 @@ public class SQLNotBlock extends SQLBooleanExpression {
       return false;
     }
 
-    SQLNotBlock oNotBlock = (SQLNotBlock) o;
+    var oNotBlock = (SQLNotBlock) o;
 
     if (negate != oNotBlock.negate) {
       return false;
@@ -160,7 +160,7 @@ public class SQLNotBlock extends SQLBooleanExpression {
 
   @Override
   public int hashCode() {
-    int result = sub != null ? sub.hashCode() : 0;
+    var result = sub != null ? sub.hashCode() : 0;
     result = 31 * result + (negate ? 1 : 0);
     return result;
   }
@@ -190,7 +190,7 @@ public class SQLNotBlock extends SQLBooleanExpression {
   }
 
   public Optional<IndexCandidate> findIndex(IndexFinder info, CommandContext ctx) {
-    Optional<IndexCandidate> found = sub.findIndex(info, ctx);
+    var found = sub.findIndex(info, ctx);
     if (negate && found.isPresent()) {
       found = found.get().invert();
     }

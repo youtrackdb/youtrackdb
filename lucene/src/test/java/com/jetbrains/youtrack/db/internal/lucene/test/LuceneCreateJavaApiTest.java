@@ -45,8 +45,8 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
   @Before
   public void init() {
     final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass v = schema.getClass("V");
-    final SchemaClass song = schema.createClass(SONG_CLASS);
+    final var v = schema.getClass("V");
+    final var song = schema.createClass(SONG_CLASS);
     song.setSuperClass(db, v);
     song.createProperty(db, "title", PropertyType.STRING);
     song.createProperty(db, "author", PropertyType.STRING);
@@ -56,7 +56,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
   @Test
   public void testCreateIndex() {
     final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass song = schema.getClass(SONG_CLASS);
+    final var song = schema.getClass(SONG_CLASS);
 
     var meta = Map.of("analyzer",
         StandardAnalyzer.class.getName());
@@ -77,7 +77,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
   @Test
   public void testCreateIndexCompositeWithDefaultAnalyzer() {
     final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass song = schema.getClass(SONG_CLASS);
+    final var song = schema.getClass(SONG_CLASS);
 
     song.createIndex(db,
         "Song.author_description",
@@ -85,7 +85,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
         null,
         null,
         "LUCENE", new String[]{"author", "description"});
-    final Index lucene = db.getIndex("Song.author_description");
+    final var lucene = db.getIndex("Song.author_description");
 
     assertThat(lucene).isNotNull();
     assertThat(lucene.getMetadata().containsKey("analyzer")).isTrue();
@@ -144,7 +144,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
     entries.put("text", "Hello Rome how are you today?");
     entries.put("text2", "Hello Bolzano how are you today?");
 
-    final EntityImpl doc = ((EntityImpl) db.newEntity(SONG_CLASS));
+    final var doc = ((EntityImpl) db.newEntity(SONG_CLASS));
     doc.field("description", "Capital", PropertyType.STRING);
     doc.field("String" + PropertyType.EMBEDDEDMAP.getName(), entries, PropertyType.EMBEDDEDMAP,
         PropertyType.STRING);
@@ -154,7 +154,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
   }
 
   private void queryIndexEmbeddedMapClass(final String searchTerm, final int expectedCount) {
-    final ResultSet result =
+    final var result =
         db.query(
             "select from "
                 + SONG_CLASS
@@ -169,7 +169,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
 
   private void checkCreatedEmbeddedMapIndex(final SchemaClassInternal clazz,
       final String expectedAlgorithm) {
-    final Index index = clazz.getIndexesInternal(db).iterator().next();
+    final var index = clazz.getIndexesInternal(db).iterator().next();
     System.out.println(
         "key-name: " + ((IndexInternal) index).getIndexId() + "-" + index.getName());
 

@@ -44,7 +44,7 @@ public class MultiPolygonShapeBuilder extends PolygonShapeBuilder {
   public void initClazz(DatabaseSessionInternal db) {
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass polygon = schema.createAbstractClass(getName(), superClass(db));
+    var polygon = schema.createAbstractClass(getName(), superClass(db));
     polygon.createProperty(db, "coordinates", PropertyType.EMBEDDEDLIST, PropertyType.EMBEDDEDLIST);
   }
 
@@ -53,9 +53,9 @@ public class MultiPolygonShapeBuilder extends PolygonShapeBuilder {
     validate(document);
     List<List<List<List<Number>>>> coordinates = document.field("coordinates");
 
-    Polygon[] polygons = new Polygon[coordinates.size()];
-    int i = 0;
-    for (List<List<List<Number>>> coordinate : coordinates) {
+    var polygons = new Polygon[coordinates.size()];
+    var i = 0;
+    for (var coordinate : coordinates) {
       polygons[i] = createPolygon(coordinate);
       i++;
     }
@@ -65,13 +65,13 @@ public class MultiPolygonShapeBuilder extends PolygonShapeBuilder {
   @Override
   public EntityImpl toEntitty(JtsGeometry shape) {
 
-    EntityImpl doc = new EntityImpl(null, getName());
-    MultiPolygon multiPolygon = (MultiPolygon) shape.getGeom();
+    var doc = new EntityImpl(null, getName());
+    var multiPolygon = (MultiPolygon) shape.getGeom();
     List<List<List<List<Double>>>> polyCoordinates = new ArrayList<List<List<List<Double>>>>();
-    int n = multiPolygon.getNumGeometries();
+    var n = multiPolygon.getNumGeometries();
 
-    for (int i = 0; i < n; i++) {
-      Geometry geom = multiPolygon.getGeometryN(i);
+    for (var i = 0; i < n; i++) {
+      var geom = multiPolygon.getGeometryN(i);
       polyCoordinates.add(coordinatesFromPolygon((Polygon) geom));
     }
 

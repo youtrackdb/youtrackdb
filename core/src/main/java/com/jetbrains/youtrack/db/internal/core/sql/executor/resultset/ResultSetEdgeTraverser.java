@@ -24,7 +24,7 @@ public final class ResultSetEdgeTraverser implements ExecutionStream {
     if (!hasNext(ctx)) {
       throw new IllegalStateException();
     }
-    Result result = nextResult;
+    var result = nextResult;
     ctx.setVariable("$matched", result);
     nextResult = null;
     return result;

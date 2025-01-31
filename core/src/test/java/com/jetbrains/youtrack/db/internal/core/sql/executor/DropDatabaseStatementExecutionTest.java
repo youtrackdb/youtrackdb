@@ -19,7 +19,7 @@ public class DropDatabaseStatementExecutionTest {
 
   @Test
   public void testPlain() {
-    String dbName = "ODropDatabaseStatementExecutionTest_testPlain";
+    var dbName = "ODropDatabaseStatementExecutionTest_testPlain";
     YouTrackDB youTrackDb =
         new YouTrackDBImpl(
             DbTestBase.embeddedDBUrl(getClass()),
@@ -27,7 +27,7 @@ public class DropDatabaseStatementExecutionTest {
                 .addGlobalConfigurationParameter(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     try {
-      try (ResultSet result =
+      try (var result =
           youTrackDb.execute(
               "create database "
                   + dbName
@@ -36,12 +36,12 @@ public class DropDatabaseStatementExecutionTest {
                   + CreateDatabaseUtil.NEW_ADMIN_PASSWORD
                   + "' role admin)")) {
         Assert.assertTrue(result.hasNext());
-        Result item = result.next();
+        var item = result.next();
         Assert.assertEquals(true, item.getProperty("created"));
       }
       Assert.assertTrue(youTrackDb.exists(dbName));
 
-      DatabaseSession session =
+      var session =
           youTrackDb.open(dbName, "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       session.close();
 
@@ -54,7 +54,7 @@ public class DropDatabaseStatementExecutionTest {
 
   @Test
   public void testIfExists1() {
-    String dbName = "ODropDatabaseStatementExecutionTest_testIfExists1";
+    var dbName = "ODropDatabaseStatementExecutionTest_testIfExists1";
     final YouTrackDB youTrackDb =
         new YouTrackDBImpl(
             DbTestBase.embeddedDBUrl(getClass()),
@@ -62,7 +62,7 @@ public class DropDatabaseStatementExecutionTest {
                 .addGlobalConfigurationParameter(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     try {
-      try (ResultSet result =
+      try (var result =
           youTrackDb.execute(
               "create database "
                   + dbName
@@ -71,12 +71,12 @@ public class DropDatabaseStatementExecutionTest {
                   + CreateDatabaseUtil.NEW_ADMIN_PASSWORD
                   + "' role admin)")) {
         Assert.assertTrue(result.hasNext());
-        Result item = result.next();
+        var item = result.next();
         Assert.assertEquals(true, item.getProperty("created"));
       }
       Assert.assertTrue(youTrackDb.exists(dbName));
 
-      DatabaseSession session =
+      var session =
           youTrackDb.open(dbName, "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       session.close();
 
@@ -89,7 +89,7 @@ public class DropDatabaseStatementExecutionTest {
 
   @Test
   public void testIfExists2() {
-    String dbName = "ODropDatabaseStatementExecutionTest_testIfExists2";
+    var dbName = "ODropDatabaseStatementExecutionTest_testIfExists2";
     try (YouTrackDB youTrackDb = new YouTrackDBImpl(
         DbTestBase.embeddedDBUrl(getClass()) + getClass().getSimpleName(),
         YouTrackDBConfig.builder()

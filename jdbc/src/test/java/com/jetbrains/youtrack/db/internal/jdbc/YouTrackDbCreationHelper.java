@@ -40,8 +40,8 @@ public class YouTrackDbCreationHelper {
   public static void loadDB(DatabaseSession db, int documents) throws IOException {
 
     db.begin();
-    for (int i = 1; i <= documents; i++) {
-      EntityImpl doc = ((EntityImpl) db.newEntity("Item"));
+    for (var i = 1; i <= documents; i++) {
+      var doc = ((EntityImpl) db.newEntity("Item"));
       doc = createItem(i, doc);
       ((DatabaseSessionInternal) db).save(doc, "Item");
     }
@@ -54,11 +54,11 @@ public class YouTrackDbCreationHelper {
   }
 
   public static EntityImpl createItem(int id, EntityImpl doc) {
-    String itemKey = Integer.valueOf(id).toString();
+    var itemKey = Integer.valueOf(id).toString();
 
     doc.field("stringKey", itemKey);
     doc.field("intKey", id);
-    String contents =
+    var contents =
         "YouTrackDB is a deeply scalable Document-Graph DBMS with the flexibility of the Document"
             + " databases and the power to manage links of the Graph databases. It can work in"
             + " schema-less mode, schema-full or a mix of both. Supports advanced features such as"
@@ -78,10 +78,10 @@ public class YouTrackDbCreationHelper {
     doc.field("published", (id % 2 > 0));
     doc.field("author", "anAuthor" + id);
     // PropertyType.EMBEDDEDLIST);
-    Calendar instance = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+    var instance = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
     instance.add(Calendar.HOUR_OF_DAY, -id);
-    Date time = instance.getTime();
+    var time = instance.getTime();
     doc.field("date", time, PropertyType.DATE);
     doc.field("time", time, PropertyType.DATETIME);
 
@@ -90,9 +90,9 @@ public class YouTrackDbCreationHelper {
 
   public static void createAuthorAndArticles(DatabaseSession db, int totAuthors, int totArticles)
       throws IOException {
-    int articleSerial = 0;
-    for (int a = 1; a <= totAuthors; ++a) {
-      EntityImpl author = ((EntityImpl) db.newEntity("Author"));
+    var articleSerial = 0;
+    for (var a = 1; a <= totAuthors; ++a) {
+      var author = ((EntityImpl) db.newEntity("Author"));
       List<EntityImpl> articles = new ArrayList<>(totArticles);
       author.field("articles", articles);
 
@@ -100,11 +100,11 @@ public class YouTrackDbCreationHelper {
       author.field("name", "Jay");
       author.field("rating", new Random().nextDouble());
 
-      for (int i = 1; i <= totArticles; ++i) {
-        EntityImpl article = ((EntityImpl) db.newEntity("Article"));
+      for (var i = 1; i <= totArticles; ++i) {
+        var article = ((EntityImpl) db.newEntity("Article"));
 
-        Calendar instance = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        Date time = instance.getTime();
+        var instance = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        var time = instance.getTime();
         article.field("date", time, PropertyType.DATE);
 
         article.field("uuid", articleSerial++);
@@ -122,10 +122,10 @@ public class YouTrackDbCreationHelper {
   public static EntityImpl createArticleWithAttachmentSplitted(DatabaseSession db)
       throws IOException {
 
-    EntityImpl article = ((EntityImpl) db.newEntity("Article"));
-    Calendar instance = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+    var article = ((EntityImpl) db.newEntity("Article"));
+    var instance = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
-    Date time = instance.getTime();
+    var time = instance.getTime();
     article.field("date", time, PropertyType.DATE);
 
     article.field("uuid", 1000000);
@@ -142,20 +142,20 @@ public class YouTrackDbCreationHelper {
 
   public static void createWriterAndPosts(DatabaseSession db, int totAuthors, int totArticles)
       throws IOException {
-    int articleSerial = 0;
-    for (int a = 1; a <= totAuthors; ++a) {
-      Vertex writer = db.newVertex("Writer");
+    var articleSerial = 0;
+    for (var a = 1; a <= totAuthors; ++a) {
+      var writer = db.newVertex("Writer");
       writer.setProperty("uuid", a);
       writer.setProperty("name", "happy writer");
       writer.setProperty("is_active", Boolean.TRUE);
       writer.setProperty("isActive", Boolean.TRUE);
 
-      for (int i = 1; i <= totArticles; ++i) {
+      for (var i = 1; i <= totArticles; ++i) {
 
-        Vertex post = db.newVertex("Post");
+        var post = db.newVertex("Post");
 
-        Calendar instance = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        Date time = instance.getTime();
+        var instance = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        var time = instance.getTime();
         post.setProperty("date", time, PropertyType.DATE);
         post.setProperty("uuid", articleSerial++);
         post.setProperty("title", "the title");
@@ -166,13 +166,13 @@ public class YouTrackDbCreationHelper {
     }
 
     // additional wrong data
-    Vertex writer = db.newVertex("Writer");
+    var writer = db.newVertex("Writer");
     writer.setProperty("uuid", totAuthors * 2);
     writer.setProperty("name", "happy writer");
     writer.setProperty("is_active", Boolean.TRUE);
     writer.setProperty("isActive", Boolean.TRUE);
 
-    Vertex post = db.newVertex("Post");
+    var post = db.newVertex("Post");
 
     // no date!!
 
@@ -184,10 +184,10 @@ public class YouTrackDbCreationHelper {
   }
 
   private static Blob loadFile(DatabaseSession database, String filePath) throws IOException {
-    final File f = new File(filePath);
+    final var f = new File(filePath);
     if (f.exists()) {
-      BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(f));
-      Blob record = database.newBlob();
+      var inputStream = new BufferedInputStream(new FileInputStream(f));
+      var record = database.newBlob();
       record.fromInputStream(inputStream);
       return record;
     }
@@ -197,17 +197,17 @@ public class YouTrackDbCreationHelper {
 
   private static List<RID> loadFile(DatabaseSession database, String filePath, int bufferSize)
       throws IOException {
-    File binaryFile = new File(filePath);
-    long binaryFileLength = binaryFile.length();
-    int numberOfRecords = (int) (binaryFileLength / bufferSize);
-    int remainder = (int) (binaryFileLength % bufferSize);
+    var binaryFile = new File(filePath);
+    var binaryFileLength = binaryFile.length();
+    var numberOfRecords = (int) (binaryFileLength / bufferSize);
+    var remainder = (int) (binaryFileLength % bufferSize);
     if (remainder > 0) {
       numberOfRecords++;
     }
     List<RID> binaryChuncks = new ArrayList<>(numberOfRecords);
-    BufferedInputStream binaryStream = new BufferedInputStream(new FileInputStream(binaryFile));
+    var binaryStream = new BufferedInputStream(new FileInputStream(binaryFile));
 
-    for (int i = 0; i < numberOfRecords; i++) {
+    for (var i = 0; i < numberOfRecords; i++) {
       var index = i;
       var recnum = numberOfRecords;
 
@@ -225,7 +225,7 @@ public class YouTrackDbCreationHelper {
               throw new RuntimeException(e);
             }
 
-            Blob recordChunk = database.newBlob();
+            var recordChunk = database.newBlob();
 
             database.save(recordChunk);
             binaryChuncks.add(recordChunk.getIdentity());
@@ -240,7 +240,7 @@ public class YouTrackDbCreationHelper {
     Schema schema = db.getMetadata().getSchema();
 
     // item
-    SchemaClass item = schema.createClass("Item");
+    var item = schema.createClass("Item");
 
     item.createProperty(db, "stringKey", PropertyType.STRING).createIndex(db, INDEX_TYPE.UNIQUE);
     item.createProperty(db, "intKey", PropertyType.INTEGER).createIndex(db, INDEX_TYPE.UNIQUE);
@@ -256,7 +256,7 @@ public class YouTrackDbCreationHelper {
     item.createProperty(db, "tags", PropertyType.EMBEDDEDLIST);
 
     // class Article
-    SchemaClass article = schema.createClass("Article");
+    var article = schema.createClass("Article");
 
     article.createProperty(db, "uuid", PropertyType.LONG).createIndex(db, INDEX_TYPE.UNIQUE);
     article.createProperty(db, "date", PropertyType.DATE).createIndex(db, INDEX_TYPE.NOTUNIQUE);
@@ -265,7 +265,7 @@ public class YouTrackDbCreationHelper {
     // article.createProperty("attachment", PropertyType.LINK);
 
     // author
-    SchemaClass author = schema.createClass("Author");
+    var author = schema.createClass("Author");
 
     author.createProperty(db, "uuid", PropertyType.LONG).createIndex(db, INDEX_TYPE.UNIQUE);
     author.createProperty(db, "name", PropertyType.STRING).setMin(db, "3");
@@ -277,24 +277,24 @@ public class YouTrackDbCreationHelper {
 
     // Graph
 
-    SchemaClass v = schema.getClass("V");
+    var v = schema.getClass("V");
     if (v == null) {
       schema.createClass("V");
     }
 
-    SchemaClass post = schema.createClass("Post", v);
+    var post = schema.createClass("Post", v);
     post.createProperty(db, "uuid", PropertyType.LONG);
     post.createProperty(db, "title", PropertyType.STRING);
     post.createProperty(db, "date", PropertyType.DATE).createIndex(db, INDEX_TYPE.NOTUNIQUE);
     post.createProperty(db, "content", PropertyType.STRING);
 
-    SchemaClass writer = schema.createClass("Writer", v);
+    var writer = schema.createClass("Writer", v);
     writer.createProperty(db, "uuid", PropertyType.LONG).createIndex(db, INDEX_TYPE.UNIQUE);
     writer.createProperty(db, "name", PropertyType.STRING);
     writer.createProperty(db, "is_active", PropertyType.BOOLEAN);
     writer.createProperty(db, "isActive", PropertyType.BOOLEAN);
 
-    SchemaClass e = schema.getClass("E");
+    var e = schema.getClass("E");
     if (e == null) {
       schema.createClass("E");
     }

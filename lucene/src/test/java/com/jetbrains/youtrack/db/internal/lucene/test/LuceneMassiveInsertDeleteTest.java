@@ -39,8 +39,8 @@ public class LuceneMassiveInsertDeleteTest extends BaseLuceneTest {
   @Before
   public void init() {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass v = schema.getClass("V");
-    SchemaClass song = schema.createClass("City");
+    var v = schema.getClass("V");
+    var song = schema.createClass("City");
     song.addSuperClass(db, v);
     song.createProperty(db, "name", PropertyType.STRING);
 
@@ -50,17 +50,17 @@ public class LuceneMassiveInsertDeleteTest extends BaseLuceneTest {
   @Test
   public void loadCloseDelete() {
 
-    int size = 1000;
-    for (int i = 0; i < size; i++) {
-      EntityImpl city = ((EntityImpl) db.newEntity("City"));
+    var size = 1000;
+    for (var i = 0; i < size; i++) {
+      var city = ((EntityImpl) db.newEntity("City"));
       city.field("name", "Rome " + i);
 
       db.begin();
       db.save(city);
       db.commit();
     }
-    String query = "select * from City where name LUCENE 'name:Rome'";
-    ResultSet docs = db.query(query);
+    var query = "select * from City where name LUCENE 'name:Rome'";
+    var docs = db.query(query);
     Assert.assertEquals(docs.stream().count(), size);
 
     db.close();
@@ -84,7 +84,7 @@ public class LuceneMassiveInsertDeleteTest extends BaseLuceneTest {
     db.getMetadata().reload();
 
     db.begin();
-    Index idx = db.getMetadata().getSchemaInternal().getClassInternal("City")
+    var idx = db.getMetadata().getSchemaInternal().getClassInternal("City")
         .getClassIndex(db, "City.name");
     Assert.assertEquals(idx.getInternal().size(db), 0);
     db.commit();

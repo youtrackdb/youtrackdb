@@ -71,7 +71,7 @@ public class IfExecutionPlan implements InternalExecutionPlan {
   @Override
   public Result toResult(DatabaseSession db) {
     var session = (DatabaseSessionInternal) db;
-    ResultInternal result = new ResultInternal(session);
+    var result = new ResultInternal(session);
     result.setProperty("type", "IfExecutionPlan");
     result.setProperty("javaType", getClass().getName());
     result.setProperty("cost", getCost());
@@ -91,7 +91,7 @@ public class IfExecutionPlan implements InternalExecutionPlan {
   }
 
   public ExecutionStepInternal executeUntilReturn() {
-    ScriptExecutionPlan plan = step.producePlan(ctx);
+    var plan = step.producePlan(ctx);
     if (plan != null) {
       return plan.executeUntilReturn();
     } else {

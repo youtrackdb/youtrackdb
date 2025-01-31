@@ -44,13 +44,13 @@ public class LuceneTransactionEmbeddedQueryTest extends LuceneBaseTest {
   public void testRollback() {
     createSchema(db);
 
-    EntityImpl doc = ((EntityImpl) db.newEntity("c1"));
+    var doc = ((EntityImpl) db.newEntity("c1"));
     doc.field("p1", new String[]{"abc"});
     db.begin();
     db.save(doc);
 
-    String query = "select from C1 where p1 lucene \"abc\" ";
-    ResultSet vertices = db.query(query);
+    var query = "select from C1 where p1 lucene \"abc\" ";
+    var vertices = db.query(query);
 
     Assert.assertEquals(1, vertices.stream().count());
     db.rollback();
@@ -61,7 +61,7 @@ public class LuceneTransactionEmbeddedQueryTest extends LuceneBaseTest {
   }
 
   private static void createSchema(DatabaseSession db) {
-    final SchemaClass c1 = db.createVertexClass("C1");
+    final var c1 = db.createVertexClass("C1");
     c1.createProperty(db, "p1", PropertyType.EMBEDDEDLIST, PropertyType.STRING);
     c1.createIndex(db, "C1.p1", "FULLTEXT", null, null, "LUCENE", new String[]{"p1"});
   }
@@ -71,15 +71,15 @@ public class LuceneTransactionEmbeddedQueryTest extends LuceneBaseTest {
     createSchema(db);
     db.begin();
 
-    EntityImpl doc = ((EntityImpl) db.newEntity("c1"));
+    var doc = ((EntityImpl) db.newEntity("c1"));
     doc.field("p1", new String[]{"abc"});
 
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
 
     db.save(doc);
 
-    String query = "select from C1 where p1 lucene \"abc\" ";
-    ResultSet vertices = db.query(query);
+    var query = "select from C1 where p1 lucene \"abc\" ";
+    var vertices = db.query(query);
 
     Assert.assertEquals(1, vertices.stream().count());
 
@@ -89,7 +89,7 @@ public class LuceneTransactionEmbeddedQueryTest extends LuceneBaseTest {
     query = "select from C1 where p1 lucene \"abc\" ";
     vertices = db.query(query);
 
-    Result res = vertices.next();
+    var res = vertices.next();
     db.begin();
     Assert.assertEquals(1, index.getInternal().size(db));
 
@@ -99,15 +99,15 @@ public class LuceneTransactionEmbeddedQueryTest extends LuceneBaseTest {
     vertices = db.query(query);
 
     Collection coll;
-    try (Stream<RID> stream = index.getInternal().getRids(db, "abc")) {
+    try (var stream = index.getInternal().getRids(db, "abc")) {
       coll = stream.collect(Collectors.toList());
     }
 
     Assert.assertEquals(0, vertices.stream().count());
     Assert.assertEquals(0, coll.size());
 
-    Iterator iterator = coll.iterator();
-    int i = 0;
+    var iterator = coll.iterator();
+    var i = 0;
     while (iterator.hasNext()) {
       iterator.next();
       i++;
@@ -128,18 +128,18 @@ public class LuceneTransactionEmbeddedQueryTest extends LuceneBaseTest {
   @Test
   public void txUpdateTest() {
     createSchema(db);
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
 
     db.begin();
     Assert.assertEquals(0, index.getInternal().size(db));
 
-    EntityImpl doc = ((EntityImpl) db.newEntity("c1"));
+    var doc = ((EntityImpl) db.newEntity("c1"));
     doc.field("p1", new String[]{"update removed", "update fixed"});
 
     db.save(doc);
 
-    String query = "select from C1 where p1 lucene \"update\" ";
-    ResultSet vertices = db.query(query);
+    var query = "select from C1 where p1 lucene \"update\" ";
+    var vertices = db.query(query);
 
     Assert.assertEquals(1, vertices.stream().count());
 
@@ -152,33 +152,33 @@ public class LuceneTransactionEmbeddedQueryTest extends LuceneBaseTest {
     vertices = db.query(query);
 
     Collection coll;
-    try (final Stream<RID> stream = index.getInternal().getRids(db, "update")) {
+    try (final var stream = index.getInternal().getRids(db, "update")) {
       coll = stream.collect(Collectors.toList());
     }
 
-    Result resultRecord = vertices.next();
+    var resultRecord = vertices.next();
     Assert.assertEquals(2, coll.size());
     Assert.assertEquals(2, index.getInternal().size(db));
 
     db.begin();
 
     // select in transaction while updating
-    Entity record = db.bindToSession(resultRecord.getEntity().get());
+    var record = db.bindToSession(resultRecord.getEntity().get());
     Collection p1 = record.getProperty("p1");
     p1.remove("update removed");
     db.save(record);
 
     query = "select from C1 where p1 lucene \"update\" ";
     vertices = db.query(query);
-    try (Stream<RID> stream = index.getInternal().getRids(db, "update")) {
+    try (var stream = index.getInternal().getRids(db, "update")) {
       coll = stream.collect(Collectors.toList());
     }
 
     Assert.assertEquals(1, vertices.stream().count());
     Assert.assertEquals(1, coll.size());
 
-    Iterator iterator = coll.iterator();
-    int i = 0;
+    var iterator = coll.iterator();
+    var i = 0;
     while (iterator.hasNext()) {
       iterator.next();
       i++;
@@ -190,7 +190,7 @@ public class LuceneTransactionEmbeddedQueryTest extends LuceneBaseTest {
     query = "select from C1 where p1 lucene \"update\"";
     vertices = db.query(query);
 
-    try (Stream<RID> stream = index.getInternal().getRids(db, "update")) {
+    try (var stream = index.getInternal().getRids(db, "update")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(1, coll.size());
@@ -210,16 +210,16 @@ public class LuceneTransactionEmbeddedQueryTest extends LuceneBaseTest {
   @Test
   public void txUpdateTestComplex() {
     createSchema(db);
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
 
     Assert.assertEquals(0, index.getInternal().size(db));
 
     db.begin();
 
-    EntityImpl doc = ((EntityImpl) db.newEntity("c1"));
+    var doc = ((EntityImpl) db.newEntity("c1"));
     doc.field("p1", new String[]{"abc"});
 
-    EntityImpl doc1 = ((EntityImpl) db.newEntity("c1"));
+    var doc1 = ((EntityImpl) db.newEntity("c1"));
     doc1.field("p1", new String[]{"abc"});
 
     db.save(doc1);
@@ -233,18 +233,18 @@ public class LuceneTransactionEmbeddedQueryTest extends LuceneBaseTest {
     doc.field("p1", new String[]{"removed"});
     db.save(doc);
 
-    String query = "select from C1 where p1 lucene \"abc\"";
-    ResultSet vertices = db.query(query);
+    var query = "select from C1 where p1 lucene \"abc\"";
+    var vertices = db.query(query);
     Collection coll;
-    try (Stream<RID> stream = index.getInternal().getRids(db, "abc")) {
+    try (var stream = index.getInternal().getRids(db, "abc")) {
       coll = stream.collect(Collectors.toList());
     }
 
     Assert.assertEquals(1, vertices.stream().count());
     Assert.assertEquals(1, coll.size());
 
-    Iterator iterator = coll.iterator();
-    int i = 0;
+    var iterator = coll.iterator();
+    var i = 0;
     RecordId rid = null;
     while (iterator.hasNext()) {
       rid = (RecordId) iterator.next();
@@ -259,7 +259,7 @@ public class LuceneTransactionEmbeddedQueryTest extends LuceneBaseTest {
 
     query = "select from C1 where p1 lucene \"removed\" ";
     vertices = db.query(query);
-    try (Stream<RID> stream = index.getInternal().getRids(db, "removed")) {
+    try (var stream = index.getInternal().getRids(db, "removed")) {
       coll = stream.collect(Collectors.toList());
     }
 

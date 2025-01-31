@@ -37,7 +37,7 @@ public class ImmutableUser implements SecurityUser {
     this.rid = user.getIdentity().getIdentity();
     this.userType = user.getUserType();
 
-    for (SecurityRole role : user.getRoles()) {
+    for (var role : user.getRoles()) {
       roles.add(new ImmutableRole(session, role));
     }
   }
@@ -73,7 +73,7 @@ public class ImmutableUser implements SecurityUser {
       throw new SecurityAccessException(name, "User '" + name + "' has no role defined");
     }
 
-    final SecurityRole role = checkIfAllowed(session, resourceGeneric, resourceSpecific,
+    final var role = checkIfAllowed(session, resourceGeneric, resourceSpecific,
         iOperation);
 
     if (role == null) {
@@ -96,7 +96,7 @@ public class ImmutableUser implements SecurityUser {
       DatabaseSessionInternal session, final ResourceGeneric resourceGeneric,
       final String resourceSpecific,
       final int iOperation) {
-    for (ImmutableRole r : roles) {
+    for (var r : roles) {
       if (r == null) {
         LogManager.instance()
             .warn(
@@ -115,7 +115,7 @@ public class ImmutableUser implements SecurityUser {
   public boolean isRuleDefined(
       DatabaseSessionInternal session, final ResourceGeneric resourceGeneric,
       String resourceSpecific) {
-    for (ImmutableRole r : roles) {
+    for (var r : roles) {
       if (r == null) {
         LogManager.instance()
             .warn(
@@ -134,8 +134,8 @@ public class ImmutableUser implements SecurityUser {
   @Override
   @Deprecated
   public SecurityRole allow(DatabaseSessionInternal session, String iResource, int iOperation) {
-    final String resourceSpecific = Rule.mapLegacyResourceToSpecificResource(iResource);
-    final Rule.ResourceGeneric resourceGeneric =
+    final var resourceSpecific = Rule.mapLegacyResourceToSpecificResource(iResource);
+    final var resourceGeneric =
         Rule.mapLegacyResourceToGenericResource(iResource);
 
     if (resourceSpecific == null || resourceSpecific.equals("*")) {
@@ -149,8 +149,8 @@ public class ImmutableUser implements SecurityUser {
   @Deprecated
   public SecurityRole checkIfAllowed(DatabaseSessionInternal session, String iResource,
       int iOperation) {
-    final String resourceSpecific = Rule.mapLegacyResourceToSpecificResource(iResource);
-    final Rule.ResourceGeneric resourceGeneric =
+    final var resourceSpecific = Rule.mapLegacyResourceToSpecificResource(iResource);
+    final var resourceGeneric =
         Rule.mapLegacyResourceToGenericResource(iResource);
 
     if (resourceSpecific == null || resourceSpecific.equals("*")) {
@@ -163,8 +163,8 @@ public class ImmutableUser implements SecurityUser {
   @Override
   @Deprecated
   public boolean isRuleDefined(DatabaseSessionInternal session, String iResource) {
-    final String resourceSpecific = Rule.mapLegacyResourceToSpecificResource(iResource);
-    final Rule.ResourceGeneric resourceGeneric =
+    final var resourceSpecific = Rule.mapLegacyResourceToSpecificResource(iResource);
+    final var resourceGeneric =
         Rule.mapLegacyResourceToGenericResource(iResource);
 
     if (resourceSpecific == null || resourceSpecific.equals("*")) {
@@ -226,7 +226,7 @@ public class ImmutableUser implements SecurityUser {
       }
 
       if (iIncludeInherited) {
-        SecurityRole r = role.getParentRole();
+        var r = role.getParentRole();
         while (r != null) {
           if (r.getName(session).equals(iRoleName)) {
             return true;

@@ -41,8 +41,8 @@ public class WhileStep extends AbstractExecutionStep {
         throw new CommandInterruptedException("The command has been interrupted");
       }
 
-      ScriptExecutionPlan plan = initPlan(ctx);
-      ExecutionStepInternal result = plan.executeFull();
+      var plan = initPlan(ctx);
+      var result = plan.executeFull();
       if (result != null) {
         return result.start(ctx);
       }
@@ -51,10 +51,10 @@ public class WhileStep extends AbstractExecutionStep {
   }
 
   public ScriptExecutionPlan initPlan(CommandContext ctx) {
-    BasicCommandContext subCtx1 = new BasicCommandContext();
+    var subCtx1 = new BasicCommandContext();
     subCtx1.setParent(ctx);
-    ScriptExecutionPlan plan = new ScriptExecutionPlan(subCtx1);
-    for (SQLStatement stm : statements) {
+    var plan = new ScriptExecutionPlan(subCtx1);
+    for (var stm : statements) {
       if (stm.originalStatement == null) {
         stm.originalStatement = stm.toString();
       }
@@ -71,7 +71,7 @@ public class WhileStep extends AbstractExecutionStep {
   }
 
   public boolean containsReturn() {
-    for (SQLStatement stm : this.statements) {
+    for (var stm : this.statements) {
       if (stm instanceof SQLReturnStatement) {
         return true;
       }

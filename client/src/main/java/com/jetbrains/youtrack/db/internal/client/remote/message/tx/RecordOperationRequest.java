@@ -99,7 +99,7 @@ public class RecordOperationRequest {
     id = RecordId.deserialize(input);
     oldId = RecordId.deserialize(input);
     if (type != RecordOperation.DELETED) {
-      int size = input.readInt();
+      var size = input.readInt();
       record = new byte[size];
       input.readFully(record);
     }

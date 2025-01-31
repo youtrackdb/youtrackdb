@@ -29,7 +29,7 @@ public class EdgeToVertexIterator implements Iterator<Vertex> {
 
   @Override
   public Vertex next() {
-    Edge edge = edgeIterator.next();
+    var edge = edgeIterator.next();
     switch (direction) {
       case OUT:
         return edge.getTo();

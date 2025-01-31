@@ -116,12 +116,12 @@ public class HelperClasses {
   }
 
   public static void writeType(BytesContainer bytes, PropertyType type) {
-    int pos = bytes.alloc(1);
+    var pos = bytes.alloc(1);
     bytes.bytes[pos] = (byte) type.getId();
   }
 
   public static PropertyType readType(BytesContainer bytes) {
-    byte typeId = bytes.bytes[bytes.offset++];
+    var typeId = bytes.bytes[bytes.offset++];
     if (typeId == -1) {
       return null;
     }
@@ -129,25 +129,25 @@ public class HelperClasses {
   }
 
   public static byte[] readBinary(final BytesContainer bytes) {
-    final int n = VarIntSerializer.readAsInteger(bytes);
-    final byte[] newValue = new byte[n];
+    final var n = VarIntSerializer.readAsInteger(bytes);
+    final var newValue = new byte[n];
     System.arraycopy(bytes.bytes, bytes.offset, newValue, 0, newValue.length);
     bytes.skip(n);
     return newValue;
   }
 
   public static String readString(final BytesContainer bytes) {
-    final int len = VarIntSerializer.readAsInteger(bytes);
+    final var len = VarIntSerializer.readAsInteger(bytes);
     if (len == 0) {
       return "";
     }
-    final String res = stringFromBytes(bytes.bytes, bytes.offset, len);
+    final var res = stringFromBytes(bytes.bytes, bytes.offset, len);
     bytes.skip(len);
     return res;
   }
 
   public static int readInteger(final BytesContainer container) {
-    final int value =
+    final var value =
         IntegerSerializer.INSTANCE.deserializeLiteral(container.bytes, container.offset);
     container.offset += IntegerSerializer.INT_SIZE;
     return value;
@@ -158,15 +158,15 @@ public class HelperClasses {
   }
 
   public static long readLong(final BytesContainer container) {
-    final long value =
+    final var value =
         LongSerializer.INSTANCE.deserializeLiteral(container.bytes, container.offset);
     container.offset += LongSerializer.LONG_SIZE;
     return value;
   }
 
   public static RecordId readOptimizedLink(final BytesContainer bytes, boolean justRunThrough) {
-    int clusterId = VarIntSerializer.readAsInteger(bytes);
-    long clusterPos = VarIntSerializer.readAsLong(bytes);
+    var clusterId = VarIntSerializer.readAsInteger(bytes);
+    var clusterPos = VarIntSerializer.readAsLong(bytes);
     if (justRunThrough) {
       return null;
     } else {
@@ -180,11 +180,11 @@ public class HelperClasses {
 
   public static String stringFromBytesIntern(final byte[] bytes, final int offset, final int len) {
     try {
-      DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
+      var db = DatabaseRecordThreadLocal.instance().getIfDefined();
       if (db != null) {
-        SharedContext context = db.getSharedContext();
+        var context = db.getSharedContext();
         if (context != null) {
-          StringCache cache = context.getStringCache();
+          var cache = context.getStringCache();
           if (cache != null) {
             return cache.getString(bytes, offset, len);
           }
@@ -201,9 +201,9 @@ public class HelperClasses {
   }
 
   public static long convertDayToTimezone(TimeZone from, TimeZone to, long time) {
-    Calendar fromCalendar = Calendar.getInstance(from);
+    var fromCalendar = Calendar.getInstance(from);
     fromCalendar.setTimeInMillis(time);
-    Calendar toCalendar = Calendar.getInstance(to);
+    var toCalendar = Calendar.getInstance(to);
     toCalendar.setTimeInMillis(0);
     toCalendar.set(Calendar.ERA, fromCalendar.get(Calendar.ERA));
     toCalendar.set(Calendar.YEAR, fromCalendar.get(Calendar.YEAR));
@@ -217,13 +217,13 @@ public class HelperClasses {
   }
 
   public static GlobalProperty getGlobalProperty(final EntityImpl entity, final int len) {
-    final int id = (len * -1) - 1;
+    final var id = (len * -1) - 1;
     return EntityInternalUtils.getGlobalPropertyById(entity, id);
   }
 
   public static int writeBinary(final BytesContainer bytes, final byte[] valueBytes) {
-    final int pointer = VarIntSerializer.write(bytes, valueBytes.length);
-    final int start = bytes.alloc(valueBytes.length);
+    final var pointer = VarIntSerializer.write(bytes, valueBytes.length);
+    final var start = bytes.alloc(valueBytes.length);
     System.arraycopy(valueBytes, 0, bytes.bytes, start, valueBytes.length);
     return pointer;
   }
@@ -241,19 +241,19 @@ public class HelperClasses {
       throw new DatabaseException("Impossible to serialize invalid link " + link.getIdentity());
     }
 
-    final int pos = VarIntSerializer.write(bytes, link.getIdentity().getClusterId());
+    final var pos = VarIntSerializer.write(bytes, link.getIdentity().getClusterId());
     VarIntSerializer.write(bytes, link.getIdentity().getClusterPosition());
     return pos;
   }
 
   public static int writeNullLink(final BytesContainer bytes) {
-    final int pos = VarIntSerializer.write(bytes, NULL_RECORD_ID.getIdentity().getClusterId());
+    final var pos = VarIntSerializer.write(bytes, NULL_RECORD_ID.getIdentity().getClusterId());
     VarIntSerializer.write(bytes, NULL_RECORD_ID.getIdentity().getClusterPosition());
     return pos;
   }
 
   public static PropertyType getTypeFromValueEmbedded(final Object fieldValue) {
-    PropertyType type = PropertyType.getTypeByValue(fieldValue);
+    var type = PropertyType.getTypeByValue(fieldValue);
     if (type == PropertyType.LINK
         && fieldValue instanceof EntityImpl
         && !((EntityImpl) fieldValue).getIdentity().isValid()) {
@@ -265,9 +265,9 @@ public class HelperClasses {
   public static int writeLinkCollection(
       DatabaseSessionInternal db, final BytesContainer bytes,
       final Collection<Identifiable> value) {
-    final int pos = VarIntSerializer.write(bytes, value.size());
+    final var pos = VarIntSerializer.write(bytes, value.size());
 
-    for (Identifiable itemValue : value) {
+    for (var itemValue : value) {
       // TODO: handle the null links
       if (itemValue == null) {
         writeNullLink(bytes);
@@ -281,9 +281,9 @@ public class HelperClasses {
 
   public static <T extends TrackedMultiValue<?, Identifiable>> T readLinkCollection(
       final BytesContainer bytes, final T found, boolean justRunThrough) {
-    final int items = VarIntSerializer.readAsInteger(bytes);
-    for (int i = 0; i < items; i++) {
-      RecordId id = readOptimizedLink(bytes, justRunThrough);
+    final var items = VarIntSerializer.readAsInteger(bytes);
+    for (var i = 0; i < items; i++) {
+      var id = readOptimizedLink(bytes, justRunThrough);
       if (!justRunThrough) {
         if (id.equals(NULL_RECORD_ID)) {
           found.addInternal(null);
@@ -296,17 +296,17 @@ public class HelperClasses {
   }
 
   public static int writeString(final BytesContainer bytes, final String toWrite) {
-    final byte[] nameBytes = bytesFromString(toWrite);
-    final int pointer = VarIntSerializer.write(bytes, nameBytes.length);
-    final int start = bytes.alloc(nameBytes.length);
+    final var nameBytes = bytesFromString(toWrite);
+    final var pointer = VarIntSerializer.write(bytes, nameBytes.length);
+    final var start = bytes.alloc(nameBytes.length);
     System.arraycopy(nameBytes, 0, bytes.bytes, start, nameBytes.length);
     return pointer;
   }
 
   public static int writeLinkMap(DatabaseSessionInternal db, final BytesContainer bytes,
       final Map<Object, Identifiable> map) {
-    final int fullPos = VarIntSerializer.write(bytes, map.size());
-    for (Map.Entry<Object, Identifiable> entry : map.entrySet()) {
+    final var fullPos = VarIntSerializer.write(bytes, map.size());
+    for (var entry : map.entrySet()) {
       writeString(bytes, entry.getKey().toString());
       if (entry.getValue() == null) {
         writeNullLink(bytes);
@@ -319,14 +319,14 @@ public class HelperClasses {
 
   public static Map<String, Identifiable> readLinkMap(
       final BytesContainer bytes, final RecordElement owner, boolean justRunThrough) {
-    int size = VarIntSerializer.readAsInteger(bytes);
+    var size = VarIntSerializer.readAsInteger(bytes);
     LinkMap result = null;
     if (!justRunThrough) {
       result = new LinkMap(owner);
     }
     while ((size--) > 0) {
-      final String key = readString(bytes);
-      final RecordId value = readOptimizedLink(bytes, justRunThrough);
+      final var key = readString(bytes);
+      final var value = readOptimizedLink(bytes, justRunThrough);
       if (value.equals(NULL_RECORD_ID)) {
         result.putInternal(key, null);
       } else {
@@ -337,17 +337,17 @@ public class HelperClasses {
   }
 
   public static void writeByte(BytesContainer bytes, byte val) {
-    int pos = bytes.alloc(ByteSerializer.BYTE_SIZE);
+    var pos = bytes.alloc(ByteSerializer.BYTE_SIZE);
     ByteSerializer.INSTANCE.serialize(val, bytes.bytes, pos);
   }
 
   public static void writeRidBag(BytesContainer bytes, RidBag ridbag) {
     ridbag.checkAndConvert();
 
-    UUID ownerUuid = ridbag.getTemporaryId();
+    var ownerUuid = ridbag.getTemporaryId();
 
-    int positionOffset = bytes.offset;
-    final BTreeCollectionManager bTreeCollectionManager =
+    var positionOffset = bytes.offset;
+    final var bTreeCollectionManager =
         DatabaseRecordThreadLocal.instance().get().getSbTreeCollectionManager();
     UUID uuid = null;
     if (bTreeCollectionManager != null) {
@@ -364,7 +364,7 @@ public class HelperClasses {
     }
 
     // alloc will move offset and do skip
-    int posForWrite = bytes.alloc(ByteSerializer.BYTE_SIZE);
+    var posForWrite = bytes.alloc(ByteSerializer.BYTE_SIZE);
     ByteSerializer.INSTANCE.serialize(configByte, bytes.bytes, posForWrite);
 
     // removed serializing UUID
@@ -377,11 +377,11 @@ public class HelperClasses {
   }
 
   protected static void writeEmbeddedRidbag(BytesContainer bytes, RidBag ridbag) {
-    DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
-    int size = ridbag.size();
-    Object[] entries = ((EmbeddedRidBag) ridbag.getDelegate()).getEntries();
-    for (int i = 0; i < entries.length; i++) {
-      Object entry = entries[i];
+    var db = DatabaseRecordThreadLocal.instance().getIfDefined();
+    var size = ridbag.size();
+    var entries = ((EmbeddedRidBag) ridbag.getDelegate()).getEntries();
+    for (var i = 0; i < entries.length; i++) {
+      var entry = entries[i];
       if (entry instanceof Identifiable itemValue) {
         if (db != null
             && !db.isClosed()
@@ -400,8 +400,8 @@ public class HelperClasses {
     }
 
     VarIntSerializer.write(bytes, size);
-    for (int i = 0; i < entries.length; i++) {
-      Object entry = entries[i];
+    for (var i = 0; i < entries.length; i++) {
+      var entry = entries[i];
       // Obviously this exclude nulls as well
       if (entry instanceof Identifiable) {
         writeLinkOptimized(bytes, ((Identifiable) entry).getIdentity());
@@ -412,7 +412,7 @@ public class HelperClasses {
   protected static void writeSBTreeRidbag(BytesContainer bytes, RidBag ridbag, UUID ownerUuid) {
     ((BTreeBasedRidBag) ridbag.getDelegate()).applyNewEntries();
 
-    BonsaiCollectionPointer pointer = ridbag.getPointer();
+    var pointer = ridbag.getPointer();
 
     final RecordSerializationContext context;
     var db = DatabaseRecordThreadLocal.instance().get();
@@ -421,7 +421,7 @@ public class HelperClasses {
       throw new DatabaseException("Transaction is not active. Changes are not allowed");
     }
 
-    boolean remoteMode = db.isRemote();
+    var remoteMode = db.isRemote();
 
     if (remoteMode) {
       context = null;
@@ -430,12 +430,12 @@ public class HelperClasses {
     }
 
     if (pointer == null && context != null) {
-      final int clusterId = getHighLevelDocClusterId(ridbag);
+      final var clusterId = getHighLevelDocClusterId(ridbag);
       assert clusterId > -1;
       try {
-        final AbstractPaginatedStorage storage =
+        final var storage =
             (AbstractPaginatedStorage) DatabaseRecordThreadLocal.instance().get().getStorage();
-        final AtomicOperation atomicOperation =
+        final var atomicOperation =
             storage.getAtomicOperationsManager().getCurrentOperation();
 
         assert atomicOperation != null;
@@ -468,8 +468,8 @@ public class HelperClasses {
   }
 
   private static int getHighLevelDocClusterId(RidBag ridbag) {
-    RidBagDelegate delegate = ridbag.getDelegate();
-    RecordElement owner = delegate.getOwner();
+    var delegate = ridbag.getDelegate();
+    var owner = delegate.getOwner();
     while (owner != null && owner.getOwner() != null) {
       owner = owner.getOwner();
     }
@@ -482,14 +482,14 @@ public class HelperClasses {
   }
 
   public static void writeLinkOptimized(final BytesContainer bytes, Identifiable link) {
-    RID id = link.getIdentity();
+    var id = link.getIdentity();
     VarIntSerializer.write(bytes, id.getClusterId());
     VarIntSerializer.write(bytes, id.getClusterPosition());
   }
 
   public static RidBag readRidbag(DatabaseSessionInternal db, BytesContainer bytes) {
     byte configByte = ByteSerializer.INSTANCE.deserialize(bytes.bytes, bytes.offset++);
-    boolean isEmbedded = (configByte & 1) != 0;
+    var isEmbedded = (configByte & 1) != 0;
 
     UUID uuid = null;
     // removed deserializing UUID
@@ -497,16 +497,16 @@ public class HelperClasses {
     RidBag ridbag = null;
     if (isEmbedded) {
       ridbag = new RidBag(db);
-      int size = VarIntSerializer.readAsInteger(bytes);
+      var size = VarIntSerializer.readAsInteger(bytes);
       ridbag.getDelegate().setSize(size);
-      for (int i = 0; i < size; i++) {
+      for (var i = 0; i < size; i++) {
         var rid = readLinkOptimizedEmbedded(db, bytes);
         ridbag.getDelegate().addInternal(rid);
       }
     } else {
-      long fileId = VarIntSerializer.readAsLong(bytes);
-      long pageIndex = VarIntSerializer.readAsLong(bytes);
-      int pageOffset = VarIntSerializer.readAsInteger(bytes);
+      var fileId = VarIntSerializer.readAsLong(bytes);
+      var pageIndex = VarIntSerializer.readAsLong(bytes);
+      var pageOffset = VarIntSerializer.readAsInteger(bytes);
       // read bag size
       VarIntSerializer.readAsInteger(bytes);
 
@@ -518,10 +518,10 @@ public class HelperClasses {
 
       Map<RID, Change> changes = new HashMap<>();
 
-      int changesSize = VarIntSerializer.readAsInteger(bytes);
-      for (int i = 0; i < changesSize; i++) {
+      var changesSize = VarIntSerializer.readAsInteger(bytes);
+      for (var i = 0; i < changesSize; i++) {
         var recId = readLinkOptimizedSBTree(db, bytes);
-        Change change = deserializeChange(bytes);
+        var change = deserializeChange(bytes);
         changes.put(recId, change);
       }
 
@@ -575,7 +575,7 @@ public class HelperClasses {
       return null;
     }
     if (clazz != null) {
-      SchemaProperty prop = clazz.getProperty(key);
+      var prop = clazz.getProperty(key);
       if (prop != null) {
         return prop.getLinkedType();
       }

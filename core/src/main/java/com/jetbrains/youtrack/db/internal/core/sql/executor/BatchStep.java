@@ -22,7 +22,7 @@ public class BatchStep extends AbstractExecutionStep {
   public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
 
-    ExecutionStream prevResult = prev.start(ctx);
+    var prevResult = prev.start(ctx);
     return prevResult.map(this::mapResult);
   }
 
@@ -39,7 +39,7 @@ public class BatchStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
     return spaces + "+ BATCH COMMIT EVERY " + batchSize;
   }
 }

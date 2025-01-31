@@ -13,11 +13,11 @@ public class TestSqlForeach extends DbTestBase {
     db.getMetadata().getSchema().createClass("Test");
 
     db.begin();
-    EntityImpl doc = ((EntityImpl) db.newEntity("Test"));
+    var doc = ((EntityImpl) db.newEntity("Test"));
     db.save(doc);
     db.commit();
 
-    ResultSet result =
+    var result =
         db.execute(
             "sql",
             "let $res = select from Test; foreach ($r in $res) { begin; update $r set timestamp ="

@@ -16,7 +16,7 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
 
   @Test(expected = ValidationException.class)
   public void simpleConstraintShouldBeCheckedOnCommitFalseTest() {
-    SchemaClass clazz = db.createVertexClass("Validation");
+    var clazz = db.createVertexClass("Validation");
     clazz.createProperty(db, "int", PropertyType.INTEGER).setMandatory(db, true);
     db.begin();
     var vertex = db.newVertex(clazz.getName());
@@ -26,7 +26,7 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
 
   @Test()
   public void simpleConstraintShouldBeCheckedOnCommitTrueTest() {
-    SchemaClass clazz = db.createVertexClass("Validation");
+    var clazz = db.createVertexClass("Validation");
     clazz.createProperty(db, "int", PropertyType.INTEGER).setMandatory(db, true);
     db.begin();
     var vertex = db.newVertex(clazz.getName());
@@ -41,7 +41,7 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
 
   @Test()
   public void simpleConstraintShouldBeCheckedOnCommitWithTypeConvert() {
-    SchemaClass clazz = db.createVertexClass("Validation");
+    var clazz = db.createVertexClass("Validation");
     clazz.createProperty(db, "int", PropertyType.INTEGER).setMandatory(db, true);
     db.begin();
     var vertex = db.newVertex(clazz.getName());
@@ -55,7 +55,7 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
 
   @Test
   public void stringRegexpPatternValidationCheck() {
-    SchemaClass clazz = db.createVertexClass("Validation");
+    var clazz = db.createVertexClass("Validation");
     clazz.createProperty(db, "str", PropertyType.STRING).setMandatory(db, true)
         .setRegexp(db, "aba.*");
     Vertex vertex;
@@ -71,7 +71,7 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
 
   @Test(expected = ValidationException.class)
   public void stringRegexpPatternValidationCheckFails() {
-    SchemaClass clazz = db.createVertexClass("Validation");
+    var clazz = db.createVertexClass("Validation");
     clazz.createProperty(db, "str", PropertyType.STRING).setMandatory(db, true)
         .setRegexp(db, "aba.*");
     Vertex vertex;
@@ -84,10 +84,10 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
 
   @Test(expected = ValidationException.class)
   public void requiredLinkBagNegativeTest() {
-    SchemaClass edgeClass = db.createEdgeClass("lst");
-    SchemaClass clazz = db.createVertexClass("Validation");
-    SchemaClass linkClass = db.createVertexClass("links");
-    String edgePropertyName = Vertex.getEdgeLinkFieldName(Direction.OUT, edgeClass.getName());
+    var edgeClass = db.createEdgeClass("lst");
+    var clazz = db.createVertexClass("Validation");
+    var linkClass = db.createVertexClass("links");
+    var edgePropertyName = Vertex.getEdgeLinkFieldName(Direction.OUT, edgeClass.getName());
     clazz.createProperty(db, edgePropertyName, PropertyType.LINKBAG, linkClass)
         .setMandatory(db, true);
     db.begin();
@@ -97,15 +97,15 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
 
   @Test
   public void requiredLinkBagPositiveTest() {
-    SchemaClass edgeClass = db.createLightweightEdgeClass("lst");
-    SchemaClass clazz = db.createVertexClass("Validation");
-    SchemaClass linkClass = db.createVertexClass("links");
-    String edgePropertyName = Vertex.getEdgeLinkFieldName(Direction.OUT, edgeClass.getName());
+    var edgeClass = db.createLightweightEdgeClass("lst");
+    var clazz = db.createVertexClass("Validation");
+    var linkClass = db.createVertexClass("links");
+    var edgePropertyName = Vertex.getEdgeLinkFieldName(Direction.OUT, edgeClass.getName());
     clazz.createProperty(db, edgePropertyName, PropertyType.LINKBAG, linkClass)
         .setMandatory(db, true);
     db.begin();
-    Vertex vrt = db.newVertex(clazz.getName());
-    Vertex link = db.newVertex(linkClass.getName());
+    var vrt = db.newVertex(clazz.getName());
+    var link = db.newVertex(linkClass.getName());
     vrt.addLightWeightEdge(link, edgeClass);
     vrt.save();
     db.commit();
@@ -113,16 +113,16 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
 
   @Test(expected = ValidationException.class)
   public void requiredLinkBagFailsIfBecomesEmpty() {
-    SchemaClass edgeClass = db.createEdgeClass("lst");
-    SchemaClass clazz = db.createVertexClass("Validation");
-    SchemaClass linkClass = db.createVertexClass("links");
-    String edgePropertyName = Vertex.getEdgeLinkFieldName(Direction.OUT, edgeClass.getName());
+    var edgeClass = db.createEdgeClass("lst");
+    var clazz = db.createVertexClass("Validation");
+    var linkClass = db.createVertexClass("links");
+    var edgePropertyName = Vertex.getEdgeLinkFieldName(Direction.OUT, edgeClass.getName());
     clazz.createProperty(db, edgePropertyName, PropertyType.LINKBAG, linkClass)
         .setMandatory(db, true)
         .setMin(db, "1");
     db.begin();
-    Vertex vrt = db.newVertex(clazz.getName());
-    Vertex link = db.newVertex(linkClass.getName());
+    var vrt = db.newVertex(clazz.getName());
+    var link = db.newVertex(linkClass.getName());
     vrt.addEdge(link, edgeClass);
     vrt.save();
     db.commit();
@@ -134,11 +134,11 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
 
   @Test(expected = ValidationException.class)
   public void requiredArrayFailsIfBecomesEmpty() {
-    SchemaClass clazz = db.createVertexClass("Validation");
+    var clazz = db.createVertexClass("Validation");
     clazz.createProperty(db, "arr", PropertyType.EMBEDDEDLIST).setMandatory(db, true)
         .setMin(db, "1");
     db.begin();
-    Vertex vrt = db.newVertex(clazz.getName());
+    var vrt = db.newVertex(clazz.getName());
     vrt.setProperty("arr", Arrays.asList(1, 2, 3));
     vrt.save();
     db.commit();
@@ -152,15 +152,15 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
 
   @Test
   public void requiredLinkBagCanBeEmptyDuringTransaction() {
-    SchemaClass edgeClass = db.createLightweightEdgeClass("lst");
-    SchemaClass clazz = db.createVertexClass("Validation");
-    SchemaClass linkClass = db.createVertexClass("links");
-    String edgePropertyName = Vertex.getEdgeLinkFieldName(Direction.OUT, edgeClass.getName());
+    var edgeClass = db.createLightweightEdgeClass("lst");
+    var clazz = db.createVertexClass("Validation");
+    var linkClass = db.createVertexClass("links");
+    var edgePropertyName = Vertex.getEdgeLinkFieldName(Direction.OUT, edgeClass.getName());
     clazz.createProperty(db, edgePropertyName, PropertyType.LINKBAG, linkClass)
         .setMandatory(db, true);
     db.begin();
-    Vertex vrt = db.newVertex(clazz.getName());
-    Vertex link = db.newVertex(linkClass.getName());
+    var vrt = db.newVertex(clazz.getName());
+    var link = db.newVertex(linkClass.getName());
     link.save();
     vrt.addLightWeightEdge(link, edgeClass);
     vrt.save();
@@ -169,7 +169,7 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
     vrt = db.bindToSession(vrt);
     vrt.getEdges(Direction.OUT, edgeClass).forEach(Entity::delete);
     vrt.save();
-    Vertex link2 = db.newVertex(linkClass.getName());
+    var link2 = db.newVertex(linkClass.getName());
     link2.save();
     vrt.addLightWeightEdge(link2, edgeClass);
     vrt.save();
@@ -184,7 +184,7 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
 
   @Test
   public void maxConstraintOnFloatPropertyDuringTransaction() {
-    SchemaClass clazz = db.createVertexClass("Validation");
+    var clazz = db.createVertexClass("Validation");
     clazz.createProperty(db, "dbl", PropertyType.FLOAT).setMandatory(db, true).setMin(db, "-10");
     db.begin();
     var vertex = db.newVertex(clazz.getName());
@@ -202,7 +202,7 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
 
   @Test(expected = ValidationException.class)
   public void maxConstraintOnFloatPropertyOnTransaction() {
-    SchemaClass clazz = db.createVertexClass("Validation");
+    var clazz = db.createVertexClass("Validation");
     clazz.createProperty(db, "dbl", PropertyType.FLOAT).setMandatory(db, true).setMin(db, "-10");
     db.begin();
     var vertex = db.newVertex(clazz.getName());

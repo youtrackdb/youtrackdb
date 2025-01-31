@@ -55,7 +55,7 @@ public class StorageConfigurationRemote implements StorageConfiguration {
     this.version = payload.getVersion();
     this.directory = payload.getDirectory();
     this.properties = new HashMap<>();
-    for (StorageEntryConfiguration conf : payload.getProperties()) {
+    for (var conf : payload.getProperties()) {
       this.properties.put(conf.name, conf);
     }
     this.schemaRecordId = payload.getSchemaRecordId().toString();

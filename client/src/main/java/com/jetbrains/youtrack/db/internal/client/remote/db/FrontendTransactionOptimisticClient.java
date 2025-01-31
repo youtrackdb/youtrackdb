@@ -37,15 +37,15 @@ public class FrontendTransactionOptimisticClient extends FrontendTransactionOpti
 
     Map<RecordId, RecordOperation> oldEntries = this.recordOperations;
     this.recordOperations = new LinkedHashMap<>();
-    int createCount = -2; // Start from -2 because temporary rids start from -2
+    var createCount = -2; // Start from -2 because temporary rids start from -2
     var db = getDatabase();
-    for (RecordOperation38Response operation : operations) {
+    for (var operation : operations) {
       if (!operation.getOldId().equals(operation.getId())) {
         generatedOriginalRecordIdMap.put(operation.getId().copy(), operation.getOldId());
       }
 
       RecordAbstract record = null;
-      RecordOperation op = oldEntries.get(operation.getOldId());
+      var op = oldEntries.get(operation.getOldId());
       if (op != null) {
         record = op.record;
       }
@@ -70,7 +70,7 @@ public class FrontendTransactionOptimisticClient extends FrontendTransactionOpti
           record.setup(db);
           // keep rid instance to support links consistency
           record.fromStream(operation.getOriginal());
-          DocumentSerializerDelta deltaSerializer = DocumentSerializerDelta.instance();
+          var deltaSerializer = DocumentSerializerDelta.instance();
           deltaSerializer.deserializeDelta(db, operation.getRecord(),
               (EntityImpl) record);
         } finally {
@@ -97,7 +97,7 @@ public class FrontendTransactionOptimisticClient extends FrontendTransactionOpti
         throw new IllegalStateException("Unsupported operation type: " + operation.getType());
       }
 
-      boolean callHook = checkCallHook(oldEntries, operation.getId(), operation.getType());
+      var callHook = checkCallHook(oldEntries, operation.getId(), operation.getType());
       addRecord(record, operation.getType(), null, callHook);
       if (operation.getType() == RecordOperation.CREATED) {
         createCount--;
@@ -108,7 +108,7 @@ public class FrontendTransactionOptimisticClient extends FrontendTransactionOpti
 
   private static boolean checkCallHook(Map<RecordId, RecordOperation> oldEntries, RecordId rid,
       byte type) {
-    RecordOperation val = oldEntries.get(rid);
+    var val = oldEntries.get(rid);
     return val == null || val.type != type;
   }
 
@@ -132,8 +132,8 @@ public class FrontendTransactionOptimisticClient extends FrontendTransactionOpti
         }
       }
       try {
-        final RecordId rid = iRecord.getIdentity();
-        RecordOperation txEntry = getRecordEntry(rid);
+        final var rid = iRecord.getIdentity();
+        var txEntry = getRecordEntry(rid);
 
         if (txEntry == null) {
           if (!(rid.isTemporary() && iStatus != RecordOperation.CREATED)) {

@@ -14,10 +14,10 @@ public class ConsoleStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testError() {
-    ResultSet result = db.command("console.error 'foo bar'");
+    var result = db.command("console.error 'foo bar'");
     Assert.assertNotNull(result);
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals("error", item.getProperty("level"));
     Assert.assertEquals("foo bar", item.getProperty("message"));
@@ -25,10 +25,10 @@ public class ConsoleStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testLog() {
-    ResultSet result = db.command("console.log 'foo bar'");
+    var result = db.command("console.log 'foo bar'");
     Assert.assertNotNull(result);
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals("log", item.getProperty("level"));
     Assert.assertEquals("foo bar", item.getProperty("message"));

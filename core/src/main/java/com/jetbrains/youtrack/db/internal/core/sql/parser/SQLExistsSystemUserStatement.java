@@ -28,10 +28,10 @@ public class SQLExistsSystemUserStatement extends SQLSimpleExecServerStatement {
   @Override
   public ExecutionStream executeSimple(ServerCommandContext ctx) {
 
-    SystemDatabase systemDb = ctx.getServer().getSystemDatabase();
+    var systemDb = ctx.getServer().getSystemDatabase();
     var res = systemDb.executeWithDB(
         (db) -> {
-          ResultInternal result = new ResultInternal(db);
+          var result = new ResultInternal(db);
           result.setProperty("operation", "exists system user");
           if (name != null) {
             result.setProperty("name", name.getStringValue());
@@ -46,7 +46,7 @@ public class SQLExistsSystemUserStatement extends SQLSimpleExecServerStatement {
           }
           // INSERT INTO OUser SET
 
-          try (ResultSet rs = db.command("SELECT FROM OUser WHERE name = ?", params.toArray())) {
+          try (var rs = db.command("SELECT FROM OUser WHERE name = ?", params.toArray())) {
             if (rs.hasNext()) {
               result.setProperty("exists", true);
             } else {
@@ -71,7 +71,7 @@ public class SQLExistsSystemUserStatement extends SQLSimpleExecServerStatement {
 
   @Override
   public SQLExistsSystemUserStatement copy() {
-    SQLExistsSystemUserStatement result = new SQLExistsSystemUserStatement(-1);
+    var result = new SQLExistsSystemUserStatement(-1);
     result.name = name == null ? null : name.copy();
     result.nameParam = nameParam == null ? null : nameParam.copy();
     return result;

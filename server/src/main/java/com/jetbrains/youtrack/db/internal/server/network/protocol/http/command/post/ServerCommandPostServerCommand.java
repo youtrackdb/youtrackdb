@@ -41,26 +41,26 @@ public class ServerCommandPostServerCommand extends ServerCommandAuthenticatedSe
 
   @Override
   public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
-    final String[] urlParts = checkSyntax(iRequest.getUrl(), 1, "Syntax error: servercommand");
+    final var urlParts = checkSyntax(iRequest.getUrl(), 1, "Syntax error: servercommand");
 
     // TRY TO GET THE COMMAND FROM THE URL, THEN FROM THE CONTENT
-    final String language = urlParts.length > 2 ? urlParts[2].trim() : "sql";
-    String text = urlParts.length > 3 ? urlParts[3].trim() : iRequest.getContent();
-    int limit = urlParts.length > 4 ? Integer.parseInt(urlParts[4].trim()) : -1;
-    String fetchPlan = urlParts.length > 5 ? urlParts[5] : null;
-    final String accept = iRequest.getHeader("accept");
+    final var language = urlParts.length > 2 ? urlParts[2].trim() : "sql";
+    var text = urlParts.length > 3 ? urlParts[3].trim() : iRequest.getContent();
+    var limit = urlParts.length > 4 ? Integer.parseInt(urlParts[4].trim()) : -1;
+    var fetchPlan = urlParts.length > 5 ? urlParts[5] : null;
+    final var accept = iRequest.getHeader("accept");
 
     Object params = null;
-    String mode = "resultset";
+    var mode = "resultset";
 
-    boolean returnExecutionPlan = true;
+    var returnExecutionPlan = true;
 
-    long begin = System.currentTimeMillis();
+    var begin = System.currentTimeMillis();
     if (iRequest.getContent() != null && !iRequest.getContent().isEmpty()) {
       // CONTENT REPLACES TEXT
       if (iRequest.getContent().startsWith("{")) {
         // JSON PAYLOAD
-        final EntityImpl entity = new EntityImpl(null);
+        final var entity = new EntityImpl(null);
         entity.updateFromJSON(iRequest.getContent());
         text = entity.field("command");
         params = entity.field("parameters");
@@ -70,7 +70,7 @@ public class ServerCommandPostServerCommand extends ServerCommandAuthenticatedSe
         }
 
         if (params instanceof Collection) {
-          final Object[] paramArray = new Object[((Collection) params).size()];
+          final var paramArray = new Object[((Collection) params).size()];
           ((Collection) params).toArray(paramArray);
           params = paramArray;
         }
@@ -90,9 +90,9 @@ public class ServerCommandPostServerCommand extends ServerCommandAuthenticatedSe
     iRequest.getData().commandInfo = "Command";
     iRequest.getData().commandDetail = text;
 
-    ResultSet result = executeStatement(language, text, params);
+    var result = executeStatement(language, text, params);
 
-    int i = 0;
+    var i = 0;
     List response = new ArrayList();
     while (result.hasNext()) {
       if (limit >= 0 && i >= limit) {
@@ -110,7 +110,7 @@ public class ServerCommandPostServerCommand extends ServerCommandAuthenticatedSe
     }
 
     result.close();
-    long elapsedMs = System.currentTimeMillis() - begin;
+    var elapsedMs = System.currentTimeMillis() - begin;
 
     String format = null;
     if (fetchPlan != null) {

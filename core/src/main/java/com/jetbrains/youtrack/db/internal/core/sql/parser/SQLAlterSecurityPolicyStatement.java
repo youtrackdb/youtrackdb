@@ -39,8 +39,8 @@ public class SQLAlterSecurityPolicyStatement extends SQLSimpleExecStatement {
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
     var db = ctx.getDatabase();
-    SecurityInternal security = db.getSharedContext().getSecurity();
-    SecurityPolicyImpl policy = security.getSecurityPolicy(db, name.getStringValue());
+    var security = db.getSharedContext().getSecurity();
+    var policy = security.getSecurityPolicy(db, name.getStringValue());
     if (policy == null) {
       throw new CommandExecutionException("Cannot find security policy " + name.toString());
     }
@@ -84,7 +84,7 @@ public class SQLAlterSecurityPolicyStatement extends SQLSimpleExecStatement {
     }
     security.saveSecurityPolicy(db, policy);
 
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     result.setProperty("operation", "alter security policy");
     result.setProperty("name", name.getStringValue());
     return ExecutionStream.singleton(result);
@@ -95,7 +95,7 @@ public class SQLAlterSecurityPolicyStatement extends SQLSimpleExecStatement {
     builder.append("ALTER SECURITY POLICY ");
     name.toString(params, builder);
 
-    boolean firstSet = true;
+    var firstSet = true;
     if (create != null) {
       if (firstSet) {
         builder.append(" SET ");
@@ -165,7 +165,7 @@ public class SQLAlterSecurityPolicyStatement extends SQLSimpleExecStatement {
       firstSet = false;
     }
 
-    boolean firstRemove = true;
+    var firstRemove = true;
     if (removeCreate) {
       if (firstRemove) {
         builder.append(" REMOVE ");
@@ -229,7 +229,7 @@ public class SQLAlterSecurityPolicyStatement extends SQLSimpleExecStatement {
     builder.append("ALTER SECURITY POLICY ");
     name.toGenericStatement(builder);
 
-    boolean firstSet = true;
+    var firstSet = true;
     if (create != null) {
       if (firstSet) {
         builder.append(" SET ");
@@ -299,7 +299,7 @@ public class SQLAlterSecurityPolicyStatement extends SQLSimpleExecStatement {
       firstSet = false;
     }
 
-    boolean firstRemove = true;
+    var firstRemove = true;
     if (removeCreate) {
       if (firstRemove) {
         builder.append(" REMOVE ");

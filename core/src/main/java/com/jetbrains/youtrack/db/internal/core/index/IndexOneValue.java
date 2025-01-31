@@ -61,7 +61,7 @@ public abstract class IndexOneValue extends IndexAbstract {
   @Override
   public Object get(DatabaseSessionInternal session, Object key) {
     final Iterator<RID> iterator;
-    try (Stream<RID> stream = getRids(session, key)) {
+    try (var stream = getRids(session, key)) {
       iterator = stream.iterator();
       if (iterator.hasNext()) {
         return iterator.next();
@@ -81,7 +81,7 @@ public abstract class IndexOneValue extends IndexAbstract {
       while (true) {
         try {
           if (apiVersion == 0) {
-            final RID rid = (RID) storage.getIndexValue(db, indexId, key);
+            final var rid = (RID) storage.getIndexValue(db, indexId, key);
             stream = Stream.ofNullable(rid);
           } else if (apiVersion == 1) {
             stream = storage.getIndexValues(indexId, key);
@@ -104,9 +104,9 @@ public abstract class IndexOneValue extends IndexAbstract {
   public Stream<RID> getRids(DatabaseSessionInternal db, Object key) {
     key = getCollatingValue(key);
 
-    Stream<RID> stream = getRidsIgnoreTx(db, key);
+    var stream = getRidsIgnoreTx(db, key);
 
-    final FrontendTransactionIndexChanges indexChanges =
+    final var indexChanges =
         db.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
@@ -121,7 +121,7 @@ public abstract class IndexOneValue extends IndexAbstract {
       rid = null;
     }
 
-    final RawPair<Object, RID> txIndexEntry = calculateTxIndexEntry(key, rid, indexChanges);
+    final var txIndexEntry = calculateTxIndexEntry(key, rid, indexChanges);
     if (txIndexEntry == null) {
       return Stream.empty();
     }
@@ -144,20 +144,20 @@ public abstract class IndexOneValue extends IndexAbstract {
     sortedKeys.sort(comparator);
 
     //noinspection resource
-    Stream<RawPair<Object, RID>> stream =
+    var stream =
         IndexStreamSecurityDecorator.decorateStream(
             this,
             sortedKeys.stream()
                 .flatMap(
                     (key) -> {
-                      final Object collatedKey = getCollatingValue(key);
+                      final var collatedKey = getCollatingValue(key);
 
                       acquireSharedLock();
                       try {
                         while (true) {
                           try {
                             if (apiVersion == 0) {
-                              final RID rid = (RID) storage.getIndexValue(db, indexId, collatedKey);
+                              final var rid = (RID) storage.getIndexValue(db, indexId, collatedKey);
                               if (rid == null) {
                                 return Stream.empty();
                               }
@@ -179,7 +179,7 @@ public abstract class IndexOneValue extends IndexAbstract {
                       }
                     })
                 .filter(Objects::nonNull));
-    final FrontendTransactionIndexChanges indexChanges =
+    final var indexChanges =
         db.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
@@ -191,7 +191,7 @@ public abstract class IndexOneValue extends IndexAbstract {
       keyComparator = DescComparator.INSTANCE;
     }
 
-    @SuppressWarnings("resource") final Stream<RawPair<Object, RID>> txStream =
+    @SuppressWarnings("resource") final var txStream =
         keys.stream()
             .map((key) -> calculateTxIndexEntry(getCollatingValue(key), null, indexChanges))
             .filter(Objects::nonNull)
@@ -230,7 +230,7 @@ public abstract class IndexOneValue extends IndexAbstract {
       releaseSharedLock();
     }
 
-    final FrontendTransactionIndexChanges indexChanges =
+    final var indexChanges =
         db.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
@@ -284,7 +284,7 @@ public abstract class IndexOneValue extends IndexAbstract {
       releaseSharedLock();
     }
 
-    final FrontendTransactionIndexChanges indexChanges =
+    final var indexChanges =
         session.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
@@ -294,7 +294,7 @@ public abstract class IndexOneValue extends IndexAbstract {
 
     final Stream<RawPair<Object, RID>> txStream;
 
-    final Object lastKey = indexChanges.getLastKey();
+    final var lastKey = indexChanges.getLastKey();
     if (ascOrder) {
       txStream =
           StreamSupport.stream(
@@ -339,7 +339,7 @@ public abstract class IndexOneValue extends IndexAbstract {
     } finally {
       releaseSharedLock();
     }
-    final FrontendTransactionIndexChanges indexChanges =
+    final var indexChanges =
         session.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
@@ -349,7 +349,7 @@ public abstract class IndexOneValue extends IndexAbstract {
 
     final Stream<RawPair<Object, RID>> txStream;
 
-    final Object firstKey = indexChanges.getFirstKey();
+    final var firstKey = indexChanges.getFirstKey();
     if (ascOrder) {
       txStream =
           StreamSupport.stream(
@@ -406,13 +406,13 @@ public abstract class IndexOneValue extends IndexAbstract {
       releaseSharedLock();
     }
 
-    final FrontendTransactionIndexChanges indexChanges =
+    final var indexChanges =
         session.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
     }
 
-    final Stream<RawPair<Object, RID>> txStream =
+    final var txStream =
         StreamSupport.stream(
             new PureTxBetweenIndexForwardSpliterator(this, null, true, null, true, indexChanges),
             false);
@@ -443,13 +443,13 @@ public abstract class IndexOneValue extends IndexAbstract {
       releaseSharedLock();
     }
 
-    final FrontendTransactionIndexChanges indexChanges =
+    final var indexChanges =
         session.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
     }
 
-    final Stream<RawPair<Object, RID>> txStream =
+    final var txStream =
         StreamSupport.stream(
             new PureTxBetweenIndexBackwardSpliterator(this, null, true, null, true, indexChanges),
             false);
@@ -469,8 +469,8 @@ public abstract class IndexOneValue extends IndexAbstract {
   public RawPair<Object, RID> calculateTxIndexEntry(
       Object key, final RID backendValue, final FrontendTransactionIndexChanges indexChanges) {
     key = getCollatingValue(key);
-    RID result = backendValue;
-    final FrontendTransactionIndexChangesPerKey changesPerKey = indexChanges.getChangesPerKey(key);
+    var result = backendValue;
+    final var changesPerKey = indexChanges.getChangesPerKey(key);
     if (changesPerKey.isEmpty()) {
       if (backendValue == null) {
         return null;
@@ -479,7 +479,7 @@ public abstract class IndexOneValue extends IndexAbstract {
       }
     }
 
-    for (TransactionIndexEntry entry : changesPerKey.getEntriesAsList()) {
+    for (var entry : changesPerKey.getEntriesAsList()) {
       if (entry.getOperation() == OPERATION.REMOVE) {
         result = null;
       } else if (entry.getOperation() == OPERATION.PUT) {
@@ -520,7 +520,7 @@ public abstract class IndexOneValue extends IndexAbstract {
   @Override
   public IndexOneValue put(DatabaseSessionInternal db, Object key,
       final Identifiable value) {
-    final RecordId rid = (RecordId) value.getIdentity();
+    final var rid = (RecordId) value.getIdentity();
 
     if (!rid.isValid()) {
       if (value instanceof DBRecord) {
@@ -533,7 +533,7 @@ public abstract class IndexOneValue extends IndexAbstract {
     }
     key = getCollatingValue(key);
 
-    FrontendTransaction singleTx = db.getTransaction();
+    var singleTx = db.getTransaction();
     singleTx.addIndexEntry(
         this, super.getName(), FrontendTransactionIndexChanges.OPERATION.PUT, key,
         value.getIdentity());

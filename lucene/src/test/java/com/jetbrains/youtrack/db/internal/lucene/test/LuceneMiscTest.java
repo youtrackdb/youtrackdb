@@ -50,7 +50,7 @@ public class LuceneMiscTest extends BaseLuceneTest {
     db.command("insert into Test set attr1='bar', attr2='foo'").close();
     db.commit();
 
-    ResultSet results =
+    var results =
         db.command("select from Test where attr1 lucene 'foo*' OR attr2 lucene 'foo*'");
     Assert.assertEquals(2, results.stream().count());
 
@@ -80,7 +80,7 @@ public class LuceneMiscTest extends BaseLuceneTest {
     db.command("insert into Person set name='Enrico', age=18").close();
     db.commit();
 
-    ResultSet results =
+    var results =
         db.query("select  from (select from Person where age = 18) where name lucene 'Enrico'");
     Assert.assertEquals(1, results.stream().count());
 
@@ -107,7 +107,7 @@ public class LuceneMiscTest extends BaseLuceneTest {
 
     Map params = new HashMap();
     params.put("name", "FOO or");
-    ResultSet results = db.query("select from Test where attr1 lucene :name", params);
+    var results = db.query("select from Test where attr1 lucene :name", params);
     Assert.assertEquals(1, results.stream().count());
   }
 
@@ -115,28 +115,28 @@ public class LuceneMiscTest extends BaseLuceneTest {
   public void dottedNotationTest() {
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass v = schema.getClass("V");
-    SchemaClass e = schema.getClass("E");
-    SchemaClass author = schema.createClass("Author", v);
+    var v = schema.getClass("V");
+    var e = schema.getClass("E");
+    var author = schema.createClass("Author", v);
     author.createProperty(db, "name", PropertyType.STRING);
 
-    SchemaClass song = schema.createClass("Song", v);
+    var song = schema.createClass("Song", v);
     song.createProperty(db, "title", PropertyType.STRING);
 
-    SchemaClass authorOf = schema.createClass("AuthorOf", e);
+    var authorOf = schema.createClass("AuthorOf", e);
     authorOf.createProperty(db, "in", PropertyType.LINK, song);
 
     db.command("create index AuthorOf.in on AuthorOf (in) NOTUNIQUE").close();
     db.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE").close();
 
-    Vertex authorVertex = db.newVertex("Author");
+    var authorVertex = db.newVertex("Author");
     authorVertex.setProperty("name", "Bob Dylan");
 
     db.begin();
     db.save(authorVertex);
     db.commit();
 
-    Vertex songVertex = db.newVertex("Song");
+    var songVertex = db.newVertex("Song");
     songVertex.setProperty("title", "hurricane");
 
     db.begin();
@@ -146,11 +146,11 @@ public class LuceneMiscTest extends BaseLuceneTest {
     db.begin();
     authorVertex = db.bindToSession(authorVertex);
     songVertex = db.bindToSession(songVertex);
-    Edge edge = authorVertex.addEdge(songVertex, "AuthorOf");
+    var edge = authorVertex.addEdge(songVertex, "AuthorOf");
     db.save(edge);
     db.commit();
 
-    ResultSet results = db.query("select from AuthorOf");
+    var results = db.query("select from AuthorOf");
     Assert.assertEquals(results.stream().count(), 1);
 
     List<?> results1 =
@@ -175,7 +175,7 @@ public class LuceneMiscTest extends BaseLuceneTest {
 
     Map params = new HashMap();
     params.put("name", "anyPerson");
-    ResultSet results = db.command("select from Test where _attr1 lucene :name", params);
+    var results = db.command("select from Test where _attr1 lucene :name", params);
     Assert.assertEquals(results.stream().count(), 1);
   }
 }

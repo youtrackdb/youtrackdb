@@ -26,7 +26,7 @@ public class DistributedExecutionStep extends AbstractExecutionStep {
 
   @Override
   public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
-    ExecutionStream remote = sendSerializedExecutionPlan(nodeName, subExecuitonPlan, ctx);
+    var remote = sendSerializedExecutionPlan(nodeName, subExecuitonPlan, ctx);
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -36,7 +36,7 @@ public class DistributedExecutionStep extends AbstractExecutionStep {
 
   private ExecutionStream sendSerializedExecutionPlan(
       String nodeName, ExecutionPlan serializedExecutionPlan, CommandContext ctx) {
-    DatabaseSessionInternal db = ctx.getDatabase();
+    var db = ctx.getDatabase();
     return ExecutionStream.resultIterator(
         db.queryOnNode(nodeName, serializedExecutionPlan, ctx.getInputParameters()).stream()
             .iterator());
@@ -49,8 +49,8 @@ public class DistributedExecutionStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    StringBuilder builder = new StringBuilder();
-    String ind = ExecutionStepInternal.getIndent(depth, indent);
+    var builder = new StringBuilder();
+    var ind = ExecutionStepInternal.getIndent(depth, indent);
     builder.append(ind);
     builder.append("+ EXECUTE ON NODE ").append(nodeName).append("----------- \n");
     builder.append(subExecuitonPlan.prettyPrint(depth + 1, indent));

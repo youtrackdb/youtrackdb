@@ -16,7 +16,7 @@ public class TestOrderByIndexPropDesc extends DbTestBase {
 
   public void beforeTest() throws Exception {
     super.beforeTest();
-    SchemaClass oclass = db.getMetadata().getSchema().createClass(DOCUMENT_CLASS_NAME);
+    var oclass = db.getMetadata().getSchema().createClass(DOCUMENT_CLASS_NAME);
     oclass.createProperty(db, PROP_INDEXED_STRING, PropertyType.INTEGER);
     oclass.createIndex(db, "index", INDEX_TYPE.NOTUNIQUE, PROP_INDEXED_STRING);
   }
@@ -33,7 +33,7 @@ public class TestOrderByIndexPropDesc extends DbTestBase {
 
   private void test(int count) {
     EntityImpl doc;
-    for (int i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       db.begin();
       doc = db.newInstance(DOCUMENT_CLASS_NAME);
       doc.field(PROP_INDEXED_STRING, i);
@@ -41,7 +41,7 @@ public class TestOrderByIndexPropDesc extends DbTestBase {
       db.commit();
     }
 
-    ResultSet result =
+    var result =
         db.query(
             "select from " + DOCUMENT_CLASS_NAME + " order by " + PROP_INDEXED_STRING + " desc");
 

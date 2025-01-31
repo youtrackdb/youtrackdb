@@ -87,7 +87,7 @@ public class SQLIsDefinedCondition extends SQLBooleanExpression implements
 
   @Override
   public SQLIsDefinedCondition copy() {
-    SQLIsDefinedCondition result = new SQLIsDefinedCondition(-1);
+    var result = new SQLIsDefinedCondition(-1);
     result.expression = expression.copy();
     return result;
   }
@@ -111,7 +111,7 @@ public class SQLIsDefinedCondition extends SQLBooleanExpression implements
       return false;
     }
 
-    SQLIsDefinedCondition that = (SQLIsDefinedCondition) o;
+    var that = (SQLIsDefinedCondition) o;
 
     return Objects.equals(expression, that.expression);
   }

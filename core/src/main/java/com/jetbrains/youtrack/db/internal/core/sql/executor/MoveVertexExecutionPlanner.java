@@ -31,7 +31,7 @@ public class MoveVertexExecutionPlanner {
   }
 
   public UpdateExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    UpdateExecutionPlan result = new UpdateExecutionPlan(ctx);
+    var result = new UpdateExecutionPlan(ctx);
 
     handleSource(result, ctx, this.source, enableProfiling);
     convertToModifiableResult(result, ctx, enableProfiling);
@@ -108,10 +108,10 @@ public class MoveVertexExecutionPlanner {
       CommandContext ctx,
       SQLFromItem source,
       boolean profilingEnabled) {
-    SQLSelectStatement sourceStatement = new SQLSelectStatement(-1);
+    var sourceStatement = new SQLSelectStatement(-1);
     sourceStatement.setTarget(new SQLFromClause(-1));
     sourceStatement.getTarget().setItem(source);
-    SelectExecutionPlanner planner = new SelectExecutionPlanner(sourceStatement);
+    var planner = new SelectExecutionPlanner(sourceStatement);
     result.chain(
         new SubQueryStep(
             planner.createExecutionPlan(ctx, profilingEnabled, false), ctx, ctx, profilingEnabled));

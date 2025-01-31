@@ -43,7 +43,7 @@ public class SQLFunctionDecimal extends SQLFunctionMathAbstract {
       final Object iCurrentResult,
       final Object[] iParams,
       CommandContext iContext) {
-    Object inputValue = iParams[0];
+    var inputValue = iParams[0];
     if (inputValue == null) {
       result = null;
     }

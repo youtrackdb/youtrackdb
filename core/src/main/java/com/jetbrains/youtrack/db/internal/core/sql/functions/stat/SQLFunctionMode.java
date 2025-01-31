@@ -54,7 +54,7 @@ public class SQLFunctionMode extends SQLFunctionAbstract {
       CommandContext iContext) {
 
     if (MultiValue.isMultiValue(iParams[0])) {
-      for (Object o : MultiValue.getMultiValueIterable(iParams[0])) {
+      for (var o : MultiValue.getMultiValueIterable(iParams[0])) {
         max = evaluate(o, 1, seen, maxElems, max);
       }
     } else {

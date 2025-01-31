@@ -60,7 +60,7 @@ public class FunctionsTest extends BaseDBTest {
   public void testFunctionDefinitionAndCall() {
     db.command("create function testCall \"return 0;\" LANGUAGE Javascript").close();
 
-    ResultSet res1 = db.command("select testCall() as testCall");
+    var res1 = db.command("select testCall() as testCall");
     Assert.assertEquals((int) res1.next().getProperty("testCall"), 0);
   }
 
@@ -72,7 +72,7 @@ public class FunctionsTest extends BaseDBTest {
             .execute(db);
     Assert.assertNotNull(f);
 
-    try (ResultSet res1 = db.command("select testCache() as testCache")) {
+    try (var res1 = db.command("select testCache() as testCache")) {
       Assert.assertEquals(res1.next().<Object>getProperty("testCache"), 1);
     }
 
@@ -82,7 +82,7 @@ public class FunctionsTest extends BaseDBTest {
     func.save();
     db.commit();
 
-    try (ResultSet res2 = db.command("select testCache() as testCache")) {
+    try (var res2 = db.command("select testCache() as testCache")) {
       Assert.assertEquals(res2.next().<Object>getProperty("testCache"), 2);
     }
   }
@@ -91,17 +91,17 @@ public class FunctionsTest extends BaseDBTest {
   public void testMultiThreadsFunctionCallMoreThanPool() {
     db.command("create function testMTCall \"return 3;\" LANGUAGE Javascript").close();
 
-    final int TOT = 1000;
-    final int threadNum = GlobalConfiguration.SCRIPT_POOL.getValueAsInteger() * 3;
-    final AtomicLong counter = new AtomicLong();
+    final var TOT = 1000;
+    final var threadNum = GlobalConfiguration.SCRIPT_POOL.getValueAsInteger() * 3;
+    final var counter = new AtomicLong();
 
-    final Thread[] threads = new Thread[threadNum];
-    for (int i = 0; i < threadNum; ++i) {
+    final var threads = new Thread[threadNum];
+    for (var i = 0; i < threadNum; ++i) {
       threads[i] =
           new Thread() {
             public void run() {
-              for (int cycle = 0; cycle < TOT; ++cycle) {
-                ResultSet res1 = db.command("select testMTCall() as testMTCall");
+              for (var cycle = 0; cycle < TOT; ++cycle) {
+                var res1 = db.command("select testMTCall() as testMTCall");
                 Assert.assertNotNull(res1);
                 Assert.assertEquals(res1.next().<Object>getProperty("testMTCall"), 3);
 
@@ -112,7 +112,7 @@ public class FunctionsTest extends BaseDBTest {
       threads[i].start();
     }
 
-    for (int i = 0; i < threadNum; ++i) {
+    for (var i = 0; i < threadNum; ++i) {
       try {
         threads[i].join();
       } catch (InterruptedException e) {
@@ -131,17 +131,17 @@ public class FunctionsTest extends BaseDBTest {
                 + " country;\" PARAMETERS [name,surname,country] LANGUAGE Javascript")
         .close();
 
-    try (ResultSet res1 =
+    try (var res1 =
         db.command("select testParams('Jay', 'Miner', 'USA') as testParams")) {
       Assert.assertEquals(res1.next().getProperty("testParams"), "Hello Jay Miner from USA");
     }
 
-    final HashMap<String, Object> params = new HashMap<String, Object>();
+    final var params = new HashMap<String, Object>();
     params.put("name", "Jay");
     params.put("surname", "Miner");
     params.put("country", "USA");
 
-    Object result =
+    var result =
         db
             .getMetadata()
             .getFunctionLibrary()
@@ -166,7 +166,7 @@ public class FunctionsTest extends BaseDBTest {
     theMap.put("foo", theList);
     params.put("theParam", theMap);
 
-    ResultSet res1 = db.command("select testMapParamToFunction(:theParam) as a", params);
+    var res1 = db.command("select testMapParamToFunction(:theParam) as a", params);
     Assert.assertEquals(res1.next().getProperty("a"), "bar");
   }
 }

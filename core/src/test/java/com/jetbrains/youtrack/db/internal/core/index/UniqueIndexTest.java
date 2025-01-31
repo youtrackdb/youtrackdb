@@ -122,20 +122,20 @@ public class UniqueIndexTest extends DbTestBase {
   @Test()
   public void testUniqueOnUpdate() {
     final Schema schema = db.getMetadata().getSchema();
-    SchemaClass userClass = schema.createClass("User");
+    var userClass = schema.createClass("User");
     userClass.createProperty(db, "MailAddress", PropertyType.STRING)
         .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
 
     db.begin();
-    EntityImpl john = (EntityImpl) db.newEntity("User");
+    var john = (EntityImpl) db.newEntity("User");
     john.field("MailAddress", "john@doe.com");
     db.save(john);
     db.commit();
 
     db.begin();
-    EntityImpl jane = (EntityImpl) db.newEntity("User");
+    var jane = (EntityImpl) db.newEntity("User");
     jane.field("MailAddress", "jane@doe.com");
-    EntityImpl id = jane;
+    var id = jane;
     jane.save();
     db.save(jane);
     db.commit();
@@ -157,12 +157,12 @@ public class UniqueIndexTest extends DbTestBase {
   @Test
   public void testUniqueOnUpdateNegativeVersion() {
     final Schema schema = db.getMetadata().getSchema();
-    SchemaClass userClass = schema.createClass("User");
+    var userClass = schema.createClass("User");
     userClass.createProperty(db, "MailAddress", PropertyType.STRING)
         .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
 
     db.begin();
-    EntityImpl jane = (EntityImpl) db.newEntity("User");
+    var jane = (EntityImpl) db.newEntity("User");
     jane.field("MailAddress", "jane@doe.com");
     jane.save();
     db.commit();
@@ -184,7 +184,7 @@ public class UniqueIndexTest extends DbTestBase {
 
     try {
       db.begin();
-      EntityImpl toUp = (EntityImpl) db.newEntity("User");
+      var toUp = (EntityImpl) db.newEntity("User");
       toUp.field("MailAddress", "john@doe.com");
 
       db.save(toUp);
@@ -195,7 +195,7 @@ public class UniqueIndexTest extends DbTestBase {
       // ignore
     }
 
-    final ResultSet result = db.query("select from User where MailAddress = 'john@doe.com'");
+    final var result = db.query("select from User where MailAddress = 'john@doe.com'");
     Assert.assertEquals(result.stream().count(), 1);
   }
 }

@@ -91,7 +91,7 @@ public class GraphRecoveringTest {
       try (var session = youTrackDB.open("testRecoverPerfectGraphNonLW", "admin", "admin")) {
         init(session);
 
-        final TestListener eventListener = new TestListener();
+        final var eventListener = new TestListener();
 
         new GraphRepair().setEventListener(eventListener).repair(session, null, null);
 
@@ -126,7 +126,7 @@ public class GraphRecoveringTest {
         }
         session.commit();
 
-        final TestListener eventListener = new TestListener();
+        final var eventListener = new TestListener();
 
         new GraphRepair().setEventListener(eventListener).repair(session, null, null);
 
@@ -160,7 +160,7 @@ public class GraphRecoveringTest {
                 .filter(Objects::nonNull)
                 .map(Entity::toVertex)
                 .toList()) {
-          for (String f : v.<EntityImpl>getRecord(session).fieldNames()) {
+          for (var f : v.<EntityImpl>getRecord(session).fieldNames()) {
             if (f.startsWith(Vertex.DIRECTION_OUT_PREFIX)) {
               v.<EntityImpl>getRecord(session).removeField(f);
               v.save();
@@ -169,7 +169,7 @@ public class GraphRecoveringTest {
         }
         session.commit();
 
-        final TestListener eventListener = new TestListener();
+        final var eventListener = new TestListener();
 
         new GraphRepair().setEventListener(eventListener).repair(session, null, null);
 

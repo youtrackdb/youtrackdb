@@ -40,11 +40,11 @@ public class PureTxBetweenIndexForwardSpliterator implements Spliterator<RawPair
       toKey = this.oIndexTxAwareOneValue.enhanceToCompositeKeyBetweenAsc(toKey, toInclusive);
     }
 
-    final Object[] keys = indexChanges.firstAndLastKeys(fromKey, fromInclusive, toKey, toInclusive);
+    final var keys = indexChanges.firstAndLastKeys(fromKey, fromInclusive, toKey, toInclusive);
     if (keys.length == 0) {
       nextKey = null;
     } else {
-      Object firstKey = keys[0];
+      var firstKey = keys[0];
       lastKey = keys[1];
 
       nextKey = firstKey;

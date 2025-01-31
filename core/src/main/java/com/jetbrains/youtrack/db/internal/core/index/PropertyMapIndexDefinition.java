@@ -76,9 +76,9 @@ public class PropertyMapIndexDefinition extends PropertyIndexDefinition
       return null;
     }
 
-    final Collection<?> mapParams = extractMapParams((Map<?, ?>) params.get(0));
+    final var mapParams = extractMapParams((Map<?, ?>) params.get(0));
     final List<Object> result = new ArrayList<>(mapParams.size());
-    for (final Object mapParam : mapParams) {
+    for (final var mapParam : mapParams) {
       result.add(createSingleValue(session, mapParam));
     }
 
@@ -91,11 +91,11 @@ public class PropertyMapIndexDefinition extends PropertyIndexDefinition
       return null;
     }
 
-    final Collection<?> mapParams = extractMapParams((Map<?, ?>) params[0]);
+    final var mapParams = extractMapParams((Map<?, ?>) params[0]);
 
     final List<Object> result = new ArrayList<>(mapParams.size());
-    for (final Object mapParam : mapParams) {
-      Object val = createSingleValue(session, mapParam);
+    for (final var mapParam : mapParams) {
+      var val = createSingleValue(session, mapParam);
       result.add(val);
     }
     if (getFieldsToIndex().size() == 1 && result.size() == 1) {
@@ -139,7 +139,7 @@ public class PropertyMapIndexDefinition extends PropertyIndexDefinition
       return false;
     }
 
-    PropertyMapIndexDefinition that = (PropertyMapIndexDefinition) o;
+    var that = (PropertyMapIndexDefinition) o;
 
     return indexBy == that.indexBy;
   }
@@ -217,7 +217,7 @@ public class PropertyMapIndexDefinition extends PropertyIndexDefinition
 
   @Override
   public int hashCode() {
-    int result = super.hashCode();
+    var result = super.hashCode();
     result = 31 * result + indexBy.hashCode();
     return result;
   }
@@ -229,7 +229,7 @@ public class PropertyMapIndexDefinition extends PropertyIndexDefinition
 
   @Override
   public String toCreateIndexDDL(String indexName, String indexType, String engine) {
-    final StringBuilder ddl = new StringBuilder("create index `");
+    final var ddl = new StringBuilder("create index `");
 
     ddl.append(indexName).append("` on `");
     ddl.append(className).append("` ( `").append(field).append("`");

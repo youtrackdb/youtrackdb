@@ -36,7 +36,7 @@ public class LuceneFacetTest extends BaseLuceneTest {
   @Before
   public void init() {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass oClass = schema.createClass("Item");
+    var oClass = schema.createClass("Item");
 
     oClass.createProperty(db, "name", PropertyType.STRING);
     oClass.createProperty(db, "category", PropertyType.STRING);
@@ -46,7 +46,7 @@ public class LuceneFacetTest extends BaseLuceneTest {
                 + " METADATA { 'facetFields' : ['category']}")
         .close();
 
-    EntityImpl doc = ((EntityImpl) db.newEntity("Item"));
+    var doc = ((EntityImpl) db.newEntity("Item"));
     doc.field("name", "Pioneer");
     doc.field("category", "Electronic/HiFi");
 
@@ -92,7 +92,7 @@ public class LuceneFacetTest extends BaseLuceneTest {
 
     Assert.assertEquals(1, facets.size());
 
-    EntityImpl facet = facets.getFirst();
+    var facet = facets.getFirst();
     Assert.assertEquals(1, facet.<Object>field("childCount"));
     Assert.assertEquals(2, facet.<Object>field("value"));
     Assert.assertEquals("category", facet.field("dim"));
@@ -101,7 +101,7 @@ public class LuceneFacetTest extends BaseLuceneTest {
 
     Assert.assertEquals(1, labelsValues.size());
 
-    EntityImpl labelValues = labelsValues.getFirst();
+    var labelValues = labelsValues.getFirst();
 
     Assert.assertEquals(2, labelValues.<Object>field("value"));
     Assert.assertEquals("Electronic", labelValues.field("label"));

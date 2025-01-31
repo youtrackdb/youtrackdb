@@ -56,11 +56,11 @@ public class DbImportStreamExportTest extends BaseDBTest implements CommandOutpu
       return;
     }
 
-    final DatabaseSessionInternal database = acquireSession();
+    final var database = acquireSession();
     // ADD A CUSTOM TO THE CLASS
     database.command("alter class V custom onBeforeCreate=onBeforeCreateItem").close();
 
-    final DatabaseExport export =
+    final var export =
         new DatabaseExport(database, testPath + "/" + exportFilePath, this);
     export.exportDatabase();
     export.close();
@@ -73,9 +73,9 @@ public class DbImportStreamExportTest extends BaseDBTest implements CommandOutpu
       return;
     }
 
-    final File importDir = new File(testPath + "/" + NEW_DB_PATH);
+    final var importDir = new File(testPath + "/" + NEW_DB_PATH);
     if (importDir.exists()) {
-      for (final File f : importDir.listFiles()) {
+      for (final var f : importDir.listFiles()) {
         f.delete();
       }
     } else {
@@ -86,10 +86,10 @@ public class DbImportStreamExportTest extends BaseDBTest implements CommandOutpu
         new DatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
     database.create();
 
-    final DatabaseImport dbImport =
+    final var dbImport =
         new DatabaseImport(database, new FileInputStream(importDir), this);
     // UNREGISTER ALL THE HOOKS
-    for (final RecordHook hook : new ArrayList<>(database.getHooks().keySet())) {
+    for (final var hook : new ArrayList<>(database.getHooks().keySet())) {
       database.unregisterHook(hook);
     }
 
@@ -105,12 +105,12 @@ public class DbImportStreamExportTest extends BaseDBTest implements CommandOutpu
     if (remoteDB) {
       return;
     }
-    DatabaseSessionInternal first = acquireSession();
+    var first = acquireSession();
     DatabaseSessionInternal second =
         new DatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
     second.open("admin", "admin");
 
-    final DatabaseCompare databaseCompare = new DatabaseCompare(first, second, this);
+    final var databaseCompare = new DatabaseCompare(first, second, this);
     databaseCompare.setCompareEntriesForAutomaticIndexes(true);
     databaseCompare.setCompareIndexMetadata(true);
 

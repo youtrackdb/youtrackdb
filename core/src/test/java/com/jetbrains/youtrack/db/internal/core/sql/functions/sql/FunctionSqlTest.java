@@ -19,7 +19,7 @@ public class FunctionSqlTest extends DbTestBase {
     db.getMetadata().getSchema().createClass("Test");
 
     db.begin();
-    EntityImpl doc1 = ((EntityImpl) db.newEntity("Test"));
+    var doc1 = ((EntityImpl) db.newEntity("Test"));
     doc1.field("name", "Enrico");
     db.save(doc1);
     doc1 = ((EntityImpl) db.newEntity("Test"));
@@ -28,7 +28,7 @@ public class FunctionSqlTest extends DbTestBase {
     db.commit();
 
     db.begin();
-    Function function = new Function(db);
+    var function = new Function(db);
     function.setName("test");
     function.setCode("select from Test where name = :name");
     function.setParameters(
@@ -43,7 +43,7 @@ public class FunctionSqlTest extends DbTestBase {
     var context = new BasicCommandContext();
     context.setDatabase(db);
 
-    Object result = function.executeInContext(context, "Enrico");
+    var result = function.executeInContext(context, "Enrico");
 
     Assert.assertEquals(1, ((LegacyResultSet<?>) result).size());
   }
@@ -53,7 +53,7 @@ public class FunctionSqlTest extends DbTestBase {
 
     db.getMetadata().getSchema().createClass("Test");
     db.begin();
-    EntityImpl doc1 = ((EntityImpl) db.newEntity("Test"));
+    var doc1 = ((EntityImpl) db.newEntity("Test"));
     doc1.field("name", "Enrico");
     db.save(doc1);
     doc1 = ((EntityImpl) db.newEntity("Test"));
@@ -62,7 +62,7 @@ public class FunctionSqlTest extends DbTestBase {
     db.commit();
 
     db.begin();
-    Function function = new Function(db);
+    var function = new Function(db);
     function.setName("test");
     function.setCode(
         "select name from Test where name = :name and hello(:name) = 'Hello Enrico'");
@@ -76,7 +76,7 @@ public class FunctionSqlTest extends DbTestBase {
     db.commit();
 
     db.begin();
-    Function function1 = new Function(db);
+    var function1 = new Function(db);
     function1.setName("hello");
     function1.setLanguage("javascript");
     function1.setCode("return 'Hello ' + name");
@@ -92,7 +92,7 @@ public class FunctionSqlTest extends DbTestBase {
     var context = new BasicCommandContext();
     context.setDatabase(db);
 
-    Object result = function.executeInContext(context, "Enrico");
+    var result = function.executeInContext(context, "Enrico");
     Assert.assertEquals(1, ((LegacyResultSet) result).size());
   }
 }

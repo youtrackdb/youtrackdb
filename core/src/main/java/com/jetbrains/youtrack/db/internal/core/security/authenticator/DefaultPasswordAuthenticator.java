@@ -55,12 +55,12 @@ public class DefaultPasswordAuthenticator extends SecurityAuthenticatorAbstract 
       if (jsonConfig.containsField("users")) {
         List<EntityImpl> usersList = jsonConfig.field("users");
 
-        for (EntityImpl userDoc : usersList) {
+        for (var userDoc : usersList) {
 
-          SecurityUser userCfg = createServerUser(session, userDoc);
+          var userCfg = createServerUser(session, userDoc);
 
           if (userCfg != null) {
-            String checkName = userCfg.getName(session);
+            var checkName = userCfg.getName(session);
 
             if (!isCaseSensitive()) {
               checkName = checkName.toLowerCase(Locale.ENGLISH);
@@ -110,7 +110,7 @@ public class DefaultPasswordAuthenticator extends SecurityAuthenticatorAbstract 
       DatabaseSessionInternal session, final String username, final String password) {
 
     try {
-      SecurityUser user = getUser(username, session);
+      var user = getUser(username, session);
 
       if (isPasswordValid(session, user)) {
         if (SecurityManager.checkPassword(password, user.getPassword(session))) {
@@ -131,7 +131,7 @@ public class DefaultPasswordAuthenticator extends SecurityAuthenticatorAbstract 
       return false;
     }
 
-    SecurityUser userCfg = getUser(username, session);
+    var userCfg = getUser(username, session);
 
     if (userCfg != null) {
       // TODO: to verify if this logic match previous logic
@@ -158,7 +158,7 @@ public class DefaultPasswordAuthenticator extends SecurityAuthenticatorAbstract 
 
     synchronized (usersMap) {
       if (username != null) {
-        String checkName = username;
+        var checkName = username;
 
         if (!isCaseSensitive()) {
           checkName = username.toLowerCase(Locale.ENGLISH);

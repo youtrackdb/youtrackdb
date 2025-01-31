@@ -44,7 +44,7 @@ public class ResourceDerivedTest {
         YouTrackDBConfig.defaultConfig());
     youTrackDB.execute(
         "create database test memory users (admin identified by 'admin' role admin)");
-    DatabaseSession db = youTrackDB.open("test", "admin", "admin");
+    var db = youTrackDB.open("test", "admin", "admin");
 
     db.begin();
     db.command(
@@ -140,10 +140,10 @@ public class ResourceDerivedTest {
   // This tests for a result size of three.  The "Customer_u2" record should not be included.
   public void shouldTestFiltering() {
 
-    DatabaseSession db = youTrackDB.open("test", "tenant1", "password");
+    var db = youTrackDB.open("test", "tenant1", "password");
 
     try {
-      ResultSet result = query(db, "SELECT FROM Customer");
+      var result = query(db, "SELECT FROM Customer");
 
       assertThat(result).hasSize(3);
     } finally {
@@ -155,10 +155,10 @@ public class ResourceDerivedTest {
   // This should return the record in "Customer_t2" but filter out the "Customer_u2" record.
   public void shouldTestCustomer_t2() {
 
-    DatabaseSession db = youTrackDB.open("test", "tenant1", "password");
+    var db = youTrackDB.open("test", "tenant1", "password");
 
     try {
-      ResultSet result = query(db, "SELECT FROM Customer_t2");
+      var result = query(db, "SELECT FROM Customer_t2");
 
       assertThat(result).hasSize(1);
     } finally {
@@ -168,10 +168,10 @@ public class ResourceDerivedTest {
 
   public void shouldTestAccess2() {
 
-    DatabaseSession db = youTrackDB.open("test", "tenant1", "password");
+    var db = youTrackDB.open("test", "tenant1", "password");
 
     try {
-      ResultSet result = query(db, "SELECT FROM Customer_u2");
+      var result = query(db, "SELECT FROM Customer_u2");
       assertThat(result).hasSize(0);
     } finally {
       db.close();
@@ -180,10 +180,10 @@ public class ResourceDerivedTest {
 
   public void shouldTestCustomer() {
 
-    DatabaseSession db = youTrackDB.open("test", "tenant2", "password");
+    var db = youTrackDB.open("test", "tenant2", "password");
 
     try {
-      ResultSet result = query(db, "SELECT FROM Customer");
+      var result = query(db, "SELECT FROM Customer");
       assertThat(result).hasSize(0);
     } finally {
       db.close();
@@ -195,10 +195,10 @@ public class ResourceDerivedTest {
   // included.
   public void shouldTestCustomer_t2Tenant2() {
 
-    DatabaseSession db = youTrackDB.open("test", "tenant2", "password");
+    var db = youTrackDB.open("test", "tenant2", "password");
 
     try {
-      ResultSet result = query(db, "SELECT FROM Customer_t2");
+      var result = query(db, "SELECT FROM Customer_t2");
 
       assertThat(result).hasSize(2);
     } finally {

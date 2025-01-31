@@ -46,9 +46,9 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
       prev.start(ctx).close(ctx);
     }
 
-    Stream<Object> source = init();
+    var source = init();
 
-    ExecutionStreamProducer res =
+    var res =
         new ExecutionStreamProducer() {
           private final Iterator iter = source.iterator();
 
@@ -94,7 +94,7 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
     if (from instanceof Entity && ((Entity) from).isVertex()) {
       var vertex = ((Entity) from).toVertex();
       assert vertex != null;
-      Iterable<Edge> edges = vertex.getEdges(Direction.IN);
+      var edges = vertex.getEdges(Direction.IN);
       Stream<Result> stream =
           StreamSupport.stream(edges.spliterator(), false)
               .filter((edge) -> matchesClass(edge) && matchesCluster(edge))
@@ -109,8 +109,8 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
     if (targetCluster == null) {
       return true;
     }
-    int clusterId = edge.getIdentity().getClusterId();
-    String clusterName = ctx.getDatabase().getClusterNameById(clusterId);
+    var clusterId = edge.getIdentity().getClusterId();
+    var clusterName = ctx.getDatabase().getClusterNameById(clusterId);
     return clusterName.equals(targetCluster.getStringValue());
   }
 
@@ -126,8 +126,8 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
-    String result = spaces + "+ FOR EACH x in " + toAlias + "\n";
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var result = spaces + "+ FOR EACH x in " + toAlias + "\n";
     result += spaces + "       FETCH EDGES TO x";
     if (targetClass != null) {
       result += "\n" + spaces + "       (target class " + targetClass + ")";

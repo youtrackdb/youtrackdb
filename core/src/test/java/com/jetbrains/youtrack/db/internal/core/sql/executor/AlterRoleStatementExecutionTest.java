@@ -1,8 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityPolicyImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -13,12 +11,12 @@ public class AlterRoleStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testAddPolicy() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
+    var policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(db, true);
     policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
@@ -35,12 +33,12 @@ public class AlterRoleStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testRemovePolicy() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
+    var policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(db, true);
     policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);

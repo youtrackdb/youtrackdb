@@ -267,8 +267,8 @@ public class ResultInternal implements Result {
   private static Object wrap(DatabaseSessionInternal session, Object input) {
     if (input instanceof EntityInternal elem
         && !((RecordId) ((Entity) input).getIdentity()).isValid()) {
-      ResultInternal result = new ResultInternal(session);
-      for (String prop : elem.getPropertyNamesInternal()) {
+      var result = new ResultInternal(session);
+      for (var prop : elem.getPropertyNamesInternal()) {
         result.setProperty(prop, elem.getPropertyInternal(prop));
       }
       elem.getSchemaType().ifPresent(x -> result.setProperty("@class", x.getName()));
@@ -278,7 +278,7 @@ public class ResultInternal implements Result {
         return ((List) input).stream().map(in -> wrap(session, in)).collect(Collectors.toList());
       } else {
         if (isEmbeddedSet(input)) {
-          Stream mappedSet = ((Set) input).stream().map(in -> wrap(session, in));
+          var mappedSet = ((Set) input).stream().map(in -> wrap(session, in));
           if (input instanceof LinkedHashSet<?>) {
             return mappedSet.collect(Collectors.toCollection(LinkedHashSet::new));
           } else {
@@ -287,7 +287,7 @@ public class ResultInternal implements Result {
         } else {
           if (isEmbeddedMap(input)) {
             Map result = new HashMap();
-            for (Map.Entry<Object, Object> o : ((Map<Object, Object>) input).entrySet()) {
+            for (var o : ((Map<Object, Object>) input).entrySet()) {
               result.put(o.getKey(), wrap(session, o.getValue()));
             }
             return result;
@@ -502,7 +502,7 @@ public class ResultInternal implements Result {
 
     var map = new HashMap<String, Object>();
 
-    for (String prop : getPropertyNames()) {
+    for (var prop : getPropertyNames()) {
       var propVal = getProperty(prop);
       map.put(prop, convertToMapEntry(propVal));
     }
@@ -564,10 +564,10 @@ public class ResultInternal implements Result {
     if (isEntity()) {
       return getEntity().orElseThrow().toJSON();
     }
-    StringBuilder result = new StringBuilder();
+    var result = new StringBuilder();
     result.append("{");
-    boolean first = true;
-    for (String prop : getPropertyNames()) {
+    var first = true;
+    for (var prop : getPropertyNames()) {
       if (!first) {
         result.append(", ");
       }
@@ -591,7 +591,7 @@ public class ResultInternal implements Result {
     } else if (val instanceof Result) {
       jsonVal = ((Result) val).toJSON();
     } else if (val instanceof Entity) {
-      RID id = ((Entity) val).getIdentity();
+      var id = ((Entity) val).getIdentity();
       if (id.isPersistent()) {
         //        jsonVal = "{\"@rid\":\"" + id + "\"}"; //TODO enable this syntax when Studio and
         // the parsing are OK
@@ -604,10 +604,10 @@ public class ResultInternal implements Result {
       // parsing are OK
       jsonVal = "\"" + val + "\"";
     } else if (val instanceof Iterable) {
-      StringBuilder builder = new StringBuilder();
+      var builder = new StringBuilder();
       builder.append("[");
-      boolean first = true;
-      Iterator iterator = ((Iterable) val).iterator();
+      var first = true;
+      var iterator = ((Iterable) val).iterator();
       while (iterator.hasNext()) {
         if (!first) {
           builder.append(", ");
@@ -618,9 +618,9 @@ public class ResultInternal implements Result {
       builder.append("]");
       jsonVal = builder.toString();
     } else if (val instanceof Iterator iterator) {
-      StringBuilder builder = new StringBuilder();
+      var builder = new StringBuilder();
       builder.append("[");
-      boolean first = true;
+      var first = true;
       while (iterator.hasNext()) {
         if (!first) {
           builder.append(", ");
@@ -631,9 +631,9 @@ public class ResultInternal implements Result {
       builder.append("]");
       jsonVal = builder.toString();
     } else if (val instanceof Map) {
-      StringBuilder builder = new StringBuilder();
+      var builder = new StringBuilder();
       builder.append("{");
-      boolean first = true;
+      var first = true;
       Map<Object, Object> map = (Map) val;
       for (Map.Entry entry : map.entrySet()) {
         if (!first) {
@@ -651,9 +651,9 @@ public class ResultInternal implements Result {
     } else if (val instanceof Date) {
       jsonVal = "\"" + DateHelper.getDateTimeFormatInstance().format(val) + "\"";
     } else if (val.getClass().isArray()) {
-      StringBuilder builder = new StringBuilder();
+      var builder = new StringBuilder();
       builder.append("[");
-      for (int i = 0; i < Array.getLength(val); i++) {
+      for (var i = 0; i < Array.getLength(val); i++) {
         if (i > 0) {
           builder.append(", ");
         }
@@ -737,7 +737,7 @@ public class ResultInternal implements Result {
         }
       }
 
-      RecordAbstract cached = db.getLocalCache().findRecord(identity);
+      var cached = db.getLocalCache().findRecord(identity);
 
       if (cached == record) {
         return;

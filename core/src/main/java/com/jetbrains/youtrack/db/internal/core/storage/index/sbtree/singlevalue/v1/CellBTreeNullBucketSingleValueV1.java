@@ -61,7 +61,7 @@ public final class CellBTreeNullBucketSingleValueV1 extends DurablePage {
     }
 
     final int clusterId = getShortValue(NEXT_FREE_POSITION + 1);
-    final long clusterPosition = getLongValue(NEXT_FREE_POSITION + 1 + ShortSerializer.SHORT_SIZE);
+    final var clusterPosition = getLongValue(NEXT_FREE_POSITION + 1 + ShortSerializer.SHORT_SIZE);
     return new RecordId(clusterId, clusterPosition);
   }
 

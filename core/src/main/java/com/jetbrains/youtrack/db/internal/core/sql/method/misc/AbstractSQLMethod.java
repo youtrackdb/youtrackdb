@@ -52,10 +52,10 @@ public abstract class AbstractSQLMethod implements SQLMethod {
 
   @Override
   public String getSyntax() {
-    final StringBuilder sb = new StringBuilder("<field>.");
+    final var sb = new StringBuilder("<field>.");
     sb.append(name);
     sb.append('(');
-    for (int i = 0; i < minparams; i++) {
+    for (var i = 0; i < minparams; i++) {
       if (i != 0) {
         sb.append(", ");
       }
@@ -64,7 +64,7 @@ public abstract class AbstractSQLMethod implements SQLMethod {
     }
     if (minparams != maxparams) {
       sb.append('[');
-      for (int i = minparams; i < maxparams; i++) {
+      for (var i = minparams; i < maxparams; i++) {
         if (i != 0) {
           sb.append(", ");
         }

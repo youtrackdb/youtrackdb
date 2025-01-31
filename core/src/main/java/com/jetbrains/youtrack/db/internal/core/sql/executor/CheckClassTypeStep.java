@@ -3,10 +3,8 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.ExecutionStep;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 
 /**
@@ -45,23 +43,23 @@ public class CheckClassTypeStep extends AbstractExecutionStep {
     if (this.targetClass.equals(this.parentClass)) {
       return ExecutionStream.empty();
     }
-    DatabaseSessionInternal db = context.getDatabase();
+    var db = context.getDatabase();
 
     Schema schema = db.getMetadata().getImmutableSchemaSnapshot();
-    SchemaClass parentClazz = schema.getClass(this.parentClass);
+    var parentClazz = schema.getClass(this.parentClass);
     if (parentClazz == null) {
       throw new CommandExecutionException("Class not found: " + this.parentClass);
     }
-    SchemaClass targetClazz = schema.getClass(this.targetClass);
+    var targetClazz = schema.getClass(this.targetClass);
     if (targetClazz == null) {
       throw new CommandExecutionException("Class not found: " + this.targetClass);
     }
 
-    boolean found = false;
+    var found = false;
     if (parentClazz.equals(targetClazz)) {
       found = true;
     } else {
-      for (SchemaClass sublcass : parentClazz.getAllSubclasses()) {
+      for (var sublcass : parentClazz.getAllSubclasses()) {
         if (sublcass.equals(targetClazz)) {
           found = true;
           break;
@@ -77,8 +75,8 @@ public class CheckClassTypeStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
-    StringBuilder result = new StringBuilder();
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var result = new StringBuilder();
     result.append(spaces);
     result.append("+ CHECK CLASS HIERARCHY");
     if (profilingEnabled) {

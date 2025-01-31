@@ -17,8 +17,8 @@ class ClosableLRUList<K, V extends ClosableItem> implements Iterable<ClosableEnt
   private ClosableEntry<K, V> tail;
 
   void remove(ClosableEntry<K, V> entry) {
-    final ClosableEntry<K, V> next = entry.getNext();
-    final ClosableEntry<K, V> prev = entry.getPrev();
+    final var next = entry.getNext();
+    final var prev = entry.getPrev();
 
     if (!(next != null || prev != null || entry == head)) {
       return;
@@ -62,10 +62,10 @@ class ClosableLRUList<K, V extends ClosableItem> implements Iterable<ClosableEnt
       return;
     }
 
-    final ClosableEntry<K, V> next = entry.getNext();
-    final ClosableEntry<K, V> prev = entry.getPrev();
+    final var next = entry.getNext();
+    final var prev = entry.getPrev();
 
-    boolean newEntry = !(next != null || prev != null || entry == head);
+    var newEntry = !(next != null || prev != null || entry == head);
 
     assert prev == null || prev.getNext() == entry;
 
@@ -108,9 +108,9 @@ class ClosableLRUList<K, V extends ClosableItem> implements Iterable<ClosableEnt
       return null;
     }
 
-    final ClosableEntry<K, V> entry = head;
+    final var entry = head;
 
-    ClosableEntry<K, V> next = head.getNext();
+    var next = head.getNext();
     assert next == null || next.getPrev() == head;
 
     head = next;
@@ -173,11 +173,11 @@ class ClosableLRUList<K, V extends ClosableItem> implements Iterable<ClosableEnt
       return tail == null;
     }
 
-    ClosableEntry<K, V> current = head;
+    var current = head;
 
     while (current.getNext() != null) {
-      ClosableEntry<K, V> prev = current.getPrev();
-      ClosableEntry<K, V> next = current.getNext();
+      var prev = current.getPrev();
+      var next = current.getNext();
 
       assert prev == null || prev.getNext() == current;
 
@@ -194,11 +194,11 @@ class ClosableLRUList<K, V extends ClosableItem> implements Iterable<ClosableEnt
       return head == null;
     }
 
-    ClosableEntry<K, V> current = tail;
+    var current = tail;
 
     while (current.getPrev() != null) {
-      ClosableEntry<K, V> prev = current.getPrev();
-      ClosableEntry<K, V> next = current.getNext();
+      var prev = current.getPrev();
+      var next = current.getNext();
 
       assert prev == null || prev.getNext() == current;
 

@@ -93,7 +93,7 @@ public class SQLArrayNumberSelector extends SimpleNode {
   }
 
   public SQLArrayNumberSelector copy() {
-    SQLArrayNumberSelector result = new SQLArrayNumberSelector(-1);
+    var result = new SQLArrayNumberSelector(-1);
     result.inputValue = inputValue == null ? null : inputValue.copy();
     result.expressionValue = expressionValue == null ? null : expressionValue.copy();
     result.integer = integer;
@@ -109,7 +109,7 @@ public class SQLArrayNumberSelector extends SimpleNode {
       return false;
     }
 
-    SQLArrayNumberSelector that = (SQLArrayNumberSelector) o;
+    var that = (SQLArrayNumberSelector) o;
 
     if (!Objects.equals(inputValue, that.inputValue)) {
       return false;
@@ -122,7 +122,7 @@ public class SQLArrayNumberSelector extends SimpleNode {
 
   @Override
   public int hashCode() {
-    int result = inputValue != null ? inputValue.hashCode() : 0;
+    var result = inputValue != null ? inputValue.hashCode() : 0;
     result = 31 * result + (expressionValue != null ? expressionValue.hashCode() : 0);
     result = 31 * result + (integer != null ? integer.hashCode() : 0);
     return result;
@@ -139,7 +139,7 @@ public class SQLArrayNumberSelector extends SimpleNode {
   }
 
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     if (inputValue != null) {
       result.setProperty("inputValue", inputValue.serialize(db));
     }

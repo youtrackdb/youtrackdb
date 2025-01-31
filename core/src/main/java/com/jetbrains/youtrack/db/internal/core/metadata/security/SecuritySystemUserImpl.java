@@ -74,12 +74,12 @@ public class SecuritySystemUserImpl extends SecurityUserImpl {
   private void populateSystemRoles(DatabaseSessionInternal databaseSession) {
     systemRoles.clear();
 
-    for (Role role : roles) {
+    for (var role : roles) {
       var entity = role.getIdentity().getEntity(databaseSession);
       // If databaseName is set, then only allow roles with the same databaseName.
       if (databaseName != null && !databaseName.isEmpty()) {
         List<String> dbNames = entity.getProperty(SystemRole.DB_FILTER);
-        for (String dbName : dbNames) {
+        for (var dbName : dbNames) {
           if (!dbName.isEmpty()
               && (dbName.equalsIgnoreCase(databaseName) || dbName.equals("*"))) {
             systemRoles.add(role);
@@ -94,7 +94,7 @@ public class SecuritySystemUserImpl extends SecurityUserImpl {
         if (dbNames == null || dbNames.isEmpty()) {
           systemRoles.add(role);
         } else { // It does use the dbFilter property.
-          for (String dbName : dbNames) {
+          for (var dbName : dbNames) {
             if (dbName != null && dbName.equals("*")) {
               systemRoles.add(role);
               break;

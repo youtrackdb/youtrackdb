@@ -170,7 +170,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
   }
 
   public RecordAbstract getRecord(final RID rid) {
-    final RecordOperation e = getRecordEntry(rid);
+    final var e = getRecordEntry(rid);
     if (e != null) {
       if (e.type == RecordOperation.DELETED) {
         return FrontendTransactionAbstract.DELETED_RECORD;
@@ -192,14 +192,14 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
     if (iClass == null)
     // RETURN ALL THE RECORDS
     {
-      for (RecordOperation entry : recordOperations.values()) {
+      for (var entry : recordOperations.values()) {
         if (entry.type == RecordOperation.CREATED) {
           result.add(entry);
         }
       }
     } else {
       // FILTER RECORDS BY CLASSNAME
-      for (RecordOperation entry : recordOperations.values()) {
+      for (var entry : recordOperations.values()) {
         if (entry.type == RecordOperation.CREATED) {
           if (entry.record != null) {
             if (entry.record instanceof EntityImpl) {
@@ -231,7 +231,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
     if (iIds == null)
     // RETURN ALL THE RECORDS
     {
-      for (RecordOperation entry : recordOperations.values()) {
+      for (var entry : recordOperations.values()) {
         if (entry.type == RecordOperation.CREATED) {
           result.add(entry);
         }
@@ -239,8 +239,8 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
     } else
     // FILTER RECORDS BY ID
     {
-      for (RecordOperation entry : recordOperations.values()) {
-        for (int id : iIds) {
+      for (var entry : recordOperations.values()) {
+        for (var id : iIds) {
           if (entry.record != null) {
             if (entry.record.getIdentity().getClusterId() == id
                 && entry.type == RecordOperation.CREATED) {
@@ -262,7 +262,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
 
   public List<String> getInvolvedIndexes() {
     List<String> list = null;
-    for (String indexName : indexEntries.keySet()) {
+    for (var indexName : indexEntries.keySet()) {
       if (list == null) {
         list = new ArrayList<>();
       }
@@ -294,7 +294,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
 
     changed = true;
     try {
-      FrontendTransactionIndexChanges indexEntry = indexEntries.get(iIndexName);
+      var indexEntry = indexEntries.get(iIndexName);
       if (indexEntry == null) {
         indexEntry = new FrontendTransactionIndexChanges(index);
         indexEntries.put(iIndexName, indexEntry);
@@ -303,7 +303,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
       if (iOperation == OPERATION.CLEAR) {
         indexEntry.setCleared();
       } else {
-        FrontendTransactionIndexChangesPerKey changes = indexEntry.getChangesPerKey(key);
+        var changes = indexEntry.getChangesPerKey(key);
         changes.add(iValue, iOperation);
 
         if (changes.key == key
@@ -316,7 +316,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
           return;
         }
 
-        List<FrontendTransactionRecordIndexOperation> transactionIndexOperations =
+        var transactionIndexOperations =
             recordIndexOperations.get(iValue.getIdentity());
 
         if (transactionIndexOperations == null) {
@@ -360,8 +360,8 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
   }
 
   private void invalidateChangesInCache() {
-    for (final RecordOperation v : recordOperations.values()) {
-      final RecordAbstract rec = v.record;
+    for (final var v : recordOperations.values()) {
+      final var rec = v.record;
       RecordInternal.unsetDirty(rec);
       rec.unload();
     }
@@ -386,7 +386,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
     }
 
     if (database.isRemote()) {
-      final Storage storage = database.getStorage();
+      final var storage = database.getStorage();
       ((StorageProxy) storage).rollback(FrontendTransactionOptimistic.this);
     }
 
@@ -414,7 +414,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
 
     checkTransactionValid();
 
-    final RecordAbstract txRecord = getRecord(rid);
+    final var txRecord = getRecord(rid);
     if (txRecord == FrontendTransactionAbstract.DELETED_RECORD) {
       // DELETED IN TX
       throw new RecordNotFoundException(rid);
@@ -457,7 +457,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
 
       // fetch primary record if the record is a proxy record.
       passedRecord = passedRecord.getRecord(database);
-      final byte operation =
+      final var operation =
           passedRecord.getIdentity().isValid()
               ? RecordOperation.UPDATED
               : RecordOperation.CREATED;
@@ -501,7 +501,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
         rid.setClusterPosition(newRecordsPositionsGenerator--);
       }
 
-      RecordOperation txEntry = getRecordEntry(rid);
+      var txEntry = getRecordEntry(rid);
       try {
         if (txEntry == null) {
           if (rid.isTemporary() && status == RecordOperation.UPDATED) {
@@ -549,7 +549,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
         switch (status) {
           case RecordOperation.CREATED: {
             if (record instanceof EntityImpl entity) {
-              final SchemaImmutableClass clazz =
+              final var clazz =
                   EntityInternalUtils.getImmutableSchemaClass(database, entity);
               if (clazz != null) {
                 ClassIndexManager.checkIndexesAfterCreate(entity, database);
@@ -560,7 +560,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
           break;
           case RecordOperation.UPDATED: {
             if (record instanceof EntityImpl entity) {
-              final SchemaImmutableClass clazz =
+              final var clazz =
                   EntityInternalUtils.getImmutableSchemaClass(database, entity);
               if (clazz != null && record.getDirtyCounter() != txEntry.indexTrackingDirtyCounter) {
                 ClassIndexManager.checkIndexesAfterUpdate(entity, database);
@@ -571,7 +571,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
           break;
           case RecordOperation.DELETED: {
             if (record instanceof EntityImpl entity) {
-              final SchemaImmutableClass clazz =
+              final var clazz =
                   EntityInternalUtils.getImmutableSchemaClass(database, entity);
               if (clazz != null) {
                 ClassIndexManager.checkIndexesAfterDelete(entity, database);
@@ -815,8 +815,8 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
 
   @Override
   public void close() {
-    final LocalRecordCache dbCache = database.getLocalCache();
-    for (RecordOperation txEntry : recordOperations.values()) {
+    final var dbCache = database.getLocalCache();
+    for (var txEntry : recordOperations.values()) {
       var record = txEntry.record;
 
       if (!record.isUnloaded()) {
@@ -860,26 +860,26 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
     // the FrontendTransactionIndexChanges.changesPerKey in a consistent state.
 
     final List<KeyChangesUpdateRecord> keyRecordsToReinsert = new ArrayList<>();
-    final DatabaseSessionInternal database = getDatabase();
+    final var database = getDatabase();
     if (!database.isRemote()) {
-      final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
-      for (Entry<String, FrontendTransactionIndexChanges> entry : indexEntries.entrySet()) {
-        final Index index = indexManager.getIndex(database, entry.getKey());
+      final var indexManager = database.getMetadata().getIndexManagerInternal();
+      for (var entry : indexEntries.entrySet()) {
+        final var index = indexManager.getIndex(database, entry.getKey());
         if (index == null) {
           throw new TransactionException(
               "Cannot find index '" + entry.getValue() + "' while committing transaction");
         }
 
-        final Dependency[] fieldRidDependencies = getIndexFieldRidDependencies(index);
+        final var fieldRidDependencies = getIndexFieldRidDependencies(index);
         if (!isIndexMayDependOnRids(fieldRidDependencies)) {
           continue;
         }
 
-        final FrontendTransactionIndexChanges indexChanges = entry.getValue();
-        for (final Iterator<FrontendTransactionIndexChangesPerKey> iterator =
+        final var indexChanges = entry.getValue();
+        for (final var iterator =
             indexChanges.changesPerKey.values().iterator();
             iterator.hasNext(); ) {
-          final FrontendTransactionIndexChangesPerKey keyChanges = iterator.next();
+          final var keyChanges = iterator.next();
           if (isIndexKeyMayDependOnRid(keyChanges.key, oldRid, fieldRidDependencies)) {
             keyRecordsToReinsert.add(new KeyChangesUpdateRecord(keyChanges, indexChanges));
             iterator.remove();
@@ -894,12 +894,12 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
 
     // Update the identity.
 
-    final RecordOperation rec = getRecordEntry(oldRid);
+    final var rec = getRecordEntry(oldRid);
     if (rec != null) {
       generatedOriginalRecordIdMap.put(newRid.copy(), oldRid.copy());
 
       if (!rec.record.getIdentity().equals(newRid)) {
-        final RecordId recordId = rec.record.getIdentity();
+        final var recordId = rec.record.getIdentity();
         recordId.setClusterPosition(newRid.getClusterPosition());
         recordId.setClusterId(newRid.getClusterId());
       }
@@ -907,18 +907,18 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
 
     // Reinsert the potentially affected index keys.
 
-    for (KeyChangesUpdateRecord record : keyRecordsToReinsert) {
+    for (var record : keyRecordsToReinsert) {
       record.indexChanges.changesPerKey.put(record.keyChanges.key, record.keyChanges);
     }
 
     // Update the indexes.
 
-    RecordOperation val = getRecordEntry(oldRid);
-    final List<FrontendTransactionRecordIndexOperation> transactionIndexOperations =
+    var val = getRecordEntry(oldRid);
+    final var transactionIndexOperations =
         recordIndexOperations.get(val != null ? val.getRecordId() : null);
     if (transactionIndexOperations != null) {
-      for (final FrontendTransactionRecordIndexOperation indexOperation : transactionIndexOperations) {
-        FrontendTransactionIndexChanges indexEntryChanges = indexEntries.get(indexOperation.index);
+      for (final var indexOperation : transactionIndexOperations) {
+        var indexEntryChanges = indexEntries.get(indexOperation.index);
         if (indexEntryChanges == null) {
           continue;
         }
@@ -941,7 +941,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
       return;
     }
 
-    for (final TransactionIndexEntry indexEntry : changesPerKey.getEntriesAsList()) {
+    for (final var indexEntry : changesPerKey.getEntriesAsList()) {
       if (indexEntry.getValue().getIdentity().equals(oldRid)) {
         indexEntry.setValue(newRid);
       }
@@ -959,16 +959,16 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
   }
 
   private static Dependency[] getIndexFieldRidDependencies(Index index) {
-    final IndexDefinition definition = index.getDefinition();
+    final var definition = index.getDefinition();
 
     if (definition == null) { // type for untyped index is still not resolved
       return null;
     }
 
-    final PropertyType[] types = definition.getTypes();
-    final Dependency[] dependencies = new Dependency[types.length];
+    final var types = definition.getTypes();
+    final var dependencies = new Dependency[types.length];
 
-    for (int i = 0; i < types.length; ++i) {
+    for (var i = 0; i < types.length; ++i) {
       dependencies[i] = getTypeRidDependency(types[i]);
     }
 
@@ -980,7 +980,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
       return true;
     }
 
-    for (Dependency dependency : fieldDependencies) {
+    for (var dependency : fieldDependencies) {
       switch (dependency) {
         case Unknown:
         case Yes:
@@ -996,8 +996,8 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
   private static boolean isIndexKeyMayDependOnRid(
       Object key, RID rid, Dependency[] keyDependencies) {
     if (key instanceof CompositeKey) {
-      final List<Object> subKeys = ((CompositeKey) key).getKeys();
-      for (int i = 0; i < subKeys.size(); ++i) {
+      final var subKeys = ((CompositeKey) key).getKeys();
+      for (var i = 0; i < subKeys.size(); ++i) {
         if (isIndexKeyMayDependOnRid(
             subKeys.get(i), rid, keyDependencies == null ? null : keyDependencies[i])) {
           return true;
@@ -1099,7 +1099,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
   public RecordOperation getRecordEntry(RID ridPar) {
     assert ridPar instanceof RecordId;
 
-    RID rid = ridPar;
+    var rid = ridPar;
     RecordOperation entry;
     do {
       entry = recordOperations.get(rid);
@@ -1139,9 +1139,9 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
   @Override
   public void prepareSerializedOperations() throws IOException {
     List<byte[]> operations = new ArrayList<>();
-    for (RecordOperation value : recordOperations.values()) {
-      FrontendTransactionDataChange change = new FrontendTransactionDataChange(database, value);
-      ByteArrayOutputStream out = new ByteArrayOutputStream();
+    for (var value : recordOperations.values()) {
+      var change = new FrontendTransactionDataChange(database, value);
+      var out = new ByteArrayOutputStream();
       change.serialize(new DataOutputStream(out));
       operations.add(out.toByteArray());
     }
@@ -1158,10 +1158,10 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
 
   @Override
   public void resetAllocatedIds() {
-    for (Map.Entry<RecordId, RecordOperation> op : recordOperations.entrySet()) {
+    for (var op : recordOperations.entrySet()) {
       if (op.getValue().type == RecordOperation.CREATED) {
         var lastCreateId = op.getValue().getRecordId().copy();
-        RecordId oldNew =
+        var oldNew =
             new RecordId(lastCreateId.getClusterId(), op.getKey().getClusterPosition());
         updateIdentityAfterCommit(lastCreateId, oldNew);
         generatedOriginalRecordIdMap.put(oldNew, op.getKey());

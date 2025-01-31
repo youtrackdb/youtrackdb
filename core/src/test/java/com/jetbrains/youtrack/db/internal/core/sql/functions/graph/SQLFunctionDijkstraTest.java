@@ -61,19 +61,19 @@ public class SQLFunctionDijkstraTest {
     v4.setProperty("node_id", "D");
 
     graph.begin();
-    Edge e1 = graph.newRegularEdge(v1, v2, "weight");
+    var e1 = graph.newRegularEdge(v1, v2, "weight");
     e1.setProperty("weight", 1.0f);
     e1.save();
 
-    Edge e2 = graph.newRegularEdge(v2, v3, "weight");
+    var e2 = graph.newRegularEdge(v2, v3, "weight");
     e2.setProperty("weight", 1.0f);
     e2.save();
 
-    Edge e3 = graph.newRegularEdge(v1, v3, "weight");
+    var e3 = graph.newRegularEdge(v1, v3, "weight");
     e3.setProperty("weight", 100.0f);
     e3.save();
 
-    Edge e4 = graph.newRegularEdge(v3, v4, "weight");
+    var e4 = graph.newRegularEdge(v3, v4, "weight");
     e4.setProperty("weight", 1.0f);
     e4.save();
     graph.commit();

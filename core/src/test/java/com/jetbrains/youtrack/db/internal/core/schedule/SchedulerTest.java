@@ -33,7 +33,7 @@ public class SchedulerTest {
 
   @Test
   public void scheduleSQLFunction() throws Exception {
-    try (YouTrackDB context = createContext()) {
+    try (var context = createContext()) {
       var db =
           (DatabaseSessionInternal) context.cachedPool("test", "admin",
               CreateDatabaseUtil.NEW_ADMIN_PASSWORD).acquire();
@@ -42,7 +42,7 @@ public class SchedulerTest {
       DbTestBase.assertWithTimeout(
           db,
           () -> {
-            Long count = getLogCounter(db);
+            var count = getLogCounter(db);
             Assert.assertTrue(count >= 2 && count <= 3);
           });
     }
@@ -50,7 +50,7 @@ public class SchedulerTest {
 
   @Test
   public void scheduleWithDbClosed() throws Exception {
-    YouTrackDB context = createContext();
+    var context = createContext();
     {
       var db = (DatabaseSessionInternal) context.open("test", "admin",
           CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -62,7 +62,7 @@ public class SchedulerTest {
     DbTestBase.assertWithTimeout(
         db,
         () -> {
-          Long count = getLogCounter(db);
+          var count = getLogCounter(db);
           Assert.assertTrue(count >= 2);
         });
 
@@ -72,7 +72,7 @@ public class SchedulerTest {
 
   @Test
   public void eventLifecycle() throws Exception {
-    try (YouTrackDB context = createContext()) {
+    try (var context = createContext()) {
       var db =
           (DatabaseSessionInternal) context.cachedPool("test", "admin",
               CreateDatabaseUtil.NEW_ADMIN_PASSWORD).acquire();
@@ -91,7 +91,7 @@ public class SchedulerTest {
 
       Thread.sleep(3000);
 
-      Long count = getLogCounter(db);
+      var count = getLogCounter(db);
 
       Assert.assertTrue(count >= 1 && count <= 3);
     }
@@ -99,7 +99,7 @@ public class SchedulerTest {
 
   @Test
   public void eventSavedAndLoaded() throws Exception {
-    YouTrackDB context = createContext();
+    var context = createContext();
     var db =
         (DatabaseSessionInternal) context.open("test", "admin",
             CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -108,11 +108,11 @@ public class SchedulerTest {
 
     Thread.sleep(1000);
 
-    final DatabaseSession db2 =
+    final var db2 =
         context.open("test", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     try {
       Thread.sleep(4000);
-      Long count = getLogCounter(db2);
+      var count = getLogCounter(db2);
       Assert.assertTrue(count >= 2);
 
     } finally {
@@ -140,7 +140,7 @@ public class SchedulerTest {
               + CreateDatabaseUtil.NEW_ADMIN_PASSWORD
               + "' role admin)");
     }
-    final SessionPool pool =
+    final var pool =
         youTrackDb.cachedPool("test", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     var db = (DatabaseSessionInternal) pool.acquire();
 
@@ -153,12 +153,12 @@ public class SchedulerTest {
 
   @Test
   public void eventBySQL() throws Exception {
-    YouTrackDB context = createContext();
+    var context = createContext();
     try (context;
         var db =
             (DatabaseSessionInternal) context.open("test", "admin",
                 CreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
-      Function func = createFunction(db);
+      var func = createFunction(db);
       db.begin();
       db.command(
               "insert into oschedule set name = 'test',"
@@ -177,7 +177,7 @@ public class SchedulerTest {
       final long count = getLogCounter(db);
       Assert.assertTrue(count >= 2);
 
-      int retryCount = 10;
+      var retryCount = 10;
       while (true) {
         try {
           db.begin();
@@ -242,7 +242,7 @@ public class SchedulerTest {
   }
 
   private static void createLogEvent(DatabaseSessionInternal db) {
-    Function func = createFunction(db);
+    var func = createFunction(db);
 
     db.executeInTx(() -> {
       Map<Object, Object> args = new HashMap<>();
@@ -262,7 +262,7 @@ public class SchedulerTest {
 
     return db.computeInTx(
         () -> {
-          Function func = db.getMetadata().getFunctionLibrary().createFunction("logEvent");
+          var func = db.getMetadata().getFunctionLibrary().createFunction("logEvent");
           func.setLanguage("SQL");
           func.setCode("insert into scheduler_log set timestamp = sysdate(), note = :note");
           final List<String> pars = new ArrayList<>();
@@ -274,9 +274,9 @@ public class SchedulerTest {
   }
 
   private Long getLogCounter(final DatabaseSession db) {
-    ResultSet resultSet =
+    var resultSet =
         db.query("select count(*) as count from scheduler_log where note = 'test'");
-    Result result = resultSet.stream().findFirst().orElseThrow();
+    var result = resultSet.stream().findFirst().orElseThrow();
     var count = result.<Long>getProperty("count");
     resultSet.close();
     return count;

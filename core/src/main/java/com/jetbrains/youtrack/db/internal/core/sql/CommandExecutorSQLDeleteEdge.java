@@ -26,7 +26,6 @@ import com.jetbrains.youtrack.db.api.record.Direction;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.types.ModifiableBoolean;
@@ -45,7 +44,6 @@ import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilter;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -72,10 +70,10 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
   @SuppressWarnings("unchecked")
   public CommandExecutorSQLDeleteEdge parse(DatabaseSessionInternal db,
       final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
 
     try {
       queryText = preParse(queryText, iRequest);
@@ -89,17 +87,17 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
       SchemaClass clazz = null;
       String where = null;
 
-      String temp = parseOptionalWord(true);
+      var temp = parseOptionalWord(true);
       String originalTemp = null;
 
-      int limit = -1;
+      var limit = -1;
 
       if (temp != null && !parserIsEnded()) {
         originalTemp =
             parserText.substring(parserGetPreviousPosition(), parserGetCurrentPosition()).trim();
       }
 
-      DatabaseSessionInternal curDb = DatabaseRecordThreadLocal.instance().get();
+      var curDb = DatabaseRecordThreadLocal.instance().get();
       try {
         while (temp != null) {
 
@@ -128,7 +126,7 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
           } else if (temp.startsWith("[") && temp.endsWith("]")) {
             temp = temp.substring(1, temp.length() - 1);
             rids = new ArrayList<RecordId>();
-            for (String rid : temp.split(",")) {
+            for (var rid : temp.split(",")) {
               rid = rid.trim();
               if (!rid.startsWith("#")) {
                 throwSyntaxErrorException("Not a valid RID: " + rid);
@@ -229,8 +227,8 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
     if (rids != null) {
       // REMOVE PUNCTUAL RID
       db.begin();
-      for (RecordId rid : rids) {
-        final Edge e = toEdge(rid);
+      for (var rid : rids) {
+        final var e = toEdge(rid);
         if (e != null) {
           e.delete();
           removed++;
@@ -256,26 +254,26 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
         }
 
         if (fromIds != null && toIds != null) {
-          int fromCount = 0;
-          int toCount = 0;
-          for (Identifiable fromId : fromIds) {
-            final Vertex v = toVertex(fromId);
+          var fromCount = 0;
+          var toCount = 0;
+          for (var fromId : fromIds) {
+            final var v = toVertex(fromId);
             if (v != null) {
               fromCount += count(v.getEdges(Direction.OUT, label));
             }
           }
-          for (Identifiable toId : toIds) {
-            final Vertex v = toVertex(toId);
+          for (var toId : toIds) {
+            final var v = toVertex(toId);
             if (v != null) {
               toCount += count(v.getEdges(Direction.IN, label));
             }
           }
           if (fromCount <= toCount) {
             // REMOVE ALL THE EDGES BETWEEN VERTICES
-            for (Identifiable fromId : fromIds) {
-              final Vertex v = toVertex(fromId);
+            for (var fromId : fromIds) {
+              final var v = toVertex(fromId);
               if (v != null) {
-                for (Edge e : v.getEdges(Direction.OUT, label)) {
+                for (var e : v.getEdges(Direction.OUT, label)) {
                   final Identifiable inV = e.getTo();
                   if (inV != null && toIds.contains(inV.getIdentity())) {
                     edges.add(e);
@@ -284,11 +282,11 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
               }
             }
           } else {
-            for (Identifiable toId : toIds) {
-              final Vertex v = toVertex(toId);
+            for (var toId : toIds) {
+              final var v = toVertex(toId);
               if (v != null) {
-                for (Edge e : v.getEdges(Direction.IN, label)) {
-                  final RID outVRid = e.getFromIdentifiable().getIdentity();
+                for (var e : v.getEdges(Direction.IN, label)) {
+                  final var outVRid = e.getFromIdentifiable().getIdentity();
                   if (outVRid != null && fromIds.contains(outVRid)) {
                     edges.add(e);
                   }
@@ -298,21 +296,21 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
           }
         } else if (fromIds != null) {
           // REMOVE ALL THE EDGES THAT START FROM A VERTEXES
-          for (Identifiable fromId : fromIds) {
+          for (var fromId : fromIds) {
 
-            final Vertex v = toVertex(fromId);
+            final var v = toVertex(fromId);
             if (v != null) {
-              for (Edge e : v.getEdges(Direction.OUT, label)) {
+              for (var e : v.getEdges(Direction.OUT, label)) {
                 edges.add(e);
               }
             }
           }
         } else if (toIds != null) {
           // REMOVE ALL THE EDGES THAT ARRIVE TO A VERTEXES
-          for (Identifiable toId : toIds) {
-            final Vertex v = toVertex(toId);
+          for (var toId : toIds) {
+            final var v = toVertex(toId);
             if (v != null) {
-              for (Edge e : v.getEdges(Direction.IN, label)) {
+              for (var e : v.getEdges(Direction.IN, label)) {
                 edges.add(e);
               }
             }
@@ -323,8 +321,8 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
 
         if (compiledFilter != null) {
           // ADDITIONAL FILTERING
-          for (Iterator<Edge> it = edges.iterator(); it.hasNext(); ) {
-            final Edge edge = it.next();
+          for (var it = edges.iterator(); it.hasNext(); ) {
+            final var edge = it.next();
             if (!(Boolean) compiledFilter.evaluate(edge.getRecord(db), null, context)) {
               it.remove();
             }
@@ -333,7 +331,7 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
 
         // DELETE THE FOUND EDGES
         removed = edges.size();
-        for (Edge edge : edges) {
+        for (var edge : edges) {
           edge.delete();
         }
 
@@ -352,8 +350,8 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
   }
 
   private int count(Iterable<Edge> edges) {
-    int result = 0;
-    for (Edge x : edges) {
+    var result = 0;
+    for (var x : edges) {
       result++;
     }
     return result;
@@ -363,7 +361,7 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
    * Delete the current edge.
    */
   public boolean result(DatabaseSessionInternal db, final Object iRecord) {
-    final Identifiable id = (Identifiable) iRecord;
+    final var id = (Identifiable) iRecord;
 
     if (compiledFilter != null) {
       // ADDITIONAL FILTERING
@@ -374,7 +372,7 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
 
     if (((RecordId) id.getIdentity()).isValid()) {
 
-      final Edge e = toEdge(id);
+      final var e = toEdge(id);
 
       if (e != null) {
         e.delete();
@@ -393,7 +391,7 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
 
   private Edge toEdge(Identifiable item) {
     if (item != null && item instanceof Entity) {
-      final Identifiable a = item;
+      final var a = item;
       return ((Entity) item)
           .asEdge()
           .orElseThrow(
@@ -406,7 +404,7 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
       }
 
       if (item instanceof Entity) {
-        final Identifiable a = item;
+        final var a = item;
         return ((Entity) item)
             .asEdge()
             .orElseThrow(
@@ -475,15 +473,15 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
 
   @Override
   public Set<String> getInvolvedClusters() {
-    final HashSet<String> result = new HashSet<String>();
-    final DatabaseSessionInternal db = getDatabase();
+    final var result = new HashSet<String>();
+    final var db = getDatabase();
     if (rids != null) {
-      for (RecordId rid : rids) {
+      for (var rid : rids) {
         result.add(db.getClusterNameById(rid.getClusterId()));
       }
     } else if (query != null) {
 
-      final CommandExecutor executor =
+      final var executor =
           getDatabase()
               .getSharedContext()
               .getYouTrackDB()

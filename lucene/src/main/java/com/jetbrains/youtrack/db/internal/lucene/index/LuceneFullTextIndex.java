@@ -39,7 +39,7 @@ public class LuceneFullTextIndex extends LuceneIndexNotUnique {
             false,
             indexId,
             engine -> {
-              LuceneIndexEngine indexEngine = (LuceneIndexEngine) engine;
+              var indexEngine = (LuceneIndexEngine) engine;
               return indexEngine.buildDocument(db, key, null);
             });
       } catch (InvalidIndexEngineIdException e) {
@@ -55,7 +55,7 @@ public class LuceneFullTextIndex extends LuceneIndexNotUnique {
             false,
             indexId,
             engine -> {
-              LuceneIndexEngine indexEngine = (LuceneIndexEngine) engine;
+              var indexEngine = (LuceneIndexEngine) engine;
               return indexEngine.buildQuery(query);
             });
       } catch (InvalidIndexEngineIdException e) {
@@ -71,7 +71,7 @@ public class LuceneFullTextIndex extends LuceneIndexNotUnique {
             false,
             indexId,
             engine -> {
-              LuceneIndexEngine indexEngine = (LuceneIndexEngine) engine;
+              var indexEngine = (LuceneIndexEngine) engine;
               return indexEngine.queryAnalyzer();
             });
       } catch (final InvalidIndexEngineIdException e) {
@@ -87,7 +87,7 @@ public class LuceneFullTextIndex extends LuceneIndexNotUnique {
             false,
             indexId,
             engine -> {
-              LuceneIndexEngine indexEngine = (LuceneIndexEngine) engine;
+              var indexEngine = (LuceneIndexEngine) engine;
               return indexEngine.isCollectionIndex();
             });
       } catch (InvalidIndexEngineIdException e) {
@@ -103,7 +103,7 @@ public class LuceneFullTextIndex extends LuceneIndexNotUnique {
             false,
             indexId,
             engine -> {
-              LuceneIndexEngine indexEngine = (LuceneIndexEngine) engine;
+              var indexEngine = (LuceneIndexEngine) engine;
               return indexEngine.indexAnalyzer();
             });
       } catch (InvalidIndexEngineIdException e) {

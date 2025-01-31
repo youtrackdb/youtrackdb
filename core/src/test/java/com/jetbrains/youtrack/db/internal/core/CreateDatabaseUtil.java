@@ -19,7 +19,7 @@ public class CreateDatabaseUtil {
 
   public static YouTrackDBImpl createDatabase(
       final String database, final String url, final String type) {
-    final YouTrackDBImpl youTrackDB =
+    final var youTrackDB =
         new YouTrackDBImpl(
             url,
             YouTrackDBConfig.builder()

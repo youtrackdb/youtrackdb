@@ -67,7 +67,7 @@ public class SQLArrayConcatExpression extends SimpleNode {
 
     List<Object> result = new ArrayList<>();
     if (MultiValue.isMultiValue(left)) {
-      Iterator<?> leftIter = MultiValue.getMultiValueIterator(left);
+      var leftIter = MultiValue.getMultiValueIterator(left);
       while (leftIter.hasNext()) {
         result.add(leftIter.next());
       }
@@ -76,7 +76,7 @@ public class SQLArrayConcatExpression extends SimpleNode {
     }
 
     if (MultiValue.isMultiValue(right)) {
-      Iterator<?> rigthIter = MultiValue.getMultiValueIterator(right);
+      var rigthIter = MultiValue.getMultiValueIterator(right);
       while (rigthIter.hasNext()) {
         result.add(rigthIter.next());
       }
@@ -88,23 +88,23 @@ public class SQLArrayConcatExpression extends SimpleNode {
   }
 
   public Object execute(Identifiable iCurrentRecord, CommandContext ctx) {
-    Object result = childExpressions.get(0).execute(iCurrentRecord, ctx);
-    for (int i = 1; i < childExpressions.size(); i++) {
+    var result = childExpressions.get(0).execute(iCurrentRecord, ctx);
+    for (var i = 1; i < childExpressions.size(); i++) {
       result = apply(result, childExpressions.get(i).execute(iCurrentRecord, ctx));
     }
     return result;
   }
 
   public Object execute(Result iCurrentRecord, CommandContext ctx) {
-    Object result = childExpressions.get(0).execute(iCurrentRecord, ctx);
-    for (int i = 1; i < childExpressions.size(); i++) {
+    var result = childExpressions.get(0).execute(iCurrentRecord, ctx);
+    for (var i = 1; i < childExpressions.size(); i++) {
       result = apply(result, childExpressions.get(i).execute(iCurrentRecord, ctx));
     }
     return result;
   }
 
   public boolean isEarlyCalculated(CommandContext ctx) {
-    for (SQLArrayConcatExpressionElement element : childExpressions) {
+    for (var element : childExpressions) {
       if (!element.isEarlyCalculated(ctx)) {
         return false;
       }
@@ -113,7 +113,7 @@ public class SQLArrayConcatExpression extends SimpleNode {
   }
 
   protected boolean supportsBasicCalculation() {
-    for (SQLArrayConcatExpressionElement expr : this.childExpressions) {
+    for (var expr : this.childExpressions) {
       if (!expr.supportsBasicCalculation()) {
         return false;
       }
@@ -122,7 +122,7 @@ public class SQLArrayConcatExpression extends SimpleNode {
   }
 
   public boolean needsAliases(Set<String> aliases) {
-    for (SQLArrayConcatExpressionElement expr : childExpressions) {
+    for (var expr : childExpressions) {
       if (expr.needsAliases(aliases)) {
         return true;
       }
@@ -131,7 +131,7 @@ public class SQLArrayConcatExpression extends SimpleNode {
   }
 
   public boolean isAggregate(DatabaseSessionInternal session) {
-    for (SQLArrayConcatExpressionElement expr : this.childExpressions) {
+    for (var expr : this.childExpressions) {
       if (expr.isAggregate(session)) {
         return true;
       }
@@ -155,19 +155,19 @@ public class SQLArrayConcatExpression extends SimpleNode {
   }
 
   public SQLArrayConcatExpression copy() {
-    SQLArrayConcatExpression result = new SQLArrayConcatExpression(-1);
+    var result = new SQLArrayConcatExpression(-1);
     this.childExpressions.forEach(x -> result.childExpressions.add(x.copy()));
     return result;
   }
 
   public void extractSubQueries(SubQueryCollector collector) {
-    for (SQLArrayConcatExpressionElement expr : this.childExpressions) {
+    for (var expr : this.childExpressions) {
       expr.extractSubQueries(collector);
     }
   }
 
   public boolean refersToParent() {
-    for (SQLArrayConcatExpressionElement expr : this.childExpressions) {
+    for (var expr : this.childExpressions) {
       if (expr.refersToParent()) {
         return true;
       }
@@ -177,8 +177,8 @@ public class SQLArrayConcatExpression extends SimpleNode {
 
   public List<String> getMatchPatternInvolvedAliases() {
     List<String> result = new ArrayList<String>();
-    for (SQLArrayConcatExpressionElement exp : childExpressions) {
-      List<String> x = exp.getMatchPatternInvolvedAliases();
+    for (var exp : childExpressions) {
+      var x = exp.getMatchPatternInvolvedAliases();
       if (x != null) {
         result.addAll(x);
       }
@@ -190,7 +190,7 @@ public class SQLArrayConcatExpression extends SimpleNode {
   }
 
   public void toString(Map<Object, Object> params, StringBuilder builder) {
-    for (int i = 0; i < childExpressions.size(); i++) {
+    for (var i = 0; i < childExpressions.size(); i++) {
       if (i > 0) {
         builder.append(" || ");
       }
@@ -200,7 +200,7 @@ public class SQLArrayConcatExpression extends SimpleNode {
 
   @Override
   public void toGenericStatement(StringBuilder builder) {
-    for (int i = 0; i < childExpressions.size(); i++) {
+    for (var i = 0; i < childExpressions.size(); i++) {
       if (i > 0) {
         builder.append(" || ");
       }
@@ -217,7 +217,7 @@ public class SQLArrayConcatExpression extends SimpleNode {
       return false;
     }
 
-    SQLArrayConcatExpression that = (SQLArrayConcatExpression) o;
+    var that = (SQLArrayConcatExpression) o;
 
     return Objects.equals(childExpressions, that.childExpressions);
   }
@@ -228,7 +228,7 @@ public class SQLArrayConcatExpression extends SimpleNode {
   }
 
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     if (childExpressions != null) {
       result.setProperty(
           "childExpressions",
@@ -242,8 +242,8 @@ public class SQLArrayConcatExpression extends SimpleNode {
     if (fromResult.getProperty("childExpressions") != null) {
       List<Result> ser = fromResult.getProperty("childExpressions");
       childExpressions = new ArrayList<>();
-      for (Result r : ser) {
-        SQLArrayConcatExpressionElement exp = new SQLArrayConcatExpressionElement(-1);
+      for (var r : ser) {
+        var exp = new SQLArrayConcatExpressionElement(-1);
         exp.deserialize(r);
         childExpressions.add(exp);
       }
@@ -251,7 +251,7 @@ public class SQLArrayConcatExpression extends SimpleNode {
   }
 
   public boolean isCacheable(DatabaseSessionInternal session) {
-    for (SQLArrayConcatExpressionElement exp : childExpressions) {
+    for (var exp : childExpressions) {
       if (!exp.isCacheable(session)) {
         return false;
       }

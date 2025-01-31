@@ -53,7 +53,7 @@ public class LucenePerFieldAnalyzerWrapper extends DelegatingAnalyzerWrapper {
 
   @Override
   protected Analyzer getWrappedAnalyzer(final String fieldName) {
-    final Analyzer analyzer = fieldAnalyzers.get(fieldName);
+    final var analyzer = fieldAnalyzers.get(fieldName);
     return (analyzer != null) ? analyzer : defaultDelegateAnalyzer;
   }
 

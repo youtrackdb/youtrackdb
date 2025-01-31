@@ -88,7 +88,7 @@ public class IndexMetadata {
       return false;
     }
 
-    final IndexMetadata that = (IndexMetadata) o;
+    final var that = (IndexMetadata) o;
 
     if (!Objects.equals(algorithm, that.algorithm)) {
       return false;
@@ -107,7 +107,7 @@ public class IndexMetadata {
 
   @Override
   public int hashCode() {
-    int result = name.hashCode();
+    var result = name.hashCode();
     result = 31 * result + (indexDefinition != null ? indexDefinition.hashCode() : 0);
     result = 31 * result + clustersToIndex.hashCode();
     result = 31 * result + type.hashCode();
@@ -116,7 +116,7 @@ public class IndexMetadata {
   }
 
   public boolean isMultivalue() {
-    String t = type.toUpperCase();
+    var t = type.toUpperCase();
     return SchemaClass.INDEX_TYPE.NOTUNIQUE.toString().equals(t);
   }
 

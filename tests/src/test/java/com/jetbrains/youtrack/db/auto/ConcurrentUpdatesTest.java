@@ -57,9 +57,9 @@ public class ConcurrentUpdatesTest extends BaseDBTest {
     @Override
     public void run() {
       try {
-        DatabaseSessionInternal db = acquireSession();
-        for (int i = 0; i < OPTIMISTIC_CYCLES; i++) {
-          int retries = 0;
+        var db = acquireSession();
+        for (var i = 0; i < OPTIMISTIC_CYCLES; i++) {
+          var retries = 0;
           while (true) {
             retries++;
             try {
@@ -108,15 +108,15 @@ public class ConcurrentUpdatesTest extends BaseDBTest {
     @Override
     public void run() {
       try {
-        DatabaseSessionInternal db = acquireSession();
+        var db = acquireSession();
 
-        for (int i = 0; i < PESSIMISTIC_CYCLES; i++) {
-          String cmd = "update " + rid + " set total = total + 1";
+        for (var i = 0; i < PESSIMISTIC_CYCLES; i++) {
+          var cmd = "update " + rid + " set total = total + 1";
           if (lock) {
             cmd += " lock record";
           }
 
-          int retries = 0;
+          var retries = 0;
           while (true) {
             try {
               retries++;
@@ -149,7 +149,7 @@ public class ConcurrentUpdatesTest extends BaseDBTest {
   public void concurrentOptimisticUpdates() throws Exception {
     counter.set(0);
 
-    DatabaseSessionInternal database = acquireSession();
+    var database = acquireSession();
 
     EntityImpl doc1 = database.newInstance();
     doc1.field("INIT", "ok");
@@ -168,21 +168,21 @@ public class ConcurrentUpdatesTest extends BaseDBTest {
 
     RID rid2 = doc2.getIdentity();
 
-    OptimisticUpdateField[] ops = new OptimisticUpdateField[THREADS];
-    for (int i = 0; i < THREADS; ++i) {
+    var ops = new OptimisticUpdateField[THREADS];
+    for (var i = 0; i < THREADS; ++i) {
       ops[i] = new OptimisticUpdateField(rid1, rid2, "thread" + i);
     }
 
-    Thread[] threads = new Thread[THREADS];
-    for (int i = 0; i < THREADS; ++i) {
+    var threads = new Thread[THREADS];
+    for (var i = 0; i < THREADS; ++i) {
       threads[i] = new Thread(ops[i], "ConcurrentTest" + i);
     }
 
-    for (int i = 0; i < THREADS; ++i) {
+    for (var i = 0; i < THREADS; ++i) {
       threads[i].start();
     }
 
-    for (int i = 0; i < THREADS; ++i) {
+    for (var i = 0; i < THREADS; ++i) {
       threads[i].join();
     }
 
@@ -190,7 +190,7 @@ public class ConcurrentUpdatesTest extends BaseDBTest {
 
     doc1 = database.load(rid1);
 
-    for (int i = 0; i < THREADS; ++i) {
+    for (var i = 0; i < THREADS; ++i) {
       Assert.assertEquals(doc1.field(ops[i].threadName), ops[i].fieldValue, ops[i].threadName);
     }
 
@@ -198,7 +198,7 @@ public class ConcurrentUpdatesTest extends BaseDBTest {
 
     doc2 = database.load(rid2);
 
-    for (int i = 0; i < THREADS; ++i) {
+    for (var i = 0; i < THREADS; ++i) {
       Assert.assertEquals(doc2.field(ops[i].threadName), ops[i].fieldValue, ops[i].threadName);
     }
 
@@ -221,7 +221,7 @@ public class ConcurrentUpdatesTest extends BaseDBTest {
   protected void sqlUpdate(boolean lock) throws InterruptedException {
     counter.set(0);
 
-    DatabaseSessionInternal database = acquireSession();
+    var database = acquireSession();
     EntityImpl doc1 = database.newInstance();
     doc1.field("total", 0);
 
@@ -231,21 +231,21 @@ public class ConcurrentUpdatesTest extends BaseDBTest {
 
     RID rid1 = doc1.getIdentity();
 
-    PessimisticUpdate[] ops = new PessimisticUpdate[THREADS];
-    for (int i = 0; i < THREADS; ++i) {
+    var ops = new PessimisticUpdate[THREADS];
+    for (var i = 0; i < THREADS; ++i) {
       ops[i] = new PessimisticUpdate(rid1, "thread" + i, lock);
     }
 
-    Thread[] threads = new Thread[THREADS];
-    for (int i = 0; i < THREADS; ++i) {
+    var threads = new Thread[THREADS];
+    for (var i = 0; i < THREADS; ++i) {
       threads[i] = new Thread(ops[i], "ConcurrentTest" + i);
     }
 
-    for (int i = 0; i < THREADS; ++i) {
+    for (var i = 0; i < THREADS; ++i) {
       threads[i].start();
     }
 
-    for (int i = 0; i < THREADS; ++i) {
+    for (var i = 0; i < THREADS; ++i) {
       threads[i].join();
     }
 

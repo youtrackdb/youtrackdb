@@ -47,9 +47,9 @@ public class SQLMethodRight extends AbstractSQLMethod {
       return null;
     }
 
-    final String valueAsString = iThis.toString();
+    final var valueAsString = iThis.toString();
 
-    final int offset = Integer.parseInt(iParams[0].toString());
+    final var offset = Integer.parseInt(iParams[0].toString());
     return valueAsString.substring(
         offset < valueAsString.length() ? valueAsString.length() - offset : 0);
   }

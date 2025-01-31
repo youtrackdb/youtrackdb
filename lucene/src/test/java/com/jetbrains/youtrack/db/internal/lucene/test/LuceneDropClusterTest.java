@@ -34,7 +34,7 @@ public class LuceneDropClusterTest extends BaseLuceneTest {
   @Test
   public void shouldRemoveCluster() throws Exception {
     LogManager.instance().setConsoleLevel(Level.FINE.getName());
-    InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
+    var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
 
     db.execute("sql", getScriptFromStream(stream)).close();
 
@@ -51,18 +51,18 @@ public class LuceneDropClusterTest extends BaseLuceneTest {
                 + "\"}")
         .close();
 
-    MetadataInternal metadata = db.getMetadata();
+    var metadata = db.getMetadata();
 
     db.begin();
-    long initialIndexSize =
+    var initialIndexSize =
         metadata.getIndexManagerInternal().getIndex(db, "Song.title").getInternal().size(db);
 
-    int[] clusterIds = metadata.getSchema().getClass("Song").getClusterIds();
+    var clusterIds = metadata.getSchema().getClass("Song").getClusterIds();
     db.commit();
 
     db.dropCluster(clusterIds[1]);
 
-    long afterDropIndexSize =
+    var afterDropIndexSize =
         metadata.getIndexManagerInternal().getIndex(db, "Song.title").getInternal().size(db);
 
     Assertions.assertThat(afterDropIndexSize).isLessThan(initialIndexSize);

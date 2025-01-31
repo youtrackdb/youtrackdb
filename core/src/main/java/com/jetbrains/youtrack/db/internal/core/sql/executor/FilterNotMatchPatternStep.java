@@ -22,7 +22,7 @@ public class FilterNotMatchPatternStep extends AbstractExecutionStep {
     if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
     }
-    ExecutionStream resultSet = prev.start(ctx);
+    var resultSet = prev.start(ctx);
     return resultSet.filter(this::filterMap);
   }
 
@@ -34,8 +34,8 @@ public class FilterNotMatchPatternStep extends AbstractExecutionStep {
   }
 
   private boolean matchesPattern(Result nextItem, CommandContext ctx) {
-    SelectExecutionPlan plan = createExecutionPlan(nextItem, ctx);
-    ExecutionStream rs = plan.start();
+    var plan = createExecutionPlan(nextItem, ctx);
+    var rs = plan.start();
     try {
       return rs.hasNext(ctx);
     } finally {
@@ -44,7 +44,7 @@ public class FilterNotMatchPatternStep extends AbstractExecutionStep {
   }
 
   private SelectExecutionPlan createExecutionPlan(Result nextItem, CommandContext ctx) {
-    SelectExecutionPlan plan = new SelectExecutionPlan(ctx);
+    var plan = new SelectExecutionPlan(ctx);
     var db = ctx.getDatabase();
     plan.chain(
         new AbstractExecutionStep(ctx, profilingEnabled) {
@@ -55,11 +55,11 @@ public class FilterNotMatchPatternStep extends AbstractExecutionStep {
           }
 
           private Result copy(Result nextItem) {
-            ResultInternal result = new ResultInternal(db);
-            for (String prop : nextItem.getPropertyNames()) {
+            var result = new ResultInternal(db);
+            for (var prop : nextItem.getPropertyNames()) {
               result.setProperty(prop, nextItem.getProperty(prop));
             }
-            for (String md : nextItem.getMetadataKeys()) {
+            for (var md : nextItem.getMetadataKeys()) {
               result.setMetadata(md, nextItem.getMetadata(md));
             }
             return result;
@@ -77,8 +77,8 @@ public class FilterNotMatchPatternStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
-    StringBuilder result = new StringBuilder();
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var result = new StringBuilder();
     result.append(spaces);
     result.append("+ NOT (\n");
     this.subSteps.forEach(x -> result.append(x.prettyPrint(depth + 1, indent)).append("\n"));

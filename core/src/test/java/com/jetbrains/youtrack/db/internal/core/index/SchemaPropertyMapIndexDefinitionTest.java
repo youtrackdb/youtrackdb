@@ -49,10 +49,10 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateValueByKeySingleParameter() {
-    final Object result = propertyIndexByKey.createValue(db, Collections.singletonList(mapToTest));
+    final var result = propertyIndexByKey.createValue(db, Collections.singletonList(mapToTest));
     Assert.assertTrue(result instanceof Collection);
 
-    final Collection<?> collectionResult = (Collection<?>) result;
+    final var collectionResult = (Collection<?>) result;
 
     Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains("st1"));
@@ -61,11 +61,11 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateValueByValueSingleParameter() {
-    final Object result =
+    final var result =
         propertyIndexByValue.createValue(db, Collections.singletonList(mapToTest));
     Assert.assertTrue(result instanceof Collection);
 
-    final Collection<?> collectionResult = (Collection<?>) result;
+    final var collectionResult = (Collection<?>) result;
 
     Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains(1));
@@ -74,11 +74,11 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateValueByKeyTwoParameters() {
-    final Object result = propertyIndexByKey.createValue(db, Arrays.asList(mapToTest, "25"));
+    final var result = propertyIndexByKey.createValue(db, Arrays.asList(mapToTest, "25"));
 
     Assert.assertTrue(result instanceof Collection);
 
-    final Collection<?> collectionResult = (Collection<?>) result;
+    final var collectionResult = (Collection<?>) result;
 
     Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains("st1"));
@@ -87,11 +87,11 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateValueByValueTwoParameters() {
-    final Object result = propertyIndexByValue.createValue(db, Arrays.asList(mapToTest, "25"));
+    final var result = propertyIndexByValue.createValue(db, Arrays.asList(mapToTest, "25"));
 
     Assert.assertTrue(result instanceof Collection);
 
-    final Collection<?> collectionResult = (Collection<?>) result;
+    final var collectionResult = (Collection<?>) result;
 
     Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains(1));
@@ -100,16 +100,16 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateValueWrongParameter() {
-    final Object result = propertyIndexByKey.createValue(db, Collections.singletonList("tt"));
+    final var result = propertyIndexByKey.createValue(db, Collections.singletonList("tt"));
     Assert.assertNull(result);
   }
 
   @Test
   public void testCreateValueByKeySingleParameterArrayParams() {
-    final Object result = propertyIndexByKey.createValue(db, mapToTest);
+    final var result = propertyIndexByKey.createValue(db, mapToTest);
     Assert.assertTrue(result instanceof Collection);
 
-    final Collection<?> collectionResult = (Collection<?>) result;
+    final var collectionResult = (Collection<?>) result;
 
     Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains("st1"));
@@ -118,10 +118,10 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateValueByValueSingleParameterArrayParams() {
-    final Object result = propertyIndexByValue.createValue(db, mapToTest);
+    final var result = propertyIndexByValue.createValue(db, mapToTest);
     Assert.assertTrue(result instanceof Collection);
 
-    final Collection<?> collectionResult = (Collection<?>) result;
+    final var collectionResult = (Collection<?>) result;
 
     Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains(1));
@@ -130,11 +130,11 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateValueByKeyTwoParametersArrayParams() {
-    final Object result = propertyIndexByKey.createValue(db, mapToTest, "25");
+    final var result = propertyIndexByKey.createValue(db, mapToTest, "25");
 
     Assert.assertTrue(result instanceof Collection);
 
-    final Collection<?> collectionResult = (Collection<?>) result;
+    final var collectionResult = (Collection<?>) result;
 
     Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains("st1"));
@@ -143,11 +143,11 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateValueByValueTwoParametersArrayParams() {
-    final Object result = propertyIndexByValue.createValue(db, mapToTest, "25");
+    final var result = propertyIndexByValue.createValue(db, mapToTest, "25");
 
     Assert.assertTrue(result instanceof Collection);
 
-    final Collection<?> collectionResult = (Collection<?>) result;
+    final var collectionResult = (Collection<?>) result;
 
     Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains(1));
@@ -156,21 +156,21 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateValueWrongParameterArrayParams() {
-    final Object result = propertyIndexByKey.createValue(db, "tt");
+    final var result = propertyIndexByKey.createValue(db, "tt");
     Assert.assertNull(result);
   }
 
   @Test
   public void testGetDocumentValueByKeyToIndex() {
-    final EntityImpl document = (EntityImpl) db.newEntity();
+    final var document = (EntityImpl) db.newEntity();
 
     document.field("fOne", mapToTest);
     document.field("fTwo", 10);
 
-    final Object result = propertyIndexByKey.getDocumentValueToIndex(db, document);
+    final var result = propertyIndexByKey.getDocumentValueToIndex(db, document);
     Assert.assertTrue(result instanceof Collection);
 
-    final Collection<?> collectionResult = (Collection<?>) result;
+    final var collectionResult = (Collection<?>) result;
 
     Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains("st1"));
@@ -179,15 +179,15 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testGetDocumentValueByValueToIndex() {
-    final EntityImpl document = (EntityImpl) db.newEntity();
+    final var document = (EntityImpl) db.newEntity();
 
     document.field("fOne", mapToTest);
     document.field("fTwo", 10);
 
-    final Object result = propertyIndexByValue.getDocumentValueToIndex(db, document);
+    final var result = propertyIndexByValue.getDocumentValueToIndex(db, document);
     Assert.assertTrue(result instanceof Collection);
 
-    final Collection<?> collectionResult = (Collection<?>) result;
+    final var collectionResult = (Collection<?>) result;
 
     Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains(1));
@@ -196,14 +196,14 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testGetFields() {
-    final List<String> result = propertyIndexByKey.getFields();
+    final var result = propertyIndexByKey.getFields();
     Assert.assertEquals(1, result.size());
     Assert.assertEquals("fOne", result.getFirst());
   }
 
   @Test
   public void testGetTypes() {
-    final PropertyType[] result = propertyIndexByKey.getTypes();
+    final var result = propertyIndexByKey.getTypes();
     Assert.assertEquals(1, result.length);
     Assert.assertEquals(PropertyType.STRING, result[0]);
   }
@@ -215,7 +215,7 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
             "tesClass", "fOne", PropertyType.STRING, PropertyMapIndexDefinition.INDEX_BY.KEY);
 
     db.begin();
-    final EntityImpl docToStore = propertyIndexByKey.toStream(db, (EntityImpl) db.newEntity());
+    final var docToStore = propertyIndexByKey.toStream(db, (EntityImpl) db.newEntity());
     db.save(docToStore);
     db.commit();
 
@@ -233,7 +233,7 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
             "tesClass", "fOne", PropertyType.INTEGER, PropertyMapIndexDefinition.INDEX_BY.VALUE);
 
     db.begin();
-    final EntityImpl docToStore = propertyIndexByValue.toStream(db, (EntityImpl) db.newEntity());
+    final var docToStore = propertyIndexByValue.toStream(db, (EntityImpl) db.newEntity());
     db.save(docToStore);
     db.commit();
 
@@ -247,13 +247,13 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateSingleValueByKey() {
-    final Object result = propertyIndexByKey.createSingleValue(db, "tt");
+    final var result = propertyIndexByKey.createSingleValue(db, "tt");
     Assert.assertEquals("tt", result);
   }
 
   @Test
   public void testCreateSingleValueByValue() {
-    final Object result = propertyIndexByValue.createSingleValue(db, "12");
+    final var result = propertyIndexByValue.createSingleValue(db, "12");
     Assert.assertEquals(12, result);
   }
 
@@ -269,7 +269,7 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateDDLByKey() {
-    final String ddl =
+    final var ddl =
         propertyIndexByKey
             .toCreateIndexDDL("testIndex", "unique", null)
             .toLowerCase(Locale.ENGLISH);
@@ -278,7 +278,7 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateDDLByValue() {
-    final String ddl =
+    final var ddl =
         propertyIndexByValue
             .toCreateIndexDDL("testIndex", "unique", null)
             .toLowerCase(Locale.ENGLISH);
@@ -287,13 +287,13 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventAddKey() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<String, String> multiValueChangeEvent =
+    final var multiValueChangeEvent =
         new MultiValueChangeEvent<String, String>(
             ChangeType.ADD, "key1", "value1");
 
@@ -310,13 +310,13 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventAddKeyWithConversion() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<String, String> multiValueChangeEvent =
+    final var multiValueChangeEvent =
         new MultiValueChangeEvent<String, String>(
             ChangeType.ADD, "12", "value1");
 
@@ -334,13 +334,13 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventAddValue() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<String, Integer> multiValueChangeEvent =
+    final var multiValueChangeEvent =
         new MultiValueChangeEvent<String, Integer>(
             ChangeType.ADD, "key1", 42);
 
@@ -357,13 +357,13 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventAddValueWithConversion() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<String, String> multiValueChangeEvent =
+    final var multiValueChangeEvent =
         new MultiValueChangeEvent<String, String>(
             ChangeType.ADD, "12", "42");
 
@@ -380,13 +380,13 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventRemoveKey() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<String, String> multiValueChangeEvent =
+    final var multiValueChangeEvent =
         new MultiValueChangeEvent<String, String>(
             ChangeType.REMOVE, "key1", "value1");
 
@@ -402,13 +402,13 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventRemoveKeyWithConversion() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<String, String> multiValueChangeEvent =
+    final var multiValueChangeEvent =
         new MultiValueChangeEvent<String, String>(
             ChangeType.REMOVE, "12", "value1");
 
@@ -426,13 +426,13 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventRemoveValue() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<String, Integer> multiValueChangeEvent =
+    final var multiValueChangeEvent =
         new MultiValueChangeEvent<String, Integer>(
             ChangeType.REMOVE, "key1", null, 42);
 
@@ -448,13 +448,13 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventRemoveValueWithConversion() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<String, String> multiValueChangeEvent =
+    final var multiValueChangeEvent =
         new MultiValueChangeEvent<String, String>(
             ChangeType.REMOVE, "12", null, "42");
 
@@ -470,13 +470,13 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventUpdateKey() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<String, Integer> multiValueChangeEvent =
+    final var multiValueChangeEvent =
         new MultiValueChangeEvent<String, Integer>(
             ChangeType.UPDATE, "key1", 42);
 
@@ -487,13 +487,13 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventUpdateValue() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<String, Integer> multiValueChangeEvent =
+    final var multiValueChangeEvent =
         new MultiValueChangeEvent<String, Integer>(
             ChangeType.UPDATE, "key1", 41, 42);
 
@@ -511,13 +511,13 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeEventUpdateValueWithConversion() {
-    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    final var keysToAdd = new Object2IntOpenHashMap<Object>();
     keysToAdd.defaultReturnValue(-1);
 
-    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    final var keysToRemove = new Object2IntOpenHashMap<Object>();
     keysToRemove.defaultReturnValue(-1);
 
-    final MultiValueChangeEvent<String, String> multiValueChangeEvent =
+    final var multiValueChangeEvent =
         new MultiValueChangeEvent<String, String>(
             ChangeType.UPDATE, "12", "42", "41");
 

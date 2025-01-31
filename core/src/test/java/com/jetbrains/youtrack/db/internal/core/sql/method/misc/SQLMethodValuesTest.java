@@ -20,11 +20,11 @@ public class SQLMethodValuesTest extends DbTestBase {
   @Test
   public void testWithOResult() {
 
-    ResultInternal resultInternal = new ResultInternal(db);
+    var resultInternal = new ResultInternal(db);
     resultInternal.setProperty("name", "Foo");
     resultInternal.setProperty("surname", "Bar");
 
-    Object result = function.execute(null, null, null, resultInternal, null);
+    var result = function.execute(null, null, null, resultInternal, null);
     assertEquals(Arrays.asList("Foo", "Bar"), result);
   }
 }

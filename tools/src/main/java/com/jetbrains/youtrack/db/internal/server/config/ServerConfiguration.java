@@ -90,7 +90,7 @@ public class ServerConfiguration {
 
   public String getStoragePath(String iURL) {
     if (storages != null) {
-      for (ServerStorageConfiguration stg : storages) {
+      for (var stg : storages) {
         if (stg.name.equals(iURL)) {
           return stg.path;
         }
@@ -120,7 +120,7 @@ public class ServerConfiguration {
       return null;
     }
 
-    for (ServerEntryConfiguration p : properties) {
+    for (var p : properties) {
       if (p.name.equals(iName)) {
         return p.value;
       }

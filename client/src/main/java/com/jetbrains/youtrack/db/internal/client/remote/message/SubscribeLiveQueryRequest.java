@@ -42,13 +42,13 @@ public class SubscribeLiveQueryRequest implements BinaryRequest<SubscribeLiveQue
   @Override
   public void write(DatabaseSessionInternal database, ChannelDataOutput network,
       StorageRemoteSession session) throws IOException {
-    RecordSerializerNetworkV37Client serializer = new RecordSerializerNetworkV37Client();
+    var serializer = new RecordSerializerNetworkV37Client();
     network.writeString(query);
     // params
-    EntityImpl parms = new EntityImpl(null);
+    var parms = new EntityImpl(null);
     parms.field("params", this.params);
 
-    byte[] bytes = MessageHelper.getRecordBytes(database, parms, serializer);
+    var bytes = MessageHelper.getRecordBytes(database, parms, serializer);
     network.writeBytes(bytes);
     network.writeBoolean(namedParams);
   }
@@ -58,8 +58,8 @@ public class SubscribeLiveQueryRequest implements BinaryRequest<SubscribeLiveQue
       RecordSerializerNetwork serializer)
       throws IOException {
     this.query = channel.readString();
-    EntityImpl paramsEntity = new EntityImpl(null);
-    byte[] bytes = channel.readBytes();
+    var paramsEntity = new EntityImpl(null);
+    var bytes = channel.readBytes();
     serializer.fromStream(db, bytes, paramsEntity, null);
     this.params = paramsEntity.field("params");
     this.namedParams = channel.readBoolean();

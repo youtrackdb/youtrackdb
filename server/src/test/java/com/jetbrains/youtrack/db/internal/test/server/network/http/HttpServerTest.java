@@ -31,7 +31,7 @@ public class HttpServerTest extends BaseHttpDatabaseTest {
 
   @Test
   public void testCreateDatabase() throws IOException {
-    String dbName = getClass().getSimpleName() + "testCreateDatabase";
+    var dbName = getClass().getSimpleName() + "testCreateDatabase";
     var res =
         setUserName("root")
             .setUserPassword("root")

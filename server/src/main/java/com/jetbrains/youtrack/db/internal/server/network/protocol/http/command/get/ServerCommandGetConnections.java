@@ -41,16 +41,16 @@ public class ServerCommandGetConnections extends ServerCommandAuthenticatedServe
 
   @Override
   public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
-    final String[] args =
+    final var args =
         checkSyntax(iRequest.getUrl(), 1, "Syntax error: connections[/<database>]");
 
     iRequest.getData().commandInfo = "Server status";
 
-    final StringWriter jsonBuffer = new StringWriter();
-    final JSONWriter json = new JSONWriter(jsonBuffer);
+    final var jsonBuffer = new StringWriter();
+    final var json = new JSONWriter(jsonBuffer);
     json.beginObject();
 
-    final String databaseName = args.length > 1 && args[1].length() > 0 ? args[1] : null;
+    final var databaseName = args.length > 1 && args[1].length() > 0 ? args[1] : null;
 
     ServerInfo.getConnections(server, json, databaseName);
 

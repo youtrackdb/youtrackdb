@@ -70,11 +70,11 @@ public class SQLMethodAsMap extends AbstractSQLMethod {
       return null;
     }
 
-    final HashMap<Object, Object> map = new HashMap<Object, Object>();
+    final var map = new HashMap<Object, Object>();
     while (iter.hasNext()) {
-      final Object key = iter.next();
+      final var key = iter.next();
       if (iter.hasNext()) {
-        final Object value = iter.next();
+        final var value = iter.next();
         map.put(key, value);
       }
     }

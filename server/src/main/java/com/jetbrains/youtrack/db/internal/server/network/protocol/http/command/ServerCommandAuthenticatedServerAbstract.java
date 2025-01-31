@@ -73,7 +73,7 @@ public abstract class ServerCommandAuthenticatedServerAbstract extends ServerCom
 
     if (iRequest.getAuthorization() != null) {
       // GET CREDENTIALS
-      final String[] authParts = iRequest.getAuthorization().split(":");
+      final var authParts = iRequest.getAuthorization().split(":");
       if (authParts.length != 2) {
         // NO USER : PASSWD
         sendAuthorizationRequest(iRequest, iResponse);
@@ -117,12 +117,12 @@ public abstract class ServerCommandAuthenticatedServerAbstract extends ServerCom
     iRequest.setSessionId(SESSIONID_UNAUTHORIZED);
 
     String header = null;
-    String xRequestedWithHeader = iRequest.getHeader("X-Requested-With");
+    var xRequestedWithHeader = iRequest.getHeader("X-Requested-With");
     if (xRequestedWithHeader == null || !xRequestedWithHeader.equals("XMLHttpRequest")) {
       // Defaults to "WWW-Authenticate: Basic" if not an AJAX Request.
       header = server.getSecurity().getAuthenticationHeader(null);
 
-      Map<String, String> headers = server.getSecurity().getAuthenticationHeaders(null);
+      var headers = server.getSecurity().getAuthenticationHeaders(null);
       headers.entrySet().forEach(s -> iResponse.addHeader(s.getKey(), s.getValue()));
     }
 
@@ -145,13 +145,13 @@ public abstract class ServerCommandAuthenticatedServerAbstract extends ServerCom
   }
 
   public String getUser(final HttpRequest iRequest) {
-    HttpSession session = server.getHttpSessionManager().getSession(iRequest.getSessionId());
+    var session = server.getHttpSessionManager().getSession(iRequest.getSessionId());
     if (session != null) {
       return session.getUserName();
     }
     if (iRequest.getAuthorization() != null) {
       // GET CREDENTIALS
-      final String[] authParts = iRequest.getAuthorization().split(":");
+      final var authParts = iRequest.getAuthorization().split(":");
       if (authParts.length == 2) {
         return authParts[0];
       }

@@ -72,7 +72,7 @@ public class DbImportExportTest extends BaseDBTest implements CommandOutputListe
     // ADD A CUSTOM TO THE CLASS
     db.command("alter class V custom onBeforeCreate=onBeforeCreateItem").close();
 
-    final DatabaseExport export =
+    final var export =
         new DatabaseExport(db, testPath + "/" + exportFilePath, this);
     export.exportDatabase();
     export.close();
@@ -84,26 +84,26 @@ public class DbImportExportTest extends BaseDBTest implements CommandOutputListe
       return;
     }
 
-    final File importDir = new File(testPath + "/" + IMPORT_DB_PATH);
+    final var importDir = new File(testPath + "/" + IMPORT_DB_PATH);
     if (importDir.exists()) {
-      for (final File f : importDir.listFiles()) {
+      for (final var f : importDir.listFiles()) {
         f.delete();
       }
     } else {
       importDir.mkdir();
     }
 
-    try (YouTrackDB youTrackDBImport =
+    try (var youTrackDBImport =
         YourTracks.embedded(
             testPath + File.separator + IMPORT_DB_PATH, YouTrackDBConfig.defaultConfig())) {
       youTrackDBImport.createIfNotExists(
           IMPORT_DB_NAME, DatabaseType.PLOCAL, "admin", "admin", "admin");
       try (var importDB = youTrackDBImport.open(IMPORT_DB_NAME, "admin", "admin")) {
-        final DatabaseImport dbImport =
+        final var dbImport =
             new DatabaseImport(
                 (DatabaseSessionInternal) importDB, testPath + "/" + exportFilePath, this);
         // UNREGISTER ALL THE HOOKS
-        for (final RecordHook hook : new ArrayList<>(importDB.getHooks().keySet())) {
+        for (final var hook : new ArrayList<>(importDB.getHooks().keySet())) {
           db.unregisterHook(hook);
         }
         dbImport.setDeleteRIDMapping(false);
@@ -118,11 +118,11 @@ public class DbImportExportTest extends BaseDBTest implements CommandOutputListe
     if (remoteDB) {
       return;
     }
-    try (YouTrackDB youTrackDBImport =
+    try (var youTrackDBImport =
         YourTracks.embedded(
             testPath + File.separator + IMPORT_DB_PATH, YouTrackDBConfig.defaultConfig())) {
       try (var importDB = youTrackDBImport.open(IMPORT_DB_NAME, "admin", "admin")) {
-        final DatabaseCompare databaseCompare =
+        final var databaseCompare =
             new DatabaseCompare(db, (DatabaseSessionInternal) importDB, this);
         databaseCompare.setCompareEntriesForAutomaticIndexes(true);
         databaseCompare.setCompareIndexMetadata(true);
@@ -137,11 +137,11 @@ public class DbImportExportTest extends BaseDBTest implements CommandOutputListe
       return;
     }
 
-    final File localTesPath = new File(testPath + "/target", "embeddedListMigration");
+    final var localTesPath = new File(testPath + "/target", "embeddedListMigration");
     FileUtils.deleteRecursively(localTesPath);
     Assert.assertTrue(localTesPath.mkdirs());
 
-    final File exportPath = new File(localTesPath, "export.json.gz");
+    final var exportPath = new File(localTesPath, "export.json.gz");
 
     final YouTrackDBConfig config =
         new YouTrackDBConfigBuilderImpl()
@@ -152,39 +152,39 @@ public class DbImportExportTest extends BaseDBTest implements CommandOutputListe
         config)) {
       youTrackDB.create("original", DatabaseType.PLOCAL);
 
-      try (final DatabaseSessionInternal session = (DatabaseSessionInternal) youTrackDB.open(
+      try (final var session = (DatabaseSessionInternal) youTrackDB.open(
           "original", "admin", "admin")) {
         final Schema schema = session.getMetadata().getSchema();
 
-        final SchemaClass rootCls = schema.createClass("RootClass");
+        final var rootCls = schema.createClass("RootClass");
         rootCls.createProperty(session, "embeddedList", PropertyType.EMBEDDEDLIST);
 
-        final SchemaClass childCls = schema.createClass("ChildClass");
+        final var childCls = schema.createClass("ChildClass");
 
         final List<RID> ridsToDelete = new ArrayList<>();
-        for (int i = 0; i < 100; i++) {
+        for (var i = 0; i < 100; i++) {
           session.begin();
-          final EntityImpl document = ((EntityImpl) session.newEntity(childCls));
+          final var document = ((EntityImpl) session.newEntity(childCls));
           document.save();
           session.commit();
 
           ridsToDelete.add(document.getIdentity());
         }
 
-        for (final RID rid : ridsToDelete) {
+        for (final var rid : ridsToDelete) {
           session.begin();
           rid.getRecord(session).delete();
           session.commit();
         }
 
-        final EntityImpl rootDocument = ((EntityImpl) session.newEntity(rootCls));
-        final ArrayList<EntityImpl> documents = new ArrayList<>();
+        final var rootDocument = ((EntityImpl) session.newEntity(rootCls));
+        final var documents = new ArrayList<EntityImpl>();
 
-        for (int i = 0; i < 10; i++) {
+        for (var i = 0; i < 10; i++) {
           session.begin();
-          final EntityImpl embeddedDocument = ((EntityImpl) session.newEntity());
+          final var embeddedDocument = ((EntityImpl) session.newEntity());
 
-          final EntityImpl doc = ((EntityImpl) session.newEntity(childCls));
+          final var doc = ((EntityImpl) session.newEntity(childCls));
           doc.save();
           session.commit();
 
@@ -197,25 +197,25 @@ public class DbImportExportTest extends BaseDBTest implements CommandOutputListe
         rootDocument.save();
         session.commit();
 
-        final DatabaseExport databaseExport =
+        final var databaseExport =
             new DatabaseExport(
                 session, exportPath.getPath(), System.out::println);
         databaseExport.exportDatabase();
       }
 
       youTrackDB.create("imported", DatabaseType.PLOCAL);
-      try (final DatabaseSessionInternal session =
+      try (final var session =
           (DatabaseSessionInternal) youTrackDB.open("imported", "admin", "admin")) {
-        final DatabaseImport databaseImport =
+        final var databaseImport =
             new DatabaseImport(session, exportPath.getPath(), System.out::println);
         databaseImport.run();
 
         final Iterator<EntityImpl> classIterator = session.browseClass("RootClass");
-        final EntityImpl rootDocument = classIterator.next();
+        final var rootDocument = classIterator.next();
 
         final List<EntityImpl> documents = rootDocument.field("embeddedList");
-        for (int i = 0; i < 10; i++) {
-          final EntityImpl embeddedDocument = documents.get(i);
+        for (var i = 0; i < 10; i++) {
+          final var embeddedDocument = documents.get(i);
 
           embeddedDocument.setLazyLoad(false);
           final RecordId link = embeddedDocument.getProperty("link");

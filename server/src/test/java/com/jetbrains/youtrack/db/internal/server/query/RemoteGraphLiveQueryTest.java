@@ -30,15 +30,15 @@ public class RemoteGraphLiveQueryTest extends BaseServerMemoryDatabase {
     db.commit();
 
     db.begin();
-    try (ResultSet resultSet =
+    try (var resultSet =
         db.command("create edge TestEdge  from (select from FirstV) to (select from SecondV)")) {
-      Result result = resultSet.stream().iterator().next();
+      var result = resultSet.stream().iterator().next();
 
       Assert.assertTrue(result.isEdge());
     }
     db.commit();
 
-    AtomicLong l = new AtomicLong(0);
+    var l = new AtomicLong(0);
 
     db.live(
         "select from SecondV",

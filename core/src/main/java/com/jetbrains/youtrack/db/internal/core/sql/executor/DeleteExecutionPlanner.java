@@ -35,7 +35,7 @@ public class DeleteExecutionPlanner {
   }
 
   public DeleteExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    DeleteExecutionPlan result = new DeleteExecutionPlan(ctx);
+    var result = new DeleteExecutionPlan(ctx);
 
     if (handleIndexAsTarget(
         result, fromClause.getItem().getIndex(), whereClause, ctx, enableProfiling)) {
@@ -70,13 +70,13 @@ public class DeleteExecutionPlanner {
     if (indexIdentifier == null) {
       return false;
     }
-    String indexName = indexIdentifier.getIndexName();
-    final DatabaseSessionInternal database = ctx.getDatabase();
-    Index index = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
+    var indexName = indexIdentifier.getIndexName();
+    final var database = ctx.getDatabase();
+    var index = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
     if (index == null) {
       throw new CommandExecutionException("Index not found: " + indexName);
     }
-    List<SQLAndBlock> flattenedWhereClause = whereClause == null ? null : whereClause.flatten();
+    var flattenedWhereClause = whereClause == null ? null : whereClause.flatten();
 
     switch (indexIdentifier.getType()) {
       case INDEX:
@@ -93,7 +93,7 @@ public class DeleteExecutionPlanner {
           throw new CommandExecutionException(
               "Index queries with this kind of condition are not supported yet: " + whereClause);
         } else {
-          SQLAndBlock andBlock = flattenedWhereClause.get(0);
+          var andBlock = flattenedWhereClause.get(0);
           if (andBlock.getSubBlocks().size() == 1) {
 
             whereClause =
@@ -125,7 +125,7 @@ public class DeleteExecutionPlanner {
             new DeleteFromIndexStep(
                 index, keyCondition, null, ridCondition, ctx, profilingEnabled));
         if (ridCondition != null) {
-          SQLWhereClause where = new SQLWhereClause(-1);
+          var where = new SQLWhereClause(-1);
           where.setBaseExpression(ridCondition);
           result.chain(new FilterStep(where, ctx, -1, profilingEnabled));
         }
@@ -190,18 +190,18 @@ public class DeleteExecutionPlanner {
       SQLFromClause target,
       SQLWhereClause whereClause,
       boolean profilingEnabled) {
-    SQLSelectStatement sourceStatement = new SQLSelectStatement(-1);
+    var sourceStatement = new SQLSelectStatement(-1);
     sourceStatement.setTarget(target);
     sourceStatement.setWhereClause(whereClause);
-    SelectExecutionPlanner planner = new SelectExecutionPlanner(sourceStatement);
+    var planner = new SelectExecutionPlanner(sourceStatement);
     result.chain(
         new SubQueryStep(
             planner.createExecutionPlan(ctx, profilingEnabled, false), ctx, ctx, profilingEnabled));
   }
 
   private SQLBooleanExpression getKeyCondition(SQLAndBlock andBlock) {
-    for (SQLBooleanExpression exp : andBlock.getSubBlocks()) {
-      String str = exp.toString();
+    for (var exp : andBlock.getSubBlocks()) {
+      var str = exp.toString();
       if (str.length() < 5) {
         continue;
       }
@@ -213,8 +213,8 @@ public class DeleteExecutionPlanner {
   }
 
   private SQLBooleanExpression getRidCondition(SQLAndBlock andBlock) {
-    for (SQLBooleanExpression exp : andBlock.getSubBlocks()) {
-      String str = exp.toString();
+    for (var exp : andBlock.getSubBlocks()) {
+      var str = exp.toString();
       if (str.length() < 5) {
         continue;
       }

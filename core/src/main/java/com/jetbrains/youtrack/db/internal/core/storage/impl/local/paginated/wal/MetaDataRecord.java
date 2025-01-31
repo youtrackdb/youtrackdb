@@ -36,7 +36,7 @@ public final class MetaDataRecord extends AbstractWALRecord {
 
   @Override
   public int fromStream(byte[] content, int offset) {
-    final int metadataLen = IntegerSerializer.INSTANCE.deserializeNative(content, offset);
+    final var metadataLen = IntegerSerializer.INSTANCE.deserializeNative(content, offset);
     offset += IntegerSerializer.INT_SIZE;
 
     metadata = new byte[metadataLen];

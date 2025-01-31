@@ -57,7 +57,7 @@ public class ProfilerEntry {
   }
 
   public EntityImpl toDocument() {
-    final EntityImpl entity = new EntityImpl(null);
+    final var entity = new EntityImpl(null);
     entity.field("entries", entries);
     entity.field("last", last);
     entity.field("min", min);
@@ -75,7 +75,7 @@ public class ProfilerEntry {
   }
 
   public String toJSON() {
-    final StringBuilder buffer = new StringBuilder(1024);
+    final var buffer = new StringBuilder(1024);
     toJSON(buffer);
     return buffer.toString();
   }
@@ -98,9 +98,9 @@ public class ProfilerEntry {
     }
     buffer.append(String.format(Locale.ENGLISH, "\"%s\": [", "users"));
 
-    String usersList = "";
-    int i = 0;
-    for (String user : users) {
+    var usersList = "";
+    var i = 0;
+    for (var user : users) {
       buffer.append(String.format(Locale.ENGLISH, "%s\"%s\"", (i > 0) ? "," : "", user));
       i++;
     }

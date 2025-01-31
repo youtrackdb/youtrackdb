@@ -29,7 +29,7 @@ public class SQLTraverseProjectionItem extends SimpleNode {
     if (isStar()) {
       return handleStar(iCurrentRecord, ctx);
     }
-    Object result = base.execute(iCurrentRecord, ctx);
+    var result = base.execute(iCurrentRecord, ctx);
     if (modifier != null) {
       result = modifier.execute(iCurrentRecord, result, ctx);
     }
@@ -49,8 +49,8 @@ public class SQLTraverseProjectionItem extends SimpleNode {
 
   private Object handleStar(Result iCurrentRecord, CommandContext ctx) {
     Set<Object> result = new HashSet<>();
-    for (String prop : iCurrentRecord.getPropertyNames()) {
-      Object val = iCurrentRecord.getProperty(prop);
+    for (var prop : iCurrentRecord.getPropertyNames()) {
+      var val = iCurrentRecord.getProperty(prop);
       if (isOResult(val) || isValidIdentifiable(val)) {
         result.add(val);
 
@@ -60,7 +60,7 @@ public class SQLTraverseProjectionItem extends SimpleNode {
         }
         if (val instanceof Iterator) {
           while (((Iterator) val).hasNext()) {
-            Object sub = ((Iterator) val).next();
+            var sub = ((Iterator) val).next();
             if (isOResult(sub) || isValidIdentifiable(sub)) {
               result.add(sub);
             }
@@ -103,7 +103,7 @@ public class SQLTraverseProjectionItem extends SimpleNode {
   }
 
   public SQLTraverseProjectionItem copy() {
-    SQLTraverseProjectionItem result = new SQLTraverseProjectionItem(-1);
+    var result = new SQLTraverseProjectionItem(-1);
     result.base = base == null ? null : base.copy();
     result.modifier = modifier == null ? null : modifier.copy();
     return result;
@@ -118,7 +118,7 @@ public class SQLTraverseProjectionItem extends SimpleNode {
       return false;
     }
 
-    SQLTraverseProjectionItem that = (SQLTraverseProjectionItem) o;
+    var that = (SQLTraverseProjectionItem) o;
 
     if (!Objects.equals(base, that.base)) {
       return false;
@@ -128,7 +128,7 @@ public class SQLTraverseProjectionItem extends SimpleNode {
 
   @Override
   public int hashCode() {
-    int result = (base != null ? base.hashCode() : 0);
+    var result = (base != null ? base.hashCode() : 0);
     result = 31 * result + (modifier != null ? modifier.hashCode() : 0);
     return result;
   }

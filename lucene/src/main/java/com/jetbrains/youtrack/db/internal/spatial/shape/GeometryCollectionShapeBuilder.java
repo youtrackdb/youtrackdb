@@ -48,7 +48,7 @@ public class GeometryCollectionShapeBuilder extends ComplexShapeBuilder<ShapeCol
 
   @Override
   public ShapeCollection<Shape> fromMapGeoJson(Map<String, Object> geoJsonMap) {
-    EntityImpl doc = new EntityImpl(null, getName());
+    var doc = new EntityImpl(null, getName());
     doc.field("geometries", geoJsonMap.get("geometries"));
     return fromDoc(doc);
   }
@@ -60,8 +60,8 @@ public class GeometryCollectionShapeBuilder extends ComplexShapeBuilder<ShapeCol
 
     List<Shape> shapes = new ArrayList<Shape>();
 
-    for (Object geometry : geometries) {
-      Shape shape = shapeFactory.fromObject(geometry);
+    for (var geometry : geometries) {
+      var shape = shapeFactory.fromObject(geometry);
       shapes.add(shape);
     }
 
@@ -72,17 +72,17 @@ public class GeometryCollectionShapeBuilder extends ComplexShapeBuilder<ShapeCol
   public void initClazz(DatabaseSessionInternal db) {
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass shape = superClass(db);
-    SchemaClass polygon = schema.createAbstractClass(getName(), shape);
+    var shape = superClass(db);
+    var polygon = schema.createAbstractClass(getName(), shape);
     polygon.createProperty(db, "geometries", PropertyType.EMBEDDEDLIST, shape);
   }
 
   @Override
   public String asText(ShapeCollection<Shape> shapes) {
 
-    Geometry[] geometries = new Geometry[shapes.size()];
-    int i = 0;
-    for (Shape shape : shapes) {
+    var geometries = new Geometry[shapes.size()];
+    var i = 0;
+    for (var shape : shapes) {
       geometries[i] = SPATIAL_CONTEXT.getGeometryFrom(shape);
       i++;
     }
@@ -92,9 +92,9 @@ public class GeometryCollectionShapeBuilder extends ComplexShapeBuilder<ShapeCol
   @Override
   public EntityImpl toEntitty(ShapeCollection<Shape> shapes) {
 
-    EntityImpl doc = new EntityImpl(null, getName());
+    var doc = new EntityImpl(null, getName());
     List<EntityImpl> geometries = new ArrayList<EntityImpl>(shapes.size());
-    for (Shape s : shapes) {
+    for (var s : shapes) {
       geometries.add(shapeFactory.toEntitty(s));
     }
     doc.field("geometries", geometries);

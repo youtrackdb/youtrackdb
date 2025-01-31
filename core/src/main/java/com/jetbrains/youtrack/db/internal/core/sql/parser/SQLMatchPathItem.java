@@ -37,8 +37,8 @@ public class SQLMatchPathItem extends SimpleNode {
     this.method = new SQLMethodCall(-1);
     this.method.methodName = new SQLIdentifier(-1);
     this.method.methodName.value = direction;
-    SQLExpression exp = new SQLExpression(-1);
-    SQLBaseExpression sub = new SQLBaseExpression(edgeName.getStringValue());
+    var exp = new SQLExpression(-1);
+    var sub = new SQLBaseExpression(edgeName.getStringValue());
     exp.mathExpression = sub;
     this.method.addParam(exp);
   }
@@ -96,7 +96,7 @@ public class SQLMatchPathItem extends SimpleNode {
       filter = this.filter.getFilter();
       whileCondition = this.filter.getWhileCondition();
       maxDepth = this.filter.getMaxDepth();
-      String className = this.filter.getClassName(iCommandContext);
+      var className = this.filter.getClassName(iCommandContext);
       oClass = iCommandContext.getDatabase().getMetadata().getImmutableSchemaSnapshot()
           .getClass(className);
     }
@@ -108,15 +108,15 @@ public class SQLMatchPathItem extends SimpleNode {
         && maxDepth
         == null) { // in this case starting point is not returned and only one level depth is
       // evaluated
-      Iterable<Identifiable> queryResult =
+      var queryResult =
           traversePatternEdge(matchContext, startingPoint, iCommandContext);
 
       if (this.filter == null || this.filter.getFilter() == null) {
         return queryResult;
       }
 
-      for (Identifiable origin : queryResult) {
-        Object previousMatch = iCommandContext.getVariable("$currentMatch");
+      for (var origin : queryResult) {
+        var previousMatch = iCommandContext.getVariable("$currentMatch");
         iCommandContext.setVariable("$currentMatch", origin);
         if ((oClass == null || matchesClass(db, origin, oClass))
             && (filter == null || filter.matchesFilters(origin, iCommandContext))) {
@@ -127,7 +127,7 @@ public class SQLMatchPathItem extends SimpleNode {
     } else { // in this case also zero level (starting point) is considered and traversal depth is
       // given by the while condition
       iCommandContext.setVariable("$depth", depth);
-      Object previousMatch = iCommandContext.getVariable("$currentMatch");
+      var previousMatch = iCommandContext.getVariable("$currentMatch");
       iCommandContext.setVariable("$currentMatch", startingPoint);
       if ((oClass == null || matchesClass(db, startingPoint, oClass))
           && (filter == null || filter.matchesFilters(startingPoint, iCommandContext))) {
@@ -138,17 +138,17 @@ public class SQLMatchPathItem extends SimpleNode {
           && (whileCondition == null
           || whileCondition.matchesFilters(startingPoint, iCommandContext))) {
 
-        Iterable<Identifiable> queryResult =
+        var queryResult =
             traversePatternEdge(matchContext, startingPoint, iCommandContext);
 
-        for (Identifiable origin : queryResult) {
+        for (var origin : queryResult) {
           // TODO consider break strategies (eg. re-traverse nodes)
-          Iterable<Identifiable> subResult =
+          var subResult =
               executeTraversal(matchContext, iCommandContext, origin, depth + 1);
           if (subResult instanceof Collection) {
             result.addAll((Collection<? extends Identifiable>) subResult);
           } else {
-            for (Identifiable i : subResult) {
+            for (var i : subResult) {
               result.add(i);
             }
           }
@@ -183,7 +183,7 @@ public class SQLMatchPathItem extends SimpleNode {
 
     Iterable possibleResults = null;
     if (filter != null) {
-      Identifiable matchedNode = matchContext.matched.get(filter.getAlias());
+      var matchedNode = matchContext.matched.get(filter.getAlias());
       if (matchedNode != null) {
         possibleResults = Collections.singleton(matchedNode);
       } else if (matchContext.matched.containsKey(filter.getAlias())) {
@@ -195,7 +195,7 @@ public class SQLMatchPathItem extends SimpleNode {
       }
     }
 
-    Object qR = this.method.execute(startingPoint, possibleResults, iCommandContext);
+    var qR = this.method.execute(startingPoint, possibleResults, iCommandContext);
     return (qR instanceof Iterable && !(qR instanceof EntityImpl))
         ? (Iterable) qR
         : Collections.singleton((Identifiable) qR);
@@ -210,7 +210,7 @@ public class SQLMatchPathItem extends SimpleNode {
       return false;
     }
 
-    SQLMatchPathItem that = (SQLMatchPathItem) o;
+    var that = (SQLMatchPathItem) o;
 
     if (!Objects.equals(method, that.method)) {
       return false;
@@ -220,7 +220,7 @@ public class SQLMatchPathItem extends SimpleNode {
 
   @Override
   public int hashCode() {
-    int result = method != null ? method.hashCode() : 0;
+    var result = method != null ? method.hashCode() : 0;
     result = 31 * result + (filter != null ? filter.hashCode() : 0);
     return result;
   }

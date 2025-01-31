@@ -41,8 +41,8 @@ public class DBSequenceRemoteTest extends AbstractRemoteTest {
     db.command("CREATE INDEX Person.id ON Person (id) UNIQUE");
 
     db.begin();
-    for (int i = 0; i < 10; i++) {
-      Vertex person = db.newVertex("Person");
+    for (var i = 0; i < 10; i++) {
+      var person = db.newVertex("Person");
       person.setProperty("name", "Foo" + i);
       person.setProperty("id", 1000 + i);
       person.save();
@@ -64,8 +64,8 @@ public class DBSequenceRemoteTest extends AbstractRemoteTest {
 
     db.begin();
 
-    for (int i = 0; i < 10; i++) {
-      Vertex person = db.newVertex("Person");
+    for (var i = 0; i < 10; i++) {
+      var person = db.newVertex("Person");
       person.setProperty("name", "Foo" + i);
       person.save();
     }

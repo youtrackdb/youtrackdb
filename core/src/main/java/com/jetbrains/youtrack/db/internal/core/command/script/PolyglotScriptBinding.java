@@ -21,21 +21,21 @@ public class PolyglotScriptBinding implements Bindings {
 
   @Override
   public Object put(String name, Object value) {
-    final Value old = context.getMember(name);
+    final var old = context.getMember(name);
     context.putMember(name, value);
     return old;
   }
 
   @Override
   public void putAll(Map<? extends String, ?> toMerge) {
-    for (Entry<? extends String, ?> entry : toMerge.entrySet()) {
+    for (var entry : toMerge.entrySet()) {
       context.putMember(entry.getKey(), entry.getValue());
     }
   }
 
   @Override
   public void clear() {
-    for (String name : context.getMemberKeys()) {
+    for (var name : context.getMemberKeys()) {
       context.removeMember(name);
     }
   }
@@ -48,7 +48,7 @@ public class PolyglotScriptBinding implements Bindings {
   @Override
   public Collection<Object> values() {
     List<Object> result = new ArrayList<>();
-    for (String name : context.getMemberKeys()) {
+    for (var name : context.getMemberKeys()) {
       result.add(context.getMember(name));
     }
     return result;
@@ -86,7 +86,7 @@ public class PolyglotScriptBinding implements Bindings {
 
   @Override
   public Object remove(Object key) {
-    final Value old = context.getMember(key.toString());
+    final var old = context.getMember(key.toString());
     context.removeMember(key.toString());
     return old;
   }

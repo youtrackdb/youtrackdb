@@ -70,9 +70,9 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
    */
   public CommandExecutorSQLTraverse parse(DatabaseSessionInternal db,
       final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    final var textRequest = (CommandRequestText) iRequest;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       traverse = new Traverse(iRequest.getContext().getDatabase());
       queryText = preParse(queryText, iRequest);
@@ -80,14 +80,14 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
 
       super.parse(db, iRequest);
 
-      final int pos = parseFields();
+      final var pos = parseFields();
       if (pos == -1) {
         throw new CommandSQLParsingException(
             "Traverse must have the field list. Use " + getSyntax());
       }
       parserSetCurrentPosition(pos);
 
-      int endPosition = parserText.length();
+      var endPosition = parserText.length();
 
       parsedTarget =
           SQLEngine
@@ -142,7 +142,7 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
             KEYWORD_TIMEOUT,
             KEYWORD_MAXDEPTH,
             KEYWORD_STRATEGY)) {
-          final String w = parserGetLastWord();
+          final var w = parserGetLastWord();
           if (w.equals(KEYWORD_LIMIT)) {
             parseLimit(w);
           } else if (w.equals(KEYWORD_SKIP) || w.equals(KEYWORD_OFFSET)) {
@@ -175,7 +175,7 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
       return false;
     }
 
-    String word = parserNextWord(true);
+    var word = parserNextWord(true);
 
     try {
       traverse.setMaxDepth(Integer.parseInt(word));
@@ -216,8 +216,8 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
       }
 
       // BROWSE ALL THE RECORDS AND COLLECTS RESULT
-      final List<Identifiable> result = traverse.execute(db);
-      for (Identifiable r : result) {
+      final var result = traverse.execute(db);
+      for (var r : result) {
         if (!handleResult(r, context))
         // LIMIT REACHED
         {
@@ -270,28 +270,28 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
   }
 
   protected int parseFields() {
-    int currentPos = 0;
-    final StringBuilder word = new StringBuilder();
+    var currentPos = 0;
+    final var word = new StringBuilder();
 
     currentPos = nextWord(parserText, parserTextUpperCase, currentPos, word, true);
     if (!word.toString().equals(KEYWORD_TRAVERSE)) {
       return -1;
     }
 
-    int fromPosition = parserTextUpperCase.indexOf(KEYWORD_FROM_2FIND, currentPos);
+    var fromPosition = parserTextUpperCase.indexOf(KEYWORD_FROM_2FIND, currentPos);
     if (fromPosition == -1) {
       throw new QueryParsingException("Missed " + KEYWORD_FROM, parserText, currentPos);
     }
 
     Set<Object> fields = new HashSet<Object>();
 
-    final String fieldString = parserText.substring(currentPos, fromPosition).trim();
+    final var fieldString = parserText.substring(currentPos, fromPosition).trim();
     if (fieldString.length() > 0) {
       // EXTRACT PROJECTIONS
-      final List<String> items = StringSerializerHelper.smartSplit(fieldString, ',');
+      final var items = StringSerializerHelper.smartSplit(fieldString, ',');
 
-      for (String field : items) {
-        final String fieldName = field.trim();
+      for (var field : items) {
+        final var fieldName = field.trim();
 
         if (fieldName.contains("(")) {
           fields.add(SQLHelper.parseValue(null, fieldName, context));
@@ -319,7 +319,7 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
       return false;
     }
 
-    final String strategyWord = parserNextWord(true);
+    final var strategyWord = parserNextWord(true);
 
     try {
       traverse.setStrategy(Traverse.STRATEGY.valueOf(strategyWord.toUpperCase(Locale.ENGLISH)));

@@ -45,16 +45,16 @@ public class DbCopyTest extends BaseDBTest implements CommandOutputListener {
 
   @Test
   public void checkCopy() throws IOException {
-    final String className = "DbCopyTest";
+    final var className = "DbCopyTest";
     db.getMetadata().getSchema().createClass(className);
 
-    final DatabaseSessionInternal otherDB = db.copy();
+    final var otherDB = db.copy();
     db.activateOnCurrentThread();
-    Thread thread =
+    var thread =
         new Thread(() -> {
           try {
             otherDB.activateOnCurrentThread();
-            for (int i = 0; i < 5; i++) {
+            for (var i = 0; i < 5; i++) {
               otherDB.begin();
               EntityImpl doc = otherDB.newInstance(className);
               doc.field("num", 20 + i);
@@ -75,7 +75,7 @@ public class DbCopyTest extends BaseDBTest implements CommandOutputListener {
         });
     thread.start();
 
-    for (int i = 0; i < 20; i++) {
+    for (var i = 0; i < 20; i++) {
       db.begin();
       EntityImpl doc = db.newInstance(className);
       doc.field("num", i);
@@ -95,7 +95,7 @@ public class DbCopyTest extends BaseDBTest implements CommandOutputListener {
     }
 
     db.begin();
-    ResultSet result = db.query("SELECT FROM " + className);
+    var result = db.query("SELECT FROM " + className);
     Assert.assertEquals(result.stream().count(), 25);
     db.commit();
   }

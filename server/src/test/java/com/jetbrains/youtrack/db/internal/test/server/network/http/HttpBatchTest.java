@@ -38,13 +38,13 @@ public class HttpBatchTest extends BaseHttpDatabaseTest {
             .getResponse()
             .getCode());
 
-    String response = EntityUtils.toString(getResponse().getEntity());
+    var response = EntityUtils.toString(getResponse().getEntity());
 
     Assert.assertNotNull(response);
 
     var responseDoc = new EntityImpl(null);
     responseDoc.updateFromJSON(response);
-    EntityImpl insertedDocument =
+    var insertedDocument =
         ((List<EntityImpl>) responseDoc.field("result")).get(0);
 
     // TEST UPDATE
@@ -123,7 +123,7 @@ public class HttpBatchTest extends BaseHttpDatabaseTest {
   }
 
   private void batchWithEmpty() throws IOException {
-    String json =
+    var json =
         "{\n"
             + "\"operations\": [{\n"
             + "\"type\": \"script\",\n"
@@ -136,30 +136,30 @@ public class HttpBatchTest extends BaseHttpDatabaseTest {
     var response = post("batch/" + getDatabaseName()).payload(json, CONTENT.TEXT).getResponse();
 
     Assert.assertEquals(200, response.getCode());
-    InputStream stream = response.getEntity().getContent();
-    String string = "";
-    BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-    String line = reader.readLine();
+    var stream = response.getEntity().getContent();
+    var string = "";
+    var reader = new BufferedReader(new InputStreamReader(stream));
+    var line = reader.readLine();
     while (line != null) {
       string += line;
       line = reader.readLine();
     }
     System.out.println(string);
-    EntityImpl doc = new EntityImpl(null);
+    var doc = new EntityImpl(null);
     doc.updateFromJSON(string);
 
     stream.close();
-    Iterable iterable = (Iterable) doc.eval("result.value");
+    var iterable = (Iterable) doc.eval("result.value");
 
     System.out.println(iterable);
-    Iterator iterator = iterable.iterator();
+    var iterator = iterable.iterator();
     Assert.assertTrue(iterator.hasNext());
     iterator.next();
     Assert.assertTrue(iterator.hasNext());
-    Object emptyList = iterator.next();
+    var emptyList = iterator.next();
     Assert.assertNotNull(emptyList);
     Assert.assertTrue(emptyList instanceof Iterable);
-    Iterator emptyListIterator = ((Iterable) emptyList).iterator();
+    var emptyListIterator = ((Iterable) emptyList).iterator();
     Assert.assertFalse(emptyListIterator.hasNext());
   }
 

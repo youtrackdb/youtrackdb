@@ -26,7 +26,7 @@ public class SQLTruncateClusterStatement extends DDLStatement {
 
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
-    DatabaseSessionAbstract database = (DatabaseSessionAbstract) ctx.getDatabase();
+    var database = (DatabaseSessionAbstract) ctx.getDatabase();
 
     Integer clusterId = null;
     if (clusterNumber != null) {
@@ -39,10 +39,10 @@ public class SQLTruncateClusterStatement extends DDLStatement {
       throw new DatabaseException("Cluster with name " + clusterName + " does not exist");
     }
 
-    String name = database.getClusterNameById(clusterId);
-    long count = database.truncateClusterInternal(name);
+    var name = database.getClusterNameById(clusterId);
+    var count = database.truncateClusterInternal(name);
 
-    ResultInternal result = new ResultInternal(database);
+    var result = new ResultInternal(database);
     result.setProperty("operation", "truncate cluster");
     result.setProperty("clusterName", name);
     result.setProperty("clusterId", clusterId);
@@ -79,7 +79,7 @@ public class SQLTruncateClusterStatement extends DDLStatement {
 
   @Override
   public SQLTruncateClusterStatement copy() {
-    SQLTruncateClusterStatement result = new SQLTruncateClusterStatement(-1);
+    var result = new SQLTruncateClusterStatement(-1);
     result.clusterName = clusterName == null ? null : clusterName.copy();
     result.clusterNumber = clusterNumber == null ? null : clusterNumber.copy();
     result.unsafe = unsafe;
@@ -95,7 +95,7 @@ public class SQLTruncateClusterStatement extends DDLStatement {
       return false;
     }
 
-    SQLTruncateClusterStatement that = (SQLTruncateClusterStatement) o;
+    var that = (SQLTruncateClusterStatement) o;
 
     if (unsafe != that.unsafe) {
       return false;
@@ -108,7 +108,7 @@ public class SQLTruncateClusterStatement extends DDLStatement {
 
   @Override
   public int hashCode() {
-    int result = clusterName != null ? clusterName.hashCode() : 0;
+    var result = clusterName != null ? clusterName.hashCode() : 0;
     result = 31 * result + (clusterNumber != null ? clusterNumber.hashCode() : 0);
     result = 31 * result + (unsafe ? 1 : 0);
     return result;

@@ -112,13 +112,13 @@ public class BinaryToken implements Token {
 
   @Override
   public boolean isNowValid() {
-    long now = System.currentTimeMillis();
+    var now = System.currentTimeMillis();
     return getExpiry() > now;
   }
 
   @Override
   public boolean isCloseToExpire() {
-    long now = System.currentTimeMillis();
+    var now = System.currentTimeMillis();
     return getExpiry() - 120000 <= now;
   }
 

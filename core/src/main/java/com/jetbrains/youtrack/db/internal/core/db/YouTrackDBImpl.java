@@ -277,7 +277,7 @@ public class YouTrackDBImpl implements YouTrackDB {
    */
   @Override
   public void create(String database, DatabaseType type, String... userCredentials) {
-    StringBuilder queryString = new StringBuilder("create database ? " + type.name());
+    var queryString = new StringBuilder("create database ? " + type.name());
     var params = addUsersToCreationScript(userCredentials, queryString);
     execute(queryString.toString(), ArrayUtils.add(params, 0, database)).close();
   }
@@ -335,7 +335,7 @@ public class YouTrackDBImpl implements YouTrackDB {
    */
   @Override
   public void createIfNotExists(String database, DatabaseType type, String... userCredentials) {
-    StringBuilder queryString =
+    var queryString =
         new StringBuilder("create database ? " + type.name() + " if not exists");
     var params = addUsersToCreationScript(userCredentials, queryString);
     execute(queryString.toString(), ArrayUtils.add(params, 0, database)).close();
@@ -352,7 +352,7 @@ public class YouTrackDBImpl implements YouTrackDB {
       queryString.append(" users (");
 
       var result = new String[2 * userCredentials.length / 3];
-      for (int i = 0; i < userCredentials.length / 3; i++) {
+      for (var i = 0; i < userCredentials.length / 3; i++) {
         if (i > 0) {
           queryString.append(", ");
         }
@@ -461,7 +461,7 @@ public class YouTrackDBImpl implements YouTrackDB {
   @Override
   public SessionPool cachedPool(
       String database, String user, String password, YouTrackDBConfig config) {
-    DatabasePoolInternal internalPool = internal.cachedPool(database, user, password, config);
+    var internalPool = internal.cachedPool(database, user, password, config);
 
     SessionPool pool = cachedPools.get(internalPool);
 

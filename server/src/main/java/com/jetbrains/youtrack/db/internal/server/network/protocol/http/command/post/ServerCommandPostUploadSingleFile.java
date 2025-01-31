@@ -78,7 +78,7 @@ public class ServerCommandPostUploadSingleFile extends
             new HttpMultipartContentBaseParser(),
             new HttpMultipartFileToRecordContentParser(),
             database);
-        boolean ok = saveRecord(database, iRequest, iResponse);
+        var ok = saveRecord(database, iRequest, iResponse);
         writer.endObject();
         writer.flush();
         if (ok) {
@@ -141,8 +141,8 @@ public class ServerCommandPostUploadSingleFile extends
         }
         fileType = headers.get(HttpUtils.MULTIPART_CONTENT_TYPE);
 
-        final Calendar cal = Calendar.getInstance();
-        final DateFormat formatter = DateHelper.getDateFormatInstance(database);
+        final var cal = Calendar.getInstance();
+        final var formatter = DateHelper.getDateFormatInstance(database);
         now = cal.getTimeInMillis();
 
         writer.beginObject("uploadedFile");
@@ -172,7 +172,7 @@ public class ServerCommandPostUploadSingleFile extends
         if (fileDocument.contains("$file")) {
           fileDocument = fileDocument.replace("$file", fileRID.toString());
         }
-        EntityImpl entity = new EntityImpl(db);
+        var entity = new EntityImpl(db);
         entity.updateFromJSON(fileDocument);
         entity.save();
         writer.beginObject("updatedDocument");

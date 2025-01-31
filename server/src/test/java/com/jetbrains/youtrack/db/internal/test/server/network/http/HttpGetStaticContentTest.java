@@ -28,11 +28,11 @@ public class HttpGetStaticContentTest extends BaseHttpTest {
         new CallableFunction<Object, String>() {
           @Override
           public Object call(final String iArgument) {
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            final URL url = classLoader.getResource(iArgument);
+            var classLoader = Thread.currentThread().getContextClassLoader();
+            final var url = classLoader.getResource(iArgument);
 
             if (url != null) {
-              final StaticContent content =
+              final var content =
                   new StaticContent();
               content.is = new BufferedInputStream(classLoader.getResourceAsStream(iArgument));
               content.contentSize = -1;
@@ -42,9 +42,9 @@ public class HttpGetStaticContentTest extends BaseHttpTest {
             return null;
           }
         };
-    final ServerNetworkListener httpListener =
+    final var httpListener =
         getServer().getListenerByProtocol(NetworkProtocolHttpAbstract.class);
-    final ServerCommandGetStaticContent command =
+    final var command =
         (ServerCommandGetStaticContent)
             httpListener.getCommand(ServerCommandGetStaticContent.class);
     command.registerVirtualFolder("fake", callableFunction);
@@ -55,10 +55,10 @@ public class HttpGetStaticContentTest extends BaseHttpTest {
     var response = get("fake/index.htm").getResponse();
     Assert.assertEquals(200, response.getCode());
 
-    String expected =
+    var expected =
         IOUtils.readStreamAsString(
             this.getClass().getClassLoader().getResourceAsStream("index.htm"));
-    String actual = IOUtils.readStreamAsString(response.getEntity().getContent());
+    var actual = IOUtils.readStreamAsString(response.getEntity().getContent());
     Assert.assertEquals(expected, actual);
   }
 

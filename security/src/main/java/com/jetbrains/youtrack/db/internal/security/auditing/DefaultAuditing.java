@@ -131,20 +131,20 @@ public class DefaultAuditing
       return;
     }
 
-    final AuditingHook hook = defaultHook(iDatabase);
+    final var hook = defaultHook(iDatabase);
     hooks.put(iDatabase.getName(), hook);
     iDatabase.registerHook(hook);
     iDatabase.registerListener(hook);
   }
 
   private AuditingHook defaultHook(final DatabaseSessionInternal db) {
-    final File auditingFileConfig = getConfigFile(db.getName());
+    final var auditingFileConfig = getConfigFile(db.getName());
     String content = null;
     if (auditingFileConfig != null && auditingFileConfig.exists()) {
       content = getContent(auditingFileConfig);
 
     } else {
-      final InputStream resourceAsStream =
+      final var resourceAsStream =
           this.getClass().getClassLoader().getResourceAsStream(DEFAULT_FILE_AUDITING_DB_CONFIG);
       try {
         if (resourceAsStream == null) {
@@ -157,7 +157,7 @@ public class DefaultAuditing
             auditingFileConfig.getParentFile().mkdirs();
             auditingFileConfig.createNewFile();
 
-            final FileOutputStream f = new FileOutputStream(auditingFileConfig);
+            final var f = new FileOutputStream(auditingFileConfig);
             try {
               f.write(content.getBytes());
               f.flush();
@@ -179,16 +179,16 @@ public class DefaultAuditing
         }
       }
     }
-    final EntityImpl cfg = new EntityImpl(null).updateFromJSON(content, "noMap");
+    final var cfg = new EntityImpl(null).updateFromJSON(content, "noMap");
     return new AuditingHook(cfg, security);
   }
 
   private String getContent(File auditingFileConfig) {
     FileInputStream f = null;
-    String content = "";
+    var content = "";
     try {
       f = new FileInputStream(auditingFileConfig);
-      final byte[] buffer = new byte[(int) auditingFileConfig.length()];
+      final var buffer = new byte[(int) auditingFileConfig.length()];
       f.read(buffer);
 
       content = new String(buffer);
@@ -212,7 +212,7 @@ public class DefaultAuditing
 
     try {
       int ch;
-      final StringBuilder sb = new StringBuilder();
+      final var sb = new StringBuilder();
       while ((ch = is.read()) != -1) {
         sb.append((char) ch);
       }
@@ -235,7 +235,7 @@ public class DefaultAuditing
       return;
     }
 
-    AuditingHook oAuditingHook = hooks.get(iDatabase.getName());
+    var oAuditingHook = hooks.get(iDatabase.getName());
     if (oAuditingHook == null) {
       oAuditingHook = defaultHook(iDatabase);
       hooks.put(iDatabase.getName(), oAuditingHook);
@@ -246,7 +246,7 @@ public class DefaultAuditing
 
   @Override
   public void onClose(DatabaseSessionInternal iDatabase) {
-    final AuditingHook oAuditingHook = hooks.get(iDatabase.getName());
+    final var oAuditingHook = hooks.get(iDatabase.getName());
     if (oAuditingHook != null) {
       iDatabase.unregisterHook(oAuditingHook);
       iDatabase.unregisterListener(oAuditingHook);
@@ -257,12 +257,12 @@ public class DefaultAuditing
   public void onDrop(DatabaseSessionInternal iDatabase) {
     onClose(iDatabase);
 
-    final AuditingHook oAuditingHook = hooks.get(iDatabase.getName());
+    final var oAuditingHook = hooks.get(iDatabase.getName());
     if (oAuditingHook != null) {
       oAuditingHook.shutdown(false);
     }
 
-    File f = getConfigFile(iDatabase.getName());
+    var f = getConfigFile(iDatabase.getName());
     if (f != null && f.exists()) {
       LogManager.instance()
           .info(this, "Removing Auditing config for db : %s", iDatabase.getName());
@@ -281,7 +281,7 @@ public class DefaultAuditing
 
   @Override
   public void onCreateClass(DatabaseSessionInternal iDatabase, SchemaClass iClass) {
-    final AuditingHook oAuditingHook = hooks.get(iDatabase.getName());
+    final var oAuditingHook = hooks.get(iDatabase.getName());
 
     if (oAuditingHook != null) {
       oAuditingHook.onCreateClass(iClass);
@@ -290,7 +290,7 @@ public class DefaultAuditing
 
   @Override
   public void onDropClass(DatabaseSessionInternal iDatabase, SchemaClass iClass) {
-    final AuditingHook oAuditingHook = hooks.get(iDatabase.getName());
+    final var oAuditingHook = hooks.get(iDatabase.getName());
 
     if (oAuditingHook != null) {
       oAuditingHook.onDropClass(iClass);
@@ -303,9 +303,9 @@ public class DefaultAuditing
 
   protected void updateConfigOnDisk(final String iDatabaseName, final EntityImpl cfg)
       throws IOException {
-    final File auditingFileConfig = getConfigFile(iDatabaseName);
+    final var auditingFileConfig = getConfigFile(iDatabaseName);
     if (auditingFileConfig != null) {
-      final FileOutputStream f = new FileOutputStream(auditingFileConfig);
+      final var f = new FileOutputStream(auditingFileConfig);
       try {
         f.write(cfg.toJSON("prettyPrint=true").getBytes());
         f.flush();
@@ -400,7 +400,7 @@ public class DefaultAuditing
     // If dbName is null, then we submit the log message to the global auditing hook.
     // Otherwise, we submit it to the hook associated with dbName.
     if (dbName != null) {
-      final AuditingHook oAuditingHook = hooks.get(dbName);
+      final var oAuditingHook = hooks.get(dbName);
 
       if (oAuditingHook != null) {
         oAuditingHook.log(session, operation, dbName, user, message);
@@ -429,7 +429,7 @@ public class DefaultAuditing
   }
 
   private void createClassIfNotExists() {
-    final DatabaseSessionInternal currentDB = DatabaseRecordThreadLocal.instance()
+    final var currentDB = DatabaseRecordThreadLocal.instance()
         .getIfDefined();
 
     DatabaseSessionInternal sysdb = null;
@@ -438,7 +438,7 @@ public class DefaultAuditing
       sysdb = context.getSystemDatabase().openSystemDatabase();
 
       Schema schema = sysdb.getMetadata().getSchema();
-      SchemaClass cls = schema.getClass(AUDITING_LOG_CLASSNAME);
+      var cls = schema.getClass(AUDITING_LOG_CLASSNAME);
 
       if (cls == null) {
         cls = sysdb.getMetadata().getSchema().createClass(AUDITING_LOG_CLASSNAME);
@@ -481,8 +481,8 @@ public class DefaultAuditing
           }
         };
 
-    long delay = 1000L;
-    long period = 1000L * 60L * 60L * 24L;
+    var delay = 1000L;
+    var period = 1000L * 60L * 60L * 24L;
 
     timer.scheduleAtFixedRate(retainTask, delay, period);
 
@@ -496,7 +496,7 @@ public class DefaultAuditing
   public void retainLogs() {
 
     if (globalRetentionDays > 0) {
-      Calendar c = Calendar.getInstance();
+      var c = Calendar.getInstance();
       c.setTime(new Date());
       c.add(Calendar.DATE, (-1) * globalRetentionDays);
       retainLogs(c.getTime());
@@ -504,7 +504,7 @@ public class DefaultAuditing
   }
 
   public void retainLogs(Date date) {
-    long time = date.getTime();
+    var time = date.getTime();
     context
         .getSystemDatabase()
         .executeWithDB(

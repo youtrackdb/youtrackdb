@@ -124,7 +124,7 @@ public interface ResultSet extends Spliterator<Result>, Iterator<Result>, AutoCl
               @Override
               public boolean tryAdvance(Consumer<? super Entity> action) {
                 while (hasNext()) {
-                  Result elem = next();
+                  var elem = next();
                   if (elem.isEntity()) {
                     action.accept(elem.getEntity().get());
                     return true;
@@ -168,7 +168,7 @@ public interface ResultSet extends Spliterator<Result>, Iterator<Result>, AutoCl
               @Override
               public boolean tryAdvance(Consumer<? super Vertex> action) {
                 while (hasNext()) {
-                  Result elem = next();
+                  var elem = next();
                   if (elem.isVertex()) {
                     action.accept(elem.getVertex().get());
                     return true;
@@ -212,7 +212,7 @@ public interface ResultSet extends Spliterator<Result>, Iterator<Result>, AutoCl
               @Override
               public boolean tryAdvance(Consumer<? super Edge> action) {
                 while (hasNext()) {
-                  Result nextElem = next();
+                  var nextElem = next();
                   if (nextElem != null && nextElem.isEdge()) {
                     action.accept(nextElem.getEdge().get());
                     return true;

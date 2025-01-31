@@ -42,7 +42,7 @@ public class HttpDatabaseTest extends BaseHttpTest {
   @Test
   public void testCreateAndGetDatabase() throws IOException {
 
-    EntityImpl pass = new EntityImpl(null);
+    var pass = new EntityImpl(null);
     pass.setProperty("adminPassword", "admin");
     Assert.assertEquals(
         200,
@@ -70,7 +70,7 @@ public class HttpDatabaseTest extends BaseHttpTest {
 
   @Test
   public void testCreateQueryAndDropDatabase() throws Exception {
-    EntityImpl pass = new EntityImpl(null);
+    var pass = new EntityImpl(null);
     pass.setProperty("adminPassword", "admin");
     Assert.assertEquals(
         200,

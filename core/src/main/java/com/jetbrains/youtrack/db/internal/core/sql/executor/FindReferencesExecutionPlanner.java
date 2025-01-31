@@ -34,7 +34,7 @@ public class FindReferencesExecutionPlanner {
   }
 
   public InternalExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    SelectExecutionPlan plan = new SelectExecutionPlan(ctx);
+    var plan = new SelectExecutionPlan(ctx);
     handleRidSource(plan, ctx, enableProfiling);
     handleSubQuerySource(plan, ctx, enableProfiling);
     handleFindReferences(plan, ctx, enableProfiling);

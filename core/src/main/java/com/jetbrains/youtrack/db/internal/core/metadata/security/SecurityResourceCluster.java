@@ -28,7 +28,7 @@ public class SecurityResourceCluster extends SecurityResource {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SecurityResourceCluster that = (SecurityResourceCluster) o;
+    var that = (SecurityResourceCluster) o;
     return Objects.equals(clusterName, that.clusterName);
   }
 

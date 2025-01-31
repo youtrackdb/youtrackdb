@@ -34,13 +34,13 @@ public class FetchTransactionResponse implements BinaryResponse {
       Map<RecordId, RecordId> updatedRids) {
     // In some cases the reference are update twice is not yet possible to guess what is the id in
     // the client
-    Map<RecordId, RecordId> reversed =
+    var reversed =
         updatedRids.entrySet().stream()
             .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
     this.txId = txId;
     List<RecordOperationRequest> netOperations = new ArrayList<>();
-    for (RecordOperation txEntry : operations) {
-      RecordOperationRequest request = new RecordOperationRequest();
+    for (var txEntry : operations) {
+      var request = new RecordOperationRequest();
       request.setType(txEntry.type);
       request.setVersion(txEntry.record.getVersion());
       request.setId(txEntry.getRecordId());
@@ -61,7 +61,7 @@ public class FetchTransactionResponse implements BinaryResponse {
       throws IOException {
     channel.writeLong(txId);
 
-    for (RecordOperationRequest txEntry : operations) {
+    for (var txEntry : operations) {
       writeTransactionEntry(channel, txEntry, serializer);
     }
 
@@ -101,14 +101,14 @@ public class FetchTransactionResponse implements BinaryResponse {
   @Override
   public void read(DatabaseSessionInternal db, ChannelDataInput network,
       StorageRemoteSession session) throws IOException {
-    RecordSerializerNetworkV37Client serializer = RecordSerializerNetworkV37Client.INSTANCE;
+    var serializer = RecordSerializerNetworkV37Client.INSTANCE;
     txId = network.readLong();
     operations = new ArrayList<>();
     byte hasEntry;
     do {
       hasEntry = network.readByte();
       if (hasEntry == 1) {
-        RecordOperationRequest entry = readTransactionEntry(network, serializer);
+        var entry = readTransactionEntry(network, serializer);
         operations.add(entry);
       }
     } while (hasEntry == 1);
@@ -116,7 +116,7 @@ public class FetchTransactionResponse implements BinaryResponse {
 
   static RecordOperationRequest readTransactionEntry(
       ChannelDataInput channel, RecordSerializer ser) throws IOException {
-    RecordOperationRequest entry = new RecordOperationRequest();
+    var entry = new RecordOperationRequest();
     entry.setType(channel.readByte());
     entry.setId(channel.readRID());
     entry.setOldId(channel.readRID());

@@ -45,10 +45,10 @@ public class ConcurrentQueriesTest extends BaseDBTest {
 
     @Override
     public Void call() {
-      for (int i = 0; i < CYCLES; i++) {
+      for (var i = 0; i < CYCLES; i++) {
         DatabaseSession db = acquireSession();
         try {
-          for (int retry = 0; retry < MAX_RETRIES; ++retry) {
+          for (var retry = 0; retry < MAX_RETRIES; ++retry) {
             try {
               db.command("select from Concurrent").close();
 
@@ -79,7 +79,7 @@ public class ConcurrentQueriesTest extends BaseDBTest {
 
     db.getMetadata().getSchema().createClass("Concurrent");
 
-    for (int i = 0; i < 1000; ++i) {
+    for (var i = 0; i < 1000; ++i) {
       db.begin();
       db.<EntityImpl>newInstance("Concurrent").field("test", i).save();
       db.commit();

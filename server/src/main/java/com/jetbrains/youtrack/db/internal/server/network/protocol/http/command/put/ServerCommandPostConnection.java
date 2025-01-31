@@ -34,7 +34,7 @@ public class ServerCommandPostConnection extends ServerCommandAuthenticatedServe
 
   @Override
   public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
-    final String[] urlParts =
+    final var urlParts =
         checkSyntax(iRequest.getUrl(), 3, "Syntax error: connection/<command>/<id>");
 
     iRequest.getData().commandInfo = "Interrupt command";

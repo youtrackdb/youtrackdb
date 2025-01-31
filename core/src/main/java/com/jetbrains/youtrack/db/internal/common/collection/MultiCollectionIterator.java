@@ -140,10 +140,10 @@ public class MultiCollectionIterator<T>
 
   public int size() {
     // SUM ALL THE COLLECTION SIZES
-    int size = 0;
-    final int totSources = sources.size();
-    for (int i = 0; i < totSources; ++i) {
-      final Object o = sources.get(i);
+    var size = 0;
+    final var totSources = sources.size();
+    for (var i = 0; i < totSources; ++i) {
+      final var o = sources.get(i);
 
       if (o != null) {
         if (o instanceof Collection<?>) {
@@ -199,9 +199,9 @@ public class MultiCollectionIterator<T>
 
   @Override
   public boolean supportsFastContains() {
-    final int totSources = sources.size();
-    for (int i = 0; i < totSources; ++i) {
-      final Object o = sources.get(i);
+    final var totSources = sources.size();
+    for (var i = 0; i < totSources; ++i) {
+      final var o = sources.get(i);
 
       if (o != null) {
         if (o instanceof Set<?> || o instanceof RidBag) {
@@ -221,7 +221,7 @@ public class MultiCollectionIterator<T>
 
   @Override
   public boolean contains(final Object value) {
-    for (Object o : sources) {
+    for (var o : sources) {
       if (o != null) {
         if (o instanceof LazyWrapperIterator) {
           o = ((LazyWrapperIterator) o).getMultiValue();
@@ -246,7 +246,7 @@ public class MultiCollectionIterator<T>
   protected boolean getNextPartial() {
     if (sourcesIterator != null) {
       while (sourcesIterator.hasNext()) {
-        Object next = sourcesIterator.next();
+        var next = sourcesIterator.next();
         if (next != null) {
 
           if (!(next instanceof EntityImpl) && next instanceof Iterable<?>) {
@@ -268,7 +268,7 @@ public class MultiCollectionIterator<T>
               return true;
             }
           } else if (next.getClass().isArray()) {
-            final int arraySize = Array.getLength(next);
+            final var arraySize = Array.getLength(next);
             if (arraySize > 0) {
               if (arraySize == 1) {
                 partialIterator = new IterableObject<T>((T) Array.get(next, 0));

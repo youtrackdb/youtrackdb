@@ -50,7 +50,7 @@ public class LuceneMiscTest extends LuceneBaseTest {
     db.command("insert into Test set attr1='bar', attr2='foo'");
     db.commit();
 
-    ResultSet results =
+    var results =
         db.query(
             "select from Test where search_index('Test.attr1',\"foo*\") =true OR"
                 + " search_index('Test.attr2', \"foo*\")=true  ");
@@ -92,10 +92,10 @@ public class LuceneMiscTest extends LuceneBaseTest {
     db.command("insert into Person set name='Enrico', age=18");
     db.commit();
 
-    String query =
+    var query =
         "select  from (select from Person where age = 18) where search_fields(['name'],'Enrico') ="
             + " true";
-    ResultSet results = db.query(query);
+    var results = db.query(query);
 
     assertThat(results).hasSize(1);
     results.close();
@@ -123,10 +123,10 @@ public class LuceneMiscTest extends LuceneBaseTest {
     db.command("insert into Test set attr1='foo', attr2='bar'");
     db.commit();
 
-    String query = "select from Test where  search_class( :name) =true";
+    var query = "select from Test where  search_class( :name) =true";
     Map params = new HashMap();
     params.put("name", "FOO or");
-    ResultSet results = db.command(query, params);
+    var results = db.command(query, params);
 
     assertThat(results).hasSize(1);
   }
@@ -136,41 +136,41 @@ public class LuceneMiscTest extends LuceneBaseTest {
   public void dottedNotationTest() {
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass v = schema.getClass("V");
-    SchemaClass e = schema.getClass("E");
-    SchemaClass author = schema.createClass("Author", v);
+    var v = schema.getClass("V");
+    var e = schema.getClass("E");
+    var author = schema.createClass("Author", v);
     author.createProperty(db, "name", PropertyType.STRING);
 
-    SchemaClass song = schema.createClass("Song", v);
+    var song = schema.createClass("Song", v);
     song.createProperty(db, "title", PropertyType.STRING);
 
-    SchemaClass authorOf = schema.createClass("AuthorOf", e);
+    var authorOf = schema.createClass("AuthorOf", e);
     authorOf.createProperty(db, "in", PropertyType.LINK, song);
     db.commit();
 
     db.command("create index AuthorOf.in on AuthorOf (in) NOTUNIQUE");
     db.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE");
 
-    Vertex authorVertex = db.newVertex("Author");
+    var authorVertex = db.newVertex("Author");
     authorVertex.setProperty("name", "Bob Dylan");
 
     db.begin();
     db.save(authorVertex);
     db.commit();
 
-    Vertex songVertex = db.newVertex("Song");
+    var songVertex = db.newVertex("Song");
     songVertex.setProperty("title", "hurricane");
 
     db.begin();
     db.save(songVertex);
     db.commit();
 
-    Edge edge = authorVertex.addEdge(songVertex, "AuthorOf");
+    var edge = authorVertex.addEdge(songVertex, "AuthorOf");
     db.begin();
     db.save(edge);
     db.commit();
 
-    ResultSet results = db.query("select from AuthorOf");
+    var results = db.query("select from AuthorOf");
 
     assertThat(results).hasSize(1);
 

@@ -42,19 +42,19 @@ public class CommandExecutorSQLRebuildIndex extends CommandExecutorSQLAbstract
 
   public CommandExecutorSQLRebuildIndex parse(DatabaseSessionInternal db,
       final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
       init((CommandRequestText) iRequest);
 
-      final StringBuilder word = new StringBuilder();
+      final var word = new StringBuilder();
 
-      int oldPos = 0;
-      int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
+      var oldPos = 0;
+      var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_REBUILD)) {
         throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_REBUILD + " not found. Use " + getSyntax(), parserText, oldPos);
@@ -91,10 +91,10 @@ public class CommandExecutorSQLRebuildIndex extends CommandExecutorSQLAbstract
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final DatabaseSessionInternal database = getDatabase();
+    final var database = getDatabase();
     if (name.equals("*")) {
       long totalIndexed = 0;
-      for (Index idx : database.getMetadata().getIndexManagerInternal().getIndexes(database)) {
+      for (var idx : database.getMetadata().getIndexManagerInternal().getIndexes(database)) {
         if (idx.isAutomatic()) {
           totalIndexed += idx.rebuild(database);
         }
@@ -103,7 +103,7 @@ public class CommandExecutorSQLRebuildIndex extends CommandExecutorSQLAbstract
       return totalIndexed;
 
     } else {
-      final Index idx = database.getMetadata().getIndexManagerInternal().getIndex(database, name);
+      final var idx = database.getMetadata().getIndexManagerInternal().getIndex(database, name);
       if (idx == null) {
         throw new CommandExecutionException("Index '" + name + "' not found");
       }

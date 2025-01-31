@@ -59,7 +59,7 @@ public class JSONFetchContext implements FetchContext {
   }
 
   public void onAfterFetch(DatabaseSessionInternal db, final EntityImpl rootRecord) {
-    final StringBuilder sb = typesStack.pop();
+    final var sb = typesStack.pop();
     if (settings.keepTypes && !sb.isEmpty()) {
       try {
         jsonWriter.writeAttribute(db,
@@ -210,7 +210,7 @@ public class JSONFetchContext implements FetchContext {
   public void writeLinkedAttribute(DatabaseSessionInternal db, final Identifiable iRecord,
       final String iFieldName)
       throws IOException {
-    final Object link =
+    final var link =
         ((RecordId) iRecord.getIdentity()).isValid() ? JSONWriter.encode(iRecord.getIdentity())
             : null;
     jsonWriter.writeAttribute(db, settings.indentLevel, true, iFieldName, link);
@@ -235,7 +235,7 @@ public class JSONFetchContext implements FetchContext {
       json.write("null");
       return;
     }
-    boolean firstAttribute = true;
+    var firstAttribute = true;
 
     if (settings.includeType) {
       json.writeAttribute(db,
@@ -319,7 +319,7 @@ public class JSONFetchContext implements FetchContext {
       } else if (fieldValue instanceof RidBag) {
         appendType(typesStack.peek(), fieldName, 'g');
       } else {
-        PropertyType t = fieldType;
+        var t = fieldType;
         if (t == null) {
           t = PropertyType.getTypeByValue(fieldValue);
         }

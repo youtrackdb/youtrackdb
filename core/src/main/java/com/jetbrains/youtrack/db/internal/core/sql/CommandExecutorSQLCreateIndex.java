@@ -32,10 +32,8 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionFactory;
 import com.jetbrains.youtrack.db.internal.core.index.IndexException;
-import com.jetbrains.youtrack.db.internal.core.index.IndexFactory;
 import com.jetbrains.youtrack.db.internal.core.index.Indexes;
 import com.jetbrains.youtrack.db.internal.core.index.PropertyMapIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.RuntimeKeyIndexDefinition;
@@ -80,20 +78,20 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
 
   public CommandExecutorSQLCreateIndex parse(DatabaseSessionInternal db,
       final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
       init((CommandRequestText) iRequest);
 
-      final StringBuilder word = new StringBuilder();
+      final var word = new StringBuilder();
 
-      int oldPos = 0;
-      int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
+      var oldPos = 0;
+      var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CREATE)) {
         throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_CREATE + " not found. Use " + getSyntax(), parserText, oldPos);
@@ -142,7 +140,7 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
               "No right bracket found. Use " + getSyntax(), parserText, oldPos);
         }
 
-        final String props = parserText.substring(oldPos, pos).trim().substring(1);
+        final var props = parserText.substring(oldPos, pos).trim().substring(1);
 
         List<String> propList = new ArrayList<String>();
         Collections.addAll(propList, PatternConst.PATTERN_COMMA_SEPARATED.split(props.trim()));
@@ -150,10 +148,10 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
         fields = new String[propList.size()];
         propList.toArray(fields);
 
-        for (int i = 0; i < fields.length; i++) {
-          final String fieldName = fields[i];
+        for (var i = 0; i < fields.length; i++) {
+          final var fieldName = fields[i];
 
-          final int collatePos = fieldName.toUpperCase(Locale.ENGLISH).indexOf(" COLLATE ");
+          final var collatePos = fieldName.toUpperCase(Locale.ENGLISH).indexOf(" COLLATE ");
 
           if (collatePos > 0) {
             if (collates == null) {
@@ -174,7 +172,7 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
           fields[i] = decodeClassName(fields[i]);
         }
 
-        for (String propToIndex : fields) {
+        for (var propToIndex : fields) {
           checkMapIndexSpecifier(propToIndex, parserText, oldPos);
 
           propList.add(propToIndex);
@@ -188,7 +186,7 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
         }
       } else {
         if (indexName.indexOf('.') > 0) {
-          final String[] parts = indexName.split("\\.");
+          final var parts = indexName.split("\\.");
 
           oClass = findClass(parts[0]);
           if (oClass == null) {
@@ -217,10 +215,10 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
         parserGoBack();
       }
 
-      final int configPos = parserTextUpperCase.indexOf(KEYWORD_METADATA, oldPos);
+      final var configPos = parserTextUpperCase.indexOf(KEYWORD_METADATA, oldPos);
 
       if (configPos > -1) {
-        final String configString =
+        final var configString =
             parserText.substring(configPos + KEYWORD_METADATA.length()).trim();
         var doc = new EntityImpl(db);
         doc.updateFromJSON(configString);
@@ -244,8 +242,8 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
 
           serializerKeyId = Byte.parseByte(word.toString());
         } else {
-          ArrayList<PropertyType> keyTypeList = new ArrayList<PropertyType>();
-          for (String typeName : PatternConst.PATTERN_COMMA_SEPARATED.split(typesString)) {
+          var keyTypeList = new ArrayList<PropertyType>();
+          for (var typeName : PatternConst.PATTERN_COMMA_SEPARATED.split(typesString)) {
             keyTypeList.add(PropertyType.valueOf(typeName));
           }
 
@@ -282,16 +280,16 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final DatabaseSessionInternal database = getDatabase();
+    final var database = getDatabase();
     final Index idx;
     List<Collate> collatesList = null;
 
     if (collates != null) {
       collatesList = new ArrayList<Collate>();
 
-      for (String collate : collates) {
+      for (var collate : collates) {
         if (collate != null) {
-          final Collate col = SQLEngine.getCollate(collate);
+          final var col = SQLEngine.getCollate(collate);
           collatesList.add(col);
         } else {
           collatesList.add(null);
@@ -300,7 +298,7 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
     }
 
     if (fields == null || fields.length == 0) {
-      IndexFactory factory = Indexes.getFactory(indexType.toString(), null);
+      var factory = Indexes.getFactory(indexType.toString(), null);
 
       if (keyTypes != null) {
         idx =
@@ -343,7 +341,7 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
       } else {
         final List<PropertyType> fieldTypeList;
         if (keyTypes == null) {
-          for (final String fieldName : fields) {
+          for (final var fieldName : fields) {
             if (!fieldName.equals("@rid") && !oClass.existsProperty(fieldName)) {
               throw new IndexException(
                   "Index with name : '"
@@ -360,7 +358,7 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
           fieldTypeList = Arrays.asList(keyTypes);
         }
 
-        final IndexDefinition idxDef =
+        final var idxDef =
             IndexDefinitionFactory.createIndexDefinition(
                 oClass,
                 Arrays.asList(fields),
@@ -408,7 +406,7 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
   }
 
   private void checkMapIndexSpecifier(final String fieldName, final String text, final int pos) {
-    final String[] fieldNameParts = PatternConst.PATTERN_SPACES.split(fieldName);
+    final var fieldNameParts = PatternConst.PATTERN_SPACES.split(fieldName);
     if (fieldNameParts.length == 1) {
       return;
     }

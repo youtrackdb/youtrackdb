@@ -76,8 +76,8 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
         keepTypes = false;
 
         if (!stringFormat.isEmpty()) {
-          final String[] format = stringFormat.split(",");
-          for (String f : format) {
+          final var format = stringFormat.split(",");
+          for (var f : format) {
             if (f.equals("type")) {
               includeType = true;
             } else {

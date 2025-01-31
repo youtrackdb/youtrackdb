@@ -63,14 +63,14 @@ public class LuceneVsLuceneTest extends BaseLuceneTest {
   public void init() throws IOException {
     directory = NIOFSDirectory.open(getPath().toPath());
 
-    try (InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql")) {
+    try (var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql")) {
       db.execute("sql", getScriptFromStream(stream)).close();
       FileUtils.deleteRecursively(getPath().getAbsoluteFile());
 
       analyzer = new LucenePerFieldAnalyzerWrapper(new StandardAnalyzer());
       analyzer.add("title", new StandardAnalyzer()).add("Song.title", new StandardAnalyzer());
 
-      IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
+      var iwc = new IndexWriterConfig(analyzer);
       iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
       indexWriter = new IndexWriter(directory, iwc);
 
@@ -85,11 +85,11 @@ public class LuceneVsLuceneTest extends BaseLuceneTest {
   @Test
   public void testLuceneVsLucene() throws IOException, ParseException {
 
-    for (EntityImpl oDocument : db.browseClass("Song")) {
+    for (var oDocument : db.browseClass("Song")) {
 
       String title = oDocument.field("title");
       if (title != null) {
-        Document d = new Document();
+        var d = new Document();
 
         d.add(new TextField("title", title, Field.Store.YES));
         d.add(new TextField("Song.title", title, Field.Store.YES));
@@ -103,18 +103,18 @@ public class LuceneVsLuceneTest extends BaseLuceneTest {
     try (IndexReader reader = DirectoryReader.open(directory)) {
       assertThat(reader.numDocs()).isEqualTo(Long.valueOf(db.countClass("Song")).intValue());
 
-      IndexSearcher searcher = new IndexSearcher(reader);
+      var searcher = new IndexSearcher(reader);
 
-      Query query = new MultiFieldQueryParser(new String[]{"title"}, analyzer).parse("down the");
-      final TopDocs docs = searcher.search(query, Integer.MAX_VALUE);
-      ScoreDoc[] hits = docs.scoreDocs;
+      var query = new MultiFieldQueryParser(new String[]{"title"}, analyzer).parse("down the");
+      final var docs = searcher.search(query, Integer.MAX_VALUE);
+      var hits = docs.scoreDocs;
 
-      ResultSet oDocs =
+      var oDocs =
           db.query(
               "select *,$score from Song where title LUCENE \"down the\" order by $score desc");
 
-      int i = 0;
-      for (ScoreDoc hit : hits) {
+      var i = 0;
+      for (var hit : hits) {
         assertThat(oDocs.next().<Float>getProperty("$score")).isEqualTo(hit.score);
         i++;
       }

@@ -73,11 +73,11 @@ public class DatabaseFunction implements SQLFunction {
 
   @Override
   public String getSyntax(DatabaseSession session) {
-    final StringBuilder buffer = new StringBuilder(512);
+    final var buffer = new StringBuilder(512);
     buffer.append(f.getName());
     buffer.append('(');
-    final List<String> params = f.getParameters();
-    for (int p = 0; p < params.size(); ++p) {
+    final var params = f.getParameters();
+    for (var p = 0; p < params.size(); ++p) {
       if (p > 0) {
         buffer.append(',');
       }

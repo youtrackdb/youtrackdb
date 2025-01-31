@@ -35,7 +35,7 @@ public class LuceneCreateIndexTest extends LuceneBaseTest {
 
   @Before
   public void setUp() throws Exception {
-    InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
+    var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
 
     db.execute("sql", getScriptFromStream(stream)).close();
 
@@ -52,7 +52,7 @@ public class LuceneCreateIndexTest extends LuceneBaseTest {
                 + "\"}")
         .close();
 
-    Vertex doc = db.newVertex("Song");
+    var doc = db.newVertex("Song");
 
     doc.setProperty("title", "Local");
     doc.setProperty("author", "Local");
@@ -72,7 +72,7 @@ public class LuceneCreateIndexTest extends LuceneBaseTest {
 
   @Test
   public void testQueries() {
-    ResultSet docs = db.query(
+    var docs = db.query(
         "select * from Song where search_fields(['title'],'mountain')=true");
 
     assertThat(docs).hasSize(4);
@@ -81,7 +81,7 @@ public class LuceneCreateIndexTest extends LuceneBaseTest {
 
     assertThat(docs).hasSize(87);
     docs.close();
-    String query =
+    var query =
         "select * from Song where search_fields(['title'],'mountain')=true AND"
             + " search_fields(['author'],'Fabbio')=true";
     docs = db.query(query);
@@ -97,8 +97,8 @@ public class LuceneCreateIndexTest extends LuceneBaseTest {
 
   @Test
   public void testQeuryOnAddedDocs() {
-    String query = "select * from Song where search_fields(['title'],'local')=true ";
-    ResultSet docs = db.query(query);
+    var query = "select * from Song where search_fields(['title'],'local')=true ";
+    var docs = db.query(query);
 
     assertThat(docs).hasSize(1);
     docs.close();

@@ -40,8 +40,8 @@ public final class VersionPositionMapBucket extends DurablePage {
   }
 
   public int getVersion(final int index) {
-    final int entryPosition = entryPosition(index); // ENTRIES_OFFSET + ridBagId * ENTRY_SIZE;
-    final int value = getIntValue(entryPosition);
+    final var entryPosition = entryPosition(index); // ENTRIES_OFFSET + ridBagId * ENTRY_SIZE;
+    final var value = getIntValue(entryPosition);
     if (value < 0) {
       throw new StorageException(
           "Entry with index " + index + " might be deleted and can not be used.");
@@ -50,14 +50,14 @@ public final class VersionPositionMapBucket extends DurablePage {
   }
 
   public void incrementVersion(final int index) {
-    final int entryPosition = entryPosition(index);
-    final int value = getIntValue(entryPosition);
+    final var entryPosition = entryPosition(index);
+    final var value = getIntValue(entryPosition);
     if (value < 0) {
       throw new StorageException(
           "Entry with index " + index + " might be deleted and can not be used.");
     }
     setIntValue(entryPosition, value + 1);
-    final int newValue = getVersion(index);
+    final var newValue = getVersion(index);
     assert value + 1 == newValue;
   }
 

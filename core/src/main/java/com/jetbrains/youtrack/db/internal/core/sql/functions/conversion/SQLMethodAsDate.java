@@ -60,7 +60,7 @@ public class SQLMethodAsDate extends AbstractSQLMethod {
         cal.set(Calendar.MILLISECOND, 0);
         return cal.getTime();
       } else if (iThis instanceof Number) {
-        Date val = new Date(((Number) iThis).longValue());
+        var val = new Date(((Number) iThis).longValue());
         Calendar cal = new GregorianCalendar();
         cal.setTime(val);
         cal.set(Calendar.HOUR, 0);

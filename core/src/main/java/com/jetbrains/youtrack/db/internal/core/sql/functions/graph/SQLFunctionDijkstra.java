@@ -57,7 +57,7 @@ public class SQLFunctionDijkstra extends SQLFunctionPathFinder {
   }
 
   private Object[] toAStarParams(Object[] iParams) {
-    Object[] result = new Object[4];
+    var result = new Object[4];
     result[0] = iParams[0];
     result[1] = iParams[1];
     result[2] = iParams[2];

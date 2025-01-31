@@ -37,7 +37,7 @@ public abstract class AbstractComparatorTest extends DbTestBase {
   protected BinaryField field(DatabaseSessionInternal db, final PropertyType type,
       final Object value,
       Collate collate) {
-    BytesContainer bytes = new BytesContainer();
+    var bytes = new BytesContainer();
     bytes.offset = serializer.serializeValue(db, bytes, value, type, null, null, null);
     return new BinaryField(null, type, bytes, collate);
   }

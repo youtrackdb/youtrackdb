@@ -85,10 +85,10 @@ public class CreateRecordRequest implements BinaryAsyncRequest<CreateRecordRespo
   public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
       RecordSerializerNetwork serializer)
       throws IOException {
-    final int dataSegmentId = protocolVersion < 24 ? channel.readInt() : 0;
+    final var dataSegmentId = protocolVersion < 24 ? channel.readInt() : 0;
 
     rid = new RecordId(channel.readShort(), RID.CLUSTER_POS_INVALID);
-    byte[] rec = channel.readBytes();
+    var rec = channel.readBytes();
     recordType = channel.readByte();
     mode = channel.readByte();
     content =

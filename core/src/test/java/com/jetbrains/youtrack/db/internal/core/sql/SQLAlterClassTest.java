@@ -31,7 +31,7 @@ public class SQLAlterClassTest extends DbTestBase {
       db.command("insert into `Client-Type` set foo = 'bar'").close();
       db.commit();
 
-      ResultSet result = db.query("Select from `Client-Type`");
+      var result = db.query("Select from `Client-Type`");
       Assert.assertEquals(result.stream().count(), 1);
     } catch (CommandSQLParsingException ex) {
       Assert.fail();

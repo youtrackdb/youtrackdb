@@ -80,7 +80,7 @@ public class SQLFunctionVariance extends SQLFunctionAbstract {
     if (iParams[0] instanceof Number) {
       addValue((Number) iParams[0]);
     } else if (MultiValue.isMultiValue(iParams[0])) {
-      for (Object n : MultiValue.getMultiValueIterable(iParams[0])) {
+      for (var n : MultiValue.getMultiValueIterable(iParams[0])) {
         addValue((Number) n);
       }
     }
@@ -105,8 +105,8 @@ public class SQLFunctionVariance extends SQLFunctionAbstract {
   private void addValue(Number value) {
     if (value != null) {
       ++n;
-      double doubleValue = value.doubleValue();
-      double nextM = mean + (doubleValue - mean) / n;
+      var doubleValue = value.doubleValue();
+      var nextM = mean + (doubleValue - mean) / n;
       m2 += (doubleValue - mean) * (doubleValue - nextM);
       mean = nextM;
     }

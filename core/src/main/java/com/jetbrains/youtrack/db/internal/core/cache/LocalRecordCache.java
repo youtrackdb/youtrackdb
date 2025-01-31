@@ -46,7 +46,7 @@ public class LocalRecordCache extends AbstractRecordCache {
 
   @Override
   public void startup() {
-    DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().get();
+    var db = DatabaseRecordThreadLocal.instance().get();
 
     profilerPrefix = "db." + db.getName() + ".cache.level1.";
     profilerMetadataPrefix = "db.*.cache.level1.";

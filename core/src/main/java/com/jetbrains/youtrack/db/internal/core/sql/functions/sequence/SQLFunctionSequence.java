@@ -40,7 +40,7 @@ public class SQLFunctionSequence extends SQLFunctionConfigurableAbstract {
       seqName = "" + iParams[0];
     }
 
-    DBSequence result =
+    var result =
         DatabaseRecordThreadLocal.instance()
             .get()
             .getMetadata()

@@ -19,7 +19,7 @@ public class IndexCursorStream extends IndexAbstractCursor {
   @Override
   public Map.Entry<Object, Identifiable> nextEntry() {
     if (iterator.hasNext()) {
-      final RawPair<Object, RID> pair = iterator.next();
+      final var pair = iterator.next();
 
       return new Map.Entry<Object, Identifiable>() {
         @Override

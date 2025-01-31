@@ -879,18 +879,18 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
    };
 
    private int jjMoveNfa_0(int startState, int curPos) {
-      int startsAt = 0;
+      var startsAt = 0;
       jjnewStateCnt = 1210;
-      int i = 1;
+      var i = 1;
       jjstateSet[0] = startState;
-      int kind = 0x7fffffff;
+      var kind = 0x7fffffff;
       for (; ; ) {
          if (++jjround == 0x7fffffff) {
             ReInitRounds();
          }
          if (curChar < 64)
       {
-         long l = 1L << curChar;
+         var l = 1L << curChar;
          do {
             switch (jjstateSet[--i]) {
                case 37:
@@ -1682,7 +1682,7 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
          } while (i != startsAt);
       } else if (curChar < 128)
       {
-         long l = 1L << (curChar & 077);
+         var l = 1L << (curChar & 077);
          do {
             switch (jjstateSet[--i]) {
                case 1089:
@@ -6820,11 +6820,11 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
             }
          } while (i != startsAt);
       } else {
-            int hiByte = (int) (curChar >> 8);
-            int i1 = hiByte >> 6;
-         long l1 = 1L << (hiByte & 077);
-         int i2 = (curChar & 0xff) >> 6;
-         long l2 = 1L << (curChar & 077);
+            var hiByte = (int) (curChar >> 8);
+            var i1 = hiByte >> 6;
+            var l1 = 1L << (hiByte & 077);
+            var i2 = (curChar & 0xff) >> 6;
+            var l2 = 1L << (curChar & 077);
             do {
                switch (jjstateSet[--i]) {
                case 37:
@@ -7118,7 +7118,7 @@ public void ReInit(CharStream stream) {
       final int endLine;
       final int beginColumn;
       final int endColumn;
-      String im = jjstrLiteralImages[jjmatchedKind];
+      var im = jjstrLiteralImages[jjmatchedKind];
       curTokenImage = (im == null) ? input_stream.GetImage() : im;
       beginLine = input_stream.getBeginLine();
       beginColumn = input_stream.getBeginColumn();
@@ -7147,7 +7147,7 @@ public void ReInit(CharStream stream) {
    public Token getNextToken() {
       Token specialToken = null;
       Token matchedToken;
-      int curPos = 0;
+      var curPos = 0;
 
       EOFLoop:
       for (; ; ) {
@@ -7236,10 +7236,10 @@ public void ReInit(CharStream stream) {
                } catch (java.io.IOException e1) {
                }
             }
-            int error_line = input_stream.getEndLine();
-            int error_column = input_stream.getEndColumn();
+            var error_line = input_stream.getEndLine();
+            var error_column = input_stream.getEndColumn();
             String error_after = null;
-            boolean EOFSeen = false;
+            var EOFSeen = false;
             try {
                input_stream.readChar();
                input_stream.backup(1);

@@ -173,7 +173,7 @@ public class SymmetricKey {
     this.secretKeyAlgorithm = algorithm;
 
     try {
-      final byte[] keyBytes = SymmetricKey.convertFromBase64(base64Key);
+      final var keyBytes = SymmetricKey.convertFromBase64(base64Key);
 
       this.secretKey = new SecretKeySpec(keyBytes, secretKeyAlgorithm);
     } catch (Exception ex) {
@@ -185,16 +185,16 @@ public class SymmetricKey {
 
   protected void create() {
     try {
-      SecureRandom secureRandom = new SecureRandom();
+      var secureRandom = new SecureRandom();
       // ** This is actually not needed and will block for a long time on many operating systems.
       //    byte[] salt = secureRandom.generateSeed(saltLength);
-      byte[] salt = new byte[saltLength];
+      var salt = new byte[saltLength];
       secureRandom.nextBytes(salt);
 
       KeySpec keySpec = new PBEKeySpec(seedPhrase.toCharArray(), salt, iteration, keySize);
 
-      SecretKeyFactory factory = SecretKeyFactory.getInstance(seedAlgorithm);
-      SecretKey tempKey = factory.generateSecret(keySpec);
+      var factory = SecretKeyFactory.getInstance(seedAlgorithm);
+      var tempKey = factory.generateSecret(keySpec);
 
       secretKey = new SecretKeySpec(tempKey.getEncoded(), secretKeyAlgorithm);
     } catch (Exception ex) {
@@ -206,7 +206,7 @@ public class SymmetricKey {
    * Returns the secret key algorithm portion of the cipher transformation.
    */
   protected static String separateAlgorithm(final String cipherTransform) {
-    String[] array = cipherTransform.split("/");
+    var array = cipherTransform.split("/");
 
     if (array.length > 1) {
       return array[0];
@@ -294,7 +294,7 @@ public class SymmetricKey {
     SymmetricKey sk = null;
 
     try {
-      KeyStore ks = KeyStore.getInstance("JCEKS"); // JCEKS is required to hold SecretKey entries.
+      var ks = KeyStore.getInstance("JCEKS"); // JCEKS is required to hold SecretKey entries.
 
       java.io.FileInputStream fis = null;
 
@@ -330,7 +330,7 @@ public class SymmetricKey {
     SymmetricKey sk = null;
 
     try {
-      KeyStore ks = KeyStore.getInstance("JCEKS"); // JCEKS is required to hold SecretKey entries.
+      var ks = KeyStore.getInstance("JCEKS"); // JCEKS is required to hold SecretKey entries.
 
       char[] ksPasswdChars = null;
 
@@ -349,13 +349,13 @@ public class SymmetricKey {
       KeyStore.ProtectionParameter protParam =
           new KeyStore.PasswordProtection(ksKeyPasswdChars); // ksKeyPasswdChars may be null.
 
-      KeyStore.SecretKeyEntry skEntry = (KeyStore.SecretKeyEntry) ks.getEntry(keyAlias, protParam);
+      var skEntry = (KeyStore.SecretKeyEntry) ks.getEntry(keyAlias, protParam);
 
       if (skEntry == null) {
         throw new SecurityException("SecretKeyEntry is null for key alias: " + keyAlias);
       }
 
-      SecretKey secretKey = skEntry.getSecretKey();
+      var secretKey = skEntry.getSecretKey();
 
       sk = new SymmetricKey(secretKey);
     } catch (Exception ex) {
@@ -467,7 +467,7 @@ public class SymmetricKey {
 
     try {
       // Throws NoSuchAlgorithmException and NoSuchPaddingException.
-      Cipher cipher = Cipher.getInstance(transform);
+      var cipher = Cipher.getInstance(transform);
 
       // If the cipher transformation requires an initialization vector then init() will create a
       // random one.
@@ -475,12 +475,12 @@ public class SymmetricKey {
       cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
       // If the cipher does not use an IV, this will be null.
-      byte[] initVector = cipher.getIV();
+      var initVector = cipher.getIV();
 
       //      byte[] initVector =
       // encCipher.getParameters().getParameterSpec(IvParameterSpec.class).getIV();
 
-      byte[] encrypted = cipher.doFinal(bytes);
+      var encrypted = cipher.doFinal(bytes);
 
       encodedJSON = encodeJSON(encrypted, initVector);
     } catch (Exception ex) {
@@ -494,7 +494,7 @@ public class SymmetricKey {
   protected String encodeJSON(final byte[] encrypted, final byte[] initVector) {
     String encodedJSON = null;
 
-    String encryptedBase64 = convertToBase64(encrypted);
+    var encryptedBase64 = convertToBase64(encrypted);
     String initVectorBase64 = null;
 
     if (initVector != null) {
@@ -502,7 +502,7 @@ public class SymmetricKey {
     }
 
     // Create the JSON document.
-    StringBuffer sb = new StringBuffer();
+    var sb = new StringBuffer();
     sb.append("{");
     sb.append("\"algorithm\":\"");
     sb.append(secretKeyAlgorithm);
@@ -540,7 +540,7 @@ public class SymmetricKey {
    */
   public String decryptAsString(final String encodedJSON) {
     try {
-      byte[] decrypted = decrypt(encodedJSON);
+      var decrypted = decrypt(encodedJSON);
       return new String(decrypted, StandardCharsets.UTF_8);
     } catch (Exception ex) {
       throw BaseException.wrapException(
@@ -564,27 +564,27 @@ public class SymmetricKey {
     }
 
     try {
-      byte[] decoded = convertFromBase64(encodedJSON);
+      var decoded = convertFromBase64(encodedJSON);
 
       if (decoded == null) {
         throw new SecurityException(
             "SymmetricKey.decrypt(String) encodedJSON could not be decoded");
       }
 
-      String json = new String(decoded, StandardCharsets.UTF_8);
+      var json = new String(decoded, StandardCharsets.UTF_8);
 
       // Convert the JSON content to an EntityImpl to make parsing it easier.
-      final EntityImpl entity = new EntityImpl(null).updateFromJSON(json, "noMap");
+      final var entity = new EntityImpl(null).updateFromJSON(json, "noMap");
 
       // Set a default in case the JSON document does not contain an "algorithm" property.
-      String algorithm = secretKeyAlgorithm;
+      var algorithm = secretKeyAlgorithm;
 
       if (entity.containsField("algorithm")) {
         algorithm = entity.field("algorithm");
       }
 
       // Set a default in case the JSON document does not contain a "transform" property.
-      String transform = defaultCipherTransformation;
+      var transform = defaultCipherTransformation;
 
       if (entity.containsField("transform")) {
         transform = entity.field("transform");
@@ -604,7 +604,7 @@ public class SymmetricKey {
       }
 
       // Throws NoSuchAlgorithmException and NoSuchPaddingException.
-      Cipher cipher = Cipher.getInstance(transform);
+      var cipher = Cipher.getInstance(transform);
 
       if (iv != null) {
         cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(iv));
@@ -631,9 +631,9 @@ public class SymmetricKey {
     }
 
     try {
-      final OutputStreamWriter osw = new OutputStreamWriter(os);
+      final var osw = new OutputStreamWriter(os);
       try {
-        final BufferedWriter writer = new BufferedWriter(osw);
+        final var writer = new BufferedWriter(osw);
         try {
           writer.write(getBase64Key());
         } finally {
@@ -668,17 +668,17 @@ public class SymmetricKey {
     }
 
     try {
-      KeyStore ks = KeyStore.getInstance("JCEKS");
+      var ks = KeyStore.getInstance("JCEKS");
 
-      char[] ksPasswdCA = ksPasswd.toCharArray();
-      char[] keyPasswdCA = keyPasswd.toCharArray();
+      var ksPasswdCA = ksPasswd.toCharArray();
+      var keyPasswdCA = keyPasswd.toCharArray();
 
       // Create a new KeyStore by passing null.
       ks.load(null, ksPasswdCA);
 
       KeyStore.ProtectionParameter protParam = new KeyStore.PasswordProtection(keyPasswdCA);
 
-      KeyStore.SecretKeyEntry skEntry = new KeyStore.SecretKeyEntry(secretKey);
+      var skEntry = new KeyStore.SecretKeyEntry(secretKey);
       ks.setEntry(keyAlias, skEntry, protParam);
 
       // Save the KeyStore

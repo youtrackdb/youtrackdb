@@ -20,7 +20,7 @@ public class LuceneIndexWriterFactoryTest extends BaseLuceneTest {
   @Test
   public void shouldCreateIndexWriterConfiguredWithMetadataValues() throws Exception {
 
-    LuceneIndexWriterFactory fc = new LuceneIndexWriterFactory();
+    var fc = new LuceneIndexWriterFactory();
 
     // sample metadata json
     var meta = ((EntityImpl) db.newEntity());
@@ -28,10 +28,10 @@ public class LuceneIndexWriterFactoryTest extends BaseLuceneTest {
         IOUtils.readFileAsString(
             new File("./src/test/resources/index_metadata_new.json")));
 
-    IndexWriter writer = fc.createIndexWriter(new RAMDirectory(), meta.toMap(),
+    var writer = fc.createIndexWriter(new RAMDirectory(), meta.toMap(),
         new StandardAnalyzer());
 
-    LiveIndexWriterConfig config = writer.getConfig();
+    var config = writer.getConfig();
     assertThat(config.getUseCompoundFile()).isFalse();
 
     assertThat(config.getAnalyzer()).isInstanceOf(StandardAnalyzer.class);

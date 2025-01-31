@@ -252,23 +252,23 @@ public class SQLNonBlockingQuery<T extends Object> extends SQLQuery<T>
 
   @Override
   public <RET> RET execute(@Nonnull DatabaseSessionInternal querySession, final Object... iArgs) {
-    final NonBlockingQueryFuture future = new NonBlockingQueryFuture();
+    final var future = new NonBlockingQueryFuture();
 
-    DatabaseSessionInternal currentThreadLocal =
+    var currentThreadLocal =
         DatabaseRecordThreadLocal.instance().getIfDefined();
-    final DatabaseSessionInternal db = querySession.copy();
+    final var db = querySession.copy();
     if (currentThreadLocal != null) {
       currentThreadLocal.activateOnCurrentThread();
     } else {
       DatabaseRecordThreadLocal.instance().set(null);
     }
 
-    Thread t =
+    var t =
         new Thread(
             () -> {
               db.activateOnCurrentThread();
               try {
-                SQLAsynchQuery<T> query =
+                var query =
                     new SQLAsynchQuery<T>(
                         SQLNonBlockingQuery.this.getText(),
                         SQLNonBlockingQuery.this.getResultListener());

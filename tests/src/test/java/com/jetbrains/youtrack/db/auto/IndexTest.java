@@ -115,7 +115,7 @@ public class IndexTest extends BaseDBTest {
 
       var result = resultSet.entityStream().toList();
       Assert.assertEquals(result.size(), 3);
-      for (final Entity profile : result) {
+      for (final var profile : result) {
         expectedSurnames.remove(profile.<String>getProperty("surname"));
       }
 
@@ -142,7 +142,7 @@ public class IndexTest extends BaseDBTest {
 
     var resultSet = executeQuery("select * from Profile where nick is not null");
 
-    Index idx =
+    var idx =
         db.getMetadata().getIndexManagerInternal().getIndex(db, "Profile.nick");
 
     Assert.assertEquals(idx.getInternal().size(db), resultSet.size());
@@ -154,7 +154,7 @@ public class IndexTest extends BaseDBTest {
 
     var resultSet = executeQuery("select * from Profile where nick is not null");
 
-    int profileSize = resultSet.size();
+    var profileSize = resultSet.size();
 
     Assert.assertEquals(
         db
@@ -164,9 +164,9 @@ public class IndexTest extends BaseDBTest {
             .getInternal()
             .size(db),
         profileSize);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
-      Entity profile = db.newEntity("Profile");
+      var profile = db.newEntity("Profile");
       profile.setProperty("nick", "Yay-" + i);
       profile.setProperty("name", "Jay");
       profile.setProperty("surname", "Miner");
@@ -174,7 +174,7 @@ public class IndexTest extends BaseDBTest {
       db.commit();
 
       profileSize++;
-      try (Stream<RID> stream =
+      try (var stream =
           db
               .getMetadata()
               .getIndexManagerInternal()
@@ -212,7 +212,7 @@ public class IndexTest extends BaseDBTest {
   @Test(dependsOnMethods = "testChangeOfIndexToNotUnique")
   public void testDuplicatedIndexOnNotUnique() {
     db.begin();
-    Entity nickNolte = db.newEntity("Profile");
+    var nickNolte = db.newEntity("Profile");
     nickNolte.setProperty("nick", "Jay");
     nickNolte.setProperty("name", "Nick");
     nickNolte.setProperty("surname", "Nolte");
@@ -251,7 +251,7 @@ public class IndexTest extends BaseDBTest {
 
       var result = resultSet.entityStream().toList();
       Assert.assertEquals(result.size(), 2);
-      for (Entity profile : result) {
+      for (var profile : result) {
         expectedNicks.remove(profile.<String>getProperty("nick"));
       }
 
@@ -275,7 +275,7 @@ public class IndexTest extends BaseDBTest {
 
       var result = resultSet.entityStream().toList();
       Assert.assertEquals(result.size(), 3);
-      for (Entity profile : result) {
+      for (var profile : result) {
         expectedNicks.remove(profile.<String>getProperty("nick"));
       }
 
@@ -295,7 +295,7 @@ public class IndexTest extends BaseDBTest {
 
       var result = resultSet.entityStream().toList();
       Assert.assertEquals(result.size(), 2);
-      for (Entity profile : result) {
+      for (var profile : result) {
         expectedNicks.remove(profile.<String>getProperty("nick"));
       }
 
@@ -314,7 +314,7 @@ public class IndexTest extends BaseDBTest {
 
       var result = resultSet.entityStream().toList();
       Assert.assertEquals(result.size(), 3);
-      for (Entity profile : result) {
+      for (var profile : result) {
         expectedNicks.remove(profile.<String>getProperty("nick"));
       }
 
@@ -335,7 +335,7 @@ public class IndexTest extends BaseDBTest {
 
       var result = resultSet.entityStream().toList();
       Assert.assertEquals(result.size(), 4);
-      for (Entity profile : result) {
+      for (var profile : result) {
         expectedNicks.remove(profile.<String>getProperty("nick"));
       }
 
@@ -363,7 +363,7 @@ public class IndexTest extends BaseDBTest {
 
       var result = resultSet.entityStream().toList();
       Assert.assertEquals(result.size(), 3);
-      for (Entity profile : result) {
+      for (var profile : result) {
         expectedNicks.remove(profile.<String>getProperty("nick"));
       }
 
@@ -390,7 +390,7 @@ public class IndexTest extends BaseDBTest {
                   "ZZZJayLongNickIndex3", "ZZZJayLongNickIndex4", "ZZZJayLongNickIndex5"));
       var result = resultSet.entityStream().toList();
       Assert.assertEquals(result.size(), 3);
-      for (Entity profile : result) {
+      for (var profile : result) {
         expectedNicks.remove(profile.<String>getProperty("nick"));
       }
 
@@ -399,9 +399,9 @@ public class IndexTest extends BaseDBTest {
   }
 
   public void populateIndexDocuments() {
-    for (int i = 0; i <= 5; i++) {
+    for (var i = 0; i <= 5; i++) {
       db.begin();
-      final Entity profile = db.newEntity("Profile");
+      final var profile = db.newEntity("Profile");
       profile.setProperty("nick", "ZZZJayLongNickIndex" + i);
       profile.setProperty("name", "NickIndex" + i);
       profile.setProperty("surname", "NolteIndex" + i);
@@ -409,9 +409,9 @@ public class IndexTest extends BaseDBTest {
       db.commit();
     }
 
-    for (int i = 0; i <= 5; i++) {
+    for (var i = 0; i <= 5; i++) {
       db.begin();
-      final Entity profile = db.newEntity("Profile");
+      final var profile = db.newEntity("Profile");
       profile.setProperty("nick", "00" + i);
       profile.setProperty("name", "NickIndex" + i);
       profile.setProperty("surname", "NolteIndex" + i);
@@ -493,7 +493,7 @@ public class IndexTest extends BaseDBTest {
 
       var result = resultSet.entityStream().toList();
       Assert.assertEquals(result.size(), 3);
-      for (final Entity profile : result) {
+      for (final var profile : result) {
         expectedSurnames.remove(profile.<String>getProperty("surname"));
       }
 
@@ -513,12 +513,12 @@ public class IndexTest extends BaseDBTest {
         .createIndex(db, INDEX_TYPE.NOTUNIQUE);
 
     var resultSet = executeQuery("select * from Account limit 1");
-    final Index idx =
+    final var idx =
         db.getMetadata().getIndexManagerInternal().getIndex(db, "Whiz.account");
 
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       db.begin();
-      final EntityImpl whiz = ((EntityImpl) db.newEntity("Whiz"));
+      final var whiz = ((EntityImpl) db.newEntity("Whiz"));
 
       whiz.field("id", i);
       whiz.field("text", "This is a test");
@@ -540,7 +540,7 @@ public class IndexTest extends BaseDBTest {
       res.asEntity().delete();
     }
 
-    Entity whiz = db.newEntity("Whiz");
+    var whiz = db.newEntity("Whiz");
     whiz.setProperty("id", 100);
     whiz.setProperty("text", "This is a test!");
     whiz.setProperty("account", ((EntityImpl) db.newEntity("Company")).field("id", 9999));
@@ -556,11 +556,11 @@ public class IndexTest extends BaseDBTest {
   }
 
   public void linkedIndexedProperty() {
-    try (DatabaseSessionInternal db = acquireSession()) {
+    try (var db = acquireSession()) {
       if (!db.getMetadata().getSchema().existsClass("TestClass")) {
-        SchemaClass testClass =
+        var testClass =
             db.getMetadata().getSchema().createClass("TestClass", 1, (SchemaClass[]) null);
-        SchemaClass testLinkClass =
+        var testLinkClass =
             db.getMetadata().getSchema().createClass("TestLinkClass", 1, (SchemaClass[]) null);
         testClass
             .createProperty(db, "testLink", PropertyType.LINK, testLinkClass)
@@ -573,7 +573,7 @@ public class IndexTest extends BaseDBTest {
       EntityImpl testClassDocument = db.newInstance("TestClass");
       db.begin();
       testClassDocument.field("name", "Test Class 1");
-      EntityImpl testLinkClassDocument = ((EntityImpl) db.newEntity("TestLinkClass"));
+      var testLinkClassDocument = ((EntityImpl) db.newEntity("TestLinkClass"));
       testLinkClassDocument.field("testString", "Test Link Class 1");
       testLinkClassDocument.field("testBoolean", true);
       testClassDocument.field("testLink", testLinkClassDocument);
@@ -600,11 +600,11 @@ public class IndexTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "linkedIndexedProperty")
   public void testLinkedIndexedPropertyInTx() {
-    try (DatabaseSessionInternal db = acquireSession()) {
+    try (var db = acquireSession()) {
       db.begin();
       EntityImpl testClassDocument = db.newInstance("TestClass");
       testClassDocument.field("name", "Test Class 2");
-      EntityImpl testLinkClassDocument = ((EntityImpl) db.newEntity("TestLinkClass"));
+      var testLinkClassDocument = ((EntityImpl) db.newEntity("TestLinkClass"));
       testLinkClassDocument.field("testString", "Test Link Class 2");
       testLinkClassDocument.field("testBoolean", true);
       testClassDocument.field("testLink", testLinkClassDocument);
@@ -633,9 +633,9 @@ public class IndexTest extends BaseDBTest {
   public void testConcurrentRemoveDelete() {
     checkEmbeddedDB();
 
-    try (DatabaseSessionInternal db = acquireSession()) {
+    try (var db = acquireSession()) {
       if (!db.getMetadata().getSchema().existsClass("MyFruit")) {
-        SchemaClass fruitClass = db.getMetadata().getSchema()
+        var fruitClass = db.getMetadata().getSchema()
             .createClass("MyFruit", 1, (SchemaClass[]) null);
         fruitClass.createProperty(db, "name", PropertyType.STRING);
         fruitClass.createProperty(db, "color", PropertyType.STRING);
@@ -655,14 +655,14 @@ public class IndexTest extends BaseDBTest {
 
       long expectedIndexSize = 0;
 
-      final int passCount = 10;
-      final int chunkSize = 10;
+      final var passCount = 10;
+      final var chunkSize = 10;
 
-      for (int pass = 0; pass < passCount; pass++) {
+      for (var pass = 0; pass < passCount; pass++) {
         List<EntityImpl> recordsToDelete = new ArrayList<>();
         db.begin();
-        for (int i = 0; i < chunkSize; i++) {
-          EntityImpl d =
+        for (var i = 0; i < chunkSize; i++) {
+          var d =
               ((EntityImpl) db.newEntity("MyFruit"))
                   .field("name", "ABC" + pass + 'K' + i)
                   .field("color", "FOO" + pass);
@@ -685,7 +685,7 @@ public class IndexTest extends BaseDBTest {
 
         // do delete
         db.begin();
-        for (final EntityImpl recordToDelete : recordsToDelete) {
+        for (final var recordToDelete : recordsToDelete) {
           db.delete(db.bindToSession(recordToDelete));
         }
         db.commit();
@@ -708,9 +708,9 @@ public class IndexTest extends BaseDBTest {
 
     final EntityImpl doc;
     final RecordId result;
-    try (DatabaseSessionInternal db = acquireSession()) {
+    try (var db = acquireSession()) {
       if (!db.getMetadata().getSchema().existsClass("IndexTestTerm")) {
-        final SchemaClass termClass =
+        final var termClass =
             db.getMetadata().getSchema().createClass("IndexTestTerm", 1, (SchemaClass[]) null);
         termClass.createProperty(db, "label", PropertyType.STRING);
         termClass.createIndex(db,
@@ -726,7 +726,7 @@ public class IndexTest extends BaseDBTest {
       doc.save();
       db.commit();
 
-      try (Stream<RID> stream =
+      try (var stream =
           db.getMetadata()
               .getIndexManagerInternal()
               .getIndex(db, "idxTerm")
@@ -742,9 +742,9 @@ public class IndexTest extends BaseDBTest {
   public void testTransactionUniqueIndexTestOne() {
     checkEmbeddedDB();
 
-    DatabaseSessionInternal db = acquireSession();
+    var db = acquireSession();
     if (!db.getMetadata().getSchema().existsClass("TransactionUniqueIndexTest")) {
-      final SchemaClass termClass =
+      final var termClass =
           db.getMetadata()
               .getSchema()
               .createClass("TransactionUniqueIndexTest", 1, (SchemaClass[]) null);
@@ -757,18 +757,18 @@ public class IndexTest extends BaseDBTest {
     }
 
     db.begin();
-    EntityImpl docOne = ((EntityImpl) db.newEntity("TransactionUniqueIndexTest"));
+    var docOne = ((EntityImpl) db.newEntity("TransactionUniqueIndexTest"));
     docOne.field("label", "A");
     docOne.save();
     db.commit();
 
-    final Index index =
+    final var index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, "idxTransactionUniqueIndexTest");
     Assert.assertEquals(index.getInternal().size(this.db), 1);
 
     db.begin();
     try {
-      EntityImpl docTwo = ((EntityImpl) db.newEntity("TransactionUniqueIndexTest"));
+      var docTwo = ((EntityImpl) db.newEntity("TransactionUniqueIndexTest"));
       docTwo.field("label", "A");
       docTwo.save();
 
@@ -784,9 +784,9 @@ public class IndexTest extends BaseDBTest {
   public void testTransactionUniqueIndexTestTwo() {
     checkEmbeddedDB();
 
-    DatabaseSessionInternal db = acquireSession();
+    var db = acquireSession();
     if (!db.getMetadata().getSchema().existsClass("TransactionUniqueIndexTest")) {
-      final SchemaClass termClass =
+      final var termClass =
           db.getMetadata()
               .getSchema()
               .createClass("TransactionUniqueIndexTest", 1, (SchemaClass[]) null);
@@ -798,17 +798,17 @@ public class IndexTest extends BaseDBTest {
           null,
           Map.of("ignoreNullValues", true), new String[]{"label"});
     }
-    final Index index =
+    final var index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, "idxTransactionUniqueIndexTest");
     Assert.assertEquals(index.getInternal().size(this.db), 1);
 
     db.begin();
     try {
-      EntityImpl docOne = ((EntityImpl) db.newEntity("TransactionUniqueIndexTest"));
+      var docOne = ((EntityImpl) db.newEntity("TransactionUniqueIndexTest"));
       docOne.field("label", "B");
       docOne.save();
 
-      EntityImpl docTwo = ((EntityImpl) db.newEntity("TransactionUniqueIndexTest"));
+      var docTwo = ((EntityImpl) db.newEntity("TransactionUniqueIndexTest"));
       docTwo.field("label", "B");
       docTwo.save();
 
@@ -824,9 +824,9 @@ public class IndexTest extends BaseDBTest {
   public void testTransactionUniqueIndexTestWithDotNameOne() {
     checkEmbeddedDB();
 
-    DatabaseSessionInternal db = acquireSession();
+    var db = acquireSession();
     if (!db.getMetadata().getSchema().existsClass("TransactionUniqueIndexWithDotTest")) {
-      final SchemaClass termClass =
+      final var termClass =
           db.getMetadata()
               .getSchema()
               .createClass("TransactionUniqueIndexWithDotTest", 1, (SchemaClass[]) null);
@@ -834,21 +834,21 @@ public class IndexTest extends BaseDBTest {
     }
 
     db.begin();
-    EntityImpl docOne = ((EntityImpl) db.newEntity("TransactionUniqueIndexWithDotTest"));
+    var docOne = ((EntityImpl) db.newEntity("TransactionUniqueIndexWithDotTest"));
     docOne.field("label", "A");
     docOne.save();
     db.commit();
 
-    final Index index =
+    final var index =
         db.getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "TransactionUniqueIndexWithDotTest.label");
     Assert.assertEquals(index.getInternal().size(this.db), 1);
 
-    long countClassBefore = db.countClass("TransactionUniqueIndexWithDotTest");
+    var countClassBefore = db.countClass("TransactionUniqueIndexWithDotTest");
     db.begin();
     try {
-      EntityImpl docTwo = ((EntityImpl) db.newEntity("TransactionUniqueIndexWithDotTest"));
+      var docTwo = ((EntityImpl) db.newEntity("TransactionUniqueIndexWithDotTest"));
       docTwo.field("label", "A");
       docTwo.save();
 
@@ -871,9 +871,9 @@ public class IndexTest extends BaseDBTest {
   public void testTransactionUniqueIndexTestWithDotNameTwo() {
     checkEmbeddedDB();
 
-    DatabaseSessionInternal db = acquireSession();
+    var db = acquireSession();
     if (!db.getMetadata().getSchema().existsClass("TransactionUniqueIndexWithDotTest")) {
-      final SchemaClass termClass =
+      final var termClass =
           db.getMetadata()
               .getSchema()
               .createClass("TransactionUniqueIndexWithDotTest", 1, (SchemaClass[]) null);
@@ -881,7 +881,7 @@ public class IndexTest extends BaseDBTest {
           .createIndex(this.db, INDEX_TYPE.UNIQUE);
     }
 
-    final Index index =
+    final var index =
         db.getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "TransactionUniqueIndexWithDotTest.label");
@@ -889,11 +889,11 @@ public class IndexTest extends BaseDBTest {
 
     db.begin();
     try {
-      EntityImpl docOne = ((EntityImpl) db.newEntity("TransactionUniqueIndexWithDotTest"));
+      var docOne = ((EntityImpl) db.newEntity("TransactionUniqueIndexWithDotTest"));
       docOne.field("label", "B");
       docOne.save();
 
-      EntityImpl docTwo = ((EntityImpl) db.newEntity("TransactionUniqueIndexWithDotTest"));
+      var docTwo = ((EntityImpl) db.newEntity("TransactionUniqueIndexWithDotTest"));
       docTwo.field("label", "B");
       docTwo.save();
 
@@ -910,15 +910,15 @@ public class IndexTest extends BaseDBTest {
   public void testIndexRemoval() {
     checkEmbeddedDB();
 
-    final Index index = getIndex("Profile.nick");
+    final var index = getIndex("Profile.nick");
 
     Iterator<RawPair<Object, RID>> streamIterator;
     Object key;
-    try (Stream<RawPair<Object, RID>> stream = index.getInternal().stream(db)) {
+    try (var stream = index.getInternal().stream(db)) {
       streamIterator = stream.iterator();
       Assert.assertTrue(streamIterator.hasNext());
 
-      RawPair<Object, RID> pair = streamIterator.next();
+      var pair = streamIterator.next();
       key = pair.first;
 
       db.begin();
@@ -926,19 +926,19 @@ public class IndexTest extends BaseDBTest {
       db.commit();
     }
 
-    try (Stream<RID> stream = index.getInternal().getRids(db, key)) {
+    try (var stream = index.getInternal().getRids(db, key)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
   }
 
   public void createInheritanceIndex() {
-    try (DatabaseSessionInternal db = acquireSession()) {
+    try (var db = acquireSession()) {
       if (!db.getMetadata().getSchema().existsClass("BaseTestClass")) {
-        SchemaClass baseClass =
+        var baseClass =
             db.getMetadata().getSchema().createClass("BaseTestClass", 1, (SchemaClass[]) null);
-        SchemaClass childClass =
+        var childClass =
             db.getMetadata().getSchema().createClass("ChildTestClass", 1, (SchemaClass[]) null);
-        SchemaClass anotherChildClass =
+        var anotherChildClass =
             db.getMetadata().getSchema()
                 .createClass("AnotherChildTestClass", 1, (SchemaClass[]) null);
 
@@ -974,14 +974,14 @@ public class IndexTest extends BaseDBTest {
   @Test(dependsOnMethods = "createInheritanceIndex")
   public void testIndexReturnOnlySpecifiedClass() {
 
-    try (ResultSet result =
+    try (var result =
         db.command("select * from ChildTestClass where testParentProperty = 10")) {
 
       Assert.assertEquals(result.next().<Object>getProperty("testParentProperty"), 10L);
       Assert.assertFalse(result.hasNext());
     }
 
-    try (ResultSet result =
+    try (var result =
         db.command("select * from AnotherChildTestClass where testParentProperty = 11")) {
       Assert.assertEquals(result.next().<Object>getProperty("testParentProperty"), 11L);
       Assert.assertFalse(result.hasNext());
@@ -992,20 +992,20 @@ public class IndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     final Schema schema = db.getMetadata().getSchema();
-    SchemaClass cls = schema.createClass("IndexNotUniqueIndexKeySize");
+    var cls = schema.createClass("IndexNotUniqueIndexKeySize");
     cls.createProperty(db, "value", PropertyType.INTEGER);
     cls.createIndex(db, "IndexNotUniqueIndexKeySizeIndex", INDEX_TYPE.NOTUNIQUE, "value");
 
-    IndexManagerAbstract idxManager = db.getMetadata().getIndexManagerInternal();
+    var idxManager = db.getMetadata().getIndexManagerInternal();
 
-    final Index idx = idxManager.getIndex(db, "IndexNotUniqueIndexKeySizeIndex");
+    final var idx = idxManager.getIndex(db, "IndexNotUniqueIndexKeySizeIndex");
 
     final Set<Integer> keys = new HashSet<>();
-    for (int i = 1; i < 100; i++) {
+    for (var i = 1; i < 100; i++) {
       final Integer key = (int) Math.log(i);
 
       db.begin();
-      final EntityImpl doc = ((EntityImpl) db.newEntity("IndexNotUniqueIndexKeySize"));
+      final var doc = ((EntityImpl) db.newEntity("IndexNotUniqueIndexKeySize"));
       doc.field("value", key);
       doc.save();
       db.commit();
@@ -1013,7 +1013,7 @@ public class IndexTest extends BaseDBTest {
       keys.add(key);
     }
 
-    try (Stream<RawPair<Object, RID>> stream = idx.getInternal().stream(db)) {
+    try (var stream = idx.getInternal().stream(db)) {
       Assert.assertEquals(stream.map((pair) -> pair.first).distinct().count(), keys.size());
     }
   }
@@ -1022,18 +1022,18 @@ public class IndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     final Schema schema = db.getMetadata().getSchema();
-    SchemaClass cls = schema.createClass("IndexNotUniqueIndexSize");
+    var cls = schema.createClass("IndexNotUniqueIndexSize");
     cls.createProperty(db, "value", PropertyType.INTEGER);
     cls.createIndex(db, "IndexNotUniqueIndexSizeIndex", INDEX_TYPE.NOTUNIQUE, "value");
 
-    IndexManagerAbstract idxManager = db.getMetadata().getIndexManagerInternal();
-    final Index idx = idxManager.getIndex(db, "IndexNotUniqueIndexSizeIndex");
+    var idxManager = db.getMetadata().getIndexManagerInternal();
+    final var idx = idxManager.getIndex(db, "IndexNotUniqueIndexSizeIndex");
 
-    for (int i = 1; i < 100; i++) {
+    for (var i = 1; i < 100; i++) {
       final Integer key = (int) Math.log(i);
 
       db.begin();
-      final EntityImpl doc = ((EntityImpl) db.newEntity("IndexNotUniqueIndexSize"));
+      final var doc = ((EntityImpl) db.newEntity("IndexNotUniqueIndexSize"));
       doc.field("value", key);
       doc.save();
       db.commit();
@@ -1047,17 +1047,17 @@ public class IndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    Entity profile = db.newEntity("Profile");
+    var profile = db.newEntity("Profile");
     profile.setProperty("nick", "NonProxiedObjectToDelete");
     profile.setProperty("name", "NonProxiedObjectToDelete");
     profile.setProperty("surname", "NonProxiedObjectToDelete");
     profile = db.save(profile);
     db.commit();
 
-    IndexManagerAbstract idxManager = db.getMetadata().getIndexManagerInternal();
-    Index nickIndex = idxManager.getIndex(db, "Profile.nick");
+    var idxManager = db.getMetadata().getIndexManagerInternal();
+    var nickIndex = idxManager.getIndex(db, "Profile.nick");
 
-    try (Stream<RID> stream = nickIndex.getInternal()
+    try (var stream = nickIndex.getInternal()
         .getRids(db, "NonProxiedObjectToDelete")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
@@ -1067,7 +1067,7 @@ public class IndexTest extends BaseDBTest {
     db.delete(loadedProfile);
     db.commit();
 
-    try (Stream<RID> stream = nickIndex.getInternal()
+    try (var stream = nickIndex.getInternal()
         .getRids(db, "NonProxiedObjectToDelete")) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
@@ -1078,17 +1078,17 @@ public class IndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     db.begin();
-    Entity profile = db.newEntity("Profile");
+    var profile = db.newEntity("Profile");
     profile.setProperty("nick", "NonProxiedObjectToDelete");
     profile.setProperty("name", "NonProxiedObjectToDelete");
     profile.setProperty("surname", "NonProxiedObjectToDelete");
     profile = db.save(profile);
     db.commit();
 
-    IndexManagerAbstract idxManager = db.getMetadata().getIndexManagerInternal();
-    Index nickIndex = idxManager.getIndex(db, "Profile.nick");
+    var idxManager = db.getMetadata().getIndexManagerInternal();
+    var nickIndex = idxManager.getIndex(db, "Profile.nick");
 
-    try (Stream<RID> stream = nickIndex.getInternal()
+    try (var stream = nickIndex.getInternal()
         .getRids(db, "NonProxiedObjectToDelete")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
@@ -1098,7 +1098,7 @@ public class IndexTest extends BaseDBTest {
     db.delete(db.bindToSession(loadedProfile));
     db.commit();
 
-    try (Stream<RID> stream = nickIndex.getInternal()
+    try (var stream = nickIndex.getInternal()
         .getRids(db, "NonProxiedObjectToDelete")) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
@@ -1116,10 +1116,10 @@ public class IndexTest extends BaseDBTest {
 
   @Test
   public void testIndexInCompositeQuery() {
-    SchemaClass classOne =
+    var classOne =
         db.getMetadata().getSchema()
             .createClass("CompoundSQLIndexTest1", 1, (SchemaClass[]) null);
-    SchemaClass classTwo =
+    var classTwo =
         db.getMetadata().getSchema()
             .createClass("CompoundSQLIndexTest2", 1, (SchemaClass[]) null);
 
@@ -1128,12 +1128,12 @@ public class IndexTest extends BaseDBTest {
     classTwo.createIndex(db, "CompoundSQLIndexTestIndex", INDEX_TYPE.UNIQUE, "address");
 
     db.begin();
-    EntityImpl docOne = ((EntityImpl) db.newEntity("CompoundSQLIndexTest1"));
+    var docOne = ((EntityImpl) db.newEntity("CompoundSQLIndexTest1"));
     docOne.field("city", "Montreal");
 
     docOne.save();
 
-    EntityImpl docTwo = ((EntityImpl) db.newEntity("CompoundSQLIndexTest2"));
+    var docTwo = ((EntityImpl) db.newEntity("CompoundSQLIndexTest2"));
     docTwo.field("address", docOne);
     docTwo.save();
     db.commit();
@@ -1147,8 +1147,8 @@ public class IndexTest extends BaseDBTest {
   }
 
   public void testIndexWithLimitAndOffset() {
-    final Schema schema = db.getSchema();
-    final SchemaClass indexWithLimitAndOffset =
+    final var schema = db.getSchema();
+    final var indexWithLimitAndOffset =
         schema.createClass("IndexWithLimitAndOffsetClass", 1, (SchemaClass[]) null);
     indexWithLimitAndOffset.createProperty(db, "val", PropertyType.INTEGER);
     indexWithLimitAndOffset.createProperty(db, "index", PropertyType.INTEGER);
@@ -1158,9 +1158,9 @@ public class IndexTest extends BaseDBTest {
             "create index IndexWithLimitAndOffset on IndexWithLimitAndOffsetClass (val) notunique")
         .close();
 
-    for (int i = 0; i < 30; i++) {
+    for (var i = 0; i < 30; i++) {
       db.begin();
-      final EntityImpl document = ((EntityImpl) db.newEntity("IndexWithLimitAndOffsetClass"));
+      final var document = ((EntityImpl) db.newEntity("IndexWithLimitAndOffsetClass"));
       document.field("val", i / 10);
       document.field("index", i);
       document.save();
@@ -1171,7 +1171,7 @@ public class IndexTest extends BaseDBTest {
         executeQuery("select from IndexWithLimitAndOffsetClass where val = 1 offset 5 limit 2");
     Assert.assertEquals(resultSet.size(), 2);
 
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       var result = resultSet.get(i);
       Assert.assertEquals(result.<Object>getProperty("val"), 1);
       Assert.assertEquals(result.<Object>getProperty("index"), 15 + i);
@@ -1179,8 +1179,8 @@ public class IndexTest extends BaseDBTest {
   }
 
   public void testNullIndexKeysSupport() {
-    final Schema schema = db.getSchema();
-    final SchemaClass clazz = schema.createClass("NullIndexKeysSupport", 1, (SchemaClass[]) null);
+    final var schema = db.getSchema();
+    final var clazz = schema.createClass("NullIndexKeysSupport", 1, (SchemaClass[]) null);
     clazz.createProperty(db, "nullField", PropertyType.STRING);
 
     var metadata = Map.of("ignoreNullValues", false);
@@ -1190,14 +1190,14 @@ public class IndexTest extends BaseDBTest {
         INDEX_TYPE.NOTUNIQUE.toString(),
         null,
         metadata, new String[]{"nullField"});
-    for (int i = 0; i < 20; i++) {
+    for (var i = 0; i < 20; i++) {
       db.begin();
       if (i % 5 == 0) {
-        EntityImpl document = ((EntityImpl) db.newEntity("NullIndexKeysSupport"));
+        var document = ((EntityImpl) db.newEntity("NullIndexKeysSupport"));
         document.field("nullField", (Object) null);
         document.save();
       } else {
-        EntityImpl document = ((EntityImpl) db.newEntity("NullIndexKeysSupport"));
+        var document = ((EntityImpl) db.newEntity("NullIndexKeysSupport"));
         document.field("nullField", "val" + i);
         document.save();
       }
@@ -1210,7 +1210,7 @@ public class IndexTest extends BaseDBTest {
 
     Assert.assertEquals(resultSet.getFirst().getProperty("nullField"), "val3");
 
-    final String query = "select from NullIndexKeysSupport where nullField is null";
+    final var query = "select from NullIndexKeysSupport where nullField is null";
     resultSet = executeQuery("select from NullIndexKeysSupport where nullField is null");
 
     Assert.assertEquals(resultSet.size(), 4);
@@ -1225,8 +1225,8 @@ public class IndexTest extends BaseDBTest {
   }
 
   public void testNullHashIndexKeysSupport() {
-    final Schema schema = db.getSchema();
-    final SchemaClass clazz = schema.createClass("NullHashIndexKeysSupport", 1,
+    final var schema = db.getSchema();
+    final var clazz = schema.createClass("NullHashIndexKeysSupport", 1,
         (SchemaClass[]) null);
     clazz.createProperty(db, "nullField", PropertyType.STRING);
 
@@ -1237,14 +1237,14 @@ public class IndexTest extends BaseDBTest {
         INDEX_TYPE.NOTUNIQUE.toString(),
         null,
         metadata, new String[]{"nullField"});
-    for (int i = 0; i < 20; i++) {
+    for (var i = 0; i < 20; i++) {
       db.begin();
       if (i % 5 == 0) {
-        EntityImpl document = ((EntityImpl) db.newEntity("NullHashIndexKeysSupport"));
+        var document = ((EntityImpl) db.newEntity("NullHashIndexKeysSupport"));
         document.field("nullField", (Object) null);
         document.save();
       } else {
-        EntityImpl document = ((EntityImpl) db.newEntity("NullHashIndexKeysSupport"));
+        var document = ((EntityImpl) db.newEntity("NullHashIndexKeysSupport"));
         document.field("nullField", "val" + i);
         document.save();
       }
@@ -1259,14 +1259,14 @@ public class IndexTest extends BaseDBTest {
 
     Assert.assertEquals(result.getFirst().field("nullField"), "val3");
 
-    final String query = "select from NullHashIndexKeysSupport where nullField is null";
+    final var query = "select from NullHashIndexKeysSupport where nullField is null";
     result =
         db.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from NullHashIndexKeysSupport where nullField is null"));
 
     Assert.assertEquals(result.size(), 4);
-    for (EntityImpl document : result) {
+    for (var document : result) {
       Assert.assertNull(document.field("nullField"));
     }
 
@@ -1278,7 +1278,7 @@ public class IndexTest extends BaseDBTest {
 
   public void testNullIndexKeysSupportInTx() {
     final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass clazz = schema.createClass("NullIndexKeysSupportInTx", 1,
+    final var clazz = schema.createClass("NullIndexKeysSupportInTx", 1,
         (SchemaClass[]) null);
     clazz.createProperty(db, "nullField", PropertyType.STRING);
 
@@ -1292,13 +1292,13 @@ public class IndexTest extends BaseDBTest {
 
     db.begin();
 
-    for (int i = 0; i < 20; i++) {
+    for (var i = 0; i < 20; i++) {
       if (i % 5 == 0) {
-        EntityImpl document = ((EntityImpl) db.newEntity("NullIndexKeysSupportInTx"));
+        var document = ((EntityImpl) db.newEntity("NullIndexKeysSupportInTx"));
         document.field("nullField", (Object) null);
         document.save();
       } else {
-        EntityImpl document = ((EntityImpl) db.newEntity("NullIndexKeysSupportInTx"));
+        var document = ((EntityImpl) db.newEntity("NullIndexKeysSupportInTx"));
         document.field("nullField", "val" + i);
         document.save();
       }
@@ -1314,14 +1314,14 @@ public class IndexTest extends BaseDBTest {
 
     Assert.assertEquals(result.getFirst().field("nullField"), "val3");
 
-    final String query = "select from NullIndexKeysSupportInTx where nullField is null";
+    final var query = "select from NullIndexKeysSupportInTx where nullField is null";
     result =
         db.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from NullIndexKeysSupportInTx where nullField is null"));
 
     Assert.assertEquals(result.size(), 4);
-    for (EntityImpl document : result) {
+    for (var document : result) {
       Assert.assertNull(document.field("nullField"));
     }
 
@@ -1336,8 +1336,8 @@ public class IndexTest extends BaseDBTest {
       return;
     }
 
-    final Schema schema = db.getSchema();
-    final SchemaClass clazz = schema.createClass("NullIndexKeysSupportInMiddleTx", 1,
+    final var schema = db.getSchema();
+    final var clazz = schema.createClass("NullIndexKeysSupportInMiddleTx", 1,
         (SchemaClass[]) null);
     clazz.createProperty(db, "nullField", PropertyType.STRING);
 
@@ -1351,13 +1351,13 @@ public class IndexTest extends BaseDBTest {
 
     db.begin();
 
-    for (int i = 0; i < 20; i++) {
+    for (var i = 0; i < 20; i++) {
       if (i % 5 == 0) {
-        EntityImpl document = ((EntityImpl) db.newEntity("NullIndexKeysSupportInMiddleTx"));
+        var document = ((EntityImpl) db.newEntity("NullIndexKeysSupportInMiddleTx"));
         document.field("nullField", (Object) null);
         document.save();
       } else {
-        EntityImpl document = ((EntityImpl) db.newEntity("NullIndexKeysSupportInMiddleTx"));
+        var document = ((EntityImpl) db.newEntity("NullIndexKeysSupportInMiddleTx"));
         document.field("nullField", "val" + i);
         document.save();
       }
@@ -1371,14 +1371,14 @@ public class IndexTest extends BaseDBTest {
 
     Assert.assertEquals(result.getFirst().field("nullField"), "val3");
 
-    final String query = "select from NullIndexKeysSupportInMiddleTx where nullField is null";
+    final var query = "select from NullIndexKeysSupportInMiddleTx where nullField is null";
     result =
         db.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from NullIndexKeysSupportInMiddleTx where nullField is null"));
 
     Assert.assertEquals(result.size(), 4);
-    for (EntityImpl document : result) {
+    for (var document : result) {
       Assert.assertNull(document.field("nullField"));
     }
 
@@ -1393,9 +1393,9 @@ public class IndexTest extends BaseDBTest {
   }
 
   public void testCreateIndexAbstractClass() {
-    final Schema schema = db.getSchema();
+    final var schema = db.getSchema();
 
-    SchemaClass abstractClass = schema.createAbstractClass("TestCreateIndexAbstractClass");
+    var abstractClass = schema.createAbstractClass("TestCreateIndexAbstractClass");
     abstractClass
         .createProperty(db, "value", PropertyType.STRING)
         .setMandatory(db, true)
@@ -1405,16 +1405,16 @@ public class IndexTest extends BaseDBTest {
     schema.createClass("TestCreateIndexAbstractClassChildTwo", abstractClass);
 
     db.begin();
-    EntityImpl docOne = ((EntityImpl) db.newEntity("TestCreateIndexAbstractClassChildOne"));
+    var docOne = ((EntityImpl) db.newEntity("TestCreateIndexAbstractClassChildOne"));
     docOne.field("value", "val1");
     docOne.save();
 
-    EntityImpl docTwo = ((EntityImpl) db.newEntity("TestCreateIndexAbstractClassChildTwo"));
+    var docTwo = ((EntityImpl) db.newEntity("TestCreateIndexAbstractClassChildTwo"));
     docTwo.field("value", "val2");
     docTwo.save();
     db.commit();
 
-    final String queryOne = "select from TestCreateIndexAbstractClass where value = 'val1'";
+    final var queryOne = "select from TestCreateIndexAbstractClass where value = 'val1'";
 
     var resultOne = executeQuery(queryOne);
     Assert.assertEquals(resultOne.size(), 1);
@@ -1427,7 +1427,7 @@ public class IndexTest extends BaseDBTest {
               .<String>getProperty("executionPlanAsString")
               .contains("FETCH FROM INDEX TestCreateIndexAbstractClass.value"));
 
-      final String queryTwo = "select from TestCreateIndexAbstractClass where value = 'val2'";
+      final var queryTwo = "select from TestCreateIndexAbstractClass where value = 'val2'";
 
       var resultTwo = executeQuery(queryTwo);
       Assert.assertEquals(resultTwo.size(), 1);
@@ -1448,7 +1448,7 @@ public class IndexTest extends BaseDBTest {
     }
 
     final Schema schema = db.getMetadata().getSchema();
-    SchemaClass clazz =
+    var clazz =
         schema.createClass("ValuesContainerIsRemovedIfIndexIsRemovedClass", 1,
             (SchemaClass[]) null);
     clazz.createProperty(db, "val", PropertyType.STRING);
@@ -1459,10 +1459,10 @@ public class IndexTest extends BaseDBTest {
                 + " ValuesContainerIsRemovedIfIndexIsRemovedClass (val) notunique")
         .close();
 
-    for (int i = 0; i < 10; i++) {
-      for (int j = 0; j < 100; j++) {
+    for (var i = 0; i < 10; i++) {
+      for (var j = 0; j < 100; j++) {
         db.begin();
-        EntityImpl document = ((EntityImpl) db.newEntity(
+        var document = ((EntityImpl) db.newEntity(
             "ValuesContainerIsRemovedIfIndexIsRemovedClass"));
         document.field("val", "value" + i);
         document.save();
@@ -1470,11 +1470,11 @@ public class IndexTest extends BaseDBTest {
       }
     }
 
-    final AbstractPaginatedStorage storageLocalAbstract =
+    final var storageLocalAbstract =
         (AbstractPaginatedStorage)
             ((DatabaseSessionInternal) db.getUnderlying()).getStorage();
 
-    final WriteCache writeCache = storageLocalAbstract.getWriteCache();
+    final var writeCache = storageLocalAbstract.getWriteCache();
     Assert.assertTrue(writeCache.exists("ValuesContainerIsRemovedIfIndexIsRemovedIndex.irs"));
     db.command("drop index ValuesContainerIsRemovedIfIndexIsRemovedIndex").close();
     Assert.assertFalse(writeCache.exists("ValuesContainerIsRemovedIfIndexIsRemovedIndex.irs"));
@@ -1498,17 +1498,17 @@ public class IndexTest extends BaseDBTest {
     }
 
     db.begin();
-    Vertex parent = db.newVertex("PreservingIdentityInIndexTxParent");
+    var parent = db.newVertex("PreservingIdentityInIndexTxParent");
     db.save(parent);
-    Vertex child = db.newVertex("PreservingIdentityInIndexTxChild");
+    var child = db.newVertex("PreservingIdentityInIndexTxChild");
     db.save(child);
     db.save(db.newRegularEdge(parent, child, "PreservingIdentityInIndexTxEdge"));
     child.setProperty("name", "pokus");
     db.save(child);
 
-    Vertex parent2 = db.newVertex("PreservingIdentityInIndexTxParent");
+    var parent2 = db.newVertex("PreservingIdentityInIndexTxParent");
     db.save(parent2);
-    Vertex child2 = db.newVertex("PreservingIdentityInIndexTxChild");
+    var child2 = db.newVertex("PreservingIdentityInIndexTxChild");
     db.save(child2);
     db.save(db.newRegularEdge(parent2, child2, "preservingIdentityInIndexTxEdge"));
     child2.setProperty("name", "pokus2");
@@ -1517,28 +1517,28 @@ public class IndexTest extends BaseDBTest {
 
     {
       fieldClass = db.getClassInternal("PreservingIdentityInIndexTxChild");
-      Index index = fieldClass.getClassIndex(db, "nameParentIndex");
-      CompositeKey key = new CompositeKey(parent.getIdentity(), "pokus");
+      var index = fieldClass.getClassIndex(db, "nameParentIndex");
+      var key = new CompositeKey(parent.getIdentity(), "pokus");
 
       Collection<RID> h;
-      try (Stream<RID> stream = index.getInternal().getRids(db, key)) {
+      try (var stream = index.getInternal().getRids(db, key)) {
         h = stream.toList();
       }
-      for (RID o : h) {
+      for (var o : h) {
         Assert.assertNotNull(db.load(o));
       }
     }
 
     {
       fieldClass = (SchemaClassInternal) db.getClass("PreservingIdentityInIndexTxChild");
-      Index index = fieldClass.getClassIndex(db, "nameParentIndex");
-      CompositeKey key = new CompositeKey(parent2.getIdentity(), "pokus2");
+      var index = fieldClass.getClassIndex(db, "nameParentIndex");
+      var key = new CompositeKey(parent2.getIdentity(), "pokus2");
 
       Collection<RID> h;
-      try (Stream<RID> stream = index.getInternal().getRids(db, key)) {
+      try (var stream = index.getInternal().getRids(db, key)) {
         h = stream.toList();
       }
-      for (RID o : h) {
+      for (var o : h) {
         Assert.assertNotNull(db.load(o));
       }
     }
@@ -1555,7 +1555,7 @@ public class IndexTest extends BaseDBTest {
   public void testEmptyNotUniqueIndex() {
     checkEmbeddedDB();
 
-    SchemaClass emptyNotUniqueIndexClazz =
+    var emptyNotUniqueIndexClazz =
         db
             .getMetadata()
             .getSchema()
@@ -1564,10 +1564,10 @@ public class IndexTest extends BaseDBTest {
 
     emptyNotUniqueIndexClazz.createIndex(db,
         "EmptyNotUniqueIndexTestIndex", INDEX_TYPE.NOTUNIQUE, "prop");
-    final Index notUniqueIndex = db.getIndex("EmptyNotUniqueIndexTestIndex");
+    final var notUniqueIndex = db.getIndex("EmptyNotUniqueIndexTestIndex");
 
     db.begin();
-    EntityImpl document = ((EntityImpl) db.newEntity("EmptyNotUniqueIndexTest"));
+    var document = ((EntityImpl) db.newEntity("EmptyNotUniqueIndexTest"));
     document.field("prop", "keyOne");
     document.save();
 
@@ -1576,24 +1576,24 @@ public class IndexTest extends BaseDBTest {
     document.save();
     db.commit();
 
-    try (Stream<RID> stream = notUniqueIndex.getInternal().getRids(db, "RandomKeyOne")) {
+    try (var stream = notUniqueIndex.getInternal().getRids(db, "RandomKeyOne")) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = notUniqueIndex.getInternal().getRids(db, "keyOne")) {
+    try (var stream = notUniqueIndex.getInternal().getRids(db, "keyOne")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
-    try (Stream<RID> stream = notUniqueIndex.getInternal().getRids(db, "RandomKeyTwo")) {
+    try (var stream = notUniqueIndex.getInternal().getRids(db, "RandomKeyTwo")) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = notUniqueIndex.getInternal().getRids(db, "keyTwo")) {
+    try (var stream = notUniqueIndex.getInternal().getRids(db, "keyTwo")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
 
   public void testNullIteration() {
-    SchemaClass v = db.getSchema().getClass("V");
-    SchemaClass testNullIteration =
+    var v = db.getSchema().getClass("V");
+    var testNullIteration =
         db.getMetadata().getSchema().createClass("NullIterationTest", v);
     testNullIteration.createProperty(db, "name", PropertyType.STRING);
     testNullIteration.createProperty(db, "birth", PropertyType.DATETIME);
@@ -1616,7 +1616,7 @@ public class IndexTest extends BaseDBTest {
         null,
         metadata, new String[]{"birth"});
 
-    ResultSet result = db.query("SELECT FROM NullIterationTest ORDER BY birth ASC");
+    var result = db.query("SELECT FROM NullIterationTest ORDER BY birth ASC");
     Assert.assertEquals(result.stream().count(), 3);
 
     result = db.query("SELECT FROM NullIterationTest ORDER BY birth DESC");
@@ -1631,13 +1631,13 @@ public class IndexTest extends BaseDBTest {
 
     // generates stubs for index
     db.begin();
-    EntityImpl doc1 = ((EntityImpl) db.newEntity());
+    var doc1 = ((EntityImpl) db.newEntity());
     doc1.save();
-    EntityImpl doc2 = ((EntityImpl) db.newEntity());
+    var doc2 = ((EntityImpl) db.newEntity());
     doc2.save();
-    EntityImpl doc3 = ((EntityImpl) db.newEntity());
+    var doc3 = ((EntityImpl) db.newEntity());
     doc3.save();
-    EntityImpl doc4 = ((EntityImpl) db.newEntity());
+    var doc4 = ((EntityImpl) db.newEntity());
     doc4.save();
     db.commit();
 
@@ -1646,7 +1646,7 @@ public class IndexTest extends BaseDBTest {
     final RID rid3 = doc3.getIdentity();
     final RID rid4 = doc4.getIdentity();
     final Schema schema = db.getMetadata().getSchema();
-    SchemaClass clazz = schema.createClass("TestMultikeyWithoutField");
+    var clazz = schema.createClass("TestMultikeyWithoutField");
 
     clazz.createProperty(db, "state", PropertyType.BYTE);
     clazz.createProperty(db, "users", PropertyType.LINKSET);
@@ -1662,7 +1662,7 @@ public class IndexTest extends BaseDBTest {
         mt, new String[]{"state", "users", "time", "reg", "no"});
 
     db.begin();
-    EntityImpl document = ((EntityImpl) db.newEntity("TestMultikeyWithoutField"));
+    var document = ((EntityImpl) db.newEntity("TestMultikeyWithoutField"));
     document.field("state", (byte) 1);
 
     Set<RID> users = new HashSet<>();
@@ -1677,7 +1677,7 @@ public class IndexTest extends BaseDBTest {
     document.save();
     db.commit();
 
-    Index index =
+    var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
@@ -1687,7 +1687,7 @@ public class IndexTest extends BaseDBTest {
     // we support first and last keys check only for embedded storage
     // we support first and last keys check only for embedded storage
     if (!(db.isRemote())) {
-      try (Stream<Object> keyStream = index.getInternal().keyStream()) {
+      try (var keyStream = index.getInternal().keyStream()) {
         if (rid1.compareTo(rid2) < 0) {
           Assert.assertEquals(
               keyStream.iterator().next(), new CompositeKey((byte) 1, rid1, 12L, 14L, 12));
@@ -1696,7 +1696,7 @@ public class IndexTest extends BaseDBTest {
               keyStream.iterator().next(), new CompositeKey((byte) 1, rid2, 12L, 14L, 12));
         }
       }
-      try (Stream<RawPair<Object, RID>> descStream = index.getInternal().descStream(db)) {
+      try (var descStream = index.getInternal().descStream(db)) {
         if (rid1.compareTo(rid2) < 0) {
           Assert.assertEquals(
               descStream.iterator().next().first, new CompositeKey((byte) 1, rid2, 12L, 14L, 12));
@@ -1727,7 +1727,7 @@ public class IndexTest extends BaseDBTest {
             .getIndex(db, "MultikeyWithoutFieldIndex");
     Assert.assertEquals(index.getInternal().size(db), 1);
     if (!(db.isRemote())) {
-      try (Stream<Object> keyStream = index.getInternal().keyStream()) {
+      try (var keyStream = index.getInternal().keyStream()) {
         Assert.assertEquals(
             keyStream.iterator().next(), new CompositeKey((byte) 1, rid2, 12L, 14L, 12));
       }
@@ -1754,7 +1754,7 @@ public class IndexTest extends BaseDBTest {
 
     Assert.assertEquals(index.getInternal().size(db), 1);
     if (!(db.isRemote())) {
-      try (Stream<Object> keyStreamAsc = index.getInternal().keyStream()) {
+      try (var keyStreamAsc = index.getInternal().keyStream()) {
         Assert.assertEquals(
             keyStreamAsc.iterator().next(), new CompositeKey((byte) 1, null, 12L, 14L, 12));
       }
@@ -1778,7 +1778,7 @@ public class IndexTest extends BaseDBTest {
 
     Assert.assertEquals(index.getInternal().size(db), 1);
     if (!(db.isRemote())) {
-      try (Stream<Object> keyStream = index.getInternal().keyStream()) {
+      try (var keyStream = index.getInternal().keyStream()) {
         Assert.assertEquals(
             keyStream.iterator().next(), new CompositeKey((byte) 1, rid3, 12L, 14L, 12));
       }
@@ -1802,7 +1802,7 @@ public class IndexTest extends BaseDBTest {
     Assert.assertEquals(index.getInternal().size(db), 2);
 
     if (!(db.isRemote())) {
-      try (Stream<Object> keyStream = index.getInternal().keyStream()) {
+      try (var keyStream = index.getInternal().keyStream()) {
         if (rid3.compareTo(rid4) < 0) {
           Assert.assertEquals(
               keyStream.iterator().next(), new CompositeKey((byte) 1, rid3, 12L, 14L, 12));
@@ -1811,7 +1811,7 @@ public class IndexTest extends BaseDBTest {
               keyStream.iterator().next(), new CompositeKey((byte) 1, rid4, 12L, 14L, 12));
         }
       }
-      try (Stream<RawPair<Object, RID>> descStream = index.getInternal().descStream(db)) {
+      try (var descStream = index.getInternal().descStream(db)) {
         if (rid3.compareTo(rid4) < 0) {
           Assert.assertEquals(
               descStream.iterator().next().first, new CompositeKey((byte) 1, rid4, 12L, 14L, 12));
@@ -1839,7 +1839,7 @@ public class IndexTest extends BaseDBTest {
     Assert.assertEquals(index.getInternal().size(db), 1);
 
     if (!(db.isRemote())) {
-      try (Stream<Object> keyStream = index.getInternal().keyStream()) {
+      try (var keyStream = index.getInternal().keyStream()) {
         Assert.assertEquals(
             keyStream.iterator().next(), new CompositeKey((byte) 1, null, 12L, 14L, 12));
       }
@@ -1851,13 +1851,13 @@ public class IndexTest extends BaseDBTest {
 
     // generates stubs for index
     db.begin();
-    EntityImpl doc1 = ((EntityImpl) db.newEntity());
+    var doc1 = ((EntityImpl) db.newEntity());
     doc1.save();
-    EntityImpl doc2 = ((EntityImpl) db.newEntity());
+    var doc2 = ((EntityImpl) db.newEntity());
     doc2.save();
-    EntityImpl doc3 = ((EntityImpl) db.newEntity());
+    var doc3 = ((EntityImpl) db.newEntity());
     doc3.save();
-    EntityImpl doc4 = ((EntityImpl) db.newEntity());
+    var doc4 = ((EntityImpl) db.newEntity());
     doc4.save();
     db.commit();
 
@@ -1867,7 +1867,7 @@ public class IndexTest extends BaseDBTest {
     final RID rid4 = doc4.getIdentity();
 
     final Schema schema = db.getMetadata().getSchema();
-    SchemaClass clazz = schema.createClass("TestMultikeyWithoutFieldNoNullSupport");
+    var clazz = schema.createClass("TestMultikeyWithoutFieldNoNullSupport");
 
     clazz.createProperty(db, "state", PropertyType.BYTE);
     clazz.createProperty(db, "users", PropertyType.LINKSET);
@@ -1882,7 +1882,7 @@ public class IndexTest extends BaseDBTest {
         Map.of("ignoreNullValues", true),
         new String[]{"state", "users", "time", "reg", "no"});
 
-    EntityImpl document = ((EntityImpl) db.newEntity("TestMultikeyWithoutFieldNoNullSupport"));
+    var document = ((EntityImpl) db.newEntity("TestMultikeyWithoutFieldNoNullSupport"));
     document.field("state", (byte) 1);
 
     Set<RID> users = new HashSet<>();
@@ -1898,7 +1898,7 @@ public class IndexTest extends BaseDBTest {
     document.save();
     db.commit();
 
-    Index index =
+    var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
@@ -1907,7 +1907,7 @@ public class IndexTest extends BaseDBTest {
 
     // we support first and last keys check only for embedded storage
     if (!(db.isRemote())) {
-      try (Stream<Object> keyStream = index.getInternal().keyStream()) {
+      try (var keyStream = index.getInternal().keyStream()) {
         if (rid1.compareTo(rid2) < 0) {
           Assert.assertEquals(
               keyStream.iterator().next(), new CompositeKey((byte) 1, rid1, 12L, 14L, 12));
@@ -1916,7 +1916,7 @@ public class IndexTest extends BaseDBTest {
               keyStream.iterator().next(), new CompositeKey((byte) 1, rid2, 12L, 14L, 12));
         }
       }
-      try (Stream<RawPair<Object, RID>> descStream = index.getInternal().descStream(db)) {
+      try (var descStream = index.getInternal().descStream(db)) {
         if (rid1.compareTo(rid2) < 0) {
           Assert.assertEquals(
               descStream.iterator().next().first, new CompositeKey((byte) 1, rid2, 12L, 14L, 12));
@@ -1947,7 +1947,7 @@ public class IndexTest extends BaseDBTest {
             .getIndex(db, "MultikeyWithoutFieldIndexNoNullSupport");
     Assert.assertEquals(index.getInternal().size(db), 1);
     if (!(db.isRemote())) {
-      try (Stream<Object> keyStream = index.getInternal().keyStream()) {
+      try (var keyStream = index.getInternal().keyStream()) {
         Assert.assertEquals(
             keyStream.iterator().next(), new CompositeKey((byte) 1, rid2, 12L, 14L, 12));
       }
@@ -1992,7 +1992,7 @@ public class IndexTest extends BaseDBTest {
     Assert.assertEquals(index.getInternal().size(db), 1);
 
     if (!(db.isRemote())) {
-      try (Stream<Object> keyStream = index.getInternal().keyStream()) {
+      try (var keyStream = index.getInternal().keyStream()) {
         Assert.assertEquals(
             keyStream.iterator().next(), new CompositeKey((byte) 1, rid3, 12L, 14L, 12));
       }
@@ -2018,7 +2018,7 @@ public class IndexTest extends BaseDBTest {
     Assert.assertEquals(index.getInternal().size(db), 2);
 
     if (!(db.isRemote())) {
-      try (Stream<Object> keyStream = index.getInternal().keyStream()) {
+      try (var keyStream = index.getInternal().keyStream()) {
         if (rid3.compareTo(rid4) < 0) {
           Assert.assertEquals(
               keyStream.iterator().next(), new CompositeKey((byte) 1, rid3, 12L, 14L, 12));
@@ -2027,7 +2027,7 @@ public class IndexTest extends BaseDBTest {
               keyStream.iterator().next(), new CompositeKey((byte) 1, rid4, 12L, 14L, 12));
         }
       }
-      try (Stream<RawPair<Object, RID>> descStream = index.getInternal().descStream(db)) {
+      try (var descStream = index.getInternal().descStream(db)) {
         if (rid3.compareTo(rid4) < 0) {
           Assert.assertEquals(
               descStream.iterator().next().first, new CompositeKey((byte) 1, rid4, 12L, 14L, 12));
@@ -2059,29 +2059,29 @@ public class IndexTest extends BaseDBTest {
   public void testNullValuesCountSBTreeUnique() {
     checkEmbeddedDB();
 
-    SchemaClass nullSBTreeClass = db.getSchema().createClass("NullValuesCountSBTreeUnique");
+    var nullSBTreeClass = db.getSchema().createClass("NullValuesCountSBTreeUnique");
     nullSBTreeClass.createProperty(db, "field", PropertyType.INTEGER);
     nullSBTreeClass.createIndex(db, "NullValuesCountSBTreeUniqueIndex", INDEX_TYPE.UNIQUE,
         "field");
 
     db.begin();
-    EntityImpl docOne = ((EntityImpl) db.newEntity("NullValuesCountSBTreeUnique"));
+    var docOne = ((EntityImpl) db.newEntity("NullValuesCountSBTreeUnique"));
     docOne.field("field", 1);
     docOne.save();
 
-    EntityImpl docTwo = ((EntityImpl) db.newEntity("NullValuesCountSBTreeUnique"));
+    var docTwo = ((EntityImpl) db.newEntity("NullValuesCountSBTreeUnique"));
     docTwo.field("field", (Integer) null);
     docTwo.save();
     db.commit();
 
-    Index index =
+    var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "NullValuesCountSBTreeUniqueIndex");
     Assert.assertEquals(index.getInternal().size(db), 2);
-    try (Stream<RawPair<Object, RID>> stream = index.getInternal().stream(db)) {
-      try (Stream<RID> nullStream = index.getInternal().getRids(db, null)) {
+    try (var stream = index.getInternal().stream(db)) {
+      try (var nullStream = index.getInternal().getRids(db, null)) {
         Assert.assertEquals(
             stream.map((pair) -> pair.first).distinct().count() + nullStream.count(), 2);
       }
@@ -2091,30 +2091,30 @@ public class IndexTest extends BaseDBTest {
   public void testNullValuesCountSBTreeNotUniqueOne() {
     checkEmbeddedDB();
 
-    SchemaClass nullSBTreeClass =
+    var nullSBTreeClass =
         db.getMetadata().getSchema().createClass("NullValuesCountSBTreeNotUniqueOne");
     nullSBTreeClass.createProperty(db, "field", PropertyType.INTEGER);
     nullSBTreeClass.createIndex(db,
         "NullValuesCountSBTreeNotUniqueOneIndex", INDEX_TYPE.NOTUNIQUE, "field");
 
     db.begin();
-    EntityImpl docOne = ((EntityImpl) db.newEntity("NullValuesCountSBTreeNotUniqueOne"));
+    var docOne = ((EntityImpl) db.newEntity("NullValuesCountSBTreeNotUniqueOne"));
     docOne.field("field", 1);
     docOne.save();
 
-    EntityImpl docTwo = ((EntityImpl) db.newEntity("NullValuesCountSBTreeNotUniqueOne"));
+    var docTwo = ((EntityImpl) db.newEntity("NullValuesCountSBTreeNotUniqueOne"));
     docTwo.field("field", (Integer) null);
     docTwo.save();
     db.commit();
 
-    Index index =
+    var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "NullValuesCountSBTreeNotUniqueOneIndex");
     Assert.assertEquals(index.getInternal().size(db), 2);
-    try (Stream<RawPair<Object, RID>> stream = index.getInternal().stream(db)) {
-      try (Stream<RID> nullStream = index.getInternal().getRids(db, null)) {
+    try (var stream = index.getInternal().stream(db)) {
+      try (var nullStream = index.getInternal().getRids(db, null)) {
         Assert.assertEquals(
             stream.map((pair) -> pair.first).distinct().count() + nullStream.count(), 2);
       }
@@ -2124,29 +2124,29 @@ public class IndexTest extends BaseDBTest {
   public void testNullValuesCountSBTreeNotUniqueTwo() {
     checkEmbeddedDB();
 
-    SchemaClass nullSBTreeClass =
+    var nullSBTreeClass =
         db.getMetadata().getSchema().createClass("NullValuesCountSBTreeNotUniqueTwo");
     nullSBTreeClass.createProperty(db, "field", PropertyType.INTEGER);
     nullSBTreeClass.createIndex(db,
         "NullValuesCountSBTreeNotUniqueTwoIndex", INDEX_TYPE.NOTUNIQUE, "field");
 
     db.begin();
-    EntityImpl docOne = ((EntityImpl) db.newEntity("NullValuesCountSBTreeNotUniqueTwo"));
+    var docOne = ((EntityImpl) db.newEntity("NullValuesCountSBTreeNotUniqueTwo"));
     docOne.field("field", (Integer) null);
     docOne.save();
 
-    EntityImpl docTwo = ((EntityImpl) db.newEntity("NullValuesCountSBTreeNotUniqueTwo"));
+    var docTwo = ((EntityImpl) db.newEntity("NullValuesCountSBTreeNotUniqueTwo"));
     docTwo.field("field", (Integer) null);
     docTwo.save();
     db.commit();
 
-    Index index =
+    var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "NullValuesCountSBTreeNotUniqueTwoIndex");
-    try (Stream<RawPair<Object, RID>> stream = index.getInternal().stream(db)) {
-      try (Stream<RID> nullStream = index.getInternal().getRids(db, null)) {
+    try (var stream = index.getInternal().stream(db)) {
+      try (var nullStream = index.getInternal().getRids(db, null)) {
         Assert.assertEquals(
             stream.map((pair) -> pair.first).distinct().count()
                 + nullStream.findAny().map(v -> 1).orElse(0),
@@ -2158,29 +2158,29 @@ public class IndexTest extends BaseDBTest {
 
   public void testNullValuesCountHashUnique() {
     checkEmbeddedDB();
-    SchemaClass nullSBTreeClass = db.getSchema().createClass("NullValuesCountHashUnique");
+    var nullSBTreeClass = db.getSchema().createClass("NullValuesCountHashUnique");
     nullSBTreeClass.createProperty(db, "field", PropertyType.INTEGER);
     nullSBTreeClass.createIndex(db,
         "NullValuesCountHashUniqueIndex", INDEX_TYPE.UNIQUE, "field");
 
     db.begin();
-    EntityImpl docOne = ((EntityImpl) db.newEntity("NullValuesCountHashUnique"));
+    var docOne = ((EntityImpl) db.newEntity("NullValuesCountHashUnique"));
     docOne.field("field", 1);
     docOne.save();
 
-    EntityImpl docTwo = ((EntityImpl) db.newEntity("NullValuesCountHashUnique"));
+    var docTwo = ((EntityImpl) db.newEntity("NullValuesCountHashUnique"));
     docTwo.field("field", (Integer) null);
     docTwo.save();
     db.commit();
 
-    Index index =
+    var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "NullValuesCountHashUniqueIndex");
     Assert.assertEquals(index.getInternal().size(db), 2);
-    try (Stream<RawPair<Object, RID>> stream = index.getInternal().stream(db)) {
-      try (Stream<RID> nullStream = index.getInternal().getRids(db, null)) {
+    try (var stream = index.getInternal().stream(db)) {
+      try (var nullStream = index.getInternal().getRids(db, null)) {
         Assert.assertEquals(
             stream.map((pair) -> pair.first).distinct().count() + nullStream.count(), 2);
       }
@@ -2190,30 +2190,30 @@ public class IndexTest extends BaseDBTest {
   public void testNullValuesCountHashNotUniqueOne() {
     checkEmbeddedDB();
 
-    SchemaClass nullSBTreeClass = db.getSchema()
+    var nullSBTreeClass = db.getSchema()
         .createClass("NullValuesCountHashNotUniqueOne");
     nullSBTreeClass.createProperty(db, "field", PropertyType.INTEGER);
     nullSBTreeClass.createIndex(db,
         "NullValuesCountHashNotUniqueOneIndex", INDEX_TYPE.NOTUNIQUE, "field");
 
     db.begin();
-    EntityImpl docOne = ((EntityImpl) db.newEntity("NullValuesCountHashNotUniqueOne"));
+    var docOne = ((EntityImpl) db.newEntity("NullValuesCountHashNotUniqueOne"));
     docOne.field("field", 1);
     docOne.save();
 
-    EntityImpl docTwo = ((EntityImpl) db.newEntity("NullValuesCountHashNotUniqueOne"));
+    var docTwo = ((EntityImpl) db.newEntity("NullValuesCountHashNotUniqueOne"));
     docTwo.field("field", (Integer) null);
     docTwo.save();
     db.commit();
 
-    Index index =
+    var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "NullValuesCountHashNotUniqueOneIndex");
     Assert.assertEquals(index.getInternal().size(db), 2);
-    try (Stream<RawPair<Object, RID>> stream = index.getInternal().stream(db)) {
-      try (Stream<RID> nullStream = index.getInternal().getRids(db, null)) {
+    try (var stream = index.getInternal().stream(db)) {
+      try (var nullStream = index.getInternal().getRids(db, null)) {
         Assert.assertEquals(
             stream.map((pair) -> pair.first).distinct().count() + nullStream.count(), 2);
       }
@@ -2223,29 +2223,29 @@ public class IndexTest extends BaseDBTest {
   public void testNullValuesCountHashNotUniqueTwo() {
     checkEmbeddedDB();
 
-    SchemaClass nullSBTreeClass =
+    var nullSBTreeClass =
         db.getMetadata().getSchema().createClass("NullValuesCountHashNotUniqueTwo");
     nullSBTreeClass.createProperty(db, "field", PropertyType.INTEGER);
     nullSBTreeClass.createIndex(db,
         "NullValuesCountHashNotUniqueTwoIndex", INDEX_TYPE.NOTUNIQUE, "field");
 
     db.begin();
-    EntityImpl docOne = ((EntityImpl) db.newEntity("NullValuesCountHashNotUniqueTwo"));
+    var docOne = ((EntityImpl) db.newEntity("NullValuesCountHashNotUniqueTwo"));
     docOne.field("field", (Integer) null);
     docOne.save();
 
-    EntityImpl docTwo = ((EntityImpl) db.newEntity("NullValuesCountHashNotUniqueTwo"));
+    var docTwo = ((EntityImpl) db.newEntity("NullValuesCountHashNotUniqueTwo"));
     docTwo.field("field", (Integer) null);
     docTwo.save();
     db.commit();
 
-    Index index =
+    var index =
         db
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "NullValuesCountHashNotUniqueTwoIndex");
-    try (Stream<RawPair<Object, RID>> stream = index.getInternal().stream(db)) {
-      try (Stream<RID> nullStream = index.getInternal().getRids(db, null)) {
+    try (var stream = index.getInternal().stream(db)) {
+      try (var nullStream = index.getInternal().getRids(db, null)) {
         Assert.assertEquals(
             stream.map(pair -> pair.first).distinct().count()
                 + nullStream.findAny().map(v -> 1).orElse(0),

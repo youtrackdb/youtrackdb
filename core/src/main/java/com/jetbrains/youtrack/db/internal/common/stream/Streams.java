@@ -11,9 +11,10 @@ public class Streams {
 
   public static <T> Stream<T> mergeSortedSpliterators(
       Stream<T> streamOne, Stream<T> streamTwo, Comparator<? super T> comparator) {
-    final SortedStreamSpliterator<T> spliterator =
-        new SortedStreamSpliterator<>(streamOne.spliterator(), streamTwo.spliterator(), comparator);
-    @SuppressWarnings("resource") final Stream<T> stream = StreamSupport.stream(spliterator, false);
+    final var spliterator =
+        new SortedStreamSpliterator<T>(streamOne.spliterator(), streamTwo.spliterator(),
+            comparator);
+    @SuppressWarnings("resource") final var stream = StreamSupport.stream(spliterator, false);
     return stream.onClose(composedClose(streamOne, streamTwo));
   }
 
@@ -70,7 +71,7 @@ public class Streams {
         return true;
       }
 
-      final int res = comparator.compare(firstValue, secondValue);
+      final var res = comparator.compare(firstValue, secondValue);
       if (res == 0) {
         if (firstValue.equals(secondValue)) {
           action.accept(firstValue);

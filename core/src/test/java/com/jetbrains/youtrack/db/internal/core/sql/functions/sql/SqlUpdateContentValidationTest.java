@@ -13,12 +13,12 @@ public class SqlUpdateContentValidationTest extends DbTestBase {
 
   @Test
   public void testReadOnlyValidation() {
-    SchemaClass clazz = db.getMetadata().getSchema().createClass("Test");
+    var clazz = db.getMetadata().getSchema().createClass("Test");
     clazz.createProperty(db, "testNormal", PropertyType.STRING);
     clazz.createProperty(db, "test", PropertyType.STRING).setReadonly(db, true);
 
     db.begin();
-    ResultSet res =
+    var res =
         db.command("insert into Test content {\"testNormal\":\"hello\",\"test\":\"only read\"} ");
     db.commit();
     Identifiable id = res.next().getProperty("@rid");

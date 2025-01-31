@@ -89,7 +89,7 @@ public class JsonWebToken implements
 
   @Override
   public SecurityUserImpl getUser(DatabaseSessionInternal db) {
-    RID userRid = payload.getUserRid();
+    var userRid = payload.getUserRid();
     EntityImpl result;
     result = db.load(userRid);
     if (!EntityInternalUtils.getImmutableSchemaClass(result).isUser()) {
@@ -105,13 +105,13 @@ public class JsonWebToken implements
 
   @Override
   public boolean isNowValid() {
-    long now = System.currentTimeMillis();
+    var now = System.currentTimeMillis();
     return getExpiry() > now && payload.getNotBefore() < now;
   }
 
   @Override
   public boolean isCloseToExpire() {
-    long now = System.currentTimeMillis();
+    var now = System.currentTimeMillis();
     return getExpiry() - 120000 <= now;
   }
 }

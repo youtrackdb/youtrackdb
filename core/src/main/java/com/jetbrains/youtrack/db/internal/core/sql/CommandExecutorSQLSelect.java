@@ -191,7 +191,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
   private final Object resultLock = new Object();
 
   public CommandExecutorSQLSelect() {
-    ContextConfiguration conf = getDatabase().getConfiguration();
+    var conf = getDatabase().getConfiguration();
     resultQueue =
         new ArrayBlockingQueue<AsyncResult>(
             conf.getValueAsInteger(GlobalConfiguration.QUERY_PARALLEL_RESULT_QUEUE_SIZE));
@@ -214,13 +214,13 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
   private final class IndexComparator implements Comparator<Index> {
 
     public int compare(final Index indexOne, final Index indexTwo) {
-      final IndexDefinition definitionOne = indexOne.getDefinition();
-      final IndexDefinition definitionTwo = indexTwo.getDefinition();
+      final var definitionOne = indexOne.getDefinition();
+      final var definitionTwo = indexTwo.getDefinition();
 
-      final int firstParamCount = definitionOne.getParamCount();
-      final int secondParamCount = definitionTwo.getParamCount();
+      final var firstParamCount = definitionOne.getParamCount();
+      final var secondParamCount = definitionTwo.getParamCount();
 
-      final int result = firstParamCount - secondParamCount;
+      final var result = firstParamCount - secondParamCount;
 
       if (result == 0 && !orderedFields.isEmpty()) {
         if (!(indexOne instanceof ChainedIndexProxy)
@@ -250,7 +250,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       if (value instanceof List<?> values) {
         List<Object> keyParams = new ArrayList<Object>(values.size());
 
-        for (Object o : values) {
+        for (var o : values) {
           keyParams.add(SQLHelper.getValue(o, null, context));
         }
         return indexDefinition.createValue(session, keyParams);
@@ -283,7 +283,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
 
   private static EntityImpl createIndexEntryAsEntity(
       DatabaseSessionInternal db, final Object iKey, final Identifiable iValue) {
-    final EntityImpl entity = new EntityImpl(db).setOrdered(true);
+    final var entity = new EntityImpl(db).setOrdered(true);
     entity.field("key", iKey);
     entity.field("rid", iValue);
     RecordInternal.unsetDirty(entity);
@@ -296,9 +296,9 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
   public CommandExecutorSQLSelect parse(DatabaseSessionInternal db, final CommandRequest iRequest) {
     this.context = iRequest.getContext();
 
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    final var textRequest = (CommandRequestText) iRequest;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
@@ -307,12 +307,12 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
 
       initContext(iRequest.getContext());
 
-      final int pos = parseProjections();
+      final var pos = parseProjections();
       if (pos == -1) {
         return this;
       }
 
-      final int endPosition = parserText.length();
+      final var endPosition = parserText.length();
 
       parserNextWord(true);
       if (parserGetLastWord().equalsIgnoreCase(KEYWORD_FROM)) {
@@ -333,7 +333,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
         parserSkipWhiteSpaces();
 
         while (!parserIsEnded()) {
-          final String w = parserNextWord(true);
+          final var w = parserNextWord(true);
 
           if (!w.isEmpty()) {
             if (w.equals(KEYWORD_WHERE)) {
@@ -392,7 +392,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
 
   private void validateQuery() {
     if (this.let != null) {
-      for (Object letValue : let.values()) {
+      for (var letValue : let.values()) {
         if (letValue instanceof SQLFunctionRuntime f) {
           if (f.getFunction().aggregateResults()
               && this.groupByFields != null
@@ -422,10 +422,10 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
           && parsedTarget.getTargetRecords() instanceof CommandExecutorSQLResultsetDelegate) {
         // SUB-QUERY: EXECUTE IT LOCALLY
         // SUB QUERY, PROPAGATE THE CALL
-        final Set<String> clIds =
+        final var clIds =
             ((CommandExecutorSQLResultsetDelegate) parsedTarget.getTargetRecords())
                 .getInvolvedClusters();
-        for (String c : clIds) {
+        for (var c : clIds) {
           // FILTER THE CLUSTER WHERE THE USER HAS THE RIGHT ACCESS
           if (checkClusterAccess(db, c)) {
             clusters.add(c);
@@ -434,8 +434,8 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
 
       } else if (parsedTarget.getTargetRecords() != null) {
         // SINGLE RECORDS: BROWSE ALL (COULD BE EXPENSIVE).
-        for (Identifiable identifiable : parsedTarget.getTargetRecords()) {
-          final String c =
+        for (var identifiable : parsedTarget.getTargetRecords()) {
+          final var c =
               db.getClusterNameById(identifiable.getIdentity().getClusterId())
                   .toLowerCase(Locale.ENGLISH);
           // FILTER THE CLUSTER WHERE THE USER HAS THE RIGHT ACCESS
@@ -467,7 +467,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
   public boolean isAnyFunctionAggregates() {
     if (isAnyFunctionAggregates == null) {
       if (projections != null) {
-        for (Entry<String, Object> p : projections.entrySet()) {
+        for (var p : projections.entrySet()) {
           if (p.getValue() instanceof SQLFunctionRuntime
               && ((SQLFunctionRuntime) p.getValue()).aggregateResults()) {
             isAnyFunctionAggregates = true;
@@ -517,7 +517,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
     if (iArgs != null)
     // BIND ARGUMENTS INTO CONTEXT TO ACCESS FROM ANY POINT (EVEN FUNCTIONS)
     {
-      for (Entry<Object, Object> arg : iArgs.entrySet()) {
+      for (var arg : iArgs.entrySet()) {
         context.setVariable(arg.getKey().toString(), arg.getValue());
       }
     }
@@ -591,7 +591,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       return false;
     }
 
-    final RecordId identity = (RecordId) id.getIdentity();
+    final var identity = (RecordId) id.getIdentity();
 
     if (uniqueResult != null) {
       if (uniqueResult.containsKey(identity)) {
@@ -616,8 +616,8 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       }
 
       if (id instanceof ContextualRecordId && ((ContextualRecordId) id).getContext() != null) {
-        Map<String, Object> ridContext = ((ContextualRecordId) id).getContext();
-        for (Entry<String, Object> entry : ridContext.entrySet()) {
+        var ridContext = ((ContextualRecordId) id).getContext();
+        for (var entry : ridContext.entrySet()) {
           context.setVariable(entry.getKey(), entry.getValue());
         }
       }
@@ -725,7 +725,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
    * @return Serial as integer
    */
   public int getTemporaryRIDCounter(final CommandContext iContext) {
-    final TemporaryRidGenerator parentQuery =
+    final var parentQuery =
         (TemporaryRidGenerator) iContext.getVariable("parentQuery");
     if (parentQuery != null && parentQuery != this) {
       return parentQuery.getTemporaryRIDCounter(iContext);
@@ -762,19 +762,19 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
 
     List<Identifiable> allResults = new ArrayList<Identifiable>();
     if (unwindFields != null) {
-      Collection<Identifiable> partial = unwind(iRecord, this.unwindFields, iContext);
+      var partial = unwind(iRecord, this.unwindFields, iContext);
 
-      for (Identifiable item : partial) {
+      for (var item : partial) {
         allResults.add(item);
       }
     } else {
       allResults.add(iRecord);
     }
-    boolean result = true;
+    var result = true;
     if (allowsStreamedResult()) {
       // SEND THE RESULT INLINE
       if (request.getResultListener() != null) {
-        for (Identifiable iRes : allResults) {
+        for (var iRes : allResults) {
           result = pushResult(iContext.getDatabase(), iRes);
         }
       }
@@ -787,7 +787,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
 
       applyPartialOrderBy();
 
-      for (Identifiable iRes : allResults) {
+      for (var iRes : allResults) {
         ((Collection<Identifiable>) tempResult).add(iRes);
       }
     }
@@ -806,9 +806,9 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       if (groupByFields.size() > 1) {
         // MULTI-FIELD GROUP BY
         final EntityImpl entity = iRecord.getRecord(iContext.getDatabase());
-        final Object[] fields = new Object[groupByFields.size()];
-        for (int i = 0; i < groupByFields.size(); ++i) {
-          final String field = groupByFields.get(i);
+        final var fields = new Object[groupByFields.size()];
+        for (var i = 0; i < groupByFields.size(); ++i) {
+          final var field = groupByFields.get(i);
           if (field.startsWith("$")) {
             fields[i] = iContext.getVariable(field);
           } else {
@@ -817,7 +817,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
         }
         fieldValue = fields;
       } else {
-        final String field = groupByFields.get(0);
+        final var field = groupByFields.get(0);
         if (field != null) {
           if (field.startsWith("$")) {
             fieldValue = iContext.getVariable(field);
@@ -851,7 +851,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
     }
 
     if (limit > 0) {
-      int sortBufferSize = limit + 1;
+      var sortBufferSize = limit + 1;
       if (skip > 0) {
         sortBufferSize += skip;
       }
@@ -878,25 +878,25 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       RecordInternal.setIdentity(entity, new RecordId(-2, getTemporaryRIDCounter(iContext)));
       result.add(entity);
     } else {
-      String firstField = unwindFields.get(0);
-      final List<String> nextFields = unwindFields.subList(1, unwindFields.size());
+      var firstField = unwindFields.get(0);
+      final var nextFields = unwindFields.subList(1, unwindFields.size());
 
-      Object fieldValue = entity.field(firstField);
+      var fieldValue = entity.field(firstField);
       if (fieldValue == null
           || !(fieldValue instanceof Iterable)
           || fieldValue instanceof EntityImpl) {
         result.addAll(unwind(entity, nextFields, iContext));
       } else {
-        Iterator iterator = ((Iterable) fieldValue).iterator();
+        var iterator = ((Iterable) fieldValue).iterator();
         if (!iterator.hasNext()) {
-          EntityImpl unwindedDoc = new EntityImpl(iContext.getDatabase());
+          var unwindedDoc = new EntityImpl(iContext.getDatabase());
           entity.copyTo(unwindedDoc);
           unwindedDoc.field(firstField, (Object) null);
           result.addAll(unwind(unwindedDoc, nextFields, iContext));
         } else {
           do {
-            Object o = iterator.next();
-            EntityImpl unwindedDoc = new EntityImpl(iContext.getDatabase());
+            var o = iterator.next();
+            var unwindedDoc = new EntityImpl(iContext.getDatabase());
             entity.copyTo(unwindedDoc);
             unwindedDoc.field(firstField, o);
             result.addAll(unwind(unwindedDoc, nextFields, iContext));
@@ -912,7 +912,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
    */
   protected void reportTip(final String iMessage) {
     YouTrackDBEnginesManager.instance().getProfiler().reportTip(iMessage);
-    List<String> tips = (List<String>) context.getVariable("tips");
+    var tips = (List<String>) context.getVariable("tips");
     if (tips == null) {
       tips = new ArrayList<String>(3);
       context.setVariable("tips", tips);
@@ -923,7 +923,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
   protected RuntimeResult getProjectionGroup(
       final Object fieldValue, final CommandContext iContext) {
     final long projectionElapsed = (Long) context.getVariable("projectionElapsed", 0L);
-    final long begin = System.currentTimeMillis();
+    final var begin = System.currentTimeMillis();
     try {
 
       aggregate = true;
@@ -933,10 +933,10 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       if (fieldValue != null) {
         if (fieldValue.getClass().isArray()) {
           // LOOK IT BY HASH (FASTER THAN COMPARE EACH SINGLE VALUE)
-          final Object[] array = (Object[]) fieldValue;
+          final var array = (Object[]) fieldValue;
 
-          final StringBuilder keyArray = new StringBuilder();
-          for (Object o : array) {
+          final var keyArray = new StringBuilder();
+          for (var o : array) {
             if (keyArray.length() > 0) {
               keyArray.append(",");
             }
@@ -961,7 +961,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
         key = NULL_VALUE;
       }
 
-      RuntimeResult group = groupedResult.get(key);
+      var group = groupedResult.get(key);
       if (group == null) {
         group =
             new RuntimeResult(
@@ -969,7 +969,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
                 createProjectionFromDefinition(),
                 getTemporaryRIDCounter(iContext),
                 context);
-        final RuntimeResult prev = groupedResult.putIfAbsent(key, group);
+        final var prev = groupedResult.putIfAbsent(key, group);
         if (prev != null)
         // ALREADY EXISTENT: USE THIS
         {
@@ -992,7 +992,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
         && (groupByFields.size() == 0
         || parserGetLastSeparator() == ','
         || parserGetCurrentChar() == ',')) {
-      final String fieldName = parserRequiredWord(false, "Field name expected");
+      final var fieldName = parserRequiredWord(false, "Field name expected");
       groupByFields.add(fieldName);
       parserSkipWhiteSpaces();
     }
@@ -1012,7 +1012,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
         && (unwindFields.size() == 0
         || parserGetLastSeparator() == ','
         || parserGetCurrentChar() == ',')) {
-      final String fieldName = parserRequiredWord(false, "Field name expected");
+      final var fieldName = parserRequiredWord(false, "Field name expected");
       unwindFields.add(fieldName);
       parserSkipWhiteSpaces();
     }
@@ -1032,11 +1032,11 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
         && (orderedFields.size() == 0
         || parserGetLastSeparator() == ','
         || parserGetCurrentChar() == ',')) {
-      final String fieldName = parserRequiredWord(false, "Field name expected");
+      final var fieldName = parserRequiredWord(false, "Field name expected");
 
       parserOptionalWord(true);
 
-      final String word = parserGetLastWord();
+      final var word = parserGetLastWord();
 
       if (word.length() == 0)
       // END CLAUSE: SET AS ASC BY DEFAULT
@@ -1073,14 +1073,14 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
 
   @Override
   protected void searchInClasses() {
-    final String className = parsedTarget.getTargetClasses().keySet().iterator().next();
+    final var className = parsedTarget.getTargetClasses().keySet().iterator().next();
 
     var database = getDatabase();
-    final SchemaClass cls = database.getMetadata().getImmutableSchemaSnapshot().getClass(className);
+    final var cls = database.getMetadata().getImmutableSchemaSnapshot().getClass(className);
     if (!searchForIndexes(database, (SchemaClassInternal) cls) && !searchForSubclassIndexes(
         database, cls)) {
       // CHECK FOR INVERSE ORDER
-      final boolean browsingOrderAsc = isBrowsingAscendingOrder();
+      final var browsingOrderAsc = isBrowsingAscendingOrder();
       super.searchInClasses(browsingOrderAsc);
     }
   }
@@ -1096,7 +1096,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       return -1;
     }
 
-    int upperBound =
+    var upperBound =
         StringSerializerHelper.getLowerIndexOfKeywords(
             parserTextUpperCase, parserGetCurrentPosition(), KEYWORD_FROM, KEYWORD_LET);
     if (upperBound == -1)
@@ -1105,31 +1105,31 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       upperBound = parserText.length();
     }
 
-    int lastRealPositionProjection = -1;
+    var lastRealPositionProjection = -1;
 
-    int currPos = parserGetCurrentPosition();
+    var currPos = parserGetCurrentPosition();
     if (currPos == -1) {
       return -1;
     }
 
-    final String projectionString = parserText.substring(currPos, upperBound);
+    final var projectionString = parserText.substring(currPos, upperBound);
     if (projectionString.trim().length() > 0) {
       // EXTRACT PROJECTIONS
       projections = new LinkedHashMap<String, Object>();
       projectionDefinition = new LinkedHashMap<String, String>();
 
-      final List<String> items = StringSerializerHelper.smartSplit(projectionString, ',');
+      final var items = StringSerializerHelper.smartSplit(projectionString, ',');
 
       int endPos;
-      for (String projectionItem : items) {
-        String projection = StringSerializerHelper.smartTrim(projectionItem.trim(), true, true);
+      for (var projectionItem : items) {
+        var projection = StringSerializerHelper.smartTrim(projectionItem.trim(), true, true);
 
         if (projectionDefinition == null) {
           throw new CommandSQLParsingException(
               "Projection not allowed with FLATTEN() and EXPAND() operators");
         }
 
-        final List<String> words = StringSerializerHelper.smartSplit(projection, ' ');
+        final var words = StringSerializerHelper.smartSplit(projection, ' ');
 
         String fieldName;
         if (words.size() > 1 && words.get(1).trim().equalsIgnoreCase(KEYWORD_AS)) {
@@ -1173,18 +1173,18 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
           }
 
           // FIND A UNIQUE NAME BY ADDING A COUNTER
-          for (int fieldIndex = 2; projectionDefinition.containsKey(fieldName); ++fieldIndex) {
+          for (var fieldIndex = 2; projectionDefinition.containsKey(fieldName); ++fieldIndex) {
             fieldName += fieldIndex;
           }
         }
 
-        final String p = SQLPredicate.upperCase(projection);
+        final var p = SQLPredicate.upperCase(projection);
         if (p.startsWith("FLATTEN(") || p.startsWith("EXPAND(")) {
           if (p.startsWith("FLATTEN(")) {
             LogManager.instance().debug(this, "FLATTEN() operator has been replaced by EXPAND()");
           }
 
-          List<String> pars = StringSerializerHelper.getParameters(projection);
+          var pars = StringSerializerHelper.getParameters(projection);
           if (pars.size() != 1) {
             throw new CommandSQLParsingException(
                 "EXPAND/FLATTEN operators expects the field name as parameter. Example EXPAND( out"
@@ -1216,7 +1216,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
           || !projectionDefinition.values().iterator().next().equals("*"))) {
         projections = createProjectionFromDefinition();
 
-        for (Object p : projections.values()) {
+        for (var p : projections.values()) {
 
           if (!aggregate
               && p instanceof SQLFunctionRuntime
@@ -1252,8 +1252,8 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
 
     final Map<String, Object> projections =
         new LinkedHashMap<String, Object>(projectionDefinition.size());
-    for (Entry<String, String> p : projectionDefinition.entrySet()) {
-      final Object projectionValue = SQLHelper.parseValue(this, p.getValue(), context);
+    for (var p : projectionDefinition.entrySet()) {
+      final var projectionValue = SQLHelper.parseValue(this, p.getValue(), context);
       projections.put(p.getKey(), projectionValue);
     }
     return projections;
@@ -1261,9 +1261,9 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
 
   protected int extractProjectionNameSubstringEndPosition(final String projection) {
     int endPos;
-    final int pos1 = projection.indexOf('.');
-    final int pos2 = projection.indexOf('(');
-    final int pos3 = projection.indexOf('[');
+    final var pos1 = projection.indexOf('.');
+    final var pos2 = projection.indexOf('(');
+    final var pos3 = projection.indexOf('[');
     if (pos1 > -1 && pos2 == -1 && pos3 == -1) {
       endPos = pos1;
     } else if (pos2 > -1 && pos1 == -1 && pos3 == -1) {
@@ -1294,15 +1294,15 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
     }
 
     parserSkipWhiteSpaces();
-    int start = parserGetCurrentPosition();
+    var start = parserGetCurrentPosition();
 
     parserNextWord(true);
-    int end = parserGetCurrentPosition();
+    var end = parserGetCurrentPosition();
     parserSkipWhiteSpaces();
 
-    int position = parserGetCurrentPosition();
+    var position = parserGetCurrentPosition();
     while (!parserIsEnded()) {
-      final String word = IOUtils.getStringContent(parserNextWord(true));
+      final var word = IOUtils.getStringContent(parserNextWord(true));
       if (!PatternConst.PATTERN_FETCH_PLAN.matcher(word).matches()) {
         break;
       }
@@ -1335,30 +1335,30 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
         && projections != null
         && projections.size() == 1) {
 
-      final long startOptimization = System.currentTimeMillis();
+      final var startOptimization = System.currentTimeMillis();
       try {
 
-        final Entry<String, Object> entry = projections.entrySet().iterator().next();
+        final var entry = projections.entrySet().iterator().next();
 
         if (entry.getValue() instanceof SQLFunctionRuntime rf) {
           if (rf.function instanceof SQLFunctionCount
               && rf.configuredParameters.length == 1
               && "*".equals(rf.configuredParameters[0])) {
 
-            final boolean restrictedClasses = isUsingRestrictedClasses(db);
+            final var restrictedClasses = isUsingRestrictedClasses(db);
 
             if (!restrictedClasses) {
               long count = 0;
 
-              final DatabaseSessionInternal database = getDatabase();
+              final var database = getDatabase();
               if (parsedTarget.getTargetClasses() != null) {
-                final String className = parsedTarget.getTargetClasses().keySet().iterator().next();
+                final var className = parsedTarget.getTargetClasses().keySet().iterator().next();
                 var cls =
                     (SchemaClassInternal) database.getMetadata().getImmutableSchemaSnapshot()
                         .getClass(className);
                 count = cls.count(db);
               } else if (parsedTarget.getTargetClusters() != null) {
-                for (String cluster : parsedTarget.getTargetClusters().keySet()) {
+                for (var cluster : parsedTarget.getTargetClusters().keySet()) {
                   count += database.countClusterElements(cluster);
                 }
               } else if (parsedTarget.getTargetIndex() != null) {
@@ -1370,7 +1370,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
                         .getInternal()
                         .size(db);
               } else {
-                final Iterable<? extends Identifiable> recs = parsedTarget.getTargetRecords();
+                final var recs = parsedTarget.getTargetRecords();
                 if (recs != null) {
                   if (recs instanceof Collection<?>) {
                     count += ((Collection<?>) recs).size();
@@ -1402,16 +1402,16 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
   }
 
   private boolean isUsingRestrictedClasses(DatabaseSessionInternal db) {
-    boolean restrictedClasses = false;
-    final SecurityUser user = db.geCurrentUser();
+    var restrictedClasses = false;
+    final var user = db.geCurrentUser();
 
     if (parsedTarget.getTargetClasses() != null
         && user != null
         && user.checkIfAllowed(db, Rule.ResourceGeneric.BYPASS_RESTRICTED, null,
         Role.PERMISSION_READ)
         == null) {
-      for (String className : parsedTarget.getTargetClasses().keySet()) {
-        final SchemaClass cls =
+      for (var className : parsedTarget.getTargetClasses().keySet()) {
+        final var cls =
             db.getMetadata().getImmutableSchemaSnapshot().getClass(className);
         if (cls.isSubClassOf(SecurityShared.RESTRICTED_CLASSNAME)) {
           restrictedClasses = true;
@@ -1423,7 +1423,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
   }
 
   protected void revertSubclassesProfiler(final CommandContext iContext, int num) {
-    final Profiler profiler = YouTrackDBEnginesManager.instance().getProfiler();
+    final var profiler = YouTrackDBEnginesManager.instance().getProfiler();
     if (profiler.isRecording()) {
       profiler.updateCounter(
           profiler.getDatabaseMetric(getDatabase().getName(), "query.indexUseAttemptedAndReverted"),
@@ -1441,16 +1441,16 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       iContext.updateMetric("compositeIndexUsed", -1);
     }
 
-    final Profiler profiler = YouTrackDBEnginesManager.instance().getProfiler();
+    final var profiler = YouTrackDBEnginesManager.instance().getProfiler();
     if (profiler.isRecording()) {
       profiler.updateCounter(
           profiler.getDatabaseMetric(index.getDatabaseName(), "query.indexUsed"),
           "Used index in query",
           -1);
 
-      int params = indexDefinition.getParamCount();
+      var params = indexDefinition.getParamCount();
       if (params > 1) {
-        final String profiler_prefix =
+        final var profiler_prefix =
             profiler.getDatabaseMetric(index.getDatabaseName(), "query.compositeIndexUsed");
 
         profiler.updateCounter(profiler_prefix, "Used composite index in query", -1);
@@ -1484,9 +1484,9 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
 
   private void mergeRangeConditionsToBetweenOperators(DatabaseSessionInternal session,
       SQLFilter filter) {
-    SQLFilterCondition condition = filter.getRootCondition();
+    var condition = filter.getRootCondition();
 
-    SQLFilterCondition newCondition = convertToBetweenClause(session, condition);
+    var newCondition = convertToBetweenClause(session, condition);
     if (newCondition != null) {
       filter.setRootCondition(newCondition);
       metricRecorder.recordRangeQueryConvertedInBetween();
@@ -1533,10 +1533,10 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       return null;
     }
 
-    final Object right = condition.getRight();
-    final Object left = condition.getLeft();
+    final var right = condition.getRight();
+    final var left = condition.getLeft();
 
-    final QueryOperator operator = condition.getOperator();
+    final var operator = condition.getOperator();
     if (!(operator instanceof QueryOperatorAnd)) {
       return null;
     }
@@ -1632,15 +1632,15 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       return null;
     }
 
-    final QueryOperator rightOperator = rightCondition.getOperator();
-    final QueryOperator leftOperator = leftCondition.getOperator();
+    final var rightOperator = rightCondition.getOperator();
+    final var leftOperator = leftCondition.getOperator();
 
     if ((rightOperator instanceof QueryOperatorMajor
         || rightOperator instanceof QueryOperatorMajorEquals)
         && (leftOperator instanceof QueryOperatorMinor
         || leftOperator instanceof QueryOperatorMinorEquals)) {
 
-      final QueryOperatorBetween between = new QueryOperatorBetween();
+      final var between = new QueryOperatorBetween();
 
       if (rightOperator instanceof QueryOperatorMajor) {
         between.setLeftInclusive(false);
@@ -1659,7 +1659,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
         || leftOperator instanceof QueryOperatorMajorEquals)
         && (rightOperator instanceof QueryOperatorMinor
         || rightOperator instanceof QueryOperatorMinorEquals)) {
-      final QueryOperatorBetween between = new QueryOperatorBetween();
+      final var between = new QueryOperatorBetween();
 
       if (leftOperator instanceof QueryOperatorMajor) {
         between.setLeftInclusive(false);
@@ -1687,7 +1687,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
   private boolean fetchFromTarget(final Iterator<? extends Identifiable> iTarget) {
     fetchLimit = getQueryFetchLimit();
 
-    final long startFetching = System.currentTimeMillis();
+    final var startFetching = System.currentTimeMillis();
 
     final int[] clusterIds;
     if (iTarget instanceof RecordIteratorClusters) {
@@ -1708,10 +1708,10 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
         return parallelExec(iTarget);
       }
 
-      boolean prefetchPages = canScanStorageCluster(clusterIds);
+      var prefetchPages = canScanStorageCluster(clusterIds);
 
       // WORK WITH ITERATOR
-      DatabaseSessionInternal database = getDatabase();
+      var database = getDatabase();
       database.setPrefetchRecords(prefetchPages);
       try {
         return serialIterator(iTarget);
@@ -1732,7 +1732,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
 
     if (iTarget instanceof RecordIteratorClusters) {
       if (clusterIds.length > 1) {
-        final long totalRecords = getDatabase().countClusterElements(clusterIds);
+        final var totalRecords = getDatabase().countClusterElements(clusterIds);
         if (totalRecords
             > getDatabase()
             .getConfiguration()
@@ -1752,12 +1752,12 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
   }
 
   private boolean canScanStorageCluster(final int[] clusterIds) {
-    final DatabaseSessionInternal db = getDatabase();
+    final var db = getDatabase();
 
     if (clusterIds != null && request.isIdempotent() && !db.getTransaction().isActive()) {
-      final ImmutableSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
-      for (int clusterId : clusterIds) {
-        final SchemaImmutableClass cls = (SchemaImmutableClass) schema.getClassByClusterId(
+      final var schema = db.getMetadata().getImmutableSchemaSnapshot();
+      for (var clusterId : clusterIds) {
+        final var cls = (SchemaImmutableClass) schema.getClassByClusterId(
             clusterId);
         if (cls != null) {
           if (cls.isRestricted() || cls.isUser() || cls.isRole()) {
@@ -1773,7 +1773,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
   private boolean serialIterator(Iterator<? extends Identifiable> iTarget) {
     // BROWSE, UNMARSHALL AND FILTER ALL THE RECORDS ON CURRENT THREAD
     while (iTarget.hasNext()) {
-      final Identifiable next = iTarget.next();
+      final var next = iTarget.next();
       if (!executeSearchRecord(next, context, false)) {
 
         return false;
@@ -1787,11 +1787,11 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
   }
 
   private boolean parallelExec(final Iterator<? extends Identifiable> iTarget) {
-    final LegacyResultSet result = (LegacyResultSet) getResultInstance();
+    final var result = (LegacyResultSet) getResultInstance();
 
     // BROWSE ALL THE RECORDS ON CURRENT THREAD BUT DELEGATE UNMARSHALLING AND FILTER TO A THREAD
     // POOL
-    final DatabaseSessionInternal db = getDatabase();
+    final var db = getDatabase();
 
     if (limit > -1) {
       if (result != null) {
@@ -1799,7 +1799,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       }
     }
 
-    final boolean res = execParallelWithPool((RecordIteratorClusters) iTarget, db);
+    final var res = execParallelWithPool((RecordIteratorClusters) iTarget, db);
 
     if (LogManager.instance().isDebugEnabled()) {
       LogManager.instance().debug(this, "Parallel query '%s' completed", parserText);
@@ -1810,10 +1810,10 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
 
   private boolean execParallelWithPool(
       final RecordIteratorClusters iTarget, final DatabaseSessionInternal db) {
-    final int[] clusterIds = iTarget.getClusterIds();
+    final var clusterIds = iTarget.getClusterIds();
 
     // CREATE ONE THREAD PER CLUSTER
-    final int jobNumbers = clusterIds.length;
+    final var jobNumbers = clusterIds.length;
     final List<Future<?>> jobs = new ArrayList<Future<?>>();
 
     LogManager.instance()
@@ -1823,17 +1823,17 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
             clusterIds.length,
             jobNumbers);
 
-    final boolean[] results = new boolean[jobNumbers];
-    final CommandContext[] contexts = new CommandContext[jobNumbers];
+    final var results = new boolean[jobNumbers];
+    final var contexts = new CommandContext[jobNumbers];
 
-    final RuntimeException[] exceptions = new RuntimeException[jobNumbers];
+    final var exceptions = new RuntimeException[jobNumbers];
 
     parallelRunning = true;
 
-    final AtomicInteger runningJobs = new AtomicInteger(jobNumbers);
+    final var runningJobs = new AtomicInteger(jobNumbers);
 
-    for (int i = 0; i < jobNumbers; ++i) {
-      final int current = i;
+    for (var i = 0; i < jobNumbers; ++i) {
+      final var current = i;
 
       final Runnable job =
           () -> {
@@ -1843,7 +1843,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
                 exceptions[current] = null;
                 results[current] = true;
 
-                final CommandContext threadContext = context.copy();
+                final var threadContext = context.copy();
                 contexts[current] = threadContext;
 
                 localDatabase = db.copy();
@@ -1878,19 +1878,19 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       jobs.add(db.getSharedContext().getYouTrackDB().execute(job));
     }
 
-    final int maxQueueSize =
+    final var maxQueueSize =
         getDatabase()
             .getConfiguration()
             .getValueAsInteger(GlobalConfiguration.QUERY_PARALLEL_RESULT_QUEUE_SIZE)
             - 1;
 
-    boolean cancelQuery = false;
-    boolean tipProvided = false;
+    var cancelQuery = false;
+    var tipProvided = false;
     while (runningJobs.get() > 0 || !resultQueue.isEmpty()) {
       try {
-        final AsyncResult result = resultQueue.take();
+        final var result = resultQueue.take();
 
-        final int qSize = resultQueue.size();
+        final var qSize = resultQueue.size();
 
         if (!tipProvided && qSize >= maxQueueSize) {
           LogManager.instance()
@@ -1929,12 +1929,12 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
 
     if (cancelQuery) {
       // CANCEL ALL THE RUNNING JOBS
-      for (int i = 0; i < jobs.size(); ++i) {
+      for (var i = 0; i < jobs.size(); ++i) {
         jobs.get(i).cancel(true);
       }
     } else {
       // JOIN ALL THE JOBS
-      for (int i = 0; i < jobs.size(); ++i) {
+      for (var i = 0; i < jobs.size(); ++i) {
         try {
           jobs.get(i).get();
           context.merge(contexts[i]);
@@ -1949,13 +1949,13 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
     }
 
     // CHECK FOR ANY EXCEPTION
-    for (int i = 0; i < jobNumbers; ++i) {
+    for (var i = 0; i < jobNumbers; ++i) {
       if (exceptions[i] != null) {
         throw exceptions[i];
       }
     }
 
-    for (int i = 0; i < jobNumbers; ++i) {
+    for (var i = 0; i < jobNumbers; ++i) {
       if (!results[i]) {
         return false;
       }
@@ -1969,10 +1969,10 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       final int iClusterId,
       final int current,
       final boolean[] results) {
-    final RecordIteratorCluster it = new RecordIteratorCluster(localDatabase, iClusterId);
+    final var it = new RecordIteratorCluster(localDatabase, iClusterId);
 
     while (it.hasNext()) {
-      final DBRecord next = it.next();
+      final var next = it.next();
 
       if (!executeSearchRecord(next, iContext, false)) {
         results[current] = false;
@@ -2035,16 +2035,16 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
 
   private boolean searchForSubclassIndexes(
       DatabaseSessionInternal db, final SchemaClass iSchemaClass) {
-    Collection<SchemaClass> subclasses = iSchemaClass.getSubclasses();
+    var subclasses = iSchemaClass.getSubclasses();
     if (subclasses.size() == 0) {
       return false;
     }
 
-    final SQLOrderBy order = new SQLOrderBy();
+    final var order = new SQLOrderBy();
     order.setItems(new ArrayList<SQLOrderByItem>());
     if (this.orderedFields != null) {
-      for (Pair<String, String> pair : this.orderedFields) {
-        SQLOrderByItem item = new SQLOrderByItem();
+      for (var pair : this.orderedFields) {
+        var item = new SQLOrderByItem();
         item.setRecordAttr(pair.getKey());
         if (pair.getValue() == null) {
           item.setType(SQLOrderByItem.ASC);
@@ -2057,11 +2057,11 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
         order.getItems().add(item);
       }
     }
-    SortedMultiIterator<Identifiable> cursor = new SortedMultiIterator<>(db, order);
-    boolean fullySorted = true;
+    var cursor = new SortedMultiIterator<Identifiable>(db, order);
+    var fullySorted = true;
 
     if (!iSchemaClass.isAbstract()) {
-      Iterator<Identifiable> parentClassIterator =
+      var parentClassIterator =
           (Iterator<Identifiable>) searchInClasses(iSchemaClass, false, true);
       if (parentClassIterator.hasNext()) {
         cursor.add(parentClassIterator);
@@ -2073,9 +2073,9 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       uniqueResult.clear();
     }
 
-    int attempted = 0;
+    var attempted = 0;
     for (var subclass : subclasses) {
-      List<Stream<RawPair<Object, RID>>> substreams = getIndexCursors(db,
+      var substreams = getIndexCursors(db,
           (SchemaClassInternal) subclass);
       fullySorted = fullySorted && fullySortedByIndex;
       if (substreams == null || substreams.size() == 0) {
@@ -2084,7 +2084,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
         }
         return false;
       }
-      for (Stream<RawPair<Object, RID>> c : substreams) {
+      for (var c : substreams) {
         if (!fullySortedByIndex) {
           // TODO sort every iterator
         }
@@ -2121,7 +2121,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
 
     // fetch all possible variants of subqueries that can be used in indexes.
     if (compiledFilter == null) {
-      Stream<RawPair<Object, RID>> stream = tryGetOptimizedSortStream(iSchemaClass, session);
+      var stream = tryGetOptimizedSortStream(iSchemaClass, session);
       if (stream == null) {
         return null;
       }
@@ -2131,7 +2131,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
     }
 
     // the main condition is a set of sub-conditions separated by OR operators
-    final List<List<IndexSearchResult>> conditionHierarchy =
+    final var conditionHierarchy =
         filterAnalyzer.analyzeMainCondition(
             compiledFilter.getRootCondition(), iSchemaClass, context);
     if (conditionHierarchy == null) {
@@ -2140,51 +2140,51 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
 
     List<Stream<RawPair<Object, RID>>> cursors = new ArrayList<>();
 
-    boolean indexIsUsedInOrderBy = false;
+    var indexIsUsedInOrderBy = false;
     List<IndexUsageLog> indexUseAttempts = new ArrayList<IndexUsageLog>();
     // try {
 
     IndexSearchResult lastSearchResult = null;
-    for (List<IndexSearchResult> indexSearchResults : conditionHierarchy) {
+    for (var indexSearchResults : conditionHierarchy) {
       // go through all variants to choose which one can be used for index search.
-      boolean indexUsed = false;
-      for (final IndexSearchResult searchResult : indexSearchResults) {
+      var indexUsed = false;
+      for (final var searchResult : indexSearchResults) {
         lastSearchResult = searchResult;
-        final List<Index> involvedIndexes =
+        final var involvedIndexes =
             FilterAnalyzer.getInvolvedIndexes(session, iSchemaClass, searchResult);
 
         Collections.sort(involvedIndexes, new IndexComparator());
 
         // go through all possible index for given set of fields.
-        for (final Index index : involvedIndexes) {
+        for (final var index : involvedIndexes) {
 
-          final IndexDefinition indexDefinition = index.getDefinition();
+          final var indexDefinition = index.getDefinition();
 
           if (searchResult.containsNullValues && indexDefinition.isNullValuesIgnored()) {
             continue;
           }
 
-          final QueryOperator operator = searchResult.lastOperator;
+          final var operator = searchResult.lastOperator;
 
           // we need to test that last field in query subset and field in index that has the same
           // position
           // are equals.
           if (!IndexSearchResult.isIndexEqualityOperator(operator)) {
-            final String lastFiled =
+            final var lastFiled =
                 searchResult.lastField.getItemName(searchResult.lastField.getItemCount() - 1);
-            final String relatedIndexField =
+            final var relatedIndexField =
                 indexDefinition.getFields().get(searchResult.fieldValuePairs.size());
             if (!lastFiled.equals(relatedIndexField)) {
               continue;
             }
           }
 
-          final int searchResultFieldsCount = searchResult.fields().size();
+          final var searchResultFieldsCount = searchResult.fields().size();
           final List<Object> keyParams = new ArrayList<Object>(searchResultFieldsCount);
           // We get only subset contained in processed sub query.
-          for (final String fieldName :
+          for (final var fieldName :
               indexDefinition.getFields().subList(0, searchResultFieldsCount)) {
-            final Object fieldValue = searchResult.fieldValuePairs.get(fieldName);
+            final var fieldValue = searchResult.fieldValuePairs.get(fieldName);
             if (fieldValue instanceof SQLQuery<?>) {
               return null;
             }
@@ -2207,7 +2207,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
               orderByOptimizer.canBeUsedByOrderBy(index, orderedFields)
                   && !(index.getInternal() instanceof ChainedIndexProxy);
           try {
-            boolean ascSortOrder =
+            var ascSortOrder =
                 !indexIsUsedInOrderBy || orderedFields.get(0).getValue().equals(KEYWORD_ASC);
 
             if (indexIsUsedInOrderBy) {
@@ -2252,7 +2252,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
         }
       }
       if (!indexUsed) {
-        Stream<RawPair<Object, RID>> stream = tryGetOptimizedSortStream(iSchemaClass, session);
+        var stream = tryGetOptimizedSortStream(iSchemaClass, session);
         if (stream == null) {
           return null;
         }
@@ -2291,14 +2291,14 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
     }
 
     // try indexed functions
-    Iterator<Identifiable> fetchedFromFunction = tryIndexedFunctions(iSchemaClass);
+    var fetchedFromFunction = tryIndexedFunctions(iSchemaClass);
     if (fetchedFromFunction != null) {
       fetchFromTarget(fetchedFromFunction);
       return true;
     }
 
     // the main condition is a set of sub-conditions separated by OR operators
-    final List<List<IndexSearchResult>> conditionHierarchy =
+    final var conditionHierarchy =
         filterAnalyzer.analyzeMainCondition(
             compiledFilter.getRootCondition(), iSchemaClass, context);
     if (conditionHierarchy == null) {
@@ -2307,50 +2307,50 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
 
     List<Stream<RawPair<Object, RID>>> streams = new ArrayList<>();
 
-    boolean indexIsUsedInOrderBy = false;
+    var indexIsUsedInOrderBy = false;
     List<IndexUsageLog> indexUseAttempts = new ArrayList<IndexUsageLog>();
     try {
 
       IndexSearchResult lastSearchResult = null;
-      for (List<IndexSearchResult> indexSearchResults : conditionHierarchy) {
+      for (var indexSearchResults : conditionHierarchy) {
         // go through all variants to choose which one can be used for index search.
-        boolean indexUsed = false;
-        for (final IndexSearchResult searchResult : indexSearchResults) {
+        var indexUsed = false;
+        for (final var searchResult : indexSearchResults) {
           lastSearchResult = searchResult;
-          final List<Index> involvedIndexes =
+          final var involvedIndexes =
               FilterAnalyzer.getInvolvedIndexes(db, iSchemaClass, searchResult);
 
           Collections.sort(involvedIndexes, new IndexComparator());
 
           // go through all possible index for given set of fields.
-          for (final Index index : involvedIndexes) {
-            final IndexDefinition indexDefinition = index.getDefinition();
+          for (final var index : involvedIndexes) {
+            final var indexDefinition = index.getDefinition();
 
             if (searchResult.containsNullValues && indexDefinition.isNullValuesIgnored()) {
               continue;
             }
 
-            final QueryOperator operator = searchResult.lastOperator;
+            final var operator = searchResult.lastOperator;
 
             // we need to test that last field in query subset and field in index that has the same
             // position
             // are equals.
             if (!IndexSearchResult.isIndexEqualityOperator(operator)) {
-              final String lastFiled =
+              final var lastFiled =
                   searchResult.lastField.getItemName(searchResult.lastField.getItemCount() - 1);
-              final String relatedIndexField =
+              final var relatedIndexField =
                   indexDefinition.getFields().get(searchResult.fieldValuePairs.size());
               if (!lastFiled.equals(relatedIndexField)) {
                 continue;
               }
             }
 
-            final int searchResultFieldsCount = searchResult.fields().size();
+            final var searchResultFieldsCount = searchResult.fields().size();
             final List<Object> keyParams = new ArrayList<Object>(searchResultFieldsCount);
             // We get only subset contained in processed sub query.
-            for (final String fieldName :
+            for (final var fieldName :
                 indexDefinition.getFields().subList(0, searchResultFieldsCount)) {
-              final Object fieldValue = searchResult.fieldValuePairs.get(fieldName);
+              final var fieldValue = searchResult.fieldValuePairs.get(fieldName);
               if (fieldValue instanceof SQLQuery<?>) {
                 return false;
               }
@@ -2371,7 +2371,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
                 orderByOptimizer.canBeUsedByOrderBy(index, orderedFields)
                     && !(index.getInternal() instanceof ChainedIndexProxy);
             try {
-              boolean ascSortOrder =
+              var ascSortOrder =
                   !indexIsUsedInOrderBy || orderedFields.get(0).getValue().equals(KEYWORD_ASC);
 
               if (indexIsUsedInOrderBy) {
@@ -2439,14 +2439,14 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
           && projections != null
           && projections.size() == 1) {
         // OPTIMIZATION: ONE INDEX USED WITH JUST ONE CONDITION: REMOVE THE FILTER
-        final Entry<String, Object> entry = projections.entrySet().iterator().next();
+        final var entry = projections.entrySet().iterator().next();
 
         if (entry.getValue() instanceof SQLFunctionRuntime rf) {
           if (rf.function instanceof SQLFunctionCount
               && rf.configuredParameters.length == 1
               && "*".equals(rf.configuredParameters[0])) {
 
-            final boolean restrictedClasses = isUsingRestrictedClasses(db);
+            final var restrictedClasses = isUsingRestrictedClasses(db);
 
             if (!restrictedClasses) {
               final Iterator cursor = streams.get(0).iterator();
@@ -2460,7 +2460,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
                 }
               }
 
-              final Profiler profiler = YouTrackDBEnginesManager.instance().getProfiler();
+              final var profiler = YouTrackDBEnginesManager.instance().getProfiler();
               if (profiler.isRecording()) {
                 profiler.updateCounter(
                     profiler.getDatabaseMetric(db.getName(), "query.indexUsed"),
@@ -2478,7 +2478,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
         }
       }
 
-      for (Stream<RawPair<Object, RID>> stream : streams) {
+      for (var stream : streams) {
         if (!fetchValuesFromIndexStream(stream)) {
           break;
         }
@@ -2491,7 +2491,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       indexUseAttempts.clear();
       return true;
     } finally {
-      for (IndexUsageLog wastedIndexUsage : indexUseAttempts) {
+      for (var wastedIndexUsage : indexUseAttempts) {
         revertProfiler(
             context,
             wastedIndexUsage.index,
@@ -2506,20 +2506,20 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
     if (this.preParsedStatement == null) {
       return null;
     }
-    SQLWhereClause where = ((SQLSelectStatement) this.preParsedStatement).getWhereClause();
+    var where = ((SQLSelectStatement) this.preParsedStatement).getWhereClause();
     if (where == null) {
       return null;
     }
-    List<SQLBinaryCondition> conditions =
+    var conditions =
         where.getIndexedFunctionConditions(iSchemaClass, getDatabase());
 
-    long lastEstimation = Long.MAX_VALUE;
+    var lastEstimation = Long.MAX_VALUE;
     SQLBinaryCondition bestCondition = null;
     if (conditions == null) {
       return null;
     }
-    for (SQLBinaryCondition condition : conditions) {
-      long estimation =
+    for (var condition : conditions) {
+      var estimation =
           condition.estimateIndexed(
               ((SQLSelectStatement) this.preParsedStatement).getTarget(), getContext());
       if (estimation > -1 && estimation < lastEstimation) {
@@ -2531,7 +2531,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
     if (bestCondition == null) {
       return null;
     }
-    Iterable<Identifiable> result =
+    var result =
         bestCondition.executeIndexedFunction(
             ((SQLSelectStatement) this.preParsedStatement).getTarget(), getContext());
     if (result == null) {
@@ -2544,7 +2544,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
     if (conditionHierarchy.size() > 1) {
       return false;
     }
-    for (List<IndexSearchResult> subCoditions : conditionHierarchy) {
+    for (var subCoditions : conditionHierarchy) {
       if (subCoditions.size() > 1) {
         return false;
       }
@@ -2560,7 +2560,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
    * @return true if execution was optimized
    */
   private boolean optimizeSort(SchemaClassInternal iSchemaClass, DatabaseSessionInternal session) {
-    Stream<RawPair<Object, RID>> stream = getOptimizedSortStream(iSchemaClass, session);
+    var stream = getOptimizedSortStream(iSchemaClass, session);
     if (stream != null) {
       fetchValuesFromIndexStream(stream);
       return true;
@@ -2572,16 +2572,16 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       DatabaseSessionInternal session) {
     final List<String> fieldNames = new ArrayList<String>();
 
-    for (Pair<String, String> pair : orderedFields) {
+    for (var pair : orderedFields) {
       fieldNames.add(pair.getKey());
     }
 
-    final Set<Index> indexes = iSchemaClass.getInvolvedIndexesInternal(session, fieldNames);
+    final var indexes = iSchemaClass.getInvolvedIndexesInternal(session, fieldNames);
 
-    for (Index index : indexes) {
+    for (var index : indexes) {
       if (orderByOptimizer.canBeUsedByOrderBy(index, orderedFields)) {
 
-        final boolean ascSortOrder = orderedFields.get(0).getValue().equals(KEYWORD_ASC);
+        final var ascSortOrder = orderedFields.get(0).getValue().equals(KEYWORD_ASC);
 
         final List<Stream<RawPair<Object, RID>>> streams = new ArrayList<>();
 
@@ -2598,7 +2598,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
         }
 
         if (!index.getDefinition().isNullValuesIgnored()) {
-          final Stream<RID> nullRids = index.getInternal()
+          final var nullRids = index.getInternal()
               .getRids(session, null);
           streams.add(nullRids.map((rid) -> new RawPair<>(null, rid)));
         }
@@ -2609,7 +2609,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
           context.setVariable("indexIsUsedInOrderBy", true);
           context.setVariable("fullySortedByIndex", fullySortedByIndex);
 
-          Set<String> idxNames = (Set<String>) context.getVariable("involvedIndexes");
+          var idxNames = (Set<String>) context.getVariable("involvedIndexes");
           if (idxNames == null) {
             idxNames = new HashSet<String>();
             context.setVariable("involvedIndexes", idxNames);
@@ -2626,8 +2626,8 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
           return streams.get(0);
         }
 
-        Stream<RawPair<Object, RID>> resultStream = streams.get(0);
-        for (int i = 1; i < streams.size(); i++) {
+        var resultStream = streams.get(0);
+        for (var i = 1; i < streams.size(); i++) {
           resultStream = Stream.concat(resultStream, streams.get(i));
         }
 
@@ -2645,11 +2645,11 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
 
   private void fetchEntriesFromIndexStream(DatabaseSessionInternal db,
       final Stream<RawPair<Object, RID>> stream) {
-    final Iterator<RawPair<Object, RID>> iterator = stream.iterator();
+    final var iterator = stream.iterator();
 
     while (iterator.hasNext()) {
-      final RawPair<Object, RID> entryRecord = iterator.next();
-      final EntityImpl entity = new EntityImpl(db).setOrdered(true);
+      final var entryRecord = iterator.next();
+      final var entity = new EntityImpl(db).setOrdered(true);
       entity.field("key", entryRecord.first);
       entity.field("rid", entryRecord.second);
       RecordInternal.unsetDirty(entity);
@@ -2677,11 +2677,11 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       return;
     }
 
-    final long startOrderBy = System.currentTimeMillis();
+    final var startOrderBy = System.currentTimeMillis();
     try {
       if (tempResult instanceof MultiCollectionIterator) {
         final List<Identifiable> list = new ArrayList<Identifiable>();
-        for (Identifiable o : tempResult) {
+        for (var o : tempResult) {
           list.add(o);
         }
         tempResult = list;
@@ -2712,18 +2712,18 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       return;
     }
 
-    final long startExpand = System.currentTimeMillis();
+    final var startExpand = System.currentTimeMillis();
     try {
 
       if (tempResult == null) {
         tempResult = new ArrayList<Identifiable>();
         if (expandTarget instanceof SQLFilterItemVariable) {
-          Object r = ((SQLFilterItemVariable) expandTarget).getValue(null, null, context);
+          var r = ((SQLFilterItemVariable) expandTarget).getValue(null, null, context);
           if (r != null) {
             if (r instanceof Identifiable) {
               ((Collection<Identifiable>) tempResult).add((Identifiable) r);
             } else if (r instanceof Iterator || MultiValue.isMultiValue(r)) {
-              for (Object o : MultiValue.getMultiValueIterable(r)) {
+              for (var o : MultiValue.getMultiValueIterable(r)) {
                 ((Collection<Identifiable>) tempResult).add((Identifiable) o);
               }
             }
@@ -2734,11 +2734,11 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
             throw new CommandExecutionException(
                 "Unsupported operation: aggregate function in expand(" + expandTarget + ")");
           } else {
-            Object r = ((SQLFunctionRuntime) expandTarget).execute(null, null, null, context);
+            var r = ((SQLFunctionRuntime) expandTarget).execute(null, null, null, context);
             if (r instanceof Identifiable) {
               ((Collection<Identifiable>) tempResult).add((Identifiable) r);
             } else if (r instanceof Iterator || MultiValue.isMultiValue(r)) {
-              for (Object o : MultiValue.getMultiValueIterable(r)) {
+              for (var o : MultiValue.getMultiValueIterable(r)) {
                 ((Collection<Identifiable>) tempResult).add((Identifiable) o);
               }
             }
@@ -2748,13 +2748,13 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
         if (tempResult == null) {
           tempResult = new ArrayList<Identifiable>();
         }
-        final MultiCollectionIterator<Identifiable> finalResult =
+        final var finalResult =
             new MultiCollectionIterator<Identifiable>();
 
         if (orderedFields == null || orderedFields.size() == 0) {
           // expand is applied before sorting, so limiting the result set here would give wrong
           // results
-          int iteratorLimit = 0;
+          var iteratorLimit = 0;
           if (limit < 0) {
             iteratorLimit = -1;
           } else {
@@ -2764,7 +2764,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
           finalResult.setSkip(skip);
         }
 
-        for (Identifiable id : tempResult) {
+        for (var id : tempResult) {
           Object fieldValue;
           if (expandTarget instanceof SQLFilterItem) {
             fieldValue = ((SQLFilterItem) expandTarget).getValue(id.getRecord(db), null, context);
@@ -2779,7 +2779,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
               fieldValue = ((Iterable) fieldValue).iterator();
             }
             if (fieldValue instanceof EntityImpl) {
-              ArrayList<EntityImpl> partial = new ArrayList<EntityImpl>();
+              var partial = new ArrayList<EntityImpl>();
               partial.add((EntityImpl) fieldValue);
               finalResult.add(partial);
             } else if (fieldValue instanceof Collection<?>
@@ -2801,11 +2801,11 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
   }
 
   private boolean hasFieldItemParams(SQLFunctionRuntime expandTarget) {
-    Object[] params = expandTarget.getConfiguredParameters();
+    var params = expandTarget.getConfiguredParameters();
     if (params == null) {
       return false;
     }
-    for (Object o : params) {
+    for (var o : params) {
       if (o instanceof SQLFilterItemField) {
         return true;
       }
@@ -2816,8 +2816,8 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
   private void searchInIndex() {
     IndexAbstract.manualIndexesWarning();
 
-    final DatabaseSessionInternal database = getDatabase();
-    final Index index =
+    final var database = getDatabase();
+    final var index =
         database
             .getMetadata()
             .getIndexManagerInternal()
@@ -2828,18 +2828,18 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
           "Target index '" + parsedTarget.getTargetIndex() + "' not found");
     }
 
-    boolean ascOrder = true;
+    var ascOrder = true;
     if (!orderedFields.isEmpty()) {
       if (orderedFields.size() != 1) {
         throw new CommandExecutionException("Index can be ordered only by key field");
       }
 
-      final String fieldName = orderedFields.get(0).getKey();
+      final var fieldName = orderedFields.get(0).getKey();
       if (!fieldName.equalsIgnoreCase("key")) {
         throw new CommandExecutionException("Index can be ordered only by key field");
       }
 
-      final String order = orderedFields.get(0).getValue();
+      final var order = orderedFields.get(0).getValue();
       ascOrder = order.equalsIgnoreCase(KEYWORD_ASC);
     }
 
@@ -2854,12 +2854,12 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
             "'Key' field is required for queries against indexes");
       }
 
-      final QueryOperator indexOperator = compiledFilter.getRootCondition().getOperator();
+      final var indexOperator = compiledFilter.getRootCondition().getOperator();
 
       if (indexOperator instanceof QueryOperatorBetween) {
-        final Object[] values = (Object[]) compiledFilter.getRootCondition().getRight();
+        final var values = (Object[]) compiledFilter.getRootCondition().getRight();
 
-        try (Stream<RawPair<Object, RID>> stream =
+        try (var stream =
             index
                 .getInternal()
                 .streamEntriesBetween(database,
@@ -2870,9 +2870,9 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
           fetchEntriesFromIndexStream(database, stream);
         }
       } else if (indexOperator instanceof QueryOperatorMajor) {
-        final Object value = compiledFilter.getRootCondition().getRight();
+        final var value = compiledFilter.getRootCondition().getRight();
 
-        try (Stream<RawPair<Object, RID>> stream =
+        try (var stream =
             index
                 .getInternal()
                 .streamEntriesMajor(database,
@@ -2881,8 +2881,8 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
           fetchEntriesFromIndexStream(database, stream);
         }
       } else if (indexOperator instanceof QueryOperatorMajorEquals) {
-        final Object value = compiledFilter.getRootCondition().getRight();
-        try (Stream<RawPair<Object, RID>> stream =
+        final var value = compiledFilter.getRootCondition().getRight();
+        try (var stream =
             index
                 .getInternal()
                 .streamEntriesMajor(database,
@@ -2891,9 +2891,9 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
         }
 
       } else if (indexOperator instanceof QueryOperatorMinor) {
-        final Object value = compiledFilter.getRootCondition().getRight();
+        final var value = compiledFilter.getRootCondition().getRight();
 
-        try (Stream<RawPair<Object, RID>> stream =
+        try (var stream =
             index
                 .getInternal()
                 .streamEntriesMinor(database,
@@ -2902,9 +2902,9 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
           fetchEntriesFromIndexStream(database, stream);
         }
       } else if (indexOperator instanceof QueryOperatorMinorEquals) {
-        final Object value = compiledFilter.getRootCondition().getRight();
+        final var value = compiledFilter.getRootCondition().getRight();
 
-        try (Stream<RawPair<Object, RID>> stream =
+        try (var stream =
             index
                 .getInternal()
                 .streamEntriesMinor(database,
@@ -2912,9 +2912,9 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
           fetchEntriesFromIndexStream(database, stream);
         }
       } else if (indexOperator instanceof QueryOperatorIn) {
-        final List<Object> origValues = (List<Object>) compiledFilter.getRootCondition().getRight();
+        final var origValues = (List<Object>) compiledFilter.getRootCondition().getRight();
         final List<Object> values = new ArrayList<Object>(origValues.size());
-        for (Object val : origValues) {
+        for (var val : origValues) {
           if (index.getDefinition() instanceof CompositeIndexDefinition) {
             throw new CommandExecutionException("Operator IN not supported yet.");
           }
@@ -2923,13 +2923,13 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
           values.add(val);
         }
 
-        try (Stream<RawPair<Object, RID>> stream =
+        try (var stream =
             index.getInternal().streamEntries(database, values, true)) {
           fetchEntriesFromIndexStream(database, stream);
         }
       } else {
-        final Object right = compiledFilter.getRootCondition().getRight();
-        Object keyValue = getIndexKey(database, index.getDefinition(), right, context);
+        final var right = compiledFilter.getRootCondition().getRight();
+        var keyValue = getIndexKey(database, index.getDefinition(), right, context);
         if (keyValue == null) {
           return;
         }
@@ -2937,13 +2937,13 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
         final Stream<RID> res;
         if (index.getDefinition().getParamCount() == 1) {
           // CONVERT BEFORE SEARCH IF NEEDED
-          final PropertyType type = index.getDefinition().getTypes()[0];
+          final var type = index.getDefinition().getTypes()[0];
           keyValue = PropertyType.convert(database, keyValue, type.getDefaultJavaType());
 
           //noinspection resource
           res = index.getInternal().getRids(database, keyValue);
         } else {
-          final Object secondKey = getIndexKey(database, index.getDefinition(), right, context);
+          final var secondKey = getIndexKey(database, index.getDefinition(), right, context);
           if (keyValue instanceof CompositeKey
               && secondKey instanceof CompositeKey
               && ((CompositeKey) keyValue).getKeys().size()
@@ -2953,7 +2953,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
             //noinspection resource
             res = index.getInternal().getRids(database, keyValue);
           } else {
-            try (Stream<RawPair<Object, RID>> stream =
+            try (var stream =
                 index.getInternal()
                     .streamEntriesBetween(database, keyValue, true, secondKey, true, true)) {
               fetchEntriesFromIndexStream(database, stream);
@@ -2962,11 +2962,11 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
           }
         }
 
-        final Object resultKey = keyValue;
+        final var resultKey = keyValue;
         BreakingForEach.forEach(
             res,
             (rid, breaker) -> {
-              final EntityImpl record = createIndexEntryAsEntity(database, resultKey, rid);
+              final var record = createIndexEntryAsEntity(database, resultKey, rid);
               applyGroupBy(record, context);
               if (!handleResult(record, context)) {
                 // LIMIT REACHED
@@ -2988,7 +2988,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
         return;
       }
 
-      final IndexInternal indexInternal = index.getInternal();
+      final var indexInternal = index.getInternal();
       if (indexInternal instanceof SharedResource) {
         ((SharedResource) indexInternal).acquireExclusiveLock();
       }
@@ -2997,13 +2997,13 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
 
         // ADD ALL THE ITEMS AS RESULT
         if (ascOrder) {
-          try (Stream<RawPair<Object, RID>> stream = index.getInternal().stream(database)) {
+          try (var stream = index.getInternal().stream(database)) {
             fetchEntriesFromIndexStream(database, stream);
           }
           fetchNullKeyEntries(database, index);
         } else {
 
-          try (Stream<RawPair<Object, RID>> stream = index.getInternal().descStream(database)) {
+          try (var stream = index.getInternal().descStream(database)) {
             fetchNullKeyEntries(database, index);
             fetchEntriesFromIndexStream(database, stream);
           }
@@ -3021,11 +3021,11 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       return;
     }
 
-    final Stream<RID> rids = index.getInternal().getRids(db, null);
+    final var rids = index.getInternal().getRids(db, null);
     BreakingForEach.forEach(
         rids,
         (rid, breaker) -> {
-          final EntityImpl entity = new EntityImpl(db).setOrdered(true);
+          final var entity = new EntityImpl(db).setOrdered(true);
           entity.field("key", (Object) null);
           entity.field("rid", rid);
           RecordInternal.unsetDirty(entity);
@@ -3044,7 +3044,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       return false;
     }
 
-    final Object projection = projections.values().iterator().next();
+    final var projection = projections.values().iterator().next();
     if (!(projection instanceof SQLFunctionRuntime f)) {
       return false;
     }
@@ -3059,7 +3059,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       return false;
     }
 
-    final Object projection = projections.values().iterator().next();
+    final var projection = projections.values().iterator().next();
     if (!(projection instanceof SQLFunctionRuntime f)) {
       return false;
     }
@@ -3098,12 +3098,12 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
   private void handleGroupBy(@Nonnull final CommandContext iContext) {
     if (aggregate && tempResult == null) {
 
-      final long startGroupBy = System.currentTimeMillis();
+      final var startGroupBy = System.currentTimeMillis();
       try {
 
         tempResult = new ArrayList<Identifiable>();
 
-        for (Entry<Object, RuntimeResult> g : groupedResult.entrySet()) {
+        for (var g : groupedResult.entrySet()) {
           if (g.getKey() != null || (groupedResult.size() == 1 && groupByFields == null)) {
             throw new UnsupportedOperationException("Group by not supported by old engine");
           }

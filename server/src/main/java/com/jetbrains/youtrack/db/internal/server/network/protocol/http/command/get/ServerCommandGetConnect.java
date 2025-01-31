@@ -31,7 +31,7 @@ public class ServerCommandGetConnect extends ServerCommandAuthenticatedDbAbstrac
 
   @Override
   public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
-    final String[] urlParts =
+    final var urlParts =
         checkSyntax(iRequest.getUrl(), 2, "Syntax error: connect/<database>[/<user>/<password>]");
 
     urlParts[1] = urlParts[1].replace(DBNAME_DIR_SEPARATOR, '/');
@@ -50,7 +50,7 @@ public class ServerCommandGetConnect extends ServerCommandAuthenticatedDbAbstrac
 
   @Override
   public boolean beforeExecute(HttpRequest iRequest, HttpResponse iResponse) throws IOException {
-    final String[] urlParts =
+    final var urlParts =
         checkSyntax(iRequest.getUrl(), 2, "Syntax error: connect/<database>[/<user>/<password>]");
 
     if (urlParts == null || urlParts.length < 3) {

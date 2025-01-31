@@ -21,7 +21,7 @@ public class LuceneDateTools {
 
   static {
     RESOLUTIONS = new Resolution[Resolution.MILLISECOND.formatLen + 1];
-    for (Resolution resolution : Resolution.values()) {
+    for (var resolution : Resolution.values()) {
       RESOLUTIONS[resolution.formatLen] = resolution;
     }
   }
@@ -52,7 +52,7 @@ public class LuceneDateTools {
    */
   public static Date stringToDate(String dateString) throws ParseException {
     try {
-      SimpleDateFormat format = RESOLUTIONS[dateString.length()].format();
+      var format = RESOLUTIONS[dateString.length()].format();
       return format.parse(dateString);
     } catch (Exception e) {
       LogManager.instance()
@@ -105,7 +105,7 @@ public class LuceneDateTools {
       // formatLen 10's place:                     11111111
       // formatLen  1's place:            12345678901234567
 
-      SimpleDateFormat format =
+      var format =
           new SimpleDateFormat("yyyyMMddHHmmssSSS".substring(0, formatLen), Locale.ROOT);
       format.setTimeZone(DateHelper.getDatabaseTimeZone());
 

@@ -56,13 +56,13 @@ public class SQLBatchTest extends BaseDBTest {
   }
 
   public void testInlineArray() {
-    String className1 = "SQLBatchTest_testInlineArray1";
-    String className2 = "SQLBatchTest_testInlineArray2";
+    var className1 = "SQLBatchTest_testInlineArray1";
+    var className2 = "SQLBatchTest_testInlineArray2";
     db.command("CREATE CLASS " + className1 + " EXTENDS V").close();
     db.command("CREATE CLASS " + className2 + " EXTENDS V").close();
     db.command("CREATE PROPERTY " + className2 + ".foos LinkList " + className1).close();
 
-    String script =
+    var script =
         "BEGIN;"
             + "LET a = CREATE VERTEX "
             + className1
@@ -90,13 +90,13 @@ public class SQLBatchTest extends BaseDBTest {
   }
 
   public void testInlineArray2() {
-    String className1 = "SQLBatchTest_testInlineArray21";
-    String className2 = "SQLBatchTest_testInlineArray22";
+    var className1 = "SQLBatchTest_testInlineArray21";
+    var className2 = "SQLBatchTest_testInlineArray22";
     db.command("CREATE CLASS " + className1 + " EXTENDS V").close();
     db.command("CREATE CLASS " + className2 + " EXTENDS V").close();
     db.command("CREATE PROPERTY " + className2 + ".foos LinkList " + className1).close();
 
-    String script =
+    var script =
         "BEGIN;\n"
             + "LET a = CREATE VERTEX "
             + className1

@@ -23,7 +23,7 @@ public class SchemaPropertyAccessTest extends DbTestBase {
 
   @Test
   public void testNotAccessible() {
-    EntityImpl doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) db.newEntity();
     doc.setProperty("name", "one value");
     assertEquals("one value", doc.getProperty("name"));
     assertEquals("one value", doc.field("name"));
@@ -41,9 +41,9 @@ public class SchemaPropertyAccessTest extends DbTestBase {
 
   @Test
   public void testNotAccessibleAfterConvert() {
-    EntityImpl doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) db.newEntity();
     doc.setProperty("name", "one value");
-    EntityImpl doc1 = (EntityImpl) db.newEntity();
+    var doc1 = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc1);
     doc1.fromStream(doc.toStream());
     assertEquals("one value", doc1.getProperty("name"));
@@ -62,14 +62,14 @@ public class SchemaPropertyAccessTest extends DbTestBase {
 
   @Test
   public void testNotAccessiblePropertyListing() {
-    EntityImpl doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) db.newEntity();
     doc.setProperty("name", "one value");
     assertArrayEquals(new String[]{"name"}, doc.getPropertyNames().toArray());
     assertArrayEquals(
         new String[]{"one value"},
         doc.getPropertyNames().stream().map(doc::getProperty).toArray());
     assertEquals(new HashSet<String>(List.of("name")), doc.getPropertyNames());
-    for (Map.Entry<String, Object> e : doc) {
+    for (var e : doc) {
       assertEquals("name", e.getKey());
     }
 
@@ -79,27 +79,27 @@ public class SchemaPropertyAccessTest extends DbTestBase {
     assertArrayEquals(new String[]{}, doc.fieldNames());
     assertArrayEquals(new String[]{}, doc.fieldValues());
     assertEquals(new HashSet<String>(), doc.getPropertyNames());
-    for (Map.Entry<String, Object> e : doc) {
+    for (var e : doc) {
       assertNotEquals("name", e.getKey());
     }
   }
 
   @Test
   public void testNotAccessiblePropertyListingSer() {
-    EntityImpl docPre = (EntityImpl) db.newEntity();
+    var docPre = (EntityImpl) db.newEntity();
     docPre.setProperty("name", "one value");
     assertArrayEquals(new String[]{"name"}, docPre.getPropertyNames().toArray());
     assertArrayEquals(
         new String[]{"one value"},
         docPre.getPropertyNames().stream().map(docPre::getProperty).toArray());
     assertEquals(new HashSet<String>(List.of("name")), docPre.getPropertyNames());
-    for (Map.Entry<String, Object> e : docPre) {
+    for (var e : docPre) {
       assertEquals("name", e.getKey());
     }
 
     Set<String> toHide = new HashSet<>();
     toHide.add("name");
-    EntityImpl doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     doc.fromStream(docPre.toStream());
     EntityInternalUtils.setPropertyAccess(doc, new PropertyAccess(toHide));
@@ -107,14 +107,14 @@ public class SchemaPropertyAccessTest extends DbTestBase {
     assertArrayEquals(
         new String[]{}, doc.getPropertyNames().stream().map(doc::getProperty).toArray());
     assertEquals(new HashSet<String>(), doc.getPropertyNames());
-    for (Map.Entry<String, Object> e : doc) {
+    for (var e : doc) {
       assertNotEquals("name", e.getKey());
     }
   }
 
   @Test
   public void testJsonSerialization() {
-    EntityImpl doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) db.newEntity();
     doc.setProperty("name", "one value");
     assertTrue(doc.toJSON().contains("name"));
 
@@ -126,7 +126,7 @@ public class SchemaPropertyAccessTest extends DbTestBase {
 
   @Test
   public void testToMap() {
-    EntityImpl doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) db.newEntity();
     doc.setProperty("name", "one value");
     assertTrue(doc.toMap().containsKey("name"));
 
@@ -138,7 +138,7 @@ public class SchemaPropertyAccessTest extends DbTestBase {
 
   @Test
   public void testStringSerialization() {
-    EntityImpl doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) db.newEntity();
     doc.setProperty("name", "one value");
     assertTrue(doc.toString().contains("name"));
 

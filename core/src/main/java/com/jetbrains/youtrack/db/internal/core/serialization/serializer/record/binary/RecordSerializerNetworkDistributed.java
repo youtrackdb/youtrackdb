@@ -31,7 +31,7 @@ public class RecordSerializerNetworkDistributed extends RecordSerializerNetworkV
               + link.getIdentity()
               + "` ");
     }
-    final int pos = VarIntSerializer.write(bytes, link.getIdentity().getClusterId());
+    final var pos = VarIntSerializer.write(bytes, link.getIdentity().getClusterId());
     VarIntSerializer.write(bytes, link.getIdentity().getClusterPosition());
   }
 

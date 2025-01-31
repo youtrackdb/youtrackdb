@@ -46,7 +46,7 @@ public class MetricRecorder {
 
   public void recordInvolvedIndexesMetric(Index index) {
     if (context.isRecordingMetrics()) {
-      Set<String> idxNames = (Set<String>) context.getVariable("involvedIndexes");
+      var idxNames = (Set<String>) context.getVariable("involvedIndexes");
       if (idxNames == null) {
         idxNames = new HashSet<String>();
         context.setVariable("involvedIndexes", idxNames);
@@ -65,7 +65,7 @@ public class MetricRecorder {
 
   public void recordRangeQueryConvertedInBetween() {
     if (context.isRecordingMetrics()) {
-      Integer counter = (Integer) context.getVariable("rangeQueryConvertedInBetween");
+      var counter = (Integer) context.getVariable("rangeQueryConvertedInBetween");
       if (counter == null) {
         counter = 0;
       }

@@ -35,8 +35,8 @@ public class SQLDropPropertyStatement extends DDLStatement {
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
 
-    final DatabaseSessionInternal database = ctx.getDatabase();
-    final SchemaClassImpl sourceClass =
+    final var database = ctx.getDatabase();
+    final var sourceClass =
         (SchemaClassImpl) database.getMetadata().getSchema().getClass(className.getStringValue());
     if (sourceClass == null) {
       throw new CommandExecutionException("Source class '" + className + "' not found");
@@ -49,22 +49,22 @@ public class SQLDropPropertyStatement extends DDLStatement {
       throw new CommandExecutionException(
           "Property '" + propertyName + "' not found on class " + className);
     }
-    final List<Index> indexes = relatedIndexes(propertyName.getStringValue(), database);
+    final var indexes = relatedIndexes(propertyName.getStringValue(), database);
     List<Result> rs = new ArrayList<>();
     if (!indexes.isEmpty()) {
       if (force) {
-        for (final Index index : indexes) {
+        for (final var index : indexes) {
           database.getMetadata().getIndexManager().dropIndex(index.getName());
-          ResultInternal result = new ResultInternal(database);
+          var result = new ResultInternal(database);
           result.setProperty("operation", "cascade drop index");
           result.setProperty("indexName", index.getName());
           rs.add(result);
         }
       } else {
-        final StringBuilder indexNames = new StringBuilder();
+        final var indexNames = new StringBuilder();
 
-        boolean first = true;
-        for (final Index index :
+        var first = true;
+        for (final var index :
             sourceClass.getClassInvolvedIndexesInternal(database, propertyName.getStringValue())) {
           if (!first) {
             indexNames.append(", ");
@@ -84,7 +84,7 @@ public class SQLDropPropertyStatement extends DDLStatement {
     // REMOVE THE PROPERTY
     sourceClass.dropProperty(database, propertyName.getStringValue());
 
-    ResultInternal result = new ResultInternal(database);
+    var result = new ResultInternal(database);
     result.setProperty("operation", "drop property");
     result.setProperty("className", className.getStringValue());
     result.setProperty("propertyname", propertyName.getStringValue());
@@ -94,7 +94,7 @@ public class SQLDropPropertyStatement extends DDLStatement {
 
   private List<Index> relatedIndexes(final String fieldName, DatabaseSessionInternal database) {
     final List<Index> result = new ArrayList<Index>();
-    for (final Index index :
+    for (final var index :
         database
             .getMetadata()
             .getIndexManagerInternal()
@@ -139,7 +139,7 @@ public class SQLDropPropertyStatement extends DDLStatement {
 
   @Override
   public SQLDropPropertyStatement copy() {
-    SQLDropPropertyStatement result = new SQLDropPropertyStatement(-1);
+    var result = new SQLDropPropertyStatement(-1);
     result.className = className == null ? null : className.copy();
     result.propertyName = propertyName == null ? null : propertyName.copy();
     result.force = force;
@@ -156,7 +156,7 @@ public class SQLDropPropertyStatement extends DDLStatement {
       return false;
     }
 
-    SQLDropPropertyStatement that = (SQLDropPropertyStatement) o;
+    var that = (SQLDropPropertyStatement) o;
 
     if (force != that.force) {
       return false;
@@ -172,7 +172,7 @@ public class SQLDropPropertyStatement extends DDLStatement {
 
   @Override
   public int hashCode() {
-    int result = className != null ? className.hashCode() : 0;
+    var result = className != null ? className.hashCode() : 0;
     result = 31 * result + (propertyName != null ? propertyName.hashCode() : 0);
     result = 31 * result + (force ? 1 : 0);
     return result;

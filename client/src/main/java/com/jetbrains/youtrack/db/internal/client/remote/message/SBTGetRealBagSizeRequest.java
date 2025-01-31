@@ -60,8 +60,8 @@ public class SBTGetRealBagSizeRequest implements BinaryRequest<SBTGetRealBagSize
   public void write(DatabaseSessionInternal database, ChannelDataOutput network,
       StorageRemoteSession session) throws IOException {
     CollectionNetworkSerializer.INSTANCE.writeCollectionPointer(network, collectionPointer);
-    final ChangeSerializationHelper changeSerializer = ChangeSerializationHelper.INSTANCE;
-    final byte[] stream =
+    final var changeSerializer = ChangeSerializationHelper.INSTANCE;
+    final var stream =
         new byte
             [IntegerSerializer.INT_SIZE
             + changeSerializer.getChangesSerializedSize(changes.size())];
@@ -73,8 +73,8 @@ public class SBTGetRealBagSizeRequest implements BinaryRequest<SBTGetRealBagSize
       RecordSerializerNetwork serializer)
       throws IOException {
     collectionPointer = CollectionNetworkSerializer.INSTANCE.readCollectionPointer(channel);
-    byte[] stream = channel.readBytes();
-    final ChangeSerializationHelper changeSerializer = ChangeSerializationHelper.INSTANCE;
+    var stream = channel.readBytes();
+    final var changeSerializer = ChangeSerializationHelper.INSTANCE;
     changes = ChangeSerializationHelper.deserializeChanges(db, stream, 0);
   }
 

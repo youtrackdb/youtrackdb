@@ -20,7 +20,6 @@ import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.SchemaException;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.IOException;
@@ -47,7 +46,7 @@ public class AbstractClassTest extends BaseDBTest {
 
   @BeforeClass
   public void createSchema() throws IOException {
-    SchemaClass abstractPerson =
+    var abstractPerson =
         db.getMetadata().getSchema().createAbstractClass("AbstractPerson");
     abstractPerson.createProperty(db, "name", PropertyType.STRING);
 

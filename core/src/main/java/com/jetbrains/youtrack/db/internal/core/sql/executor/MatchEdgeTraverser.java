@@ -46,17 +46,17 @@ public class MatchEdgeTraverser {
     if (!downstream.hasNext(ctx)) {
       throw new IllegalStateException();
     }
-    String endPointAlias = getEndpointAlias();
-    Result nextR = downstream.next(ctx);
+    var endPointAlias = getEndpointAlias();
+    var nextR = downstream.next(ctx);
     Identifiable nextElement = nextR.getEntity().get();
-    Object prevValue = sourceRecord.getProperty(endPointAlias);
+    var prevValue = sourceRecord.getProperty(endPointAlias);
     if (prevValue != null && !equals(prevValue, nextElement)) {
       return null;
     }
 
     var db = ctx.getDatabase();
-    ResultInternal result = new ResultInternal(db);
-    for (String prop : sourceRecord.getPropertyNames()) {
+    var result = new ResultInternal(db);
+    for (var prop : sourceRecord.getPropertyNames()) {
       result.setProperty(prop, sourceRecord.getProperty(prop));
     }
     result.setProperty(endPointAlias, toResult(db, nextElement));
@@ -97,7 +97,7 @@ public class MatchEdgeTraverser {
 
   protected void init(CommandContext ctx) {
     if (downstream == null) {
-      Object startingElem = sourceRecord.getProperty(getStartingPointAlias());
+      var startingElem = sourceRecord.getProperty(getStartingPointAlias());
       if (startingElem instanceof Result) {
         startingElem = ((Result) startingElem).getEntity().orElse(null);
       }
@@ -123,7 +123,7 @@ public class MatchEdgeTraverser {
       whileCondition = item.getFilter().getWhileCondition();
       maxDepth = item.getFilter().getMaxDepth();
       className = targetClassName(item, iCommandContext);
-      String clusterName = targetClusterName(item, iCommandContext);
+      var clusterName = targetClusterName(item, iCommandContext);
       if (clusterName != null) {
         clusterId = iCommandContext.getDatabase().getClusterIdByName(clusterName);
       }
@@ -135,11 +135,11 @@ public class MatchEdgeTraverser {
         == null) { // in this case starting point is not returned and only one level depth is
       // evaluated
 
-      ExecutionStream queryResult = traversePatternEdge(startingPoint, iCommandContext);
-      final SQLWhereClause theFilter = filter;
-      final String theClassName = className;
-      final Integer theClusterId = clusterId;
-      final SQLRid theTargetRid = targetRid;
+      var queryResult = traversePatternEdge(startingPoint, iCommandContext);
+      final var theFilter = filter;
+      final var theClassName = className;
+      final var theClusterId = clusterId;
+      final var theTargetRid = targetRid;
       return queryResult.filter(
           (next, ctx) ->
               filter(
@@ -148,14 +148,14 @@ public class MatchEdgeTraverser {
       // given by the while condition
       List<Result> result = new ArrayList<>();
       iCommandContext.setVariable("$depth", depth);
-      Object previousMatch = iCommandContext.getVariable("$currentMatch");
+      var previousMatch = iCommandContext.getVariable("$currentMatch");
       iCommandContext.setVariable("$currentMatch", startingPoint);
 
       if (matchesFilters(iCommandContext, filter, startingPoint)
           && matchesClass(iCommandContext, className, startingPoint)
           && matchesCluster(iCommandContext, clusterId, startingPoint)
           && matchesRid(iCommandContext, targetRid, startingPoint)) {
-        ResultInternal rs = new ResultInternal(iCommandContext.getDatabase(), startingPoint);
+        var rs = new ResultInternal(iCommandContext.getDatabase(), startingPoint);
         // set traversal depth in the metadata
         rs.setMetadata("$depth", depth);
         // set traversal path in the metadata
@@ -168,10 +168,10 @@ public class MatchEdgeTraverser {
           && (whileCondition == null
           || whileCondition.matchesFilters(startingPoint, iCommandContext))) {
 
-        ExecutionStream queryResult = traversePatternEdge(startingPoint, iCommandContext);
+        var queryResult = traversePatternEdge(startingPoint, iCommandContext);
 
         while (queryResult.hasNext(iCommandContext)) {
-          Result origin = queryResult.next(iCommandContext);
+          var origin = queryResult.next(iCommandContext);
           //          if(origin.equals(startingPoint)){
           //            continue;
           //          }
@@ -183,13 +183,13 @@ public class MatchEdgeTraverser {
           }
 
           assert origin.isEntity();
-          Entity elem = origin.asEntity();
+          var elem = origin.asEntity();
           newPath.add(elem.getIdentity());
 
-          ExecutionStream subResult =
+          var subResult =
               executeTraversal(iCommandContext, item, elem, depth + 1, newPath);
           while (subResult.hasNext(iCommandContext)) {
-            Result sub = subResult.next(iCommandContext);
+            var sub = subResult.next(iCommandContext);
             result.add(sub);
           }
         }
@@ -207,15 +207,15 @@ public class MatchEdgeTraverser {
       final SQLRid theTargetRid,
       Result next,
       CommandContext ctx) {
-    Object previousMatch = ctx.getVariable("$currentMatch");
-    ResultInternal matched = (ResultInternal) ctx.getVariable("matched");
+    var previousMatch = ctx.getVariable("$currentMatch");
+    var matched = (ResultInternal) ctx.getVariable("matched");
     if (matched != null) {
       matched.setProperty(
           getStartingPointAlias(), sourceRecord.getProperty(getStartingPointAlias()));
     }
     assert next.isEntity();
 
-    Entity elem = next.asEntity();
+    var elem = next.asEntity();
     iCommandContext.setVariable("$currentMatch", elem);
     if (matchesFilters(iCommandContext, theFilter, elem)
         && matchesClass(iCommandContext, theClassName, elem)
@@ -262,7 +262,7 @@ public class MatchEdgeTraverser {
       }
     }
     if (element != null) {
-      Optional<SchemaClass> clazz = element.getSchemaType();
+      var clazz = element.getSchemaType();
       if (!clazz.isPresent()) {
         return false;
       }
@@ -310,7 +310,7 @@ public class MatchEdgeTraverser {
   protected ExecutionStream traversePatternEdge(
       Identifiable startingPoint, CommandContext iCommandContext) {
 
-    Object prevCurrent = iCommandContext.getVariable("$current");
+    var prevCurrent = iCommandContext.getVariable("$current");
     iCommandContext.setVariable("$current", startingPoint);
     Object qR;
     try {

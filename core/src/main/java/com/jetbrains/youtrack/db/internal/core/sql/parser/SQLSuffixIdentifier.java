@@ -73,7 +73,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
 
     var db = ctx.getDatabase();
     if (identifier != null) {
-      String varName = identifier.getStringValue();
+      var varName = identifier.getStringValue();
       if (varName.equalsIgnoreCase("$parent")) {
         return ctx.getParent();
       }
@@ -84,7 +84,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
 
       if (iCurrentRecord != null) {
         if (iCurrentRecord instanceof ContextualRecordId) {
-          Map<String, Object> meta = ((ContextualRecordId) iCurrentRecord).getContext();
+          var meta = ((ContextualRecordId) iCurrentRecord).getContext();
           if (meta != null && meta.containsKey(varName)) {
             return meta.get(varName);
           }
@@ -95,7 +95,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
             rec = ctx.getDatabase().bindToSession(rec);
           }
 
-          Object result = rec.getProperty(varName);
+          var result = rec.getProperty(varName);
           if (result == null && ctx != null) {
             result = ctx.getVariable(varName);
           }
@@ -126,12 +126,12 @@ public class SQLSuffixIdentifier extends SimpleNode {
       return iCurrentRecord;
     }
     if (identifier != null) {
-      String varName = identifier.getStringValue();
+      var varName = identifier.getStringValue();
       if (ctx != null && varName.equalsIgnoreCase("$parent")) {
         return ctx.getParent();
       }
       if (ctx != null && varName.startsWith("$") && ctx.getVariable(varName) != null) {
-        Object result = ctx.getVariable(varName);
+        var result = ctx.getVariable(varName);
         if (result instanceof Resettable) {
           ((Resettable) result).reset();
         }
@@ -161,9 +161,9 @@ public class SQLSuffixIdentifier extends SimpleNode {
 
   public Object execute(Map iCurrentRecord, CommandContext ctx) {
     if (star) {
-      ResultInternal result = new ResultInternal(ctx.getDatabase());
+      var result = new ResultInternal(ctx.getDatabase());
       if (iCurrentRecord != null) {
-        for (Map.Entry<Object, Object> x : ((Map<Object, Object>) iCurrentRecord).entrySet()) {
+        for (var x : ((Map<Object, Object>) iCurrentRecord).entrySet()) {
           result.setProperty("" + x.getKey(), x.getValue());
         }
         return result;
@@ -171,7 +171,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
       return iCurrentRecord;
     }
     if (identifier != null) {
-      String varName = identifier.getStringValue();
+      var varName = identifier.getStringValue();
       if (ctx != null && varName.equalsIgnoreCase("$parent")) {
         return ctx.getParent();
       }
@@ -194,7 +194,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
       return null;
     }
     List<Object> result = new ArrayList<>();
-    for (Object o : iterable) {
+    for (var o : iterable) {
       result.add(execute(o, ctx));
     }
     return result;
@@ -222,7 +222,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
       return null;
     }
     if (identifier != null) {
-      String varName = identifier.getStringValue();
+      var varName = identifier.getStringValue();
       if (iCurrentRecord != null) {
         return iCurrentRecord.getVariable(varName);
       }
@@ -270,7 +270,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
       return aliases.contains(identifier.getStringValue());
     }
     if (recordAttribute != null) {
-      for (String s : aliases) {
+      for (var s : aliases) {
         if (s.equalsIgnoreCase(recordAttribute.name)) {
           return true;
         }
@@ -306,7 +306,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
   }
 
   public SQLSuffixIdentifier copy() {
-    SQLSuffixIdentifier result = new SQLSuffixIdentifier(-1);
+    var result = new SQLSuffixIdentifier(-1);
     result.identifier = identifier == null ? null : identifier.copy();
     result.recordAttribute = recordAttribute == null ? null : recordAttribute.copy();
     result.star = star;
@@ -322,7 +322,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
       return false;
     }
 
-    SQLSuffixIdentifier that = (SQLSuffixIdentifier) o;
+    var that = (SQLSuffixIdentifier) o;
 
     if (star != that.star) {
       return false;
@@ -335,7 +335,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
 
   @Override
   public int hashCode() {
-    int result = identifier != null ? identifier.hashCode() : 0;
+    var result = identifier != null ? identifier.hashCode() : 0;
     result = 31 * result + (recordAttribute != null ? recordAttribute.hashCode() : 0);
     result = 31 * result + (star ? 1 : 0);
     return result;
@@ -429,7 +429,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
   }
 
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     if (identifier != null) {
       result.setProperty("identifier", identifier.serialize(db));
     }

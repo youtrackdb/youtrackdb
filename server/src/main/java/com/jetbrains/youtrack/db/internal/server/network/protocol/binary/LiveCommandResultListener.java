@@ -72,7 +72,7 @@ public class LiveCommandResultListener extends AbstractCommandResultListener
 
   @Override
   public boolean result(DatabaseSessionInternal db, final Object iRecord) {
-    final NetworkProtocolBinary protocol = ((NetworkProtocolBinary) connection.getProtocol());
+    final var protocol = ((NetworkProtocolBinary) connection.getProtocol());
     if (empty.compareAndSet(true, false)) {
       try {
         protocol.channel.writeByte(ChannelBinaryProtocol.RESPONSE_STATUS_OK);
@@ -84,7 +84,7 @@ public class LiveCommandResultListener extends AbstractCommandResultListener
             && protocol.requestType != ChannelBinaryProtocol.REQUEST_CONNECT
             && protocol.requestType != ChannelBinaryProtocol.REQUEST_DB_OPEN) {
           // TODO: Check if the token is expiring and if it is send a new token
-          byte[] renewedToken =
+          var renewedToken =
               protocol.getServer().getTokenHandler().renewIfNeeded(connection.getToken());
           protocol.channel.writeBytes(renewedToken);
         }
@@ -125,9 +125,9 @@ public class LiveCommandResultListener extends AbstractCommandResultListener
 
   public void onLiveResult(DatabaseSessionInternal db, int iToken, RecordOperation iOp)
       throws BaseException {
-    boolean sendFail = true;
+    var sendFail = true;
     do {
-      List<ClientConnection> connections = session.getConnections();
+      var connections = session.getConnections();
       if (connections.size() == 0) {
         try {
 
@@ -140,17 +140,17 @@ public class LiveCommandResultListener extends AbstractCommandResultListener
         }
         break;
       }
-      ClientConnection curConnection = connections.get(0);
-      NetworkProtocolBinary protocol = (NetworkProtocolBinary) curConnection.getProtocol();
+      var curConnection = connections.get(0);
+      var protocol = (NetworkProtocolBinary) curConnection.getProtocol();
 
-      SocketChannelBinary channel = protocol.getChannel();
+      var channel = protocol.getChannel();
       try {
         channel.acquireWriteLock();
         try {
 
-          ByteArrayOutputStream content = new ByteArrayOutputStream();
+          var content = new ByteArrayOutputStream();
 
-          DataOutputStream out = new DataOutputStream(content);
+          var out = new DataOutputStream(content);
           out.writeByte('r');
           out.writeByte(iOp.type);
           out.writeInt(iToken);
@@ -196,22 +196,22 @@ public class LiveCommandResultListener extends AbstractCommandResultListener
 
   @Override
   public void onUnsubscribe(int iLiveToken) {
-    boolean sendFail = true;
+    var sendFail = true;
     do {
-      List<ClientConnection> connections = session.getConnections();
+      var connections = session.getConnections();
       if (connections.size() == 0) {
         break;
       }
-      NetworkProtocolBinary protocol = (NetworkProtocolBinary) connections.get(0).getProtocol();
+      var protocol = (NetworkProtocolBinary) connections.get(0).getProtocol();
 
-      SocketChannelBinary channel = protocol.getChannel();
+      var channel = protocol.getChannel();
       try {
         channel.acquireWriteLock();
         try {
 
-          ByteArrayOutputStream content = new ByteArrayOutputStream();
+          var content = new ByteArrayOutputStream();
 
-          DataOutputStream out = new DataOutputStream(content);
+          var out = new DataOutputStream(content);
           out.writeByte('u');
           out.writeInt(iLiveToken);
           channel.writeByte(ChannelBinaryProtocol.PUSH_DATA);

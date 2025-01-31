@@ -30,7 +30,7 @@ public class ServerCommandGetStorageAllocation extends ServerCommandAuthenticate
   @Override
   public boolean execute(final HttpRequest iRequest, final HttpResponse iResponse)
       throws Exception {
-    String[] urlParts = checkSyntax(iRequest.getUrl(), 2, "Syntax error: allocation/<database>");
+    var urlParts = checkSyntax(iRequest.getUrl(), 2, "Syntax error: allocation/<database>");
 
     iRequest.getData().commandInfo = "Storage allocation";
     iRequest.getData().commandDetail = urlParts[1];

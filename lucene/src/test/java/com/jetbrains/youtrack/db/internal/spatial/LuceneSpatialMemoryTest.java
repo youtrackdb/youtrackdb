@@ -39,14 +39,14 @@ public class LuceneSpatialMemoryTest extends LuceneBaseTest {
 
   @Test
   public void boundingBoxTest() {
-    SchemaClass point = db.getMetadata().getSchema().createClass("Point");
+    var point = db.getMetadata().getSchema().createClass("Point");
     point.createProperty(db, "latitude", PropertyType.DOUBLE);
     point.createProperty(db, "longitude", PropertyType.DOUBLE);
 
     db.command("CREATE INDEX Point.ll ON Point(latitude,longitude) SPATIAL ENGINE LUCENE")
         .close();
 
-    EntityImpl document = ((EntityImpl) db.newEntity("Point"));
+    var document = ((EntityImpl) db.newEntity("Point"));
 
     document.field("latitude", 42.2814837);
     document.field("longitude", -83.7605452);
@@ -55,7 +55,7 @@ public class LuceneSpatialMemoryTest extends LuceneBaseTest {
     db.save(document);
     db.commit();
 
-    List<?> query =
+    var query =
         db.query(
             new SQLSynchQuery<EntityImpl>(
                 "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
@@ -66,7 +66,7 @@ public class LuceneSpatialMemoryTest extends LuceneBaseTest {
 
   @Test
   public void boundingBoxTestTxRollBack() {
-    SchemaClass point = db.getMetadata().getSchema().createClass("Point");
+    var point = db.getMetadata().getSchema().createClass("Point");
     point.createProperty(db, "latitude", PropertyType.DOUBLE);
     point.createProperty(db, "longitude", PropertyType.DOUBLE);
 
@@ -75,7 +75,7 @@ public class LuceneSpatialMemoryTest extends LuceneBaseTest {
 
     db.begin();
 
-    EntityImpl document = ((EntityImpl) db.newEntity("Point"));
+    var document = ((EntityImpl) db.newEntity("Point"));
 
     document.field("latitude", 42.2814837);
     document.field("longitude", -83.7605452);
@@ -84,7 +84,7 @@ public class LuceneSpatialMemoryTest extends LuceneBaseTest {
     db.save(document);
     db.commit();
 
-    List<?> query =
+    var query =
         db.query(
             new SQLSynchQuery<EntityImpl>(
                 "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
@@ -92,7 +92,7 @@ public class LuceneSpatialMemoryTest extends LuceneBaseTest {
 
     Assert.assertEquals(1, query.size());
 
-    SpatialCompositeKey oSpatialCompositeKey =
+    var oSpatialCompositeKey =
         new SpatialCompositeKey(
             new ArrayList<List<Number>>() {
               {
@@ -113,14 +113,14 @@ public class LuceneSpatialMemoryTest extends LuceneBaseTest {
               }
             })
             .setOperation(SpatialOperation.IsWithin);
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Point.ll");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Point.ll");
 
     var baseContext = new BasicCommandContext();
     baseContext.setDatabase(db);
     oSpatialCompositeKey.setContext(baseContext);
 
     Collection<?> coll;
-    try (Stream<RID> stream = index.getInternal().getRids(db, oSpatialCompositeKey)) {
+    try (var stream = index.getInternal().getRids(db, oSpatialCompositeKey)) {
       coll = stream.toList();
     }
     Assert.assertEquals(1, coll.size());
@@ -137,7 +137,7 @@ public class LuceneSpatialMemoryTest extends LuceneBaseTest {
 
   @Test
   public void boundingBoxTestTxCommit() {
-    SchemaClass point = db.getMetadata().getSchema().createClass("Point");
+    var point = db.getMetadata().getSchema().createClass("Point");
     point.createProperty(db, "latitude", PropertyType.DOUBLE);
     point.createProperty(db, "longitude", PropertyType.DOUBLE);
 
@@ -146,7 +146,7 @@ public class LuceneSpatialMemoryTest extends LuceneBaseTest {
 
     db.begin();
 
-    EntityImpl document = ((EntityImpl) db.newEntity("Point"));
+    var document = ((EntityImpl) db.newEntity("Point"));
 
     document.field("latitude", 42.2814837);
     document.field("longitude", -83.7605452);
@@ -155,7 +155,7 @@ public class LuceneSpatialMemoryTest extends LuceneBaseTest {
 
     db.commit();
 
-    List<?> query =
+    var query =
         db.query(
             new SQLSynchQuery<EntityImpl>(
                 "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
@@ -163,7 +163,7 @@ public class LuceneSpatialMemoryTest extends LuceneBaseTest {
 
     Assert.assertEquals(1, query.size());
 
-    SpatialCompositeKey oSpatialCompositeKey =
+    var oSpatialCompositeKey =
         new SpatialCompositeKey(
             new ArrayList<List<Number>>() {
               {
@@ -188,10 +188,10 @@ public class LuceneSpatialMemoryTest extends LuceneBaseTest {
     context.setDatabase(db);
     oSpatialCompositeKey.setContext(context);
 
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Point.ll");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Point.ll");
 
     Collection<?> coll;
-    try (Stream<RID> stream = index.getInternal().getRids(db, oSpatialCompositeKey)) {
+    try (var stream = index.getInternal().getRids(db, oSpatialCompositeKey)) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(1, coll.size());
@@ -209,7 +209,7 @@ public class LuceneSpatialMemoryTest extends LuceneBaseTest {
 
     Assert.assertEquals(0, query.size());
 
-    try (Stream<RID> stream = index.getInternal().getRids(db, oSpatialCompositeKey)) {
+    try (var stream = index.getInternal().getRids(db, oSpatialCompositeKey)) {
       coll = stream.collect(Collectors.toList());
     }
 

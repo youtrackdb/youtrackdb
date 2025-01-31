@@ -28,7 +28,7 @@ public class LetQueryStep extends AbstractExecutionStep {
   }
 
   private ResultInternal calculate(ResultInternal result, CommandContext ctx) {
-    BasicCommandContext subCtx = new BasicCommandContext();
+    var subCtx = new BasicCommandContext();
     subCtx.setDatabase(ctx.getDatabase());
     subCtx.setParentWithoutOverridingChild(ctx);
     InternalExecutionPlan subExecutionPlan;
@@ -67,7 +67,7 @@ public class LetQueryStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
     return spaces + "+ LET (for each record)\n" + spaces + "  " + varName + " = (" + query + ")";
   }
 }

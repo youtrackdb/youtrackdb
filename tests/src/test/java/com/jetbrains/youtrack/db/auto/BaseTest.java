@@ -43,7 +43,7 @@ public abstract class BaseTest<T extends DatabaseSessionInternal> {
 
   @Parameters(value = "remote")
   public BaseTest(boolean remote) {
-    String config = System.getProperty("youtrackdb.test.env");
+    var config = System.getProperty("youtrackdb.test.env");
 
     if ("ci".equals(config) || "release".equals(config)) {
       databaseType = DatabaseType.PLOCAL;
@@ -80,7 +80,7 @@ public abstract class BaseTest<T extends DatabaseSessionInternal> {
               new YouTrackDBImpl("remote:localhost", "root", SERVER_PASSWORD,
                   createConfig(builder));
         } else {
-          final String buildDirectory = System.getProperty("buildDirectory", ".");
+          final var buildDirectory = System.getProperty("buildDirectory", ".");
           youTrackDB = YourTracks.embedded(buildDirectory + "/test-db", createConfig(builder));
         }
       }

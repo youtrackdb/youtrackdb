@@ -76,7 +76,7 @@ public class ConcurrentCreateException extends NeedRetryException implements
   }
 
   private static String makeMessage(RID expectedRid, RID actualRid) {
-    String sb =
+    var sb =
         "Cannot create the record "
             + expectedRid
             + " because the assigned RID was "

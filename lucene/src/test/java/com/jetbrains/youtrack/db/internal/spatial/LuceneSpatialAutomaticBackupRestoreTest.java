@@ -73,8 +73,8 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
   public void setUp() throws Exception {
     Assume.assumeFalse(IOUtils.isOsWindows());
 
-    final String buildDirectory = System.getProperty("buildDirectory", "target");
-    final File buildDirectoryFile = new File(buildDirectory);
+    final var buildDirectory = System.getProperty("buildDirectory", "target");
+    final var buildDirectoryFile = new File(buildDirectory);
 
     tempFolder = new File(buildDirectoryFile, name.getMethodName());
     FileUtils.deleteRecursively(tempFolder);
@@ -84,7 +84,7 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
         new YouTrackDBServer() {
           @Override
           public Map<String, String> getAvailableStorageNames() {
-            HashMap<String, String> result = new HashMap<String, String>();
+            var result = new HashMap<String, String>();
             result.put(DBNAME, URL);
             return result;
           }
@@ -93,7 +93,7 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
 
     System.setProperty("YOUTRACKDB_HOME", tempFolder.getAbsolutePath());
 
-    String path = tempFolder.getAbsolutePath() + File.separator + "databases";
+    var path = tempFolder.getAbsolutePath() + File.separator + "databases";
     youTrackDB = server.getContext();
 
     URL = "plocal:" + path + File.separator + DBNAME;
@@ -102,7 +102,7 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
 
     BACKUFILE = BACKUPDIR + File.separator + DBNAME;
 
-    final File config = new File(tempFolder, "config");
+    final var config = new File(tempFolder, "config");
     Assert.assertTrue(config.mkdirs());
 
     dropIfExists();
@@ -120,7 +120,7 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
 
     db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
 
-    EntityImpl rome = newCity("Rome", 12.5, 41.9);
+    var rome = newCity("Rome", 12.5, 41.9);
 
     db.begin();
     db.save(rome);
@@ -128,7 +128,7 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
   }
 
   protected EntityImpl newCity(String name, final Double longitude, final Double latitude) {
-    EntityImpl city =
+    var city =
         ((EntityImpl) db.newEntity("City"))
             .field("name", name)
             .field(
@@ -163,18 +163,18 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
 
   @Test
   public void shouldExportImport() throws IOException, InterruptedException {
-    String query =
+    var query =
         "select * from City where  ST_WITHIN(location,'POLYGON ((12.314015 41.8262816, 12.314015"
             + " 41.963125, 12.6605063 41.963125, 12.6605063 41.8262816, 12.314015 41.8262816))') ="
             + " true";
-    ResultSet docs = db.query(query);
+    var docs = db.query(query);
     Assert.assertEquals(docs.stream().count(), 1);
 
-    String jsonConfig =
+    var jsonConfig =
         IOUtils.readStreamAsString(
             getClass().getClassLoader().getResourceAsStream("automatic-backup.json"));
 
-    EntityImpl doc =
+    var doc =
         ((EntityImpl) db.newEntity());
     doc.updateFromJSON(jsonConfig);
     doc.field("enabled", true)
@@ -190,12 +190,12 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
     IOUtils.writeFile(
         new File(tempFolder.getAbsolutePath() + "/config/automatic-backup.json"), doc.toJSON());
 
-    final AutomaticBackup aBackup = new AutomaticBackup();
+    final var aBackup = new AutomaticBackup();
 
-    final ServerParameterConfiguration[] config = new ServerParameterConfiguration[]{};
+    final var config = new ServerParameterConfiguration[]{};
 
     aBackup.config(server, config);
-    final CountDownLatch latch = new CountDownLatch(1);
+    final var latch = new CountDownLatch(1);
 
     aBackup.registerListener(
         new AutomaticBackup.OAutomaticBackupListener() {
@@ -219,7 +219,7 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
 
     db = createAndOpen();
 
-    GZIPInputStream stream = new GZIPInputStream(new FileInputStream(BACKUFILE + ".json.gz"));
+    var stream = new GZIPInputStream(new FileInputStream(BACKUFILE + ".json.gz"));
     new DatabaseImport(
         db,
         stream,
@@ -237,7 +237,7 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
 
     assertThat(db.countClass("City")).isEqualTo(1);
 
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
 
     assertThat(index).isNotNull();
     assertThat(index.getType()).isEqualTo(SchemaClass.INDEX_TYPE.SPATIAL.name());

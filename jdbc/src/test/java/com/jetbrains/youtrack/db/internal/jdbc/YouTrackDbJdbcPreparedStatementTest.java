@@ -27,7 +27,7 @@ public class YouTrackDbJdbcPreparedStatementTest extends YouTrackDbJdbcDbPerMeth
   @Test
   public void shouldCreateStatement() throws Exception {
     conn.createStatement().execute("begin");
-    PreparedStatement stmt =
+    var stmt =
         conn.prepareStatement("SELECT * FROM Item WHERE stringKey = ? OR intKey = ?");
     assertThat(stmt).isNotNull();
     stmt.close();
@@ -37,7 +37,7 @@ public class YouTrackDbJdbcPreparedStatementTest extends YouTrackDbJdbcDbPerMeth
 
   @Test
   public void shouldReturnEmptyResultSetOnEmptyQuery() throws SQLException {
-    PreparedStatement stmt = conn.prepareStatement("");
+    var stmt = conn.prepareStatement("");
     assertThat(stmt.execute("")).isFalse();
 
     assertThat(stmt.getResultSet()).isNull();
@@ -46,12 +46,12 @@ public class YouTrackDbJdbcPreparedStatementTest extends YouTrackDbJdbcDbPerMeth
 
   @Test
   public void shouldExecuteSelectOne() throws SQLException {
-    PreparedStatement stmt = conn.prepareStatement("select 1");
+    var stmt = conn.prepareStatement("select 1");
     assertThat(stmt.execute()).isTrue();
     assertThat(stmt.getResultSet()).isNotNull();
-    ResultSet resultSet = stmt.getResultSet();
+    var resultSet = stmt.getResultSet();
     resultSet.first();
-    int one = resultSet.getInt("1");
+    var one = resultSet.getInt("1");
     assertThat(one).isEqualTo(1);
     assertThat(stmt.getMoreResults()).isFalse();
   }
@@ -61,9 +61,9 @@ public class YouTrackDbJdbcPreparedStatementTest extends YouTrackDbJdbcDbPerMeth
     conn.createStatement().executeQuery("CREATE CLASS Insertable ");
 
     conn.createStatement().execute("begin");
-    PreparedStatement statement = conn.prepareStatement("INSERT INTO Insertable ( id ) VALUES (?)");
+    var statement = conn.prepareStatement("INSERT INTO Insertable ( id ) VALUES (?)");
     statement.setString(1, "testval");
-    int rowsInserted = statement.executeUpdate();
+    var rowsInserted = statement.executeUpdate();
     conn.createStatement().execute("commit");
 
     assertThat(rowsInserted).isEqualTo(1);
@@ -76,9 +76,9 @@ public class YouTrackDbJdbcPreparedStatementTest extends YouTrackDbJdbcDbPerMeth
     conn.createStatement().executeQuery("INSERT INTO Insertable(id) VALUES(1)");
     conn.createStatement().executeQuery("INSERT INTO Insertable(id) VALUES(2)");
 
-    PreparedStatement statement = conn.prepareStatement("UPDATE Insertable SET id = ?");
+    var statement = conn.prepareStatement("UPDATE Insertable SET id = ?");
     statement.setString(1, "testval");
-    int rowsInserted = statement.executeUpdate();
+    var rowsInserted = statement.executeUpdate();
 
     conn.createStatement().execute("commit");
 
@@ -90,7 +90,7 @@ public class YouTrackDbJdbcPreparedStatementTest extends YouTrackDbJdbcDbPerMeth
     conn.createStatement().executeQuery("CREATE CLASS Insertable ");
 
     conn.createStatement().execute("begin");
-    ResultSet result =
+    var result =
         conn.createStatement().executeQuery("INSERT INTO Insertable(id) VALUES(1) return @rid");
     conn.createStatement().execute("commit");
 
@@ -108,9 +108,9 @@ public class YouTrackDbJdbcPreparedStatementTest extends YouTrackDbJdbcDbPerMeth
     conn.createStatement().execute("commit");
 
     conn.createStatement().execute("begin");
-    PreparedStatement statement = conn.prepareStatement("DELETE FROM Insertable WHERE id > ?");
+    var statement = conn.prepareStatement("DELETE FROM Insertable WHERE id > ?");
     statement.setInt(1, 0);
-    int rowsDeleted = statement.executeUpdate();
+    var rowsDeleted = statement.executeUpdate();
     conn.createStatement().execute("commit");
 
     assertThat(rowsDeleted).isEqualTo(2);
@@ -118,14 +118,14 @@ public class YouTrackDbJdbcPreparedStatementTest extends YouTrackDbJdbcDbPerMeth
 
   @Test
   public void shouldExecutePreparedStatement() throws Exception {
-    PreparedStatement stmt =
+    var stmt =
         conn.prepareStatement("SELECT  " + "FROM Item " + "WHERE stringKey = ? OR intKey = ?");
 
     assertThat(stmt).isNotNull();
     stmt.setString(1, "1");
     stmt.setInt(2, 1);
 
-    ResultSet rs = stmt.executeQuery();
+    var rs = stmt.executeQuery();
     assertThat(rs.next()).isTrue();
 
     // assertThat(rs.getInt("@version"), equalTo(0));
@@ -149,7 +149,7 @@ public class YouTrackDbJdbcPreparedStatementTest extends YouTrackDbJdbcDbPerMeth
     conn.createStatement().executeQuery("CREATE CLASS insertable");
 
     conn.createStatement().execute("begin");
-    PreparedStatement stmt = conn.prepareStatement("INSERT INTO insertable SET id = ?, number = ?");
+    var stmt = conn.prepareStatement("INSERT INTO insertable SET id = ?, number = ?");
     stmt.setString(1, "someRandomUid");
     stmt.setInt(2, 42);
     stmt.execute();
@@ -157,7 +157,7 @@ public class YouTrackDbJdbcPreparedStatementTest extends YouTrackDbJdbcDbPerMeth
     conn.createStatement().execute("commit");
 
     // Let's verify the previous process
-    ResultSet resultSet =
+    var resultSet =
         conn.createStatement()
             .executeQuery("SELECT count(*) AS num FROM insertable WHERE id = 'someRandomUid'");
     assertThat(resultSet.getLong(1)).isEqualTo(1);
@@ -172,12 +172,12 @@ public class YouTrackDbJdbcPreparedStatementTest extends YouTrackDbJdbcDbPerMeth
   @Test
   public void shouldCreatePreparedStatementWithExtendConstructor() throws Exception {
 
-    PreparedStatement stmt =
+    var stmt =
         conn.prepareStatement(
             "SELECT * FROM Item WHERE intKey = ?", TYPE_FORWARD_ONLY, CONCUR_READ_ONLY);
     stmt.setInt(1, 1);
 
-    ResultSet rs = stmt.executeQuery();
+    var rs = stmt.executeQuery();
 
     assertThat(rs.next()).isTrue();
 
@@ -192,12 +192,12 @@ public class YouTrackDbJdbcPreparedStatementTest extends YouTrackDbJdbcDbPerMeth
   public void shouldCreatePreparedStatementWithExtendConstructorWithOutProjection()
       throws Exception {
     // same test as above, no projection at all
-    PreparedStatement stmt =
+    var stmt =
         conn.prepareStatement(
             "SELECT FROM Item WHERE intKey = ?", TYPE_FORWARD_ONLY, CONCUR_READ_ONLY);
     stmt.setInt(1, 1);
 
-    ResultSet rs = stmt.executeQuery();
+    var rs = stmt.executeQuery();
 
     assertThat(rs.next()).isTrue();
 
@@ -211,8 +211,8 @@ public class YouTrackDbJdbcPreparedStatementTest extends YouTrackDbJdbcDbPerMeth
   @Test(expected = SQLException.class)
   public void shouldThrowSqlExceptionOnError() throws SQLException {
 
-    String query = "select sequence('?').next()";
-    PreparedStatement stmt = conn.prepareStatement(query);
+    var query = "select sequence('?').next()";
+    var stmt = conn.prepareStatement(query);
     stmt.setString(1, "theSequence");
     stmt.executeQuery();
   }

@@ -42,7 +42,7 @@ public class SQLServerStatement extends SimpleNode {
 
   @Override
   public String toString(String prefix) {
-    StringBuilder builder = new StringBuilder();
+    var builder = new StringBuilder();
     toString(null, builder);
     return builder.toString();
   }
@@ -133,7 +133,7 @@ public class SQLServerStatement extends SimpleNode {
 
   public static SQLStatement deserializeFromOResult(Result res) {
     try {
-      SQLStatement result =
+      var result =
           (SQLStatement)
               Class.forName(res.getProperty("__class"))
                   .getConstructor(Integer.class)
@@ -146,7 +146,7 @@ public class SQLServerStatement extends SimpleNode {
   }
 
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     result.setProperty("__class", getClass().getName());
     return result;
   }

@@ -28,11 +28,11 @@ public class DatabaseDocumentTxTest extends DbTestBase {
   @Test
   public void testCountClass() throws Exception {
 
-    SchemaClass testSuperclass = db.getMetadata().getSchema().createClass("TestSuperclass");
+    var testSuperclass = db.getMetadata().getSchema().createClass("TestSuperclass");
     db.getMetadata().getSchema().createClass("TestSubclass", testSuperclass);
 
     db.begin();
-    EntityImpl toDelete = ((EntityImpl) db.newEntity("TestSubclass")).field("id", 1);
+    var toDelete = ((EntityImpl) db.newEntity("TestSubclass")).field("id", 1);
     toDelete.save();
     db.commit();
 
@@ -69,7 +69,7 @@ public class DatabaseDocumentTxTest extends DbTestBase {
   public void testTimezone() {
 
     db.set(DatabaseSession.ATTRIBUTES.TIMEZONE, "Europe/Rome");
-    Object newTimezone = db.get(DatabaseSession.ATTRIBUTES.TIMEZONE);
+    var newTimezone = db.get(DatabaseSession.ATTRIBUTES.TIMEZONE);
     Assert.assertEquals("Europe/Rome", newTimezone);
 
     db.set(DatabaseSession.ATTRIBUTES.TIMEZONE, "foobar");
@@ -80,7 +80,7 @@ public class DatabaseDocumentTxTest extends DbTestBase {
   @Test(expected = CommitSerializationException.class)
   public void testSaveInvalidRid() {
     db.begin();
-    EntityImpl doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) db.newEntity();
     doc.field("test", new RecordId(-2, 10));
     db.save(doc);
     db.commit();
@@ -88,10 +88,10 @@ public class DatabaseDocumentTxTest extends DbTestBase {
 
   @Test
   public void testCreateClass() {
-    SchemaClass clazz = db.createClass("TestCreateClass");
+    var clazz = db.createClass("TestCreateClass");
     Assert.assertNotNull(clazz);
     Assert.assertEquals("TestCreateClass", clazz.getName());
-    List<SchemaClass> superclasses = clazz.getSuperClasses();
+    var superclasses = clazz.getSuperClasses();
     if (superclasses != null) {
       assertTrue(superclasses.isEmpty());
     }
@@ -102,10 +102,10 @@ public class DatabaseDocumentTxTest extends DbTestBase {
     } catch (SchemaException ex) {
     }
 
-    SchemaClass subclazz = db.createClass("TestCreateClass_subclass", "TestCreateClass");
+    var subclazz = db.createClass("TestCreateClass_subclass", "TestCreateClass");
     Assert.assertNotNull(subclazz);
     Assert.assertEquals("TestCreateClass_subclass", subclazz.getName());
-    List<SchemaClass> sub_superclasses = subclazz.getSuperClasses();
+    var sub_superclasses = subclazz.getSuperClasses();
     Assert.assertEquals(1, sub_superclasses.size());
     Assert.assertEquals("TestCreateClass", sub_superclasses.get(0).getName());
   }
@@ -114,15 +114,15 @@ public class DatabaseDocumentTxTest extends DbTestBase {
   public void testGetClass() {
     db.createClass("TestGetClass");
 
-    SchemaClass clazz = db.getClass("TestGetClass");
+    var clazz = db.getClass("TestGetClass");
     Assert.assertNotNull(clazz);
     Assert.assertEquals("TestGetClass", clazz.getName());
-    List<SchemaClass> superclasses = clazz.getSuperClasses();
+    var superclasses = clazz.getSuperClasses();
     if (superclasses != null) {
       assertTrue(superclasses.isEmpty());
     }
 
-    SchemaClass clazz2 = db.getClass("TestGetClass_non_existing");
+    var clazz2 = db.getClass("TestGetClass_non_existing");
     Assert.assertNull(clazz2);
   }
 
@@ -130,14 +130,14 @@ public class DatabaseDocumentTxTest extends DbTestBase {
   public void testDocFromJsonEmbedded() {
     Schema schema = db.getMetadata().getSchema();
 
-    SchemaClass c0 = schema.createClass("testDocFromJsonEmbedded_Class0");
+    var c0 = schema.createClass("testDocFromJsonEmbedded_Class0");
 
-    SchemaClass c1 = schema.createClass("testDocFromJsonEmbedded_Class1");
+    var c1 = schema.createClass("testDocFromJsonEmbedded_Class1");
     c1.createProperty(db, "account", PropertyType.STRING);
     c1.createProperty(db, "meta", PropertyType.EMBEDDED, c0);
 
     db.begin();
-    EntityImpl doc = (EntityImpl) db.newEntity("testDocFromJsonEmbedded_Class1");
+    var doc = (EntityImpl) db.newEntity("testDocFromJsonEmbedded_Class1");
 
     doc.updateFromJSON(
         "{\n"
@@ -155,13 +155,13 @@ public class DatabaseDocumentTxTest extends DbTestBase {
     db.save(doc);
     db.commit();
 
-    try (ResultSet result = db.query("select from testDocFromJsonEmbedded_Class0")) {
+    try (var result = db.query("select from testDocFromJsonEmbedded_Class0")) {
       Assert.assertEquals(0, result.stream().count());
     }
 
-    try (ResultSet result = db.query("select from testDocFromJsonEmbedded_Class1")) {
+    try (var result = db.query("select from testDocFromJsonEmbedded_Class1")) {
       Assert.assertTrue(result.hasNext());
-      Entity item = result.next().getEntity().get();
+      var item = result.next().getEntity().get();
       EntityImpl meta = item.getProperty("meta");
       Assert.assertEquals("testDocFromJsonEmbedded_Class0", meta.getClassName());
       Assert.assertEquals("0:0:0:0:0:0:0:1", meta.field("ip"));
@@ -172,18 +172,18 @@ public class DatabaseDocumentTxTest extends DbTestBase {
   public void testCreateClassIfNotExists() {
     db.createClass("TestCreateClassIfNotExists");
 
-    SchemaClass clazz = db.createClassIfNotExist("TestCreateClassIfNotExists");
+    var clazz = db.createClassIfNotExist("TestCreateClassIfNotExists");
     Assert.assertNotNull(clazz);
     Assert.assertEquals("TestCreateClassIfNotExists", clazz.getName());
-    List<SchemaClass> superclasses = clazz.getSuperClasses();
+    var superclasses = clazz.getSuperClasses();
     if (superclasses != null) {
       assertTrue(superclasses.isEmpty());
     }
 
-    SchemaClass clazz2 = db.createClassIfNotExist("TestCreateClassIfNotExists_non_existing");
+    var clazz2 = db.createClassIfNotExist("TestCreateClassIfNotExists_non_existing");
     Assert.assertNotNull(clazz2);
     Assert.assertEquals("TestCreateClassIfNotExists_non_existing", clazz2.getName());
-    List<SchemaClass> superclasses2 = clazz2.getSuperClasses();
+    var superclasses2 = clazz2.getSuperClasses();
     if (superclasses2 != null) {
       assertTrue(superclasses2.isEmpty());
     }
@@ -191,51 +191,51 @@ public class DatabaseDocumentTxTest extends DbTestBase {
 
   @Test
   public void testCreateVertexClass() {
-    SchemaClass clazz = db.createVertexClass("TestCreateVertexClass");
+    var clazz = db.createVertexClass("TestCreateVertexClass");
     Assert.assertNotNull(clazz);
 
     clazz = db.getClass("TestCreateVertexClass");
     Assert.assertNotNull(clazz);
     Assert.assertEquals("TestCreateVertexClass", clazz.getName());
-    List<SchemaClass> superclasses = clazz.getSuperClasses();
+    var superclasses = clazz.getSuperClasses();
     Assert.assertEquals(1, superclasses.size());
     Assert.assertEquals("V", superclasses.get(0).getName());
   }
 
   @Test
   public void testCreateEdgeClass() {
-    SchemaClass clazz = db.createEdgeClass("TestCreateEdgeClass");
+    var clazz = db.createEdgeClass("TestCreateEdgeClass");
     Assert.assertNotNull(clazz);
 
     clazz = db.getClass("TestCreateEdgeClass");
     Assert.assertNotNull(clazz);
     Assert.assertEquals("TestCreateEdgeClass", clazz.getName());
-    List<SchemaClass> superclasses = clazz.getSuperClasses();
+    var superclasses = clazz.getSuperClasses();
     Assert.assertEquals(1, superclasses.size());
     Assert.assertEquals("E", superclasses.get(0).getName());
   }
 
   @Test
   public void testVertexProperty() {
-    String className = "testVertexProperty";
+    var className = "testVertexProperty";
     db.createClass(className, "V");
 
     db.begin();
-    Vertex doc1 = db.newVertex(className);
+    var doc1 = db.newVertex(className);
     doc1.setProperty("name", "a");
     doc1.save();
 
-    Vertex doc2 = db.newVertex(className);
+    var doc2 = db.newVertex(className);
     doc2.setProperty("name", "b");
     doc2.setProperty("linked", doc1);
     doc2.save();
     db.commit();
 
-    try (ResultSet rs = db.query("SELECT FROM " + className + " WHERE name = 'b'")) {
+    try (var rs = db.query("SELECT FROM " + className + " WHERE name = 'b'")) {
       Assert.assertTrue(rs.hasNext());
-      Result res = rs.next();
+      var res = rs.next();
 
-      Object linkedVal = res.getProperty("linked");
+      var linkedVal = res.getProperty("linked");
       Assert.assertTrue(linkedVal instanceof Identifiable);
       Assert.assertTrue(
           db.load(((Identifiable) linkedVal).getIdentity()) instanceof Identifiable);
@@ -246,31 +246,31 @@ public class DatabaseDocumentTxTest extends DbTestBase {
 
   @Test
   public void testLinkEdges() {
-    String vertexClass = "testVertex";
-    String edgeClass = "testEdge";
-    SchemaClass vc = db.createClass(vertexClass, "V");
+    var vertexClass = "testVertex";
+    var edgeClass = "testEdge";
+    var vc = db.createClass(vertexClass, "V");
     db.createClass(edgeClass, "E");
     vc.createProperty(db, "out_testEdge", PropertyType.LINK);
     vc.createProperty(db, "in_testEdge", PropertyType.LINK);
 
     db.begin();
-    Vertex doc1 = db.newVertex(vertexClass);
+    var doc1 = db.newVertex(vertexClass);
     doc1.setProperty("name", "first");
     doc1.save();
     db.commit();
 
     db.begin();
-    Vertex doc2 = db.newVertex(vertexClass);
+    var doc2 = db.newVertex(vertexClass);
     doc2.setProperty("name", "second");
     doc2.save();
     db.newRegularEdge(db.bindToSession(doc1), doc2, "testEdge").save();
     db.commit();
 
-    try (ResultSet rs = db.query("SELECT out() as o FROM " + vertexClass)) {
+    try (var rs = db.query("SELECT out() as o FROM " + vertexClass)) {
       Assert.assertTrue(rs.hasNext());
-      Result res = rs.next();
+      var res = rs.next();
 
-      Object linkedVal = res.getProperty("o");
+      var linkedVal = res.getProperty("o");
       Assert.assertTrue(linkedVal instanceof Collection);
       Assert.assertEquals(1, ((Collection) linkedVal).size());
     }
@@ -278,24 +278,24 @@ public class DatabaseDocumentTxTest extends DbTestBase {
 
   @Test
   public void testLinkOneSide() {
-    String vertexClass = "testVertex";
-    String edgeClass = "testEdge";
-    SchemaClass vc = db.createClass(vertexClass, "V");
+    var vertexClass = "testVertex";
+    var edgeClass = "testEdge";
+    var vc = db.createClass(vertexClass, "V");
     db.createClass(edgeClass, "E");
 
     vc.createProperty(db, "out_testEdge", PropertyType.LINKBAG);
     vc.createProperty(db, "in_testEdge", PropertyType.LINK);
 
     db.begin();
-    Vertex doc1 = db.newVertex(vertexClass);
+    var doc1 = db.newVertex(vertexClass);
     doc1.setProperty("name", "first");
     doc1.save();
 
-    Vertex doc2 = db.newVertex(vertexClass);
+    var doc2 = db.newVertex(vertexClass);
     doc2.setProperty("name", "second");
     doc2.save();
 
-    Vertex doc3 = db.newVertex(vertexClass);
+    var doc3 = db.newVertex(vertexClass);
     doc3.setProperty("name", "third");
     doc3.save();
 
@@ -303,11 +303,11 @@ public class DatabaseDocumentTxTest extends DbTestBase {
     db.newRegularEdge(doc1, doc3, "testEdge").save();
     db.commit();
 
-    try (ResultSet rs = db.query("SELECT out() as o FROM " + vertexClass)) {
+    try (var rs = db.query("SELECT out() as o FROM " + vertexClass)) {
       Assert.assertTrue(rs.hasNext());
-      Result res = rs.next();
+      var res = rs.next();
 
-      Object linkedVal = res.getProperty("o");
+      var linkedVal = res.getProperty("o");
       Assert.assertTrue(linkedVal instanceof Collection);
       Assert.assertEquals(2, ((Collection) linkedVal).size());
     }
@@ -315,21 +315,21 @@ public class DatabaseDocumentTxTest extends DbTestBase {
 
   @Test(expected = DatabaseException.class)
   public void testLinkDuplicate() {
-    String vertexClass = "testVertex";
-    String edgeClass = "testEdge";
-    SchemaClass vc = db.createClass(vertexClass, "V");
+    var vertexClass = "testVertex";
+    var edgeClass = "testEdge";
+    var vc = db.createClass(vertexClass, "V");
     db.createClass(edgeClass, "E");
     vc.createProperty(db, "out_testEdge", PropertyType.LINK);
     vc.createProperty(db, "in_testEdge", PropertyType.LINK);
-    Vertex doc1 = db.newVertex(vertexClass);
+    var doc1 = db.newVertex(vertexClass);
     doc1.setProperty("name", "first");
     doc1.save();
 
-    Vertex doc2 = db.newVertex(vertexClass);
+    var doc2 = db.newVertex(vertexClass);
     doc2.setProperty("name", "second");
     doc2.save();
 
-    Vertex doc3 = db.newVertex(vertexClass);
+    var doc3 = db.newVertex(vertexClass);
     doc3.setProperty("name", "third");
     doc3.save();
 
@@ -339,14 +339,14 @@ public class DatabaseDocumentTxTest extends DbTestBase {
 
   @Test
   public void selectDescTest() {
-    String className = "bar";
+    var className = "bar";
     Schema schema = db.getMetadata().getSchema();
     schema.createClass(className, 1, schema.getClass(SchemaClass.VERTEX_CLASS_NAME));
     db.begin();
 
-    EntityImpl document = (EntityImpl) db.newEntity(className);
+    var document = (EntityImpl) db.newEntity(className);
     document.save();
-    RecordIteratorClassDescendentOrder<EntityImpl> reverseIterator =
+    var reverseIterator =
         new RecordIteratorClassDescendentOrder<EntityImpl>(db, db, className, true);
     Assert.assertTrue(reverseIterator.hasNext());
     Assert.assertEquals(document, reverseIterator.next());

@@ -51,17 +51,17 @@ public class FindReferenceHelper {
     final var db = DatabaseRecordThreadLocal.instance().get();
 
     final Map<RID, Set<RID>> map = new HashMap<RID, Set<RID>>();
-    for (RID rid : iRecordIds) {
+    for (var rid : iRecordIds) {
       map.put(rid, new HashSet<>());
     }
 
     if (classList == null || classList.isEmpty()) {
-      for (String clusterName : db.getClusterNames()) {
+      for (var clusterName : db.getClusterNames()) {
         browseCluster(db, iRecordIds, map, clusterName);
       }
     } else {
-      final List<String> classes = StringSerializerHelper.smartSplit(classList, ',');
-      for (String clazz : classes) {
+      final var classes = StringSerializerHelper.smartSplit(classList, ',');
+      for (var clazz : classes) {
         if (clazz.startsWith("CLUSTER:")) {
           browseCluster(
               db,
@@ -75,8 +75,8 @@ public class FindReferenceHelper {
     }
 
     final List<EntityImpl> result = new ArrayList<EntityImpl>();
-    for (Entry<RID, Set<RID>> entry : map.entrySet()) {
-      final EntityImpl entity = new EntityImpl(db);
+    for (var entry : map.entrySet()) {
+      final var entity = new EntityImpl(db);
       result.add(entity);
 
       entity.field("rid", entry.getKey());
@@ -94,8 +94,8 @@ public class FindReferenceHelper {
     for (var record : db.browseCluster(iClusterName)) {
       if (record instanceof EntityImpl) {
         try {
-          for (String fieldName : ((EntityImpl) record).fieldNames()) {
-            Object value = ((EntityImpl) record).field(fieldName);
+          for (var fieldName : ((EntityImpl) record).fieldNames()) {
+            var value = ((EntityImpl) record).field(fieldName);
             checkObject(db, iSourceRIDs, map, value, record);
           }
         } catch (Exception e) {
@@ -111,13 +111,13 @@ public class FindReferenceHelper {
       Set<RID> iSourceRIDs,
       final Map<RID, Set<RID>> map,
       final String iClassName) {
-    final SchemaClass clazz = db.getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
+    final var clazz = db.getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
 
     if (clazz == null) {
       throw new CommandExecutionException("Class '" + iClassName + "' was not found");
     }
 
-    for (int i : clazz.getClusterIds()) {
+    for (var i : clazz.getClusterIds()) {
       browseCluster(db, iSourceRIDs, map, db.getClusterNameById(i));
     }
   }
@@ -141,7 +141,7 @@ public class FindReferenceHelper {
       final Map<RID, Set<RID>> map,
       final Collection<?> values,
       final DBRecord iRootObject) {
-    for (Object value : values) {
+    for (var value : values) {
       checkObject(db, iSourceRIDs, map, value, iRootObject);
     }
   }
@@ -173,8 +173,8 @@ public class FindReferenceHelper {
         && value.getRecord(db) instanceof EntityImpl) {
       // embedded entity
       EntityImpl entity = value.getRecord(db);
-      for (String fieldName : entity.fieldNames()) {
-        Object fieldValue = entity.field(fieldName);
+      for (var fieldName : entity.fieldNames()) {
+        var fieldValue = entity.field(fieldName);
         checkObject(db, iSourceRIDs, map, fieldValue, iRootObject);
       }
     }

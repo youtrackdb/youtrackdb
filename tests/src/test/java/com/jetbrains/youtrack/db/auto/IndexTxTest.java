@@ -31,7 +31,7 @@ public class IndexTxTest extends BaseDBTest {
     super.beforeClass();
 
     final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass cls = schema.createClass("IndexTxTestClass");
+    final var cls = schema.createClass("IndexTxTestClass");
     cls.createProperty(db, "name", PropertyType.STRING);
     cls.createIndex(db, "IndexTxTestIndex", SchemaClass.INDEX_TYPE.UNIQUE, "name");
   }
@@ -53,8 +53,8 @@ public class IndexTxTest extends BaseDBTest {
 
     db.begin();
 
-    final EntityImpl doc1 = ((EntityImpl) db.newEntity("IndexTxTestClass"));
-    final EntityImpl doc2 = ((EntityImpl) db.newEntity("IndexTxTestClass"));
+    final var doc1 = ((EntityImpl) db.newEntity("IndexTxTestClass"));
+    final var doc2 = ((EntityImpl) db.newEntity("IndexTxTestClass"));
 
     doc1.save();
     doc2.save();
@@ -73,17 +73,17 @@ public class IndexTxTest extends BaseDBTest {
     expectedResult.put("doc1", doc1.getIdentity());
     expectedResult.put("doc2", doc2.getIdentity());
 
-    Index index = getIndex("IndexTxTestIndex");
+    var index = getIndex("IndexTxTestIndex");
     Iterator<Object> keyIterator;
-    try (Stream<Object> keyStream = index.getInternal().keyStream()) {
+    try (var keyStream = index.getInternal().keyStream()) {
       keyIterator = keyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        String key = (String) keyIterator.next();
+        var key = (String) keyIterator.next();
 
-        final RID expectedValue = expectedResult.get(key);
+        final var expectedValue = expectedResult.get(key);
         final RID value;
-        try (Stream<RID> stream = index.getInternal().getRids(db, key)) {
+        try (var stream = index.getInternal().getRids(db, key)) {
           value = stream.findAny().orElse(null);
         }
 

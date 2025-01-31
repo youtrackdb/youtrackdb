@@ -33,7 +33,7 @@ public class RidSetIterator implements Iterator<RID> {
     if (!hasNext()) {
       throw new IllegalStateException();
     }
-    RecordId result = new RecordId(currentCluster, currentId);
+    var result = new RecordId(currentCluster, currentId);
     currentId++;
     fetchNext();
     return result;
@@ -45,10 +45,10 @@ public class RidSetIterator implements Iterator<RID> {
       currentId = 0;
     }
 
-    long currentArrayPos = currentId / 63;
-    long currentBit = currentId % 63;
-    int block = (int) (currentArrayPos / set.maxArraySize);
-    int blockPositionByteInt = (int) (currentArrayPos % set.maxArraySize);
+    var currentArrayPos = currentId / 63;
+    var currentBit = currentId % 63;
+    var block = (int) (currentArrayPos / set.maxArraySize);
+    var blockPositionByteInt = (int) (currentArrayPos % set.maxArraySize);
 
     while (currentCluster < set.content.length) {
       while (set.content[currentCluster] != null && block < set.content[currentCluster].length) {

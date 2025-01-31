@@ -38,7 +38,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 public class FulltextIndexFunctionBenchmark {
 
   public static void main(String[] args) throws RunnerException {
-    final Options opt =
+    final var opt =
         new OptionsBuilder()
             .include("FulltextIndexFunctionBenchmark.*")
             // .addProfiler(StackProfiler.class, "detailLine=true;excludePackages=true;period=1")
@@ -60,7 +60,7 @@ public class FulltextIndexFunctionBenchmark {
   public void setup() {
     this.setupDatabase();
 
-    final InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
+    final var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
     db.execute("sql", getScriptFromStream(stream));
     db.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE ");
     db.command("create index Song.author on Song (author) FULLTEXT ENGINE LUCENE ");
@@ -70,9 +70,9 @@ public class FulltextIndexFunctionBenchmark {
   }
 
   private void setupDatabase() {
-    final String config =
+    final var config =
         System.getProperty("youtrackdb.test.env", DatabaseType.MEMORY.name().toLowerCase());
-    String path = DbTestBase.embeddedDBUrl(getClass());
+    var path = DbTestBase.embeddedDBUrl(getClass());
     if ("ci".equals(config) || "release".equals(config)) {
       type = DatabaseType.PLOCAL;
     } else {
@@ -107,14 +107,14 @@ public class FulltextIndexFunctionBenchmark {
 
   @Benchmark
   public void searchOnSingleField() {
-    final ResultSet resultSet =
+    final var resultSet =
         db.query("SELECT from Song where SEARCH_FIELDS(['title'], 'BELIEVE') = true");
     resultSet.close();
   }
 
   @Benchmark
   public void searhOnTwoFieldsInOR() {
-    final ResultSet resultSet =
+    final var resultSet =
         db.query(
             "SELECT from Song where SEARCH_FIELDS(['title'], 'BELIEVE') = true OR"
                 + " SEARCH_FIELDS(['author'], 'Bob') = true ");
@@ -123,7 +123,7 @@ public class FulltextIndexFunctionBenchmark {
 
   @Benchmark
   public void searhOnTwoFieldsInAND() throws Exception {
-    final ResultSet resultSet =
+    final var resultSet =
         db.query(
             "SELECT from Song where SEARCH_FIELDS(['title'], 'tambourine') = true AND"
                 + " SEARCH_FIELDS(['author'], 'Bob') = true ");

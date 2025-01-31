@@ -30,7 +30,7 @@ public class FetchFromVariableStep extends AbstractExecutionStep {
       prev.start(ctx).close(ctx);
     }
 
-    Object src = ctx.getVariable(variableName);
+    var src = ctx.getVariable(variableName);
     ExecutionStream source;
     if (src instanceof ExecutionStream) {
       source = (ExecutionStream) src;
@@ -64,7 +64,7 @@ public class FetchFromVariableStep extends AbstractExecutionStep {
 
   @Override
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
+    var result = ExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("variableName", variableName);
     return result;
   }

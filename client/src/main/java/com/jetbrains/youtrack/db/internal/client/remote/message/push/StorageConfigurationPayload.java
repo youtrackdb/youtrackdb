@@ -58,7 +58,7 @@ public class StorageConfigurationPayload {
     this.recordSerializerVersion = configuration.getRecordSerializerVersion();
     this.binaryFormatVersion = configuration.getBinaryFormatVersion();
     this.clusters = new ArrayList<>();
-    for (StorageClusterConfiguration conf : configuration.getClusters()) {
+    for (var conf : configuration.getClusters()) {
       if (conf != null) {
         this.clusters.add(conf);
       }
@@ -75,7 +75,7 @@ public class StorageConfigurationPayload {
     channel.writeInt(this.version);
     channel.writeString(this.directory);
     channel.writeInt(properties.size());
-    for (StorageEntryConfiguration property : properties) {
+    for (var property : properties) {
       channel.writeString(property.name);
       channel.writeString(property.value);
     }
@@ -94,7 +94,7 @@ public class StorageConfigurationPayload {
     channel.writeInt(this.recordSerializerVersion);
     channel.writeInt(this.binaryFormatVersion);
     channel.writeInt(clusters.size());
-    for (StorageClusterConfiguration cluster : clusters) {
+    for (var cluster : clusters) {
       channel.writeInt(cluster.getId());
       channel.writeString(cluster.getName());
     }
@@ -106,11 +106,11 @@ public class StorageConfigurationPayload {
     this.name = network.readString();
     this.version = network.readInt();
     this.directory = network.readString();
-    int propSize = network.readInt();
+    var propSize = network.readInt();
     properties = new ArrayList<>(propSize);
     while (propSize-- > 0) {
-      String name = network.readString();
-      String value = network.readString();
+      var name = network.readString();
+      var value = network.readString();
       properties.add(new StorageEntryConfiguration(name, value));
     }
     this.schemaRecordId = network.readRID();
@@ -127,11 +127,11 @@ public class StorageConfigurationPayload {
     this.recordSerializer = network.readString();
     this.recordSerializerVersion = network.readInt();
     this.binaryFormatVersion = network.readInt();
-    int clustersSize = network.readInt();
+    var clustersSize = network.readInt();
     clusters = new ArrayList<>(clustersSize);
     while (clustersSize-- > 0) {
-      int clusterId = network.readInt();
-      String clusterName = network.readString();
+      var clusterId = network.readInt();
+      var clusterName = network.readString();
       clusters.add(new StorageClusterConfigurationRemote(clusterId, clusterName));
     }
   }

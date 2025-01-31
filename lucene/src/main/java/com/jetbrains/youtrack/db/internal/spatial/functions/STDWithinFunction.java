@@ -45,11 +45,11 @@ public class STDWithinFunction extends SpatialFunctionAbstractIndexable {
     if (containsNull(iParams)) {
       return null;
     }
-    Shape shape = factory.fromObject(iParams[0]);
+    var shape = factory.fromObject(iParams[0]);
 
-    Shape shape1 = factory.fromObject(iParams[1]);
+    var shape1 = factory.fromObject(iParams[1]);
 
-    Number distance = (Number) iParams[2];
+    var distance = (Number) iParams[2];
 
     return factory.operation().isWithInDistance(shape, shape1, distance.doubleValue());
   }
@@ -73,9 +73,9 @@ public class STDWithinFunction extends SpatialFunctionAbstractIndexable {
   protected void onAfterParsing(
       Map<String, Object> params, SQLExpression[] args, CommandContext ctx, Object rightValue) {
 
-    SQLExpression number = args[2];
+    var number = args[2];
 
-    Number parsedNumber = (Number) number.execute((Identifiable) null, ctx);
+    var parsedNumber = (Number) number.execute((Identifiable) null, ctx);
 
     params.put("distance", parsedNumber.doubleValue());
   }

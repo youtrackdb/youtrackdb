@@ -12,16 +12,16 @@ public class IndexStreamSecurityDecorator {
 
   public static Stream<RawPair<Object, RID>> decorateStream(
       Index originalIndex, Stream<RawPair<Object, RID>> stream) {
-    DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
+    var db = DatabaseRecordThreadLocal.instance().getIfDefined();
     if (db == null) {
       return stream;
     }
 
-    String indexClass = originalIndex.getDefinition().getClassName();
+    var indexClass = originalIndex.getDefinition().getClassName();
     if (indexClass == null) {
       return stream;
     }
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
     if (security instanceof SecurityShared
         && !((SecurityShared) security).couldHaveActivePredicateSecurityRoles(db, indexClass)) {
       return stream;
@@ -32,16 +32,16 @@ public class IndexStreamSecurityDecorator {
   }
 
   public static Stream<RID> decorateRidStream(Index originalIndex, Stream<RID> stream) {
-    DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
+    var db = DatabaseRecordThreadLocal.instance().getIfDefined();
     if (db == null) {
       return stream;
     }
 
-    String indexClass = originalIndex.getDefinition().getClassName();
+    var indexClass = originalIndex.getDefinition().getClassName();
     if (indexClass == null) {
       return stream;
     }
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
     if (security instanceof SecurityShared
         && !((SecurityShared) security).couldHaveActivePredicateSecurityRoles(db, indexClass)) {
       return stream;

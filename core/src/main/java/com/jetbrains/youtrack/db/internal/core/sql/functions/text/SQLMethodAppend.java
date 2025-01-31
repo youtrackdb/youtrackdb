@@ -47,8 +47,8 @@ public class SQLMethodAppend extends AbstractSQLMethod {
       return iThis;
     }
 
-    final StringBuilder buffer = new StringBuilder(iThis.toString());
-    for (int i = 0; i < iParams.length; ++i) {
+    final var buffer = new StringBuilder(iThis.toString());
+    for (var i = 0; i < iParams.length; ++i) {
       if (iParams[i] != null) {
         buffer.append(iParams[i]);
       }

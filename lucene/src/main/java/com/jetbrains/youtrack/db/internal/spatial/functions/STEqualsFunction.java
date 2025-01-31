@@ -39,9 +39,9 @@ public class STEqualsFunction extends SQLFunctionAbstract {
       Object iCurrentResult,
       Object[] iParams,
       CommandContext iContext) {
-    Shape shape = factory.fromObject(iParams[0]);
+    var shape = factory.fromObject(iParams[0]);
 
-    Shape shape1 = factory.fromObject(iParams[1]);
+    var shape1 = factory.fromObject(iParams[1]);
 
     return factory.operation().isEquals(shape, shape1);
   }

@@ -19,15 +19,15 @@ public class HttpImportTest extends BaseHttpDatabaseTest {
   @Test
   @Ignore
   public void testImport() throws IOException {
-    String content =
+    var content =
         "{\"records\": [{\"@type\": \"d\", \"@rid\": \"#9:0\",\"@version\": 1,\"@class\": \"V\"}]}";
     post("import/" + getDatabaseName() + "?merge=true").payload(content, CONTENT.TEXT);
     var response = getResponse();
     assertEquals(response.getReasonPhrase(), 200, response.getCode());
 
-    InputStream is = response.getEntity().getContent();
+    var is = response.getEntity().getContent();
     List<String> out = new LinkedList<>();
-    BufferedReader r = new BufferedReader(new InputStreamReader(is));
+    var r = new BufferedReader(new InputStreamReader(is));
 
     try {
       String line;

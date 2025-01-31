@@ -37,13 +37,13 @@ public class SQLMethodFunctionDelegate extends AbstractSQLMethod {
 
   @Override
   public int getMinParams() {
-    final int min = func.getFunction().getMinParams();
+    final var min = func.getFunction().getMinParams();
     return min == -1 ? -1 : min - 1;
   }
 
   @Override
   public int getMaxParams(DatabaseSession session) {
-    final int max = func.getFunction().getMaxParams(session);
+    final var max = func.getFunction().getMaxParams(session);
     return max == -1 ? -1 : max - 1;
   }
 

@@ -28,7 +28,7 @@ public class LuceneFailTest {
 
   @Test
   public void test() {
-    try (DatabaseSession session = odb.open("tdb", "admin", "admpwd")) {
+    try (var session = odb.open("tdb", "admin", "admpwd")) {
       session.command("create property V.text string").close();
       session.command("create index lucene_index on V(text) FULLTEXT ENGINE LUCENE").close();
       try {

@@ -27,17 +27,17 @@ public class SQLMethodAsListTest extends DbTestBase {
   @Test
   public void testList() {
     // The expected behavior is to return the list itself.
-    ArrayList<Object> aList = new ArrayList<Object>();
+    var aList = new ArrayList<Object>();
     aList.add(1);
     aList.add("2");
-    Object result = function.execute(null, null, null, aList, null);
+    var result = function.execute(null, null, null, aList, null);
     assertEquals(result, aList);
   }
 
   @Test
   public void testNull() {
     // The expected behavior is to return an empty list.
-    Object result = function.execute(null, null, null, null, null);
+    var result = function.execute(null, null, null, null, null);
     assertEquals(result, new ArrayList<Object>());
   }
 
@@ -48,9 +48,9 @@ public class SQLMethodAsListTest extends DbTestBase {
     Set<Object> aCollection = new LinkedHashSet<Object>();
     aCollection.add(1);
     aCollection.add("2");
-    Object result = function.execute(null, null, null, aCollection, null);
+    var result = function.execute(null, null, null, aCollection, null);
 
-    ArrayList<Object> expected = new ArrayList<Object>();
+    var expected = new ArrayList<Object>();
     expected.add(1);
     expected.add("2");
     assertEquals(result, expected);
@@ -60,12 +60,12 @@ public class SQLMethodAsListTest extends DbTestBase {
   public void testIterable() {
     // The expected behavior is to return a list with all of the elements
     // of the iterable in it, in order of the collecitons iterator.
-    ArrayList<Object> expected = new ArrayList<Object>();
+    var expected = new ArrayList<Object>();
     expected.add(1);
     expected.add("2");
 
-    TestIterable<Object> anIterable = new TestIterable<Object>(expected);
-    Object result = function.execute(null, null, null, anIterable, null);
+    var anIterable = new TestIterable<Object>(expected);
+    var result = function.execute(null, null, null, anIterable, null);
 
     assertEquals(result, expected);
   }
@@ -74,12 +74,12 @@ public class SQLMethodAsListTest extends DbTestBase {
   public void testIterator() {
     // The expected behavior is to return a list with all of the elements
     // of the iterator in it, in order of the iterator.
-    ArrayList<Object> expected = new ArrayList<Object>();
+    var expected = new ArrayList<Object>();
     expected.add(1);
     expected.add("2");
 
-    TestIterable<Object> anIterable = new TestIterable<Object>(expected);
-    Object result = function.execute(null, null, null, anIterable.iterator(), null);
+    var anIterable = new TestIterable<Object>(expected);
+    var result = function.execute(null, null, null, anIterable.iterator(), null);
 
     assertEquals(result, expected);
   }
@@ -88,13 +88,13 @@ public class SQLMethodAsListTest extends DbTestBase {
   public void testODocument() {
     // The expected behavior is to return a list with only the single
     // EntityImpl in it.
-    EntityImpl doc = ((EntityImpl) db.newEntity());
+    var doc = ((EntityImpl) db.newEntity());
     doc.field("f1", 1);
     doc.field("f2", 2);
 
-    Object result = function.execute(null, null, null, doc, null);
+    var result = function.execute(null, null, null, doc, null);
 
-    ArrayList<Object> expected = new ArrayList<Object>();
+    var expected = new ArrayList<Object>();
     expected.add(doc);
 
     assertEquals(result, expected);
@@ -105,8 +105,8 @@ public class SQLMethodAsListTest extends DbTestBase {
     // The expected behavior is to return a list with only the single
     // element in it.
 
-    Object result = function.execute(null, null, null, Integer.valueOf(4), null);
-    ArrayList<Object> expected = new ArrayList<Object>();
+    var result = function.execute(null, null, null, Integer.valueOf(4), null);
+    var expected = new ArrayList<Object>();
     expected.add(Integer.valueOf(4));
     assertEquals(result, expected);
   }

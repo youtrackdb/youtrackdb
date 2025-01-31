@@ -25,9 +25,9 @@ public class CountStepTest extends DbTestBase {
     CommandContext context = new BasicCommandContext();
     context.setDatabase(db);
 
-    CountStep step = new CountStep(context, false);
+    var step = new CountStep(context, false);
 
-    AbstractExecutionStep previous =
+    var previous =
         new AbstractExecutionStep(context, false) {
           boolean done = false;
 
@@ -35,8 +35,8 @@ public class CountStepTest extends DbTestBase {
           public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
             List<Result> result = new ArrayList<>();
             if (!done) {
-              for (int i = 0; i < 100; i++) {
-                ResultInternal item = new ResultInternal(ctx.getDatabase());
+              for (var i = 0; i < 100; i++) {
+                var item = new ResultInternal(ctx.getDatabase());
                 item.setProperty(PROPERTY_NAME, PROPERTY_VALUE);
                 result.add(item);
               }
@@ -47,7 +47,7 @@ public class CountStepTest extends DbTestBase {
         };
 
     step.setPrevious(previous);
-    ExecutionStream result = step.start(context);
+    var result = step.start(context);
     Assert.assertEquals(100, (long) result.next(context).getProperty(COUNT_PROPERTY_NAME));
     Assert.assertFalse(result.hasNext(context));
   }

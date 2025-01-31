@@ -50,7 +50,7 @@ public class SequenceActionRequest {
 
   private Integer deserializeInt(DataInput in) throws IOException {
     Integer retval = null;
-    byte nullVal = in.readByte();
+    var nullVal = in.readByte();
     if (nullVal > 0) {
       retval = in.readInt();
     }
@@ -70,7 +70,7 @@ public class SequenceActionRequest {
 
   private Long deserializeLong(DataInput in) throws IOException {
     Long retval = null;
-    byte nullVal = in.readByte();
+    var nullVal = in.readByte();
     if (nullVal > 0) {
       retval = in.readLong();
     }
@@ -90,7 +90,7 @@ public class SequenceActionRequest {
 
   private SequenceOrderType deserializeOrderType(DataInput in) throws IOException {
     SequenceOrderType retval = null;
-    byte nullVal = in.readByte();
+    var nullVal = in.readByte();
     if (nullVal > 0) {
       retval = SequenceOrderType.fromValue(in.readByte());
     }
@@ -110,7 +110,7 @@ public class SequenceActionRequest {
 
   private Boolean deserializeBoolean(DataInput in) throws IOException {
     Boolean retval = null;
-    byte nullVal = in.readByte();
+    var nullVal = in.readByte();
     if (nullVal > 0) {
       retval = in.readBoolean();
     }
@@ -120,13 +120,13 @@ public class SequenceActionRequest {
   public void serialize(DataOutput out) throws IOException {
     if (action != null) {
       out.writeInt(action.getActionType());
-      byte[] sequenceNameBytes = action.getSequenceName().getBytes(StandardCharsets.UTF_8);
+      var sequenceNameBytes = action.getSequenceName().getBytes(StandardCharsets.UTF_8);
       out.writeInt(sequenceNameBytes.length);
       out.write(sequenceNameBytes);
       serializeLong(action.getCurrentValue(), out);
       out.writeByte(action.getSequenceType().getVal());
 
-      DBSequence.CreateParams params = action.getParameters();
+      var params = action.getParameters();
       if (params == null) {
         out.writeByte(0);
       } else {
@@ -146,21 +146,21 @@ public class SequenceActionRequest {
   }
 
   public void deserialize(DataInput in) throws IOException {
-    int actionType = in.readInt();
+    var actionType = in.readInt();
     if (actionType > 0) {
-      int nameLength = in.readInt();
-      byte[] nameBytes = new byte[nameLength];
+      var nameLength = in.readInt();
+      var nameBytes = new byte[nameLength];
       in.readFully(nameBytes);
-      String sequenceName = new String(nameBytes, StandardCharsets.UTF_8);
-      Long currentValue = deserializeLong(in);
-      byte sequenceTypeByte = in.readByte();
-      DBSequence.SEQUENCE_TYPE sequenceType = DBSequence.SEQUENCE_TYPE.fromVal(sequenceTypeByte);
+      var sequenceName = new String(nameBytes, StandardCharsets.UTF_8);
+      var currentValue = deserializeLong(in);
+      var sequenceTypeByte = in.readByte();
+      var sequenceType = DBSequence.SEQUENCE_TYPE.fromVal(sequenceTypeByte);
       if (sequenceType == null) {
         throw new IOException("Inavlid sequnce type value: " + sequenceTypeByte);
       }
 
       DBSequence.CreateParams params = null;
-      byte paramsNullFlag = in.readByte();
+      var paramsNullFlag = in.readByte();
       if (paramsNullFlag > 0) {
         params = new DBSequence.CreateParams();
         params.resetNull();

@@ -62,7 +62,7 @@ public final class ServerQueryRequest implements BinaryRequest<ServerQueryRespon
     namedParams = false;
     this.serializer = serializer;
     this.operationType = operationType;
-    EntityImpl parms = new EntityImpl(null);
+    var parms = new EntityImpl(null);
     parms.field("params", this.params);
 
     paramsBytes = MessageHelper.getRecordBytes(null, parms, serializer);
@@ -77,7 +77,7 @@ public final class ServerQueryRequest implements BinaryRequest<ServerQueryRespon
     this.language = language;
     this.statement = iCommand;
     this.params = namedParams;
-    EntityImpl parms = new EntityImpl(null);
+    var parms = new EntityImpl(null);
     parms.field("params", this.params);
 
     paramsBytes = MessageHelper.getRecordBytes(null, parms, serializer);
@@ -150,7 +150,7 @@ public final class ServerQueryRequest implements BinaryRequest<ServerQueryRespon
   public Map<String, Object> getParams() {
     if (params == null && this.paramsBytes != null) {
       // params
-      EntityImpl paramsEntity = new EntityImpl(null);
+      var paramsEntity = new EntityImpl(null);
       paramsEntity.setTrackingChanges(false);
       serializer.fromStream(null, this.paramsBytes, paramsEntity, null);
       this.params = paramsEntity.field("params");
@@ -171,11 +171,11 @@ public final class ServerQueryRequest implements BinaryRequest<ServerQueryRespon
   }
 
   public Object[] getPositionalParameters() {
-    Map<String, Object> params = getParams();
+    var params = getParams();
     if (params == null) {
       return null;
     }
-    Object[] result = new Object[params.size()];
+    var result = new Object[params.size()];
     params
         .entrySet()
         .forEach(

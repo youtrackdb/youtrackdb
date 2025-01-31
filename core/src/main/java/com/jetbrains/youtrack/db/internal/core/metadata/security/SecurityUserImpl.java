@@ -120,7 +120,7 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
     if (password == null) {
       throw new SecurityException("User '" + entity.field(NAME_PROPERTY) + "' has no password");
     }
-    SecuritySystem security = session.getSharedContext().getYouTrackDB().getSecuritySystem();
+    var security = session.getSharedContext().getYouTrackDB().getSecuritySystem();
     security.validatePassword(name, password);
 
     if (!(!password.isEmpty() && password.charAt(0) == '{')) {
@@ -150,7 +150,7 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
           "User '" + name + "' has no role defined");
     }
 
-    final Role role = checkIfAllowed(session, resourceGeneric, resourceSpecific, operation);
+    final var role = checkIfAllowed(session, resourceGeneric, resourceSpecific, operation);
     if (role == null) {
       throw new SecurityAccessException(
           session.getName(),
@@ -180,7 +180,7 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
       final int operation) {
     var roles = getRoles();
 
-    for (Role r : roles) {
+    for (var r : roles) {
       if (r == null) {
         LogManager.instance()
             .warn(
@@ -199,8 +199,8 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
   @Override
   @Deprecated
   public SecurityRole allow(DatabaseSessionInternal session, String iResource, int iOperation) {
-    final String resourceSpecific = Rule.mapLegacyResourceToSpecificResource(iResource);
-    final Rule.ResourceGeneric resourceGeneric =
+    final var resourceSpecific = Rule.mapLegacyResourceToSpecificResource(iResource);
+    final var resourceGeneric =
         Rule.mapLegacyResourceToGenericResource(iResource);
 
     if (resourceSpecific == null || resourceSpecific.equals("*")) {
@@ -214,8 +214,8 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
   @Deprecated
   public SecurityRole checkIfAllowed(DatabaseSessionInternal session, String iResource,
       int iOperation) {
-    final String resourceSpecific = Rule.mapLegacyResourceToSpecificResource(iResource);
-    final Rule.ResourceGeneric resourceGeneric =
+    final var resourceSpecific = Rule.mapLegacyResourceToSpecificResource(iResource);
+    final var resourceGeneric =
         Rule.mapLegacyResourceToGenericResource(iResource);
 
     if (resourceSpecific == null || resourceSpecific.equals("*")) {
@@ -228,8 +228,8 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
   @Override
   @Deprecated
   public boolean isRuleDefined(DatabaseSessionInternal session, String iResource) {
-    final String resourceSpecific = Rule.mapLegacyResourceToSpecificResource(iResource);
-    final Rule.ResourceGeneric resourceGeneric =
+    final var resourceSpecific = Rule.mapLegacyResourceToSpecificResource(iResource);
+    final var resourceGeneric =
         Rule.mapLegacyResourceToGenericResource(iResource);
 
     if (resourceSpecific == null || resourceSpecific.equals("*")) {
@@ -248,7 +248,7 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
       DatabaseSessionInternal session, final ResourceGeneric resourceGeneric,
       String resourceSpecific) {
     var roles = getRoles();
-    for (Role r : roles) {
+    for (var r : roles) {
       if (r == null) {
         LogManager.instance()
             .warn(
@@ -320,7 +320,7 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
 
   public boolean hasRole(DatabaseSessionInternal session, final String roleName,
       final boolean includeInherited) {
-    for (final Role role : roles) {
+    for (final var role : roles) {
       if (role.getName(session).equals(roleName)) {
         return true;
       }

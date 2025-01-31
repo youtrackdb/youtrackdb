@@ -63,36 +63,36 @@ public class LuceneSearchOnFieldsFunction extends LuceneSearchFunctionTemplate {
     if (iThis instanceof Identifiable) {
       iThis = new ResultInternal(ctx.getDatabase(), (Identifiable) iThis);
     }
-    Result result = (Result) iThis;
+    var result = (Result) iThis;
 
-    Entity entity = result.asEntity();
+    var entity = result.asEntity();
     if (!entity.getSchemaType().isPresent()) {
       return false;
     }
-    String className = entity.getSchemaType().get().getName();
-    List<String> fieldNames = (List<String>) params[0];
+    var className = entity.getSchemaType().get().getName();
+    var fieldNames = (List<String>) params[0];
 
-    LuceneFullTextIndex index = searchForIndex(className, ctx, fieldNames);
+    var index = searchForIndex(className, ctx, fieldNames);
 
     if (index == null) {
       return false;
     }
 
-    String query = (String) params[1];
+    var query = (String) params[1];
 
-    MemoryIndex memoryIndex = getOrCreateMemoryIndex(ctx);
+    var memoryIndex = getOrCreateMemoryIndex(ctx);
 
-    List<Object> key =
+    var key =
         index.getDefinition().getFields().stream()
             .map(s -> entity.getProperty(s))
             .collect(Collectors.toList());
 
-    for (IndexableField field : index.buildDocument(ctx.getDatabase(), key).getFields()) {
+    for (var field : index.buildDocument(ctx.getDatabase(), key).getFields()) {
       memoryIndex.addField(field, index.indexAnalyzer());
     }
 
     var metadata = getMetadata(params);
-    LuceneKeyAndMetadata keyAndMetadata =
+    var keyAndMetadata =
         new LuceneKeyAndMetadata(
             new LuceneCompositeKey(Collections.singletonList(query)).setContext(ctx), metadata);
 
@@ -121,15 +121,15 @@ public class LuceneSearchOnFieldsFunction extends LuceneSearchFunctionTemplate {
       CommandContext ctx,
       SQLExpression... args) {
 
-    LuceneFullTextIndex index = searchForIndex(target, ctx, args);
+    var index = searchForIndex(target, ctx, args);
 
-    SQLExpression expression = args[1];
-    Object query = expression.execute((Identifiable) null, ctx);
+    var expression = args[1];
+    var query = expression.execute((Identifiable) null, ctx);
     if (index != null) {
 
       var meta = getMetadata(args, ctx);
       Set<Identifiable> luceneResultSet;
-      try (Stream<RID> rids =
+      try (var rids =
           index
               .getInternal()
               .getRids(ctx.getDatabase(),
@@ -154,9 +154,9 @@ public class LuceneSearchOnFieldsFunction extends LuceneSearchFunctionTemplate {
   @Override
   protected LuceneFullTextIndex searchForIndex(
       SQLFromClause target, CommandContext ctx, SQLExpression... args) {
-    List<String> fieldNames = (List<String>) args[0].execute((Identifiable) null, ctx);
-    SQLFromItem item = target.getItem();
-    String className = item.getIdentifier().getStringValue();
+    var fieldNames = (List<String>) args[0].execute((Identifiable) null, ctx);
+    var item = target.getItem();
+    var className = item.getIdentifier().getStringValue();
 
     return searchForIndex(className, ctx, fieldNames);
   }
@@ -165,9 +165,9 @@ public class LuceneSearchOnFieldsFunction extends LuceneSearchFunctionTemplate {
       String className, CommandContext ctx, List<String> fieldNames) {
     var db = ctx.getDatabase();
     db.activateOnCurrentThread();
-    MetadataInternal dbMetadata = db.getMetadata();
+    var dbMetadata = db.getMetadata();
 
-    List<LuceneFullTextIndex> indices =
+    var indices =
         dbMetadata.getImmutableSchemaSnapshot().getClassInternal(className).getIndexesInternal(db)
             .stream()
             .filter(idx -> idx instanceof LuceneFullTextIndex)
@@ -184,7 +184,7 @@ public class LuceneSearchOnFieldsFunction extends LuceneSearchFunctionTemplate {
   }
 
   public static <T> boolean intersect(List<T> list1, List<T> list2) {
-    for (T t : list1) {
+    for (var t : list1) {
       if (list2.contains(t)) {
         return true;
       }

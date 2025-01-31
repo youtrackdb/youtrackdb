@@ -65,7 +65,7 @@ public class BooleanSerializerTest {
   public void testNativeDirectMemoryCompatibility() {
     booleanSerializer.serializeNative(OBJECT_TRUE, stream, 0);
 
-    ByteBuffer buffer = ByteBuffer.allocateDirect(stream.length).order(ByteOrder.nativeOrder());
+    var buffer = ByteBuffer.allocateDirect(stream.length).order(ByteOrder.nativeOrder());
     buffer.position(0);
     buffer.put(stream);
 
@@ -79,14 +79,14 @@ public class BooleanSerializerTest {
 
   @Test
   public void testSerializationByteBuffer() {
-    final int serializationOffset = 5;
+    final var serializationOffset = 5;
 
-    ByteBuffer buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
+    var buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
 
     buffer.position(serializationOffset);
     booleanSerializer.serializeInByteBufferObject(OBJECT_TRUE, buffer);
 
-    int binarySize = buffer.position() - serializationOffset;
+    var binarySize = buffer.position() - serializationOffset;
     Assert.assertEquals(binarySize, FIELD_SIZE);
 
     buffer.position(serializationOffset);
@@ -112,14 +112,14 @@ public class BooleanSerializerTest {
 
   @Test
   public void testSerializationImmutableByteBufferPosition() {
-    final int serializationOffset = 5;
+    final var serializationOffset = 5;
 
-    ByteBuffer buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
+    var buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
 
     buffer.position(serializationOffset);
     booleanSerializer.serializeInByteBufferObject(OBJECT_TRUE, buffer);
 
-    int binarySize = buffer.position() - serializationOffset;
+    var binarySize = buffer.position() - serializationOffset;
     Assert.assertEquals(binarySize, FIELD_SIZE);
 
     buffer.position(serializationOffset);
@@ -149,10 +149,10 @@ public class BooleanSerializerTest {
 
   @Test
   public void testSerializationWalChanges() {
-    final int serializationOffset = 5;
+    final var serializationOffset = 5;
 
-    byte[] data = new byte[FIELD_SIZE];
-    ByteBuffer buffer =
+    var data = new byte[FIELD_SIZE];
+    var buffer =
         ByteBuffer.allocateDirect(
                 FIELD_SIZE + serializationOffset + WALPageChangesPortion.PORTION_BYTES)
             .order(ByteOrder.nativeOrder());

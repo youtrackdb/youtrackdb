@@ -42,7 +42,7 @@ public class MatchReverseEdgeTraverser extends MatchEdgeTraverser {
   protected ExecutionStream traversePatternEdge(
       Identifiable startingPoint, CommandContext iCommandContext) {
 
-    Object qR = this.item.getMethod().executeReverse(startingPoint, iCommandContext);
+    var qR = this.item.getMethod().executeReverse(startingPoint, iCommandContext);
     if (qR == null) {
       return ExecutionStream.empty();
     }

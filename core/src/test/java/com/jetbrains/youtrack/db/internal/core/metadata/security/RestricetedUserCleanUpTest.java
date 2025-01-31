@@ -20,12 +20,12 @@ public class RestricetedUserCleanUpTest extends DbTestBase {
     System.gc();
     DirectMemoryAllocator.instance().checkTrackedPointerLeaks();
 
-    Security security = db.getMetadata().getSecurity();
+    var security = db.getMetadata().getSecurity();
 
     db.begin();
-    SecurityUserImpl auser = security.createUser("auser", "wherever", new String[]{});
-    SecurityUserImpl reader = security.getUser("admin");
-    EntityImpl doc = (EntityImpl) db.newEntity("TestRecord");
+    var auser = security.createUser("auser", "wherever", new String[]{});
+    var reader = security.getUser("admin");
+    var doc = (EntityImpl) db.newEntity("TestRecord");
     Set<Identifiable> users = new HashSet<Identifiable>();
     users.add(auser.getIdentity());
     users.add(reader.getIdentity());

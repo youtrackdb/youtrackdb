@@ -15,13 +15,13 @@ public class DropUserStatementExecutionTest extends DbTestBase {
   @Test
   public void testPlain() {
     db.begin();
-    ResultSet result = db.command("CREATE USER test IDENTIFIED BY foo ROLE admin");
+    var result = db.command("CREATE USER test IDENTIFIED BY foo ROLE admin");
     db.commit();
     result.close();
 
     result = db.query("SELECT name, roles.name as roles FROM OUser WHERE name = 'test'");
     Assert.assertTrue(result.hasNext());
-    Result user = result.next();
+    var user = result.next();
     Assert.assertEquals("test", user.getProperty("name"));
     List<String> roles = user.getProperty("roles");
     Assert.assertEquals(1, roles.size());

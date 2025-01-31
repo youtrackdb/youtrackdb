@@ -72,9 +72,9 @@ public class SQLFunctionMap extends SQLFunctionMultiValueAbstract<Map<Object, Ob
       throw new IllegalArgumentException(
           "Map function: expected a map or pairs of parameters as key, value");
     } else {
-      for (int i = 0; i < iParams.length; i += 2) {
-        final Object key = iParams[i];
-        final Object value = iParams[i + 1];
+      for (var i = 0; i < iParams.length; i += 2) {
+        final var key = iParams[i];
+        final var value = iParams[i + 1];
 
         if (value != null) {
           if (iParams.length <= 2 && context == null)
@@ -106,7 +106,7 @@ public class SQLFunctionMap extends SQLFunctionMultiValueAbstract<Map<Object, Ob
 
   @Override
   public Map<Object, Object> getResult() {
-    final Map<Object, Object> res = context;
+    final var res = context;
     context = null;
     return prepareResult(res);
   }

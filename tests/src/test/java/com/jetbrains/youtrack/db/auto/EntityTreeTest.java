@@ -144,7 +144,7 @@ public class EntityTreeTest extends BaseDBTest {
       var profile = result.asEntity();
       final Collection<Identifiable> followers = profile.getProperty("followers");
       if (followers != null) {
-        for (Identifiable follower : followers) {
+        for (var follower : followers) {
           Assert.assertTrue(
               ((Collection<Identifiable>)
                   Objects.requireNonNull(follower.getEntity(db).getProperty("followings")))
@@ -161,7 +161,7 @@ public class EntityTreeTest extends BaseDBTest {
     var test = db.newInstance("JavaComplexTestClass");
     test.setProperty("set", new HashSet<>());
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       var child = db.newInstance("Child");
       child.setProperty("name", String.valueOf(i));
       test.<Set<Identifiable>>getProperty("set").add(child);
@@ -173,14 +173,14 @@ public class EntityTreeTest extends BaseDBTest {
     db.commit();
 
     // Assert.assertEquals(test.<Set<Identifiable>>getProperty("set").size(), 100);
-    RID rid = test.getIdentity();
+    var rid = test.getIdentity();
     db.close();
     db = createSessionInstance();
 
     db.begin();
     test = db.load(rid);
     Assert.assertNotNull(test.<Set<Identifiable>>getProperty("set"));
-    for (Identifiable identifiable : test.<Set<Identifiable>>getProperty("set")) {
+    for (var identifiable : test.<Set<Identifiable>>getProperty("set")) {
       var child = identifiable.getEntity(db);
       Assert.assertNotNull(child.<String>getProperty("name"));
       Assert.assertTrue(Integer.parseInt(child.getProperty("name")) < 100);
@@ -237,7 +237,7 @@ public class EntityTreeTest extends BaseDBTest {
 
     db.begin();
     a = db.bindToSession(a);
-    RID rid = a.getIdentity();
+    var rid = a.getIdentity();
     Assert.assertEquals(a.<Set<Identifiable>>getProperty("set").size(), 4);
     Assert.assertEquals(a.<List<Identifiable>>getProperty("list").size(), 4);
     db.commit();
@@ -274,7 +274,7 @@ public class EntityTreeTest extends BaseDBTest {
     db.commit();
 
     db.begin();
-    RID rid = p.getIdentity();
+    var rid = p.getIdentity();
     p = db.load(rid);
     sat = p.<List<Identifiable>>getProperty("satellites").getFirst().getEntity(db);
     near = sat.getEntityProperty("near");
@@ -315,7 +315,7 @@ public class EntityTreeTest extends BaseDBTest {
     p = db.bindToSession(p);
     Assert.assertEquals(p.<Integer>getProperty("distanceSun"), 1000);
     Assert.assertEquals(p.getProperty("name"), "Earth");
-    RID rid = p.getIdentity();
+    var rid = p.getIdentity();
 
     p = db.load(rid);
     sat = p.<Map<String, Identifiable>>getProperty("satellitesMap").get("Moon").getEntity(db);
@@ -364,7 +364,7 @@ public class EntityTreeTest extends BaseDBTest {
     db.commit();
 
     db.begin();
-    RID rid = jupiter.getIdentity();
+    var rid = jupiter.getIdentity();
     jupiter = db.load(rid);
     jupiterMoon =
         jupiter
@@ -493,7 +493,7 @@ public class EntityTreeTest extends BaseDBTest {
     }
 
     var child = schema.getClass("Child");
-    SchemaClass clazz = schema.createClass("JavaCascadeDeleteTestClass");
+    var clazz = schema.createClass("JavaCascadeDeleteTestClass");
     clazz.createProperty(db, "simpleClass", PropertyType.LINK,
         schema.getClass("JavaSimpleTestClass"));
     clazz.createProperty(db, "binary", PropertyType.LINK);

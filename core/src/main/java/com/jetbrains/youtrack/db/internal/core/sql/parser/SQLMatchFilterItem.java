@@ -173,7 +173,7 @@ public class SQLMatchFilterItem extends SimpleNode {
 
   @Override
   public SQLMatchFilterItem copy() {
-    SQLMatchFilterItem result = new SQLMatchFilterItem(-1);
+    var result = new SQLMatchFilterItem(-1);
     result.className = className == null ? null : className.copy();
     result.classNames = classNames == null ? null : classNames.copy();
     result.clusterName = clusterName == null ? null : clusterName.copy();
@@ -199,7 +199,7 @@ public class SQLMatchFilterItem extends SimpleNode {
       return false;
     }
 
-    SQLMatchFilterItem that = (SQLMatchFilterItem) o;
+    var that = (SQLMatchFilterItem) o;
 
     if (!Objects.equals(className, that.className)) {
       return false;
@@ -242,7 +242,7 @@ public class SQLMatchFilterItem extends SimpleNode {
 
   @Override
   public int hashCode() {
-    int result = className != null ? className.hashCode() : 0;
+    var result = className != null ? className.hashCode() : 0;
     result = 31 * result + (classNames != null ? classNames.hashCode() : 0);
     result = 31 * result + (clusterName != null ? clusterName.hashCode() : 0);
     result = 31 * result + (clusterId != null ? clusterId.hashCode() : 0);

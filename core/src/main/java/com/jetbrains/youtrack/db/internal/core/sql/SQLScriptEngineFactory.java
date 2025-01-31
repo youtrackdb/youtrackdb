@@ -91,8 +91,8 @@ public class SQLScriptEngineFactory implements ScriptEngineFactory {
 
   @Override
   public String getProgram(String... statements) {
-    final StringBuilder buffer = new StringBuilder();
-    for (String s : statements) {
+    final var buffer = new StringBuilder();
+    for (var s : statements) {
       buffer.append(s).append(";\n");
     }
     return buffer.toString();

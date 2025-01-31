@@ -119,7 +119,7 @@ public abstract class SQLFunctionAbstract implements SQLFunction {
       // TODO we might want to add .size() and iterator with .next() to Result. The current
       // implementation is
       // quite heavy compared to the result we actually want (the single first property).
-      final Collection<String> propertyNames = result.getPropertyNames();
+      final var propertyNames = result.getPropertyNames();
       if (propertyNames.size() != 1) {
         return source;
       }

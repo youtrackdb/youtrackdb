@@ -38,19 +38,19 @@ public class SQLUpdateEdgeTest extends DbTestBase {
 
     // VERTEXES
     db.begin();
-    Entity v1 = db.command("create vertex").next().getEntity().get();
+    var v1 = db.command("create vertex").next().getEntity().get();
     assertEquals(v1.getSchemaType().get().getName(), "V");
 
-    Entity v2 = db.command("create vertex V1").next().getEntity().get();
+    var v2 = db.command("create vertex V1").next().getEntity().get();
     assertEquals(v2.getSchemaType().get().getName(), "V1");
 
-    Entity v3 =
+    var v3 =
         db.command("create vertex set vid = 'v3', brand = 'fiat'").next().getEntity().get();
 
     assertEquals(v3.getSchemaType().get().getName(), "V");
     assertEquals(v3.getProperty("brand"), "fiat");
 
-    Entity v4 =
+    var v4 =
         db.command("create vertex V1 set vid = 'v4',  brand = 'fiat',name = 'wow'")
             .next()
             .getEntity()
@@ -63,9 +63,9 @@ public class SQLUpdateEdgeTest extends DbTestBase {
     assertEquals(v4.getProperty("name"), "wow");
 
     db.begin();
-    ResultSet edges =
+    var edges =
         db.command("create edge E1 from " + v1.getIdentity() + " to " + v2.getIdentity());
-    Edge edge = edges.next().getEdge().get();
+    var edge = edges.next().getEdge().get();
     assertFalse(edges.hasNext());
     assertEquals(edge.getSchemaType().get().getName(), "E1");
     db.commit();
@@ -81,12 +81,12 @@ public class SQLUpdateEdgeTest extends DbTestBase {
         .close();
     db.commit();
 
-    ResultSet result = db.query("select expand(out('E1')) from " + v3.getIdentity());
-    Result vertex4 = result.next();
+    var result = db.query("select expand(out('E1')) from " + v3.getIdentity());
+    var vertex4 = result.next();
     Assert.assertEquals(vertex4.getProperty("vid"), "v4");
 
     result = db.query("select expand(in('E1')) from " + v4.getIdentity());
-    Result vertex3 = result.next();
+    var vertex3 = result.next();
     Assert.assertEquals(vertex3.getProperty("vid"), "v3");
 
     result = db.query("select expand(out('E1')) from " + v1.getIdentity());
@@ -100,20 +100,20 @@ public class SQLUpdateEdgeTest extends DbTestBase {
   public void testUpdateEdgeOfTypeE() {
     // issue #6378
     db.begin();
-    Vertex v1 = db.command("create vertex").next().toVertex();
-    Vertex v2 = db.command("create vertex").next().toVertex();
-    Vertex v3 = db.command("create vertex").next().toVertex();
+    var v1 = db.command("create vertex").next().toVertex();
+    var v2 = db.command("create vertex").next().toVertex();
+    var v3 = db.command("create vertex").next().toVertex();
     db.commit();
 
     db.begin();
-    ResultSet edges =
+    var edges =
         db.command("create edge E from " + v1.getIdentity() + " to " + v2.getIdentity());
-    Edge edge = edges.next().toEdge();
+    var edge = edges.next().toEdge();
 
     db.command("UPDATE EDGE " + edge.getIdentity() + " SET in = " + v3.getIdentity());
     db.commit();
 
-    ResultSet result = db.query("select expand(out()) from " + v1.getIdentity());
+    var result = db.query("select expand(out()) from " + v1.getIdentity());
     Assert.assertEquals(result.next().getIdentity().get(), v3.getIdentity());
 
     result = db.query("select expand(in()) from " + v3.getIdentity());

@@ -77,7 +77,7 @@ public class CommandManager {
     if (language == null) {
       throw new IllegalArgumentException("Invalid script languange: null");
     }
-    ScriptExecutor scriptExecutor = this.scriptExecutors.get(language);
+    var scriptExecutor = this.scriptExecutors.get(language);
     if (scriptExecutor == null) {
       scriptExecutor = this.scriptExecutors.get(language.toLowerCase(Locale.ENGLISH));
     }
@@ -90,7 +90,7 @@ public class CommandManager {
   }
 
   public CommandRequest getRequester(final String iType) {
-    final Class<? extends CommandRequest> reqClass = commandRequesters.get(iType);
+    final var reqClass = commandRequesters.get(iType);
 
     if (reqClass == null) {
       throw new IllegalArgumentException("Cannot find a command requester for type: " + iType);
@@ -135,7 +135,7 @@ public class CommandManager {
   }
 
   public CommandExecutor getExecutor(CommandRequestInternal iCommand) {
-    final Class<? extends CommandExecutor> executorClass =
+    final var executorClass =
         commandReqExecMap.get(iCommand.getClass());
 
     if (executorClass == null) {
@@ -144,9 +144,9 @@ public class CommandManager {
     }
 
     try {
-      final CommandExecutor exec = executorClass.newInstance();
+      final var exec = executorClass.newInstance();
 
-      final CallableFunction<Void, CommandRequest> callback = configCallbacks.get(
+      final var callback = configCallbacks.get(
           iCommand.getClass());
       if (callback != null) {
         callback.call(iCommand);
@@ -166,13 +166,13 @@ public class CommandManager {
   }
 
   public void close(String iDatabaseName) {
-    for (ScriptExecutor executor : scriptExecutors.values()) {
+    for (var executor : scriptExecutors.values()) {
       executor.close(iDatabaseName);
     }
   }
 
   public void closeAll() {
-    for (ScriptExecutor executor : scriptExecutors.values()) {
+    for (var executor : scriptExecutors.values()) {
       executor.closeAll();
     }
   }

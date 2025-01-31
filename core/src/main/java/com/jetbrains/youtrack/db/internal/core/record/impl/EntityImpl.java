@@ -177,10 +177,10 @@ public class EntityImpl extends RecordAbstract
 
     this.recordId = recordId.copy();
 
-    final DatabaseSessionInternal database = getSession();
+    final var database = getSession();
     if (this.recordId.getClusterId() > -1) {
       final Schema schema = database.getMetadata().getImmutableSchemaSnapshot();
-      final SchemaClass cls = schema.getClassByClusterId(this.recordId.getClusterId());
+      final var cls = schema.getClassByClusterId(this.recordId.getClusterId());
       if (cls != null && !cls.getName().equals(iClassName)) {
         throw new IllegalArgumentException(
             "Cluster id does not correspond class name should be "
@@ -229,7 +229,7 @@ public class EntityImpl extends RecordAbstract
     this(session, DEFAULT_CLASS_NAME);
 
     if (iFields != null && iFields.length > 0) {
-      for (int i = 0; i < iFields.length; i += 2) {
+      for (var i = 0; i < iFields.length; i += 2) {
         field(iFields[i].toString(), iFields[i + 1]);
       }
     }
@@ -245,7 +245,7 @@ public class EntityImpl extends RecordAbstract
     setup(session);
 
     if (iFieldMap != null && !iFieldMap.isEmpty()) {
-      for (Entry<?, Object> entry : iFieldMap.entrySet()) {
+      for (var entry : iFieldMap.entrySet()) {
         field(entry.getKey().toString(), entry.getValue());
       }
     }
@@ -367,11 +367,11 @@ public class EntityImpl extends RecordAbstract
         && !session.isClosed()) {
       assert session.assertIfNotActive();
       // DESERIALIZE FIELD NAMES ONLY (SUPPORTED ONLY BY BINARY SERIALIZER)
-      final String[] fieldNames = recordFormat.getFieldNames(session, this, source);
+      final var fieldNames = recordFormat.getFieldNames(session, this, source);
       if (fieldNames != null) {
         Set<String> fields = new LinkedHashSet<>();
         if (propertyAccess != null && propertyAccess.hasFilters()) {
-          for (String fieldName : fieldNames) {
+          for (var fieldName : fieldNames) {
             if (propertyAccess.isReadable(fieldName)) {
               fields.add(fieldName);
             }
@@ -392,13 +392,13 @@ public class EntityImpl extends RecordAbstract
 
     Set<String> fields = new LinkedHashSet<>();
     if (propertyAccess != null && propertyAccess.hasFilters()) {
-      for (Map.Entry<String, EntityEntry> entry : this.fields.entrySet()) {
+      for (var entry : this.fields.entrySet()) {
         if (entry.getValue().exists() && propertyAccess.isReadable(entry.getKey())) {
           fields.add(entry.getKey());
         }
       }
     } else {
-      for (Map.Entry<String, EntityEntry> entry : this.fields.entrySet()) {
+      for (var entry : this.fields.entrySet()) {
         if (entry.getValue().exists()) {
           fields.add(entry.getKey());
         }
@@ -480,7 +480,7 @@ public class EntityImpl extends RecordAbstract
     checkForBinding();
     var session = getSessionIfDefined();
 
-    RET value = (RET) EntityHelper.getIdentifiableValue(session, this, name);
+    var value = (RET) EntityHelper.getIdentifiableValue(session, this, name);
     if (!(!name.isEmpty() && name.charAt(0) == '@')
         && lazyLoad
         && value instanceof RID rid
@@ -489,7 +489,7 @@ public class EntityImpl extends RecordAbstract
       try {
         value = session.load((RID) value);
 
-        EntityEntry entry = fields.get(name);
+        var entry = fields.get(name);
         entry.disableTracking(this, entry.value);
         entry.value = value;
         entry.enableTracking(this);
@@ -512,7 +512,7 @@ public class EntityImpl extends RecordAbstract
 
     var field = fields.get(name);
     if (field != null) {
-      RET onLoadValue = (RET) field.getOnLoadValue(getSession());
+      var onLoadValue = (RET) field.getOnLoadValue(getSession());
       if (onLoadValue instanceof RidBag) {
         throw new IllegalArgumentException(
             "getPropertyOnLoadValue(name) is not designed to work with Edge properties");
@@ -727,7 +727,7 @@ public class EntityImpl extends RecordAbstract
     var sameCluster = from.recordId.getClusterId() == recordId.getClusterId();
     var session = getSession();
 
-    for (Map.Entry<String, EntityEntry> entry : fromFields.entrySet()) {
+    for (var entry : fromFields.entrySet()) {
       if (entry.getValue().exists()) {
         var fromEntry = entry.getValue();
 
@@ -832,7 +832,7 @@ public class EntityImpl extends RecordAbstract
       throw new IllegalArgumentException("Field name is empty");
     }
 
-    final char begin = name.charAt(0);
+    final var begin = name.charAt(0);
     if (begin == '@') {
       switch (name.toLowerCase(Locale.ROOT)) {
         case EntityHelper.ATTRIBUTE_RID -> {
@@ -859,7 +859,7 @@ public class EntityImpl extends RecordAbstract
 
     checkForFields();
 
-    EntityEntry entry = fields.get(name);
+    var entry = fields.get(name);
     final boolean knownProperty;
     final Object oldValue;
     final PropertyType oldType;
@@ -877,7 +877,7 @@ public class EntityImpl extends RecordAbstract
       oldType = entry.type;
     }
 
-    PropertyType fieldType = deriveFieldType(name, entry, type);
+    var fieldType = deriveFieldType(name, entry, type);
     if (value != null && fieldType != null) {
       value = EntityHelper.convertField(getSessionIfDefined(), this, name, fieldType, null,
           value);
@@ -936,7 +936,7 @@ public class EntityImpl extends RecordAbstract
     if (value != null) {
       if (value instanceof EntityImpl) {
         if (PropertyType.EMBEDDED.equals(fieldType)) {
-          final EntityImpl embeddedEntity = (EntityImpl) value;
+          final var embeddedEntity = (EntityImpl) value;
           EntityInternalUtils.addOwner(embeddedEntity, this);
         }
       }
@@ -1002,12 +1002,12 @@ public class EntityImpl extends RecordAbstract
           "Attribute " + EntityHelper.ATTRIBUTE_CLASS + " is read-only");
     }
 
-    final EntityEntry entry = fields.get(name);
+    final var entry = fields.get(name);
     if (entry == null) {
       return null;
     }
 
-    Object oldValue = entry.value;
+    var oldValue = entry.value;
 
     if (entry.exists() && trackingChanges) {
       // SAVE THE OLD VALUE IN A SEPARATE MAP
@@ -1040,9 +1040,9 @@ public class EntityImpl extends RecordAbstract
     iRecord.checkForBinding();
     iRecord = (EntityImpl) iRecord.getRecord(db);
 
-    SecurityInternal security = db.getSharedContext().getSecurity();
-    for (Entry<String, EntityEntry> mapEntry : iRecord.fields.entrySet()) {
-      EntityEntry entry = mapEntry.getValue();
+    var security = db.getSharedContext().getSecurity();
+    for (var mapEntry : iRecord.fields.entrySet()) {
+      var entry = mapEntry.getValue();
       if (entry != null && (entry.isTxChanged() || entry.isTxTrackedModified())) {
         if (!security.isAllowedWrite(db, iRecord, mapEntry.getKey())) {
           throw new SecurityException(
@@ -1063,7 +1063,7 @@ public class EntityImpl extends RecordAbstract
     iRecord = (EntityImpl) iRecord.getRecord(db);
 
     final Object fieldValue;
-    EntityEntry entry = iRecord.fields.get(p.getName());
+    var entry = iRecord.fields.get(p.getName());
     if (entry != null && entry.exists()) {
       // AVOID CONVERSIONS: FASTER!
       fieldValue = entry.value;
@@ -1101,7 +1101,7 @@ public class EntityImpl extends RecordAbstract
       fieldValue = null;
     }
 
-    final PropertyType type = p.getType();
+    final var type = p.getType();
 
     if (fieldValue != null && type != null) {
       // CHECK TYPE
@@ -1163,12 +1163,12 @@ public class EntityImpl extends RecordAbstract
                     + fieldValue);
           }
           if (p.getLinkedClass() != null) {
-            for (Object item : ((List<?>) fieldValue)) {
+            for (var item : ((List<?>) fieldValue)) {
               validateEmbedded(db, p, item);
             }
           } else {
             if (p.getLinkedType() != null) {
-              for (Object item : ((List<?>) fieldValue)) {
+              for (var item : ((List<?>) fieldValue)) {
                 validateType(db, p, item);
               }
             }
@@ -1183,12 +1183,12 @@ public class EntityImpl extends RecordAbstract
                     + fieldValue);
           }
           if (p.getLinkedClass() != null) {
-            for (Object item : ((Set<?>) fieldValue)) {
+            for (var item : ((Set<?>) fieldValue)) {
               validateEmbedded(db, p, item);
             }
           } else {
             if (p.getLinkedType() != null) {
-              for (Object item : ((Set<?>) fieldValue)) {
+              for (var item : ((Set<?>) fieldValue)) {
                 validateType(db, p, item);
               }
             }
@@ -1203,12 +1203,12 @@ public class EntityImpl extends RecordAbstract
                     + fieldValue);
           }
           if (p.getLinkedClass() != null) {
-            for (Entry<?, ?> colleEntry : ((Map<?, ?>) fieldValue).entrySet()) {
+            for (var colleEntry : ((Map<?, ?>) fieldValue).entrySet()) {
               validateEmbedded(db, p, colleEntry.getValue());
             }
           } else {
             if (p.getLinkedType() != null) {
-              for (Entry<?, ?> collEntry : ((Map<?, ?>) fieldValue).entrySet()) {
+              for (var collEntry : ((Map<?, ?>) fieldValue).entrySet()) {
                 validateType(db, p, collEntry.getValue());
               }
             }
@@ -1219,7 +1219,7 @@ public class EntityImpl extends RecordAbstract
 
     if (p.getMin() != null && fieldValue != null) {
       // MIN
-      final String min = p.getMin();
+      final var min = p.getMin();
       if (p.getMinComparable().compareTo(fieldValue) > 0) {
         switch (p.getType()) {
           case STRING:
@@ -1266,7 +1266,7 @@ public class EntityImpl extends RecordAbstract
     }
 
     if (p.getMaxComparable() != null && fieldValue != null) {
-      final String max = p.getMax();
+      final var max = p.getMax();
       if (p.getMaxComparable().compareTo(fieldValue) < 0) {
         switch (p.getType()) {
           case STRING:
@@ -1319,8 +1319,8 @@ public class EntityImpl extends RecordAbstract
         // check if the field is actually changed by equal.
         // this is due to a limitation in the merge algorithm used server side marking all
         // non-simple fields as dirty
-        Object orgVal = entry.getOnLoadValue(db);
-        boolean simple =
+        var orgVal = entry.getOnLoadValue(db);
+        var simple =
             fieldValue != null ? PropertyType.isSimpleType(fieldValue)
                 : PropertyType.isSimpleType(orgVal);
         if ((simple)
@@ -1344,7 +1344,7 @@ public class EntityImpl extends RecordAbstract
       EntityEntry value) {
     if (property.getLinkedClass() != null) {
       if (value.getTimeLine() != null) {
-        List<MultiValueChangeEvent<Object, Object>> event =
+        var event =
             value.getTimeLine().getMultiValueChangeEvents();
         for (var object : event) {
           if (object.getChangeType() == ChangeType.ADD
@@ -1354,7 +1354,7 @@ public class EntityImpl extends RecordAbstract
           }
         }
       } else {
-        for (Object object : values) {
+        for (var object : values) {
           validateLink(schema, property, object, true);
         }
       }
@@ -1402,11 +1402,11 @@ public class EntityImpl extends RecordAbstract
               + " but the value is not a record or a record-id");
     }
 
-    final SchemaClass schemaClass = p.getLinkedClass();
+    final var schemaClass = p.getLinkedClass();
     if (schemaClass != null && !schemaClass.isSubClassOf(Identity.CLASS_NAME)) {
       // DON'T VALIDATE OUSER AND OROLE FOR SECURITY RESTRICTIONS
       var identifiable = (Identifiable) fieldValue;
-      final RID rid = identifiable.getIdentity();
+      final var rid = identifiable.getIdentity();
       if (!schemaClass.hasPolymorphicClusterId(rid.getClusterId())) {
         // AT THIS POINT CHECK THE CLASS ONLY IF != NULL BECAUSE IN CASE OF GRAPHS THE RECORD
         // COULD BE PARTIAL
@@ -1463,9 +1463,9 @@ public class EntityImpl extends RecordAbstract
                   + fieldValue);
         }
 
-        final DBRecord embeddedRecord = embedded.getRecord(db);
+        final var embeddedRecord = embedded.getRecord(db);
         if (embeddedRecord instanceof EntityImpl entity) {
-          final SchemaClass embeddedClass = p.getLinkedClass();
+          final var embeddedClass = p.getLinkedClass();
           if (entity.isVertex()) {
             throw new ValidationException(
                 "The field '"
@@ -1493,7 +1493,7 @@ public class EntityImpl extends RecordAbstract
           }
         }
 
-        final SchemaClass embeddedClass = p.getLinkedClass();
+        final var embeddedClass = p.getLinkedClass();
         if (embeddedClass != null) {
 
           if (!(embeddedRecord instanceof EntityImpl entity)) {
@@ -1582,7 +1582,7 @@ public class EntityImpl extends RecordAbstract
 
     checkForFields();
 
-    EntityImpl destination = (EntityImpl) iDestination;
+    var destination = (EntityImpl) iDestination;
 
     super.copyTo(iDestination);
 
@@ -1598,9 +1598,9 @@ public class EntityImpl extends RecordAbstract
     if (fields != null) {
       destination.fields =
           fields instanceof LinkedHashMap ? new LinkedHashMap<>() : new HashMap<>();
-      for (Entry<String, EntityEntry> entry : fields.entrySet()) {
+      for (var entry : fields.entrySet()) {
         var originalEntry = entry.getValue();
-        EntityEntry entityEntry = originalEntry.clone();
+        var entityEntry = originalEntry.clone();
         destination.fields.put(entry.getKey(), entityEntry);
         entityEntry.value = EntityHelper.cloneValue(getSession(), destination,
             entry.getValue().value);
@@ -1621,7 +1621,7 @@ public class EntityImpl extends RecordAbstract
     iOther.checkForBinding();
     checkForBinding();
 
-    final DatabaseSessionInternal currentDb = DatabaseRecordThreadLocal.instance()
+    final var currentDb = DatabaseRecordThreadLocal.instance()
         .getIfDefined();
     return EntityHelper.hasSameContentOf(this, currentDb, iOther, currentDb, null);
   }
@@ -1630,7 +1630,7 @@ public class EntityImpl extends RecordAbstract
   public byte[] toStream() {
     checkForBinding();
 
-    STATUS prev = status;
+    var prev = status;
     status = STATUS.MARSHALLING;
     try {
       if (source == null) {
@@ -1668,12 +1668,12 @@ public class EntityImpl extends RecordAbstract
       if (isEmbedded()) {
         map.put(EntityHelper.ATTRIBUTE_EMBEDDED, true);
       } else {
-        final RecordId id = getIdentity();
+        final var id = getIdentity();
         if (id.isValid()) {
           map.put(EntityHelper.ATTRIBUTE_RID, id);
         }
       }
-      final String className = getClassName();
+      final var className = getClassName();
       if (className != null) {
         map.put(EntityHelper.ATTRIBUTE_CLASS, className);
       }
@@ -1695,7 +1695,7 @@ public class EntityImpl extends RecordAbstract
 
       case LinkList linkList -> {
         List<RID> list = new ArrayList<>(linkList.size());
-        for (Identifiable item : linkList) {
+        for (var item : linkList) {
           list.add(item.getIdentity());
         }
         yield list;
@@ -1703,7 +1703,7 @@ public class EntityImpl extends RecordAbstract
 
       case LinkSet linkSet -> {
         Set<RID> set = new HashSet<>(linkSet.size());
-        for (Identifiable item : linkSet) {
+        for (var item : linkSet) {
           set.add(item.getIdentity());
         }
         yield set;
@@ -1717,21 +1717,21 @@ public class EntityImpl extends RecordAbstract
       }
       case RidBag ridBag -> {
         List<RID> list = new ArrayList<>(ridBag.size());
-        for (RID rid : ridBag) {
+        for (var rid : ridBag) {
           list.add(rid);
         }
         yield list;
       }
       case TrackedList<?> trackedList -> {
         List<Object> list = new ArrayList<>(trackedList.size());
-        for (Object item : trackedList) {
+        for (var item : trackedList) {
           list.add(mapValue(item));
         }
         yield list;
       }
       case TrackedSet<?> trackedSet -> {
         Set<Object> set = new HashSet<>(trackedSet.size());
-        for (Object item : trackedSet) {
+        for (var item : trackedSet) {
           set.add(mapValue(item));
         }
         yield set;
@@ -1802,7 +1802,7 @@ public class EntityImpl extends RecordAbstract
 
     checkForFields();
     final List<Object> res = new ArrayList<>(fields.size());
-    for (Map.Entry<String, EntityEntry> entry : fields.entrySet()) {
+    for (var entry : fields.entrySet()) {
       if (entry.getValue().exists()
           && (propertyAccess == null || propertyAccess.isReadable(entry.getKey()))) {
         res.add(entry.getValue().value);
@@ -1895,7 +1895,7 @@ public class EntityImpl extends RecordAbstract
         value = db.load((RID) value);
 
         if (!iFieldName.contains(".")) {
-          EntityEntry entry = fields.get(iFieldName);
+          var entry = fields.get(iFieldName);
           entry.disableTracking(this, entry.value);
           entry.value = value;
           entry.enableTracking(this);
@@ -2024,7 +2024,7 @@ public class EntityImpl extends RecordAbstract
 
     field(iFieldName, iFieldValue);
     if (iFields != null && iFields.length > 0) {
-      for (int i = 0; i < iFields.length; i += 2) {
+      for (var i = 0; i < iFields.length; i += 2) {
         field(iFields[i].toString(), iFields[i + 1]);
       }
     }
@@ -2059,7 +2059,7 @@ public class EntityImpl extends RecordAbstract
     status = STATUS.UNMARSHALLING;
     try {
       if (map != null) {
-        for (Entry<String, ?> entry : map.entrySet()) {
+        for (var entry : map.entrySet()) {
           var key = entry.getKey();
           if (key.isEmpty()) {
             continue;
@@ -2377,17 +2377,17 @@ public class EntityImpl extends RecordAbstract
       }
     }
 
-    final int lastDotSep = allowChainedAccess ? iFieldName.lastIndexOf('.') : -1;
-    final int lastArraySep = allowChainedAccess ? iFieldName.lastIndexOf('[') : -1;
+    final var lastDotSep = allowChainedAccess ? iFieldName.lastIndexOf('.') : -1;
+    final var lastArraySep = allowChainedAccess ? iFieldName.lastIndexOf('[') : -1;
 
-    final int lastSep = Math.max(lastArraySep, lastDotSep);
-    final boolean lastIsArray = lastArraySep > lastDotSep;
+    final var lastSep = Math.max(lastArraySep, lastDotSep);
+    final var lastIsArray = lastArraySep > lastDotSep;
 
     if (lastSep > -1) {
       // SUB PROPERTY GET 1 LEVEL BEFORE LAST
-      final Object subObject = field(iFieldName.substring(0, lastSep));
+      final var subObject = field(iFieldName.substring(0, lastSep));
       if (subObject != null) {
-        final String subFieldName =
+        final var subFieldName =
             lastIsArray ? iFieldName.substring(lastSep) : iFieldName.substring(lastSep + 1);
         if (subObject instanceof EntityImpl) {
           // SUB-ENTITY
@@ -2401,15 +2401,15 @@ public class EntityImpl extends RecordAbstract
             if (MultiValue.isMultiValue(subObject)) {
               if ((subObject instanceof List<?> || subObject.getClass().isArray()) && lastIsArray) {
                 // List // Array Type with a index subscript.
-                final int subFieldNameLen = subFieldName.length();
+                final var subFieldNameLen = subFieldName.length();
 
                 if (subFieldName.charAt(subFieldNameLen - 1) != ']') {
                   throw new IllegalArgumentException("Missed closing ']'");
                 }
 
-                final String indexPart = subFieldName.substring(1, subFieldNameLen - 1);
-                final Object indexPartObject = EntityHelper.getIndexPart(null, indexPart);
-                final String indexAsString =
+                final var indexPart = subFieldName.substring(1, subFieldNameLen - 1);
+                final var indexPartObject = EntityHelper.getIndexPart(null, indexPart);
+                final var indexAsString =
                     indexPartObject == null ? null : indexPartObject.toString();
 
                 if (indexAsString == null) {
@@ -2417,7 +2417,7 @@ public class EntityImpl extends RecordAbstract
                       "List / array subscripts must resolve to integer values.");
                 }
                 try {
-                  final int index = Integer.parseInt(indexAsString);
+                  final var index = Integer.parseInt(indexAsString);
                   MultiValue.setValue(subObject, iPropertyValue, index);
                 } catch (NumberFormatException e) {
                   throw new IllegalArgumentException(
@@ -2425,7 +2425,7 @@ public class EntityImpl extends RecordAbstract
                 }
               } else {
                 // APPLY CHANGE TO ALL THE ITEM IN SUB-COLLECTION
-                for (Object subObjectItem : MultiValue.getMultiValueIterable(subObject)) {
+                for (var subObjectItem : MultiValue.getMultiValueIterable(subObject)) {
                   if (subObjectItem instanceof EntityImpl) {
                     // SUB-ENTITY, CHECK IF IT'S NOT LINKED
                     if (!((EntityImpl) subObjectItem).isEmbedded()) {
@@ -2462,7 +2462,7 @@ public class EntityImpl extends RecordAbstract
 
     checkForFields();
 
-    EntityEntry entry = fields.get(iFieldName);
+    var entry = fields.get(iFieldName);
     final boolean knownProperty;
     final Object oldValue;
     final PropertyType oldType;
@@ -2480,7 +2480,7 @@ public class EntityImpl extends RecordAbstract
       oldType = entry.type;
     }
 
-    PropertyType fieldType = deriveFieldType(iFieldName, entry,
+    var fieldType = deriveFieldType(iFieldName, entry,
         iFieldType.length > 0 ? iFieldType[0] : null);
     if (iPropertyValue != null && fieldType != null) {
       iPropertyValue =
@@ -2546,11 +2546,11 @@ public class EntityImpl extends RecordAbstract
     if (iPropertyValue != null) {
       if (iPropertyValue instanceof EntityImpl) {
         if (PropertyType.EMBEDDED.equals(fieldType)) {
-          final EntityImpl embeddedEntity = (EntityImpl) iPropertyValue;
+          final var embeddedEntity = (EntityImpl) iPropertyValue;
           EntityInternalUtils.addOwner(embeddedEntity, this);
         } else {
           if (PropertyType.LINK.equals(fieldType)) {
-            final EntityImpl embeddedEntity = (EntityImpl) iPropertyValue;
+            final var embeddedEntity = (EntityImpl) iPropertyValue;
             EntityInternalUtils.removeOwner(embeddedEntity, this);
           }
         }
@@ -2616,11 +2616,11 @@ public class EntityImpl extends RecordAbstract
       }
     }
 
-    final EntityEntry entry = fields.get(iFieldName);
+    final var entry = fields.get(iFieldName);
     if (entry == null) {
       return null;
     }
-    Object oldValue = entry.value;
+    var oldValue = entry.value;
 
     if (entry.exists() && trackingChanges) {
       // SAVE THE OLD VALUE IN A SEPARATE MAP
@@ -2695,7 +2695,7 @@ public class EntityImpl extends RecordAbstract
     }
 
     final Set<String> dirtyFields = new HashSet<>();
-    for (Entry<String, EntityEntry> entry : fields.entrySet()) {
+    for (var entry : fields.entrySet()) {
       if (entry.getValue().isChanged() || entry.getValue().isTrackedModified()) {
         dirtyFields.add(entry.getKey());
       }
@@ -2712,7 +2712,7 @@ public class EntityImpl extends RecordAbstract
     checkForBinding();
 
     if (fields != null) {
-      EntityEntry entry = fields.get(iFieldName);
+      var entry = fields.get(iFieldName);
       if (entry != null) {
         return entry.original;
       }
@@ -2723,7 +2723,7 @@ public class EntityImpl extends RecordAbstract
   public MultiValueChangeTimeLine<Object, Object> getCollectionTimeLine(final String iFieldName) {
     checkForBinding();
 
-    EntityEntry entry = fields != null ? fields.get(iFieldName) : null;
+    var entry = fields != null ? fields.get(iFieldName) : null;
     return entry != null ? entry.getTimeLine() : null;
   }
 
@@ -2740,7 +2740,7 @@ public class EntityImpl extends RecordAbstract
       return EmptyMapEntryIterator.INSTANCE;
     }
 
-    final Iterator<Entry<String, EntityEntry>> iterator = fields.entrySet().iterator();
+    final var iterator = fields.entrySet().iterator();
     return new Iterator<>() {
       private Entry<String, EntityEntry> current;
       private boolean read = true;
@@ -2849,7 +2849,7 @@ public class EntityImpl extends RecordAbstract
 
     if (checkForFields(propertyName)
         && (propertyAccess == null || propertyAccess.isReadable(propertyName))) {
-      EntityEntry entry = fields.get(propertyName);
+      var entry = fields.get(propertyName);
       return entry != null && entry.exists();
     } else {
       return false;
@@ -2980,7 +2980,7 @@ public class EntityImpl extends RecordAbstract
     checkForBinding();
     checkForFields(fieldName);
 
-    EntityEntry entry = fields.get(fieldName);
+    var entry = fields.get(fieldName);
     if (entry != null) {
       if (propertyAccess == null || propertyAccess.isReadable(fieldName)) {
         return entry.type;
@@ -3064,10 +3064,10 @@ public class EntityImpl extends RecordAbstract
     }
 
     if (fields != null) {
-      final Iterator<Entry<String, EntityEntry>> vals = fields.entrySet().iterator();
+      final var vals = fields.entrySet().iterator();
       while (vals.hasNext()) {
-        final Entry<String, EntityEntry> next = vals.next();
-        final EntityEntry val = next.getValue();
+        final var next = vals.next();
+        final var val = next.getValue();
         if (val.isCreated()) {
           vals.remove();
         } else {
@@ -3085,7 +3085,7 @@ public class EntityImpl extends RecordAbstract
     }
 
     if (fields != null) {
-      final EntityEntry value = fields.get(field);
+      final var value = fields.get(field);
       if (value != null) {
         if (value.isCreated()) {
           fields.remove(field);
@@ -3127,9 +3127,9 @@ public class EntityImpl extends RecordAbstract
     this.trackingChanges = iTrackingChanges;
     if (!iTrackingChanges && fields != null) {
       // FREE RESOURCES
-      Iterator<Entry<String, EntityEntry>> iter = fields.entrySet().iterator();
+      var iter = fields.entrySet().iterator();
       while (iter.hasNext()) {
-        Entry<String, EntityEntry> cur = iter.next();
+        var cur = iter.next();
         if (!cur.getValue().exists()) {
           iter.remove();
         } else {
@@ -3146,7 +3146,7 @@ public class EntityImpl extends RecordAbstract
   protected void clearTrackData() {
     if (fields != null) {
       // FREE RESOURCES
-      for (Entry<String, EntityEntry> cur : fields.entrySet()) {
+      for (var cur : fields.entrySet()) {
         if (cur.getValue().exists()) {
           cur.getValue().clear();
           cur.getValue().enableTracking(this);
@@ -3160,9 +3160,9 @@ public class EntityImpl extends RecordAbstract
   void clearTransactionTrackData() {
     if (fields != null) {
       // FREE RESOURCES
-      Iterator<Entry<String, EntityEntry>> iter = fields.entrySet().iterator();
+      var iter = fields.entrySet().iterator();
       while (iter.hasNext()) {
-        Entry<String, EntityEntry> cur = iter.next();
+        var cur = iter.next();
         if (cur.getValue().exists()) {
           cur.getValue().transactionClear();
         } else {
@@ -3246,7 +3246,7 @@ public class EntityImpl extends RecordAbstract
         }
       }
       // SET THE FORCED TYPE
-      EntityEntry entry = getOrCreate(iFieldName);
+      var entry = getOrCreate(iFieldName);
       if (entry.type != iFieldType) {
         if (entry.value == null) {
           entry.type = iFieldType;
@@ -3257,7 +3257,7 @@ public class EntityImpl extends RecordAbstract
     } else {
       if (fields != null) {
         // REMOVE THE FIELD TYPE
-        EntityEntry entry = fields.get(iFieldName);
+        var entry = fields.get(iFieldName);
         if (entry != null)
         // EMPTY: OPTIMIZE IT BY REMOVING THE ENTIRE MAP
         {
@@ -3282,12 +3282,12 @@ public class EntityImpl extends RecordAbstract
     checkForBinding();
     if (iFields != null && iFields.length > 0) {
       // EXTRACT REAL FIELD NAMES
-      for (final String f : iFields) {
+      for (final var f : iFields) {
         if (f != null && !(!f.isEmpty() && f.charAt(0) == '@')) {
-          int pos1 = f.indexOf('[');
-          int pos2 = f.indexOf('.');
+          var pos1 = f.indexOf('[');
+          var pos2 = f.indexOf('.');
           if (pos1 > -1 || pos2 > -1) {
-            int pos = pos1 > -1 ? pos1 : pos2;
+            var pos = pos1 > -1 ? pos1 : pos2;
             if (pos2 > -1 && pos2 < pos) {
               pos = pos2;
             }
@@ -3302,10 +3302,10 @@ public class EntityImpl extends RecordAbstract
       }
 
       if (additional != null) {
-        String[] copy = new String[iFields.length + additional.size()];
+        var copy = new String[iFields.length + additional.size()];
         System.arraycopy(iFields, 0, copy, 0, iFields.length);
-        int next = iFields.length;
-        for (String s : additional) {
+        var next = iFields.length;
+        for (var s : additional) {
           copy[next++] = s;
         }
         iFields = copy;
@@ -3313,8 +3313,8 @@ public class EntityImpl extends RecordAbstract
 
       // CHECK IF HAS BEEN ALREADY UNMARSHALLED
       if (fields != null && !fields.isEmpty()) {
-        boolean allFound = true;
-        for (String f : iFields) {
+        var allFound = true;
+        for (var f : iFields) {
           if (f != null && !(!f.isEmpty() && f.charAt(0) == '@') && !fields.containsKey(f)) {
             allFound = false;
             break;
@@ -3337,7 +3337,7 @@ public class EntityImpl extends RecordAbstract
     }
 
     if (iFields != null && iFields.length > 0) {
-      for (String field : iFields) {
+      for (var field : iFields) {
         if (field != null && !field.isEmpty() && field.charAt(0) == '@')
         // ATTRIBUTE
         {
@@ -3347,7 +3347,7 @@ public class EntityImpl extends RecordAbstract
 
       // PARTIAL UNMARSHALLING
       if (fields != null && !fields.isEmpty()) {
-        for (String f : iFields) {
+        for (var f : iFields) {
           if (f != null && fields.containsKey(f)) {
             return true;
           }
@@ -3390,7 +3390,7 @@ public class EntityImpl extends RecordAbstract
       return;
     }
 
-    final SchemaClass _clazz = getSession().getMetadata().getImmutableSchemaSnapshot()
+    final var _clazz = getSession().getMetadata().getImmutableSchemaSnapshot()
         .getClass(iClassName);
     if (_clazz != null) {
       className = _clazz.getName();
@@ -3433,7 +3433,7 @@ public class EntityImpl extends RecordAbstract
       return;
     }
 
-    MetadataInternal metadata = getSession().getMetadata();
+    var metadata = getSession().getMetadata();
     this.immutableClazz =
         (SchemaImmutableClass) metadata.getImmutableSchemaSnapshot().getClass(className);
     SchemaClass clazz;
@@ -3471,11 +3471,11 @@ public class EntityImpl extends RecordAbstract
       return;
     }
 
-    final SchemaImmutableClass immutableSchemaClass = getImmutableSchemaClass();
+    final var immutableSchemaClass = getImmutableSchemaClass();
     if (immutableSchemaClass != null) {
       if (immutableSchemaClass.isStrictMode()) {
         // CHECK IF ALL FIELDS ARE DEFINED
-        for (String f : fieldNames()) {
+        for (var f : fieldNames()) {
           if (immutableSchemaClass.getProperty(f) == null) {
             throw new ValidationException(
                 "Found additional field '"
@@ -3487,8 +3487,8 @@ public class EntityImpl extends RecordAbstract
         }
       }
 
-      final ImmutableSchema immutableSchema = session.getMetadata().getImmutableSchemaSnapshot();
-      for (SchemaProperty p : immutableSchemaClass.properties(session)) {
+      final var immutableSchema = session.getMetadata().getImmutableSchemaSnapshot();
+      for (var p : immutableSchemaClass.properties(session)) {
         validateField(session, immutableSchema, this, (ImmutableSchemaProperty) p);
       }
     }
@@ -3503,17 +3503,17 @@ public class EntityImpl extends RecordAbstract
       inspected.add(this);
     }
 
-    final long saveDirtyStatus = dirty;
-    final boolean oldUpdateContent = contentChanged;
+    final var saveDirtyStatus = dirty;
+    final var oldUpdateContent = contentChanged;
 
     try {
-      final StringBuilder buffer = new StringBuilder(128);
+      final var buffer = new StringBuilder(128);
 
       checkForFields();
 
       var session = getSessionIfDefined();
       if (session != null && !session.isClosed()) {
-        final String clsName = getClassName();
+        final var clsName = getClassName();
         if (clsName != null) {
           buffer.append(clsName);
         }
@@ -3525,8 +3525,8 @@ public class EntityImpl extends RecordAbstract
         }
       }
 
-      boolean first = true;
-      for (Entry<String, EntityEntry> f : fields.entrySet()) {
+      var first = true;
+      for (var f : fields.entrySet()) {
         if (propertyAccess != null && !propertyAccess.isReadable(f.getKey())) {
           continue;
         }
@@ -3586,28 +3586,28 @@ public class EntityImpl extends RecordAbstract
     checkForFields();
     source = null;
 
-    for (Entry<String, EntityEntry> entry : iOther.entrySet()) {
-      String f = entry.getKey();
-      EntityEntry entityEntry = entry.getValue();
+    for (var entry : iOther.entrySet()) {
+      var f = entry.getKey();
+      var entityEntry = entry.getValue();
       if (!entityEntry.exists()) {
         continue;
       }
-      final Object otherValue = entityEntry.value;
+      final var otherValue = entityEntry.value;
 
-      EntityEntry curValue = fields.get(f);
+      var curValue = fields.get(f);
 
       if (curValue != null && curValue.exists()) {
-        final Object value = curValue.value;
+        final var value = curValue.value;
         if (iMergeSingleItemsOfMultiValueFields) {
           if (value instanceof Map<?, ?>) {
-            final Map<String, Object> map = (Map<String, Object>) value;
-            final Map<String, Object> otherMap = (Map<String, Object>) otherValue;
+            final var map = (Map<String, Object>) value;
+            final var otherMap = (Map<String, Object>) otherValue;
 
             map.putAll(otherMap);
             continue;
           } else {
             if (MultiValue.isMultiValue(value) && !(value instanceof RidBag)) {
-              for (Object item : MultiValue.getMultiValueIterable(otherValue)) {
+              for (var item : MultiValue.getMultiValueIterable(otherValue)) {
                 if (!MultiValue.contains(value, item)) {
                   MultiValue.add(value, item);
                 }
@@ -3616,7 +3616,7 @@ public class EntityImpl extends RecordAbstract
             }
           }
         }
-        boolean bagsMerged = false;
+        var bagsMerged = false;
         if (value instanceof RidBag && otherValue instanceof RidBag) {
           bagsMerged =
               ((RidBag) value).tryMerge((RidBag) otherValue, iMergeSingleItemsOfMultiValueFields);
@@ -3633,7 +3633,7 @@ public class EntityImpl extends RecordAbstract
 
     if (!iUpdateOnlyMode) {
       // REMOVE PROPERTIES NOT FOUND IN OTHER ENTITY
-      for (String f : getPropertyNamesInternal()) {
+      for (var f : getPropertyNamesInternal()) {
         if (!iOther.containsKey(f) || !iOther.get(f).exists()) {
           removePropertyInternal(f);
         }
@@ -3681,10 +3681,10 @@ public class EntityImpl extends RecordAbstract
     checkForBinding();
     var session = getSession();
     if (schema == null) {
-      MetadataInternal metadata = session.getMetadata();
+      var metadata = session.getMetadata();
       schema = metadata.getImmutableSchemaSnapshot();
     }
-    GlobalProperty prop = schema.getGlobalPropertyById(id);
+    var prop = schema.getGlobalPropertyById(id);
     if (prop == null) {
       if (session.isClosed()) {
         throw new DatabaseException(
@@ -3692,7 +3692,7 @@ public class EntityImpl extends RecordAbstract
                 + " entity outside the database session scope");
       }
 
-      MetadataInternal metadata = session.getMetadata();
+      var metadata = session.getMetadata();
       if (metadata.getImmutableSchemaSnapshot() != null) {
         metadata.clearThreadLocalSchemaSnapshot();
       }
@@ -3749,7 +3749,7 @@ public class EntityImpl extends RecordAbstract
       fields = ordered ? new LinkedHashMap<>() : new HashMap<>();
     }
 
-    EntityEntry entry = getOrCreate(iFieldName);
+    var entry = getOrCreate(iFieldName);
     entry.disableTracking(this, entry.value);
     entry.value = iFieldValue;
     entry.type = iFieldType;
@@ -3760,7 +3760,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   private EntityEntry getOrCreate(String key) {
-    EntityEntry entry = fields.get(key);
+    var entry = fields.get(key);
     if (entry == null) {
       entry = new EntityEntry();
       fieldSize++;
@@ -3780,10 +3780,10 @@ public class EntityImpl extends RecordAbstract
     var session = getSession();
     SchemaClass clazz = getImmutableSchemaClass();
     if (clazz != null) {
-      for (SchemaProperty prop : clazz.properties(session)) {
-        PropertyType type = prop.getType();
-        PropertyType linkedType = prop.getLinkedType();
-        SchemaClass linkedClass = prop.getLinkedClass();
+      for (var prop : clazz.properties(session)) {
+        var type = prop.getType();
+        var linkedType = prop.getLinkedType();
+        var linkedClass = prop.getLinkedClass();
         if (type == PropertyType.EMBEDDED && linkedClass != null) {
           convertToEmbeddedType(prop);
           continue;
@@ -3791,14 +3791,14 @@ public class EntityImpl extends RecordAbstract
         if (fields == null) {
           continue;
         }
-        final EntityEntry entry = fields.get(prop.getName());
+        final var entry = fields.get(prop.getName());
         if (entry == null) {
           continue;
         }
         if (!entry.isCreated() && !entry.isChanged()) {
           continue;
         }
-        Object value = entry.value;
+        var value = entry.value;
         if (value == null) {
           continue;
         }
@@ -3806,9 +3806,9 @@ public class EntityImpl extends RecordAbstract
           if (type == PropertyType.LINKBAG
               && !(entry.value instanceof RidBag)
               && entry.value instanceof Collection) {
-            RidBag newValue = new RidBag(session);
+            var newValue = new RidBag(session);
             newValue.setRecordAndField(recordId, prop.getName());
-            for (Object o : ((Collection<Object>) entry.value)) {
+            for (var o : ((Collection<Object>) entry.value)) {
               if (!(o instanceof Identifiable identifiable)) {
                 throw new ValidationException("Invalid value in ridbag: " + o);
               }
@@ -3818,11 +3818,11 @@ public class EntityImpl extends RecordAbstract
           }
           if (type == PropertyType.LINKMAP) {
             if (entry.value instanceof Map) {
-              Map<String, Object> map = (Map<String, Object>) entry.value;
+              var map = (Map<String, Object>) entry.value;
               var newMap = new LinkMap(this);
-              boolean changed = false;
-              for (Entry<String, Object> stringObjectEntry : map.entrySet()) {
-                Object val = stringObjectEntry.getValue();
+              var changed = false;
+              for (var stringObjectEntry : map.entrySet()) {
+                var val = stringObjectEntry.getValue();
                 if (MultiValue.isMultiValue(val) && MultiValue.getSize(val) == 1) {
                   val = MultiValue.getFirstValue(val);
                   if (val instanceof Result) {
@@ -3843,9 +3843,9 @@ public class EntityImpl extends RecordAbstract
           }
 
           if (type == PropertyType.EMBEDDEDLIST) {
-            TrackedList<Object> list = new TrackedList<>(this);
-            Collection<Object> values = (Collection<Object>) value;
-            for (Object object : values) {
+            var list = new TrackedList<Object>(this);
+            var values = (Collection<Object>) value;
+            for (var object : values) {
               list.add(PropertyType.convert(session, object, linkedType.getDefaultJavaType()));
             }
             entry.value = list;
@@ -3853,7 +3853,7 @@ public class EntityImpl extends RecordAbstract
           } else {
             if (type == PropertyType.EMBEDDEDMAP) {
               Map<String, Object> map = new TrackedMap<>(this);
-              Map<String, Object> values = (Map<String, Object>) value;
+              var values = (Map<String, Object>) value;
               for (var object : values.entrySet()) {
                 map.put(
                     object.getKey(),
@@ -3865,8 +3865,8 @@ public class EntityImpl extends RecordAbstract
             } else {
               if (type == PropertyType.EMBEDDEDSET) {
                 Set<Object> set = new TrackedSet<>(this);
-                Collection<Object> values = (Collection<Object>) value;
-                for (Object object : values) {
+                var values = (Collection<Object>) value;
+                for (var object : values) {
                   set.add(PropertyType.convert(session, object, linkedType.getDefaultJavaType()));
                 }
                 entry.value = set;
@@ -3885,15 +3885,15 @@ public class EntityImpl extends RecordAbstract
   }
 
   private void convertToEmbeddedType(SchemaProperty prop) {
-    final EntityEntry entry = fields.get(prop.getName());
-    SchemaClass linkedClass = prop.getLinkedClass();
+    final var entry = fields.get(prop.getName());
+    var linkedClass = prop.getLinkedClass();
     if (entry == null || linkedClass == null) {
       return;
     }
     if (!entry.isCreated() && !entry.isChanged()) {
       return;
     }
-    Object value = entry.value;
+    var value = entry.value;
     if (value == null) {
       return;
     }
@@ -3914,7 +3914,7 @@ public class EntityImpl extends RecordAbstract
       } else {
         if (value instanceof Map) {
           entry.disableTracking(this, value);
-          EntityImpl newValue = new EntityImpl(getSession(), linkedClass);
+          var newValue = new EntityImpl(getSession(), linkedClass);
           //noinspection rawtypes
           newValue.updateFromMap((Map) value);
           entry.value = newValue;
@@ -3990,9 +3990,9 @@ public class EntityImpl extends RecordAbstract
     }
 
     var session = getSession();
-    for (Map.Entry<String, EntityEntry> fieldEntry : fields.entrySet()) {
-      EntityEntry entry = fieldEntry.getValue();
-      final Object fieldValue = entry.value;
+    for (var fieldEntry : fields.entrySet()) {
+      var entry = fieldEntry.getValue();
+      final var fieldValue = entry.value;
       if (fieldValue instanceof RidBag) {
         if (isEmbedded()) {
           throw new DatabaseException("RidBag are supported only at entity root");
@@ -4018,11 +4018,11 @@ public class EntityImpl extends RecordAbstract
         continue;
       }
 
-      PropertyType fieldType = entry.type;
+      var fieldType = entry.type;
       if (fieldType == null) {
         SchemaClass clazz = getImmutableSchemaClass();
         if (clazz != null) {
-          final SchemaProperty prop = clazz.getProperty(fieldEntry.getKey());
+          final var prop = clazz.getProperty(fieldEntry.getKey());
           fieldType = prop != null ? prop.getType() : null;
         }
       }
@@ -4070,7 +4070,7 @@ public class EntityImpl extends RecordAbstract
           break;
         case LINKBAG:
           if (fieldValue instanceof Collection<?>) {
-            RidBag bag = new RidBag(session);
+            var bag = new RidBag(session);
             bag.setOwner(this);
             bag.setRecordAndField(recordId, fieldEntry.getKey());
             for (var item : (Collection<Identifiable>) fieldValue) {
@@ -4087,14 +4087,14 @@ public class EntityImpl extends RecordAbstract
         entry.enableTracking(this);
         entry.value = newValue;
         if (fieldType == PropertyType.LINKSET || fieldType == PropertyType.LINKLIST) {
-          for (Identifiable rec : (Collection<Identifiable>) newValue) {
+          for (var rec : (Collection<Identifiable>) newValue) {
             if (rec instanceof EntityImpl) {
               ((EntityImpl) rec).convertAllMultiValuesToTrackedVersions();
             }
           }
         } else {
           if (fieldType == PropertyType.LINKMAP) {
-            for (Identifiable rec : (Collection<Identifiable>) ((Map<?, ?>) newValue).values()) {
+            for (var rec : (Collection<Identifiable>) ((Map<?, ?>) newValue).values()) {
               if (rec instanceof EntityImpl) {
                 ((EntityImpl) rec).convertAllMultiValuesToTrackedVersions();
               }
@@ -4108,9 +4108,9 @@ public class EntityImpl extends RecordAbstract
   private void checkTimelineTrackable(
       MultiValueChangeTimeLine<Object, Object> timeLine,
       TrackedMultiValue<Object, Object> origin) {
-    List<MultiValueChangeEvent<Object, Object>> events = timeLine.getMultiValueChangeEvents();
-    for (MultiValueChangeEvent<Object, Object> event : events) {
-      Object value = event.getValue();
+    var events = timeLine.getMultiValueChangeEvents();
+    for (var event : events) {
+      var value = event.getValue();
       if (event.getChangeType() == ChangeType.ADD
           && !(value instanceof TrackedMultiValue)) {
         if (value instanceof List) {
@@ -4125,7 +4125,7 @@ public class EntityImpl extends RecordAbstract
 
           } else {
             if (value instanceof Map) {
-              TrackedMap<Object> newMap = new TrackedMap<>(this);
+              var newMap = new TrackedMap<Object>(this);
               fillTrackedMap(newMap, newMap, (Map<String, Object>) value);
               origin.replace(event, newMap);
             }
@@ -4137,7 +4137,7 @@ public class EntityImpl extends RecordAbstract
 
   private void fillTrackedCollection(
       Collection<Object> dest, RecordElement parent, Collection<Object> source) {
-    for (Object cur : source) {
+    for (var cur : source) {
       if (cur instanceof EntityImpl) {
         ((EntityImpl) cur).addOwner((RecordElement) dest);
         ((EntityImpl) cur).convertAllMultiValuesToTrackedVersions();
@@ -4150,12 +4150,12 @@ public class EntityImpl extends RecordAbstract
           cur = newList;
         } else {
           if (cur instanceof Set) {
-            TrackedSet<Object> newSet = new TrackedSet<>(parent);
+            var newSet = new TrackedSet<Object>(parent);
             fillTrackedCollection(newSet, newSet, (Collection<Object>) cur);
             cur = newSet;
           } else {
             if (cur instanceof Map) {
-              TrackedMap<Object> newMap = new TrackedMap<>(parent);
+              var newMap = new TrackedMap<Object>(parent);
               fillTrackedMap(newMap, newMap, (Map<String, Object>) cur);
               cur = newMap;
             } else {
@@ -4179,17 +4179,17 @@ public class EntityImpl extends RecordAbstract
         ((EntityImpl) value).clearTrackData();
       } else {
         if (cur.getValue() instanceof List) {
-          TrackedList<Object> newList = new TrackedList<>(parent);
+          var newList = new TrackedList<Object>(parent);
           fillTrackedCollection(newList, newList, (Collection<Object>) value);
           value = newList;
         } else {
           if (value instanceof Set) {
-            TrackedSet<Object> newSet = new TrackedSet<>(parent);
+            var newSet = new TrackedSet<Object>(parent);
             fillTrackedCollection(newSet, newSet, (Collection<Object>) value);
             value = newSet;
           } else {
             if (value instanceof Map) {
-              TrackedMap<Object> newMap = new TrackedMap<>(parent);
+              var newMap = new TrackedMap<Object>(parent);
               fillTrackedMap(newMap, newMap, (Map<String, Object>) value);
               value = newMap;
             } else {
@@ -4233,7 +4233,7 @@ public class EntityImpl extends RecordAbstract
 
     if (checkForFields(property)) {
       if (propertyAccess == null || propertyAccess.isReadable(property)) {
-        EntityEntry entry = fields.get(property);
+        var entry = fields.get(property);
         if (entry != null) {
           return entry.value;
         } else {
@@ -4267,7 +4267,7 @@ public class EntityImpl extends RecordAbstract
     if (fields != null) {
       var processedRecords = Collections.newSetFromMap(new IdentityHashMap<>());
 
-      for (EntityEntry entry : fields.values()) {
+      for (var entry : fields.values()) {
         if (entry.value instanceof RecordAbstract recordAbstract) {
           if (processedRecords.add(recordAbstract)) {
             recordAbstract.setup(db);
@@ -4294,7 +4294,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   private static String checkFieldName(final String iFieldName) {
-    final Character c = SchemaShared.checkFieldNameIfValid(iFieldName);
+    final var c = SchemaShared.checkFieldNameIfValid(iFieldName);
     if (c != null) {
       throw new IllegalArgumentException(
           "Invalid field name '" + iFieldName + "'. Character '" + c + "' is invalid");
@@ -4356,9 +4356,9 @@ public class EntityImpl extends RecordAbstract
 
   private void fetchSchemaIfCan() {
     if (schema == null) {
-      DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
+      var db = DatabaseRecordThreadLocal.instance().getIfDefined();
       if (db != null && !db.isClosed()) {
-        MetadataInternal metadata = db.getMetadata();
+        var metadata = db.getMetadata();
         schema = metadata.getImmutableSchemaSnapshot();
       }
     }
@@ -4367,21 +4367,21 @@ public class EntityImpl extends RecordAbstract
   private void fetchSchemaIfCan(DatabaseSessionInternal db) {
     if (schema == null) {
       if (db != null) {
-        MetadataInternal metadata = db.getMetadata();
+        var metadata = db.getMetadata();
         schema = metadata.getImmutableSchemaSnapshot();
       }
     }
   }
 
   private void fetchClassName() {
-    final DatabaseSessionInternal database = getSessionIfDefined();
+    final var database = getSessionIfDefined();
 
     if (database != null && !database.isClosed()) {
       if (recordId != null) {
         if (recordId.getClusterId() >= 0) {
           final Schema schema = database.getMetadata().getImmutableSchemaSnapshot();
           if (schema != null) {
-            SchemaClass clazz = schema.getClassByClusterId(recordId.getClusterId());
+            var clazz = schema.getClassByClusterId(recordId.getClusterId());
             if (clazz != null) {
               className = clazz.getName();
             }
@@ -4395,7 +4395,7 @@ public class EntityImpl extends RecordAbstract
     checkForBinding();
 
     if (className != null) {
-      SchemaClass klazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(className);
+      var klazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(className);
       if (klazz != null) {
         convertFieldsToClass(klazz);
       }
@@ -4408,12 +4408,12 @@ public class EntityImpl extends RecordAbstract
   private void convertFieldsToClass(final SchemaClass clazz) {
     var session = getSession();
 
-    for (SchemaProperty prop : clazz.properties(session)) {
-      EntityEntry entry = fields != null ? fields.get(prop.getName()) : null;
+    for (var prop : clazz.properties(session)) {
+      var entry = fields != null ? fields.get(prop.getName()) : null;
       if (entry != null && entry.exists()) {
         if (entry.type == null || entry.type != prop.getType()) {
-          boolean preChanged = entry.isChanged();
-          boolean preCreated = entry.isCreated();
+          var preChanged = entry.isChanged();
+          var preCreated = entry.isCreated();
           field(prop.getName(), entry.value, prop.getType());
           if (recordId.isNew()) {
             if (preChanged) {
@@ -4429,10 +4429,10 @@ public class EntityImpl extends RecordAbstract
           }
         }
       } else {
-        String defValue = prop.getDefaultValue();
+        var defValue = prop.getDefaultValue();
         if (defValue != null && /*defValue.length() > 0 && */ !containsField(prop.getName())) {
-          Object curFieldValue = SQLHelper.parseDefaultValue(session, this, defValue);
-          Object fieldValue =
+          var curFieldValue = SQLHelper.parseDefaultValue(session, this, defValue);
+          var fieldValue =
               EntityHelper.convertField(session,
                   this, prop.getName(), prop.getType(), null, curFieldValue);
           rawField(prop.getName(), fieldValue, prop.getType());
@@ -4446,7 +4446,7 @@ public class EntityImpl extends RecordAbstract
     SchemaClass clazz = getImmutableSchemaClass();
     if (clazz != null) {
       // SCHEMA-FULL?
-      final SchemaProperty prop = clazz.getProperty(iFieldName);
+      final var prop = clazz.getProperty(iFieldName);
       if (prop != null) {
         entry.property = prop;
         fieldType = prop.getType();
@@ -4464,7 +4464,7 @@ public class EntityImpl extends RecordAbstract
       return;
     }
 
-    for (final Map.Entry<String, EntityEntry> field : fields.entrySet()) {
+    for (final var field : fields.entrySet()) {
       var entityEntry = field.getValue();
 
       var value = entityEntry.value;
@@ -4477,7 +4477,7 @@ public class EntityImpl extends RecordAbstract
       return;
     }
 
-    for (final Map.Entry<String, EntityEntry> field : fields.entrySet()) {
+    for (final var field : fields.entrySet()) {
       field.getValue().enableTracking(this);
     }
   }

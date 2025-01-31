@@ -32,7 +32,7 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    SchemaClass cls = db.getMetadata().getSchema().createClass(CLASS_NAME);
+    var cls = db.getMetadata().getSchema().createClass(CLASS_NAME);
     cls.createProperty(db, PROPERTY_NAME, PropertyType.INTEGER);
     cls.createIndex(db, INDEX, SchemaClass.INDEX_TYPE.UNIQUE, PROPERTY_NAME);
   }
@@ -51,7 +51,7 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
     }
 
     db.begin();
-    final Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
+    final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
 
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1).save();
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2).save();
@@ -59,10 +59,10 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
     db.commit();
 
     Assert.assertNull(db.getTransaction().getIndexChanges(INDEX));
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = index.getInternal().getRids(db, 2)) {
+    try (var stream = index.getInternal().getRids(db, 2)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -71,20 +71,20 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 3).save();
 
     Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX));
-    try (Stream<RID> stream = index.getInternal().getRids(db, 3)) {
+    try (var stream = index.getInternal().getRids(db, 3)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
     db.rollback();
 
     Assert.assertNull(db.getTransaction().getIndexChanges(INDEX));
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = index.getInternal().getRids(db, 2)) {
+    try (var stream = index.getInternal().getRids(db, 2)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = index.getInternal().getRids(db, 3)) {
+    try (var stream = index.getInternal().getRids(db, 3)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
   }
@@ -96,19 +96,19 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
     }
 
     db.begin();
-    final Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
+    final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
 
-    EntityImpl document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
+    var document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
     document.save();
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2).save();
 
     db.commit();
 
     Assert.assertNull(db.getTransaction().getIndexChanges(INDEX));
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = index.getInternal().getRids(db, 2)) {
+    try (var stream = index.getInternal().getRids(db, 2)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -118,20 +118,20 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
     document.delete();
 
     Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX));
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = index.getInternal().getRids(db, 2)) {
+    try (var stream = index.getInternal().getRids(db, 2)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
     db.rollback();
 
     Assert.assertNull(db.getTransaction().getIndexChanges(INDEX));
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = index.getInternal().getRids(db, 2)) {
+    try (var stream = index.getInternal().getRids(db, 2)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
@@ -143,19 +143,19 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
     }
 
     db.begin();
-    final Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
+    final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
 
-    EntityImpl document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
+    var document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
     document.save();
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2).save();
 
     db.commit();
 
     Assert.assertNull(db.getTransaction().getIndexChanges(INDEX));
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = index.getInternal().getRids(db, 2)) {
+    try (var stream = index.getInternal().getRids(db, 2)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -169,10 +169,10 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
     document.save();
 
     Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX));
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<RID> stream = index.getInternal().getRids(db, 2)) {
+    try (var stream = index.getInternal().getRids(db, 2)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -187,21 +187,21 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
 
     db.begin();
 
-    final Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
+    final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
 
-    EntityImpl document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
+    var document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
     document.save();
     document.field(PROPERTY_NAME, 0);
     document.field(PROPERTY_NAME, 1);
     document.save();
 
     Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX));
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
     db.commit();
 
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
@@ -214,12 +214,12 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
 
     db.begin();
 
-    final Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
+    final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
 
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1).save();
 
     Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX));
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
     db.commit();
@@ -228,7 +228,7 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
     ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2).save();
     db.commit();
 
-    try (Stream<RID> stream = index.getInternal().getRids(db, 2)) {
+    try (var stream = index.getInternal().getRids(db, 2)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
@@ -241,20 +241,20 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
 
     db.begin();
 
-    final Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
+    final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
 
-    EntityImpl document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
+    var document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
     document.save();
     document.delete();
 
     Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX));
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
 
     db.commit();
 
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
   }
@@ -267,9 +267,9 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
 
     db.begin();
 
-    final Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
+    final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
 
-    EntityImpl document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
+    var document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
     document.save();
 
     document.removeField(PROPERTY_NAME);
@@ -278,19 +278,19 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
     document.field(PROPERTY_NAME, 1).save();
 
     Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX));
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
     db.commit();
 
-    try (Stream<RID> stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(db, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
 
   public void testInsertionDeletionInsideTx() {
-    final String className = "_" + IndexTxAwareOneValueGetTest.class.getSimpleName();
+    final var className = "_" + IndexTxAwareOneValueGetTest.class.getSimpleName();
     db.command("create class " + className + " extends V").close();
     db.command("create property " + className + ".name STRING").close();
     db.command("CREATE INDEX " + className + ".name UNIQUE").close();
@@ -310,8 +310,8 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
                 + "return $top")
         .close();
 
-    try (final ResultSet resultSet = db.query("select * from " + className)) {
-      try (Stream<Result> stream = resultSet.stream()) {
+    try (final var resultSet = db.query("select * from " + className)) {
+      try (var stream = resultSet.stream()) {
         Assert.assertEquals(stream.count(), 0);
       }
     }

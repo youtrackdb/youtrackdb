@@ -16,15 +16,15 @@ public class DropClassStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testPlain() {
-    String className = "testPlain";
+    var className = "testPlain";
     Schema schema = db.getMetadata().getSchema();
     schema.createClass(className);
 
     Assert.assertNotNull(schema.getClass(className));
 
-    ResultSet result = db.command("drop class " + className);
+    var result = db.command("drop class " + className);
     Assert.assertTrue(result.hasNext());
-    Result next = result.next();
+    var next = result.next();
     Assert.assertEquals("drop class", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -34,9 +34,9 @@ public class DropClassStatementExecutionTest extends DbTestBase {
   @Test
   public void testUnsafe() {
 
-    String className = "testUnsafe";
+    var className = "testUnsafe";
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass v = schema.getClass("V");
+    var v = schema.getClass("V");
     schema.createClass(className, v);
 
     db.begin();
@@ -49,9 +49,9 @@ public class DropClassStatementExecutionTest extends DbTestBase {
     } catch (Exception ex2) {
       Assert.fail();
     }
-    ResultSet result = db.command("drop class " + className + " unsafe");
+    var result = db.command("drop class " + className + " unsafe");
     Assert.assertTrue(result.hasNext());
-    Result next = result.next();
+    var next = result.next();
     Assert.assertEquals("drop class", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -60,15 +60,15 @@ public class DropClassStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testIfExists() {
-    String className = "testIfExists";
+    var className = "testIfExists";
     Schema schema = db.getMetadata().getSchema();
     schema.createClass(className);
 
     Assert.assertNotNull(schema.getClass(className));
 
-    ResultSet result = db.command("drop class " + className + " if exists");
+    var result = db.command("drop class " + className + " if exists");
     Assert.assertTrue(result.hasNext());
-    Result next = result.next();
+    var next = result.next();
     Assert.assertEquals("drop class", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -81,15 +81,15 @@ public class DropClassStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testParam() {
-    String className = "testParam";
+    var className = "testParam";
     Schema schema = db.getMetadata().getSchema();
     schema.createClass(className);
 
     Assert.assertNotNull(schema.getClass(className));
 
-    ResultSet result = db.command("drop class ?", className);
+    var result = db.command("drop class ?", className);
     Assert.assertTrue(result.hasNext());
-    Result next = result.next();
+    var next = result.next();
     Assert.assertEquals("drop class", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();

@@ -190,18 +190,18 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
       schema.createClass("alphabet", 1, null);
     }
 
-    RecordIteratorClass<EntityImpl> iter = db.browseClass("alphabet");
+    var iter = db.browseClass("alphabet");
     while (iter.hasNext()) {
       iter.next().delete();
     }
 
     // add 26 entries: { "letter": "A", "number": 0 }, ... { "letter": "Z", "number": 25 }
 
-    String rowModel = "{\"letter\": \"%s\", \"number\": %d}";
-    for (int i = 0; i < 26; ++i) {
+    var rowModel = "{\"letter\": \"%s\", \"number\": %d}";
+    for (var i = 0; i < 26; ++i) {
       db.begin();
-      String l = String.valueOf((char) ('A' + i));
-      String json = String.format(rowModel, l, i);
+      var l = String.valueOf((char) ('A' + i));
+      var json = String.format(rowModel, l, i);
       EntityImpl doc = db.newInstance("alphabet");
       doc.updateFromJSON(json);
       doc.save();
@@ -224,11 +224,11 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     db.command("ALTER PROPERTY CollateOnLinked.name collate ci").close();
 
     db.begin();
-    EntityImpl doc = (EntityImpl) db.newEntity("CollateOnLinked");
+    var doc = (EntityImpl) db.newEntity("CollateOnLinked");
     doc.field("name", "foo");
     doc.save();
 
-    EntityImpl doc2 = (EntityImpl) db.newEntity("CollateOnLinked2");
+    var doc2 = (EntityImpl) db.newEntity("CollateOnLinked2");
     doc2.field("linked", doc.getIdentity());
     doc2.save();
     db.commit();
@@ -350,12 +350,12 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   private static void initMassiveOrderSkipLimit(DatabaseSessionInternal db) {
     db.getMetadata().getSchema().createClass("MassiveOrderSkipLimit", 1, null);
-    String fieldValue =
+    var fieldValue =
         "laskdf lkajsd flaksjdf laksjd flakjsd flkasjd flkajsd flkajsd flkajsd flkajsd flkajsd"
             + " flkjas;lkj a;ldskjf laksdj asdklasdjf lskdaj fladsd";
-    for (int i = 0; i < ORDER_SKIP_LIMIT_ITEMS; i++) {
+    for (var i = 0; i < ORDER_SKIP_LIMIT_ITEMS; i++) {
       db.begin();
-      EntityImpl doc = (EntityImpl) db.newEntity("MassiveOrderSkipLimit");
+      var doc = (EntityImpl) db.newEntity("MassiveOrderSkipLimit");
       doc.field("nnum", i);
       doc.field("aaa", fieldValue);
       doc.field("bbb", fieldValue);
@@ -372,12 +372,12 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   private static void initExpandSkipLimit(DatabaseSession db) {
     db.command("create class ExpandSkipLimit clusters 1").close();
 
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       db.begin();
-      EntityImpl doc = (EntityImpl) db.newEntity("ExpandSkipLimit");
+      var doc = (EntityImpl) db.newEntity("ExpandSkipLimit");
       doc.field("nnum", i);
       doc.save();
-      EntityImpl parent = (EntityImpl) db.newEntity("ExpandSkipLimit");
+      var parent = (EntityImpl) db.newEntity("ExpandSkipLimit");
       parent.field("parent", true);
       parent.field("num", i);
       parent.field("linked", doc);
@@ -392,7 +392,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testUseIndexWithOrderBy2() throws Exception {
-    long idxUsagesBefore = indexUsages(db);
+    var idxUsagesBefore = indexUsages(db);
 
     List<EntityImpl> qResult =
         db.command(new CommandSQL("select * from foo where address.city = 'NY' order by name ASC"))
@@ -402,7 +402,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testUseIndexWithOr() throws Exception {
-    long idxUsagesBefore = indexUsages(db);
+    var idxUsagesBefore = indexUsages(db);
 
     List<EntityImpl> qResult =
         db.command(new CommandSQL("select * from foo where bar = 2 or name ='a' and bar >= 0"))
@@ -415,7 +415,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testDoNotUseIndexWithOrNotIndexed() throws Exception {
 
-    long idxUsagesBefore = indexUsages(db);
+    var idxUsagesBefore = indexUsages(db);
 
     List<EntityImpl> qResult =
         db.command(new CommandSQL("select * from foo where bar = 2 or notIndexed = 3"))
@@ -426,7 +426,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testCompositeIndex() {
-    long idxUsagesBefore = indexUsages(db);
+    var idxUsagesBefore = indexUsages(db);
 
     List<EntityImpl> qResult =
         db.command(new CommandSQL("select * from foo where comp = 'a' and osite = 1")).execute(db);
@@ -461,7 +461,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testCompositeIndex2() {
-    long idxUsagesBefore = indexUsages(db);
+    var idxUsagesBefore = indexUsages(db);
 
     List<EntityImpl> qResult =
         db.command(
@@ -475,35 +475,35 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testOperatorPriority() {
 
-    List<Result> qResult =
+    var qResult =
         db.command("select * from foo where name ='a' and bar = 1000 or name = 'b'").stream()
             .toList();
 
-    List<Result> qResult2 =
+    var qResult2 =
         db.command("select * from foo where name = 'b' or name ='a' and bar = 1000").stream()
             .toList();
 
-    List<Result> qResult3 =
+    var qResult3 =
         db.command("select * from foo where name = 'b' or (name ='a' and bar = 1000)").stream()
             .toList();
 
-    List<Result> qResult4 =
+    var qResult4 =
         db.command("select * from foo where (name ='a' and bar = 1000) or name = 'b'").stream()
             .toList();
 
-    List<Result> qResult5 =
+    var qResult5 =
         db.command("select * from foo where ((name ='a' and bar = 1000) or name = 'b')").stream()
             .toList();
 
-    List<Result> qResult6 =
+    var qResult6 =
         db.command("select * from foo where ((name ='a' and (bar = 1000)) or name = 'b')").stream()
             .toList();
 
-    List<Result> qResult7 =
+    var qResult7 =
         db.command("select * from foo where (((name ='a' and bar = 1000)) or name = 'b')").stream()
             .toList();
 
-    List<Result> qResult8 =
+    var qResult8 =
         db
             .command("select * from foo where (((name ='a' and bar = 1000)) or (name = 'b'))")
             .stream()
@@ -520,7 +520,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testOperatorPriority2() {
-    List<Result> qResult =
+    var qResult =
         db
             .command(
                 "select * from bar where name ='a' and foo = 1 or name='b' or name='c' and foo = 3"
@@ -528,7 +528,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
             .stream()
             .toList();
 
-    List<Result> qResult2 =
+    var qResult2 =
         db
             .command(
                 "select * from bar where (name ='a' and foo = 1) or name='b' or (name='c' and foo ="
@@ -536,7 +536,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
             .stream()
             .toList();
 
-    List<Result> qResult3 =
+    var qResult3 =
         db
             .command(
                 "select * from bar where (name ='a' and foo = 1) or (name='b') or (name='c' and foo"
@@ -544,7 +544,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
             .stream()
             .toList();
 
-    List<Result> qResult4 =
+    var qResult4 =
         db
             .command(
                 "select * from bar where (name ='a' and foo = 1) or ((name='b') or (name='c' and"
@@ -553,7 +553,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
             .stream()
             .toList();
 
-    List<Result> qResult5 =
+    var qResult5 =
         db
             .command(
                 "select * from bar where (name ='a' and foo = 1) or ((name='b') or (name='c' and"
@@ -570,7 +570,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testOperatorPriority3() {
-    List<Result> qResult =
+    var qResult =
         db
             .command(
                 "select * from bar where name <> 'a' and foo = 1 or name='b' or name='c' and foo ="
@@ -578,7 +578,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
             .stream()
             .toList();
 
-    List<Result> qResult2 =
+    var qResult2 =
         db
             .command(
                 "select * from bar where (name <> 'a' and foo = 1) or name='b' or (name='c' and foo"
@@ -587,7 +587,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
             .stream()
             .toList();
 
-    List<Result> qResult3 =
+    var qResult3 =
         db
             .command(
                 "select * from bar where ( name <> 'a' and foo = 1) or (name='b') or (name='c' and"
@@ -596,7 +596,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
             .stream()
             .toList();
 
-    List<Result> qResult4 =
+    var qResult4 =
         db
             .command(
                 "select * from bar where (name <> 'a' and foo = 1) or ( (name='b') or (name='c' and"
@@ -605,7 +605,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
             .stream()
             .toList();
 
-    List<Result> qResult5 =
+    var qResult5 =
         db
             .command(
                 "select * from bar where (name <> 'a' and foo = 1) or ((name='b') or (name='c' and"
@@ -622,7 +622,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testExpandOnEmbedded() {
-    try (ResultSet qResult = db.command("select expand(address) from foo where name = 'a'")) {
+    try (var qResult = db.command("select expand(address) from foo where name = 'a'")) {
       assertEquals("NY", qResult.next().getProperty("city"));
       assertFalse(qResult.hasNext());
     }
@@ -640,25 +640,25 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testLimit() {
-    ResultSet qResult = db.query("select from foo limit 3");
+    var qResult = db.query("select from foo limit 3");
     assertEquals(3, qResult.stream().count());
   }
 
   @Test
   public void testLimitWithMetadataQuery() {
-    ResultSet qResult = db.query("select expand(classes) from metadata:schema limit 3");
+    var qResult = db.query("select expand(classes) from metadata:schema limit 3");
     assertEquals(3, qResult.stream().count());
   }
 
   @Test
   public void testOrderByWithMetadataQuery() {
-    ResultSet qResult = db.query("select expand(classes) from metadata:schema order by name");
+    var qResult = db.query("select expand(classes) from metadata:schema order by name");
     assertTrue(qResult.stream().count() > 0);
   }
 
   @Test
   public void testLimitWithUnnamedParam() {
-    ResultSet qResult = db.query("select from foo limit ?", 3);
+    var qResult = db.query("select from foo limit ?", 3);
     assertEquals(3, qResult.stream().count());
   }
 
@@ -666,7 +666,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testLimitWithNamedParam() {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("lim", 2);
-    ResultSet qResult = db.command("select from foo limit :lim", params);
+    var qResult = db.command("select from foo limit :lim", params);
     assertEquals(2, qResult.stream().count());
   }
 
@@ -675,7 +675,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     // issue #5493
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("limit", 2);
-    ResultSet qResult = db.command("select from foo limit :limit", params);
+    var qResult = db.command("select from foo limit :limit", params);
     assertEquals(2, qResult.stream().count());
   }
 
@@ -683,7 +683,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testParamsInLetSubquery() {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("name", "foo");
-    ResultSet qResult =
+    var qResult =
         db.command(
             "select from TestParams let $foo = (select name from TestParams where surname = :name)"
                 + " where surname in $foo.name ",
@@ -694,14 +694,14 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testBooleanParams() {
     // issue #4224
-    ResultSet qResult =
+    var qResult =
         db.command("select name from TestParams where name = ? and active = ?", "foo", true);
     assertEquals(1, qResult.stream().count());
   }
 
   @Test
   public void testFromInSquareBrackets() {
-    try (ResultSet qResult = db.command("select tags[' from '] as a from TestFromInSquare")) {
+    try (var qResult = db.command("select tags[' from '] as a from TestFromInSquare")) {
       assertEquals("foo", qResult.next().getProperty("a"));
       assertFalse(qResult.hasNext());
     }
@@ -709,18 +709,18 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testNewline() {
-    ResultSet qResult = db.command("select\n1 as ACTIVE\nFROM foo");
+    var qResult = db.command("select\n1 as ACTIVE\nFROM foo");
     assertEquals(5, qResult.stream().count());
   }
 
   @Test
   public void testOrderByRid() {
-    ResultSet qResult = db.query("select from ridsorttest order by @rid ASC");
+    var qResult = db.query("select from ridsorttest order by @rid ASC");
     assertTrue(qResult.hasNext());
 
-    Result prev = qResult.next();
+    var prev = qResult.next();
     while (qResult.hasNext()) {
-      Result next = qResult.next();
+      var next = qResult.next();
       assertTrue(prev.getIdentity().get().compareTo(next.getIdentity().get()) <= 0);
       prev = next;
     }
@@ -731,7 +731,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
     prev = qResult.next();
     while (qResult.hasNext()) {
-      Result next = qResult.next();
+      var next = qResult.next();
       assertTrue(prev.getIdentity().get().compareTo(next.getIdentity().get()) >= 0);
       prev = next;
     }
@@ -742,7 +742,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
     prev = qResult.next();
     while (qResult.hasNext()) {
-      Result next = qResult.next();
+      var next = qResult.next();
       assertTrue(prev.getIdentity().get().compareTo(next.getIdentity().get()) >= 0);
       prev = next;
     }
@@ -750,11 +750,11 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testUnwind() {
-    List<Result> qResult =
+    var qResult =
         db.command("select from unwindtest unwind coll").stream().toList();
 
     assertEquals(4, qResult.size());
-    for (Result doc : qResult) {
+    for (var doc : qResult) {
       String name = doc.getProperty("name");
       String coll = doc.getProperty("coll");
       assertTrue(coll.startsWith(name));
@@ -764,12 +764,12 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testUnwind2() {
-    List<Result> qResult =
+    var qResult =
         db.command("select from unwindtest2 unwind coll").stream().toList();
 
     assertEquals(1, qResult.size());
-    for (Result doc : qResult) {
-      Object coll = doc.getProperty("coll");
+    for (var doc : qResult) {
+      var coll = doc.getProperty("coll");
       assertNull(coll);
       assertFalse(doc.getIdentity().isPresent());
     }
@@ -777,12 +777,12 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testUnwindOrder() {
-    List<Result> qResult =
+    var qResult =
         db.command("select from unwindtest order by coll unwind coll").stream()
             .toList();
 
     assertEquals(4, qResult.size());
-    for (Result doc : qResult) {
+    for (var doc : qResult) {
       String name = doc.getProperty("name");
       String coll = doc.getProperty("coll");
       assertTrue(coll.startsWith(name));
@@ -792,12 +792,12 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testUnwindSkip() {
-    List<Result> qResult =
+    var qResult =
         db.command("select from unwindtest unwind coll skip 1").stream()
             .toList();
 
     assertEquals(3, qResult.size());
-    for (Result doc : qResult) {
+    for (var doc : qResult) {
       String name = doc.getProperty("name");
       String coll = doc.getProperty("coll");
       assertTrue(coll.startsWith(name));
@@ -806,12 +806,12 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testUnwindLimit() {
-    List<Result> qResult =
+    var qResult =
         db.command("select from unwindtest unwind coll limit 1").stream()
             .toList();
 
     assertEquals(1, qResult.size());
-    for (Result doc : qResult) {
+    for (var doc : qResult) {
       String name = doc.getProperty("name");
       String coll = doc.getProperty("coll");
       assertTrue(coll.startsWith(name));
@@ -820,12 +820,12 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testUnwindLimit3() {
-    List<Result> qResult =
+    var qResult =
         db.command("select from unwindtest unwind coll limit 3").stream()
             .toList();
 
     assertEquals(3, qResult.size());
-    for (Result doc : qResult) {
+    for (var doc : qResult) {
       String name = doc.getProperty("name");
       String coll = doc.getProperty("coll");
       assertTrue(coll.startsWith(name));
@@ -834,12 +834,12 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testUnwindSkipAndLimit() {
-    List<Result> qResult =
+    var qResult =
         db.command("select from unwindtest unwind coll skip 1 limit 1").stream()
             .toList();
 
     assertEquals(1, qResult.size());
-    for (Result doc : qResult) {
+    for (var doc : qResult) {
       String name = doc.getProperty("name");
       String coll = doc.getProperty("coll");
       assertTrue(coll.startsWith(name));
@@ -848,7 +848,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testMultipleClusters() {
-    ResultSet qResult = db.command("select from cluster:[testmultipleclusters1]");
+    var qResult = db.command("select from cluster:[testmultipleclusters1]");
 
     assertEquals(1, qResult.stream().count());
 
@@ -859,7 +859,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testMatches() {
-    List<?> result =
+    var result =
         db.query(
             new SQLSynchQuery<Object>(
                 "select from foo where name matches"
@@ -870,7 +870,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testStarPosition() {
-    List<Result> result =
+    var result =
         db.query("select *, name as blabla from foo where name = 'a'").stream()
             .collect(Collectors.toList());
 
@@ -894,14 +894,14 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testQuotedClassName() {
-    ResultSet qResult = db.query("select from `edge`");
+    var qResult = db.query("select from `edge`");
 
     assertEquals(0, qResult.stream().count());
   }
 
   public void testUrl() {
 
-    List<Result> qResult = db.command("select from TestUrl").stream().toList();
+    var qResult = db.command("select from TestUrl").stream().toList();
 
     assertEquals(1, qResult.size());
     assertEquals("http://www.google.com", qResult.get(0).getProperty("url"));
@@ -909,12 +909,12 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testUnwindSkipAndLimit2() {
-    List<Result> qResult =
+    var qResult =
         db.command("select from unwindtest unwind coll skip 1 limit 2").stream()
             .toList();
 
     assertEquals(2, qResult.size());
-    for (Result doc : qResult) {
+    for (var doc : qResult) {
       String name = doc.getProperty("name");
       String coll = doc.getProperty("coll");
       assertTrue(coll.startsWith(name));
@@ -925,7 +925,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testMultipleParamsWithSameName() {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("param1", "foo");
-    ResultSet qResult =
+    var qResult =
         db.query("select from TestParams where name like '%' + :param1 + '%'", params);
     assertEquals(2, qResult.stream().count());
 
@@ -946,51 +946,51 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   // /*** from issue #2743
   @Test
   public void testBasicQueryOrdered() {
-    ResultSet results = db.query("SELECT from alphabet ORDER BY letter");
+    var results = db.query("SELECT from alphabet ORDER BY letter");
     assertEquals(26, results.stream().count());
   }
 
   @Test
   public void testSkipZeroOrdered() {
-    ResultSet results = db.query("SELECT from alphabet ORDER BY letter SKIP 0");
+    var results = db.query("SELECT from alphabet ORDER BY letter SKIP 0");
     assertEquals(26, results.stream().count());
   }
 
   @Test
   public void testSkipOrdered() {
-    ResultSet results = db.query("SELECT from alphabet ORDER BY letter SKIP 7");
+    var results = db.query("SELECT from alphabet ORDER BY letter SKIP 7");
     assertEquals(19, results.stream().count());
   }
 
   @Test
   public void testLimitOrdered() {
-    ResultSet results = db.query("SELECT from alphabet ORDER BY letter LIMIT 9");
+    var results = db.query("SELECT from alphabet ORDER BY letter LIMIT 9");
     assertEquals(9, results.stream().count());
   }
 
   @Test
   public void testLimitMinusOneOrdered() {
-    ResultSet results = db.query("SELECT from alphabet ORDER BY letter LIMIT -1");
+    var results = db.query("SELECT from alphabet ORDER BY letter LIMIT -1");
     assertEquals(26, results.stream().count());
   }
 
   @Test
   public void testSkipAndLimitOrdered() {
-    ResultSet results = db.query("SELECT from alphabet ORDER BY letter SKIP 7 LIMIT 9");
+    var results = db.query("SELECT from alphabet ORDER BY letter SKIP 7 LIMIT 9");
     assertEquals(9, results.stream().count());
   }
 
   @Test
   public void testSkipAndLimitMinusOneOrdered() {
-    ResultSet results = db.query("SELECT from alphabet ORDER BY letter SKIP 7 LIMIT -1");
+    var results = db.query("SELECT from alphabet ORDER BY letter SKIP 7 LIMIT -1");
     assertEquals(19, results.stream().count());
   }
 
   @Test
   public void testLetAsListAsString() {
-    String sql =
+    var sql =
         "SELECT $ll as lll from unwindtest let $ll = coll.asList().asString() where name = 'bar'";
-    List<Result> results = db.query(sql).stream().toList();
+    var results = db.query(sql).stream().toList();
     assertEquals(1, results.size());
     assertNotNull(results.get(0).getProperty("lll"));
     assertEquals("[bar1, bar2]", results.get(0).getProperty("lll"));
@@ -1015,7 +1015,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testLetOrder() {
-    SQLSynchQuery sql =
+    var sql =
         new SQLSynchQuery(
             "SELECT"
                 + "      source,"
@@ -1044,17 +1044,17 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testNullProjection() {
-    String sql =
+    var sql =
         "SELECT 1 AS integer, 'Test' AS string, NULL AS nothing, [] AS array, {} AS object";
 
-    List<Result> results = db.query(sql).stream().toList();
+    var results = db.query(sql).stream().toList();
     assertEquals(1, results.size());
-    Result doc = results.get(0);
+    var doc = results.get(0);
     assertThat(doc.<Integer>getProperty("integer")).isEqualTo(1);
     assertEquals("Test", doc.getProperty("string"));
     assertNull(doc.getProperty("nothing"));
-    boolean nullFound = false;
-    for (String s : doc.getPropertyNames()) {
+    var nullFound = false;
+    for (var s : doc.getPropertyNames()) {
       if (s.equals("nothing")) {
         nullFound = true;
         break;
@@ -1067,18 +1067,18 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testExpandSkipLimit() {
     initExpandSkipLimit(db);
     // issue #4985
-    ResultSet results =
+    var results =
         db.query(
             "SELECT expand(linked) from ExpandSkipLimit where parent = true order by nnum skip 1"
                 + " limit 1");
-    Result doc = results.next();
+    var doc = results.next();
     assertThat(doc.<Integer>getProperty("nnum")).isEqualTo(1);
   }
 
   @Test
   public void testBacktick() {
-    ResultSet results = db.query("SELECT `foo-bar` as r from TestBacktick");
-    Result doc = results.next();
+    var results = db.query("SELECT `foo-bar` as r from TestBacktick");
+    var doc = results.next();
     assertThat(doc.<Integer>getProperty("r")).isEqualTo(10);
   }
 
@@ -1087,7 +1087,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     // issue #4949
     Map<String, Object> parameters = new HashMap<String, Object>();
     parameters.put("paramvalue", "count");
-    ResultSet qResult =
+    var qResult =
         db.command("select from TestParamsEmbedded order by emb[:paramvalue] DESC", parameters);
     Map embedded = qResult.next().getProperty("emb");
     assertEquals(1, embedded.get("count"));
@@ -1099,7 +1099,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     // issue #4949
     Map<String, Object> parameters = new HashMap<String, Object>();
     parameters.put("paramvalue", "count");
-    ResultSet qResult =
+    var qResult =
         db.command("select from TestParamsEmbedded order by emb[:paramvalue] ASC", parameters);
     Map embedded = qResult.next().getProperty("emb");
     assertEquals(0, embedded.get("count"));
@@ -1112,13 +1112,13 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testMassiveOrderAscSkipLimit() {
     initMassiveOrderSkipLimit(db);
-    int skip = 1000;
-    ResultSet results =
+    var skip = 1000;
+    var results =
         db.query("SELECT from MassiveOrderSkipLimit order by nnum asc skip " + skip + " limit 5");
 
-    int i = 0;
+    var i = 0;
     while (results.hasNext()) {
-      Result doc = results.next();
+      var doc = results.next();
       assertThat(doc.<Integer>getProperty("nnum")).isEqualTo(skip + i);
       i++;
     }
@@ -1128,12 +1128,12 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testMassiveOrderDescSkipLimit() {
     initMassiveOrderSkipLimit(db);
-    int skip = 1000;
-    ResultSet results =
+    var skip = 1000;
+    var results =
         db.query("SELECT from MassiveOrderSkipLimit order by nnum desc skip " + skip + " limit 5");
-    int i = 0;
+    var i = 0;
     while (results.hasNext()) {
-      Result doc = results.next();
+      var doc = results.next();
       assertThat(doc.<Integer>getProperty("nnum")).isEqualTo(ORDER_SKIP_LIMIT_ITEMS - 1 - skip - i);
       i++;
     }
@@ -1143,13 +1143,13 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testIntersectExpandLet() {
     // issue #5121
-    ResultSet results =
+    var results =
         db.query(
             "select expand(intersect($q1, $q2)) "
                 + "let $q1 = (select from OUser where name ='admin'),"
                 + "$q2 = (select from OUser where name ='admin')");
     assertTrue(results.hasNext());
-    Result doc = results.next();
+    var doc = results.next();
     assertEquals("admin", doc.getProperty("name"));
     assertFalse(results.hasNext());
   }
@@ -1159,7 +1159,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     initDatesSet(db);
     // issue #3526
 
-    ResultSet results =
+    var results =
         db.query(
             "select from OCommandExecutorSQLSelectTest_datesSet where foo contains '2015-10-21'");
     assertEquals(1, results.stream().count());
@@ -1170,7 +1170,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     // issue #5229
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("param1", "adm.*");
-    ResultSet results = db.query("select from OUser where name matches :param1", params);
+    var results = db.query("select from OUser where name matches :param1", params);
     assertEquals(1, results.stream().count());
   }
 
@@ -1180,7 +1180,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     // issue #5229
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("param1", ".*admin[name].*"); // will not work
-    ResultSet results = db.query("select from matchesstuff where name matches :param1", params);
+    var results = db.query("select from matchesstuff where name matches :param1", params);
     assertEquals(0, results.stream().count());
     params.put("param1", Pattern.quote("admin[name]") + ".*"); // should work
     results = db.query("select from matchesstuff where name matches :param1", params);
@@ -1191,8 +1191,8 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testMatchesWithQuotes() {
     initMatchesWithRegex(db);
     // issue #5229
-    String pattern = Pattern.quote("adm") + ".*";
-    ResultSet results = db.query("SELECT FROM matchesstuff WHERE (name matches ?)", pattern);
+    var pattern = Pattern.quote("adm") + ".*";
+    var results = db.query("SELECT FROM matchesstuff WHERE (name matches ?)", pattern);
     assertEquals(1, results.stream().count());
   }
 
@@ -1200,7 +1200,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testMatchesWithQuotes2() {
     initMatchesWithRegex(db);
     // issue #5229
-    ResultSet results =
+    var results =
         db.query(
             "SELECT FROM matchesstuff WHERE (name matches '\\\\Qadm\\\\E.*' and not ( name matches"
                 + " '(.*)foo(.*)' ) )");
@@ -1211,7 +1211,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testMatchesWithQuotes3() {
     initMatchesWithRegex(db);
     // issue #5229
-    ResultSet results =
+    var results =
         db.query(
             "SELECT FROM matchesstuff WHERE (name matches '\\\\Qadm\\\\E.*' and  ( name matches"
                 + " '\\\\Qadmin\\\\E.*' ) )");
@@ -1224,7 +1224,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("param1", "adm.*");
     params.put("param2", "foo.*");
-    ResultSet results =
+    var results =
         db.query(
             "select from OUser where (name matches :param1 and not (name matches :param2))",
             params);
@@ -1241,7 +1241,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testDistinctLimit() {
     initDistinctLimit(db);
-    ResultSet results = db.query("select distinct(name) from DistinctLimit limit 1");
+    var results = db.query("select distinct(name) from DistinctLimit limit 1");
     assertEquals(1, results.stream().count());
 
     results = db.query("select distinct(name) from DistinctLimit limit 2");
@@ -1257,21 +1257,21 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testSelectFromClusterNumber() {
     initDistinctLimit(db);
-    SchemaClass clazz = db.getMetadata().getSchema().getClass("DistinctLimit");
-    int clusterId = clazz.getClusterIds()[0];
-    ResultSet results = db.query("select from cluster:" + clusterId + " limit 1");
+    var clazz = db.getMetadata().getSchema().getClass("DistinctLimit");
+    var clusterId = clazz.getClusterIds()[0];
+    var results = db.query("select from cluster:" + clusterId + " limit 1");
     assertEquals(1, results.stream().count());
   }
 
   @Test
   public void testLinkListSequence1() {
     initLinkListSequence(db);
-    SQLSynchQuery sql =
+    var sql =
         new SQLSynchQuery(
             "select expand(children.children.children) from LinkListSequence where name = 'root'");
     List<EntityImpl> results = db.query(sql);
     assertEquals(4, results.size());
-    for (EntityImpl result : results) {
+    for (var result : results) {
       String value = result.field("name");
       assertEquals(5, value.length());
     }
@@ -1280,13 +1280,13 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testLinkListSequence2() {
     initLinkListSequence(db);
-    SQLSynchQuery sql =
+    var sql =
         new SQLSynchQuery(
             "select expand(children[0].children.children) from LinkListSequence where name ="
                 + " 'root'");
     List<EntityImpl> results = db.query(sql);
     assertEquals(4, results.size());
-    for (EntityImpl result : results) {
+    for (var result : results) {
       String value = result.field("name");
       assertEquals(5, value.length());
     }
@@ -1295,11 +1295,11 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testLinkListSequence3() {
     initLinkListSequence(db);
-    String sql =
+    var sql =
         "select expand(children[0].children[0].children) from LinkListSequence where name = 'root'";
-    List<Result> results = db.query(sql).stream().toList();
+    var results = db.query(sql).stream().toList();
     assertEquals(2, results.size());
-    for (Result result : results) {
+    for (var result : results) {
       String value = result.getProperty("name");
       assertTrue(value.equals("1.1.1") || value.equals("1.1.2"));
     }
@@ -1309,7 +1309,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testMaxLongNumber() {
     initMaxLongNumber(db);
     // issue #5664
-    ResultSet results = db.query("select from MaxLongNumberTest WHERE last < 10 OR last is null");
+    var results = db.query("select from MaxLongNumberTest WHERE last < 10 OR last is null");
     assertEquals(3, results.stream().count());
     db.begin();
     db.command("update MaxLongNumberTest set last = max(91,ifnull(last,0))").close();
@@ -1323,8 +1323,8 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     initFilterAndOrderByTest(db);
     // issue http://www.prjhub.com/#/issues/6199
 
-    String sql = "SELECT FROM FilterAndOrderByTest WHERE active = true ORDER BY dc DESC";
-    List<Result> results = db.query(sql).stream().toList();
+    var sql = "SELECT FROM FilterAndOrderByTest WHERE active = true ORDER BY dc DESC";
+    var results = db.query(sql).stream().toList();
     assertEquals(3, results.size());
 
     Calendar cal = new GregorianCalendar();
@@ -1347,8 +1347,8 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     initComplexFilterInSquareBrackets(db);
     // issues #513 #5451
 
-    String sql = "SELECT expand(collection[name = 'n1']) FROM ComplexFilterInSquareBrackets2";
-    List<Result> results = db.query(sql).stream().collect(Collectors.toList());
+    var sql = "SELECT expand(collection[name = 'n1']) FROM ComplexFilterInSquareBrackets2";
+    var results = db.query(sql).stream().collect(Collectors.toList());
     assertEquals(1, results.size());
     assertEquals("n1", results.iterator().next().getProperty("name"));
 
@@ -1367,7 +1367,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
         "SELECT expand(collection[name = 'n1' or value = -1]) FROM ComplexFilterInSquareBrackets2";
     results = db.query(sql).stream().collect(Collectors.toList());
     assertEquals(2, results.size());
-    for (Result doc : results) {
+    for (var doc : results) {
       assertTrue(doc.getProperty("name").equals("n1") || doc.getProperty("value").equals(-1));
     }
 
@@ -1445,7 +1445,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
                 + " OCommandExecutorSqlSelectTest_testCountUniqueIndex(AAA) unique")
         .close();
 
-    List<Result> results =
+    var results =
         db
             .query(
                 "select count(*) as count from OCommandExecutorSqlSelectTest_testCountUniqueIndex"
@@ -1461,7 +1461,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testEvalLong() {
     // http://www.prjhub.com/#/issues/6472
-    List<Result> results =
+    var results =
         db.query("SELECT EVAL(\"86400000 * 26\") AS value").stream().toList();
     assertEquals(1, results.size());
 
@@ -1488,7 +1488,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testParamConcat() {
     // issue #6049
-    ResultSet results = db.query("select from TestParams where surname like ? + '%'", "fo");
+    var results = db.query("select from TestParams where surname like ? + '%'", "fo");
     assertEquals(1, results.stream().count());
   }
 
@@ -1553,7 +1553,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testDateFormat() {
-    List<Result> results =
+    var results =
         db.query("select date('2015-07-20', 'yyyy-MM-dd').format('dd.MM.yyyy') as dd").stream()
             .toList();
     assertEquals(1, results.size());
@@ -1563,7 +1563,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testConcatenateNamedParams() {
     // issue #5572
-    ResultSet results =
+    var results =
         db.query("select from TestMultipleClusters where name like :p1 + '%'", "fo");
     assertEquals(1, results.stream().count());
 
@@ -1574,7 +1574,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testMethodsOnStrings() {
     // issue #5671
-    List<Result> results =
+    var results =
         db.query("select '1'.asLong() as long").stream().toList();
     assertEquals(1, results.size());
     //    assertEquals(results.get(0).field("long"), 1L);
@@ -1584,11 +1584,11 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testDifferenceOfInlineCollections() {
     // issue #5294
-    List<Result> results =
+    var results =
         db.query("select difference([1,2,3],[1,2]) as difference").stream()
             .toList();
     assertEquals(1, results.size());
-    Object differenceFieldValue = results.get(0).getProperty("difference");
+    var differenceFieldValue = results.get(0).getProperty("difference");
     assertTrue(differenceFieldValue instanceof Collection);
     assertEquals(1, ((Collection) differenceFieldValue).size());
     assertEquals(3, ((Collection) differenceFieldValue).iterator().next());
@@ -1605,7 +1605,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     db.command("insert into testFoo set val = 5, name = 'bar'");
     db.commit();
 
-    ResultSet results = db.query("select sum(val), name from testFoo group by name");
+    var results = db.query("select sum(val), name from testFoo group by name");
     assertEquals(2, results.stream().count());
   }
 
@@ -1620,7 +1620,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     db.command("insert into TestDateComparison set dateProp = '2016-05-01'").close();
     db.commit();
 
-    ResultSet results = db.query("SELECT from TestDateComparison WHERE dateProp >= '2016-05-01'");
+    var results = db.query("SELECT from TestDateComparison WHERE dateProp >= '2016-05-01'");
 
     assertEquals(1, results.stream().count());
     results = db.query("SELECT from TestDateComparison WHERE dateProp <= '2016-05-01'");
@@ -1632,23 +1632,23 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testOrderByRidDescMultiCluster() {
     // issue #6694
 
-    SchemaClass clazz = db.getMetadata().getSchema().createClass("TestOrderByRidDescMultiCluster");
+    var clazz = db.getMetadata().getSchema().createClass("TestOrderByRidDescMultiCluster");
     if (clazz.getClusterIds().length < 2) {
       clazz.addCluster(db, "TestOrderByRidDescMultiCluster_11111");
     }
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       db.begin();
       db.command("insert into TestOrderByRidDescMultiCluster set foo = " + i).close();
       db.commit();
     }
 
-    List<Result> results =
+    var results =
         db.query("SELECT from TestOrderByRidDescMultiCluster order by @rid desc").stream()
             .collect(Collectors.toList());
     assertEquals(100, results.size());
     Result lastDoc = null;
-    for (Result doc : results) {
+    for (var doc : results) {
       if (lastDoc != null) {
         assertTrue(doc.getIdentity().get().compareTo(lastDoc.getIdentity().get()) < 0);
       }
@@ -1660,7 +1660,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
             .toList();
     assertEquals(100, results.size());
     lastDoc = null;
-    for (Result doc : results) {
+    for (var doc : results) {
       if (lastDoc != null) {
         assertTrue(doc.getIdentity().get().compareTo(lastDoc.getIdentity().get()) > 0);
       }
@@ -1705,7 +1705,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     db.command("insert into testCountOnSubclassIndexes_sub2 set name = 'e', foo = false").close();
     db.commit();
 
-    List<Result> results =
+    var results =
         db
             .query("SELECT count(*) as count from testCountOnSubclassIndexes_sub1 where foo = true")
             .stream()
@@ -1736,7 +1736,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testDoubleExponentNotation() {
     // issue #7013
 
-    List<Result> results = db.query("select 1e-2 as a").stream().toList();
+    var results = db.query("select 1e-2 as a").stream().toList();
     assertEquals(1, results.size());
     assertEquals((Object) 0.01f, results.get(0).getProperty("a"));
   }
@@ -1751,7 +1751,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     db.command("insert into testConvertDouble set num = 100000").close();
     db.commit();
 
-    ResultSet results =
+    var results =
         db.query("SELECT FROM testConvertDouble WHERE num >= 50000 AND num <=300000000");
 
     assertEquals(1, results.stream().count());
@@ -1759,7 +1759,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Ignore
   public void testFilterListsOfMaps() {
-    String className = "testFilterListaOfMaps";
+    var className = "testFilterListaOfMaps";
 
     db.command("create class " + className).close();
     db.command("create property " + className + ".tagz embeddedmap").close();
@@ -1784,7 +1784,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testComparisonOfShorts() {
     // issue #7578
-    String className = "testComparisonOfShorts";
+    var className = "testComparisonOfShorts";
     db.command("create class " + className).close();
     db.command("create property " + className + ".state Short").close();
 
@@ -1794,7 +1794,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     db.command("INSERT INTO " + className + " set state = 2").close();
     db.commit();
 
-    ResultSet results = db.query("select from " + className + " where state in [1]");
+    var results = db.query("select from " + className + " where state in [1]");
     assertEquals(2, results.stream().count());
 
     results = db.query("select from " + className + " where [1] contains state");
@@ -1805,7 +1805,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testEnumAsParams() {
     // issue #7418
-    String className = "testEnumAsParams";
+    var className = "testEnumAsParams";
     db.command("create class " + className).close();
 
     db.begin();
@@ -1819,14 +1819,14 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     enums.add(PropertyType.STRING);
     enums.add(PropertyType.BYTE);
     params.put("status", enums);
-    ResultSet results = db.query("select from " + className + " where status in :status", params);
+    var results = db.query("select from " + className + " where status in :status", params);
     assertEquals(2, results.stream().count());
   }
 
   @Test
   public void testEmbeddedMapOfMapsContainsValue() {
     // issue #7793
-    String className = "testEmbeddedMapOfMapsContainsValue";
+    var className = "testEmbeddedMapOfMapsContainsValue";
 
     db.command("create class " + className).close();
     db.command("create property " + className + ".embedded_map EMBEDDEDMAP").close();
@@ -1847,7 +1847,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
         .close();
     db.commit();
 
-    ResultSet results =
+    var results =
         db.query(
             "select from "
                 + className
@@ -1858,7 +1858,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testInvertedIndexedCondition() {
     // issue #7820
-    String className = "testInvertedIndexedCondition";
+    var className = "testInvertedIndexedCondition";
 
     db.command("create class " + className).close();
     db.command("create property " + className + ".name STRING").close();
@@ -1868,7 +1868,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     db.command("insert into " + className + " SET name = \"2\"").close();
     db.commit();
 
-    ResultSet results = db.query("SELECT * FROM " + className + " WHERE name >= \"0\"");
+    var results = db.query("SELECT * FROM " + className + " WHERE name >= \"0\"");
     assertEquals(2, results.stream().count());
 
     results = db.query("SELECT * FROM " + className + " WHERE \"0\" <= name");
@@ -1889,7 +1889,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testIsDefinedOnNull() {
     // issue #7879
-    String className = "testIsDefinedOnNull";
+    var className = "testIsDefinedOnNull";
 
     db.command("create class " + className).close();
     db.command("create property " + className + ".name STRING").close();
@@ -1899,7 +1899,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     db.command("insert into " + className + " SET x = 2").close();
     db.commit();
 
-    ResultSet results = db.query("SELECT * FROM " + className + " WHERE name is defined");
+    var results = db.query("SELECT * FROM " + className + " WHERE name is defined");
     assertEquals(1, (int) results.next().getProperty("x"));
     results.close();
     results = db.query("SELECT * FROM " + className + " WHERE name is not defined");

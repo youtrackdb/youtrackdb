@@ -14,7 +14,7 @@ public class LuceneSortTest extends LuceneBaseTest {
 
   @Before
   public void setUp() throws Exception {
-    InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
+    var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
 
     db.execute("sql", getScriptFromStream(stream));
 
@@ -26,13 +26,13 @@ public class LuceneSortTest extends LuceneBaseTest {
 
     db.command("create index Author.ft on Author (name,score) FULLTEXT ENGINE LUCENE ");
 
-    ResultSet resultSet =
+    var resultSet =
         db.query(
             "SELECT score, name from Author where SEARCH_CLASS('*:* ', {"
                 + "sort: [ { reverse:true, type:'DOC' }]"
                 + "} ) = true ");
 
-    List<Integer> scores =
+    var scores =
         resultSet.stream().map(o -> o.<Integer>getProperty("score")).collect(Collectors.toList());
 
     assertThat(scores).containsExactly(4, 5, 10, 10, 7);
@@ -44,13 +44,13 @@ public class LuceneSortTest extends LuceneBaseTest {
 
     db.command("create index Author.ft on Author (score) FULLTEXT ENGINE LUCENE ");
 
-    ResultSet resultSet =
+    var resultSet =
         db.query(
             "SELECT score, name from Author where SEARCH_CLASS('*:* ', {"
                 + "sort: [ { 'field': 'score', reverse:true, type:'INT' }]"
                 + "} ) = true ");
 
-    List<Integer> scores =
+    var scores =
         resultSet.stream().map(o -> o.<Integer>getProperty("score")).collect(Collectors.toList());
 
     assertThat(scores).containsExactly(10, 10, 7, 5, 4);
@@ -62,13 +62,13 @@ public class LuceneSortTest extends LuceneBaseTest {
 
     db.command("create index Author.ft on Author (name) FULLTEXT ENGINE LUCENE ");
 
-    ResultSet resultSet =
+    var resultSet =
         db.query(
             "SELECT score, name from Author where SEARCH_CLASS('*:* ', {"
                 + "sort: [ {field: 'name', type:'STRING' , reverse:true}] "
                 + "} ) = true ");
 
-    List<String> names =
+    var names =
         resultSet.stream().map(o -> o.<String>getProperty("name")).collect(Collectors.toList());
 
     assertThat(names)
@@ -84,19 +84,19 @@ public class LuceneSortTest extends LuceneBaseTest {
 
     db.begin();
 
-    Vertex artist = db.newVertex("Author");
+    var artist = db.newVertex("Author");
 
     artist.setProperty("name", "Jimi Hendrix");
 
     db.save(artist);
 
-    ResultSet resultSet =
+    var resultSet =
         db.query(
             "SELECT score, name from Author where SEARCH_CLASS('*:* ', {"
                 + "sort: [ {field: 'name', type:'STRING' , reverse:true}] "
                 + "} ) = true ");
 
-    List<String> names =
+    var names =
         resultSet.stream().map(o -> o.<String>getProperty("name")).collect(Collectors.toList());
 
     assertThat(names)
@@ -130,13 +130,13 @@ public class LuceneSortTest extends LuceneBaseTest {
 
     db.command("create index Author.ft on Author (name,score) FULLTEXT ENGINE LUCENE ");
 
-    ResultSet resultSet =
+    var resultSet =
         db.query(
             "SELECT score, name from Author where SEARCH_CLASS('*:* ', {sort: [ { 'field': 'score',"
                 + " reverse:true, type:'INT' },{field: 'name', type:'STRING' , reverse:true}] } ) ="
                 + " true ");
 
-    List<String> names =
+    var names =
         resultSet.stream()
             .map(o -> o.<Integer>getProperty("score") + o.<String>getProperty("name"))
             .collect(Collectors.toList());

@@ -4,7 +4,6 @@ import com.jetbrains.youtrack.db.api.record.Direction;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
@@ -29,15 +28,15 @@ public class BonsaiTreeRepair {
 
     final Metadata metadata = db.getMetadata();
     final Schema schema = metadata.getSchema();
-    final SchemaClass edgeClass = schema.getClass("E");
+    final var edgeClass = schema.getClass("E");
     if (edgeClass != null) {
-      final HashMap<String, Set<RID>> processedVertexes = new HashMap<String, Set<RID>>();
-      final long countEdges = db.countClass(edgeClass.getName());
+      final var processedVertexes = new HashMap<String, Set<RID>>();
+      final var countEdges = db.countClass(edgeClass.getName());
 
       message(outputListener, countEdges + " will be processed.");
       long counter = 0;
 
-      for (EntityImpl edge : db.browseClass(edgeClass.getName())) {
+      for (var edge : db.browseClass(edgeClass.getName())) {
         try {
           final String label;
           if (edge.field("label") != null) {
@@ -55,20 +54,20 @@ public class BonsaiTreeRepair {
             db.delete(edge);
             continue;
           }
-          final String inVertexName =
+          final var inVertexName =
               VertexInternal.getEdgeLinkFieldName(Direction.IN, label, true);
-          final String outVertexName =
+          final var outVertexName =
               VertexInternal.getEdgeLinkFieldName(Direction.OUT, label, true);
 
           final EntityImpl inVertex = inId.getRecord(db);
           final EntityImpl outVertex = outId.getRecord(db);
 
-          Set<RID> inVertexes = processedVertexes.get(inVertexName);
+          var inVertexes = processedVertexes.get(inVertexName);
           if (inVertexes == null) {
             inVertexes = new HashSet<>();
             processedVertexes.put(inVertexName, inVertexes);
           }
-          Set<RID> outVertexes = processedVertexes.get(outVertexName);
+          var outVertexes = processedVertexes.get(outVertexName);
           if (outVertexes == null) {
             outVertexes = new HashSet<>();
             processedVertexes.put(outVertexName, outVertexes);
@@ -104,7 +103,7 @@ public class BonsaiTreeRepair {
           }
 
         } catch (Exception e) {
-          final StringWriter sw = new StringWriter();
+          final var sw = new StringWriter();
 
           sw.append("Error during processing of edge with id ")
               .append(edge.getIdentity().toString())

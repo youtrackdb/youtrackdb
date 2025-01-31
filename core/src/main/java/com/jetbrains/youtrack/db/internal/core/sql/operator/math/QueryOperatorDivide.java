@@ -61,7 +61,7 @@ public class QueryOperatorDivide extends QueryOperator {
     }
 
     if (iLeft instanceof Number l && iRight instanceof Number r) {
-      Class maxPrecisionClass = QueryOperatorMultiply.getMaxPrecisionClass(l, r);
+      var maxPrecisionClass = QueryOperatorMultiply.getMaxPrecisionClass(l, r);
       if (Integer.class.equals(maxPrecisionClass)) {
         return l.intValue() / r.intValue();
       } else if (Long.class.equals(maxPrecisionClass)) {

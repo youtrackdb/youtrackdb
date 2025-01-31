@@ -17,7 +17,7 @@ public class URLHelper {
     }
     url = url.replace('\\', '/');
 
-    int typeIndex = url.indexOf(':');
+    var typeIndex = url.indexOf(':');
     if (typeIndex <= 0) {
       throw new ConfigurationException(
           "Error in database URL: the engine was not specified. Syntax is: "
@@ -26,8 +26,8 @@ public class URLHelper {
               + url);
     }
 
-    String databaseReference = url.substring(typeIndex + 1);
-    String type = url.substring(0, typeIndex);
+    var databaseReference = url.substring(typeIndex + 1);
+    var type = url.substring(0, typeIndex);
 
     if (!"remote".equals(type) && !"plocal".equals(type) && !"memory".equals(type)) {
       throw new ConfigurationException(
@@ -38,7 +38,7 @@ public class URLHelper {
               + ". Registered engines are: [\"memory\",\"remote\",\"plocal\"]");
     }
 
-    int index = databaseReference.lastIndexOf('/');
+    var index = databaseReference.lastIndexOf('/');
     String path;
     String dbName;
     String baseUrl;
@@ -68,7 +68,7 @@ public class URLHelper {
     }
     url = url.replace('\\', '/');
 
-    int typeIndex = url.indexOf(':');
+    var typeIndex = url.indexOf(':');
     if (typeIndex <= 0) {
       throw new ConfigurationException(
           "Error in database URL: the engine was not specified. Syntax is: "
@@ -77,8 +77,8 @@ public class URLHelper {
               + url);
     }
 
-    String databaseReference = url.substring(typeIndex + 1);
-    String type = url.substring(0, typeIndex);
+    var databaseReference = url.substring(typeIndex + 1);
+    var type = url.substring(0, typeIndex);
     Optional<DatabaseType> dbType = Optional.empty();
     if ("plocal".equals(type) || "memory".equals(type)) {
       switch (type) {
@@ -105,7 +105,7 @@ public class URLHelper {
     String baseUrl;
     if ("embedded".equals(type)) {
       String path;
-      int index = databaseReference.lastIndexOf('/');
+      var index = databaseReference.lastIndexOf('/');
       if (index > 0) {
         path = databaseReference.substring(0, index);
         dbName = databaseReference.substring(index + 1);
@@ -120,7 +120,7 @@ public class URLHelper {
         baseUrl = path;
       }
     } else {
-      int index = databaseReference.lastIndexOf('/');
+      var index = databaseReference.lastIndexOf('/');
       if (index > 0) {
         baseUrl = databaseReference.substring(0, index);
         dbName = databaseReference.substring(index + 1);

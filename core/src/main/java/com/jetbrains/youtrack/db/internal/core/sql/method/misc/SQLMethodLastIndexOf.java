@@ -38,7 +38,7 @@ public class SQLMethodLastIndexOf extends AbstractSQLMethod {
       CommandContext iContext,
       Object ioResult,
       Object[] iParams) {
-    final String toFind = IOUtils.getStringContent(iParams[0].toString());
+    final var toFind = IOUtils.getStringContent(iParams[0].toString());
     if (iParams.length > 1) {
       return iThis.toString().lastIndexOf(toFind, Integer.parseInt(iParams[1].toString()));
     } else {

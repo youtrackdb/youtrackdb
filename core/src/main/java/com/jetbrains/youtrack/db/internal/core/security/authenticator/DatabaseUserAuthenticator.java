@@ -33,7 +33,7 @@ public class DatabaseUserAuthenticator extends SecurityAuthenticatorAbstract {
           ((UserPasswordAuthInfo) info).getUser(),
           ((UserPasswordAuthInfo) info).getPassword());
     } else if (info instanceof TokenAuthInfo) {
-      ParsedToken token = ((TokenAuthInfo) info).getToken();
+      var token = ((TokenAuthInfo) info).getToken();
 
       if (tokenSign != null && !tokenSign.verifyTokenSign(token)) {
         throw new TokenSecurityException("The token provided is expired");
@@ -42,9 +42,9 @@ public class DatabaseUserAuthenticator extends SecurityAuthenticatorAbstract {
         throw new SecurityAccessException(session.getName(), "Token not valid");
       }
 
-      SecurityUserImpl user = token.getToken().getUser(session);
+      var user = token.getToken().getUser(session);
       if (user == null && token.getToken().getUserName() != null) {
-        SecurityShared databaseSecurity =
+        var databaseSecurity =
             (SecurityShared) session.getSharedContext().getSecurity();
         user = SecurityShared.getUserInternal(session, token.getToken().getUserName());
       }
@@ -60,8 +60,8 @@ public class DatabaseUserAuthenticator extends SecurityAuthenticatorAbstract {
       return null;
     }
 
-    String dbName = session.getName();
-    SecurityUserImpl user = SecurityShared.getUserInternal(session, username);
+    var dbName = session.getName();
+    var user = SecurityShared.getUserInternal(session, username);
     if (user == null) {
       return null;
     }

@@ -71,12 +71,12 @@ public class PredicateSecurityTest {
 
   @Test
   public void testCreate() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
+    var policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(db, true);
     policy.setCreateRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
@@ -90,7 +90,7 @@ public class PredicateSecurityTest {
 
     db.executeInTx(
         () -> {
-          Entity elem = db.newEntity("Person");
+          var elem = db.newEntity("Person");
           elem.setProperty("name", "foo");
           db.save(elem);
         });
@@ -109,12 +109,12 @@ public class PredicateSecurityTest {
 
   @Test
   public void testSqlCreate() throws InterruptedException {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
+    var policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(db, true);
     policy.setCreateRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
@@ -142,12 +142,12 @@ public class PredicateSecurityTest {
 
   @Test
   public void testSqlRead() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
+    var policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(db, true);
     policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
@@ -156,7 +156,7 @@ public class PredicateSecurityTest {
 
     db.executeInTx(
         () -> {
-          Entity elem = db.newEntity("Person");
+          var elem = db.newEntity("Person");
           elem.setProperty("name", "foo");
           db.save(elem);
         });
@@ -172,7 +172,7 @@ public class PredicateSecurityTest {
     this.db =
         (DatabaseSessionInternal)
             youTrackDB.open(DB_NAME, "reader", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
-    ResultSet rs = db.query("select from Person");
+    var rs = db.query("select from Person");
     Assert.assertTrue(rs.hasNext());
     rs.next();
     Assert.assertFalse(rs.hasNext());
@@ -181,14 +181,14 @@ public class PredicateSecurityTest {
 
   @Test
   public void testSqlReadWithIndex() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
-    SchemaClass person = db.createClass("Person");
+    var person = db.createClass("Person");
     person.createProperty(db, "name", PropertyType.STRING);
     db.command("create index Person.name on Person (name) NOTUNIQUE");
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
+    var policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(db, true);
     policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
@@ -197,7 +197,7 @@ public class PredicateSecurityTest {
 
     db.executeInTx(
         () -> {
-          Entity elem = db.newEntity("Person");
+          var elem = db.newEntity("Person");
           elem.setProperty("name", "foo");
           db.save(elem);
         });
@@ -213,21 +213,21 @@ public class PredicateSecurityTest {
     this.db =
         (DatabaseSessionInternal)
             youTrackDB.open(DB_NAME, "reader", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
-    ResultSet rs = db.query("select from Person where name = 'bar'");
+    var rs = db.query("select from Person where name = 'bar'");
     Assert.assertFalse(rs.hasNext());
     rs.close();
   }
 
   @Test
   public void testSqlReadWithIndex2() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
-    SchemaClass person = db.createClass("Person");
+    var person = db.createClass("Person");
     person.createProperty(db, "name", PropertyType.STRING);
     db.command("create index Person.name on Person (name) NOTUNIQUE");
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
+    var policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(db, true);
     policy.setReadRule(db, "surname = 'foo'");
     security.saveSecurityPolicy(db, policy);
@@ -236,7 +236,7 @@ public class PredicateSecurityTest {
 
     db.executeInTx(
         () -> {
-          Entity elem = db.newEntity("Person");
+          var elem = db.newEntity("Person");
           elem.setProperty("name", "foo");
           elem.setProperty("surname", "foo");
           db.save(elem);
@@ -254,9 +254,9 @@ public class PredicateSecurityTest {
     this.db =
         (DatabaseSessionInternal)
             youTrackDB.open(DB_NAME, "reader", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
-    ResultSet rs = db.query("select from Person where name = 'foo'");
+    var rs = db.query("select from Person where name = 'foo'");
     Assert.assertTrue(rs.hasNext());
-    Result item = rs.next();
+    var item = rs.next();
     Assert.assertEquals("foo", item.getProperty("surname"));
     Assert.assertFalse(rs.hasNext());
     rs.close();
@@ -264,11 +264,11 @@ public class PredicateSecurityTest {
 
   @Test
   public void testBeforeUpdateCreate() throws InterruptedException {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
     db.createClass("Person");
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
+    var policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(db, true);
     policy.setBeforeUpdateRule(db, "name = 'bar'");
     security.saveSecurityPolicy(db, policy);
@@ -281,7 +281,7 @@ public class PredicateSecurityTest {
         (DatabaseSessionInternal)
             youTrackDB.open(DB_NAME, "writer", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
-    Entity elem =
+    var elem =
         db.computeInTx(
             () -> {
               var e = db.newEntity("Person");
@@ -309,12 +309,12 @@ public class PredicateSecurityTest {
 
   @Test
   public void testBeforeUpdateCreateSQL() throws InterruptedException {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
+    var policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(db, true);
     policy.setBeforeUpdateRule(db, "name = 'bar'");
     security.saveSecurityPolicy(db, policy);
@@ -337,7 +337,7 @@ public class PredicateSecurityTest {
         (DatabaseSessionInternal)
             youTrackDB.open(DB_NAME, "writer", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
-    Entity elem =
+    var elem =
         db.computeInTx(
             () -> {
               var e = db.newEntity("Person");
@@ -360,12 +360,12 @@ public class PredicateSecurityTest {
 
   @Test
   public void testAfterUpdate() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
+    var policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(db, true);
     policy.setAfterUpdateRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
@@ -377,7 +377,7 @@ public class PredicateSecurityTest {
         (DatabaseSessionInternal)
             youTrackDB.open(DB_NAME, "writer", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
-    Entity elem =
+    var elem =
         db.computeInTx(
             () -> {
               var e = db.newEntity("Person");
@@ -403,12 +403,12 @@ public class PredicateSecurityTest {
 
   @Test
   public void testAfterUpdateSQL() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
+    var policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(db, true);
     policy.setAfterUpdateRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
@@ -420,7 +420,7 @@ public class PredicateSecurityTest {
         (DatabaseSessionInternal)
             youTrackDB.open(DB_NAME, "writer", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
-    Entity elem =
+    var elem =
         db.computeInTx(
             () -> {
               var e = db.newEntity("Person");
@@ -442,12 +442,12 @@ public class PredicateSecurityTest {
 
   @Test
   public void testDelete() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
+    var policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(db, true);
     policy.setDeleteRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
@@ -459,7 +459,7 @@ public class PredicateSecurityTest {
         (DatabaseSessionInternal)
             youTrackDB.open(DB_NAME, "writer", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
-    Entity elem =
+    var elem =
         db.computeInTx(
             () -> {
               var e = db.newEntity("Person");
@@ -490,12 +490,12 @@ public class PredicateSecurityTest {
 
   @Test
   public void testDeleteSQL() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
+    var policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(db, true);
     policy.setDeleteRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
@@ -509,7 +509,7 @@ public class PredicateSecurityTest {
 
     db.executeInTx(
         () -> {
-          Entity elem = db.newEntity("Person");
+          var elem = db.newEntity("Person");
           elem.setProperty("name", "foo");
           db.save(elem);
         });
@@ -532,7 +532,7 @@ public class PredicateSecurityTest {
     } catch (SecurityException ex) {
     }
 
-    ResultSet rs = db.query("select from Person");
+    var rs = db.query("select from Person");
     Assert.assertTrue(rs.hasNext());
     Assert.assertEquals("bar", rs.next().getProperty("name"));
     Assert.assertFalse(rs.hasNext());
@@ -541,13 +541,13 @@ public class PredicateSecurityTest {
 
   @Test
   public void testSqlCount() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
-    SchemaClass person = db.createClass("Person");
+    var person = db.createClass("Person");
     person.createProperty(db, "name", PropertyType.STRING);
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
+    var policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(db, true);
     policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
@@ -556,7 +556,7 @@ public class PredicateSecurityTest {
 
     db.executeInTx(
         () -> {
-          Entity elem = db.newEntity("Person");
+          var elem = db.newEntity("Person");
           elem.setProperty("name", "foo");
           db.save(elem);
         });
@@ -572,21 +572,21 @@ public class PredicateSecurityTest {
     this.db =
         (DatabaseSessionInternal)
             youTrackDB.open(DB_NAME, "reader", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
-    ResultSet rs = db.query("select count(*) as count from Person");
+    var rs = db.query("select count(*) as count from Person");
     Assert.assertEquals(1L, (long) rs.next().getProperty("count"));
     rs.close();
   }
 
   @Test
   public void testSqlCountWithIndex() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
-    SchemaClass person = db.createClass("Person");
+    var person = db.createClass("Person");
     person.createProperty(db, "name", PropertyType.STRING);
     db.command("create index Person.name on Person (name) NOTUNIQUE");
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
+    var policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(db, true);
     policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
@@ -611,7 +611,7 @@ public class PredicateSecurityTest {
     this.db =
         (DatabaseSessionInternal)
             youTrackDB.open(DB_NAME, "reader", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
-    ResultSet rs = db.query("select count(*) as count from Person where name = 'bar'");
+    var rs = db.query("select count(*) as count from Person where name = 'bar'");
     Assert.assertEquals(0L, (long) rs.next().getProperty("count"));
     rs.close();
 
@@ -622,14 +622,14 @@ public class PredicateSecurityTest {
 
   @Test
   public void testIndexGet() {
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
 
-    SchemaClass person = db.createClass("Person");
+    var person = db.createClass("Person");
     person.createProperty(db, "name", PropertyType.STRING);
     db.command("create index Person.name on Person (name) NOTUNIQUE");
 
     db.begin();
-    SecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
+    var policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(db, true);
     policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
@@ -638,7 +638,7 @@ public class PredicateSecurityTest {
 
     db.executeInTx(
         () -> {
-          Entity elem = db.newEntity("Person");
+          var elem = db.newEntity("Person");
           elem.setProperty("name", "foo");
           db.save(elem);
         });
@@ -655,13 +655,13 @@ public class PredicateSecurityTest {
         (DatabaseSessionInternal)
             youTrackDB.open(DB_NAME, "reader", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
 
-    Index index = db.getMetadata().getIndexManager().getIndex("Person.name");
+    var index = db.getMetadata().getIndexManager().getIndex("Person.name");
 
-    try (Stream<RID> rids = index.getInternal().getRids(db, "bar")) {
+    try (var rids = index.getInternal().getRids(db, "bar")) {
       Assert.assertEquals(0, rids.count());
     }
 
-    try (Stream<RID> rids = index.getInternal().getRids(db, "foo")) {
+    try (var rids = index.getInternal().getRids(db, "foo")) {
       Assert.assertEquals(1, rids.count());
     }
   }

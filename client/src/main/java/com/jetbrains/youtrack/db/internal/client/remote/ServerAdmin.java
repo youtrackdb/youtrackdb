@@ -53,7 +53,7 @@ public class ServerAdmin {
    */
   @Deprecated
   public ServerAdmin(String iURL) throws IOException {
-    String url = iURL;
+    var url = iURL;
     if (url.startsWith(EngineRemote.NAME)) {
       url = url.substring(EngineRemote.NAME.length() + 1);
     }
@@ -64,7 +64,7 @@ public class ServerAdmin {
 
     remote = (YouTrackDBRemote) DatabaseDocumentTxInternal.getOrCreateRemoteFactory(url);
     urls = new RemoteURLs(new String[]{}, remote.getContextConfiguration());
-    String name = urls.parseServerUrls(url, remote.getContextConfiguration());
+    var name = urls.parseServerUrls(url, remote.getContextConfiguration());
     if (name != null && name.length() != 0) {
       this.database = Optional.of(name);
     } else {
@@ -75,7 +75,7 @@ public class ServerAdmin {
   public ServerAdmin(YouTrackDBRemote remote, String url) throws IOException {
     this.remote = remote;
     urls = new RemoteURLs(new String[]{}, remote.getContextConfiguration());
-    String name = urls.parseServerUrls(url, remote.getContextConfiguration());
+    var name = urls.parseServerUrls(url, remote.getContextConfiguration());
     if (name != null && name.length() != 0) {
       this.database = Optional.of(name);
     } else {
@@ -202,7 +202,7 @@ public class ServerAdmin {
     } else {
       storageMode = DatabaseType.valueOf(iStorageMode.toUpperCase());
     }
-    YouTrackDBConfigImpl config =
+    var config =
         (YouTrackDBConfigImpl) YouTrackDBConfig.builder()
             .addGlobalConfigurationParameter(GlobalConfiguration.CREATE_DEFAULT_USERS, true)
             .build();
@@ -345,7 +345,7 @@ public class ServerAdmin {
   }
 
   public synchronized String getURL() {
-    String url = String.join(";", this.urls.getUrls());
+    var url = String.join(";", this.urls.getUrls());
     if (database.isPresent()) {
       url += "/" + database.get();
     }

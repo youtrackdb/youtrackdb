@@ -75,7 +75,7 @@ public class LiveQueryHook {
               QUERY_LIVE_SUPPORT.getKey());
       return -1;
     }
-    LiveQueryOps ops = getOpsReference(db);
+    var ops = getOpsReference(db);
     synchronized (ops.threadLock) {
       if (!ops.queueThread.isAlive()) {
         ops.queueThread = ops.queueThread.clone();
@@ -97,7 +97,7 @@ public class LiveQueryHook {
       return;
     }
     try {
-      LiveQueryOps ops = getOpsReference(db);
+      var ops = getOpsReference(db);
       synchronized (ops.threadLock) {
         ops.queueThread.unsubscribe(id);
       }
@@ -108,7 +108,7 @@ public class LiveQueryHook {
 
   public static void notifyForTxChanges(DatabaseSession iDatabase) {
 
-    LiveQueryOps ops = getOpsReference((DatabaseSessionInternal) iDatabase);
+    var ops = getOpsReference((DatabaseSessionInternal) iDatabase);
     if (ops.pendingOps.isEmpty()) {
       return;
     }
@@ -122,7 +122,7 @@ public class LiveQueryHook {
     }
     // TODO sync
     if (list != null) {
-      for (RecordOperation item : list) {
+      for (var item : list) {
         ops.queueThread.enqueue(item);
       }
     }
@@ -134,7 +134,7 @@ public class LiveQueryHook {
           || Boolean.FALSE.equals(iDatabase.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) {
         return;
       }
-      LiveQueryOps ops = getOpsReference((DatabaseSessionInternal) iDatabase);
+      var ops = getOpsReference((DatabaseSessionInternal) iDatabase);
       synchronized (ops.pendingOps) {
         ops.pendingOps.remove(iDatabase);
       }
@@ -146,16 +146,16 @@ public class LiveQueryHook {
 
   public static void addOp(EntityImpl entity, byte iType, DatabaseSession database) {
     var db = database;
-    LiveQueryOps ops = getOpsReference((DatabaseSessionInternal) db);
+    var ops = getOpsReference((DatabaseSessionInternal) db);
     if (!ops.queueThread.hasListeners()) {
       return;
     }
     if (Boolean.FALSE.equals(database.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) {
       return;
     }
-    RecordOperation result = new RecordOperation(entity, iType);
+    var result = new RecordOperation(entity, iType);
     synchronized (ops.pendingOps) {
-      List<RecordOperation> list = ops.pendingOps.get(db);
+      var list = ops.pendingOps.get(db);
       if (list == null) {
         list = new ArrayList<RecordOperation>();
         ops.pendingOps.put(db, list);

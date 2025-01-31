@@ -38,12 +38,12 @@ public class NonBlockingQueryTest extends BaseDBTest {
   @Test
   public void testClone() {
 
-    DatabaseSessionInternal db = this.db;
+    var db = this.db;
 
     db.begin();
     db.command("insert into Foo (a) values ('bar')").close();
     db.commit();
-    DatabaseSessionInternal newDb = db.copy();
+    var newDb = db.copy();
 
     List<EntityImpl> result = newDb.query(new SQLSynchQuery<EntityImpl>("Select from Foo"));
     Assert.assertEquals(result.size(), 1);
@@ -53,9 +53,9 @@ public class NonBlockingQueryTest extends BaseDBTest {
 
   @Test
   public void testNonBlockingQuery() {
-    DatabaseSessionInternal db = this.db;
-    final AtomicInteger counter = new AtomicInteger(0); // db.begin();
-    for (int i = 0; i < 1000; i++) {
+    var db = this.db;
+    final var counter = new AtomicInteger(0); // db.begin();
+    for (var i = 0; i < 1000; i++) {
       db.command("insert into Foo (a) values ('bar')").close();
     }
     Future future =
@@ -97,9 +97,9 @@ public class NonBlockingQueryTest extends BaseDBTest {
     db.command("create property Foo.y integer").close();
     db.command("create index Foo_xy_index on Foo (x, y) notunique").close();
 
-    DatabaseSessionInternal db = this.db;
-    final AtomicInteger counter = new AtomicInteger(0); // db.begin();
-    for (int i = 0; i < 1000; i++) {
+    var db = this.db;
+    final var counter = new AtomicInteger(0); // db.begin();
+    for (var i = 0; i < 1000; i++) {
       db.command("insert into Foo (a, x, y) values ('bar', ?, ?)", i, 1000 - i).close();
     }
     Future future =

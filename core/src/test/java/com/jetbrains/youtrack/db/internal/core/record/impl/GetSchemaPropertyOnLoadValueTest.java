@@ -23,7 +23,7 @@ public class GetSchemaPropertyOnLoadValueTest extends DbTestBase {
   public void testOnloadValue() {
     db.createClass("test");
     db.begin();
-    EntityImpl doc = (EntityImpl) db.newEntity("test");
+    var doc = (EntityImpl) db.newEntity("test");
     doc.setProperty("name", "John Doe");
     doc.save();
     db.commit();
@@ -43,12 +43,12 @@ public class GetSchemaPropertyOnLoadValueTest extends DbTestBase {
     db.createVertexClass("test");
     db.createEdgeClass("myLink");
     db.begin();
-    Vertex doc = db.newVertex("test");
+    var doc = db.newVertex("test");
 
     IntStream.rangeClosed(1, 8)
         .forEach(
             i -> {
-              Vertex linked = db.newVertex("test");
+              var linked = db.newVertex("test");
               linked.setProperty("name", i + "");
               doc.addEdge(linked, "myLink");
             });
@@ -64,7 +64,7 @@ public class GetSchemaPropertyOnLoadValueTest extends DbTestBase {
   public void testOnLoadValueForScalarList() throws IllegalArgumentException {
     db.createVertexClass("test");
     db.begin();
-    Vertex doc = db.newVertex("test");
+    var doc = db.newVertex("test");
     doc.setProperty("list", Arrays.asList(1, 2, 3));
     doc.save();
     db.commit();
@@ -81,7 +81,7 @@ public class GetSchemaPropertyOnLoadValueTest extends DbTestBase {
   public void testOnLoadValueForScalarSet() throws IllegalArgumentException {
     db.createVertexClass("test");
     db.begin();
-    Vertex doc = db.newVertex("test");
+    var doc = db.newVertex("test");
     doc.setProperty("set", new HashSet<>(Arrays.asList(1, 2, 3)));
     doc.save();
     db.commit();
@@ -99,15 +99,15 @@ public class GetSchemaPropertyOnLoadValueTest extends DbTestBase {
     db.createVertexClass("test");
 
     db.begin();
-    String before = "Hello World";
+    var before = "Hello World";
     var byteArrayBefore = before.getBytes();
-    String after = "Goodbye Cruel World";
+    var after = "Goodbye Cruel World";
 
     var byteArrayAfter = after.getBytes();
     var oBlob = db.newBlob(byteArrayBefore);
     var oBlob2 = db.newBlob(byteArrayAfter);
 
-    VertexEntityImpl doc = (VertexEntityImpl) db.newVertex("test");
+    var doc = (VertexEntityImpl) db.newVertex("test");
     doc.setProperty("stringBlob", oBlob);
     doc.save();
     db.commit();
@@ -162,7 +162,7 @@ public class GetSchemaPropertyOnLoadValueTest extends DbTestBase {
 
     db.createVertexClass("test");
     db.begin();
-    Vertex doc = db.newVertex("test");
+    var doc = db.newVertex("test");
     var initialValues = new HashMap<String, Object>();
     propertyNames.forEach(
         name -> {

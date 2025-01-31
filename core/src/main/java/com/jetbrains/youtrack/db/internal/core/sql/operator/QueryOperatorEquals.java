@@ -56,7 +56,7 @@ public class QueryOperatorEquals extends QueryOperatorEqualityNotNulls {
 
   public QueryOperatorEquals() {
     super("=", 5, false);
-    DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
+    var db = DatabaseRecordThreadLocal.instance().getIfDefined();
     if (db != null) {
       binaryEvaluate = db.getSerializer().getSupportBinaryEvaluate();
     }
@@ -67,8 +67,8 @@ public class QueryOperatorEquals extends QueryOperatorEqualityNotNulls {
     if (type == null) {
       return equals(session, iLeft, iRight);
     }
-    Object left = PropertyType.convert(session, iLeft, type.getDefaultJavaType());
-    Object right = PropertyType.convert(session, iRight, type.getDefaultJavaType());
+    var left = PropertyType.convert(session, iLeft, type.getDefaultJavaType());
+    var right = PropertyType.convert(session, iRight, type.getDefaultJavaType());
     return equals(session, left, right);
   }
 
@@ -97,13 +97,13 @@ public class QueryOperatorEquals extends QueryOperatorEqualityNotNulls {
 
     // NUMBERS
     if (iLeft instanceof Number && iRight instanceof Number) {
-      Number[] couple = PropertyType.castComparableNumber((Number) iLeft, (Number) iRight);
+      var couple = PropertyType.castComparableNumber((Number) iLeft, (Number) iRight);
       return couple[0].equals(couple[1]);
     }
 
     // ALL OTHER CASES
     try {
-      final Object right = PropertyType.convert(session, iRight, iLeft.getClass());
+      final var right = PropertyType.convert(session, iRight, iLeft.getClass());
 
       if (right == null) {
         return false;
@@ -120,16 +120,16 @@ public class QueryOperatorEquals extends QueryOperatorEqualityNotNulls {
   protected static boolean comparesValues(
       final Object iValue, final DBRecord iRecord, final boolean iConsiderIn) {
     // RID && RECORD
-    final RID other = iRecord.getIdentity();
+    final var other = iRecord.getIdentity();
 
     if (!other.isPersistent() && iRecord instanceof EntityImpl) {
       // ODOCUMENT AS RESULT OF SUB-QUERY: GET THE FIRST FIELD IF ANY
       var firstFieldName = ((EntityImpl) iRecord).getPropertyNames();
       if (!firstFieldName.isEmpty()) {
-        Object fieldValue = ((EntityImpl) iRecord).getProperty(firstFieldName.iterator().next());
+        var fieldValue = ((EntityImpl) iRecord).getProperty(firstFieldName.iterator().next());
         if (fieldValue != null) {
           if (iConsiderIn && MultiValue.isMultiValue(fieldValue)) {
-            for (Object o : MultiValue.getMultiValueIterable(fieldValue)) {
+            for (var o : MultiValue.getMultiValueIterable(fieldValue)) {
               if (o != null && o.equals(iValue)) {
                 return true;
               }
@@ -152,10 +152,10 @@ public class QueryOperatorEquals extends QueryOperatorEqualityNotNulls {
       // ODOCUMENT AS RESULT OF SUB-QUERY: GET THE FIRST FIELD IF ANY
       var firstFieldName = iRecord.getPropertyNames();
       if (firstFieldName.size() == 1) {
-        Object fieldValue = iRecord.getProperty(firstFieldName.iterator().next());
+        var fieldValue = iRecord.getProperty(firstFieldName.iterator().next());
         if (fieldValue != null) {
           if (iConsiderIn && MultiValue.isMultiValue(fieldValue)) {
-            for (Object o : MultiValue.getMultiValueIterable(fieldValue)) {
+            for (var o : MultiValue.getMultiValueIterable(fieldValue)) {
               if (o != null && o.equals(iValue)) {
                 return true;
               }
@@ -185,9 +185,9 @@ public class QueryOperatorEquals extends QueryOperatorEqualityNotNulls {
   @Override
   public Stream<RawPair<Object, RID>> executeIndexQuery(
       CommandContext iContext, Index index, List<Object> keyParams, boolean ascSortOrder) {
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
 
-    final IndexInternal internalIndex = index.getInternal();
+    final var internalIndex = index.getInternal();
     Stream<RawPair<Object, RID>> stream;
     if (!internalIndex.canBeUsedInEqualityOperators()) {
       return null;
@@ -213,7 +213,7 @@ public class QueryOperatorEquals extends QueryOperatorEqualityNotNulls {
       // in case of composite keys several items can be returned in case of we perform search
       // using part of composite key stored in index.
 
-      final CompositeIndexDefinition compositeIndexDefinition =
+      final var compositeIndexDefinition =
           (CompositeIndexDefinition) indexDefinition;
 
       final Object keyOne =

@@ -41,11 +41,11 @@ public class SpatialQueryBuilderDWithin extends SpatialQueryBuilderAbstract {
   @Override
   public SpatialQueryContext build(DatabaseSessionInternal db, Map<String, Object> query)
       throws Exception {
-    Shape shape = parseShape(query);
+    var shape = parseShape(query);
 
-    SpatialStrategy strategy = manager.strategy();
+    var strategy = manager.strategy();
 
-    Number distance = (Number) query.get("distance");
+    var distance = (Number) query.get("distance");
     if (distance != null) {
       shape = shape.getBuffered(distance.doubleValue(), factory.context());
     }
@@ -53,11 +53,11 @@ public class SpatialQueryBuilderDWithin extends SpatialQueryBuilderAbstract {
     if (isOnlyBB(strategy)) {
       shape = shape.getBoundingBox();
     }
-    SpatialArgs args1 = new SpatialArgs(SpatialOperation.Intersects, shape);
+    var args1 = new SpatialArgs(SpatialOperation.Intersects, shape);
 
-    Query filterQuery = strategy.makeQuery(args1);
+    var filterQuery = strategy.makeQuery(args1);
 
-    BooleanQuery q =
+    var q =
         new BooleanQuery.Builder()
             .add(filterQuery, BooleanClause.Occur.MUST)
             .add(new MatchAllDocsQuery(), BooleanClause.Occur.SHOULD)

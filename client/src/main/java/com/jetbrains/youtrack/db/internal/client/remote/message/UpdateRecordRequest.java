@@ -83,7 +83,7 @@ public class UpdateRecordRequest implements BinaryAsyncRequest<UpdateRecordRespo
     if (protocolVersion >= 23) {
       updateContent = channel.readBoolean();
     }
-    byte[] bts = channel.readBytes();
+    var bts = channel.readBytes();
     version = channel.readVersion();
     recordType = channel.readByte();
     mode = channel.readByte();

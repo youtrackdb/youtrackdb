@@ -42,8 +42,8 @@ public class BeginTransaction38Request implements BinaryRequest<BeginTransaction
     this.operations = new ArrayList<>();
 
     if (hasContent) {
-      for (RecordOperation txEntry : operations) {
-        RecordOperationRequest request = new RecordOperationRequest();
+      for (var txEntry : operations) {
+        var request = new RecordOperationRequest();
         request.setType(txEntry.type);
         request.setVersion(txEntry.record.getVersion());
         request.setId(txEntry.record.getIdentity());
@@ -57,7 +57,7 @@ public class BeginTransaction38Request implements BinaryRequest<BeginTransaction
           case RecordOperation.UPDATED:
             if (EntityImpl.RECORD_TYPE == RecordInternal.getRecordType(db, txEntry.record)) {
               request.setRecordType(DocumentSerializerDelta.DELTA_RECORD_TYPE);
-              DocumentSerializerDelta delta = DocumentSerializerDelta.instance();
+              var delta = DocumentSerializerDelta.instance();
               request.setRecord(delta.serializeDelta(db, (EntityImpl) txEntry.record));
             } else {
               request.setRecord(
@@ -78,13 +78,13 @@ public class BeginTransaction38Request implements BinaryRequest<BeginTransaction
   public void write(DatabaseSessionInternal db, ChannelDataOutput network,
       StorageRemoteSession session) throws IOException {
     // from 3.0 the the serializer is bound to the protocol
-    RecordSerializerNetworkV37Client serializer = RecordSerializerNetworkV37Client.INSTANCE;
+    var serializer = RecordSerializerNetworkV37Client.INSTANCE;
 
     network.writeLong(txId);
     network.writeBoolean(hasContent);
     network.writeBoolean(usingLog);
     if (hasContent) {
-      for (RecordOperationRequest txEntry : operations) {
+      for (var txEntry : operations) {
         writeTransactionEntry(network, txEntry);
       }
 
@@ -106,7 +106,7 @@ public class BeginTransaction38Request implements BinaryRequest<BeginTransaction
       do {
         hasEntry = channel.readByte();
         if (hasEntry == 1) {
-          RecordOperationRequest entry = readTransactionEntry(channel);
+          var entry = readTransactionEntry(channel);
           operations.add(entry);
         }
       } while (hasEntry == 1);
@@ -151,7 +151,7 @@ public class BeginTransaction38Request implements BinaryRequest<BeginTransaction
 
   static RecordOperationRequest readTransactionEntry(ChannelDataInput channel)
       throws IOException {
-    RecordOperationRequest entry = new RecordOperationRequest();
+    var entry = new RecordOperationRequest();
     entry.setType(channel.readByte());
     entry.setId(channel.readRID());
     entry.setRecordType(channel.readByte());

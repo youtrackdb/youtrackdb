@@ -189,8 +189,8 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
         return;
       }
 
-      RecordSerializerFactory serializerFactory = RecordSerializerFactory.instance();
-      String serializeName = getStorageInfo().getConfiguration().getRecordSerializer();
+      var serializerFactory = RecordSerializerFactory.instance();
+      var serializeName = getStorageInfo().getConfiguration().getRecordSerializer();
       if (serializeName == null) {
         throw new DatabaseException(
             "Impossible to open database from version before 2.x use export import instead");
@@ -227,7 +227,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   public void internalOpen(final AuthenticationInfo authenticationInfo) {
     try {
-      SecurityInternal security = sharedContext.getSecurity();
+      var security = sharedContext.getSecurity();
 
       if (user == null || user.getVersion() != security.getVersion(this)) {
         final SecurityUser usr;
@@ -261,7 +261,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     executeInTx(
         () -> {
           try {
-            SecurityInternal security = sharedContext.getSecurity();
+            var security = sharedContext.getSecurity();
 
             if (user == null
                 || user.getVersion() != security.getVersion(this)
@@ -294,7 +294,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   private void applyListeners(YouTrackDBConfigImpl config) {
     if (config != null) {
-      for (SessionListener listener : config.getListeners()) {
+      for (var listener : config.getListeners()) {
         registerListener(listener);
       }
     }
@@ -321,7 +321,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
    * {@inheritDoc}
    */
   public void internalCreate(YouTrackDBConfigImpl config, SharedContext ctx) {
-    RecordSerializer serializer = RecordSerializerFactory.instance().getDefaultRecordSerializer();
+    var serializer = RecordSerializerFactory.instance().getDefaultRecordSerializer();
     if (serializer.toString().equals("ORecordDocument2csv")) {
       throw new DatabaseException(
           "Impossible to create the database with ORecordDocument2csv serializer");
@@ -344,7 +344,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   public void callOnCreateListeners() {
     // WAKE UP DB LIFECYCLE LISTENER
     assert assertIfNotActive();
-    for (Iterator<DatabaseLifecycleListener> it = YouTrackDBEnginesManager.instance()
+    for (var it = YouTrackDBEnginesManager.instance()
         .getDbLifecycleListeners();
         it.hasNext(); ) {
       it.next().onCreate(getDatabaseOwner());
@@ -370,7 +370,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   private void applyAttributes(YouTrackDBConfigImpl config) {
     if (config != null) {
-      for (Entry<ATTRIBUTES, Object> attrs : config.getAttributes().entrySet()) {
+      for (var attrs : config.getAttributes().entrySet()) {
         this.set(attrs.getKey(), attrs.getValue());
       }
     }
@@ -384,8 +384,8 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       throw new IllegalArgumentException("attribute is null");
     }
 
-    final String stringValue = IOUtils.getStringContent(iValue != null ? iValue.toString() : null);
-    final Storage storage = this.storage;
+    final var stringValue = IOUtils.getStringContent(iValue != null ? iValue.toString() : null);
+    final var storage = this.storage;
     switch (iAttribute) {
       case DATEFORMAT:
         if (stringValue == null) {
@@ -419,7 +419,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
         }
 
         // for backward compatibility, until 2.1.13 YouTrackDB accepted timezones in lowercase as well
-        TimeZone timeZoneValue = TimeZone.getTimeZone(stringValue.toUpperCase(Locale.ENGLISH));
+        var timeZoneValue = TimeZone.getTimeZone(stringValue.toUpperCase(Locale.ENGLISH));
         if (timeZoneValue.equals(TimeZone.getTimeZone("GMT"))) {
           timeZoneValue = TimeZone.getTimeZone(stringValue);
         }
@@ -467,7 +467,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   }
 
   private void setCustomInternal(final String iName, final String iValue) {
-    final Storage storage = this.storage;
+    final var storage = this.storage;
     if (iValue == null || "null".equalsIgnoreCase(iValue))
     // REMOVE
     {
@@ -485,8 +485,8 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     if ("clear".equalsIgnoreCase(name) && iValue == null) {
       clearCustomInternal();
     } else {
-      String customName = name;
-      String customValue = iValue == null ? null : "" + iValue;
+      var customName = name;
+      var customValue = iValue == null ? null : "" + iValue;
       if (customName == null || customValue.isEmpty()) {
         removeCustomInternal(customName);
       } else {
@@ -532,7 +532,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       user = null;
     }
 
-    DatabaseSessionEmbedded database = new DatabaseSessionEmbedded(storage);
+    var database = new DatabaseSessionEmbedded(storage);
     database.init(config, this.sharedContext);
     database.internalOpen(user, null, false);
     database.callOnOpenListeners();
@@ -581,13 +581,13 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     getSharedContext().getYouTrackDB().startCommand(Optional.empty());
     try {
       preQueryStart();
-      SQLStatement statement = SQLEngine.parse(query, this);
+      var statement = SQLEngine.parse(query, this);
       if (!statement.isIdempotent()) {
         throw new CommandExecutionException(
             "Cannot execute query on non idempotent statement: " + query);
       }
-      ResultSet original = statement.execute(this, args, true);
-      LocalResultSetLifecycleDecorator result = new LocalResultSetLifecycleDecorator(original);
+      var original = statement.execute(this, args, true);
+      var result = new LocalResultSetLifecycleDecorator(original);
       queryStarted(result);
       return result;
     } finally {
@@ -603,13 +603,13 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     getSharedContext().getYouTrackDB().startCommand(Optional.empty());
     preQueryStart();
     try {
-      SQLStatement statement = SQLEngine.parse(query, this);
+      var statement = SQLEngine.parse(query, this);
       if (!statement.isIdempotent()) {
         throw new CommandExecutionException(
             "Cannot execute query on non idempotent statement: " + query);
       }
-      ResultSet original = statement.execute(this, args, true);
-      LocalResultSetLifecycleDecorator result = new LocalResultSetLifecycleDecorator(original);
+      var original = statement.execute(this, args, true);
+      var result = new LocalResultSetLifecycleDecorator(original);
       queryStarted(result);
       return result;
     } finally {
@@ -626,12 +626,12 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     getSharedContext().getYouTrackDB().startCommand(Optional.empty());
     preQueryStart();
     try {
-      SQLStatement statement = SQLEngine.parse(query, this);
-      ResultSet original = statement.execute(this, args, true);
+      var statement = SQLEngine.parse(query, this);
+      var original = statement.execute(this, args, true);
       LocalResultSetLifecycleDecorator result;
       if (!statement.isIdempotent()) {
         // fetch all, close and detach
-        InternalResultSet prefetched = new InternalResultSet();
+        var prefetched = new InternalResultSet();
         original.forEachRemaining(x -> prefetched.add(x));
         original.close();
         queryCompleted();
@@ -657,12 +657,12 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     try {
       preQueryStart();
 
-      SQLStatement statement = SQLEngine.parse(query, this);
-      ResultSet original = statement.execute(this, args, true);
+      var statement = SQLEngine.parse(query, this);
+      var original = statement.execute(this, args, true);
       LocalResultSetLifecycleDecorator result;
       if (!statement.isIdempotent()) {
         // fetch all, close and detach
-        InternalResultSet prefetched = new InternalResultSet();
+        var prefetched = new InternalResultSet();
         original.forEachRemaining(x -> prefetched.add(x));
         original.close();
         queryCompleted();
@@ -691,7 +691,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     getSharedContext().getYouTrackDB().startCommand(Optional.empty());
     try {
       preQueryStart();
-      ScriptExecutor executor =
+      var executor =
           getSharedContext()
               .getYouTrackDB()
               .getScriptManager()
@@ -705,7 +705,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       } finally {
         ((AbstractPaginatedStorage) this.storage).fireConfigurationUpdateNotifications();
       }
-      LocalResultSetLifecycleDecorator result = new LocalResultSetLifecycleDecorator(original);
+      var result = new LocalResultSetLifecycleDecorator(original);
       queryStarted(result);
       return result;
     } finally {
@@ -719,12 +719,12 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   }
 
   private void queryCompleted() {
-    QueryDatabaseState state = this.queryState.peekLast();
+    var state = this.queryState.peekLast();
 
   }
 
   private void queryStarted(LocalResultSetLifecycleDecorator result) {
-    QueryDatabaseState state = this.queryState.peekLast();
+    var state = this.queryState.peekLast();
     state.setResultSet(result);
     this.queryStarted(result.getQueryId(), state);
     result.addLifecycleListener(this);
@@ -744,7 +744,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     getSharedContext().getYouTrackDB().startCommand(Optional.empty());
     try {
       preQueryStart();
-      ScriptExecutor executor =
+      var executor =
           sharedContext
               .getYouTrackDB()
               .getScriptManager()
@@ -759,7 +759,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
         ((AbstractPaginatedStorage) this.storage).fireConfigurationUpdateNotifications();
       }
 
-      LocalResultSetLifecycleDecorator result = new LocalResultSetLifecycleDecorator(original);
+      var result = new LocalResultSetLifecycleDecorator(original);
       queryStarted(result);
       return result;
     } finally {
@@ -774,12 +774,12 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     getSharedContext().getYouTrackDB().startCommand(Optional.empty());
     try {
       preQueryStart();
-      BasicCommandContext ctx = new BasicCommandContext();
+      var ctx = new BasicCommandContext();
       ctx.setDatabase(this);
       ctx.setInputParameters(params);
 
-      LocalResultSet result = new LocalResultSet((InternalExecutionPlan) plan);
-      LocalResultSetLifecycleDecorator decorator = new LocalResultSetLifecycleDecorator(result);
+      var result = new LocalResultSet((InternalExecutionPlan) plan);
+      var decorator = new LocalResultSetLifecycleDecorator(result);
       queryStarted(decorator);
 
       return decorator;
@@ -806,7 +806,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     assert assertIfNotActive();
 
     LiveQueryListenerV2 queryListener = new LiveQueryListenerImpl(listener, query, this, args);
-    DatabaseSessionInternal dbCopy = this.copy();
+    var dbCopy = this.copy();
     this.activateOnCurrentThread();
     LiveQueryMonitor monitor = new YTLiveQueryMonitorEmbedded(queryListener.getToken(), dbCopy);
     return monitor;
@@ -820,7 +820,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
     LiveQueryListenerV2 queryListener =
         new LiveQueryListenerImpl(listener, query, this, (Map) args);
-    DatabaseSessionInternal dbCopy = this.copy();
+    var dbCopy = this.copy();
     this.activateOnCurrentThread();
     LiveQueryMonitor monitor = new YTLiveQueryMonitorEmbedded(queryListener.getToken(), dbCopy);
     return monitor;
@@ -850,7 +850,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     checkSecurity(Role.PERMISSION_CREATE, id, iClusterName);
 
     RecordHook.RESULT triggerChanged = null;
-    boolean changed = false;
+    var changed = false;
     if (id instanceof EntityImpl entity) {
 
       if (!getSharedContext().getSecurity().canCreate(this, entity)) {
@@ -860,7 +860,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
                 + ": the resource has restricted access due to security policies");
       }
 
-      SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
+      var clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
         checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_CREATE, clazz.getName());
         if (clazz.isScheduler()) {
@@ -884,7 +884,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       }
     }
 
-    RecordHook.RESULT res = callbackHooks(RecordHook.TYPE.BEFORE_CREATE, id);
+    var res = callbackHooks(RecordHook.TYPE.BEFORE_CREATE, id);
     if (changed
         || res == RecordHook.RESULT.RECORD_CHANGED
         || triggerChanged == RecordHook.RESULT.RECORD_CHANGED) {
@@ -900,7 +900,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     checkSecurity(Role.PERMISSION_UPDATE, id, iClusterName);
 
     if (id instanceof EntityImpl entity) {
-      SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
+      var clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
         if (clazz.isScheduler()) {
           getSharedContext().getScheduler().preHandleUpdateScheduleInTx(this, entity);
@@ -1000,7 +1000,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     assert assertIfNotActive();
     checkSecurity(Role.PERMISSION_DELETE, id, iClusterName);
     if (id instanceof EntityImpl entity) {
-      SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
+      var clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
         if (clazz.isTriggered()) {
           ClassTrigger.onRecordBeforeDelete(entity, this);
@@ -1029,7 +1029,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     assert assertIfNotActive();
 
     if (id instanceof EntityImpl entity) {
-      final SchemaImmutableClass clazz =
+      final var clazz =
           EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
         if (clazz.isFunction()) {
@@ -1054,7 +1054,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     assert assertIfNotActive();
 
     if (id instanceof EntityImpl entity) {
-      SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
+      var clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
         if (clazz.isUser() || clazz.isRole() || clazz.isSecurityPolicy()) {
           sharedContext.getSecurity().incrementVersion(this);
@@ -1073,7 +1073,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     assert assertIfNotActive();
 
     if (id instanceof EntityImpl entity) {
-      SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
+      var clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
         if (clazz.isFunction()) {
           this.getSharedContext().getFunctionLibrary().droppedFunction(entity);
@@ -1101,7 +1101,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   public void afterReadOperations(Identifiable identifiable) {
     assert assertIfNotActive();
     if (identifiable instanceof EntityImpl entity) {
-      SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
+      var clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
         if (clazz.isTriggered()) {
           ClassTrigger.onRecordAfterRead(entity, this);
@@ -1115,10 +1115,10 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   public boolean beforeReadOperations(Identifiable identifiable) {
     assert assertIfNotActive();
     if (identifiable instanceof EntityImpl entity) {
-      SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
+      var clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
         if (clazz.isTriggered()) {
-          RecordHook.RESULT val = ClassTrigger.onRecordBeforeRead(entity, this);
+          var val = ClassTrigger.onRecordBeforeRead(entity, this);
           if (val == RecordHook.RESULT.SKIP) {
             return true;
           }
@@ -1155,7 +1155,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
         var record = operation.record;
 
         if (record instanceof EntityImpl entity) {
-          SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
+          var clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
 
           if (clazz != null) {
             if (clazz.isSequence()) {
@@ -1173,7 +1173,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
         var record = operation.record;
 
         if (record instanceof EntityImpl entity) {
-          SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
+          var clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
           if (clazz != null) {
             if (clazz.isFunction()) {
               this.getSharedContext().getFunctionLibrary().updatedFunction(this, entity);
@@ -1204,8 +1204,8 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       throw new IllegalArgumentException("attribute is null");
     }
 
-    final String stringValue = IOUtils.getStringContent(value != null ? value.toString() : null);
-    final Storage storage = this.storage;
+    final var stringValue = IOUtils.getStringContent(value != null ? value.toString() : null);
+    final var storage = this.storage;
 
     if (attribute == ATTRIBUTES_INTERNAL.VALIDATION) {
       var validation = Boolean.parseBoolean(stringValue);
@@ -1229,7 +1229,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   public String getClusterName(final DBRecord record) {
     assert assertIfNotActive();
 
-    int clusterId = record.getIdentity().getClusterId();
+    var clusterId = record.getIdentity().getClusterId();
     if (clusterId == RID.CLUSTER_ID_INVALID) {
       // COMPUTE THE CLUSTER ID
       SchemaClassInternal schemaClass = null;
@@ -1345,7 +1345,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     if (iResourcesSpecific == null || iResourcesSpecific.length == 0) {
       checkSecurity(iResourceGeneric, null, iOperation);
     } else {
-      for (Object target : iResourcesSpecific) {
+      for (var target : iResourcesSpecific) {
         checkSecurity(iResourceGeneric, target == null ? null : target.toString(), iOperation);
       }
     }
@@ -1371,8 +1371,8 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   @Deprecated
   public void checkSecurity(final String iResource, final int iOperation) {
     assert assertIfNotActive();
-    final String resourceSpecific = Rule.mapLegacyResourceToSpecificResource(iResource);
-    final Rule.ResourceGeneric resourceGeneric =
+    final var resourceSpecific = Rule.mapLegacyResourceToSpecificResource(iResource);
+    final var resourceGeneric =
         Rule.mapLegacyResourceToGenericResource(iResource);
 
     if (resourceSpecific == null || resourceSpecific.equals("*")) {
@@ -1387,7 +1387,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   public void checkSecurity(
       final String iResourceGeneric, final int iOperation, final Object iResourceSpecific) {
     assert assertIfNotActive();
-    final Rule.ResourceGeneric resourceGeneric =
+    final var resourceGeneric =
         Rule.mapLegacyResourceToGenericResource(iResourceGeneric);
     if (iResourceSpecific == null || iResourceSpecific.equals("*")) {
       checkSecurity(resourceGeneric, iOperation, (Object) null);
@@ -1401,7 +1401,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   public void checkSecurity(
       final String iResourceGeneric, final int iOperation, final Object... iResourcesSpecific) {
     assert assertIfNotActive();
-    final Rule.ResourceGeneric resourceGeneric =
+    final var resourceGeneric =
         Rule.mapLegacyResourceToGenericResource(iResourceGeneric);
     checkSecurity(resourceGeneric, iOperation, iResourcesSpecific);
   }
@@ -1468,7 +1468,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   @Override
   public long countClusterElements(int iClusterId, boolean countTombstones) {
     assert assertIfNotActive();
-    final String name = getClusterNameById(iClusterId);
+    final var name = getClusterNameById(iClusterId);
     if (name == null) {
       return 0;
     }
@@ -1484,7 +1484,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   public long countClusterElements(int[] iClusterIds, boolean countTombstones) {
     assert assertIfNotActive();
     String name;
-    for (int iClusterId : iClusterIds) {
+    for (var iClusterId : iClusterIds) {
       name = getClusterNameById(iClusterId);
       checkSecurity(Rule.ResourceGeneric.CLUSTER, Role.PERMISSION_READ, name);
     }
@@ -1499,7 +1499,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     checkSecurity(Rule.ResourceGeneric.CLUSTER, Role.PERMISSION_READ, iClusterName);
     assert assertIfNotActive();
 
-    final int clusterId = getClusterIdByName(iClusterName);
+    final var clusterId = getClusterIdByName(iClusterName);
     if (clusterId < 0) {
       throw new IllegalArgumentException("Cluster '" + iClusterName + "' was not found");
     }
@@ -1509,9 +1509,9 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   @Override
   public boolean dropCluster(final String iClusterName) {
     assert assertIfNotActive();
-    final int clusterId = getClusterIdByName(iClusterName);
-    SchemaProxy schema = metadata.getSchema();
-    SchemaClass clazz = schema.getClassByClusterId(clusterId);
+    final var clusterId = getClusterIdByName(iClusterName);
+    var schema = metadata.getSchema();
+    var clazz = schema.getClassByClusterId(clusterId);
     if (clazz != null) {
       clazz.removeClusterId(this, clusterId);
     }
@@ -1535,8 +1535,8 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     checkSecurity(
         Rule.ResourceGeneric.CLUSTER, Role.PERMISSION_DELETE, getClusterNameById(clusterId));
 
-    SchemaProxy schema = metadata.getSchema();
-    final SchemaClass clazz = schema.getClassByClusterId(clusterId);
+    var schema = metadata.getSchema();
+    final var clazz = schema.getClassByClusterId(clusterId);
     if (clazz != null) {
       clazz.removeClusterId(this, clusterId);
     }
@@ -1547,12 +1547,12 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
     checkForClusterPermissions(getClusterNameById(clusterId));
 
-    final String clusterName = getClusterNameById(clusterId);
+    final var clusterName = getClusterNameById(clusterId);
     if (clusterName == null) {
       return false;
     }
 
-    final RecordIteratorCluster<DBRecord> iteratorCluster = browseCluster(clusterName);
+    final var iteratorCluster = browseCluster(clusterName);
     if (iteratorCluster == null) {
       return false;
     }
@@ -1575,7 +1575,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   public DatabaseStats getStats() {
     assert assertIfNotActive();
-    DatabaseStats stats = new DatabaseStats();
+    var stats = new DatabaseStats();
     stats.loadedRecords = loadedRecordsCount;
     stats.minLoadRecordTimeMs = minRecordLoadMs;
     stats.maxLoadRecordTimeMs = minRecordLoadMs;
@@ -1647,9 +1647,9 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       return;
     }
 
-    final long startTime = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
+    final var startTime = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
 
-    final FreezableStorageComponent storage = getFreezableStorage();
+    final var storage = getFreezableStorage();
     if (storage != null) {
       storage.freeze(this, throwException);
     }
@@ -1686,9 +1686,9 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       return;
     }
 
-    final long startTime = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
+    final var startTime = YouTrackDBEnginesManager.instance().getProfiler().startChrono();
 
-    final FreezableStorageComponent storage = getFreezableStorage();
+    final var storage = getFreezableStorage();
     if (storage != null) {
       storage.release(this);
     }
@@ -1703,7 +1703,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   }
 
   private FreezableStorageComponent getFreezableStorage() {
-    Storage s = storage;
+    var s = storage;
     if (s instanceof FreezableStorageComponent) {
       return (FreezableStorageComponent) s;
     } else {
@@ -1822,7 +1822,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   public long truncateClass(String name, boolean polimorfic) {
     assert assertIfNotActive();
     this.checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_UPDATE);
-    SchemaClass clazz = getClass(name);
+    var clazz = getClass(name);
     if (clazz.isSubClassOf(SecurityShared.RESTRICTED_CLASSNAME)) {
       throw new SecurityException(
           "Class '"
@@ -1839,11 +1839,11 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       clusterIds = clazz.getClusterIds();
     }
     long count = 0;
-    for (int id : clusterIds) {
+    for (var id : clusterIds) {
       if (id < 0) {
         continue;
       }
-      final String clusterName = getClusterNameById(id);
+      final var clusterName = getClusterNameById(id);
       if (clusterName == null) {
         continue;
       }
@@ -1864,23 +1864,23 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     checkSecurity(Rule.ResourceGeneric.CLUSTER, Role.PERMISSION_DELETE, clusterName);
     checkForClusterPermissions(clusterName);
 
-    int id = getClusterIdByName(clusterName);
+    var id = getClusterIdByName(clusterName);
     if (id == -1) {
       throw new DatabaseException("Cluster with name " + clusterName + " does not exist");
     }
-    final SchemaClass clazz = getMetadata().getSchema().getClassByClusterId(id);
+    final var clazz = getMetadata().getSchema().getClassByClusterId(id);
     if (clazz != null) {
       checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_DELETE, clazz.getName());
     }
 
     long count = 0;
-    final RecordIteratorCluster<DBRecord> iteratorCluster =
+    final var iteratorCluster =
         new RecordIteratorCluster<DBRecord>(this, id);
 
     while (iteratorCluster.hasNext()) {
       executeInTx(
           () -> {
-            final DBRecord record = bindToSession(iteratorCluster.next());
+            final var record = bindToSession(iteratorCluster.next());
             record.delete();
           });
       count++;

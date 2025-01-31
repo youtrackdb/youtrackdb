@@ -63,29 +63,29 @@ public class SQLInsertTest extends BaseDBTest {
       db.getMetadata().getSchema().createClass("Account");
     }
 
-    final int clId = db.addCluster("anotherdefault");
-    final SchemaClass profileClass = db.getMetadata().getSchema().getClass("Account");
+    final var clId = db.addCluster("anotherdefault");
+    final var profileClass = db.getMetadata().getSchema().getClass("Account");
     profileClass.addClusterId(db, clId);
 
     if (!db.getMetadata().getSchema().existsClass("Address")) {
       db.getMetadata().getSchema().createClass("Address");
     }
 
-    int addressId = db.getMetadata().getSchema().getClass("Address").getClusterIds()[0];
+    var addressId = db.getMetadata().getSchema().getClass("Address").getClusterIds()[0];
 
-    for (int i = 0; i < 30; i++) {
+    for (var i = 0; i < 30; i++) {
       db.begin();
       db.newEntity("Address").save();
       db.commit();
     }
-    List<Long> positions = getValidPositions(addressId);
+    var positions = getValidPositions(addressId);
 
     if (!db.getMetadata().getSchema().existsClass("Profile")) {
       db.getMetadata().getSchema().createClass("Profile");
     }
 
     db.begin();
-    Entity doc =
+    var doc =
         db
             .command(
                 "insert into Profile (name, surname, salary, location, dummy) values"
@@ -135,12 +135,12 @@ public class SQLInsertTest extends BaseDBTest {
 
   @Test
   public void insertWithWildcards() {
-    int addressId = db.getMetadata().getSchema().getClass("Address").getClusterIds()[0];
+    var addressId = db.getMetadata().getSchema().getClass("Address").getClusterIds()[0];
 
-    List<Long> positions = getValidPositions(addressId);
+    var positions = getValidPositions(addressId);
 
     db.begin();
-    Entity doc =
+    var doc =
         db
             .command(
                 "insert into Profile (name, surname, salary, location, dummy) values"
@@ -198,7 +198,7 @@ public class SQLInsertTest extends BaseDBTest {
   @SuppressWarnings("unchecked")
   public void insertMap() {
     db.begin();
-    Entity doc =
+    var doc =
         db
             .command(
                 "insert into O (equaledges, name, properties) values ('no',"
@@ -254,7 +254,7 @@ public class SQLInsertTest extends BaseDBTest {
   @SuppressWarnings("unchecked")
   public void insertList() {
     db.begin();
-    Entity doc =
+    var doc =
         db
             .command(
                 "insert into O (equaledges, name, list) values ('yes',"
@@ -313,7 +313,7 @@ public class SQLInsertTest extends BaseDBTest {
   @Test
   public void insertWithNoSpaces() {
     db.begin();
-    ResultSet res =
+    var res =
         db.command("insert into O (id, title)values(10, 'NoSQL movement')");
     db.commit();
 
@@ -328,7 +328,7 @@ public class SQLInsertTest extends BaseDBTest {
     }
 
     db.begin();
-    Result doc = db.command("INSERT INTO test(text) VALUES ('(Hello World)')").next();
+    var doc = db.command("INSERT INTO test(text) VALUES ('(Hello World)')").next();
     db.commit();
 
     Assert.assertNotNull(doc);
@@ -342,12 +342,12 @@ public class SQLInsertTest extends BaseDBTest {
       schema.createClass("test");
     }
 
-    final ResultSet usersCount = db.query("select count(*) as count from OUser");
+    final var usersCount = db.query("select count(*) as count from OUser");
     final long uCount = usersCount.next().getProperty("count");
     usersCount.close();
 
     db.begin();
-    Entity doc =
+    var doc =
         db
             .command("INSERT INTO test SET names = (select name from OUser)")
             .next()
@@ -384,12 +384,12 @@ public class SQLInsertTest extends BaseDBTest {
     }
 
     db.begin();
-    for (int i = 0; i < 30; i++) {
+    for (var i = 0; i < 30; i++) {
       db.command("insert into O set name = 'foo" + i + "'");
     }
     db.commit();
 
-    List<Long> positions = getValidPositions(3);
+    var positions = getValidPositions(3);
 
     db.begin();
     Identifiable result =
@@ -420,7 +420,7 @@ public class SQLInsertTest extends BaseDBTest {
     db.command("CREATE CLASS UserCopy").close();
 
     db.begin();
-    long inserted =
+    var inserted =
         db
             .command("INSERT INTO UserCopy FROM select from ouser where name <> 'admin' limit 2")
             .stream()
@@ -429,7 +429,7 @@ public class SQLInsertTest extends BaseDBTest {
 
     Assert.assertEquals(inserted, 2);
 
-    List<Result> result =
+    var result =
         db.query("select from UserCopy").toList();
 
     Assert.assertEquals(result.size(), 2);
@@ -464,23 +464,23 @@ public class SQLInsertTest extends BaseDBTest {
     Assert.assertNotNull(doc);
     Assert.assertEquals(doc.getClassName(), "Actor2");
     // RETURN with @rid
-    try (ResultSet resultSet1 =
+    try (var resultSet1 =
         db.command("INSERT INTO Actor2 SET FirstName=\"Butch 1\" RETURN @rid")) {
-      Object res1 = resultSet1.next().getProperty("@rid");
+      var res1 = resultSet1.next().getProperty("@rid");
       Assert.assertTrue(res1 instanceof RecordId);
       Assert.assertTrue(((RecordId) ((Identifiable) res1).getIdentity()).isValid());
       // Create many records and return @rid
-      try (ResultSet resultSet2 =
+      try (var resultSet2 =
           db.command(
               "INSERT INTO Actor2(FirstName,LastName) VALUES"
                   + " ('Jay','Miner'),('Frank','Hermier'),('Emily','Saut')  RETURN @rid")) {
 
-        Object res2 = resultSet2.next().getProperty("@rid");
+        var res2 = resultSet2.next().getProperty("@rid");
         Assert.assertTrue(res2 instanceof RecordId);
 
         // Create many records by INSERT INTO ...FROM and return wrapped field
-        RID another = ((Identifiable) res1).getIdentity();
-        final String sql =
+        var another = ((Identifiable) res1).getIdentity();
+        final var sql =
             "INSERT INTO Actor2 RETURN $current.FirstName  FROM SELECT * FROM ["
                 + doc.getIdentity()
                 + ","
@@ -489,7 +489,7 @@ public class SQLInsertTest extends BaseDBTest {
         List res3 = db.command(new CommandSQL(sql)).execute(db);
         Assert.assertEquals(res3.size(), 2);
         Assert.assertTrue(((List<?>) res3).get(0) instanceof EntityImpl);
-        final EntityImpl res3doc = (EntityImpl) res3.get(0);
+        final var res3doc = (EntityImpl) res3.get(0);
         Assert.assertTrue(res3doc.containsField("result"));
         Assert.assertTrue(
             "FFFF".equalsIgnoreCase(res3doc.field("result"))
@@ -501,7 +501,7 @@ public class SQLInsertTest extends BaseDBTest {
 
     // create record using content keyword and update it in sql batch passing recordID between
     // commands
-    final String sql2 =
+    final var sql2 =
         "let var1 = (INSERT INTO Actor2 CONTENT {Name:\"content\"} RETURN $current.@rid) "
             + "; let var2 = (UPDATE $var1 SET Bingo=1 RETURN AFTER @rid) "
             + " return $var2";
@@ -511,7 +511,7 @@ public class SQLInsertTest extends BaseDBTest {
 
       // create record using content keyword and update it in sql batch passing recordID between
       // commands
-      final String sql3 =
+      final var sql3 =
           "let var1 = (INSERT INTO Actor2 CONTENT {Name:\"Bingo owner\"} RETURN @this) "
               + "; let var2 = (UPDATE $var1 SET Bingo=1 RETURN AFTER) "
               + "return $var2";
@@ -526,11 +526,11 @@ public class SQLInsertTest extends BaseDBTest {
 
   @Test
   public void testAutoConversionOfEmbeddededSetNoLinkedClass() {
-    SchemaClass c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
+    var c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
     c.createProperty(db, "embeddedSetNoLinkedClass", PropertyType.EMBEDDEDSET);
 
     db.begin();
-    Entity doc =
+    var doc =
         db
             .command(
                 "INSERT INTO TestConvert SET name = 'embeddedSetNoLinkedClass',"
@@ -544,21 +544,21 @@ public class SQLInsertTest extends BaseDBTest {
     Assert.assertTrue(doc.getProperty("embeddedSetNoLinkedClass") instanceof Set);
 
     Set addr = doc.getProperty("embeddedSetNoLinkedClass");
-    for (Object o : addr) {
+    for (var o : addr) {
       Assert.assertTrue(o instanceof Map);
     }
   }
 
   @Test
   public void testAutoConversionOfEmbeddededSetWithLinkedClass() {
-    SchemaClass c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
+    var c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
     c.createProperty(db,
         "embeddedSetWithLinkedClass",
         PropertyType.EMBEDDEDSET,
         db.getMetadata().getSchema().getOrCreateClass("TestConvertLinkedClass"));
 
     db.begin();
-    Entity doc =
+    var doc =
         db
             .command(
                 "INSERT INTO TestConvert SET name = 'embeddedSetWithLinkedClass',"
@@ -572,7 +572,7 @@ public class SQLInsertTest extends BaseDBTest {
     Assert.assertTrue(doc.getProperty("embeddedSetWithLinkedClass") instanceof Set);
 
     Set addr = doc.getProperty("embeddedSetWithLinkedClass");
-    for (Object o : addr) {
+    for (var o : addr) {
       Assert.assertTrue(o instanceof EntityImpl);
       Assert.assertEquals(((EntityImpl) o).getClassName(), "TestConvertLinkedClass");
     }
@@ -580,11 +580,11 @@ public class SQLInsertTest extends BaseDBTest {
 
   @Test
   public void testAutoConversionOfEmbeddededListNoLinkedClass() {
-    SchemaClass c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
+    var c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
     c.createProperty(db, "embeddedListNoLinkedClass", PropertyType.EMBEDDEDLIST);
 
     db.begin();
-    Entity doc =
+    var doc =
         db
             .command(
                 "INSERT INTO TestConvert SET name = 'embeddedListNoLinkedClass',"
@@ -598,14 +598,14 @@ public class SQLInsertTest extends BaseDBTest {
     Assert.assertTrue(doc.getProperty("embeddedListNoLinkedClass") instanceof List);
 
     List addr = doc.getProperty("embeddedListNoLinkedClass");
-    for (Object o : addr) {
+    for (var o : addr) {
       Assert.assertTrue(o instanceof Map);
     }
   }
 
   @Test
   public void testAutoConversionOfEmbeddededListWithLinkedClass() {
-    SchemaClass c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
+    var c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
     if (!c.existsProperty("embeddedListWithLinkedClass")) {
       c.createProperty(db,
           "embeddedListWithLinkedClass",
@@ -614,7 +614,7 @@ public class SQLInsertTest extends BaseDBTest {
     }
 
     db.begin();
-    Entity doc =
+    var doc =
         db
             .command(
                 "INSERT INTO TestConvert SET name = 'embeddedListWithLinkedClass',"
@@ -628,7 +628,7 @@ public class SQLInsertTest extends BaseDBTest {
     Assert.assertTrue(doc.getProperty("embeddedListWithLinkedClass") instanceof List);
 
     List addr = doc.getProperty("embeddedListWithLinkedClass");
-    for (Object o : addr) {
+    for (var o : addr) {
       db.begin();
       Assert.assertTrue(o instanceof EntityImpl);
       Assert.assertEquals(((EntityImpl) o).getClassName(), "TestConvertLinkedClass");
@@ -638,11 +638,11 @@ public class SQLInsertTest extends BaseDBTest {
 
   @Test
   public void testAutoConversionOfEmbeddededMapNoLinkedClass() {
-    SchemaClass c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
+    var c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
     c.createProperty(db, "embeddedMapNoLinkedClass", PropertyType.EMBEDDEDMAP);
 
     db.begin();
-    Entity doc =
+    var doc =
         db
             .command(
                 "INSERT INTO TestConvert SET name = 'embeddedMapNoLinkedClass',"
@@ -656,14 +656,14 @@ public class SQLInsertTest extends BaseDBTest {
     Assert.assertTrue(doc.getProperty("embeddedMapNoLinkedClass") instanceof Map);
 
     Map addr = doc.getProperty("embeddedMapNoLinkedClass");
-    for (Object o : addr.values()) {
+    for (var o : addr.values()) {
       Assert.assertTrue(o instanceof Map);
     }
   }
 
   @Test(enabled = false)
   public void testAutoConversionOfEmbeddededMapWithLinkedClass() {
-    SchemaClass c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
+    var c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
     c.createProperty(db,
         "embeddedMapWithLinkedClass",
         PropertyType.EMBEDDEDMAP,
@@ -684,7 +684,7 @@ public class SQLInsertTest extends BaseDBTest {
     Assert.assertTrue(doc.getProperty("embeddedMapWithLinkedClass") instanceof Map);
 
     Map addr = doc.getProperty("embeddedMapWithLinkedClass");
-    for (Object o : addr.values()) {
+    for (var o : addr.values()) {
       Assert.assertTrue(o instanceof EntityImpl);
       Assert.assertEquals(((EntityImpl) o).getClassName(), "TestConvertLinkedClass");
     }
@@ -692,7 +692,7 @@ public class SQLInsertTest extends BaseDBTest {
 
   @Test(enabled = false)
   public void testAutoConversionOfEmbeddededNoLinkedClass() {
-    SchemaClass c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
+    var c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
     c.createProperty(db, "embeddedNoLinkedClass", PropertyType.EMBEDDED);
 
     db.begin();
@@ -712,7 +712,7 @@ public class SQLInsertTest extends BaseDBTest {
 
   @Test
   public void testEmbeddedDates() {
-    SchemaClass c = db.getMetadata().getSchema().getOrCreateClass("TestEmbeddedDates");
+    var c = db.getMetadata().getSchema().getOrCreateClass("TestEmbeddedDates");
 
     db.begin();
     db
@@ -722,16 +722,16 @@ public class SQLInsertTest extends BaseDBTest {
         .close();
     db.commit();
 
-    List<Result> result =
+    var result =
         db.query("select from TestEmbeddedDates").stream().collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 1);
-    boolean found = false;
-    Result doc = result.get(0);
+    var found = false;
+    var doc = result.get(0);
     Collection events = doc.getProperty("events");
-    for (Object event : events) {
+    for (var event : events) {
       Assert.assertTrue(event instanceof Map);
-      Object dateObj = ((Map) event).get("on");
+      var dateObj = ((Map) event).get("on");
       Assert.assertTrue(dateObj instanceof Date);
       Calendar cal = new GregorianCalendar();
       cal.setTime((Date) dateObj);
@@ -748,14 +748,14 @@ public class SQLInsertTest extends BaseDBTest {
 
   @Test
   public void testAutoConversionOfEmbeddededWithLinkedClass() {
-    SchemaClass c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
+    var c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
     c.createProperty(db,
         "embeddedWithLinkedClass",
         PropertyType.EMBEDDED,
         db.getMetadata().getSchema().getOrCreateClass("TestConvertLinkedClass"));
 
     db.begin();
-    Entity doc =
+    var doc =
         db
             .command(
                 "INSERT INTO TestConvert SET name = 'embeddedWithLinkedClass',"
@@ -774,7 +774,7 @@ public class SQLInsertTest extends BaseDBTest {
 
   @Test
   public void testInsertEmbeddedWithRecordAttributes() {
-    SchemaClass c = db.getMetadata().getSchema()
+    var c = db.getMetadata().getSchema()
         .getOrCreateClass("EmbeddedWithRecordAttributes");
     c.createProperty(db,
         "like",
@@ -782,7 +782,7 @@ public class SQLInsertTest extends BaseDBTest {
         db.getMetadata().getSchema().getOrCreateClass("EmbeddedWithRecordAttributes_Like"));
 
     db.begin();
-    Entity doc =
+    var doc =
         db
             .command(
                 "INSERT INTO EmbeddedWithRecordAttributes SET `like` = { \n"
@@ -806,7 +806,7 @@ public class SQLInsertTest extends BaseDBTest {
 
   @Test
   public void testInsertEmbeddedWithRecordAttributes2() {
-    SchemaClass c = db.getMetadata().getSchema()
+    var c = db.getMetadata().getSchema()
         .getOrCreateClass("EmbeddedWithRecordAttributes2");
     c.createProperty(db,
         "like",
@@ -814,7 +814,7 @@ public class SQLInsertTest extends BaseDBTest {
         db.getMetadata().getSchema().getOrCreateClass("EmbeddedWithRecordAttributes2_Like"));
 
     db.begin();
-    Entity doc =
+    var doc =
         db
             .command(
                 "INSERT INTO EmbeddedWithRecordAttributes2 SET `like` = { \n"
@@ -838,7 +838,7 @@ public class SQLInsertTest extends BaseDBTest {
 
   @Test
   public void testInsertWithClusterAsFieldName() {
-    SchemaClass c = db.getMetadata().getSchema()
+    var c = db.getMetadata().getSchema()
         .getOrCreateClass("InsertWithClusterAsFieldName");
 
     db.begin();
@@ -847,7 +847,7 @@ public class SQLInsertTest extends BaseDBTest {
         .close();
     db.commit();
 
-    List<Result> result =
+    var result =
         db.query("SELECT FROM InsertWithClusterAsFieldName").stream()
             .collect(Collectors.toList());
 
@@ -869,12 +869,12 @@ public class SQLInsertTest extends BaseDBTest {
         .close();
     db.commit();
 
-    List<Result> result =
+    var result =
         db.query("SELECT FROM TestInsertEmbeddedBigDecimal").stream()
             .collect(Collectors.toList());
     Assert.assertEquals(result.size(), 1);
     Iterable ed = result.get(0).getProperty("ed");
-    Object o = ed.iterator().next();
+    var o = ed.iterator().next();
     Assert.assertEquals(o.getClass(), BigDecimal.class);
     Assert.assertEquals(((BigDecimal) o).intValue(), 5);
   }
@@ -885,11 +885,11 @@ public class SQLInsertTest extends BaseDBTest {
     final RecordIteratorCluster<?> iteratorCluster =
         db.browseCluster(db.getClusterNameById(clusterId));
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       if (!iteratorCluster.hasNext()) {
         break;
       }
-      DBRecord doc = iteratorCluster.next();
+      var doc = iteratorCluster.next();
       positions.add(doc.getIdentity().getClusterPosition());
     }
     return positions;

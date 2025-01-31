@@ -28,7 +28,7 @@ public class YouTrackDbJdbcConnectionTest extends YouTrackDbJdbcDbPerClassTempla
 
   @Test
   public void shouldCreateStatement() throws Exception {
-    Statement stmt = conn.createStatement();
+    var stmt = conn.createStatement();
     assertThat(stmt).isNotNull();
     stmt.close();
   }
@@ -49,7 +49,7 @@ public class YouTrackDbJdbcConnectionTest extends YouTrackDbJdbcDbPerClassTempla
 
   @Test
   public void shouldCreateDifferentTypeOfStatement() throws Exception {
-    Statement stmt = conn.createStatement();
+    var stmt = conn.createStatement();
     assertThat(stmt).isNotNull();
 
     stmt = conn.createStatement(TYPE_FORWARD_ONLY, CONCUR_READ_ONLY);
@@ -61,13 +61,13 @@ public class YouTrackDbJdbcConnectionTest extends YouTrackDbJdbcDbPerClassTempla
 
   @Test
   public void shouldConnectUsingPool() throws Exception {
-    String dbUrl = "jdbc:youtrackdb:memory:YouTrackDbJdbcConnectionTest";
-    Properties p = new Properties();
+    var dbUrl = "jdbc:youtrackdb:memory:YouTrackDbJdbcConnectionTest";
+    var p = new Properties();
     p.setProperty("db.usePool", "TRUE");
     p.setProperty("serverUser", "root");
     p.setProperty("serverPassword", "root");
 
-    Connection connection = DriverManager.getConnection(dbUrl, p);
+    var connection = DriverManager.getConnection(dbUrl, p);
 
     assertThat(connection).isNotNull();
     connection.close();

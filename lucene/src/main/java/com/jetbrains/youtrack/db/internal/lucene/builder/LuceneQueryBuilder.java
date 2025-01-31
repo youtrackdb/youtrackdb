@@ -69,7 +69,7 @@ public class LuceneQueryBuilder {
       final Map<String, ?> metadata,
       final Analyzer analyzer)
       throws ParseException {
-    final String query = constructQueryString(key);
+    final var query = constructQueryString(key);
     if (query.isEmpty()) {
       return new MatchNoDocsQuery();
     }
@@ -78,7 +78,7 @@ public class LuceneQueryBuilder {
 
   private static String constructQueryString(final Object key) {
     if (key instanceof CompositeKey) {
-      final Object params = ((CompositeKey) key).getKeys().get(0);
+      final var params = ((CompositeKey) key).getKeys().get(0);
       return params.toString();
     } else {
       return key.toString();
@@ -95,15 +95,15 @@ public class LuceneQueryBuilder {
     if (index.isAutomatic()) {
       fields = index.getFields().toArray(new String[index.getFields().size()]);
     } else {
-      final int length = index.getTypes().length;
+      final var length = index.getTypes().length;
       fields = new String[length];
-      for (int i = 0; i < length; i++) {
+      for (var i = 0; i < length; i++) {
         fields[i] = "k" + i;
       }
     }
     final Map<String, PropertyType> types = new HashMap<>();
-    for (int i = 0; i < fields.length; i++) {
-      final String field = fields[i];
+    for (var i = 0; i < fields.length; i++) {
+      final var field = fields[i];
       types.put(field, index.getTypes()[i]);
     }
     return getQuery(index, query, metadata, queryAnalyzer, fields, types);
@@ -117,13 +117,13 @@ public class LuceneQueryBuilder {
       final String[] fields,
       final Map<String, PropertyType> types)
       throws ParseException {
-    @SuppressWarnings("unchecked") final Map<String, Float> boost =
+    @SuppressWarnings("unchecked") final var boost =
         Optional.ofNullable((Map<String, Number>) metadata.get("boost"))
             .orElse(new HashMap<>())
             .entrySet()
             .stream()
             .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().floatValue()));
-    final Analyzer analyzer =
+    final var analyzer =
         Optional.ofNullable((Boolean) metadata.get("customAnalysis"))
             .filter(b -> b)
             .map(
@@ -131,7 +131,7 @@ public class LuceneQueryBuilder {
                     analyzerFactory.createAnalyzer(
                         index, LuceneAnalyzerFactory.AnalyzerKind.QUERY, metadata))
             .orElse(queryAnalyzer);
-    final LuceneMultiFieldQueryParser queryParser =
+    final var queryParser =
         new LuceneMultiFieldQueryParser(types, fields, analyzer, boost);
     queryParser.setAllowLeadingWildcard(
         Optional.ofNullable((Boolean) metadata.get("allowLeadingWildcard"))
@@ -146,7 +146,7 @@ public class LuceneQueryBuilder {
     try {
       return queryParser.parse(query);
     } catch (final org.apache.lucene.queryparser.classic.ParseException e) {
-      final Throwable cause = prepareParseError(e, metadata);
+      final var cause = prepareParseError(e, metadata);
       LogManager.instance().error(this, "Exception is suppressed, original exception is ", cause);
       //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
       throw new ParseException(cause.getMessage());
@@ -166,7 +166,7 @@ public class LuceneQueryBuilder {
   private static Throwable prepareParseError(
       org.apache.lucene.queryparser.classic.ParseException e, Map<String, ?> metadata) {
     final Throwable cause;
-    final String reportAs = (String) metadata.get("reportQueryAs");
+    final var reportAs = (String) metadata.get("reportQueryAs");
     if (reportAs == null) {
       cause = e;
     } else {

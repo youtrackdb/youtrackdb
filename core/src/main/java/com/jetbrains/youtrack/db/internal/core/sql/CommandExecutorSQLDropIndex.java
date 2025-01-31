@@ -43,20 +43,20 @@ public class CommandExecutorSQLDropIndex extends CommandExecutorSQLAbstract
 
   public CommandExecutorSQLDropIndex parse(DatabaseSessionInternal db,
       final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
       init((CommandRequestText) iRequest);
 
-      final StringBuilder word = new StringBuilder();
+      final var word = new StringBuilder();
 
-      int oldPos = 0;
-      int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
+      var oldPos = 0;
+      var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_DROP)) {
         throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_DROP + " not found. Use " + getSyntax(), parserText, oldPos);
@@ -93,10 +93,10 @@ public class CommandExecutorSQLDropIndex extends CommandExecutorSQLAbstract
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final DatabaseSessionInternal database = getDatabase();
+    final var database = getDatabase();
     if (name.equals("*")) {
       long totalIndexed = 0;
-      for (Index idx : database.getMetadata().getIndexManagerInternal().getIndexes(database)) {
+      for (var idx : database.getMetadata().getIndexManagerInternal().getIndexes(database)) {
         database.getMetadata().getIndexManagerInternal().dropIndex(database, idx.getName());
         totalIndexed++;
       }

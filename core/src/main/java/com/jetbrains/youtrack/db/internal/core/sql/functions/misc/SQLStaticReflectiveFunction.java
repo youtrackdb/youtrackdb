@@ -40,8 +40,8 @@ public class SQLStaticReflectiveFunction extends SQLFunctionAbstract {
   private static final Map<Class<?>, Class<?>> WRAPPER_TO_PRIMITIVE = new HashMap<>();
 
   static {
-    for (Class<?> primitive : PRIMITIVE_TO_WRAPPER.keySet()) {
-      Class<?> wrapper = PRIMITIVE_TO_WRAPPER.get(primitive);
+    for (var primitive : PRIMITIVE_TO_WRAPPER.keySet()) {
+      var wrapper = PRIMITIVE_TO_WRAPPER.get(primitive);
       if (!primitive.equals(wrapper)) {
         WRAPPER_TO_PRIMITIVE.put(wrapper, primitive);
       }
@@ -74,12 +74,12 @@ public class SQLStaticReflectiveFunction extends SQLFunctionAbstract {
     Arrays.sort(
         methods,
         (m1, m2) -> {
-          Class<?>[] m1Params = m1.getParameterTypes();
-          Class<?>[] m2Params = m2.getParameterTypes();
+          var m1Params = m1.getParameterTypes();
+          var m2Params = m2.getParameterTypes();
 
-          int c = m1Params.length - m2Params.length;
+          var c = m1Params.length - m2Params.length;
           if (c == 0) {
-            for (int i = 0; i < m1Params.length; i++) {
+            for (var i = 0; i < m1Params.length; i++) {
               if (m1Params[i].isPrimitive()
                   && m2Params[i].isPrimitive()
                   && !m1Params[i].equals(m2Params[i])) {
@@ -106,7 +106,7 @@ public class SQLStaticReflectiveFunction extends SQLFunctionAbstract {
                 .map(p -> p + " [ " + p.getClass().getName() + " ]")
                 .collect(Collectors.joining(", ", "(", ")"));
 
-    Method method = pickMethod(iParams);
+    var method = pickMethod(iParams);
 
     if (method == null) {
       throw new QueryParsingException(
@@ -133,11 +133,11 @@ public class SQLStaticReflectiveFunction extends SQLFunctionAbstract {
   }
 
   private Method pickMethod(Object[] iParams) {
-    for (Method m : methods) {
-      Class<?>[] parameterTypes = m.getParameterTypes();
+    for (var m : methods) {
+      var parameterTypes = m.getParameterTypes();
       if (iParams.length == parameterTypes.length) {
-        boolean match = true;
-        for (int i = 0; i < parameterTypes.length; i++) {
+        var match = true;
+        for (var i = 0; i < parameterTypes.length; i++) {
           if (iParams[i] != null && !isAssignable(iParams[i].getClass(), parameterTypes[i])) {
             match = false;
             break;
@@ -166,7 +166,7 @@ public class SQLStaticReflectiveFunction extends SQLFunctionAbstract {
           }
         };
 
-    final Class<?> fromClass = autoboxer.apply(iFromClass, iToClass);
+    final var fromClass = autoboxer.apply(iFromClass, iToClass);
 
     if (fromClass == null) {
       return false;

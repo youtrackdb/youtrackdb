@@ -39,7 +39,7 @@ public class DbTestBase {
   @Before
   public void beforeTest() throws Exception {
     context = createContext();
-    String dbName = name.getMethodName();
+    var dbName = name.getMethodName();
 
     dbName = dbName.replace('[', '_');
     dbName = dbName.replace(']', '_');
@@ -73,7 +73,7 @@ public class DbTestBase {
   }
 
   public static String getDirectoryPath(Class<?> testClass) {
-    final String buildDirectory = Path.of(System.getProperty("buildDirectory", "./target"))
+    final var buildDirectory = Path.of(System.getProperty("buildDirectory", "./target"))
         .toAbsolutePath().toString();
     return
         buildDirectory + File.separator + "databases" + File.separator + testClass
@@ -93,7 +93,7 @@ public class DbTestBase {
   }
 
   protected DatabaseType calculateDbType() {
-    final String testConfig =
+    final var testConfig =
         System.getProperty("youtrackdb.test.env", DatabaseType.MEMORY.name().toLowerCase());
 
     if ("ci".equals(testConfig) || "release".equals(testConfig)) {
@@ -151,7 +151,7 @@ public class DbTestBase {
 
   public static void assertWithTimeout(DatabaseSession session, Runnable runnable)
       throws Exception {
-    for (int i = 0; i < 30 * 60 * 10; i++) {
+    for (var i = 0; i < 30 * 60 * 10; i++) {
       try {
         session.begin();
         runnable.run();

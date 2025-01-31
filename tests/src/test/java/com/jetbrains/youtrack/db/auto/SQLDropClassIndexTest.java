@@ -40,7 +40,7 @@ public class SQLDropClassIndexTest extends BaseDBTest {
     super.beforeClass();
 
     final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass oClass = schema.createClass("SQLDropClassTestClass");
+    final var oClass = schema.createClass("SQLDropClassTestClass");
     oClass.createProperty(db, "prop1", EXPECTED_PROP1_TYPE);
     oClass.createProperty(db, "prop2", EXPECTED_PROP2_TYPE);
   }

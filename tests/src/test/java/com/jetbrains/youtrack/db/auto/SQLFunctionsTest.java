@@ -70,7 +70,7 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void queryMax() {
-    ResultSet result = db.command("select max(id) as max from Account");
+    var result = db.command("select max(id) as max from Account");
 
     assertNotNull(result.next().getProperty("max"));
     assertFalse(result.hasNext());
@@ -92,9 +92,9 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void queryMin() {
-    ResultSet result = db.command("select min(id) as min from Account");
+    var result = db.command("select min(id) as min from Account");
 
-    Result d = result.next();
+    var d = result.next();
     Assert.assertNotNull(d.getProperty("min"));
 
     Assert.assertEquals(((Number) d.getProperty("min")).longValue(), 0L);
@@ -117,8 +117,8 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void querySum() {
-    ResultSet result = db.command("select sum(id) as sum from Account");
-    Result d = result.next();
+    var result = db.command("select sum(id) as sum from Account");
+    var d = result.next();
     Assert.assertNotNull(d.getProperty("sum"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -126,8 +126,8 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void queryCount() {
-    ResultSet result = db.command("select count(*) as total from Account");
-    Result d = result.next();
+    var result = db.command("select count(*) as total from Account");
+    var d = result.next();
     Assert.assertNotNull(d.getProperty("total"));
     Assert.assertTrue(((Number) d.getProperty("total")).longValue() > 0);
     Assert.assertFalse(result.hasNext());
@@ -135,17 +135,17 @@ public class SQLFunctionsTest extends BaseDBTest {
   }
 
   public void queryCountExtendsRestricted() {
-    SchemaClass restricted = db.getMetadata().getSchema().getClass("ORestricted");
+    var restricted = db.getMetadata().getSchema().getClass("ORestricted");
     Assert.assertNotNull(restricted);
 
     db.getMetadata().getSchema().createClass("QueryCountExtendsRestrictedClass", restricted);
 
     db.begin();
-    SecurityUserImpl admin = db.getMetadata().getSecurity().getUser("admin");
-    SecurityUserImpl reader = db.getMetadata().getSecurity().getUser("reader");
+    var admin = db.getMetadata().getSecurity().getUser("admin");
+    var reader = db.getMetadata().getSecurity().getUser("reader");
 
     @SuppressWarnings("deprecation")
-    Role byPassRestrictedRole =
+    var byPassRestrictedRole =
         db
             .getMetadata()
             .getSecurity()
@@ -159,7 +159,7 @@ public class SQLFunctionsTest extends BaseDBTest {
         .getSecurity()
         .createUser("superReader", "superReader", "reader", "byPassRestrictedRole");
 
-    EntityImpl docAdmin = ((EntityImpl) db.newEntity("QueryCountExtendsRestrictedClass"));
+    var docAdmin = ((EntityImpl) db.newEntity("QueryCountExtendsRestrictedClass"));
     docAdmin.setProperty(
         "_allowRead",
         new HashSet<Identifiable>(
@@ -169,7 +169,7 @@ public class SQLFunctionsTest extends BaseDBTest {
     db.commit();
 
     db.begin();
-    EntityImpl docReader = ((EntityImpl) db.newEntity("QueryCountExtendsRestrictedClass"));
+    var docReader = ((EntityImpl) db.newEntity("QueryCountExtendsRestrictedClass"));
     docReader.setProperty("_allowRead",
         new HashSet<>(Collections.singletonList(reader.getIdentity())));
     docReader.save();
@@ -200,7 +200,7 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void queryCountWithConditions() {
-    SchemaClass indexed = db.getMetadata().getSchema().getOrCreateClass("Indexed");
+    var indexed = db.getMetadata().getSchema().getOrCreateClass("Indexed");
     indexed.createProperty(db, "key", PropertyType.STRING);
     indexed.createIndex(db, "keyed", SchemaClass.INDEX_TYPE.NOTUNIQUE, "key");
 
@@ -247,7 +247,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void queryUnionAllAsAggregationNotRemoveDuplicates() {
     var result = db.query("select from City").toList();
-    int count = result.size();
+    var count = result.size();
 
     result =
         db.query("select unionAll(name) as name from City").toList();
@@ -266,7 +266,7 @@ public class SQLFunctionsTest extends BaseDBTest {
     Assert.assertTrue(citiesFound.size() > 1);
 
     Set<String> cities = new HashSet<>();
-    for (Object city : citiesFound) {
+    for (var city : citiesFound) {
       Assert.assertFalse(cities.contains(city.toString()));
       cities.add(city.toString());
     }
@@ -307,9 +307,9 @@ public class SQLFunctionsTest extends BaseDBTest {
 
     Assert.assertTrue(myresult.getFirst() instanceof Map, "The object is: " + myresult.getClass());
     @SuppressWarnings("rawtypes")
-    Map map = (Map) myresult.getFirst();
+    var map = (Map) myresult.getFirst();
 
-    String value = (String) map.get("kAA");
+    var value = (String) map.get("kAA");
     Assert.assertEquals(value, "vAA");
 
     Assert.assertEquals(map.size(), 1);
@@ -397,11 +397,11 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void querySysdateNoFormat() {
-    ResultSet result = db.command("select sysdate() as date from Account");
+    var result = db.command("select sysdate() as date from Account");
 
     Assert.assertTrue(result.hasNext());
     while (result.hasNext()) {
-      Result d = result.next();
+      var d = result.next();
       Assert.assertNotNull(d.getProperty("date"));
     }
   }
@@ -420,9 +420,9 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void queryDate() {
-    ResultSet result = db.command("select count(*) as tot from Account");
+    var result = db.command("select count(*) as tot from Account");
 
-    int tot = ((Number) result.next().getProperty("tot")).intValue();
+    var tot = ((Number) result.next().getProperty("tot")).intValue();
     assertFalse(result.hasNext());
 
     db.begin();
@@ -432,8 +432,8 @@ public class SQLFunctionsTest extends BaseDBTest {
 
     Assert.assertEquals(updated, tot);
 
-    String pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-    SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
+    var pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+    var dateFormat = new SimpleDateFormat(pattern);
 
     result =
         db.query(
@@ -452,7 +452,7 @@ public class SQLFunctionsTest extends BaseDBTest {
                 + pattern
                 + "\")");
     while (result.hasNext()) {
-      Result d = result.next();
+      var d = result.next();
       Assert.assertNotNull(d.getProperty("created"));
     }
   }
@@ -494,8 +494,8 @@ public class SQLFunctionsTest extends BaseDBTest {
                 }
 
                 // USE DOUBLE TO AVOID LOSS OF PRECISION
-                final double v1 = ((Number) iParams[0]).doubleValue();
-                final double v2 = ((Number) iParams[1]).doubleValue();
+                final var v1 = ((Number) iParams[0]).doubleValue();
+                final var v2 = ((Number) iParams[1]).doubleValue();
 
                 return Math.max(v1, v2);
               }
@@ -514,8 +514,8 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void queryAsLong() {
-    long moreThanInteger = 1 + (long) Integer.MAX_VALUE;
-    String sql =
+    var moreThanInteger = 1 + (long) Integer.MAX_VALUE;
+    var sql =
         "select numberString.asLong() as value from ( select '"
             + moreThanInteger
             + "' as numberString from Account ) limit 1";
@@ -598,7 +598,7 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void querySplit() {
-    String sql = "select v.split('-') as value from ( select '1-2-3' as v ) limit 1";
+    var sql = "select v.split('-') as value from ( select '1-2-3' as v ) limit 1";
 
     var result = db.query(sql).toList();
 

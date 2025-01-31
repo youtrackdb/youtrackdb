@@ -36,7 +36,7 @@ public class ServerCommandPutDocument extends ServerCommandDocumentAbstract {
 
   @Override
   public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
-    final String[] urlParts =
+    final var urlParts =
         checkSyntax(
             iRequest.getUrl(),
             2,
@@ -44,12 +44,12 @@ public class ServerCommandPutDocument extends ServerCommandDocumentAbstract {
 
     iRequest.getData().commandInfo = "Edit Document";
 
-    try (DatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
+    try (var db = getProfiledDatabaseInstance(iRequest)) {
       RecordId recordId;
       if (urlParts.length > 2) {
         // EXTRACT RID
-        final int parametersPos = urlParts[2].indexOf('?');
-        final String rid =
+        final var parametersPos = urlParts[2].indexOf('?');
+        final var rid =
             parametersPos > -1 ? urlParts[2].substring(0, parametersPos) : urlParts[2];
         recordId = new RecordId(rid);
 
@@ -60,7 +60,7 @@ public class ServerCommandPutDocument extends ServerCommandDocumentAbstract {
         recordId = new ChangeableRecordId();
       }
 
-      EntityImpl d =
+      var d =
           db.computeInTx(
               () -> {
                 var txRecordId = recordId;
@@ -91,8 +91,8 @@ public class ServerCommandPutDocument extends ServerCommandDocumentAbstract {
                   return null;
                 }
 
-                boolean partialUpdateMode = false;
-                String mode = iRequest.getParameter("updateMode");
+                var partialUpdateMode = false;
+                var mode = iRequest.getParameter("updateMode");
                 if (mode != null && mode.equalsIgnoreCase("partial")) {
                   partialUpdateMode = true;
                 }

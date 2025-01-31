@@ -87,7 +87,7 @@ public class SQLSelectGroupByTest extends BaseDBTest {
     Assert.assertTrue(result.size() > 1);
     last = null;
     for (var d : result) {
-      Object current = d.getProperty("location");
+      var current = d.getProperty("location");
       if (current != null) {
         if (last != null) {
           Assert.assertTrue(last.compareTo((String) current) > 0);
@@ -115,7 +115,7 @@ public class SQLSelectGroupByTest extends BaseDBTest {
 
       Assert.assertEquals(result.size(), 3);
 
-      boolean foundNullGroup = false;
+      var foundNullGroup = false;
       for (var d : result) {
         if (d.getProperty("location") == null) {
           Assert.assertFalse(foundNullGroup);

@@ -13,16 +13,16 @@ public class DeleteEdgeStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testDeleteSingleEdge() {
-    String vertexClassName = "testDeleteSingleEdgeV";
+    var vertexClassName = "testDeleteSingleEdgeV";
     db.createVertexClass(vertexClassName);
 
-    String edgeClassName = "testDeleteSingleEdgeE";
+    var edgeClassName = "testDeleteSingleEdgeE";
     db.createEdgeClass(edgeClassName);
 
     Vertex prev = null;
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
-      Vertex v1 = db.newVertex(vertexClassName);
+      var v1 = db.newVertex(vertexClassName);
       v1.setProperty("name", "a" + i);
       v1.save();
       if (prev != null) {
@@ -33,7 +33,7 @@ public class DeleteEdgeStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet rs = db.query("SELECT expand(out()) FROM " + vertexClassName);
+    var rs = db.query("SELECT expand(out()) FROM " + vertexClassName);
     Assert.assertEquals(9, rs.stream().count());
     rs.close();
 
@@ -68,16 +68,16 @@ public class DeleteEdgeStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testDeleteAll() {
-    String vertexClassName = "testDeleteAllV";
+    var vertexClassName = "testDeleteAllV";
     db.createVertexClass(vertexClassName);
 
-    String edgeClassName = "testDeleteAllE";
+    var edgeClassName = "testDeleteAllE";
     db.createEdgeClass(edgeClassName);
 
     Vertex prev = null;
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
-      Vertex v1 = db.newVertex(vertexClassName);
+      var v1 = db.newVertex(vertexClassName);
       v1.setProperty("name", "a" + i);
       v1.save();
       if (prev != null) {
@@ -88,7 +88,7 @@ public class DeleteEdgeStatementExecutionTest extends DbTestBase {
       db.commit();
     }
 
-    ResultSet rs = db.query("SELECT expand(out()) FROM " + vertexClassName);
+    var rs = db.query("SELECT expand(out()) FROM " + vertexClassName);
     Assert.assertEquals(9, rs.stream().count());
     rs.close();
 

@@ -31,11 +31,11 @@ public class CreateLinkStatementExecutionTest extends DbTestBase {
     db.command("CREATE LINK theLink type link FROM Basic1.fk TO Basic2.pk ").close();
     db.commit();
 
-    ResultSet result = db.query("select pk, theLink.pk as other from Basic1 order by pk");
+    var result = db.query("select pk, theLink.pk as other from Basic1 order by pk");
     Assert.assertTrue(result.hasNext());
 
-    Result item = result.next();
-    Object otherKey = item.getProperty("other");
+    var item = result.next();
+    var otherKey = item.getProperty("other");
     Assert.assertNotNull(otherKey);
 
     Assert.assertEquals(otherKey, "pkb2_1");
@@ -66,11 +66,11 @@ public class CreateLinkStatementExecutionTest extends DbTestBase {
     db.command("CREATE LINK theLink TYPE LINKSET FROM Inverse1.fk TO Inverse2.pk INVERSE").close();
     db.commit();
 
-    ResultSet result = db.query("select pk, theLink.pk as other from Inverse2 order by pk");
+    var result = db.query("select pk, theLink.pk as other from Inverse2 order by pk");
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
+    var item = result.next();
 
-    Object otherKeys = item.getProperty("other");
+    var otherKeys = item.getProperty("other");
     Assert.assertNotNull(otherKeys);
     Assert.assertTrue(otherKeys instanceof List);
     Assert.assertEquals(((List) otherKeys).get(0), "pkb1_1");

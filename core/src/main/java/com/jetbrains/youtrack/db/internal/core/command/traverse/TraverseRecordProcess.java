@@ -51,7 +51,7 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
       return pop();
     }
 
-    final int depth = path.getDepth();
+    final var depth = path.getDepth();
 
     if (command.getContext().isAlreadyTraversed(target, depth))
     // ALREADY EVALUATED, DON'T GO IN DEEP
@@ -60,7 +60,7 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
     }
 
     if (command.getPredicate() != null) {
-      final Object conditionResult =
+      final var conditionResult =
           command.getPredicate().evaluate(target, null, command.getContext());
       if (conditionResult != Boolean.TRUE) {
         return drop();
@@ -70,7 +70,7 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
     // UPDATE ALL TRAVERSED RECORD TO AVOID RECURSION
     command.getContext().addTraversed(target, depth);
 
-    final int maxDepth = command.getMaxDepth();
+    final var maxDepth = command.getMaxDepth();
     if (maxDepth > -1 && depth == maxDepth) {
       // SKIP IT
       pop();
@@ -91,8 +91,8 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
       final List<Object> fields = new ArrayList<Object>();
 
       // TRAVERSE THE DOCUMENT ITSELF
-      for (Object cfgFieldObject : command.getFields()) {
-        String cfgField = cfgFieldObject.toString();
+      for (var cfgFieldObject : command.getFields()) {
+        var cfgField = cfgFieldObject.toString();
 
         if ("*".equals(cfgField)
             || SQLFilterItemFieldAll.FULL_NAME.equalsIgnoreCase(cfgField)
@@ -104,7 +104,7 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
 
         } else {
           // SINGLE FIELD
-          final int pos =
+          final var pos =
               StringSerializerHelper.parse(
                   cfgField,
                   new StringBuilder(),
@@ -126,7 +126,7 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
               continue;
             }
 
-            final String className = cfgField.substring(0, pos);
+            final var className = cfgField.substring(0, pos);
             if (!cls.isSubClassOf(className))
             // JUMP IT BECAUSE IT'S NOT A INSTANCEOF THE CLASS
             {
@@ -166,7 +166,7 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
     }
 
     while (target.hasNext()) {
-      Object field = target.next();
+      var field = target.next();
 
       final Object fieldValue;
       if (field instanceof SQLFilterItem) {
@@ -181,7 +181,7 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
         final TraverseAbstractProcess<?> subProcess;
 
         if (fieldValue instanceof Iterator<?> || MultiValue.isMultiValue(fieldValue)) {
-          final Iterator<?> coll = MultiValue.getMultiValueIterator(fieldValue);
+          final var coll = MultiValue.getMultiValueIterator(fieldValue);
 
           subProcess =
               new TraverseMultiValueProcess(

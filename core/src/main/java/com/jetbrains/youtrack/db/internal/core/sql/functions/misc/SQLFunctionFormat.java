@@ -41,7 +41,7 @@ public class SQLFunctionFormat extends SQLFunctionAbstract {
       Object iCurrentResult,
       final Object[] iParams,
       CommandContext iContext) {
-    final Object[] args = new Object[iParams.length - 1];
+    final var args = new Object[iParams.length - 1];
 
     System.arraycopy(iParams, 1, args, 0, args.length);
 

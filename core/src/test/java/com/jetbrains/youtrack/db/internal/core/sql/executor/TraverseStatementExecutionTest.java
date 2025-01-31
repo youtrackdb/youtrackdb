@@ -14,7 +14,7 @@ public class TraverseStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testPlainTraverse() {
-    String classPrefix = "testPlainTraverse_";
+    var classPrefix = "testPlainTraverse_";
     db.createVertexClass(classPrefix + "V");
     db.createEdgeClass(classPrefix + "E");
 
@@ -53,12 +53,12 @@ public class TraverseStatementExecutionTest extends DbTestBase {
         .close();
     db.commit();
 
-    ResultSet result =
+    var result =
         db.query("traverse out() from (select from " + classPrefix + "V where name = 'a')");
 
-    for (int i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertEquals(i, item.getMetadata("$depth"));
     }
     Assert.assertFalse(result.hasNext());
@@ -67,7 +67,7 @@ public class TraverseStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testWithDepth() {
-    String classPrefix = "testWithDepth_";
+    var classPrefix = "testWithDepth_";
     db.createVertexClass(classPrefix + "V");
     db.createEdgeClass(classPrefix + "E");
 
@@ -106,15 +106,15 @@ public class TraverseStatementExecutionTest extends DbTestBase {
         .close();
     db.commit();
 
-    ResultSet result =
+    var result =
         db.query(
             "traverse out() from (select from "
                 + classPrefix
                 + "V where name = 'a') WHILE $depth < 2");
 
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertEquals(i, item.getMetadata("$depth"));
     }
     Assert.assertFalse(result.hasNext());
@@ -123,7 +123,7 @@ public class TraverseStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testMaxDepth() {
-    String classPrefix = "testMaxDepth";
+    var classPrefix = "testMaxDepth";
     db.createVertexClass(classPrefix + "V");
     db.createEdgeClass(classPrefix + "E");
 
@@ -162,13 +162,13 @@ public class TraverseStatementExecutionTest extends DbTestBase {
         .close();
     db.commit();
 
-    ResultSet result =
+    var result =
         db.query(
             "traverse out() from (select from " + classPrefix + "V where name = 'a') MAXDEPTH 1");
 
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertEquals(i, item.getMetadata("$depth"));
     }
     Assert.assertFalse(result.hasNext());
@@ -178,9 +178,9 @@ public class TraverseStatementExecutionTest extends DbTestBase {
         db.query(
             "traverse out() from (select from " + classPrefix + "V where name = 'a') MAXDEPTH 2");
 
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertEquals(i, item.getMetadata("$depth"));
     }
     Assert.assertFalse(result.hasNext());
@@ -189,7 +189,7 @@ public class TraverseStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testBreadthFirst() {
-    String classPrefix = "testBreadthFirst_";
+    var classPrefix = "testBreadthFirst_";
     db.createVertexClass(classPrefix + "V");
     db.createEdgeClass(classPrefix + "E");
 
@@ -228,15 +228,15 @@ public class TraverseStatementExecutionTest extends DbTestBase {
         .close();
     db.commit();
 
-    ResultSet result =
+    var result =
         db.query(
             "traverse out() from (select from "
                 + classPrefix
                 + "V where name = 'a') STRATEGY BREADTH_FIRST");
 
-    for (int i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       Assert.assertTrue(result.hasNext());
-      Result item = result.next();
+      var item = result.next();
       Assert.assertEquals(i, item.getMetadata("$depth"));
     }
     Assert.assertFalse(result.hasNext());
@@ -245,7 +245,7 @@ public class TraverseStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testTraverseInBatchTx() {
-    String script = "";
+    var script = "";
     script += "";
 
     script += "drop class testTraverseInBatchTx_V if exists unsafe;";
@@ -269,10 +269,10 @@ public class TraverseStatementExecutionTest extends DbTestBase {
     script += "commit;";
     script += "return $top";
 
-    ResultSet result = db.execute("sql", script);
+    var result = db.execute("sql", script);
     Assert.assertTrue(result.hasNext());
-    Result item = result.next();
-    Object val = item.getProperty("value");
+    var item = result.next();
+    var val = item.getProperty("value");
     Assert.assertTrue(val instanceof Collection);
     Assert.assertEquals(1, ((Collection) val).size());
     result.close();

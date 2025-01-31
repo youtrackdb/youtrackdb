@@ -140,7 +140,7 @@ public abstract class LuceneIndexEngineAbstract implements LuceneIndexEngine {
     this.indexDefinition = im.getIndexDefinition();
     this.metadata = im.getMetadata();
 
-    LuceneAnalyzerFactory fc = new LuceneAnalyzerFactory();
+    var fc = new LuceneAnalyzerFactory();
     indexAnalyzer = fc.createAnalyzer(indexDefinition, INDEX, metadata);
     queryAnalyzer = fc.createAnalyzer(indexDefinition, QUERY, metadata);
 
@@ -201,12 +201,12 @@ public abstract class LuceneIndexEngineAbstract implements LuceneIndexEngine {
 
   private void checkCollectionIndex(DatabaseSessionInternal db, IndexDefinition indexDefinition) {
 
-    List<String> fields = indexDefinition.getFields();
+    var fields = indexDefinition.getFields();
 
-    SchemaClass aClass =
+    var aClass =
         db.getMetadata().getSchema().getClass(indexDefinition.getClassName());
-    for (String field : fields) {
-      SchemaProperty property = aClass.getProperty(field);
+    for (var field : fields) {
+      var property = aClass.getProperty(field);
 
       if (property.getType().isEmbedded() && property.getLinkedType() != null) {
         collectionFields.put(field, true);
@@ -234,7 +234,7 @@ public abstract class LuceneIndexEngineAbstract implements LuceneIndexEngine {
       return;
     }
 
-    LuceneDirectoryFactory directoryFactory = new LuceneDirectoryFactory();
+    var directoryFactory = new LuceneDirectoryFactory();
 
     directory = directoryFactory.createDirectory(storage, name, metadata);
 
@@ -256,18 +256,18 @@ public abstract class LuceneIndexEngineAbstract implements LuceneIndexEngine {
 
   private void addMetadataDocumentIfNotPresent(Storage storage) {
 
-    final IndexSearcher searcher = searcher(storage);
+    final var searcher = searcher(storage);
 
     try {
-      final TopDocs topDocs =
+      final var topDocs =
           searcher.search(new TermQuery(new Term("_CLASS", "JSON_METADATA")), 1);
       if (topDocs.totalHits == 0) {
         var metaDoc = new EntityImpl(null);
         metaDoc.updateFromMap(metadata);
-        String metaAsJson = metaDoc.toJSON();
-        String defAsJson = indexDefinition.toStream(null, new EntityImpl(null)).toJSON();
+        var metaAsJson = metaDoc.toJSON();
+        var defAsJson = indexDefinition.toStream(null, new EntityImpl(null)).toJSON();
 
-        Document lMetaDoc = new Document();
+        var lMetaDoc = new Document();
         lMetaDoc.add(new StringField("_META_JSON", metaAsJson, Field.Store.YES));
         lMetaDoc.add(new StringField("_DEF_JSON", defAsJson, Field.Store.YES));
         lMetaDoc.add(
@@ -345,9 +345,9 @@ public abstract class LuceneIndexEngineAbstract implements LuceneIndexEngine {
         }
       }
 
-      final AbstractPaginatedStorage storageLocalAbstract = (AbstractPaginatedStorage) storage;
+      final var storageLocalAbstract = (AbstractPaginatedStorage) storage;
       if (storageLocalAbstract instanceof LocalPaginatedStorage localStorage) {
-        File storagePath = localStorage.getStoragePath().toFile();
+        var storagePath = localStorage.getStoragePath().toFile();
         deleteIndexFolder(storagePath);
       }
     } catch (IOException e) {
@@ -357,16 +357,16 @@ public abstract class LuceneIndexEngineAbstract implements LuceneIndexEngine {
   }
 
   private void deleteIndexFolder(File baseStoragePath) throws IOException {
-    @SuppressWarnings("resource") final String[] files = directory.getDirectory().listAll();
-    for (String fileName : files) {
+    @SuppressWarnings("resource") final var files = directory.getDirectory().listAll();
+    for (var fileName : files) {
       //noinspection resource
       directory.getDirectory().deleteFile(fileName);
     }
     directory.getDirectory().close();
-    String indexPath = directory.getPath();
+    var indexPath = directory.getPath();
     if (indexPath != null) {
-      File indexDir = new File(indexPath);
-      final FileSystem fileSystem = FileSystems.getDefault();
+      var indexDir = new File(indexPath);
+      final var fileSystem = FileSystems.getDefault();
       while (true) {
         if (Files.isSameFile(
             fileSystem.getPath(baseStoragePath.getCanonicalPath()),
@@ -375,7 +375,7 @@ public abstract class LuceneIndexEngineAbstract implements LuceneIndexEngine {
         }
         // delete only if dir is empty, otherwise stop deleting process
         // last index will remove all upper dirs
-        final File[] indexDirFiles = indexDir.listFiles();
+        final var indexDirFiles = indexDir.listFiles();
         if (indexDirFiles != null && indexDirFiles.length == 0) {
           FileUtils.deleteRecursively(indexDir, true);
           indexDir = indexDir.getParentFile();
@@ -411,7 +411,7 @@ public abstract class LuceneIndexEngineAbstract implements LuceneIndexEngine {
     updateLastAccess();
     openIfClosed(storage);
 
-    Query query = deleteQuery(storage, key, value);
+    var query = deleteQuery(storage, key, value);
     if (query != null) {
       deleteDocument(query);
     }
@@ -423,7 +423,7 @@ public abstract class LuceneIndexEngineAbstract implements LuceneIndexEngine {
     updateLastAccess();
     openIfClosed(storage);
     try {
-      final Query query = new QueryParser("", queryAnalyzer()).parse((String) key);
+      final var query = new QueryParser("", queryAnalyzer()).parse((String) key);
       deleteDocument(query);
       return true;
     } catch (org.apache.lucene.queryparser.classic.ParseException e) {
@@ -450,8 +450,8 @@ public abstract class LuceneIndexEngineAbstract implements LuceneIndexEngine {
   }
 
   private boolean isCollectionDelete() {
-    boolean collectionDelete = false;
-    for (Boolean aBoolean : collectionFields.values()) {
+    var collectionDelete = false;
+    for (var aBoolean : collectionFields.values()) {
       collectionDelete = collectionDelete || aBoolean;
     }
     return collectionDelete;
@@ -490,10 +490,10 @@ public abstract class LuceneIndexEngineAbstract implements LuceneIndexEngine {
   public long sizeInTx(LuceneTxChanges changes, Storage storage) {
     updateLastAccess();
     openIfClosed(storage);
-    IndexSearcher searcher = searcher(storage);
+    var searcher = searcher(storage);
     try {
       @SuppressWarnings("resource")
-      IndexReader reader = searcher.getIndexReader();
+      var reader = searcher.getIndexReader();
 
       // we subtract metadata document added during open
       return changes == null ? reader.numDocs() - 1 : reader.numDocs() + changes.numDocs() - 1;

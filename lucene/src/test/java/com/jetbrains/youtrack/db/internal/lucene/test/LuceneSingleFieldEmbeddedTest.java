@@ -32,7 +32,7 @@ public class LuceneSingleFieldEmbeddedTest extends BaseLuceneTest {
   @Test
   public void loadAndTest() {
 
-    ResultSet docs = db.query("select * from Song where [title] LUCENE \"(title:mountain)\"");
+    var docs = db.query("select * from Song where [title] LUCENE \"(title:mountain)\"");
 
     Assert.assertEquals(docs.stream().count(), 4);
 
@@ -43,7 +43,7 @@ public class LuceneSingleFieldEmbeddedTest extends BaseLuceneTest {
     // not WORK BECAUSE IT USES only the first index
     // String query = "select * from Song where [title] LUCENE \"(title:mountain)\"  and [author]
     // LUCENE \"(author:Fabbio)\""
-    String query =
+    var query =
         "select * from Song where [title] LUCENE \"(title:mountain)\"  and author = 'Fabbio'";
     docs = db.query(query);
 
@@ -52,7 +52,7 @@ public class LuceneSingleFieldEmbeddedTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
+    var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
 
     db.execute("sql", getScriptFromStream(stream)).close();
 

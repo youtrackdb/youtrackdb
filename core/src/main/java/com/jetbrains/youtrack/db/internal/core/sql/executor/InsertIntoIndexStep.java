@@ -47,8 +47,8 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
   }
 
   private ResultInternal produce(CommandContext ctx) {
-    final DatabaseSessionInternal database = ctx.getDatabase();
-    Index index =
+    final var database = ctx.getDatabase();
+    var index =
         database
             .getMetadata()
             .getIndexManagerInternal()
@@ -56,7 +56,7 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
     if (index == null) {
       throw new CommandExecutionException("Index not found: " + targetIndex);
     }
-    List<SQLInsertSetExpression> setExps = body.getSetExpressions();
+    var setExps = body.getSetExpressions();
     if (body.getContent() != null) {
       throw new CommandExecutionException(
           "Invalid expression: INSERT INTO INDEX:... CONTENT ...");
@@ -68,7 +68,7 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
       count = handleKeyValues(body.getIdentifierList(), body.getValueExpressions(), index, ctx);
     }
 
-    ResultInternal result = new ResultInternal(database);
+    var result = new ResultInternal(database);
     result.setProperty("count", count);
     return result;
   }
@@ -84,12 +84,12 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
       throw new CommandExecutionException("Invalid insert expression");
     }
     long count = 0;
-    for (List<SQLExpression> valList : setExpressions) {
+    for (var valList : setExpressions) {
       if (identifierList.size() != valList.size()) {
         throw new CommandExecutionException("Invalid insert expression");
       }
-      for (int i = 0; i < identifierList.size(); i++) {
-        SQLIdentifier key = identifierList.get(i);
+      for (var i = 0; i < identifierList.size(); i++) {
+        var key = identifierList.get(i);
         if (key.getStringValue().equalsIgnoreCase("key")) {
           keyExp = valList.get(i);
         }
@@ -110,7 +110,7 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
   private long handleSet(List<SQLInsertSetExpression> setExps, Index index, CommandContext ctx) {
     SQLExpression keyExp = null;
     SQLExpression valueExp = null;
-    for (SQLInsertSetExpression exp : setExps) {
+    for (var exp : setExps) {
       if (exp.getLeft().getStringValue().equalsIgnoreCase("key")) {
         keyExp = exp.getRight();
       } else if (exp.getLeft().getStringValue().equalsIgnoreCase("rid")) {
@@ -128,8 +128,8 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
   private long doExecute(
       Index index, CommandContext ctx, SQLExpression keyExp, SQLExpression valueExp) {
     long count = 0;
-    Object key = keyExp.execute((Result) null, ctx);
-    Object value = valueExp.execute((Result) null, ctx);
+    var key = keyExp.execute((Result) null, ctx);
+    var value = valueExp.execute((Result) null, ctx);
     if (value instanceof Identifiable) {
       insertIntoIndex(ctx.getDatabase(), index, key, (Identifiable) value);
       count++;
@@ -139,9 +139,9 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
     } else if (value instanceof ResultSet) {
       ((ResultSet) value).entityStream().forEach(x -> index.put(ctx.getDatabase(), key, x));
     } else if (MultiValue.isMultiValue(value)) {
-      Iterator<?> iterator = MultiValue.getMultiValueIterator(value);
+      var iterator = MultiValue.getMultiValueIterator(value);
       while (iterator.hasNext()) {
-        Object item = iterator.next();
+        var item = iterator.next();
         if (item instanceof Identifiable) {
           insertIntoIndex(ctx.getDatabase(), index, key, (Identifiable) item);
           count++;

@@ -21,7 +21,7 @@ public class SQLBeginStatement extends SQLSimpleExecStatement {
   public ExecutionStream executeSimple(CommandContext ctx) {
     var db = ctx.getDatabase();
     db.begin();
-    ResultInternal item = new ResultInternal(db);
+    var item = new ResultInternal(db);
     item.setProperty("operation", "begin");
     return ExecutionStream.singleton(item);
   }

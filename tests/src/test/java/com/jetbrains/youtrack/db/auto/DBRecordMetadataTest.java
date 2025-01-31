@@ -27,8 +27,8 @@ public class DBRecordMetadataTest extends BaseDBTest {
 
   public void testGetRecordMetadata() {
 
-    EntityImpl doc = ((EntityImpl) db.newEntity());
-    for (int i = 0; i < 5; i++) {
+    var doc = ((EntityImpl) db.newEntity());
+    for (var i = 0; i < 5; i++) {
       db.begin();
       if (!doc.getIdentity().isNew()) {
         doc = db.bindToSession(doc);
@@ -38,7 +38,7 @@ public class DBRecordMetadataTest extends BaseDBTest {
       db.save(doc);
       db.commit();
 
-      final RecordMetadata metadata = db.getRecordMetadata(doc.getIdentity());
+      final var metadata = db.getRecordMetadata(doc.getIdentity());
       assetORIDEquals(doc.getIdentity(), metadata.getRecordId());
       assertEquals(db.bindToSession(doc).getVersion(), metadata.getVersion());
     }

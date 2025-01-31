@@ -21,34 +21,34 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
   public void testCreateSingleEdge() {
     Schema schema = db.getMetadata().getSchema();
 
-    String vClass = "testCreateSingleEdgeV";
+    var vClass = "testCreateSingleEdgeV";
     schema.createClass(vClass, schema.getClass("V"));
 
-    String eClass = "testCreateSingleEdgeE";
+    var eClass = "testCreateSingleEdgeE";
     schema.createClass(eClass, schema.getClass("E"));
 
     db.begin();
-    Vertex v1 = db.newVertex(vClass);
+    var v1 = db.newVertex(vClass);
     v1.setProperty("name", "v1");
     v1.save();
     db.commit();
 
     db.begin();
-    Vertex v2 = db.newVertex(vClass);
+    var v2 = db.newVertex(vClass);
     v2.setProperty("name", "v2");
     v2.save();
     db.commit();
 
     db.begin();
-    ResultSet createREs =
+    var createREs =
         db.command(
             "create edge " + eClass + " from " + v1.getIdentity() + " to " + v2.getIdentity());
     db.commit();
     ExecutionPlanPrintUtils.printExecutionPlan(createREs);
-    ResultSet result = db.query("select expand(out()) from " + v1.getIdentity());
+    var result = db.query("select expand(out()) from " + v1.getIdentity());
     Assert.assertNotNull(result);
     Assert.assertTrue(result.hasNext());
-    Result next = result.next();
+    var next = result.next();
     Assert.assertNotNull(next);
     Assert.assertEquals("v2", next.getProperty("name"));
     result.close();
@@ -66,26 +66,26 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
   public void testCreateEdgeWithProperty() {
     Schema schema = db.getMetadata().getSchema();
 
-    String vClass = "testCreateEdgeWithPropertyV";
+    var vClass = "testCreateEdgeWithPropertyV";
     schema.createClass(vClass, schema.getClass("V"));
 
-    String eClass = "testCreateEdgeWithPropertyE";
+    var eClass = "testCreateEdgeWithPropertyE";
     schema.createClass(eClass, schema.getClass("E"));
 
     db.begin();
-    Vertex v1 = db.newVertex(vClass);
+    var v1 = db.newVertex(vClass);
     v1.setProperty("name", "v1");
     v1.save();
     db.commit();
 
     db.begin();
-    Vertex v2 = db.newVertex(vClass);
+    var v2 = db.newVertex(vClass);
     v2.setProperty("name", "v2");
     v2.save();
     db.commit();
 
     db.begin();
-    ResultSet createREs =
+    var createREs =
         db.command(
             "create edge "
                 + eClass
@@ -97,10 +97,10 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
     db.commit();
 
     ExecutionPlanPrintUtils.printExecutionPlan(createREs);
-    ResultSet result = db.query("select expand(outE()) from " + v1.getIdentity());
+    var result = db.query("select expand(outE()) from " + v1.getIdentity());
     Assert.assertNotNull(result);
     Assert.assertTrue(result.hasNext());
-    Result next = result.next();
+    var next = result.next();
     Assert.assertNotNull(next);
     Assert.assertEquals("theEdge", next.getProperty("name"));
     result.close();
@@ -110,22 +110,22 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
   public void testCreateTwoByTwo() {
     Schema schema = db.getMetadata().getSchema();
 
-    String vClass = "testCreateTwoByTwoV";
+    var vClass = "testCreateTwoByTwoV";
     schema.createClass(vClass, schema.getClass("V"));
 
-    String eClass = "testCreateTwoByTwoE";
+    var eClass = "testCreateTwoByTwoE";
     schema.createClass(eClass, schema.getClass("E"));
 
-    for (int i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       db.begin();
-      Vertex v1 = db.newVertex(vClass);
+      var v1 = db.newVertex(vClass);
       v1.setProperty("name", "v" + i);
       v1.save();
       db.commit();
     }
 
     db.begin();
-    ResultSet createREs =
+    var createREs =
         db.command(
             "create edge "
                 + eClass
@@ -137,12 +137,12 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
     db.commit();
     ExecutionPlanPrintUtils.printExecutionPlan(createREs);
 
-    ResultSet result = db.query("select expand(out()) from " + vClass + " where name = 'v0'");
+    var result = db.query("select expand(out()) from " + vClass + " where name = 'v0'");
 
     Assert.assertNotNull(result);
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      Result next = result.next();
+      var next = result.next();
       Assert.assertNotNull(next);
     }
     result.close();
@@ -150,9 +150,9 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
     result = db.query("select expand(in()) from " + vClass + " where name = 'v2'");
 
     Assert.assertNotNull(result);
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      Result next = result.next();
+      var next = result.next();
       Assert.assertNotNull(next);
     }
     result.close();
@@ -162,31 +162,31 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
   public void testUpsert() {
     Schema schema = db.getMetadata().getSchema();
 
-    String vClass1 = "testUpsertV1";
-    SchemaClass vclazz1 = schema.createClass(vClass1, schema.getClass("V"));
+    var vClass1 = "testUpsertV1";
+    var vclazz1 = schema.createClass(vClass1, schema.getClass("V"));
 
-    String vClass2 = "testUpsertV2";
-    SchemaClass vclazz2 = schema.createClass(vClass2, schema.getClass("V"));
+    var vClass2 = "testUpsertV2";
+    var vclazz2 = schema.createClass(vClass2, schema.getClass("V"));
 
-    String eClass = "testUpsertE";
+    var eClass = "testUpsertE";
 
-    SchemaClass eclazz = schema.createClass(eClass, schema.getClass("E"));
+    var eclazz = schema.createClass(eClass, schema.getClass("E"));
     eclazz.createProperty(db, "out", PropertyType.LINK, vclazz1);
     eclazz.createProperty(db, "in", PropertyType.LINK, vclazz2);
 
     db.command("CREATE INDEX " + eClass + "out_in ON " + eclazz + " (out, in) UNIQUE");
 
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       db.begin();
-      Vertex v1 = db.newVertex(vClass1);
+      var v1 = db.newVertex(vClass1);
       v1.setProperty("name", "v" + i);
       v1.save();
       db.commit();
     }
 
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       db.begin();
-      Vertex v1 = db.newVertex(vClass2);
+      var v1 = db.newVertex(vClass2);
       v1.setProperty("name", "v" + i);
       v1.save();
       db.commit();
@@ -204,7 +204,7 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
         .close();
     db.commit();
 
-    ResultSet rs = db.query("SELECT FROM " + eClass);
+    var rs = db.query("SELECT FROM " + eClass);
     Assert.assertTrue(rs.hasNext());
     rs.next();
     Assert.assertFalse(rs.hasNext());
@@ -223,9 +223,9 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
     db.commit();
 
     rs = db.query("SELECT FROM " + eclazz);
-    for (int i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       Assert.assertTrue(rs.hasNext());
-      Result item = rs.next();
+      var item = rs.next();
       Assert.assertEquals("bar", item.getProperty("name"));
     }
     Assert.assertFalse(rs.hasNext());
@@ -236,31 +236,31 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
   public void testUpsertHashIndex() {
     Schema schema = db.getMetadata().getSchema();
 
-    String vClass1 = "testUpsertHashIndexV1";
-    SchemaClass vclazz1 = schema.createClass(vClass1, schema.getClass("V"));
+    var vClass1 = "testUpsertHashIndexV1";
+    var vclazz1 = schema.createClass(vClass1, schema.getClass("V"));
 
-    String vClass2 = "testUpsertHashIndexV2";
-    SchemaClass vclazz2 = schema.createClass(vClass2, schema.getClass("V"));
+    var vClass2 = "testUpsertHashIndexV2";
+    var vclazz2 = schema.createClass(vClass2, schema.getClass("V"));
 
-    String eClass = "testUpsertHashIndexE";
+    var eClass = "testUpsertHashIndexE";
 
-    SchemaClass eclazz = schema.createClass(eClass, schema.getClass("E"));
+    var eclazz = schema.createClass(eClass, schema.getClass("E"));
     eclazz.createProperty(db, "out", PropertyType.LINK, vclazz1);
     eclazz.createProperty(db, "in", PropertyType.LINK, vclazz2);
 
     db.command("CREATE INDEX " + eClass + "out_in ON " + eclazz + " (out, in) UNIQUE");
 
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       db.begin();
-      Vertex v1 = db.newVertex(vClass1);
+      var v1 = db.newVertex(vClass1);
       v1.setProperty("name", "v" + i);
       v1.save();
       db.commit();
     }
 
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       db.begin();
-      Vertex v1 = db.newVertex(vClass2);
+      var v1 = db.newVertex(vClass2);
       v1.setProperty("name", "v" + i);
       v1.save();
       db.commit();
@@ -278,7 +278,7 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
         .close();
     db.commit();
 
-    ResultSet rs = db.query("SELECT FROM " + eClass);
+    var rs = db.query("SELECT FROM " + eClass);
     Assert.assertTrue(rs.hasNext());
     rs.next();
     Assert.assertFalse(rs.hasNext());
@@ -297,7 +297,7 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
     db.commit();
 
     rs = db.query("SELECT FROM " + eclazz);
-    for (int i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       Assert.assertTrue(rs.hasNext());
       rs.next();
     }
@@ -309,30 +309,30 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
   public void testBreakUniqueWithoutUpsert() {
     Schema schema = db.getMetadata().getSchema();
 
-    String vClass1 = "testBreakUniqueWithoutUpsertV1";
-    SchemaClass vclazz1 = schema.createClass(vClass1, schema.getClass("V"));
+    var vClass1 = "testBreakUniqueWithoutUpsertV1";
+    var vclazz1 = schema.createClass(vClass1, schema.getClass("V"));
 
-    String vClass2 = "testBreakUniqueWithoutUpsertV2";
-    SchemaClass vclazz2 = schema.createClass(vClass2, schema.getClass("V"));
+    var vClass2 = "testBreakUniqueWithoutUpsertV2";
+    var vclazz2 = schema.createClass(vClass2, schema.getClass("V"));
 
-    String eClass = "testBreakUniqueWithoutUpsertE";
+    var eClass = "testBreakUniqueWithoutUpsertE";
 
-    SchemaClass eclazz = schema.createClass(eClass, schema.getClass("E"));
+    var eclazz = schema.createClass(eClass, schema.getClass("E"));
     eclazz.createProperty(db, "out", PropertyType.LINK, vclazz1);
     eclazz.createProperty(db, "in", PropertyType.LINK, vclazz2);
 
     db.command("CREATE INDEX " + eClass + "out_in ON " + eclazz + " (out, in) UNIQUE");
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       db.begin();
-      Vertex v1 = db.newVertex(vClass1);
+      var v1 = db.newVertex(vClass1);
       v1.setProperty("name", "v" + i);
       v1.save();
       db.commit();
     }
 
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       db.begin();
-      Vertex v1 = db.newVertex(vClass2);
+      var v1 = db.newVertex(vClass2);
       v1.setProperty("name", "v" + i);
       v1.save();
       db.commit();
@@ -350,7 +350,7 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
         .close();
     db.commit();
 
-    ResultSet rs = db.query("SELECT FROM " + eClass);
+    var rs = db.query("SELECT FROM " + eClass);
     Assert.assertTrue(rs.hasNext());
     rs.next();
     Assert.assertFalse(rs.hasNext());
@@ -378,25 +378,25 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
   public void testUpsertNoIndex() {
     Schema schema = db.getMetadata().getSchema();
 
-    String vClass1 = "testUpsertNoIndexV1";
+    var vClass1 = "testUpsertNoIndexV1";
     schema.createClass(vClass1, schema.getClass("V"));
 
-    String vClass2 = "testUpsertNoIndexV2";
+    var vClass2 = "testUpsertNoIndexV2";
     schema.createClass(vClass2, schema.getClass("V"));
 
-    String eClass = "testUpsertNoIndexE";
+    var eClass = "testUpsertNoIndexE";
 
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       db.begin();
-      Vertex v1 = db.newVertex(vClass1);
+      var v1 = db.newVertex(vClass1);
       v1.setProperty("name", "v" + i);
       v1.save();
       db.commit();
     }
 
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       db.begin();
-      Vertex v1 = db.newVertex(vClass2);
+      var v1 = db.newVertex(vClass2);
       v1.setProperty("name", "v" + i);
       v1.save();
       db.commit();
@@ -421,15 +421,15 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
   @Test
   public void testPositionalParams() {
 
-    String vClass1 = "testPositionalParamsV";
+    var vClass1 = "testPositionalParamsV";
     db.createVertexClass(vClass1);
 
-    String eClass = "testPositionalParamsE";
+    var eClass = "testPositionalParamsE";
     db.createEdgeClass(eClass);
 
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       db.begin();
-      Vertex v1 = db.newVertex(vClass1);
+      var v1 = db.newVertex(vClass1);
       v1.setProperty("name", "v" + i);
       v1.save();
       db.commit();
@@ -449,7 +449,7 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
         .close();
     db.commit();
 
-    ResultSet result =
+    var result =
         db.query("select from " + eClass + " where out.name = 'v0' AND in.name = 'v1'");
     Assert.assertTrue(result.hasNext());
     result.close();

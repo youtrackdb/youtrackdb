@@ -63,7 +63,7 @@ public class YouTrackDbJdbcDatabaseMetaDataTest extends YouTrackDbJdbcDbPerClass
 
   @Test
   public void shouldRetrievePrimaryKeysMetadata() throws SQLException {
-    ResultSet primaryKeys = metaData.getPrimaryKeys(null, null, "Item");
+    var primaryKeys = metaData.getPrimaryKeys(null, null, "Item");
     assertTrue(primaryKeys.next());
     assertEquals("intKey", primaryKeys.getString(4));
     assertEquals("Item.intKey", primaryKeys.getString(6));
@@ -78,7 +78,7 @@ public class YouTrackDbJdbcDatabaseMetaDataTest extends YouTrackDbJdbcDbPerClass
   @Test
   public void shouldRetrieveTableTypes() throws SQLException {
 
-    ResultSet tableTypes = metaData.getTableTypes();
+    var tableTypes = metaData.getTableTypes();
 
     //    Assertions.
     assertTrue(tableTypes.next());
@@ -92,7 +92,7 @@ public class YouTrackDbJdbcDatabaseMetaDataTest extends YouTrackDbJdbcDbPerClass
   @Test
   public void shouldRetrieveKeywords() throws SQLException {
 
-    final String keywordsStr = metaData.getSQLKeywords();
+    final var keywordsStr = metaData.getSQLKeywords();
     assertNotNull(keywordsStr);
     assertThat(Arrays.asList(keywordsStr.toUpperCase(Locale.ENGLISH).split(",\\s*")))
         .contains("TRAVERSE");
@@ -101,7 +101,7 @@ public class YouTrackDbJdbcDatabaseMetaDataTest extends YouTrackDbJdbcDbPerClass
   @Test
   public void shouldRetrieveUniqueIndexInfoForTable() throws Exception {
 
-    ResultSet indexInfo =
+    var indexInfo =
         metaData.getIndexInfo(
             "YouTrackDBJdbcDatabaseMetaDataTest",
             "YouTrackDBJdbcDatabaseMetaDataTest",
@@ -122,15 +122,15 @@ public class YouTrackDbJdbcDatabaseMetaDataTest extends YouTrackDbJdbcDbPerClass
 
   @Test
   public void getFields() throws SQLException {
-    ResultSet rs = conn.createStatement().executeQuery("select from OUser");
+    var rs = conn.createStatement().executeQuery("select from OUser");
 
-    ResultSetMetaData rsMetaData = rs.getMetaData();
+    var rsMetaData = rs.getMetaData();
 
-    int cc = rsMetaData.getColumnCount();
+    var cc = rsMetaData.getColumnCount();
     Set<String> colset = new HashSet<>();
     List<Map<String, Object>> columns = new ArrayList<>(cc);
-    for (int i = 1; i <= cc; i++) {
-      String name = rsMetaData.getColumnLabel(i);
+    for (var i = 1; i <= cc; i++) {
+      var name = rsMetaData.getColumnLabel(i);
       //      if (colset.contains(name))
       //        continue;
       colset.add(name);
@@ -138,10 +138,10 @@ public class YouTrackDbJdbcDatabaseMetaDataTest extends YouTrackDbJdbcDbPerClass
       field.put("name", name);
 
       try {
-        String catalog = rsMetaData.getCatalogName(i);
-        String schema = rsMetaData.getSchemaName(i);
-        String table = rsMetaData.getTableName(i);
-        ResultSet rsmc = conn.getMetaData().getColumns(catalog, schema, table, name);
+        var catalog = rsMetaData.getCatalogName(i);
+        var schema = rsMetaData.getSchemaName(i);
+        var table = rsMetaData.getTableName(i);
+        var rsmc = conn.getMetaData().getColumns(catalog, schema, table, name);
         while (rsmc.next()) {
           field.put("description", rsmc.getString("REMARKS"));
           break;
@@ -152,15 +152,15 @@ public class YouTrackDbJdbcDatabaseMetaDataTest extends YouTrackDbJdbcDbPerClass
       columns.add(field);
     }
 
-    for (Map<String, Object> c : columns) {
+    for (var c : columns) {
       System.out.println(c);
     }
   }
 
   @Test
   public void shouldFetchAllTables() throws SQLException {
-    ResultSet rs = metaData.getTables(null, null, null, null);
-    int tableCount = sizeOf(rs);
+    var rs = metaData.getTables(null, null, null, null);
+    var tableCount = sizeOf(rs);
 
     var database = (DatabaseSessionInternal) conn.getDatabase();
     assertThat(tableCount)
@@ -171,7 +171,7 @@ public class YouTrackDbJdbcDatabaseMetaDataTest extends YouTrackDbJdbcDbPerClass
 
   @Test
   public void shouldFillSchemaAndCatalogWithDatabaseName() throws SQLException {
-    ResultSet rs = metaData.getTables(null, null, null, null);
+    var rs = metaData.getTables(null, null, null, null);
 
     while (rs.next()) {
       assertThat(rs.getString("TABLE_SCHEM")).isEqualTo("perClassTestDatabase");
@@ -181,13 +181,13 @@ public class YouTrackDbJdbcDatabaseMetaDataTest extends YouTrackDbJdbcDbPerClass
 
   @Test
   public void shouldGetAllTablesFilteredByAllTypes() throws SQLException {
-    ResultSet rs = metaData.getTableTypes();
+    var rs = metaData.getTableTypes();
     List<String> tableTypes = new ArrayList<>(2);
     while (rs.next()) {
       tableTypes.add(rs.getString(1));
     }
     rs = metaData.getTables(null, null, null, tableTypes.toArray(new String[2]));
-    int tableCount = sizeOf(rs);
+    var tableCount = sizeOf(rs);
     var database = (DatabaseSessionInternal) conn.getDatabase();
 
     assertThat(tableCount)
@@ -198,15 +198,15 @@ public class YouTrackDbJdbcDatabaseMetaDataTest extends YouTrackDbJdbcDbPerClass
 
   @Test
   public void getNoTablesFilteredByEmptySetOfTypes() throws SQLException {
-    final ResultSet rs = metaData.getTables(null, null, null, new String[0]);
-    int tableCount = sizeOf(rs);
+    final var rs = metaData.getTables(null, null, null, new String[0]);
+    var tableCount = sizeOf(rs);
 
     assertThat(tableCount).isEqualTo(0);
   }
 
   @Test
   public void getSingleTable() throws SQLException {
-    ResultSet rs = metaData.getTables(null, null, "ouser", null);
+    var rs = metaData.getTables(null, null, "ouser", null);
     rs.next();
     assertThat(rs.getString("TABLE_NAME")).isEqualTo("OUser");
     assertThat(rs.getString("TABLE_CAT")).isEqualTo("perClassTestDatabase");
@@ -220,7 +220,7 @@ public class YouTrackDbJdbcDatabaseMetaDataTest extends YouTrackDbJdbcDbPerClass
 
   @Test
   public void shouldGetSingleColumnOfArticle() throws SQLException {
-    ResultSet rs = metaData.getColumns(null, null, "Article", "uuid");
+    var rs = metaData.getColumns(null, null, "Article", "uuid");
     rs.next();
 
     assertThat(rs.getString("TABLE_NAME")).isEqualTo("Article");
@@ -233,7 +233,7 @@ public class YouTrackDbJdbcDatabaseMetaDataTest extends YouTrackDbJdbcDbPerClass
 
   @Test
   public void shouldGetAllColumnsOfArticle() throws SQLException {
-    ResultSet rs = metaData.getColumns(null, null, "Article", null);
+    var rs = metaData.getColumns(null, null, "Article", null);
 
     while (rs.next()) {
       assertThat(rs.getString("TABLE_NAME")).isEqualTo("Article");
@@ -247,7 +247,7 @@ public class YouTrackDbJdbcDatabaseMetaDataTest extends YouTrackDbJdbcDbPerClass
 
   @Test
   public void shouldGetAllIndexesOnArticle() throws Exception {
-    ResultSet rs = metaData.getIndexInfo(null, null, "Article", true, true);
+    var rs = metaData.getIndexInfo(null, null, "Article", true, true);
 
     rs.next();
 
@@ -258,7 +258,7 @@ public class YouTrackDbJdbcDatabaseMetaDataTest extends YouTrackDbJdbcDbPerClass
 
   @Test
   public void shouldGetPrimaryKeyOfArticle() throws Exception {
-    ResultSet rs = metaData.getPrimaryKeys(null, null, "Article");
+    var rs = metaData.getPrimaryKeys(null, null, "Article");
 
     rs.next();
     assertThat(rs.getString("TABLE_NAME")).isEqualTo("Article");
@@ -268,7 +268,7 @@ public class YouTrackDbJdbcDatabaseMetaDataTest extends YouTrackDbJdbcDbPerClass
   }
 
   private int sizeOf(ResultSet rs) throws SQLException {
-    int tableCount = 0;
+    var tableCount = 0;
 
     while (rs.next()) {
       tableCount++;

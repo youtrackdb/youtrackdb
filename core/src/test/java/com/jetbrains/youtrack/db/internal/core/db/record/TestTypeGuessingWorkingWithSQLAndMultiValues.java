@@ -34,7 +34,7 @@ public class TestTypeGuessingWorkingWithSQLAndMultiValues extends DbTestBase {
   @Test
   public void testLinkedValue() {
 
-    try (ResultSet result =
+    try (var result =
         db.execute(
             "sql",
             "begin; let res = insert into client set name = 'James Bond', phones = ['1234',"
@@ -44,7 +44,7 @@ public class TestTypeGuessingWorkingWithSQLAndMultiValues extends DbTestBase {
                 + " [{'@type':'d','@class':'Address','city':'London', 'zip':'67373'}]; commit;"
                 + " return $res")) {
       Assert.assertTrue(result.hasNext());
-      Result doc = result.next();
+      var doc = result.next();
 
       Collection<EntityImpl> addresses = doc.getProperty("addresses");
       Assert.assertEquals(3, addresses.size());
@@ -54,18 +54,18 @@ public class TestTypeGuessingWorkingWithSQLAndMultiValues extends DbTestBase {
     }
 
     db.begin();
-    try (ResultSet resultSet =
+    try (var resultSet =
         db.command(
             "update client set addresses = addresses || [{'city':'London', 'zip':'67373'}] return"
                 + " after")) {
       Assert.assertTrue(resultSet.hasNext());
 
-      Result result = resultSet.next();
+      var result = resultSet.next();
 
       Collection<Result> addresses = result.getProperty("addresses");
       Assert.assertEquals(4, addresses.size());
 
-      for (Result a : addresses) {
+      for (var a : addresses) {
         Assert.assertEquals("Address", a.getProperty("@class"));
       }
     }

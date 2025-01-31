@@ -23,17 +23,17 @@ public class ServerQueryResponseTest extends DbTestBase {
   public void test() throws IOException {
 
     List<Result> resuls = new ArrayList<>();
-    for (int i = 0; i < 10; i++) {
-      ResultInternal item = new ResultInternal(null);
+    for (var i = 0; i < 10; i++) {
+      var item = new ResultInternal(null);
       item.setProperty("name", "foo");
       item.setProperty("counter", i);
       resuls.add(item);
     }
-    ServerQueryResponse response =
+    var response =
         new ServerQueryResponse(
             "query", true, resuls, Optional.empty(), false, new HashMap<>(), true);
 
-    MockChannel channel = new MockChannel();
+    var channel = new MockChannel();
     response.write(null,
         channel,
         ChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION,
@@ -41,14 +41,14 @@ public class ServerQueryResponseTest extends DbTestBase {
 
     channel.close();
 
-    ServerQueryResponse newResponse = new ServerQueryResponse();
+    var newResponse = new ServerQueryResponse();
 
     newResponse.read(db, channel, null);
-    Iterator<Result> responseRs = newResponse.getResult().iterator();
+    var responseRs = newResponse.getResult().iterator();
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       Assert.assertTrue(responseRs.hasNext());
-      Result item = responseRs.next();
+      var item = responseRs.next();
       Assert.assertEquals("foo", item.getProperty("name"));
       Assert.assertEquals((Integer) i, item.getProperty("counter"));
     }

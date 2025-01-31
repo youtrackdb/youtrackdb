@@ -97,8 +97,8 @@ public class TrackedSet<T> extends LinkedHashSet<T>
   @Override
   public boolean addAll(Collection<? extends T> c) {
 
-    boolean modified = false;
-    for (T o : c) {
+    var modified = false;
+    for (var o : c) {
       if (add(o)) {
         modified = true;
       }
@@ -135,7 +135,7 @@ public class TrackedSet<T> extends LinkedHashSet<T>
 
   @Override
   public void clear() {
-    for (final T item : this) {
+    for (final var item : this) {
       removeEvent(item);
     }
     super.clear();
@@ -188,11 +188,11 @@ public class TrackedSet<T> extends LinkedHashSet<T>
       final List<MultiValueChangeEvent<T, T>> multiValueChangeEvents) {
     final Set<T> reverted = new HashSet<T>(this);
 
-    final ListIterator<MultiValueChangeEvent<T, T>> listIterator =
+    final var listIterator =
         multiValueChangeEvents.listIterator(multiValueChangeEvents.size());
 
     while (listIterator.hasPrevious()) {
-      final MultiValueChangeEvent<T, T> event = listIterator.previous();
+      final var event = listIterator.previous();
       switch (event.getChangeType()) {
         case ADD:
           reverted.remove(event.getKey());

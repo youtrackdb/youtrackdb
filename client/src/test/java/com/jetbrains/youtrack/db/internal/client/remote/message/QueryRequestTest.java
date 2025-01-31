@@ -15,20 +15,20 @@ public class QueryRequestTest extends DbTestBase {
 
   @Test
   public void testWithPositionalParams() throws IOException {
-    Object[] params = new Object[]{1, "Foo"};
-    QueryRequest request =
+    var params = new Object[]{1, "Foo"};
+    var request =
         new QueryRequest(db,
             "sql",
             "select from Foo where a = ?",
             params,
             QueryRequest.QUERY, RecordSerializerNetworkFactory.current(), 123);
 
-    MockChannel channel = new MockChannel();
+    var channel = new MockChannel();
     request.write(null, channel, null);
 
     channel.close();
 
-    QueryRequest other = new QueryRequest();
+    var other = new QueryRequest();
     other.read(db, channel, -1, RecordSerializerNetworkFactory.current());
 
     Assert.assertEquals(request.getCommand(), other.getCommand());
@@ -46,7 +46,7 @@ public class QueryRequestTest extends DbTestBase {
     Map<String, Object> params = new HashMap<>();
     params.put("foo", "bar");
     params.put("baz", 12);
-    QueryRequest request =
+    var request =
         new QueryRequest(db,
             "sql",
             "select from Foo where a = ?",
@@ -54,12 +54,12 @@ public class QueryRequestTest extends DbTestBase {
             QueryRequest.QUERY,
             RecordSerializerNetworkFactory.current(), 123);
 
-    MockChannel channel = new MockChannel();
+    var channel = new MockChannel();
     request.write(null, channel, null);
 
     channel.close();
 
-    QueryRequest other = new QueryRequest();
+    var other = new QueryRequest();
     other.read(db, channel, -1, RecordSerializerNetworkFactory.current());
 
     Assert.assertEquals(request.getCommand(), other.getCommand());
@@ -72,7 +72,7 @@ public class QueryRequestTest extends DbTestBase {
   @Test
   public void testWithNoParams() throws IOException {
     Map<String, Object> params = null;
-    QueryRequest request =
+    var request =
         new QueryRequest(db,
             "sql",
             "select from Foo where a = ?",
@@ -80,12 +80,12 @@ public class QueryRequestTest extends DbTestBase {
             QueryRequest.QUERY,
             RecordSerializerNetworkFactory.current(), 123);
 
-    MockChannel channel = new MockChannel();
+    var channel = new MockChannel();
     request.write(null, channel, null);
 
     channel.close();
 
-    QueryRequest other = new QueryRequest();
+    var other = new QueryRequest();
     other.read(db, channel, -1, RecordSerializerNetworkFactory.current());
 
     Assert.assertEquals(request.getCommand(), other.getCommand());

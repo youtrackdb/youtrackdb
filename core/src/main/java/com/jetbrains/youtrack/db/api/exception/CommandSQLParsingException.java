@@ -52,14 +52,14 @@ public class CommandSQLParsingException extends CoreException {
 
   private static String generateMessage(
       ParseException e, String statement, Integer line, Integer column) {
-    StringBuilder result = new StringBuilder();
+    var result = new StringBuilder();
     result.append("Error parsing query:\n");
-    String[] stmLines = statement.split("\n");
-    for (int i = 0; i < stmLines.length; i++) {
+    var stmLines = statement.split("\n");
+    for (var i = 0; i < stmLines.length; i++) {
       result.append(stmLines[i]);
       result.append("\n");
       if (i == line - 1) {
-        for (int c = 0; c < column - 1; c++) {
+        for (var c = 0; c < column - 1; c++) {
           result.append(' ');
         }
         result.append("^\n");
@@ -70,7 +70,7 @@ public class CommandSQLParsingException extends CoreException {
   }
 
   private static String makeMessage(int position, String text, String message) {
-    StringBuilder buffer = new StringBuilder();
+    var buffer = new StringBuilder();
     buffer.append("Error on parsing command");
     buffer.append(": ").append(message);
 
@@ -78,7 +78,7 @@ public class CommandSQLParsingException extends CoreException {
       buffer.append("\nCommand: ");
       buffer.append(text);
       buffer.append("\n---------");
-      for (int i = 0; i < position - 1; ++i) {
+      for (var i = 0; i < position - 1; ++i) {
         buffer.append("-");
       }
 

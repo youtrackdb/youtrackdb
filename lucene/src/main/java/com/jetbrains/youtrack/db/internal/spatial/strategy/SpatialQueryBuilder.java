@@ -51,7 +51,7 @@ public class SpatialQueryBuilder extends SpatialQueryBuilderAbstract {
   public SpatialQueryContext build(DatabaseSessionInternal db, Map<String, Object> query)
       throws Exception {
 
-    SpatialQueryBuilderAbstract operation = parseOperation(query);
+    var operation = parseOperation(query);
 
     return operation.build(db, query);
   }
@@ -63,8 +63,8 @@ public class SpatialQueryBuilder extends SpatialQueryBuilderAbstract {
 
   private SpatialQueryBuilderAbstract parseOperation(Map<String, Object> query) {
 
-    String operator = (String) query.get(GEO_FILTER);
-    SpatialQueryBuilderAbstract spatialQueryBuilder = operators.get(operator);
+    var operator = (String) query.get(GEO_FILTER);
+    var spatialQueryBuilder = operators.get(operator);
     if (spatialQueryBuilder == null) {
       throw new IndexEngineException("Operator " + operator + " not supported.", null);
     }

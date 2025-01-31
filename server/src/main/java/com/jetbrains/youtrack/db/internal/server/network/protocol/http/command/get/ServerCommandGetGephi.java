@@ -51,7 +51,7 @@ public class ServerCommandGetGephi extends ServerCommandAuthenticatedDbAbstract 
 
   @Override
   public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
-    String[] urlParts =
+    var urlParts =
         checkSyntax(
             iRequest.getUrl(),
             4,
@@ -59,10 +59,10 @@ public class ServerCommandGetGephi extends ServerCommandAuthenticatedDbAbstract 
                 + " gephi/<database>/<language>/<query-text>[/<limit>][/<fetchPlan>].<br>Limit is"
                 + " optional and is set to 20 by default. Set to 0 to have no limits.");
 
-    final String language = urlParts[2];
-    final String text = urlParts[3];
-    final int limit = urlParts.length > 4 ? Integer.parseInt(urlParts[4]) : 20;
-    final String fetchPlan = urlParts.length > 5 ? urlParts[5] : null;
+    final var language = urlParts[2];
+    final var text = urlParts[3];
+    final var limit = urlParts.length > 4 ? Integer.parseInt(urlParts[4]) : 20;
+    final var fetchPlan = urlParts.length > 5 ? urlParts[5] : null;
 
     iRequest.getData().commandInfo = "Gephi";
     iRequest.getData().commandDetail = text;
@@ -90,8 +90,8 @@ public class ServerCommandGetGephi extends ServerCommandAuthenticatedDbAbstract 
       int limit)
       throws IOException {
 
-    final StringWriter buffer = new StringWriter();
-    final JSONWriter json = new JSONWriter(buffer, HttpResponse.JSON_FORMAT);
+    final var buffer = new StringWriter();
+    final var json = new JSONWriter(buffer, HttpResponse.JSON_FORMAT);
     json.setPrettyPrint(true);
 
     generateGraphDbOutput(db, resultSet, limit, json);
@@ -115,12 +115,12 @@ public class ServerCommandGetGephi extends ServerCommandAuthenticatedDbAbstract 
     final Set<Vertex> vertexes = new HashSet<>();
     final Set<Edge> edges = new HashSet<>();
 
-    int i = 0;
+    var i = 0;
     while (resultSet.hasNext()) {
       if (limit >= 0 && i >= limit) {
         break;
       }
-      Result next = resultSet.next();
+      var next = resultSet.next();
       if (next.isVertex()) {
         vertexes.add(next.getVertex().get());
       } else if (next.isEdge()) {
@@ -130,7 +130,7 @@ public class ServerCommandGetGephi extends ServerCommandAuthenticatedDbAbstract 
     }
     resultSet.close();
 
-    for (Vertex vertex : vertexes) {
+    for (var vertex : vertexes) {
       json.resetAttributes();
       json.beginObject(0, false, null);
       json.beginObject(1, false, "an");
@@ -140,8 +140,8 @@ public class ServerCommandGetGephi extends ServerCommandAuthenticatedDbAbstract 
       vertex.getEdges(Direction.BOTH).forEach(edges::add);
 
       // ADD ALL THE PROPERTIES
-      for (String field : vertex.getPropertyNames()) {
-        final Object v = vertex.getProperty(field);
+      for (var field : vertex.getPropertyNames()) {
+        final var v = vertex.getProperty(field);
         if (v != null) {
           json.writeAttribute(db, 3, false, field, v);
         }
@@ -152,7 +152,7 @@ public class ServerCommandGetGephi extends ServerCommandAuthenticatedDbAbstract 
       json.newline();
     }
 
-    for (Edge edge : edges) {
+    for (var edge : edges) {
 
       json.resetAttributes();
       json.beginObject();
@@ -163,8 +163,8 @@ public class ServerCommandGetGephi extends ServerCommandAuthenticatedDbAbstract 
       json.writeAttribute(db, 3, false, "source", edge.getToIdentifiable());
       json.writeAttribute(db, 3, false, "target", edge.getFromIdentifiable());
 
-      for (String field : edge.getPropertyNames()) {
-        final Object v = edge.getProperty(field);
+      for (var field : edge.getPropertyNames()) {
+        final var v = edge.getProperty(field);
 
         if (v != null) {
           json.writeAttribute(db, 3, false, field, v);

@@ -15,7 +15,7 @@ public class LuceneMetadataFieldsTest extends LuceneBaseTest {
 
   @Before
   public void setUp() throws Exception {
-    InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
+    var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
 
     db.execute("sql", getScriptFromStream(stream));
 
@@ -33,9 +33,9 @@ public class LuceneMetadataFieldsTest extends LuceneBaseTest {
             .size(db))
         .isEqualTo(585);
 
-    int cluster = db.getMetadata().getSchema().getClass("Song").getClusterIds()[1];
+    var cluster = db.getMetadata().getSchema().getClass("Song").getClusterIds()[1];
 
-    ResultSet results =
+    var results =
         db.query("SELECT FROM Song WHERE search_class('+_CLUSTER:" + cluster + "')=true ");
 
     assertThat(results).hasSize(73);
@@ -46,8 +46,8 @@ public class LuceneMetadataFieldsTest extends LuceneBaseTest {
   public void shouldFetchByRid() throws Exception {
     var songs = db.query("SELECT FROM Song limit 2").toList();
 
-    String ridQuery = doubleEscape(songs.get(0).getRecordId() + " " + songs.get(1).getRecordId());
-    ResultSet results =
+    var ridQuery = doubleEscape(songs.get(0).getRecordId() + " " + songs.get(1).getRecordId());
+    var results =
         db.query("SELECT FROM Song WHERE search_class('RID:(" + ridQuery + ") ')=true ");
 
     assertThat(results).hasSize(2);

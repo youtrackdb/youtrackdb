@@ -52,7 +52,7 @@ public class SQLFunctionIntersect extends SQLFunctionMultiValueAbstract<Object> 
       Object iCurrentResult,
       final Object[] iParams,
       CommandContext iContext) {
-    Object value = iParams[0];
+    var value = iParams[0];
 
     if (value instanceof SQLFilterItemVariable) {
       value = ((SQLFilterItemVariable) value).getValue(iCurrentRecord, iCurrentResult, iContext);
@@ -90,7 +90,7 @@ public class SQLFunctionIntersect extends SQLFunctionMultiValueAbstract<Object> 
     // IN-LINE MODE (STATELESS)
     Iterator iterator = MultiValue.getMultiValueIterator(value);
 
-    for (int i = 1; i < iParams.length; ++i) {
+    for (var i = 1; i < iParams.length; ++i) {
       value = iParams[i];
 
       if (value instanceof SQLFilterItemVariable) {
@@ -118,7 +118,7 @@ public class SQLFunctionIntersect extends SQLFunctionMultiValueAbstract<Object> 
   }
 
   static Collection intersectWith(final Iterator current, Object value) {
-    final HashSet tempSet = new HashSet();
+    final var tempSet = new HashSet();
 
     if (!(value instanceof Set)
         && (!(value instanceof SupportsContains)
@@ -126,8 +126,8 @@ public class SQLFunctionIntersect extends SQLFunctionMultiValueAbstract<Object> 
       value = MultiValue.toSet(value);
     }
 
-    for (Iterator it = current; it.hasNext(); ) {
-      final Object curr = it.next();
+    for (var it = current; it.hasNext(); ) {
+      final var curr = it.next();
       if (value instanceof RidBag) {
         if (((RidBag) value).contains(((Identifiable) curr).getIdentity())) {
           tempSet.add(curr);

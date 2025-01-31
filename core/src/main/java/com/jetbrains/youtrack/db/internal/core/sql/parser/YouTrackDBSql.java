@@ -25,8 +25,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLRid Rid() throws ParseException {
     /*@bgen(jjtree) Rid */
-    SQLRid jjtn000 = new SQLRid(JJTRID);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLRid(JJTRID);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -114,8 +114,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   /** Root productions. */
   final public SQLStatement parse() throws ParseException {
     /*@bgen(jjtree) parse */
-    SQLparse jjtn000 = new SQLparse(JJTPARSE);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLparse(JJTPARSE);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLStatement result;
@@ -161,8 +161,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public List<SQLStatement> parseScript() throws ParseException {
     /*@bgen(jjtree) parseScript */
-    SQLparseScript jjtn000 = new SQLparseScript(JJTPARSESCRIPT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLparseScript(JJTPARSESCRIPT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     List<SQLStatement> result = new ArrayList<SQLStatement>();
@@ -386,8 +386,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLServerStatement parseServerStatement() throws ParseException {
     /*@bgen(jjtree) parseServerStatement */
-    SQLparseServerStatement jjtn000 = new SQLparseServerStatement(JJTPARSESERVERSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLparseServerStatement(JJTPARSESERVERSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLServerStatement result;
@@ -433,8 +433,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public java.lang.String String() throws ParseException {
     /*@bgen(jjtree) String */
-    SQLString jjtn000 = new SQLString(JJTSTRING);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLString(JJTSTRING);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     Token token = null;
@@ -470,8 +470,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLIdentifier Identifier() throws ParseException {
     /*@bgen(jjtree) Identifier */
-    SQLIdentifier jjtn000 = new SQLIdentifier(JJTIDENTIFIER);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLIdentifier(JJTIDENTIFIER);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     Token quotedToken = null;
@@ -834,11 +834,11 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLInteger Integer() throws ParseException {
     /*@bgen(jjtree) Integer */
-    SQLInteger jjtn000 = new SQLInteger(JJTINTEGER);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLInteger(JJTINTEGER);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
-    int sign = 1;
+    var sign = 1;
     Token tokenVal;
     try {
       switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
@@ -869,8 +869,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLFloatingPoint FloatingPoint() throws ParseException {
     /*@bgen(jjtree) FloatingPoint */
-    SQLFloatingPoint jjtn000 = new SQLFloatingPoint(JJTFLOATINGPOINT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLFloatingPoint(JJTFLOATINGPOINT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     String stringValue;
@@ -906,8 +906,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLNumber Number() throws ParseException {
     /*@bgen(jjtree) Number */
-    SQLNumber jjtn000 = new SQLNumber(JJTNUMBER);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLNumber(JJTNUMBER);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLNumber result;
@@ -965,8 +965,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLServerStatement ServerStatement() throws ParseException {
     /*@bgen(jjtree) ServerStatement */
-    SQLServerStatement jjtn000 = new SQLServerStatement(JJTSERVERSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLServerStatement(JJTSERVERSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLServerStatement result = null;
@@ -1035,8 +1035,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLStatement Statement() throws ParseException {
     /*@bgen(jjtree) Statement */
-    SQLStatement jjtn000 = new SQLStatement(JJTSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLStatement(JJTSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLStatement result = null;
@@ -1093,8 +1093,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLStatement StatementSemicolon() throws ParseException {
     /*@bgen(jjtree) StatementSemicolon */
-    SQLStatementSemicolon jjtn000 = new SQLStatementSemicolon(JJTSTATEMENTSEMICOLON);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLStatementSemicolon(JJTSTATEMENTSEMICOLON);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLStatement result = null;
@@ -1281,8 +1281,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLStatement StatementInternal() throws ParseException {
     /*@bgen(jjtree) StatementInternal */
-    SQLStatementInternal jjtn000 = new SQLStatementInternal(JJTSTATEMENTINTERNAL);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLStatementInternal(JJTSTATEMENTINTERNAL);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLStatement result = null;
@@ -1508,8 +1508,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLStatement ExpressionStatement() throws ParseException {
     /*@bgen(jjtree) ExpressionStatement */
-    SQLExpressionStatement jjtn000 = new SQLExpressionStatement(JJTEXPRESSIONSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLExpressionStatement(JJTEXPRESSIONSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -1557,8 +1557,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLStatement QueryStatement() throws ParseException {
     /*@bgen(jjtree) QueryStatement */
-    SQLQueryStatement jjtn000 = new SQLQueryStatement(JJTQUERYSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLQueryStatement(JJTQUERYSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLStatement result;
@@ -1630,9 +1630,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   final public SQLSelectWithoutTargetStatement SelectWithoutTargetStatement()
       throws ParseException {
     /*@bgen(jjtree) SelectWithoutTargetStatement */
-    SQLSelectWithoutTargetStatement jjtn000 = new SQLSelectWithoutTargetStatement(
+    var jjtn000 = new SQLSelectWithoutTargetStatement(
         JJTSELECTWITHOUTTARGETSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -1771,8 +1771,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLSelectStatement SelectStatement() throws ParseException {
     /*@bgen(jjtree) SelectStatement */
-    SQLSelectStatement jjtn000 = new SQLSelectStatement(JJTSELECTSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLSelectStatement(JJTSELECTSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -2071,8 +2071,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLTraverseStatement TraverseStatement() throws ParseException {
     /*@bgen(jjtree) TraverseStatement */
-    SQLTraverseStatement jjtn000 = new SQLTraverseStatement(JJTTRAVERSESTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLTraverseStatement(JJTTRAVERSESTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLTraverseProjectionItem lastProjection;
@@ -2305,8 +2305,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLMatchStatement MatchStatement() throws ParseException {
     /*@bgen(jjtree) MatchStatement */
-    SQLMatchStatement jjtn000 = new SQLMatchStatement(JJTMATCHSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLMatchStatement(JJTMATCHSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLMatchExpression lastMatchExpr = null;
@@ -2505,8 +2505,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLDeleteStatement DeleteStatement() throws ParseException {
     /*@bgen(jjtree) DeleteStatement */
-    SQLDeleteStatement jjtn000 = new SQLDeleteStatement(JJTDELETESTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLDeleteStatement(JJTDELETESTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -2588,8 +2588,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLDeleteVertexStatement DeleteVertexStatement() throws ParseException {
     /*@bgen(jjtree) DeleteVertexStatement */
-    SQLDeleteVertexStatement jjtn000 = new SQLDeleteVertexStatement(JJTDELETEVERTEXSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLDeleteVertexStatement(JJTDELETEVERTEXSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -2679,8 +2679,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLDeleteEdgeStatement DeleteEdgeStatement() throws ParseException {
     /*@bgen(jjtree) DeleteEdgeStatement */
-    SQLDeleteEdgeStatement jjtn000 = new SQLDeleteEdgeStatement(JJTDELETEEDGESTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLDeleteEdgeStatement(JJTDELETEEDGESTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLDeleteEdgeStatement result;
@@ -2742,9 +2742,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLDeleteEdgeStatement DeleteEdgeByRidStatement() throws ParseException {
     /*@bgen(jjtree) DeleteEdgeByRidStatement */
-    SQLDeleteEdgeByRidStatement jjtn000 = new SQLDeleteEdgeByRidStatement(
+    var jjtn000 = new SQLDeleteEdgeByRidStatement(
         JJTDELETEEDGEBYRIDSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLRid lastRid;
@@ -2840,9 +2840,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLDeleteEdgeStatement DeleteEdgeFromToStatement() throws ParseException {
     /*@bgen(jjtree) DeleteEdgeFromToStatement */
-    SQLDeleteEdgeFromToStatement jjtn000 = new SQLDeleteEdgeFromToStatement(
+    var jjtn000 = new SQLDeleteEdgeFromToStatement(
         JJTDELETEEDGEFROMTOSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLRid lastRid;
@@ -3038,8 +3038,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLDeleteEdgeStatement DeleteEdgeToStatement() throws ParseException {
     /*@bgen(jjtree) DeleteEdgeToStatement */
-    SQLDeleteEdgeToStatement jjtn000 = new SQLDeleteEdgeToStatement(JJTDELETEEDGETOSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLDeleteEdgeToStatement(JJTDELETEEDGETOSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLRid lastRid;
@@ -3117,8 +3117,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLDeleteEdgeStatement DeleteEdgeVToStatement() throws ParseException {
     /*@bgen(jjtree) DeleteEdgeVToStatement */
-    SQLDeleteEdgeVToStatement jjtn000 = new SQLDeleteEdgeVToStatement(JJTDELETEEDGEVTOSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLDeleteEdgeVToStatement(JJTDELETEEDGEVTOSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLRid lastRid;
@@ -3195,9 +3195,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLDeleteEdgeStatement DeleteEdgeWhereStatement() throws ParseException {
     /*@bgen(jjtree) DeleteEdgeWhereStatement */
-    SQLDeleteEdgeWhereStatement jjtn000 = new SQLDeleteEdgeWhereStatement(
+    var jjtn000 = new SQLDeleteEdgeWhereStatement(
         JJTDELETEEDGEWHERESTATEMENT);
-    boolean jjtc000 = true;
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLRid lastRid;
@@ -3386,8 +3386,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLUpdateEdgeStatement UpdateEdgeStatement() throws ParseException {
     /*@bgen(jjtree) UpdateEdgeStatement */
-    SQLUpdateEdgeStatement jjtn000 = new SQLUpdateEdgeStatement(JJTUPDATEEDGESTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLUpdateEdgeStatement(JJTUPDATEEDGESTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLUpdateOperations lastOperations;
@@ -3644,8 +3644,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLUpdateStatement UpdateStatement() throws ParseException {
     /*@bgen(jjtree) UpdateStatement */
-    SQLUpdateStatement jjtn000 = new SQLUpdateStatement(JJTUPDATESTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLUpdateStatement(JJTUPDATESTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLUpdateOperations lastOperations;
@@ -3909,8 +3909,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLUpdateOperations UpdateOperations() throws ParseException {
     /*@bgen(jjtree) UpdateOperations */
-    SQLUpdateOperations jjtn000 = new SQLUpdateOperations(JJTUPDATEOPERATIONS);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLUpdateOperations(JJTUPDATEOPERATIONS);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLUpdateItem lastItem;
@@ -4080,8 +4080,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLUpdateItem UpdateItem() throws ParseException {
     /*@bgen(jjtree) UpdateItem */
-    SQLUpdateItem jjtn000 = new SQLUpdateItem(JJTUPDATEITEM);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLUpdateItem(JJTUPDATEITEM);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -4161,8 +4161,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLUpdateIncrementItem UpdateIncrementItem() throws ParseException {
     /*@bgen(jjtree) UpdateIncrementItem */
-    SQLUpdateIncrementItem jjtn000 = new SQLUpdateIncrementItem(JJTUPDATEINCREMENTITEM);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLUpdateIncrementItem(JJTUPDATEINCREMENTITEM);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -4221,8 +4221,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLUpdateRemoveItem UpdateRemoveItem() throws ParseException {
     /*@bgen(jjtree) UpdateRemoveItem */
-    SQLUpdateRemoveItem jjtn000 = new SQLUpdateRemoveItem(JJTUPDATEREMOVEITEM);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLUpdateRemoveItem(JJTUPDATEREMOVEITEM);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -4281,8 +4281,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLUpdatePutItem UpdatePutItem() throws ParseException {
     /*@bgen(jjtree) UpdatePutItem */
-    SQLUpdatePutItem jjtn000 = new SQLUpdatePutItem(JJTUPDATEPUTITEM);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLUpdatePutItem(JJTUPDATEPUTITEM);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -4336,8 +4336,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLInsertStatement InsertStatement() throws ParseException {
     /*@bgen(jjtree) InsertStatement */
-    SQLInsertStatement jjtn000 = new SQLInsertStatement(JJTINSERTSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLInsertStatement(JJTINSERTSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -4595,8 +4595,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLInsertBody InsertBody() throws ParseException {
     /*@bgen(jjtree) InsertBody */
-    SQLInsertBody jjtn000 = new SQLInsertBody(JJTINSERTBODY);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLInsertBody(JJTINSERTBODY);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLIdentifier lastIdentifier;
@@ -4679,7 +4679,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
         }
       } else if (jj_2_67(3)) {
         jj_consume_token(SET);
-        SQLInsertSetExpression lastSetExpr = new SQLInsertSetExpression();
+        var lastSetExpr = new SQLInsertSetExpression();
         jjtn000.addInsertSetExpression(lastSetExpr);
         lastSetExpr.left = Identifier();
         jj_consume_token(EQ);
@@ -4800,9 +4800,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   final public SQLCreateVertexStatementEmptyNoTarget CreateVertexStatementEmptyNoTarget()
       throws ParseException {
     /*@bgen(jjtree) CreateVertexStatementEmptyNoTarget */
-    SQLCreateVertexStatementEmptyNoTarget jjtn000 = new SQLCreateVertexStatementEmptyNoTarget(
+    var jjtn000 = new SQLCreateVertexStatementEmptyNoTarget(
         JJTCREATEVERTEXSTATEMENTEMPTYNOTARGET);
-    boolean jjtc000 = true;
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -4825,8 +4825,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLCreateVertexStatement CreateVertexStatement() throws ParseException {
     /*@bgen(jjtree) CreateVertexStatement */
-    SQLCreateVertexStatement jjtn000 = new SQLCreateVertexStatement(JJTCREATEVERTEXSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLCreateVertexStatement(JJTCREATEVERTEXSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -4903,9 +4903,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   final public SQLCreateVertexStatementNoTarget CreateVertexStatementNoTarget()
       throws ParseException {
     /*@bgen(jjtree) CreateVertexStatementNoTarget */
-    SQLCreateVertexStatementNoTarget jjtn000 = new SQLCreateVertexStatementNoTarget(
+    var jjtn000 = new SQLCreateVertexStatementNoTarget(
         JJTCREATEVERTEXSTATEMENTNOTARGET);
-    boolean jjtc000 = true;
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -4951,8 +4951,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLMoveVertexStatement MoveVertexStatement() throws ParseException {
     /*@bgen(jjtree) MoveVertexStatement */
-    SQLMoveVertexStatement jjtn000 = new SQLMoveVertexStatement(JJTMOVEVERTEXSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLMoveVertexStatement(JJTMOVEVERTEXSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLExpression lastSetExpr;
@@ -5037,8 +5037,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLCreateEdgeStatement CreateEdgeStatement() throws ParseException {
     /*@bgen(jjtree) CreateEdgeStatement */
-    SQLCreateEdgeStatement jjtn000 = new SQLCreateEdgeStatement(JJTCREATEEDGESTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLCreateEdgeStatement(JJTCREATEEDGESTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLRid lastRid;
@@ -5254,8 +5254,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLInputParameter InputParameter() throws ParseException {
     /*@bgen(jjtree) InputParameter */
-    SQLInputParameter jjtn000 = new SQLInputParameter(JJTINPUTPARAMETER);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLInputParameter(JJTINPUTPARAMETER);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLInputParameter result;
@@ -5317,8 +5317,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLPositionalParameter PositionalParameter() throws ParseException {
     /*@bgen(jjtree) PositionalParameter */
-    SQLPositionalParameter jjtn000 = new SQLPositionalParameter(JJTPOSITIONALPARAMETER);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLPositionalParameter(JJTPOSITIONALPARAMETER);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -5342,8 +5342,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLNamedParameter NamedParameter() throws ParseException {
     /*@bgen(jjtree) NamedParameter */
-    SQLNamedParameter jjtn000 = new SQLNamedParameter(JJTNAMEDPARAMETER);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLNamedParameter(JJTNAMEDPARAMETER);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLIdentifier identifierParam;
@@ -5523,8 +5523,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLProjection Projection() throws ParseException {
     /*@bgen(jjtree) Projection */
-    SQLProjection jjtn000 = new SQLProjection(JJTPROJECTION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLProjection(JJTPROJECTION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     java.util.List<SQLProjectionItem> items = new java.util.ArrayList<SQLProjectionItem>();
@@ -5619,8 +5619,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLProjectionItem ProjectionItem() throws ParseException {
     /*@bgen(jjtree) ProjectionItem */
-    SQLProjectionItem jjtn000 = new SQLProjectionItem(JJTPROJECTIONITEM);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLProjectionItem(JJTPROJECTIONITEM);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -5690,8 +5690,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLNestedProjection NestedProjection() throws ParseException {
     /*@bgen(jjtree) NestedProjection */
-    SQLNestedProjection jjtn000 = new SQLNestedProjection(JJTNESTEDPROJECTION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLNestedProjection(JJTNESTEDPROJECTION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLNestedProjectionItem lastItem;
@@ -5768,8 +5768,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLNestedProjectionItem NestedProjectionItem() throws ParseException {
     /*@bgen(jjtree) NestedProjectionItem */
-    SQLNestedProjectionItem jjtn000 = new SQLNestedProjectionItem(JJTNESTEDPROJECTIONITEM);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLNestedProjectionItem(JJTNESTEDPROJECTIONITEM);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -5985,8 +5985,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLArraySelector ArraySelector() throws ParseException {
     /*@bgen(jjtree) ArraySelector */
-    SQLArraySelector jjtn000 = new SQLArraySelector(JJTARRAYSELECTOR);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLArraySelector(JJTARRAYSELECTOR);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -6045,8 +6045,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLArrayNumberSelector ArrayNumberSelector() throws ParseException {
     /*@bgen(jjtree) ArrayNumberSelector */
-    SQLArrayNumberSelector jjtn000 = new SQLArrayNumberSelector(JJTARRAYNUMBERSELECTOR);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLArrayNumberSelector(JJTARRAYNUMBERSELECTOR);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     Token tokenVal;
@@ -6105,9 +6105,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLArraySingleValuesSelector ArraySingleValuesSelector() throws ParseException {
     /*@bgen(jjtree) ArraySingleValuesSelector */
-    SQLArraySingleValuesSelector jjtn000 = new SQLArraySingleValuesSelector(
+    var jjtn000 = new SQLArraySingleValuesSelector(
         JJTARRAYSINGLEVALUESSELECTOR);
-    boolean jjtc000 = true;
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLArraySelector lastSelector;
@@ -6173,8 +6173,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLArrayRangeSelector ArrayRangeSelector() throws ParseException {
     /*@bgen(jjtree) ArrayRangeSelector */
-    SQLArrayRangeSelector jjtn000 = new SQLArrayRangeSelector(JJTARRAYRANGESELECTOR);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLArrayRangeSelector(JJTARRAYRANGESELECTOR);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     Token token;
@@ -6182,16 +6182,16 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
         case INTEGER_RANGE:
           token = jj_consume_token(INTEGER_RANGE);
-          String img = token.image;
-          String[] splitted = img.split("\u005c\u005c.\u005c\u005c.");
+          var img = token.image;
+          var splitted = img.split("\u005c\u005c.\u005c\u005c.");
           jjtn000.from = Integer.parseInt(splitted[0], 10);
           jjtn000.to = Integer.parseInt(splitted[1], 10);
           jjtn000.newRange = true;
           break;
         case ELLIPSIS_INTEGER_RANGE:
           token = jj_consume_token(ELLIPSIS_INTEGER_RANGE);
-          String img2 = token.image;
-          String[] splitted2 = img2.split("\u005c\u005c.\u005c\u005c.\u005c\u005c.");
+          var img2 = token.image;
+          var splitted2 = img2.split("\u005c\u005c.\u005c\u005c.\u005c\u005c.");
           jjtn000.from = Integer.parseInt(splitted2[0], 10);
           jjtn000.to = Integer.parseInt(splitted2[1], 10);
           jjtn000.newRange = true;
@@ -6268,8 +6268,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLIdentifier Alias() throws ParseException {
     /*@bgen(jjtree) Alias */
-    SQLAlias jjtn000 = new SQLAlias(JJTALIAS);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLAlias(JJTALIAS);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLIdentifier identifier;
@@ -6314,8 +6314,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLRecordAttribute RecordAttribute() throws ParseException {
     /*@bgen(jjtree) RecordAttribute */
-    SQLRecordAttribute jjtn000 = new SQLRecordAttribute(JJTRECORDATTRIBUTE);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLRecordAttribute(JJTRECORDATTRIBUTE);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     Token token;
@@ -6339,8 +6339,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLFunctionCall FunctionCall() throws ParseException {
     /*@bgen(jjtree) FunctionCall */
-    SQLFunctionCall jjtn000 = new SQLFunctionCall(JJTFUNCTIONCALL);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLFunctionCall(JJTFUNCTIONCALL);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLExpression lastExpression = null;
@@ -6659,8 +6659,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLMethodCall MethodCall() throws ParseException {
     /*@bgen(jjtree) MethodCall */
-    SQLMethodCall jjtn000 = new SQLMethodCall(JJTMETHODCALL);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLMethodCall(JJTMETHODCALL);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLExpression lastExpression;
@@ -6862,8 +6862,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLLevelZeroIdentifier LevelZeroIdentifier() throws ParseException {
     /*@bgen(jjtree) LevelZeroIdentifier */
-    SQLLevelZeroIdentifier jjtn000 = new SQLLevelZeroIdentifier(JJTLEVELZEROIDENTIFIER);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLLevelZeroIdentifier(JJTLEVELZEROIDENTIFIER);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -6930,8 +6930,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLSuffixIdentifier SuffixIdentifier() throws ParseException {
     /*@bgen(jjtree) SuffixIdentifier */
-    SQLSuffixIdentifier jjtn000 = new SQLSuffixIdentifier(JJTSUFFIXIDENTIFIER);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLSuffixIdentifier(JJTSUFFIXIDENTIFIER);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLIdentifier identifier;
@@ -6998,8 +6998,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLBaseIdentifier BaseIdentifier() throws ParseException {
     /*@bgen(jjtree) BaseIdentifier */
-    SQLBaseIdentifier jjtn000 = new SQLBaseIdentifier(JJTBASEIDENTIFIER);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLBaseIdentifier(JJTBASEIDENTIFIER);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -7056,8 +7056,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLModifier Modifier() throws ParseException {
     /*@bgen(jjtree) Modifier */
-    SQLModifier jjtn000 = new SQLModifier(JJTMODIFIER);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLModifier(JJTMODIFIER);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -7146,8 +7146,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLExpression Expression() throws ParseException {
     /*@bgen(jjtree) Expression */
-    SQLExpression jjtn000 = new SQLExpression(JJTEXPRESSION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLExpression(JJTEXPRESSION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     Token token;
@@ -7237,8 +7237,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLArrayConcatExpression ArrayConcatExpression() throws ParseException {
     /*@bgen(jjtree) ArrayConcatExpression */
-    SQLArrayConcatExpression jjtn000 = new SQLArrayConcatExpression(JJTARRAYCONCATEXPRESSION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLArrayConcatExpression(JJTARRAYCONCATEXPRESSION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLArrayConcatExpressionElement sub;
@@ -7304,9 +7304,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   final public SQLArrayConcatExpressionElement ArrayConcatExpressionElement()
       throws ParseException {
     /*@bgen(jjtree) ArrayConcatExpressionElement */
-    SQLArrayConcatExpressionElement jjtn000 = new SQLArrayConcatExpressionElement(
+    var jjtn000 = new SQLArrayConcatExpressionElement(
         JJTARRAYCONCATEXPRESSIONELEMENT);
-    boolean jjtc000 = true;
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     Token token;
@@ -7391,8 +7391,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLMathExpression MathExpression() throws ParseException {
     /*@bgen(jjtree) MathExpression */
-    SQLMathExpression jjtn000 = new SQLMathExpression(JJTMATHEXPRESSION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLMathExpression(JJTMATHEXPRESSION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLMathExpression sub;
@@ -7506,8 +7506,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLMathExpression FirstLevelExpression() throws ParseException {
     /*@bgen(jjtree) FirstLevelExpression */
-    SQLFirstLevelExpression jjtn000 = new SQLFirstLevelExpression(JJTFIRSTLEVELEXPRESSION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLFirstLevelExpression(JJTFIRSTLEVELEXPRESSION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLMathExpression expr;
@@ -7563,8 +7563,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLMathExpression ParenthesisExpression() throws ParseException {
     /*@bgen(jjtree) ParenthesisExpression */
-    SQLParenthesisExpression jjtn000 = new SQLParenthesisExpression(JJTPARENTHESISEXPRESSION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLParenthesisExpression(JJTPARENTHESISEXPRESSION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -7754,8 +7754,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLBaseExpression BaseExpression() throws ParseException {
     /*@bgen(jjtree) BaseExpression */
-    SQLBaseExpression jjtn000 = new SQLBaseExpression(JJTBASEEXPRESSION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLBaseExpression(JJTBASEEXPRESSION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLBaseIdentifier identifier;
@@ -7966,8 +7966,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLFromClause FromClause() throws ParseException {
     /*@bgen(jjtree) FromClause */
-    SQLFromClause jjtn000 = new SQLFromClause(JJTFROMCLAUSE);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLFromClause(JJTFROMCLAUSE);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -8011,8 +8011,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLLetClause LetClause() throws ParseException {
     /*@bgen(jjtree) LetClause */
-    SQLLetClause jjtn000 = new SQLLetClause(JJTLETCLAUSE);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLLetClause(JJTLETCLAUSE);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLLetItem lastItem;
@@ -8079,8 +8079,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLLetItem LetItem() throws ParseException {
     /*@bgen(jjtree) LetItem */
-    SQLLetItem jjtn000 = new SQLLetItem(JJTLETITEM);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLLetItem(JJTLETITEM);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -8146,8 +8146,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLFromItem FromItem() throws ParseException {
     /*@bgen(jjtree) FromItem */
-    SQLFromItem jjtn000 = new SQLFromItem(JJTFROMITEM);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLFromItem(JJTFROMITEM);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     jjtn000.rids = new java.util.ArrayList();
@@ -8444,8 +8444,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLCluster Cluster() throws ParseException {
     /*@bgen(jjtree) Cluster */
-    SQLCluster jjtn000 = new SQLCluster(JJTCLUSTER);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLCluster(JJTCLUSTER);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     Token cName;
@@ -8483,8 +8483,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLClusterList ClusterList() throws ParseException {
     /*@bgen(jjtree) ClusterList */
-    SQLClusterList jjtn000 = new SQLClusterList(JJTCLUSTERLIST);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLClusterList(JJTCLUSTERLIST);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLIdentifier lastIdentifier;
@@ -8667,8 +8667,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLMetadataIdentifier MetadataIdentifier() throws ParseException {
     /*@bgen(jjtree) MetadataIdentifier */
-    SQLMetadataIdentifier jjtn000 = new SQLMetadataIdentifier(JJTMETADATAIDENTIFIER);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLMetadataIdentifier(JJTMETADATAIDENTIFIER);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     Token mdName;
@@ -8694,11 +8694,11 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLIndexName IndexName() throws ParseException {
     /*@bgen(jjtree) IndexName */
-    SQLIndexName jjtn000 = new SQLIndexName(JJTINDEXNAME);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLIndexName(JJTINDEXNAME);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
-    StringBuilder builder = new StringBuilder();
+    var builder = new StringBuilder();
     Token token;
     SQLIdentifier lastIdentifier;
     try {
@@ -8785,8 +8785,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLIndexIdentifier IndexIdentifier() throws ParseException {
     /*@bgen(jjtree) IndexIdentifier */
-    SQLIndexIdentifier jjtn000 = new SQLIndexIdentifier(JJTINDEXIDENTIFIER);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLIndexIdentifier(JJTINDEXIDENTIFIER);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));Token token;
     try {
@@ -8869,8 +8869,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLWhereClause WhereClause() throws ParseException {
     /*@bgen(jjtree) WhereClause */
-    SQLWhereClause jjtn000 = new SQLWhereClause(JJTWHERECLAUSE);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLWhereClause(JJTWHERECLAUSE);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -8914,8 +8914,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLOrBlock OrBlock() throws ParseException {
     /*@bgen(jjtree) OrBlock */
-    SQLOrBlock jjtn000 = new SQLOrBlock(JJTORBLOCK);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLOrBlock(JJTORBLOCK);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLAndBlock lastAnd = null;
@@ -8981,8 +8981,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLAndBlock AndBlock() throws ParseException {
     /*@bgen(jjtree) AndBlock */
-    SQLAndBlock jjtn000 = new SQLAndBlock(JJTANDBLOCK);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLAndBlock(JJTANDBLOCK);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLNotBlock lastNot = null;
@@ -9042,8 +9042,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLNotBlock NotBlock() throws ParseException {
     /*@bgen(jjtree) NotBlock */
-    SQLNotBlock jjtn000 = new SQLNotBlock(JJTNOTBLOCK);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLNotBlock(JJTNOTBLOCK);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -9239,8 +9239,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLBooleanExpression ParenthesisBlock() throws ParseException {
     /*@bgen(jjtree) ParenthesisBlock */
-    SQLParenthesisBlock jjtn000 = new SQLParenthesisBlock(JJTPARENTHESISBLOCK);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLParenthesisBlock(JJTPARENTHESISBLOCK);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -9292,8 +9292,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLBooleanExpression ConditionBlock() throws ParseException {
     /*@bgen(jjtree) ConditionBlock */
-    SQLConditionBlock jjtn000 = new SQLConditionBlock(JJTCONDITIONBLOCK);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLConditionBlock(JJTCONDITIONBLOCK);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLBooleanExpression result = null;
@@ -9383,8 +9383,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLBinaryCompareOperator CompareOperator() throws ParseException {
     /*@bgen(jjtree) CompareOperator */
-    SQLCompareOperator jjtn000 = new SQLCompareOperator(JJTCOMPAREOPERATOR);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLCompareOperator(JJTCOMPAREOPERATOR);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLBinaryCompareOperator result;
@@ -9474,8 +9474,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLLtOperator LtOperator() throws ParseException {
     /*@bgen(jjtree) LtOperator */
-    SQLLtOperator jjtn000 = new SQLLtOperator(JJTLTOPERATOR);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLLtOperator(JJTLTOPERATOR);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -9497,8 +9497,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLGtOperator GtOperator() throws ParseException {
     /*@bgen(jjtree) GtOperator */
-    SQLGtOperator jjtn000 = new SQLGtOperator(JJTGTOPERATOR);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLGtOperator(JJTGTOPERATOR);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -9520,8 +9520,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLNeOperator NeOperator() throws ParseException {
     /*@bgen(jjtree) NeOperator */
-    SQLNeOperator jjtn000 = new SQLNeOperator(JJTNEOPERATOR);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLNeOperator(JJTNEOPERATOR);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -9543,8 +9543,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLNeqOperator NeqOperator() throws ParseException {
     /*@bgen(jjtree) NeqOperator */
-    SQLNeqOperator jjtn000 = new SQLNeqOperator(JJTNEQOPERATOR);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLNeqOperator(JJTNEQOPERATOR);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -9566,8 +9566,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLGeOperator GeOperator() throws ParseException {
     /*@bgen(jjtree) GeOperator */
-    SQLGeOperator jjtn000 = new SQLGeOperator(JJTGEOPERATOR);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLGeOperator(JJTGEOPERATOR);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -9589,8 +9589,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLLeOperator LeOperator() throws ParseException {
     /*@bgen(jjtree) LeOperator */
-    SQLLeOperator jjtn000 = new SQLLeOperator(JJTLEOPERATOR);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLLeOperator(JJTLEOPERATOR);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -9612,8 +9612,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLLikeOperator LikeOperator() throws ParseException {
     /*@bgen(jjtree) LikeOperator */
-    SQLLikeOperator jjtn000 = new SQLLikeOperator(JJTLIKEOPERATOR);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLLikeOperator(JJTLIKEOPERATOR);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -9635,8 +9635,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLLuceneOperator LuceneOperator() throws ParseException {
     /*@bgen(jjtree) LuceneOperator */
-    SQLLuceneOperator jjtn000 = new SQLLuceneOperator(JJTLUCENEOPERATOR);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLLuceneOperator(JJTLUCENEOPERATOR);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -9658,8 +9658,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLNearOperator NearOperator() throws ParseException {
     /*@bgen(jjtree) NearOperator */
-    SQLNearOperator jjtn000 = new SQLNearOperator(JJTNEAROPERATOR);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLNearOperator(JJTNEAROPERATOR);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -9681,8 +9681,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLWithinOperator WithinOperator() throws ParseException {
     /*@bgen(jjtree) WithinOperator */
-    SQLWithinOperator jjtn000 = new SQLWithinOperator(JJTWITHINOPERATOR);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLWithinOperator(JJTWITHINOPERATOR);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -9704,8 +9704,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLScAndOperator ScAndOperator() throws ParseException {
     /*@bgen(jjtree) ScAndOperator */
-    SQLScAndOperator jjtn000 = new SQLScAndOperator(JJTSCANDOPERATOR);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLScAndOperator(JJTSCANDOPERATOR);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -9727,8 +9727,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLContainsKeyOperator ContainsKeyOperator() throws ParseException {
     /*@bgen(jjtree) ContainsKeyOperator */
-    SQLContainsKeyOperator jjtn000 = new SQLContainsKeyOperator(JJTCONTAINSKEYOPERATOR);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLContainsKeyOperator(JJTCONTAINSKEYOPERATOR);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -9750,8 +9750,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLContainsValueOperator ContainsValueOperator() throws ParseException {
     /*@bgen(jjtree) ContainsValueOperator */
-    SQLContainsValueOperator jjtn000 = new SQLContainsValueOperator(JJTCONTAINSVALUEOPERATOR);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLContainsValueOperator(JJTCONTAINSVALUEOPERATOR);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -9773,8 +9773,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLEqualsCompareOperator EqualsCompareOperator() throws ParseException {
     /*@bgen(jjtree) EqualsCompareOperator */
-    SQLEqualsCompareOperator jjtn000 = new SQLEqualsCompareOperator(JJTEQUALSCOMPAREOPERATOR);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLEqualsCompareOperator(JJTEQUALSCOMPAREOPERATOR);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -9809,8 +9809,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLRightBinaryCondition RightBinaryCondition() throws ParseException {
     /*@bgen(jjtree) RightBinaryCondition */
-    SQLRightBinaryCondition jjtn000 = new SQLRightBinaryCondition(JJTRIGHTBINARYCONDITION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLRightBinaryCondition(JJTRIGHTBINARYCONDITION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -9890,8 +9890,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLBooleanExpression BinaryCondition() throws ParseException {
     /*@bgen(jjtree) BinaryCondition */
-    SQLBinaryCondition jjtn000 = new SQLBinaryCondition(JJTBINARYCONDITION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLBinaryCondition(JJTBINARYCONDITION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -9937,8 +9937,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLBooleanExpression ContainsValueCondition() throws ParseException {
     /*@bgen(jjtree) ContainsValueCondition */
-    SQLContainsValueCondition jjtn000 = new SQLContainsValueCondition(JJTCONTAINSVALUECONDITION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLContainsValueCondition(JJTCONTAINSVALUECONDITION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -9993,8 +9993,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLBooleanExpression InstanceofCondition() throws ParseException {
     /*@bgen(jjtree) InstanceofCondition */
-    SQLInstanceofCondition jjtn000 = new SQLInstanceofCondition(JJTINSTANCEOFCONDITION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLInstanceofCondition(JJTINSTANCEOFCONDITION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));Token token;
     try {
@@ -10166,8 +10166,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLBooleanExpression BetweenCondition() throws ParseException {
     /*@bgen(jjtree) BetweenCondition */
-    SQLBetweenCondition jjtn000 = new SQLBetweenCondition(JJTBETWEENCONDITION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLBetweenCondition(JJTBETWEENCONDITION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -10215,8 +10215,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLBooleanExpression IsNullCondition() throws ParseException {
     /*@bgen(jjtree) IsNullCondition */
-    SQLIsNullCondition jjtn000 = new SQLIsNullCondition(JJTISNULLCONDITION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLIsNullCondition(JJTISNULLCONDITION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -10266,8 +10266,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLBooleanExpression IsNotNullCondition() throws ParseException {
     /*@bgen(jjtree) IsNotNullCondition */
-    SQLIsNotNullCondition jjtn000 = new SQLIsNotNullCondition(JJTISNOTNULLCONDITION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLIsNotNullCondition(JJTISNOTNULLCONDITION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -10314,8 +10314,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLBooleanExpression IsDefinedCondition() throws ParseException {
     /*@bgen(jjtree) IsDefinedCondition */
-    SQLIsDefinedCondition jjtn000 = new SQLIsDefinedCondition(JJTISDEFINEDCONDITION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLIsDefinedCondition(JJTISDEFINEDCONDITION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -10361,8 +10361,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLBooleanExpression IsNotDefinedCondition() throws ParseException {
     /*@bgen(jjtree) IsNotDefinedCondition */
-    SQLIsNotDefinedCondition jjtn000 = new SQLIsNotDefinedCondition(JJTISNOTDEFINEDCONDITION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLIsNotDefinedCondition(JJTISNOTDEFINEDCONDITION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -10409,8 +10409,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLBooleanExpression ContainsCondition() throws ParseException {
     /*@bgen(jjtree) ContainsCondition */
-    SQLContainsCondition jjtn000 = new SQLContainsCondition(JJTCONTAINSCONDITION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLContainsCondition(JJTCONTAINSCONDITION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -10469,8 +10469,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLInOperator InOperator() throws ParseException {
     /*@bgen(jjtree) InOperator */
-    SQLInOperator jjtn000 = new SQLInOperator(JJTINOPERATOR);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLInOperator(JJTINOPERATOR);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -10492,8 +10492,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLBooleanExpression InCondition() throws ParseException {
     /*@bgen(jjtree) InCondition */
-    SQLInCondition jjtn000 = new SQLInCondition(JJTINCONDITION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLInCondition(JJTINCONDITION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLExpression lastExpression;
@@ -10690,8 +10690,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLBooleanExpression NotInCondition() throws ParseException {
     /*@bgen(jjtree) NotInCondition */
-    SQLNotInCondition jjtn000 = new SQLNotInCondition(JJTNOTINCONDITION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLNotInCondition(JJTNOTINCONDITION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLExpression lastExpression;
@@ -10893,8 +10893,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLBooleanExpression ContainsAllCondition() throws ParseException {
     /*@bgen(jjtree) ContainsAllCondition */
-    SQLContainsAllCondition jjtn000 = new SQLContainsAllCondition(JJTCONTAINSALLCONDITION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLContainsAllCondition(JJTCONTAINSALLCONDITION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -10953,8 +10953,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLBooleanExpression ContainsAnyCondition() throws ParseException {
     /*@bgen(jjtree) ContainsAnyCondition */
-    SQLContainsAnyCondition jjtn000 = new SQLContainsAnyCondition(JJTCONTAINSANYCONDITION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLContainsAnyCondition(JJTCONTAINSANYCONDITION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -11013,8 +11013,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLBooleanExpression ContainsTextCondition() throws ParseException {
     /*@bgen(jjtree) ContainsTextCondition */
-    SQLContainsTextCondition jjtn000 = new SQLContainsTextCondition(JJTCONTAINSTEXTCONDITION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLContainsTextCondition(JJTCONTAINSTEXTCONDITION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -11064,8 +11064,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLBooleanExpression MatchesCondition() throws ParseException {
     /*@bgen(jjtree) MatchesCondition */
-    SQLMatchesCondition jjtn000 = new SQLMatchesCondition(JJTMATCHESCONDITION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLMatchesCondition(JJTMATCHESCONDITION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     Token token;
@@ -11137,8 +11137,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLOrderBy OrderBy() throws ParseException {
     /*@bgen(jjtree) OrderBy */
-    SQLOrderBy jjtn000 = new SQLOrderBy(JJTORDERBY);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLOrderBy(JJTORDERBY);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     jjtn000.items = new java.util.ArrayList();
@@ -12123,8 +12123,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLGroupBy GroupBy() throws ParseException {
     /*@bgen(jjtree) GroupBy */
-    SQLGroupBy jjtn000 = new SQLGroupBy(JJTGROUPBY);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLGroupBy(JJTGROUPBY);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLExpression lastExpression;
@@ -12186,8 +12186,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLUnwind Unwind() throws ParseException {
     /*@bgen(jjtree) Unwind */
-    SQLUnwind jjtn000 = new SQLUnwind(JJTUNWIND);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLUnwind(JJTUNWIND);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLIdentifier lastIdentifier;
@@ -12248,8 +12248,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLLimit Limit() throws ParseException {
     /*@bgen(jjtree) Limit */
-    SQLLimit jjtn000 = new SQLLimit(JJTLIMIT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLLimit(JJTLIMIT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -12313,8 +12313,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLSkip Skip() throws ParseException {
     /*@bgen(jjtree) Skip */
-    SQLSkip jjtn000 = new SQLSkip(JJTSKIP);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLSkip(JJTSKIP);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -12401,8 +12401,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLBatch Batch() throws ParseException {
     /*@bgen(jjtree) Batch */
-    SQLBatch jjtn000 = new SQLBatch(JJTBATCH);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLBatch(JJTBATCH);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -12466,8 +12466,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLTimeout Timeout() throws ParseException {
     /*@bgen(jjtree) Timeout */
-    SQLTimeout jjtn000 = new SQLTimeout(JJTTIMEOUT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLTimeout(JJTTIMEOUT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLInteger val;
@@ -12540,8 +12540,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public java.lang.Number Wait() throws ParseException {
     /*@bgen(jjtree) Wait */
-    SQLWait jjtn000 = new SQLWait(JJTWAIT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLWait(JJTWAIT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLInteger val;
@@ -12591,8 +12591,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public java.lang.Number Retry() throws ParseException {
     /*@bgen(jjtree) Retry */
-    SQLRetry jjtn000 = new SQLRetry(JJTRETRY);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLRetry(JJTRETRY);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLInteger val;
@@ -12642,8 +12642,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLCollection Collection() throws ParseException {
     /*@bgen(jjtree) Collection */
-    SQLCollection jjtn000 = new SQLCollection(JJTCOLLECTION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLCollection(JJTCOLLECTION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLExpression lastExpression;
@@ -12843,8 +12843,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLFetchPlan FetchPlan() throws ParseException {
     /*@bgen(jjtree) FetchPlan */
-    SQLFetchPlan jjtn000 = new SQLFetchPlan(JJTFETCHPLAN);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLFetchPlan(JJTFETCHPLAN);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLFetchPlanItem lastItem;
@@ -13018,12 +13018,12 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLFetchPlanItem FetchPlanItem() throws ParseException {
     /*@bgen(jjtree) FetchPlanItem */
-    SQLFetchPlanItem jjtn000 = new SQLFetchPlanItem(JJTFETCHPLANITEM);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLFetchPlanItem(JJTFETCHPLANITEM);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLIdentifier lastIdentifier;
-    boolean lastStarred = false;
+    var lastStarred = false;
     try {
       switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
         case STAR:
@@ -13172,7 +13172,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
               jj_la1[252] = jj_gen;
               ;
           }
-          String field = lastIdentifier.getValue();
+          var field = lastIdentifier.getValue();
           if (lastStarred) {
             field += "*";
           }
@@ -13258,8 +13258,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLTraverseProjectionItem TraverseProjectionItem() throws ParseException {
     /*@bgen(jjtree) TraverseProjectionItem */
-    SQLTraverseProjectionItem jjtn000 = new SQLTraverseProjectionItem(JJTTRAVERSEPROJECTIONITEM);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLTraverseProjectionItem(JJTTRAVERSEPROJECTIONITEM);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -13314,8 +13314,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLJson Json() throws ParseException {
     /*@bgen(jjtree) Json */
-    SQLJson jjtn000 = new SQLJson(JJTJSON);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLJson(JJTJSON);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLJsonItem lastItem;
@@ -13761,8 +13761,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLMatchExpression MatchExpression() throws ParseException {
     /*@bgen(jjtree) MatchExpression */
-    SQLMatchExpression jjtn000 = new SQLMatchExpression(JJTMATCHEXPRESSION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLMatchExpression(JJTMATCHEXPRESSION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLMatchPathItem nextItem = null;
@@ -13856,8 +13856,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLMatchPathItem MatchPathItem() throws ParseException {
     /*@bgen(jjtree) MatchPathItem */
-    SQLMatchPathItem jjtn000 = new SQLMatchPathItem(JJTMATCHPATHITEM);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLMatchPathItem(JJTMATCHPATHITEM);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -13913,8 +13913,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLMatchPathItem FieldMatchPathItem() throws ParseException {
     /*@bgen(jjtree) FieldMatchPathItem */
-    SQLFieldMatchPathItem jjtn000 = new SQLFieldMatchPathItem(JJTFIELDMATCHPATHITEM);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLFieldMatchPathItem(JJTFIELDMATCHPATHITEM);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -13971,8 +13971,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLMatchPathItem MatchPathItemFirst() throws ParseException {
     /*@bgen(jjtree) MatchPathItemFirst */
-    SQLMatchPathItemFirst jjtn000 = new SQLMatchPathItemFirst(JJTMATCHPATHITEMFIRST);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLMatchPathItemFirst(JJTMATCHPATHITEMFIRST);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -14028,8 +14028,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLMatchPathItem MultiMatchPathItem() throws ParseException {
     /*@bgen(jjtree) MultiMatchPathItem */
-    SQLMultiMatchPathItem jjtn000 = new SQLMultiMatchPathItem(JJTMULTIMATCHPATHITEM);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLMultiMatchPathItem(JJTMULTIMATCHPATHITEM);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLMatchPathItem nextItem = null;
@@ -14100,9 +14100,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLMatchPathItem MultiMatchPathItemArrows() throws ParseException {
     /*@bgen(jjtree) MultiMatchPathItemArrows */
-    SQLMultiMatchPathItemArrows jjtn000 = new SQLMultiMatchPathItemArrows(
+    var jjtn000 = new SQLMultiMatchPathItemArrows(
         JJTMULTIMATCHPATHITEMARROWS);
-    boolean jjtc000 = true;
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLMatchPathItem prevItem = null;
@@ -14195,8 +14195,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLMatchFilter MatchFilter() throws ParseException {
     /*@bgen(jjtree) MatchFilter */
-    SQLMatchFilter jjtn000 = new SQLMatchFilter(JJTMATCHFILTER);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLMatchFilter(JJTMATCHFILTER);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLMatchFilterItem lastItem = null;
@@ -14281,8 +14281,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLMatchFilterItem MatchFilterItem() throws ParseException {
     /*@bgen(jjtree) MatchFilterItem */
-    SQLMatchFilterItem jjtn000 = new SQLMatchFilterItem(JJTMATCHFILTERITEM);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLMatchFilterItem(JJTMATCHFILTERITEM);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     Token lastToken;
@@ -14546,8 +14546,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLMatchPathItem OutPathItem() throws ParseException {
     /*@bgen(jjtree) OutPathItem */
-    SQLOutPathItem jjtn000 = new SQLOutPathItem(JJTOUTPATHITEM);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLOutPathItem(JJTOUTPATHITEM);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLIdentifier edgeName = null;
@@ -14721,8 +14721,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLMatchPathItem InPathItem() throws ParseException {
     /*@bgen(jjtree) InPathItem */
-    SQLInPathItem jjtn000 = new SQLInPathItem(JJTINPATHITEM);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLInPathItem(JJTINPATHITEM);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLIdentifier edgeName = null;
@@ -14896,8 +14896,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLMatchPathItem BothPathItem() throws ParseException {
     /*@bgen(jjtree) BothPathItem */
-    SQLBothPathItem jjtn000 = new SQLBothPathItem(JJTBOTHPATHITEM);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLBothPathItem(JJTBOTHPATHITEM);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLIdentifier edgeName = null;
@@ -15070,8 +15070,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLMatchPathItem OutPathItemOpt() throws ParseException {
     /*@bgen(jjtree) OutPathItemOpt */
-    SQLOutPathItemOpt jjtn000 = new SQLOutPathItemOpt(JJTOUTPATHITEMOPT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLOutPathItemOpt(JJTOUTPATHITEMOPT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLIdentifier edgeName = null;
@@ -15252,8 +15252,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLMatchPathItem InPathItemOpt() throws ParseException {
     /*@bgen(jjtree) InPathItemOpt */
-    SQLInPathItemOpt jjtn000 = new SQLInPathItemOpt(JJTINPATHITEMOPT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLInPathItemOpt(JJTINPATHITEMOPT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLIdentifier edgeName = null;
@@ -15434,8 +15434,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLMatchPathItem BothPathItemOpt() throws ParseException {
     /*@bgen(jjtree) BothPathItemOpt */
-    SQLBothPathItemOpt jjtn000 = new SQLBothPathItemOpt(JJTBOTHPATHITEMOPT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLBothPathItemOpt(JJTBOTHPATHITEMOPT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLIdentifier edgeName = null;
@@ -15615,8 +15615,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLProfileStorageStatement ProfileStorageStatement() throws ParseException {
     /*@bgen(jjtree) ProfileStorageStatement */
-    SQLProfileStorageStatement jjtn000 = new SQLProfileStorageStatement(JJTPROFILESTORAGESTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLProfileStorageStatement(JJTPROFILESTORAGESTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -15653,8 +15653,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLTruncateClassStatement TruncateClassStatement() throws ParseException {
     /*@bgen(jjtree) TruncateClassStatement */
-    SQLTruncateClassStatement jjtn000 = new SQLTruncateClassStatement(JJTTRUNCATECLASSSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLTruncateClassStatement(JJTTRUNCATECLASSSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -15718,9 +15718,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLTruncateClusterStatement TruncateClusterStatement() throws ParseException {
     /*@bgen(jjtree) TruncateClusterStatement */
-    SQLTruncateClusterStatement jjtn000 = new SQLTruncateClusterStatement(
+    var jjtn000 = new SQLTruncateClusterStatement(
         JJTTRUNCATECLUSTERSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -15893,8 +15893,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLFindReferencesStatement FindReferencesStatement() throws ParseException {
     /*@bgen(jjtree) FindReferencesStatement */
-    SQLFindReferencesStatement jjtn000 = new SQLFindReferencesStatement(JJTFINDREFERENCESSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLFindReferencesStatement(JJTFINDREFERENCESSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SimpleNode lastTarget;
@@ -16225,8 +16225,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLCreateClassStatement CreateClassStatement() throws ParseException {
     /*@bgen(jjtree) CreateClassStatement */
-    SQLCreateClassStatement jjtn000 = new SQLCreateClassStatement(JJTCREATECLASSSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLCreateClassStatement(JJTCREATECLASSSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLIdentifier lastIdentifier;
@@ -16353,8 +16353,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLAlterClassStatement AlterClassStatement() throws ParseException {
     /*@bgen(jjtree) AlterClassStatement */
-    SQLAlterClassStatement jjtn000 = new SQLAlterClassStatement(JJTALTERCLASSSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLAlterClassStatement(JJTALTERCLASSSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLIdentifier lastIdentifier;
@@ -17369,8 +17369,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLDropClassStatement DropClassStatement() throws ParseException {
     /*@bgen(jjtree) DropClassStatement */
-    SQLDropClassStatement jjtn000 = new SQLDropClassStatement(JJTDROPCLASSSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLDropClassStatement(JJTDROPCLASSSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -17553,8 +17553,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public void IfNotExists() throws ParseException {
     /*@bgen(jjtree) IfNotExists */
-    SQLIfNotExists jjtn000 = new SQLIfNotExists(JJTIFNOTEXISTS);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLIfNotExists(JJTIFNOTEXISTS);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -17571,8 +17571,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLCreatePropertyStatement CreatePropertyStatement() throws ParseException {
     /*@bgen(jjtree) CreatePropertyStatement */
-    SQLCreatePropertyStatement jjtn000 = new SQLCreatePropertyStatement(JJTCREATEPROPERTYSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLCreatePropertyStatement(JJTCREATEPROPERTYSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLCreatePropertyAttributeStatement lastAttribute;
@@ -17777,9 +17777,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   final public SQLCreatePropertyAttributeStatement CreatePropertyAttributeStatement()
       throws ParseException {
     /*@bgen(jjtree) CreatePropertyAttributeStatement */
-    SQLCreatePropertyAttributeStatement jjtn000 = new SQLCreatePropertyAttributeStatement(
+    var jjtn000 = new SQLCreatePropertyAttributeStatement(
         JJTCREATEPROPERTYATTRIBUTESTATEMENT);
-    boolean jjtc000 = true;
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -17832,8 +17832,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLAlterPropertyStatement AlterPropertyStatement() throws ParseException {
     /*@bgen(jjtree) AlterPropertyStatement */
-    SQLAlterPropertyStatement jjtn000 = new SQLAlterPropertyStatement(JJTALTERPROPERTYSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLAlterPropertyStatement(JJTALTERPROPERTYSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -18004,8 +18004,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLDropPropertyStatement DropPropertyStatement() throws ParseException {
     /*@bgen(jjtree) DropPropertyStatement */
-    SQLDropPropertyStatement jjtn000 = new SQLDropPropertyStatement(JJTDROPPROPERTYSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLDropPropertyStatement(JJTDROPPROPERTYSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -18072,8 +18072,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLCreateIndexStatement CreateIndexStatement() throws ParseException {
     /*@bgen(jjtree) CreateIndexStatement */
-    SQLCreateIndexStatement jjtn000 = new SQLCreateIndexStatement(JJTCREATEINDEXSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLCreateIndexStatement(JJTCREATEINDEXSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLCreateIndexStatement.Property lastProperty;
@@ -19219,8 +19219,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLRebuildIndexStatement RebuildIndexStatement() throws ParseException {
     /*@bgen(jjtree) RebuildIndexStatement */
-    SQLRebuildIndexStatement jjtn000 = new SQLRebuildIndexStatement(JJTREBUILDINDEXSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLRebuildIndexStatement(JJTREBUILDINDEXSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -19389,8 +19389,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLDropIndexStatement DropIndexStatement() throws ParseException {
     /*@bgen(jjtree) DropIndexStatement */
-    SQLDropIndexStatement jjtn000 = new SQLDropIndexStatement(JJTDROPINDEXSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLDropIndexStatement(JJTDROPINDEXSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -19569,8 +19569,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLCreateClusterStatement CreateClusterStatement() throws ParseException {
     /*@bgen(jjtree) CreateClusterStatement */
-    SQLCreateClusterStatement jjtn000 = new SQLCreateClusterStatement(JJTCREATECLUSTERSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLCreateClusterStatement(JJTCREATECLUSTERSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -19653,8 +19653,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLAlterClusterStatement AlterClusterStatement() throws ParseException {
     /*@bgen(jjtree) AlterClusterStatement */
-    SQLAlterClusterStatement jjtn000 = new SQLAlterClusterStatement(JJTALTERCLUSTERSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLAlterClusterStatement(JJTALTERCLUSTERSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -19711,8 +19711,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLDropClusterStatement DropClusterStatement() throws ParseException {
     /*@bgen(jjtree) DropClusterStatement */
-    SQLDropClusterStatement jjtn000 = new SQLDropClusterStatement(JJTDROPCLUSTERSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLDropClusterStatement(JJTDROPCLUSTERSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -19886,8 +19886,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLAlterDatabaseStatement AlterDatabaseStatement() throws ParseException {
     /*@bgen(jjtree) AlterDatabaseStatement */
-    SQLAlterDatabaseStatement jjtn000 = new SQLAlterDatabaseStatement(JJTALTERDATABASESTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLAlterDatabaseStatement(JJTALTERDATABASESTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -19934,8 +19934,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLCommandLineOption CommandLineOption() throws ParseException {
     /*@bgen(jjtree) CommandLineOption */
-    SQLCommandLineOption jjtn000 = new SQLCommandLineOption(JJTCOMMANDLINEOPTION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLCommandLineOption(JJTCOMMANDLINEOPTION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -19984,9 +19984,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLOptimizeDatabaseStatement OptimizeDatabaseStatement() throws ParseException {
     /*@bgen(jjtree) OptimizeDatabaseStatement */
-    SQLOptimizeDatabaseStatement jjtn000 = new SQLOptimizeDatabaseStatement(
+    var jjtn000 = new SQLOptimizeDatabaseStatement(
         JJTOPTIMIZEDATABASESTATEMENT);
-    boolean jjtc000 = true;
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLCommandLineOption lastOption;
@@ -20049,8 +20049,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLCreateLinkStatement CreateLinkStatement() throws ParseException {
     /*@bgen(jjtree) CreateLinkStatement */
-    SQLCreateLinkStatement jjtn000 = new SQLCreateLinkStatement(JJTCREATELINKSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLCreateLinkStatement(JJTCREATELINKSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -20353,8 +20353,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLExplainStatement ExplainStatement() throws ParseException {
     /*@bgen(jjtree) ExplainStatement */
-    SQLExplainStatement jjtn000 = new SQLExplainStatement(JJTEXPLAINSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLExplainStatement(JJTEXPLAINSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -20405,8 +20405,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLProfileStatement ProfileStatement() throws ParseException {
     /*@bgen(jjtree) ProfileStatement */
-    SQLProfileStatement jjtn000 = new SQLProfileStatement(JJTPROFILESTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLProfileStatement(JJTPROFILESTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -20457,8 +20457,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLPermission Permission() throws ParseException {
     /*@bgen(jjtree) Permission */
-    SQLPermission jjtn000 = new SQLPermission(JJTPERMISSION);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLPermission(JJTPERMISSION);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -20513,8 +20513,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLGrantStatement GrantStatement() throws ParseException {
     /*@bgen(jjtree) GrantStatement */
-    SQLGrantStatement jjtn000 = new SQLGrantStatement(JJTGRANTSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLGrantStatement(JJTGRANTSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -20587,8 +20587,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLRevokeStatement RevokeStatement() throws ParseException {
     /*@bgen(jjtree) RevokeStatement */
-    SQLRevokeStatement jjtn000 = new SQLRevokeStatement(JJTREVOKESTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLRevokeStatement(JJTREVOKESTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -20661,8 +20661,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLCreateFunctionStatement CreateFunctionStatement() throws ParseException {
     /*@bgen(jjtree) CreateFunctionStatement */
-    SQLCreateFunctionStatement jjtn000 = new SQLCreateFunctionStatement(JJTCREATEFUNCTIONSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLCreateFunctionStatement(JJTCREATEFUNCTIONSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     Token token;
@@ -20776,9 +20776,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLCreateSystemUserStatement CreateSystemUserStatement() throws ParseException {
     /*@bgen(jjtree) CreateSystemUserStatement */
-    SQLCreateSystemUserStatement jjtn000 = new SQLCreateSystemUserStatement(
+    var jjtn000 = new SQLCreateSystemUserStatement(
         JJTCREATESYSTEMUSERSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     Token token;
@@ -21215,9 +21215,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLExistsSystemUserStatement ExistsSystemUserStatement() throws ParseException {
     /*@bgen(jjtree) ExistsSystemUserStatement */
-    SQLExistsSystemUserStatement jjtn000 = new SQLExistsSystemUserStatement(
+    var jjtn000 = new SQLExistsSystemUserStatement(
         JJTEXISTSSYSTEMUSERSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -21388,8 +21388,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLCreateUserStatement CreateUserStatement() throws ParseException {
     /*@bgen(jjtree) CreateUserStatement */
-    SQLCreateUserStatement jjtn000 = new SQLCreateUserStatement(JJTCREATEUSERSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLCreateUserStatement(JJTCREATEUSERSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     Token token;
@@ -21825,8 +21825,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLDropUserStatement DropUserStatement() throws ParseException {
     /*@bgen(jjtree) DropUserStatement */
-    SQLDropUserStatement jjtn000 = new SQLDropUserStatement(JJTDROPUSERSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLDropUserStatement(JJTDROPUSERSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));Token token;
     try {
@@ -21878,8 +21878,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLAlterRoleStatement AlterRoleStatement() throws ParseException {
     /*@bgen(jjtree) AlterRoleStatement */
-    SQLAlterRoleStatement jjtn000 = new SQLAlterRoleStatement(JJTALTERROLESTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLAlterRoleStatement(JJTALTERROLESTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLSecurityResourceSegment lastSecurityResource;
@@ -21966,9 +21966,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLAlterSystemRoleStatement AlterSystemRoleStatement() throws ParseException {
     /*@bgen(jjtree) AlterSystemRoleStatement */
-    SQLAlterSystemRoleStatement jjtn000 = new SQLAlterSystemRoleStatement(
+    var jjtn000 = new SQLAlterSystemRoleStatement(
         JJTALTERSYSTEMROLESTATEMENT);
-    boolean jjtc000 = true;
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLSecurityResourceSegment lastSecurityResource;
@@ -22056,8 +22056,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLLetStatement LetStatement() throws ParseException {
     /*@bgen(jjtree) LetStatement */
-    SQLLetStatement jjtn000 = new SQLLetStatement(JJTLETSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLLetStatement(JJTLETSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -22115,8 +22115,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLBeginStatement BeginStatement() throws ParseException {
     /*@bgen(jjtree) BeginStatement */
-    SQLBeginStatement jjtn000 = new SQLBeginStatement(JJTBEGINSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLBeginStatement(JJTBEGINSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -22138,8 +22138,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLCommitStatement CommitStatement() throws ParseException {
     /*@bgen(jjtree) CommitStatement */
-    SQLCommitStatement jjtn000 = new SQLCommitStatement(JJTCOMMITSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLCommitStatement(JJTCOMMITSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLStatement last;
@@ -22295,8 +22295,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLRollbackStatement RollbackStatement() throws ParseException {
     /*@bgen(jjtree) RollbackStatement */
-    SQLRollbackStatement jjtn000 = new SQLRollbackStatement(JJTROLLBACKSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLRollbackStatement(JJTROLLBACKSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -22318,8 +22318,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLReturnStatement ReturnStatement() throws ParseException {
     /*@bgen(jjtree) ReturnStatement */
-    SQLReturnStatement jjtn000 = new SQLReturnStatement(JJTRETURNSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLReturnStatement(JJTRETURNSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -22500,8 +22500,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLIfStatement IfStatement() throws ParseException {
     /*@bgen(jjtree) IfStatement */
-    SQLIfStatement jjtn000 = new SQLIfStatement(JJTIFSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLIfStatement(JJTIFSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLStatement last;
@@ -22731,8 +22731,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLSleepStatement SleepStatement() throws ParseException {
     /*@bgen(jjtree) SleepStatement */
-    SQLSleepStatement jjtn000 = new SQLSleepStatement(JJTSLEEPSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLSleepStatement(JJTSLEEPSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -22783,8 +22783,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLConsoleStatement ConsoleStatement() throws ParseException {
     /*@bgen(jjtree) ConsoleStatement */
-    SQLConsoleStatement jjtn000 = new SQLConsoleStatement(JJTCONSOLESTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLConsoleStatement(JJTCONSOLESTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -22837,8 +22837,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLCreateSequenceStatement CreateSequenceStatement() throws ParseException {
     /*@bgen(jjtree) CreateSequenceStatement */
-    SQLCreateSequenceStatement jjtn000 = new SQLCreateSequenceStatement(JJTCREATESEQUENCESTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLCreateSequenceStatement(JJTCREATESEQUENCESTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLIdentifier lastIdentifier;
@@ -22978,8 +22978,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLAlterSequenceStatement AlterSequenceStatement() throws ParseException {
     /*@bgen(jjtree) AlterSequenceStatement */
-    SQLAlterSequenceStatement jjtn000 = new SQLAlterSequenceStatement(JJTALTERSEQUENCESTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLAlterSequenceStatement(JJTALTERSEQUENCESTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLIdentifier lastIdentifier;
@@ -23101,8 +23101,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLDropSequenceStatement DropSequenceStatement() throws ParseException {
     /*@bgen(jjtree) DropSequenceStatement */
-    SQLDropSequenceStatement jjtn000 = new SQLDropSequenceStatement(JJTDROPSEQUENCESTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLDropSequenceStatement(JJTDROPSEQUENCESTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLIdentifier lastIdentifier;
@@ -23165,8 +23165,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLHaStatusStatement HaStatusStatement() throws ParseException {
     /*@bgen(jjtree) HaStatusStatement */
-    SQLHaStatusStatement jjtn000 = new SQLHaStatusStatement(JJTHASTATUSSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLHaStatusStatement(JJTHASTATUSSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     Token token;
@@ -23247,8 +23247,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLHaRemoveServerStatement HaRemoveServerStatement() throws ParseException {
     /*@bgen(jjtree) HaRemoveServerStatement */
-    SQLHaRemoveServerStatement jjtn000 = new SQLHaRemoveServerStatement(JJTHAREMOVESERVERSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLHaRemoveServerStatement(JJTHAREMOVESERVERSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -23301,8 +23301,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLHaSyncDatabaseStatement HaSyncDatabaseStatement() throws ParseException {
     /*@bgen(jjtree) HaSyncDatabaseStatement */
-    SQLHaSyncDatabaseStatement jjtn000 = new SQLHaSyncDatabaseStatement(JJTHASYNCDATABASESTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLHaSyncDatabaseStatement(JJTHASYNCDATABASESTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -23354,8 +23354,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLHaSyncClusterStatement HaSyncClusterStatement() throws ParseException {
     /*@bgen(jjtree) HaSyncClusterStatement */
-    SQLHaSyncClusterStatement jjtn000 = new SQLHaSyncClusterStatement(JJTHASYNCCLUSTERSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLHaSyncClusterStatement(JJTHASYNCCLUSTERSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -23430,8 +23430,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLHaSetStatement HaSetStatement() throws ParseException {
     /*@bgen(jjtree) HaSetStatement */
-    SQLHaSetStatement jjtn000 = new SQLHaSetStatement(JJTHASETSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLHaSetStatement(JJTHASETSTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     Token token;
@@ -23487,8 +23487,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLForEachBlock ForEachBlock() throws ParseException {
     /*@bgen(jjtree) ForEachBlock */
-    SQLForEachBlock jjtn000 = new SQLForEachBlock(JJTFOREACHBLOCK);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLForEachBlock(JJTFOREACHBLOCK);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLStatement lastStatement;
@@ -23720,8 +23720,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLWhileBlock WhileBlock() throws ParseException {
     /*@bgen(jjtree) WhileBlock */
-    SQLWhileBlock jjtn000 = new SQLWhileBlock(JJTWHILEBLOCK);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLWhileBlock(JJTWHILEBLOCK);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLStatement lastStatement;
@@ -23951,8 +23951,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLSecurityResourceSegment SecurityResourceSegment() throws ParseException {
     /*@bgen(jjtree) SecurityResourceSegment */
-    SQLSecurityResourceSegment jjtn000 = new SQLSecurityResourceSegment(JJTSECURITYRESOURCESEGMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLSecurityResourceSegment(JJTSECURITYRESOURCESEGMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLIdentifier identifier;
@@ -24188,9 +24188,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   final public SQLCreateSecurityPolicyStatement CreateSecurityPolicyStatement()
       throws ParseException {
     /*@bgen(jjtree) CreateSecurityPolicyStatement */
-    SQLCreateSecurityPolicyStatement jjtn000 = new SQLCreateSecurityPolicyStatement(
+    var jjtn000 = new SQLCreateSecurityPolicyStatement(
         JJTCREATESECURITYPOLICYSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -24358,9 +24358,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   final public SQLAlterSecurityPolicyStatement AlterSecurityPolicyStatement()
       throws ParseException {
     /*@bgen(jjtree) AlterSecurityPolicyStatement */
-    SQLAlterSecurityPolicyStatement jjtn000 = new SQLAlterSecurityPolicyStatement(
+    var jjtn000 = new SQLAlterSecurityPolicyStatement(
         JJTALTERSECURITYPOLICYSTATEMENT);
-    boolean jjtc000 = true;
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -24619,8 +24619,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLDatabaseUserData DatabaseUserData() throws ParseException {
     /*@bgen(jjtree) DatabaseUserData */
-    SQLDatabaseUserData jjtn000 = new SQLDatabaseUserData(JJTDATABASEUSERDATA);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLDatabaseUserData(JJTDATABASEUSERDATA);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLIdentifier lastIdentifier;
@@ -25165,8 +25165,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLCreateDatabaseStatement CreateDatabaseStatement() throws ParseException {
     /*@bgen(jjtree) CreateDatabaseStatement */
-    SQLCreateDatabaseStatement jjtn000 = new SQLCreateDatabaseStatement(JJTCREATEDATABASESTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLCreateDatabaseStatement(JJTCREATEDATABASESTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLDatabaseUserData lastUserData;
@@ -25377,8 +25377,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   final public SQLDropDatabaseStatement DropDatabaseStatement() throws ParseException {
     /*@bgen(jjtree) DropDatabaseStatement */
-    SQLDropDatabaseStatement jjtn000 = new SQLDropDatabaseStatement(JJTDROPDATABASESTATEMENT);
-    boolean jjtc000 = true;
+    var jjtn000 = new SQLDropDatabaseStatement(JJTDROPDATABASESTATEMENT);
+    var jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
@@ -40981,10 +40981,10 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 442; i++) {
+    for (var i = 0; i < 442; i++) {
       jj_la1[i] = -1;
     }
-    for (int i = 0; i < jj_2_rtns.length; i++) {
+    for (var i = 0; i < jj_2_rtns.length; i++) {
       jj_2_rtns[i] = new JJCalls();
     }
   }
@@ -40996,10 +40996,10 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     jj_ntk = -1;
     jjtree.reset();
     jj_gen = 0;
-    for (int i = 0; i < 442; i++) {
+    for (var i = 0; i < 442; i++) {
       jj_la1[i] = -1;
     }
-    for (int i = 0; i < jj_2_rtns.length; i++) {
+    for (var i = 0; i < jj_2_rtns.length; i++) {
       jj_2_rtns[i] = new JJCalls();
     }
   }
@@ -41010,10 +41010,10 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 442; i++) {
+    for (var i = 0; i < 442; i++) {
       jj_la1[i] = -1;
     }
-    for (int i = 0; i < jj_2_rtns.length; i++) {
+    for (var i = 0; i < jj_2_rtns.length; i++) {
       jj_2_rtns[i] = new JJCalls();
     }
   }
@@ -41025,10 +41025,10 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     jj_ntk = -1;
     jjtree.reset();
     jj_gen = 0;
-    for (int i = 0; i < 442; i++) {
+    for (var i = 0; i < 442; i++) {
       jj_la1[i] = -1;
     }
-    for (int i = 0; i < jj_2_rtns.length; i++) {
+    for (var i = 0; i < jj_2_rtns.length; i++) {
       jj_2_rtns[i] = new JJCalls();
     }
   }
@@ -41045,8 +41045,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       jj_gen++;
       if (++jj_gc > 100) {
         jj_gc = 0;
-        for (int i = 0; i < jj_2_rtns.length; i++) {
-          JJCalls c = jj_2_rtns[i];
+        for (var i = 0; i < jj_2_rtns.length; i++) {
+          var c = jj_2_rtns[i];
           while (c != null) {
             if (c.gen < jj_gen) {
               c.first = null;
@@ -41076,8 +41076,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       jj_scanpos = jj_scanpos.next;
     }
     if (jj_rescan) {
-      int i = 0;
-      Token tok = token;
+      var i = 0;
+      var tok = token;
       while (tok != null && tok != jj_scanpos) {
         i++;
         tok = tok.next;
@@ -41110,8 +41110,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   /** Get the specific Token. */
   final public Token getToken(int index) {
-    Token t = token;
-    for (int i = 0; i < index; i++) {
+    var t = token;
+    for (var i = 0; i < index; i++) {
       if (t.next != null) {
         t = t.next;
       } else {
@@ -41142,14 +41142,14 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       jj_lasttokens[jj_endpos++] = kind;
     } else if (jj_endpos != 0) {
       jj_expentry = new int[jj_endpos];
-      for (int i = 0; i < jj_endpos; i++) {
+      for (var i = 0; i < jj_endpos; i++) {
         jj_expentry[i] = jj_lasttokens[i];
       }
       jj_entries_loop:
       for (java.util.Iterator<?> it = jj_expentries.iterator(); it.hasNext();) {
-        int[] oldentry = (int[])(it.next());
+        var oldentry = (int[]) (it.next());
         if (oldentry.length == jj_expentry.length) {
-          for (int i = 0; i < jj_expentry.length; i++) {
+          for (var i = 0; i < jj_expentry.length; i++) {
             if (oldentry[i] != jj_expentry[i]) {
               continue jj_entries_loop;
             }
@@ -41167,14 +41167,14 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   /** Generate ParseException. */
   public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[279];
+    var la1tokens = new boolean[279];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 442; i++) {
+    for (var i = 0; i < 442; i++) {
       if (jj_la1[i] == jj_gen) {
-        for (int j = 0; j < 32; j++) {
+        for (var j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1 << j)) != 0) {
             la1tokens[j] = true;
           }
@@ -41205,7 +41205,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
         }
       }
     }
-    for (int i = 0; i < 279; i++) {
+    for (var i = 0; i < 279; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;
@@ -41215,8 +41215,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     jj_endpos = 0;
     jj_rescan_token();
     jj_add_error_token(0, 0);
-    int[][] exptokseq = new int[jj_expentries.size()][];
-    for (int i = 0; i < jj_expentries.size(); i++) {
+    var exptokseq = new int[jj_expentries.size()][];
+    for (var i = 0; i < jj_expentries.size(); i++) {
       exptokseq[i] = jj_expentries.get(i);
     }
     return new ParseException(token, exptokseq, tokenImage);
@@ -41232,9 +41232,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   private void jj_rescan_token() {
     jj_rescan = true;
-    for (int i = 0; i < 163; i++) {
+    for (var i = 0; i < 163; i++) {
       try {
-        JJCalls p = jj_2_rtns[i];
+        var p = jj_2_rtns[i];
         do {
           if (p.gen > jj_gen) {
             jj_la = p.arg;
@@ -41739,7 +41739,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   }
 
   private void jj_save(int index, int xla) {
-    JJCalls p = jj_2_rtns[index];
+    var p = jj_2_rtns[index];
     while (p.gen > jj_gen) {
       if (p.next == null) {
         p = p.next = new JJCalls();

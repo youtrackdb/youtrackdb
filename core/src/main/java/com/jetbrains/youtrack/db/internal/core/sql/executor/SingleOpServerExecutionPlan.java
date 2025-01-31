@@ -81,14 +81,14 @@ public class SingleOpServerExecutionPlan implements InternalExecutionPlan {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
-    String result = spaces + "+ " + statement.toString();
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var result = spaces + "+ " + statement.toString();
     return result;
   }
 
   @Override
   public Result toResult(DatabaseSession db) {
-    ResultInternal result = new ResultInternal((DatabaseSessionInternal) db);
+    var result = new ResultInternal((DatabaseSessionInternal) db);
     result.setProperty("type", "QueryExecutionPlan");
     result.setProperty("javaType", getClass().getName());
     result.setProperty("stmText", statement.toString());

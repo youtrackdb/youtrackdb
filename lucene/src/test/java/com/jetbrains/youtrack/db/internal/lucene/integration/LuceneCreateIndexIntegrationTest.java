@@ -30,14 +30,14 @@ public class LuceneCreateIndexIntegrationTest {
     remote.execute(
         "create database LuceneCreateIndexIntegrationTest plocal users(admin identified by 'admin'"
             + " role admin) ");
-    final DatabaseSession session =
+    final var session =
         remote.open("LuceneCreateIndexIntegrationTest", "admin", "admin");
 
     session.command("create class Person");
     session.command("create property Person.name STRING");
     session.command("create property Person.surname STRING");
 
-    final Entity doc = session.newEntity("Person");
+    final var doc = session.newEntity("Person");
     doc.setProperty("name", "Jon");
     doc.setProperty("surname", "Snow");
     session.begin();
@@ -48,10 +48,10 @@ public class LuceneCreateIndexIntegrationTest {
 
   @Test
   public void testCreateIndexJavaAPI() {
-    final DatabaseSessionInternal session =
+    final var session =
         (DatabaseSessionInternal) remote.open("LuceneCreateIndexIntegrationTest", "admin",
             "admin");
-    SchemaClass person = session.getMetadata().getSchema().getClass("Person");
+    var person = session.getMetadata().getSchema().getClass("Person");
 
     if (person == null) {
       person = session.getMetadata().getSchema().createClass("Person");

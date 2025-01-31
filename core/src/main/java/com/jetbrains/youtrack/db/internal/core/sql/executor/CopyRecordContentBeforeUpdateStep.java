@@ -25,14 +25,14 @@ public class CopyRecordContentBeforeUpdateStep extends AbstractExecutionStep {
   @Override
   public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
-    ExecutionStream lastFetched = prev.start(ctx);
+    var lastFetched = prev.start(ctx);
     return lastFetched.map(CopyRecordContentBeforeUpdateStep::mapResult);
   }
 
   private static Result mapResult(Result result, CommandContext ctx) {
     var db = ctx.getDatabase();
     if (result instanceof UpdatableResult) {
-      ResultInternal prevValue = new ResultInternal(db);
+      var prevValue = new ResultInternal(db);
       var rec = result.asEntity();
       prevValue.setProperty("@rid", rec.getIdentity());
       prevValue.setProperty("@version", rec.getVersion());
@@ -41,7 +41,7 @@ public class CopyRecordContentBeforeUpdateStep extends AbstractExecutionStep {
             "@class", EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) rec)).getName());
       }
       if (!result.asEntity().getIdentity().isNew()) {
-        for (String propName : result.getPropertyNames()) {
+        for (var propName : result.getPropertyNames()) {
           prevValue.setProperty(
               propName, LiveQueryHookV2.unboxRidbags(result.getProperty(propName)));
         }
@@ -55,8 +55,8 @@ public class CopyRecordContentBeforeUpdateStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
-    StringBuilder result = new StringBuilder();
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var result = new StringBuilder();
     result.append(spaces);
     result.append("+ COPY RECORD CONTENT BEFORE UPDATE");
     if (profilingEnabled) {

@@ -71,7 +71,7 @@ public class ConnectionExecutorTransactionTest {
             youTrackDb.open(
                 ConnectionExecutorTransactionTest.class.getSimpleName(), "admin", "admin");
     db.createClass("test");
-    NetworkProtocolData protocolData = new NetworkProtocolData();
+    var protocolData = new NetworkProtocolData();
     protocolData.setSerializer(RecordSerializerNetworkFactory.INSTANCE.current());
     Mockito.when(connection.getDatabase()).thenReturn(db);
     Mockito.when(connection.getData()).thenReturn(protocolData);
@@ -87,17 +87,17 @@ public class ConnectionExecutorTransactionTest {
   @Test
   public void testExecutionBeginTransaction() {
 
-    ConnectionBinaryExecutor executor = new ConnectionBinaryExecutor(connection, server);
+    var executor = new ConnectionBinaryExecutor(connection, server);
 
     List<RecordOperation> operations = new ArrayList<>();
-    EntityImpl rec = new EntityImpl(db);
+    var rec = new EntityImpl(db);
     RecordInternal.setIdentity(rec, new RecordId(3, -2));
     operations.add(new RecordOperation(rec, RecordOperation.CREATED));
     assertFalse(db.getTransaction().isActive());
 
-    BeginTransactionRequest request =
+    var request =
         new BeginTransactionRequest(db, 10, true, true, operations);
-    BinaryResponse response = request.execute(executor);
+    var response = request.execute(executor);
     assertTrue(db.getTransaction().isActive());
     assertTrue(response instanceof BeginTransactionResponse);
     // TODO:Define properly what is the txId
@@ -107,23 +107,23 @@ public class ConnectionExecutorTransactionTest {
   @Test
   public void testExecutionBeginCommitTransaction() {
 
-    ConnectionBinaryExecutor executor = new ConnectionBinaryExecutor(connection, server);
+    var executor = new ConnectionBinaryExecutor(connection, server);
 
     List<RecordOperation> operations = new ArrayList<>();
-    EntityImpl rec = new EntityImpl(db);
+    var rec = new EntityImpl(db);
     RecordInternal.setIdentity(rec, new RecordId(3, -2));
     operations.add(new RecordOperation(rec, RecordOperation.CREATED));
 
     assertFalse(db.getTransaction().isActive());
 
-    BeginTransactionRequest request =
+    var request =
         new BeginTransactionRequest(db, 10, true, true, operations);
-    BinaryResponse response = request.execute(executor);
+    var response = request.execute(executor);
     assertTrue(db.getTransaction().isActive());
     assertTrue(response instanceof BeginTransactionResponse);
 
-    Commit37Request commit = new Commit37Request(db, 10, false, true, null);
-    BinaryResponse commitResponse = commit.execute(executor);
+    var commit = new Commit37Request(db, 10, false, true, null);
+    var commitResponse = commit.execute(executor);
     assertFalse(db.getTransaction().isActive());
     assertTrue(commitResponse instanceof Commit37Response);
 
@@ -133,28 +133,28 @@ public class ConnectionExecutorTransactionTest {
   @Test
   public void testExecutionReplaceCommitTransaction() {
 
-    ConnectionBinaryExecutor executor = new ConnectionBinaryExecutor(connection, server);
+    var executor = new ConnectionBinaryExecutor(connection, server);
 
     List<RecordOperation> operations = new ArrayList<>();
-    EntityImpl rec = new EntityImpl(db);
+    var rec = new EntityImpl(db);
     RecordInternal.setIdentity(rec, new RecordId(3, -2));
     rec.setInternalStatus(RecordElement.STATUS.LOADED);
     operations.add(new RecordOperation(rec, RecordOperation.CREATED));
     assertFalse(db.getTransaction().isActive());
 
-    BeginTransactionRequest request =
+    var request =
         new BeginTransactionRequest(db, 10, true, true, operations);
-    BinaryResponse response = request.execute(executor);
+    var response = request.execute(executor);
     assertTrue(db.getTransaction().isActive());
     assertTrue(response instanceof BeginTransactionResponse);
 
-    EntityImpl record1 = new EntityImpl(db, new RecordId(3, -3));
+    var record1 = new EntityImpl(db, new RecordId(3, -3));
     record1.setInternalStatus(RecordElement.STATUS.LOADED);
     operations.add(new RecordOperation(record1, RecordOperation.CREATED));
 
-    Commit37Request commit = new Commit37Request(db, 10, true, true, operations
+    var commit = new Commit37Request(db, 10, true, true, operations
     );
-    BinaryResponse commitResponse = commit.execute(executor);
+    var commitResponse = commit.execute(executor);
     assertFalse(db.getTransaction().isActive());
     assertTrue(commitResponse instanceof Commit37Response);
     assertEquals(2, ((Commit37Response) commitResponse).getUpdatedRids().size());
@@ -163,29 +163,29 @@ public class ConnectionExecutorTransactionTest {
   @Test
   public void testExecutionRebeginTransaction() {
 
-    ConnectionBinaryExecutor executor = new ConnectionBinaryExecutor(connection, server);
+    var executor = new ConnectionBinaryExecutor(connection, server);
 
     List<RecordOperation> operations = new ArrayList<>();
-    EntityImpl rec = new EntityImpl(db);
+    var rec = new EntityImpl(db);
     RecordInternal.setIdentity(rec, new RecordId(3, -2));
     rec.setInternalStatus(RecordElement.STATUS.LOADED);
     operations.add(new RecordOperation(rec, RecordOperation.CREATED));
 
     assertFalse(db.getTransaction().isActive());
 
-    BeginTransactionRequest request =
+    var request =
         new BeginTransactionRequest(db, 10, true, true, operations);
-    BinaryResponse response = request.execute(executor);
+    var response = request.execute(executor);
     assertTrue(db.getTransaction().isActive());
     assertTrue(response instanceof BeginTransactionResponse);
 
-    EntityImpl record1 = new EntityImpl(db, new RecordId(3, -3));
+    var record1 = new EntityImpl(db, new RecordId(3, -3));
     record1.setInternalStatus(RecordElement.STATUS.LOADED);
     operations.add(new RecordOperation(record1, RecordOperation.CREATED));
 
-    RebeginTransactionRequest rebegin =
+    var rebegin =
         new RebeginTransactionRequest(db, 10, true, operations, new HashMap<>());
-    BinaryResponse rebeginResponse = rebegin.execute(executor);
+    var rebeginResponse = rebegin.execute(executor);
     assertTrue(rebeginResponse instanceof BeginTransactionResponse);
     assertTrue(db.getTransaction().isActive());
     assertEquals(2, db.getTransaction().getEntryCount());
@@ -194,40 +194,40 @@ public class ConnectionExecutorTransactionTest {
   @Test
   public void testExecutionRebeginCommitTransaction() {
 
-    ConnectionBinaryExecutor executor = new ConnectionBinaryExecutor(connection, server);
+    var executor = new ConnectionBinaryExecutor(connection, server);
 
     List<RecordOperation> operations = new ArrayList<>();
-    EntityImpl rec = new EntityImpl(db);
+    var rec = new EntityImpl(db);
     RecordInternal.setIdentity(rec, new RecordId(3, -2));
     rec.setInternalStatus(RecordElement.STATUS.LOADED);
     operations.add(new RecordOperation(rec, RecordOperation.CREATED));
 
     assertFalse(db.getTransaction().isActive());
 
-    BeginTransactionRequest request =
+    var request =
         new BeginTransactionRequest(db, 10, true, true, operations);
-    BinaryResponse response = request.execute(executor);
+    var response = request.execute(executor);
     assertTrue(db.getTransaction().isActive());
     assertTrue(response instanceof BeginTransactionResponse);
 
-    EntityImpl record1 = new EntityImpl(db, new RecordId(3, -3));
+    var record1 = new EntityImpl(db, new RecordId(3, -3));
     record1.setInternalStatus(RecordElement.STATUS.LOADED);
     operations.add(new RecordOperation(record1, RecordOperation.CREATED));
 
-    RebeginTransactionRequest rebegin =
+    var rebegin =
         new RebeginTransactionRequest(db, 10, true, operations, new HashMap<>());
-    BinaryResponse rebeginResponse = rebegin.execute(executor);
+    var rebeginResponse = rebegin.execute(executor);
     assertTrue(rebeginResponse instanceof BeginTransactionResponse);
     assertTrue(db.getTransaction().isActive());
     assertEquals(2, db.getTransaction().getEntryCount());
 
-    EntityImpl record2 = new EntityImpl(db, new RecordId(3, -4));
+    var record2 = new EntityImpl(db, new RecordId(3, -4));
     record2.setInternalStatus(RecordElement.STATUS.LOADED);
     operations.add(new RecordOperation(record2, RecordOperation.CREATED));
 
-    Commit37Request commit = new Commit37Request(db, 10, true, true, operations
+    var commit = new Commit37Request(db, 10, true, true, operations
     );
-    BinaryResponse commitResponse = commit.execute(executor);
+    var commitResponse = commit.execute(executor);
     assertFalse(db.getTransaction().isActive());
     assertTrue(commitResponse instanceof Commit37Response);
     assertEquals(3, ((Commit37Response) commitResponse).getUpdatedRids().size());
@@ -236,27 +236,27 @@ public class ConnectionExecutorTransactionTest {
   @Test
   public void testExecutionQueryChangesTracking() {
 
-    ConnectionBinaryExecutor executor = new ConnectionBinaryExecutor(connection, server);
+    var executor = new ConnectionBinaryExecutor(connection, server);
 
     List<RecordOperation> operations = new ArrayList<>();
-    EntityImpl rec = new EntityImpl(db, "test");
+    var rec = new EntityImpl(db, "test");
     operations.add(new RecordOperation(rec, RecordOperation.CREATED));
     assertFalse(db.getTransaction().isActive());
 
-    BeginTransactionRequest request =
+    var request =
         new BeginTransactionRequest(db, 10, true, true, operations);
-    BinaryResponse response = request.execute(executor);
+    var response = request.execute(executor);
     assertTrue(db.getTransaction().isActive());
     assertTrue(response instanceof BeginTransactionResponse);
 
-    QueryRequest query =
+    var query =
         new QueryRequest(db,
             "sql",
             "update test set name='bla'",
             new HashMap<>(),
             QueryRequest.COMMAND,
             RecordSerializerNetworkFactory.INSTANCE.current(), 20);
-    QueryResponse queryResponse = (QueryResponse) query.execute(executor);
+    var queryResponse = (QueryResponse) query.execute(executor);
 
     assertTrue(queryResponse.isTxChanges());
   }
@@ -268,33 +268,33 @@ public class ConnectionExecutorTransactionTest {
     db.save(db.newEntity("test"));
     db.commit();
 
-    ConnectionBinaryExecutor executor = new ConnectionBinaryExecutor(connection, server);
+    var executor = new ConnectionBinaryExecutor(connection, server);
 
     List<RecordOperation> operations = new ArrayList<>();
-    EntityImpl rec = new EntityImpl(db, "test");
+    var rec = new EntityImpl(db, "test");
     operations.add(new RecordOperation(rec, RecordOperation.CREATED));
     assertFalse(db.getTransaction().isActive());
 
-    BeginTransactionRequest request =
+    var request =
         new BeginTransactionRequest(db, 10, true, true, operations);
-    BinaryResponse response = request.execute(executor);
+    var response = request.execute(executor);
     assertTrue(db.getTransaction().isActive());
     assertTrue(response instanceof BeginTransactionResponse);
 
-    QueryRequest query =
+    var query =
         new QueryRequest(db,
             "sql",
             "update test set name='bla'",
             new HashMap<>(),
             QueryRequest.COMMAND,
             RecordSerializerNetworkFactory.INSTANCE.current(), 20);
-    QueryResponse queryResponse = (QueryResponse) query.execute(executor);
+    var queryResponse = (QueryResponse) query.execute(executor);
 
     assertTrue(queryResponse.isTxChanges());
 
-    FetchTransactionRequest fetchRequest = new FetchTransactionRequest(10);
+    var fetchRequest = new FetchTransactionRequest(10);
 
-    FetchTransactionResponse response1 =
+    var response1 =
         (FetchTransactionResponse) fetchRequest.execute(executor);
 
     assertEquals(2, response1.getOperations().size());
@@ -302,21 +302,21 @@ public class ConnectionExecutorTransactionTest {
 
   @Test
   public void testBeginRollbackTransaction() {
-    ConnectionBinaryExecutor executor = new ConnectionBinaryExecutor(connection, server);
+    var executor = new ConnectionBinaryExecutor(connection, server);
 
     List<RecordOperation> operations = new ArrayList<>();
-    EntityImpl rec = new EntityImpl(db, "test");
+    var rec = new EntityImpl(db, "test");
     operations.add(new RecordOperation(rec, RecordOperation.CREATED));
     assertFalse(db.getTransaction().isActive());
 
-    BeginTransactionRequest request =
+    var request =
         new BeginTransactionRequest(db, 10, true, true, operations);
-    BinaryResponse response = request.execute(executor);
+    var response = request.execute(executor);
     assertTrue(db.getTransaction().isActive());
     assertTrue(response instanceof BeginTransactionResponse);
 
-    RollbackTransactionRequest rollback = new RollbackTransactionRequest(10);
-    BinaryResponse resposne = rollback.execute(executor);
+    var rollback = new RollbackTransactionRequest(10);
+    var resposne = rollback.execute(executor);
     assertFalse(db.getTransaction().isActive());
   }
 
@@ -327,30 +327,30 @@ public class ConnectionExecutorTransactionTest {
     EntityImpl rec = db.save(((EntityImpl) db.newEntity("test")).field("name", "foo"));
     db.commit();
 
-    ConnectionBinaryExecutor executor = new ConnectionBinaryExecutor(connection, server);
-    BeginTransactionRequest request = new BeginTransactionRequest(db, 10, false, true, null
+    var executor = new ConnectionBinaryExecutor(connection, server);
+    var request = new BeginTransactionRequest(db, 10, false, true, null
     );
-    BinaryResponse response = request.execute(executor);
+    var response = request.execute(executor);
     assertTrue(db.getTransaction().isActive());
     assertTrue(response instanceof BeginTransactionResponse);
 
-    CreateRecordRequest createRecordRequest =
+    var createRecordRequest =
         new CreateRecordRequest(
             new EntityImpl(db, "test"), new RecordId(-1, -1), EntityImpl.RECORD_TYPE);
-    BinaryResponse createResponse = createRecordRequest.execute(executor);
+    var createResponse = createRecordRequest.execute(executor);
     assertTrue(createResponse instanceof CreateRecordResponse);
 
     rec = db.load(rec.getIdentity());
     rec.setProperty("name", "bar");
-    UpdateRecordRequest updateRecordRequest =
+    var updateRecordRequest =
         new UpdateRecordRequest(
             rec.getIdentity(), rec, rec.getVersion(), true, EntityImpl.RECORD_TYPE);
-    BinaryResponse updateResponse = updateRecordRequest.execute(executor);
+    var updateResponse = updateRecordRequest.execute(executor);
     assertTrue(updateResponse instanceof UpdateRecordResponse);
 
-    Commit37Request commit = new Commit37Request(db, 10, false, true, null
+    var commit = new Commit37Request(db, 10, false, true, null
     );
-    BinaryResponse commitResponse = commit.execute(executor);
+    var commitResponse = commit.execute(executor);
     assertFalse(db.getTransaction().isActive());
     assertTrue(commitResponse instanceof Commit37Response);
     assertEquals(1, ((Commit37Response) commitResponse).getUpdatedRids().size());
@@ -360,18 +360,18 @@ public class ConnectionExecutorTransactionTest {
   @Test
   public void testBeginSQLInsertCommitTransaction() {
 
-    ConnectionBinaryExecutor executor = new ConnectionBinaryExecutor(connection, server);
+    var executor = new ConnectionBinaryExecutor(connection, server);
 
     List<RecordOperation> operations = new ArrayList<>();
 
-    BeginTransactionRequest request =
+    var request =
         new BeginTransactionRequest(db, 10, false, true, operations);
-    BinaryResponse response = request.execute(executor);
+    var response = request.execute(executor);
 
     assertTrue(db.getTransaction().isActive());
     assertTrue(response instanceof BeginTransactionResponse);
 
-    List<Result> results =
+    var results =
         db.command("insert into test set name = 'update'").stream()
             .collect(Collectors.toList());
 
@@ -381,9 +381,9 @@ public class ConnectionExecutorTransactionTest {
 
     assertTrue(results.get(0).getEntity().get().getIdentity().isTemporary());
 
-    Commit37Request commit = new Commit37Request(db, 10, false, true, null
+    var commit = new Commit37Request(db, 10, false, true, null
     );
-    BinaryResponse commitResponse = commit.execute(executor);
+    var commitResponse = commit.execute(executor);
     assertFalse(db.getTransaction().isActive());
     assertTrue(commitResponse instanceof Commit37Response);
 
@@ -393,7 +393,7 @@ public class ConnectionExecutorTransactionTest {
 
     assertEquals(1, db.countClass("test"));
 
-    ResultSet query = db.query("select from test where name = 'update'");
+    var query = db.query("select from test where name = 'update'");
 
     results = query.stream().collect(Collectors.toList());
 

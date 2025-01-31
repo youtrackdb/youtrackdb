@@ -230,7 +230,7 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
     this.doubleWriteLogMaxSegSize = doubleWriteLogMaxSegSize;
     this.readCache = readCache;
 
-    final String sp =
+    final var sp =
         SystemVariableResolver.resolveSystemVariables(
             FileUtils.getPath(new java.io.File(url).getPath()));
 
@@ -262,21 +262,21 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
       throw logAndPrepareForRethrow(t);
     }
 
-    boolean fsyncAfterCreate =
+    var fsyncAfterCreate =
         contextConfiguration.getValueAsBoolean(
             GlobalConfiguration.STORAGE_MAKE_FULL_CHECKPOINT_AFTER_CREATE);
     if (fsyncAfterCreate) {
       synch();
     }
 
-    final Object[] additionalArgs = new Object[]{getURL(), YouTrackDBConstants.getVersion()};
+    final var additionalArgs = new Object[]{getURL(), YouTrackDBConstants.getVersion()};
     LogManager.instance()
         .info(this, "Storage '%s' is created under YouTrackDB distribution : %s", additionalArgs);
   }
 
   protected void doCreate(ContextConfiguration contextConfiguration)
       throws IOException, java.lang.InterruptedException {
-    final Path storageFolder = storagePath;
+    final var storageFolder = storagePath;
     if (!Files.exists(storageFolder)) {
       Files.createDirectories(storageFolder);
     }
@@ -346,13 +346,13 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
 
         startupMetadata.setTxMetadata(getLastMetadata().orElse(null));
         try {
-          final OutputStream bo = bufferSize > 0 ? new BufferedOutputStream(out, bufferSize) : out;
+          final var bo = bufferSize > 0 ? new BufferedOutputStream(out, bufferSize) : out;
           try {
-            try (final ZipOutputStream zos = new ZipOutputStream(bo)) {
+            try (final var zos = new ZipOutputStream(bo)) {
               zos.setComment("YouTrackDB Backup executed on " + new Date());
               zos.setLevel(compressionLevel);
 
-              final List<String> names =
+              final var names =
                   ZIPCompressionUtil.compressDirectory(
                       storagePath.toString(),
                       zos,
@@ -401,16 +401,16 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
           doShutdown();
         }
 
-        final java.io.File dbDir =
+        final var dbDir =
             new java.io.File(
                 IOUtils.getPathFromDatabaseName(
                     SystemVariableResolver.resolveSystemVariables(url)));
-        final java.io.File[] storageFiles = dbDir.listFiles();
+        final var storageFiles = dbDir.listFiles();
         if (storageFiles != null) {
           // TRY TO DELETE ALL THE FILES
-          for (final java.io.File f : storageFiles) {
+          for (final var f : storageFiles) {
             // DELETE ONLY THE SUPPORTED FILES
-            for (final String ext : ALL_FILE_EXTENSIONS) {
+            for (final var ext : ALL_FILE_EXTENSIONS) {
               if (f.getPath().endsWith(ext)) {
                 //noinspection ResultOfMethodCallIgnored
                 f.delete();
@@ -422,21 +422,21 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
         Files.createDirectories(Paths.get(storagePath.toString()));
         ZIPCompressionUtil.uncompressDirectory(in, storagePath.toString(), iListener);
 
-        final java.io.File[] newStorageFiles = dbDir.listFiles();
+        final var newStorageFiles = dbDir.listFiles();
         if (newStorageFiles != null) {
           // TRY TO DELETE ALL THE FILES
-          for (final java.io.File f : newStorageFiles) {
+          for (final var f : newStorageFiles) {
             if (f.getPath().endsWith(MASTER_RECORD_EXTENSION)) {
-              final boolean renamed =
+              final var renamed =
                   f.renameTo(new java.io.File(f.getParent(), getName() + MASTER_RECORD_EXTENSION));
               assert renamed;
             }
             if (f.getPath().endsWith(WAL_SEGMENT_EXTENSION)) {
-              String walName = f.getName();
-              final int segmentIndex =
+              var walName = f.getName();
+              final var segmentIndex =
                   walName.lastIndexOf('.', walName.length() - WAL_SEGMENT_EXTENSION.length() - 1);
-              String ending = walName.substring(segmentIndex);
-              final boolean renamed = f.renameTo(
+              var ending = walName.substring(segmentIndex);
+              final var renamed = f.renameTo(
                   new java.io.File(f.getParent(), getName() + ending));
               assert renamed;
             }
@@ -472,7 +472,7 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
     java.io.File[] nonActiveSegments;
 
     LogSequenceNumber lastLSN;
-    final long freezeId = getAtomicOperationsManager().freezeAtomicOperations(null, null);
+    final var freezeId = getAtomicOperationsManager().freezeAtomicOperations(null, null);
     try {
       lastLSN = writeAheadLog.end();
       writeAheadLog.flush();
@@ -482,14 +482,14 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
       getAtomicOperationsManager().releaseAtomicOperations(freezeId);
     }
 
-    for (final java.io.File nonActiveSegment : nonActiveSegments) {
-      try (final FileInputStream fileInputStream = new FileInputStream(nonActiveSegment)) {
-        try (final BufferedInputStream bufferedInputStream =
+    for (final var nonActiveSegment : nonActiveSegments) {
+      try (final var fileInputStream = new FileInputStream(nonActiveSegment)) {
+        try (final var bufferedInputStream =
             new BufferedInputStream(fileInputStream)) {
-          final ZipEntry entry = new ZipEntry(nonActiveSegment.getName());
+          final var entry = new ZipEntry(nonActiveSegment.getName());
           zipOutputStream.putNextEntry(entry);
           try {
-            final byte[] buffer = new byte[4096];
+            final var buffer = new byte[4096];
 
             int br;
 
@@ -508,7 +508,7 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
 
   @Override
   protected java.io.File createWalTempDirectory() {
-    final java.io.File walDirectory =
+    final var walDirectory =
         new java.io.File(storagePath.toFile(), "walIncrementalBackupRestoreDirectory");
 
     if (walDirectory.exists()) {
@@ -526,18 +526,18 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
   private void addFileToDirectory(final String name, final InputStream stream,
       final java.io.File directory)
       throws IOException {
-    final byte[] buffer = new byte[4096];
+    final var buffer = new byte[4096];
 
-    int rb = -1;
-    int bl = 0;
+    var rb = -1;
+    var bl = 0;
 
-    final java.io.File walBackupFile = new java.io.File(directory, name);
+    final var walBackupFile = new java.io.File(directory, name);
     if (!walBackupFile.toPath().normalize().startsWith(directory.toPath().normalize())) {
       throw new IllegalStateException("Bad zip entry " + name);
     }
 
-    try (final FileOutputStream outputStream = new FileOutputStream(walBackupFile)) {
-      try (final BufferedOutputStream bufferedOutputStream =
+    try (final var outputStream = new FileOutputStream(walBackupFile)) {
+      try (final var bufferedOutputStream =
           new BufferedOutputStream(outputStream)) {
         do {
           while (bl < buffer.length && (rb = stream.read(buffer, bl, buffer.length - bl)) > -1) {
@@ -559,9 +559,9 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
       final Locale locale,
       byte[] iv)
       throws IOException {
-    final String aesKeyEncoded =
+    final var aesKeyEncoded =
         contextConfiguration.getValueAsString(GlobalConfiguration.STORAGE_ENCRYPTION_KEY);
-    final byte[] aesKey =
+    final var aesKey =
         Optional.ofNullable(aesKeyEncoded)
             .map(keyEncoded -> Base64.getDecoder().decode(keyEncoded))
             .orElse(null);
@@ -612,10 +612,10 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
       throws IOException {
     if (!ClusterBasedStorageConfiguration.exists(writeCache)
         && Files.exists(storagePath.resolve("database.ocf"))) {
-      final StorageConfigurationSegment oldConfig = new StorageConfigurationSegment(this);
+      final var oldConfig = new StorageConfigurationSegment(this);
       oldConfig.load(contextConfiguration);
 
-      final ClusterBasedStorageConfiguration atomicConfiguration =
+      final var atomicConfiguration =
           new ClusterBasedStorageConfiguration(this);
       atomicConfiguration.create(atomicOperation, contextConfiguration, oldConfig);
       configuration = atomicConfiguration;
@@ -633,7 +633,7 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
 
   @Override
   protected Map<String, Object> preCloseSteps() {
-    final Map<String, Object> params = super.preCloseSteps();
+    final var params = super.preCloseSteps();
 
     if (fuzzyCheckpointTask != null) {
       fuzzyCheckpointTask.cancel(false);
@@ -665,32 +665,32 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
 
   @Override
   protected void postDeleteSteps() {
-    String databasePath =
+    var databasePath =
         IOUtils.getPathFromDatabaseName(SystemVariableResolver.resolveSystemVariables(url));
     deleteFilesFromDisc(name, deleteMaxRetries, deleteWaitTime, databasePath);
   }
 
   public static void deleteFilesFromDisc(
       final String name, final int maxRetries, final int waitTime, final String databaseDirectory) {
-    java.io.File dbDir = new java.io.File(databaseDirectory);
+    var dbDir = new java.io.File(databaseDirectory);
     if (!dbDir.exists() || !dbDir.isDirectory()) {
       dbDir = dbDir.getParentFile();
     }
 
     // RETRIES
-    for (int i = 0; i < maxRetries; ++i) {
+    for (var i = 0; i < maxRetries; ++i) {
       if (dbDir != null && dbDir.exists() && dbDir.isDirectory()) {
-        int notDeletedFiles = 0;
+        var notDeletedFiles = 0;
 
-        final java.io.File[] storageFiles = dbDir.listFiles();
+        final var storageFiles = dbDir.listFiles();
         if (storageFiles == null) {
           continue;
         }
 
         // TRY TO DELETE ALL THE FILES
-        for (final java.io.File f : storageFiles) {
+        for (final var f : storageFiles) {
           // DELETE ONLY THE SUPPORTED FILES
-          for (final String ext : ALL_FILE_EXTENSIONS) {
+          for (final var ext : ALL_FILE_EXTENSIONS) {
             if (f.getPath().endsWith(ext)) {
               if (!f.delete()) {
                 notDeletedFiles++;
@@ -763,17 +763,17 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
 
   @Override
   protected void initIv() throws IOException {
-    try (final RandomAccessFile ivFile =
+    try (final var ivFile =
         new RandomAccessFile(storagePath.resolve(IV_NAME).toAbsolutePath().toFile(), "rw")) {
-      final byte[] iv = new byte[16];
+      final var iv = new byte[16];
 
-      final SecureRandom random = new SecureRandom();
+      final var random = new SecureRandom();
       random.nextBytes(iv);
 
-      final XXHashFactory hashFactory = XXHashFactory.fastestInstance();
-      final XXHash64 hash64 = hashFactory.hash64();
+      final var hashFactory = XXHashFactory.fastestInstance();
+      final var hash64 = hashFactory.hash64();
 
-      final long hash = hash64.hash(iv, 0, iv.length, IV_SEED);
+      final var hash = hash64.hash(iv, 0, iv.length, IV_SEED);
       ivFile.write(iv);
       ivFile.writeLong(hash);
       ivFile.getFD().sync();
@@ -784,23 +784,23 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
 
   @Override
   protected void readIv() throws IOException {
-    final Path ivPath = storagePath.resolve(IV_NAME).toAbsolutePath();
+    final var ivPath = storagePath.resolve(IV_NAME).toAbsolutePath();
     if (!Files.exists(ivPath)) {
       LogManager.instance().info(this, "IV file is absent, will create new one.");
       initIv();
       return;
     }
 
-    try (final RandomAccessFile ivFile = new RandomAccessFile(ivPath.toFile(), "r")) {
-      final byte[] iv = new byte[16];
+    try (final var ivFile = new RandomAccessFile(ivPath.toFile(), "r")) {
+      final var iv = new byte[16];
       ivFile.readFully(iv);
 
-      final long storedHash = ivFile.readLong();
+      final var storedHash = ivFile.readLong();
 
-      final XXHashFactory hashFactory = XXHashFactory.fastestInstance();
-      final XXHash64 hash64 = hashFactory.hash64();
+      final var hashFactory = XXHashFactory.fastestInstance();
+      final var hash64 = hashFactory.hash64();
 
-      final long expectedHash = hash64.hash(iv, 0, iv.length, IV_SEED);
+      final var expectedHash = hash64.hash(iv, 0, iv.length, IV_SEED);
       if (storedHash != expectedHash) {
         throw new StorageException("iv data are broken");
       }
@@ -817,9 +817,9 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
   @Override
   protected void initWalAndDiskCache(final ContextConfiguration contextConfiguration)
       throws IOException, java.lang.InterruptedException {
-    final String aesKeyEncoded =
+    final var aesKeyEncoded =
         contextConfiguration.getValueAsString(GlobalConfiguration.STORAGE_ENCRYPTION_KEY);
-    final byte[] aesKey =
+    final var aesKey =
         Optional.ofNullable(aesKeyEncoded)
             .map(keyEncoded -> Base64.getDecoder().decode(keyEncoded))
             .orElse(null);
@@ -833,7 +833,7 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
                 GlobalConfiguration.WAL_FUZZY_CHECKPOINT_INTERVAL),
             TimeUnit.SECONDS);
 
-    final String configWalPath =
+    final var configWalPath =
         contextConfiguration.getValueAsString(GlobalConfiguration.WAL_LOCATION);
     final Path walPath;
     if (configWalPath == null) {
@@ -868,11 +868,11 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
                 GlobalConfiguration.STORAGE_PRINT_WAL_PERFORMANCE_INTERVAL));
     writeAheadLog.addCheckpointListener(this);
 
-    final int pageSize =
+    final var pageSize =
         contextConfiguration.getValueAsInteger(GlobalConfiguration.DISK_CACHE_PAGE_SIZE) * ONE_KB;
-    final long diskCacheSize =
+    final var diskCacheSize =
         contextConfiguration.getValueAsLong(GlobalConfiguration.DISK_CACHE_SIZE) * 1024 * 1024;
-    final long writeCacheSize =
+    final var writeCacheSize =
         (long)
             (contextConfiguration.getValueAsInteger(GlobalConfiguration.DISK_WRITE_CACHE_PART)
                 / 100.0
@@ -886,7 +886,7 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
       doubleWriteLog = new DoubleWriteLogNoOP();
     }
 
-    final WOWCache wowCache =
+    final var wowCache =
         new WOWCache(
             pageSize,
             contextConfiguration.getValueAsBoolean(GlobalConfiguration.FILE_LOG_DELETION),
@@ -918,12 +918,12 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
 
   public static boolean exists(final Path path) {
     try {
-      final boolean[] exists = new boolean[1];
+      final var exists = new boolean[1];
       if (Files.exists(path.normalize().toAbsolutePath())) {
-        try (final DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
+        try (final var stream = Files.newDirectoryStream(path)) {
           stream.forEach(
               (p) -> {
-                final String fileName = p.getFileName().toString();
+                final var fileName = p.getFileName().toString();
                 if (fileName.equals("database.ocf")
                     || (fileName.startsWith("config") && fileName.endsWith(".bd"))
                     || fileName.startsWith("dirty.fl")
@@ -969,13 +969,13 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
       return true;
     }
 
-    final Path fileLockPath = backupDirectory.toPath().resolve(INCREMENTAL_BACKUP_LOCK);
-    try (FileChannel lockChannel =
+    final var fileLockPath = backupDirectory.toPath().resolve(INCREMENTAL_BACKUP_LOCK);
+    try (var lockChannel =
         FileChannel.open(fileLockPath, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
-      try (final FileLock ignored = lockChannel.lock()) {
-        final String[] files = fetchIBUFiles(backupDirectory);
+      try (final var ignored = lockChannel.lock()) {
+        final var files = fetchIBUFiles(backupDirectory);
         if (files.length > 0) {
-          UUID backupUUID =
+          var backupUUID =
               extractDbInstanceUUID(backupDirectory, files[0], configuration.getCharset());
           try {
             checkDatabaseInstanceId(backupUUID);
@@ -1007,7 +1007,7 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
 
   private String incrementalBackup(
       final java.io.File backupDirectory, final CallableFunction<Void, Void> started) {
-    String fileName = "";
+    var fileName = "";
 
     if (!backupDirectory.exists()) {
       if (!backupDirectory.mkdirs()) {
@@ -1019,13 +1019,13 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
     }
     checkNoBackupInStorageDir(backupDirectory);
 
-    final Path fileLockPath = backupDirectory.toPath().resolve(INCREMENTAL_BACKUP_LOCK);
-    try (final FileChannel lockChannel =
+    final var fileLockPath = backupDirectory.toPath().resolve(INCREMENTAL_BACKUP_LOCK);
+    try (final var lockChannel =
         FileChannel.open(fileLockPath, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
-      try (@SuppressWarnings("unused") final FileLock fileLock = lockChannel.lock()) {
+      try (@SuppressWarnings("unused") final var fileLock = lockChannel.lock()) {
         RandomAccessFile rndIBUFile = null;
         try {
-          final String[] files = fetchIBUFiles(backupDirectory);
+          final var files = fetchIBUFiles(backupDirectory);
 
           final LogSequenceNumber lastLsn;
           long nextIndex;
@@ -1042,7 +1042,7 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
             checkDatabaseInstanceId(backupUUID);
           }
 
-          final SimpleDateFormat dateFormat = new SimpleDateFormat(INCREMENTAL_BACKUP_DATEFORMAT);
+          final var dateFormat = new SimpleDateFormat(INCREMENTAL_BACKUP_DATEFORMAT);
           if (lastLsn != null) {
             fileName =
                 getName()
@@ -1062,16 +1062,16 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
                     + IBU_EXTENSION_V3;
           }
 
-          final java.io.File ibuFile = new java.io.File(backupDirectory, fileName);
+          final var ibuFile = new java.io.File(backupDirectory, fileName);
 
           if (started != null) {
             started.call(null);
           }
           rndIBUFile = new RandomAccessFile(ibuFile, "rw");
           try {
-            final FileChannel ibuChannel = rndIBUFile.getChannel();
+            final var ibuChannel = rndIBUFile.getChannel();
 
-            final ByteBuffer versionBuffer = ByteBuffer.allocate(IntegerSerializer.INT_SIZE);
+            final var versionBuffer = ByteBuffer.allocate(IntegerSerializer.INT_SIZE);
             versionBuffer.putInt(INCREMENTAL_BACKUP_VERSION);
             versionBuffer.rewind();
 
@@ -1083,9 +1083,9 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
                     + ByteSerializer.BYTE_SIZE);
 
             LogSequenceNumber maxLsn;
-            try (OutputStream stream = Channels.newOutputStream(ibuChannel)) {
+            try (var stream = Channels.newOutputStream(ibuChannel)) {
               maxLsn = incrementalBackup(stream, lastLsn, true);
-              final ByteBuffer dataBuffer =
+              final var dataBuffer =
                   ByteBuffer.allocate(
                       IntegerSerializer.INT_SIZE
                           + 2 * LongSerializer.LONG_SIZE
@@ -1152,7 +1152,7 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
 
   private UUID extractDbInstanceUUID(java.io.File backupDirectory, String file, String charset)
       throws IOException {
-    final java.io.File ibuFile = new java.io.File(backupDirectory, file);
+    final var ibuFile = new java.io.File(backupDirectory, file);
     final RandomAccessFile rndIBUFile;
     try {
       rndIBUFile = new RandomAccessFile(ibuFile, "r");
@@ -1161,18 +1161,18 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
     }
 
     try {
-      final FileChannel ibuChannel = rndIBUFile.getChannel();
+      final var ibuChannel = rndIBUFile.getChannel();
       ibuChannel.position(3 * LongSerializer.LONG_SIZE + 1);
 
-      final InputStream inputStream = Channels.newInputStream(ibuChannel);
-      final BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
-      final ZipInputStream zipInputStream =
+      final var inputStream = Channels.newInputStream(ibuChannel);
+      final var bufferedInputStream = new BufferedInputStream(inputStream);
+      final var zipInputStream =
           new ZipInputStream(bufferedInputStream, Charset.forName(charset));
 
       ZipEntry zipEntry;
       while ((zipEntry = zipInputStream.getNextEntry()) != null) {
         if (zipEntry.getName().equals("database_instance.uuid")) {
-          DataInputStream dis = new DataInputStream(zipInputStream);
+          var dis = new DataInputStream(zipInputStream);
           return UUID.fromString(dis.readUTF());
         }
       }
@@ -1187,8 +1187,8 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
       return;
     }
 
-    boolean invalid = false;
-    final java.io.File storageDir = storagePath.toFile();
+    var invalid = false;
+    final var storageDir = storagePath.toFile();
     if (backupDirectory.equals(storageDir)) {
       invalid = true;
     }
@@ -1209,7 +1209,7 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
   }
 
   private String[] fetchIBUFiles(final java.io.File backupDirectory) throws IOException {
-    final String[] files =
+    final var files =
         backupDirectory.list(
             (dir, name) ->
                 new java.io.File(dir, name).length() > 0 && name.toLowerCase()
@@ -1222,17 +1222,17 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
 
     final List<Pair<Long, String>> indexedFiles = new ArrayList<>(files.length);
 
-    for (String file : files) {
-      final long fileIndex = extractIndexFromIBUFile(backupDirectory, file);
+    for (var file : files) {
+      final var fileIndex = extractIndexFromIBUFile(backupDirectory, file);
       indexedFiles.add(new Pair<>(fileIndex, file));
     }
 
     Collections.sort(indexedFiles);
 
-    final String[] sortedFiles = new String[files.length];
+    final var sortedFiles = new String[files.length];
 
-    int index = 0;
-    for (Pair<Long, String> indexedFile : indexedFiles) {
+    var index = 0;
+    for (var indexedFile : indexedFiles) {
       sortedFiles[index] = indexedFile.getValue();
       index++;
     }
@@ -1241,7 +1241,7 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
   }
 
   private LogSequenceNumber extractIBULsn(java.io.File backupDirectory, String file) {
-    final java.io.File ibuFile = new java.io.File(backupDirectory, file);
+    final var ibuFile = new java.io.File(backupDirectory, file);
     final RandomAccessFile rndIBUFile;
     try {
       rndIBUFile = new RandomAccessFile(ibuFile, "r");
@@ -1251,16 +1251,16 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
 
     try {
       try {
-        final FileChannel ibuChannel = rndIBUFile.getChannel();
+        final var ibuChannel = rndIBUFile.getChannel();
         ibuChannel.position(IntegerSerializer.INT_SIZE + LongSerializer.LONG_SIZE);
 
-        ByteBuffer lsnData =
+        var lsnData =
             ByteBuffer.allocate(IntegerSerializer.INT_SIZE + LongSerializer.LONG_SIZE);
         ibuChannel.read(lsnData);
         lsnData.rewind();
 
-        final long segment = lsnData.getLong();
-        final int position = lsnData.getInt();
+        final var segment = lsnData.getLong();
+        final var position = lsnData.getInt();
 
         return new LogSequenceNumber(segment, position);
       } finally {
@@ -1280,9 +1280,9 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
 
   private long extractIndexFromIBUFile(final java.io.File backupDirectory, final String fileName)
       throws IOException {
-    final java.io.File file = new java.io.File(backupDirectory, fileName);
+    final var file = new java.io.File(backupDirectory, fileName);
 
-    try (final RandomAccessFile rndFile = new RandomAccessFile(file, "r")) {
+    try (final var rndFile = new RandomAccessFile(file, "r")) {
       rndFile.seek(IntegerSerializer.INT_SIZE);
       return validateLongIndex(rndFile.readLong());
     }
@@ -1322,7 +1322,7 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
       }
 
       try {
-        final ZipOutputStream zipOutputStream =
+        final var zipOutputStream =
             new ZipOutputStream(
                 new BufferedOutputStream(stream), Charset.forName(configuration.getCharset()));
         try {
@@ -1330,24 +1330,24 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
           final LogSequenceNumber freezeLsn;
 
           if (fromLsn == null) {
-            UUID databaseInstanceUUID = super.readDatabaseInstanceId();
+            var databaseInstanceUUID = super.readDatabaseInstanceId();
             if (databaseInstanceUUID == null) {
               atomicOperationsManager.executeInsideAtomicOperation(
                   null, this::generateDatabaseInstanceId);
               databaseInstanceUUID = super.readDatabaseInstanceId();
             }
-            final ZipEntry zipEntry = new ZipEntry("database_instance.uuid");
+            final var zipEntry = new ZipEntry("database_instance.uuid");
 
             zipOutputStream.putNextEntry(zipEntry);
-            DataOutputStream dos = new DataOutputStream(zipOutputStream);
+            var dos = new DataOutputStream(zipOutputStream);
             dos.writeUTF(databaseInstanceUUID.toString());
             dos.flush();
           }
 
-          final long newSegmentFreezeId =
+          final var newSegmentFreezeId =
               atomicOperationsManager.freezeAtomicOperations(null, null);
           try {
-            final LogSequenceNumber startLsn = writeAheadLog.end();
+            final var startLsn = writeAheadLog.end();
 
             if (startLsn != null) {
               freezeLsn = startLsn;
@@ -1376,17 +1376,17 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
           try {
             backupIv(zipOutputStream);
 
-            final byte[] encryptionIv = new byte[16];
-            final SecureRandom secureRandom = new SecureRandom();
+            final var encryptionIv = new byte[16];
+            final var secureRandom = new SecureRandom();
             secureRandom.nextBytes(encryptionIv);
 
             backupEncryptedIv(zipOutputStream, encryptionIv);
 
-            final String aesKeyEncoded =
+            final var aesKeyEncoded =
                 getConfiguration()
                     .getContextConfiguration()
                     .getValueAsString(GlobalConfiguration.STORAGE_ENCRYPTION_KEY);
-            final byte[] aesKey =
+            final var aesKey =
                 aesKeyEncoded == null ? null : Base64.getDecoder().decode(aesKeyEncoded);
 
             if (aesKey != null
@@ -1398,7 +1398,7 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
             }
 
             lastLsn = backupPagesWithChanges(fromLsn, zipOutputStream, encryptionIv, aesKey);
-            final LogSequenceNumber lastWALLsn =
+            final var lastWALLsn =
                 copyWALToIncrementalBackup(zipOutputStream, startSegment);
 
             if (lastWALLsn != null && (lastLsn == null || lastWALLsn.compareTo(lastLsn) > 0)) {
@@ -1436,22 +1436,22 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
       final byte[] backUpPage,
       final byte[] encryptionIv) {
     try {
-      final Cipher cipher = CIPHER.get();
+      final var cipher = CIPHER.get();
       final SecretKey secretKey = new SecretKeySpec(aesKey, ALGORITHM_NAME);
 
-      final byte[] updatedIv = new byte[16];
-      for (int i = 0; i < LongSerializer.LONG_SIZE; i++) {
+      final var updatedIv = new byte[16];
+      for (var i = 0; i < LongSerializer.LONG_SIZE; i++) {
         updatedIv[i] = (byte) (encryptionIv[i] ^ ((pageIndex >>> i) & 0xFF));
       }
 
-      for (int i = 0; i < LongSerializer.LONG_SIZE; i++) {
+      for (var i = 0; i < LongSerializer.LONG_SIZE; i++) {
         updatedIv[i + LongSerializer.LONG_SIZE] =
             (byte) (encryptionIv[i + LongSerializer.LONG_SIZE] ^ ((fileId >>> i) & 0xFF));
       }
 
       cipher.init(mode, secretKey, new IvParameterSpec(updatedIv));
 
-      final byte[] data =
+      final var data =
           cipher.doFinal(
               backUpPage, LongSerializer.LONG_SIZE, backUpPage.length - LongSerializer.LONG_SIZE);
       System.arraycopy(
@@ -1472,7 +1472,7 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
 
   private void backupEncryptedIv(final ZipOutputStream zipOutputStream, final byte[] encryptionIv)
       throws IOException {
-    final ZipEntry zipEntry = new ZipEntry(ENCRYPTION_IV);
+    final var zipEntry = new ZipEntry(ENCRYPTION_IV);
     zipOutputStream.putNextEntry(zipEntry);
 
     zipOutputStream.write(encryptionIv);
@@ -1480,7 +1480,7 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
   }
 
   private void backupIv(final ZipOutputStream zipOutputStream) throws IOException {
-    final ZipEntry zipEntry = new ZipEntry(IV_NAME);
+    final var zipEntry = new ZipEntry(IV_NAME);
     zipOutputStream.putNextEntry(zipEntry);
 
     zipOutputStream.write(this.iv);
@@ -1488,7 +1488,7 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
   }
 
   private byte[] restoreIv(final ZipInputStream zipInputStream) throws IOException {
-    final byte[] iv = new byte[16];
+    final var iv = new byte[16];
     IOUtils.readFully(zipInputStream, iv, 0, iv.length);
 
     return iv;
@@ -1500,28 +1500,28 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
       final byte[] encryptionIv,
       final byte[] aesKey)
       throws IOException {
-    LogSequenceNumber lastLsn = changeLsn;
+    var lastLsn = changeLsn;
 
-    final Map<String, Long> files = writeCache.files();
-    final int pageSize = writeCache.pageSize();
+    final var files = writeCache.files();
+    final var pageSize = writeCache.pageSize();
 
-    for (Map.Entry<String, Long> entry : files.entrySet()) {
-      final String fileName = entry.getKey();
+    for (var entry : files.entrySet()) {
+      final var fileName = entry.getKey();
 
       long fileId = entry.getValue();
       fileId = writeCache.externalFileId(writeCache.internalFileId(fileId));
 
-      final long filledUpTo = writeCache.getFilledUpTo(fileId);
-      final ZipEntry zipEntry = new ZipEntry(fileName);
+      final var filledUpTo = writeCache.getFilledUpTo(fileId);
+      final var zipEntry = new ZipEntry(fileName);
 
       stream.putNextEntry(zipEntry);
 
-      final byte[] binaryFileId = new byte[LongSerializer.LONG_SIZE];
+      final var binaryFileId = new byte[LongSerializer.LONG_SIZE];
       LongSerializer.INSTANCE.serialize(fileId, binaryFileId, 0);
       stream.write(binaryFileId, 0, binaryFileId.length);
 
-      for (int pageIndex = 0; pageIndex < filledUpTo; pageIndex++) {
-        final CacheEntry cacheEntry =
+      for (var pageIndex = 0; pageIndex < filledUpTo; pageIndex++) {
+        final var cacheEntry =
             readCache.silentLoadForRead(fileId, pageIndex, writeCache, true);
         cacheEntry.acquireSharedLock();
         try {
@@ -1531,12 +1531,12 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
           var cachePointerBuffer = cachePointer.getBuffer();
           assert cachePointerBuffer != null;
 
-          final LogSequenceNumber pageLsn =
+          final var pageLsn =
               DurablePage.getLogSequenceNumberFromPage(cachePointerBuffer);
 
           if (changeLsn == null || pageLsn.compareTo(changeLsn) > 0) {
 
-            final byte[] data = new byte[pageSize + LongSerializer.LONG_SIZE];
+            final var data = new byte[pageSize + LongSerializer.LONG_SIZE];
             LongSerializer.INSTANCE.serializeNative(pageIndex, data, 0);
             DurablePage.getPageData(cachePointerBuffer, data, LongSerializer.LONG_SIZE, pageSize);
 
@@ -1574,11 +1574,11 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
       throws UnsupportedOperationException {
     stateLock.writeLock().lock();
     try {
-      final String aesKeyEncoded =
+      final var aesKeyEncoded =
           getConfiguration()
               .getContextConfiguration()
               .getValueAsString(GlobalConfiguration.STORAGE_ENCRYPTION_KEY);
-      final byte[] aesKey =
+      final var aesKey =
           aesKeyEncoded == null ? null : Base64.getDecoder().decode(aesKeyEncoded);
 
       if (aesKey != null && aesKey.length != 16 && aesKey.length != 24 && aesKey.length != 32) {
@@ -1607,10 +1607,10 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
 
   private IncrementalRestorePreprocessingResult preprocessingIncrementalRestore()
       throws IOException {
-    final Locale serverLocale = configuration.getLocaleInstance();
-    final ContextConfiguration contextConfiguration = configuration.getContextConfiguration();
-    final String charset = configuration.getCharset();
-    final Locale locale = configuration.getLocaleInstance();
+    final var serverLocale = configuration.getLocaleInstance();
+    final var contextConfiguration = configuration.getContextConfiguration();
+    final var charset = configuration.getCharset();
+    final var locale = configuration.getLocaleInstance();
 
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
@@ -1638,7 +1638,7 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
     }
 
     try {
-      final String[] files = fetchIBUFiles(backupDirectory);
+      final var files = fetchIBUFiles(backupDirectory);
       if (files.length == 0) {
         throw new StorageException(
             "Cannot find incremental backup files (files with extension '"
@@ -1651,11 +1651,11 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
       stateLock.writeLock().lock();
       try {
 
-        final String aesKeyEncoded =
+        final var aesKeyEncoded =
             getConfiguration()
                 .getContextConfiguration()
                 .getValueAsString(GlobalConfiguration.STORAGE_ENCRYPTION_KEY);
-        final byte[] aesKey =
+        final var aesKey =
             aesKeyEncoded == null ? null : Base64.getDecoder().decode(aesKeyEncoded);
 
         if (aesKey != null && aesKey.length != 16 && aesKey.length != 24 && aesKey.length != 32) {
@@ -1664,22 +1664,22 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
         }
 
         var result = preprocessingIncrementalRestore();
-        UUID restoreUUID = extractDbInstanceUUID(backupDirectory, files[0], result.charset);
+        var restoreUUID = extractDbInstanceUUID(backupDirectory, files[0], result.charset);
 
-        for (String file : files) {
-          UUID fileUUID = extractDbInstanceUUID(backupDirectory, files[0], result.charset);
+        for (var file : files) {
+          var fileUUID = extractDbInstanceUUID(backupDirectory, files[0], result.charset);
           if ((restoreUUID == null && fileUUID == null)
               || (restoreUUID != null && restoreUUID.equals(fileUUID))) {
-            final java.io.File ibuFile = new java.io.File(backupDirectory, file);
+            final var ibuFile = new java.io.File(backupDirectory, file);
 
-            RandomAccessFile rndIBUFile = new RandomAccessFile(ibuFile, "rw");
+            var rndIBUFile = new RandomAccessFile(ibuFile, "rw");
             try {
-              final FileChannel ibuChannel = rndIBUFile.getChannel();
-              final ByteBuffer versionBuffer = ByteBuffer.allocate(IntegerSerializer.INT_SIZE);
+              final var ibuChannel = rndIBUFile.getChannel();
+              final var versionBuffer = ByteBuffer.allocate(IntegerSerializer.INT_SIZE);
               IOUtils.readByteBuffer(versionBuffer, ibuChannel);
               versionBuffer.rewind();
 
-              final int backupVersion = versionBuffer.getInt();
+              final var backupVersion = versionBuffer.getInt();
               if (backupVersion != INCREMENTAL_BACKUP_VERSION) {
                 throw new StorageException(
                     "Invalid version of incremental backup version was provided. Expected "
@@ -1689,13 +1689,13 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
               }
 
               ibuChannel.position(2 * IntegerSerializer.INT_SIZE + 2 * LongSerializer.LONG_SIZE);
-              final ByteBuffer buffer = ByteBuffer.allocate(1);
+              final var buffer = ByteBuffer.allocate(1);
               ibuChannel.read(buffer);
               buffer.rewind();
 
-              final boolean fullBackup = buffer.get() == 1;
+              final var fullBackup = buffer.get() == 1;
 
-              try (final InputStream inputStream = Channels.newInputStream(ibuChannel)) {
+              try (final var inputStream = Channels.newInputStream(ibuChannel)) {
                 restoreFromIncrementalBackup(
                     result.charset,
                     result.serverLocale,
@@ -1744,10 +1744,10 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
                   .load(contextConfiguration, atomicOperation));
     } else {
       if (Files.exists(storagePath.resolve("database.ocf"))) {
-        final StorageConfigurationSegment oldConfig = new StorageConfigurationSegment(this);
+        final var oldConfig = new StorageConfigurationSegment(this);
         oldConfig.load(contextConfiguration);
 
-        final ClusterBasedStorageConfiguration atomicConfiguration =
+        final var atomicConfiguration =
             new ClusterBasedStorageConfiguration(this);
         atomicOperationsManager.executeInsideAtomicOperation(
             null,
@@ -1790,10 +1790,10 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
       throws IOException {
     final List<String> currentFiles = new ArrayList<>(writeCache.files().keySet());
 
-    final BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
-    final ZipInputStream zipInputStream =
+    final var bufferedInputStream = new BufferedInputStream(inputStream);
+    final var zipInputStream =
         new ZipInputStream(bufferedInputStream, Charset.forName(charset));
-    final int pageSize = writeCache.pageSize();
+    final var pageSize = writeCache.pageSize();
 
     ZipEntry zipEntry;
     LogSequenceNumber maxLsn = null;
@@ -1801,16 +1801,16 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
     List<String> processedFiles = new ArrayList<>();
 
     if (isFull) {
-      final Map<String, Long> files = writeCache.files();
-      for (Map.Entry<String, Long> entry : files.entrySet()) {
-        final long fileId = writeCache.fileIdByName(entry.getKey());
+      final var files = writeCache.files();
+      for (var entry : files.entrySet()) {
+        final var fileId = writeCache.fileIdByName(entry.getKey());
 
         assert entry.getValue().equals(fileId);
         readCache.deleteFile(fileId, writeCache);
       }
     }
 
-    final java.io.File walTempDir = createWalTempDirectory();
+    final var walTempDir = createWalTempDirectory();
 
     byte[] encryptionIv = null;
     byte[] walIv = null;
@@ -1847,11 +1847,11 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
           .getName()
           .toLowerCase(serverLocale)
           .endsWith(CASDiskWriteAheadLog.WAL_SEGMENT_EXTENSION)) {
-        final String walName = zipEntry.getName();
-        final int segmentIndex =
+        final var walName = zipEntry.getName();
+        final var segmentIndex =
             walName.lastIndexOf(
                 '.', walName.length() - CASDiskWriteAheadLog.WAL_SEGMENT_EXTENSION.length() - 1);
-        final String storageName = getName();
+        final var storageName = getName();
 
         if (segmentIndex < 0) {
           throw new IllegalStateException("Can not find index of WAL segment");
@@ -1866,7 +1866,7 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
         throw new SecurityException("IV can not be null if encryption key is provided");
       }
 
-      final byte[] binaryFileId = new byte[LongSerializer.LONG_SIZE];
+      final var binaryFileId = new byte[LongSerializer.LONG_SIZE];
       IOUtils.readFully(zipInputStream, binaryFileId, 0, binaryFileId.length);
 
       final long expectedFileId = LongSerializer.INSTANCE.deserialize(binaryFileId, 0);
@@ -1896,12 +1896,12 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
       }
 
       while (true) {
-        final byte[] data = new byte[pageSize + LongSerializer.LONG_SIZE];
+        final var data = new byte[pageSize + LongSerializer.LONG_SIZE];
 
-        int rb = 0;
+        var rb = 0;
 
         while (rb < data.length) {
-          final int b = zipInputStream.read(data, rb, data.length - rb);
+          final var b = zipInputStream.read(data, rb, data.length - rb);
 
           if (b == -1) {
             if (rb > 0) {
@@ -1915,14 +1915,14 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
           rb += b;
         }
 
-        final long pageIndex = LongSerializer.INSTANCE.deserializeNative(data, 0);
+        final var pageIndex = LongSerializer.INSTANCE.deserializeNative(data, 0);
 
         if (aesKey != null) {
           doEncryptionDecryption(
               Cipher.DECRYPT_MODE, aesKey, expectedFileId, pageIndex, data, encryptionIv);
         }
 
-        CacheEntry cacheEntry = readCache.loadForWrite(fileId, pageIndex, writeCache, true, null);
+        var cacheEntry = readCache.loadForWrite(fileId, pageIndex, writeCache, true, null);
 
         if (cacheEntry == null) {
           do {
@@ -1935,9 +1935,9 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
         }
 
         try {
-          final ByteBuffer buffer = cacheEntry.getCachePointer().getBuffer();
+          final var buffer = cacheEntry.getCachePointer().getBuffer();
           assert buffer != null;
-          final LogSequenceNumber backedUpPageLsn =
+          final var backedUpPageLsn =
               DurablePage.getLogSequenceNumber(LongSerializer.LONG_SIZE, data);
           if (isFull) {
             buffer.put(0, data, LongSerializer.LONG_SIZE, data.length - LongSerializer.LONG_SIZE);
@@ -1946,7 +1946,7 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
               maxLsn = backedUpPageLsn;
             }
           } else {
-            final LogSequenceNumber currentPageLsn =
+            final var currentPageLsn =
                 DurablePage.getLogSequenceNumberFromPage(buffer);
             if (backedUpPageLsn.compareTo(currentPageLsn) > 0) {
               buffer.put(
@@ -1966,17 +1966,17 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
 
     currentFiles.removeAll(processedFiles);
 
-    for (String file : currentFiles) {
+    for (var file : currentFiles) {
       if (writeCache.exists(file)) {
-        final long fileId = writeCache.fileIdByName(file);
+        final var fileId = writeCache.fileIdByName(file);
         readCache.deleteFile(fileId, writeCache);
       }
     }
 
-    try (final WriteAheadLog restoreLog =
+    try (final var restoreLog =
         createWalFromIBUFiles(walTempDir, contextConfiguration, locale, walIv)) {
       if (restoreLog != null) {
-        final LogSequenceNumber beginLsn = restoreLog.begin();
+        final var beginLsn = restoreLog.begin();
         restoreFrom(restoreLog, beginLsn);
       }
     }
@@ -1989,10 +1989,10 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
   }
 
   private byte[] restoreEncryptionIv(final ZipInputStream zipInputStream) throws IOException {
-    final byte[] iv = new byte[16];
-    int read = 0;
+    final var iv = new byte[16];
+    var read = 0;
     while (read < iv.length) {
-      final int localRead = zipInputStream.read(iv, read, iv.length - read);
+      final var localRead = zipInputStream.read(iv, read, iv.length - read);
 
       if (localRead < 0) {
         throw new StorageException(
@@ -2021,17 +2021,17 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
 
   @Override
   public List<RecordOperation> commit(FrontendTransactionOptimistic clientTx, boolean allocated) {
-    List<RecordOperation> operations = super.commit(clientTx, allocated);
+    var operations = super.commit(clientTx, allocated);
     listeners.forEach((l) -> l.onCommit(operations));
     return operations;
   }
 
   private void replaceConfiguration(ZipInputStream zipInputStream) throws IOException {
-    byte[] buffer = new byte[1024];
+    var buffer = new byte[1024];
 
-    int rb = 0;
+    var rb = 0;
     while (true) {
-      final int b = zipInputStream.read(buffer, rb, buffer.length - rb);
+      final var b = zipInputStream.read(buffer, rb, buffer.length - rb);
 
       if (b == -1) {
         break;
@@ -2040,7 +2040,7 @@ public class LocalPaginatedStorage extends AbstractPaginatedStorage {
       rb += b;
 
       if (rb == buffer.length) {
-        byte[] oldBuffer = buffer;
+        var oldBuffer = buffer;
 
         buffer = new byte[buffer.length << 1];
         System.arraycopy(oldBuffer, 0, buffer, 0, oldBuffer.length);

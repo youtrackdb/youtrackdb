@@ -135,7 +135,7 @@ public class RecordIteratorClass<REC extends DBRecord> extends RecordIteratorClu
     if (txEntries != null)
     // ADJUST TOTAL ELEMENT BASED ON CURRENT TRANSACTION'S ENTRIES
     {
-      for (RecordOperation entry : txEntries) {
+      for (var entry : txEntries) {
         if (!entry.record.getIdentity().isPersistent() && entry.type != RecordOperation.DELETED) {
           totalAvailableRecords++;
         } else if (entry.type == RecordOperation.DELETED) {

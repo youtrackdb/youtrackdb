@@ -43,7 +43,7 @@ public class LuceneTransactionCompositeQueryTest extends LuceneBaseTest {
   @Before
   public void init() {
 
-    final SchemaClass c1 = db.createVertexClass("Foo");
+    final var c1 = db.createVertexClass("Foo");
     c1.createProperty(db, "name", PropertyType.STRING);
     c1.createProperty(db, "bar", PropertyType.STRING);
     c1.createIndex(db, "Foo.bar", "FULLTEXT", null, null, "LUCENE", new String[]{"bar"});
@@ -53,21 +53,21 @@ public class LuceneTransactionCompositeQueryTest extends LuceneBaseTest {
   @Test
   public void testRollback() {
 
-    EntityImpl doc = ((EntityImpl) db.newEntity("Foo"));
+    var doc = ((EntityImpl) db.newEntity("Foo"));
     doc.field("name", "Test");
     doc.field("bar", "abc");
     db.begin();
     db.save(doc);
 
-    String query = "select from Foo where name = 'Test' and SEARCH_CLASS(\"abc\") =true ";
-    try (ResultSet vertices = db.command(query)) {
+    var query = "select from Foo where name = 'Test' and SEARCH_CLASS(\"abc\") =true ";
+    try (var vertices = db.command(query)) {
 
       assertThat(vertices).hasSize(1);
     }
     db.rollback();
 
     query = "select from Foo where name = 'Test' and SEARCH_CLASS(\"abc\") = true ";
-    try (ResultSet vertices = db.command(query)) {
+    try (var vertices = db.command(query)) {
       assertThat(vertices).hasSize(0);
     }
   }
@@ -76,11 +76,11 @@ public class LuceneTransactionCompositeQueryTest extends LuceneBaseTest {
   public void txRemoveTest() {
     db.begin();
 
-    EntityImpl doc = ((EntityImpl) db.newEntity("Foo"));
+    var doc = ((EntityImpl) db.newEntity("Foo"));
     doc.field("name", "Test");
     doc.field("bar", "abc");
 
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Foo.bar");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Foo.bar");
 
     db.save(doc);
 
@@ -90,11 +90,11 @@ public class LuceneTransactionCompositeQueryTest extends LuceneBaseTest {
     doc = db.bindToSession(doc);
     db.delete(doc);
 
-    String query = "select from Foo where name = 'Test' and  SEARCH_CLASS(\"abc\") = true ";
-    try (ResultSet vertices = db.command(query)) {
+    var query = "select from Foo where name = 'Test' and  SEARCH_CLASS(\"abc\") = true ";
+    try (var vertices = db.command(query)) {
 
       Collection coll;
-      try (Stream<RID> stream = index.getInternal().getRids(db, "abc")) {
+      try (var stream = index.getInternal().getRids(db, "abc")) {
         coll = stream.collect(Collectors.toList());
       }
 
@@ -107,7 +107,7 @@ public class LuceneTransactionCompositeQueryTest extends LuceneBaseTest {
     db.rollback();
 
     query = "select from Foo where name = 'Test' and SEARCH_CLASS(\"abc\") = true ";
-    try (ResultSet vertices = db.command(query)) {
+    try (var vertices = db.command(query)) {
 
       assertThat(vertices).hasSize(1);
 
@@ -119,14 +119,14 @@ public class LuceneTransactionCompositeQueryTest extends LuceneBaseTest {
 
   @Test
   public void txUpdateTest() {
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Foo.bar");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Foo.bar");
     var c1 = db.getMetadata().getSchema().getClassInternal("Foo");
     c1.truncate(db);
 
     db.begin();
     Assert.assertEquals(0, index.getInternal().size(db));
 
-    EntityImpl doc = ((EntityImpl) db.newEntity("Foo"));
+    var doc = ((EntityImpl) db.newEntity("Foo"));
     doc.field("name", "Test");
     doc.field("bar", "abc");
 
@@ -140,10 +140,10 @@ public class LuceneTransactionCompositeQueryTest extends LuceneBaseTest {
     doc.field("bar", "removed");
     db.save(doc);
 
-    String query = "select from Foo where name = 'Test' and SEARCH_CLASS(\"abc\") =true";
+    var query = "select from Foo where name = 'Test' and SEARCH_CLASS(\"abc\") =true";
     Collection<?> coll;
-    try (ResultSet vertices = db.query(query)) {
-      try (Stream<RID> stream = index.getInternal().getRids(db, "abc")) {
+    try (var vertices = db.query(query)) {
+      try (var stream = index.getInternal().getRids(db, "abc")) {
         coll = stream.collect(Collectors.toList());
       }
 
@@ -151,7 +151,7 @@ public class LuceneTransactionCompositeQueryTest extends LuceneBaseTest {
       Assert.assertEquals(0, coll.size());
 
       Iterator iterator = coll.iterator();
-      int i = 0;
+      var i = 0;
       while (iterator.hasNext()) {
         iterator.next();
         i++;
@@ -161,8 +161,8 @@ public class LuceneTransactionCompositeQueryTest extends LuceneBaseTest {
       Assert.assertEquals(1, index.getInternal().size(db));
     }
     query = "select from Foo where name = 'Test' and SEARCH_CLASS(\"removed\")=true ";
-    try (ResultSet vertices = db.query(query)) {
-      try (Stream<RID> stream = index.getInternal().getRids(db, "removed")) {
+    try (var vertices = db.query(query)) {
+      try (var stream = index.getInternal().getRids(db, "removed")) {
         coll = stream.collect(Collectors.toList());
       }
 
@@ -173,7 +173,7 @@ public class LuceneTransactionCompositeQueryTest extends LuceneBaseTest {
     db.rollback();
 
     query = "select from Foo where name = 'Test' and SEARCH_CLASS (\"abc\")=true ";
-    try (ResultSet vertices = db.command(query)) {
+    try (var vertices = db.command(query)) {
 
       assertThat(vertices).hasSize(1);
 
@@ -183,18 +183,18 @@ public class LuceneTransactionCompositeQueryTest extends LuceneBaseTest {
 
   @Test
   public void txUpdateTestComplex() {
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Foo.bar");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Foo.bar");
     var c1 = db.getMetadata().getSchema().getClassInternal("Foo");
     c1.truncate(db);
 
     db.begin();
     Assert.assertEquals(0, index.getInternal().size(db));
 
-    EntityImpl doc = ((EntityImpl) db.newEntity("Foo"));
+    var doc = ((EntityImpl) db.newEntity("Foo"));
     doc.field("name", "Test");
     doc.field("bar", "abc");
 
-    EntityImpl doc1 = ((EntityImpl) db.newEntity("Foo"));
+    var doc1 = ((EntityImpl) db.newEntity("Foo"));
     doc1.field("name", "Test");
     doc1.field("bar", "abc");
 
@@ -208,18 +208,18 @@ public class LuceneTransactionCompositeQueryTest extends LuceneBaseTest {
     doc.field("bar", "removed");
     db.save(doc);
 
-    String query = "select from Foo where name = 'Test' and SEARCH_CLASS(\"abc\")=true ";
+    var query = "select from Foo where name = 'Test' and SEARCH_CLASS(\"abc\")=true ";
     Collection coll;
-    try (ResultSet vertices = db.query(query)) {
-      try (Stream<RID> stream = index.getInternal().getRids(db, "abc")) {
+    try (var vertices = db.query(query)) {
+      try (var stream = index.getInternal().getRids(db, "abc")) {
         coll = stream.collect(Collectors.toList());
       }
 
       assertThat(vertices).hasSize(1);
       Assert.assertEquals(1, coll.size());
 
-      Iterator iterator = coll.iterator();
-      int i = 0;
+      var iterator = coll.iterator();
+      var i = 0;
       RecordId rid = null;
       while (iterator.hasNext()) {
         rid = (RecordId) iterator.next();
@@ -233,8 +233,8 @@ public class LuceneTransactionCompositeQueryTest extends LuceneBaseTest {
     }
 
     query = "select from Foo where name = 'Test' and SEARCH_CLASS(\"removed\" )=true";
-    try (ResultSet vertices = db.query(query)) {
-      try (Stream<RID> stream = index.getInternal().getRids(db, "removed")) {
+    try (var vertices = db.query(query)) {
+      try (var stream = index.getInternal().getRids(db, "removed")) {
         coll = stream.collect(Collectors.toList());
       }
 
@@ -245,7 +245,7 @@ public class LuceneTransactionCompositeQueryTest extends LuceneBaseTest {
     db.rollback();
 
     query = "select from Foo where name = 'Test' and SEARCH_CLASS(\"abc\")=true ";
-    try (ResultSet vertices = db.query(query)) {
+    try (var vertices = db.query(query)) {
       assertThat(vertices).hasSize(2);
       Assert.assertEquals(2, index.getInternal().size(db));
     }

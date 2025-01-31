@@ -81,7 +81,7 @@ public class LuceneFullTextIndexEngine extends LuceneIndexEngineAbstract {
   @Override
   public IndexWriter createIndexWriter(Directory directory) throws IOException {
 
-    LuceneIndexWriterFactory fc = new LuceneIndexWriterFactory();
+    var fc = new LuceneIndexWriterFactory();
 
     LogManager.instance().debug(this, "Creating Lucene index in '%s'...", directory);
 
@@ -94,13 +94,13 @@ public class LuceneFullTextIndexEngine extends LuceneIndexEngineAbstract {
       final ContextualRecordId recordId,
       final Document ret,
       final ScoreDoc score) {
-    HashMap<String, Object> data = new HashMap<String, Object>();
+    var data = new HashMap<String, Object>();
 
-    final Map<String, TextFragment[]> frag = queryContext.getFragments();
+    final var frag = queryContext.getFragments();
     frag.forEach(
         (key, fragments) -> {
-          final StringBuilder hlField = new StringBuilder();
-          for (final TextFragment fragment : fragments) {
+          final var hlField = new StringBuilder();
+          for (final var fragment : fragments) {
             if ((fragment != null) && (fragment.getScore() > 0)) {
               hlField.append(fragment);
             }
@@ -136,7 +136,7 @@ public class LuceneFullTextIndexEngine extends LuceneIndexEngineAbstract {
       final Object key, final Object value) {
     updateLastAccess();
     openIfClosed(db.getStorage());
-    final Document doc = buildDocument(db, key, (Identifiable) value);
+    final var doc = buildDocument(db, key, (Identifiable) value);
     addDocument(doc);
   }
 
@@ -168,10 +168,10 @@ public class LuceneFullTextIndexEngine extends LuceneIndexEngineAbstract {
       final LuceneTxChanges changes,
       final Map<String, ?> metadata) {
     // sort
-    final List<SortField> fields = LuceneIndexEngineUtils.buildSortFields(metadata);
+    final var fields = LuceneIndexEngineUtils.buildSortFields(metadata);
     var db = context.getDatabase();
-    final IndexSearcher luceneSearcher = searcher(db.getStorage());
-    final LuceneQueryContext queryContext =
+    final var luceneSearcher = searcher(db.getStorage());
+    final var queryContext =
         new LuceneQueryContext(context, luceneSearcher, query, fields).withChanges(changes);
     return new LuceneResultSet(db, this, queryContext, metadata);
   }
@@ -212,25 +212,25 @@ public class LuceneFullTextIndexEngine extends LuceneIndexEngineAbstract {
   }
 
   private static Document putInManualindex(Object key, Identifiable oIdentifiable) {
-    Document doc = new Document();
+    var doc = new Document();
     doc.add(LuceneIndexType.createOldIdField(oIdentifiable));
     doc.add(LuceneIndexType.createIdField(oIdentifiable, key));
 
     if (key instanceof CompositeKey) {
 
-      List<Object> keys = ((CompositeKey) key).getKeys();
+      var keys = ((CompositeKey) key).getKeys();
 
-      int k = 0;
-      for (Object o : keys) {
+      var k = 0;
+      for (var o : keys) {
         doc.add(LuceneIndexType.createField("k" + k, o, Field.Store.YES));
         k++;
       }
     } else if (key instanceof Collection) {
       @SuppressWarnings("unchecked")
-      Collection<Object> keys = (Collection<Object>) key;
+      var keys = (Collection<Object>) key;
 
-      int k = 0;
-      for (Object o : keys) {
+      var k = 0;
+      for (var o : keys) {
         doc.add(LuceneIndexType.createField("k" + k, o, Field.Store.YES));
         k++;
       }
@@ -247,7 +247,7 @@ public class LuceneFullTextIndexEngine extends LuceneIndexEngineAbstract {
         return queryBuilder.query(indexDefinition, maybeQuery, EMPTY_METADATA,
             queryAnalyzer());
       } else {
-        LuceneKeyAndMetadata q = (LuceneKeyAndMetadata) maybeQuery;
+        var q = (LuceneKeyAndMetadata) maybeQuery;
         return queryBuilder.query(indexDefinition, q.key, q.metadata, queryAnalyzer());
       }
     } catch (final ParseException e) {
@@ -262,13 +262,13 @@ public class LuceneFullTextIndexEngine extends LuceneIndexEngineAbstract {
     openIfClosed(db.getStorage());
     try {
       if (key instanceof LuceneKeyAndMetadata q) {
-        Query query = queryBuilder.query(indexDefinition, q.key, q.metadata, queryAnalyzer());
+        var query = queryBuilder.query(indexDefinition, q.key, q.metadata, queryAnalyzer());
 
-        CommandContext commandContext = q.key.getContext();
+        var commandContext = q.key.getContext();
         return getResults(query, commandContext, changes, q.metadata);
 
       } else {
-        Query query = queryBuilder.query(indexDefinition, key, EMPTY_METADATA,
+        var query = queryBuilder.query(indexDefinition, key, EMPTY_METADATA,
             queryAnalyzer());
 
         CommandContext commandContext = null;

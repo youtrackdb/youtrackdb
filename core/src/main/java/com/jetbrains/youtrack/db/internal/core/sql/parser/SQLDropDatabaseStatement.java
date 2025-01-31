@@ -31,8 +31,8 @@ public class SQLDropDatabaseStatement extends SQLSimpleExecServerStatement {
     } else {
       nameString = "" + nameParam.getValue(ctx.getInputParameters());
     }
-    YouTrackDBInternal server = ctx.getServer();
-    ResultInternal result = new ResultInternal(ctx.getDatabase());
+    var server = ctx.getServer();
+    var result = new ResultInternal(ctx.getDatabase());
     result.setProperty("operation", "drop database");
     result.setProperty("name", nameString);
 

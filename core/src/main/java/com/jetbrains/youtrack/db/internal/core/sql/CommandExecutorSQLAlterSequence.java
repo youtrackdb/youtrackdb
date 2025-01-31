@@ -28,18 +28,18 @@ public class CommandExecutorSQLAlterSequence extends CommandExecutorSQLAbstract
   @Override
   public CommandExecutorSQLAlterSequence parse(DatabaseSessionInternal db,
       CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
       init((CommandRequestText) iRequest);
 
-      final DatabaseSessionInternal database = getDatabase();
-      final StringBuilder word = new StringBuilder();
+      final var database = getDatabase();
+      final var word = new StringBuilder();
 
       parserRequiredKeyword(KEYWORD_ALTER);
       parserRequiredKeyword(KEYWORD_SEQUENCE);
@@ -53,13 +53,13 @@ public class CommandExecutorSQLAlterSequence extends CommandExecutorSQLAbstract
         }
 
         if (temp.equals(KEYWORD_START)) {
-          String startAsString = parserRequiredWord(true, "Expected <start value>");
+          var startAsString = parserRequiredWord(true, "Expected <start value>");
           this.params.setStart(Long.parseLong(startAsString));
         } else if (temp.equals(KEYWORD_INCREMENT)) {
-          String incrementAsString = parserRequiredWord(true, "Expected <increment value>");
+          var incrementAsString = parserRequiredWord(true, "Expected <increment value>");
           this.params.setIncrement(Integer.parseInt(incrementAsString));
         } else if (temp.equals(KEYWORD_CACHE)) {
-          String cacheAsString = parserRequiredWord(true, "Expected <cache value>");
+          var cacheAsString = parserRequiredWord(true, "Expected <cache value>");
           this.params.setCacheSize(Integer.parseInt(cacheAsString));
         }
       }
@@ -76,7 +76,7 @@ public class CommandExecutorSQLAlterSequence extends CommandExecutorSQLAbstract
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    DBSequence sequence = db.getMetadata().getSequenceLibrary()
+    var sequence = db.getMetadata().getSequenceLibrary()
         .getSequence(this.sequenceName);
 
     boolean result;
@@ -85,7 +85,7 @@ public class CommandExecutorSQLAlterSequence extends CommandExecutorSQLAbstract
       // TODO check, but reset should not be here
       //      sequence.reset();
     } catch (DatabaseException exc) {
-      String message = "Unable to execute command: " + exc.getMessage();
+      var message = "Unable to execute command: " + exc.getMessage();
       LogManager.instance().error(this, message, exc, (Object) null);
       throw new CommandExecutionException(message);
     }

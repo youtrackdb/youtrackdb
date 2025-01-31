@@ -53,7 +53,7 @@ public class DatabaseSessionEmbeddedPooled extends DatabaseSessionEmbedded {
   }
 
   public void realClose() {
-    DatabaseSessionInternal old = DatabaseRecordThreadLocal.instance().getIfDefined();
+    var old = DatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       activateOnCurrentThread();
       super.close();

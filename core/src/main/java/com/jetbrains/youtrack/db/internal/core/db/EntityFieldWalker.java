@@ -82,28 +82,28 @@ public class EntityFieldWalker {
     }
 
     walked.add(entity);
-    boolean oldLazyLoad = entity.isLazyLoad();
+    var oldLazyLoad = entity.isLazyLoad();
     entity.setLazyLoad(false);
 
-    final boolean updateMode = fieldWalker.updateMode();
+    final var updateMode = fieldWalker.updateMode();
 
     final SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
-    for (String fieldName : entity.fieldNames()) {
+    for (var fieldName : entity.fieldNames()) {
 
-      final PropertyType concreteType = entity.getPropertyType(fieldName);
-      PropertyType fieldType = concreteType;
+      final var concreteType = entity.getPropertyType(fieldName);
+      var fieldType = concreteType;
 
       PropertyType linkedType = null;
       if (fieldType == null && clazz != null) {
-        SchemaProperty property = clazz.getProperty(fieldName);
+        var property = clazz.getProperty(fieldName);
         if (property != null) {
           fieldType = property.getType();
           linkedType = property.getLinkedType();
         }
       }
 
-      Object fieldValue = entity.field(fieldName, fieldType);
-      Object newValue = fieldWalker.visitField(session, fieldType, linkedType, fieldValue);
+      var fieldValue = entity.field(fieldName, fieldType);
+      var newValue = fieldWalker.visitField(session, fieldType, linkedType, fieldValue);
 
       boolean updated;
       if (updateMode) {
@@ -162,7 +162,7 @@ public class EntityFieldWalker {
       PropertyType fieldType,
       EntityPropertiesVisitor fieldWalker,
       Set<EntityImpl> walked) {
-    for (Object value : map.values()) {
+    for (var value : map.values()) {
       if (value instanceof EntityImpl entity) {
         // only embedded documents are walked
         if (PropertyType.EMBEDDEDMAP.equals(fieldType) || entity.isEmbedded()) {
@@ -178,7 +178,7 @@ public class EntityFieldWalker {
       PropertyType fieldType,
       EntityPropertiesVisitor fieldWalker,
       Set<EntityImpl> walked) {
-    for (Object value : iterable) {
+    for (var value : iterable) {
       if (value instanceof EntityImpl entity) {
         // only embedded documents are walked
         if (PropertyType.EMBEDDEDLIST.equals(fieldType)

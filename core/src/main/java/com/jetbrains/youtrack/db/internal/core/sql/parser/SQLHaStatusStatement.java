@@ -90,12 +90,12 @@ public class SQLHaStatusStatement extends SQLSimpleExecStatement {
     if (outputText) {
       LogManager.instance().info(this, "HA STATUS with text output is deprecated");
     }
-    final DatabaseSessionInternal database = ctx.getDatabase();
+    final var database = ctx.getDatabase();
 
     try {
-      Map<String, Object> res = database.getHaStatus(servers, this.db, latency, messages);
+      var res = database.getHaStatus(servers, this.db, latency, messages);
       if (res != null) {
-        ResultInternal row = new ResultInternal(database);
+        var row = new ResultInternal(database);
         res.entrySet().forEach(x -> row.setProperty(x.getKey(), x.getValue()));
         return ExecutionStream.singleton(row);
       } else {

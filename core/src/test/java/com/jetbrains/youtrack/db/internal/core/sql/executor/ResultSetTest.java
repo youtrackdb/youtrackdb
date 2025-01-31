@@ -12,13 +12,13 @@ public class ResultSetTest extends DbTestBase {
 
   @Test
   public void testResultStream() {
-    InternalResultSet rs = new InternalResultSet();
-    for (int i = 0; i < 10; i++) {
-      ResultInternal item = new ResultInternal(db);
+    var rs = new InternalResultSet();
+    for (var i = 0; i < 10; i++) {
+      var item = new ResultInternal(db);
       item.setProperty("i", i);
       rs.add(item);
     }
-    Optional<Integer> result =
+    var result =
         rs.stream().map(x -> (int) x.getProperty("i")).reduce((a, b) -> a + b);
     Assert.assertTrue(result.isPresent());
     Assert.assertEquals(45, result.get().intValue());
@@ -26,26 +26,26 @@ public class ResultSetTest extends DbTestBase {
 
   @Test
   public void testResultEmptyVertexStream() {
-    InternalResultSet rs = new InternalResultSet();
-    for (int i = 0; i < 10; i++) {
-      ResultInternal item = new ResultInternal(db);
+    var rs = new InternalResultSet();
+    for (var i = 0; i < 10; i++) {
+      var item = new ResultInternal(db);
       item.setProperty("i", i);
       rs.add(item);
     }
-    Optional<Integer> result =
+    var result =
         rs.vertexStream().map(x -> (int) x.getProperty("i")).reduce((a, b) -> a + b);
     Assert.assertFalse(result.isPresent());
   }
 
   @Test
   public void testResultEdgeVertexStream() {
-    InternalResultSet rs = new InternalResultSet();
-    for (int i = 0; i < 10; i++) {
-      ResultInternal item = new ResultInternal(db);
+    var rs = new InternalResultSet();
+    for (var i = 0; i < 10; i++) {
+      var item = new ResultInternal(db);
       item.setProperty("i", i);
       rs.add(item);
     }
-    Optional<Integer> result =
+    var result =
         rs.vertexStream().map(x -> (int) x.getProperty("i")).reduce((a, b) -> a + b);
     Assert.assertFalse(result.isPresent());
   }

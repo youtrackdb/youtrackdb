@@ -48,7 +48,7 @@ public class DefaultCollate extends DefaultComparator implements Collate {
       return false;
     }
 
-    final DefaultCollate that = (DefaultCollate) obj;
+    final var that = (DefaultCollate) obj;
 
     return NAME.equals(NAME);
   }

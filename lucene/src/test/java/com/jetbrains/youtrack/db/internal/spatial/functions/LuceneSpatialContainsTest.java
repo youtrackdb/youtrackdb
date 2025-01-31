@@ -27,13 +27,13 @@ public class LuceneSpatialContainsTest extends BaseSpatialLuceneTest {
   @Test
   public void testContainsNoIndex() {
 
-    ResultSet execute =
+    var execute =
         db.command(
             "select ST_Contains(smallc,smallc) as smallinsmall,ST_Contains(smallc, bigc) As"
                 + " smallinbig, ST_Contains(bigc,smallc) As biginsmall from (SELECT"
                 + " ST_Buffer(ST_GeomFromText('POINT(50 50)'), 20) As"
                 + " smallc,ST_Buffer(ST_GeomFromText('POINT(50 50)'), 40) As bigc)");
-    Result next = execute.next();
+    var next = execute.next();
 
     Assert.assertTrue(next.getProperty("smallinsmall"));
     Assert.assertFalse(next.getProperty("smallinbig"));
@@ -54,7 +54,7 @@ public class LuceneSpatialContainsTest extends BaseSpatialLuceneTest {
     db.commit();
 
     db.command("create index Polygon.g on Polygon (geometry) SPATIAL engine lucene").close();
-    ResultSet execute =
+    var execute =
         db.command("SELECT from Polygon where ST_Contains(geometry, 'POINT(50 50)') = true");
 
     Assert.assertEquals(2, execute.stream().count());
@@ -87,9 +87,9 @@ public class LuceneSpatialContainsTest extends BaseSpatialLuceneTest {
     db.command("create index TestInsert.geometry on TestInsert (geometry) SPATIAL engine lucene")
         .close();
 
-    String testGeometry =
+    var testGeometry =
         "{'@type':'d','@class':'OGeometryCollection','geometries':[{'@type':'d','@class':'OPolygon','coordinates':[[[1,1],[2,1],[2,2],[1,2],[1,1]]]}]}";
-    ResultSet execute =
+    var execute =
         db.command(
             "SELECT from TestInsert where ST_Contains(geometry, " + testGeometry + ") = true");
 

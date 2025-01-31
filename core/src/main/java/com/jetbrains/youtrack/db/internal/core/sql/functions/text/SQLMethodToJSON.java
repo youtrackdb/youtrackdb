@@ -52,7 +52,7 @@ public class SQLMethodToJSON extends AbstractSQLMethod {
       return null;
     }
 
-    final String format = iParams.length > 0 ? ((String) iParams[0]).replace("\"", "") : null;
+    final var format = iParams.length > 0 ? ((String) iParams[0]).replace("\"", "") : null;
 
     if (current instanceof Result result && result.isEntity()) {
       current = result.asEntity();
@@ -66,15 +66,15 @@ public class SQLMethodToJSON extends AbstractSQLMethod {
       return iParams.length == 1 ? record.toJSON(format) : record.toJSON();
     } else if (current instanceof Map) {
 
-      final EntityImpl entity = new EntityImpl(null);
+      final var entity = new EntityImpl(null);
       //noinspection unchecked
       entity.updateFromMap((Map<String, Object>) current);
       return iParams.length == 1 ? entity.toJSON(format) : entity.toJSON();
     } else if (MultiValue.isMultiValue(current)) {
-      StringBuilder builder = new StringBuilder();
+      var builder = new StringBuilder();
       builder.append("[");
-      boolean first = true;
-      for (Object o : MultiValue.getMultiValueIterable(current)) {
+      var first = true;
+      for (var o : MultiValue.getMultiValueIterable(current)) {
         if (!first) {
           builder.append(",");
         }

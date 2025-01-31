@@ -32,7 +32,7 @@ public class HttpMultipartContentBaseParser implements HttpMultipartContentParse
       HttpMultipartContentInputStream in,
       DatabaseSessionInternal db)
       throws IOException {
-    StringBuilder builder = new StringBuilder();
+    var builder = new StringBuilder();
     int b;
     while ((b = in.read()) > 0) {
       builder.append((char) b);

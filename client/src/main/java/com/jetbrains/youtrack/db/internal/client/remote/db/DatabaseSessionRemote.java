@@ -177,9 +177,9 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   @Override
   public void set(ATTRIBUTES iAttribute, Object iValue) {
     assert assertIfNotActive();
-    String query = "alter database " + iAttribute.name() + " ? ";
+    var query = "alter database " + iAttribute.name() + " ? ";
     // Bypass the database command for avoid transaction management
-    RemoteQueryResult result = storage.command(this, query, new Object[]{iValue});
+    var result = storage.command(this, query, new Object[]{iValue});
     result.getResult().close();
     storage.reload(this);
   }
@@ -187,9 +187,9 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   @Override
   public void set(ATTRIBUTES_INTERNAL attribute, Object value) {
     assert assertIfNotActive();
-    String query = "alter database " + attribute.name() + " ? ";
+    var query = "alter database " + attribute.name() + " ? ";
     // Bypass the database command for avoid transaction management
-    RemoteQueryResult result = storage.command(this, query, new Object[]{value});
+    var result = storage.command(this, query, new Object[]{value});
     result.getResult().close();
     storage.reload(this);
   }
@@ -198,14 +198,14 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   public DatabaseSession setCustom(String name, Object iValue) {
     assert assertIfNotActive();
     if ("clear".equals(name) && iValue == null) {
-      String query = "alter database CUSTOM 'clear'";
+      var query = "alter database CUSTOM 'clear'";
       // Bypass the database command for avoid transaction management
-      RemoteQueryResult result = storage.command(this, query, new Object[]{});
+      var result = storage.command(this, query, new Object[]{});
       result.getResult().close();
     } else {
-      String query = "alter database CUSTOM  " + name + " = ?";
+      var query = "alter database CUSTOM  " + name + " = ?";
       // Bypass the database command for avoid transaction management
-      RemoteQueryResult result = storage.command(this, query, new Object[]{iValue});
+      var result = storage.command(this, query, new Object[]{iValue});
       result.getResult().close();
       storage.reload(this);
     }
@@ -213,7 +213,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   }
 
   public DatabaseSessionInternal copy() {
-    DatabaseSessionRemote database = new DatabaseSessionRemote(storage, this.sharedContext);
+    var database = new DatabaseSessionRemote(storage, this.sharedContext);
     database.storage = storage.copy(this, database);
 
     database.storage.addUser();
@@ -263,7 +263,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   }
 
   private void applyAttributes(YouTrackDBConfigImpl config) {
-    for (Entry<ATTRIBUTES, Object> attrs : config.getAttributes().entrySet()) {
+    for (var attrs : config.getAttributes().entrySet()) {
       this.set(attrs.getKey(), attrs.getValue());
     }
   }
@@ -273,7 +273,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
       return;
     }
 
-    RecordSerializerFactory serializerFactory = RecordSerializerFactory.instance();
+    var serializerFactory = RecordSerializerFactory.instance();
     serializer = serializerFactory.getFormat(RecordSerializerNetworkV37Client.NAME);
     localCache.startup();
     componentsFactory = storage.getComponentsFactory();
@@ -292,7 +292,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   }
 
   private void applyListeners(YouTrackDBConfigImpl config) {
-    for (SessionListener listener : config.getListeners()) {
+    for (var listener : config.getListeners()) {
       registerListener(listener);
     }
   }
@@ -347,7 +347,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
     assert assertIfNotActive();
     checkAndSendTransaction();
 
-    RemoteQueryResult result = storage.query(this, query, args);
+    var result = storage.query(this, query, args);
     if (result.isReloadMetadata()) {
       reload();
     }
@@ -361,7 +361,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
     assert assertIfNotActive();
     checkAndSendTransaction();
 
-    RemoteQueryResult result = storage.query(this, query, args);
+    var result = storage.query(this, query, args);
     if (result.isReloadMetadata()) {
       reload();
     }
@@ -375,15 +375,15 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
     assert assertIfNotActive();
     if (getTransaction().isActive()) {
-      FrontendTransactionIndexChanges changes = getTransaction().getIndexChanges(indexName);
-      Set<String> changedIndexes =
+      var changes = getTransaction().getIndexChanges(indexName);
+      var changedIndexes =
           ((FrontendTransactionOptimisticClient) getTransaction()).getIndexChanged();
       if (changedIndexes.contains(indexName) || changes != null) {
         checkAndSendTransaction();
       }
     }
 
-    RemoteQueryResult result = storage.command(this, query, args);
+    var result = storage.command(this, query, args);
     if (result.isReloadMetadata()) {
       reload();
     }
@@ -397,7 +397,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
     assert assertIfNotActive();
     checkAndSendTransaction();
 
-    RemoteQueryResult result = storage.command(this, query, args);
+    var result = storage.command(this, query, args);
     if (result.isReloadMetadata()) {
       reload();
     }
@@ -411,7 +411,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
     assert assertIfNotActive();
 
     checkAndSendTransaction();
-    RemoteQueryResult result = storage.command(this, query, args);
+    var result = storage.command(this, query, args);
 
     if (result.isReloadMetadata()) {
       reload();
@@ -432,7 +432,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
     checkOpenness();
     assert assertIfNotActive();
     checkAndSendTransaction();
-    RemoteQueryResult result = storage.execute(this, language, script, args);
+    var result = storage.execute(this, language, script, args);
 
     if (result.isReloadMetadata()) {
       reload();
@@ -448,7 +448,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
     assert assertIfNotActive();
     checkAndSendTransaction();
 
-    RemoteQueryResult result = storage.execute(this, language, script, args);
+    var result = storage.execute(this, language, script, args);
 
     if (result.isReloadMetadata()) {
       reload();
@@ -493,21 +493,21 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   public static void updateSchema(StorageRemote storage,
       EntityImpl schema) {
     //    storage.get
-    SharedContext shared = storage.getSharedContext();
+    var shared = storage.getSharedContext();
     if (shared != null) {
       ((SchemaRemote) shared.getSchema()).update(null, schema);
     }
   }
 
   public static void updateFunction(StorageRemote storage) {
-    SharedContext shared = storage.getSharedContext();
+    var shared = storage.getSharedContext();
     if (shared != null) {
       (shared.getFunctionLibrary()).update();
     }
   }
 
   public static void updateSequences(StorageRemote storage) {
-    SharedContext shared = storage.getSharedContext();
+    var shared = storage.getSharedContext();
     if (shared != null) {
       (shared.getSequenceLibrary()).update();
     }
@@ -517,9 +517,9 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   public int addBlobCluster(final String iClusterName, final Object... iParameters) {
     int id;
     assert assertIfNotActive();
-    try (ResultSet resultSet = command("create blob cluster :1", iClusterName)) {
+    try (var resultSet = command("create blob cluster :1", iClusterName)) {
       assert resultSet.hasNext();
-      Result result = resultSet.next();
+      var result = resultSet.next();
       assert result.getProperty("value") != null;
       id = result.getProperty("value");
       return id;
@@ -711,7 +711,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   public long countClusterElements(final String iClusterName) {
     assert assertIfNotActive();
 
-    final int clusterId = getClusterIdByName(iClusterName);
+    final var clusterId = getClusterIdByName(iClusterName);
     if (clusterId < 0) {
       throw new IllegalArgumentException("Cluster '" + iClusterName + "' was not found");
     }
@@ -734,9 +734,9 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   @Override
   public boolean dropCluster(final String iClusterName) {
     assert assertIfNotActive();
-    final int clusterId = getClusterIdByName(iClusterName);
-    SchemaProxy schema = metadata.getSchema();
-    SchemaClass clazz = schema.getClassByClusterId(clusterId);
+    final var clusterId = getClusterIdByName(iClusterName);
+    var schema = metadata.getSchema();
+    var clazz = schema.getClassByClusterId(clusterId);
     if (clazz != null) {
       clazz.removeClusterId(this, clusterId);
     }
@@ -752,8 +752,8 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   public boolean dropCluster(final int clusterId) {
     assert assertIfNotActive();
 
-    SchemaProxy schema = metadata.getSchema();
-    final SchemaClass clazz = schema.getClassByClusterId(clusterId);
+    var schema = metadata.getSchema();
+    final var clazz = schema.getClassByClusterId(clusterId);
     if (clazz != null) {
       clazz.removeClusterId(this, clusterId);
     }
@@ -764,12 +764,12 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
     checkForClusterPermissions(getClusterNameById(clusterId));
 
-    final String clusterName = getClusterNameById(clusterId);
+    final var clusterName = getClusterNameById(clusterId);
     if (clusterName == null) {
       return false;
     }
 
-    final RecordIteratorCluster<DBRecord> iteratorCluster = browseCluster(clusterName);
+    final var iteratorCluster = browseCluster(clusterName);
     if (iteratorCluster == null) {
       return false;
     }
@@ -1021,13 +1021,13 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
     long count = 0;
     if (polimorfic) {
-      try (ResultSet result = command("truncate class " + name + " polymorphic ")) {
+      try (var result = command("truncate class " + name + " polymorphic ")) {
         while (result.hasNext()) {
           count += result.next().<Long>getProperty("count");
         }
       }
     } else {
-      try (ResultSet result = command("truncate class " + name)) {
+      try (var result = command("truncate class " + name)) {
         while (result.hasNext()) {
           count += result.next().<Long>getProperty("count");
         }

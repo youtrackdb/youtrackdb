@@ -46,20 +46,20 @@ public class CommandExecutorSQLCreateCluster extends CommandExecutorSQLAbstract
 
   public CommandExecutorSQLCreateCluster parse(DatabaseSessionInternal db,
       final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
-      final DatabaseSessionInternal database = getDatabase();
+      final var database = getDatabase();
 
       init((CommandRequestText) iRequest);
 
       parserRequiredKeyword(KEYWORD_CREATE);
-      String nextWord = parserRequiredWord(true);
+      var nextWord = parserRequiredWord(true);
       if (nextWord.equals("BLOB")) {
         parserRequiredKeyword(KEYWORD_CLUSTER);
         blob = true;
@@ -73,7 +73,7 @@ public class CommandExecutorSQLCreateCluster extends CommandExecutorSQLAbstract
         throw new IllegalArgumentException("Cluster name cannot begin with a digit");
       }
 
-      String temp = parseOptionalWord(true);
+      var temp = parseOptionalWord(true);
 
       while (temp != null) {
         if (temp.equals(KEYWORD_ID)) {
@@ -116,7 +116,7 @@ public class CommandExecutorSQLCreateCluster extends CommandExecutorSQLAbstract
 
     final var database = getDatabase();
 
-    final int clusterId = database.getClusterIdByName(clusterName);
+    final var clusterId = database.getClusterIdByName(clusterName);
     if (clusterId > -1) {
       throw new CommandSQLParsingException("Cluster '" + clusterName + "' already exists");
     }

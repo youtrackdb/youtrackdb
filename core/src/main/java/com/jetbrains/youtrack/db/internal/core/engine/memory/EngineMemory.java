@@ -45,7 +45,7 @@ public class EngineMemory extends EngineAbstract {
     try {
       return new DirectMemoryStorage(url, url, storageId, context);
     } catch (Exception e) {
-      final String message = "Error on opening in memory storage: " + url;
+      final var message = "Error on opening in memory storage: " + url;
       LogManager.instance().error(this, message, e);
 
       throw BaseException.wrapException(new DatabaseException(message), e);

@@ -24,10 +24,10 @@ public class LuceneIndexEngineUtilsTest extends BaseLuceneTest {
                 .field("type", "INT")
                 .toMap()));
 
-    final List<SortField> fields = LuceneIndexEngineUtils.buildSortFields(metadata);
+    final var fields = LuceneIndexEngineUtils.buildSortFields(metadata);
 
     assertThat(fields).hasSize(1);
-    final SortField sortField = fields.get(0);
+    final var sortField = fields.get(0);
 
     assertThat(sortField.getField()).isEqualTo("score");
     assertThat(sortField.getType()).isEqualTo(SortField.Type.INT);
@@ -37,11 +37,11 @@ public class LuceneIndexEngineUtilsTest extends BaseLuceneTest {
   @Test
   public void buildIntSortField() throws Exception {
 
-    final EntityImpl sortConf =
+    final var sortConf =
         ((EntityImpl) db.newEntity()).field("field", "score").field("reverse", true)
             .field("type", "INT");
 
-    final SortField sortField = LuceneIndexEngineUtils.buildSortField(sortConf);
+    final var sortField = LuceneIndexEngineUtils.buildSortField(sortConf);
 
     assertThat(sortField.getField()).isEqualTo("score");
     assertThat(sortField.getType()).isEqualTo(SortField.Type.INT);
@@ -51,9 +51,9 @@ public class LuceneIndexEngineUtilsTest extends BaseLuceneTest {
   @Test
   public void buildDocSortField() throws Exception {
 
-    final EntityImpl sortConf = ((EntityImpl) db.newEntity()).field("type", "DOC");
+    final var sortConf = ((EntityImpl) db.newEntity()).field("type", "DOC");
 
-    final SortField sortField = LuceneIndexEngineUtils.buildSortField(sortConf);
+    final var sortField = LuceneIndexEngineUtils.buildSortField(sortConf);
 
     assertThat(sortField.getField()).isNull();
     assertThat(sortField.getType()).isEqualTo(SortField.Type.DOC);

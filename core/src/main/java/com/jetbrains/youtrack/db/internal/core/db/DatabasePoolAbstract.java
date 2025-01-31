@@ -74,16 +74,16 @@ public abstract class DatabasePoolAbstract extends AdaptiveLock
       LogManager.instance().debug(this, "Running Connection Pool Evictor Service...");
       lock();
       try {
-        for (Entry<String, Object2LongOpenHashMap<DatabaseSessionInternal>> pool :
+        for (var pool :
             this.evictionMap.entrySet()) {
-          Object2LongOpenHashMap<DatabaseSessionInternal> poolDbs = pool.getValue();
+          var poolDbs = pool.getValue();
           Iterator<Object2LongMap.Entry<DatabaseSessionInternal>> iterator =
               poolDbs.object2LongEntrySet().iterator();
           while (iterator.hasNext()) {
             Entry<DatabaseSessionInternal, Long> db = iterator.next();
             if (System.currentTimeMillis() - db.getValue() >= this.minIdleTime) {
 
-              ReentrantResourcePool<String, DatabaseSession> oResourcePool =
+              var oResourcePool =
                   pools.get(pool.getKey());
               if (oResourcePool != null) {
                 LogManager.instance()
@@ -101,7 +101,7 @@ public abstract class DatabasePoolAbstract extends AdaptiveLock
     }
 
     public void updateIdleTime(final String poolName, final DatabaseSessionInternal iDatabase) {
-      Object2LongOpenHashMap<DatabaseSessionInternal> pool = this.evictionMap.get(poolName);
+      var pool = this.evictionMap.get(poolName);
       if (pool == null) {
         pool = new Object2LongOpenHashMap<>();
         pool.defaultReturnValue(-1);
@@ -162,7 +162,7 @@ public abstract class DatabasePoolAbstract extends AdaptiveLock
       final String iUserPassword,
       final Map<String, Object> iOptionalParams)
       throws LockException {
-    final String dbPooledName = IOUtils.getUnixFileName(iUserName + "@" + iURL);
+    final var dbPooledName = IOUtils.getUnixFileName(iUserName + "@" + iURL);
     ReentrantResourcePool<String, DatabaseSession> pool;
     lock();
     try {
@@ -183,7 +183,7 @@ public abstract class DatabasePoolAbstract extends AdaptiveLock
   }
 
   public int getMaxConnections(final String url, final String userName) {
-    final String dbPooledName = IOUtils.getUnixFileName(userName + "@" + url);
+    final var dbPooledName = IOUtils.getUnixFileName(userName + "@" + url);
     final ReentrantResourcePool<String, DatabaseSession> pool;
     lock();
     try {
@@ -199,10 +199,10 @@ public abstract class DatabasePoolAbstract extends AdaptiveLock
   }
 
   public int getCreatedInstances(String url, String userName) {
-    final String dbPooledName = IOUtils.getUnixFileName(userName + "@" + url);
+    final var dbPooledName = IOUtils.getUnixFileName(userName + "@" + url);
     lock();
     try {
-      final ReentrantResourcePool<String, DatabaseSession> pool = pools.get(dbPooledName);
+      final var pool = pools.get(dbPooledName);
       if (pool == null) {
         return 0;
       }
@@ -214,7 +214,7 @@ public abstract class DatabasePoolAbstract extends AdaptiveLock
   }
 
   public int getAvailableConnections(final String url, final String userName) {
-    final String dbPooledName = IOUtils.getUnixFileName(userName + "@" + url);
+    final var dbPooledName = IOUtils.getUnixFileName(userName + "@" + url);
     final ReentrantResourcePool<String, DatabaseSession> pool;
     lock();
     try {
@@ -230,7 +230,7 @@ public abstract class DatabasePoolAbstract extends AdaptiveLock
   }
 
   public int getConnectionsInCurrentThread(final String url, final String userName) {
-    final String dbPooledName = IOUtils.getUnixFileName(userName + "@" + url);
+    final var dbPooledName = IOUtils.getUnixFileName(userName + "@" + url);
     final ReentrantResourcePool<String, DatabaseSession> pool;
     lock();
     try {
@@ -246,7 +246,7 @@ public abstract class DatabasePoolAbstract extends AdaptiveLock
   }
 
   public void release(final DatabaseSessionInternal iDatabase) {
-    final String dbPooledName =
+    final var dbPooledName =
         iDatabase.geCurrentUser().getName(iDatabase) + "@" + iDatabase.getURL();
     final ReentrantResourcePool<String, DatabaseSession> pool;
     lock();
@@ -289,9 +289,9 @@ public abstract class DatabasePoolAbstract extends AdaptiveLock
         this.evictionTask.cancel();
       }
 
-      for (Entry<String, ReentrantResourcePool<String, DatabaseSession>> pool :
+      for (var pool :
           pools.entrySet()) {
-        for (DatabaseSession db : pool.getValue().getResources()) {
+        for (var db : pool.getValue().getResources()) {
           pool.getValue().close();
           try {
             LogManager.instance().debug(this, "Closing pooled database '%s'...", db.getName());
@@ -316,11 +316,11 @@ public abstract class DatabasePoolAbstract extends AdaptiveLock
     lock();
     try {
 
-      final ReentrantResourcePool<String, DatabaseSession> pool = pools.remove(iPoolName);
+      final var pool = pools.remove(iPoolName);
 
       if (pool != null) {
-        for (DatabaseSession db : pool.getResources()) {
-          final Storage stg = ((DatabaseSessionInternal) db).getStorage();
+        for (var db : pool.getResources()) {
+          final var stg = ((DatabaseSessionInternal) db).getStorage();
           if (stg != null && stg.getStatus() == Storage.STATUS.OPEN) {
             try {
               LogManager.instance().debug(this, "Closing pooled database '%s'...", db.getName());
@@ -352,15 +352,15 @@ public abstract class DatabasePoolAbstract extends AdaptiveLock
    * closed storages.
    */
   public void onStorageUnregistered(final Storage iStorage) {
-    final String storageURL = iStorage.getURL();
+    final var storageURL = iStorage.getURL();
 
     lock();
     try {
       Set<String> poolToClose = null;
 
-      for (Entry<String, ReentrantResourcePool<String, DatabaseSession>> e : pools.entrySet()) {
-        final int pos = e.getKey().indexOf('@');
-        final String dbName = e.getKey().substring(pos + 1);
+      for (var e : pools.entrySet()) {
+        final var pos = e.getKey().indexOf('@');
+        final var dbName = e.getKey().substring(pos + 1);
         if (storageURL.equals(dbName)) {
           if (poolToClose == null) {
             poolToClose = new HashSet<>();
@@ -371,7 +371,7 @@ public abstract class DatabasePoolAbstract extends AdaptiveLock
       }
 
       if (poolToClose != null) {
-        for (String pool : poolToClose) {
+        for (var pool : poolToClose) {
           remove(pool);
         }
       }

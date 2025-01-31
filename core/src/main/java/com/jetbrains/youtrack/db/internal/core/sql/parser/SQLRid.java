@@ -57,7 +57,7 @@ public class SQLRid extends SimpleNode {
     if (legacy || (expression == null && cluster != null && position != null)) {
       return new RecordId(cluster.value.intValue(), position.value.longValue());
     } else {
-      Object result = expression.execute(target, ctx);
+      var result = expression.execute(target, ctx);
       if (result == null) {
         return null;
       }
@@ -75,7 +75,7 @@ public class SQLRid extends SimpleNode {
     if (legacy || (expression == null && cluster != null && position != null)) {
       return new RecordId(cluster.value.intValue(), position.value.longValue());
     } else {
-      Object result = expression.execute(target, ctx);
+      var result = expression.execute(target, ctx);
       if (result == null) {
         return null;
       }
@@ -90,7 +90,7 @@ public class SQLRid extends SimpleNode {
   }
 
   public SQLRid copy() {
-    SQLRid result = new SQLRid(-1);
+    var result = new SQLRid(-1);
     result.cluster = cluster == null ? null : cluster.copy();
     result.position = position == null ? null : position.copy();
     result.expression = expression == null ? null : expression.copy();
@@ -107,7 +107,7 @@ public class SQLRid extends SimpleNode {
       return false;
     }
 
-    SQLRid oRid = (SQLRid) o;
+    var oRid = (SQLRid) o;
 
     if (!Objects.equals(cluster, oRid.cluster)) {
       return false;
@@ -123,7 +123,7 @@ public class SQLRid extends SimpleNode {
 
   @Override
   public int hashCode() {
-    int result = cluster != null ? cluster.hashCode() : 0;
+    var result = cluster != null ? cluster.hashCode() : 0;
     result = 31 * result + (position != null ? position.hashCode() : 0);
     result = 31 * result + (expression != null ? expression.hashCode() : 0);
     return result;
@@ -143,9 +143,9 @@ public class SQLRid extends SimpleNode {
 
   public SQLInteger getCluster() {
     if (expression != null) {
-      RecordId rid = toRecordId((Result) null, new BasicCommandContext());
+      var rid = toRecordId((Result) null, new BasicCommandContext());
       if (rid != null) {
-        SQLInteger result = new SQLInteger(-1);
+        var result = new SQLInteger(-1);
         result.setValue(rid.getClusterId());
         return result;
       }
@@ -155,9 +155,9 @@ public class SQLRid extends SimpleNode {
 
   public SQLInteger getPosition() {
     if (expression != null) {
-      RecordId rid = toRecordId((Result) null, new BasicCommandContext());
+      var rid = toRecordId((Result) null, new BasicCommandContext());
       if (rid != null) {
-        SQLInteger result = new SQLInteger(-1);
+        var result = new SQLInteger(-1);
         result.setValue(rid.getClusterPosition());
         return result;
       }
@@ -166,7 +166,7 @@ public class SQLRid extends SimpleNode {
   }
 
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     if (cluster != null) {
       result.setProperty("cluster", cluster.serialize(db));
     }

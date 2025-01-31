@@ -73,7 +73,7 @@ public class SQLFunctionShortestPathTest {
     db.newRegularEdge(vertices.get(3), vertices.get(1), "Edge2").save();
     db.newRegularEdge(vertices.get(3), vertices.get(4), "Edge1").save();
 
-    for (int i = 5; i <= 20; i++) {
+    for (var i = 5; i <= 20; i++) {
       var v = db.newVertex();
       v.save();
       vertices.put(i, v);
@@ -93,7 +93,7 @@ public class SQLFunctionShortestPathTest {
     var context = new BasicCommandContext();
     context.setDatabase(db);
 
-    final List<RID> result =
+    final var result =
         function.execute(
             null,
             null,
@@ -114,7 +114,7 @@ public class SQLFunctionShortestPathTest {
     var context = new BasicCommandContext();
     context.setDatabase(db);
 
-    final List<RID> result =
+    final var result =
         function.execute(
             null,
             null,
@@ -136,7 +136,7 @@ public class SQLFunctionShortestPathTest {
     var context = new BasicCommandContext();
     context.setDatabase(db);
 
-    final List<RID> result =
+    final var result =
         function.execute(
             null,
             null,
@@ -158,7 +158,7 @@ public class SQLFunctionShortestPathTest {
     var context = new BasicCommandContext();
     context.setDatabase(db);
 
-    final List<RID> result =
+    final var result =
         function.execute(
             null,
             null,
@@ -179,7 +179,7 @@ public class SQLFunctionShortestPathTest {
     var context = new BasicCommandContext();
     context.setDatabase(db);
 
-    final List<RID> result =
+    final var result =
         function.execute(
             null,
             null,
@@ -190,8 +190,8 @@ public class SQLFunctionShortestPathTest {
     Assert.assertEquals(11, result.size());
     Assert.assertEquals(vertices.get(1).getIdentity(), result.get(0));
     Assert.assertEquals(vertices.get(3).getIdentity(), result.get(1));
-    int next = 2;
-    for (int i = 4; i <= 20; i += 2) {
+    var next = 2;
+    for (var i = 4; i <= 20; i += 2) {
       Assert.assertEquals(vertices.get(i).getIdentity(), result.get(next++));
     }
   }
@@ -205,7 +205,7 @@ public class SQLFunctionShortestPathTest {
 
     Map<String, Object> additionalParams = new HashMap<String, Object>();
     additionalParams.put(SQLFunctionShortestPath.PARAM_MAX_DEPTH, 11);
-    final List<RID> result =
+    final var result =
         function.execute(
             null,
             null,
@@ -225,7 +225,7 @@ public class SQLFunctionShortestPathTest {
 
     Map<String, Object> additionalParams = new HashMap<String, Object>();
     additionalParams.put(SQLFunctionShortestPath.PARAM_MAX_DEPTH, 12);
-    final List<RID> result =
+    final var result =
         function.execute(
             null,
             null,
@@ -245,7 +245,7 @@ public class SQLFunctionShortestPathTest {
 
     Map<String, Object> additionalParams = new HashMap<String, Object>();
     additionalParams.put(SQLFunctionShortestPath.PARAM_MAX_DEPTH, 10);
-    final List<RID> result =
+    final var result =
         function.execute(
             null,
             null,
@@ -265,7 +265,7 @@ public class SQLFunctionShortestPathTest {
 
     Map<String, Object> additionalParams = new HashMap<String, Object>();
     additionalParams.put(SQLFunctionShortestPath.PARAM_MAX_DEPTH, 3);
-    final List<RID> result =
+    final var result =
         function.execute(
             null,
             null,

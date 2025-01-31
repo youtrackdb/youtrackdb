@@ -61,7 +61,7 @@ public enum Severity {
       new HashMap<Integer, Severity>();
 
   static {
-    for (Severity severity : Severity.values()) {
+    for (var severity : Severity.values()) {
       severityFromLabel.put(severity.label, severity);
       severityFromNumericalCode.put(severity.numericalCode, severity);
     }
@@ -82,7 +82,7 @@ public enum Severity {
    *                                  numerical code
    */
   public static Severity fromNumericalCode(int numericalCode) throws IllegalArgumentException {
-    Severity severity = severityFromNumericalCode.get(numericalCode);
+    var severity = severityFromNumericalCode.get(numericalCode);
     if (severity == null) {
       throw new IllegalArgumentException("Invalid severity '" + numericalCode + "'");
     }
@@ -99,7 +99,7 @@ public enum Severity {
       return null;
     }
 
-    Severity severity = severityFromLabel.get(label);
+    var severity = severityFromLabel.get(label);
     if (severity == null) {
       throw new IllegalArgumentException("Invalid severity '" + label + "'");
     }

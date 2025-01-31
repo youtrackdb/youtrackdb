@@ -15,10 +15,10 @@ public class RecursiveLinkedSaveTest extends DbTestBase {
   public void testTxLinked() {
     db.getMetadata().getSchema().createClass("Test");
     db.begin();
-    EntityImpl doc = (EntityImpl) db.newEntity("Test");
-    EntityImpl doc1 = (EntityImpl) db.newEntity("Test");
+    var doc = (EntityImpl) db.newEntity("Test");
+    var doc1 = (EntityImpl) db.newEntity("Test");
     doc.field("link", doc1);
-    EntityImpl doc2 = (EntityImpl) db.newEntity("Test");
+    var doc2 = (EntityImpl) db.newEntity("Test");
     doc1.field("link", doc2);
     doc2.field("link", doc);
     db.save(doc);

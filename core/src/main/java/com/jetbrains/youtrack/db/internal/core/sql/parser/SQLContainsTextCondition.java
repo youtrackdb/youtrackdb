@@ -27,11 +27,11 @@ public class SQLContainsTextCondition extends SQLBooleanExpression {
 
   @Override
   public boolean evaluate(Identifiable currentRecord, CommandContext ctx) {
-    Object leftValue = left.execute(currentRecord, ctx);
+    var leftValue = left.execute(currentRecord, ctx);
     if (leftValue == null || !(leftValue instanceof String)) {
       return false;
     }
-    Object rightValue = right.execute(currentRecord, ctx);
+    var rightValue = right.execute(currentRecord, ctx);
     if (rightValue == null || !(rightValue instanceof String)) {
       return false;
     }
@@ -48,11 +48,11 @@ public class SQLContainsTextCondition extends SQLBooleanExpression {
     if (left.isFunctionAll()) {
       return evaluateAllFunction(currentRecord, ctx);
     }
-    Object leftValue = left.execute(currentRecord, ctx);
+    var leftValue = left.execute(currentRecord, ctx);
     if (leftValue == null || !(leftValue instanceof String)) {
       return false;
     }
-    Object rightValue = right.execute(currentRecord, ctx);
+    var rightValue = right.execute(currentRecord, ctx);
     if (rightValue == null || !(rightValue instanceof String)) {
       return false;
     }
@@ -61,13 +61,13 @@ public class SQLContainsTextCondition extends SQLBooleanExpression {
   }
 
   private boolean evaluateAny(Result currentRecord, CommandContext ctx) {
-    Object rightValue = right.execute(currentRecord, ctx);
+    var rightValue = right.execute(currentRecord, ctx);
     if (rightValue == null || !(rightValue instanceof String)) {
       return false;
     }
 
-    for (String s : currentRecord.getPropertyNames()) {
-      Object leftValue = currentRecord.getProperty(s);
+    for (var s : currentRecord.getPropertyNames()) {
+      var leftValue = currentRecord.getProperty(s);
       if (leftValue == null || !(leftValue instanceof String)) {
         continue;
       }
@@ -80,13 +80,13 @@ public class SQLContainsTextCondition extends SQLBooleanExpression {
   }
 
   private boolean evaluateAllFunction(Result currentRecord, CommandContext ctx) {
-    Object rightValue = right.execute(currentRecord, ctx);
+    var rightValue = right.execute(currentRecord, ctx);
     if (rightValue == null || !(rightValue instanceof String)) {
       return false;
     }
 
-    for (String s : currentRecord.getPropertyNames()) {
-      Object leftValue = currentRecord.getProperty(s);
+    for (var s : currentRecord.getPropertyNames()) {
+      var leftValue = currentRecord.getProperty(s);
       if (leftValue == null || !(leftValue instanceof String)) {
         return false;
       }
@@ -117,7 +117,7 @@ public class SQLContainsTextCondition extends SQLBooleanExpression {
 
   @Override
   protected int getNumberOfExternalCalculations() {
-    int total = 0;
+    var total = 0;
     if (!left.supportsBasicCalculation()) {
       total++;
     }
@@ -149,7 +149,7 @@ public class SQLContainsTextCondition extends SQLBooleanExpression {
 
   @Override
   public SQLContainsTextCondition copy() {
-    SQLContainsTextCondition result = new SQLContainsTextCondition(-1);
+    var result = new SQLContainsTextCondition(-1);
     result.left = left.copy();
     result.right = right.copy();
     return result;
@@ -175,7 +175,7 @@ public class SQLContainsTextCondition extends SQLBooleanExpression {
       return false;
     }
 
-    SQLContainsTextCondition that = (SQLContainsTextCondition) o;
+    var that = (SQLContainsTextCondition) o;
 
     if (!Objects.equals(left, that.left)) {
       return false;
@@ -185,15 +185,15 @@ public class SQLContainsTextCondition extends SQLBooleanExpression {
 
   @Override
   public int hashCode() {
-    int result = left != null ? left.hashCode() : 0;
+    var result = left != null ? left.hashCode() : 0;
     result = 31 * result + (right != null ? right.hashCode() : 0);
     return result;
   }
 
   @Override
   public List<String> getMatchPatternInvolvedAliases() {
-    List<String> leftX = left == null ? null : left.getMatchPatternInvolvedAliases();
-    List<String> rightX = right == null ? null : right.getMatchPatternInvolvedAliases();
+    var leftX = left == null ? null : left.getMatchPatternInvolvedAliases();
+    var rightX = right == null ? null : right.getMatchPatternInvolvedAliases();
 
     List<String> result = new ArrayList<String>();
     if (leftX != null) {
@@ -233,7 +233,7 @@ public class SQLContainsTextCondition extends SQLBooleanExpression {
   @Override
   public boolean isFullTextIndexAware(String indexField) {
     if (left.isBaseIdentifier()) {
-      String fieldName = left.getDefaultAlias().getStringValue();
+      var fieldName = left.getDefaultAlias().getStringValue();
       return indexField.equals(fieldName);
     }
     return false;

@@ -51,7 +51,7 @@ public class SystemUserAuthenticator extends SecurityAuthenticatorAbstract {
     try {
       if (getSecurity() != null) {
         // dbName parameter is null because we don't need to filter any roles for this.
-        SecurityUser user = getSecurity().getSystemUser(username, null);
+        var user = getSecurity().getSystemUser(username, null);
 
         if (user != null && user.getAccountStatus(session) == SecurityUser.STATUSES.ACTIVE) {
           if (user.checkPassword(session, password)) {
@@ -77,15 +77,15 @@ public class SystemUserAuthenticator extends SecurityAuthenticatorAbstract {
 
     try {
       if (getSecurity() != null) {
-        SecurityUser user = getSecurity().getSystemUser(username, null);
+        var user = getSecurity().getSystemUser(username, null);
 
         if (user != null && user.getAccountStatus(session) == SecurityUser.STATUSES.ACTIVE) {
           SecurityRole role = null;
 
-          Rule.ResourceGeneric rg = Rule.mapLegacyResourceToGenericResource(resource);
+          var rg = Rule.mapLegacyResourceToGenericResource(resource);
 
           if (rg != null) {
-            String specificResource = Rule.mapLegacyResourceToSpecificResource(resource);
+            var specificResource = Rule.mapLegacyResourceToSpecificResource(resource);
 
             if (specificResource == null || specificResource.equals("*")) {
               specificResource = null;

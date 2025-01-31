@@ -135,7 +135,7 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
 
   protected void fillInAccountData() {
     Set<Integer> ids = new HashSet<>();
-    for (int i = 0; i < TOT_RECORDS_ACCOUNT; i++) {
+    for (var i = 0; i < TOT_RECORDS_ACCOUNT; i++) {
       ids.add(i);
     }
 
@@ -165,7 +165,7 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
         element.setProperty("value", (byte) 10);
 
         binary = new byte[100];
-        for (int b = 0; b < binary.length; ++b) {
+        for (var b = 0; b < binary.length; ++b) {
           binary[b] = (byte) b;
         }
         element.setProperty("binary", binary);
@@ -195,7 +195,7 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
                   .<Long>getProperty("count");
 
           if (count < 1_000) {
-            for (int i = 0; i < 1_000 - count; i++) {
+            for (var i = 0; i < 1_000 - count; i++) {
               var profile = db.newEntity("Profile");
               profile.setProperty("nick", "generatedNick" + i);
               profile.setProperty("name", "generatedName" + i);
@@ -281,7 +281,7 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
 
     var address = createRedmondAddress();
 
-    for (int i = 0; i < TOT_COMPANY_RECORDS; ++i) {
+    for (var i = 0; i < TOT_COMPANY_RECORDS; ++i) {
       db.begin();
       var company = db.newInstance("Company");
       company.setProperty("id", i);
@@ -474,12 +474,12 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
   }
 
   private void createWhizClass() {
-    SchemaClass account = createAccountClass();
+    var account = createAccountClass();
     if (db.getMetadata().getSchema().existsClass("Whiz")) {
       return;
     }
 
-    SchemaClass whiz = db.getMetadata().getSchema()
+    var whiz = db.getMetadata().getSchema()
         .createClass("Whiz", 1, (SchemaClass[]) null);
     whiz.createProperty(db, "id", PropertyType.INTEGER);
     whiz.createProperty(db, "account", PropertyType.LINK, account);
@@ -495,10 +495,10 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
       return;
     }
 
-    SchemaClass animalRace =
+    var animalRace =
         db.getMetadata().getSchema().createClass("AnimalRace", 1, (SchemaClass[]) null);
     animalRace.createProperty(db, "name", PropertyType.STRING);
-    SchemaClass animal = db.getMetadata().getSchema()
+    var animal = db.getMetadata().getSchema()
         .createClass("Animal", 1, (SchemaClass[]) null);
     animal.createProperty(db, "races", PropertyType.LINKSET, animalRace);
     animal.createProperty(db, "name", PropertyType.STRING);
@@ -509,7 +509,7 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
       return;
     }
 
-    SchemaClass strictTest =
+    var strictTest =
         db.getMetadata().getSchema().createClass("StrictTest", 1, (SchemaClass[]) null);
     strictTest.setStrictMode(db, true);
     strictTest.createProperty(db, "id", PropertyType.INTEGER).isMandatory();
@@ -570,7 +570,7 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
       return;
     }
 
-    SchemaClass vehicleClass = db.createVertexClass("GraphVehicle");
+    var vehicleClass = db.createVertexClass("GraphVehicle");
     db.createClass("GraphCar", vehicleClass.getName());
     db.createClass("GraphMotocycle", "GraphVehicle");
 
@@ -594,10 +594,10 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
     motoNode = db.bindToSession(motoNode);
     db.newRegularEdge(carNode, motoNode).save();
 
-    List<Result> result =
+    var result =
         db.query("select from GraphVehicle").stream().collect(Collectors.toList());
     Assert.assertEquals(result.size(), 2);
-    for (Result v : result) {
+    for (var v : result) {
       Assert.assertTrue(v.getEntity().get().getSchemaType().get().isSubClassOf(vehicleClass));
     }
 
@@ -608,7 +608,7 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
     Edge edge1 = null;
     Edge edge2 = null;
 
-    for (Result v : result) {
+    for (var v : result) {
       Assert.assertTrue(v.getEntity().get().getSchemaType().get().isSubClassOf("GraphVehicle"));
 
       if (v.getEntity().get().getSchemaType().isPresent()

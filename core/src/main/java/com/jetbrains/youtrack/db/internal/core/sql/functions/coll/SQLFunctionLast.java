@@ -44,7 +44,7 @@ public class SQLFunctionLast extends SQLFunctionConfigurableAbstract {
       Object iCurrentResult,
       final Object[] iParams,
       final CommandContext iContext) {
-    Object value = iParams[0];
+    var value = iParams[0];
 
     if (value instanceof SQLFilterItem) {
       value = ((SQLFilterItem) value).getValue(iCurrentRecord, iCurrentResult, iContext);

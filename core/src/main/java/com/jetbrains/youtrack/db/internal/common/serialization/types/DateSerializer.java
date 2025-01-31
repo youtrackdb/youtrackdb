@@ -40,18 +40,18 @@ public class DateSerializer implements BinarySerializer<Date> {
   }
 
   public void serialize(Date object, byte[] stream, int startPosition, Object... hints) {
-    Calendar calendar = Calendar.getInstance();
+    var calendar = Calendar.getInstance();
     calendar.setTime(object);
     calendar.set(Calendar.HOUR_OF_DAY, 0);
     calendar.set(Calendar.MINUTE, 0);
     calendar.set(Calendar.SECOND, 0);
     calendar.set(Calendar.MILLISECOND, 0);
-    DateTimeSerializer dateTimeSerializer = DateTimeSerializer.INSTANCE;
+    var dateTimeSerializer = DateTimeSerializer.INSTANCE;
     dateTimeSerializer.serialize(calendar.getTime(), stream, startPosition);
   }
 
   public Date deserialize(byte[] stream, int startPosition) {
-    DateTimeSerializer dateTimeSerializer = DateTimeSerializer.INSTANCE;
+    var dateTimeSerializer = DateTimeSerializer.INSTANCE;
     return dateTimeSerializer.deserialize(stream, startPosition);
   }
 
@@ -69,18 +69,18 @@ public class DateSerializer implements BinarySerializer<Date> {
 
   public void serializeNativeObject(
       final Date object, byte[] stream, int startPosition, Object... hints) {
-    final Calendar calendar = Calendar.getInstance();
+    final var calendar = Calendar.getInstance();
     calendar.setTime(object);
     calendar.set(Calendar.HOUR_OF_DAY, 0);
     calendar.set(Calendar.MINUTE, 0);
     calendar.set(Calendar.SECOND, 0);
     calendar.set(Calendar.MILLISECOND, 0);
-    final DateTimeSerializer dateTimeSerializer = DateTimeSerializer.INSTANCE;
+    final var dateTimeSerializer = DateTimeSerializer.INSTANCE;
     dateTimeSerializer.serializeNativeObject(calendar.getTime(), stream, startPosition);
   }
 
   public Date deserializeNativeObject(byte[] stream, int startPosition) {
-    DateTimeSerializer dateTimeSerializer = DateTimeSerializer.INSTANCE;
+    var dateTimeSerializer = DateTimeSerializer.INSTANCE;
     return dateTimeSerializer.deserializeNativeObject(stream, startPosition);
   }
 
@@ -97,7 +97,7 @@ public class DateSerializer implements BinarySerializer<Date> {
     if (value == null) {
       return null;
     }
-    final Calendar calendar = Calendar.getInstance();
+    final var calendar = Calendar.getInstance();
     calendar.setTime(value);
     calendar.set(Calendar.HOUR_OF_DAY, 0);
     calendar.set(Calendar.MINUTE, 0);
@@ -112,13 +112,13 @@ public class DateSerializer implements BinarySerializer<Date> {
    */
   @Override
   public void serializeInByteBufferObject(Date object, ByteBuffer buffer, Object... hints) {
-    final Calendar calendar = Calendar.getInstance();
+    final var calendar = Calendar.getInstance();
     calendar.setTime(object);
     calendar.set(Calendar.HOUR_OF_DAY, 0);
     calendar.set(Calendar.MINUTE, 0);
     calendar.set(Calendar.SECOND, 0);
     calendar.set(Calendar.MILLISECOND, 0);
-    final DateTimeSerializer dateTimeSerializer = DateTimeSerializer.INSTANCE;
+    final var dateTimeSerializer = DateTimeSerializer.INSTANCE;
     dateTimeSerializer.serializeInByteBufferObject(calendar.getTime(), buffer);
   }
 
@@ -127,13 +127,13 @@ public class DateSerializer implements BinarySerializer<Date> {
    */
   @Override
   public Date deserializeFromByteBufferObject(ByteBuffer buffer) {
-    final DateTimeSerializer dateTimeSerializer = DateTimeSerializer.INSTANCE;
+    final var dateTimeSerializer = DateTimeSerializer.INSTANCE;
     return dateTimeSerializer.deserializeFromByteBufferObject(buffer);
   }
 
   @Override
   public Date deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
-    final DateTimeSerializer dateTimeSerializer = DateTimeSerializer.INSTANCE;
+    final var dateTimeSerializer = DateTimeSerializer.INSTANCE;
     return dateTimeSerializer.deserializeFromByteBufferObject(offset, buffer);
   }
 
@@ -156,7 +156,7 @@ public class DateSerializer implements BinarySerializer<Date> {
   @Override
   public Date deserializeFromByteBufferObject(
       ByteBuffer buffer, WALChanges walChanges, int offset) {
-    final DateTimeSerializer dateTimeSerializer = DateTimeSerializer.INSTANCE;
+    final var dateTimeSerializer = DateTimeSerializer.INSTANCE;
     return dateTimeSerializer.deserializeFromByteBufferObject(buffer, walChanges, offset);
   }
 

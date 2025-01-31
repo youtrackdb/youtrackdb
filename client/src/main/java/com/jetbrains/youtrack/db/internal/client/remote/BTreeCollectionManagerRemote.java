@@ -80,7 +80,7 @@ public class BTreeCollectionManagerRemote
 
   @Override
   public UUID listenForChanges(RidBag collection) {
-    UUID id = collection.getTemporaryId();
+    var id = collection.getTemporaryId();
     if (id == null) {
       id = UUID.randomUUID();
     }
@@ -92,14 +92,14 @@ public class BTreeCollectionManagerRemote
 
   @Override
   public void updateCollectionPointer(UUID uuid, BonsaiCollectionPointer pointer) {
-    final WeakReference<RidBag> reference = pendingCollections.get().get(uuid);
+    final var reference = pendingCollections.get().get(uuid);
     if (reference == null) {
       LogManager.instance()
           .warn(this, "Update of collection pointer is received but collection is not registered");
       return;
     }
 
-    final RidBag collection = reference.get();
+    final var collection = reference.get();
 
     if (collection != null) {
       collection.notifySaved(pointer);
@@ -139,7 +139,7 @@ public class BTreeCollectionManagerRemote
   @Override
   public BonsaiCollectionPointer createSBTree(
       int clusterId, AtomicOperation atomicOperation, UUID ownerUUID) throws IOException {
-    EdgeBTree<RID, Integer> tree = createEdgeTree(atomicOperation, clusterId);
+    var tree = createEdgeTree(atomicOperation, clusterId);
     return tree.getCollectionPointer();
   }
 

@@ -68,9 +68,9 @@ public abstract class QueryOperatorEquality extends QueryOperator {
       final BinaryField iSecondField,
       final CommandContext iContext,
       final EntitySerializer serializer) {
-    final Object left = serializer.deserializeValue(iContext.getDatabase(), iFirstField.bytes,
+    final var left = serializer.deserializeValue(iContext.getDatabase(), iFirstField.bytes,
         iFirstField.type, null);
-    final Object right = serializer.deserializeValue(iContext.getDatabase(), iSecondField.bytes,
+    final var right = serializer.deserializeValue(iContext.getDatabase(), iSecondField.bytes,
         iFirstField.type, null);
 
     return evaluateExpression(null, null, left, right, iContext);
@@ -100,11 +100,11 @@ public abstract class QueryOperatorEquality extends QueryOperator {
       if (left.getDefinition().getRoot(iContext.getDatabase())
           .startsWith(SQLFilterItemFieldAll.NAME)) {
         // ALL VALUES
-        for (int i = 0; i < left.getValues().length; ++i) {
-          Object v = left.getValues()[i];
-          Object r = iRight;
+        for (var i = 0; i < left.getValues().length; ++i) {
+          var v = left.getValues()[i];
+          var r = iRight;
 
-          final Collate collate = left.getCollate(i);
+          final var collate = left.getCollate(i);
           if (collate != null) {
             v = collate.transform(v);
             r = collate.transform(iRight);
@@ -117,11 +117,11 @@ public abstract class QueryOperatorEquality extends QueryOperator {
         return true;
       } else {
         // ANY VALUES
-        for (int i = 0; i < left.getValues().length; ++i) {
-          Object v = left.getValues()[i];
-          Object r = iRight;
+        for (var i = 0; i < left.getValues().length; ++i) {
+          var v = left.getValues()[i];
+          var r = iRight;
 
-          final Collate collate = left.getCollate(i);
+          final var collate = left.getCollate(i);
           if (collate != null) {
             v = collate.transform(v);
             r = collate.transform(iRight);
@@ -144,11 +144,11 @@ public abstract class QueryOperatorEquality extends QueryOperator {
       if (right.getDefinition().getRoot(iContext.getDatabase())
           .startsWith(SQLFilterItemFieldAll.NAME)) {
         // ALL VALUES
-        for (int i = 0; i < right.getValues().length; ++i) {
-          Object v = right.getValues()[i];
-          Object l = iLeft;
+        for (var i = 0; i < right.getValues().length; ++i) {
+          var v = right.getValues()[i];
+          var l = iLeft;
 
-          final Collate collate = right.getCollate(i);
+          final var collate = right.getCollate(i);
           if (collate != null) {
             v = collate.transform(v);
             l = collate.transform(iLeft);
@@ -161,11 +161,11 @@ public abstract class QueryOperatorEquality extends QueryOperator {
         return true;
       } else {
         // ANY VALUES
-        for (int i = 0; i < right.getValues().length; ++i) {
-          Object v = right.getValues()[i];
-          Object l = iLeft;
+        for (var i = 0; i < right.getValues().length; ++i) {
+          var v = right.getValues()[i];
+          var l = iLeft;
 
-          final Collate collate = right.getCollate(i);
+          final var collate = right.getCollate(i);
           if (collate != null) {
             v = collate.transform(v);
             l = collate.transform(iLeft);

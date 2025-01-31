@@ -39,8 +39,8 @@ public class LuceneSpatialFunctionAsTextTest extends BaseSpatialLuceneTest {
   public void init() {
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass v = schema.getClass("V");
-    SchemaClass oClass = schema.createClass("Location");
+    var v = schema.getClass("V");
+    var oClass = schema.createClass("Location");
     oClass.setSuperClass(db, v);
     oClass.createProperty(db, "geometry", PropertyType.EMBEDDED, schema.getClass("OShape"));
     oClass.createProperty(db, "name", PropertyType.STRING);
@@ -61,7 +61,7 @@ public class LuceneSpatialFunctionAsTextTest extends BaseSpatialLuceneTest {
   }
 
   protected void createLocation(String name, EntityImpl geometry) {
-    EntityImpl doc = ((EntityImpl) db.newEntity("Location"));
+    var doc = ((EntityImpl) db.newEntity("Location"));
     doc.field("name", name);
     doc.field("geometry", geometry);
 
@@ -77,11 +77,11 @@ public class LuceneSpatialFunctionAsTextTest extends BaseSpatialLuceneTest {
   }
 
   protected void queryAndAssertGeom(String name, String wkt) {
-    ResultSet results =
+    var results =
         db.command("select *, ST_AsText(geometry) as text from Location where name = ? ", name);
 
     assertTrue(results.hasNext());
-    Result doc = results.next();
+    var doc = results.next();
 
     String asText = doc.getProperty("text");
 
@@ -115,9 +115,9 @@ public class LuceneSpatialFunctionAsTextTest extends BaseSpatialLuceneTest {
   @Test
   public void testBugEnvelope() {
     try {
-      Shape shape = context.readShapeFromWkt(RECTANGLEWKT);
+      var shape = context.readShapeFromWkt(RECTANGLEWKT);
 
-      Geometry geometryFrom = context.getGeometryFrom(shape);
+      var geometryFrom = context.getGeometryFrom(shape);
       Assert.assertEquals(geometryFrom.toText(), RECTANGLEWKT);
     } catch (ParseException e) {
       e.printStackTrace();

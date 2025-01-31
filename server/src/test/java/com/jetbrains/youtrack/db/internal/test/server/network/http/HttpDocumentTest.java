@@ -18,7 +18,7 @@ public class HttpDocumentTest extends BaseHttpDatabaseTest {
         .payload("{@class:'V', name:'Jay', surname:'Miner',age:99, \"@version\":100}", CONTENT.JSON)
         .exec();
 
-    ClassicHttpResponse response = getResponse();
+    var response = getResponse();
     Assert.assertEquals(response.getReasonPhrase(), 201, response.getCode());
 
     var objectMapper = new ObjectMapper();
@@ -35,7 +35,7 @@ public class HttpDocumentTest extends BaseHttpDatabaseTest {
     post("document/" + getDatabaseName())
         .payload("{@class:'V', name:'Jay', surname:'Miner',age:99}", CONTENT.JSON)
         .exec();
-    ClassicHttpResponse response = getResponse();
+    var response = getResponse();
     Assert.assertEquals(response.getReasonPhrase(), 201, response.getCode());
 
     var objectMapper = new ObjectMapper();

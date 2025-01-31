@@ -115,7 +115,7 @@ public final class CommandResponse implements BinaryResponse {
           serializer);
       if (listener instanceof FetchPlanResults) {
         // SEND FETCHED RECORDS TO LOAD IN CLIENT CACHE
-        for (DBRecord rec : ((FetchPlanResults) listener).getFetchedRecordsToSend()) {
+        for (var rec : ((FetchPlanResults) listener).getFetchedRecordsToSend()) {
           channel.writeByte((byte) 2); // CLIENT CACHE RECORD. IT
           // ISN'T PART OF THE
           // RESULT SET
@@ -172,10 +172,10 @@ public final class CommandResponse implements BinaryResponse {
             writeSimpleValue(db, channel, listener, result, protocolVersion, recordSerializer);
           } else {
             if (MultiValue.isMultiValue(result)) {
-              final byte collectionType = result instanceof Set ? (byte) 's' : (byte) 'l';
+              final var collectionType = result instanceof Set ? (byte) 's' : (byte) 'l';
               channel.writeByte(collectionType);
               channel.writeInt(MultiValue.getSize(result));
-              for (Object o : MultiValue.getMultiValueIterable(result)) {
+              for (var o : MultiValue.getMultiValueIterable(result)) {
                 try {
                   if (load && o instanceof RecordId) {
                     o = ((RecordId) o).getRecord(db);
@@ -196,7 +196,7 @@ public final class CommandResponse implements BinaryResponse {
               if (MultiValue.isIterable(result)) {
                 if (protocolVersion >= ChannelBinaryProtocol.PROTOCOL_VERSION_32) {
                   channel.writeByte((byte) 'i');
-                  for (Object o : MultiValue.getMultiValueIterable(result)) {
+                  for (var o : MultiValue.getMultiValueIterable(result)) {
                     try {
                       if (load && o instanceof RecordId) {
                         o = ((RecordId) o).getRecord(db);
@@ -215,10 +215,10 @@ public final class CommandResponse implements BinaryResponse {
                   channel.writeByte((byte) 0); // NO MORE RECORD
                 } else {
                   // OLD RELEASES: TRANSFORM IN A COLLECTION
-                  final byte collectionType = result instanceof Set ? (byte) 's' : (byte) 'l';
+                  final var collectionType = result instanceof Set ? (byte) 's' : (byte) 'l';
                   channel.writeByte(collectionType);
                   channel.writeInt(MultiValue.getSize(result));
-                  for (Object o : MultiValue.getMultiValueIterable(result)) {
+                  for (var o : MultiValue.getMultiValueIterable(result)) {
                     try {
                       if (load && o instanceof RecordId) {
                         o = ((RecordId) o).getRecord(db);
@@ -257,7 +257,7 @@ public final class CommandResponse implements BinaryResponse {
 
     if (protocolVersion >= ChannelBinaryProtocol.PROTOCOL_VERSION_35) {
       channel.writeByte((byte) 'w');
-      EntityImpl entity = new EntityImpl(null);
+      var entity = new EntityImpl(null);
       entity.field("result", result);
       MessageHelper.writeIdentifiable(db, channel, entity, recordSerializer);
       if (listener != null) {
@@ -265,9 +265,9 @@ public final class CommandResponse implements BinaryResponse {
       }
     } else {
       channel.writeByte((byte) 'a');
-      final StringWriter value = new StringWriter(64);
+      final var value = new StringWriter(64);
       if (listener != null) {
-        EntityImpl entity = new EntityImpl(null);
+        var entity = new EntityImpl(null);
         entity.field("result", result);
         listener.linkdedBySimpleValue(db, entity);
       }
@@ -286,13 +286,13 @@ public final class CommandResponse implements BinaryResponse {
       // garbage collection.
       List<DBRecord> temporaryResults = new ArrayList<DBRecord>();
 
-      boolean addNextRecord = true;
+      var addNextRecord = true;
       if (asynch) {
         byte status;
 
         // ASYNCH: READ ONE RECORD AT TIME
         while ((status = network.readByte()) > 0) {
-          final RecordAbstract record =
+          final var record =
               (RecordAbstract) MessageHelper.readIdentifiable(db, network, serializer);
           if (record == null) {
             continue;
@@ -331,7 +331,7 @@ public final class CommandResponse implements BinaryResponse {
       } else {
         result = readSynchResult(network, database, temporaryResults);
         if (live) {
-          final EntityImpl entity = ((List<EntityImpl>) result).get(0);
+          final var entity = ((List<EntityImpl>) result).get(0);
           final Integer token = entity.field("token");
           final Boolean unsubscribe = entity.field("unsubscribe");
           if (token != null) {
@@ -397,7 +397,7 @@ public final class CommandResponse implements BinaryResponse {
     RecordSerializer serializer = RecordSerializerNetworkV37Client.INSTANCE;
     final Object result;
 
-    final byte type = network.readByte();
+    final var type = network.readByte();
     switch (type) {
       case 'n':
         result = null;
@@ -419,11 +419,11 @@ public final class CommandResponse implements BinaryResponse {
 
       case 'l':
       case 's':
-        final int tot = network.readInt();
+        final var tot = network.readInt();
         Collection<Identifiable> coll =
             type == 's' ? new HashSet<>(tot) : new BasicLegacyResultSet<>(tot);
-        for (int i = 0; i < tot; ++i) {
-          final Identifiable resultItem = MessageHelper.readIdentifiable(database, network,
+        for (var i = 0; i < tot; ++i) {
+          final var resultItem = MessageHelper.readIdentifiable(database, network,
               serializer);
           if (resultItem instanceof RecordAbstract record) {
             var rid = record.getIdentity();
@@ -449,7 +449,7 @@ public final class CommandResponse implements BinaryResponse {
         coll = new BasicLegacyResultSet<Identifiable>();
         byte status;
         while ((status = network.readByte()) > 0) {
-          final Identifiable record = MessageHelper.readIdentifiable(database, network,
+          final var record = MessageHelper.readIdentifiable(database, network,
               serializer);
           if (record == null) {
             continue;
@@ -475,7 +475,7 @@ public final class CommandResponse implements BinaryResponse {
         result = coll;
         break;
       case 'w':
-        final Identifiable record = MessageHelper.readIdentifiable(database, network,
+        final var record = MessageHelper.readIdentifiable(database, network,
             serializer);
         // ((EntityImpl) record).setLazyLoad(false);
         result = ((EntityImpl) record).field("result");
@@ -489,7 +489,7 @@ public final class CommandResponse implements BinaryResponse {
     // LOAD THE FETCHED RECORDS IN CACHE
     byte status;
     while ((status = network.readByte()) > 0) {
-      RecordAbstract record =
+      var record =
           (RecordAbstract) MessageHelper.readIdentifiable(database, network, serializer);
       if (record != null && status == 2) {
         // PUT IN THE CLIENT LOCAL CACHE

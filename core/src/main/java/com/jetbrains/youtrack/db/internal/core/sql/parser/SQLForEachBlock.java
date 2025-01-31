@@ -44,14 +44,14 @@ public class SQLForEachBlock extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
     ctx.setDatabase(db);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
-      for (int i = 0; i < args.length; i++) {
+      for (var i = 0; i < args.length; i++) {
         params.put(i, args[i]);
       }
     }
@@ -71,7 +71,7 @@ public class SQLForEachBlock extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Map<Object, Object> params, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -90,12 +90,12 @@ public class SQLForEachBlock extends SQLStatement {
   }
 
   public UpdateExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    ForEachExecutionPlan plan = new ForEachExecutionPlan(ctx);
-    int nextProg = ++FOREACH_VARIABLE_PROGR;
+    var plan = new ForEachExecutionPlan(ctx);
+    var nextProg = ++FOREACH_VARIABLE_PROGR;
     if (FOREACH_VARIABLE_PROGR < 0) {
       FOREACH_VARIABLE_PROGR = 0;
     }
-    SQLIdentifier varName = new SQLIdentifier("$__YOUTRACKDB_FOREACH_VAR_" + nextProg);
+    var varName = new SQLIdentifier("$__YOUTRACKDB_FOREACH_VAR_" + nextProg);
     plan.chain(new GlobalLetExpressionStep(varName, loopValues, ctx, enableProfiling));
     plan.chain(
         new ForEachStep(loopVariable, new SQLExpression(varName), statements, ctx,
@@ -105,7 +105,7 @@ public class SQLForEachBlock extends SQLStatement {
 
   @Override
   public SQLStatement copy() {
-    SQLForEachBlock result = new SQLForEachBlock(-1);
+    var result = new SQLForEachBlock(-1);
     result.loopVariable = loopVariable.copy();
     result.loopValues = loopValues.copy();
     result.statements = statements.stream().map(x -> x.copy()).collect(Collectors.toList());
@@ -121,7 +121,7 @@ public class SQLForEachBlock extends SQLStatement {
       return false;
     }
 
-    SQLForEachBlock that = (SQLForEachBlock) o;
+    var that = (SQLForEachBlock) o;
 
     if (!Objects.equals(loopVariable, that.loopVariable)) {
       return false;
@@ -134,7 +134,7 @@ public class SQLForEachBlock extends SQLStatement {
 
   @Override
   public int hashCode() {
-    int result = loopVariable != null ? loopVariable.hashCode() : 0;
+    var result = loopVariable != null ? loopVariable.hashCode() : 0;
     result = 31 * result + (loopValues != null ? loopValues.hashCode() : 0);
     result = 31 * result + (statements != null ? statements.hashCode() : 0);
     return result;
@@ -146,7 +146,7 @@ public class SQLForEachBlock extends SQLStatement {
     builder.append(" IN ");
     loopValues.toString(params, builder);
     builder.append(") {\n");
-    for (SQLStatement stm : statements) {
+    for (var stm : statements) {
       stm.toString(params, builder);
       builder.append("\n");
     }
@@ -159,7 +159,7 @@ public class SQLForEachBlock extends SQLStatement {
     builder.append(" IN ");
     loopValues.toGenericStatement(builder);
     builder.append(") {\n");
-    for (SQLStatement stm : statements) {
+    for (var stm : statements) {
       stm.toGenericStatement(builder);
       builder.append("\n");
     }
@@ -167,7 +167,7 @@ public class SQLForEachBlock extends SQLStatement {
   }
 
   public boolean containsReturn() {
-    for (SQLStatement stm : this.statements) {
+    for (var stm : this.statements) {
       if (stm instanceof SQLReturnStatement) {
         return true;
       }

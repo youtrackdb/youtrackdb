@@ -29,12 +29,12 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
 
   @Test
   public void testBeginTransactionEmptyWriteRead() throws IOException {
-    MockChannel channel = new MockChannel();
-    BeginTransactionRequest request = new BeginTransactionRequest(db, 0, false,
+    var channel = new MockChannel();
+    var request = new BeginTransactionRequest(db, 0, false,
         true, null);
     request.write(db, channel, null);
     channel.close();
-    BeginTransactionRequest readRequest = new BeginTransactionRequest();
+    var readRequest = new BeginTransactionRequest();
     readRequest.read(db, channel, 0, null);
     assertFalse(readRequest.isHasContent());
   }
@@ -46,14 +46,14 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
     operations.add(new RecordOperation(new EntityImpl(db), RecordOperation.CREATED));
     Map<String, FrontendTransactionIndexChanges> changes = new HashMap<>();
 
-    MockChannel channel = new MockChannel();
-    BeginTransactionRequest request =
+    var channel = new MockChannel();
+    var request =
         new BeginTransactionRequest(db, 0, true, true, operations);
     request.write(db, channel, null);
 
     channel.close();
 
-    BeginTransactionRequest readRequest = new BeginTransactionRequest();
+    var readRequest = new BeginTransactionRequest();
     readRequest.read(db, channel, 0, RecordSerializerNetworkFactory.current());
     assertTrue(readRequest.isUsingLog());
     assertEquals(1, readRequest.getOperations().size());
@@ -66,13 +66,13 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
     operations.add(new RecordOperation(new EntityImpl(db), RecordOperation.CREATED));
     Map<String, FrontendTransactionIndexChanges> changes = new HashMap<>();
 
-    MockChannel channel = new MockChannel();
-    Commit37Request request = new Commit37Request(db, 0, true, true, operations);
+    var channel = new MockChannel();
+    var request = new Commit37Request(db, 0, true, true, operations);
     request.write(db, channel, null);
 
     channel.close();
 
-    Commit37Request readRequest = new Commit37Request();
+    var readRequest = new Commit37Request();
     readRequest.read(db, channel, 0, RecordSerializerNetworkFactory.current());
     assertTrue(readRequest.isUsingLog());
     assertEquals(1, readRequest.getOperations().size());
@@ -82,21 +82,21 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
   @Test
   public void testCommitResponseTransactionWriteRead() throws IOException {
 
-    MockChannel channel = new MockChannel();
+    var channel = new MockChannel();
 
     Map<UUID, BonsaiCollectionPointer> changes = new HashMap<>();
-    UUID val = UUID.randomUUID();
+    var val = UUID.randomUUID();
     changes.put(val, new BonsaiCollectionPointer(10, new RidBagBucketPointer(30, 40)));
     var updatedRids = new HashMap<RecordId, RecordId>();
 
     updatedRids.put(new RecordId(10, 20), new RecordId(10, 30));
     updatedRids.put(new RecordId(10, 21), new RecordId(10, 31));
 
-    Commit37Response response = new Commit37Response(updatedRids, changes);
+    var response = new Commit37Response(updatedRids, changes);
     response.write(db, channel, 0, null);
     channel.close();
 
-    Commit37Response readResponse = new Commit37Response();
+    var readResponse = new Commit37Response();
     readResponse.read(db, channel, null);
 
     assertEquals(2, readResponse.getUpdatedRids().size());
@@ -117,13 +117,13 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
   @Test
   public void testEmptyCommitTransactionWriteRead() throws IOException {
 
-    MockChannel channel = new MockChannel();
-    Commit37Request request = new Commit37Request(db, 0, false, true, null);
+    var channel = new MockChannel();
+    var request = new Commit37Request(db, 0, false, true, null);
     request.write(db, channel, null);
 
     channel.close();
 
-    Commit37Request readRequest = new Commit37Request();
+    var readRequest = new Commit37Request();
     readRequest.read(db, channel, 0, RecordSerializerNetworkFactory.current());
     assertTrue(readRequest.isUsingLog());
     assertNull(readRequest.getOperations());
@@ -146,14 +146,14 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
     operations.add(
         new RecordOperation(docTwo, RecordOperation.DELETED));
 
-    MockChannel channel = new MockChannel();
-    FetchTransactionResponse response =
+    var channel = new MockChannel();
+    var response =
         new FetchTransactionResponse(db, 10, operations, new HashMap<>());
     response.write(db, channel, 0, RecordSerializerNetworkV37.INSTANCE);
 
     channel.close();
 
-    FetchTransactionResponse readResponse = new FetchTransactionResponse();
+    var readResponse = new FetchTransactionResponse();
     readResponse.read(db, channel, null);
 
     assertEquals(3, readResponse.getOperations().size());
@@ -177,14 +177,14 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
     operations.add(
         new RecordOperation(new EntityImpl(db, new RecordId(10, 1)), RecordOperation.DELETED));
     Map<String, FrontendTransactionIndexChanges> changes = new HashMap<>();
-    MockChannel channel = new MockChannel();
-    FetchTransaction38Response response =
+    var channel = new MockChannel();
+    var response =
         new FetchTransaction38Response(db, 10, operations, changes, new HashMap<>(), null);
     response.write(db, channel, 0, RecordSerializerNetworkV37.INSTANCE);
 
     channel.close();
 
-    FetchTransaction38Response readResponse = new FetchTransaction38Response();
+    var readResponse = new FetchTransaction38Response();
     readResponse.read(db, channel, null);
 
     assertEquals(3, readResponse.getOperations().size());
@@ -202,14 +202,14 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
 
     List<RecordOperation> operations = new ArrayList<>();
 
-    MockChannel channel = new MockChannel();
-    FetchTransactionResponse response =
+    var channel = new MockChannel();
+    var response =
         new FetchTransactionResponse(db, 10, operations, new HashMap<>());
     response.write(db, channel, 0, RecordSerializerNetworkV37.INSTANCE);
 
     channel.close();
 
-    FetchTransactionResponse readResponse =
+    var readResponse =
         new FetchTransactionResponse(db, 10, operations, new HashMap<>());
     readResponse.read(db, channel, null);
 

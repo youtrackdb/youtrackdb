@@ -43,7 +43,7 @@ public class ExecutionPlanCache implements MetadataUpdateListener {
       throw new IllegalArgumentException("DB cannot be null");
     }
 
-    ExecutionPlanCache resource = db.getSharedContext().getExecutionPlanCache();
+    var resource = db.getSharedContext().getExecutionPlanCache();
     synchronized (resource) {
       return resource.lastInvalidation;
     }
@@ -80,8 +80,8 @@ public class ExecutionPlanCache implements MetadataUpdateListener {
       return null;
     }
 
-    ExecutionPlanCache resource = db.getSharedContext().getExecutionPlanCache();
-    ExecutionPlan result = resource.getInternal(statement, ctx, db);
+    var resource = db.getSharedContext().getExecutionPlanCache();
+    var result = resource.getInternal(statement, ctx, db);
     return result;
   }
 
@@ -93,7 +93,7 @@ public class ExecutionPlanCache implements MetadataUpdateListener {
       return;
     }
 
-    ExecutionPlanCache resource = db.getSharedContext().getExecutionPlanCache();
+    var resource = db.getSharedContext().getExecutionPlanCache();
     resource.putInternal(statement, plan, db);
   }
 
@@ -107,8 +107,8 @@ public class ExecutionPlanCache implements MetadataUpdateListener {
     }
 
     synchronized (map) {
-      InternalExecutionPlan internal = (InternalExecutionPlan) plan;
-      BasicCommandContext ctx = new BasicCommandContext();
+      var internal = (InternalExecutionPlan) plan;
+      var ctx = new BasicCommandContext();
       ctx.setDatabase(db);
       internal = internal.copy(ctx);
       // this copy is never used, so it has to be closed to free resources
@@ -126,7 +126,7 @@ public class ExecutionPlanCache implements MetadataUpdateListener {
       String statement, CommandContext ctx, DatabaseSessionInternal db) {
     InternalExecutionPlan result;
 
-    long currentGlobalTimeout =
+    var currentGlobalTimeout =
         db.getConfiguration().getValueAsLong(GlobalConfiguration.COMMAND_TIMEOUT);
     if (currentGlobalTimeout != this.lastGlobalTimeout) {
       invalidate();
@@ -187,7 +187,7 @@ public class ExecutionPlanCache implements MetadataUpdateListener {
       throw new IllegalArgumentException("DB cannot be null");
     }
 
-    ExecutionPlanCache resource = db.getSharedContext().getExecutionPlanCache();
+    var resource = db.getSharedContext().getExecutionPlanCache();
     return resource;
   }
 }

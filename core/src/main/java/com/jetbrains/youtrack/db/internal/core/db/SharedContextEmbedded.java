@@ -72,14 +72,14 @@ public class SharedContextEmbedded extends SharedContext {
     ((AbstractPaginatedStorage) storage)
         .setStorageConfigurationUpdateListener(
             update -> {
-              for (MetadataUpdateListener listener : browseListeners()) {
+              for (var listener : browseListeners()) {
                 listener.onStorageConfigurationUpdate(storage.getName(), update);
               }
             });
   }
 
   public synchronized void load(DatabaseSessionInternal database) {
-    final long timer = PROFILER.startChrono();
+    final var timer = PROFILER.startChrono();
 
     try {
       if (!loaded) {
@@ -150,7 +150,7 @@ public class SharedContextEmbedded extends SharedContext {
 
     // create geospatial classes
     try {
-      IndexFactory factory = Indexes.getFactory(SchemaClass.INDEX_TYPE.SPATIAL.toString(),
+      var factory = Indexes.getFactory(SchemaClass.INDEX_TYPE.SPATIAL.toString(),
           "LUCENE");
       if (factory instanceof DatabaseLifecycleListener) {
         ((DatabaseLifecycleListener) factory).onCreate(database);

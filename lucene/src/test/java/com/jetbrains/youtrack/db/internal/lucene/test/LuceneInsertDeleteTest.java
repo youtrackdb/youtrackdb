@@ -45,7 +45,7 @@ public class LuceneInsertDeleteTest extends BaseLuceneTest {
   public void init() {
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass oClass = schema.createClass("City");
+    var oClass = schema.createClass("City");
 
     oClass.createProperty(db, "name", PropertyType.STRING);
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
@@ -57,15 +57,15 @@ public class LuceneInsertDeleteTest extends BaseLuceneTest {
     db.getMetadata().reload();
     Schema schema = db.getMetadata().getSchema();
 
-    EntityImpl doc = ((EntityImpl) db.newEntity("City"));
+    var doc = ((EntityImpl) db.newEntity("City"));
     doc.field("name", "Rome");
     db.begin();
     db.save(doc);
     db.commit();
 
-    Index idx = db.getClassInternal("City").getClassIndex(db, "City.name");
+    var idx = db.getClassInternal("City").getClassIndex(db, "City.name");
     Collection<?> coll;
-    try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (var stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
 
@@ -74,7 +74,7 @@ public class LuceneInsertDeleteTest extends BaseLuceneTest {
     assertThat(idx.getInternal().size(db)).isEqualTo(1);
     db.commit();
 
-    Identifiable next = (Identifiable) coll.iterator().next();
+    var next = (Identifiable) coll.iterator().next();
     doc = db.load(next.getIdentity());
 
     db.begin();
@@ -82,7 +82,7 @@ public class LuceneInsertDeleteTest extends BaseLuceneTest {
     db.delete(doc);
     db.commit();
 
-    try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (var stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(0);
@@ -92,7 +92,7 @@ public class LuceneInsertDeleteTest extends BaseLuceneTest {
   @Test
   public void testDeleteWithQueryOnClosedIndex() throws Exception {
 
-    try (InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql")) {
+    try (var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql")) {
       db.execute("sql", getScriptFromStream(stream)).close();
     }
 
@@ -101,7 +101,7 @@ public class LuceneInsertDeleteTest extends BaseLuceneTest {
                 + " {'closeAfterInterval':1000 , 'firstFlushAfter':1000 }")
         .close();
 
-    ResultSet docs = db.query("select from Song where title lucene 'mountain'");
+    var docs = db.query("select from Song where title lucene 'mountain'");
 
     assertThat(docs).hasSize(4);
     TimeUnit.SECONDS.sleep(5);

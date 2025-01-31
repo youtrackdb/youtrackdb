@@ -37,7 +37,7 @@ public class CommandExecutorSQLTransactional extends CommandExecutorSQLDelegate 
   @Override
   public CommandExecutorSQLTransactional parse(DatabaseSessionInternal db,
       CommandRequest iCommand) {
-    String cmd = ((CommandSQL) iCommand).getText();
+    var cmd = ((CommandSQL) iCommand).getText();
     super.parse(db, new CommandSQL(cmd.substring(KEYWORD_TRANSACTIONAL.length())));
     return this;
   }
@@ -45,14 +45,14 @@ public class CommandExecutorSQLTransactional extends CommandExecutorSQLDelegate 
   @Override
   public Object execute(DatabaseSessionInternal db, Map<Object, Object> iArgs) {
     var database = getDatabase();
-    boolean txbegun = database.getTransaction() == null || !database.getTransaction().isActive();
+    var txbegun = database.getTransaction() == null || !database.getTransaction().isActive();
 
     if (txbegun) {
       database.begin();
     }
 
     try {
-      final Object result = super.execute(db, iArgs);
+      final var result = super.execute(db, iArgs);
 
       if (txbegun) {
         database.commit();

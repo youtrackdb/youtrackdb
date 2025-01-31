@@ -36,13 +36,13 @@ public class YouTrackDbJdbcDriverTest {
   @Test
   public void shouldConnect() throws SQLException {
 
-    Properties info = new Properties();
+    var info = new Properties();
     info.put("user", "admin");
     info.put("password", "admin");
     info.setProperty("serverUser", "root");
     info.setProperty("serverPassword", "root");
 
-    YouTrackDbJdbcConnection conn =
+    var conn =
         (YouTrackDbJdbcConnection)
             DriverManager.getConnection("jdbc:youtrackdb:memory:YouTrackDbJdbcDriverTest", info);
 

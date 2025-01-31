@@ -35,7 +35,7 @@ public class FetchPlanComplexNestedLevelsTest extends BaseDBTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final SchemaClass personTest = db.getMetadata().getSchema().getClass("PersonTest");
+    final var personTest = db.getMetadata().getSchema().getClass("PersonTest");
     if (personTest == null) {
       db
           .getMetadata()
@@ -45,7 +45,7 @@ public class FetchPlanComplexNestedLevelsTest extends BaseDBTest {
       personTest.setSuperClass(db, db.getMetadata().getSchema().getClass("V"));
     }
 
-    final SchemaClass followTest = db.getMetadata().getSchema().getClass("FollowTest");
+    final var followTest = db.getMetadata().getSchema().getClass("FollowTest");
     if (followTest == null) {
       db
           .getMetadata()
@@ -85,7 +85,7 @@ public class FetchPlanComplexNestedLevelsTest extends BaseDBTest {
 
     Assert.assertNotNull(json);
 
-    final EntityImpl parsed = ((EntityImpl) db.newEntity());
+    final var parsed = ((EntityImpl) db.newEntity());
     parsed.updateFromJSON(json);
 
     Assert.assertNotNull(parsed.rawField("out_FollowTest.in.out_FollowTest"));
@@ -102,7 +102,7 @@ public class FetchPlanComplexNestedLevelsTest extends BaseDBTest {
 
     Assert.assertNotNull(json);
 
-    final EntityImpl parsed = ((EntityImpl) db.newEntity());
+    final var parsed = ((EntityImpl) db.newEntity());
     parsed.updateFromJSON(json);
 
     Assert.assertNotNull(parsed.rawField("out_FollowTest.in.out_FollowTest"));
@@ -120,7 +120,7 @@ public class FetchPlanComplexNestedLevelsTest extends BaseDBTest {
 
     Assert.assertNotNull(json);
 
-    int pos = json.indexOf("\"in\":\"");
+    var pos = json.indexOf("\"in\":\"");
     Assert.assertTrue(pos > -1);
 
     Assert.assertEquals(json.charAt(pos) + 1, '#');
@@ -138,7 +138,7 @@ public class FetchPlanComplexNestedLevelsTest extends BaseDBTest {
 
     Assert.assertNotNull(json);
 
-    int pos = json.indexOf("\"in\":{");
+    var pos = json.indexOf("\"in\":{");
     Assert.assertTrue(pos > -1);
   }
 
@@ -154,7 +154,7 @@ public class FetchPlanComplexNestedLevelsTest extends BaseDBTest {
 
     Assert.assertNotNull(json);
 
-    int pos = json.indexOf("\"in\":\"");
+    var pos = json.indexOf("\"in\":\"");
     Assert.assertFalse(pos > -1);
   }
 }

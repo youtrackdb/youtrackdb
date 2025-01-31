@@ -14,9 +14,9 @@ public class CompositeIndexGrowShrinkIT extends DbTestBase {
   private final Random random = new Random();
 
   public String randomText() {
-    String str = "";
-    int count = random.nextInt(10);
-    for (int i = 0; i < count; i++) {
+    var str = "";
+    var count = random.nextInt(10);
+    for (var i = 0; i < count; i++) {
       str += random.nextInt(10000) + " ";
     }
     return str;
@@ -25,7 +25,7 @@ public class CompositeIndexGrowShrinkIT extends DbTestBase {
   @Test
   public void testCompositeGrowShirnk() {
     final Schema schema = db.getMetadata().getSchema();
-    SchemaClass clazz = schema.createClass("CompositeIndex");
+    var clazz = schema.createClass("CompositeIndex");
     clazz.createProperty(db, "id", PropertyType.INTEGER);
     clazz.createProperty(db, "bar", PropertyType.INTEGER);
     clazz.createProperty(db, "tags", PropertyType.EMBEDDEDLIST, PropertyType.STRING);
@@ -34,8 +34,8 @@ public class CompositeIndexGrowShrinkIT extends DbTestBase {
     db.command(
             "create index CompositeIndex_id_tags_name on CompositeIndex (id, tags, name) NOTUNIQUE")
         .close();
-    for (int i = 0; i < 150000; i++) {
-      Entity rec = db.newEntity("CompositeIndex");
+    for (var i = 0; i < 150000; i++) {
+      var rec = db.newEntity("CompositeIndex");
       rec.setProperty("id", i);
       rec.setProperty("bar", i);
       rec.setProperty(
@@ -52,7 +52,7 @@ public class CompositeIndexGrowShrinkIT extends DbTestBase {
   public void testCompositeGrowDrop() {
 
     final Schema schema = db.getMetadata().getSchema();
-    SchemaClass clazz = schema.createClass("CompositeIndex");
+    var clazz = schema.createClass("CompositeIndex");
     clazz.createProperty(db, "id", PropertyType.INTEGER);
     clazz.createProperty(db, "bar", PropertyType.INTEGER);
     clazz.createProperty(db, "tags", PropertyType.EMBEDDEDLIST, PropertyType.STRING);
@@ -62,8 +62,8 @@ public class CompositeIndexGrowShrinkIT extends DbTestBase {
             "create index CompositeIndex_id_tags_name on CompositeIndex (id, tags, name) NOTUNIQUE")
         .close();
 
-    for (int i = 0; i < 150000; i++) {
-      Entity rec = db.newEntity("CompositeIndex");
+    for (var i = 0; i < 150000; i++) {
+      var rec = db.newEntity("CompositeIndex");
       rec.setProperty("id", i);
       rec.setProperty("bar", i);
       rec.setProperty(

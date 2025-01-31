@@ -74,7 +74,7 @@ public class DurablePage {
   public DurablePage(final CacheEntry cacheEntry) {
     assert cacheEntry != null;
     this.cacheEntry = cacheEntry;
-    CachePointer pointer = cacheEntry.getCachePointer();
+    var pointer = cacheEntry.getCachePointer();
     this.changes = cacheEntry.getChanges();
     this.buffer = pointer.getBuffer();
 
@@ -82,7 +82,7 @@ public class DurablePage {
     assert buffer == null || buffer.isDirect();
 
     if (cacheEntry.getInitialLSN() == null) {
-      final ByteBuffer buffer = pointer.getBuffer();
+      final var buffer = pointer.getBuffer();
 
       if (buffer != null) {
         cacheEntry.setInitialLSN(getLogSequenceNumberFromPage(buffer));
@@ -98,15 +98,15 @@ public class DurablePage {
   }
 
   public final LogSequenceNumber getLsn() {
-    final long segment = getLongValue(WAL_SEGMENT_OFFSET);
-    final int position = getIntValue(WAL_POSITION_OFFSET);
+    final var segment = getLongValue(WAL_SEGMENT_OFFSET);
+    final var position = getIntValue(WAL_POSITION_OFFSET);
 
     return new LogSequenceNumber(segment, position);
   }
 
   public static LogSequenceNumber getLogSequenceNumberFromPage(final ByteBuffer buffer) {
-    final long segment = buffer.getLong(WAL_SEGMENT_OFFSET);
-    final int position = buffer.getInt(WAL_POSITION_OFFSET);
+    final var segment = buffer.getLong(WAL_SEGMENT_OFFSET);
+    final var position = buffer.getInt(WAL_POSITION_OFFSET);
 
     return new LogSequenceNumber(segment, position);
   }
@@ -143,9 +143,9 @@ public class DurablePage {
    */
   @SuppressWarnings("unused")
   public static LogSequenceNumber getLogSequenceNumber(final int offset, final byte[] data) {
-    final long segment =
+    final var segment =
         LongSerializer.INSTANCE.deserializeNative(data, offset + WAL_SEGMENT_OFFSET);
-    final int position =
+    final var position =
         IntegerSerializer.INSTANCE.deserializeNative(data, offset + WAL_POSITION_OFFSET);
 
     return new LogSequenceNumber(segment, position);
@@ -164,9 +164,9 @@ public class DurablePage {
   }
 
   protected final int[] getIntArray(final int pageOffset, int size) {
-    int[] values = new int[size];
-    byte[] bytes = getBinaryValue(pageOffset, size * IntegerSerializer.INT_SIZE);
-    for (int i = 0; i < size; i++) {
+    var values = new int[size];
+    var bytes = getBinaryValue(pageOffset, size * IntegerSerializer.INT_SIZE);
+    for (var i = 0; i < size; i++) {
       values[i] =
           IntegerSerializer.INSTANCE.deserializeNative(bytes, i * IntegerSerializer.INT_SIZE);
     }
@@ -174,8 +174,8 @@ public class DurablePage {
   }
 
   protected final void setIntArray(final int pageOffset, int[] values, int offset) {
-    byte[] bytes = new byte[(values.length - offset) * IntegerSerializer.INT_SIZE];
-    for (int i = offset; i < values.length; i++) {
+    var bytes = new byte[(values.length - offset) * IntegerSerializer.INT_SIZE];
+    for (var i = offset; i < values.length; i++) {
       IntegerSerializer.INSTANCE.serializeNative(
           values[i], bytes, (i - offset) * IntegerSerializer.INT_SIZE);
     }
@@ -208,7 +208,7 @@ public class DurablePage {
     if (changes == null) {
       assert buffer != null;
       assert buffer.order() == ByteOrder.nativeOrder();
-      final byte[] result = new byte[valLen];
+      final var result = new byte[valLen];
 
       buffer.get(pageOffset, result);
 
@@ -344,7 +344,7 @@ public class DurablePage {
   }
 
   public final void restoreChanges(final WALChanges changes) {
-    final ByteBuffer buffer = cacheEntry.getCachePointer().getBuffer();
+    final var buffer = cacheEntry.getCachePointer().getBuffer();
     assert buffer != null;
 
     changes.applyChanges(buffer);

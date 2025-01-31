@@ -37,22 +37,22 @@ public class DBRecordLazyListTest {
   @Test
   public void test() {
     var schema = db.getMetadata().getSchema();
-    SchemaClass mainClass = schema.createClass("MainClass");
+    var mainClass = schema.createClass("MainClass");
     mainClass.createProperty(db, "name", PropertyType.STRING);
     var itemsProp = mainClass.createProperty(db, "items", PropertyType.LINKLIST);
-    SchemaClass itemClass = schema.createClass("ItemClass");
+    var itemClass = schema.createClass("ItemClass");
     itemClass.createProperty(db, "name", PropertyType.STRING);
     itemsProp.setLinkedClass(db, itemClass);
 
     db.begin();
-    EntityImpl doc1 = ((EntityImpl) db.newEntity(itemClass)).field("name", "Doc1");
+    var doc1 = ((EntityImpl) db.newEntity(itemClass)).field("name", "Doc1");
     doc1.save();
-    EntityImpl doc2 = ((EntityImpl) db.newEntity(itemClass)).field("name", "Doc2");
+    var doc2 = ((EntityImpl) db.newEntity(itemClass)).field("name", "Doc2");
     doc2.save();
-    EntityImpl doc3 = ((EntityImpl) db.newEntity(itemClass)).field("name", "Doc3");
+    var doc3 = ((EntityImpl) db.newEntity(itemClass)).field("name", "Doc3");
     doc3.save();
 
-    EntityImpl mainDoc = ((EntityImpl) db.newEntity(mainClass)).field("name", "Main Doc");
+    var mainDoc = ((EntityImpl) db.newEntity(mainClass)).field("name", "Main Doc");
     mainDoc.field("items", Arrays.asList(doc1, doc2, doc3));
     mainDoc.save();
     db.commit();
@@ -61,7 +61,7 @@ public class DBRecordLazyListTest {
 
     mainDoc = db.bindToSession(mainDoc);
     Collection<EntityImpl> origItems = mainDoc.field("items");
-    Iterator<EntityImpl> it = origItems.iterator();
+    var it = origItems.iterator();
     assertNotNull(it.next());
     assertNotNull(it.next());
 

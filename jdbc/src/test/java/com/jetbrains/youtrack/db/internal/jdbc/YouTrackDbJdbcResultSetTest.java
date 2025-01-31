@@ -28,8 +28,8 @@ public class YouTrackDbJdbcResultSetTest extends YouTrackDbJdbcDbPerMethodTempla
   public void shouldNavigateResultSet() throws Exception {
 
     assertThat(conn.isClosed()).isFalse();
-    Statement stmt = conn.createStatement();
-    ResultSet rs = stmt.executeQuery("SELECT * FROM Item");
+    var stmt = conn.createStatement();
+    var rs = stmt.executeQuery("SELECT * FROM Item");
     assertThat(rs.getFetchSize()).isEqualTo(20);
 
     assertThat(rs.isBeforeFirst()).isTrue();
@@ -60,7 +60,7 @@ public class YouTrackDbJdbcResultSetTest extends YouTrackDbJdbcDbPerMethodTempla
   @Test
   public void shouldReturnEmptyResultSet() throws Exception {
 
-    ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM Author where false = true");
+    var rs = conn.createStatement().executeQuery("SELECT * FROM Author where false = true");
 
     assertThat(rs.next()).isFalse();
   }
@@ -70,16 +70,16 @@ public class YouTrackDbJdbcResultSetTest extends YouTrackDbJdbcDbPerMethodTempla
 
     assertThat(conn.isClosed()).isFalse();
 
-    Statement stmt = conn.createStatement();
+    var stmt = conn.createStatement();
 
     assertThat(stmt.execute("SELECT stringKey, intKey, text, length, date FROM Item")).isTrue();
-    ResultSet rs = stmt.getResultSet();
+    var rs = stmt.getResultSet();
     assertThat(rs).isNotNull();
     assertThat(rs.getFetchSize()).isEqualTo(20);
 
-    final ResultSetMetaData metaData = rs.getMetaData();
+    final var metaData = rs.getMetaData();
 
-    for (int i = 1; i <= metaData.getColumnCount(); i++) {
+    for (var i = 1; i <= metaData.getColumnCount(); i++) {
       assertThat(rs.getObject(metaData.getColumnLabel(i))).isEqualTo(rs.getObject(i));
     }
   }
@@ -90,9 +90,9 @@ public class YouTrackDbJdbcResultSetTest extends YouTrackDbJdbcDbPerMethodTempla
     // set spark "profile"
 
     conn.getInfo().setProperty("spark", "true");
-    Statement stmt = conn.createStatement();
+    var stmt = conn.createStatement();
 
-    ResultSet rs = stmt.executeQuery("select \"stringKey\",\"published\" from item");
+    var rs = stmt.executeQuery("select \"stringKey\",\"published\" from item");
 
     assertThat(rs.next()).isTrue();
   }
@@ -100,7 +100,7 @@ public class YouTrackDbJdbcResultSetTest extends YouTrackDbJdbcDbPerMethodTempla
   @Test
   public void shouldReadRowWithNullValue() throws Exception {
 
-    Statement stmt = conn.createStatement();
+    var stmt = conn.createStatement();
     stmt.execute("begin");
     stmt.execute(
         "INSERT INTO Article(uuid, date, title, content) VALUES (123456, null, 'title', 'the"
@@ -111,7 +111,7 @@ public class YouTrackDbJdbcResultSetTest extends YouTrackDbJdbcDbPerMethodTempla
     stmt = conn.createStatement();
     assertThat(stmt.execute("SELECT uuid,date, title, content FROM Article WHERE uuid = 123456"))
         .isTrue();
-    ResultSet rs = stmt.getResultSet();
+    var rs = stmt.getResultSet();
     assertThat(rs).isNotNull();
 
     assertThat(rs.getFetchSize()).isEqualTo(1);
@@ -123,19 +123,19 @@ public class YouTrackDbJdbcResultSetTest extends YouTrackDbJdbcDbPerMethodTempla
   @Test
   public void shouldSelectContentInsertedByInsertContent() throws Exception {
 
-    Statement insert = conn.createStatement();
+    var insert = conn.createStatement();
     insert.execute("begin");
     insert.execute(
         "INSERT INTO Article CONTENT {'uuid':'1234567',  'title':'title', 'content':'content'} ");
     insert.execute("commit");
     insert.close();
 
-    Statement stmt = conn.createStatement();
+    var stmt = conn.createStatement();
 
     assertThat(stmt.execute("SELECT uuid, date, title, content FROM Article WHERE uuid = 1234567"))
         .isTrue();
 
-    ResultSet rs = stmt.getResultSet();
+    var rs = stmt.getResultSet();
     assertThat(rs).isNotNull();
 
     assertThat(rs.getFetchSize()).isEqualTo(1);
@@ -147,12 +147,12 @@ public class YouTrackDbJdbcResultSetTest extends YouTrackDbJdbcDbPerMethodTempla
   @Test
   public void shouldSelectWithDistinct() throws Exception {
 
-    Statement stmt = conn.createStatement();
+    var stmt = conn.createStatement();
 
     assertThat(stmt.execute("SELECT DISTINCT(published) as pub FROM Item order by pub desc"))
         .isTrue();
 
-    ResultSet rs = stmt.getResultSet();
+    var rs = stmt.getResultSet();
     assertThat(rs).isNotNull();
 
     assertThat(rs.getFetchSize()).isEqualTo(2);
@@ -164,11 +164,11 @@ public class YouTrackDbJdbcResultSetTest extends YouTrackDbJdbcDbPerMethodTempla
   @Test
   public void shouldSelectWithSum() throws Exception {
 
-    Statement stmt = conn.createStatement();
+    var stmt = conn.createStatement();
 
     assertThat(stmt.execute("SELECT sum(score) as totalScore FROM Item ")).isTrue();
 
-    ResultSet rs = stmt.getResultSet();
+    var rs = stmt.getResultSet();
     assertThat(rs).isNotNull();
 
     assertThat(rs.getFetchSize()).isEqualTo(1);
@@ -194,11 +194,11 @@ public class YouTrackDbJdbcResultSetTest extends YouTrackDbJdbcDbPerMethodTempla
   @Test
   public void shouldSelectWithCount() throws Exception {
 
-    Statement stmt = conn.createStatement();
+    var stmt = conn.createStatement();
 
     assertThat(stmt.execute("SELECT count(*) FROM Item ")).isTrue();
 
-    ResultSet rs = stmt.getResultSet();
+    var rs = stmt.getResultSet();
     assertThat(rs).isNotNull();
 
     assertThat(rs.getFetchSize()).isEqualTo(1);
@@ -227,8 +227,8 @@ public class YouTrackDbJdbcResultSetTest extends YouTrackDbJdbcDbPerMethodTempla
   @Test
   public void shouldFetchEmbeddedList() throws Exception {
 
-    String[] expectedNamee = new String[]{"John", "Chris", "Jill", "Karl", "Susan"};
-    Statement stmt = conn.createStatement();
+    var expectedNamee = new String[]{"John", "Chris", "Jill", "Karl", "Susan"};
+    var stmt = conn.createStatement();
 
     stmt.execute("CREATE CLASS ListDemo");
     stmt.execute("CREATE PROPERTY ListDemo.names EMBEDDEDLIST STRING ");
@@ -243,17 +243,17 @@ public class YouTrackDbJdbcResultSetTest extends YouTrackDbJdbcDbPerMethodTempla
 
     stmt.execute("select names from ListDemo");
 
-    ResultSet resultSet = stmt.getResultSet();
+    var resultSet = stmt.getResultSet();
 
-    ResultSetMetaData metaData = resultSet.getMetaData();
+    var metaData = resultSet.getMetaData();
 
     assertThat(metaData.getColumnType(1)).isEqualTo(Types.ARRAY);
 
     while (resultSet.next()) {
 
-      Array namesRef = resultSet.getArray(1);
+      var namesRef = resultSet.getArray(1);
 
-      Object[] names = (Object[]) namesRef.getArray();
+      var names = (Object[]) namesRef.getArray();
 
       assertThat(names).isNotNull();
       assertThat(names).isSubsetOf(expectedNamee);

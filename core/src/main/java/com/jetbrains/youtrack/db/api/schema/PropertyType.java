@@ -178,7 +178,7 @@ public enum PropertyType {
   private static final Map<Class<?>, PropertyType> TYPES_BY_CLASS = new HashMap<>();
 
   static {
-    for (PropertyType oType : values()) {
+    for (var oType : values()) {
       TYPES_BY_ID[oType.id] = oType;
     }
     // This is made by hand because not all types should be add.
@@ -278,7 +278,7 @@ public enum PropertyType {
       return null;
     }
 
-    PropertyType type = TYPES_BY_CLASS.get(iClass);
+    var type = TYPES_BY_CLASS.get(iClass);
     if (type != null) {
       return type;
     }
@@ -291,11 +291,11 @@ public enum PropertyType {
     if (iClass.isArray()) {
       return EMBEDDEDLIST;
     }
-    int priority = 0;
+    var priority = 0;
     boolean comparedAtLeastOnce;
     do {
       comparedAtLeastOnce = false;
-      for (final PropertyType type : TYPES) {
+      for (final var type : TYPES) {
         if (type.allowAssignmentFrom.length > priority) {
           if (type.allowAssignmentFrom[priority].isAssignableFrom(iClass)) {
             return type;
@@ -313,13 +313,13 @@ public enum PropertyType {
     if (value == null) {
       return null;
     }
-    Class<?> clazz = value.getClass();
-    PropertyType type = TYPES_BY_CLASS.get(clazz);
+    var clazz = value.getClass();
+    var type = TYPES_BY_CLASS.get(clazz);
     if (type != null) {
       return type;
     }
 
-    PropertyType byType = getTypeByClassInherit(clazz);
+    var byType = getTypeByClassInherit(clazz);
     if (LINK == byType) {
       if (value instanceof EntityImpl && ((EntityImpl) value).isEmbedded()) {
         return EMBEDDED;
@@ -342,8 +342,8 @@ public enum PropertyType {
   }
 
   private static boolean checkLinkCollection(Collection<?> toCheck) {
-    boolean empty = true;
-    for (Object object : toCheck) {
+    var empty = true;
+    for (var object : toCheck) {
       if (object != null
           && (!(object instanceof Identifiable)
           || (object instanceof EntityImpl && ((EntityImpl) object).isEmbedded()))) {
@@ -360,7 +360,7 @@ public enum PropertyType {
       return false;
     }
 
-    final Class<?> iType = iObject.getClass();
+    final var iType = iObject.getClass();
 
     return iType.isPrimitive()
         || Number.class.isAssignableFrom(iType)
@@ -566,7 +566,7 @@ public enum PropertyType {
       } else if (Identifiable.class.isAssignableFrom(targetClass)) {
         if (MultiValue.isMultiValue(value)) {
           List<Identifiable> result = new ArrayList<>();
-          for (Object o : MultiValue.getMultiValueIterable(value)) {
+          for (var o : MultiValue.getMultiValueIterable(value)) {
             if (o instanceof Identifiable) {
               result.add((Identifiable) o);
             } else if (o instanceof String) {
@@ -668,7 +668,7 @@ public enum PropertyType {
 
     if (a instanceof Integer) {
       if (b instanceof Integer) {
-        final int sum = a.intValue() + b.intValue();
+        final var sum = a.intValue() + b.intValue();
         if (sum < 0 && a.intValue() > 0 && b.intValue() > 0)
         // SPECIAL CASE: UPGRADE TO LONG
         {
@@ -678,7 +678,7 @@ public enum PropertyType {
       } else if (b instanceof Long) {
         return a.intValue() + b.longValue();
       } else if (b instanceof Short) {
-        final int sum = a.intValue() + b.shortValue();
+        final var sum = a.intValue() + b.shortValue();
         if (sum < 0 && a.intValue() > 0 && b.shortValue() > 0)
         // SPECIAL CASE: UPGRADE TO LONG
         {
@@ -710,7 +710,7 @@ public enum PropertyType {
 
     } else if (a instanceof Short) {
       if (b instanceof Integer) {
-        final int sum = a.shortValue() + b.intValue();
+        final var sum = a.shortValue() + b.intValue();
         if (sum < 0 && a.shortValue() > 0 && b.intValue() > 0)
         // SPECIAL CASE: UPGRADE TO LONG
         {
@@ -720,7 +720,7 @@ public enum PropertyType {
       } else if (b instanceof Long) {
         return a.shortValue() + b.longValue();
       } else if (b instanceof Short) {
-        final int sum = a.shortValue() + b.shortValue();
+        final var sum = a.shortValue() + b.shortValue();
         if (sum < 0 && a.shortValue() > 0 && b.shortValue() > 0)
         // SPECIAL CASE: UPGRADE TO INTEGER
         {
@@ -807,7 +807,7 @@ public enum PropertyType {
         context = context.doubleValue();
       } else if (max instanceof BigDecimal) {
         context = new BigDecimal(context.intValue());
-        int maxScale = Math.max(((BigDecimal) context).scale(), (((BigDecimal) max).scale()));
+        var maxScale = Math.max(((BigDecimal) context).scale(), (((BigDecimal) max).scale()));
         context = ((BigDecimal) context).setScale(maxScale, RoundingMode.DOWN);
         max = ((BigDecimal) max).setScale(maxScale, RoundingMode.DOWN);
       } else if (max instanceof Byte) {
@@ -824,7 +824,7 @@ public enum PropertyType {
         context = context.doubleValue();
       } else if (max instanceof BigDecimal) {
         context = new BigDecimal(context.intValue());
-        int maxScale = Math.max(((BigDecimal) context).scale(), (((BigDecimal) max).scale()));
+        var maxScale = Math.max(((BigDecimal) context).scale(), (((BigDecimal) max).scale()));
         context = ((BigDecimal) context).setScale(maxScale, RoundingMode.DOWN);
         max = ((BigDecimal) max).setScale(maxScale, RoundingMode.DOWN);
       } else if (max instanceof Short) {
@@ -841,7 +841,7 @@ public enum PropertyType {
         context = context.doubleValue();
       } else if (max instanceof BigDecimal) {
         context = new BigDecimal(context.longValue());
-        int maxScale = Math.max(((BigDecimal) context).scale(), (((BigDecimal) max).scale()));
+        var maxScale = Math.max(((BigDecimal) context).scale(), (((BigDecimal) max).scale()));
         context = ((BigDecimal) context).setScale(maxScale, RoundingMode.DOWN);
         max = ((BigDecimal) max).setScale(maxScale, RoundingMode.DOWN);
       } else if (max instanceof Integer || max instanceof Byte || max instanceof Short) {
@@ -854,7 +854,7 @@ public enum PropertyType {
         context = context.doubleValue();
       } else if (max instanceof BigDecimal) {
         context = BigDecimal.valueOf(context.floatValue());
-        int maxScale = Math.max(((BigDecimal) context).scale(), (((BigDecimal) max).scale()));
+        var maxScale = Math.max(((BigDecimal) context).scale(), (((BigDecimal) max).scale()));
         context = ((BigDecimal) context).setScale(maxScale, RoundingMode.DOWN);
         max = ((BigDecimal) max).setScale(maxScale, RoundingMode.DOWN);
       } else if (max instanceof Byte
@@ -868,7 +868,7 @@ public enum PropertyType {
       // DOUBLE
       if (max instanceof BigDecimal) {
         context = BigDecimal.valueOf(context.doubleValue());
-        int maxScale = Math.max(((BigDecimal) context).scale(), (((BigDecimal) max).scale()));
+        var maxScale = Math.max(((BigDecimal) context).scale(), (((BigDecimal) max).scale()));
         context = ((BigDecimal) context).setScale(maxScale, RoundingMode.DOWN);
         max = ((BigDecimal) max).setScale(maxScale, RoundingMode.DOWN);
       } else if (max instanceof Byte
@@ -893,7 +893,7 @@ public enum PropertyType {
         max = new BigDecimal((Byte) max);
       }
 
-      int maxScale = Math.max(((BigDecimal) context).scale(), (((BigDecimal) max).scale()));
+      var maxScale = Math.max(((BigDecimal) context).scale(), (((BigDecimal) max).scale()));
       context = ((BigDecimal) context).setScale(maxScale, RoundingMode.DOWN);
       max = ((BigDecimal) max).setScale(maxScale, RoundingMode.DOWN);
     } else if (context instanceof Byte) {
@@ -909,7 +909,7 @@ public enum PropertyType {
         context = context.doubleValue();
       } else if (max instanceof BigDecimal) {
         context = new BigDecimal(context.intValue());
-        int maxScale = Math.max(((BigDecimal) context).scale(), (((BigDecimal) max).scale()));
+        var maxScale = Math.max(((BigDecimal) context).scale(), (((BigDecimal) max).scale()));
         context = ((BigDecimal) context).setScale(maxScale, RoundingMode.DOWN);
         max = ((BigDecimal) max).setScale(maxScale, RoundingMode.DOWN);
       }

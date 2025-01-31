@@ -44,9 +44,9 @@ public class STIntersectsFunction extends SpatialFunctionAbstractIndexable {
     if (containsNull(iParams)) {
       return null;
     }
-    Shape shape = factory.fromObject(iParams[0]);
+    var shape = factory.fromObject(iParams[0]);
 
-    Shape shape1 = factory.fromObject(iParams[1]);
+    var shape1 = factory.fromObject(iParams[1]);
 
     return factory.operation().intersect(shape, shape1);
   }

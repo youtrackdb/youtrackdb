@@ -54,10 +54,10 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
-    long minClusterPosition = calculateMinClusterPosition();
-    long maxClusterPosition = calculateMaxClusterPosition();
-    RecordIteratorCluster<DBRecord> iterator =
-        new RecordIteratorCluster<>(
+    var minClusterPosition = calculateMinClusterPosition();
+    var maxClusterPosition = calculateMaxClusterPosition();
+    var iterator =
+        new RecordIteratorCluster<DBRecord>(
             ctx.getDatabase(), clusterId, minClusterPosition, maxClusterPosition);
     Iterator<DBRecord> iter;
     if (ORDER_DESC.equals(order)) {
@@ -66,7 +66,7 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
       iter = iterator;
     }
 
-    ExecutionStream set = ExecutionStream.loadIterator(iter);
+    var set = ExecutionStream.loadIterator(iter);
 
     set = set.interruptable();
     return set;
@@ -81,10 +81,10 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
 
     long maxValue = -1;
 
-    for (SQLBooleanExpression ridRangeCondition : queryPlanning.ridRangeConditions.getSubBlocks()) {
+    for (var ridRangeCondition : queryPlanning.ridRangeConditions.getSubBlocks()) {
       if (ridRangeCondition instanceof SQLBinaryCondition cond) {
-        SQLRid condRid = cond.getRight().getRid();
-        SQLBinaryCompareOperator operator = cond.getOperator();
+        var condRid = cond.getRight().getRid();
+        var operator = cond.getOperator();
         if (condRid != null) {
           if (condRid.getCluster().getValue().intValue() != this.clusterId) {
             continue;
@@ -105,9 +105,9 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
         || queryPlanning.ridRangeConditions.isEmpty()) {
       return -1;
     }
-    long minValue = Long.MAX_VALUE;
+    var minValue = Long.MAX_VALUE;
 
-    for (SQLBooleanExpression ridRangeCondition : queryPlanning.ridRangeConditions.getSubBlocks()) {
+    for (var ridRangeCondition : queryPlanning.ridRangeConditions.getSubBlocks()) {
       if (ridRangeCondition instanceof SQLBinaryCondition cond) {
         RID conditionRid;
 
@@ -123,7 +123,7 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
         }
 
         conditionRid = ((Identifiable) obj).getIdentity();
-        SQLBinaryCompareOperator operator = cond.getOperator();
+        var operator = cond.getOperator();
         if (conditionRid != null) {
           if (conditionRid.getClusterId() != this.clusterId) {
             continue;
@@ -150,8 +150,8 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String orderString = ORDER_DESC.equals(order) ? "DESC" : "ASC";
-    String result =
+    var orderString = ORDER_DESC.equals(order) ? "DESC" : "ASC";
+    var result =
         ExecutionStepInternal.getIndent(depth, indent)
             + "+ FETCH FROM CLUSTER "
             + clusterId
@@ -169,7 +169,7 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
 
   @Override
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
+    var result = ExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("clusterId", clusterId);
     result.setProperty("order", order);
     return result;
@@ -180,7 +180,7 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
     try {
       ExecutionStepInternal.basicDeserialize(fromResult, this);
       this.clusterId = fromResult.getProperty("clusterId");
-      Object orderProp = fromResult.getProperty("order");
+      var orderProp = fromResult.getProperty("order");
       if (orderProp != null) {
         this.order = ORDER_ASC.equals(fromResult.getProperty("order")) ? ORDER_ASC : ORDER_DESC;
       }

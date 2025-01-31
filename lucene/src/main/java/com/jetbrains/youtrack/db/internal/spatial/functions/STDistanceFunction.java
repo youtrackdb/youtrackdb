@@ -43,8 +43,8 @@ public class STDistanceFunction extends SpatialFunctionAbstract {
       return null;
     }
 
-    Shape shape = toShape(iParams[0]);
-    Shape shape1 = toShape(iParams[1]);
+    var shape = toShape(iParams[0]);
+    var shape1 = toShape(iParams[1]);
 
     if (shape == null || shape1 == null) {
       return null;

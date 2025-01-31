@@ -85,7 +85,7 @@ public class SQLFunctionRuntime extends SQLFilterItemAbstract {
       @Nonnull final CommandContext iContext) {
     var db = iContext.getDatabase();
     // RESOLVE VALUES USING THE CURRENT RECORD
-    for (int i = 0; i < configuredParameters.length; ++i) {
+    for (var i = 0; i < configuredParameters.length; ++i) {
       runtimeParameters[i] = configuredParameters[i];
 
       if (configuredParameters[i] instanceof SQLFilterItemField) {
@@ -107,8 +107,8 @@ public class SQLFunctionRuntime extends SQLFilterItemAbstract {
                   .execute(iContext.getDatabase());
         } catch (CommandExecutorNotFoundException ignore) {
           // TRY WITH SIMPLE CONDITION
-          final String text = ((CommandSQL) configuredParameters[i]).getText();
-          final SQLPredicate pred = new SQLPredicate(iContext, text);
+          final var text = ((CommandSQL) configuredParameters[i]).getText();
+          final var pred = new SQLPredicate(iContext, text);
           runtimeParameters[i] =
               pred.evaluate(
                   iCurrentRecord instanceof DBRecord ? iCurrentRecord : null,
@@ -152,7 +152,7 @@ public class SQLFunctionRuntime extends SQLFilterItemAbstract {
       }
     }
 
-    final Object functionResult =
+    final var functionResult =
         function.execute(iThis, iCurrentRecord, iCurrentResult, runtimeParameters, iContext);
 
     return transformValue(iCurrentRecord, iContext, functionResult);
@@ -173,7 +173,7 @@ public class SQLFunctionRuntime extends SQLFilterItemAbstract {
   public Object getValue(
       final Identifiable iRecord, Object iCurrentResult, CommandContext iContext) {
     try {
-      final EntityImpl current =
+      final var current =
           iRecord != null ? (EntityImpl) iRecord.getRecord(iContext.getDatabase()) : null;
       return execute(current, current, null, iContext);
     } catch (RecordNotFoundException rnf) {
@@ -190,13 +190,13 @@ public class SQLFunctionRuntime extends SQLFilterItemAbstract {
       final Object[] iParameters, final boolean iEvaluate) {
     this.configuredParameters = new Object[iParameters.length];
 
-    for (int i = 0; i < iParameters.length; ++i) {
+    for (var i = 0; i < iParameters.length; ++i) {
       this.configuredParameters[i] = iParameters[i];
 
       if (iEvaluate) {
         if (iParameters[i] != null) {
           if (iParameters[i] instanceof String) {
-            final Object v = SQLHelper.parseValue(null, null, iParameters[i].toString(), context);
+            final var v = SQLHelper.parseValue(null, null, iParameters[i].toString(), context);
             if (v == SQLHelper.VALUE_NOT_PARSED
                 || (MultiValue.isMultiValue(v)
                 && MultiValue.getFirstValue(v) == SQLHelper.VALUE_NOT_PARSED)) {
@@ -215,7 +215,7 @@ public class SQLFunctionRuntime extends SQLFilterItemAbstract {
 
     // COPY STATIC VALUES
     this.runtimeParameters = new Object[configuredParameters.length];
-    for (int i = 0; i < configuredParameters.length; ++i) {
+    for (var i = 0; i < configuredParameters.length; ++i) {
       if (!(configuredParameters[i] instanceof SQLFilterItemField)
           && !(configuredParameters[i] instanceof SQLFunctionRuntime)) {
         runtimeParameters[i] = configuredParameters[i];
@@ -240,12 +240,12 @@ public class SQLFunctionRuntime extends SQLFilterItemAbstract {
   @Override
   protected void setRoot(DatabaseSessionInternal session, final BaseParser iQueryToParse,
       final String iText) {
-    final int beginParenthesis = iText.indexOf('(');
+    final var beginParenthesis = iText.indexOf('(');
 
     // SEARCH FOR THE FUNCTION
-    final String funcName = iText.substring(0, beginParenthesis);
+    final var funcName = iText.substring(0, beginParenthesis);
 
-    final List<String> funcParamsText = StringSerializerHelper.getParameters(iText);
+    final var funcParamsText = StringSerializerHelper.getParameters(iText);
 
     function = SQLEngine.getInstance().getFunction(session, funcName);
     if (function == null) {
@@ -254,7 +254,7 @@ public class SQLFunctionRuntime extends SQLFilterItemAbstract {
 
     // PARSE PARAMETERS
     this.configuredParameters = new Object[funcParamsText.size()];
-    for (int i = 0; i < funcParamsText.size(); ++i) {
+    for (var i = 0; i < funcParamsText.size(); ++i) {
       this.configuredParameters[i] = funcParamsText.get(i);
     }
 

@@ -180,9 +180,9 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
           throw new RuntimeException(e);
         }
 
-        final SQLSelectStatement select = osql.SelectStatement();
+        final var select = osql.SelectStatement();
         if (select.getProjection() != null) {
-          boolean isMappable =
+          var isMappable =
               select.getProjection().getItems().stream()
                   .peek(i -> fields.add(i.getProjectionAliasAsString()))
                   .allMatch(i -> i.getExpression().isBaseIdentifier());
@@ -294,8 +294,8 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
   }
 
   public int findColumn(String columnLabel) throws SQLException {
-    int column = 0;
-    int i = 0;
+    var column = 0;
+    var i = 0;
     while (i < (fieldNames.size() - 1) && column == 0) {
       if (fieldNames.get(i).equals(columnLabel)) {
         column = i + 1;
@@ -376,7 +376,7 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
   @Override
   public BigDecimal getBigDecimal(String columnLabel, int scale) throws SQLException {
     try {
-      BigDecimal r = ((BigDecimal) result.getProperty(columnLabel)).setScale(scale);
+      var r = ((BigDecimal) result.getProperty(columnLabel)).setScale(scale);
       lastReadWasNull = r == null;
       return r;
     } catch (Exception e) {
@@ -394,7 +394,7 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
 
   public InputStream getBinaryStream(String columnLabel) throws SQLException {
     try {
-      java.sql.Blob blob = getBlob(columnLabel);
+      var blob = getBlob(columnLabel);
       lastReadWasNull = blob == null;
       return blob != null ? blob.getBinaryStream() : null;
     } catch (Exception e) {
@@ -412,7 +412,7 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
 
   public java.sql.Blob getBlob(String columnLabel) throws SQLException {
     try {
-      Object value = result.getProperty(columnLabel);
+      var value = result.getProperty(columnLabel);
 
       if (value instanceof RID) {
         value = ((RID) value).getRecord(statement.database);
@@ -423,11 +423,11 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
         return new YouTrackDbBlob((Blob) value);
       } else if (value instanceof LinkList list) {
         // check if all the list items are instances of RecordBytes
-        ListIterator<Identifiable> iterator = list.listIterator();
+        var iterator = list.listIterator();
 
         List<Blob> binaryRecordList = new ArrayList<>(list.size());
         while (iterator.hasNext()) {
-          Identifiable listElement = iterator.next();
+          var listElement = iterator.next();
 
           try {
             Blob ob = statement.database.load(listElement.getIdentity());
@@ -494,7 +494,7 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
   public byte[] getBytes(String columnLabel) throws SQLException {
     try {
 
-      Object value = result.getProperty(columnLabel);
+      var value = result.getProperty(columnLabel);
       if (value == null) {
         lastReadWasNull = true;
         return null;
@@ -595,7 +595,7 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
   }
 
   public double getDouble(final int columnIndex) throws SQLException {
-    int fieldIndex = getFieldIndex(columnIndex);
+    var fieldIndex = getFieldIndex(columnIndex);
     return getDouble(fieldNames.get(fieldIndex));
   }
 
@@ -751,13 +751,13 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
         throw new SQLException(
             "The current record is not an entity. Its class can not be retrieved");
       }
-      String r = result.asEntity().getSchemaType().map(SchemaClass::getName).orElse(null);
+      var r = result.asEntity().getSchemaType().map(SchemaClass::getName).orElse(null);
       lastReadWasNull = r == null;
       return r;
     }
 
     try {
-      Object value = result.getProperty(columnLabel);
+      var value = result.getProperty(columnLabel);
 
       if (value == null) {
         lastReadWasNull = true;
@@ -869,7 +869,7 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
     }
 
     try {
-      String r = Optional.ofNullable(result.getProperty(columnLabel)).map(v -> "" + v).orElse(null);
+      var r = Optional.ofNullable(result.getProperty(columnLabel)).map(v -> "" + v).orElse(null);
       lastReadWasNull = r == null;
       return r;
     } catch (Exception e) {
@@ -900,7 +900,7 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
   }
 
   public Time getTime(int columnIndex, Calendar cal) throws SQLException {
-    Date date = getDate(columnIndex, cal);
+    var date = getDate(columnIndex, cal);
     lastReadWasNull = date == null;
     return getTime(date);
   }
@@ -910,13 +910,13 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
   }
 
   public Time getTime(String columnLabel, Calendar cal) throws SQLException {
-    Date date = getDate(columnLabel, cal);
+    var date = getDate(columnLabel, cal);
     lastReadWasNull = date == null;
     return getTime(date);
   }
 
   public Timestamp getTimestamp(int columnIndex) throws SQLException {
-    Date date = getDate(columnIndex);
+    var date = getDate(columnIndex);
     lastReadWasNull = date == null;
     return getTimestamp(date);
   }
@@ -926,19 +926,19 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
   }
 
   public Timestamp getTimestamp(String columnLabel) throws SQLException {
-    Date date = getDate(columnLabel);
+    var date = getDate(columnLabel);
     lastReadWasNull = date == null;
     return getTimestamp(date);
   }
 
   public Timestamp getTimestamp(int columnIndex, Calendar cal) throws SQLException {
-    Date date = getDate(columnIndex, cal);
+    var date = getDate(columnIndex, cal);
     lastReadWasNull = date == null;
     return getTimestamp(date);
   }
 
   public Timestamp getTimestamp(String columnLabel, Calendar cal) throws SQLException {
-    Date date = getDate(columnLabel, cal);
+    var date = getDate(columnLabel, cal);
     lastReadWasNull = date == null;
     return getTimestamp(date);
   }

@@ -71,15 +71,15 @@ public class ServerConfigurationManager {
       throw new IllegalArgumentException("User permissions is null or empty");
     }
 
-    int userPositionInArray = -1;
+    var userPositionInArray = -1;
 
     if (configuration.users == null) {
       configuration.users = new ServerUserConfiguration[1];
       userPositionInArray = 0;
     } else {
       // LOOK FOR EXISTENT USER
-      for (int i = 0; i < configuration.users.length; ++i) {
-        final ServerUserConfiguration u = configuration.users[i];
+      for (var i = 0; i < configuration.users.length; ++i) {
+        final var u = configuration.users[i];
 
         if (u != null && iServerUserName.equalsIgnoreCase(u.name)) {
           // FOUND
@@ -117,7 +117,7 @@ public class ServerConfigurationManager {
     checkForAutoReloading();
 
     if (configuration.users != null) {
-      for (ServerUserConfiguration user : configuration.users) {
+      for (var user : configuration.users) {
         if (iServerUserName.equalsIgnoreCase(user.name)) {
           // FOUND
           return user;
@@ -140,12 +140,12 @@ public class ServerConfigurationManager {
     checkForAutoReloading();
 
     // LOOK FOR EXISTENT USER
-    for (int i = 0; i < configuration.users.length; ++i) {
-      final ServerUserConfiguration u = configuration.users[i];
+    for (var i = 0; i < configuration.users.length; ++i) {
+      final var u = configuration.users[i];
 
       if (u != null && iServerUserName.equalsIgnoreCase(u.name)) {
         // FOUND
-        final ServerUserConfiguration[] newArray =
+        final var newArray =
             new ServerUserConfiguration[configuration.users.length - 1];
         // COPY LEFT PART
         System.arraycopy(configuration.users, 0, newArray, 0, i);
@@ -162,9 +162,9 @@ public class ServerConfigurationManager {
   public Set<ServerUserConfiguration> getUsers() {
     checkForAutoReloading();
 
-    final HashSet<ServerUserConfiguration> result = new HashSet<ServerUserConfiguration>();
+    final var result = new HashSet<ServerUserConfiguration>();
     if (configuration.users != null) {
-      for (int i = 0; i < configuration.users.length; ++i) {
+      for (var i = 0; i < configuration.users.length; ++i) {
         if (configuration.users[i] != null) {
           result.add(configuration.users[i]);
         }

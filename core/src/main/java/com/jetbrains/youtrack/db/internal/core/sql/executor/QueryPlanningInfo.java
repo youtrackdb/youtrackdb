@@ -63,7 +63,7 @@ public class QueryPlanningInfo {
 
   public QueryPlanningInfo copy() {
     // TODO check what has to be copied and what can be just referenced as it is
-    QueryPlanningInfo result = new QueryPlanningInfo();
+    var result = new QueryPlanningInfo();
     result.distinct = this.distinct;
     result.expand = this.expand;
     result.preAggregateProjection = this.preAggregateProjection;

@@ -55,9 +55,9 @@ public class DbImportExportRidbagTest extends BaseDBTest implements CommandOutpu
       return;
     }
 
-    DatabaseSessionInternal database = acquireSession();
+    var database = acquireSession();
     database.command("insert into V set name ='a'");
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       database.command("insert into V set name ='b" + i + "'");
     }
 
@@ -67,7 +67,7 @@ public class DbImportExportRidbagTest extends BaseDBTest implements CommandOutpu
     // ADD A CUSTOM TO THE CLASS
     database.command("alter class V custom onBeforeCreate=onBeforeCreateItem").close();
 
-    DatabaseExport export = new DatabaseExport(database, testPath + "/" + exportFilePath, this);
+    var export = new DatabaseExport(database, testPath + "/" + exportFilePath, this);
     export.exportDatabase();
     export.close();
 
@@ -80,9 +80,9 @@ public class DbImportExportRidbagTest extends BaseDBTest implements CommandOutpu
       return;
     }
 
-    final File importDir = new File(testPath + "/" + NEW_DB_PATH);
+    final var importDir = new File(testPath + "/" + NEW_DB_PATH);
     if (importDir.exists()) {
-      for (File f : importDir.listFiles()) {
+      for (var f : importDir.listFiles()) {
         f.delete();
       }
     } else {
@@ -93,11 +93,11 @@ public class DbImportExportRidbagTest extends BaseDBTest implements CommandOutpu
         new DatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
     database.create();
 
-    DatabaseImport dbImport = new DatabaseImport(database, testPath + "/" + exportFilePath, this);
+    var dbImport = new DatabaseImport(database, testPath + "/" + exportFilePath, this);
     dbImport.setMaxRidbagStringSizeBeforeLazyImport(50);
 
     // UNREGISTER ALL THE HOOKS
-    for (RecordHook hook : new ArrayList<RecordHook>(database.getHooks().keySet())) {
+    for (var hook : new ArrayList<RecordHook>(database.getHooks().keySet())) {
       database.unregisterHook(hook);
     }
 
@@ -114,12 +114,12 @@ public class DbImportExportRidbagTest extends BaseDBTest implements CommandOutpu
       return;
     }
 
-    DatabaseSessionInternal first = acquireSession();
+    var first = acquireSession();
     DatabaseSessionInternal second =
         new DatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
     second.open("admin", "admin");
 
-    final DatabaseCompare databaseCompare = new DatabaseCompare(first, second, this);
+    final var databaseCompare = new DatabaseCompare(first, second, this);
     databaseCompare.setCompareEntriesForAutomaticIndexes(true);
     databaseCompare.setCompareIndexMetadata(true);
     Assert.assertTrue(databaseCompare.compare());

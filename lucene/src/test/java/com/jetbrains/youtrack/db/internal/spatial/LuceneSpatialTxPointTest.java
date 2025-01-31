@@ -37,13 +37,13 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
   public void init() {
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass v = schema.getClass("V");
-    SchemaClass oClass = schema.createClass("City");
+    var v = schema.getClass("V");
+    var oClass = schema.createClass("City");
     oClass.setSuperClass(db, v);
     oClass.createProperty(db, "location", PropertyType.EMBEDDED, schema.getClass("OPoint"));
     oClass.createProperty(db, "name", PropertyType.STRING);
 
-    SchemaClass place = schema.createClass("Place");
+    var place = schema.createClass("Place");
     place.setSuperClass(db, v);
     place.createProperty(db, "latitude", PropertyType.DOUBLE);
     place.createProperty(db, "longitude", PropertyType.DOUBLE);
@@ -54,16 +54,16 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
 
   protected EntityImpl newCity(String name, final Double longitude, final Double latitude) {
 
-    EntityImpl location = newPoint(longitude, latitude);
+    var location = newPoint(longitude, latitude);
 
-    EntityImpl city = ((EntityImpl) db.newEntity("City"));
+    var city = ((EntityImpl) db.newEntity("City"));
     city.field("name", name);
     city.field("location", location);
     return city;
   }
 
   private EntityImpl newPoint(final Double longitude, final Double latitude) {
-    EntityImpl location = ((EntityImpl) db.newEntity("OPoint"));
+    var location = ((EntityImpl) db.newEntity("OPoint"));
     location.field(
         "coordinates",
         new ArrayList<Double>() {
@@ -78,16 +78,16 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
   @Test
   public void testIndexingTxPoint() {
 
-    EntityImpl rome = newCity("Rome", 12.5, 41.9);
+    var rome = newCity("Rome", 12.5, 41.9);
 
     db.begin();
 
     db.save(rome);
 
-    String query =
+    var query =
         "select * from City where  ST_WITHIN(location,{ 'shape' : { 'type' : 'ORectangle' ,"
             + " 'coordinates' : [12.314015,41.8262816,12.6605063,41.963125]} }) = true";
-    ResultSet docs = db.query(query);
+    var docs = db.query(query);
 
     Assert.assertEquals(1, docs.stream().count());
 
@@ -104,7 +104,7 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
   @Test
   public void testIndexingUpdateTxPoint() {
 
-    EntityImpl rome = newCity("Rome", -0.1275, 51.507222);
+    var rome = newCity("Rome", -0.1275, 51.507222);
 
     db.begin();
     rome = db.save(rome);
@@ -119,14 +119,14 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
 
     db.commit();
 
-    String query =
+    var query =
         "select * from City where  ST_WITHIN(location,{ 'shape' : { 'type' : 'ORectangle' ,"
             + " 'coordinates' : [12.314015,41.8262816,12.6605063,41.963125]} }) = true";
-    ResultSet docs = db.query(query);
+    var docs = db.query(query);
 
     Assert.assertEquals(1, docs.stream().count());
 
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
 
     db.begin();
     Assert.assertEquals(1, index.getInternal().size(db));
@@ -136,8 +136,8 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
   @Test
   public void testIndexingComplexUpdateTxPoint() {
 
-    EntityImpl rome = newCity("Rome", 12.5, 41.9);
-    EntityImpl london = newCity("London", -0.1275, 51.507222);
+    var rome = newCity("Rome", 12.5, 41.9);
+    var london = newCity("London", -0.1275, 51.507222);
 
     db.begin();
     rome = db.save(rome);
@@ -160,7 +160,7 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
     db.commit();
 
     db.begin();
-    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
+    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
 
     Assert.assertEquals(2, index.getInternal().size(db));
     db.commit();

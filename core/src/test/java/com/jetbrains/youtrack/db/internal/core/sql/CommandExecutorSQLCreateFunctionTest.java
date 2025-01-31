@@ -1,7 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -19,7 +18,7 @@ public class CommandExecutorSQLCreateFunctionTest extends DbTestBase {
         .close();
     db.commit();
 
-    ResultSet result = db.command("select testCreateFunction('world') as name");
+    var result = db.command("select testCreateFunction('world') as name");
     Assert.assertEquals(result.next().getProperty("name"), "hello world");
     Assert.assertFalse(result.hasNext());
   }

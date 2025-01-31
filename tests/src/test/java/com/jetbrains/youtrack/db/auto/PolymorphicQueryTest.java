@@ -110,10 +110,10 @@ public class PolymorphicQueryTest extends BaseDBTest {
   public void testSubclassesIndexes() throws Exception {
     db.begin();
 
-    Profiler profiler = YouTrackDBEnginesManager.instance().getProfiler();
+    var profiler = YouTrackDBEnginesManager.instance().getProfiler();
 
-    long indexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long indexUsageReverted = profiler.getCounter("db.demo.query.indexUseAttemptedAndReverted");
+    var indexUsage = profiler.getCounter("db.demo.query.indexUsed");
+    var indexUsageReverted = profiler.getCounter("db.demo.query.indexUseAttemptedAndReverted");
 
     if (indexUsage < 0) {
       indexUsage = 0;
@@ -124,13 +124,13 @@ public class PolymorphicQueryTest extends BaseDBTest {
     }
 
     profiler.startRecording();
-    for (int i = 0; i < 10000; i++) {
+    for (var i = 0; i < 10000; i++) {
 
-      final EntityImpl doc1 = ((EntityImpl) db.newEntity("IndexInSubclassesTestChild1"));
+      final var doc1 = ((EntityImpl) db.newEntity("IndexInSubclassesTestChild1"));
       doc1.field("name", "name" + i);
       doc1.save();
 
-      final EntityImpl doc2 = ((EntityImpl) db.newEntity("IndexInSubclassesTestChild2"));
+      final var doc2 = ((EntityImpl) db.newEntity("IndexInSubclassesTestChild2"));
       doc2.field("name", "name" + i);
       doc2.save();
       if (i % 100 == 0) {
@@ -147,15 +147,15 @@ public class PolymorphicQueryTest extends BaseDBTest {
     Assert.assertEquals(result.size(), 6);
     String lastName = result.get(0).field("name");
 
-    for (int i = 1; i < result.size(); i++) {
-      EntityImpl current = result.get(i);
+    for (var i = 1; i < result.size(); i++) {
+      var current = result.get(i);
       String currentName = current.field("name");
       Assert.assertTrue(lastName.compareTo(currentName) <= 0);
       lastName = currentName;
     }
 
     Assert.assertEquals(profiler.getCounter("db.demo.query.indexUsed"), indexUsage + 2);
-    long reverted = profiler.getCounter("db.demo.query.indexUseAttemptedAndReverted");
+    var reverted = profiler.getCounter("db.demo.query.indexUseAttemptedAndReverted");
     Assert.assertEquals(reverted < 0 ? 0 : reverted, indexUsageReverted);
 
     result =
@@ -165,8 +165,8 @@ public class PolymorphicQueryTest extends BaseDBTest {
                     + " 'name9999' order by name DESC"));
     Assert.assertEquals(result.size(), 6);
     lastName = result.get(0).field("name");
-    for (int i = 1; i < result.size(); i++) {
-      EntityImpl current = result.get(i);
+    for (var i = 1; i < result.size(); i++) {
+      var current = result.get(i);
       String currentName = current.field("name");
       Assert.assertTrue(lastName.compareTo(currentName) >= 0);
       lastName = currentName;
@@ -178,10 +178,10 @@ public class PolymorphicQueryTest extends BaseDBTest {
   public void testBaseWithoutIndexAndSubclassesIndexes() throws Exception {
     db.begin();
 
-    Profiler profiler = YouTrackDBEnginesManager.instance().getProfiler();
+    var profiler = YouTrackDBEnginesManager.instance().getProfiler();
 
-    long indexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long indexUsageReverted = profiler.getCounter("db.demo.query.indexUseAttemptedAndReverted");
+    var indexUsage = profiler.getCounter("db.demo.query.indexUsed");
+    var indexUsageReverted = profiler.getCounter("db.demo.query.indexUseAttemptedAndReverted");
 
     if (indexUsage < 0) {
       indexUsage = 0;
@@ -192,16 +192,16 @@ public class PolymorphicQueryTest extends BaseDBTest {
     }
 
     profiler.startRecording();
-    for (int i = 0; i < 10000; i++) {
-      final EntityImpl doc0 = ((EntityImpl) db.newEntity("IndexInSubclassesTestBase"));
+    for (var i = 0; i < 10000; i++) {
+      final var doc0 = ((EntityImpl) db.newEntity("IndexInSubclassesTestBase"));
       doc0.field("name", "name" + i);
       doc0.save();
 
-      final EntityImpl doc1 = ((EntityImpl) db.newEntity("IndexInSubclassesTestChild1"));
+      final var doc1 = ((EntityImpl) db.newEntity("IndexInSubclassesTestChild1"));
       doc1.field("name", "name" + i);
       doc1.save();
 
-      final EntityImpl doc2 = ((EntityImpl) db.newEntity("IndexInSubclassesTestChild2"));
+      final var doc2 = ((EntityImpl) db.newEntity("IndexInSubclassesTestChild2"));
       doc2.field("name", "name" + i);
       doc2.save();
       if (i % 100 == 0) {
@@ -217,8 +217,8 @@ public class PolymorphicQueryTest extends BaseDBTest {
                     + " 'name9999' order by name ASC"));
     Assert.assertEquals(result.size(), 9);
     String lastName = result.get(0).field("name");
-    for (int i = 1; i < result.size(); i++) {
-      EntityImpl current = result.get(i);
+    for (var i = 1; i < result.size(); i++) {
+      var current = result.get(i);
       String currentName = current.field("name");
       Assert.assertTrue(lastName.compareTo(currentName) <= 0);
       lastName = currentName;
@@ -226,7 +226,7 @@ public class PolymorphicQueryTest extends BaseDBTest {
 
     Assert.assertEquals(profiler.getCounter("db.demo.query.indexUsed"), indexUsage + 2);
 
-    long reverted = profiler.getCounter("db.demo.query.indexUseAttemptedAndReverted");
+    var reverted = profiler.getCounter("db.demo.query.indexUseAttemptedAndReverted");
     Assert.assertEquals(reverted < 0 ? 0 : reverted, indexUsageReverted);
 
     result =
@@ -236,8 +236,8 @@ public class PolymorphicQueryTest extends BaseDBTest {
                     + " 'name9999' order by name DESC"));
     Assert.assertEquals(result.size(), 9);
     lastName = result.get(0).field("name");
-    for (int i = 1; i < result.size(); i++) {
-      EntityImpl current = result.get(i);
+    for (var i = 1; i < result.size(); i++) {
+      var current = result.get(i);
       String currentName = current.field("name");
       Assert.assertTrue(lastName.compareTo(currentName) >= 0);
       lastName = currentName;
@@ -249,16 +249,16 @@ public class PolymorphicQueryTest extends BaseDBTest {
   public void testSubclassesIndexesFailed() throws Exception {
     db.begin();
 
-    Profiler profiler = YouTrackDBEnginesManager.instance().getProfiler();
+    var profiler = YouTrackDBEnginesManager.instance().getProfiler();
     profiler.startRecording();
 
-    for (int i = 0; i < 10000; i++) {
+    for (var i = 0; i < 10000; i++) {
 
-      final EntityImpl doc1 = ((EntityImpl) db.newEntity("IndexInSubclassesTestChild1Fail"));
+      final var doc1 = ((EntityImpl) db.newEntity("IndexInSubclassesTestChild1Fail"));
       doc1.field("name", "name" + i);
       doc1.save();
 
-      final EntityImpl doc2 = ((EntityImpl) db.newEntity("IndexInSubclassesTestChild2Fail"));
+      final var doc2 = ((EntityImpl) db.newEntity("IndexInSubclassesTestChild2Fail"));
       doc2.field("name", "name" + i);
       doc2.save();
       if (i % 100 == 0) {
@@ -267,8 +267,8 @@ public class PolymorphicQueryTest extends BaseDBTest {
     }
     db.commit();
 
-    long indexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long indexUsageReverted = profiler.getCounter("db.demo.query.indexUseAttemptedAndReverted");
+    var indexUsage = profiler.getCounter("db.demo.query.indexUsed");
+    var indexUsageReverted = profiler.getCounter("db.demo.query.indexUseAttemptedAndReverted");
 
     if (indexUsage < 0) {
       indexUsage = 0;
@@ -278,14 +278,14 @@ public class PolymorphicQueryTest extends BaseDBTest {
       indexUsageReverted = 0;
     }
 
-    ResultSet result =
+    var result =
         db.query(
             "select from IndexInSubclassesTestBaseFail where name > 'name9995' and name <"
                 + " 'name9999' order by name ASC");
     Assert.assertEquals(result.stream().count(), 6);
 
-    long lastIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long lastIndexUsageReverted = profiler.getCounter("db.demo.query.indexUseAttemptedAndReverted");
+    var lastIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
+    var lastIndexUsageReverted = profiler.getCounter("db.demo.query.indexUseAttemptedAndReverted");
     if (lastIndexUsage < 0) {
       lastIndexUsage = 0;
     }
@@ -301,20 +301,20 @@ public class PolymorphicQueryTest extends BaseDBTest {
 
   @Test
   public void testIteratorOnSubclassWithoutValues() {
-    for (int i = 0; i < 2; i++) {
-      final EntityImpl doc1 = ((EntityImpl) db.newEntity("GenericCrash"));
+    for (var i = 0; i < 2; i++) {
+      final var doc1 = ((EntityImpl) db.newEntity("GenericCrash"));
       db.begin();
       doc1.field("name", "foo");
       doc1.save();
     }
 
     // crashed with YTIOException, issue #3632
-    ResultSet result =
+    var result =
         db.query("SELECT FROM GenericCrash WHERE @class='GenericCrash' ORDER BY @rid DESC");
 
-    int count = 0;
+    var count = 0;
     while (result.hasNext()) {
-      Result doc = result.next();
+      var doc = result.next();
       Assert.assertEquals(doc.getProperty("name"), "foo");
       count++;
     }

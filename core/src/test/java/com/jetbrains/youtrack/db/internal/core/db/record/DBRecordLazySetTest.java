@@ -42,16 +42,16 @@ public class DBRecordLazySetTest extends DbTestBase {
 
   @Test()
   public void testDocumentNotEmbedded() {
-    LinkSet set = new LinkSet((EntityImpl) db.newEntity());
-    EntityImpl doc = (EntityImpl) db.newEntity();
+    var set = new LinkSet((EntityImpl) db.newEntity());
+    var doc = (EntityImpl) db.newEntity();
     set.add(doc);
     assertFalse(doc.isEmbedded());
   }
 
   @Test()
   public void testSetAddRemove() {
-    LinkSet set = new LinkSet((EntityImpl) db.newEntity());
-    EntityImpl doc = (EntityImpl) db.newEntity();
+    var set = new LinkSet((EntityImpl) db.newEntity());
+    var doc = (EntityImpl) db.newEntity();
     set.add(doc);
     set.remove(doc);
     assertTrue(set.isEmpty());
@@ -59,7 +59,7 @@ public class DBRecordLazySetTest extends DbTestBase {
 
   @Test
   public void testSetRemoveNotPersistent() {
-    LinkSet set = new LinkSet((EntityImpl) db.newEntity());
+    var set = new LinkSet((EntityImpl) db.newEntity());
     doc1 = db.bindToSession(doc1);
     doc2 = db.bindToSession(doc2);
 
@@ -73,13 +73,13 @@ public class DBRecordLazySetTest extends DbTestBase {
 
   @Test(expected = ValidationException.class)
   public void testSetWithNotExistentRecordWithValidation() {
-    SchemaClass test = db.getMetadata().getSchema().createClass("test");
-    SchemaClass test1 = db.getMetadata().getSchema().createClass("test1");
+    var test = db.getMetadata().getSchema().createClass("test");
+    var test1 = db.getMetadata().getSchema().createClass("test1");
     test.createProperty(db, "fi", PropertyType.LINKSET).setLinkedClass(db, test1);
 
     db.begin();
-    EntityImpl doc = (EntityImpl) db.newEntity(test);
-    LinkSet set = new LinkSet(doc);
+    var doc = (EntityImpl) db.newEntity(test);
+    var set = new LinkSet(doc);
     set.add(new RecordId(5, 1000));
     doc.field("fi", set);
     db.save(doc);

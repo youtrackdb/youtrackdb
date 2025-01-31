@@ -38,9 +38,9 @@ public class StringSerializerTest {
   @Before
   public void beforeClass() {
     stringSerializer = new StringSerializer();
-    Random random = new Random();
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < random.nextInt(20) + 5; i++) {
+    var random = new Random();
+    var sb = new StringBuilder();
+    for (var i = 0; i < random.nextInt(20) + 5; i++) {
       sb.append((char) random.nextInt());
     }
     OBJECT = sb.toString();
@@ -69,7 +69,7 @@ public class StringSerializerTest {
   public void testNativeDirectMemoryCompatibility() {
     stringSerializer.serializeNativeObject(OBJECT, stream, 7);
 
-    ByteBuffer buffer = ByteBuffer.allocateDirect(stream.length).order(ByteOrder.nativeOrder());
+    var buffer = ByteBuffer.allocateDirect(stream.length).order(ByteOrder.nativeOrder());
     buffer.put(stream);
     buffer.position(7);
 
@@ -78,13 +78,13 @@ public class StringSerializerTest {
 
   @Test
   public void testSerializeInByteBuffer() {
-    final int serializationOffset = 5;
-    final ByteBuffer buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
+    final var serializationOffset = 5;
+    final var buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
 
     buffer.position(serializationOffset);
     stringSerializer.serializeInByteBufferObject(OBJECT, buffer);
 
-    final int binarySize = buffer.position() - serializationOffset;
+    final var binarySize = buffer.position() - serializationOffset;
     Assert.assertEquals(binarySize, FIELD_SIZE - 7);
 
     buffer.position(serializationOffset);
@@ -98,13 +98,13 @@ public class StringSerializerTest {
 
   @Test
   public void testSerializeInImmutableByteBufferPosition() {
-    final int serializationOffset = 5;
-    final ByteBuffer buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
+    final var serializationOffset = 5;
+    final var buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
 
     buffer.position(serializationOffset);
     stringSerializer.serializeInByteBufferObject(OBJECT, buffer);
 
-    final int binarySize = buffer.position() - serializationOffset;
+    final var binarySize = buffer.position() - serializationOffset;
     Assert.assertEquals(binarySize, FIELD_SIZE - 7);
 
     buffer.position(0);
@@ -119,13 +119,13 @@ public class StringSerializerTest {
 
   @Test
   public void testSerializeWALChanges() {
-    final int serializationOffset = 5;
-    final ByteBuffer buffer =
+    final var serializationOffset = 5;
+    final var buffer =
         ByteBuffer.allocateDirect(
                 FIELD_SIZE - 7 + serializationOffset + WALPageChangesPortion.PORTION_BYTES)
             .order(ByteOrder.nativeOrder());
 
-    final byte[] data = new byte[FIELD_SIZE - 7];
+    final var data = new byte[FIELD_SIZE - 7];
     stringSerializer.serializeNativeObject(OBJECT, data, 0);
 
     WALChanges walChanges = new WALPageChangesPortion();

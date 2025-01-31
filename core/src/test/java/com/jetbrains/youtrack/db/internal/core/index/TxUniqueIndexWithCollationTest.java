@@ -46,15 +46,15 @@ public class TxUniqueIndexWithCollationTest extends DbTestBase {
         .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
 
     db.begin();
-    Entity one = db.newEntity("user");
+    var one = db.newEntity("user");
     one.setProperty("name", "abc");
     db.save(one);
 
-    Entity two = db.newEntity("user");
+    var two = db.newEntity("user");
     two.setProperty("name", "aby");
     db.save(two);
 
-    Entity three = db.newEntity("user");
+    var three = db.newEntity("user");
     three.setProperty("name", "abz");
     db.save(three);
     db.commit();
@@ -66,7 +66,7 @@ public class TxUniqueIndexWithCollationTest extends DbTestBase {
 
     db.command("update user set name='abd' where name='Aby'").close();
 
-    final ResultSet r = db.command("select * from user where name like '%B%' order by name");
+    final var r = db.command("select * from user where name like '%B%' order by name");
     assertEquals("abc", r.next().getProperty("name"));
     assertEquals("abd", r.next().getProperty("name"));
     assertEquals("abz", r.next().getProperty("name"));
@@ -82,7 +82,7 @@ public class TxUniqueIndexWithCollationTest extends DbTestBase {
 
     db.command("update user set name='Abd' where name='Aby'").close();
 
-    final ResultSet r = db.command("select * from user where name >= 'abd' order by name");
+    final var r = db.command("select * from user where name >= 'abd' order by name");
     assertEquals("Abd", r.next().getProperty("name"));
     assertEquals("abz", r.next().getProperty("name"));
     assertFalse(r.hasNext());
@@ -96,7 +96,7 @@ public class TxUniqueIndexWithCollationTest extends DbTestBase {
 
     db.command("update user set name='abd' where name='Aby'").close();
 
-    final List<EntityImpl> r =
+    final var r =
         db.query("select * from user where name in ['Abc', 'Abd', 'Abz'] order by name").stream()
             .map(x -> ((EntityImpl) (x.asEntity())))
             .toList();

@@ -88,9 +88,9 @@ public class YouTrackDbJdbcPreparedStatement extends YouTrackDbJdbcStatement imp
 
     if (sql.equalsIgnoreCase("select 1")) {
       // OPTIMIZATION
-      ResultInternal element = new ResultInternal(database);
+      var element = new ResultInternal(database);
       element.setProperty("1", 1);
-      InternalResultSet rs = new InternalResultSet();
+      var rs = new InternalResultSet();
       rs.add(element);
       oResultSet = rs;
     } else {
@@ -269,11 +269,11 @@ public class YouTrackDbJdbcPreparedStatement extends YouTrackDbJdbcStatement imp
   @Override
   public ParameterMetaData getParameterMetaData() throws SQLException {
 
-    YouTrackDbJdbcParameterMetadata parameterMetadata = new YouTrackDbJdbcParameterMetadata();
-    int start = 0;
-    int index = sql.indexOf('?', start);
+    var parameterMetadata = new YouTrackDbJdbcParameterMetadata();
+    var start = 0;
+    var index = sql.indexOf('?', start);
     while (index > 0) {
-      final ParameterDefinition def = new ParameterDefinition();
+      final var def = new ParameterDefinition();
       // TODO find a way to know a bit more on each parameter
 
       parameterMetadata.add(def);

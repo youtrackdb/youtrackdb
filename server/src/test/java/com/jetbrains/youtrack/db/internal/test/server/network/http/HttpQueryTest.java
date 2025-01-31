@@ -14,7 +14,7 @@ public class HttpQueryTest extends BaseHttpDatabaseTest {
 
   @Test
   public void queryRootCredentials() throws IOException {
-    ClassicHttpResponse response =
+    var response =
         get("query/"
             + getDatabaseName()
             + "/sql/"
@@ -28,7 +28,7 @@ public class HttpQueryTest extends BaseHttpDatabaseTest {
 
   @Test
   public void queryDatabaseCredentials() throws IOException {
-    ClassicHttpResponse response =
+    var response =
         get("query/"
             + getDatabaseName()
             + "/sql/"

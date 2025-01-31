@@ -24,7 +24,7 @@ public class DeleteStatementTest extends DbTestBase {
   }
 
   protected SimpleNode checkSyntax(String query, boolean isCorrect) {
-    YouTrackDBSql osql = getParserFor(query);
+    var osql = getParserFor(query);
     try {
       SimpleNode result = osql.parse();
       if (!isCorrect) {
@@ -47,9 +47,9 @@ public class DeleteStatementTest extends DbTestBase {
     db.command("create class Bar").close();
 
     db.begin();
-    final EntityImpl doc1 = ((EntityImpl) db.newEntity("Foo")).field("k", "key1");
-    final EntityImpl doc2 = ((EntityImpl) db.newEntity("Foo")).field("k", "key2");
-    final EntityImpl doc3 = ((EntityImpl) db.newEntity("Foo")).field("k", "key3");
+    final var doc1 = ((EntityImpl) db.newEntity("Foo")).field("k", "key1");
+    final var doc2 = ((EntityImpl) db.newEntity("Foo")).field("k", "key2");
+    final var doc3 = ((EntityImpl) db.newEntity("Foo")).field("k", "key3");
 
     doc1.save();
     doc2.save();
@@ -59,7 +59,7 @@ public class DeleteStatementTest extends DbTestBase {
     list.add(doc1);
     list.add(doc2);
     list.add(doc3);
-    final EntityImpl bar = ((EntityImpl) db.newEntity("Bar")).field("arr", list);
+    final var bar = ((EntityImpl) db.newEntity("Bar")).field("arr", list);
     bar.save();
     db.commit();
 
@@ -67,11 +67,11 @@ public class DeleteStatementTest extends DbTestBase {
     db.command("delete from (select expand(arr) from Bar) where k = 'key2'").close();
     db.commit();
 
-    try (ResultSet result = db.query("select from Foo")) {
+    try (var result = db.query("select from Foo")) {
       Assert.assertNotNull(result);
-      int count = 0;
+      var count = 0;
       while (result.hasNext()) {
-        Result doc = result.next();
+        var doc = result.next();
         Assert.assertNotEquals(doc.getProperty("k"), "key2");
         count += 1;
       }
@@ -81,7 +81,7 @@ public class DeleteStatementTest extends DbTestBase {
 
   protected YouTrackDBSql getParserFor(String string) {
     InputStream is = new ByteArrayInputStream(string.getBytes());
-    YouTrackDBSql osql = new YouTrackDBSql(is);
+    var osql = new YouTrackDBSql(is);
     return osql;
   }
 }

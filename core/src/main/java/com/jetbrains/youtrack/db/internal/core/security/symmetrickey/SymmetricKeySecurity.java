@@ -76,9 +76,9 @@ public class SymmetricKeySecurity implements SecurityInternal {
           "OSymmetricKeySecurity.authenticate() Database is null for username: " + username);
     }
 
-    final String dbName = session.getName();
+    final var dbName = session.getName();
 
-    SecurityUserImpl user = delegate.getUser(session, username);
+    var user = delegate.getUser(session, username);
 
     if (user == null) {
       throw new SecurityAccessException(
@@ -93,12 +93,12 @@ public class SymmetricKeySecurity implements SecurityInternal {
     }
 
     try {
-      UserSymmetricKeyConfig userConfig = new UserSymmetricKeyConfig(
+      var userConfig = new UserSymmetricKeyConfig(
           (EntityImpl) user.getIdentity().getEntity(session));
 
-      SymmetricKey sk = SymmetricKey.fromConfig(userConfig);
+      var sk = SymmetricKey.fromConfig(userConfig);
 
-      String decryptedUsername = sk.decryptAsString(password);
+      var decryptedUsername = sk.decryptAsString(password);
 
       if (SecurityManager.checkPassword(username, decryptedUsername)) {
         return user;

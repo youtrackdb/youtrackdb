@@ -34,7 +34,7 @@ public abstract class CommandExecutorSQLPermissionAbstract extends CommandExecut
   protected Role role;
 
   protected void parsePrivilege(final StringBuilder word, final int oldPos) {
-    final String privilegeName = word.toString();
+    final var privilegeName = word.toString();
 
     if ("CREATE".equals(privilegeName)) {
       privilege = Role.PERMISSION_CREATE;

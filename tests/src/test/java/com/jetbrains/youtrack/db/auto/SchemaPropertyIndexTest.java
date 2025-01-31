@@ -44,7 +44,7 @@ public class SchemaPropertyIndexTest extends BaseDBTest {
     super.beforeClass();
 
     final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass oClass = schema.createClass("PropertyIndexTestClass");
+    final var oClass = schema.createClass("PropertyIndexTestClass");
     oClass.createProperty(db, "prop0", PropertyType.LINK);
     oClass.createProperty(db, "prop1", PropertyType.STRING);
     oClass.createProperty(db, "prop2", PropertyType.INTEGER);
@@ -72,7 +72,7 @@ public class SchemaPropertyIndexTest extends BaseDBTest {
   public void testCreateUniqueIndex() {
     var schema = db.getMetadata().getSchema();
     var oClass = schema.getClassInternal("PropertyIndexTestClass");
-    final SchemaProperty propOne = oClass.getProperty("prop1");
+    final var propOne = oClass.getProperty("prop1");
 
     propOne.createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE,
         Map.of("ignoreNullValues", true));
@@ -80,7 +80,7 @@ public class SchemaPropertyIndexTest extends BaseDBTest {
     final Collection<Index> indexes = oClass.getInvolvedIndexesInternal(db, "prop1");
     IndexDefinition indexDefinition = null;
 
-    for (final Index index : indexes) {
+    for (final var index : indexes) {
       if (index.getName().equals("PropertyIndexTestClass.prop1")) {
         indexDefinition = index.getDefinition();
         break;
@@ -98,7 +98,7 @@ public class SchemaPropertyIndexTest extends BaseDBTest {
   @Test(dependsOnMethods = {"testCreateUniqueIndex"})
   public void createAdditionalSchemas() {
     final Schema schema = db.getMetadata().getSchema();
-    final SchemaClass oClass = schema.getClass("PropertyIndexTestClass");
+    final var oClass = schema.getClass("PropertyIndexTestClass");
 
     oClass.createIndex(db,
         "propOne0",
@@ -144,7 +144,7 @@ public class SchemaPropertyIndexTest extends BaseDBTest {
     var oClass = schema.getClassInternal("PropertyIndexTestClass");
     var propOne = oClass.getPropertyInternal("prop1");
 
-    final Collection<Index> indexes = propOne.getAllIndexesInternal(db);
+    final var indexes = propOne.getAllIndexesInternal(db);
     Assert.assertEquals(indexes.size(), 5);
     Assert.assertNotNull(containsIndex(indexes, "PropertyIndexTestClass.prop1"));
     Assert.assertNotNull(containsIndex(indexes, "propOne0"));
@@ -174,14 +174,14 @@ public class SchemaPropertyIndexTest extends BaseDBTest {
   public void testIndexingCompositeRIDAndOthers() throws Exception {
     checkEmbeddedDB();
 
-    long prev0 =
+    var prev0 =
         db
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "propOne0")
             .getInternal()
             .size(db);
-    long prev1 =
+    var prev1 =
         db
             .getMetadata()
             .getIndexManagerInternal()
@@ -190,7 +190,7 @@ public class SchemaPropertyIndexTest extends BaseDBTest {
             .size(db);
 
     db.begin();
-    EntityImpl doc =
+    var doc =
         ((EntityImpl) db.newEntity("PropertyIndexTestClass")).fields("prop1", "testComposite3");
     doc.save();
     ((EntityImpl) db.newEntity("PropertyIndexTestClass")).fields("prop0", doc, "prop1",
@@ -221,14 +221,14 @@ public class SchemaPropertyIndexTest extends BaseDBTest {
   public void testIndexingCompositeRIDAndOthersInTx() throws Exception {
     db.begin();
 
-    long prev0 =
+    var prev0 =
         db
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "propOne0")
             .getInternal()
             .size(db);
-    long prev1 =
+    var prev1 =
         db
             .getMetadata()
             .getIndexManagerInternal()
@@ -236,7 +236,7 @@ public class SchemaPropertyIndexTest extends BaseDBTest {
             .getInternal()
             .size(db);
 
-    EntityImpl doc =
+    var doc =
         ((EntityImpl) db.newEntity("PropertyIndexTestClass")).fields("prop1", "testComposite34");
     doc.save();
     ((EntityImpl) db.newEntity("PropertyIndexTestClass")).fields("prop0", doc, "prop1",
@@ -299,7 +299,7 @@ public class SchemaPropertyIndexTest extends BaseDBTest {
   }
 
   private static Index containsIndex(final Collection<Index> indexes, final String indexName) {
-    for (final Index index : indexes) {
+    for (final var index : indexes) {
       if (index.getName().equals(indexName)) {
         return index;
       }

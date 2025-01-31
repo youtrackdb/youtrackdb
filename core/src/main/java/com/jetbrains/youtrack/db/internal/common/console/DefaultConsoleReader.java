@@ -69,7 +69,7 @@ public class DefaultConsoleReader implements ConsoleReader {
 
     System.out.print(" ");
 
-    final EraserThread et = new EraserThread("Read password thread");
+    final var et = new EraserThread("Read password thread");
     et.start();
 
     try {

@@ -66,7 +66,7 @@ public class SQLDeleteStatement extends SQLStatement {
 
   @Override
   public SQLDeleteStatement copy() {
-    SQLDeleteStatement result = new SQLDeleteStatement(-1);
+    var result = new SQLDeleteStatement(-1);
     result.fromClause = fromClause == null ? null : fromClause.copy();
     result.whereClause = whereClause == null ? null : whereClause.copy();
     result.returnBefore = returnBefore;
@@ -84,7 +84,7 @@ public class SQLDeleteStatement extends SQLStatement {
       return false;
     }
 
-    SQLDeleteStatement that = (SQLDeleteStatement) o;
+    var that = (SQLDeleteStatement) o;
 
     if (returnBefore != that.returnBefore) {
       return false;
@@ -103,7 +103,7 @@ public class SQLDeleteStatement extends SQLStatement {
 
   @Override
   public int hashCode() {
-    int result = fromClause != null ? fromClause.hashCode() : 0;
+    var result = fromClause != null ? fromClause.hashCode() : 0;
     result = 31 * result + (whereClause != null ? whereClause.hashCode() : 0);
     result = 31 * result + (returnBefore ? 1 : 0);
     result = 31 * result + (limit != null ? limit.hashCode() : 0);
@@ -115,7 +115,7 @@ public class SQLDeleteStatement extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Map<Object, Object> params, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -135,14 +135,14 @@ public class SQLDeleteStatement extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
     ctx.setDatabase(db);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
-      for (int i = 0; i < args.length; i++) {
+      for (var i = 0; i < args.length; i++) {
         params.put(i, args[i]);
       }
     }
@@ -158,8 +158,8 @@ public class SQLDeleteStatement extends SQLStatement {
   }
 
   public DeleteExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    DeleteExecutionPlanner planner = new DeleteExecutionPlanner(this);
-    DeleteExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling);
+    var planner = new DeleteExecutionPlanner(this);
+    var result = planner.createExecutionPlan(ctx, enableProfiling);
     result.setStatement(this.originalStatement);
     result.setGenericStatement(this.toGenericStatement());
     return result;

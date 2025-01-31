@@ -35,7 +35,7 @@ public class SQLNotInCondition extends SQLBooleanExpression {
 
   @Override
   public boolean evaluate(Identifiable currentRecord, CommandContext ctx) {
-    Object leftVal = left.execute(currentRecord, ctx);
+    var leftVal = left.execute(currentRecord, ctx);
     Object rightVal = null;
     if (rightStatement != null) {
       rightVal = SQLInCondition.executeQuery(rightStatement, ctx);
@@ -52,7 +52,7 @@ public class SQLNotInCondition extends SQLBooleanExpression {
 
   @Override
   public boolean evaluate(Result currentRecord, CommandContext ctx) {
-    Object leftVal = left.execute(currentRecord, ctx);
+    var leftVal = left.execute(currentRecord, ctx);
     Object rightVal = null;
     if (rightStatement != null) {
       rightVal = SQLInCondition.executeQuery(rightStatement, ctx);
@@ -122,7 +122,7 @@ public class SQLNotInCondition extends SQLBooleanExpression {
 
   @Override
   protected int getNumberOfExternalCalculations() {
-    int total = 0;
+    var total = 0;
     if (operator != null && !operator.supportsBasicCalculation()) {
       total++;
     }
@@ -158,7 +158,7 @@ public class SQLNotInCondition extends SQLBooleanExpression {
 
   @Override
   public SQLNotInCondition copy() {
-    SQLNotInCondition result = new SQLNotInCondition(-1);
+    var result = new SQLNotInCondition(-1);
     result.operator = operator == null ? null : operator.copy();
     result.left = left == null ? null : left.copy();
     result.rightMathExpression = rightMathExpression == null ? null : rightMathExpression.copy();
@@ -177,7 +177,7 @@ public class SQLNotInCondition extends SQLBooleanExpression {
     if (rightMathExpression != null) {
       rightMathExpression.extractSubQueries(collector);
     } else if (rightStatement != null) {
-      SQLIdentifier alias = collector.addStatement(rightStatement);
+      var alias = collector.addStatement(rightStatement);
       rightMathExpression = new SQLBaseExpression(alias);
       rightStatement = null;
     }
@@ -203,7 +203,7 @@ public class SQLNotInCondition extends SQLBooleanExpression {
       return false;
     }
 
-    SQLNotInCondition that = (SQLNotInCondition) o;
+    var that = (SQLNotInCondition) o;
 
     if (!Objects.equals(left, that.left)) {
       return false;
@@ -228,7 +228,7 @@ public class SQLNotInCondition extends SQLBooleanExpression {
 
   @Override
   public int hashCode() {
-    int result = left != null ? left.hashCode() : 0;
+    var result = left != null ? left.hashCode() : 0;
     result = 31 * result + (operator != null ? operator.hashCode() : 0);
     result = 31 * result + (rightStatement != null ? rightStatement.hashCode() : 0);
     result = 31 * result + (right != null ? right.hashCode() : 0);
@@ -240,8 +240,8 @@ public class SQLNotInCondition extends SQLBooleanExpression {
 
   @Override
   public List<String> getMatchPatternInvolvedAliases() {
-    List<String> leftX = left == null ? null : left.getMatchPatternInvolvedAliases();
-    List<String> rightX =
+    var leftX = left == null ? null : left.getMatchPatternInvolvedAliases();
+    var rightX =
         rightMathExpression == null ? null : rightMathExpression.getMatchPatternInvolvedAliases();
 
     List<String> result = new ArrayList<String>();

@@ -59,7 +59,7 @@ public class SequenceLibraryProxy extends SequenceLibraryAbstract {
   public DBSequence createSequence(
       String iName, SEQUENCE_TYPE sequenceType, DBSequence.CreateParams params)
       throws DatabaseException {
-    boolean shouldGoOverDistributted =
+    var shouldGoOverDistributted =
         database.isDistributed() && (replicationProtocolVersion == 2);
     return createSequence(iName, sequenceType, params, shouldGoOverDistributted);
   }
@@ -72,7 +72,7 @@ public class SequenceLibraryProxy extends SequenceLibraryAbstract {
       boolean executeViaDistributed)
       throws DatabaseException {
     if (executeViaDistributed) {
-      SequenceAction action =
+      var action =
           new SequenceAction(SequenceAction.CREATE, iName, params, sequenceType);
       try {
         String sequenceName = database.sendSequenceAction(action);
@@ -89,7 +89,7 @@ public class SequenceLibraryProxy extends SequenceLibraryAbstract {
   @Override
   @Deprecated
   public void dropSequence(String iName) throws DatabaseException {
-    boolean shouldGoOverDistributted =
+    var shouldGoOverDistributted =
         database.isDistributed() && (replicationProtocolVersion == 2);
     dropSequence(iName, shouldGoOverDistributted);
   }
@@ -97,7 +97,7 @@ public class SequenceLibraryProxy extends SequenceLibraryAbstract {
   @Override
   void dropSequence(String iName, boolean executeViaDistributed) throws DatabaseException {
     if (executeViaDistributed) {
-      SequenceAction action = new SequenceAction(SequenceAction.REMOVE, iName, null, null);
+      var action = new SequenceAction(SequenceAction.REMOVE, iName, null, null);
       try {
         database.sendSequenceAction(action);
       } catch (InterruptedException | ExecutionException exc) {

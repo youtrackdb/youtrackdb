@@ -62,7 +62,7 @@ public class DDLExecutionPlan implements InternalExecutionPlan {
           "Trying to execute a result-set twice. Please use reset()");
     }
     executed = true;
-    ExecutionStream result = statement.executeDDL(this.ctx);
+    var result = statement.executeDDL(this.ctx);
     return result;
   }
 
@@ -73,14 +73,14 @@ public class DDLExecutionPlan implements InternalExecutionPlan {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
-    String result = spaces + "+ DDL\n" + "  " + statement.toString();
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var result = spaces + "+ DDL\n" + "  " + statement.toString();
     return result;
   }
 
   @Override
   public Result toResult(DatabaseSession db) {
-    ResultInternal result = new ResultInternal((DatabaseSessionInternal) db);
+    var result = new ResultInternal((DatabaseSessionInternal) db);
     result.setProperty("type", "DDLExecutionPlan");
     result.setProperty(JAVA_TYPE, getClass().getName());
     result.setProperty("stmText", statement.toString());

@@ -30,7 +30,7 @@ public class LuceneSpatialDistanceSphereTest extends BaseSpatialLuceneTest {
   @Test
   public void testDistanceSphereNoIndex() {
 
-    ResultSet execute =
+    var execute =
         db.command(
             "select ST_Distance(ST_GEOMFROMTEXT('POINT(12.4662748"
                 + " 41.8914114)'),ST_GEOMFROMTEXT('POINT(12.4664632 41.8904382)')) as distanceDeg,"
@@ -39,7 +39,7 @@ public class LuceneSpatialDistanceSphereTest extends BaseSpatialLuceneTest {
                 + " 41.8914114)'),ST_GEOMFROMTEXT('POINT(12.4664632 41.8904382)')) as"
                 + " distanceMeter");
 
-    Result next = execute.next();
+    var next = execute.next();
 
     Double distanceDeg = next.getProperty("distanceDeg");
     Double distanceMeter = next.getProperty("distanceMeter");
@@ -79,7 +79,7 @@ public class LuceneSpatialDistanceSphereTest extends BaseSpatialLuceneTest {
     db.commit();
 
     db.command("create index Place.l on Place (location) SPATIAL engine lucene").close();
-    ResultSet execute =
+    var execute =
         db.command(
             "SELECT from Place where ST_Distance_Sphere(location, ST_GeomFromText('POINT(12.468933"
                 + " 41.890303)')) < 50");
@@ -122,7 +122,7 @@ public class LuceneSpatialDistanceSphereTest extends BaseSpatialLuceneTest {
     db.commit();
 
     db.command("CREATE INDEX bla ON Restaurant (location) SPATIAL ENGINE LUCENE;\n").close();
-    List<Result> execute =
+    var execute =
         db
             .query(
                 "SELECT  ST_Distance_Sphere(location, St_GeomFromText(\"POINT (-0.1277583"
@@ -135,12 +135,12 @@ public class LuceneSpatialDistanceSphereTest extends BaseSpatialLuceneTest {
 
   @Test
   public void testNullObject() {
-    ResultSet execute =
+    var execute =
         db.command(
             "select ST_Distance({ locationCoordinates: null },ST_GEOMFROMTEXT('POINT(12.4664632"
                 + " 41.8904382)')) as distanceMeter");
 
-    Result next = execute.next();
+    var next = execute.next();
     Assert.assertNull(next.getProperty("distanceMeter"));
     Assert.assertFalse(execute.hasNext());
     execute.close();
@@ -148,12 +148,12 @@ public class LuceneSpatialDistanceSphereTest extends BaseSpatialLuceneTest {
 
   @Test
   public void testSphereNullObject() {
-    ResultSet execute =
+    var execute =
         db.command(
             "select ST_Distance_Sphere({ locationCoordinates: null"
                 + " },ST_GEOMFROMTEXT('POINT(12.4664632 41.8904382)')) as distanceMeter");
 
-    Result next = execute.next();
+    var next = execute.next();
     Assert.assertNull(next.getProperty("distanceMeter"));
     Assert.assertFalse(execute.hasNext());
     execute.close();

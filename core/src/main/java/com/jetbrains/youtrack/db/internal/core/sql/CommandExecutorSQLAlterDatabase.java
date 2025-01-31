@@ -50,20 +50,20 @@ public class CommandExecutorSQLAlterDatabase extends CommandExecutorSQLAbstract
 
   public CommandExecutorSQLAlterDatabase parse(DatabaseSessionInternal db,
       final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
       init((CommandRequestText) iRequest);
 
-      StringBuilder word = new StringBuilder();
+      var word = new StringBuilder();
 
-      int oldPos = 0;
-      int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
+      var oldPos = 0;
+      var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_ALTER)) {
         throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_ALTER + " not found. Use " + getSyntax(), parserText, oldPos);
@@ -83,7 +83,7 @@ public class CommandExecutorSQLAlterDatabase extends CommandExecutorSQLAbstract
             "Missed the database's attribute to change. Use " + getSyntax(), parserText, oldPos);
       }
 
-      final String attributeAsString = word.toString();
+      final var attributeAsString = word.toString();
 
       try {
         attribute =
@@ -138,7 +138,7 @@ public class CommandExecutorSQLAlterDatabase extends CommandExecutorSQLAbstract
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final DatabaseSessionInternal database = getDatabase();
+    final var database = getDatabase();
     database.checkSecurity(Rule.ResourceGeneric.DATABASE, Role.PERMISSION_UPDATE);
 
     database.setInternal(attribute, value);

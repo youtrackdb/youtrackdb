@@ -19,11 +19,11 @@ public class ReturnMatchElementsStep extends AbstractUnrollStep {
   @Override
   protected Collection<Result> unroll(Result res, CommandContext iContext) {
     List<Result> result = new ArrayList<>();
-    for (String s : res.getPropertyNames()) {
+    for (var s : res.getPropertyNames()) {
       if (!s.startsWith(MatchExecutionPlanner.DEFAULT_ALIAS_PREFIX)) {
-        Object elem = res.getProperty(s);
+        var elem = res.getProperty(s);
         if (elem instanceof Identifiable) {
-          ResultInternal newelem = new ResultInternal(iContext.getDatabase(),
+          var newelem = new ResultInternal(iContext.getDatabase(),
               (Identifiable) elem);
           elem = newelem;
         }
@@ -38,7 +38,7 @@ public class ReturnMatchElementsStep extends AbstractUnrollStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
     return spaces + "+ UNROLL $elements";
   }
 }

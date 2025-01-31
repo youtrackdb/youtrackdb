@@ -40,14 +40,14 @@ public class SQLCreateEdgeStatement extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
     ctx.setDatabase(db);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
-      for (int i = 0; i < args.length; i++) {
+      for (var i = 0; i < args.length; i++) {
         params.put(i, args[i]);
       }
     }
@@ -66,7 +66,7 @@ public class SQLCreateEdgeStatement extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Map<Object, Object> params, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -83,8 +83,8 @@ public class SQLCreateEdgeStatement extends SQLStatement {
   }
 
   public InsertExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    CreateEdgeExecutionPlanner planner = new CreateEdgeExecutionPlanner(this);
-    InsertExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling, true);
+    var planner = new CreateEdgeExecutionPlanner(this);
+    var result = planner.createExecutionPlan(ctx, enableProfiling, true);
     result.setStatement(this.originalStatement);
     result.setGenericStatement(this.toGenericStatement());
     return result;
@@ -92,8 +92,8 @@ public class SQLCreateEdgeStatement extends SQLStatement {
 
   public InsertExecutionPlan createExecutionPlanNoCache(
       CommandContext ctx, boolean enableProfiling) {
-    CreateEdgeExecutionPlanner planner = new CreateEdgeExecutionPlanner(this);
-    InsertExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling, false);
+    var planner = new CreateEdgeExecutionPlanner(this);
+    var result = planner.createExecutionPlan(ctx, enableProfiling, false);
     result.setStatement(this.originalStatement);
     result.setGenericStatement(this.toGenericStatement());
     return result;
@@ -217,7 +217,7 @@ public class SQLCreateEdgeStatement extends SQLStatement {
       return false;
     }
 
-    SQLCreateEdgeStatement that = (SQLCreateEdgeStatement) o;
+    var that = (SQLCreateEdgeStatement) o;
 
     if (upsert != that.upsert) {
       return false;
@@ -248,7 +248,7 @@ public class SQLCreateEdgeStatement extends SQLStatement {
 
   @Override
   public int hashCode() {
-    int result = targetClass != null ? targetClass.hashCode() : 0;
+    var result = targetClass != null ? targetClass.hashCode() : 0;
     result = 31 * result + (targetClusterName != null ? targetClusterName.hashCode() : 0);
     result = 31 * result + (upsert ? 1 : 0);
     result = 31 * result + (leftExpression != null ? leftExpression.hashCode() : 0);

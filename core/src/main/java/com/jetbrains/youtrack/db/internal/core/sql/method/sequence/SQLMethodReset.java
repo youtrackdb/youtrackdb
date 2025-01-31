@@ -63,7 +63,7 @@ public class SQLMethodReset extends AbstractSQLMethod {
     try {
       return ((DBSequence) iThis).reset(iContext.getDatabase());
     } catch (DatabaseException exc) {
-      String message = "Unable to execute command: " + exc.getMessage();
+      var message = "Unable to execute command: " + exc.getMessage();
       LogManager.instance().error(this, message, exc, (Object) null);
       throw new CommandExecutionException(message);
     }

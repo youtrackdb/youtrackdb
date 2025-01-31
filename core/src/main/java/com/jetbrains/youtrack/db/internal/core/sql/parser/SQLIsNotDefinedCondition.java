@@ -70,7 +70,7 @@ public class SQLIsNotDefinedCondition extends SQLBooleanExpression {
 
   @Override
   public SQLIsNotDefinedCondition copy() {
-    SQLIsNotDefinedCondition result = new SQLIsNotDefinedCondition(-1);
+    var result = new SQLIsNotDefinedCondition(-1);
     result.expression = expression.copy();
     return result;
   }
@@ -104,7 +104,7 @@ public class SQLIsNotDefinedCondition extends SQLBooleanExpression {
       return false;
     }
 
-    SQLIsNotDefinedCondition that = (SQLIsNotDefinedCondition) o;
+    var that = (SQLIsNotDefinedCondition) o;
 
     return Objects.equals(expression, that.expression);
   }

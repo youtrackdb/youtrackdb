@@ -31,7 +31,7 @@ public class CreateLightWeightEdgesSQLTest {
 
   @Test
   public void test() {
-    DatabaseSession session =
+    var session =
         youTrackDB.open(
             CreateLightWeightEdgesSQLTest.class.getSimpleName(),
             "admin",
@@ -46,7 +46,7 @@ public class CreateLightWeightEdgesSQLTest {
         "create edge lightweight from (select from v where name='a') to (select from v where name='a') ");
     session.commit();
 
-    try (ResultSet res = session.query(
+    try (var res = session.query(
         "select expand(out('lightweight')) from v where name='a' ")) {
       assertEquals(1, res.stream().count());
     }
@@ -62,7 +62,7 @@ public class CreateLightWeightEdgesSQLTest {
             "admin",
             CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
-    DatabaseSession session = pool.acquire();
+    var session = pool.acquire();
 
     session.begin();
     session.command("create vertex v set id = 1 ");
@@ -71,15 +71,15 @@ public class CreateLightWeightEdgesSQLTest {
 
     session.close();
 
-    CountDownLatch latch = new CountDownLatch(10);
+    var latch = new CountDownLatch(10);
 
     IntStream.range(0, 10)
         .forEach(
             (i) -> {
               new Thread(
                   () -> {
-                    try (DatabaseSession session1 = pool.acquire()) {
-                      for (int j = 0; j < 100; j++) {
+                    try (var session1 = pool.acquire()) {
+                      for (var j = 0; j < 100; j++) {
 
                         try {
                           session1.begin();
@@ -101,9 +101,9 @@ public class CreateLightWeightEdgesSQLTest {
     latch.await();
 
     session = pool.acquire();
-    try (ResultSet res = session.query(
+    try (var res = session.query(
         "select sum(out('lightweight').size()) as size from V where id = 1");
-        ResultSet res1 = session.query(
+        var res1 = session.query(
             "select sum(in('lightweight').size()) as size from V where id = 2")) {
 
       Integer s1 = res.findFirst().getProperty("size");

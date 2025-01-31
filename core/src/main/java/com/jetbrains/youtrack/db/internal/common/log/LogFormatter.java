@@ -44,15 +44,15 @@ public class LogFormatter extends Formatter {
 
   @Override
   public String format(final LogRecord record) {
-    final String formattedMessage = customFormatMessage(record);
-    final Throwable error = record.getThrown();
+    final var formattedMessage = customFormatMessage(record);
+    final var error = record.getThrown();
     if (error == null) {
       return formattedMessage;
     }
 
     // FORMAT THE STACK TRACE
-    final StringWriter writer = new StringWriter();
-    final PrintWriter printWriter = new PrintWriter(writer);
+    final var writer = new StringWriter();
+    final var printWriter = new PrintWriter(writer);
     printWriter.println(formattedMessage);
     error.printStackTrace(printWriter);
     printWriter.close();
@@ -61,12 +61,12 @@ public class LogFormatter extends Formatter {
   }
 
   protected String customFormatMessage(final LogRecord iRecord) {
-    final Level level = iRecord.getLevel();
-    final String message = AnsiCode.format(iRecord.getMessage(), false);
-    final Object[] additionalArgs = iRecord.getParameters();
-    final String requester = getSourceClassSimpleName(iRecord.getLoggerName());
+    final var level = iRecord.getLevel();
+    final var message = AnsiCode.format(iRecord.getMessage(), false);
+    final var additionalArgs = iRecord.getParameters();
+    final var requester = getSourceClassSimpleName(iRecord.getLoggerName());
 
-    final StringBuilder buffer = new StringBuilder(512);
+    final var buffer = new StringBuilder(512);
 
     buffer.append(EOL);
     buffer.append(dateFormatter.format(LocalDateTime.now()));

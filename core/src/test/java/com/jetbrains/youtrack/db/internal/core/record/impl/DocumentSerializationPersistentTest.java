@@ -23,10 +23,10 @@ public class DocumentSerializationPersistentTest extends BaseMemoryInternalDatab
     super.beforeTest();
 
     db.begin();
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
     doc.setProperty("name", "Artem");
 
-    final EntityImpl linkedDoc = (EntityImpl) db.newEntity();
+    final var linkedDoc = (EntityImpl) db.newEntity();
 
     doc.setProperty("country", linkedDoc, PropertyType.LINK);
     doc.setProperty("numbers", Arrays.asList(0, 1, 2, 3, 4, 5));
@@ -38,23 +38,23 @@ public class DocumentSerializationPersistentTest extends BaseMemoryInternalDatab
   @Test(expected = DatabaseException.class)
   public void testRidBagInEmbeddedDocument() {
     DatabaseRecordThreadLocal.instance().set(db);
-    EntityImpl doc = (EntityImpl) db.newEntity();
-    RidBag rids = new RidBag(db);
+    var doc = (EntityImpl) db.newEntity();
+    var rids = new RidBag(db);
     rids.add(new RecordId(2, 3));
     rids.add(new RecordId(2, 4));
     rids.add(new RecordId(2, 5));
     rids.add(new RecordId(2, 6));
     List<EntityImpl> docs = new ArrayList<EntityImpl>();
-    EntityImpl doc1 = (EntityImpl) db.newEntity();
+    var doc1 = (EntityImpl) db.newEntity();
     doc1.setProperty("rids", rids);
     docs.add(doc1);
-    EntityImpl doc2 = (EntityImpl) db.newEntity();
+    var doc2 = (EntityImpl) db.newEntity();
     doc2.setProperty("text", "text");
     docs.add(doc2);
     doc.setProperty("emb", docs, PropertyType.EMBEDDEDLIST);
     doc.setProperty("some", "test");
 
-    byte[] res = db.getSerializer().toStream(db, doc);
+    var res = db.getSerializer().toStream(db, doc);
     db.getSerializer().fromStream(db, res, (EntityImpl) db.newEntity(), new String[]{});
   }
 }

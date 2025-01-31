@@ -21,7 +21,7 @@ public abstract class AbstractUnrollStep extends AbstractExecutionStep {
     if (prev == null) {
       throw new CommandExecutionException("Cannot expand without a target");
     }
-    ExecutionStream resultSet = prev.start(ctx);
+    var resultSet = prev.start(ctx);
     return resultSet.flatMap(this::fetchNextResults);
   }
 

@@ -35,7 +35,7 @@ public class SQLDropClassStatement extends DDLStatement {
     } else {
       className = String.valueOf(nameParam.getValue(ctx.getInputParameters()));
     }
-    SchemaClassInternal clazz = schema.getClassInternal(className);
+    var clazz = schema.getClassInternal(className);
     if (clazz == null) {
       if (ifExists) {
         return ExecutionStream.empty();
@@ -63,7 +63,7 @@ public class SQLDropClassStatement extends DDLStatement {
 
     schema.dropClass(className);
 
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     result.setProperty("operation", "drop class");
     result.setProperty("className", className);
     return ExecutionStream.singleton(result);
@@ -103,7 +103,7 @@ public class SQLDropClassStatement extends DDLStatement {
 
   @Override
   public SQLDropClassStatement copy() {
-    SQLDropClassStatement result = new SQLDropClassStatement(-1);
+    var result = new SQLDropClassStatement(-1);
     result.name = name == null ? null : name.copy();
     result.nameParam = nameParam == null ? null : nameParam.copy();
     result.ifExists = ifExists;
@@ -119,7 +119,7 @@ public class SQLDropClassStatement extends DDLStatement {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SQLDropClassStatement that = (SQLDropClassStatement) o;
+    var that = (SQLDropClassStatement) o;
     return ifExists == that.ifExists
         && unsafe == that.unsafe
         && Objects.equals(name, that.name)

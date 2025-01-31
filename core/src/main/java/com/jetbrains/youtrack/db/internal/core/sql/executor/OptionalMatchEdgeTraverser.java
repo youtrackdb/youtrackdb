@@ -30,9 +30,9 @@ public class OptionalMatchEdgeTraverser extends MatchEdgeTraverser {
       throw new IllegalStateException();
     }
 
-    String endPointAlias = getEndpointAlias();
-    Object prevValue = sourceRecord.getProperty(endPointAlias);
-    Result next = downstream.next(ctx);
+    var endPointAlias = getEndpointAlias();
+    var prevValue = sourceRecord.getProperty(endPointAlias);
+    var next = downstream.next(ctx);
 
     if (isEmptyOptional(prevValue)) {
       return sourceRecord;
@@ -44,8 +44,8 @@ public class OptionalMatchEdgeTraverser extends MatchEdgeTraverser {
     }
 
     var db = ctx.getDatabase();
-    ResultInternal result = new ResultInternal(db);
-    for (String prop : sourceRecord.getPropertyNames()) {
+    var result = new ResultInternal(db);
+    for (var prop : sourceRecord.getPropertyNames()) {
       result.setProperty(prop, sourceRecord.getProperty(prop));
     }
     result.setProperty(endPointAlias, next.getEntity().map(x -> toResult(db, x)).orElse(null));

@@ -35,15 +35,15 @@ public class TransactionQueryIndexTests {
 
   @Test
   public void test() {
-    SchemaClass clazz = database.createClass("test");
-    SchemaProperty prop = clazz.createProperty(database, "test", PropertyType.STRING);
+    var clazz = database.createClass("test");
+    var prop = clazz.createProperty(database, "test", PropertyType.STRING);
     prop.createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     database.begin();
     EntityImpl doc = database.newInstance("test");
     doc.setProperty("test", "abcdefg");
     database.save(doc);
-    ResultSet res = database.query("select from Test where test='abcdefg' ");
+    var res = database.query("select from Test where test='abcdefg' ");
 
     assertEquals(1L, res.stream().count());
     res.close();
@@ -55,7 +55,7 @@ public class TransactionQueryIndexTests {
 
   @Test
   public void test2() {
-    SchemaClass clazz = database.createClass("Test2");
+    var clazz = database.createClass("Test2");
     clazz.createProperty(database, "foo", PropertyType.STRING);
     clazz.createProperty(database, "bar", PropertyType.STRING);
     clazz.createIndex(database, "Test2.foo_bar", SchemaClass.INDEX_TYPE.NOTUNIQUE, "foo", "bar");
@@ -65,7 +65,7 @@ public class TransactionQueryIndexTests {
     doc.setProperty("foo", "abcdefg");
     doc.setProperty("bar", "abcdefg");
     database.save(doc);
-    ResultSet res = database.query("select from Test2 where foo='abcdefg' and bar = 'abcdefg' ");
+    var res = database.query("select from Test2 where foo='abcdefg' and bar = 'abcdefg' ");
 
     assertEquals(1L, res.stream().count());
     res.close();

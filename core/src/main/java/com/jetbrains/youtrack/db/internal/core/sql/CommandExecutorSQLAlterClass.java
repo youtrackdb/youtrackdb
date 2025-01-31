@@ -53,20 +53,20 @@ public class CommandExecutorSQLAlterClass extends CommandExecutorSQLAbstract
 
   public CommandExecutorSQLAlterClass parse(DatabaseSessionInternal db,
       final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
       init((CommandRequestText) iRequest);
 
-      StringBuilder word = new StringBuilder();
+      var word = new StringBuilder();
 
-      int oldPos = 0;
-      int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
+      var oldPos = 0;
+      var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_ALTER)) {
         throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_ALTER + " not found", parserText, oldPos);
@@ -94,7 +94,7 @@ public class CommandExecutorSQLAlterClass extends CommandExecutorSQLAbstract
             "Missed the class's attribute to change", parserText, oldPos);
       }
 
-      final String attributeAsString = word.toString();
+      final var attributeAsString = word.toString();
 
       try {
         attribute = SchemaClass.ATTRIBUTES.valueOf(attributeAsString.toUpperCase(Locale.ENGLISH));
@@ -116,7 +116,7 @@ public class CommandExecutorSQLAlterClass extends CommandExecutorSQLAbstract
           || "removecluster".equalsIgnoreCase(attributeAsString)) {
         value = decodeClassName(value);
       }
-      SQLAlterClassStatement stm = (SQLAlterClassStatement) preParsedStatement;
+      var stm = (SQLAlterClassStatement) preParsedStatement;
       if (this.preParsedStatement != null && stm.property == ATTRIBUTES.CUSTOM) {
         value = stm.customKey.getStringValue() + "=" + stm.customValue.toString();
       }
@@ -124,7 +124,7 @@ public class CommandExecutorSQLAlterClass extends CommandExecutorSQLAbstract
       if (parserTextUpperCase.endsWith("UNSAFE")) {
         unsafe = true;
         value = value.substring(0, value.length() - "UNSAFE".length());
-        for (int i = value.length() - 1; value.charAt(i) == ' ' || value.charAt(i) == '\t'; i--) {
+        for (var i = value.length() - 1; value.charAt(i) == ' ' || value.charAt(i) == '\t'; i--) {
           value = value.substring(0, value.length() - 1);
         }
       }
@@ -155,7 +155,7 @@ public class CommandExecutorSQLAlterClass extends CommandExecutorSQLAbstract
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final SchemaClassImpl cls = (SchemaClassImpl) database.getMetadata().getSchema()
+    final var cls = (SchemaClassImpl) database.getMetadata().getSchema()
         .getClass(className);
     if (cls == null) {
       throw new CommandExecutionException(
@@ -174,8 +174,8 @@ public class CommandExecutorSQLAlterClass extends CommandExecutorSQLAbstract
       checkClassExists(database, className, decodeClassName(value));
     }
     if (value != null && attribute == ATTRIBUTES.SUPERCLASSES) {
-      String[] classes = value.split(",\\s*");
-      for (String cName : classes) {
+      var classes = value.split(",\\s*");
+      for (var cName : classes) {
         checkClassExists(database, className, decodeClassName(cName));
       }
     }

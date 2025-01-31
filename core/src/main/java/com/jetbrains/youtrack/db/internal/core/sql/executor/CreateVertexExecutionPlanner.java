@@ -29,12 +29,12 @@ public class CreateVertexExecutionPlanner extends InsertExecutionPlanner {
 
   @Override
   public InsertExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    InsertExecutionPlan prev = super.createExecutionPlan(ctx, enableProfiling);
+    var prev = super.createExecutionPlan(ctx, enableProfiling);
     List<ExecutionStep> steps = new ArrayList<>(prev.getSteps());
-    InsertExecutionPlan result = new InsertExecutionPlan(ctx);
+    var result = new InsertExecutionPlan(ctx);
 
     handleCheckType(result, ctx, enableProfiling);
-    for (ExecutionStep step : steps) {
+    for (var step : steps) {
       result.chain((ExecutionStepInternal) step);
     }
     return result;

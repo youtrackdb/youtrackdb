@@ -46,20 +46,20 @@ public class CountFromIndexWithKeyStep extends AbstractExecutionStep {
   }
 
   private Result produce(CommandContext ctx) {
-    Index idx = ctx.getDatabase().getMetadata().getIndexManager().getIndex(target.getIndexName());
+    var idx = ctx.getDatabase().getMetadata().getIndexManager().getIndex(target.getIndexName());
     var db = ctx.getDatabase();
-    Object val =
+    var val =
         idx.getDefinition()
             .createValue(db, keyValue.execute(new ResultInternal(db), ctx));
-    long size = idx.getInternal().getRids(db, val).distinct().count();
-    ResultInternal result = new ResultInternal(db);
+    var size = idx.getInternal().getRids(db, val).distinct().count();
+    var result = new ResultInternal(db);
     result.setProperty(alias, size);
     return result;
   }
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
     return spaces + "+ CALCULATE INDEX SIZE BY KEY: " + target;
   }
 }

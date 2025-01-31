@@ -70,7 +70,7 @@ public class EntityEntry {
 
   @SuppressWarnings({"CloneDoesntDeclareCloneNotSupportedException", "MethodDoesntCallSuperMethod"})
   protected EntityEntry clone() {
-    final EntityEntry entry = new EntityEntry();
+    final var entry = new EntityEntry();
     entry.type = type;
     entry.property = property;
     entry.value = value;
@@ -203,7 +203,7 @@ public class EntityEntry {
       //noinspection rawtypes
       if (onLoadValue instanceof TrackedMultiValue trackedOnLoadValue) {
         //noinspection rawtypes
-        MultiValueChangeTimeLine transactionTimeLine = trackedOnLoadValue.getTransactionTimeLine();
+        var transactionTimeLine = trackedOnLoadValue.getTransactionTimeLine();
         //noinspection unchecked
         return transactionTimeLine != null
             ? trackedOnLoadValue.returnOriginalState(session,
@@ -214,9 +214,9 @@ public class EntityEntry {
       }
     } else {
       //noinspection rawtypes
-      TrackedMultiValue trackedOnLoadValue = (TrackedMultiValue) value;
+      var trackedOnLoadValue = (TrackedMultiValue) value;
       //noinspection rawtypes
-      MultiValueChangeTimeLine transactionTimeLine = trackedOnLoadValue.getTransactionTimeLine();
+      var transactionTimeLine = trackedOnLoadValue.getTransactionTimeLine();
       //noinspection unchecked
       return transactionTimeLine != null
           ? trackedOnLoadValue.returnOriginalState(session,

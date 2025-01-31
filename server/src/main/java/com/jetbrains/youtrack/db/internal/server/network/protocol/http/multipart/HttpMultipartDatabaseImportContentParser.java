@@ -36,7 +36,7 @@ public class HttpMultipartDatabaseImportContentParser
       final HttpMultipartContentInputStream in,
       DatabaseSessionInternal db)
       throws IOException {
-    final String fileName = headers.get(HttpUtils.MULTIPART_CONTENT_FILENAME);
+    final var fileName = headers.get(HttpUtils.MULTIPART_CONTENT_FILENAME);
 
     if (fileName.endsWith(".gz") || fileName.endsWith(".gzip")) {
       return new GZIPInputStream(in, 16384); // 16KB

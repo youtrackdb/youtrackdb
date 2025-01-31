@@ -30,7 +30,7 @@ public class SQLNumber extends SimpleNode {
   }
 
   public SQLNumber copy() {
-    SQLNumber result = new SQLNumber(-1);
+    var result = new SQLNumber(-1);
     result.value = value;
     return result;
   }

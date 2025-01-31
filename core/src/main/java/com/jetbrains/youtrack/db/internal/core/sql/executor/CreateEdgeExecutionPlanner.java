@@ -57,21 +57,21 @@ public class CreateEdgeExecutionPlanner {
 
   public InsertExecutionPlan createExecutionPlan(
       CommandContext ctx, boolean enableProfiling, boolean useCache) {
-    DatabaseSessionInternal db = ctx.getDatabase();
+    var db = ctx.getDatabase();
     if (useCache && !enableProfiling && statement.executinPlanCanBeCached(db)) {
-      ExecutionPlan plan = ExecutionPlanCache.get(statement.getOriginalStatement(), ctx, db);
+      var plan = ExecutionPlanCache.get(statement.getOriginalStatement(), ctx, db);
       if (plan != null) {
         return (InsertExecutionPlan) plan;
       }
     }
 
-    long planningStart = System.currentTimeMillis();
+    var planningStart = System.currentTimeMillis();
 
     if (targetClass == null) {
       if (targetClusterName == null) {
         targetClass = new SQLIdentifier("E");
       } else {
-        SchemaClass clazz =
+        var clazz =
             db.getMetadata()
                 .getImmutableSchemaSnapshot()
                 .getClassByClusterId(db.getClusterIdByName(targetClusterName.getStringValue()));
@@ -83,7 +83,7 @@ public class CreateEdgeExecutionPlanner {
       }
     }
 
-    InsertExecutionPlan result = new InsertExecutionPlan(ctx);
+    var result = new InsertExecutionPlan(ctx);
 
     handleCheckType(result, ctx, enableProfiling);
 
@@ -102,7 +102,7 @@ public class CreateEdgeExecutionPlanner {
 
     String uniqueIndexName = null;
     if (upsert) {
-      SchemaClassInternal clazz =
+      var clazz =
           ctx.getDatabase()
               .getMetadata()
               .getImmutableSchemaSnapshot()
@@ -200,17 +200,17 @@ public class CreateEdgeExecutionPlanner {
               ctx,
               profilingEnabled));
     } else if (insertBody.getContent() != null) {
-      for (SQLJson json : insertBody.getContent()) {
+      for (var json : insertBody.getContent()) {
         result.chain(new UpdateContentStep(json, ctx, profilingEnabled));
       }
     } else if (insertBody.getContentInputParam() != null) {
-      for (SQLInputParameter inputParam : insertBody.getContentInputParam()) {
+      for (var inputParam : insertBody.getContentInputParam()) {
         result.chain(new UpdateContentStep(inputParam, ctx, profilingEnabled));
       }
     } else if (insertBody.getSetExpressions() != null) {
       List<SQLUpdateItem> items = new ArrayList<>();
-      for (SQLInsertSetExpression exp : insertBody.getSetExpressions()) {
-        SQLUpdateItem item = new SQLUpdateItem(-1);
+      for (var exp : insertBody.getSetExpressions()) {
+        var item = new SQLUpdateItem(-1);
         item.setOperator(SQLUpdateItem.OPERATOR_EQ);
         item.setLeft(exp.getLeft().copy());
         item.setRight(exp.getRight().copy());

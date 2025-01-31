@@ -42,11 +42,11 @@ public class LuceneInsertUpdateTest extends LuceneBaseTest {
   public void init() {
 
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass oClass = schema.createClass("City");
+    var oClass = schema.createClass("City");
 
     oClass.createProperty(db, "name", PropertyType.STRING);
     //noinspection EmptyTryBlock
-    try (ResultSet command =
+    try (var command =
         db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE")) {
     }
   }
@@ -55,21 +55,21 @@ public class LuceneInsertUpdateTest extends LuceneBaseTest {
   public void testInsertUpdateWithIndex() {
     var schema = db.getMetadata().getSchema();
 
-    EntityImpl doc = ((EntityImpl) db.newEntity("City"));
+    var doc = ((EntityImpl) db.newEntity("City"));
     doc.field("name", "Rome");
 
     db.begin();
     db.save(doc);
     db.commit();
     db.begin();
-    Index idx = schema.getClassInternal("City").getClassIndex(db, "City.name");
+    var idx = schema.getClassInternal("City").getClassIndex(db, "City.name");
     Collection<?> coll;
-    try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (var stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(1, coll.size());
 
-    Identifiable next = (Identifiable) coll.iterator().next();
+    var next = (Identifiable) coll.iterator().next();
     doc = db.load(next.getIdentity());
     Assert.assertEquals("Rome", doc.field("name"));
 
@@ -78,11 +78,11 @@ public class LuceneInsertUpdateTest extends LuceneBaseTest {
     db.save(doc);
     db.commit();
     db.begin();
-    try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (var stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(0, coll.size());
-    try (Stream<RID> stream = idx.getInternal().getRids(db, "London")) {
+    try (var stream = idx.getInternal().getRids(db, "London")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(1, coll.size());
@@ -96,16 +96,16 @@ public class LuceneInsertUpdateTest extends LuceneBaseTest {
     db.save(doc);
     db.commit();
 
-    try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (var stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(0, coll.size());
-    try (Stream<RID> stream = idx.getInternal().getRids(db, "London")) {
+    try (var stream = idx.getInternal().getRids(db, "London")) {
       coll = stream.collect(Collectors.toList());
     }
 
     Assert.assertEquals(0, coll.size());
-    try (Stream<RID> stream = idx.getInternal().getRids(db, "Berlin")) {
+    try (var stream = idx.getInternal().getRids(db, "Berlin")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(1, coll.size());

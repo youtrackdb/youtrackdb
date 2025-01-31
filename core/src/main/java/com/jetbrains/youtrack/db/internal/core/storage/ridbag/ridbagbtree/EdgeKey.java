@@ -33,7 +33,7 @@ public final class EdgeKey implements Comparable<EdgeKey> {
       return false;
     }
 
-    EdgeKey edgeKey = (EdgeKey) o;
+    var edgeKey = (EdgeKey) o;
 
     if (ridBagId != edgeKey.ridBagId) {
       return false;
@@ -46,7 +46,7 @@ public final class EdgeKey implements Comparable<EdgeKey> {
 
   @Override
   public int hashCode() {
-    int result = (int) (ridBagId ^ (ridBagId >>> 32));
+    var result = (int) (ridBagId ^ (ridBagId >>> 32));
     result = 31 * result + targetCluster;
     result = 31 * result + (int) (targetPosition ^ (targetPosition >>> 32));
     return result;

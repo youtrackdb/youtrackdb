@@ -30,7 +30,7 @@ public class GlobalLetQueryStep extends AbstractExecutionStep {
     super(ctx, profilingEnabled);
     this.varName = varName;
 
-    BasicCommandContext subCtx = new BasicCommandContext();
+    var subCtx = new BasicCommandContext();
     if (scriptVars != null) {
       scriptVars.forEach(subCtx::declareScriptVariable);
     }
@@ -70,7 +70,7 @@ public class GlobalLetQueryStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
     return spaces
         + "+ LET (once)\n"
         + spaces
@@ -86,11 +86,11 @@ public class GlobalLetQueryStep extends AbstractExecutionStep {
   }
 
   private String box(String spaces, String s) {
-    String[] rows = s.split("\n");
-    StringBuilder result = new StringBuilder();
+    var rows = s.split("\n");
+    var result = new StringBuilder();
     result.append(spaces);
     result.append("+-------------------------\n");
-    for (String row : rows) {
+    for (var row : rows) {
       result.append(spaces);
       result.append("| ");
       result.append(row);

@@ -41,8 +41,8 @@ public class SQLDropClusterStatement extends DDLStatement {
         }
       }
     }
-    for (SchemaClass iClass : database.getMetadata().getSchema().getClasses(database)) {
-      for (int i : iClass.getClusterIds()) {
+    for (var iClass : database.getMetadata().getSchema().getClasses(database)) {
+      for (var i : iClass.getClusterIds()) {
         if (i == clusterId) {
           // IN USE
           throw new CommandExecutionException(
@@ -55,7 +55,7 @@ public class SQLDropClusterStatement extends DDLStatement {
     }
 
     // REMOVE CACHE OF COMMAND RESULTS IF ACTIVE
-    String clusterName = database.getClusterNameById(clusterId);
+    var clusterName = database.getClusterNameById(clusterId);
     if (clusterName == null) {
       if (ifExists) {
         return ExecutionStream.empty();
@@ -66,7 +66,7 @@ public class SQLDropClusterStatement extends DDLStatement {
 
     database.dropCluster(clusterId);
 
-    ResultInternal result = new ResultInternal(database);
+    var result = new ResultInternal(database);
     result.setProperty("operation", "drop cluster");
     result.setProperty("clusterName", name == null ? null : name.getStringValue());
     result.setProperty("clusterId", id == null ? null : id.getValue());
@@ -101,7 +101,7 @@ public class SQLDropClusterStatement extends DDLStatement {
 
   @Override
   public SQLDropClusterStatement copy() {
-    SQLDropClusterStatement result = new SQLDropClusterStatement(-1);
+    var result = new SQLDropClusterStatement(-1);
     result.name = name == null ? null : name.copy();
     result.id = id == null ? null : id.copy();
     result.ifExists = this.ifExists;
@@ -117,7 +117,7 @@ public class SQLDropClusterStatement extends DDLStatement {
       return false;
     }
 
-    SQLDropClusterStatement that = (SQLDropClusterStatement) o;
+    var that = (SQLDropClusterStatement) o;
 
     if (ifExists != that.ifExists) {
       return false;
@@ -130,7 +130,7 @@ public class SQLDropClusterStatement extends DDLStatement {
 
   @Override
   public int hashCode() {
-    int result = name != null ? name.hashCode() : 0;
+    var result = name != null ? name.hashCode() : 0;
     result = 31 * result + (id != null ? id.hashCode() : 0);
     result = 31 * result + (ifExists ? 1 : 0);
     return result;

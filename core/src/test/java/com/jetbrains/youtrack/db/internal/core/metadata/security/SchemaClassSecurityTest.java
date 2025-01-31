@@ -65,14 +65,14 @@ public class SchemaClassSecurityTest {
   public void testReadWithClassPermissions() {
     db.createClass("Person");
     db.begin();
-    Role reader = db.getMetadata().getSecurity().getRole("reader");
+    var reader = db.getMetadata().getSecurity().getRole("reader");
     reader.grant(db, Rule.ResourceGeneric.CLASS, "Person", Role.PERMISSION_NONE);
     reader.revoke(db, Rule.ResourceGeneric.CLASS, "Person", Role.PERMISSION_READ);
     reader.save(db);
     db.commit();
 
     db.begin();
-    Entity elem = db.newEntity("Person");
+    var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
     db.save(elem);
@@ -82,7 +82,7 @@ public class SchemaClassSecurityTest {
 
     db = (DatabaseSessionInternal) youTrackDB.open(DB_NAME, "reader",
         CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
-    try (final ResultSet resultSet = db.query("SELECT from Person")) {
+    try (final var resultSet = db.query("SELECT from Person")) {
       Assert.assertFalse(resultSet.hasNext());
     }
   }

@@ -12,7 +12,7 @@ import org.junit.Assert;
 public class HttpAuthenticationTest extends BaseHttpDatabaseTest {
 
   public void testChangeOfUserOnSameConnectionIsAllowed() throws IOException {
-    ClassicHttpResponse response =
+    var response =
         get("query/"
             + getDatabaseName()
             + "/sql/"
@@ -23,7 +23,7 @@ public class HttpAuthenticationTest extends BaseHttpDatabaseTest {
             .getResponse();
     Assert.assertEquals(response.getReasonPhrase(), response.getCode(), 200);
 
-    ClassicHttpResponse response1 =
+    var response1 =
         get("query/"
             + getDatabaseName()
             + "/sql/"

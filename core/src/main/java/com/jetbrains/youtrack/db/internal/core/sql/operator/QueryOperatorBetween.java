@@ -78,32 +78,32 @@ public class QueryOperatorBetween extends QueryOperatorEqualityNotNulls {
       CommandContext iContext) {
     validate(right);
 
-    final Iterator<?> valueIterator = MultiValue.getMultiValueIterator(right);
+    final var valueIterator = MultiValue.getMultiValueIterator(right);
 
     var database = iContext.getDatabase();
-    Object right1 = valueIterator.next();
+    var right1 = valueIterator.next();
     valueIterator.next();
-    Object right2 = valueIterator.next();
-    final Object right1c = PropertyType.convert(database, right1, left.getClass());
+    var right2 = valueIterator.next();
+    final var right1c = PropertyType.convert(database, right1, left.getClass());
     if (right1c == null) {
       return false;
     }
 
-    final Object right2c = PropertyType.convert(database, right2, left.getClass());
+    final var right2c = PropertyType.convert(database, right2, left.getClass());
     if (right2c == null) {
       return false;
     }
 
     final int leftResult;
     if (left instanceof Number && right1 instanceof Number) {
-      Number[] conv = PropertyType.castComparableNumber((Number) left, (Number) right1);
+      var conv = PropertyType.castComparableNumber((Number) left, (Number) right1);
       leftResult = ((Comparable) conv[0]).compareTo(conv[1]);
     } else {
       leftResult = ((Comparable<Object>) left).compareTo(right1c);
     }
     final int rightResult;
     if (left instanceof Number && right2 instanceof Number) {
-      Number[] conv = PropertyType.castComparableNumber((Number) left, (Number) right2);
+      var conv = PropertyType.castComparableNumber((Number) left, (Number) right2);
       rightResult = ((Comparable) conv[0]).compareTo(conv[1]);
     } else {
       rightResult = ((Comparable<Object>) left).compareTo(right2c);
@@ -138,22 +138,22 @@ public class QueryOperatorBetween extends QueryOperatorEqualityNotNulls {
   @Override
   public Stream<RawPair<Object, RID>> executeIndexQuery(
       CommandContext iContext, Index index, List<Object> keyParams, boolean ascSortOrder) {
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
 
     var database = iContext.getDatabase();
     Stream<RawPair<Object, RID>> stream;
-    final IndexInternal internalIndex = index.getInternal();
+    final var internalIndex = index.getInternal();
     if (!internalIndex.canBeUsedInEqualityOperators() || !internalIndex.hasRangeQuerySupport()) {
       return null;
     }
 
     if (indexDefinition.getParamCount() == 1) {
-      final Object[] betweenKeys = (Object[]) keyParams.get(0);
+      final var betweenKeys = (Object[]) keyParams.get(0);
 
-      final Object keyOne =
+      final var keyOne =
           indexDefinition.createValue(
               database, Collections.singletonList(SQLHelper.getValue(betweenKeys[0])));
-      final Object keyTwo =
+      final var keyTwo =
           indexDefinition.createValue(
               database, Collections.singletonList(SQLHelper.getValue(betweenKeys[2])));
 
@@ -167,18 +167,18 @@ public class QueryOperatorBetween extends QueryOperatorEqualityNotNulls {
               .streamEntriesBetween(database, keyOne, leftInclusive, keyTwo, rightInclusive,
                   ascSortOrder);
     } else {
-      final CompositeIndexDefinition compositeIndexDefinition =
+      final var compositeIndexDefinition =
           (CompositeIndexDefinition) indexDefinition;
 
-      final Object[] betweenKeys = (Object[]) keyParams.get(keyParams.size() - 1);
+      final var betweenKeys = (Object[]) keyParams.get(keyParams.size() - 1);
 
-      final Object betweenKeyOne = SQLHelper.getValue(betweenKeys[0]);
+      final var betweenKeyOne = SQLHelper.getValue(betweenKeys[0]);
 
       if (betweenKeyOne == null) {
         return null;
       }
 
-      final Object betweenKeyTwo = SQLHelper.getValue(betweenKeys[2]);
+      final var betweenKeyTwo = SQLHelper.getValue(betweenKeys[2]);
 
       if (betweenKeyTwo == null) {
         return null;
@@ -224,9 +224,9 @@ public class QueryOperatorBetween extends QueryOperatorEqualityNotNulls {
 
     if (iLeft instanceof SQLFilterItemField
         && EntityHelper.ATTRIBUTE_RID.equals(((SQLFilterItemField) iLeft).getRoot(session))) {
-      final Iterator<?> valueIterator = MultiValue.getMultiValueIterator(iRight);
+      final var valueIterator = MultiValue.getMultiValueIterator(iRight);
 
-      final Object right1 = valueIterator.next();
+      final var right1 = valueIterator.next();
       if (right1 != null) {
         return (RID) right1;
       }
@@ -247,13 +247,13 @@ public class QueryOperatorBetween extends QueryOperatorEqualityNotNulls {
 
     if (iLeft instanceof SQLFilterItemField
         && EntityHelper.ATTRIBUTE_RID.equals(((SQLFilterItemField) iLeft).getRoot(session))) {
-      final Iterator<?> valueIterator = MultiValue.getMultiValueIterator(iRight);
+      final var valueIterator = MultiValue.getMultiValueIterator(iRight);
 
-      final Object right1 = valueIterator.next();
+      final var right1 = valueIterator.next();
 
       valueIterator.next();
 
-      final Object right2 = valueIterator.next();
+      final var right2 = valueIterator.next();
 
       if (right2 == null) {
         return (RID) right1;

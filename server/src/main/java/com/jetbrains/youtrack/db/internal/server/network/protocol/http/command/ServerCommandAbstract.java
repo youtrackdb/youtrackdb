@@ -58,10 +58,10 @@ public abstract class ServerCommandAbstract implements ServerCommand {
 
   protected String[] checkSyntax(
       final String iURL, final int iArgumentCount, final String iSyntax) {
-    final List<String> parts =
+    final var parts =
         StringSerializerHelper.smartSplit(
             iURL, HttpResponseAbstract.URL_SEPARATOR, 1, -1, true, true, false, false);
-    for (int i = 0; i < parts.size(); i++) {
+    for (var i = 0; i < parts.size(); i++) {
       parts.set(i, URLDecoder.decode(parts.get(i), StandardCharsets.UTF_8));
     }
     if (parts.size() < iArgumentCount) {
@@ -99,8 +99,8 @@ public abstract class ServerCommandAbstract implements ServerCommand {
       final Object iContent,
       final String iHeaders)
       throws IOException {
-    EntityImpl response = new EntityImpl(null);
-    EntityImpl error = new EntityImpl(null);
+    var response = new EntityImpl(null);
+    var error = new EntityImpl(null);
     error.field("code", iCode);
     error.field("reason", iReason);
     error.field("content", iContent);

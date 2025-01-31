@@ -25,7 +25,6 @@ import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,10 +45,10 @@ public class CommandExecutorSQLCreateFunction extends CommandExecutorSQLAbstract
   @SuppressWarnings("unchecked")
   public CommandExecutorSQLCreateFunction parse(DatabaseSessionInternal db,
       final CommandRequest iRequest) {
-    final CommandRequestText textRequest = (CommandRequestText) iRequest;
+    final var textRequest = (CommandRequestText) iRequest;
 
-    String queryText = textRequest.getText();
-    String originalQuery = queryText;
+    var queryText = textRequest.getText();
+    var originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
@@ -62,7 +61,7 @@ public class CommandExecutorSQLCreateFunction extends CommandExecutorSQLAbstract
       name = parserNextWord(false);
       code = IOUtils.getStringContent(parserNextWord(false));
 
-      String temp = parseOptionalWord(true);
+      var temp = parseOptionalWord(true);
       while (temp != null) {
         if (temp.equals("IDEMPOTENT")) {
           parserNextWord(false);
@@ -117,7 +116,7 @@ public class CommandExecutorSQLCreateFunction extends CommandExecutorSQLAbstract
     }
 
     var database = getDatabase();
-    final Function f = database.getMetadata().getFunctionLibrary().createFunction(name);
+    final var f = database.getMetadata().getFunctionLibrary().createFunction(name);
     f.setCode(code);
     f.setIdempotent(idempotent);
     if (parameters != null) {

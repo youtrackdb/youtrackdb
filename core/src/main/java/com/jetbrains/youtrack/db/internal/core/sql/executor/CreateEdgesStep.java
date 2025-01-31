@@ -66,11 +66,11 @@ public class CreateEdgesStep extends AbstractExecutionStep {
       prev.start(ctx).close(ctx);
     }
 
-    Iterator<?> fromIter = fetchFroms();
-    List<Object> toList = fetchTo();
-    Index uniqueIndex = findIndex(this.uniqueIndexName);
+    var fromIter = fetchFroms();
+    var toList = fetchTo();
+    var uniqueIndex = findIndex(this.uniqueIndexName);
     var db = ctx.getDatabase();
-    Stream<Result> stream =
+    var stream =
         StreamSupport.stream(Spliterators.spliteratorUnknownSize(fromIter, 0), false)
             .map(currentFrom1 -> asVertex(db, currentFrom1))
             .flatMap((currentFrom) -> mapTo(ctx.getDatabase(), toList, currentFrom, uniqueIndex));
@@ -79,8 +79,8 @@ public class CreateEdgesStep extends AbstractExecutionStep {
 
   private Index findIndex(String uniqueIndexName) {
     if (uniqueIndexName != null) {
-      final DatabaseSessionInternal database = ctx.getDatabase();
-      Index uniqueIndex =
+      final var database = ctx.getDatabase();
+      var uniqueIndex =
           database.getMetadata().getIndexManagerInternal().getIndex(database, uniqueIndexName);
       if (uniqueIndex == null) {
         throw new CommandExecutionException("Index not found for upsert: " + uniqueIndexName);
@@ -91,7 +91,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
   }
 
   private List<Object> fetchTo() {
-    Object toValues = ctx.getVariable(toAlias.getStringValue());
+    var toValues = ctx.getVariable(toAlias.getStringValue());
     if (toValues instanceof Iterable && !(toValues instanceof Identifiable)) {
       toValues = ((Iterable<?>) toValues).iterator();
     } else if (!(toValues instanceof Iterator)) {
@@ -101,7 +101,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
       toValues = ((InternalResultSet) toValues).copy();
     }
 
-    Iterator<?> toIter = (Iterator<?>) toValues;
+    var toIter = (Iterator<?>) toValues;
 
     if (toIter instanceof ResultSet) {
       try {
@@ -117,7 +117,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
   }
 
   private Iterator<?> fetchFroms() {
-    Object fromValues = ctx.getVariable(fromAlias.getStringValue());
+    var fromValues = ctx.getVariable(fromAlias.getStringValue());
     if (fromValues instanceof Iterable && !(fromValues instanceof Identifiable)) {
       fromValues = ((Iterable<?>) fromValues).iterator();
     } else if (!(fromValues instanceof Iterator)) {
@@ -126,7 +126,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
     if (fromValues instanceof InternalResultSet) {
       fromValues = ((InternalResultSet) fromValues).copy();
     }
-    Iterator<?> fromIter = (Iterator<?>) fromValues;
+    var fromIter = (Iterator<?>) fromValues;
     if (fromIter instanceof ResultSet) {
       try {
         ((ResultSet) fromIter).reset();
@@ -141,13 +141,13 @@ public class CreateEdgesStep extends AbstractExecutionStep {
     return to.stream()
         .map(
             (obj) -> {
-              Vertex currentTo = asVertex(db, obj);
+              var currentTo = asVertex(db, obj);
               if (currentTo == null) {
                 throw new CommandExecutionException("Invalid TO vertex for edge");
               }
               EdgeInternal edgeToUpdate = null;
               if (uniqueIndex != null) {
-                EdgeInternal existingEdge =
+                var existingEdge =
                     getExistingEdge(ctx.getDatabase(), currentFrom, currentTo, uniqueIndex);
                 if (existingEdge != null) {
                   edgeToUpdate = existingEdge;
@@ -180,13 +180,13 @@ public class CreateEdgesStep extends AbstractExecutionStep {
       Vertex currentFrom,
       Vertex currentTo,
       Index uniqueIndex) {
-    Object key =
+    var key =
         uniqueIndex
             .getDefinition()
             .createValue(db, currentFrom.getIdentity(), currentTo.getIdentity());
 
     final Iterator<RID> iterator;
-    try (Stream<RID> stream = uniqueIndex.getInternal().getRids(db, key)) {
+    try (var stream = uniqueIndex.getInternal().getRids(db, key)) {
       iterator = stream.iterator();
       if (iterator.hasNext()) {
         return iterator.next().getRecord(db);
@@ -201,7 +201,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
       currentFrom = ((RID) currentFrom).getRecord(db);
     }
     if (currentFrom instanceof Result) {
-      Object from = currentFrom;
+      var from = currentFrom;
       currentFrom =
           ((Result) currentFrom)
               .getVertex()
@@ -213,7 +213,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
       return (Vertex) currentFrom;
     }
     if (currentFrom instanceof Entity) {
-      Object from = currentFrom;
+      var from = currentFrom;
       return ((Entity) currentFrom)
           .asVertex()
           .orElseThrow(
@@ -226,8 +226,8 @@ public class CreateEdgesStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = ExecutionStepInternal.getIndent(depth, indent);
-    String result = spaces + "+ FOR EACH x in " + fromAlias + "\n";
+    var spaces = ExecutionStepInternal.getIndent(depth, indent);
+    var result = spaces + "+ FOR EACH x in " + fromAlias + "\n";
     result += spaces + "    FOR EACH y in " + toAlias + "\n";
     result += spaces + "       CREATE EDGE " + targetClass + " FROM x TO y";
     if (profilingEnabled) {

@@ -14,7 +14,7 @@ public class SessionPoolTest {
 
   @Test
   public void testPool() {
-    final YouTrackDBImpl youTrackDb =
+    final var youTrackDb =
         CreateDatabaseUtil.createDatabase("test", DbTestBase.embeddedDBUrl(getClass()),
             CreateDatabaseUtil.TYPE_MEMORY);
     final SessionPool pool =
@@ -29,7 +29,7 @@ public class SessionPoolTest {
 
   @Test
   public void testPoolCloseTx() {
-    final YouTrackDBImpl youTrackDb =
+    final var youTrackDb =
         new YouTrackDBImpl(
             DbTestBase.embeddedDBUrl(getClass()),
             YouTrackDBConfig.builder()
@@ -50,7 +50,7 @@ public class SessionPoolTest {
 
     final SessionPool pool =
         new SessionPoolImpl(youTrackDb, "test", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    DatabaseSessionInternal db = (DatabaseSessionInternal) pool.acquire();
+    var db = (DatabaseSessionInternal) pool.acquire();
     db.createClass("Test");
     db.begin();
     db.save(db.newEntity("Test"));
@@ -64,7 +64,7 @@ public class SessionPoolTest {
 
   @Test
   public void testPoolDoubleClose() {
-    final YouTrackDBImpl youTrackDb =
+    final var youTrackDb =
         new YouTrackDBImpl(
             DbTestBase.embeddedDBUrl(getClass()),
             YouTrackDBConfig.builder()

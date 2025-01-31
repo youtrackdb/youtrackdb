@@ -42,7 +42,7 @@ public class SQLCreatePropertyAttributeStatement extends SimpleNode {
   }
 
   public SQLCreatePropertyAttributeStatement copy() {
-    SQLCreatePropertyAttributeStatement result = new SQLCreatePropertyAttributeStatement(-1);
+    var result = new SQLCreatePropertyAttributeStatement(-1);
     result.settingName = settingName == null ? null : settingName.copy();
     result.settingValue = settingValue == null ? null : settingValue.copy();
     return result;
@@ -57,7 +57,7 @@ public class SQLCreatePropertyAttributeStatement extends SimpleNode {
       return false;
     }
 
-    SQLCreatePropertyAttributeStatement that = (SQLCreatePropertyAttributeStatement) o;
+    var that = (SQLCreatePropertyAttributeStatement) o;
 
     if (!Objects.equals(settingName, that.settingName)) {
       return false;
@@ -67,15 +67,15 @@ public class SQLCreatePropertyAttributeStatement extends SimpleNode {
 
   @Override
   public int hashCode() {
-    int result = settingName != null ? settingName.hashCode() : 0;
+    var result = settingName != null ? settingName.hashCode() : 0;
     result = 31 * result + (settingValue != null ? settingValue.hashCode() : 0);
     return result;
   }
 
   public Object setOnProperty(SchemaPropertyImpl internalProp, CommandContext ctx) {
-    String attrName = settingName.getStringValue();
+    var attrName = settingName.getStringValue();
     var db = ctx.getDatabase();
-    Object attrValue =
+    var attrValue =
         this.settingValue == null ? true : this.settingValue.execute((Identifiable) null, ctx);
     try {
       if (attrName.equalsIgnoreCase("readonly")) {

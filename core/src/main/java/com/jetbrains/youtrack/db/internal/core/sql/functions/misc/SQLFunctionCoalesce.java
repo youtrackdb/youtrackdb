@@ -75,8 +75,8 @@ public class SQLFunctionCoalesce extends SQLFunctionAbstract {
       Object iCurrentResult,
       final Object[] iParams,
       CommandContext iContext) {
-    int length = iParams.length;
-    for (int i = 0; i < length; i++) {
+    var length = iParams.length;
+    for (var i = 0; i < length; i++) {
       if (iParams[i] != null) {
         return iParams[i];
       }

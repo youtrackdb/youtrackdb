@@ -18,14 +18,14 @@ public class TestLinkedDocumentInMap extends DbTestBase {
     db.command("delete from PersonTest").close();
 
     db.begin();
-    EntityImpl jaimeDoc = (EntityImpl) db.newEntity("PersonTest");
+    var jaimeDoc = (EntityImpl) db.newEntity("PersonTest");
     jaimeDoc.field("name", "jaime");
     jaimeDoc.save();
     db.commit();
 
     db.begin();
     jaimeDoc = db.bindToSession(jaimeDoc);
-    EntityImpl tyrionDoc = (EntityImpl) db.newEntity("PersonTest");
+    var tyrionDoc = (EntityImpl) db.newEntity("PersonTest");
     tyrionDoc.updateFromJSON(
         "{\"@type\":\"d\",\"name\":\"tyrion\",\"emergency_contact\":[{\"relationship\":\"brother\",\"contact\":"
             + jaimeDoc.toJSON()
@@ -35,11 +35,11 @@ public class TestLinkedDocumentInMap extends DbTestBase {
 
     tyrionDoc = db.bindToSession(tyrionDoc);
     List<Map<String, Identifiable>> res = tyrionDoc.field("emergency_contact");
-    Map<String, Identifiable> doc = res.get(0);
+    var doc = res.get(0);
     Assert.assertTrue(((RecordId) doc.get("contact").getIdentity()).isValid());
 
     reOpen("admin", "adminpwd");
-    try (ResultSet result = db.query("select from " + tyrionDoc.getIdentity())) {
+    try (var result = db.query("select from " + tyrionDoc.getIdentity())) {
       res = result.next().getProperty("emergency_contact");
       doc = res.get(0);
       Assert.assertTrue(((RecordId) doc.get("contact").getIdentity()).isValid());

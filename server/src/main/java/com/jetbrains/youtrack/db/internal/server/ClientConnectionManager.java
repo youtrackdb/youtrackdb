@@ -25,7 +25,6 @@ import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.profiler.AbstractProfiler.ProfilerHookValue;
 import com.jetbrains.youtrack.db.internal.common.profiler.Profiler.METRIC_TYPE;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
-import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.security.ParsedToken;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.TokenSecurityException;
@@ -36,10 +35,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -59,7 +55,7 @@ public class ClientConnectionManager {
   private final YouTrackDBServer server;
 
   public ClientConnectionManager(YouTrackDBServer server) {
-    final int delay = GlobalConfiguration.SERVER_CHANNEL_CLEAN_DELAY.getValueAsInteger();
+    final var delay = GlobalConfiguration.SERVER_CHANNEL_CLEAN_DELAY.getValueAsInteger();
 
     timerTask =
         YouTrackDBEnginesManager.instance()
@@ -89,9 +85,9 @@ public class ClientConnectionManager {
   }
 
   public void cleanExpiredConnections() {
-    final Iterator<Entry<Integer, ClientConnection>> iterator = connections.entrySet().iterator();
+    final var iterator = connections.entrySet().iterator();
     while (iterator.hasNext()) {
-      final Entry<Integer, ClientConnection> entry = iterator.next();
+      final var entry = iterator.next();
 
       if (entry.getValue().tryAcquireForExpire()) {
         try {
@@ -112,7 +108,7 @@ public class ClientConnectionManager {
                     entry.getKey(),
                     socket);
             try {
-              CommandRequestText command = entry.getValue().getData().command;
+              var command = entry.getValue().getData().command;
               if (command != null && command.isIdempotent()) {
                 entry.getValue().getProtocol().sendShutdown();
                 entry.getValue().getProtocol().interrupt();
@@ -207,7 +203,7 @@ public class ClientConnectionManager {
       throw new TokenSecurityException("The token provided is expired");
     }
 
-    HashToken key = new HashToken(tokenBytes);
+    var key = new HashToken(tokenBytes);
     ClientSessions sess;
     synchronized (sessions) {
       sess = sessions.get(key);
@@ -231,7 +227,7 @@ public class ClientConnectionManager {
    */
   public ClientConnection getConnection(final int iChannelId, NetworkProtocol protocol) {
     // SEARCH THE CONNECTION BY ID
-    ClientConnection connection = connections.get(iChannelId);
+    var connection = connections.get(iChannelId);
     if (connection != null) {
       connection.setProtocol(protocol);
     }
@@ -246,7 +242,7 @@ public class ClientConnectionManager {
    * @return The connection if any, otherwise null
    */
   public ClientConnection getConnection(final String iAddress) {
-    for (ClientConnection conn : connections.values()) {
+    for (var conn : connections.values()) {
       if (iAddress.equals(conn.getRemoteAddress())) {
         return conn;
       }
@@ -270,7 +266,7 @@ public class ClientConnectionManager {
    */
   public void kill(final ClientConnection connection) {
     if (connection != null) {
-      final NetworkProtocol protocol = connection.getProtocol();
+      final var protocol = connection.getProtocol();
 
       try {
         // INTERRUPT THE NEWTORK MANAGER TOO
@@ -296,9 +292,9 @@ public class ClientConnectionManager {
    * @param iChannelId id of connection
    */
   public void interrupt(final int iChannelId) {
-    final ClientConnection connection = connections.get(iChannelId);
+    final var connection = connections.get(iChannelId);
     if (connection != null) {
-      final NetworkProtocol protocol = connection.getProtocol();
+      final var protocol = connection.getProtocol();
       if (protocol != null)
       // INTERRUPT THE NEWTORK MANAGER
       {
@@ -315,7 +311,7 @@ public class ClientConnectionManager {
   public void disconnect(final int iChannelId) {
     LogManager.instance().debug(this, "Disconnecting connection with id=%d", iChannelId);
 
-    final ClientConnection connection = connections.remove(iChannelId);
+    final var connection = connections.remove(iChannelId);
 
     if (connection != null) {
       ServerPluginHelper.invokeHandlerCallbackOnClientDisconnection(server, connection);
@@ -323,7 +319,7 @@ public class ClientConnectionManager {
       removeConnectionFromSession(connection);
 
       // CHECK IF THERE ARE OTHER CONNECTIONS
-      for (Entry<Integer, ClientConnection> entry : connections.entrySet()) {
+      for (var entry : connections.entrySet()) {
         if (entry.getValue().getProtocol().equals(connection.getProtocol())) {
           LogManager.instance()
               .debug(
@@ -347,10 +343,10 @@ public class ClientConnectionManager {
 
   private void removeConnectionFromSession(ClientConnection connection) {
     if (connection.getProtocol() instanceof NetworkProtocolBinary) {
-      byte[] tokenBytes = connection.getTokenBytes();
-      HashToken hashToken = new HashToken(tokenBytes);
+      var tokenBytes = connection.getTokenBytes();
+      var hashToken = new HashToken(tokenBytes);
       synchronized (sessions) {
-        ClientSessions sess = sessions.get(hashToken);
+        var sess = sessions.get(hashToken);
         if (sess != null) {
           sess.removeConnection(connection);
           if (!sess.isActive()) {
@@ -367,10 +363,10 @@ public class ClientConnectionManager {
     removeConnectionFromSession(iConnection);
     iConnection.close();
 
-    int totalRemoved = 0;
-    for (Entry<Integer, ClientConnection> entry :
+    var totalRemoved = 0;
+    for (var entry :
         new HashMap<Integer, ClientConnection>(connections).entrySet()) {
-      final ClientConnection conn = entry.getValue();
+      final var conn = entry.getValue();
       if (conn != null && conn.equals(iConnection)) {
         connections.remove(entry.getKey());
         totalRemoved++;
@@ -394,8 +390,8 @@ public class ClientConnectionManager {
 
     List<NetworkProtocol> toWait = new ArrayList<NetworkProtocol>();
 
-    for (Entry<Integer, ClientConnection> entry : connections.entrySet()) {
-      final NetworkProtocol protocol = entry.getValue().getProtocol();
+    for (var entry : connections.entrySet()) {
+      final var protocol = entry.getValue().getProtocol();
 
       if (protocol != null) {
         protocol.sendShutdown();
@@ -403,7 +399,7 @@ public class ClientConnectionManager {
 
       LogManager.instance().debug(this, "Sending shutdown to thread %s", protocol);
 
-      CommandRequestText command = entry.getValue().getData().command;
+      var command = entry.getValue().getData().command;
       if (command != null && command.isIdempotent()) {
         protocol.interrupt();
       } else {
@@ -454,7 +450,7 @@ public class ClientConnectionManager {
       }
     }
 
-    for (NetworkProtocol protocol : toWait) {
+    for (var protocol : toWait) {
       try {
         protocol.join(
             server
@@ -471,9 +467,9 @@ public class ClientConnectionManager {
   }
 
   public void killAllChannels() {
-    for (Map.Entry<Integer, ClientConnection> entry : connections.entrySet()) {
+    for (var entry : connections.entrySet()) {
       try {
-        NetworkProtocol protocol = entry.getValue().getProtocol();
+        var protocol = entry.getValue().getProtocol();
 
         protocol.getChannel().close();
 
@@ -504,7 +500,7 @@ public class ClientConnectionManager {
   }
 
   public ClientSessions getSession(ClientConnection connection) {
-    HashToken key = new HashToken(connection.getTokenBytes());
+    var key = new HashToken(connection.getTokenBytes());
     synchronized (sessions) {
       return sessions.get(key);
     }

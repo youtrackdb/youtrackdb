@@ -44,17 +44,17 @@ public class StorageBackupMTTest {
   @Test
   public void testParallelBackup() throws Exception {
     backupIterationRecordCount.clear();
-    for (int i = 0; i < 100; i++) {
-      CountDownLatch latch = new CountDownLatch(4);
+    for (var i = 0; i < 100; i++) {
+      var latch = new CountDownLatch(4);
       backupIterationRecordCount.add(latch);
     }
-    String testDirectory = DbTestBase.getDirectoryPath(getClass());
+    var testDirectory = DbTestBase.getDirectoryPath(getClass());
     FileUtils.createDirectoryTree(testDirectory);
     dbName = StorageBackupMTTest.class.getSimpleName();
-    final String dbDirectory = testDirectory + "databases" + File.separator + dbName;
+    final var dbDirectory = testDirectory + "databases" + File.separator + dbName;
 
-    final File backupDir = new File(testDirectory, "backupDir");
-    final String backupDbName = StorageBackupMTTest.class.getSimpleName() + "BackUp";
+    final var backupDir = new File(testDirectory, "backupDir");
+    final var backupDbName = StorageBackupMTTest.class.getSimpleName() + "BackUp";
 
     FileUtils.deleteRecursively(new File(dbDirectory));
 
@@ -68,7 +68,7 @@ public class StorageBackupMTTest {
       var db = (DatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
       final Schema schema = db.getMetadata().getSchema();
-      final SchemaClass backupClass = schema.createClass("BackupClass");
+      final var backupClass = schema.createClass("BackupClass");
       backupClass.createProperty(db, "num", PropertyType.INTEGER);
       backupClass.createProperty(db, "data", PropertyType.BINARY);
 
@@ -80,11 +80,11 @@ public class StorageBackupMTTest {
         Assert.assertTrue(backupDir.mkdirs());
       }
 
-      final ExecutorService executor = Executors.newCachedThreadPool();
+      final var executor = Executors.newCachedThreadPool();
       final List<Future<Void>> futures = new ArrayList<>();
 
-      for (int i = 0; i < 4; i++) {
-        Stack<CountDownLatch> producerIterationRecordCount = new Stack<>();
+      for (var i = 0; i < 4; i++) {
+        var producerIterationRecordCount = new Stack<CountDownLatch>();
         producerIterationRecordCount.addAll(backupIterationRecordCount);
         futures.add(executor.submit(new DataWriterCallable(producerIterationRecordCount, 1000)));
       }
@@ -95,7 +95,7 @@ public class StorageBackupMTTest {
 
       finished.await();
 
-      for (Future<Void> future : futures) {
+      for (var future : futures) {
         future.get();
       }
 
@@ -104,12 +104,12 @@ public class StorageBackupMTTest {
 
       youTrackDB.close();
 
-      final String backedUpDbDirectory = testDirectory + File.separator + backupDbName;
+      final var backedUpDbDirectory = testDirectory + File.separator + backupDbName;
       FileUtils.deleteRecursively(new File(backedUpDbDirectory));
 
       System.out.println("create and restore");
 
-      YouTrackDBEmbedded embedded =
+      var embedded =
           (YouTrackDBEmbedded)
               YouTrackDBInternal.embedded(testDirectory, YouTrackDBConfig.defaultConfig());
       embedded.restore(
@@ -123,14 +123,14 @@ public class StorageBackupMTTest {
 
       youTrackDB = new YouTrackDBImpl("embedded:" + testDirectory,
           YouTrackDBConfig.defaultConfig());
-      final DatabaseCompare compare =
+      final var compare =
           new DatabaseCompare(
               (DatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin"),
               (DatabaseSessionInternal) youTrackDB.open(backupDbName, "admin", "admin"),
               System.out::println);
       System.out.println("compare");
 
-      boolean areSame = compare.compare();
+      var areSame = compare.compare();
       Assert.assertTrue(areSame);
 
     } finally {
@@ -159,22 +159,22 @@ public class StorageBackupMTTest {
   @Test
   public void testParallelBackupEncryption() throws Exception {
     backupIterationRecordCount.clear();
-    for (int i = 0; i < 100; i++) {
-      CountDownLatch latch = new CountDownLatch(4);
+    for (var i = 0; i < 100; i++) {
+      var latch = new CountDownLatch(4);
       backupIterationRecordCount.add(latch);
     }
 
-    String testDirectory = DbTestBase.getDirectoryPath(getClass());
+    var testDirectory = DbTestBase.getDirectoryPath(getClass());
     FileUtils.createDirectoryTree(testDirectory);
 
-    final String backupDbName = StorageBackupMTTest.class.getSimpleName() + "BackUp";
-    final String backedUpDbDirectory = testDirectory + File.separator + backupDbName;
-    final File backupDir = new File(testDirectory, "backupDir");
+    final var backupDbName = StorageBackupMTTest.class.getSimpleName() + "BackUp";
+    final var backedUpDbDirectory = testDirectory + File.separator + backupDbName;
+    final var backupDir = new File(testDirectory, "backupDir");
 
     dbName = StorageBackupMTTest.class.getSimpleName();
-    String dbDirectory = testDirectory + File.separator + dbName;
+    var dbDirectory = testDirectory + File.separator + dbName;
 
-    final YouTrackDBConfigImpl config =
+    final var config =
         (YouTrackDBConfigImpl) YouTrackDBConfig.builder()
             .addGlobalConfigurationParameter(GlobalConfiguration.STORAGE_ENCRYPTION_KEY,
                 "T1JJRU5UREJfSVNfQ09PTA==")
@@ -192,7 +192,7 @@ public class StorageBackupMTTest {
       var db = (DatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
       final Schema schema = db.getMetadata().getSchema();
-      final SchemaClass backupClass = schema.createClass("BackupClass");
+      final var backupClass = schema.createClass("BackupClass");
       backupClass.createProperty(db, "num", PropertyType.INTEGER);
       backupClass.createProperty(db, "data", PropertyType.BINARY);
 
@@ -204,11 +204,11 @@ public class StorageBackupMTTest {
         Assert.assertTrue(backupDir.mkdirs());
       }
 
-      final ExecutorService executor = Executors.newCachedThreadPool();
+      final var executor = Executors.newCachedThreadPool();
       final List<Future<Void>> futures = new ArrayList<>();
 
-      for (int i = 0; i < 4; i++) {
-        Stack<CountDownLatch> producerIterationRecordCount = new Stack<>();
+      for (var i = 0; i < 4; i++) {
+        var producerIterationRecordCount = new Stack<CountDownLatch>();
         producerIterationRecordCount.addAll(backupIterationRecordCount);
         futures.add(executor.submit(new DataWriterCallable(producerIterationRecordCount, 1000)));
       }
@@ -219,7 +219,7 @@ public class StorageBackupMTTest {
 
       finished.await();
 
-      for (Future<Void> future : futures) {
+      for (var future : futures) {
         future.get();
       }
 
@@ -232,7 +232,7 @@ public class StorageBackupMTTest {
 
       System.out.println("create and restore");
 
-      YouTrackDBEmbedded embedded =
+      var embedded =
           (YouTrackDBEmbedded) YouTrackDBInternal.embedded(testDirectory, config);
       embedded.restore(backupDbName, null, null, null, backupDir.getAbsolutePath(), config);
       embedded.close();
@@ -240,14 +240,14 @@ public class StorageBackupMTTest {
       GlobalConfiguration.STORAGE_ENCRYPTION_KEY.setValue("T1JJRU5UREJfSVNfQ09PTA==");
       youTrackDB = new YouTrackDBImpl("embedded:" + testDirectory,
           YouTrackDBConfig.defaultConfig());
-      final DatabaseCompare compare =
+      final var compare =
           new DatabaseCompare(
               (DatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin"),
               (DatabaseSessionInternal) youTrackDB.open(backupDbName, "admin", "admin"),
               System.out::println);
       System.out.println("compare");
 
-      boolean areSame = compare.compare();
+      var areSame = compare.compare();
       Assert.assertTrue(areSame);
 
     } finally {
@@ -290,26 +290,26 @@ public class StorageBackupMTTest {
 
       try (var db = youTrackDB.open(dbName, "admin", "admin")) {
 
-        Random random = new Random();
+        var random = new Random();
         List<RID> ids = new ArrayList<>();
         while (!producerIterationRecordCount.isEmpty()) {
 
-          for (int i = 0; i < count; i++) {
+          for (var i = 0; i < count; i++) {
             try {
               db.begin();
-              final byte[] data = new byte[random.nextInt(1024)];
+              final var data = new byte[random.nextInt(1024)];
               random.nextBytes(data);
 
-              final int num = random.nextInt();
+              final var num = random.nextInt();
               if (!ids.isEmpty() && i % 8 == 0) {
-                RID id = ids.remove(0);
+                var id = ids.remove(0);
                 db.delete(id);
               } else if (!ids.isEmpty() && i % 4 == 0) {
-                RID id = ids.remove(0);
+                var id = ids.remove(0);
                 final EntityImpl document = db.load(id);
                 document.field("data", data);
               } else {
-                final EntityImpl document = ((EntityImpl) db.newEntity("BackupClass"));
+                final var document = ((EntityImpl) db.newEntity("BackupClass"));
                 document.field("num", num);
                 document.field("data", data);
 
@@ -356,7 +356,7 @@ public class StorageBackupMTTest {
       try (var db = youTrackDB.open(dbName, "admin", "admin")) {
         System.out.println(Thread.currentThread() + " - start backup");
         while (!backupIterationRecordCount.isEmpty()) {
-          CountDownLatch latch = backupIterationRecordCount.pop();
+          var latch = backupIterationRecordCount.pop();
           latch.await();
 
           System.out.println(Thread.currentThread() + " do inc backup");

@@ -61,9 +61,9 @@ public class QueryOperatorContainsValue extends QueryOperatorEqualityNotNulls {
   @Override
   public Stream<RawPair<Object, RID>> executeIndexQuery(
       CommandContext iContext, Index index, List<Object> keyParams, boolean ascSortOrder) {
-    final IndexDefinition indexDefinition = index.getDefinition();
+    final var indexDefinition = index.getDefinition();
 
-    final IndexInternal internalIndex = index.getInternal();
+    final var internalIndex = index.getInternal();
     Stream<RawPair<Object, RID>> stream;
     if (!internalIndex.canBeUsedInEqualityOperators()) {
       return null;
@@ -76,7 +76,7 @@ public class QueryOperatorContainsValue extends QueryOperatorEqualityNotNulls {
         return null;
       }
 
-      final Object key =
+      final var key =
           ((IndexDefinitionMultiValue) indexDefinition)
               .createSingleValue(iContext.getDatabase(), keyParams.get(0));
 
@@ -89,7 +89,7 @@ public class QueryOperatorContainsValue extends QueryOperatorEqualityNotNulls {
     } else {
       // in case of composite keys several items can be returned in case of we perform search
       // using part of composite key stored in index.
-      final CompositeIndexDefinition compositeIndexDefinition =
+      final var compositeIndexDefinition =
           (CompositeIndexDefinition) indexDefinition;
 
       if (!((compositeIndexDefinition.getMultiValueDefinition()
@@ -159,12 +159,12 @@ public class QueryOperatorContainsValue extends QueryOperatorEqualityNotNulls {
     if (iCondition.getLeft() instanceof SQLFilterItemField
         && ((SQLFilterItemField) iCondition.getLeft()).isFieldChain()
         && ((SQLFilterItemField) iCondition.getLeft()).getFieldChain().getItemCount() == 1) {
-      String fieldName =
+      var fieldName =
           ((SQLFilterItemField) iCondition.getLeft()).getFieldChain().getItemName(0);
       if (fieldName != null) {
         Object record = iRecord.getRecord(iContext.getDatabase());
         if (record instanceof EntityImpl) {
-          SchemaProperty property =
+          var property =
               EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) record))
                   .getProperty(fieldName);
           if (property != null && property.getType().isMultiValue()) {
@@ -179,18 +179,18 @@ public class QueryOperatorContainsValue extends QueryOperatorEqualityNotNulls {
     }
 
     if (iLeft instanceof Map<?, ?>) {
-      final Map<String, ?> map = (Map<String, ?>) iLeft;
+      final var map = (Map<String, ?>) iLeft;
 
       if (condition != null) {
         // CHECK AGAINST A CONDITION
-        for (Object o : map.values()) {
+        for (var o : map.values()) {
           if ((Boolean) condition.evaluate((EntityImpl) o, null, iContext)) {
             return true;
           }
         }
       } else {
-        for (Object val : map.values()) {
-          Object convertedRight = iRight;
+        for (var val : map.values()) {
+          var convertedRight = iRight;
           if (val instanceof EntityImpl && iRight instanceof Map) {
             val = ((EntityImpl) val).toMap();
           }
@@ -205,12 +205,12 @@ public class QueryOperatorContainsValue extends QueryOperatorEqualityNotNulls {
       }
 
     } else if (iRight instanceof Map<?, ?>) {
-      final Map<String, ?> map = (Map<String, ?>) iRight;
+      final var map = (Map<String, ?>) iRight;
 
       if (condition != null)
       // CHECK AGAINST A CONDITION
       {
-        for (Object o : map.values()) {
+        for (var o : map.values()) {
           if ((Boolean) condition.evaluate((EntityImpl) o, null, iContext)) {
             return true;
           } else {

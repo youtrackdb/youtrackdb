@@ -60,10 +60,10 @@ public class RidBagUpdateSerializationOperation implements RecordSerializationOp
       return;
     }
 
-    EdgeBTree<RID, Integer> tree = loadTree();
+    var tree = loadTree();
     try {
-      for (Map.Entry<RID, Change> entry : changedValues.entrySet()) {
-        Integer storedCounter = tree.get(entry.getKey());
+      for (var entry : changedValues.entrySet()) {
+        var storedCounter = tree.get(entry.getKey());
 
         storedCounter = entry.getValue().applyTo(storedCounter);
         if (storedCounter <= 0) {

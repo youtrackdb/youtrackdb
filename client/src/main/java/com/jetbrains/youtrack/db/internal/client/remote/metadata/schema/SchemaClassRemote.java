@@ -71,7 +71,7 @@ public class SchemaClassRemote extends SchemaClassImpl {
 
     acquireSchemaWriteLock(session);
     try {
-      final StringBuilder cmd = new StringBuilder("create property ");
+      final var cmd = new StringBuilder("create property ");
       // CLASS.PROPERTY NAME
       cmd.append('`');
       cmd.append(name);
@@ -113,12 +113,12 @@ public class SchemaClassRemote extends SchemaClassImpl {
 
   @Override
   public SchemaClass setClusterSelection(DatabaseSession session, final String value) {
-    DatabaseSessionInternal database = (DatabaseSessionInternal) session;
+    var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
     acquireSchemaWriteLock(database);
     try {
-      final String cmd = String.format("alter class `%s` clusterselection '%s'", name, value);
+      final var cmd = String.format("alter class `%s` clusterselection '%s'", name, value);
       database.command(cmd).close();
       return this;
     } finally {
@@ -127,12 +127,12 @@ public class SchemaClassRemote extends SchemaClassImpl {
   }
 
   public SchemaClassImpl setCustom(DatabaseSession session, final String name, final String value) {
-    DatabaseSessionInternal database = (DatabaseSessionInternal) session;
+    var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
     acquireSchemaWriteLock(database);
     try {
-      final String cmd = String.format("alter class `%s` custom %s = ?", getName(), name);
+      final var cmd = String.format("alter class `%s` custom %s = ?", getName(), name);
       database.command(cmd, value).close();
       return this;
     } finally {
@@ -141,12 +141,12 @@ public class SchemaClassRemote extends SchemaClassImpl {
   }
 
   public void clearCustom(DatabaseSession session) {
-    DatabaseSessionInternal database = (DatabaseSessionInternal) session;
+    var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
     acquireSchemaWriteLock(database);
     try {
-      final String cmd = String.format("alter class `%s` custom clear", getName());
+      final var cmd = String.format("alter class `%s` custom clear", getName());
       database.command(cmd).close();
     } finally {
       releaseSchemaWriteLock(database);
@@ -156,7 +156,7 @@ public class SchemaClassRemote extends SchemaClassImpl {
   @Override
   public SchemaClass setSuperClasses(DatabaseSession session,
       final List<? extends SchemaClass> classes) {
-    DatabaseSessionInternal database = (DatabaseSessionInternal) session;
+    var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
     if (classes != null) {
       List<SchemaClass> toCheck = new ArrayList<SchemaClass>(classes);
@@ -165,9 +165,9 @@ public class SchemaClassRemote extends SchemaClassImpl {
     }
     acquireSchemaWriteLock(database);
     try {
-      final StringBuilder sb = new StringBuilder();
+      final var sb = new StringBuilder();
       if (classes != null && !classes.isEmpty()) {
-        for (SchemaClass superClass : classes) {
+        for (var superClass : classes) {
           sb.append('`').append(superClass.getName()).append("`,");
         }
         sb.deleteCharAt(sb.length() - 1);
@@ -175,7 +175,7 @@ public class SchemaClassRemote extends SchemaClassImpl {
         sb.append("null");
       }
 
-      final String cmd = String.format("alter class `%s` superclasses %s", name, sb);
+      final var cmd = String.format("alter class `%s` superclasses %s", name, sb);
       database.command(cmd).close();
     } finally {
       releaseSchemaWriteLock(database);
@@ -185,13 +185,13 @@ public class SchemaClassRemote extends SchemaClassImpl {
 
   @Override
   public SchemaClass addSuperClass(DatabaseSession session, final SchemaClass superClass) {
-    final DatabaseSessionInternal database = (DatabaseSessionInternal) session;
+    final var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
     checkParametersConflict(database, superClass);
     acquireSchemaWriteLock(database);
     try {
 
-      final String cmd =
+      final var cmd =
           String.format(
               "alter class `%s` superclass +`%s`",
               name, superClass != null ? superClass.getName() : null);
@@ -205,11 +205,11 @@ public class SchemaClassRemote extends SchemaClassImpl {
 
   @Override
   public void removeSuperClass(DatabaseSession session, SchemaClass superClass) {
-    final DatabaseSessionInternal database = (DatabaseSessionInternal) session;
+    final var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
     acquireSchemaWriteLock(database);
     try {
-      final String cmd =
+      final var cmd =
           String.format(
               "alter class `%s` superclass -`%s`",
               name, superClass != null ? superClass.getName() : null);
@@ -234,10 +234,10 @@ public class SchemaClassRemote extends SchemaClassImpl {
     }
 
     var sessionInternal = (DatabaseSessionInternal) session;
-    final String localName = this.name;
+    final var localName = this.name;
 
-    for (final String fieldToIndex : fields) {
-      final String fieldName =
+    for (final var fieldToIndex : fields) {
+      final var fieldName =
           decodeClassName(IndexDefinitionFactory.extractFieldName(fieldToIndex));
 
       if (!fieldName.equals("@rid") && !existsProperty(fieldName)) {
@@ -254,7 +254,7 @@ public class SchemaClassRemote extends SchemaClassImpl {
 
     var queryBuilder = new StringBuilder();
     queryBuilder.append("create index ").append(name).append(" on ").append(localName).append(" (");
-    for (int i = 0; i < fields.length - 1; i++) {
+    for (var i = 0; i < fields.length - 1; i++) {
       queryBuilder.append(fields[i]).append(", ");
     }
 
@@ -280,15 +280,15 @@ public class SchemaClassRemote extends SchemaClassImpl {
   }
 
   public SchemaClass setName(DatabaseSession session, final String name) {
-    DatabaseSessionInternal database = (DatabaseSessionInternal) session;
+    var database = (DatabaseSessionInternal) session;
     if (getName().equals(name)) {
       return this;
     }
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
-    final Character wrongCharacter = SchemaShared.checkClassNameIfValid(name);
-    SchemaClass oClass = database.getMetadata().getSchema().getClass(name);
+    final var wrongCharacter = SchemaShared.checkClassNameIfValid(name);
+    var oClass = database.getMetadata().getSchema().getClass(name);
     if (oClass != null) {
-      String error =
+      var error =
           String.format(
               "Cannot rename class %s to %s. A Class with name %s exists", this.name, name, name);
       throw new SchemaException(error);
@@ -304,7 +304,7 @@ public class SchemaClassRemote extends SchemaClassImpl {
     acquireSchemaWriteLock(database);
     try {
 
-      final String cmd = String.format("alter class `%s` name `%s`", this.name, name);
+      final var cmd = String.format("alter class `%s` name `%s`", this.name, name);
       database.command(cmd);
 
     } finally {
@@ -321,12 +321,12 @@ public class SchemaClassRemote extends SchemaClassImpl {
         shortName = null;
       }
     }
-    DatabaseSessionInternal database = (DatabaseSessionInternal) session;
+    var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
     acquireSchemaWriteLock(database);
     try {
-      final String cmd = String.format("alter class `%s` shortname `%s`", name, shortName);
+      final var cmd = String.format("alter class `%s` shortname `%s`", name, shortName);
       database.command(cmd);
     } finally {
       releaseSchemaWriteLock(database);
@@ -344,12 +344,12 @@ public class SchemaClassRemote extends SchemaClassImpl {
    */
   @Override
   public SchemaClass truncateCluster(DatabaseSession session, String clusterName) {
-    DatabaseSessionInternal database = (DatabaseSessionInternal) session;
+    var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_DELETE, name);
     acquireSchemaReadLock();
     try {
 
-      final String cmd = String.format("truncate cluster %s", clusterName);
+      final var cmd = String.format("truncate cluster %s", clusterName);
       database.command(cmd).close();
     } finally {
       releaseSchemaReadLock();
@@ -359,11 +359,11 @@ public class SchemaClassRemote extends SchemaClassImpl {
   }
 
   public SchemaClass setStrictMode(DatabaseSession session, final boolean isStrict) {
-    DatabaseSessionInternal database = (DatabaseSessionInternal) session;
+    var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
     acquireSchemaWriteLock(database);
     try {
-      final String cmd = String.format("alter class `%s` strict_mode %s", name, isStrict);
+      final var cmd = String.format("alter class `%s` strict_mode %s", name, isStrict);
       database.command(cmd);
     } finally {
       releaseSchemaWriteLock(database);
@@ -379,12 +379,12 @@ public class SchemaClassRemote extends SchemaClassImpl {
         iDescription = null;
       }
     }
-    DatabaseSessionInternal database = (DatabaseSessionInternal) session;
+    var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
     acquireSchemaWriteLock(database);
     try {
-      final String cmd = String.format("alter class `%s` description ?", name);
+      final var cmd = String.format("alter class `%s` description ?", name);
       database.command(cmd, iDescription).close();
     } finally {
       releaseSchemaWriteLock(database);
@@ -394,7 +394,7 @@ public class SchemaClassRemote extends SchemaClassImpl {
   }
 
   public SchemaClass addClusterId(DatabaseSession session, final int clusterId) {
-    DatabaseSessionInternal database = (DatabaseSessionInternal) session;
+    var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
     if (isAbstract()) {
@@ -402,7 +402,7 @@ public class SchemaClassRemote extends SchemaClassImpl {
     }
     acquireSchemaWriteLock(database);
     try {
-      final String cmd = String.format("alter class `%s` add_cluster %d", name, clusterId);
+      final var cmd = String.format("alter class `%s` add_cluster %d", name, clusterId);
       database.command(cmd).close();
 
     } finally {
@@ -412,7 +412,7 @@ public class SchemaClassRemote extends SchemaClassImpl {
   }
 
   public SchemaClass removeClusterId(DatabaseSession session, final int clusterId) {
-    DatabaseSessionInternal database = (DatabaseSessionInternal) session;
+    var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
     if (clusterIds.length == 1 && clusterId == clusterIds[0]) {
@@ -424,7 +424,7 @@ public class SchemaClassRemote extends SchemaClassImpl {
 
     acquireSchemaWriteLock(database);
     try {
-      final String cmd = String.format("alter class `%s` remove_cluster %d", name, clusterId);
+      final var cmd = String.format("alter class `%s` remove_cluster %d", name, clusterId);
       database.command(cmd).close();
     } finally {
       releaseSchemaWriteLock(database);
@@ -434,7 +434,7 @@ public class SchemaClassRemote extends SchemaClassImpl {
   }
 
   public void dropProperty(DatabaseSession session, final String propertyName) {
-    DatabaseSessionInternal database = (DatabaseSessionInternal) session;
+    var database = (DatabaseSessionInternal) session;
     if (database.getTransaction().isActive()) {
       throw new IllegalStateException("Cannot drop a property inside a transaction");
     }
@@ -457,7 +457,7 @@ public class SchemaClassRemote extends SchemaClassImpl {
 
   @Override
   public SchemaClass addCluster(DatabaseSession session, final String clusterNameOrId) {
-    DatabaseSessionInternal database = (DatabaseSessionInternal) session;
+    var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
     if (isAbstract()) {
@@ -466,7 +466,7 @@ public class SchemaClassRemote extends SchemaClassImpl {
 
     acquireSchemaWriteLock(database);
     try {
-      final String cmd = String.format("alter class `%s` add_cluster `%s`", name, clusterNameOrId);
+      final var cmd = String.format("alter class `%s` add_cluster `%s`", name, clusterNameOrId);
       database.command(cmd).close();
 
     } finally {
@@ -477,12 +477,12 @@ public class SchemaClassRemote extends SchemaClassImpl {
   }
 
   public SchemaClass setOverSize(DatabaseSession session, final float overSize) {
-    DatabaseSessionInternal database = (DatabaseSessionInternal) session;
+    var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
     acquireSchemaWriteLock(database);
     try {
       // FORMAT FLOAT LOCALE AGNOSTIC
-      final String cmd = Float.toString(overSize);
+      final var cmd = Float.toString(overSize);
       database.command(cmd).close();
     } finally {
       releaseSchemaWriteLock(database);
@@ -492,12 +492,12 @@ public class SchemaClassRemote extends SchemaClassImpl {
   }
 
   public SchemaClass setAbstract(DatabaseSession session, boolean isAbstract) {
-    DatabaseSessionInternal database = (DatabaseSessionInternal) session;
+    var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
     acquireSchemaWriteLock(database);
     try {
-      final String cmd = String.format("alter class `%s` abstract %s", name, isAbstract);
+      final var cmd = String.format("alter class `%s` abstract %s", name, isAbstract);
       database.command(cmd).close();
     } finally {
       releaseSchemaWriteLock(database);
@@ -530,7 +530,7 @@ public class SchemaClassRemote extends SchemaClassImpl {
       final List<? extends SchemaClass> classes) {
     List<SchemaClassImpl> newSuperClasses = new ArrayList<SchemaClassImpl>();
     SchemaClassImpl cls;
-    for (SchemaClass superClass : classes) {
+    for (var superClass : classes) {
       cls = (SchemaClassImpl) superClass;
 
       if (newSuperClasses.contains(cls)) {
@@ -545,10 +545,10 @@ public class SchemaClassRemote extends SchemaClassImpl {
     List<SchemaClassImpl> toRemoveList = new ArrayList<SchemaClassImpl>(superClasses);
     toRemoveList.removeAll(newSuperClasses);
 
-    for (SchemaClassImpl toRemove : toRemoveList) {
+    for (var toRemove : toRemoveList) {
       toRemove.removeBaseClassInternal(session, this);
     }
-    for (SchemaClassImpl addTo : toAddList) {
+    for (var addTo : toAddList) {
       addTo.addBaseClass(session, this);
     }
     superClasses.clear();

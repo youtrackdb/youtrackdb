@@ -54,8 +54,8 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
   @Test
   public void liveQueryTestTX() throws InterruptedException {
 
-    int TOTAL_OPS = 6;
-    final CountDownLatch latch = new CountDownLatch(TOTAL_OPS);
+    var TOTAL_OPS = 6;
+    final var latch = new CountDownLatch(TOTAL_OPS);
     final List<RecordOperation> ops = Collections.synchronizedList(new ArrayList());
     LegacyResultSet<EntityImpl> tokens =
         db.query(
@@ -80,7 +80,7 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
                 }));
     Assert.assertEquals(tokens.size(), 1);
 
-    EntityImpl tokenDoc = tokens.get(0);
+    var tokenDoc = tokens.get(0);
     Integer token = tokenDoc.field("token");
     Assert.assertNotNull(token);
 
@@ -97,7 +97,7 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
     latch.await();
 
     Assert.assertEquals(ops.size(), TOTAL_OPS);
-    for (RecordOperation doc : ops) {
+    for (var doc : ops) {
       if (doc.type == RecordOperation.CREATED) {
         Assert.assertEquals(((EntityImpl) doc.record).field("name"), "foo");
       } else if (doc.type == RecordOperation.UPDATED) {
@@ -111,7 +111,7 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
   @Test
   public void liveQueryTest() throws InterruptedException {
 
-    final CountDownLatch latch = new CountDownLatch(6);
+    final var latch = new CountDownLatch(6);
     final List<RecordOperation> ops = Collections.synchronizedList(new ArrayList());
     LegacyResultSet<EntityImpl> tokens =
         db.query(
@@ -136,7 +136,7 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
                 }));
     Assert.assertEquals(tokens.size(), 1);
 
-    EntityImpl tokenDoc = tokens.get(0);
+    var tokenDoc = tokens.get(0);
     Integer token = tokenDoc.field("token");
     Assert.assertNotNull(token);
 
@@ -149,7 +149,7 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
     latch.await();
 
     Assert.assertEquals(ops.size(), 6);
-    for (RecordOperation doc : ops) {
+    for (var doc : ops) {
       if (doc.type == RecordOperation.CREATED) {
         Assert.assertEquals(((EntityImpl) doc.record).field("name"), "foo");
       } else if (doc.type == RecordOperation.UPDATED) {

@@ -76,7 +76,7 @@ public class SchemaRemote extends SchemaShared {
       final String className,
       int[] clusterIds,
       SchemaClass... superClasses) {
-    final Character wrongCharacter = SchemaShared.checkClassNameIfValid(className);
+    final var wrongCharacter = SchemaShared.checkClassNameIfValid(className);
     if (wrongCharacter != null) {
       throw new SchemaException(
           "Invalid class name found. Character '"
@@ -95,22 +95,22 @@ public class SchemaRemote extends SchemaShared {
     acquireSchemaWriteLock(database);
     try {
 
-      final String key = className.toLowerCase(Locale.ENGLISH);
+      final var key = className.toLowerCase(Locale.ENGLISH);
       if (classes.containsKey(key)) {
         throw new SchemaException("Class '" + className + "' already exists in current database");
       }
 
       checkClustersAreAbsent(clusterIds);
 
-      StringBuilder cmd = new StringBuilder("create class ");
+      var cmd = new StringBuilder("create class ");
       cmd.append('`');
       cmd.append(className);
       cmd.append('`');
 
       List<SchemaClass> superClassesList = new ArrayList<SchemaClass>();
       if (superClasses != null && superClasses.length > 0) {
-        boolean first = true;
-        for (SchemaClass superClass : superClasses) {
+        var first = true;
+        for (var superClass : superClasses) {
           // Filtering for null
           if (superClass != null) {
             if (first) {
@@ -130,7 +130,7 @@ public class SchemaRemote extends SchemaShared {
           cmd.append(" abstract");
         } else {
           cmd.append(" cluster ");
-          for (int i = 0; i < clusterIds.length; ++i) {
+          for (var i = 0; i < clusterIds.length; ++i) {
             if (i > 0) {
               cmd.append(',');
             } else {
@@ -148,13 +148,13 @@ public class SchemaRemote extends SchemaShared {
       result = classes.get(className.toLowerCase(Locale.ENGLISH));
 
       // WAKE UP DB LIFECYCLE LISTENER
-      for (Iterator<DatabaseLifecycleListener> it = YouTrackDBEnginesManager.instance()
+      for (var it = YouTrackDBEnginesManager.instance()
           .getDbLifecycleListeners();
           it.hasNext(); ) {
         it.next().onCreateClass(database, result);
       }
 
-      for (Iterator<SessionListener> it = database.getListeners().iterator(); it.hasNext(); ) {
+      for (var it = database.getListeners().iterator(); it.hasNext(); ) {
         it.next().onCreateClass(database, result);
       }
 
@@ -170,7 +170,7 @@ public class SchemaRemote extends SchemaShared {
       final String className,
       int clusters,
       SchemaClass... superClasses) {
-    final Character wrongCharacter = SchemaShared.checkClassNameIfValid(className);
+    final var wrongCharacter = SchemaShared.checkClassNameIfValid(className);
     if (wrongCharacter != null) {
       throw new SchemaException(
           "Invalid class name found. Character '"
@@ -189,20 +189,20 @@ public class SchemaRemote extends SchemaShared {
     acquireSchemaWriteLock(database);
     try {
 
-      final String key = className.toLowerCase(Locale.ENGLISH);
+      final var key = className.toLowerCase(Locale.ENGLISH);
       if (classes.containsKey(key)) {
         throw new SchemaException("Class '" + className + "' already exists in current database");
       }
 
-      StringBuilder cmd = new StringBuilder("create class ");
+      var cmd = new StringBuilder("create class ");
       cmd.append('`');
       cmd.append(className);
       cmd.append('`');
 
       List<SchemaClass> superClassesList = new ArrayList<SchemaClass>();
       if (superClasses != null && superClasses.length > 0) {
-        boolean first = true;
-        for (SchemaClass superClass : superClasses) {
+        var first = true;
+        for (var superClass : superClasses) {
           // Filtering for null
           if (superClass != null) {
             if (first) {
@@ -229,13 +229,13 @@ public class SchemaRemote extends SchemaShared {
       result = classes.get(className.toLowerCase(Locale.ENGLISH));
 
       // WAKE UP DB LIFECYCLE LISTENER
-      for (Iterator<DatabaseLifecycleListener> it = YouTrackDBEnginesManager.instance()
+      for (var it = YouTrackDBEnginesManager.instance()
           .getDbLifecycleListeners();
           it.hasNext(); ) {
         it.next().onCreateClass(database, result);
       }
 
-      for (Iterator<SessionListener> it = database.getListeners().iterator(); it.hasNext(); ) {
+      for (var it = database.getListeners().iterator(); it.hasNext(); ) {
         it.next().onCreateClass(database, result);
       }
 
@@ -251,7 +251,7 @@ public class SchemaRemote extends SchemaShared {
       return;
     }
 
-    for (int clusterId : iClusterIds) {
+    for (var clusterId : iClusterIds) {
       if (clusterId < 0) {
         continue;
       }
@@ -280,7 +280,7 @@ public class SchemaRemote extends SchemaShared {
 
       database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_DELETE);
 
-      final String key = className.toLowerCase(Locale.ENGLISH);
+      final var key = className.toLowerCase(Locale.ENGLISH);
 
       SchemaClass cls = classes.get(key);
 
@@ -297,12 +297,12 @@ public class SchemaRemote extends SchemaShared {
                 + ". Remove the dependencies before trying to drop it again");
       }
 
-      String cmd = "drop class `" + className + "` unsafe";
+      var cmd = "drop class `" + className + "` unsafe";
       database.command(cmd).close();
       reload(database);
 
       var localCache = database.getLocalCache();
-      for (int clusterId : cls.getClusterIds()) {
+      for (var clusterId : cls.getClusterIds()) {
         localCache.freeCluster(clusterId);
       }
     } finally {

@@ -29,7 +29,7 @@ public class TestOrderBy extends DbTestBase {
     var res3 = db.save(((EntityImpl) db.newEntity("test")).field("name", "Zebra"));
     db.commit();
 
-    List<Result> queryRes =
+    var queryRes =
         db.query("select from test order by name").stream().collect(Collectors.toList());
     assertEquals(queryRes.get(0).getIdentity().get(), res2.getIdentity());
     assertEquals(queryRes.get(1).getIdentity().get(), res1.getIdentity());
@@ -47,12 +47,12 @@ public class TestOrderBy extends DbTestBase {
   public void testGermanOrderByIndex() {
     db.set(DatabaseSession.ATTRIBUTES.LOCALE_COUNTRY, Locale.GERMANY.getCountry());
     db.set(DatabaseSession.ATTRIBUTES.LOCALE_LANGUAGE, Locale.GERMANY.getLanguage());
-    SchemaClass clazz = db.getMetadata().getSchema().createClass("test");
+    var clazz = db.getMetadata().getSchema().createClass("test");
     clazz.createProperty(db, "name", PropertyType.STRING).createIndex(db, INDEX_TYPE.NOTUNIQUE);
     var res1 = db.save(((EntityImpl) db.newEntity("test")).field("name", "Ähhhh"));
     var res2 = db.save(((EntityImpl) db.newEntity("test")).field("name", "Ahhhh"));
     var res3 = db.save(((EntityImpl) db.newEntity("test")).field("name", "Zebra"));
-    List<Result> queryRes =
+    var queryRes =
         db.query("select from test order by name").stream().collect(Collectors.toList());
     assertEquals(queryRes.get(0).getIdentity().get(), res2.getIdentity());
     assertEquals(queryRes.get(1).getIdentity().get(), res1.getIdentity());

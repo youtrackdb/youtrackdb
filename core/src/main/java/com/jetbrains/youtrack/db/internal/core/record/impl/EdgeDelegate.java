@@ -71,7 +71,7 @@ public class EdgeDelegate implements EdgeInternal {
       return null;
     }
 
-    Object result = entity.getProperty(DIRECTION_OUT);
+    var result = entity.getProperty(DIRECTION_OUT);
     if (!(result instanceof Entity v)) {
       return null;
     }
@@ -124,7 +124,7 @@ public class EdgeDelegate implements EdgeInternal {
       return null;
     }
 
-    Object result = entity.getProperty(DIRECTION_IN);
+    var result = entity.getProperty(DIRECTION_IN);
     if (!(result instanceof Entity v)) {
       return null;
     }
@@ -237,7 +237,7 @@ public class EdgeDelegate implements EdgeInternal {
     }
     Set<String> types = new HashSet<>();
 
-    Optional<SchemaClass> typeClass = getSchemaType();
+    var typeClass = getSchemaType();
     if (typeClass.isPresent()) {
       types.add(typeClass.get().getName());
       typeClass.get().getAllSuperClasses().stream()
@@ -250,8 +250,8 @@ public class EdgeDelegate implements EdgeInternal {
         types.add("E");
       }
     }
-    for (String s : labels) {
-      for (String type : types) {
+    for (var s : labels) {
+      for (var type : types) {
         if (type.equalsIgnoreCase(s)) {
           return true;
         }
@@ -430,8 +430,8 @@ public class EdgeDelegate implements EdgeInternal {
     if (entity != null) {
       return entity.toString();
     } else {
-      StringBuilder result = new StringBuilder();
-      boolean first = true;
+      var result = new StringBuilder();
+      var first = true;
       result.append("{");
       if (lightweightEdgeType != null) {
         result.append("class: " + lightweightEdgeType.getName());

@@ -20,7 +20,7 @@ public class LuceneReuseTest extends LuceneBaseTest {
 
     Schema schema = db.getMetadata().getSchema();
 
-    SchemaClass cls = schema.createClass("Reuse");
+    var cls = schema.createClass("Reuse");
     cls.createProperty(db, "name", PropertyType.STRING);
     cls.createProperty(db, "date", PropertyType.DATETIME);
     cls.createProperty(db, "surname", PropertyType.STRING);
@@ -29,7 +29,7 @@ public class LuceneReuseTest extends LuceneBaseTest {
     db.command("create index Reuse.composite on Reuse (name,surname,date,age) UNIQUE");
     db.command("create index Reuse.surname on Reuse (surname) FULLTEXT ENGINE LUCENE");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       db.save(
           ((EntityImpl) db.newEntity("Reuse"))
@@ -40,7 +40,7 @@ public class LuceneReuseTest extends LuceneBaseTest {
       db.commit();
     }
 
-    ResultSet results =
+    var results =
         db.command("SELECT FROM Reuse WHERE name='John' and search_class('Reese') =true");
 
     assertThat(results).hasSize(10);
@@ -55,7 +55,7 @@ public class LuceneReuseTest extends LuceneBaseTest {
 
     Schema schema = db.getMetadata().getSchema();
 
-    SchemaClass cls = schema.createClass("Reuse");
+    var cls = schema.createClass("Reuse");
     cls.createProperty(db, "name", PropertyType.STRING);
     cls.createProperty(db, "date", PropertyType.DATETIME);
     cls.createProperty(db, "surname", PropertyType.STRING);
@@ -66,7 +66,7 @@ public class LuceneReuseTest extends LuceneBaseTest {
     // lucene on name and surname
     db.command("create index Reuse.name_surname on Reuse (name,surname) FULLTEXT ENGINE LUCENE");
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       db.begin();
       db.save(
           ((EntityImpl) db.newEntity("Reuse"))
@@ -88,7 +88,7 @@ public class LuceneReuseTest extends LuceneBaseTest {
     db.commit();
 
     // exact query on name uses Reuse.conposite
-    ResultSet results =
+    var results =
         db.command("SELECT FROM Reuse WHERE name='John' and search_class('Reese')=true");
 
     assertThat(results).hasSize(10);

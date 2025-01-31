@@ -64,15 +64,15 @@ public class StorageBackupMTStateTest {
   @Test
   @Ignore
   public void testRun() throws Exception {
-    String buildDirectory = System.getProperty("buildDirectory", ".");
-    String dbDirectory =
+    var buildDirectory = System.getProperty("buildDirectory", ".");
+    var dbDirectory =
         buildDirectory + File.separator + StorageBackupMTStateTest.class.getSimpleName();
 
     System.out.println("Clean up old data");
 
     FileUtils.deleteRecursively(new File(dbDirectory));
 
-    final String backedUpDbDirectory =
+    final var backedUpDbDirectory =
         buildDirectory + File.separator + StorageBackupMTStateTest.class.getSimpleName() + "BackUp";
     FileUtils.deleteRecursively(new File(backedUpDbDirectory));
 
@@ -93,7 +93,7 @@ public class StorageBackupMTStateTest {
     System.out.println("Create schema");
     final Schema schema = databaseDocumentTx.getMetadata().getSchema();
 
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       createClass(schema, databaseDocumentTx);
     }
 
@@ -102,11 +102,11 @@ public class StorageBackupMTStateTest {
     pool = new PartitionedDatabasePool(dbURL, "admin", "admin");
 
     System.out.println("Start data modification");
-    final ExecutorService executor = Executors.newFixedThreadPool(5);
-    final ScheduledExecutorService backupExecutor = Executors.newSingleThreadScheduledExecutor();
-    final ScheduledExecutorService classCreatorExecutor =
+    final var executor = Executors.newFixedThreadPool(5);
+    final var backupExecutor = Executors.newSingleThreadScheduledExecutor();
+    final var classCreatorExecutor =
         Executors.newSingleThreadScheduledExecutor();
-    final ScheduledExecutorService classDeleterExecutor =
+    final var classDeleterExecutor =
         Executors.newSingleThreadScheduledExecutor();
 
     classDeleterExecutor.scheduleWithFixedDelay(new ClassDeleter(), 10, 10, TimeUnit.MINUTES);
@@ -121,7 +121,7 @@ public class StorageBackupMTStateTest {
     futures.add(executor.submit(new TxInserter()));
     futures.add(executor.submit(new RecordsDeleter()));
 
-    int k = 0;
+    var k = 0;
     while (k < 180) {
       Thread.sleep(30 * 1000);
       k++;
@@ -144,7 +144,7 @@ public class StorageBackupMTStateTest {
 
     System.out.println("Stop data threads");
 
-    for (Future<Void> future : futures) {
+    for (var future : futures) {
       future.get();
     }
 
@@ -157,7 +157,7 @@ public class StorageBackupMTStateTest {
     databaseDocumentTx.open("admin", "admin");
     databaseDocumentTx.incrementalBackup(backupDir.toPath());
 
-    Storage storage = databaseDocumentTx.getStorage();
+    var storage = databaseDocumentTx.getStorage();
     databaseDocumentTx.close();
 
     storage.shutdown();
@@ -167,7 +167,7 @@ public class StorageBackupMTStateTest {
         new DatabaseDocumentTx("plocal:" + backedUpDbDirectory);
     backedUpDb.create(backupDir.getAbsolutePath());
 
-    final Storage backupStorage = backedUpDb.getStorage();
+    final var backupStorage = backedUpDb.getStorage();
     backedUpDb.close();
 
     backupStorage.shutdown();
@@ -176,7 +176,7 @@ public class StorageBackupMTStateTest {
     databaseDocumentTx.open("admin", "admin");
     backedUpDb.open("admin", "admin");
 
-    final DatabaseCompare compare =
+    final var compare =
         new DatabaseCompare(
             databaseDocumentTx,
             backedUpDb,
@@ -201,7 +201,7 @@ public class StorageBackupMTStateTest {
   }
 
   private SchemaClass createClass(Schema schema, DatabaseSession db) {
-    SchemaClass cls = schema.createClass(CLASS_PREFIX + classCounter.getAndIncrement());
+    var cls = schema.createClass(CLASS_PREFIX + classCounter.getAndIncrement());
 
     cls.createProperty(db, "id", PropertyType.LONG);
     cls.createProperty(db, "intValue", PropertyType.INTEGER);
@@ -300,7 +300,7 @@ public class StorageBackupMTStateTest {
 
     protected void insertRecord(DatabaseSessionInternal db) {
       final int docId;
-      final int classes = classCounter.get();
+      final var classes = classCounter.get();
 
       String className;
       AtomicInteger classCounter;
@@ -310,7 +310,7 @@ public class StorageBackupMTStateTest {
         classCounter = classInstancesCounters.get(className);
       } while (classCounter == null);
 
-      final EntityImpl doc = ((EntityImpl) db.newEntity(className));
+      final var doc = ((EntityImpl) db.newEntity(className));
       docId = classCounter.getAndIncrement();
 
       doc.field("id", docId);
@@ -330,13 +330,13 @@ public class StorageBackupMTStateTest {
         linkedClassCounter = classInstancesCounters.get(linkedClassName);
       } while (linkedClassCounter == null);
 
-      RidBag linkedDocuments = new RidBag(db);
+      var linkedDocuments = new RidBag(db);
 
-      long linkedClassCount = db.countClass(linkedClassName);
+      var linkedClassCount = db.countClass(linkedClassName);
       long tCount = 0;
 
       while (linkedDocuments.size() < 5 && linkedDocuments.size() < linkedClassCount) {
-        ResultSet docs =
+        var docs =
             db.query(
                 "select * from "
                     + linkedClassName
@@ -414,14 +414,14 @@ public class StorageBackupMTStateTest {
 
     @Override
     public Void call() throws Exception {
-      int counter = 0;
+      var counter = 0;
       while (!stop) {
         while (true) {
           DatabaseSessionInternal databaseDocumentTx = pool.acquire();
           try {
             flowLock.acquireReadLock();
             try {
-              final int classes = classCounter.get();
+              final var classes = classCounter.get();
 
               String className;
               AtomicInteger classCounter;
@@ -438,9 +438,9 @@ public class StorageBackupMTStateTest {
                 }
               } while (classCounter == null || countClasses == 0);
 
-              boolean deleted = false;
+              var deleted = false;
               do {
-                ResultSet docs =
+                var docs =
                     databaseDocumentTx.query(
                         "select * from "
                             + className
@@ -448,7 +448,7 @@ public class StorageBackupMTStateTest {
                             + random.nextInt(classCounter.get()));
 
                 if (docs.hasNext()) {
-                  Result document = docs.next();
+                  var document = docs.next();
                   databaseDocumentTx.delete(document.getIdentity().get());
                   deleted = true;
                 }
@@ -497,7 +497,7 @@ public class StorageBackupMTStateTest {
         flowLock.acquireWriteLock();
         try {
           final Schema schema = db.getMetadata().getSchema();
-          final int classes = classCounter.get();
+          final var classes = classCounter.get();
 
           String className;
           AtomicInteger classCounter;

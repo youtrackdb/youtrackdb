@@ -62,7 +62,7 @@ public class BinarySerializerTest {
   public void testNativeByteBufferCompatibility() {
     binarySerializer.serializeNativeObject(OBJECT, stream, 0);
 
-    ByteBuffer buffer = ByteBuffer.allocateDirect(stream.length).order(ByteOrder.nativeOrder());
+    var buffer = ByteBuffer.allocateDirect(stream.length).order(ByteOrder.nativeOrder());
     buffer.position(0);
     buffer.put(stream);
 
@@ -72,13 +72,13 @@ public class BinarySerializerTest {
 
   @Test
   public void testSerializeByteBuffer() {
-    final int serializationOffset = 5;
-    final ByteBuffer buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
+    final var serializationOffset = 5;
+    final var buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
     buffer.position(serializationOffset);
 
     binarySerializer.serializeInByteBufferObject(OBJECT, buffer);
 
-    final int binarySize = buffer.position() - serializationOffset;
+    final var binarySize = buffer.position() - serializationOffset;
     buffer.position(serializationOffset);
     Assert.assertEquals(binarySerializer.getObjectSizeInByteBuffer(buffer), binarySize);
 
@@ -86,21 +86,21 @@ public class BinarySerializerTest {
     Assert.assertEquals(binarySerializer.getObjectSizeInByteBuffer(buffer), FIELD_SIZE);
 
     buffer.position(serializationOffset);
-    final byte[] result = binarySerializer.deserializeFromByteBufferObject(buffer);
+    final var result = binarySerializer.deserializeFromByteBufferObject(buffer);
 
     Assert.assertArrayEquals(result, OBJECT);
   }
 
   @Test
   public void testSerializeInWalChanges() {
-    final int serializationOffset = 5;
-    final ByteBuffer buffer =
+    final var serializationOffset = 5;
+    final var buffer =
         ByteBuffer.allocateDirect(
                 FIELD_SIZE + serializationOffset + WALPageChangesPortion.PORTION_BYTES)
             .order(ByteOrder.nativeOrder());
 
-    final byte[] data = new byte[FIELD_SIZE];
-    final WALPageChangesPortion walChanges = new WALPageChangesPortion();
+    final var data = new byte[FIELD_SIZE];
+    final var walChanges = new WALPageChangesPortion();
     binarySerializer.serializeNativeObject(OBJECT, data, 0);
     walChanges.setBinaryValue(buffer, data, serializationOffset);
 

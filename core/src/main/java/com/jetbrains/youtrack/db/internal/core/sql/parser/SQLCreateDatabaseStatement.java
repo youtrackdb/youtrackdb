@@ -44,10 +44,10 @@ public class SQLCreateDatabaseStatement extends SQLSimpleExecServerStatement {
 
   @Override
   public ExecutionStream executeSimple(ServerCommandContext ctx) {
-    YouTrackDBInternal server = ctx.getServer();
-    ResultInternal result = new ResultInternal(ctx.getDatabase());
+    var server = ctx.getServer();
+    var result = new ResultInternal(ctx.getDatabase());
     result.setProperty("operation", "create database");
-    String dbName =
+    var dbName =
         name != null
             ? name.getStringValue()
             : String.valueOf(nameParam.getValue(ctx.getInputParameters()));
@@ -65,7 +65,7 @@ public class SQLCreateDatabaseStatement extends SQLSimpleExecServerStatement {
       result.setProperty("existing", true);
     } else {
       try {
-        YouTrackDBConfigBuilderImpl configBuilder = (YouTrackDBConfigBuilderImpl) YouTrackDBConfig.builder();
+        var configBuilder = (YouTrackDBConfigBuilderImpl) YouTrackDBConfig.builder();
 
         if (config != null) {
           configBuilder = mapYouTrackDbConfig(this.config, ctx, configBuilder);
@@ -87,7 +87,7 @@ public class SQLCreateDatabaseStatement extends SQLSimpleExecServerStatement {
               if (!users.isEmpty()) {
                 session.executeInTx(
                     () -> {
-                      for (SQLDatabaseUserData user : users) {
+                      for (var user : users) {
                         user.executeCreate(session, ctx);
                       }
                     });
@@ -108,9 +108,9 @@ public class SQLCreateDatabaseStatement extends SQLSimpleExecServerStatement {
 
   private YouTrackDBConfigBuilderImpl mapYouTrackDbConfig(
       SQLJson config, ServerCommandContext ctx, YouTrackDBConfigBuilderImpl builder) {
-    Map<String, Object> configMap = config.toMap(new ResultInternal(ctx.getDatabase()), ctx);
+    var configMap = config.toMap(new ResultInternal(ctx.getDatabase()), ctx);
 
-    Object globalConfig = configMap.get("config");
+    var globalConfig = configMap.get("config");
     if (globalConfig != null && globalConfig instanceof Map) {
       ((Map<String, Object>) globalConfig)
           .entrySet().stream()
@@ -139,8 +139,8 @@ public class SQLCreateDatabaseStatement extends SQLSimpleExecServerStatement {
 
     if (!users.isEmpty()) {
       builder.append(" USERS (");
-      boolean first = true;
-      for (SQLDatabaseUserData user : users) {
+      var first = true;
+      for (var user : users) {
         if (!first) {
           builder.append(", ");
         }

@@ -14,15 +14,15 @@ public class DefaultValueSerializationTest extends DbTestBase {
   public void testKeepValueSerialization() {
     // create example schema
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass classA = schema.createClass("ClassC");
+    var classA = schema.createClass("ClassC");
 
     var prop = classA.createProperty(db, "name", PropertyType.STRING);
     prop.setDefaultValue(db, "uuid()");
 
-    EntityImpl doc = (EntityImpl) db.newEntity("ClassC");
+    var doc = (EntityImpl) db.newEntity("ClassC");
 
-    byte[] val = doc.toStream();
-    EntityImpl doc1 = (EntityImpl) db.newEntity();
+    var val = doc.toStream();
+    var doc1 = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc1);
     doc1.fromStream(val);
     doc1.deserializeFields();

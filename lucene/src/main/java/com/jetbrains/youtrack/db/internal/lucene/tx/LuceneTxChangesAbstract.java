@@ -63,9 +63,9 @@ public abstract class LuceneTxChangesAbstract implements LuceneTxChanges {
   @Override
   public long deletedDocs(Query query) {
     try {
-      final IndexSearcher indexSearcher =
+      final var indexSearcher =
           new IndexSearcher(DirectoryReader.open(deletedIdx, true, true));
-      final TopDocs search = indexSearcher.search(query, Integer.MAX_VALUE);
+      final var search = indexSearcher.search(query, Integer.MAX_VALUE);
       return search.totalHits;
     } catch (IOException e) {
       LogManager.instance()

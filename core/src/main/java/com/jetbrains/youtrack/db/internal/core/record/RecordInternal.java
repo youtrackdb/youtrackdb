@@ -37,7 +37,7 @@ public class RecordInternal {
       final int iVersion,
       final byte[] iBuffer,
       final boolean iDirty) {
-    final RecordAbstract rec = (RecordAbstract) record;
+    final var rec = (RecordAbstract) record;
     rec.fill(iRid, iVersion, iBuffer, iDirty);
     return rec;
   }
@@ -53,14 +53,14 @@ public class RecordInternal {
       final byte[] iBuffer,
       final boolean iDirty,
       DatabaseSessionInternal db) {
-    final RecordAbstract rec = (RecordAbstract) record;
+    final var rec = (RecordAbstract) record;
     rec.fill(iRid, iVersion, iBuffer, iDirty, db);
     return rec;
   }
 
   public static void fromStream(
       final DBRecord record, final byte[] iBuffer, DatabaseSessionInternal db) {
-    final RecordAbstract rec = (RecordAbstract) record;
+    final var rec = (RecordAbstract) record;
     rec.fromStream(iBuffer, db);
   }
 
@@ -68,7 +68,7 @@ public class RecordInternal {
    * Internal only. Changes the identity of the record.
    */
   public static RecordAbstract setIdentity(final DBRecord record, final RecordId iIdentity) {
-    final RecordAbstract rec = (RecordAbstract) record;
+    final var rec = (RecordAbstract) record;
     rec.setIdentity(iIdentity);
     return rec;
   }
@@ -77,7 +77,7 @@ public class RecordInternal {
    * Internal only. Unsets the dirty status of the record.
    */
   public static void unsetDirty(final DBRecord record) {
-    final RecordAbstract rec = (RecordAbstract) record;
+    final var rec = (RecordAbstract) record;
     rec.unsetDirty();
   }
 
@@ -85,7 +85,7 @@ public class RecordInternal {
    * Internal only. Sets the version.
    */
   public static void setVersion(final DBRecord record, final int iVersion) {
-    final RecordAbstract rec = (RecordAbstract) record;
+    final var rec = (RecordAbstract) record;
     rec.setVersion(iVersion);
   }
 
@@ -101,17 +101,17 @@ public class RecordInternal {
   }
 
   public static boolean isContentChanged(final DBRecord record) {
-    final RecordAbstract rec = (RecordAbstract) record;
+    final var rec = (RecordAbstract) record;
     return rec.isContentChanged();
   }
 
   public static void setContentChanged(final DBRecord record, final boolean changed) {
-    final RecordAbstract rec = (RecordAbstract) record;
+    final var rec = (RecordAbstract) record;
     rec.setContentChanged(changed);
   }
 
   public static void clearSource(final DBRecord record) {
-    final RecordAbstract rec = (RecordAbstract) record;
+    final var rec = (RecordAbstract) record;
     rec.clearSource();
   }
 

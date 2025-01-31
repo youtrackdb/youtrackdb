@@ -18,20 +18,20 @@ import org.junit.Test;
 public class TruncateClusterStatementExecutionTest extends DbTestBase {
   @Test
   public void testClusterWithIndex() {
-    final String clusterName = "TruncateClusterWithIndex";
-    final int clusterId = db.addCluster(clusterName);
+    final var clusterName = "TruncateClusterWithIndex";
+    final var clusterId = db.addCluster(clusterName);
 
-    final String className = "TruncateClusterClass";
+    final var className = "TruncateClusterClass";
     final Schema schema = db.getMetadata().getSchema();
 
-    final SchemaClass clazz = schema.createClass(className);
+    final var clazz = schema.createClass(className);
     clazz.addClusterId(db, clusterId);
 
     clazz.createProperty(db, "value", PropertyType.STRING);
     clazz.createIndex(db, "TruncateClusterIndex", SchemaClass.INDEX_TYPE.UNIQUE, "value");
 
     db.begin();
-    final EntityImpl document = ((EntityImpl) db.newEntity(className));
+    final var document = ((EntityImpl) db.newEntity(className));
     document.field("value", "val");
 
     document.save();
@@ -40,7 +40,7 @@ public class TruncateClusterStatementExecutionTest extends DbTestBase {
     Assert.assertEquals(1, db.countClass(className));
     Assert.assertEquals(1, db.countClusterElements(clusterId));
 
-    ResultSet indexQuery = db.query("select from TruncateClusterClass where value='val'");
+    var indexQuery = db.query("select from TruncateClusterClass where value='val'");
     Assert.assertEquals(1, toList(indexQuery).size());
     indexQuery.close();
 

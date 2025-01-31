@@ -23,16 +23,16 @@ public class TrackedMapTest extends DbTestBase {
 
   @Test
   public void testPutOne() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
 
-    final TrackedMap<String> map = new TrackedMap<String>(doc);
+    final var map = new TrackedMap<String>(doc);
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
     map.enableTracking(doc);
 
     map.put("key1", "value1");
 
-    MultiValueChangeEvent<Object, Object> event =
+    var event =
         new MultiValueChangeEvent<Object, Object>(
             ChangeType.ADD, "key1", "value1", null);
     Assert.assertEquals(event, map.getTimeLine().getMultiValueChangeEvents().get(0));
@@ -42,9 +42,9 @@ public class TrackedMapTest extends DbTestBase {
 
   @Test
   public void testPutTwo() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
 
-    final TrackedMap<String> map = new TrackedMap<String>(doc);
+    final var map = new TrackedMap<String>(doc);
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -56,7 +56,7 @@ public class TrackedMapTest extends DbTestBase {
     map.enableTracking(doc);
 
     map.put("key1", "value2");
-    MultiValueChangeEvent<Object, Object> event =
+    var event =
         new MultiValueChangeEvent<Object, Object>(
             ChangeType.UPDATE, "key1", "value2", "value1");
     Assert.assertEquals(event, map.getTimeLine().getMultiValueChangeEvents().get(0));
@@ -66,9 +66,9 @@ public class TrackedMapTest extends DbTestBase {
 
   @Test
   public void testPutThree() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
 
-    final TrackedMap<String> map = new TrackedMap<String>(doc);
+    final var map = new TrackedMap<String>(doc);
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -86,9 +86,9 @@ public class TrackedMapTest extends DbTestBase {
 
   @Test
   public void testPutFour() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
 
-    final TrackedMap<String> map = new TrackedMap<String>(doc);
+    final var map = new TrackedMap<String>(doc);
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -107,9 +107,9 @@ public class TrackedMapTest extends DbTestBase {
 
   @Test
   public void testPutFive() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
 
-    final TrackedMap<String> map = new TrackedMap<String>(doc);
+    final var map = new TrackedMap<String>(doc);
 
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
@@ -123,9 +123,9 @@ public class TrackedMapTest extends DbTestBase {
 
   @Test
   public void testRemoveOne() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
 
-    final TrackedMap<String> map = new TrackedMap<String>(doc);
+    final var map = new TrackedMap<String>(doc);
 
     map.put("key1", "value1");
 
@@ -134,7 +134,7 @@ public class TrackedMapTest extends DbTestBase {
     map.disableTracking(doc);
     map.enableTracking(doc);
 
-    MultiValueChangeEvent<Object, Object> event =
+    var event =
         new MultiValueChangeEvent<Object, Object>(
             ChangeType.REMOVE, "key1", null, "value1");
     map.remove("key1");
@@ -145,9 +145,9 @@ public class TrackedMapTest extends DbTestBase {
 
   @Test
   public void testRemoveTwo() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
 
-    final TrackedMap<String> map = new TrackedMap<String>(doc);
+    final var map = new TrackedMap<String>(doc);
 
     map.put("key1", "value1");
 
@@ -164,9 +164,9 @@ public class TrackedMapTest extends DbTestBase {
 
   @Test
   public void testClearOne() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
 
-    final TrackedMap<String> trackedMap = new TrackedMap<String>(doc);
+    final var trackedMap = new TrackedMap<String>(doc);
 
     trackedMap.put("key1", "value1");
     trackedMap.put("key2", "value2");
@@ -196,9 +196,9 @@ public class TrackedMapTest extends DbTestBase {
 
   @Test
   public void testClearThree() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
 
-    final TrackedMap<String> trackedMap = new TrackedMap<String>(doc);
+    final var trackedMap = new TrackedMap<String>(doc);
 
     trackedMap.put("key1", "value1");
     trackedMap.put("key2", "value2");
@@ -214,9 +214,9 @@ public class TrackedMapTest extends DbTestBase {
 
   @Test
   public void testReturnOriginalStateOne() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
 
-    final TrackedMap<String> trackedMap = new TrackedMap<String>(doc);
+    final var trackedMap = new TrackedMap<String>(doc);
     trackedMap.put("key1", "value1");
     trackedMap.put("key2", "value2");
     trackedMap.put("key3", "value3");
@@ -245,9 +245,9 @@ public class TrackedMapTest extends DbTestBase {
 
   @Test
   public void testReturnOriginalStateTwo() {
-    final EntityImpl doc = (EntityImpl) db.newEntity();
+    final var doc = (EntityImpl) db.newEntity();
 
-    final TrackedMap<String> trackedMap = new TrackedMap<String>(doc);
+    final var trackedMap = new TrackedMap<String>(doc);
     trackedMap.put("key1", "value1");
     trackedMap.put("key2", "value2");
     trackedMap.put("key3", "value3");
@@ -296,22 +296,22 @@ public class TrackedMapTest extends DbTestBase {
       }
     }
 
-    final TrackedMap<String> beforeSerialization =
+    final var beforeSerialization =
         new TrackedMap<String>(new NotSerializableEntityImpl(db));
     beforeSerialization.put("1", "firstVal");
     beforeSerialization.put("2", "secondVal");
 
-    final MemoryStream memoryStream = new MemoryStream();
-    final ObjectOutputStream out = new ObjectOutputStream(memoryStream);
+    final var memoryStream = new MemoryStream();
+    final var out = new ObjectOutputStream(memoryStream);
     out.writeObject(beforeSerialization);
     out.close();
 
-    final ObjectInputStream input =
+    final var input =
         new ObjectInputStream(new ByteArrayInputStream(memoryStream.copy()));
-    @SuppressWarnings("unchecked") final Map<Object, String> afterSerialization = (Map<Object, String>) input.readObject();
+    @SuppressWarnings("unchecked") final var afterSerialization = (Map<Object, String>) input.readObject();
 
     Assert.assertEquals(afterSerialization.size(), beforeSerialization.size());
-    for (int i = 0; i < afterSerialization.size(); i++) {
+    for (var i = 0; i < afterSerialization.size(); i++) {
       Assert.assertEquals(afterSerialization.get(i), beforeSerialization.get(String.valueOf(i)));
     }
   }

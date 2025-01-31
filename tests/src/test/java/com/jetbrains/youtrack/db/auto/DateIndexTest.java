@@ -34,7 +34,7 @@ public class DateIndexTest extends BaseDBTest {
 
     final Schema schema = db.getMetadata().getSchema();
 
-    SchemaClass dateIndexTest = schema.createClass("DateIndexTest");
+    var dateIndexTest = schema.createClass("DateIndexTest");
 
     dateIndexTest.createProperty(db, "dateField", PropertyType.DATE);
     dateIndexTest.createProperty(db, "dateTimeField", PropertyType.DATETIME);
@@ -90,19 +90,19 @@ public class DateIndexTest extends BaseDBTest {
   public void testDateIndexes() {
     checkEmbeddedDB();
 
-    final Date dateOne = new Date();
+    final var dateOne = new Date();
 
-    final Date dateTwo = new Date(dateOne.getTime() + 24 * 60 * 60 * 1000 + 100);
+    final var dateTwo = new Date(dateOne.getTime() + 24 * 60 * 60 * 1000 + 100);
 
-    final EntityImpl dateDoc = ((EntityImpl) db.newEntity("DateIndexTest"));
+    final var dateDoc = ((EntityImpl) db.newEntity("DateIndexTest"));
 
     dateDoc.field("dateField", dateOne);
     dateDoc.field("dateTimeField", dateTwo);
 
     final List<Date> dateList = new ArrayList<>();
 
-    final Date dateThree = new Date(dateOne.getTime() + 100);
-    final Date dateFour = new Date(dateThree.getTime() + 24 * 60 * 60 * 1000 + 100);
+    final var dateThree = new Date(dateOne.getTime() + 100);
+    final var dateFour = new Date(dateThree.getTime() + 24 * 60 * 60 * 1000 + 100);
 
     dateList.add(new Date(dateThree.getTime()));
     dateList.add(new Date(dateFour.getTime()));
@@ -121,192 +121,192 @@ public class DateIndexTest extends BaseDBTest {
     dateDoc.save();
     db.commit();
 
-    final Index dateIndexTestDateIndex =
+    final var dateIndexTestDateIndex =
         db
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "DateIndexTestDateIndex");
-    try (Stream<RID> stream = dateIndexTestDateIndex.getInternal().getRids(db, dateOne)) {
+    try (var stream = dateIndexTestDateIndex.getInternal().getRids(db, dateOne)) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
     }
-    try (Stream<RID> stream = dateIndexTestDateIndex.getInternal().getRids(db, dateTwo)) {
+    try (var stream = dateIndexTestDateIndex.getInternal().getRids(db, dateTwo)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
 
-    final Index dateIndexTestDateTimeIndex =
+    final var dateIndexTestDateTimeIndex =
         db
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "DateIndexTestDateTimeIndex");
-    try (Stream<RID> stream = dateIndexTestDateTimeIndex.getInternal()
+    try (var stream = dateIndexTestDateTimeIndex.getInternal()
         .getRids(db, dateTwo)) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
     }
-    try (Stream<RID> stream = dateIndexTestDateTimeIndex.getInternal()
+    try (var stream = dateIndexTestDateTimeIndex.getInternal()
         .getRids(db, dateOne)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
 
-    final Index dateIndexTestValueDateIndex =
+    final var dateIndexTestValueDateIndex =
         db
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "DateIndexTestValueDateIndex");
-    try (Stream<RID> stream =
+    try (var stream =
         dateIndexTestValueDateIndex.getInternal()
             .getRids(db, new CompositeKey("v1", dateOne))) {
       Assert.assertEquals((stream.findAny().orElse(null)), dateDoc.getIdentity());
     }
-    try (Stream<RID> stream =
+    try (var stream =
         dateIndexTestValueDateIndex.getInternal()
             .getRids(db, new CompositeKey("v1", dateTwo))) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
 
-    final Index dateIndexTestValueDateTimeIndex =
+    final var dateIndexTestValueDateTimeIndex =
         db
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "DateIndexTestValueDateTimeIndex");
-    try (Stream<RID> stream =
+    try (var stream =
         dateIndexTestValueDateTimeIndex.getInternal()
             .getRids(db, new CompositeKey("v1", dateTwo))) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
     }
-    try (Stream<RID> stream =
+    try (var stream =
         dateIndexTestValueDateTimeIndex.getInternal()
             .getRids(db, new CompositeKey("v1", dateOne))) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
 
-    final Index dateIndexTestValueDateListIndex =
+    final var dateIndexTestValueDateListIndex =
         db
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "DateIndexTestValueDateListIndex");
 
-    try (Stream<RID> stream =
+    try (var stream =
         dateIndexTestValueDateListIndex.getInternal()
             .getRids(db, new CompositeKey("v1", dateThree))) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
     }
-    try (Stream<RID> stream =
+    try (var stream =
         dateIndexTestValueDateListIndex.getInternal()
             .getRids(db, new CompositeKey("v1", dateFour))) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
     }
 
-    final Index dateIndexTestValueDateTimeListIndex =
+    final var dateIndexTestValueDateTimeListIndex =
         db
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "DateIndexTestValueDateListIndex");
-    try (Stream<RID> stream =
+    try (var stream =
         dateIndexTestValueDateTimeListIndex
             .getInternal()
             .getRids(db, new CompositeKey("v1", dateThree))) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
     }
-    try (Stream<RID> stream =
+    try (var stream =
         dateIndexTestValueDateTimeListIndex
             .getInternal()
             .getRids(db, new CompositeKey("v1", dateFour))) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
     }
 
-    final Index dateIndexTestDateHashIndexIndex =
+    final var dateIndexTestDateHashIndexIndex =
         db
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "DateIndexTestDateHashIndex");
-    try (Stream<RID> stream = dateIndexTestDateHashIndexIndex.getInternal()
+    try (var stream = dateIndexTestDateHashIndexIndex.getInternal()
         .getRids(db, dateOne)) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
     }
-    try (Stream<RID> stream = dateIndexTestDateHashIndexIndex.getInternal()
+    try (var stream = dateIndexTestDateHashIndexIndex.getInternal()
         .getRids(db, dateTwo)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
 
-    final Index dateIndexTestDateTimeHashIndex =
+    final var dateIndexTestDateTimeHashIndex =
         db
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "DateIndexTestDateTimeHashIndex");
-    try (Stream<RID> stream = dateIndexTestDateTimeHashIndex.getInternal()
+    try (var stream = dateIndexTestDateTimeHashIndex.getInternal()
         .getRids(db, dateTwo)) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
     }
-    try (Stream<RID> stream = dateIndexTestDateTimeHashIndex.getInternal()
+    try (var stream = dateIndexTestDateTimeHashIndex.getInternal()
         .getRids(db, dateOne)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
 
-    final Index dateIndexTestValueDateHashIndex =
+    final var dateIndexTestValueDateHashIndex =
         db
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "DateIndexTestValueDateHashIndex");
-    try (Stream<RID> stream =
+    try (var stream =
         dateIndexTestValueDateHashIndex.getInternal()
             .getRids(db, new CompositeKey("v1", dateOne))) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
     }
-    try (Stream<RID> stream =
+    try (var stream =
         dateIndexTestValueDateHashIndex.getInternal()
             .getRids(db, new CompositeKey("v1", dateTwo))) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
 
-    final Index dateIndexTestValueDateTimeHashIndex =
+    final var dateIndexTestValueDateTimeHashIndex =
         db
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "DateIndexTestValueDateTimeHashIndex");
-    try (Stream<RID> stream =
+    try (var stream =
         dateIndexTestValueDateTimeHashIndex
             .getInternal()
             .getRids(db, new CompositeKey("v1", dateTwo))) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
     }
-    try (Stream<RID> stream =
+    try (var stream =
         dateIndexTestValueDateTimeHashIndex
             .getInternal()
             .getRids(db, new CompositeKey("v1", dateOne))) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
 
-    final Index dateIndexTestValueDateListHashIndex =
+    final var dateIndexTestValueDateListHashIndex =
         db
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "DateIndexTestValueDateListHashIndex");
 
-    try (Stream<RID> stream =
+    try (var stream =
         dateIndexTestValueDateListHashIndex
             .getInternal()
             .getRids(db, new CompositeKey("v1", dateThree))) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
     }
-    try (Stream<RID> stream =
+    try (var stream =
         dateIndexTestValueDateListHashIndex
             .getInternal()
             .getRids(db, new CompositeKey("v1", dateFour))) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
     }
 
-    final Index dateIndexTestValueDateTimeListHashIndex =
+    final var dateIndexTestValueDateTimeListHashIndex =
         db
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "DateIndexTestValueDateListHashIndex");
-    try (Stream<RID> stream =
+    try (var stream =
         dateIndexTestValueDateTimeListHashIndex
             .getInternal()
             .getRids(db, new CompositeKey("v1", dateThree))) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
     }
-    try (Stream<RID> stream =
+    try (var stream =
         dateIndexTestValueDateTimeListHashIndex
             .getInternal()
             .getRids(db, new CompositeKey("v1", dateFour))) {

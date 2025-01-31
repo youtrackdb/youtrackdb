@@ -128,7 +128,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     directoryPath = directoryPath.trim();
 
     if (!directoryPath.isEmpty()) {
-      final File dirFile = new File(directoryPath);
+      final var dirFile = new File(directoryPath);
       if (!dirFile.exists()) {
         LogManager.instance()
             .info(this, "Directory " + dirFile + " does not exist, try to create it.");
@@ -185,7 +185,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
     initAutoClose();
 
-    long timeout = getLongConfig(GlobalConfiguration.COMMAND_TIMEOUT);
+    var timeout = getLongConfig(GlobalConfiguration.COMMAND_TIMEOUT);
     timeoutChecker = new CommandTimeoutChecker(timeout, this);
     systemDatabase = new SystemDatabase(this);
     securitySystem = new DefaultSecuritySystem();
@@ -195,18 +195,18 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
   private void initAutoClose() {
 
-    boolean autoClose = getBoolConfig(GlobalConfiguration.AUTO_CLOSE_AFTER_DELAY);
+    var autoClose = getBoolConfig(GlobalConfiguration.AUTO_CLOSE_AFTER_DELAY);
     if (autoClose) {
-      int autoCloseDelay = getIntConfig(GlobalConfiguration.AUTO_CLOSE_DELAY);
-      final long delay = (long) autoCloseDelay * 60 * 1000;
+      var autoCloseDelay = getIntConfig(GlobalConfiguration.AUTO_CLOSE_DELAY);
+      final var delay = (long) autoCloseDelay * 60 * 1000;
       initAutoClose(delay);
     }
   }
 
   private ExecutorService newIoExecutor() {
     if (getBoolConfig(GlobalConfiguration.EXECUTOR_POOL_IO_ENABLED)) {
-      int ioSize = excutorMaxSize(GlobalConfiguration.EXECUTOR_POOL_IO_MAX_SIZE);
-      ExecutorService exec =
+      var ioSize = excutorMaxSize(GlobalConfiguration.EXECUTOR_POOL_IO_MAX_SIZE);
+      var exec =
           ThreadPoolExecutors.newScalingThreadPool(
               "YouTrackDB-IO", 1, excutorBaseSize(ioSize), ioSize, 30, TimeUnit.MINUTES);
       if (getBoolConfig(GlobalConfiguration.EXECUTOR_DEBUG_TRACE_SOURCE)) {
@@ -219,8 +219,8 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   }
 
   private ExecutorService newExecutor() {
-    int size = excutorMaxSize(GlobalConfiguration.EXECUTOR_POOL_MAX_SIZE);
-    ExecutorService exec =
+    var size = excutorMaxSize(GlobalConfiguration.EXECUTOR_POOL_MAX_SIZE);
+    var exec =
         ThreadPoolExecutors.newScalingThreadPool(
             "YouTrackDBEmbedded", 1, excutorBaseSize(size), size, 30, TimeUnit.MINUTES);
     if (getBoolConfig(GlobalConfiguration.EXECUTOR_DEBUG_TRACE_SOURCE)) {
@@ -242,7 +242,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   }
 
   private int excutorMaxSize(GlobalConfiguration config) {
-    int size = getIntConfig(config);
+    var size = getIntConfig(config);
     if (size == 0) {
       LogManager.instance()
           .warn(
@@ -271,13 +271,13 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   }
 
   protected CachedDatabasePoolFactory createCachedDatabasePoolFactory(YouTrackDBConfig config) {
-    int capacity = getIntConfig(GlobalConfiguration.DB_CACHED_POOL_CAPACITY);
+    var capacity = getIntConfig(GlobalConfiguration.DB_CACHED_POOL_CAPACITY);
     long timeout = getIntConfig(GlobalConfiguration.DB_CACHED_POOL_CLEAN_UP_TIMEOUT);
     return new CachedDatabasePoolFactoryImpl(this, capacity, timeout);
   }
 
   public void initAutoClose(long delay) {
-    final long scheduleTime = delay / 3;
+    final var scheduleTime = delay / 3;
     autoCloseTimer =
         new TimerTask() {
           @Override
@@ -290,30 +290,30 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
   private synchronized void checkAndCloseStorages(long delay) {
     Set<String> toClose = new HashSet<>();
-    for (AbstractPaginatedStorage storage : storages.values()) {
+    for (var storage : storages.values()) {
       if (storage.getType().equalsIgnoreCase(DatabaseType.PLOCAL.name())
           && storage.getSessionsCount() == 0) {
-        long currentTime = System.currentTimeMillis();
+        var currentTime = System.currentTimeMillis();
         if (currentTime > storage.getLastCloseTime() + delay) {
           toClose.add(storage.getName());
         }
       }
     }
-    for (String storage : toClose) {
+    for (var storage : toClose) {
       forceDatabaseClose(storage);
     }
   }
 
   private long calculateInitialMaxWALSegSize() throws IOException {
-    String walPath =
+    var walPath =
         configuration.getConfiguration().getValueAsString(GlobalConfiguration.WAL_LOCATION);
 
     if (walPath == null) {
       walPath = basePath;
     }
 
-    final FileStore fileStore = Files.getFileStore(Paths.get(walPath));
-    final long freeSpace = fileStore.getUsableSpace();
+    final var fileStore = Files.getFileStore(Paths.get(walPath));
+    final var freeSpace = fileStore.getUsableSpace();
 
     long filesSize;
     try {
@@ -340,10 +340,10 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       filesSize = 0;
     }
 
-    long maxSegSize = getLongConfig(GlobalConfiguration.WAL_MAX_SEGMENT_SIZE) * 1024 * 1024;
+    var maxSegSize = getLongConfig(GlobalConfiguration.WAL_MAX_SEGMENT_SIZE) * 1024 * 1024;
 
     if (maxSegSize <= 0) {
-      int sizePercent = getIntConfig(GlobalConfiguration.WAL_MAX_SEGMENT_SIZE_PERCENT);
+      var sizePercent = getIntConfig(GlobalConfiguration.WAL_MAX_SEGMENT_SIZE_PERCENT);
       if (sizePercent <= 0) {
         throw new DatabaseException(
             "Invalid configuration settings. Can not set maximum size of WAL segment");
@@ -352,9 +352,9 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       maxSegSize = (freeSpace + filesSize) / 100 * sizePercent;
     }
 
-    final long minSegSizeLimit = (long) (freeSpace * 0.25);
+    final var minSegSizeLimit = (long) (freeSpace * 0.25);
 
-    long minSegSize = getLongConfig(GlobalConfiguration.WAL_MIN_SEG_SIZE) * 1024 * 1024;
+    var minSegSize = getLongConfig(GlobalConfiguration.WAL_MIN_SEG_SIZE) * 1024 * 1024;
 
     if (minSegSize > minSegSizeLimit) {
       minSegSize = minSegSizeLimit;
@@ -367,8 +367,8 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   }
 
   private long calculateDoubleWriteLogMaxSegSize(Path storagePath) throws IOException {
-    final FileStore fileStore = Files.getFileStore(storagePath);
-    final long freeSpace = fileStore.getUsableSpace();
+    final var fileStore = Files.getFileStore(storagePath);
+    final var freeSpace = fileStore.getUsableSpace();
 
     long filesSize;
     try {
@@ -396,11 +396,11 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       filesSize = 0;
     }
 
-    long maxSegSize =
+    var maxSegSize =
         getLongConfig(GlobalConfiguration.STORAGE_DOUBLE_WRITE_LOG_MAX_SEG_SIZE) * 1024 * 1024;
 
     if (maxSegSize <= 0) {
-      int sizePercent =
+      var sizePercent =
           getIntConfig(GlobalConfiguration.STORAGE_DOUBLE_WRITE_LOG_MAX_SEG_SIZE_PERCENT);
 
       if (sizePercent <= 0) {
@@ -411,7 +411,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       maxSegSize = (freeSpace + filesSize) / 100 * sizePercent;
     }
 
-    long minSegSize =
+    var minSegSize =
         getLongConfig(GlobalConfiguration.STORAGE_DOUBLE_WRITE_LOG_MIN_SEG_SIZE) * 1024 * 1024;
 
     if (minSegSize > 0 && maxSegSize < minSegSize) {
@@ -432,7 +432,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       var config = solveConfig(null);
       synchronized (this) {
         checkOpen();
-        AbstractPaginatedStorage storage = getAndOpenStorage(name, config);
+        var storage = getAndOpenStorage(name, config);
         embedded = newSessionInstance(storage, config, getOrCreateSharedContext(storage));
       }
       embedded.rebuildIndexes();
@@ -447,14 +447,14 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
   protected DatabaseSessionEmbedded newSessionInstance(
       AbstractPaginatedStorage storage, YouTrackDBConfigImpl config, SharedContext sharedContext) {
-    DatabaseSessionEmbedded embedded = new DatabaseSessionEmbedded(storage);
+    var embedded = new DatabaseSessionEmbedded(storage);
     embedded.init(config, getOrCreateSharedContext(storage));
     return embedded;
   }
 
   protected DatabaseSessionEmbedded newCreateSessionInstance(
       AbstractPaginatedStorage storage, YouTrackDBConfigImpl config, SharedContext sharedContext) {
-    DatabaseSessionEmbedded embedded = new DatabaseSessionEmbedded(storage);
+    var embedded = new DatabaseSessionEmbedded(storage);
     embedded.internalCreate(config, sharedContext);
     return embedded;
   }
@@ -466,7 +466,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       var config = solveConfig(null);
       synchronized (this) {
         checkOpen();
-        AbstractPaginatedStorage storage = getAndOpenStorage(name, config);
+        var storage = getAndOpenStorage(name, config);
         embedded = newSessionInstance(storage, config, getOrCreateSharedContext(storage));
       }
       embedded.rebuildIndexes();
@@ -488,7 +488,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       synchronized (this) {
         checkOpen();
         config = solveConfig((YouTrackDBConfigImpl) config);
-        AbstractPaginatedStorage storage = getAndOpenStorage(name, (YouTrackDBConfigImpl) config);
+        var storage = getAndOpenStorage(name, (YouTrackDBConfigImpl) config);
 
         embedded = newSessionInstance(storage, (YouTrackDBConfigImpl) config,
             getOrCreateSharedContext(storage));
@@ -514,8 +514,8 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
         if (!authenticationInfo.getDatabase().isPresent()) {
           throw new SecurityException("Authentication info do not contain the database");
         }
-        String database = authenticationInfo.getDatabase().get();
-        AbstractPaginatedStorage storage = getAndOpenStorage(database,
+        var database = authenticationInfo.getDatabase().get();
+        var storage = getAndOpenStorage(database,
             (YouTrackDBConfigImpl) config);
         embedded = newSessionInstance(storage, (YouTrackDBConfigImpl) config,
             getOrCreateSharedContext(storage));
@@ -533,7 +533,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   }
 
   private AbstractPaginatedStorage getAndOpenStorage(String name, YouTrackDBConfigImpl config) {
-    AbstractPaginatedStorage storage = getOrInitStorage(name);
+    var storage = getOrInitStorage(name);
     // THIS OPEN THE STORAGE ONLY THE FIRST TIME
     try {
       // THIS OPEN THE STORAGE ONLY THE FIRST TIME
@@ -570,7 +570,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       config.setParent(this.configuration);
       return config;
     } else {
-      YouTrackDBConfigImpl cfg = (YouTrackDBConfigImpl) YouTrackDBConfig.defaultConfig();
+      var cfg = (YouTrackDBConfigImpl) YouTrackDBConfig.defaultConfig();
       cfg.setParent(this.configuration);
       return cfg;
     }
@@ -581,7 +581,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     final DatabaseSessionEmbedded embedded;
     synchronized (this) {
       checkOpen();
-      AbstractPaginatedStorage storage = getAndOpenStorage(name, pool.getConfig());
+      var storage = getAndOpenStorage(name, pool.getConfig());
       embedded = newPooledSessionInstance(pool, storage, getOrCreateSharedContext(storage));
     }
     embedded.rebuildIndexes();
@@ -592,19 +592,19 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
   protected DatabaseSessionEmbedded newPooledSessionInstance(
       DatabasePoolInternal pool, AbstractPaginatedStorage storage, SharedContext sharedContext) {
-    DatabaseSessionEmbeddedPooled embedded = new DatabaseSessionEmbeddedPooled(pool, storage);
+    var embedded = new DatabaseSessionEmbeddedPooled(pool, storage);
     embedded.init(pool.getConfig(), sharedContext);
     return embedded;
   }
 
   protected AbstractPaginatedStorage getOrInitStorage(String name) {
-    AbstractPaginatedStorage storage = storages.get(name);
+    var storage = storages.get(name);
     if (storage == null) {
       if (basePath == null) {
         throw new DatabaseException(
             "Cannot open database '" + name + "' because it does not exists");
       }
-      Path storagePath = Paths.get(buildName(name));
+      var storagePath = Paths.get(buildName(name));
       if (LocalPaginatedStorage.exists(storagePath)) {
         name = storagePath.getFileName().toString();
       }
@@ -628,7 +628,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   }
 
   protected final int generateStorageId() {
-    int storageId = Math.abs(nextStorageId.getAndIncrement());
+    var storageId = Math.abs(nextStorageId.getAndIncrement());
     while (!currentStorageIds.add(storageId)) {
       storageId = Math.abs(nextStorageId.getAndIncrement());
     }
@@ -742,7 +742,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
         storages.remove(name);
       }
 
-      ContextConfiguration configs = configuration.getConfiguration();
+      var configs = configuration.getConfiguration();
       LocalPaginatedStorage.deleteFilesFromDisc(
           name,
           configs.getValueAsInteger(FILE_DELETE_RETRY),
@@ -802,7 +802,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     try {
       AbstractPaginatedStorage storage;
       synchronized (this) {
-        SharedContext context = sharedContexts.remove(name);
+        var context = sharedContexts.remove(name);
         if (context != null) {
           context.close();
         }
@@ -814,7 +814,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       synchronized (this) {
         storages.remove(name);
       }
-      ContextConfiguration configs = configuration.getConfiguration();
+      var configs = configuration.getConfiguration();
       LocalPaginatedStorage.deleteFilesFromDisc(
           name,
           configs.getValueAsInteger(FILE_DELETE_RETRY),
@@ -833,7 +833,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
   protected synchronized SharedContext getOrCreateSharedContext(
       AbstractPaginatedStorage storage) {
-    SharedContext result = sharedContexts.get(storage.getName());
+    var result = sharedContexts.get(storage.getName());
     if (result == null) {
       result = createSharedContext(storage);
       sharedContexts.put(storage.getName(), result);
@@ -870,10 +870,10 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       checkOpen();
     }
     checkDatabaseName(name);
-    DatabaseSessionInternal current = DatabaseRecordThreadLocal.instance().getIfDefined();
+    var current = DatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       DatabaseSessionInternal db = openNoAuthenticate(name, user);
-      for (Iterator<DatabaseLifecycleListener> it = youTrack.getDbLifecycleListeners();
+      for (var it = youTrack.getDbLifecycleListeners();
           it.hasNext(); ) {
         it.next().onDrop(db);
       }
@@ -882,12 +882,12 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       DatabaseRecordThreadLocal.instance().set(current);
       synchronized (this) {
         if (exists(name, user, password)) {
-          AbstractPaginatedStorage storage = getOrInitStorage(name);
-          SharedContext sharedContext = sharedContexts.get(name);
+          var storage = getOrInitStorage(name);
+          var sharedContext = sharedContexts.get(name);
           if (sharedContext != null) {
             sharedContext.close();
           }
-          final int storageId = storage.getId();
+          final var storageId = storage.getId();
           storage.delete();
           storages.remove(name);
           currentStorageIds.remove(storageId);
@@ -925,7 +925,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
           new File(basePath),
           (name) -> {
             if (!storages.containsKey(name)) {
-              AbstractPaginatedStorage storage = getOrInitStorage(name);
+              var storage = getOrInitStorage(name);
               // THIS OPEN THE STORAGE ONLY THE FIRST TIME
               storage.open(configuration.getConfiguration());
             }
@@ -942,7 +942,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       String name, String user, String password, YouTrackDBConfig config) {
     checkDatabaseName(name);
     checkOpen();
-    DatabasePoolImpl pool = new DatabasePoolImpl(this, name, user, password,
+    var pool = new DatabasePoolImpl(this, name, user, password,
         solveConfig((YouTrackDBConfigImpl) config));
     pools.add(pool);
     return pool;
@@ -958,7 +958,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       String database, String user, String password, YouTrackDBConfig config) {
     checkDatabaseName(database);
     checkOpen();
-    DatabasePoolInternal pool =
+    var pool =
         cachedPoolFactory.get(database, user, password, solveConfig((YouTrackDBConfigImpl) config));
     pools.add(pool);
     return pool;
@@ -1011,7 +1011,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
     Exception storageException = null;
 
-    for (AbstractPaginatedStorage stg : storagesCopy) {
+    for (var stg : storagesCopy) {
       try {
         LogManager.instance().info(this, "- shutdown storage: %s ...", stg.getName());
         stg.shutdown();
@@ -1046,12 +1046,12 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
   private static void scanDatabaseDirectory(final File directory, DatabaseFound found) {
     if (directory.exists() && directory.isDirectory()) {
-      final File[] files = directory.listFiles();
+      final var files = directory.listFiles();
       if (files != null) {
-        for (File db : files) {
+        for (var db : files) {
           if (db.isDirectory()) {
-            for (File cf : db.listFiles()) {
-              String fileName = cf.getName();
+            for (var cf : db.listFiles()) {
+              var fileName = cf.getName();
               if (fileName.equals("database.ocf")
                   || (fileName.startsWith(ClusterBasedStorageConfiguration.COMPONENT_NAME)
                   && fileName.endsWith(
@@ -1070,8 +1070,8 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       String name, String path, String userName, String userPassword) {
     DatabaseSessionEmbedded embedded = null;
     synchronized (this) {
-      boolean exists = LocalPaginatedStorage.exists(Paths.get(path));
-      AbstractPaginatedStorage storage =
+      var exists = LocalPaginatedStorage.exists(Paths.get(path));
+      var storage =
           (AbstractPaginatedStorage)
               disk.createStorage(
                   path, maxWALSegmentSize, doubleWriteLogMaxSegSize, generateStorageId(), this);
@@ -1096,9 +1096,9 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   }
 
   public synchronized void forceDatabaseClose(String iDatabaseName) {
-    AbstractPaginatedStorage storage = storages.remove(iDatabaseName);
+    var storage = storages.remove(iDatabaseName);
     if (storage != null) {
-      SharedContext ctx = sharedContexts.remove(iDatabaseName);
+      var ctx = sharedContexts.remove(iDatabaseName);
       ctx.close();
       storage.shutdown();
     }
@@ -1188,13 +1188,13 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
   public ResultSet executeServerStatementNamedParams(String script, String username, String pw,
       Map<String, Object> args) {
-    SQLServerStatement statement = SQLEngine.parseServerStatement(script, this);
-    ResultSet original = statement.execute(this, args, true);
+    var statement = SQLEngine.parseServerStatement(script, this);
+    var original = statement.execute(this, args, true);
     LocalResultSetLifecycleDecorator result;
     //    if (!statement.isIdempotent()) {
     // fetch all, close and detach
     // TODO pagination!
-    InternalResultSet prefetched = new InternalResultSet();
+    var prefetched = new InternalResultSet();
     original.forEachRemaining(x -> prefetched.add(x));
     original.close();
     result = new LocalResultSetLifecycleDecorator(prefetched);
@@ -1209,13 +1209,13 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
   public ResultSet executeServerStatementPositionalParams(
       String script, String username, String pw, Object... args) {
-    SQLServerStatement statement = SQLEngine.parseServerStatement(script, this);
-    ResultSet original = statement.execute(this, args, true);
+    var statement = SQLEngine.parseServerStatement(script, this);
+    var original = statement.execute(this, args, true);
     LocalResultSetLifecycleDecorator result;
     //    if (!statement.isIdempotent()) {
     // fetch all, close and detach
     // TODO pagination!
-    InternalResultSet prefetched = new InternalResultSet();
+    var prefetched = new InternalResultSet();
     original.forEachRemaining(x -> prefetched.add(x));
     original.close();
     result = new LocalResultSetLifecycleDecorator(prefetched);
@@ -1274,7 +1274,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
   @Override
   public String getConnectionUrl() {
-    String connectionUrl = "embedded:";
+    var connectionUrl = "embedded:";
     if (basePath != null) {
       connectionUrl += basePath;
     }

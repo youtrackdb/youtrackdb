@@ -49,7 +49,7 @@ public class SQLDBSequenceTest extends BaseDBTest {
             + " sequences with same name doesn't throw an exception");
 
     // Doing it twice to check everything works after reset
-    for (int i = 0; i < 2; ++i) {
+    for (var i = 0; i < 2; ++i) {
       Assert.assertEquals(sequenceCurrent(sequenceName), 0L);
       Assert.assertEquals(sequenceNext(sequenceName), 1L);
       Assert.assertEquals(sequenceCurrent(sequenceName), 1L);
@@ -74,7 +74,7 @@ public class SQLDBSequenceTest extends BaseDBTest {
   }
 
   private long sequenceSql(String sequenceName, String cmd) {
-    try (ResultSet ret =
+    try (var ret =
         db.command("SELECT sequence('" + sequenceName + "')." + cmd + " as value")) {
       return ret.next().getProperty("value");
     }
@@ -82,7 +82,7 @@ public class SQLDBSequenceTest extends BaseDBTest {
 
   @Test
   public void testFree() throws ExecutionException, InterruptedException {
-    SequenceLibrary sequenceManager = db.getMetadata().getSequenceLibrary();
+    var sequenceManager = db.getMetadata().getSequenceLibrary();
 
     DBSequence seq = null;
     try {
@@ -104,7 +104,7 @@ public class SQLDBSequenceTest extends BaseDBTest {
         err == null || err.getMessage().toLowerCase(Locale.ENGLISH).contains("already exists"),
         "Creating two ordered sequences with same name doesn't throw an exception");
 
-    DBSequence seqSame = sequenceManager.getSequence("seqSQLOrdered");
+    var seqSame = sequenceManager.getSequence("seqSQLOrdered");
     Assert.assertEquals(seqSame, seq);
 
     testUsage(seq, FIRST_START);
@@ -122,7 +122,7 @@ public class SQLDBSequenceTest extends BaseDBTest {
 
   private void testUsage(DBSequence seq, long reset)
       throws ExecutionException, InterruptedException {
-    for (int i = 0; i < 2; ++i) {
+    for (var i = 0; i < 2; ++i) {
       Assert.assertEquals(seq.reset(db), reset);
       Assert.assertEquals(seq.current(db), reset);
       Assert.assertEquals(seq.next(db), reset + 1L);

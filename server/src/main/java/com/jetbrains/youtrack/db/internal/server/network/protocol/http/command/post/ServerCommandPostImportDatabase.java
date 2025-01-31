@@ -49,12 +49,12 @@ public class ServerCommandPostImportDatabase
     if (!iRequest.isMultipart()) {
       database = getProfiledDatabaseInstance(iRequest);
       try {
-        DatabaseImport importer =
+        var importer =
             new DatabaseImport(
                 database,
                 new ByteArrayInputStream(iRequest.getContent().getBytes(StandardCharsets.UTF_8)),
                 this);
-        for (Map.Entry<String, String> option : iRequest.getParameters().entrySet()) {
+        for (var option : iRequest.getParameters().entrySet()) {
           importer.setOption(option.getKey(), option.getValue());
         }
         importer.importDatabase();
@@ -101,8 +101,8 @@ public class ServerCommandPostImportDatabase
             new HttpMultipartDatabaseImportContentParser(),
             database);
 
-        DatabaseImport importer = new DatabaseImport(database, importData, this);
-        for (Map.Entry<String, String> option : iRequest.getParameters().entrySet()) {
+        var importer = new DatabaseImport(database, importData, this);
+        for (var option : iRequest.getParameters().entrySet()) {
           importer.setOption(option.getKey(), option.getValue());
         }
         importer.importDatabase();
@@ -173,7 +173,7 @@ public class ServerCommandPostImportDatabase
 
   @Override
   public void onMessage(String iText) {
-    final String msg = iText.startsWith("\n") ? iText.substring(1) : iText;
+    final var msg = iText.startsWith("\n") ? iText.substring(1) : iText;
     LogManager.instance().info(this, msg, CommonConst.EMPTY_OBJECT_ARRAY);
   }
 }

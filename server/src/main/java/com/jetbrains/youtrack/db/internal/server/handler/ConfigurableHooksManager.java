@@ -77,10 +77,10 @@ public class ConfigurableHooksManager implements DatabaseLifecycleListener {
   public void onOpen(DatabaseSessionInternal iDatabase) {
     if (!iDatabase.isRemote()) {
       var db = iDatabase;
-      for (ServerHookConfiguration hook : configuredHooks) {
+      for (var hook : configuredHooks) {
         try {
-          final RecordHook.HOOK_POSITION pos = RecordHook.HOOK_POSITION.valueOf(hook.position);
-          Class<?> klass = Class.forName(hook.clazz);
+          final var pos = RecordHook.HOOK_POSITION.valueOf(hook.position);
+          var klass = Class.forName(hook.clazz);
           final RecordHook h;
           Constructor constructor = null;
           try {
@@ -96,7 +96,7 @@ public class ConfigurableHooksManager implements DatabaseLifecycleListener {
           }
           if (hook.parameters != null && hook.parameters.length > 0) {
             try {
-              final Method m =
+              final var m =
                   h.getClass().getDeclaredMethod("config", ServerParameterConfiguration[].class);
               m.invoke(h, new Object[]{hook.parameters});
             } catch (Exception e) {

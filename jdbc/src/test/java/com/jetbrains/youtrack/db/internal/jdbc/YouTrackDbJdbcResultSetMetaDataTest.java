@@ -34,11 +34,11 @@ public class YouTrackDbJdbcResultSetMetaDataTest extends YouTrackDbJdbcDbPerClas
   @Test
   public void shouldMapYouTrackDbTypesToJavaSQLTypes() throws Exception {
 
-    ResultSet rs =
+    var rs =
         conn.createStatement()
             .executeQuery("SELECT stringKey, intKey, text, length, date, score FROM Item");
 
-    ResultSetMetaData metaData = rs.getMetaData();
+    var metaData = rs.getMetaData();
     assertThat(metaData).isNotNull();
     assertThat(metaData.getColumnCount()).isEqualTo(6);
 
@@ -59,7 +59,7 @@ public class YouTrackDbJdbcResultSetMetaDataTest extends YouTrackDbJdbcDbPerClas
   @Test
   public void shouldTestWithAssertJDb() throws Exception {
 
-    Request req = new Request(ds, "SELECT stringKey, intKey, text, length, date, score FROM Item");
+    var req = new Request(ds, "SELECT stringKey, intKey, text, length, date, score FROM Item");
 
     Assertions.assertThat(req)
         .hasNumberOfRows(20)
@@ -80,8 +80,8 @@ public class YouTrackDbJdbcResultSetMetaDataTest extends YouTrackDbJdbcDbPerClas
 
     assertThat(conn.isClosed()).isFalse();
 
-    Statement stmt = conn.createStatement();
-    ResultSet rs =
+    var stmt = conn.createStatement();
+    var rs =
         stmt.executeQuery(
             "SELECT stringKey, intKey, text, length, date, score FROM Item order by stringKey");
 
@@ -94,9 +94,9 @@ public class YouTrackDbJdbcResultSetMetaDataTest extends YouTrackDbJdbcDbPerClas
 
     assertThat(rs.getString("text")).hasSize(rs.getInt("length"));
 
-    Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+    var cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
     cal.add(Calendar.HOUR_OF_DAY, -1);
-    Date date = new Date(cal.getTimeInMillis());
+    var date = new Date(cal.getTimeInMillis());
 
     assertThat(rs.getDate("date").toString()).isEqualTo(date.toString());
     assertThat(rs.getDate(5).toString()).isEqualTo(date.toString());
@@ -108,8 +108,8 @@ public class YouTrackDbJdbcResultSetMetaDataTest extends YouTrackDbJdbcDbPerClas
   @Test
   public void shouldMapRatingToDouble() throws Exception {
 
-    ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM Author limit 10");
-    int size = 0;
+    var rs = conn.createStatement().executeQuery("SELECT * FROM Author limit 10");
+    var size = 0;
     while (rs.next()) {
       assertThat(rs.getDouble("rating")).isNotNull().isInstanceOf(Double.class);
 
@@ -121,8 +121,8 @@ public class YouTrackDbJdbcResultSetMetaDataTest extends YouTrackDbJdbcDbPerClas
   @Test
   public void shouldConvertUUIDToDouble() throws Exception {
 
-    ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM Author limit 10");
-    int count = 0;
+    var rs = conn.createStatement().executeQuery("SELECT * FROM Author limit 10");
+    var count = 0;
     while (rs.next()) {
       assertThat(rs.getLong("uuid")).isNotNull().isInstanceOf(Long.class);
       count++;
@@ -134,12 +134,12 @@ public class YouTrackDbJdbcResultSetMetaDataTest extends YouTrackDbJdbcDbPerClas
   public void shouldNavigateResultSetByMetadata() throws Exception {
 
     assertThat(conn.isClosed()).isFalse();
-    Statement stmt = conn.createStatement();
-    ResultSet rs =
+    var stmt = conn.createStatement();
+    var rs =
         stmt.executeQuery("SELECT @rid, @class, stringKey, intKey, text, length, date FROM Item");
 
     rs.next();
-    ResultSetMetaData metaData = rs.getMetaData();
+    var metaData = rs.getMetaData();
     assertThat(metaData.getColumnCount()).isEqualTo(7);
 
     assertThat(metaData.getColumnName(1)).isEqualTo("@rid");
@@ -166,14 +166,14 @@ public class YouTrackDbJdbcResultSetMetaDataTest extends YouTrackDbJdbcDbPerClas
   @Test
   public void shouldMapMissingFieldsToNull() throws Exception {
 
-    Statement stmt = conn.createStatement();
+    var stmt = conn.createStatement();
 
-    ResultSet rs =
+    var rs =
         stmt.executeQuery(
             "select uuid, posts.* as post_ from (\n"
                 + " select uuid, out('Writes') as posts from writer  unwind posts) order by uuid");
 
-    ResultSetMetaData metaData = rs.getMetaData();
+    var metaData = rs.getMetaData();
     while (rs.next()) {
       if (rs.getMetaData().getColumnCount() == 6) {
         // record with all attributes
@@ -195,11 +195,11 @@ public class YouTrackDbJdbcResultSetMetaDataTest extends YouTrackDbJdbcDbPerClas
     // set spark "profile"
 
     conn.getInfo().setProperty("spark", "true");
-    Statement stmt = conn.createStatement();
+    var stmt = conn.createStatement();
 
-    ResultSet rs = stmt.executeQuery("select * from (select * from item) WHERE 1=0");
+    var rs = stmt.executeQuery("select * from (select * from item) WHERE 1=0");
 
-    ResultSetMetaData metaData = rs.getMetaData();
+    var metaData = rs.getMetaData();
 
     assertThat(metaData.getColumnName(1)).isEqualTo("stringKey");
     assertThat(metaData.getColumnTypeName(1)).isEqualTo("STRING");
@@ -209,8 +209,8 @@ public class YouTrackDbJdbcResultSetMetaDataTest extends YouTrackDbJdbcDbPerClas
   @Test
   public void shouldReadBoolean() throws Exception {
 
-    Statement stmt = conn.createStatement();
-    ResultSet rs = stmt.executeQuery("SELECT  isActive, is_active FROM Writer");
+    var stmt = conn.createStatement();
+    var rs = stmt.executeQuery("SELECT  isActive, is_active FROM Writer");
 
     while (rs.next()) {
       assertThat(rs.getBoolean(1)).isTrue();

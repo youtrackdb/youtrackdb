@@ -26,7 +26,7 @@ public class SQLConsoleStatement extends SQLSimpleExecStatement {
 
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
-    ResultInternal item = new ResultInternal(ctx.getDatabase());
+    var item = new ResultInternal(ctx.getDatabase());
     Object msg = "" + message.execute((Identifiable) null, ctx);
 
     if (logLevel.getStringValue().equalsIgnoreCase("log")) {
@@ -68,7 +68,7 @@ public class SQLConsoleStatement extends SQLSimpleExecStatement {
 
   @Override
   public SQLConsoleStatement copy() {
-    SQLConsoleStatement result = new SQLConsoleStatement(-1);
+    var result = new SQLConsoleStatement(-1);
     result.logLevel = logLevel == null ? null : logLevel.copy();
     result.message = message == null ? null : message.copy();
     return result;
@@ -83,7 +83,7 @@ public class SQLConsoleStatement extends SQLSimpleExecStatement {
       return false;
     }
 
-    SQLConsoleStatement that = (SQLConsoleStatement) o;
+    var that = (SQLConsoleStatement) o;
 
     if (!Objects.equals(logLevel, that.logLevel)) {
       return false;
@@ -93,7 +93,7 @@ public class SQLConsoleStatement extends SQLSimpleExecStatement {
 
   @Override
   public int hashCode() {
-    int result = logLevel != null ? logLevel.hashCode() : 0;
+    var result = logLevel != null ? logLevel.hashCode() : 0;
     result = 31 * result + (message != null ? message.hashCode() : 0);
     return result;
   }

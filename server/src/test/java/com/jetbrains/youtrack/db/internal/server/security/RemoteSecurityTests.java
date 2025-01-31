@@ -35,7 +35,7 @@ public class RemoteSecurityTests {
             + " by 'writer' role writer, reader identified by 'reader' role reader)",
         DB_NAME);
     this.db = youTrackDB.open(DB_NAME, "admin", "admin");
-    SchemaClass person = db.createClass("Person");
+    var person = db.createClass("Person");
     person.createProperty(db, "name", PropertyType.STRING);
   }
 
@@ -55,9 +55,9 @@ public class RemoteSecurityTests {
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
     db.commit();
 
-    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "writer", "writer")) {
+    try (var filteredSession = youTrackDB.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
-      Entity elem = filteredSession.newEntity("Person");
+      var elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
       filteredSession.save(elem);
       filteredSession.commit();
@@ -80,7 +80,7 @@ public class RemoteSecurityTests {
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
     db.commit();
 
-    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "writer", "writer")) {
+    try (var filteredSession = youTrackDB.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
       filteredSession.command("insert into Person SET name = 'foo'");
       filteredSession.commit();
@@ -102,7 +102,7 @@ public class RemoteSecurityTests {
     db.commit();
 
     db.begin();
-    Entity elem = db.newEntity("Person");
+    var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     db.save(elem);
 
@@ -112,8 +112,8 @@ public class RemoteSecurityTests {
     db.commit();
 
     db.close();
-    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
-      try (ResultSet rs = filteredSession.query("select from Person")) {
+    try (var filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
+      try (var rs = filteredSession.query("select from Person")) {
         Assert.assertTrue(rs.hasNext());
         rs.next();
         Assert.assertFalse(rs.hasNext());
@@ -131,7 +131,7 @@ public class RemoteSecurityTests {
     db.commit();
 
     db.begin();
-    Entity elem = db.newEntity("Person");
+    var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     db.save(elem);
 
@@ -140,8 +140,8 @@ public class RemoteSecurityTests {
     db.save(elem);
     db.commit();
 
-    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
-      try (ResultSet rs = filteredSession.query("select from Person where name = 'bar'")) {
+    try (var filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
+      try (var rs = filteredSession.query("select from Person where name = 'bar'")) {
 
         Assert.assertFalse(rs.hasNext());
       }
@@ -158,7 +158,7 @@ public class RemoteSecurityTests {
     db.commit();
 
     db.begin();
-    Entity elem = db.newEntity("Person");
+    var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
     db.save(elem);
@@ -169,10 +169,10 @@ public class RemoteSecurityTests {
     db.save(elem);
     db.commit();
 
-    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
-      try (ResultSet rs = filteredSession.query("select from Person where name = 'foo'")) {
+    try (var filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
+      try (var rs = filteredSession.query("select from Person where name = 'foo'")) {
         Assert.assertTrue(rs.hasNext());
-        Result item = rs.next();
+        var item = rs.next();
         Assert.assertEquals("foo", item.getProperty("surname"));
         Assert.assertFalse(rs.hasNext());
       }
@@ -186,9 +186,9 @@ public class RemoteSecurityTests {
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
     db.commit();
 
-    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "writer", "writer")) {
+    try (var filteredSession = youTrackDB.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
-      Entity elem = filteredSession.newEntity("Person");
+      var elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
       filteredSession.save(elem);
       filteredSession.commit();
@@ -212,9 +212,9 @@ public class RemoteSecurityTests {
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
     db.commit();
 
-    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "writer", "writer")) {
+    try (var filteredSession = youTrackDB.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
-      Entity elem = filteredSession.newEntity("Person");
+      var elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
       filteredSession.save(elem);
       filteredSession.commit();
@@ -237,9 +237,9 @@ public class RemoteSecurityTests {
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
     db.commit();
 
-    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "writer", "writer")) {
+    try (var filteredSession = youTrackDB.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
-      Entity elem = filteredSession.newEntity("Person");
+      var elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
       filteredSession.save(elem);
       filteredSession.commit();
@@ -264,9 +264,9 @@ public class RemoteSecurityTests {
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
     db.commit();
 
-    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "writer", "writer")) {
+    try (var filteredSession = youTrackDB.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
-      Entity elem = filteredSession.newEntity("Person");
+      var elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
       filteredSession.save(elem);
       filteredSession.commit();
@@ -289,10 +289,10 @@ public class RemoteSecurityTests {
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
     db.commit();
 
-    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "writer", "writer")) {
+    try (var filteredSession = youTrackDB.open(DB_NAME, "writer", "writer")) {
 
       filteredSession.begin();
-      Entity elem = filteredSession.newEntity("Person");
+      var elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "bar");
       filteredSession.save(elem);
       filteredSession.commit();
@@ -321,9 +321,9 @@ public class RemoteSecurityTests {
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
     db.commit();
 
-    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "writer", "writer")) {
+    try (var filteredSession = youTrackDB.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
-      Entity elem = filteredSession.newEntity("Person");
+      var elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
       filteredSession.save(elem);
 
@@ -343,7 +343,7 @@ public class RemoteSecurityTests {
       } catch (SecurityException ex) {
       }
 
-      try (ResultSet rs = filteredSession.query("select from Person")) {
+      try (var rs = filteredSession.query("select from Person")) {
         Assert.assertTrue(rs.hasNext());
         Assert.assertEquals("bar", rs.next().getProperty("name"));
         Assert.assertFalse(rs.hasNext());
@@ -359,7 +359,7 @@ public class RemoteSecurityTests {
     db.commit();
 
     db.begin();
-    Entity elem = db.newEntity("Person");
+    var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     db.save(elem);
 
@@ -368,8 +368,8 @@ public class RemoteSecurityTests {
     db.save(elem);
     db.commit();
 
-    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
-      try (ResultSet rs = filteredSession.query("select count(*) as count from Person")) {
+    try (var filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
+      try (var rs = filteredSession.query("select count(*) as count from Person")) {
         Assert.assertEquals(1L, (long) rs.next().getProperty("count"));
       }
     }
@@ -385,7 +385,7 @@ public class RemoteSecurityTests {
     db.commit();
 
     db.begin();
-    Entity elem = db.newEntity("Person");
+    var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     db.save(elem);
 
@@ -395,13 +395,13 @@ public class RemoteSecurityTests {
     db.commit();
 
     db.close();
-    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
-      try (ResultSet rs =
+    try (var filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
+      try (var rs =
           filteredSession.query("select count(*) as count from Person where name = 'bar'")) {
         Assert.assertEquals(0L, (long) rs.next().getProperty("count"));
       }
 
-      try (ResultSet rs =
+      try (var rs =
           filteredSession.query("select count(*) as count from Person where name = 'foo'")) {
         Assert.assertEquals(1L, (long) rs.next().getProperty("count"));
       }
@@ -418,7 +418,7 @@ public class RemoteSecurityTests {
     db.commit();
 
     db.begin();
-    Entity elem = db.newEntity("Person");
+    var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     db.save(elem);
 
@@ -427,13 +427,13 @@ public class RemoteSecurityTests {
     db.save(elem);
     db.commit();
 
-    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
-      try (final ResultSet resultSet =
+    try (var filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
+      try (final var resultSet =
           filteredSession.query("SELECT from Person where name = ?", "bar")) {
         Assert.assertEquals(0, resultSet.stream().count());
       }
 
-      try (final ResultSet resultSet =
+      try (final var resultSet =
           filteredSession.query("SELECT from Person where name = ?", "foo")) {
         Assert.assertEquals(1, resultSet.stream().count());
       }
@@ -450,7 +450,7 @@ public class RemoteSecurityTests {
     db.commit();
 
     db.begin();
-    Entity elem = db.newEntity("Person");
+    var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     db.save(elem);
 
@@ -459,13 +459,13 @@ public class RemoteSecurityTests {
     db.save(elem);
     db.commit();
 
-    try (DatabaseSession filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
-      try (final ResultSet resultSet =
+    try (var filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
+      try (final var resultSet =
           filteredSession.query("SELECT from Person where name = ?", "bar")) {
         Assert.assertEquals(0, resultSet.stream().count());
       }
 
-      try (final ResultSet resultSet =
+      try (final var resultSet =
           filteredSession.query("SELECT from Person where name = ?", "foo")) {
         Assert.assertEquals(1, resultSet.stream().count());
       }
@@ -480,7 +480,7 @@ public class RemoteSecurityTests {
     db.commit();
 
     db.begin();
-    Entity elem = db.newEntity("Person");
+    var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
     db.save(elem);
@@ -489,8 +489,8 @@ public class RemoteSecurityTests {
     db.close();
 
     db = youTrackDB.open(DB_NAME, "reader", "reader");
-    try (final ResultSet resultSet = db.query("SELECT from Person")) {
-      Result item = resultSet.next();
+    try (final var resultSet = db.query("SELECT from Person")) {
+      var item = resultSet.next();
       Assert.assertNull(item.getProperty("name"));
     }
   }
@@ -503,7 +503,7 @@ public class RemoteSecurityTests {
     db.commit();
 
     db.begin();
-    Entity elem = db.newEntity("Person");
+    var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
     db.save(elem);
@@ -512,11 +512,11 @@ public class RemoteSecurityTests {
     db.close();
 
     db = youTrackDB.open(DB_NAME, "reader", "reader");
-    try (final ResultSet resultSet = db.query("SELECT from Person")) {
+    try (final var resultSet = db.query("SELECT from Person")) {
       try {
         db.begin();
-        Result item = resultSet.next();
-        Entity doc = item.getEntity().get();
+        var item = resultSet.next();
+        var doc = item.getEntity().get();
         doc.setProperty("name", "bar");
 
         doc.save();

@@ -66,19 +66,19 @@ public class DatabaseRepair extends DatabaseTool {
   }
 
   protected long removeBrokenLinks(DatabaseSessionInternal db) {
-    long fixedLinks = 0L;
-    long modifiedEntities = 0L;
-    long errors = 0L;
+    var fixedLinks = 0L;
+    var modifiedEntities = 0L;
+    var errors = 0L;
 
     message("\n- Removing broken links...");
-    for (String clusterName : database.getClusterNames()) {
-      for (DBRecord rec : database.browseCluster(clusterName)) {
+    for (var clusterName : database.getClusterNames()) {
+      for (var rec : database.browseCluster(clusterName)) {
         try {
           if (rec instanceof EntityImpl entity) {
-            boolean changed = false;
+            var changed = false;
 
-            for (String fieldName : entity.fieldNames()) {
-              final Object fieldValue = entity.rawField(fieldName);
+            for (var fieldName : entity.fieldNames()) {
+              final var fieldValue = entity.rawField(fieldName);
 
               if (fieldValue instanceof Identifiable) {
                 if (fixLink(fieldValue, db)) {
@@ -98,8 +98,8 @@ public class DatabaseRepair extends DatabaseTool {
                 }
               } else if (fieldValue instanceof Iterable<?>) {
                 final Iterator<Object> it = ((Iterable) fieldValue).iterator();
-                for (int i = 0; it.hasNext(); ++i) {
-                  final Object v = it.next();
+                for (var i = 0; it.hasNext(); ++i) {
+                  final var v = it.next();
                   if (fixLink(v, db)) {
                     it.remove();
                     fixedLinks++;
@@ -149,7 +149,7 @@ public class DatabaseRepair extends DatabaseTool {
    */
   protected boolean fixLink(final Object fieldValue, DatabaseSessionInternal db) {
     if (fieldValue instanceof Identifiable) {
-      final RID id = ((Identifiable) fieldValue).getIdentity();
+      final var id = ((Identifiable) fieldValue).getIdentity();
 
       if (id.getClusterId() == 0 && id.getClusterPosition() == 0) {
         return true;

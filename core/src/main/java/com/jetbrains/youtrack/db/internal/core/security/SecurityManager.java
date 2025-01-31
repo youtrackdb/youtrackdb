@@ -55,7 +55,7 @@ public class SecurityManager {
   private static Map<String, byte[]> SALT_CACHE = null;
 
   static {
-    final int cacheSize =
+    final var cacheSize =
         GlobalConfiguration.SECURITY_USER_PASSWORD_SALT_CACHE_SIZE.getValueAsInteger();
     if (cacheSize > 0) {
       SALT_CACHE = Collections.synchronizedMap(new LRUCache<String, byte[]>(cacheSize));
@@ -71,7 +71,7 @@ public class SecurityManager {
       iAlgorithm = HASH_ALGORITHM;
     }
 
-    final MessageDigest msgDigest = MessageDigest.getInstance(iAlgorithm);
+    final var msgDigest = MessageDigest.getInstance(iAlgorithm);
 
     return byteArrayToHexStr(msgDigest.digest(iInput.getBytes(StandardCharsets.UTF_8)));
   }
@@ -90,15 +90,15 @@ public class SecurityManager {
    */
   public static boolean checkPassword(final String iPassword, final String iHash) {
     if (iHash.startsWith(HASH_ALGORITHM_PREFIX)) {
-      final String s = iHash.substring(HASH_ALGORITHM_PREFIX.length());
+      final var s = iHash.substring(HASH_ALGORITHM_PREFIX.length());
       return createSHA256(iPassword).equals(s);
 
     } else if (iHash.startsWith(PBKDF2_ALGORITHM_PREFIX)) {
-      final String s = iHash.substring(PBKDF2_ALGORITHM_PREFIX.length());
+      final var s = iHash.substring(PBKDF2_ALGORITHM_PREFIX.length());
       return checkPasswordWithSalt(iPassword, s, PBKDF2_ALGORITHM);
 
     } else if (iHash.startsWith(PBKDF2_SHA256_ALGORITHM_PREFIX)) {
-      final String s = iHash.substring(PBKDF2_SHA256_ALGORITHM_PREFIX.length());
+      final var s = iHash.substring(PBKDF2_SHA256_ALGORITHM_PREFIX.length());
       return checkPasswordWithSalt(iPassword, s, PBKDF2_SHA256_ALGORITHM);
     }
 
@@ -129,9 +129,9 @@ public class SecurityManager {
       throw new IllegalArgumentException("Algorithm is null");
     }
 
-    final StringBuilder buffer = new StringBuilder(128);
+    final var buffer = new StringBuilder(128);
 
-    final String algorithm = validateAlgorithm(iAlgorithm);
+    final var algorithm = validateAlgorithm(iAlgorithm);
 
     if (iIncludeAlgorithm) {
       buffer.append('{');
@@ -169,10 +169,10 @@ public class SecurityManager {
     }
 
     try {
-      MessageDigest md = MessageDigest.getInstance(HASH_ALGORITHM);
+      var md = MessageDigest.getInstance(HASH_ALGORITHM);
       return md.digest(iInput.getBytes(StandardCharsets.UTF_8));
     } catch (NoSuchAlgorithmException e) {
-      final String message =
+      final var message =
           "The requested encoding is not supported: cannot execute security checks";
       LogManager.instance().error(SecuritySystem.class, message, e);
 
@@ -189,12 +189,12 @@ public class SecurityManager {
 
   public static String createHashWithSalt(
       final String iPassword, final int iIterations, final String algorithm) {
-    final SecureRandom random = new SecureRandom();
-    final byte[] salt = new byte[SALT_SIZE];
+    final var random = new SecureRandom();
+    final var salt = new byte[SALT_SIZE];
     random.nextBytes(salt);
 
     // Hash the password
-    final byte[] hash =
+    final var hash =
         getPbkdf2(iPassword, salt, iIterations, HASH_SIZE, validateAlgorithm(algorithm));
 
     return byteArrayToHexStr(hash) + ":" + byteArrayToHexStr(salt) + ":" + iIterations;
@@ -221,17 +221,17 @@ public class SecurityManager {
     }
 
     // SPLIT PARTS
-    final String[] params = iHash.split(":");
+    final var params = iHash.split(":");
     if (params.length != 3) {
       throw new IllegalArgumentException(
           "Hash does not contain the requested parts: <hash>:<salt>:<iterations>");
     }
 
-    final byte[] hash = hexToByteArray(params[0]);
-    final byte[] salt = hexToByteArray(params[1]);
-    final int iterations = Integer.parseInt(params[2]);
+    final var hash = hexToByteArray(params[0]);
+    final var salt = hexToByteArray(params[1]);
+    final var iterations = Integer.parseInt(params[2]);
 
-    final byte[] testHash = getPbkdf2(iPassword, salt, iterations, hash.length, algorithm);
+    final var testHash = getPbkdf2(iPassword, salt, iterations, hash.length, algorithm);
     return MessageDigest.isEqual(hash, testHash);
   }
 
@@ -243,22 +243,22 @@ public class SecurityManager {
       final String algorithm) {
     String cacheKey = null;
 
-    final String hashedPassword = createSHA256(iPassword + new String(salt));
+    final var hashedPassword = createSHA256(iPassword + new String(salt));
 
     if (SALT_CACHE != null) {
       // SEARCH IN CACHE FIRST
       cacheKey = hashedPassword + "|" + Arrays.toString(salt) + "|" + iterations + "|" + bytes;
-      final byte[] encoded = SALT_CACHE.get(cacheKey);
+      final var encoded = SALT_CACHE.get(cacheKey);
       if (encoded != null) {
         return encoded;
       }
     }
 
-    final PBEKeySpec spec = new PBEKeySpec(iPassword.toCharArray(), salt, iterations, bytes * 8);
+    final var spec = new PBEKeySpec(iPassword.toCharArray(), salt, iterations, bytes * 8);
     final SecretKeyFactory skf;
     try {
       skf = SecretKeyFactory.getInstance(algorithm);
-      final byte[] encoded = skf.generateSecret(spec).getEncoded();
+      final var encoded = skf.generateSecret(spec).getEncoded();
 
       if (SALT_CACHE != null) {
         // SAVE IT IN CACHE
@@ -289,7 +289,7 @@ public class SecurityManager {
   }
 
   private static String validateAlgorithm(final String iAlgorithm) {
-    String validAlgo = iAlgorithm;
+    var validAlgo = iAlgorithm;
 
     if (!isAlgorithmSupported(iAlgorithm)) {
       // Downgrade it to PBKDF2_ALGORITHM.
@@ -311,11 +311,11 @@ public class SecurityManager {
       return null;
     }
 
-    final char[] chars = new char[data.length * 2];
-    for (int i = 0; i < data.length; i++) {
-      final byte current = data[i];
-      final int hi = (current & 0xF0) >> 4;
-      final int lo = current & 0x0F;
+    final var chars = new char[data.length * 2];
+    for (var i = 0; i < data.length; i++) {
+      final var current = data[i];
+      final var hi = (current & 0xF0) >> 4;
+      final var lo = current & 0x0F;
       chars[2 * i] = (char) (hi < 10 ? ('0' + hi) : ('A' + hi - 10));
       chars[2 * i + 1] = (char) (lo < 10 ? ('0' + lo) : ('A' + lo - 10));
     }
@@ -323,8 +323,8 @@ public class SecurityManager {
   }
 
   private static byte[] hexToByteArray(final String data) {
-    final byte[] hex = new byte[data.length() / 2];
-    for (int i = 0; i < hex.length; i++) {
+    final var hex = new byte[data.length() / 2];
+    for (var i = 0; i < hex.length; i++) {
       hex[i] = (byte) Integer.parseInt(data.substring(2 * i, 2 * i + 2), 16);
     }
 
@@ -335,10 +335,10 @@ public class SecurityManager {
     CredentialInterceptor ci = null;
 
     try {
-      String ciClass = GlobalConfiguration.CLIENT_CREDENTIAL_INTERCEPTOR.getValueAsString();
+      var ciClass = GlobalConfiguration.CLIENT_CREDENTIAL_INTERCEPTOR.getValueAsString();
 
       if (ciClass != null) {
-        Class<?> cls = Class.forName(ciClass); // Throws a ClassNotFoundException if not found.
+        var cls = Class.forName(ciClass); // Throws a ClassNotFoundException if not found.
 
         if (CredentialInterceptor.class.isAssignableFrom(cls)) {
           ci = (CredentialInterceptor) cls.newInstance();

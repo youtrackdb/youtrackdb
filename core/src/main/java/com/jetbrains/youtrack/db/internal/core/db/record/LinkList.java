@@ -51,7 +51,7 @@ public class LinkList extends TrackedList<Identifiable> implements Sizeable {
   public LinkList(final RecordElement iSourceRecord) {
     super(iSourceRecord);
     if (iSourceRecord != null) {
-      RecordElement source = iSourceRecord;
+      var source = iSourceRecord;
       while (!(source instanceof EntityImpl)) {
         source = source.getOwner();
       }
@@ -68,7 +68,7 @@ public class LinkList extends TrackedList<Identifiable> implements Sizeable {
 
   @Override
   public boolean addAll(Collection<? extends Identifiable> c) {
-    for (Identifiable o : c) {
+    for (var o : c) {
       add(o);
     }
 
@@ -242,8 +242,8 @@ public class LinkList extends TrackedList<Identifiable> implements Sizeable {
       return true;
     }
 
-    boolean allConverted = true;
-    for (int i = 0; i < super.size(); ++i) {
+    var allConverted = true;
+    for (var i = 0; i < super.size(); ++i) {
       try {
         if (!convertRecord2Link(i)) {
           allConverted = false;
@@ -266,11 +266,11 @@ public class LinkList extends TrackedList<Identifiable> implements Sizeable {
   }
 
   public LinkList copy(final EntityImpl iSourceRecord) {
-    final LinkList copy = new LinkList(iSourceRecord);
+    final var copy = new LinkList(iSourceRecord);
     copy.contentType = contentType;
 
-    final int tot = super.size();
-    for (int i = 0; i < tot; ++i) {
+    final var tot = super.size();
+    for (var i = 0; i < tot; ++i) {
       copy.add(rawGet(i));
     }
 
@@ -294,7 +294,7 @@ public class LinkList extends TrackedList<Identifiable> implements Sizeable {
       return true;
     }
 
-    final Identifiable o = super.get(iIndex);
+    final var o = super.get(iIndex);
     if (o instanceof Identifiable && o.getIdentity().isPersistent()) {
       // ALREADY CONVERTED
       if (o instanceof DBRecord && !((DBRecord) o).isDirty()) {
@@ -315,10 +315,10 @@ public class LinkList extends TrackedList<Identifiable> implements Sizeable {
   public boolean clearDeletedRecords() {
     var db = getOwnerRecord().getSession();
 
-    boolean removed = false;
-    Iterator<Identifiable> it = super.iterator();
+    var removed = false;
+    var it = super.iterator();
     while (it.hasNext()) {
-      Identifiable rec = it.next();
+      var rec = it.next();
       if (!db.exists(rec.getIdentity())) {
         it.remove();
         removed = true;

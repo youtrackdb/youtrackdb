@@ -115,10 +115,10 @@ public class PushMessageUnitTest {
   @Before
   public void before() throws IOException {
     MockitoAnnotations.initMocks(this);
-    PipedInputStream inputClient = new PipedInputStream();
-    PipedOutputStream outputServer = new PipedOutputStream(inputClient);
-    PipedInputStream inputServer = new PipedInputStream();
-    PipedOutputStream outputClient = new PipedOutputStream(inputServer);
+    var inputClient = new PipedInputStream();
+    var outputServer = new PipedOutputStream(inputClient);
+    var inputServer = new PipedInputStream();
+    var outputClient = new PipedOutputStream(inputServer);
     this.channelBinaryClient = new MockPipeChannel(inputClient, outputClient);
     this.channelBinaryServer = new MockPipeChannel(inputServer, outputServer);
     Mockito.when(server.getContextConfiguration()).thenReturn(new ContextConfiguration());
@@ -132,7 +132,7 @@ public class PushMessageUnitTest {
 
   @Test
   public void testPushMessage() throws IOException, InterruptedException {
-    NetworkProtocolBinary binary = new NetworkProtocolBinary(server);
+    var binary = new NetworkProtocolBinary(server);
     binary.initVariables(server, channelBinaryServer);
     new Thread(
         () -> {
@@ -145,7 +145,7 @@ public class PushMessageUnitTest {
         .start();
     binary.start();
     assertTrue(requestWritten.await(10, TimeUnit.SECONDS));
-    StorageRemotePushThread pushThread = new StorageRemotePushThread(remote, "none", 10, 1000);
+    var pushThread = new StorageRemotePushThread(remote, "none", 10, 1000);
     pushThread.start();
 
     assertTrue(executed.await(10, TimeUnit.SECONDS));
@@ -157,9 +157,9 @@ public class PushMessageUnitTest {
 
   @Test
   public void testPushMessageNoResponse() throws IOException, InterruptedException {
-    NetworkProtocolBinary binary = new NetworkProtocolBinary(server);
+    var binary = new NetworkProtocolBinary(server);
     binary.initVariables(server, channelBinaryServer);
-    Thread thread =
+    var thread =
         new Thread(
             () -> {
               try {
@@ -171,7 +171,7 @@ public class PushMessageUnitTest {
     thread.start();
     binary.start();
     assertTrue(requestWritten.await(10, TimeUnit.SECONDS));
-    StorageRemotePushThread pushThread = new StorageRemotePushThread(remote, "none", 10, 1000);
+    var pushThread = new StorageRemotePushThread(remote, "none", 10, 1000);
     pushThread.start();
 
     assertTrue(executed.await(10, TimeUnit.SECONDS));

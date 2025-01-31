@@ -1,7 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityPolicy;
 import org.junit.Assert;
 import org.junit.Test;
@@ -18,7 +17,7 @@ public class AlterSecurityPolicyStatementExecutionTest extends DbTestBase {
     db.command("ALTER SECURITY POLICY foo SET READ = (name = 'foo')").close();
     db.commit();
 
-    SecurityInternal security = db.getSharedContext().getSecurity();
+    var security = db.getSharedContext().getSecurity();
     SecurityPolicy policy = security.getSecurityPolicy(db, "foo");
     Assert.assertNotNull(policy);
     Assert.assertNotNull("foo", policy.getName(db));

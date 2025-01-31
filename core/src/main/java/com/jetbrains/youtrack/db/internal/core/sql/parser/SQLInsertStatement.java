@@ -117,7 +117,7 @@ public class SQLInsertStatement extends SQLStatement {
 
   @Override
   public SQLInsertStatement copy() {
-    SQLInsertStatement result = new SQLInsertStatement(-1);
+    var result = new SQLInsertStatement(-1);
     result.targetClass = targetClass == null ? null : targetClass.copy();
     result.targetClusterName = targetClusterName == null ? null : targetClusterName.copy();
     result.targetCluster = targetCluster == null ? null : targetCluster.copy();
@@ -135,14 +135,14 @@ public class SQLInsertStatement extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
     ctx.setDatabase(db);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
-      for (int i = 0; i < args.length; i++) {
+      for (var i = 0; i < args.length; i++) {
         params.put(i, args[i]);
       }
     }
@@ -161,7 +161,7 @@ public class SQLInsertStatement extends SQLStatement {
   public ResultSet execute(
       DatabaseSessionInternal db, Map<Object, Object> params, CommandContext parentCtx,
       boolean usePlanCache) {
-    BasicCommandContext ctx = new BasicCommandContext();
+    var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -178,8 +178,8 @@ public class SQLInsertStatement extends SQLStatement {
   }
 
   public InsertExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    InsertExecutionPlanner planner = new InsertExecutionPlanner(this);
-    InsertExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling);
+    var planner = new InsertExecutionPlanner(this);
+    var result = planner.createExecutionPlan(ctx, enableProfiling);
     result.setStatement(originalStatement);
     result.setGenericStatement(this.toGenericStatement());
     return result;
@@ -194,7 +194,7 @@ public class SQLInsertStatement extends SQLStatement {
       return false;
     }
 
-    SQLInsertStatement that = (SQLInsertStatement) o;
+    var that = (SQLInsertStatement) o;
 
     if (selectInParentheses != that.selectInParentheses) {
       return false;
@@ -228,7 +228,7 @@ public class SQLInsertStatement extends SQLStatement {
 
   @Override
   public int hashCode() {
-    int result = targetClass != null ? targetClass.hashCode() : 0;
+    var result = targetClass != null ? targetClass.hashCode() : 0;
     result = 31 * result + (targetClusterName != null ? targetClusterName.hashCode() : 0);
     result = 31 * result + (targetCluster != null ? targetCluster.hashCode() : 0);
     result = 31 * result + (targetIndex != null ? targetIndex.hashCode() : 0);

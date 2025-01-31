@@ -221,9 +221,9 @@ public class SQLLevelZeroIdentifier extends SimpleNode {
   public SimpleNode splitForAggregation(
       AggregateProjectionSplit aggregateProj, CommandContext ctx) {
     if (isAggregate(ctx.getDatabase())) {
-      SQLLevelZeroIdentifier result = new SQLLevelZeroIdentifier(-1);
+      var result = new SQLLevelZeroIdentifier(-1);
       if (functionCall != null) {
-        SimpleNode node = functionCall.splitForAggregation(aggregateProj, ctx);
+        var node = functionCall.splitForAggregation(aggregateProj, ctx);
         if (node instanceof SQLFunctionCall) {
           result.functionCall = (SQLFunctionCall) node;
         } else {
@@ -251,7 +251,7 @@ public class SQLLevelZeroIdentifier extends SimpleNode {
   }
 
   public SQLLevelZeroIdentifier copy() {
-    SQLLevelZeroIdentifier result = new SQLLevelZeroIdentifier(-1);
+    var result = new SQLLevelZeroIdentifier(-1);
     result.functionCall = functionCall == null ? null : functionCall.copy();
     result.self = self;
     result.collection = collection == null ? null : collection.copy();
@@ -267,7 +267,7 @@ public class SQLLevelZeroIdentifier extends SimpleNode {
       return false;
     }
 
-    SQLLevelZeroIdentifier that = (SQLLevelZeroIdentifier) o;
+    var that = (SQLLevelZeroIdentifier) o;
 
     if (!Objects.equals(functionCall, that.functionCall)) {
       return false;
@@ -280,7 +280,7 @@ public class SQLLevelZeroIdentifier extends SimpleNode {
 
   @Override
   public int hashCode() {
-    int result = functionCall != null ? functionCall.hashCode() : 0;
+    var result = functionCall != null ? functionCall.hashCode() : 0;
     result = 31 * result + (self != null ? self.hashCode() : 0);
     result = 31 * result + (collection != null ? collection.hashCode() : 0);
     return result;
@@ -310,7 +310,7 @@ public class SQLLevelZeroIdentifier extends SimpleNode {
   }
 
   public Result serialize(DatabaseSessionInternal db) {
-    ResultInternal result = new ResultInternal(db);
+    var result = new ResultInternal(db);
     if (functionCall != null) {
       result.setProperty("functionCall", functionCall.serialize(db));
     }

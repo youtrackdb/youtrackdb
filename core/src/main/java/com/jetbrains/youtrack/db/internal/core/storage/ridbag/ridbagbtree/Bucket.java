@@ -38,7 +38,7 @@ final class Bucket extends DurablePage {
           "Type of bucket can be changed only bucket if bucket is empty");
     }
 
-    final boolean isLeaf = isLeaf();
+    final var isLeaf = isLeaf();
     if (isLeaf) {
       setByteValue(IS_LEAF_OFFSET, (byte) 0);
     } else {
@@ -59,13 +59,13 @@ final class Bucket extends DurablePage {
   }
 
   public int find(final EdgeKey key) {
-    int low = 0;
-    int high = size() - 1;
+    var low = 0;
+    var high = size() - 1;
 
     while (low <= high) {
-      final int mid = (low + high) >>> 1;
-      final EdgeKey midKey = getKey(mid);
-      final int cmp = midKey.compareTo(key);
+      final var mid = (low + high) >>> 1;
+      final var midKey = getKey(mid);
+      final var cmp = midKey.compareTo(key);
 
       if (cmp < 0) {
         low = mid + 1;
@@ -80,7 +80,7 @@ final class Bucket extends DurablePage {
   }
 
   public EdgeKey getKey(final int index) {
-    int entryPosition = getPointer(index);
+    var entryPosition = getPointer(index);
 
     if (!isLeaf()) {
       entryPosition += 2 * IntegerSerializer.INT_SIZE;
@@ -90,18 +90,18 @@ final class Bucket extends DurablePage {
   }
 
   private byte[] getRawKey(final int index) {
-    int entryPosition = getPointer(index);
+    var entryPosition = getPointer(index);
 
     if (!isLeaf()) {
       entryPosition += 2 * IntegerSerializer.INT_SIZE;
     }
 
-    final int keySize = getObjectSizeInDirectMemory(EdgeKeySerializer.INSTANCE, entryPosition);
+    final var keySize = getObjectSizeInDirectMemory(EdgeKeySerializer.INSTANCE, entryPosition);
     return getBinaryValue(entryPosition, keySize);
   }
 
   public void removeLeafEntry(final int entryIndex, final int keySize, final int valueSize) {
-    final int entryPosition = getPointer(entryIndex);
+    final var entryPosition = getPointer(entryIndex);
 
     final int entrySize;
     if (isLeaf()) {
@@ -110,15 +110,15 @@ final class Bucket extends DurablePage {
       throw new IllegalStateException("Remove is applies to leaf buckets only");
     }
 
-    final int freePointer = getFreePointer();
+    final var freePointer = getFreePointer();
     assert freePointer <= DurablePage.MAX_PAGE_SIZE_BYTES;
     assert freePointer + entrySize <= DurablePage.MAX_PAGE_SIZE_BYTES;
 
-    int size = getSize();
-    int[] pointers = getPointers();
-    int startChanging = size;
+    var size = getSize();
+    var pointers = getPointers();
+    var startChanging = size;
     if (entryIndex < size - 1) {
-      for (int i = entryIndex + 1; i < size; i++) {
+      for (var i = entryIndex + 1; i < size; i++) {
         if (pointers[i] < entryPosition) {
           pointers[i] += entrySize;
         }
@@ -127,7 +127,7 @@ final class Bucket extends DurablePage {
       startChanging = entryIndex;
     }
 
-    for (int i = 0; i < startChanging; i++) {
+    for (var i = 0; i < startChanging; i++) {
       if (pointers[i] < entryPosition) {
         setPointer(i, pointers[i] + entrySize);
       }
@@ -148,17 +148,17 @@ final class Bucket extends DurablePage {
       throw new IllegalStateException("Remove is applied to non-leaf buckets only");
     }
 
-    final int entryPosition = getPointer(entryIndex);
-    final int entrySize = key.length + 2 * IntegerSerializer.INT_SIZE;
-    int size = getSize();
+    final var entryPosition = getPointer(entryIndex);
+    final var entrySize = key.length + 2 * IntegerSerializer.INT_SIZE;
+    var size = getSize();
 
-    final int leftChild = getIntValue(entryPosition);
-    final int rightChild = getIntValue(entryPosition + IntegerSerializer.INT_SIZE);
+    final var leftChild = getIntValue(entryPosition);
+    final var rightChild = getIntValue(entryPosition + IntegerSerializer.INT_SIZE);
 
-    int[] pointers = getPointers();
-    int endSize = size - 1;
+    var pointers = getPointers();
+    var endSize = size - 1;
     if (entryIndex < size - 1) {
-      for (int i = entryIndex + 1; i < size; i++) {
+      for (var i = entryIndex + 1; i < size; i++) {
         if (pointers[i] < entryPosition) {
           pointers[i] += entrySize;
         }
@@ -170,13 +170,13 @@ final class Bucket extends DurablePage {
     size--;
     setSize(size);
 
-    for (int i = 0; i < endSize; i++) {
+    for (var i = 0; i < endSize; i++) {
       if (pointers[i] < entryPosition) {
         setPointer(i, pointers[i] + entrySize);
       }
     }
 
-    final int freePointer = getFreePointer();
+    final var freePointer = getFreePointer();
     assert freePointer <= DurablePage.MAX_PAGE_SIZE_BYTES;
 
     if (size > 0 && entryPosition > freePointer) {
@@ -188,19 +188,19 @@ final class Bucket extends DurablePage {
 
     if (prevChild >= 0) {
       if (entryIndex > 0) {
-        final int prevEntryPosition = getPointer(entryIndex - 1);
+        final var prevEntryPosition = getPointer(entryIndex - 1);
         setIntValue(prevEntryPosition + IntegerSerializer.INT_SIZE, prevChild);
       }
 
       if (entryIndex < size) {
-        final int nextEntryPosition = getPointer(entryIndex);
+        final var nextEntryPosition = getPointer(entryIndex);
         setIntValue(nextEntryPosition, prevChild);
       }
     }
   }
 
   public TreeEntry getEntry(final int entryIndex) {
-    int entryPosition = getPointer(entryIndex);
+    var entryPosition = getPointer(entryIndex);
 
     if (isLeaf()) {
       final EdgeKey key;
@@ -213,13 +213,13 @@ final class Bucket extends DurablePage {
 
       return new TreeEntry(-1, -1, key, value);
     } else {
-      final int leftChild = getIntValue(entryPosition);
+      final var leftChild = getIntValue(entryPosition);
       entryPosition += IntegerSerializer.INT_SIZE;
 
-      final int rightChild = getIntValue(entryPosition);
+      final var rightChild = getIntValue(entryPosition);
       entryPosition += IntegerSerializer.INT_SIZE;
 
-      final EdgeKey key = deserializeFromDirectMemory(EdgeKeySerializer.INSTANCE, entryPosition);
+      final var key = deserializeFromDirectMemory(EdgeKeySerializer.INSTANCE, entryPosition);
 
       return new TreeEntry(leftChild, rightChild, key, -1);
     }
@@ -228,7 +228,7 @@ final class Bucket extends DurablePage {
   public int getLeft(final int entryIndex) {
     assert !isLeaf();
 
-    final int entryPosition = getPointer(entryIndex);
+    final var entryPosition = getPointer(entryIndex);
 
     return getIntValue(entryPosition);
   }
@@ -236,7 +236,7 @@ final class Bucket extends DurablePage {
   public int getRight(final int entryIndex) {
     assert !isLeaf();
 
-    final int entryPosition = getPointer(entryIndex);
+    final var entryPosition = getPointer(entryIndex);
 
     return getIntValue(entryPosition + IntegerSerializer.INT_SIZE);
   }
@@ -244,7 +244,7 @@ final class Bucket extends DurablePage {
   public int getValue(final int entryIndex) {
     assert isLeaf();
 
-    int entryPosition = getPointer(entryIndex);
+    var entryPosition = getPointer(entryIndex);
 
     // skip key
     entryPosition += getObjectSizeInDirectMemory(EdgeKeySerializer.INSTANCE, entryPosition);
@@ -254,18 +254,18 @@ final class Bucket extends DurablePage {
   byte[] getRawValue(final int entryIndex) {
     assert isLeaf();
 
-    int entryPosition = getPointer(entryIndex);
+    var entryPosition = getPointer(entryIndex);
 
     // skip key
     entryPosition += getObjectSizeInDirectMemory(EdgeKeySerializer.INSTANCE, entryPosition);
 
-    final int intSize = getObjectSizeInDirectMemory(IntSerializer.INSTANCE, entryPosition);
+    final var intSize = getObjectSizeInDirectMemory(IntSerializer.INSTANCE, entryPosition);
     return getBinaryValue(entryPosition, intSize);
   }
 
   public void addAll(final List<byte[]> rawEntries) {
-    final int currentSize = size();
-    for (int i = 0; i < rawEntries.size(); i++) {
+    final var currentSize = size();
+    for (var i = 0; i < rawEntries.size(); i++) {
       appendRawEntry(i + currentSize, rawEntries.get(i));
     }
 
@@ -273,7 +273,7 @@ final class Bucket extends DurablePage {
   }
 
   private void appendRawEntry(final int index, final byte[] rawEntry) {
-    int freePointer = getFreePointer();
+    var freePointer = getFreePointer();
     assert freePointer <= DurablePage.MAX_PAGE_SIZE_BYTES;
 
     freePointer -= rawEntry.length;
@@ -289,13 +289,13 @@ final class Bucket extends DurablePage {
   public void shrink(final int newSize) {
     final List<byte[]> rawEntries = new ArrayList<>(newSize);
 
-    for (int i = 0; i < newSize; i++) {
+    for (var i = 0; i < newSize; i++) {
       rawEntries.add(getRawEntry(i));
     }
 
     setFreePointer(MAX_PAGE_SIZE_BYTES);
 
-    for (int i = 0; i < newSize; i++) {
+    for (var i = 0; i < newSize; i++) {
       appendRawEntry(i, rawEntries.get(i));
     }
 
@@ -303,18 +303,18 @@ final class Bucket extends DurablePage {
   }
 
   public byte[] getRawEntry(final int entryIndex) {
-    int entryPosition = getPointer(entryIndex);
-    final int startEntryPosition = entryPosition;
+    var entryPosition = getPointer(entryIndex);
+    final var startEntryPosition = entryPosition;
 
     if (isLeaf()) {
-      final int keySize = getObjectSizeInDirectMemory(EdgeKeySerializer.INSTANCE, entryPosition);
-      final int valueSize =
+      final var keySize = getObjectSizeInDirectMemory(EdgeKeySerializer.INSTANCE, entryPosition);
+      final var valueSize =
           getObjectSizeInDirectMemory(IntSerializer.INSTANCE, startEntryPosition + keySize);
       return getBinaryValue(startEntryPosition, keySize + valueSize);
     } else {
       entryPosition += 2 * IntegerSerializer.INT_SIZE;
 
-      final int keySize = getObjectSizeInDirectMemory(EdgeKeySerializer.INSTANCE, entryPosition);
+      final var keySize = getObjectSizeInDirectMemory(EdgeKeySerializer.INSTANCE, entryPosition);
 
       return getBinaryValue(startEntryPosition, keySize + 2 * IntegerSerializer.INT_SIZE);
     }
@@ -322,12 +322,12 @@ final class Bucket extends DurablePage {
 
   public boolean addLeafEntry(
       final int index, final byte[] serializedKey, final byte[] serializedValue) {
-    final int entrySize = serializedKey.length + serializedValue.length;
+    final var entrySize = serializedKey.length + serializedValue.length;
 
     assert isLeaf();
-    final int size = getSize();
+    final var size = getSize();
 
-    int freePointer = getFreePointer();
+    var freePointer = getFreePointer();
     assert freePointer <= DurablePage.MAX_PAGE_SIZE_BYTES;
 
     if (doesOverflow(entrySize, 1)) {
@@ -360,12 +360,12 @@ final class Bucket extends DurablePage {
       final boolean updateNeighbors) {
     assert !isLeaf();
 
-    final int keySize = key.length;
+    final var keySize = key.length;
 
-    final int entrySize = keySize + 2 * IntegerSerializer.INT_SIZE;
+    final var entrySize = keySize + 2 * IntegerSerializer.INT_SIZE;
 
-    int size = size();
-    int freePointer = getFreePointer();
+    var size = size();
+    var freePointer = getFreePointer();
     assert freePointer <= DurablePage.MAX_PAGE_SIZE_BYTES;
 
     if (doesOverflow(entrySize, 1)) {
@@ -393,12 +393,12 @@ final class Bucket extends DurablePage {
 
     if (updateNeighbors && size > 1) {
       if (index < size - 1) {
-        final int nextEntryPosition = getPointer(index + 1);
+        final var nextEntryPosition = getPointer(index + 1);
         setIntValue(nextEntryPosition, rightChild);
       }
 
       if (index > 0) {
-        final int prevEntryPosition = getPointer(index - 1);
+        final var prevEntryPosition = getPointer(index - 1);
         setIntValue(prevEntryPosition + IntegerSerializer.INT_SIZE, leftChild);
       }
     }
@@ -423,13 +423,13 @@ final class Bucket extends DurablePage {
   }
 
   public void updateValue(final int index, final byte[] value, final int keySize) {
-    final int entryPosition = getPointer(index) + keySize;
+    final var entryPosition = getPointer(index) + keySize;
 
-    final int valueSize = getObjectSizeInDirectMemory(IntSerializer.INSTANCE, entryPosition);
+    final var valueSize = getObjectSizeInDirectMemory(IntSerializer.INSTANCE, entryPosition);
     if (valueSize == value.length) {
       setBinaryValue(entryPosition, value);
     } else {
-      final byte[] rawKey = getRawKey(index);
+      final var rawKey = getRawKey(index);
 
       removeLeafEntry(index, keySize, valueSize);
       addLeafEntry(index, rawKey, value);
@@ -457,7 +457,7 @@ final class Bucket extends DurablePage {
   }
 
   public int[] getPointers() {
-    int size = getSize();
+    var size = getSize();
     return getIntArray(POSITIONS_ARRAY_OFFSET, size);
   }
 
@@ -478,8 +478,8 @@ final class Bucket extends DurablePage {
   }
 
   private boolean doesOverflow(int requiredDataSpace, int requirePointerSpace) {
-    int size = getSize();
-    int freePointer = getFreePointer();
+    var size = getSize();
+    var freePointer = getFreePointer();
     return freePointer - requiredDataSpace
         < (size + requirePointerSpace) * IntegerSerializer.INT_SIZE + POSITIONS_ARRAY_OFFSET;
   }

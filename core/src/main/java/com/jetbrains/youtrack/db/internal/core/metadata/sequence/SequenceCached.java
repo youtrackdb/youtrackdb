@@ -72,7 +72,7 @@ public class SequenceCached extends DBSequence {
   boolean updateParams(
       EntityImpl entity, DBSequence.CreateParams params, boolean executeViaDistributed)
       throws DatabaseException {
-    boolean any = super.updateParams(entity, params, executeViaDistributed);
+    var any = super.updateParams(entity, params, executeViaDistributed);
     if (params.cacheSize != null && this.getCacheSize(entity) != params.cacheSize) {
       this.setCacheSize(entity, params.cacheSize);
       any = true;
@@ -137,7 +137,7 @@ public class SequenceCached extends DBSequence {
 
           if (orderType == SequenceOrderType.ORDER_POSITIVE) {
             if (signalToAllocateCache(orderType, increment, limitValue)) {
-              boolean cachedbefore = !firstCache;
+              var cachedbefore = !firstCache;
               allocateCache(entity, cacheSize, orderType, limitValue);
               if (!cachedbefore) {
                 if (limitValue != null && cacheStart + increment > limitValue) {
@@ -153,7 +153,7 @@ public class SequenceCached extends DBSequence {
             }
           } else {
             if (signalToAllocateCache(orderType, increment, limitValue)) {
-              boolean cachedbefore = !firstCache;
+              var cachedbefore = !firstCache;
               allocateCache(entity, cacheSize, orderType, limitValue);
               if (!cachedbefore) {
                 if (limitValue != null && cacheStart - increment < limitValue) {
@@ -170,11 +170,11 @@ public class SequenceCached extends DBSequence {
           }
 
           if (limitValue != null && !recyble) {
-            float tillEnd = Math.abs(limitValue - cacheStart) / (float) increment;
-            float delta = Math.abs(limitValue - start) / (float) increment;
+            var tillEnd = Math.abs(limitValue - cacheStart) / (float) increment;
+            var delta = Math.abs(limitValue - start) / (float) increment;
             // warning on 1%
             if (tillEnd <= (delta / 100.f) || tillEnd <= 1) {
-              String warningMessage =
+              var warningMessage =
                   "Non-recyclable sequence: "
                       + getSequenceName(entity)
                       + " reaching limt, current value: "
@@ -201,7 +201,7 @@ public class SequenceCached extends DBSequence {
   public long resetWork(DatabaseSessionInternal session) {
     return callRetry(session,
         (db, entity) -> {
-          long newValue = getStart(entity);
+          var newValue = getStart(entity);
           setValue(entity, newValue);
           firstCache = true;
           allocateCache(entity, getCacheSize(entity), getOrderType(entity), getLimitValue(entity));
@@ -224,7 +224,7 @@ public class SequenceCached extends DBSequence {
 
   private void allocateCache(
       EntityImpl entity, int cacheSize, SequenceOrderType orderType, Long limitValue) {
-    long value = getValue(entity);
+    var value = getValue(entity);
     long newValue;
     if (orderType == SequenceOrderType.ORDER_POSITIVE) {
       newValue = value + ((long) getIncrement(entity) * cacheSize);

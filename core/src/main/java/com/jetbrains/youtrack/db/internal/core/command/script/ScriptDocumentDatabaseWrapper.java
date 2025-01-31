@@ -64,7 +64,7 @@ public class ScriptDocumentDatabaseWrapper {
   }
 
   public Map<?, ?>[] query(final String iText, final Object... iParameters) {
-    try (ResultSet rs = database.query(iText, iParameters)) {
+    try (var rs = database.query(iText, iParameters)) {
       return (Map<?, ?>[]) rs.stream().map(Result::toMap).toArray();
     }
   }
@@ -96,7 +96,7 @@ public class ScriptDocumentDatabaseWrapper {
   }
 
   public Object command(final String iText, final Object... iParameters) {
-    try (ResultSet rs = database.command(iText, iParameters)) {
+    try (var rs = database.command(iText, iParameters)) {
       return rs.stream().map(Result::toMap).toArray();
     }
   }

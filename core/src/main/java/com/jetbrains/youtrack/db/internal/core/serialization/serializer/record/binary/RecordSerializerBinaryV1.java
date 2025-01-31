@@ -75,10 +75,10 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
   private final BinaryComparatorV0 comparator = new BinaryComparatorV0();
 
   private static int findMatchingFieldName(final BytesContainer bytes, int len, byte[][] fields) {
-    for (int i = 0; i < fields.length; ++i) {
+    for (var i = 0; i < fields.length; ++i) {
       if (fields[i] != null && fields[i].length == len) {
-        boolean matchField = true;
-        for (int j = 0; j < len; ++j) {
+        var matchField = true;
+        for (var j = 0; j < len; ++j) {
           if (bytes.bytes[bytes.offset + j] != fields[i][j]) {
             matchField = false;
             break;
@@ -94,9 +94,9 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
   }
 
   private static boolean checkIfPropertyNameMatchSome(GlobalProperty prop, final String[] fields) {
-    String fieldName = prop.getName();
+    var fieldName = prop.getName();
 
-    for (String field : fields) {
+    for (var field : fields) {
       if (fieldName.equals(field)) {
         return true;
       }
@@ -108,29 +108,29 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
   public void deserializePartial(DatabaseSessionInternal db, EntityImpl entity,
       BytesContainer bytes, String[] iFields) {
     // TRANSFORMS FIELDS FOM STRINGS TO BYTE[]
-    final byte[][] fields = new byte[iFields.length][];
-    for (int i = 0; i < iFields.length; ++i) {
+    final var fields = new byte[iFields.length][];
+    for (var i = 0; i < iFields.length; ++i) {
       fields[i] = bytesFromString(iFields[i]);
     }
 
     String fieldName;
     PropertyType type;
-    int unmarshalledFields = 0;
+    var unmarshalledFields = 0;
 
-    int headerLength = VarIntSerializer.readAsInteger(bytes);
-    int headerStart = bytes.offset;
-    int valuesStart = headerStart + headerLength;
-    int currentValuePos = valuesStart;
+    var headerLength = VarIntSerializer.readAsInteger(bytes);
+    var headerStart = bytes.offset;
+    var valuesStart = headerStart + headerLength;
+    var currentValuePos = valuesStart;
 
     while (bytes.offset < valuesStart) {
 
-      final int len = VarIntSerializer.readAsInteger(bytes);
+      final var len = VarIntSerializer.readAsInteger(bytes);
       boolean found;
       int fieldLength;
       if (len > 0) {
-        int fieldPos = findMatchingFieldName(bytes, len, fields);
+        var fieldPos = findMatchingFieldName(bytes, len, fields);
         bytes.skip(len);
-        Tuple<Integer, PropertyType> pointerAndType = getFieldSizeAndTypeFromCurrentPosition(bytes);
+        var pointerAndType = getFieldSizeAndTypeFromCurrentPosition(bytes);
         fieldLength = pointerAndType.getFirstVal();
         type = pointerAndType.getSecondVal();
 
@@ -143,7 +143,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
         }
       } else {
         // LOAD GLOBAL PROPERTY BY ID
-        final GlobalProperty prop = getGlobalProperty(entity, len);
+        final var prop = getGlobalProperty(entity, len);
         found = checkIfPropertyNameMatchSome(prop, iFields);
 
         fieldLength = VarIntSerializer.readAsInteger(bytes);
@@ -153,9 +153,9 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
       }
       if (found) {
         if (fieldLength != 0) {
-          int headerCursor = bytes.offset;
+          var headerCursor = bytes.offset;
           bytes.offset = currentValuePos;
-          final Object value = deserializeValue(db, bytes, type, entity);
+          final var value = deserializeValue(db, bytes, type, entity);
           bytes.offset = headerCursor;
           EntityInternalUtils.rawField(entity, fieldName, value, type);
         } else {
@@ -177,8 +177,8 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
     if (field.length != len) {
       return false;
     }
-    boolean match = true;
-    for (int j = 0; j < len; ++j) {
+    var match = true;
+    for (var j = 0; j < len; ++j) {
       if (bytes.bytes[bytes.offset + j] != field[j]) {
         match = false;
         break;
@@ -210,28 +210,28 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
 
     if (embedded) {
       // skip class name bytes
-      final int classNameLen = VarIntSerializer.readAsInteger(bytes);
+      final var classNameLen = VarIntSerializer.readAsInteger(bytes);
       bytes.skip(classNameLen);
     }
-    final byte[] field = iFieldName.getBytes();
+    final var field = iFieldName.getBytes();
 
-    int headerLength = VarIntSerializer.readAsInteger(bytes);
-    int headerStart = bytes.offset;
-    int valuesStart = headerStart + headerLength;
-    int currentValuePos = valuesStart;
+    var headerLength = VarIntSerializer.readAsInteger(bytes);
+    var headerStart = bytes.offset;
+    var valuesStart = headerStart + headerLength;
+    var currentValuePos = valuesStart;
 
     while (bytes.offset < valuesStart) {
 
-      final int len = VarIntSerializer.readAsInteger(bytes);
+      final var len = VarIntSerializer.readAsInteger(bytes);
 
       if (len > 0) {
 
-        boolean match = checkMatchForLargerThenZero(bytes, field, len);
+        var match = checkMatchForLargerThenZero(bytes, field, len);
 
         bytes.skip(len);
-        Tuple<Integer, PropertyType> pointerAndType = getFieldSizeAndTypeFromCurrentPosition(bytes);
+        var pointerAndType = getFieldSizeAndTypeFromCurrentPosition(bytes);
         final int fieldLength = pointerAndType.getFirstVal();
-        final PropertyType type = pointerAndType.getSecondVal();
+        final var type = pointerAndType.getSecondVal();
 
         if (match) {
           if (fieldLength == 0 || !getComparator().isBinaryComparable(type)) {
@@ -244,9 +244,9 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
         currentValuePos += fieldLength;
       } else {
 
-        final int id = (len * -1) - 1;
-        final GlobalProperty prop = schema.getGlobalPropertyById(id);
-        final int fieldLength = VarIntSerializer.readAsInteger(bytes);
+        final var id = (len * -1) - 1;
+        final var prop = schema.getGlobalPropertyById(id);
+        final var fieldLength = VarIntSerializer.readAsInteger(bytes);
         final PropertyType type;
         type = getPropertyTypeFromStream(prop, bytes);
 
@@ -255,7 +255,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
             return null;
           }
           bytes.offset = currentValuePos;
-          final SchemaProperty classProp = iClass.getProperty(iFieldName);
+          final var classProp = iClass.getProperty(iFieldName);
           return new BinaryField(
               iFieldName, type, bytes, classProp != null ? classProp.getCollate() : null);
         }
@@ -267,22 +267,22 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
 
   public void deserialize(DatabaseSessionInternal db, final EntityImpl entity,
       final BytesContainer bytes) {
-    int headerLength = VarIntSerializer.readAsInteger(bytes);
-    int headerStart = bytes.offset;
-    int valuesStart = headerStart + headerLength;
-    int last = 0;
+    var headerLength = VarIntSerializer.readAsInteger(bytes);
+    var headerStart = bytes.offset;
+    var valuesStart = headerStart + headerLength;
+    var last = 0;
     String fieldName;
     PropertyType type;
-    int cumulativeSize = valuesStart;
+    var cumulativeSize = valuesStart;
     while (bytes.offset < valuesStart) {
       GlobalProperty prop;
-      final int len = VarIntSerializer.readAsInteger(bytes);
+      final var len = VarIntSerializer.readAsInteger(bytes);
       int fieldLength;
       if (len > 0) {
         // PARSE FIELD NAME
         fieldName = stringFromBytesIntern(bytes.bytes, bytes.offset, len);
         bytes.skip(len);
-        Tuple<Integer, PropertyType> pointerAndType = getFieldSizeAndTypeFromCurrentPosition(bytes);
+        var pointerAndType = getFieldSizeAndTypeFromCurrentPosition(bytes);
         fieldLength = pointerAndType.getFirstVal();
         type = pointerAndType.getSecondVal();
       } else {
@@ -295,10 +295,10 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
 
       if (!EntityInternalUtils.rawContainsField(entity, fieldName)) {
         if (fieldLength != 0) {
-          int headerCursor = bytes.offset;
+          var headerCursor = bytes.offset;
 
           bytes.offset = cumulativeSize;
-          final Object value = deserializeValue(db, bytes, type, entity);
+          final var value = deserializeValue(db, bytes, type, entity);
           if (bytes.offset > last) {
             last = bytes.offset;
           }
@@ -322,7 +322,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
   public void deserializeWithClassName(DatabaseSessionInternal db, final EntityImpl entity,
       final BytesContainer bytes) {
 
-    final String className = readString(bytes);
+    final var className = readString(bytes);
     if (!className.isEmpty()) {
       EntityInternalUtils.fillClassNameIfNeeded(entity, className);
     }
@@ -334,20 +334,20 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
       boolean embedded) {
     // SKIP CLASS NAME
     if (embedded) {
-      final int classNameLen = VarIntSerializer.readAsInteger(bytes);
+      final var classNameLen = VarIntSerializer.readAsInteger(bytes);
       bytes.skip(classNameLen);
     }
 
     // skip header length
-    int headerLength = VarIntSerializer.readAsInteger(bytes);
-    int headerStart = bytes.offset;
+    var headerLength = VarIntSerializer.readAsInteger(bytes);
+    var headerStart = bytes.offset;
 
     final List<String> result = new ArrayList<>();
 
     String fieldName;
     while (bytes.offset < headerStart + headerLength) {
       GlobalProperty prop;
-      final int len = VarIntSerializer.readAsInteger(bytes);
+      final var len = VarIntSerializer.readAsInteger(bytes);
       if (len > 0) {
         // PARSE FIELD NAME
         fieldName = stringFromBytesIntern(bytes.bytes, bytes.offset, len);
@@ -359,7 +359,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
         bytes.skip(1);
       } else {
         // LOAD GLOBAL PROPERTY BY ID
-        final int id = (len * -1) - 1;
+        final var id = (len * -1) - 1;
         prop = EntityInternalUtils.getGlobalPropertyById(reference, id);
         if (prop == null) {
           throw new SerializationException(
@@ -387,26 +387,26 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
       ImmutableSchema schema,
       PropertyEncryption encryption) {
     SchemaClass oClass = EntityInternalUtils.getImmutableSchemaClass(entity);
-    for (Entry<String, EntityEntry> field : fields) {
-      EntityEntry docEntry = field.getValue();
+    for (var field : fields) {
+      var docEntry = field.getValue();
       if (!field.getValue().exists()) {
         continue;
       }
       if (docEntry.property == null && props != null) {
-        SchemaProperty prop = props.get(field.getKey());
+        var prop = props.get(field.getKey());
         if (prop != null && docEntry.type == prop.getType()) {
           docEntry.property = prop;
         }
       }
 
       if (docEntry.property == null) {
-        String fieldName = field.getKey();
+        var fieldName = field.getKey();
         writeString(headerBuffer, fieldName);
       } else {
         VarIntSerializer.write(headerBuffer, (docEntry.property.getId() + 1) * -1);
       }
 
-      final Object value = field.getValue().value;
+      final var value = field.getValue().value;
 
       final PropertyType type;
       if (value != null) {
@@ -417,14 +417,14 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
                   + value.getClass()
                   + " with the EntityImpl binary serializer");
         }
-        int startOffset = valuesBuffer.offset;
+        var startOffset = valuesBuffer.offset;
         serializeValue(session,
             valuesBuffer,
             value,
             type,
             getLinkedType(oClass, type, field.getKey()),
             schema, encryption);
-        int valueLength = valuesBuffer.offset - startOffset;
+        var valueLength = valuesBuffer.offset - startOffset;
         VarIntSerializer.write(headerBuffer, valueLength);
       } else {
         // handle null fields
@@ -435,7 +435,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
       // write type. Type should be written both for regular and null fields
       if (field.getValue().property == null
           || field.getValue().property.getType() == PropertyType.ANY) {
-        int typeOffset = headerBuffer.alloc(ByteSerializer.BYTE_SIZE);
+        var typeOffset = headerBuffer.alloc(ByteSerializer.BYTE_SIZE);
         ByteSerializer.INSTANCE.serialize((byte) type.getId(), headerBuffer.bytes, typeOffset);
       }
     }
@@ -470,15 +470,15 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
       PropertyEncryption encryption) {
     // allocate space for header length
 
-    final Map<String, SchemaProperty> props = clazz != null ? clazz.propertiesMap(session) : null;
-    final Set<Entry<String, EntityEntry>> fields = EntityInternalUtils.rawEntries(entity);
+    final var props = clazz != null ? clazz.propertiesMap(session) : null;
+    final var fields = EntityInternalUtils.rawEntries(entity);
 
-    BytesContainer valuesBuffer = new BytesContainer();
-    BytesContainer headerBuffer = new BytesContainer();
+    var valuesBuffer = new BytesContainer();
+    var headerBuffer = new BytesContainer();
 
     serializeValues(session, headerBuffer, valuesBuffer, entity, fields, props, schema,
         encryption);
-    int headerLength = headerBuffer.offset;
+    var headerLength = headerBuffer.offset;
     // write header length as soon as possible
     VarIntSerializer.write(bytes, headerLength);
 
@@ -487,21 +487,21 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
 
   public void serializeWithClassName(DatabaseSessionInternal session, final EntityImpl entity,
       final BytesContainer bytes) {
-    ImmutableSchema schema = EntityInternalUtils.getImmutableSchema(entity);
+    var schema = EntityInternalUtils.getImmutableSchema(entity);
     final SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
     if (clazz != null && entity.isEmbedded()) {
       writeString(bytes, clazz.getName());
     } else {
       writeEmptyString(bytes);
     }
-    PropertyEncryption encryption = EntityInternalUtils.getPropertyEncryption(entity);
+    var encryption = EntityInternalUtils.getPropertyEncryption(entity);
     serializeDocument(session, entity, bytes, clazz, schema, encryption);
   }
 
   public void serialize(DatabaseSessionInternal session, final EntityImpl entity,
       final BytesContainer bytes) {
-    ImmutableSchema schema = EntityInternalUtils.getImmutableSchema(entity);
-    PropertyEncryption encryption = EntityInternalUtils.getPropertyEncryption(entity);
+    var schema = EntityInternalUtils.getImmutableSchema(entity);
+    var encryption = EntityInternalUtils.getPropertyEncryption(entity);
     final SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
     serializeDocument(session, entity, bytes, clazz, schema, encryption);
   }
@@ -527,25 +527,25 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
       String iFieldName,
       final ImmutableSchema schema,
       PropertyEncryption encryption) {
-    final byte[] field = iFieldName.getBytes();
+    final var field = iFieldName.getBytes();
 
-    int headerLength = VarIntSerializer.readAsInteger(bytes);
-    int headerStart = bytes.offset;
-    int valuesStart = headerStart + headerLength;
-    int cumulativeLength = valuesStart;
+    var headerLength = VarIntSerializer.readAsInteger(bytes);
+    var headerStart = bytes.offset;
+    var valuesStart = headerStart + headerLength;
+    var cumulativeLength = valuesStart;
 
     while (bytes.offset < valuesStart) {
 
-      int len = VarIntSerializer.readAsInteger(bytes);
+      var len = VarIntSerializer.readAsInteger(bytes);
 
       if (len > 0) {
         // CHECK BY FIELD NAME SIZE: THIS AVOID EVEN THE UNMARSHALLING OF FIELD NAME
-        boolean match = checkMatchForLargerThenZero(bytes, field, len);
+        var match = checkMatchForLargerThenZero(bytes, field, len);
 
         bytes.skip(len);
-        Tuple<Integer, PropertyType> pointerAndType = getFieldSizeAndTypeFromCurrentPosition(bytes);
+        var pointerAndType = getFieldSizeAndTypeFromCurrentPosition(bytes);
         int fieldLength = pointerAndType.getFirstVal();
-        PropertyType type = pointerAndType.getSecondVal();
+        var type = pointerAndType.getSecondVal();
 
         if (match) {
           if (fieldLength == 0) {
@@ -553,7 +553,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
           }
 
           bytes.offset = cumulativeLength;
-          Object value = deserializeValue(session, bytes, type, null, false, fieldLength, false,
+          var value = deserializeValue(session, bytes, type, null, false, fieldLength, false,
               schema);
           //noinspection unchecked
           return (RET) value;
@@ -561,10 +561,10 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
         cumulativeLength += fieldLength;
       } else {
         // LOAD GLOBAL PROPERTY BY ID
-        final int id = (len * -1) - 1;
-        final GlobalProperty prop = schema.getGlobalPropertyById(id);
-        final int fieldLength = VarIntSerializer.readAsInteger(bytes);
-        PropertyType type = getPropertyTypeFromStream(prop, bytes);
+        final var id = (len * -1) - 1;
+        final var prop = schema.getGlobalPropertyById(id);
+        final var fieldLength = VarIntSerializer.readAsInteger(bytes);
+        var type = getPropertyTypeFromStream(prop, bytes);
 
         if (iFieldName.equals(prop.getName())) {
 
@@ -574,7 +574,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
 
           bytes.offset = cumulativeLength;
 
-          Object value = deserializeValue(session, bytes, type, null,
+          var value = deserializeValue(session, bytes, type, null,
               false, fieldLength, false,
               schema);
           //noinspection unchecked
@@ -591,8 +591,8 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
    */
   private Tuple<Integer, PropertyType> getFieldSizeAndTypeFromCurrentPosition(
       BytesContainer bytes) {
-    int fieldSize = VarIntSerializer.readAsInteger(bytes);
-    PropertyType type = readOType(bytes, false);
+    var fieldSize = VarIntSerializer.readAsInteger(bytes);
+    var type = readOType(bytes, false);
     return new Tuple<>(fieldSize, type);
   }
 
@@ -601,16 +601,16 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
       RecordSerializationDebug debugInfo,
       ImmutableSchema schema) {
 
-    int headerLength = VarIntSerializer.readAsInteger(bytes);
-    int headerPos = bytes.offset;
+    var headerLength = VarIntSerializer.readAsInteger(bytes);
+    var headerPos = bytes.offset;
 
     debugInfo.properties = new ArrayList<>();
-    int last = 0;
+    var last = 0;
     String fieldName;
     PropertyType type;
-    int cumulativeLength = 0;
+    var cumulativeLength = 0;
     while (true) {
-      RecordSerializationDebugProperty debugProperty = new RecordSerializationDebugProperty();
+      var debugProperty = new RecordSerializationDebugProperty();
       GlobalProperty prop;
 
       int fieldLength;
@@ -620,20 +620,20 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
           break;
         }
 
-        final int len = VarIntSerializer.readAsInteger(bytes);
+        final var len = VarIntSerializer.readAsInteger(bytes);
         debugInfo.properties.add(debugProperty);
         if (len > 0) {
           // PARSE FIELD NAME
           fieldName = stringFromBytesIntern(bytes.bytes, bytes.offset, len);
           bytes.skip(len);
 
-          Tuple<Integer, PropertyType> valuePositionAndType =
+          var valuePositionAndType =
               getFieldSizeAndTypeFromCurrentPosition(bytes);
           fieldLength = valuePositionAndType.getFirstVal();
           type = valuePositionAndType.getSecondVal();
         } else {
           // LOAD GLOBAL PROPERTY BY ID
-          final int id = (len * -1) - 1;
+          final var id = (len * -1) - 1;
           debugProperty.globalId = id;
           prop = schema.getGlobalPropertyById(id);
           fieldLength = VarIntSerializer.readAsInteger(bytes);
@@ -659,7 +659,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
         cumulativeLength += fieldLength;
 
         if (valuePos != 0) {
-          int headerCursor = bytes.offset;
+          var headerCursor = bytes.offset;
           bytes.offset = valuePos;
           try {
             debugProperty.value = deserializeValue(db, bytes, type, new EntityImpl(db));
@@ -689,18 +689,18 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
       Map<Object, Object> map,
       ImmutableSchema schema,
       PropertyEncryption encryption) {
-    final int fullPos = VarIntSerializer.write(bytes, map.size());
-    for (Entry<Object, Object> entry : map.entrySet()) {
+    final var fullPos = VarIntSerializer.write(bytes, map.size());
+    for (var entry : map.entrySet()) {
       // TODO:check skip of complex types
       // FIXME: changed to support only string key on map
-      PropertyType type = PropertyType.STRING;
+      var type = PropertyType.STRING;
       writeOType(bytes, bytes.alloc(1), type);
       var key = entry.getKey();
       if (key == null) {
         throw new SerializationException("Maps with null keys are not supported");
       }
       writeString(bytes, entry.getKey().toString());
-      final Object value = entry.getValue();
+      final var value = entry.getValue();
       if (value != null) {
         type = getTypeFromValueEmbedded(value);
         if (type == null) {
@@ -713,7 +713,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
         serializeValue(session, bytes, value, type, null, schema, encryption);
       } else {
         // signal for null value
-        int pointer = bytes.alloc(1);
+        var pointer = bytes.alloc(1);
         ByteSerializer.INSTANCE.serialize((byte) -1, bytes.bytes, pointer);
       }
     }
@@ -723,14 +723,14 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
 
   protected Object readEmbeddedMap(DatabaseSessionInternal db, final BytesContainer bytes,
       final RecordElement owner) {
-    int size = VarIntSerializer.readAsInteger(bytes);
-    final TrackedMap<Object> result = new TrackedMap<>(owner);
-    for (int i = 0; i < size; i++) {
-      PropertyType keyType = readOType(bytes, false);
-      Object key = deserializeValue(db, bytes, keyType, result);
-      final PropertyType type = HelperClasses.readType(bytes);
+    var size = VarIntSerializer.readAsInteger(bytes);
+    final var result = new TrackedMap<Object>(owner);
+    for (var i = 0; i < size; i++) {
+      var keyType = readOType(bytes, false);
+      var key = deserializeValue(db, bytes, keyType, result);
+      final var type = HelperClasses.readType(bytes);
       if (type != null) {
-        Object value = deserializeValue(db, bytes, type, result);
+        var value = deserializeValue(db, bytes, type, result);
         result.putInternal(key.toString(), value);
       } else {
         result.putInternal(key.toString(), null);
@@ -743,17 +743,17 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
       DatabaseSessionInternal session, final BytesContainer bytes, ImmutableSchema schema) {
     List<MapRecordInfo> retList = new ArrayList<>();
 
-    int numberOfElements = VarIntSerializer.readAsInteger(bytes);
+    var numberOfElements = VarIntSerializer.readAsInteger(bytes);
 
-    for (int i = 0; i < numberOfElements; i++) {
-      PropertyType keyType = readOType(bytes, false);
-      String key = readString(bytes);
-      PropertyType valueType = HelperClasses.readType(bytes);
-      MapRecordInfo recordInfo = new MapRecordInfo();
+    for (var i = 0; i < numberOfElements; i++) {
+      var keyType = readOType(bytes, false);
+      var key = readString(bytes);
+      var valueType = HelperClasses.readType(bytes);
+      var recordInfo = new MapRecordInfo();
       recordInfo.fieldType = valueType;
       recordInfo.key = key;
       recordInfo.keyType = keyType;
-      int currentOffset = bytes.offset;
+      var currentOffset = bytes.offset;
 
       if (valueType != null) {
         recordInfo.fieldStartOffset = bytes.offset;
@@ -772,7 +772,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
   }
 
   protected int writeRidBag(BytesContainer bytes, RidBag ridbag) {
-    int positionOffset = bytes.offset;
+    var positionOffset = bytes.offset;
     HelperClasses.writeRidBag(bytes, ridbag);
     return positionOffset;
   }
@@ -784,11 +784,11 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
   public Object deserializeValue(
       DatabaseSessionInternal db, final BytesContainer bytes, final PropertyType type,
       final RecordElement owner) {
-    RecordElement entity = owner;
+    var entity = owner;
     while (!(entity instanceof EntityImpl) && entity != null) {
       entity = entity.getOwner();
     }
-    ImmutableSchema schema = EntityInternalUtils.getImmutableSchema((EntityImpl) entity);
+    var schema = EntityInternalUtils.getImmutableSchema((EntityImpl) entity);
     return deserializeValue(db, bytes, type, owner, true, -1, false, schema);
   }
 
@@ -816,7 +816,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
         break;
       case STRING:
         if (justRunThrough) {
-          int length = VarIntSerializer.readAsInteger(bytes);
+          var length = VarIntSerializer.readAsInteger(bytes);
           bytes.skip(length);
         } else {
           value = readString(bytes);
@@ -861,7 +861,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
         if (justRunThrough) {
           VarIntSerializer.readAsLong(bytes);
         } else {
-          long savedTime = VarIntSerializer.readAsLong(bytes) * MILLISEC_PER_DAY;
+          var savedTime = VarIntSerializer.readAsLong(bytes) * MILLISEC_PER_DAY;
           savedTime =
               convertDayToTimezone(
                   TimeZone.getTimeZone("GMT"), DateHelper.getDatabaseTimeZone(), savedTime);
@@ -905,7 +905,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
         break;
       case BINARY:
         if (justRunThrough) {
-          int len = VarIntSerializer.readAsInteger(bytes);
+          var len = VarIntSerializer.readAsInteger(bytes);
           bytes.skip(len);
         } else {
           value = readBinary(bytes);
@@ -929,7 +929,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
         bytes.skip(DecimalSerializer.INSTANCE.getObjectSize(bytes.bytes, bytes.offset));
         break;
       case LINKBAG:
-        RidBag bag = readRidbag(session, bytes);
+        var bag = readRidbag(session, bytes);
         bag.setOwner(owner);
         value = bag;
         break;
@@ -937,10 +937,10 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
         break;
       case CUSTOM:
         try {
-          String className = readString(bytes);
-          Class<?> clazz = Class.forName(className);
-          SerializableStream stream = (SerializableStream) clazz.newInstance();
-          byte[] bytesRepresentation = readBinary(bytes);
+          var className = readString(bytes);
+          var clazz = Class.forName(className);
+          var stream = (SerializableStream) clazz.newInstance();
+          var bytesRepresentation = readBinary(bytes);
           if (embeddedAsDocument) {
             stream.fromStream(bytesRepresentation);
             if (stream instanceof SerializableWrapper) {
@@ -949,7 +949,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
               value = stream;
             }
           } else {
-            ResultBinary retVal =
+            var retVal =
                 new ResultBinary(session, schema, bytesRepresentation, 0,
                     bytesRepresentation.length, this);
             return retVal;
@@ -965,9 +965,9 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
   }
 
   protected PropertyType getFieldType(final EntityEntry entry) {
-    PropertyType type = entry.type;
+    var type = entry.type;
     if (type == null) {
-      final SchemaProperty prop = entry.property;
+      final var prop = entry.property;
       if (prop != null) {
         type = prop.getType();
       }
@@ -991,7 +991,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
       final PropertyType linkedType,
       ImmutableSchema schema,
       PropertyEncryption encryption) {
-    int pointer = 0;
+    var pointer = 0;
     switch (type) {
       case INTEGER:
       case LONG:
@@ -1002,12 +1002,12 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
         pointer = writeString(bytes, value.toString());
         break;
       case DOUBLE:
-        long dg = Double.doubleToLongBits(((Number) value).doubleValue());
+        var dg = Double.doubleToLongBits(((Number) value).doubleValue());
         pointer = bytes.alloc(LongSerializer.LONG_SIZE);
         LongSerializer.INSTANCE.serializeLiteral(dg, bytes.bytes, pointer);
         break;
       case FLOAT:
-        int fg = Float.floatToIntBits(((Number) value).floatValue());
+        var fg = Float.floatToIntBits(((Number) value).floatValue());
         pointer = bytes.alloc(IntegerSerializer.INT_SIZE);
         IntegerSerializer.INSTANCE.serializeLiteral(fg, bytes.bytes, pointer);
         break;
@@ -1041,7 +1041,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
       case EMBEDDED:
         pointer = bytes.offset;
         if (value instanceof EntitySerializable) {
-          EntityImpl cur = ((EntitySerializable) value).toEntity(db);
+          var cur = ((EntitySerializable) value).toEntity(db);
           cur.field(EntitySerializable.CLASS_NAME, value.getClass().getName());
           serializeWithClassName(db, cur, bytes);
         } else {
@@ -1061,7 +1061,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
         }
         break;
       case DECIMAL:
-        BigDecimal decimalValue = (BigDecimal) value;
+        var decimalValue = (BigDecimal) value;
         pointer = bytes.alloc(DecimalSerializer.INSTANCE.getObjectSize(decimalValue));
         DecimalSerializer.INSTANCE.serialize(decimalValue, bytes.bytes, pointer);
         break;
@@ -1070,7 +1070,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
         break;
       case LINKSET:
       case LINKLIST:
-        Collection<Identifiable> ridCollection = (Collection<Identifiable>) value;
+        var ridCollection = (Collection<Identifiable>) value;
         pointer = writeLinkCollection(db, bytes, ridCollection);
         break;
       case LINK:
@@ -1110,10 +1110,10 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
       final PropertyType linkedType,
       ImmutableSchema schema,
       PropertyEncryption encryption) {
-    final int pos = VarIntSerializer.write(bytes, value.size());
+    final var pos = VarIntSerializer.write(bytes, value.size());
     // TODO manage embedded type from schema and auto-determined.
     writeOType(bytes, bytes.alloc(1), PropertyType.ANY);
-    for (Object itemValue : value) {
+    for (var itemValue : value) {
       // TODO:manage in a better way null entry
       if (itemValue == null) {
         writeOType(bytes, bytes.alloc(1), PropertyType.ANY);
@@ -1141,17 +1141,17 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
   protected List deserializeEmbeddedCollectionAsCollectionOfBytes(
       DatabaseSessionInternal db, final BytesContainer bytes, ImmutableSchema schema) {
     List retVal = new ArrayList();
-    List<RecordInfo> fieldsInfo = getPositionsFromEmbeddedCollection(db, bytes, schema);
-    for (RecordInfo fieldInfo : fieldsInfo) {
+    var fieldsInfo = getPositionsFromEmbeddedCollection(db, bytes, schema);
+    for (var fieldInfo : fieldsInfo) {
       if (fieldInfo.fieldType.isEmbedded()) {
-        ResultBinary result =
+        var result =
             new ResultBinary(db,
                 schema, bytes.bytes, fieldInfo.fieldStartOffset, fieldInfo.fieldLength, this);
         retVal.add(result);
       } else {
-        int currentOffset = bytes.offset;
+        var currentOffset = bytes.offset;
         bytes.offset = fieldInfo.fieldStartOffset;
-        Object value = deserializeValue(db, bytes, fieldInfo.fieldType, null);
+        var value = deserializeValue(db, bytes, fieldInfo.fieldType, null);
         retVal.add(value);
         bytes.offset = currentOffset;
       }
@@ -1163,16 +1163,16 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
   protected Map<String, Object> deserializeEmbeddedMapAsMapOfBytes(
       DatabaseSessionInternal db, final BytesContainer bytes, ImmutableSchema schema) {
     Map<String, Object> retVal = new TreeMap<>();
-    List<MapRecordInfo> positionsWithLengths = getPositionsFromEmbeddedMap(db, bytes, schema);
-    for (MapRecordInfo recordInfo : positionsWithLengths) {
-      String key = recordInfo.key;
+    var positionsWithLengths = getPositionsFromEmbeddedMap(db, bytes, schema);
+    for (var recordInfo : positionsWithLengths) {
+      var key = recordInfo.key;
       Object value;
       if (recordInfo.fieldType != null && recordInfo.fieldType.isEmbedded()) {
         value =
             new ResultBinary(db,
                 schema, bytes.bytes, recordInfo.fieldStartOffset, recordInfo.fieldLength, this);
       } else if (recordInfo.fieldStartOffset != 0) {
-        int currentOffset = bytes.offset;
+        var currentOffset = bytes.offset;
         bytes.offset = recordInfo.fieldStartOffset;
         value = deserializeValue(db, bytes, recordInfo.fieldType, null);
         bytes.offset = currentOffset;
@@ -1191,8 +1191,8 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
     if (((EntityImpl) value).containsField(EntitySerializable.CLASS_NAME)) {
       String className = ((EntityImpl) value).field(EntitySerializable.CLASS_NAME);
       try {
-        Class<?> clazz = Class.forName(className);
-        EntitySerializable newValue = (EntitySerializable) clazz.newInstance();
+        var clazz = Class.forName(className);
+        var newValue = (EntitySerializable) clazz.newInstance();
         newValue.fromDocument((EntityImpl) value);
         value = newValue;
       } catch (Exception e) {
@@ -1212,18 +1212,18 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
       DatabaseSessionInternal session, final BytesContainer bytes, ImmutableSchema schema) {
     List<RecordInfo> retList = new ArrayList<>();
 
-    int numberOfElements = VarIntSerializer.readAsInteger(bytes);
+    var numberOfElements = VarIntSerializer.readAsInteger(bytes);
     // read collection type
     readByte(bytes);
 
-    for (int i = 0; i < numberOfElements; i++) {
+    for (var i = 0; i < numberOfElements; i++) {
       // read element
 
       // read data type
-      PropertyType dataType = readOType(bytes, false);
-      int fieldStart = bytes.offset;
+      var dataType = readOType(bytes, false);
+      var fieldStart = bytes.offset;
 
-      RecordInfo fieldInfo = new RecordInfo();
+      var fieldInfo = new RecordInfo();
       fieldInfo.fieldStartOffset = fieldStart;
       fieldInfo.fieldType = dataType;
 
@@ -1240,20 +1240,20 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
   protected ResultBinary deserializeEmbeddedAsBytes(
       DatabaseSessionInternal db, final BytesContainer bytes, int valueLength,
       ImmutableSchema schema) {
-    int startOffset = bytes.offset;
+    var startOffset = bytes.offset;
     return new ResultBinary(db, schema, bytes.bytes, startOffset, valueLength, this);
   }
 
   protected Collection<?> readEmbeddedSet(DatabaseSessionInternal db, final BytesContainer bytes,
       final RecordElement owner) {
 
-    final int items = VarIntSerializer.readAsInteger(bytes);
-    PropertyType type = readOType(bytes, false);
+    final var items = VarIntSerializer.readAsInteger(bytes);
+    var type = readOType(bytes, false);
 
     if (type == PropertyType.ANY) {
       final TrackedSet found = new TrackedSet<>(owner);
-      for (int i = 0; i < items; i++) {
-        PropertyType itemType = readOType(bytes, false);
+      for (var i = 0; i < items; i++) {
+        var itemType = readOType(bytes, false);
         if (itemType == PropertyType.ANY) {
           found.addInternal(null);
         } else {
@@ -1269,13 +1269,13 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
   protected Collection<?> readEmbeddedList(DatabaseSessionInternal db, final BytesContainer bytes,
       final RecordElement owner) {
 
-    final int items = VarIntSerializer.readAsInteger(bytes);
-    PropertyType type = readOType(bytes, false);
+    final var items = VarIntSerializer.readAsInteger(bytes);
+    var type = readOType(bytes, false);
 
     if (type == PropertyType.ANY) {
       final TrackedList found = new TrackedList<>(owner);
-      for (int i = 0; i < items; i++) {
-        PropertyType itemType = readOType(bytes, false);
+      for (var i = 0; i < items; i++) {
+        var itemType = readOType(bytes, false);
         if (itemType == PropertyType.ANY) {
           found.addInternal(null);
         } else {
@@ -1289,7 +1289,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
   }
 
   protected void skipClassName(BytesContainer bytes) {
-    final int classNameLen = VarIntSerializer.readAsInteger(bytes);
+    final var classNameLen = VarIntSerializer.readAsInteger(bytes);
     bytes.skip(classNameLen);
   }
 

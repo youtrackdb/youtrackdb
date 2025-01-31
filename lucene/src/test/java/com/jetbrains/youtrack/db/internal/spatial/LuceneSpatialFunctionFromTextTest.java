@@ -35,17 +35,17 @@ public class LuceneSpatialFunctionFromTextTest extends BaseSpatialLuceneTest {
   @Test
   public void geomFromTextLineStringTest() {
 
-    EntityImpl point = lineStringDoc();
+    var point = lineStringDoc();
     checkFromText(point, "select ST_GeomFromText('" + LINESTRINGWKT + "') as geom");
   }
 
   protected void checkFromText(EntityImpl source, String query) {
 
-    ResultSet docs = db.command(query);
+    var docs = db.command(query);
 
     assertTrue(docs.hasNext());
 
-    Entity geom = ((Result) docs.next().getProperty("geom")).asEntity();
+    var geom = ((Result) docs.next().getProperty("geom")).asEntity();
     assertGeometry(source, geom);
     assertFalse(docs.hasNext());
   }
@@ -64,21 +64,21 @@ public class LuceneSpatialFunctionFromTextTest extends BaseSpatialLuceneTest {
   @Test
   public void geomFromTextMultiLineStringTest() {
 
-    EntityImpl point = multiLineString();
+    var point = multiLineString();
     checkFromText(point, "select ST_GeomFromText('" + MULTILINESTRINGWKT + "') as geom");
   }
 
   @Test
   public void geomFromTextPointTest() {
 
-    EntityImpl point = point();
+    var point = point();
     checkFromText(point, "select ST_GeomFromText('" + POINTWKT + "') as geom");
   }
 
   @Test
   public void geomFromTextMultiPointTest() {
 
-    EntityImpl point = multiPoint();
+    var point = multiPoint();
     checkFromText(point, "select ST_GeomFromText('" + MULTIPOINTWKT + "') as geom");
   }
 
@@ -86,20 +86,20 @@ public class LuceneSpatialFunctionFromTextTest extends BaseSpatialLuceneTest {
   @Test
   @Ignore
   public void geomFromTextRectangleTest() {
-    EntityImpl polygon = rectangle();
+    var polygon = rectangle();
     // RECTANGLE
     checkFromText(polygon, "select ST_GeomFromText('" + RECTANGLEWKT + "') as geom");
   }
 
   @Test
   public void geomFromTextPolygonTest() {
-    EntityImpl polygon = polygon();
+    var polygon = polygon();
     checkFromText(polygon, "select ST_GeomFromText('" + POLYGONWKT + "') as geom");
   }
 
   @Test
   public void geomFromTextMultiPolygonTest() throws IOException {
-    EntityImpl polygon = loadMultiPolygon();
+    var polygon = loadMultiPolygon();
 
     checkFromText(polygon, "select ST_GeomFromText('" + MULTIPOLYGONWKT + "') as geom");
   }
@@ -112,10 +112,10 @@ public class LuceneSpatialFunctionFromTextTest extends BaseSpatialLuceneTest {
 
   protected void checkFromCollectionText(EntityImpl source, String query) {
 
-    ResultSet docs = db.command(query);
+    var docs = db.command(query);
 
     assertTrue(docs.hasNext());
-    Entity geom = ((Result) docs.next().getProperty("geom")).asEntity();
+    var geom = ((Result) docs.next().getProperty("geom")).asEntity();
     assertFalse(docs.hasNext());
     Assert.assertNotNull(geom);
 
@@ -127,8 +127,8 @@ public class LuceneSpatialFunctionFromTextTest extends BaseSpatialLuceneTest {
     List<EntityImpl> targetCollection = source.getProperty("geometries");
     Assert.assertEquals(sourceCollection.size(), targetCollection.size());
 
-    int i = 0;
-    for (EntityImpl entries : sourceCollection) {
+    var i = 0;
+    for (var entries : sourceCollection) {
       assertGeometry(entries, targetCollection.get(i));
       i++;
     }

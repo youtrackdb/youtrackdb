@@ -26,7 +26,7 @@ public class LuceneAllIndexTest extends BaseLuceneTest {
 
     System.setProperty("youtrackdb.test.env", "ci");
 
-    String fromStream =
+    var fromStream =
         IOUtils.readStreamAsString(ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql"));
     db.execute("sql", fromStream).close();
     db.setProperty("CUSTOM", "strictSql=false");
@@ -57,7 +57,7 @@ public class LuceneAllIndexTest extends BaseLuceneTest {
   @Test
   @Ignore // FIXME: No function with name 'lucene_match'
   public void testLuceneFunction() {
-    ResultSet docs =
+    var docs =
         db.query("select from Song where lucene_match( \"Song.author:Fabbio\" ) = true ");
     assertThat(docs).hasSize(87);
   }

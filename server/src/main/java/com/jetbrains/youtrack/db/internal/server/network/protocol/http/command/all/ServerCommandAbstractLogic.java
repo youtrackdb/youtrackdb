@@ -38,13 +38,13 @@ public abstract class ServerCommandAbstractLogic extends ServerCommandAuthentica
   @Override
   public boolean execute(final HttpRequest iRequest, final HttpResponse iResponse)
       throws Exception {
-    final String[] parts = init(iRequest, iResponse);
+    final var parts = init(iRequest, iResponse);
     DatabaseSessionInternal db = null;
 
     try {
       db = getProfiledDatabaseInstance(iRequest);
 
-      final Function f = db.getMetadata().getFunctionLibrary().getFunction(parts[2]);
+      final var f = db.getMetadata().getFunctionLibrary().getFunction(parts[2]);
       if (f == null) {
         throw new IllegalArgumentException("Function '" + parts[2] + "' is not configured");
       }
@@ -65,7 +65,7 @@ public abstract class ServerCommandAbstractLogic extends ServerCommandAuthentica
       System.arraycopy(parts, 3, args, 0, parts.length - 3);
 
       // BIND CONTEXT VARIABLES
-      final BasicCommandContext context = new BasicCommandContext();
+      final var context = new BasicCommandContext();
       context.setDatabase(db);
       context.setVariable(
           "session", server.getHttpSessionManager().getSession(iRequest.getSessionId()));
@@ -76,7 +76,7 @@ public abstract class ServerCommandAbstractLogic extends ServerCommandAuthentica
       if (args.length == 0 && iRequest.getContent() != null && !iRequest.getContent().isEmpty()) {
         // PARSE PARAMETERS FROM CONTENT PAYLOAD
         try {
-          final EntityImpl params = new EntityImpl(null);
+          final var params = new EntityImpl(null);
           params.updateFromJSON(iRequest.getContent());
           functionResult = f.executeInContext(context, params.toMap());
         } catch (Exception e) {
@@ -91,7 +91,7 @@ public abstract class ServerCommandAbstractLogic extends ServerCommandAuthentica
 
     } catch (CommandScriptException e) {
       // EXCEPTION
-      final StringBuilder msg = new StringBuilder(256);
+      final var msg = new StringBuilder(256);
       for (Exception currentException = e;
           currentException != null;
           currentException = (Exception) currentException.getCause()) {

@@ -19,14 +19,14 @@ import org.junit.Test;
 public class RidBagBasicTest extends DbTestBase {
   @Test(expected = IllegalArgumentException.class)
   public void testExceptionInCaseOfNull() {
-    EmbeddedRidBag bag = new EmbeddedRidBag();
+    var bag = new EmbeddedRidBag();
     bag.add(null);
   }
 
   @Test
   public void allowOnlyAtRoot() {
     try {
-      Vertex record = db.newVertex();
+      var record = db.newVertex();
       List<Object> valueList = new ArrayList<>();
       valueList.add(new RidBag(db));
       record.setProperty("emb", valueList);
@@ -37,7 +37,7 @@ public class RidBagBasicTest extends DbTestBase {
     }
 
     try {
-      Vertex record = db.newVertex();
+      var record = db.newVertex();
       Set<Object> valueSet = new HashSet<>();
       valueSet.add(new RidBag(db));
       record.setProperty("emb", valueSet);
@@ -48,7 +48,7 @@ public class RidBagBasicTest extends DbTestBase {
     }
 
     try {
-      Vertex record = db.newVertex();
+      var record = db.newVertex();
       Map<String, Object> valueSet = new HashMap<>();
       valueSet.put("key", new RidBag(db));
       record.setProperty("emb", valueSet);
@@ -59,9 +59,9 @@ public class RidBagBasicTest extends DbTestBase {
     }
 
     try {
-      Vertex record = db.newVertex();
+      var record = db.newVertex();
       Map<String, Object> valueSet = new HashMap<>();
-      Entity nested = db.newEntity();
+      var nested = db.newEntity();
       nested.setProperty("bag", new RidBag(db));
       valueSet.put("key", nested);
       record.setProperty("emb", valueSet);
@@ -72,9 +72,9 @@ public class RidBagBasicTest extends DbTestBase {
     }
 
     try {
-      Vertex record = db.newVertex();
+      var record = db.newVertex();
       List<Object> valueList = new ArrayList<>();
-      Entity nested = db.newEntity();
+      var nested = db.newEntity();
       nested.setProperty("bag", new RidBag(db));
       valueList.add(nested);
       record.setProperty("emb", valueList);
@@ -85,9 +85,9 @@ public class RidBagBasicTest extends DbTestBase {
     }
 
     try {
-      Vertex record = db.newVertex();
+      var record = db.newVertex();
       Set<Object> valueSet = new HashSet<>();
-      Entity nested = db.newEntity();
+      var nested = db.newEntity();
       nested.setProperty("bag", new RidBag(db));
       valueSet.add(nested);
       record.setProperty("emb", valueSet);
@@ -98,8 +98,8 @@ public class RidBagBasicTest extends DbTestBase {
     }
 
     try {
-      Vertex record = db.newVertex();
-      Entity nested = db.newEntity();
+      var record = db.newVertex();
+      var nested = db.newEntity();
       nested.setProperty("bag", new RidBag(db));
       record.setProperty("emb", nested);
       db.save(record);

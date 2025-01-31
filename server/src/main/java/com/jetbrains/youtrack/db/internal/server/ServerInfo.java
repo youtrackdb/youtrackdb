@@ -39,8 +39,8 @@ import java.util.List;
 public class ServerInfo {
 
   public static String getServerInfo(final YouTrackDBServer server) throws IOException {
-    final StringWriter jsonBuffer = new StringWriter();
-    final JSONWriter json = new JSONWriter(jsonBuffer);
+    final var jsonBuffer = new StringWriter();
+    final var json = new JSONWriter(jsonBuffer);
     json.beginObject();
 
     getConnections(server, json, null);
@@ -61,10 +61,10 @@ public class ServerInfo {
 
     json.beginCollection(null, 1, true, "connections");
 
-    final List<ClientConnection> conns = server.getClientConnectionManager().getConnections();
-    for (ClientConnection c : conns) {
-      final NetworkProtocolData data = c.getData();
-      final ClientConnectionStats stats = c.getStats();
+    final var conns = server.getClientConnectionManager().getConnections();
+    for (var c : conns) {
+      final var data = c.getData();
+      final var stats = c.getStats();
 
       if (databaseName != null && !databaseName.equals((stats.lastDatabase)))
       // SKIP IT
@@ -113,7 +113,7 @@ public class ServerInfo {
       writeField(json, 2, "sessionId", data.sessionId);
       writeField(json, 2, "clientId", data.clientId);
 
-      final StringBuilder driver = new StringBuilder(128);
+      final var driver = new StringBuilder(128);
       if (data.driverName != null) {
         driver.append(data.driverName);
         driver.append(" v");
@@ -132,7 +132,7 @@ public class ServerInfo {
       throws IOException {
     json.beginCollection(null, 2, true, "globalProperties");
 
-    for (GlobalConfiguration c : GlobalConfiguration.values()) {
+    for (var c : GlobalConfiguration.values()) {
       json.beginObject(3, true, null);
       json.writeAttribute(null, 4, false, "key", c.getKey());
       json.writeAttribute(null, 4, false, "description", c.getDescription());
@@ -149,9 +149,9 @@ public class ServerInfo {
       throws IOException {
     json.beginCollection(null, 2, true, "properties");
 
-    ServerEntryConfiguration[] confProperties = server.getConfiguration().properties;
+    var confProperties = server.getConfiguration().properties;
     if (confProperties != null) {
-      for (ServerEntryConfiguration entry : confProperties) {
+      for (var entry : confProperties) {
         json.beginObject(3, true, null);
         json.writeAttribute(null, 4, false, "name", entry.name);
         json.writeAttribute(null, 4, false, "value", entry.value);
@@ -164,8 +164,8 @@ public class ServerInfo {
   public static void getStorages(final YouTrackDBServer server, final JSONWriter json)
       throws IOException {
     json.beginCollection(null, 1, true, "storages");
-    Collection<Storage> storages = server.getDatabases().getStorages();
-    for (Storage s : storages) {
+    var storages = server.getDatabases().getStorages();
+    for (var s : storages) {
       json.beginObject(2);
       writeField(json, 2, "name", s.getName());
       writeField(json, 2, "type", s.getClass().getSimpleName());
