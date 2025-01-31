@@ -88,7 +88,7 @@ public class ImmutableSchema implements SchemaInternal {
       ((SchemaImmutableClass) cl).init();
     }
 
-    this.blogClusters = schemaShared.getBlobClusters();
+    this.blobClusters = schemaShared.getBlobClusters();
 
     var indexManager = database.getMetadata().getIndexManagerInternal();
     var internalIndexes = indexManager.getIndexes(database);
