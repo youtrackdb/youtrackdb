@@ -15,7 +15,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.jetbrains.youtrack.db</groupId>
+    <groupId>io.youtrackdb</groupId>
     <artifactId>youtrackdb-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
@@ -48,25 +48,25 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.jetbrains.youtrack.db</groupId>
+      <groupId>io.youtrackdb</groupId>
       <artifactId>youtrackdb-client</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.jetbrains.youtrack.db</groupId>
+      <groupId>io.youtrackdb</groupId>
       <artifactId>youtrackdb-tools</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.jetbrains.youtrack.db</groupId>
+      <groupId>io.youtrackdb</groupId>
       <artifactId>youtrackdb-server</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.jetbrains.youtrack.db</groupId>
+      <groupId>io.youtrackdb</groupId>
       <artifactId>youtrackdb-test-commons</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
@@ -85,14 +85,14 @@
     </dependency>
 
     <dependency>
-      <groupId>com.jetbrains.youtrack.db</groupId>
+      <groupId>io.youtrackdb</groupId>
       <artifactId>youtrackdb-core</artifactId>
       <version>${project.version}</version>
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>com.jetbrains.youtrack.db</groupId>
+      <groupId>io.youtrackdb</groupId>
       <artifactId>youtrackdb-core</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>

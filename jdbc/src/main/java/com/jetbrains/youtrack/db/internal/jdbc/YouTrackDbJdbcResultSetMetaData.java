@@ -16,8 +16,8 @@ package com.jetbrains.youtrack.db.internal.jdbc;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.math.BigDecimal;
@@ -27,7 +27,6 @@ import java.sql.Types;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 /**
@@ -89,7 +88,7 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
 
   @Override
   public String getColumnClassName(final int column) throws SQLException {
-    Object value = this.resultSet.getObject(column);
+    var value = this.resultSet.getObject(column);
     if (value == null) {
       return null;
     }
@@ -113,13 +112,13 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
 
   @Override
   public int getColumnType(final int column) throws SQLException {
-    final Result currentRecord = getCurrentRecord();
+    final var currentRecord = getCurrentRecord();
 
     if (column > fieldNames.length) {
       return Types.NULL;
     }
 
-    String fieldName = fieldNames[column - 1];
+    var fieldName = fieldNames[column - 1];
 
     PropertyType otype = null;
     if (currentRecord.isEntity()) {
@@ -128,12 +127,12 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
               .asEntity()
               .getSchemaType()
               .map(st -> st.getProperty(fieldName))
-              .map(Property::getType)
+              .map(SchemaProperty::getType)
               .orElse(null);
     }
 
     if (otype == null) {
-      Object value = currentRecord.getProperty(fieldName);
+      var value = currentRecord.getProperty(fieldName);
 
       switch (value) {
         case null -> {
@@ -148,9 +147,9 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
         }
         case LinkList list -> {
           // check if all the list items are instances of RecordBytes
-          ListIterator<Identifiable> iterator = list.listIterator();
+          var iterator = list.listIterator();
           Identifiable listElement;
-          boolean stop = false;
+          var stop = false;
           while (iterator.hasNext() && !stop) {
             listElement = iterator.next();
             if (!(listElement instanceof Blob)) {
@@ -167,7 +166,7 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
       return getSQLTypeFromJavaClass(value);
     } else {
       if (otype == PropertyType.EMBEDDED || otype == PropertyType.LINK) {
-        Object value = currentRecord.getProperty(fieldName);
+        var value = currentRecord.getProperty(fieldName);
         if (value == null) {
           return Types.NULL;
         }
@@ -177,15 +176,15 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
         }
       } else {
         if (otype == PropertyType.EMBEDDEDLIST || otype == PropertyType.LINKLIST) {
-          Object value = currentRecord.getProperty(fieldName);
+          var value = currentRecord.getProperty(fieldName);
           if (value == null) {
             return Types.NULL;
           }
           if (value instanceof LinkList list) {
             // check if all the list items are instances of RecordBytes
-            ListIterator<Identifiable> iterator = list.listIterator();
+            var iterator = list.listIterator();
             Identifiable listElement;
-            boolean stop = false;
+            var stop = false;
             while (iterator.hasNext() && !stop) {
               listElement = iterator.next();
               if (!(listElement instanceof Blob)) {
@@ -205,7 +204,7 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
   }
 
   protected Result getCurrentRecord() throws SQLException {
-    final Result currentRecord = resultSet.unwrap(Result.class);
+    final var currentRecord = resultSet.unwrap(Result.class);
     if (currentRecord == null) {
       throw new SQLException("No current record");
     }
@@ -231,15 +230,15 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
 
   @Override
   public String getColumnTypeName(final int column) throws SQLException {
-    final Result currentRecord = getCurrentRecord();
-    String columnLabel = fieldNames[column - 1];
+    final var currentRecord = getCurrentRecord();
+    var columnLabel = fieldNames[column - 1];
 
     if (currentRecord.isEntity()) {
       return currentRecord
           .asEntity()
           .getSchemaType()
           .map(st -> st.getProperty(columnLabel))
-          .map(Property::getType)
+          .map(SchemaProperty::getType)
           .map(Enum::toString)
           .orElse(null);
     }
@@ -256,7 +255,7 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
   }
 
   public String getSchemaName(final int column) throws SQLException {
-    final Result currentRecord = getCurrentRecord();
+    final var currentRecord = getCurrentRecord();
     if (currentRecord == null || !currentRecord.isEntity()) {
       return "";
     } else {
@@ -265,7 +264,7 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
   }
 
   public String getTableName(final int column) throws SQLException {
-    final Property p = getProperty(column);
+    final var p = getProperty(column);
     return p != null ? p.getOwnerClass().getName() : null;
   }
 
@@ -274,7 +273,7 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
   }
 
   public boolean isCaseSensitive(final int column) throws SQLException {
-    final Property p = getProperty(column);
+    final var p = getProperty(column);
     return p != null && p.getCollate().getName().equalsIgnoreCase("ci");
   }
 
@@ -293,7 +292,7 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
   }
 
   public boolean isReadOnly(final int column) throws SQLException {
-    final Property p = getProperty(column);
+    final var p = getProperty(column);
     return p != null && p.isReadonly();
   }
 
@@ -302,7 +301,7 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
   }
 
   public boolean isSigned(final int column) throws SQLException {
-    final Result currentRecord = getCurrentRecord();
+    final var currentRecord = getCurrentRecord();
     PropertyType otype = null;
     if (currentRecord.isEntity()) {
       otype = currentRecord
@@ -336,8 +335,8 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
         || type == PropertyType.SHORT;
   }
 
-  protected Property getProperty(final int column) throws SQLException {
-    String fieldName = getColumnName(column);
+  protected SchemaProperty getProperty(final int column) throws SQLException {
+    var fieldName = getColumnName(column);
 
     var currentRecord = getCurrentRecord();
     if (currentRecord.isEntity()) {

@@ -6,9 +6,9 @@ import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
@@ -159,7 +159,7 @@ public class SQLUpdateItem extends SimpleNode {
     if (oClass == null) {
       return null;
     }
-    Property prop = oClass.getProperty(propName);
+    SchemaProperty prop = oClass.getProperty(propName);
 
     Object result = null;
     if (prop == null) {
@@ -250,7 +250,7 @@ public class SQLUpdateItem extends SimpleNode {
       return newValue;
     }
 
-    Property prop = optSchema.get().getProperty(attrName.getStringValue());
+    SchemaProperty prop = optSchema.get().getProperty(attrName.getStringValue());
     if (prop == null) {
       return newValue;
     }

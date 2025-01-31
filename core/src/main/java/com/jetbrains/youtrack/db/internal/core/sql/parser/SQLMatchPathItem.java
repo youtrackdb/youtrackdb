@@ -4,7 +4,6 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -166,7 +165,7 @@ public class SQLMatchPathItem extends SimpleNode {
       return false;
     }
     try {
-      Record record = identifiable.getRecord(db);
+      var record = identifiable.getRecord(db);
       if (record instanceof EntityImpl) {
         return EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) record))
             .isSubClassOf(oClass);

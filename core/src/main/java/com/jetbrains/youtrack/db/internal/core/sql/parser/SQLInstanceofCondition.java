@@ -4,8 +4,8 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -37,7 +37,7 @@ public class SQLInstanceofCondition extends SQLBooleanExpression {
     if (currentRecord == null) {
       return false;
     }
-    Record record;
+    DBRecord record;
     try {
       record = currentRecord.getRecord(ctx.getDatabase());
     } catch (RecordNotFoundException rnf) {
@@ -68,7 +68,7 @@ public class SQLInstanceofCondition extends SQLBooleanExpression {
       return false;
     }
 
-    Record record = currentRecord.getEntity().get().getRecord(ctx.getDatabase());
+    var record = currentRecord.getEntity().get().getRecord(ctx.getDatabase());
     if (!(record instanceof EntityImpl entity)) {
       return false;
     }

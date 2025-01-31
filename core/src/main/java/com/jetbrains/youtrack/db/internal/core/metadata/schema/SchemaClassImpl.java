@@ -28,10 +28,10 @@ import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.ArrayUtils;
@@ -70,7 +70,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
 
   protected static final int NOT_EXISTENT_CLUSTER_ID = -1;
   protected final SchemaShared owner;
-  protected final Map<String, PropertyInternal> properties = new HashMap<>();
+  protected final Map<String, SchemaPropertyInternal> properties = new HashMap<>();
   protected int defaultClusterId = NOT_EXISTENT_CLUSTER_ID;
   protected String name;
   protected String description;
@@ -352,7 +352,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
     }
   }
 
-  public Collection<Property> declaredProperties() {
+  public Collection<SchemaProperty> declaredProperties() {
     acquireSchemaReadLock();
     try {
       return Collections.unmodifiableCollection(properties.values());
@@ -361,13 +361,13 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
     }
   }
 
-  public Map<String, Property> propertiesMap(DatabaseSession session) {
+  public Map<String, SchemaProperty> propertiesMap(DatabaseSession session) {
     ((DatabaseSessionInternal) session).checkSecurity(Rule.ResourceGeneric.SCHEMA,
         Role.PERMISSION_READ);
 
     acquireSchemaReadLock();
     try {
-      final Map<String, Property> props = new HashMap<String, Property>(20);
+      final Map<String, SchemaProperty> props = new HashMap<String, SchemaProperty>(20);
       propertiesMap(props);
       return props;
     } finally {
@@ -375,8 +375,8 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
     }
   }
 
-  private void propertiesMap(Map<String, Property> propertiesMap) {
-    for (Property p : properties.values()) {
+  private void propertiesMap(Map<String, SchemaProperty> propertiesMap) {
+    for (SchemaProperty p : properties.values()) {
       String propName = p.getName();
       if (!propertiesMap.containsKey(propName)) {
         propertiesMap.put(propName, p);
@@ -387,13 +387,13 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
     }
   }
 
-  public Collection<Property> properties(DatabaseSession session) {
+  public Collection<SchemaProperty> properties(DatabaseSession session) {
     ((DatabaseSessionInternal) session).checkSecurity(Rule.ResourceGeneric.SCHEMA,
         Role.PERMISSION_READ);
 
     acquireSchemaReadLock();
     try {
-      final Collection<Property> props = new ArrayList<Property>();
+      final Collection<SchemaProperty> props = new ArrayList<SchemaProperty>();
       properties(props);
       return props;
     } finally {
@@ -401,7 +401,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
     }
   }
 
-  private void properties(Collection<Property> properties) {
+  private void properties(Collection<SchemaProperty> properties) {
     properties.addAll(this.properties.values());
     for (SchemaClassImpl superClass : superClasses) {
       superClass.properties(properties);
@@ -409,8 +409,8 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
   }
 
   public void getIndexedProperties(DatabaseSessionInternal session,
-      Collection<Property> indexedProperties) {
-    for (Property p : properties.values()) {
+      Collection<SchemaProperty> indexedProperties) {
+    for (SchemaProperty p : properties.values()) {
       if (areIndexed(session, p.getName())) {
         indexedProperties.add(p);
       }
@@ -421,14 +421,14 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
   }
 
   @Override
-  public Collection<Property> getIndexedProperties(DatabaseSession session) {
+  public Collection<SchemaProperty> getIndexedProperties(DatabaseSession session) {
     var sessionInternal = (DatabaseSessionInternal) session;
     sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA,
         Role.PERMISSION_READ);
 
     acquireSchemaReadLock();
     try {
-      Collection<Property> indexedProps = new HashSet<Property>();
+      Collection<SchemaProperty> indexedProps = new HashSet<SchemaProperty>();
       getIndexedProperties(sessionInternal, indexedProps);
       return indexedProps;
     } finally {
@@ -436,12 +436,12 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
     }
   }
 
-  public Property getProperty(String propertyName) {
+  public SchemaProperty getProperty(String propertyName) {
     return getPropertyInternal(propertyName);
   }
 
   @Override
-  public PropertyInternal getPropertyInternal(String propertyName) {
+  public SchemaPropertyInternal getPropertyInternal(String propertyName) {
     acquireSchemaReadLock();
     try {
       var p = properties.get(propertyName);
@@ -460,13 +460,13 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
     }
   }
 
-  public Property createProperty(DatabaseSession session, final String iPropertyName,
+  public SchemaProperty createProperty(DatabaseSession session, final String iPropertyName,
       final PropertyType iType) {
     return addProperty((DatabaseSessionInternal) session, iPropertyName, iType, null, null,
         false);
   }
 
-  public Property createProperty(
+  public SchemaProperty createProperty(
       DatabaseSession session, final String iPropertyName, final PropertyType iType,
       final SchemaClass iLinkedClass) {
     return addProperty((DatabaseSessionInternal) session, iPropertyName, iType, null,
@@ -474,7 +474,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
         false);
   }
 
-  public Property createProperty(
+  public SchemaProperty createProperty(
       DatabaseSession session, final String iPropertyName,
       final PropertyType iType,
       final SchemaClass iLinkedClass,
@@ -484,14 +484,14 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
         unsafe);
   }
 
-  public Property createProperty(
+  public SchemaProperty createProperty(
       DatabaseSession session, final String iPropertyName, final PropertyType iType,
       final PropertyType iLinkedType) {
     return addProperty((DatabaseSessionInternal) session, iPropertyName, iType, iLinkedType, null,
         false);
   }
 
-  public Property createProperty(
+  public SchemaProperty createProperty(
       DatabaseSession session, final String iPropertyName,
       final PropertyType iType,
       final PropertyType iLinkedType,
@@ -574,9 +574,9 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
     }
 
     // READ PROPERTIES
-    PropertyImpl prop;
+    SchemaPropertyImpl prop;
 
-    final Map<String, PropertyInternal> newProperties = new HashMap<>();
+    final Map<String, SchemaPropertyInternal> newProperties = new HashMap<>();
     final Collection<EntityImpl> storedProperties = entity.field("properties");
 
     if (storedProperties != null) {
@@ -585,7 +585,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
         String name = p.field("name");
         // To lower case ?
         if (properties.containsKey(name)) {
-          prop = (PropertyImpl) properties.get(name);
+          prop = (SchemaPropertyImpl) properties.get(name);
           prop.fromStream(p);
         } else {
           prop = createPropertyInstance();
@@ -603,7 +603,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
         owner.getClusterSelectionFactory().getStrategy(entity.field("clusterSelection"));
   }
 
-  protected abstract PropertyImpl createPropertyInstance();
+  protected abstract SchemaPropertyImpl createPropertyInstance();
 
   public EntityImpl toStream(DatabaseSessionInternal db) {
     EntityImpl entity = new EntityImpl(db);
@@ -618,8 +618,8 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
     entity.field("abstract", abstractClass);
 
     final Set<EntityImpl> props = new LinkedHashSet<EntityImpl>();
-    for (final Property p : properties.values()) {
-      props.add(((PropertyImpl) p).toStream(db));
+    for (final SchemaProperty p : properties.values()) {
+      props.add(((SchemaPropertyImpl) p).toStream(db));
     }
     entity.field("properties", props, PropertyType.EMBEDDEDSET);
 
@@ -1629,7 +1629,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
     }
   }
 
-  protected abstract Property addProperty(
+  protected abstract SchemaProperty addProperty(
       DatabaseSessionInternal session, final String propertyName,
       final PropertyType type,
       final PropertyType linkedType,
@@ -1667,9 +1667,9 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
 
   protected void checkParametersConflict(DatabaseSessionInternal session,
       final SchemaClass baseClass) {
-    final Collection<Property> baseClassProperties = baseClass.properties(session);
-    for (Property property : baseClassProperties) {
-      Property thisProperty = getProperty(property.getName());
+    final Collection<SchemaProperty> baseClassProperties = baseClass.properties(session);
+    for (SchemaProperty property : baseClassProperties) {
+      SchemaProperty thisProperty = getProperty(property.getName());
       if (thisProperty != null && !thisProperty.getType().equals(property.getType())) {
         throw new SchemaException(
             "Cannot add base class '"
@@ -1684,8 +1684,8 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
   }
 
   public static void checkParametersConflict(List<SchemaClass> classes) {
-    final Map<String, Property> comulative = new HashMap<String, Property>();
-    final Map<String, Property> properties = new HashMap<String, Property>();
+    final Map<String, SchemaProperty> comulative = new HashMap<String, SchemaProperty>();
+    final Map<String, SchemaProperty> properties = new HashMap<String, SchemaProperty>();
 
     for (SchemaClass superClass : classes) {
       if (superClass == null) {
@@ -1694,10 +1694,10 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
       SchemaClassImpl impl;
       impl = (SchemaClassImpl) superClass;
       impl.propertiesMap(properties);
-      for (Map.Entry<String, Property> entry : properties.entrySet()) {
+      for (Map.Entry<String, SchemaProperty> entry : properties.entrySet()) {
         if (comulative.containsKey(entry.getKey())) {
           final String property = entry.getKey();
-          final Property existingProperty = comulative.get(property);
+          final SchemaProperty existingProperty = comulative.get(property);
           if (!existingProperty.getType().equals(entry.getValue().getType())) {
             throw new SchemaException(
                 "Properties conflict detected: '"
@@ -1876,8 +1876,8 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
     entity.field("abstract", abstractClass);
 
     final Set<EntityImpl> props = new LinkedHashSet<EntityImpl>();
-    for (final Property p : properties.values()) {
-      props.add(((PropertyImpl) p).toNetworkStream(db));
+    for (final SchemaProperty p : properties.values()) {
+      props.add(((SchemaPropertyImpl) p).toNetworkStream(db));
     }
     entity.field("properties", props, PropertyType.EMBEDDEDSET);
 

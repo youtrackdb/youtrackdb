@@ -26,9 +26,9 @@ import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.exception.TransactionException;
 import com.jetbrains.youtrack.db.api.exception.ValidationException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.RecordHook.TYPE;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -397,7 +397,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
   public boolean exists(RID rid) {
     checkTransactionValid();
 
-    final Record txRecord = getRecord(rid);
+    final DBRecord txRecord = getRecord(rid);
     if (txRecord == FrontendTransactionAbstract.DELETED_RECORD) {
       return false;
     }
@@ -410,7 +410,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
   }
 
   @Override
-  public @Nonnull Record loadRecord(RID rid) {
+  public @Nonnull DBRecord loadRecord(RID rid) {
 
     checkTransactionValid();
 
@@ -441,7 +441,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
     }
   }
 
-  public Record saveRecord(RecordAbstract passedRecord, final String clusterName) {
+  public DBRecord saveRecord(RecordAbstract passedRecord, final String clusterName) {
     try {
       if (passedRecord == null) {
         return null;

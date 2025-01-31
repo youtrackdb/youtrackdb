@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.storage.ridbag;
 
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
@@ -21,14 +21,11 @@ public class ChangeSerializationHelper {
   public static final ChangeSerializationHelper INSTANCE = new ChangeSerializationHelper();
 
   public static Change createChangeInstance(byte type, int value) {
-    switch (type) {
-      case AbsoluteChange.TYPE:
-        return new AbsoluteChange(value);
-      case DiffChange.TYPE:
-        return new DiffChange(value);
-      default:
-        throw new IllegalArgumentException("Change type is incorrect");
-    }
+    return switch (type) {
+      case AbsoluteChange.TYPE -> new AbsoluteChange(value);
+      case DiffChange.TYPE -> new DiffChange(value);
+      default -> throw new IllegalArgumentException("Change type is incorrect");
+    };
   }
 
   public Change deserializeChange(final byte[] stream, final int offset) {
@@ -81,7 +78,7 @@ public class ChangeSerializationHelper {
         } catch (RecordNotFoundException e) {
           //ignore
         }
-      } else if (key instanceof Record record && record.getIdentity().isTemporary()) {
+      } else if (key instanceof DBRecord record && record.getIdentity().isTemporary()) {
         try {
           //noinspection unchecked
           key = record.getIdentity().getRecord(db);

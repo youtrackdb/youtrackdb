@@ -8,10 +8,10 @@ import static org.junit.Assert.assertTrue;
 import com.jetbrains.youtrack.db.api.exception.SchemaException;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.math.BigDecimal;
@@ -276,7 +276,7 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   public void testCreatePropertyIdKeep() {
     final Schema oSchema = db.getMetadata().getSchema();
     SchemaClass oClass = oSchema.createClass("Test12");
-    Property prop = oClass.createProperty(db, "test2", PropertyType.STRING);
+    SchemaProperty prop = oClass.createProperty(db, "test2", PropertyType.STRING);
     Integer id = prop.getId();
     oClass.dropProperty(db, "test2");
     prop = oClass.createProperty(db, "test2", PropertyType.STRING);
@@ -287,7 +287,7 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   public void testRenameProperty() {
     final Schema oSchema = db.getMetadata().getSchema();
     SchemaClass oClass = oSchema.createClass("Test13");
-    Property prop = oClass.createProperty(db, "test1", PropertyType.STRING);
+    SchemaProperty prop = oClass.createProperty(db, "test1", PropertyType.STRING);
     Integer id = prop.getId();
     prop.setName(db, "test2");
     assertNotEquals(id, prop.getId());
@@ -297,7 +297,7 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   public void testChangeTypeProperty() {
     final Schema oSchema = db.getMetadata().getSchema();
     SchemaClass oClass = oSchema.createClass("Test14");
-    Property prop = oClass.createProperty(db, "test1", PropertyType.SHORT);
+    SchemaProperty prop = oClass.createProperty(db, "test1", PropertyType.SHORT);
     Integer id = prop.getId();
     prop.setType(db, PropertyType.INTEGER);
     assertNotEquals(id, prop.getId());
@@ -307,7 +307,7 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   public void testRenameBackProperty() {
     final Schema oSchema = db.getMetadata().getSchema();
     SchemaClass oClass = oSchema.createClass("Test15");
-    Property prop = oClass.createProperty(db, "test1", PropertyType.STRING);
+    SchemaProperty prop = oClass.createProperty(db, "test1", PropertyType.STRING);
     Integer id = prop.getId();
     prop.setName(db, "test2");
     assertNotEquals(id, prop.getId());
@@ -319,7 +319,7 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   public void testSetUncastableType() {
     final Schema oSchema = db.getMetadata().getSchema();
     SchemaClass oClass = oSchema.createClass("Test16");
-    Property prop = oClass.createProperty(db, "test1", PropertyType.STRING);
+    SchemaProperty prop = oClass.createProperty(db, "test1", PropertyType.STRING);
     prop.setType(db, PropertyType.INTEGER);
   }
 
@@ -327,7 +327,7 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   public void testFindById() {
     final Schema oSchema = db.getMetadata().getSchema();
     SchemaClass oClass = oSchema.createClass("Test17");
-    Property prop = oClass.createProperty(db, "testaaa", PropertyType.STRING);
+    SchemaProperty prop = oClass.createProperty(db, "testaaa", PropertyType.STRING);
     GlobalProperty global = oSchema.getGlobalPropertyById(prop.getId());
 
     assertEquals(prop.getId(), global.getId());
@@ -339,7 +339,7 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   public void testFindByIdDrop() {
     final Schema oSchema = db.getMetadata().getSchema();
     SchemaClass oClass = oSchema.createClass("Test18");
-    Property prop = oClass.createProperty(db, "testaaa", PropertyType.STRING);
+    SchemaProperty prop = oClass.createProperty(db, "testaaa", PropertyType.STRING);
     Integer id = prop.getId();
     oClass.dropProperty(db, "testaaa");
     GlobalProperty global = oSchema.getGlobalPropertyById(id);

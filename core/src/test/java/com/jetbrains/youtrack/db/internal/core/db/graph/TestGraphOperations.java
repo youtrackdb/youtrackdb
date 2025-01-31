@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.db.graph;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Vertex;
-import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -22,7 +22,7 @@ public class TestGraphOperations extends DbTestBase {
 
     SchemaClass testLabel = db.createEdgeClass("TestLabel");
 
-    Property key = testLabel.createProperty(db, "key", PropertyType.STRING);
+    SchemaProperty key = testLabel.createProperty(db, "key", PropertyType.STRING);
 
     key.createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
 

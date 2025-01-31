@@ -20,11 +20,11 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
@@ -272,7 +272,7 @@ public class EdgeDelegate implements EdgeInternal {
 
   @Nonnull
   @Override
-  public <T extends Record> T getRecord(DatabaseSession db) {
+  public <T extends DBRecord> T getRecord(DatabaseSession db) {
     if (entity == null) {
       return null;
     }
@@ -454,5 +454,15 @@ public class EdgeDelegate implements EdgeInternal {
       result.append("} (lightweight)");
       return result.toString();
     }
+  }
+
+  @Nullable
+  @Override
+  public DatabaseSession getBoundedToSession() {
+    if (entity != null) {
+      return entity.getBoundedToSession();
+    }
+
+    return null;
   }
 }

@@ -1,6 +1,5 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -17,7 +16,7 @@ public class DefaultValueSerializationTest extends DbTestBase {
     Schema schema = db.getMetadata().getSchema();
     SchemaClass classA = schema.createClass("ClassC");
 
-    Property prop = classA.createProperty(db, "name", PropertyType.STRING);
+    var prop = classA.createProperty(db, "name", PropertyType.STRING);
     prop.setDefaultValue(db, "uuid()");
 
     EntityImpl doc = (EntityImpl) db.newEntity("ClassC");

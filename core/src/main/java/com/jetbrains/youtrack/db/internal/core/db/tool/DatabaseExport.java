@@ -21,11 +21,11 @@ package com.jetbrains.youtrack.db.internal.core.db.tool;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.io.YTIOException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
@@ -193,7 +193,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
       if (clusterName != null) {
         RecordAbstract rec = null;
         try {
-          RecordIteratorCluster<Record> it = database.browseCluster(clusterName);
+          RecordIteratorCluster<DBRecord> it = database.browseCluster(clusterName);
 
           while (it.hasNext()) {
             rec = (RecordAbstract) it.next();
@@ -465,10 +465,10 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
     }
     jsonGenerator.writeEndArray();
 
-    if (!schema.getClasses().isEmpty()) {
+    if (!schema.getClasses(database).isEmpty()) {
       jsonGenerator.writeArrayFieldStart("classes");
 
-      final List<SchemaClass> classes = new ArrayList<>(schema.getClasses());
+      final List<SchemaClass> classes = new ArrayList<>(schema.getClasses(database));
       Collections.sort(classes);
 
       for (SchemaClass cls : classes) {
@@ -504,10 +504,10 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
         if (!cls.properties(database).isEmpty()) {
           jsonGenerator.writeArrayFieldStart("properties");
 
-          final List<Property> properties = new ArrayList<>(cls.declaredProperties());
+          final List<SchemaProperty> properties = new ArrayList<>(cls.declaredProperties());
           Collections.sort(properties);
 
-          for (Property p : properties) {
+          for (SchemaProperty p : properties) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField("name", p.getName());
             jsonGenerator.writeStringField("type", p.getType().toString());
@@ -578,7 +578,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
     }
 
     jsonGenerator.writeEndObject();
-    listener.onMessage("OK (" + schema.getClasses().size() + " classes)");
+    listener.onMessage("OK (" + schema.getClasses(database).size() + " classes)");
   }
 
   private boolean exportRecord(

@@ -13,8 +13,6 @@
  */
 package com.jetbrains.youtrack.db.internal.jdbc;
 
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import java.sql.RowId;
 

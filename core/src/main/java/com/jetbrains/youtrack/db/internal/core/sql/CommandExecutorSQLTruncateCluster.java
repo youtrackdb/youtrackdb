@@ -23,7 +23,7 @@ import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
@@ -126,12 +126,12 @@ public class CommandExecutorSQLTruncateCluster extends CommandExecutorSQLAbstrac
     if (clazz == null) {
       database.checkForClusterPermissions(clusterName);
 
-      final RecordIteratorCluster<Record> iteratorCluster = database.browseCluster(clusterName);
+      final RecordIteratorCluster<DBRecord> iteratorCluster = database.browseCluster(clusterName);
       if (iteratorCluster == null) {
         throw new DatabaseException("Cluster with name " + clusterName + " does not exist");
       }
       while (iteratorCluster.hasNext()) {
-        final Record record = iteratorCluster.next();
+        final DBRecord record = iteratorCluster.next();
         record.delete();
       }
     } else {

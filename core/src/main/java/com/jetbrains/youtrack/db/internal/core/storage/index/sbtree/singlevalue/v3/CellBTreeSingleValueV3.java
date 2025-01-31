@@ -530,7 +530,7 @@ public final class CellBTreeSingleValueV3<K> extends DurableComponent
       final CellBTreeSingleValueBucketV3<K> keyBucket)
       throws IOException {
     final RemovalPathItem parentItem =
-        removeSearchResult.getPath().get(removeSearchResult.getPath().size() - 1);
+        removeSearchResult.getPath().getLast();
 
     try (final CacheEntry parentCacheEntry =
         loadPageForWrite(atomicOperation, fileId, parentItem.getPageIndex(), true)) {
@@ -618,7 +618,7 @@ public final class CellBTreeSingleValueV3<K> extends DurableComponent
       }
     }
 
-    final RemovalPathItem currentItem = path.get(path.size() - 1);
+    final RemovalPathItem currentItem = path.getLast();
 
     if (bucketSize > 1) {
       bucket.removeNonLeafEntry(
@@ -1562,6 +1562,13 @@ public final class CellBTreeSingleValueV3<K> extends DurableComponent
       final int freeListHead = entryPoint.getFreeListHead();
       if (freeListHead > -1) {
         rightBucketEntry = loadPageForWrite(atomicOperation, fileId, freeListHead, false);
+
+        if (rightBucketEntry == null) {
+          throw new CellBTreeSingleValueV3Exception(
+              "Page that supposed to be in free list of BTree was not found. Page index : "
+                  + freeListHead + ", file id : " + fileId, this);
+        }
+
         final CellBTreeSingleValueBucketV3<?> bucket =
             new CellBTreeSingleValueBucketV3<>(rightBucketEntry);
         entryPoint.setFreeListHead(bucket.getNextFreeListPage());
@@ -1858,7 +1865,7 @@ public final class CellBTreeSingleValueV3<K> extends DurableComponent
     if (iter.getDataCache().isEmpty()) {
       lastKey = null;
     } else {
-      lastKey = iter.getDataCache().get(iter.getDataCache().size() - 1).first;
+      lastKey = iter.getDataCache().getLast().first;
     }
 
     iter.getDataCache().clear();
@@ -1932,7 +1939,7 @@ public final class CellBTreeSingleValueV3<K> extends DurableComponent
   void fetchNextForwardCachePortion(SpliteratorForward<K> iter) {
     final K lastKey;
     if (!iter.getDataCache().isEmpty()) {
-      lastKey = iter.getDataCache().get(iter.getDataCache().size() - 1).first;
+      lastKey = iter.getDataCache().getLast().first;
     } else {
       lastKey = null;
     }

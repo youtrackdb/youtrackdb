@@ -20,9 +20,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
@@ -91,7 +91,7 @@ public class FindReferenceHelper {
       final Set<RID> iSourceRIDs,
       final Map<RID, Set<RID>> map,
       final String iClusterName) {
-    for (Record record : ((DatabaseSessionInternal) db).browseCluster(iClusterName)) {
+    for (var record : db.browseCluster(iClusterName)) {
       if (record instanceof EntityImpl) {
         try {
           for (String fieldName : ((EntityImpl) record).fieldNames()) {
@@ -126,7 +126,7 @@ public class FindReferenceHelper {
       DatabaseSessionInternal db, final Set<RID> iSourceRIDs,
       final Map<RID, Set<RID>> map,
       final Object value,
-      final Record iRootObject) {
+      final DBRecord iRootObject) {
     if (value instanceof Identifiable) {
       checkRecord(db, iSourceRIDs, map, (Identifiable) value, iRootObject);
     } else if (value instanceof Collection<?>) {
@@ -140,7 +140,7 @@ public class FindReferenceHelper {
       DatabaseSessionInternal db, final Set<RID> iSourceRIDs,
       final Map<RID, Set<RID>> map,
       final Collection<?> values,
-      final Record iRootObject) {
+      final DBRecord iRootObject) {
     for (Object value : values) {
       checkObject(db, iSourceRIDs, map, value, iRootObject);
     }
@@ -150,7 +150,7 @@ public class FindReferenceHelper {
       DatabaseSessionInternal db, final Set<RID> iSourceRIDs,
       final Map<RID, Set<RID>> map,
       final Map<?, ?> values,
-      final Record iRootObject) {
+      final DBRecord iRootObject) {
     final Iterator<?> it;
     if (values instanceof LinkMap) {
       it = ((LinkMap) values).rawIterator();
@@ -166,7 +166,7 @@ public class FindReferenceHelper {
       DatabaseSessionInternal db, final Set<RID> iSourceRIDs,
       final Map<RID, Set<RID>> map,
       final Identifiable value,
-      final Record iRootObject) {
+      final DBRecord iRootObject) {
     if (iSourceRIDs.contains(value.getIdentity())) {
       map.get(value.getIdentity()).add(iRootObject.getIdentity());
     } else if (!((RecordId) value.getIdentity()).isValid()

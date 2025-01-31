@@ -16,9 +16,9 @@ package com.jetbrains.youtrack.db.internal.security.ldap;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
@@ -293,7 +293,7 @@ public class LDAPImporter implements SecurityComponent {
 
         System.out.println("calling createProperty");
 
-        Property prop = ldapUser.createProperty(odb, "Domain", PropertyType.STRING);
+        SchemaProperty prop = ldapUser.createProperty(odb, "Domain", PropertyType.STRING);
 
         System.out.println("calling setMandatory");
 

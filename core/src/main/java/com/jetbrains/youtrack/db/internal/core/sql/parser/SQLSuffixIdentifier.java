@@ -9,7 +9,6 @@ import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.Collate;
 import com.jetbrains.youtrack.db.internal.common.util.Resettable;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
@@ -368,7 +367,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
       entity = (Entity) target;
     } else {
       try {
-        Record rec = target.getRecord(ctx.getDatabase());
+        var rec = target.getRecord(ctx.getDatabase());
         if (rec instanceof Entity) {
           entity = (Entity) rec;
         }

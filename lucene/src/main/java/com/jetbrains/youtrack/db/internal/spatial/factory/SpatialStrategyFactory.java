@@ -13,10 +13,10 @@
  */
 package com.jetbrains.youtrack.db.internal.spatial.factory;
 
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.internal.spatial.shape.ShapeBuilder;
 import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.bbox.BBoxStrategy;
@@ -43,7 +43,7 @@ public class SpatialStrategyFactory {
     SchemaClass aClass =
         db.getMetadata().getImmutableSchemaSnapshot().getClass(indexDefinition.getClassName());
 
-    Property property = aClass.getProperty(indexDefinition.getFields().get(0));
+    SchemaProperty property = aClass.getProperty(indexDefinition.getFields().get(0));
 
     SchemaClass linkedClass = property.getLinkedClass();
 

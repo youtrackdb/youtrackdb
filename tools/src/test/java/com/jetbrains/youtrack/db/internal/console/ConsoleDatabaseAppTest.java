@@ -3,9 +3,6 @@ package com.jetbrains.youtrack.db.internal.console;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -26,9 +23,9 @@ public class ConsoleDatabaseAppTest {
 
   @Test
   public void testSelectBinaryDoc() throws IOException {
-    final StringBuilder builder = new StringBuilder();
+    final var builder = new StringBuilder();
 
-    ConsoleDatabaseApp app =
+    var app =
         new ConsoleDatabaseApp(new String[]{}) {
           @Override
           public void message(String iMessage) {
@@ -42,11 +39,11 @@ public class ConsoleDatabaseAppTest {
           "create database test memory users (admin identified by 'admin' role admin)");
       app.open("test", "admin", "admin");
 
-      DatabaseSessionInternal db = (DatabaseSessionInternal) app.getCurrentDatabase();
+      var db = (DatabaseSessionInternal) app.getCurrentDatabase();
       db.addBlobCluster("blobTest");
 
       db.begin();
-      Record record = db.save(db.newBlob("blobContent".getBytes()), "blobTest");
+      var record = db.save(db.newBlob("blobContent".getBytes()), "blobTest");
       db.commit();
       builder.setLength(0);
       app.select(" from " + record.getIdentity() + " limit -1 ");
@@ -59,7 +56,7 @@ public class ConsoleDatabaseAppTest {
   @Test
   public void testWrongCommand() {
 
-    String builder =
+    var builder =
         "connect env embedded:./target/ root root;\n"
             + "create database OConsoleDatabaseAppTest2 memory users (admin identified by 'admin'"
             + " role admin);\n"
@@ -73,15 +70,15 @@ public class ConsoleDatabaseAppTest {
             + "blabla;\n" // <- wrong command, this should break the console
             + "update foo set surname = 'bar' where name = 'foo';\n"
             + "commit;\n";
-    ConsoleTest c = new ConsoleTest(new String[]{builder});
-    ConsoleDatabaseApp console = c.console();
+    var c = new ConsoleTest(new String[]{builder});
+    var console = c.console();
 
     try {
       console.run();
 
       try (var db = console.getCurrentDatabase()) {
-        ResultSet result = db.query("select from foo where name = 'foo'");
-        Result doc = result.next();
+        var result = db.query("select from foo where name = 'foo'");
+        var doc = result.next();
         Assert.assertNull(doc.getProperty("surname"));
         Assert.assertFalse(result.hasNext());
       }
@@ -93,25 +90,23 @@ public class ConsoleDatabaseAppTest {
   @Test
   public void testOldCreateDatabase() {
 
-    String builder =
-        "create database memory:./target/OConsoleDatabaseAppTest2 admin adminpwd memory\n"
-            + "create class foo;\n"
-            + "begin;"
-            + "insert into foo set name = 'foo';\n"
-            + "insert into foo set name = 'bla';\n"
-            + "commit;";
-    ConsoleTest c = new ConsoleTest(new String[]{builder});
-    ConsoleDatabaseApp console = c.console();
+    var builder =
+        """
+            create database memory:./target/OConsoleDatabaseAppTest2 admin adminpwd memory
+            create class foo;
+            begin;\
+            insert into foo set name = 'foo';
+            insert into foo set name = 'bla';
+            commit;""";
+    var c = new ConsoleTest(new String[]{builder});
+    var console = c.console();
 
     try {
       console.run();
 
-      var db = console.getCurrentDatabase();
-      try {
-        long size = db.query("select from foo where name = 'foo'").stream().count();
+      try (var db = console.getCurrentDatabase()) {
+        var size = db.query("select from foo where name = 'foo'").stream().count();
         Assert.assertEquals(1, size);
-      } finally {
-        db.close();
       }
     } finally {
       console.close();
@@ -120,7 +115,7 @@ public class ConsoleDatabaseAppTest {
 
   @Test
   public void testDumpRecordDetails() {
-    ConsoleTest c = new ConsoleTest();
+    var c = new ConsoleTest();
     try {
 
       c.console().executeServerCommand("connect env embedded:./target/ root root");
@@ -140,7 +135,7 @@ public class ConsoleDatabaseAppTest {
       c.console().set("maxBinaryDisplay", "10000");
       c.console().select("from foo limit -1");
 
-      String resultString = c.getConsoleOutput();
+      var resultString = c.getConsoleOutput();
       Assert.assertTrue(resultString.contains("@class"));
       Assert.assertTrue(resultString.contains("foo"));
       Assert.assertTrue(resultString.contains("name"));
@@ -154,10 +149,10 @@ public class ConsoleDatabaseAppTest {
 
   @Test
   public void testHelp() {
-    ConsoleTest c = new ConsoleTest();
+    var c = new ConsoleTest();
     try {
       c.console().help(null);
-      String resultString = c.getConsoleOutput();
+      var resultString = c.getConsoleOutput();
       Assert.assertTrue(resultString.contains("connect"));
       Assert.assertTrue(resultString.contains("alter class"));
       Assert.assertTrue(resultString.contains("create class"));
@@ -178,10 +173,10 @@ public class ConsoleDatabaseAppTest {
 
   @Test
   public void testHelpCommand() {
-    ConsoleTest c = new ConsoleTest();
+    var c = new ConsoleTest();
     try {
       c.console().help("select");
-      String resultString = c.getConsoleOutput();
+      var resultString = c.getConsoleOutput();
       Assert.assertTrue(resultString.contains("COMMAND: select"));
 
     } catch (Exception e) {
@@ -194,7 +189,7 @@ public class ConsoleDatabaseAppTest {
   @Test
   public void testSimple() {
 
-    String builder =
+    var builder =
         "connect env embedded:./target/ root root;\n"
             + "create database "
             + testName.getMethodName()
@@ -239,15 +234,15 @@ public class ConsoleDatabaseAppTest {
             + "traverse out() from V;\n"
             + "profile storage off;\n"
             + "repair database -v;\n";
-    ConsoleTest c = new ConsoleTest(new String[]{builder});
-    ConsoleDatabaseApp console = c.console();
+    var c = new ConsoleTest(new String[]{builder});
+    var console = c.console();
 
     try {
       console.run();
 
       var db = console.getCurrentDatabase();
-      ResultSet result = db.query("select from foo where name = 'foo'");
-      Result doc = result.next();
+      var result = db.query("select from foo where name = 'foo'");
+      var doc = result.next();
       Assert.assertEquals("bar", doc.getProperty("surname"));
       Assert.assertFalse(result.hasNext());
       result.close();
@@ -263,9 +258,9 @@ public class ConsoleDatabaseAppTest {
   @Test
   @Ignore
   public void testMultiLine() {
-    String dbUrl = "memory:" + testName.getMethodName();
+    var dbUrl = "memory:" + testName.getMethodName();
 
-    String builder =
+    var builder =
         "create database "
             + dbUrl
             + ";\n"
@@ -304,15 +299,15 @@ public class ConsoleDatabaseAppTest {
             + "(select from V where name = 'foo') \n"
             + "to (select from V where name = 'bar');\n";
 
-    ConsoleTest c = new ConsoleTest(new String[]{builder});
-    ConsoleDatabaseApp console = c.console();
+    var c = new ConsoleTest(new String[]{builder});
+    var console = c.console();
 
     try {
       console.run();
 
       var db = console.getCurrentDatabase();
-      ResultSet result = db.query("select from foo where name = 'foo'");
-      Result doc = result.next();
+      var result = db.query("select from foo where name = 'foo'");
+      var doc = result.next();
       Assert.assertEquals("bar", doc.getProperty("surname"));
       Assert.assertFalse(result.hasNext());
       result.close();
@@ -325,8 +320,7 @@ public class ConsoleDatabaseAppTest {
     }
   }
 
-  class ConsoleTest {
-
+  static class ConsoleTest {
     ConsoleDatabaseApp console;
     ByteArrayOutputStream out;
     PrintStream stream;

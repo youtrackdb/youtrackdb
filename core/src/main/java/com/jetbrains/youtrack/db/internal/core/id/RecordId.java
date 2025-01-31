@@ -22,9 +22,9 @@ package com.jetbrains.youtrack.db.internal.core.id;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.util.PatternConst;
 import com.jetbrains.youtrack.db.internal.core.serialization.BinaryProtocol;
 import com.jetbrains.youtrack.db.internal.core.serialization.MemoryStream;
@@ -303,7 +303,7 @@ public class RecordId implements RID, SerializableStream {
   }
 
   @Nonnull
-  public <T extends Record> T getRecord(DatabaseSession db) {
+  public <T extends DBRecord> T getRecord(DatabaseSession db) {
     if (!isValid()) {
       throw new RecordNotFoundException(this);
     }

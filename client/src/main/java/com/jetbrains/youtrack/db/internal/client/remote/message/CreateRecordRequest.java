@@ -19,8 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.client.remote.message;
 
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.client.binary.BinaryRequestExecutor;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryAsyncRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
@@ -102,7 +102,7 @@ public class CreateRecordRequest implements BinaryAsyncRequest<CreateRecordRespo
     return rid;
   }
 
-  public Record getContent() {
+  public DBRecord getContent() {
     return content;
   }
 

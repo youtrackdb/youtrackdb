@@ -4,8 +4,8 @@ import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.exception.TransactionException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
 import com.jetbrains.youtrack.db.internal.client.remote.message.tx.RecordOperationRequest;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
@@ -158,7 +158,7 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
           EntityInternalUtils.autoConvertValueToClass(getDatabase(), (EntityImpl) record);
         }
       }
-      for (Record record : updatedRecords.values()) {
+      for (DBRecord record : updatedRecords.values()) {
         unmarshallRecord(record);
       }
     } catch (Exception e) {
@@ -191,7 +191,7 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
   /**
    * Unmarshalls collections. This prevent temporary RIDs remains stored as are.
    */
-  protected static void unmarshallRecord(final Record iRecord) {
+  protected static void unmarshallRecord(final DBRecord iRecord) {
     if (iRecord instanceof EntityImpl) {
       ((EntityImpl) iRecord).deserializeFields();
     }
@@ -301,7 +301,7 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
     }
   }
 
-  private void postAddRecord(Record record, final byte iStatus, boolean callHooks) {
+  private void postAddRecord(DBRecord record, final byte iStatus, boolean callHooks) {
     checkTransactionValid();
     try {
       if (callHooks) {
@@ -360,7 +360,7 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
     }
   }
 
-  private void finalizeAddRecord(Record record, final byte iStatus, boolean callHooks) {
+  private void finalizeAddRecord(DBRecord record, final byte iStatus, boolean callHooks) {
     checkTransactionValid();
     if (callHooks) {
       switch (iStatus) {

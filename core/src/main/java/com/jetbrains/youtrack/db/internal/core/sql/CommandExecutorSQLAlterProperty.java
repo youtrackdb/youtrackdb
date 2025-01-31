@@ -24,14 +24,14 @@ import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.api.schema.Property.ATTRIBUTES;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty.ATTRIBUTES;
 import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaPropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAlterPropertyStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
@@ -123,14 +123,15 @@ public class CommandExecutorSQLAlterProperty extends CommandExecutorSQLAbstract
       final String attributeAsString = word.toString();
 
       try {
-        attribute = Property.ATTRIBUTES.valueOf(attributeAsString.toUpperCase(Locale.ENGLISH));
+        attribute = SchemaProperty.ATTRIBUTES.valueOf(
+            attributeAsString.toUpperCase(Locale.ENGLISH));
       } catch (IllegalArgumentException e) {
         throw BaseException.wrapException(
             new CommandSQLParsingException(
                 "Unknown property attribute '"
                     + attributeAsString
                     + "'. Supported attributes are: "
-                    + Arrays.toString(Property.ATTRIBUTES.values()),
+                    + Arrays.toString(SchemaProperty.ATTRIBUTES.values()),
                 parserText,
                 oldPos),
             e);
@@ -225,7 +226,7 @@ public class CommandExecutorSQLAlterProperty extends CommandExecutorSQLAbstract
       throw new CommandExecutionException("Source class '" + className + "' not found");
     }
 
-    final PropertyImpl prop = (PropertyImpl) sourceClass.getProperty(fieldName);
+    final SchemaPropertyImpl prop = (SchemaPropertyImpl) sourceClass.getProperty(fieldName);
     if (prop == null) {
       throw new CommandExecutionException(
           "Property '" + className + "." + fieldName + "' not exists");

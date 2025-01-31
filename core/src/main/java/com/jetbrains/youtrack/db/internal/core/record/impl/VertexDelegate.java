@@ -38,7 +38,6 @@ public final class VertexDelegate implements VertexInternal {
 
   private final EntityImpl entity;
 
-
   public VertexDelegate(EntityImpl entry) {
     this.entity = entry;
   }
@@ -211,5 +210,10 @@ public final class VertexDelegate implements VertexInternal {
   @Override
   public Map<String, Object> toMap(boolean includeMetadata) {
     return entity.toMap(includeMetadata);
+  }
+
+  @Override
+  public DatabaseSession getBoundedToSession() {
+    return entity.getBoundedToSession();
   }
 }

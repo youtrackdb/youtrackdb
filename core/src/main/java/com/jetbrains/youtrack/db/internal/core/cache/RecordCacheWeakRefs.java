@@ -20,8 +20,8 @@
 
 package com.jetbrains.youtrack.db.internal.core.cache;
 
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import java.util.function.BiConsumer;
@@ -97,7 +97,7 @@ public class RecordCacheWeakRefs extends
   }
 
   public void clearRecords() {
-    for (Record rec : cache.values()) {
+    for (DBRecord rec : cache.values()) {
       rec.clear();
     }
   }

@@ -25,9 +25,9 @@ import com.jetbrains.youtrack.db.api.exception.ConcurrentModificationException;
 import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
@@ -631,7 +631,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
 
       if (restricted != null
           && restricted.isSuperClassOf(EntityInternalUtils.getImmutableSchemaClass(record))) {
-        for (Property prop : restricted.properties(getDatabase())) {
+        for (SchemaProperty prop : restricted.properties(getDatabase())) {
           fieldsToPreserve.field(prop.getName(), record.<Object>field(prop.getName()));
         }
       }
@@ -720,7 +720,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
       if (!record.containsField(entry.getKey())) {
         // GET THE TYPE IF ANY
         if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
-          Property prop =
+          SchemaProperty prop =
               EntityInternalUtils.getImmutableSchemaClass(record).getProperty(entry.getKey());
           if (prop != null && prop.getType() == PropertyType.LINKSET)
           // SET TYPE
@@ -792,7 +792,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
 
         if (fieldValue == null) {
           if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
-            final Property property =
+            final SchemaProperty property =
                 EntityInternalUtils.getImmutableSchemaClass(record).getProperty(entry.getKey());
             if (property != null
                 && (property.getType() != null
@@ -814,7 +814,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
           Object value = extractValue(querySession, record, pair);
 
           if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
-            final Property property =
+            final SchemaProperty property =
                 EntityInternalUtils.getImmutableSchemaClass(record).getProperty(entry.getKey());
             if (property != null
                 && property.getType().equals(PropertyType.LINKMAP)

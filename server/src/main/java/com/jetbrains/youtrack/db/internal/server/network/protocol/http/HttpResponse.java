@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http;
 
 import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.server.ClientConnection;
@@ -98,9 +98,9 @@ public interface HttpResponse {
       DatabaseSessionInternal databaseDocumentInternal)
       throws IOException;
 
-  void writeRecord(Record iRecord) throws IOException;
+  void writeRecord(DBRecord iRecord) throws IOException;
 
-  void writeRecord(Record iRecord, String iFetchPlan, String iFormat) throws IOException;
+  void writeRecord(DBRecord iRecord, String iFetchPlan, String iFormat) throws IOException;
 
   void sendStream(int iCode, String iReason, String iContentType, InputStream iContent, long iSize)
       throws IOException;

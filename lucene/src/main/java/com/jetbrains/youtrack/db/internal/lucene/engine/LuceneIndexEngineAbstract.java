@@ -21,8 +21,8 @@ import static com.jetbrains.youtrack.db.internal.lucene.analyzer.LuceneAnalyzerF
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
@@ -206,7 +206,7 @@ public abstract class LuceneIndexEngineAbstract implements LuceneIndexEngine {
     SchemaClass aClass =
         db.getMetadata().getSchema().getClass(indexDefinition.getClassName());
     for (String field : fields) {
-      Property property = aClass.getProperty(field);
+      SchemaProperty property = aClass.getProperty(field);
 
       if (property.getType().isEmbedded() && property.getLinkedType() != null) {
         collectionFields.put(field, true);

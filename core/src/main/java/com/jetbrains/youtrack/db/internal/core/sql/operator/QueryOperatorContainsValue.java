@@ -22,8 +22,8 @@ package com.jetbrains.youtrack.db.internal.core.sql.operator;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
@@ -164,7 +164,7 @@ public class QueryOperatorContainsValue extends QueryOperatorEqualityNotNulls {
       if (fieldName != null) {
         Object record = iRecord.getRecord(iContext.getDatabase());
         if (record instanceof EntityImpl) {
-          Property property =
+          SchemaProperty property =
               EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) record))
                   .getProperty(fieldName);
           if (property != null && property.getType().isMultiValue()) {

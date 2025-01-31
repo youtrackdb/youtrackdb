@@ -35,12 +35,12 @@ import com.jetbrains.youtrack.db.api.exception.TransactionException;
 import com.jetbrains.youtrack.db.api.exception.ValidationException;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Direction;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.Schema;
@@ -226,7 +226,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   /**
    * {@inheritDoc}
    */
-  public <RET extends Record> RET getRecord(final Identifiable iIdentifiable) {
+  public <RET extends DBRecord> RET getRecord(final Identifiable iIdentifiable) {
     assert assertIfNotActive();
     if (iIdentifiable instanceof Record) {
       return (RET) iIdentifiable;
@@ -238,7 +238,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * Deletes the record checking the version.
    */
   private void delete(final RID iRecord, final int iVersion) {
-    final Record record = load(iRecord);
+    final DBRecord record = load(iRecord);
     RecordInternal.setVersion(record, iVersion);
     delete(record);
   }
@@ -249,7 +249,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     return this;
   }
 
-  public <REC extends Record> RecordIteratorCluster<REC> browseCluster(
+  public <REC extends DBRecord> RecordIteratorCluster<REC> browseCluster(
       final String iClusterName, final Class<REC> iClass) {
     assert assertIfNotActive();
     return (RecordIteratorCluster<REC>) browseCluster(iClusterName);
@@ -260,7 +260,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    */
   @Override
   @Deprecated
-  public <REC extends Record> RecordIteratorCluster<REC> browseCluster(
+  public <REC extends DBRecord> RecordIteratorCluster<REC> browseCluster(
       final String iClusterName,
       final Class<REC> iRecordClass,
       final long startClusterPosition,
@@ -274,7 +274,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   @Override
-  public <REC extends Record> RecordIteratorCluster<REC> browseCluster(
+  public <REC extends DBRecord> RecordIteratorCluster<REC> browseCluster(
       String iClusterName,
       Class<REC> iRecordClass,
       long startClusterPosition,
@@ -545,7 +545,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     }
 
     try {
-      final Record rec;
+      final DBRecord rec;
       try {
         rec = id.getRecord(this);
       } catch (RecordNotFoundException e) {
@@ -675,7 +675,8 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     assert assertIfNotActive();
     // CHECK FOR ORESTRICTED
     final Set<SchemaClass> classes =
-        getMetadata().getImmutableSchemaSnapshot().getClassesRelyOnCluster(iClusterName);
+        getMetadata().getImmutableSchemaSnapshot().getClassesRelyOnCluster(this, iClusterName);
+
     for (SchemaClass c : classes) {
       if (c.isSubClassOf(SecurityShared.RESTRICTED_CLASSNAME)) {
         throw new SecurityException(
@@ -767,7 +768,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   @Nonnull
   @SuppressWarnings("unchecked")
   @Override
-  public <RET extends Record> RET load(final RID recordId) {
+  public <RET extends DBRecord> RET load(final RID recordId) {
     assert assertIfNotActive();
     return (RET) currentTx.loadRecord(recordId);
   }
@@ -785,7 +786,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     checkOpenness();
     assert assertIfNotActive();
 
-    final Record rec = load(iRecord);
+    final DBRecord rec = load(iRecord);
     delete(rec);
   }
 
@@ -809,7 +810,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   @Override
   public <T extends Identifiable> T bindToSession(T identifiable) {
-    if (!(identifiable instanceof Record record)) {
+    if (!(identifiable instanceof DBRecord record)) {
       return identifiable;
     }
 
@@ -971,7 +972,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     }
   }
 
-  public int assignAndCheckCluster(Record record, String clusterName) {
+  public int assignAndCheckCluster(DBRecord record, String clusterName) {
     assert assertIfNotActive();
 
     RecordId rid = (RecordId) record.getIdentity();
@@ -1427,7 +1428,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * {@inheritDoc}
    */
   @Override
-  public RecordIteratorCluster<Record> browseCluster(final String iClusterName) {
+  public RecordIteratorCluster<DBRecord> browseCluster(final String iClusterName) {
     assert assertIfNotActive();
     checkSecurity(Rule.ResourceGeneric.CLUSTER, Role.PERMISSION_READ, iClusterName);
 
@@ -1478,7 +1479,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * @see #setMVCC(boolean), {@link #isMVCC()}
    */
   @Override
-  public <RET extends Record> RET save(final Record record) {
+  public <RET extends DBRecord> RET save(final DBRecord record) {
     assert assertIfNotActive();
     return save(record, null);
   }
@@ -1503,7 +1504,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
    * @see #setMVCC(boolean), {@link #isMVCC()}, EntityImpl#validate()
    */
   @Override
-  public <RET extends Record> RET save(Record record, String clusterName) {
+  public <RET extends DBRecord> RET save(DBRecord record, String clusterName) {
     assert assertIfNotActive();
 
     checkOpenness();
@@ -1535,7 +1536,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     return saveInternal((RecordAbstract) record, clusterName);
   }
 
-  private <RET extends Record> RET saveInternal(RecordAbstract record, String clusterName) {
+  private <RET extends DBRecord> RET saveInternal(RecordAbstract record, String clusterName) {
 
     if (!(record instanceof EntityImpl entity)) {
       assignAndCheckCluster(record, clusterName);
@@ -1606,7 +1607,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     if (getTransaction().isActive()) {
       for (RecordOperation op : getTransaction().getRecordOperations()) {
         if (op.type == RecordOperation.DELETED) {
-          final Record rec = op.record;
+          final DBRecord rec = op.record;
           if (rec instanceof EntityImpl) {
             SchemaClass schemaClass = EntityInternalUtils.getImmutableSchemaClass(
                 ((EntityImpl) rec));
@@ -1623,7 +1624,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
           }
         }
         if (op.type == RecordOperation.CREATED) {
-          final Record rec = op.record;
+          final DBRecord rec = op.record;
           if (rec instanceof EntityImpl) {
             SchemaClass schemaClass = EntityInternalUtils.getImmutableSchemaClass(
                 ((EntityImpl) rec));

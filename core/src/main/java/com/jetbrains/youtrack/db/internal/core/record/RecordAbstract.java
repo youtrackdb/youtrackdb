@@ -21,9 +21,9 @@ package com.jetbrains.youtrack.db.internal.core.record;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
@@ -47,7 +47,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 @SuppressWarnings({"unchecked"})
-public abstract class RecordAbstract implements Record, RecordElement, SerializableStream,
+public abstract class RecordAbstract implements DBRecord, RecordElement, SerializableStream,
     ChangeableIdentity {
 
   public static final String BASE_FORMAT =
@@ -215,7 +215,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
   }
 
 
-  public <RET extends Record> RET updateFromJSON(final String iSource, final String iOptions) {
+  public <RET extends DBRecord> RET updateFromJSON(final String iSource, final String iOptions) {
     status = STATUS.UNMARSHALLING;
     try {
       RecordSerializerJackson.INSTANCE.fromString(getSessionIfDefined(),
@@ -237,7 +237,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
   }
 
   // Add New API to load record if rid exist
-  public final <RET extends Record> RET updateFromJSON(final String iSource, boolean needReload) {
+  public final <RET extends DBRecord> RET updateFromJSON(final String iSource, boolean needReload) {
     status = STATUS.UNMARSHALLING;
     try {
       return RecordSerializerJackson.INSTANCE.fromString(getSession(), iSource, this, null);
@@ -246,7 +246,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
     }
   }
 
-  public final <RET extends Record> RET updateFromJSON(final InputStream iContentResult)
+  public final <RET extends DBRecord> RET updateFromJSON(final InputStream iContentResult)
       throws IOException {
     status = STATUS.UNMARSHALLING;
     try {
@@ -340,7 +340,7 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
   }
 
   public void save() {
-    getSession().save(this);
+    getSession().save(this, null);
   }
 
   public void save(final String iClusterName) {
@@ -578,5 +578,11 @@ public abstract class RecordAbstract implements Record, RecordElement, Serializa
     }
 
     return false;
+  }
+
+  @Nullable
+  @Override
+  public DatabaseSession getBoundedToSession() {
+    return getSessionIfDefined();
   }
 }

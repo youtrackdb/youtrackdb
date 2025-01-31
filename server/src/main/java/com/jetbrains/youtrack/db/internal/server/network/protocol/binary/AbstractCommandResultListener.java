@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.server.network.protocol.binary;
 
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.internal.client.remote.SimpleValueFetchPlanCommandListener;
 import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -60,7 +60,7 @@ public abstract class AbstractCommandResultListener
       final FetchListener iFetchListener) {
     if (fetchPlan != null
         && fetchPlan != FetchHelper.DEFAULT_FETCHPLAN
-        && iRecord instanceof Record record) {
+        && iRecord instanceof DBRecord record) {
       final FetchContext context = new RemoteFetchContext();
       FetchHelper.fetch(db, record, record, fetchPlan, iFetchListener, context, "");
     }

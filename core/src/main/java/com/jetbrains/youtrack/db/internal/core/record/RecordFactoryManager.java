@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.record;
 
 import com.jetbrains.youtrack.db.api.record.Blob;
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.internal.common.exception.SystemException;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
@@ -41,12 +41,12 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.VertexEntityImpl;
 public class RecordFactoryManager {
 
   protected final String[] recordTypeNames = new String[Byte.MAX_VALUE];
-  protected final Class<? extends Record>[] recordTypes = new Class[Byte.MAX_VALUE];
+  protected final Class<? extends DBRecord>[] recordTypes = new Class[Byte.MAX_VALUE];
   protected final RecordFactory[] recordFactories = new RecordFactory[Byte.MAX_VALUE];
 
   public interface RecordFactory {
 
-    Record newRecord(RecordId rid, DatabaseSessionInternal database);
+    DBRecord newRecord(RecordId rid, DatabaseSessionInternal database);
   }
 
   public RecordFactoryManager() {
@@ -77,7 +77,7 @@ public class RecordFactoryManager {
     return name;
   }
 
-  public Record newInstance(RecordId rid, DatabaseSessionInternal database) {
+  public DBRecord newInstance(RecordId rid, DatabaseSessionInternal database) {
     try {
       return getFactory(database.getRecordType()).newRecord(rid, database);
     } catch (Exception e) {
@@ -95,7 +95,7 @@ public class RecordFactoryManager {
   }
 
   public void declareRecordType(
-      byte iByte, String iName, Class<? extends Record> iClass, final RecordFactory iFactory) {
+      byte iByte, String iName, Class<? extends DBRecord> iClass, final RecordFactory iFactory) {
     if (recordTypes[iByte] != null) {
       throw new SystemException(
           "Record type byte '" + iByte + "' already in use : " + recordTypes[iByte].getName());

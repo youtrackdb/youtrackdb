@@ -20,9 +20,9 @@
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.post;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedDbAbstract;
 
 public class ServerCommandPostClass extends ServerCommandAuthenticatedDbAbstract {
@@ -49,7 +49,7 @@ public class ServerCommandPostClass extends ServerCommandAuthenticatedDbAbstract
           HttpUtils.STATUS_CREATED_CODE,
           HttpUtils.STATUS_CREATED_DESCRIPTION,
           HttpUtils.CONTENT_TEXT_PLAIN,
-          db.getMetadata().getSchema().getClasses().size(),
+          db.getMetadata().getSchema().getClasses(db).size(),
           null);
 
     }

@@ -27,7 +27,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.MetadataUpdateListener;
 import com.jetbrains.youtrack.db.internal.core.exception.SequenceException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence.SEQUENCE_TYPE;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence.SEQUENCE_TYPE;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Locale;
 import java.util.Map;
@@ -39,7 +39,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 3/2/2015
  */
 public class SequenceLibraryImpl {
-  private final Map<String, Sequence> sequences = new ConcurrentHashMap<String, Sequence>();
+
+  private final Map<String, DBSequence> sequences = new ConcurrentHashMap<String, DBSequence>();
   private final AtomicBoolean reloadNeeded = new AtomicBoolean(false);
 
   public static void create(DatabaseSessionInternal database) {
@@ -49,12 +50,12 @@ public class SequenceLibraryImpl {
   public synchronized void load(final DatabaseSessionInternal db) {
     sequences.clear();
 
-    if (db.getMetadata().getImmutableSchemaSnapshot().existsClass(Sequence.CLASS_NAME)) {
-      try (final ResultSet result = db.query("SELECT FROM " + Sequence.CLASS_NAME)) {
+    if (db.getMetadata().getImmutableSchemaSnapshot().existsClass(DBSequence.CLASS_NAME)) {
+      try (final ResultSet result = db.query("SELECT FROM " + DBSequence.CLASS_NAME)) {
         while (result.hasNext()) {
           Result res = result.next();
 
-          final Sequence sequence =
+          final DBSequence sequence =
               SequenceHelper.createSequence((EntityImpl) res.getEntity().get());
           sequences.put(sequence.getName(db).toUpperCase(Locale.ENGLISH), sequence);
         }
@@ -76,10 +77,10 @@ public class SequenceLibraryImpl {
     return sequences.size();
   }
 
-  public Sequence getSequence(final DatabaseSessionInternal database, final String iName) {
+  public DBSequence getSequence(final DatabaseSessionInternal database, final String iName) {
     final String name = iName.toUpperCase(Locale.ENGLISH);
     reloadIfNeeded(database);
-    Sequence seq;
+    DBSequence seq;
     synchronized (this) {
       seq = sequences.get(name);
       if (seq == null) {
@@ -91,18 +92,18 @@ public class SequenceLibraryImpl {
     return seq;
   }
 
-  public synchronized Sequence createSequence(
+  public synchronized DBSequence createSequence(
       final DatabaseSessionInternal db,
       final String iName,
       final SEQUENCE_TYPE sequenceType,
-      final Sequence.CreateParams params) {
+      final DBSequence.CreateParams params) {
     init(db);
     reloadIfNeeded(db);
 
     final String key = iName.toUpperCase(Locale.ENGLISH);
     validateSequenceNoExists(key);
 
-    final Sequence sequence = SequenceHelper.createSequence(db, sequenceType, params, iName);
+    final DBSequence sequence = SequenceHelper.createSequence(db, sequenceType, params, iName);
     sequences.put(key, sequence);
 
     return sequence;
@@ -110,7 +111,7 @@ public class SequenceLibraryImpl {
 
   public synchronized void dropSequence(
       final DatabaseSessionInternal database, final String iName) {
-    final Sequence seq = getSequence(database, iName);
+    final DBSequence seq = getSequence(database, iName);
     if (seq != null) {
       try {
         database.delete(seq.entityRid);
@@ -126,20 +127,20 @@ public class SequenceLibraryImpl {
       final DatabaseSessionInternal database, final EntityImpl entity) {
     init(database);
 
-    String name = Sequence.getSequenceName(entity);
+    String name = DBSequence.getSequenceName(entity);
     if (name == null) {
       return;
     }
 
     name = name.toUpperCase(Locale.ENGLISH);
 
-    final Sequence seq = getSequence(database, name);
+    final DBSequence seq = getSequence(database, name);
 
     if (seq != null) {
       return;
     }
 
-    final Sequence sequence = SequenceHelper.createSequence(entity);
+    final DBSequence sequence = SequenceHelper.createSequence(entity);
 
     sequences.put(name, sequence);
     onSequenceLibraryUpdate(database);
@@ -147,7 +148,7 @@ public class SequenceLibraryImpl {
 
   public void onSequenceDropped(
       final DatabaseSessionInternal database, final EntityImpl entity) {
-    String name = Sequence.getSequenceName(entity);
+    String name = DBSequence.getSequenceName(entity);
     if (name == null) {
       return;
     }
@@ -159,13 +160,13 @@ public class SequenceLibraryImpl {
   }
 
   private static void init(final DatabaseSessionInternal database) {
-    if (database.getMetadata().getSchema().existsClass(Sequence.CLASS_NAME)) {
+    if (database.getMetadata().getSchema().existsClass(DBSequence.CLASS_NAME)) {
       return;
     }
 
     final SchemaClassImpl sequenceClass =
-        (SchemaClassImpl) database.getMetadata().getSchema().createClass(Sequence.CLASS_NAME);
-    Sequence.initClass(database, sequenceClass);
+        (SchemaClassImpl) database.getMetadata().getSchema().createClass(DBSequence.CLASS_NAME);
+    DBSequence.initClass(database, sequenceClass);
   }
 
   private void validateSequenceNoExists(final String iName) {

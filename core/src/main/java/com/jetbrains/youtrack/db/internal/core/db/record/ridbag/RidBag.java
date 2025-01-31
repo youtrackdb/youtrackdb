@@ -23,9 +23,9 @@ package com.jetbrains.youtrack.db.internal.core.db.record.ridbag;
 import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.collection.DataContainer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.UUIDSerializer;
@@ -47,7 +47,6 @@ import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionMan
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.Change;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.RemoteTreeRidBag;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.EdgeBTree;
 import java.io.StringWriter;
 import java.util.Base64;
 import java.util.Collection;
@@ -69,7 +68,7 @@ import javax.annotation.Nonnull;
  *   <li><b>Embedded</b> stores its content directly to the entity that owns it.<br>
  *       It better fits for cases when only small amount of links are stored to the bag.<br>
  *   <li><b>Tree-based</b> implementation stores its content in a separate data structure called
- *       {@link EdgeBTree}.<br>
+ *       {@link com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.EdgeBTree}.<br>
  *       It fits great for cases when you have a huge amount of links.<br>
  * </ul>
  *
@@ -215,7 +214,7 @@ public class RidBag
     if (isEmbedded()) {
       return true;
     }
-    if (getOwner() instanceof Record && !((Record) getOwner()).getIdentity().isPersistent()) {
+    if (getOwner() instanceof DBRecord && !((DBRecord) getOwner()).getIdentity().isPersistent()) {
       return true;
     }
 

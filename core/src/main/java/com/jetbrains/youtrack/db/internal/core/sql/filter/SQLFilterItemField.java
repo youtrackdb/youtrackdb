@@ -24,8 +24,8 @@ import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.Collate;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.parser.BaseParser;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
@@ -274,7 +274,8 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
       if (schemaClass == null) {
         return null;
       }
-      Property property = schemaClass.getProperty(chain.getItemName(chain.getItemCount() - 1));
+      SchemaProperty property = schemaClass.getProperty(
+          chain.getItemName(chain.getItemCount() - 1));
       if (property == null) {
         return null;
       }

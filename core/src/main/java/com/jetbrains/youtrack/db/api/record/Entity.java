@@ -33,8 +33,7 @@ import javax.annotation.Nullable;
  * Implementation of a generic entity. It's bound to the record and allows to read and write values.
  * It's schema aware.
  */
-public interface Entity extends Record {
-
+public interface Entity extends DBRecord {
   String DEFAULT_CLASS_NAME = "O";
 
   /**

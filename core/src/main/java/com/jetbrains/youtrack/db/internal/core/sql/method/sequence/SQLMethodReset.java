@@ -22,7 +22,7 @@ import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence;
 import com.jetbrains.youtrack.db.internal.core.sql.method.misc.AbstractSQLMethod;
 
 /**
@@ -53,7 +53,7 @@ public class SQLMethodReset extends AbstractSQLMethod {
           "Method 'reset()' can be invoked only on OSequence instances, while NULL was found");
     }
 
-    if (!(iThis instanceof Sequence)) {
+    if (!(iThis instanceof DBSequence)) {
       throw new CommandSQLParsingException(
           "Method 'reset()' can be invoked only on OSequence instances, while '"
               + iThis.getClass()
@@ -61,7 +61,7 @@ public class SQLMethodReset extends AbstractSQLMethod {
     }
 
     try {
-      return ((Sequence) iThis).reset(iContext.getDatabase());
+      return ((DBSequence) iThis).reset(iContext.getDatabase());
     } catch (DatabaseException exc) {
       String message = "Unable to execute command: " + exc.getMessage();
       LogManager.instance().error(this, message, exc, (Object) null);

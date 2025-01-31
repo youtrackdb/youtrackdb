@@ -20,9 +20,9 @@
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
@@ -64,7 +64,7 @@ public class Placeholder implements Identifiable, Streamable {
 
   @Nonnull
   @Override
-  public <T extends Record> T getRecord(DatabaseSession db) {
+  public <T extends DBRecord> T getRecord(DatabaseSession db) {
     return rid.getRecord(db);
   }
 

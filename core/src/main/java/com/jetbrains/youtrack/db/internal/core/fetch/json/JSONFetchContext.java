@@ -17,8 +17,8 @@
 package com.jetbrains.youtrack.db.internal.core.fetch.json;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -228,7 +228,8 @@ public class JSONFetchContext implements FetchContext {
     return settings.indentLevel;
   }
 
-  public void writeSignature(DatabaseSessionInternal db, final JSONWriter json, final Record record)
+  public void writeSignature(DatabaseSessionInternal db, final JSONWriter json,
+      final DBRecord record)
       throws IOException {
     if (record == null) {
       json.write("null");

@@ -18,10 +18,10 @@ package com.jetbrains.youtrack.db.auto;
 import com.jetbrains.youtrack.db.api.exception.ValidationException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -482,7 +482,7 @@ public class SQLInsertTest extends BaseDBTest {
         RID another = ((Identifiable) res1).getIdentity();
         final String sql =
             "INSERT INTO Actor2 RETURN $current.FirstName  FROM SELECT * FROM ["
-                + doc.getIdentity().toString()
+                + doc.getIdentity()
                 + ","
                 + another.toString()
                 + "]";
@@ -889,7 +889,7 @@ public class SQLInsertTest extends BaseDBTest {
       if (!iteratorCluster.hasNext()) {
         break;
       }
-      Record doc = iteratorCluster.next();
+      DBRecord doc = iteratorCluster.next();
       positions.add(doc.getIdentity().getClusterPosition());
     }
     return positions;

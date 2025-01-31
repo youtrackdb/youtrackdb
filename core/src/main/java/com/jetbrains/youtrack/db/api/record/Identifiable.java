@@ -46,7 +46,7 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * @throws RecordNotFoundException if the record does not exist
    */
   @Nonnull
-  <T extends Record> T getRecord(DatabaseSession db);
+  <T extends DBRecord> T getRecord(DatabaseSession db);
 
   /**
    * Returns the record instance, or null if the record does not exist.
@@ -55,7 +55,7 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * @see #getRecord(DatabaseSession)
    */
   @Nullable
-  default <T extends Record> T getRecordSilently(DatabaseSession db) {
+  default <T extends DBRecord> T getRecordSilently(DatabaseSession db) {
     try {
       return getRecord(db);
     } catch (RecordNotFoundException e) {

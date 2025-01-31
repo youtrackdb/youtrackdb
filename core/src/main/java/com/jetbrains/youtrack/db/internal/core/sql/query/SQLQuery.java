@@ -19,9 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.query;
 
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
@@ -190,7 +190,7 @@ public abstract class SQLQuery<T> extends QueryAbstract<T> implements CommandReq
           // CONVERT RECORDS AS RIDS
           final Set<RID> newSet = new HashSet<>();
           //noinspection unchecked
-          for (Record rec : (Set<Record>) value) {
+          for (DBRecord rec : (Set<DBRecord>) value) {
             newSet.add(rec.getIdentity());
           }
           newParams.put(entry.getKey(), newSet);
@@ -199,7 +199,7 @@ public abstract class SQLQuery<T> extends QueryAbstract<T> implements CommandReq
           // CONVERT RECORDS AS RIDS
           final List<RID> newList = new ArrayList<>();
           //noinspection unchecked
-          for (Record rec : (List<Record>) value) {
+          for (var rec : (List<DBRecord>) value) {
             newList.add(rec.getIdentity());
           }
           newParams.put(entry.getKey(), newList);
@@ -209,7 +209,7 @@ public abstract class SQLQuery<T> extends QueryAbstract<T> implements CommandReq
           // CONVERT RECORDS AS RIDS
           final Map<Object, RID> newMap = new HashMap<>();
           //noinspection unchecked
-          for (Entry<?, Record> mapEntry : ((Map<?, Record>) value).entrySet()) {
+          for (Entry<?, DBRecord> mapEntry : ((Map<?, DBRecord>) value).entrySet()) {
             newMap.put(mapEntry.getKey(), mapEntry.getValue().getIdentity());
           }
           newParams.put(entry.getKey(), newMap);

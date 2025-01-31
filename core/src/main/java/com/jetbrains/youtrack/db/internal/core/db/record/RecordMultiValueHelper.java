@@ -19,9 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
-import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 
 /**
  * Lazy implementation of ArrayList. It's bound to a source Record object to keep track of changes.
@@ -44,7 +44,7 @@ public class RecordMultiValueHelper {
     } else if (iPreviousStatus == MULTIVALUE_CONTENT_TYPE.EMPTY) {
       if (iValue instanceof RID) {
         return MULTIVALUE_CONTENT_TYPE.ALL_RIDS;
-      } else if (iValue instanceof Record) {
+      } else if (iValue instanceof DBRecord) {
         return MULTIVALUE_CONTENT_TYPE.ALL_RECORDS;
       } else {
         return MULTIVALUE_CONTENT_TYPE.HYBRID;

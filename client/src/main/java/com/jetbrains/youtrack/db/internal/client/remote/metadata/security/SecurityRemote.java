@@ -2,9 +2,9 @@ package com.jetbrains.youtrack.db.internal.client.remote.metadata.security;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
@@ -379,22 +379,22 @@ public class SecurityRemote implements SecurityInternal {
   }
 
   @Override
-  public boolean canCreate(DatabaseSessionInternal session, Record record) {
+  public boolean canCreate(DatabaseSessionInternal session, DBRecord record) {
     return true;
   }
 
   @Override
-  public boolean canRead(DatabaseSessionInternal session, Record record) {
+  public boolean canRead(DatabaseSessionInternal session, DBRecord record) {
     return true;
   }
 
   @Override
-  public boolean canUpdate(DatabaseSessionInternal session, Record record) {
+  public boolean canUpdate(DatabaseSessionInternal session, DBRecord record) {
     return true;
   }
 
   @Override
-  public boolean canDelete(DatabaseSessionInternal session, Record record) {
+  public boolean canDelete(DatabaseSessionInternal session, DBRecord record) {
     return true;
   }
 

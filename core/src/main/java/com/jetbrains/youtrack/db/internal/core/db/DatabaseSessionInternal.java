@@ -27,11 +27,11 @@ import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.TransactionException;
 import com.jetbrains.youtrack.db.api.query.ExecutionPlan;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -127,7 +127,7 @@ public interface DatabaseSessionInternal extends DatabaseSession {
 
   void setSerializer(RecordSerializer serializer);
 
-  int assignAndCheckCluster(Record record, String clusterName);
+  int assignAndCheckCluster(DBRecord record, String clusterName);
 
   void reloadUser();
 
@@ -158,7 +158,7 @@ public interface DatabaseSessionInternal extends DatabaseSession {
 
   DatabaseSessionInternal copy();
 
-  void recycle(Record record);
+  void recycle(DBRecord record);
 
 
   boolean assertIfNotActive();
@@ -251,7 +251,7 @@ public interface DatabaseSessionInternal extends DatabaseSession {
 
   void internalClose(boolean recycle);
 
-  String getClusterName(final Record record);
+  String getClusterName(final DBRecord record);
 
   default ResultSet indexQuery(String indexName, String query, Object... args) {
     return command(query, args);
@@ -306,9 +306,9 @@ public interface DatabaseSessionInternal extends DatabaseSession {
    * @param iClusterName Cluster name to iterate
    * @return Iterator of EntityImpl instances
    */
-  <REC extends Record> RecordIteratorCluster<REC> browseCluster(String iClusterName);
+  <REC extends DBRecord> RecordIteratorCluster<REC> browseCluster(String iClusterName);
 
-  <REC extends Record> RecordIteratorCluster<REC> browseCluster(
+  <REC extends DBRecord> RecordIteratorCluster<REC> browseCluster(
       String iClusterName,
       long startClusterPosition,
       long endClusterPosition,
@@ -322,18 +322,18 @@ public interface DatabaseSessionInternal extends DatabaseSession {
    * @return Iterator of EntityImpl instances
    */
   @Deprecated
-  <REC extends Record> RecordIteratorCluster<REC> browseCluster(
+  <REC extends DBRecord> RecordIteratorCluster<REC> browseCluster(
       String iClusterName, Class<REC> iRecordClass);
 
   @Deprecated
-  <REC extends Record> RecordIteratorCluster<REC> browseCluster(
+  <REC extends DBRecord> RecordIteratorCluster<REC> browseCluster(
       String iClusterName,
       Class<REC> iRecordClass,
       long startClusterPosition,
       long endClusterPosition);
 
   @Deprecated
-  <REC extends Record> RecordIteratorCluster<REC> browseCluster(
+  <REC extends DBRecord> RecordIteratorCluster<REC> browseCluster(
       String iClusterName,
       Class<REC> iRecordClass,
       long startClusterPosition,
@@ -938,7 +938,7 @@ public interface DatabaseSessionInternal extends DatabaseSession {
    * @param iClusterName Name of the cluster where to save
    * @return The saved entity.
    */
-  <RET extends Record> RET save(Record iObject, String iClusterName);
+  <RET extends DBRecord> RET save(DBRecord iObject, String iClusterName);
 
   MetadataInternal getMetadata();
 

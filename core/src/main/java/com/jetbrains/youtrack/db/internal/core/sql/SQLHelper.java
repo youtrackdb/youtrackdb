@@ -21,10 +21,10 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.Record;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.parser.BaseParser;
@@ -330,7 +330,7 @@ public class SQLHelper {
   }
 
   public static Object getValue(
-      final Object iObject, final Record iRecord, final CommandContext iContext) {
+      final Object iObject, final DBRecord iRecord, final CommandContext iContext) {
     if (iObject == null) {
       return null;
     }
@@ -428,7 +428,7 @@ public class SQLHelper {
           // CHECK FOR CONVERSIONS
           SchemaImmutableClass immutableClass = EntityInternalUtils.getImmutableSchemaClass(e);
           if (immutableClass != null) {
-            final Property prop = immutableClass.getProperty(fieldName);
+            final SchemaProperty prop = immutableClass.getProperty(fieldName);
             if (prop != null) {
               if (prop.getType() == PropertyType.LINK) {
                 if (MultiValue.isMultiValue(fieldValue)) {
@@ -462,7 +462,7 @@ public class SQLHelper {
               if (o instanceof Identifiable && !((Identifiable) o).getIdentity()
                   .isPersistent()) {
                 // TEMPORARY / EMBEDDED
-                final Record rec = ((Identifiable) o).getRecord(db);
+                var rec = ((Identifiable) o).getRecord(db);
                 if (rec != null && rec instanceof EntityImpl entity) {
                   // CHECK FOR ONE FIELD ONLY
                   if (entity.fields() == 1) {

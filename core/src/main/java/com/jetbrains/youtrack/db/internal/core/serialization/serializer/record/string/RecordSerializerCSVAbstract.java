@@ -20,9 +20,9 @@
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.collection.LazyIterator;
@@ -105,7 +105,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
       }
 
       // RECORD
-      Record iLinkedRecord = ((Identifiable) iLinked).getRecord(db);
+      DBRecord iLinkedRecord = ((Identifiable) iLinked).getRecord(db);
       rid = (RecordId) iLinkedRecord.getIdentity();
 
       assert ((RecordId) rid.getIdentity()).isValid() || DatabaseRecordThreadLocal.instance().get()
@@ -546,9 +546,9 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
       }
 
       case EMBEDDED:
-        if (iValue instanceof Record) {
+        if (iValue instanceof DBRecord) {
           iOutput.append(StringSerializerHelper.EMBEDDED_BEGIN);
-          toString(db, (Record) iValue, iOutput, null, true);
+          toString(db, (DBRecord) iValue, iOutput, null, true);
           iOutput.append(StringSerializerHelper.EMBEDDED_END);
         } else if (iValue instanceof EntitySerializable) {
           final EntityImpl entity = ((EntitySerializable) iValue).toEntity(db);
@@ -628,7 +628,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
           if (o.getValue() instanceof EntityImpl
               && ((EntityImpl) o.getValue()).getIdentity().isValid()) {
             fieldTypeToString(db, iOutput, PropertyType.LINK, o.getValue());
-          } else if (o.getValue() instanceof Record
+          } else if (o.getValue() instanceof DBRecord
               || o.getValue() instanceof EntitySerializable) {
             final EntityImpl record;
             if (o.getValue() instanceof EntityImpl) {
@@ -910,7 +910,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
         if (item.startsWith("#")) {
           coll.add(new RecordId(item));
         } else {
-          final Record entity = fromString(db, item);
+          final DBRecord entity = fromString(db, item);
           if (entity instanceof EntityImpl) {
             EntityInternalUtils.addOwner((EntityImpl) entity, iSourceRecord);
           }
@@ -934,7 +934,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
         if (item.startsWith("#")) {
           coll.add(new RecordId(item));
         } else {
-          final Record entity = fromString(db, item);
+          final DBRecord entity = fromString(db, item);
           if (entity instanceof EntityImpl) {
             EntityInternalUtils.addOwner((EntityImpl) entity, iSourceRecord);
           }

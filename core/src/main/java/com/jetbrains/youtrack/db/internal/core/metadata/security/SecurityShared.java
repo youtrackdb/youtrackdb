@@ -25,14 +25,14 @@ import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.api.security.SecurityUser.STATUSES;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
@@ -45,12 +45,11 @@ import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.NullOutputListener;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule.ResourceGeneric;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.security.GlobalUser;
@@ -674,7 +673,7 @@ public class SecurityShared implements SecurityInternal {
   }
 
   public SecurityUserImpl create(final DatabaseSessionInternal session) {
-    if (!session.getMetadata().getSchema().getClasses().isEmpty()) {
+    if (!session.getMetadata().getSchema().getClasses(session).isEmpty()) {
       return null;
     }
 
@@ -762,7 +761,7 @@ public class SecurityShared implements SecurityInternal {
     writerRole.addRule(session, ResourceGeneric.COMMAND, null, Role.PERMISSION_ALL);
     writerRole.addRule(session, ResourceGeneric.RECORD_HOOK, null, Role.PERMISSION_ALL);
     writerRole.addRule(session, ResourceGeneric.FUNCTION, null, Role.PERMISSION_READ);
-    writerRole.addRule(session, ResourceGeneric.CLASS, Sequence.CLASS_NAME,
+    writerRole.addRule(session, ResourceGeneric.CLASS, DBSequence.CLASS_NAME,
         Role.PERMISSION_READ);
     writerRole.addRule(session, ResourceGeneric.CLASS, "OTriggered", Role.PERMISSION_READ);
     writerRole.addRule(session, ResourceGeneric.CLASS, "OSchedule", Role.PERMISSION_READ);
@@ -827,7 +826,7 @@ public class SecurityShared implements SecurityInternal {
     setSecurityPolicyWithBitmask(
         session,
         writerRole,
-        Rule.ResourceGeneric.CLASS.getLegacyName() + "." + Sequence.CLASS_NAME,
+        Rule.ResourceGeneric.CLASS.getLegacyName() + "." + DBSequence.CLASS_NAME,
         Role.PERMISSION_READ);
     setSecurityPolicyWithBitmask(
         session,
@@ -1018,7 +1017,7 @@ public class SecurityShared implements SecurityInternal {
       userClass.createIndex(database, "OUser.name", INDEX_TYPE.UNIQUE, NullOutputListener.INSTANCE,
           "name");
     } else {
-      final PropertyInternal name = userClass.getPropertyInternal("name");
+      var name = userClass.getPropertyInternal("name");
       if (name.getAllIndexes(database).isEmpty()) {
         userClass.createIndex(database,
             "OUser.name", INDEX_TYPE.UNIQUE, NullOutputListener.INSTANCE, "name");
@@ -1062,7 +1061,7 @@ public class SecurityShared implements SecurityInternal {
       policyClass.createIndex(database,
           "OSecurityPolicy.name", INDEX_TYPE.UNIQUE, NullOutputListener.INSTANCE, "name");
     } else {
-      final PropertyInternal name = policyClass.getPropertyInternal("name");
+      var name = policyClass.getPropertyInternal("name");
       if (name.getAllIndexes(database).isEmpty()) {
         policyClass.createIndex(database,
             "OSecurityPolicy.name", INDEX_TYPE.UNIQUE, NullOutputListener.INSTANCE, "name");
@@ -1126,7 +1125,7 @@ public class SecurityShared implements SecurityInternal {
           NullOutputListener.INSTANCE,
           "name");
     } else {
-      final PropertyInternal name = roleClass.getPropertyInternal("name");
+      var name = roleClass.getPropertyInternal("name");
       if (name.getAllIndexes(database).isEmpty()) {
         roleClass.createIndex(database,
             "ORole.name", INDEX_TYPE.UNIQUE, NullOutputListener.INSTANCE, "name");
@@ -1162,7 +1161,7 @@ public class SecurityShared implements SecurityInternal {
         userClass.createProperty(session, "status", PropertyType.STRING).setMandatory(session, true)
             .setNotNull(session, true);
       }
-      Property p = userClass.getProperty("name");
+      SchemaProperty p = userClass.getProperty("name");
       if (p == null) {
         p =
             userClass
@@ -1335,7 +1334,7 @@ public class SecurityShared implements SecurityInternal {
 
   private void initPredicateSecurityOptimizationsInternal(DatabaseSessionInternal session) {
     Map<String, Map<String, Boolean>> result = new HashMap<>();
-    Collection<SchemaClass> allClasses = session.getMetadata().getSchema().getClasses();
+    Collection<SchemaClass> allClasses = session.getMetadata().getSchema().getClasses(session);
 
     if (!session
         .getMetadata()
@@ -1537,7 +1536,7 @@ public class SecurityShared implements SecurityInternal {
   }
 
   @Override
-  public boolean canCreate(DatabaseSessionInternal session, Record record) {
+  public boolean canCreate(DatabaseSessionInternal session, DBRecord record) {
     if (session.geCurrentUser() == null) {
       // executeNoAuth
       return true;
@@ -1580,7 +1579,7 @@ public class SecurityShared implements SecurityInternal {
   }
 
   @Override
-  public boolean canRead(DatabaseSessionInternal session, Record record) {
+  public boolean canRead(DatabaseSessionInternal session, DBRecord record) {
     // TODO what about server users?
     if (session.geCurrentUser() == null) {
       // executeNoAuth
@@ -1623,7 +1622,7 @@ public class SecurityShared implements SecurityInternal {
   }
 
   @Override
-  public boolean canUpdate(DatabaseSessionInternal session, Record record) {
+  public boolean canUpdate(DatabaseSessionInternal session, DBRecord record) {
     if (session.geCurrentUser() == null) {
       // executeNoAuth
       return true;
@@ -1684,7 +1683,7 @@ public class SecurityShared implements SecurityInternal {
     return true;
   }
 
-  private ResultInternal calculateOriginalValue(Record record, DatabaseSessionInternal db) {
+  private ResultInternal calculateOriginalValue(DBRecord record, DatabaseSessionInternal db) {
     return calculateBefore(record.getRecord(db), db);
   }
 
@@ -1726,7 +1725,7 @@ public class SecurityShared implements SecurityInternal {
   }
 
   @Override
-  public boolean canDelete(DatabaseSessionInternal session, Record record) {
+  public boolean canDelete(DatabaseSessionInternal session, DBRecord record) {
     if (session.geCurrentUser() == null) {
       // executeNoAuth
       return true;

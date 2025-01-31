@@ -2,9 +2,9 @@ package com.jetbrains.youtrack.db.internal.client.remote.message;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.client.remote.CollectionNetworkSerializer;
 import com.jetbrains.youtrack.db.internal.client.remote.message.tx.RecordOperationRequest;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
@@ -67,7 +67,7 @@ public class MessageHelper {
     } catch (Exception e) {
       channel.writeBytes(null);
       final String message =
-          "Error on marshalling record " + iRecord.getIdentity().toString() + " (" + e + ")";
+          "Error on marshalling record " + iRecord.getIdentity() + " (" + e + ")";
 
       throw BaseException.wrapException(new SerializationException(message), e);
     }
@@ -307,12 +307,12 @@ public class MessageHelper {
     if (classId == ChannelBinaryProtocol.RECORD_RID) {
       return network.readRID();
     } else {
-      final Record record = readRecordFromBytes(db, network, serializer);
+      final DBRecord record = readRecordFromBytes(db, network, serializer);
       return record;
     }
   }
 
-  private static Record readRecordFromBytes(
+  private static DBRecord readRecordFromBytes(
       DatabaseSessionInternal db, ChannelDataInput network, RecordSerializer serializer)
       throws IOException {
     byte rec = network.readByte();
@@ -430,10 +430,10 @@ public class MessageHelper {
     return new ResultInternal(db, readDocument(db, channel));
   }
 
-  private static Record readDocument(DatabaseSessionInternal db, ChannelDataInput channel)
+  private static DBRecord readDocument(DatabaseSessionInternal db, ChannelDataInput channel)
       throws IOException {
     RecordSerializer serializer = RecordSerializerNetworkV37Client.INSTANCE;
-    return (Record) readIdentifiable(db, channel, serializer);
+    return (DBRecord) readIdentifiable(db, channel, serializer);
   }
 
   private static ResultInternal readProjection(DatabaseSessionInternal db,

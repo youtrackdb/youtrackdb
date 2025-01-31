@@ -24,9 +24,7 @@ import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.util.PatternConst;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaPropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerStringAbstract;
@@ -39,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 @SuppressWarnings("unchecked")
 public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstract {
@@ -50,12 +47,12 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
     DatabaseSessionInternal db = null;
 
     try {
-      final String[] urlParts =
+      final var urlParts =
           checkSyntax(iRequest.getUrl(), 3, "Syntax error: studio/<database>/<context>");
 
       db = getProfiledDatabaseInstance(iRequest);
 
-      final String req = iRequest.getContent();
+      final var req = iRequest.getContent();
 
       // PARSE PARAMETERS
       String operation = null;
@@ -64,11 +61,11 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
 
       final Map<String, String> fields = new HashMap<String, String>();
 
-      final String[] params = req.split("&");
+      final var params = req.split("&");
       String value;
 
-      for (String p : params) {
-        String[] pairs = p.split("=");
+      for (var p : params) {
+        var pairs = p.split("=");
         value = pairs.length == 1 ? null : pairs[1];
 
         if ("oper".equals(pairs[0])) {
@@ -86,7 +83,7 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
         }
       }
 
-      String context = urlParts[2];
+      var context = urlParts[2];
       if ("document".equals(context)) {
         executeDocument(db, iRequest, iResponse, operation, rid, className, fields);
       } else if ("classes".equals(context)) {
@@ -117,7 +114,7 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
       final Map<String, String> fields)
       throws IOException {
     // GET THE TARGET CLASS
-    final SchemaClass cls = db.getMetadata().getSchema().getClass(rid);
+    final var cls = db.getMetadata().getSchema().getClass(rid);
     if (cls == null) {
       iResponse.send(
           HttpUtils.STATUS_INTERNALERROR_CODE,
@@ -132,20 +129,20 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
       iRequest.getData().commandInfo = "Studio add property";
 
       try {
-        PropertyType type = PropertyType.valueOf(fields.get("type"));
+        var type = PropertyType.valueOf(fields.get("type"));
 
-        PropertyImpl prop;
+        SchemaPropertyImpl prop;
         if (type == PropertyType.LINK
             || type == PropertyType.LINKLIST
             || type == PropertyType.LINKSET
             || type == PropertyType.LINKMAP) {
           prop =
-              (PropertyImpl)
+              (SchemaPropertyImpl)
                   cls.createProperty(db,
                       fields.get("name"),
                       type, db.getMetadata().getSchema().getClass(fields.get("linkedClass")));
         } else {
-          prop = (PropertyImpl) cls.createProperty(db, fields.get("name"), type);
+          prop = (SchemaPropertyImpl) cls.createProperty(db, fields.get("name"), type);
         }
 
         if (fields.get("linkedType") != null) {
@@ -208,7 +205,7 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
     if ("add".equals(operation)) {
       iRequest.getData().commandInfo = "Studio add class";
       try {
-        final String superClassName = fields.get("superClass");
+        final var superClassName = fields.get("superClass");
         final SchemaClass superClass;
         if (superClassName != null) {
           superClass = db.getMetadata().getSchema().getClass(superClassName);
@@ -216,10 +213,10 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
           superClass = null;
         }
 
-        final SchemaClass cls = db.getMetadata().getSchema()
+        final var cls = db.getMetadata().getSchema()
             .createClass(fields.get("name"), superClass);
 
-        final String alias = fields.get("alias");
+        final var alias = fields.get("alias");
         if (alias != null) {
           cls.setShortName(db, alias);
         }
@@ -231,7 +228,7 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
             "Class '"
                 + rid
                 + "' created successfully with id="
-                + db.getMetadata().getSchema().getClasses().size(),
+                + db.getMetadata().getSchema().getClasses(db).size(),
             null);
 
       } catch (Exception e) {
@@ -256,7 +253,7 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
     }
   }
 
-  private void executeClusters(
+  private static void executeClusters(
       final HttpRequest iRequest,
       final HttpResponse iResponse,
       final DatabaseSessionInternal db,
@@ -268,7 +265,7 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
     if ("add".equals(operation)) {
       iRequest.getData().commandInfo = "Studio add cluster";
 
-      int clusterId = db.addCluster(fields.get("name"));
+      var clusterId = db.addCluster(fields.get("name"));
 
       iResponse.send(
           HttpUtils.STATUS_OK_CODE,
@@ -306,22 +303,22 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
         throw new IllegalArgumentException("Record ID not found in request");
       }
 
-      EntityImpl entity = new EntityImpl(db, className, new RecordId(rid));
+      var entity = new EntityImpl(db, className, new RecordId(rid));
       // BIND ALL CHANGED FIELDS
-      for (Entry<String, String> f : fields.entrySet()) {
-        final Object oldValue = entity.rawField(f.getKey());
-        String userValue = f.getValue();
+      for (var f : fields.entrySet()) {
+        final var oldValue = entity.rawField(f.getKey());
+        var userValue = f.getValue();
 
         if (userValue != null && userValue.equals("undefined")) {
           entity.removeField(f.getKey());
         } else {
-          Object newValue = RecordSerializerStringAbstract.getTypeValue(db, userValue);
+          var newValue = RecordSerializerStringAbstract.getTypeValue(db, userValue);
 
           if (newValue != null) {
             if (newValue instanceof Collection) {
-              final ArrayList<Object> array = new ArrayList<Object>();
-              for (String s : (Collection<String>) newValue) {
-                Object v = RecordSerializerStringAbstract.getTypeValue(db, s);
+              final var array = new ArrayList<Object>();
+              for (var s : (Collection<String>) newValue) {
+                var v = RecordSerializerStringAbstract.getTypeValue(db, s);
                 array.add(v);
               }
               newValue = array;
@@ -348,10 +345,10 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
     } else if ("add".equals(operation)) {
       iRequest.getData().commandInfo = "Studio create entity";
 
-      final EntityImpl entity = new EntityImpl(db, className);
+      final var entity = new EntityImpl(db, className);
 
       // BIND ALL CHANGED FIELDS
-      for (Entry<String, String> f : fields.entrySet()) {
+      for (var f : fields.entrySet()) {
         entity.field(f.getKey(), f.getValue());
       }
 
@@ -394,7 +391,7 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
       final Map<String, String> fields)
       throws IOException {
     // GET THE TARGET CLASS
-    final SchemaClassInternal cls = db.getMetadata().getSchemaInternal().getClassInternal(rid);
+    final var cls = db.getMetadata().getSchemaInternal().getClassInternal(rid);
     if (cls == null) {
       iResponse.send(
           HttpUtils.STATUS_INTERNALERROR_CODE,
@@ -409,9 +406,9 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
       iRequest.getData().commandInfo = "Studio add index";
 
       try {
-        final String[] fieldNames =
+        final var fieldNames =
             PatternConst.PATTERN_COMMA_SEPARATED.split(fields.get("fields").trim());
-        final String indexType = fields.get("type");
+        final var indexType = fields.get("type");
 
         cls.createIndex(db, fields.get("name"), indexType, fieldNames);
 
@@ -434,7 +431,7 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
       iRequest.getData().commandInfo = "Studio delete index";
 
       try {
-        final Index index = cls.getClassIndex(db, className);
+        final var index = cls.getClassIndex(db, className);
         if (index == null) {
           iResponse.send(
               HttpUtils.STATUS_INTERNALERROR_CODE,

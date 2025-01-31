@@ -34,10 +34,10 @@ import com.jetbrains.youtrack.db.api.query.ExecutionPlan;
 import com.jetbrains.youtrack.db.api.query.LiveQueryMonitor;
 import com.jetbrains.youtrack.db.api.query.LiveQueryResultListener;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.security.SecurityUser;
@@ -827,7 +827,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   }
 
   @Override
-  public void recycle(final Record record) {
+  public void recycle(final DBRecord record) {
     throw new UnsupportedOperationException();
   }
 
@@ -948,7 +948,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
    *
    * @param record record to delete
    */
-  public void delete(Record record) {
+  public void delete(DBRecord record) {
     checkOpenness();
     assert assertIfNotActive();
 
@@ -1226,7 +1226,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     LiveQueryHookV2.removePendingDatabaseOps(this);
   }
 
-  public String getClusterName(final Record record) {
+  public String getClusterName(final DBRecord record) {
     assert assertIfNotActive();
 
     int clusterId = record.getIdentity().getClusterId();
@@ -1266,7 +1266,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
           Role.PERMISSION_READ,
           getClusterNameById(rid.getClusterId()));
 
-      Record record = getTransaction().getRecord(rid);
+      DBRecord record = getTransaction().getRecord(rid);
       if (record == FrontendTransactionAbstract.DELETED_RECORD) {
         // DELETED IN TX
         return false;
@@ -1552,12 +1552,12 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       return false;
     }
 
-    final RecordIteratorCluster<Record> iteratorCluster = browseCluster(clusterName);
+    final RecordIteratorCluster<DBRecord> iteratorCluster = browseCluster(clusterName);
     if (iteratorCluster == null) {
       return false;
     }
 
-    executeInTxBatches((Iterator<Record>) iteratorCluster, (session, record) -> delete(record));
+    executeInTxBatches((Iterator<DBRecord>) iteratorCluster, (session, record) -> delete(record));
 
     return dropClusterInternal(clusterId);
   }
@@ -1874,13 +1874,13 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     }
 
     long count = 0;
-    final RecordIteratorCluster<Record> iteratorCluster =
-        new RecordIteratorCluster<Record>(this, id);
+    final RecordIteratorCluster<DBRecord> iteratorCluster =
+        new RecordIteratorCluster<DBRecord>(this, id);
 
     while (iteratorCluster.hasNext()) {
       executeInTx(
           () -> {
-            final Record record = bindToSession(iteratorCluster.next());
+            final DBRecord record = bindToSession(iteratorCluster.next());
             record.delete();
           });
       count++;

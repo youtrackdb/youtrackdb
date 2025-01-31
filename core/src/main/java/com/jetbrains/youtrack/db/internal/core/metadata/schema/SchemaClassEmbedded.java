@@ -4,9 +4,9 @@ import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.SchemaException;
 import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.ArrayUtils;
@@ -34,7 +34,7 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
     super(iOwner, iName, iClusterIds);
   }
 
-  public Property addProperty(
+  public SchemaProperty addProperty(
       DatabaseSessionInternal session, final String propertyName,
       final PropertyType type,
       final PropertyType linkedType,
@@ -57,11 +57,11 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
     session.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
     if (linkedType != null) {
-      PropertyImpl.checkLinkTypeSupport(type);
+      SchemaPropertyImpl.checkLinkTypeSupport(type);
     }
 
     if (linkedClass != null) {
-      PropertyImpl.checkSupportLinkedClass(type);
+      SchemaPropertyImpl.checkSupportLinkedClass(type);
     }
 
     acquireSchemaWriteLock(session);
@@ -387,11 +387,11 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
     }
   }
 
-  protected PropertyImpl createPropertyInstance() {
-    return new PropertyEmbedded(this);
+  protected SchemaPropertyImpl createPropertyInstance() {
+    return new SchemaPropertyEmbedded(this);
   }
 
-  public PropertyImpl addPropertyInternal(
+  public SchemaPropertyImpl addPropertyInternal(
       DatabaseSessionInternal session, final String name,
       final PropertyType type,
       final PropertyType linkedType,
@@ -405,15 +405,15 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
       checkPersistentPropertyType(session, name, type, linkedClass);
     }
 
-    final PropertyEmbedded prop;
+    final SchemaPropertyEmbedded prop;
 
     // This check are doubled because used by sql commands
     if (linkedType != null) {
-      PropertyImpl.checkLinkTypeSupport(type);
+      SchemaPropertyImpl.checkLinkTypeSupport(type);
     }
 
     if (linkedClass != null) {
-      PropertyImpl.checkSupportLinkedClass(type);
+      SchemaPropertyImpl.checkSupportLinkedClass(type);
     }
 
     acquireSchemaWriteLock(session);
@@ -447,8 +447,8 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
     return prop;
   }
 
-  protected PropertyEmbedded createPropertyInstance(GlobalProperty global) {
-    return new PropertyEmbedded(this, global);
+  protected SchemaPropertyEmbedded createPropertyInstance(GlobalProperty global) {
+    return new SchemaPropertyEmbedded(this, global);
   }
 
   /**
@@ -640,7 +640,7 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
     try {
       checkEmbedded();
 
-      final Property prop = properties.remove(iPropertyName);
+      final SchemaProperty prop = properties.remove(iPropertyName);
 
       if (prop == null) {
         throw new SchemaException(

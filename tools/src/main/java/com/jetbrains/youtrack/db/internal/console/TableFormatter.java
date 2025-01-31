@@ -27,7 +27,6 @@ import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.common.util.Sizeable;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.id.ImmutableRecordId;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
@@ -92,7 +91,7 @@ public class TableFormatter {
       List<RawPair<RID, Object>> resultSet,
       final int limit,
       final CallableFunction<Object, Object> iAfterDump) {
-    final Map<String, Integer> columns = parseColumns(resultSet, limit);
+    final var columns = parseColumns(resultSet, limit);
 
     if (columnSorting != null) {
       resultSet.sort(
@@ -100,8 +99,8 @@ public class TableFormatter {
             @SuppressWarnings("unchecked") var rec1 = (Map<String, Object>) o1.second;
             @SuppressWarnings("unchecked") var rec2 = (Map<String, Object>) o2.second;
 
-            final Object value1 = rec1.get(columnSorting.getKey());
-            final Object value2 = rec2.get(columnSorting.getKey());
+            final var value1 = rec1.get(columnSorting.getKey());
+            final var value2 = rec2.get(columnSorting.getKey());
             final boolean ascending = columnSorting.getValue();
 
             final int result;
@@ -121,7 +120,7 @@ public class TableFormatter {
           });
     }
 
-    int fetched = 0;
+    var fetched = 0;
     for (var record : resultSet) {
       dumpRecordInTable(fetched++, record.first, record.second, columns);
       if (iAfterDump != null) {
@@ -170,13 +169,13 @@ public class TableFormatter {
     // FORMAT THE LINE DYNAMICALLY
     List<String> vargs = new ArrayList<>();
     try {
-      final StringBuilder format = new StringBuilder(maxWidthSize);
+      final var format = new StringBuilder(maxWidthSize);
 
       format.append('|');
 
-      int i = 0;
-      for (Entry<String, Integer> col : iColumns.entrySet()) {
-        final String columnName = col.getKey();
+      var i = 0;
+      for (var col : iColumns.entrySet()) {
+        final var columnName = col.getKey();
         final int columnWidth = col.getValue();
 
         if (i++ > 0) {
@@ -185,7 +184,7 @@ public class TableFormatter {
 
         format.append("%-").append(columnWidth).append("s");
 
-        Object value = getFieldValue(iIndex, rid, iRecord, columnName);
+        var value = getFieldValue(iIndex, rid, iRecord, columnName);
         String valueAsString = null;
 
         if (value != null) {
@@ -219,16 +218,16 @@ public class TableFormatter {
       valueAsString = nullValue;
     }
 
-    final ALIGNMENT alignment = columnAlignment.get(columnName);
+    final var alignment = columnAlignment.get(columnName);
     if (alignment != null) {
       switch (alignment) {
         case LEFT:
           break;
         case CENTER: {
-          final int room = columnWidth - valueAsString.length();
+          final var room = columnWidth - valueAsString.length();
           if (room > 1) {
-            StringBuilder valueAsStringBuilder = new StringBuilder(valueAsString);
-            for (int k = 0; k < room / 2; ++k) {
+            var valueAsStringBuilder = new StringBuilder(valueAsString);
+            for (var k = 0; k < room / 2; ++k) {
               valueAsStringBuilder.insert(0, " ");
             }
             valueAsString = valueAsStringBuilder.toString();
@@ -236,10 +235,10 @@ public class TableFormatter {
           break;
         }
         case RIGHT: {
-          final int room = columnWidth - valueAsString.length();
+          final var room = columnWidth - valueAsString.length();
           if (room > 0) {
-            StringBuilder valueAsStringBuilder = new StringBuilder(valueAsString);
-            for (int k = 0; k < room; ++k) {
+            var valueAsStringBuilder = new StringBuilder(valueAsString);
+            for (var k = 0; k < room; ++k) {
               valueAsStringBuilder.insert(0, " ");
             }
             valueAsString = valueAsStringBuilder.toString();
@@ -278,8 +277,8 @@ public class TableFormatter {
 
   public static String getPrettyFieldMultiValue(
       final Iterator<?> iterator, final int maxMultiValueEntries) {
-    final StringBuilder value = new StringBuilder("[");
-    for (int i = 0; iterator.hasNext(); i++) {
+    final var value = new StringBuilder("[");
+    for (var i = 0; iterator.hasNext(); i++) {
       if (i >= maxMultiValueEntries) {
         if (iterator instanceof Sizeable) {
           value.append("(size=");
@@ -326,7 +325,7 @@ public class TableFormatter {
         value = identifiable.getIdentity().toString();
       }
     } else if (value instanceof Date) {
-      final DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
+      final var db = DatabaseRecordThreadLocal.instance().getIfDefined();
       if (db != null) {
         value = DateHelper.getDateTimeFormatInstance(db).format((Date) value);
       } else {
@@ -340,17 +339,17 @@ public class TableFormatter {
   }
 
   private void printHeader(final Map<String, Integer> iColumns) {
-    final StringBuilder columnRow = new StringBuilder("\n");
+    final var columnRow = new StringBuilder("\n");
     final Map<String, StringBuilder> metadataRows = new HashMap<>();
 
     // INIT METADATA
-    final LinkedHashSet<String> allMetadataNames = new LinkedHashSet<>();
+    final var allMetadataNames = new LinkedHashSet<String>();
 
-    for (Entry<String, Map<String, String>> entry : columnMetadata.entrySet()) {
-      for (Entry<String, String> entry2 : entry.getValue().entrySet()) {
+    for (var entry : columnMetadata.entrySet()) {
+      for (var entry2 : entry.getValue().entrySet()) {
         allMetadataNames.add(entry2.getKey());
 
-        StringBuilder metadataRow = metadataRows.get(entry2.getKey());
+        var metadataRow = metadataRows.get(entry2.getKey());
         if (metadataRow == null) {
           metadataRow = new StringBuilder("\n");
           metadataRows.put(entry2.getKey(), metadataRow);
@@ -359,17 +358,17 @@ public class TableFormatter {
     }
 
     printHeaderLine(iColumns);
-    int i = 0;
+    var i = 0;
 
     columnRow.append('|');
     if (!metadataRows.isEmpty()) {
-      for (StringBuilder buffer : metadataRows.values()) {
+      for (var buffer : metadataRows.values()) {
         buffer.append('|');
       }
     }
 
-    for (Entry<String, Integer> column : iColumns.entrySet()) {
-      String colName = column.getKey();
+    for (var column : iColumns.entrySet()) {
+      var colName = column.getKey();
 
       if (columnHidden.contains(colName)) {
         continue;
@@ -378,7 +377,7 @@ public class TableFormatter {
       if (i > 0) {
         columnRow.append('|');
         if (!metadataRows.isEmpty()) {
-          for (StringBuilder buffer : metadataRows.values()) {
+          for (var buffer : metadataRows.values()) {
             buffer.append('|');
           }
         }
@@ -393,10 +392,10 @@ public class TableFormatter {
 
       if (!metadataRows.isEmpty()) {
         // METADATA VALUE
-        for (String metadataName : allMetadataNames) {
-          final StringBuilder buffer = metadataRows.get(metadataName);
-          final Map<String, String> metadataColumn = columnMetadata.get(column.getKey());
-          String metadataValue = metadataColumn != null ? metadataColumn.get(metadataName) : null;
+        for (var metadataName : allMetadataNames) {
+          final var buffer = metadataRows.get(metadataName);
+          final var metadataColumn = columnMetadata.get(column.getKey());
+          var metadataValue = metadataColumn != null ? metadataColumn.get(metadataName) : null;
           if (metadataValue == null) {
             metadataValue = "";
           }
@@ -416,14 +415,14 @@ public class TableFormatter {
 
     columnRow.append('|');
     if (!metadataRows.isEmpty()) {
-      for (StringBuilder buffer : metadataRows.values()) {
+      for (var buffer : metadataRows.values()) {
         buffer.append('|');
       }
     }
 
     if (!metadataRows.isEmpty()) {
       // PRINT METADATA IF ANY
-      for (StringBuilder buffer : metadataRows.values()) {
+      for (var buffer : metadataRows.values()) {
         out.onMessage(buffer.toString());
       }
       printHeaderLine(iColumns);
@@ -435,14 +434,14 @@ public class TableFormatter {
   }
 
   private void printHeaderLine(final Map<String, Integer> iColumns) {
-    final StringBuilder buffer = new StringBuilder("\n");
+    final var buffer = new StringBuilder("\n");
 
     if (!iColumns.isEmpty()) {
       buffer.append('+');
 
-      int i = 0;
-      for (Entry<String, Integer> column : iColumns.entrySet()) {
-        final String colName = column.getKey();
+      var i = 0;
+      for (var column : iColumns.entrySet()) {
+        final var colName = column.getKey();
         if (columnHidden.contains(colName)) {
           continue;
         }
@@ -468,20 +467,20 @@ public class TableFormatter {
       final int limit) {
     final Map<String, Integer> columns = new LinkedHashMap<>();
 
-    for (String c : prefixedColumns) {
+    for (var c : prefixedColumns) {
       columns.put(c, minColumnSize);
     }
 
-    boolean tempRids = false;
-    boolean hasClass = false;
+    var tempRids = false;
+    var hasClass = false;
 
-    int fetched = 0;
+    var fetched = 0;
     for (var entry : resultSet) {
 
       var rid = entry.first;
       var record = entry.second;
 
-      for (String c : prefixedColumns) {
+      for (var c : prefixedColumns) {
         columns.put(c,
             getColumnSize(fetched, rid, record, c, columns.get(c)));
       }
@@ -526,7 +525,7 @@ public class TableFormatter {
 
     if (footer != null) {
       // PARSE ALL THE DOCUMENT'S FIELDS
-      for (String fieldName : footer.keySet()) {
+      for (var fieldName : footer.keySet()) {
         columns.put(fieldName,
             getColumnSize(fetched, null, footer, fieldName,
                 columns.get(fieldName)));
@@ -534,8 +533,8 @@ public class TableFormatter {
     }
 
     // COMPUTE MAXIMUM WIDTH
-    int width = 0;
-    for (Entry<String, Integer> col : columns.entrySet()) {
+    var width = 0;
+    for (var col : columns.entrySet()) {
       width += col.getValue();
     }
 
@@ -548,10 +547,10 @@ public class TableFormatter {
       // START CUTTING THE BIGGEST ONES
       Collections.reverse(orderedColumns);
       while (width > maxWidthSize) {
-        int oldWidth = width;
+        var oldWidth = width;
 
-        for (Map.Entry<String, Integer> entry : orderedColumns) {
-          final int redux = entry.getValue() * 10 / 100;
+        for (var entry : orderedColumns) {
+          final var redux = entry.getValue() * 10 / 100;
 
           if (entry.getValue() - redux < minColumnSize)
           // RESTART FROM THE LARGEST COLUMN
@@ -576,11 +575,11 @@ public class TableFormatter {
 
       // POPULATE THE COLUMNS WITH THE REDUXED VALUES
       columns.clear();
-      for (String c : prefixedColumns) {
+      for (var c : prefixedColumns) {
         columns.put(c, minColumnSize);
       }
       Collections.reverse(orderedColumns);
-      for (Entry<String, Integer> col : orderedColumns)
+      for (var col : orderedColumns)
       // if (!col.getKey().equals("#") && !col.getKey().equals("@RID"))
       {
         columns.put(col.getKey(), col.getValue());
@@ -594,7 +593,7 @@ public class TableFormatter {
       columns.remove("@CLASS");
     }
 
-    for (String c : columnHidden) {
+    for (var c : columnHidden) {
       columns.remove(c);
     }
 
@@ -614,10 +613,10 @@ public class TableFormatter {
       newColumnSize = Math.max(origSize, fieldName.length());
     }
 
-    final Map<String, String> metadata = columnMetadata.get(fieldName);
+    final var metadata = columnMetadata.get(fieldName);
     if (metadata != null) {
       // UPDATE WIDTH WITH METADATA VALUES
-      for (String v : metadata.values()) {
+      for (var v : metadata.values()) {
         if (v != null) {
           if (v.length() > newColumnSize) {
             newColumnSize = v.length();
@@ -626,10 +625,10 @@ public class TableFormatter {
       }
     }
 
-    final Object fieldValue = getFieldValue(iIndex, rid, iRecord, fieldName);
+    final var fieldValue = getFieldValue(iIndex, rid, iRecord, fieldName);
 
     if (fieldValue != null) {
-      final String fieldValueAsString = fieldValue.toString();
+      final var fieldValueAsString = fieldValue.toString();
       if (fieldValueAsString.length() > newColumnSize) {
         newColumnSize = fieldValueAsString.length();
       }

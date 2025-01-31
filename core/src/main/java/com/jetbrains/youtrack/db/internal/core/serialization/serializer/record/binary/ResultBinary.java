@@ -17,10 +17,10 @@ package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.
 
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
@@ -186,7 +186,7 @@ public class ResultBinary implements Result {
   }
 
   @Override
-  public Optional<Record> getRecord() {
+  public Optional<DBRecord> getRecord() {
     return Optional.of(toEntityImpl());
   }
 

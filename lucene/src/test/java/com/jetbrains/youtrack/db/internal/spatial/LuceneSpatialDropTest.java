@@ -1,14 +1,15 @@
 package com.jetbrains.youtrack.db.internal.spatial;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.DatabaseType;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.YourTracks;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import com.jetbrains.youtrack.db.internal.lucene.tests.LuceneBaseTest;
 import java.io.File;
@@ -18,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class LuceneSpatialDropTest {
+
   private int insertcount;
   private String dbName;
   private YouTrackDB youTrackDB;
@@ -30,7 +32,11 @@ public class LuceneSpatialDropTest {
     // @maggiolo00 set cont to 0 and the test will not fail anymore
     insertcount = 100;
 
-    youTrackDB = YourTracks.embedded(LuceneBaseTest.getDirectoryPath(getClass()));
+    final var dbPath = LuceneBaseTest.getDirectoryPath(getClass());
+
+    // clean up the data from the previous runs
+    FileUtils.deleteRecursively(new File(dbPath));
+    youTrackDB = YourTracks.embedded(dbPath);
     youTrackDB.createIfNotExists(dbName, DatabaseType.PLOCAL,
         "admin", "adminpwd", "admin");
 

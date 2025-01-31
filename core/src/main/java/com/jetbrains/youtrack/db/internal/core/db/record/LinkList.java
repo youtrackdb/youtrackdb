@@ -20,9 +20,9 @@
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.collection.LazyIterator;
 import com.jetbrains.youtrack.db.internal.common.collection.LazyIteratorListWrapper;
 import com.jetbrains.youtrack.db.internal.common.util.Sizeable;
@@ -297,7 +297,7 @@ public class LinkList extends TrackedList<Identifiable> implements Sizeable {
     final Identifiable o = super.get(iIndex);
     if (o instanceof Identifiable && o.getIdentity().isPersistent()) {
       // ALREADY CONVERTED
-      if (o instanceof Record && !((Record) o).isDirty()) {
+      if (o instanceof DBRecord && !((DBRecord) o).isDirty()) {
         try {
           super.setInternal(iIndex, o.getIdentity());
           // CONVERTED

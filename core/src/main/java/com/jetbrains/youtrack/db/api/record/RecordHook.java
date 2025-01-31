@@ -134,7 +134,7 @@ public interface RecordHook {
 
   void onUnregister();
 
-  RESULT onTrigger(DatabaseSession db, TYPE iType, Record iRecord);
+  RESULT onTrigger(DatabaseSession db, TYPE iType, DBRecord iRecord);
 
   DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode();
 
@@ -144,8 +144,8 @@ public interface RecordHook {
    * the number of useless invocations of this hook.
    *
    * <p>Limiting the hook to proper scopes may give huge performance boost, especially if the
-   * hook's {@link #onTrigger(DatabaseSession, TYPE, Record)} dispatcher implementation is heavy. In extreme cases,
-   * you may override the {@link #onTrigger(DatabaseSession, TYPE, Record)} to act directly on event's
+   * hook's {@link #onTrigger(DatabaseSession, TYPE, DBRecord)} dispatcher implementation is heavy. In extreme cases,
+   * you may override the {@link #onTrigger(DatabaseSession, TYPE, DBRecord)} to act directly on event's
    * {@link RecordHook.TYPE} and exit early, scopes are just a more handy alternative to this.
    *
    * @return the scopes of this hook.

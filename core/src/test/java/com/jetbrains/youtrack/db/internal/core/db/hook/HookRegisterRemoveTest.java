@@ -3,7 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.db.hook;
 import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -14,8 +14,8 @@ public class HookRegisterRemoveTest extends DbTestBase {
 
   @Test
   public void addAndRemoveHookTest() {
-    final AtomicInteger integer = new AtomicInteger(0);
-    RecordHook iHookImpl =
+    final var integer = new AtomicInteger(0);
+    var iHookImpl =
         new RecordHook() {
 
           @Override
@@ -23,7 +23,7 @@ public class HookRegisterRemoveTest extends DbTestBase {
           }
 
           @Override
-          public RESULT onTrigger(DatabaseSession db, TYPE iType, Record iRecord) {
+          public RESULT onTrigger(DatabaseSession db, TYPE iType, DBRecord iRecord) {
             integer.incrementAndGet();
             return null;
           }

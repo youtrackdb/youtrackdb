@@ -20,32 +20,23 @@
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.get;
 
 import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
-import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
-import com.jetbrains.youtrack.db.internal.core.config.StorageEntryConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaPropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class ServerCommandGetDatabase extends ServerCommandGetConnect {
 
@@ -60,8 +51,8 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
         "superClass", cls.getSuperClass() != null ? cls.getSuperClass().getName() : "");
 
     json.beginCollection(db, "superClasses");
-    int i = 0;
-    for (SchemaClass oClass : cls.getSuperClasses()) {
+    var i = 0;
+    for (var oClass : cls.getSuperClasses()) {
       json.write((i > 0 ? "," : "") + "\"" + oClass.getName() + "\"");
       i++;
     }
@@ -73,7 +64,7 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
     json.writeAttribute(db, "clusters", cls.getClusterIds());
     json.writeAttribute(db, "clusterSelection", cls.getClusterSelectionStrategyName());
     if (cls instanceof SchemaClassImpl) {
-      final Map<String, String> custom = ((SchemaClassImpl) cls).getCustomInternal();
+      final var custom = ((SchemaClassImpl) cls).getCustomInternal();
       if (custom != null && !custom.isEmpty()) {
         json.writeAttribute(db, "custom", custom);
       }
@@ -89,7 +80,7 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
 
     if (cls.properties(db) != null && cls.properties(db).size() > 0) {
       json.beginCollection(db, "properties");
-      for (final Property prop : cls.properties(db)) {
+      for (final var prop : cls.properties(db)) {
         json.beginObject();
         json.writeAttribute(db, "name", prop.getName());
         if (prop.getLinkedClass() != null) {
@@ -109,8 +100,8 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
             "collate", prop.getCollate() != null ? prop.getCollate().getName() : "default");
         json.writeAttribute(db, "defaultValue", prop.getDefaultValue());
 
-        if (prop instanceof PropertyImpl) {
-          final Map<String, String> custom = ((PropertyImpl) prop).getCustomInternal();
+        if (prop instanceof SchemaPropertyImpl) {
+          final var custom = ((SchemaPropertyImpl) prop).getCustomInternal();
           if (custom != null && !custom.isEmpty()) {
             json.writeAttribute(db, "custom", custom);
           }
@@ -121,15 +112,15 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
       json.endCollection();
     }
 
-    final Set<Index> indexes = cls.getIndexesInternal(db);
+    final var indexes = cls.getIndexesInternal(db);
     if (!indexes.isEmpty()) {
       json.beginCollection(db, "indexes");
-      for (final Index index : indexes) {
+      for (final var index : indexes) {
         json.beginObject();
         json.writeAttribute(db, "name", index.getName());
         json.writeAttribute(db, "type", index.getType());
 
-        final IndexDefinition indexDefinition = index.getDefinition();
+        final var indexDefinition = index.getDefinition();
         if (indexDefinition != null && !indexDefinition.getFields().isEmpty()) {
           json.writeAttribute(db, "fields", indexDefinition.getFields());
         }
@@ -148,7 +139,7 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
 
   @Override
   public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
-    String[] urlParts = checkSyntax(iRequest.getUrl(), 2, "Syntax error: database/<database>");
+    var urlParts = checkSyntax(iRequest.getUrl(), 2, "Syntax error: database/<database>");
 
     iRequest.getData().commandInfo = "Database info";
     iRequest.getData().commandDetail = urlParts[1];
@@ -173,8 +164,8 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
         db = getProfiledDatabaseInstance(iRequest);
       }
 
-      final StringWriter buffer = new StringWriter();
-      final JSONWriter json = new JSONWriter(buffer);
+      final var buffer = new StringWriter();
+      final var json = new JSONWriter(buffer);
       json.beginObject();
 
       json.beginObject("server");
@@ -190,25 +181,25 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
 
       json.beginCollection(db, "conflictStrategies");
 
-      Set<String> strategies =
+      var strategies =
           YouTrackDBEnginesManager.instance().getRecordConflictStrategy()
               .getRegisteredImplementationNames();
 
-      int i = 0;
-      for (String strategy : strategies) {
+      var i = 0;
+      for (var strategy : strategies) {
         json.write((i > 0 ? "," : "") + "\"" + strategy + "\"");
         i++;
       }
       json.endCollection();
 
       json.beginCollection(db, "clusterSelectionStrategies");
-      Set<String> clusterSelectionStrategies =
+      var clusterSelectionStrategies =
           db.getMetadata()
               .getImmutableSchemaSnapshot()
               .getClusterSelectionFactory()
               .getRegisteredNames();
-      int j = 0;
-      for (String strategy : clusterSelectionStrategies) {
+      var j = 0;
+      for (var strategy : clusterSelectionStrategies) {
         json.write((j > 0 ? "," : "") + "\"" + strategy + "\"");
         j++;
       }
@@ -216,16 +207,16 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
 
       json.endObject();
 
-      if (db.getMetadata().getImmutableSchemaSnapshot().getClasses() != null) {
+      if (db.getMetadata().getImmutableSchemaSnapshot().getClasses(db) != null) {
         json.beginCollection(db, "classes");
         List<String> classNames = new ArrayList<String>();
 
-        for (SchemaClass cls : db.getMetadata().getImmutableSchemaSnapshot().getClasses()) {
+        for (var cls : db.getMetadata().getImmutableSchemaSnapshot().getClasses(db)) {
           classNames.add(cls.getName());
         }
         Collections.sort(classNames);
 
-        for (String className : classNames) {
+        for (var className : classNames) {
           var cls = db.getMetadata().getImmutableSchemaSnapshot()
               .getClassInternal(className);
 
@@ -240,13 +231,13 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
 
       if (db.getClusterNames() != null) {
         json.beginCollection(db, "clusters");
-        for (String clusterName : db.getClusterNames()) {
-          final int clusterId = db.getClusterIdByName(clusterName);
+        for (var clusterName : db.getClusterNames()) {
+          final var clusterId = db.getClusterIdByName(clusterName);
           if (clusterId < 0) {
             continue;
           }
           try {
-            final String conflictStrategy = db.getClusterRecordConflictStrategy(clusterId);
+            final var conflictStrategy = db.getClusterRecordConflictStrategy(clusterId);
 
             json.beginObject();
             json.writeAttribute(db, "id", clusterId);
@@ -270,9 +261,9 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
 
         // exportSecurityInfo(db, json);
       }
-      final IndexManagerAbstract idxManager = db.getMetadata().getIndexManagerInternal();
+      final var idxManager = db.getMetadata().getIndexManagerInternal();
       json.beginCollection(db, "indexes");
-      for (Index index : idxManager.getIndexes(db)) {
+      for (var index : idxManager.getIndexes(db)) {
         json.beginObject();
         try {
           json.writeAttribute(db, "name", index.getName());
@@ -289,7 +280,7 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
       json.beginObject("config");
 
       json.beginCollection(db, "values");
-      StorageConfiguration configuration = db.getStorageInfo().getConfiguration();
+      var configuration = db.getStorageInfo().getConfiguration();
       json.writeObjects(db,
           null,
           new Object[]{"name", "dateFormat", "value", configuration.getDateFormat()},
@@ -306,7 +297,7 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
 
       json.beginCollection(db, "properties");
       if (configuration.getProperties() != null) {
-        for (StorageEntryConfiguration entry : configuration.getProperties()) {
+        for (var entry : configuration.getProperties()) {
           if (entry != null) {
             json.beginObject();
             json.writeAttribute(db, "name", entry.name);

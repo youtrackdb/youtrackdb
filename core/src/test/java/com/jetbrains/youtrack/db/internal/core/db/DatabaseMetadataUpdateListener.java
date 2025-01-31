@@ -10,7 +10,7 @@ import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence;
 import java.util.Locale;
 import org.junit.After;
 import org.junit.Assert;
@@ -68,7 +68,7 @@ public class DatabaseMetadataUpdateListener {
       session
           .getMetadata()
           .getSequenceLibrary()
-          .createSequence("sequence1", Sequence.SEQUENCE_TYPE.ORDERED, null);
+          .createSequence("sequence1", DBSequence.SEQUENCE_TYPE.ORDERED, null);
     } catch (DatabaseException exc) {
       Assert.fail("Failed to create sequence");
     }

@@ -20,9 +20,9 @@
 package com.jetbrains.youtrack.db.internal.core.fetch;
 
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiCollectionIterator;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
@@ -67,7 +67,7 @@ public class FetchHelper {
   }
 
   public static void fetch(
-      DatabaseSessionInternal db, final Record rootRecord,
+      DatabaseSessionInternal db, final DBRecord rootRecord,
       final Object userObject,
       final FetchPlan fetchPlan,
       final FetchListener listener,
@@ -741,7 +741,7 @@ public class FetchHelper {
       final Object o = linked.get(key.toString());
 
       if (o instanceof Identifiable identifiable) {
-        Record r = null;
+        DBRecord r = null;
         try {
           r = identifiable.getRecord(db);
         } catch (RecordNotFoundException ignore) {

@@ -33,11 +33,11 @@ import com.jetbrains.youtrack.db.api.query.LiveQueryMonitor;
 import com.jetbrains.youtrack.db.api.query.LiveQueryResultListener;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
@@ -257,7 +257,7 @@ public interface DatabaseSession extends AutoCloseable {
    * rid is temporary.
    * <p/>
    * You can verify if record already bound to the session by calling
-   * {@link com.jetbrains.youtrack.db.api.record.Record#isNotBound(DatabaseSession)} method.
+   * {@link DBRecord#isNotBound(DatabaseSession)} method.
    * <p/>
    * <p>
    * Records with temporary RIDs are not allowed to be bound to the session and can not be accepted
@@ -269,7 +269,7 @@ public interface DatabaseSession extends AutoCloseable {
    * @return Bounded instance of given record.
    * @throws RecordNotFoundException if record does not exist in database
    * @throws DatabaseException       if the record rid is temporary
-   * @see com.jetbrains.youtrack.db.api.record.Record#isNotBound(DatabaseSession)
+   * @see DBRecord#isNotBound(DatabaseSession)
    * @see Identifiable#getIdentity()
    * @see RID#isPersistent()
    */
@@ -759,7 +759,7 @@ public interface DatabaseSession extends AutoCloseable {
    * @throws RecordNotFoundException if record does not exist in database
    */
   @Nonnull
-  <RET extends com.jetbrains.youtrack.db.api.record.Record> RET load(RID recordId);
+  <RET extends DBRecord> RET load(RID recordId);
 
   /**
    * Loads the entity by the Record ID, unlike {@link  #load(RID)} method does not throw exception
@@ -769,7 +769,7 @@ public interface DatabaseSession extends AutoCloseable {
    * @return The loaded entity or <code>null</code> if entity does not exist.
    */
   @Nullable
-  default <RET extends com.jetbrains.youtrack.db.api.record.Record> RET loadSilently(RID recordId) {
+  default <RET extends DBRecord> RET loadSilently(RID recordId) {
     try {
       return load(recordId);
     } catch (RecordNotFoundException e) {
@@ -797,14 +797,14 @@ public interface DatabaseSession extends AutoCloseable {
    * @param record The entity to save
    * @return The saved entity.
    */
-  <RET extends Record> RET save(Record record);
+  <RET extends DBRecord> RET save(DBRecord record);
 
   /**
    * Deletes an entity from the database in synchronous mode.
    *
    * @param record The entity to delete.
    */
-  void delete(Record record);
+  void delete(DBRecord record);
 
   /**
    * Deletes the entity with the received RID from the database.

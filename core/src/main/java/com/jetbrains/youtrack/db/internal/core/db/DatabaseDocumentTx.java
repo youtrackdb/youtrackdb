@@ -16,11 +16,11 @@ import com.jetbrains.youtrack.db.api.query.LiveQueryMonitor;
 import com.jetbrains.youtrack.db.api.query.LiveQueryResultListener;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.Schema;
@@ -274,7 +274,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public int assignAndCheckCluster(Record record, String clusterName) {
+  public int assignAndCheckCluster(DBRecord record, String clusterName) {
     return internal.assignAndCheckCluster(record, clusterName);
   }
 
@@ -611,25 +611,25 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
 
   @Nonnull
   @Override
-  public <RET extends Record> RET load(RID recordId) {
+  public <RET extends DBRecord> RET load(RID recordId) {
     checkOpenness();
     return internal.load(recordId);
   }
 
   @Override
-  public <RET extends Record> RET save(Record record) {
+  public <RET extends DBRecord> RET save(DBRecord record) {
     checkOpenness();
     return internal.save(record);
   }
 
   @Override
-  public <RET extends Record> RET save(Record iObject, String iClusterName) {
+  public <RET extends DBRecord> RET save(DBRecord iObject, String iClusterName) {
     checkOpenness();
     return internal.save(iObject, iClusterName);
   }
 
   @Override
-  public void delete(Record record) {
+  public void delete(DBRecord record) {
     checkOpenness();
     internal.delete(record);
   }
@@ -719,14 +719,14 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public <REC extends Record> RecordIteratorCluster<REC> browseCluster(
+  public <REC extends DBRecord> RecordIteratorCluster<REC> browseCluster(
       String iClusterName, Class<REC> iRecordClass) {
     checkOpenness();
     return internal.browseCluster(iClusterName, iRecordClass);
   }
 
   @Override
-  public <REC extends Record> RecordIteratorCluster<REC> browseCluster(
+  public <REC extends DBRecord> RecordIteratorCluster<REC> browseCluster(
       String iClusterName,
       Class<REC> iRecordClass,
       long startClusterPosition,
@@ -737,7 +737,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public <REC extends Record> RecordIteratorCluster<REC> browseCluster(
+  public <REC extends DBRecord> RecordIteratorCluster<REC> browseCluster(
       String iClusterName,
       Class<REC> iRecordClass,
       long startClusterPosition,
@@ -1260,7 +1260,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public void recycle(Record record) {
+  public void recycle(DBRecord record) {
     checkOpenness();
     internal.recycle(record);
   }
@@ -1328,7 +1328,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public String getClusterName(Record record) {
+  public String getClusterName(DBRecord record) {
     return internal.getClusterName(record);
   }
 

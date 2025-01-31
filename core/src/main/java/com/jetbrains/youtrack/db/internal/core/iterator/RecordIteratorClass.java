@@ -19,8 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.iterator;
 
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
@@ -36,7 +36,7 @@ import java.util.Arrays;
  * insert and remove item in any cluster the iterator is browsing. If the cluster are hot removed by
  * from the database the iterator could be invalid and throw exception of cluster not found.
  */
-public class RecordIteratorClass<REC extends Record> extends RecordIteratorClusters<REC> {
+public class RecordIteratorClass<REC extends DBRecord> extends RecordIteratorClusters<REC> {
 
   protected final SchemaClass targetClass;
   protected boolean polymorphic;
@@ -112,7 +112,7 @@ public class RecordIteratorClass<REC extends Record> extends RecordIteratorClust
   }
 
   @Override
-  protected boolean include(final Record record) {
+  protected boolean include(final DBRecord record) {
     return record instanceof EntityImpl
         && targetClass.isSuperClassOf(
         EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) record)));

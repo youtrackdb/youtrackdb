@@ -31,7 +31,7 @@ import javax.annotation.Nonnull;
 /**
  * @since 3/3/2015
  */
-public class SequenceCached extends Sequence {
+public class SequenceCached extends DBSequence {
 
   private static final String FIELD_CACHE = "cache";
   private long cacheStart;
@@ -70,7 +70,7 @@ public class SequenceCached extends Sequence {
 
   @Override
   boolean updateParams(
-      EntityImpl entity, Sequence.CreateParams params, boolean executeViaDistributed)
+      EntityImpl entity, DBSequence.CreateParams params, boolean executeViaDistributed)
       throws DatabaseException {
     boolean any = super.updateParams(entity, params, executeViaDistributed);
     if (params.cacheSize != null && this.getCacheSize(entity) != params.cacheSize) {

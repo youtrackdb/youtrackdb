@@ -23,8 +23,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jetbrains.youtrack.db.api.DatabaseType;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.StorageEntryConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -146,10 +146,10 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
 
     json.beginObject();
 
-    if (db.getMetadata().getSchema().getClasses() != null) {
+    if (db.getMetadata().getSchema().getClasses(db) != null) {
       json.beginCollection(db, 1, false, "classes");
       Set<String> exportedNames = new HashSet<String>();
-      for (SchemaClass cls : db.getMetadata().getSchema().getClasses()) {
+      for (SchemaClass cls : db.getMetadata().getSchema().getClasses(db)) {
         if (!exportedNames.contains(cls.getName())) {
           try {
             exportClass(db, json, (SchemaClassInternal) cls);
@@ -299,7 +299,7 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
 
     if (cls.properties(db) != null && cls.properties(db).size() > 0) {
       json.beginCollection(db, 3, true, "properties");
-      for (final Property prop : cls.properties(db)) {
+      for (final SchemaProperty prop : cls.properties(db)) {
         json.beginObject(4, true, null);
         json.writeAttribute(db, 4, true, "name", prop.getName());
         if (prop.getLinkedClass() != null) {

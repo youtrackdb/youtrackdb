@@ -19,9 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string;
 
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.profiler.Profiler;
@@ -647,7 +647,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
         } else if (iValue instanceof String) {
           return new RecordId((String) iValue);
         } else {
-          return ((Record) iValue).getIdentity().toString();
+          return ((DBRecord) iValue).getIdentity().toString();
         }
     }
 
@@ -749,16 +749,16 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
     }
   }
 
-  public abstract <T extends Record> T fromString(
+  public abstract <T extends DBRecord> T fromString(
       DatabaseSessionInternal db, String iContent, RecordAbstract iRecord, String[] iFields);
 
   public StringWriter toString(
-      DatabaseSessionInternal db, final Record iRecord, final StringWriter iOutput,
+      DatabaseSessionInternal db, final DBRecord iRecord, final StringWriter iOutput,
       final String iFormat) {
     return toString(db, iRecord, iOutput, iFormat, true);
   }
 
-  public <T extends Record> T fromString(DatabaseSessionInternal db, final String iSource) {
+  public <T extends DBRecord> T fromString(DatabaseSessionInternal db, final String iSource) {
     return fromString(db, iSource, null, null);
   }
 
@@ -802,7 +802,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
   }
 
   protected abstract StringWriter toString(
-      DatabaseSessionInternal db, final Record iRecord,
+      DatabaseSessionInternal db, final DBRecord iRecord,
       final StringWriter iOutput,
       final String iFormat,
       boolean autoDetectCollectionType);

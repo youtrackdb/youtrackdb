@@ -22,9 +22,9 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
@@ -334,7 +334,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
       resultCount++;
 
       Identifiable identifiable =
-          iRecord instanceof Record ? ((Record) iRecord) : iRecord.getIdentity();
+          iRecord instanceof DBRecord ? ((DBRecord) iRecord) : iRecord.getIdentity();
 
       // CALL THE LISTENER NOW
       if (identifiable != null && request.getResultListener() != null) {
@@ -451,7 +451,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
     return skip;
   }
 
-  protected boolean filter(final Record iRecord, final CommandContext iContext) {
+  protected boolean filter(final DBRecord iRecord, final CommandContext iContext) {
     if (iRecord instanceof EntityImpl recordSchemaAware) {
       // CHECK THE TARGET CLASS
       Map<String, String> targetClasses = parsedTarget.getTargetClasses();
@@ -473,7 +473,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
     return evaluateRecord(iRecord, iContext);
   }
 
-  protected boolean evaluateRecord(final Record iRecord, final CommandContext iContext) {
+  protected boolean evaluateRecord(final DBRecord iRecord, final CommandContext iContext) {
     iContext.setVariable("current", iRecord);
     iContext.updateMetric("evaluated", +1);
 
@@ -485,7 +485,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
     return evaluate != null && evaluate;
   }
 
-  protected void assignLetClauses(DatabaseSession session, final Record iRecord) {
+  protected void assignLetClauses(DatabaseSession session, final DBRecord iRecord) {
     if (let != null && !let.isEmpty()) {
       // BIND CONTEXT VARIABLES
       for (Map.Entry<String, Object> entry : let.entrySet()) {
@@ -556,10 +556,10 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
 
     final RID[] range = getRange(database);
     if (iAscendentOrder) {
-      return new RecordIteratorClass<Record>(database, iCls.getName(), iPolymorphic, false)
+      return new RecordIteratorClass<DBRecord>(database, iCls.getName(), iPolymorphic, false)
           .setRange(range[0], range[1]);
     } else {
-      return new RecordIteratorClassDescendentOrder<Record>(
+      return new RecordIteratorClassDescendentOrder<DBRecord>(
           database, database, iCls.getName(), iPolymorphic)
           .setRange(range[0], range[1]);
     }

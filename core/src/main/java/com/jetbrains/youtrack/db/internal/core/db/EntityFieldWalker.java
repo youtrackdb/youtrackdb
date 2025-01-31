@@ -19,9 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db;
 
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.db.record.IdentifiableMultiValue;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -95,7 +95,7 @@ public class EntityFieldWalker {
 
       PropertyType linkedType = null;
       if (fieldType == null && clazz != null) {
-        Property property = clazz.getProperty(fieldName);
+        SchemaProperty property = clazz.getProperty(fieldName);
         if (property != null) {
           fieldType = property.getType();
           linkedType = property.getLinkedType();

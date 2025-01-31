@@ -292,7 +292,6 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
       var addresses = new ArrayList<Entity>();
       addresses.add(db.bindToSession(address));
       company.setProperty("addresses", addresses);
-      db.save(company);
       db.commit();
     }
   }

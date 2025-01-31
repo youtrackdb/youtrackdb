@@ -19,8 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.util.Sizeable;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -75,7 +75,7 @@ public class LinkMap extends TrackedMap<Identifiable> implements Sizeable {
   @Override
   public Identifiable put(final String key, Identifiable value) {
     if (multiValueStatus == MULTIVALUE_CONTENT_TYPE.ALL_RIDS
-        && value instanceof Record
+        && value instanceof DBRecord
         && !value.getIdentity().isNew())
     // IT'S BETTER TO LEAVE ALL RIDS AND EXTRACT ONLY THIS ONE
     {

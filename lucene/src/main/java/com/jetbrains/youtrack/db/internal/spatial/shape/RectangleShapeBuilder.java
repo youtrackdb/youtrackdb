@@ -13,10 +13,10 @@
  */
 package com.jetbrains.youtrack.db.internal.spatial.shape;
 
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
@@ -43,7 +43,8 @@ public class RectangleShapeBuilder extends ShapeBuilder<Rectangle> {
 
     Schema schema = db.getMetadata().getSchema();
     SchemaClass rectangle = schema.createAbstractClass(NAME, superClass(db));
-    Property coordinates = rectangle.createProperty(db, COORDINATES, PropertyType.EMBEDDEDLIST,
+    SchemaProperty coordinates = rectangle.createProperty(db, COORDINATES,
+        PropertyType.EMBEDDEDLIST,
         PropertyType.DOUBLE);
     coordinates.setMin(db, "4");
     coordinates.setMin(db, "4");

@@ -21,9 +21,9 @@ package com.jetbrains.youtrack.db.internal.core.tx;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
@@ -60,7 +60,7 @@ public interface FrontendTransaction {
   void clearRecordEntries();
 
   @Nonnull
-  Record loadRecord(RID rid) throws RecordNotFoundException;
+  DBRecord loadRecord(RID rid) throws RecordNotFoundException;
 
   boolean exists(RID rid);
 
@@ -110,7 +110,7 @@ public interface FrontendTransaction {
    * @param clusterName record's cluster name.
    * @return the record saved.
    */
-  Record saveRecord(RecordAbstract record, String clusterName);
+  DBRecord saveRecord(RecordAbstract record, String clusterName);
 
   /**
    * Deletes the given record in this transaction.

@@ -14,10 +14,10 @@
 package com.jetbrains.youtrack.db.internal.spatial.shape;
 
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
@@ -44,14 +44,15 @@ public class PointShapeBuilder extends ShapeBuilder<Point> {
 
     Schema schema = db.getMetadata().getSchema();
     SchemaClass point = schema.createAbstractClass(NAME, superClass(db));
-    Property coordinates = point.createProperty(db, COORDINATES, PropertyType.EMBEDDEDLIST,
+    SchemaProperty coordinates = point.createProperty(db, COORDINATES, PropertyType.EMBEDDEDLIST,
         PropertyType.DOUBLE);
     coordinates.setMin(db, "2");
     coordinates.setMax(db, "2");
 
     if (GlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()) {
       SchemaClass pointz = schema.createAbstractClass(NAME + "Z", superClass(db));
-      Property coordinatesz = pointz.createProperty(db, COORDINATES, PropertyType.EMBEDDEDLIST,
+      SchemaProperty coordinatesz = pointz.createProperty(db, COORDINATES,
+          PropertyType.EMBEDDEDLIST,
           PropertyType.DOUBLE);
       coordinatesz.setMin(db, "3");
       coordinatesz.setMax(db, "3");

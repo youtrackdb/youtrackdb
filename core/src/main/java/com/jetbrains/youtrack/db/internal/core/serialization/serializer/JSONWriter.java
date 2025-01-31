@@ -21,8 +21,8 @@ package com.jetbrains.youtrack.db.internal.core.serialization.serializer;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiCollectionIterator;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
@@ -106,7 +106,7 @@ public class JSONWriter {
           buffer.append("{}");
         } else {
           try {
-            final Record rec = linked.getRecord(db);
+            var rec = linked.getRecord(db);
             final String embeddedFormat =
                 iFormat != null && iFormat.isEmpty()
                     ? "indent:" + iIndentLevel
@@ -340,7 +340,7 @@ public class JSONWriter {
   }
 
   public JSONWriter writeRecord(
-      final int iIdentLevel, final boolean iNewLine, final Object iName, final Record iRecord)
+      final int iIdentLevel, final boolean iNewLine, final Object iName, final DBRecord iRecord)
       throws IOException {
     if (!firstAttribute) {
       out.append(",");

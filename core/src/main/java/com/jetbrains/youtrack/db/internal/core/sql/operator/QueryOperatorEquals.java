@@ -21,9 +21,9 @@ package com.jetbrains.youtrack.db.internal.core.sql.operator;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
@@ -83,10 +83,10 @@ public class QueryOperatorEquals extends QueryOperatorEqualityNotNulls {
 
     // RECORD & RID
     /*from this is only legacy query engine */
-    if (iLeft instanceof Record) {
-      return comparesValues(iRight, (Record) iLeft, true);
-    } else if (iRight instanceof Record) {
-      return comparesValues(iLeft, (Record) iRight, true);
+    if (iLeft instanceof DBRecord) {
+      return comparesValues(iRight, (DBRecord) iLeft, true);
+    } else if (iRight instanceof DBRecord) {
+      return comparesValues(iLeft, (DBRecord) iRight, true);
     }
     /*till this is only legacy query engine */
     else if (iRight instanceof Result) {
@@ -118,7 +118,7 @@ public class QueryOperatorEquals extends QueryOperatorEqualityNotNulls {
   }
 
   protected static boolean comparesValues(
-      final Object iValue, final Record iRecord, final boolean iConsiderIn) {
+      final Object iValue, final DBRecord iRecord, final boolean iConsiderIn) {
     // RID && RECORD
     final RID other = iRecord.getIdentity();
 

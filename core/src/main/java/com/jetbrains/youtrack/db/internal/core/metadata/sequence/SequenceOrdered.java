@@ -30,7 +30,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
  * <p>A sequence with sequential guarantees. Even when a transaction is rolled back, there will
  * still be no holes. However, as a result, it is slower.
  */
-public class SequenceOrdered extends Sequence {
+public class SequenceOrdered extends DBSequence {
 
   public SequenceOrdered(final EntityImpl entity) {
     super(entity);

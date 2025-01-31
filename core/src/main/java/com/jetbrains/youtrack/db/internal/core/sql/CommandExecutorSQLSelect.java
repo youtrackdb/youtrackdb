@@ -26,9 +26,9 @@ import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.security.SecurityUser;
@@ -69,7 +69,6 @@ import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClusters;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
@@ -152,7 +151,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
     private final Identifiable record;
     private final CommandContext context;
 
-    public AsyncResult(final Record iRecord, final CommandContext iContext) {
+    public AsyncResult(final DBRecord iRecord, final CommandContext iContext) {
       record = iRecord;
       context = iContext;
     }
@@ -608,8 +607,8 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       return false;
     }
 
-    Record record;
-    if (!(id instanceof Record)) {
+    DBRecord record;
+    if (!(id instanceof DBRecord)) {
       try {
         record = getDatabase().load(id.getIdentity());
       } catch (RecordNotFoundException e) {
@@ -623,7 +622,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
         }
       }
     } else {
-      record = (Record) id;
+      record = (DBRecord) id;
     }
 
     iContext.updateMetric("recordReads", +1);
@@ -1973,7 +1972,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
     final RecordIteratorCluster it = new RecordIteratorCluster(localDatabase, iClusterId);
 
     while (it.hasNext()) {
-      final Record next = it.next();
+      final DBRecord next = it.next();
 
       if (!executeSearchRecord(next, iContext, false)) {
         results[current] = false;

@@ -18,12 +18,12 @@ import static com.jetbrains.youtrack.db.internal.core.serialization.serializer.r
 
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.exception.ValidationException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.DecimalSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
@@ -234,7 +234,7 @@ public class DocumentSerializerDelta {
         deserializeDeltaEmbeddedMap(db, bytes, (TrackedMap) toUpdate);
         break;
       case EMBEDDED:
-        deserializeDelta(db, bytes, ((Record) toUpdate).getRecord(db));
+        deserializeDelta(db, bytes, ((DBRecord) toUpdate).getRecord(db));
         break;
       case LINKLIST:
         deserializeDeltaLinkList(db, bytes, (LinkList) toUpdate);
@@ -631,7 +631,7 @@ public class DocumentSerializerDelta {
         serializeDeltaEmbeddedMap(db, bytes, (TrackedMap) value);
         break;
       case EMBEDDED:
-        serializeDelta(db, bytes, ((Record) value).getRecord(db));
+        serializeDelta(db, bytes, ((DBRecord) value).getRecord(db));
         break;
       case LINKLIST:
         serializeDeltaLinkList(db, bytes, (LinkList) value);
@@ -984,7 +984,7 @@ public class DocumentSerializerDelta {
   protected PropertyType getFieldType(final EntityEntry entry) {
     PropertyType type = entry.type;
     if (type == null) {
-      final Property prop = entry.property;
+      final SchemaProperty prop = entry.property;
       if (prop != null) {
         type = prop.getType();
       }
@@ -1083,7 +1083,7 @@ public class DocumentSerializerDelta {
           cur.field(EntitySerializable.CLASS_NAME, value.getClass().getName());
           serialize(db, cur, bytes);
         } else {
-          serialize(db, ((Record) value).getRecord(db), bytes);
+          serialize(db, ((DBRecord) value).getRecord(db), bytes);
         }
         break;
       case EMBEDDEDSET:

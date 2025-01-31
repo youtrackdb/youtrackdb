@@ -22,14 +22,12 @@ import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.exception.SchemaException;
 import com.jetbrains.youtrack.db.api.exception.ValidationException;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
@@ -125,7 +123,7 @@ public class SchemaTest extends BaseDBTest {
   @Test(dependsOnMethods = "checkSchemaApi")
   public void checkClusters() {
 
-    for (SchemaClass cls : db.getMetadata().getSchema().getClasses()) {
+    for (var cls : db.getMetadata().getSchema().getClasses(db)) {
       assert cls.isAbstract() || db.getClusterNameById(cls.getClusterIds()[0]) != null;
     }
   }
@@ -146,14 +144,14 @@ public class SchemaTest extends BaseDBTest {
   @Test
   public void testMultiThreadSchemaCreation() throws InterruptedException {
 
-    Thread thread =
+    var thread =
         new Thread(
             new Runnable() {
 
               @Override
               public void run() {
                 DatabaseRecordThreadLocal.instance().set(db);
-                EntityImpl doc = ((EntityImpl) db.newEntity("NewClass"));
+                var doc = ((EntityImpl) db.newEntity("NewClass"));
 
                 db.begin();
                 db.save(doc);
@@ -175,9 +173,9 @@ public class SchemaTest extends BaseDBTest {
   @Test
   public void createAndDropClassTestApi() {
 
-    final String testClassName = "dropTestClass";
+    final var testClassName = "dropTestClass";
     final int clusterId;
-    SchemaClass dropTestClass = db.getMetadata().getSchema().createClass(testClassName);
+    var dropTestClass = db.getMetadata().getSchema().createClass(testClassName);
     clusterId = dropTestClass.getClusterIds()[0];
     dropTestClass = db.getMetadata().getSchema().getClass(testClassName);
     Assert.assertNotNull(dropTestClass);
@@ -203,9 +201,9 @@ public class SchemaTest extends BaseDBTest {
   @Test
   public void createAndDropClassTestCommand() {
 
-    final String testClassName = "dropTestClass";
+    final var testClassName = "dropTestClass";
     final int clusterId;
-    SchemaClass dropTestClass = db.getMetadata().getSchema().createClass(testClassName);
+    var dropTestClass = db.getMetadata().getSchema().createClass(testClassName);
     clusterId = dropTestClass.getClusterIds()[0];
     dropTestClass = db.getMetadata().getSchema().getClass(testClassName);
     Assert.assertNotNull(dropTestClass);
@@ -335,12 +333,12 @@ public class SchemaTest extends BaseDBTest {
   @Test
   public void alterAttributes() {
 
-    SchemaClass company = db.getMetadata().getSchema().getClass("Company");
-    SchemaClass superClass = company.getSuperClass();
+    var company = db.getMetadata().getSchema().getClass("Company");
+    var superClass = company.getSuperClass();
 
     Assert.assertNotNull(superClass);
-    boolean found = false;
-    for (SchemaClass c : superClass.getSubclasses()) {
+    var found = false;
+    for (var c : superClass.getSubclasses()) {
       if (c.equals(company)) {
         found = true;
         break;
@@ -350,7 +348,7 @@ public class SchemaTest extends BaseDBTest {
 
     company.setSuperClass(db, null);
     Assert.assertNull(company.getSuperClass());
-    for (SchemaClass c : superClass.getSubclasses()) {
+    for (var c : superClass.getSubclasses()) {
       Assert.assertNotSame(c, company);
     }
 
@@ -363,7 +361,7 @@ public class SchemaTest extends BaseDBTest {
 
     Assert.assertNotNull(company.getSuperClass());
     found = false;
-    for (SchemaClass c : superClass.getSubclasses()) {
+    for (var c : superClass.getSubclasses()) {
       if (c.equals(company)) {
         found = true;
         break;
@@ -413,7 +411,7 @@ public class SchemaTest extends BaseDBTest {
         .createClass("RenameClassTest");
 
     db.begin();
-    EntityImpl document = ((EntityImpl) db.newEntity("RenameClassTest"));
+    var document = ((EntityImpl) db.newEntity("RenameClassTest"));
     document.save();
 
     document = ((EntityImpl) db.newEntity("RenameClassTest"));
@@ -422,7 +420,7 @@ public class SchemaTest extends BaseDBTest {
     db.commit();
 
     db.begin();
-    ResultSet result = db.query("select from RenameClassTest");
+    var result = db.query("select from RenameClassTest");
     Assert.assertEquals(result.stream().count(), 2);
     db.commit();
 
@@ -441,11 +439,11 @@ public class SchemaTest extends BaseDBTest {
 
       Assert.assertTrue(db.existsCluster("multipleclusters"));
 
-      for (int i = 1; i < 3; ++i) {
+      for (var i = 1; i < 3; ++i) {
         Assert.assertTrue(db.existsCluster("multipleclusters_" + i));
       }
 
-      for (int i = 0; i < 6; ++i) {
+      for (var i = 0; i < 6; ++i) {
         db.begin();
         ((EntityImpl) db.newEntity("multipleclusters")).field("num", i).save();
         db.commit();
@@ -454,7 +452,7 @@ public class SchemaTest extends BaseDBTest {
       // CHECK THERE ARE 2 RECORDS IN EACH CLUSTER (ROUND-ROBIN STRATEGY)
       Assert.assertEquals(
           db.countClusterElements(db.getClusterIdByName("multipleclusters")), 2);
-      for (int i = 1; i < 3; ++i) {
+      for (var i = 1; i < 3; ++i) {
         Assert.assertEquals(
             db.countClusterElements(db.getClusterIdByName("multipleclusters_" + i)), 2);
       }
@@ -471,7 +469,7 @@ public class SchemaTest extends BaseDBTest {
       db
           .command("alter class multipleclusters cluster_selection balanced").close();
 
-      for (int i = 0; i < 2; ++i) {
+      for (var i = 0; i < 2; ++i) {
         db.begin();
         ((EntityImpl) db.newEntity("multipleclusters")).field("num", i).save();
         db.commit();
@@ -518,16 +516,16 @@ public class SchemaTest extends BaseDBTest {
   @Test
   public void testDeletionOfDependentClass() {
     Schema schema = db.getMetadata().getSchema();
-    SchemaClass oRestricted = schema.getClass(SecurityShared.RESTRICTED_CLASSNAME);
-    SchemaClass classA = schema.createClass("TestDeletionOfDependentClassA", oRestricted);
-    SchemaClass classB = schema.createClass("TestDeletionOfDependentClassB", classA);
+    var oRestricted = schema.getClass(SecurityShared.RESTRICTED_CLASSNAME);
+    var classA = schema.createClass("TestDeletionOfDependentClassA", oRestricted);
+    var classB = schema.createClass("TestDeletionOfDependentClassB", classA);
     schema.dropClass(classB.getName());
   }
 
   @Test
   public void testCaseSensitivePropNames() {
-    String className = "TestCaseSensitivePropNames";
-    String propertyName = "propName";
+    var className = "TestCaseSensitivePropNames";
+    var propertyName = "propName";
     db.command("create class " + className);
     db.command(
         "create property "
@@ -583,7 +581,7 @@ public class SchemaTest extends BaseDBTest {
     db.commit();
 
     db.begin();
-    try (ResultSet rs =
+    try (var rs =
         db.command(
             "select from "
                 + className
@@ -596,7 +594,7 @@ public class SchemaTest extends BaseDBTest {
     }
     db.commit();
 
-    try (ResultSet rs =
+    try (var rs =
         db.command(
             "select from "
                 + className
@@ -607,7 +605,7 @@ public class SchemaTest extends BaseDBTest {
     }
 
     db.begin();
-    try (ResultSet rs =
+    try (var rs =
         db.command(
             "select from "
                 + className
@@ -621,7 +619,7 @@ public class SchemaTest extends BaseDBTest {
     db.commit();
 
     db.begin();
-    try (ResultSet rs =
+    try (var rs =
         db.command(
             "select from "
                 + className
@@ -638,7 +636,7 @@ public class SchemaTest extends BaseDBTest {
       var idx = clazz.getIndexesInternal(db);
 
       Set<String> indexes = new HashSet<>();
-      for (Index id : idx) {
+      for (var id : idx) {
         indexes.add(id.getName());
       }
 
@@ -683,7 +681,7 @@ public class SchemaTest extends BaseDBTest {
             new SQLSynchQuery<EntityImpl>("select * from TestRenameClusterOriginal"));
     Assert.assertEquals(result.size(), 1);
 
-    EntityImpl document = result.get(0);
+    var document = result.get(0);
     Assert.assertEquals(document.<Object>field("iteration"), i);
     db.commit();
   }

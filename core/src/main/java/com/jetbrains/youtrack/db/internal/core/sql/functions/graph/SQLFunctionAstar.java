@@ -25,7 +25,6 @@ import com.jetbrains.youtrack.db.api.record.Direction;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
@@ -88,7 +87,7 @@ public class SQLFunctionAstar extends SQLFunctionHeuristicPathFinderAbstract {
     final SQLFunctionAstar context = this;
 
     var db = iContext.getDatabase();
-    final Record record = iCurrentRecord != null ? iCurrentRecord.getRecord(db) : null;
+    var record = iCurrentRecord != null ? iCurrentRecord.getRecord(db) : null;
 
     Object source = iParams[0];
     if (MultiValue.isMultiValue(source)) {

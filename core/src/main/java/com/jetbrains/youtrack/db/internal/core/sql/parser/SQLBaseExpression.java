@@ -7,7 +7,7 @@ import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.Collate;
-import com.jetbrains.youtrack.db.api.schema.Property;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
@@ -520,7 +520,8 @@ public class SQLBaseExpression extends SQLMathExpression {
       return false;
     }
     if (identifier.isIndexChain(ctx, clazz)) {
-      Property prop = clazz.getProperty(identifier.getSuffix().getIdentifier().getStringValue());
+      SchemaProperty prop = clazz.getProperty(
+          identifier.getSuffix().getIdentifier().getStringValue());
       var linkedClass = (SchemaClassInternal) prop.getLinkedClass();
       if (linkedClass != null) {
         return modifier.isIndexChain(ctx, linkedClass);

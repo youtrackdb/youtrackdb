@@ -22,9 +22,9 @@ package com.jetbrains.youtrack.db.internal.core.storage.ridbag;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
 import com.jetbrains.youtrack.db.internal.common.types.ModifiableInteger;
@@ -722,7 +722,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   public void applyNewEntries() {
     for (Entry<RID, ModifiableInteger> entry : newEntries.entrySet()) {
       RID rid = entry.getKey();
-      assert rid instanceof Record;
+      assert rid instanceof DBRecord;
       Change c = changes.get(rid);
 
       final int delta = entry.getValue().intValue();

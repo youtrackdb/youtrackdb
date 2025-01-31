@@ -5,8 +5,8 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -892,7 +892,7 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
       return false;
     }
     try {
-      Record record = identifiable.getRecord(db);
+      var record = identifiable.getRecord(db);
       if (record instanceof EntityImpl) {
         SchemaClass schemaClass = EntityInternalUtils.getImmutableSchemaClass(
             ((EntityImpl) record));
@@ -1016,7 +1016,7 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
       for (Map.Entry<String, Identifiable> entry : matchContext.matched.entrySet()) {
         if (isExplicitAlias(entry.getKey()) && entry.getValue() != null) {
           try {
-            Record record = entry.getValue().getRecord(db);
+            var record = entry.getValue().getRecord(db);
             if (request.getResultListener() != null) {
               if (!addSingleResult(request, (BasicCommandContext) ctx, record)) {
                 return false;
@@ -1031,7 +1031,7 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
       for (Map.Entry<String, Identifiable> entry : matchContext.matched.entrySet()) {
         if (entry.getValue() != null) {
           try {
-            Record record = entry.getValue().getRecord(db);
+            var record = entry.getValue().getRecord(db);
             if (request.getResultListener() != null) {
               if (!addSingleResult(request, (BasicCommandContext) ctx, record)) {
                 return false;
@@ -1102,7 +1102,7 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
    * @return false if limit was reached
    */
   private boolean addSingleResult(
-      SQLAsynchQuery<EntityImpl> request, BasicCommandContext ctx, Record record) {
+      SQLAsynchQuery<EntityImpl> request, BasicCommandContext ctx, DBRecord record) {
     if (((BasicCommandContext) context).addToUniqueResult(record)) {
       request.getResultListener().result(ctx.getDatabase(), record);
       long currentCount = ctx.getResultsProcessed().incrementAndGet();
@@ -1187,7 +1187,7 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
         Role.PERMISSION_READ,
         schemaClass.getName().toLowerCase(Locale.ENGLISH));
 
-    Iterable<Record> baseIterable = fetchFromIndex(schemaClass, oWhereClause);
+    Iterable<DBRecord> baseIterable = fetchFromIndex(schemaClass, oWhereClause);
 
     // SQLSelectStatement stm = buildSelectStatement(className, oWhereClause);
     // return stm.execute(ctx);
@@ -1254,7 +1254,7 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
     return stm;
   }
 
-  private Iterable<Record> fetchFromIndex(SchemaClass schemaClass, SQLWhereClause oWhereClause) {
+  private Iterable<DBRecord> fetchFromIndex(SchemaClass schemaClass, SQLWhereClause oWhereClause) {
     return null; // TODO
   }
 

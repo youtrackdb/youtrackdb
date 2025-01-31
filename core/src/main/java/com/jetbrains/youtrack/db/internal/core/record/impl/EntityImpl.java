@@ -30,17 +30,17 @@ import com.jetbrains.youtrack.db.api.exception.SecurityException;
 import com.jetbrains.youtrack.db.api.exception.ValidationException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
@@ -67,8 +67,8 @@ import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.ClassIndexManager;
 import com.jetbrains.youtrack.db.internal.core.iterator.EmptyMapEntryIterator;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableProperty;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Identity;
@@ -528,7 +528,7 @@ public class EntityImpl extends RecordAbstract
           return onLoadValue;
         }
       }
-      if (onLoadValue instanceof Record record) {
+      if (onLoadValue instanceof DBRecord record) {
         if (isLazyLoad()) {
           return onLoadValue;
         } else {
@@ -1057,7 +1057,7 @@ public class EntityImpl extends RecordAbstract
 
   private static void validateField(
       DatabaseSessionInternal db, ImmutableSchema schema, EntityImpl iRecord,
-      ImmutableProperty p)
+      ImmutableSchemaProperty p)
       throws ValidationException {
     iRecord.checkForBinding();
     iRecord = (EntityImpl) iRecord.getRecord(db);
@@ -1339,7 +1339,7 @@ public class EntityImpl extends RecordAbstract
 
   private static void validateLinkCollection(
       ImmutableSchema schema,
-      final Property property,
+      final SchemaProperty property,
       Iterable<Object> values,
       EntityEntry value) {
     if (property.getLinkedClass() != null) {
@@ -1361,7 +1361,7 @@ public class EntityImpl extends RecordAbstract
     }
   }
 
-  private static void validateType(DatabaseSessionInternal session, final Property p,
+  private static void validateType(DatabaseSessionInternal session, final SchemaProperty p,
       final Object value) {
     if (value != null) {
       if (PropertyType.convert(session, value, p.getLinkedType().getDefaultJavaType()) == null) {
@@ -1379,7 +1379,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   private static void validateLink(
-      ImmutableSchema schema, final Property p, final Object fieldValue, boolean allowNull) {
+      ImmutableSchema schema, final SchemaProperty p, final Object fieldValue, boolean allowNull) {
     if (fieldValue == null) {
       if (allowNull) {
         return;
@@ -1438,7 +1438,7 @@ public class EntityImpl extends RecordAbstract
     }
   }
 
-  private static void validateEmbedded(DatabaseSessionInternal db, final Property p,
+  private static void validateEmbedded(DatabaseSessionInternal db, final SchemaProperty p,
       final Object fieldValue) {
     if (fieldValue == null) {
       return;
@@ -1463,7 +1463,7 @@ public class EntityImpl extends RecordAbstract
                   + fieldValue);
         }
 
-        final Record embeddedRecord = embedded.getRecord(db);
+        final DBRecord embeddedRecord = embedded.getRecord(db);
         if (embeddedRecord instanceof EntityImpl entity) {
           final SchemaClass embeddedClass = p.getLinkedClass();
           if (entity.isVertex()) {
@@ -1685,7 +1685,7 @@ public class EntityImpl extends RecordAbstract
   private static Object mapValue(Object value) {
     return switch (value) {
       case null -> null;
-      case Record record -> {
+      case DBRecord record -> {
         if (record instanceof EntityImpl entity && entity.isEmbedded()) {
           yield entity.toMap();
         }
@@ -3456,7 +3456,7 @@ public class EntityImpl extends RecordAbstract
    *
    * @throws ValidationException if the entity breaks some validation constraints defined in the
    *                             schema
-   * @see Property
+   * @see SchemaProperty
    */
   public void validate() throws ValidationException {
     checkForBinding();
@@ -3488,13 +3488,13 @@ public class EntityImpl extends RecordAbstract
       }
 
       final ImmutableSchema immutableSchema = session.getMetadata().getImmutableSchemaSnapshot();
-      for (Property p : immutableSchemaClass.properties(session)) {
-        validateField(session, immutableSchema, this, (ImmutableProperty) p);
+      for (SchemaProperty p : immutableSchemaClass.properties(session)) {
+        validateField(session, immutableSchema, this, (ImmutableSchemaProperty) p);
       }
     }
   }
 
-  protected String toString(Set<Record> inspected) {
+  protected String toString(Set<DBRecord> inspected) {
     checkForBinding();
 
     if (inspected.contains(this)) {
@@ -3780,7 +3780,7 @@ public class EntityImpl extends RecordAbstract
     var session = getSession();
     SchemaClass clazz = getImmutableSchemaClass();
     if (clazz != null) {
-      for (Property prop : clazz.properties(session)) {
+      for (SchemaProperty prop : clazz.properties(session)) {
         PropertyType type = prop.getType();
         PropertyType linkedType = prop.getLinkedType();
         SchemaClass linkedClass = prop.getLinkedClass();
@@ -3884,7 +3884,7 @@ public class EntityImpl extends RecordAbstract
     }
   }
 
-  private void convertToEmbeddedType(Property prop) {
+  private void convertToEmbeddedType(SchemaProperty prop) {
     final EntityEntry entry = fields.get(prop.getName());
     SchemaClass linkedClass = prop.getLinkedClass();
     if (entry == null || linkedClass == null) {
@@ -4022,7 +4022,7 @@ public class EntityImpl extends RecordAbstract
       if (fieldType == null) {
         SchemaClass clazz = getImmutableSchemaClass();
         if (clazz != null) {
-          final Property prop = clazz.getProperty(fieldEntry.getKey());
+          final SchemaProperty prop = clazz.getProperty(fieldEntry.getKey());
           fieldType = prop != null ? prop.getType() : null;
         }
       }
@@ -4408,7 +4408,7 @@ public class EntityImpl extends RecordAbstract
   private void convertFieldsToClass(final SchemaClass clazz) {
     var session = getSession();
 
-    for (Property prop : clazz.properties(session)) {
+    for (SchemaProperty prop : clazz.properties(session)) {
       EntityEntry entry = fields != null ? fields.get(prop.getName()) : null;
       if (entry != null && entry.exists()) {
         if (entry.type == null || entry.type != prop.getType()) {
@@ -4446,7 +4446,7 @@ public class EntityImpl extends RecordAbstract
     SchemaClass clazz = getImmutableSchemaClass();
     if (clazz != null) {
       // SCHEMA-FULL?
-      final Property prop = clazz.getProperty(iFieldName);
+      final SchemaProperty prop = clazz.getProperty(iFieldName);
       if (prop != null) {
         entry.property = prop;
         fieldType = prop.getType();

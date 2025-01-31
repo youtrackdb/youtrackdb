@@ -22,9 +22,9 @@ package com.jetbrains.youtrack.db.internal.core.record.impl;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
@@ -146,11 +146,11 @@ public class EntityHelper {
         return (RET) iValue;
       } else if (iValue instanceof String) {
         return (RET) new RecordId((String) iValue);
-      } else if (iValue instanceof Record) {
-        return (RET) ((Record) iValue).getIdentity();
+      } else if (iValue instanceof DBRecord) {
+        return (RET) ((DBRecord) iValue).getIdentity();
       }
     } else if (Identifiable.class.isAssignableFrom(iFieldType)) {
-      if (iValue instanceof RID || iValue instanceof Record) {
+      if (iValue instanceof RID || iValue instanceof DBRecord) {
         return (RET) iValue;
       } else if (iValue instanceof String) {
         return (RET) new RecordId((String) iValue);
@@ -370,7 +370,7 @@ public class EntityHelper {
         }
 
         if (value instanceof Identifiable) {
-          final Record record =
+          final DBRecord record =
               currentRecord instanceof Identifiable ? currentRecord.getRecord(db) : null;
 
           final Object index = getIndexPart(iContext, indexPart);
@@ -789,7 +789,7 @@ public class EntityHelper {
       DatabaseSessionInternal db, final String iConditionFieldName,
       final Object iConditionFieldValue, final Object iValue) {
     if (iValue instanceof Identifiable) {
-      final Record rec;
+      final DBRecord rec;
       try {
         rec = ((Identifiable) iValue).getRecord(db);
       } catch (RecordNotFoundException rnf) {
@@ -928,7 +928,7 @@ public class EntityHelper {
     final String function = iFunction.toUpperCase(Locale.ENGLISH);
 
     if (function.startsWith("SIZE(")) {
-      result = currentValue instanceof Record ? 1 : MultiValue.getSize(currentValue);
+      result = currentValue instanceof DBRecord ? 1 : MultiValue.getSize(currentValue);
     } else if (function.startsWith("LENGTH(")) {
       result = currentValue.toString().length();
     } else if (function.startsWith("TOUPPERCASE(")) {
@@ -991,8 +991,8 @@ public class EntityHelper {
       final List<String> args =
           StringSerializerHelper.getParameters(iFunction.substring(iFunction.indexOf('(')));
 
-      final Record currentRecord =
-          iContext != null ? (Record) iContext.getVariable("$current") : null;
+      final DBRecord currentRecord =
+          iContext != null ? (DBRecord) iContext.getVariable("$current") : null;
       for (int i = 0; i < args.size(); ++i) {
         final String arg = args.get(i);
         final Object o = SQLHelper.getValue(arg, currentRecord, iContext);

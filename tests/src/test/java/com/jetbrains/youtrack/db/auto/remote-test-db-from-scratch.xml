@@ -29,7 +29,7 @@
       <class name="com.jetbrains.youtrack.db.auto.CRUDDocumentPhysicalTest"/>
       <class name="com.jetbrains.youtrack.db.auto.ComplexTypesTest"/>
       <class name="com.jetbrains.youtrack.db.auto.CRUDDocumentValidationTest"/>
-      <class name="com.jetbrains.youtrack.db.auto.RecordMetadataTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.DBRecordMetadataTest"/>
       <class name="com.jetbrains.youtrack.db.auto.DocumentTrackingTest"/>
       <class
         name="com.jetbrains.youtrack.db.auto.EmbeddedEntitySerializationTest"/>
@@ -50,13 +50,13 @@
       <class name="com.jetbrains.youtrack.db.auto.ByteArrayKeyTest"/>
       <class name="com.jetbrains.youtrack.db.auto.ClassIndexManagerTest"/>
       <class name="com.jetbrains.youtrack.db.auto.SQLSelectIndexReuseTest"/>
-      <!-- <class name="com.jetbrains.youtrack.db.auto.SQLCreateIndexTest"/> uncomment when index metadata fetch  will be restored-->
-      <!-- <class name="com.jetbrains.youtrack.db.auto.SQLDropIndexTest"/> uncomment when index metadata fetch  will be restored-->
-      <!-- <class name="com.jetbrains.youtrack.db.auto.SQLDropClassIndexTest"/>  uncomment when index metadata fetch will be restored -->
-      <!-- <class name="com.jetbrains.youtrack.db.auto.SQLDropPropertyIndexTest"/> uncomment when index metadata fetch will be restored-->
-      <!-- <class name="com.jetbrains.youtrack.db.auto.SchemaIndexTest"/> uncomment when index metadata fetch will be restored-->
-      <!--<class name="com.jetbrains.youtrack.db.auto.ClassIndexTest"/> uncomment when index metadata fetch will be restored-->
-      <!-- <class name="com.jetbrains.youtrack.db.auto.PropertyIndexTest"/> uncomment when index metadata fetch will be restored -->
+      <class name="com.jetbrains.youtrack.db.auto.SQLCreateIndexTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.SQLDropIndexTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.SQLDropClassIndexTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.SQLDropSchemaPropertyIndexTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.SchemaIndexTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.ClassIndexTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.SchemaPropertyIndexTest"/>
       <class name="com.jetbrains.youtrack.db.auto.CollectionIndexTest"/>
       <class
         name="com.jetbrains.youtrack.db.auto.IndexTxAwareOneValueGetValuesTest"/>
@@ -70,7 +70,7 @@
         name="com.jetbrains.youtrack.db.auto.IndexTxAwareOneValueGetEntriesTest"/>
       <class name="com.jetbrains.youtrack.db.auto.MapIndexTest"/>
       <class
-        name="com.jetbrains.youtrack.db.auto.SQLSelectByLinkedPropertyIndexReuseTest"/>
+        name="com.jetbrains.youtrack.db.auto.SQLSelectByLinkedSchemaPropertyIndexReuseTest"/>
       <class name="com.jetbrains.youtrack.db.auto.LinkListIndexTest"/>
       <class name="com.jetbrains.youtrack.db.auto.LinkBagIndexTest"/>
       <class name="com.jetbrains.youtrack.db.auto.LinkMapIndexTest"/>
@@ -114,9 +114,9 @@
       <class name="com.jetbrains.youtrack.db.auto.SQLDeleteTest"/>
       <class name="com.jetbrains.youtrack.db.auto.SQLCreateVertexTest"/>
       <class name="com.jetbrains.youtrack.db.auto.SQLDeleteEdgeTest"/>
-      <class name="com.jetbrains.youtrack.db.auto.SequenceTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.DBSequenceTest"/>
       <class name="com.jetbrains.youtrack.db.auto.SQLBatchTest"/>
-      <class name="com.jetbrains.youtrack.db.auto.SQLSequenceTest"/>
+      <class name="com.jetbrains.youtrack.db.auto.SQLDBSequenceTest"/>
     </classes>
   </test>
   <test name="other-commands">

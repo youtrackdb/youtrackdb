@@ -1,10 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.db.hook;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -24,15 +25,15 @@ public class HookSaveTest extends DbTestBase {
           }
 
           @Override
-          public RESULT onTrigger(DatabaseSession db, TYPE iType, Record iRecord) {
+          public RESULT onTrigger(DatabaseSession db, TYPE iType, DBRecord iRecord) {
             if (iType != TYPE.BEFORE_CREATE) {
               return RESULT.RECORD_NOT_CHANGED;
             }
-            EntityImpl doc = (EntityImpl) iRecord;
+            var doc = (EntityImpl) iRecord;
             if (doc.containsField("test")) {
               return RESULT.RECORD_NOT_CHANGED;
             }
-            EntityImpl doc1 = (EntityImpl) HookSaveTest.this.db.newEntity("test");
+            var doc1 = (EntityImpl) HookSaveTest.this.db.newEntity("test");
             doc1.field("test", "value");
             doc.field("testNewLinkedRecord", doc1);
             return RESULT.RECORD_CHANGED;
@@ -46,12 +47,12 @@ public class HookSaveTest extends DbTestBase {
 
     db.getMetadata().getSchema().createClass("test");
     db.begin();
-    EntityImpl doc = db.save((EntityImpl) db.newEntity("test"));
+    EntityImpl doc = db.save(db.newEntity("test"));
     db.commit();
 
     EntityImpl newRef = db.bindToSession(doc).field("testNewLinkedRecord");
     assertNotNull(newRef);
-    assertNotNull(newRef.getIdentity().isPersistent());
+    assertFalse(newRef.getIdentity().isPersistent());
   }
 
   @Test
@@ -63,15 +64,15 @@ public class HookSaveTest extends DbTestBase {
           }
 
           @Override
-          public RESULT onTrigger(DatabaseSession db, TYPE iType, Record iRecord) {
+          public RESULT onTrigger(DatabaseSession db, TYPE iType, DBRecord iRecord) {
             if (iType != TYPE.BEFORE_CREATE) {
               return RESULT.RECORD_NOT_CHANGED;
             }
-            EntityImpl doc = (EntityImpl) iRecord;
+            var doc = (EntityImpl) iRecord;
             if (doc.containsField("test")) {
               return RESULT.RECORD_NOT_CHANGED;
             }
-            EntityImpl doc1 = (EntityImpl) HookSaveTest.this.db.newEntity("test");
+            var doc1 = (EntityImpl) HookSaveTest.this.db.newEntity("test");
             doc1.field("test", "value");
             doc.field("testNewLinkedRecord", doc1);
             doc1.field("backLink", doc);

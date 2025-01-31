@@ -97,11 +97,9 @@ public class CommandExecutorSQLDropCluster extends CommandExecutorSQLAbstract
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final DatabaseSessionInternal database = getDatabase();
-
     // CHECK IF ANY CLASS IS USING IT
-    final int clusterId = database.getClusterIdByName(clusterName);
-    for (SchemaClass iClass : database.getMetadata().getSchema().getClasses()) {
+    final int clusterId = db.getClusterIdByName(clusterName);
+    for (SchemaClass iClass : db.getMetadata().getSchema().getClasses(db)) {
       for (int i : iClass.getClusterIds()) {
         if (i == clusterId)
         // IN USE
@@ -111,7 +109,7 @@ public class CommandExecutorSQLDropCluster extends CommandExecutorSQLAbstract
       }
     }
 
-    database.dropCluster(clusterId);
+    db.dropCluster(clusterId);
     return true;
   }
 
@@ -129,18 +127,6 @@ public class CommandExecutorSQLDropCluster extends CommandExecutorSQLAbstract
   @Override
   public QUORUM_TYPE getQuorumType() {
     return QUORUM_TYPE.ALL;
-  }
-
-  protected boolean isClusterDeletable(int clusterId) {
-    final var database = getDatabase();
-    for (SchemaClass iClass : database.getMetadata().getSchema().getClasses()) {
-      for (int i : iClass.getClusterIds()) {
-        if (i == clusterId) {
-          return false;
-        }
-      }
-    }
-    return true;
   }
 
   @Override

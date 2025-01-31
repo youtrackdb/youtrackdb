@@ -45,10 +45,6 @@ public class EmbeddedEntityImpl extends EntityImpl {
     this.owner = new WeakReference<>(iOwner);
   }
 
-  public void setClazzName(String clazzName) {
-    setClassName(clazzName);
-  }
-
   @Override
   public void save() {
     throw new UnsupportedOperationException("Cannot save embedded entity");

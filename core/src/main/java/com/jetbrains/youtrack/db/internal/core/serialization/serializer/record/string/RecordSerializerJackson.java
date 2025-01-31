@@ -25,10 +25,9 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
@@ -78,7 +77,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
   }
 
   @Override
-  public <T extends Record> T fromString(DatabaseSessionInternal db, String source,
+  public <T extends DBRecord> T fromString(DatabaseSessionInternal db, String source,
       RecordAbstract record, final String[] fields) {
     try (JsonParser jsonParser = JSON_FACTORY.createParser(source)) {
       //noinspection unchecked
@@ -339,7 +338,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
 
   @Override
   public StringWriter toString(
-      DatabaseSessionInternal db, final Record record,
+      DatabaseSessionInternal db, final DBRecord record,
       final StringWriter output,
       final String format,
       boolean autoDetectCollectionType) {
@@ -353,7 +352,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
     }
   }
 
-  public static void recordToJson(Record record, JsonGenerator jsonGenerator,
+  public static void recordToJson(DBRecord record, JsonGenerator jsonGenerator,
       @Nullable String format) {
     try {
       final FormatSettings settings = new FormatSettings(format);
@@ -364,7 +363,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
     }
   }
 
-  private static void recordToJson(Record record, JsonGenerator jsonGenerator,
+  private static void recordToJson(DBRecord record, JsonGenerator jsonGenerator,
       FormatSettings formatSettings) throws IOException {
     jsonGenerator.writeStartObject();
     writeMetadata(jsonGenerator, (RecordAbstract) record, formatSettings);
@@ -514,7 +513,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
 
     final SchemaClass cls = EntityInternalUtils.getImmutableSchemaClass(entity);
     if (cls != null) {
-      final Property prop = cls.getProperty(fieldName);
+      final var prop = cls.getProperty(fieldName);
       if (prop != null) {
         type = prop.getType();
       }

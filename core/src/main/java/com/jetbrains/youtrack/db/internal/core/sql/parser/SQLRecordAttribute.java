@@ -4,9 +4,9 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -96,7 +96,7 @@ public class SQLRecordAttribute extends SimpleNode {
       }
       return null;
     } else if (name.equalsIgnoreCase("@version")) {
-      return iCurrentRecord.getRecord().map(Record::getVersion).orElse(null);
+      return iCurrentRecord.getRecord().map(DBRecord::getVersion).orElse(null);
     } else if (name.equals("@type")) {
       return iCurrentRecord
           .getRecord()
@@ -137,7 +137,7 @@ public class SQLRecordAttribute extends SimpleNode {
       return iCurrentRecord.getSchemaType().map(SchemaClass::getName).orElse(null);
     } else if (name.equalsIgnoreCase("@version")) {
       try {
-        Record record = iCurrentRecord.getRecord(db);
+        var record = iCurrentRecord.getRecord(db);
         return record.getVersion();
       } catch (RecordNotFoundException e) {
         return null;

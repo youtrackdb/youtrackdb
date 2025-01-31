@@ -6,9 +6,9 @@ import static org.junit.Assert.assertTrue;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.exception.ConcurrentCreateException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
@@ -191,7 +191,7 @@ public class TransactionRidAllocationTest {
   public void testAllocationMultipleCommit() {
     db.begin();
 
-    List<Record> orecords = new ArrayList<>();
+    List<DBRecord> orecords = new ArrayList<>();
     Vertex v0 = db.newVertex("V");
     db.save(v0);
     for (int i = 0; i < 20; i++) {
@@ -204,7 +204,7 @@ public class TransactionRidAllocationTest {
     ((AbstractPaginatedStorage) db.getStorage())
         .preallocateRids((TransactionInternal) db.getTransaction());
     List<RID> allocated = new ArrayList<>();
-    for (Record rec : orecords) {
+    for (DBRecord rec : orecords) {
       allocated.add(rec.getIdentity());
     }
     ((AbstractPaginatedStorage) db.getStorage())

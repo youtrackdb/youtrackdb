@@ -24,10 +24,10 @@ import com.jetbrains.youtrack.db.api.DatabaseSession.ATTRIBUTES;
 import com.jetbrains.youtrack.db.api.DatabaseSession.STATUS;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -169,7 +169,7 @@ public class ScriptDocumentDatabaseWrapper {
     return database.save(new EntityImpl(database).updateFromJSON(iString, true));
   }
 
-  public EntityImpl save(Record iRecord) {
+  public EntityImpl save(DBRecord iRecord) {
     return database.save(iRecord);
   }
 
@@ -245,7 +245,7 @@ public class ScriptDocumentDatabaseWrapper {
     database.delete(iRid);
   }
 
-  public <RET extends Record> RET load(RID iRecordId) {
+  public <RET extends DBRecord> RET load(RID iRecordId) {
     return database.load(iRecordId);
   }
 
@@ -254,7 +254,7 @@ public class ScriptDocumentDatabaseWrapper {
     return database.getDefaultClusterId();
   }
 
-  public <RET extends Record> RET load(final String iRidAsString) {
+  public <RET extends DBRecord> RET load(final String iRidAsString) {
     return database.load(new RecordId(iRidAsString));
   }
 
@@ -266,7 +266,7 @@ public class ScriptDocumentDatabaseWrapper {
     return database.setProperty(iName, iValue);
   }
 
-  public EntityImpl save(Record iRecord, String iClusterName) {
+  public EntityImpl save(DBRecord iRecord, String iClusterName) {
     return database.save(iRecord, iClusterName);
   }
 

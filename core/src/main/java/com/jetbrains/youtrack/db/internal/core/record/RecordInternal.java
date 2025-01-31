@@ -20,8 +20,8 @@
 
 package com.jetbrains.youtrack.db.internal.core.record;
 
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
@@ -32,7 +32,7 @@ public class RecordInternal {
    * Internal only. Fills in one shot the record.
    */
   public static RecordAbstract fill(
-      final Record record,
+      final DBRecord record,
       final RID iRid,
       final int iVersion,
       final byte[] iBuffer,
@@ -42,12 +42,12 @@ public class RecordInternal {
     return rec;
   }
 
-  public static void checkForBinding(Record record) {
+  public static void checkForBinding(DBRecord record) {
     ((RecordAbstract) record).checkForBinding();
   }
 
   public static RecordAbstract fill(
-      final Record record,
+      final DBRecord record,
       final RID iRid,
       final int iVersion,
       final byte[] iBuffer,
@@ -59,7 +59,7 @@ public class RecordInternal {
   }
 
   public static void fromStream(
-      final Record record, final byte[] iBuffer, DatabaseSessionInternal db) {
+      final DBRecord record, final byte[] iBuffer, DatabaseSessionInternal db) {
     final RecordAbstract rec = (RecordAbstract) record;
     rec.fromStream(iBuffer, db);
   }
@@ -67,7 +67,7 @@ public class RecordInternal {
   /**
    * Internal only. Changes the identity of the record.
    */
-  public static RecordAbstract setIdentity(final Record record, final RecordId iIdentity) {
+  public static RecordAbstract setIdentity(final DBRecord record, final RecordId iIdentity) {
     final RecordAbstract rec = (RecordAbstract) record;
     rec.setIdentity(iIdentity);
     return rec;
@@ -76,7 +76,7 @@ public class RecordInternal {
   /**
    * Internal only. Unsets the dirty status of the record.
    */
-  public static void unsetDirty(final Record record) {
+  public static void unsetDirty(final DBRecord record) {
     final RecordAbstract rec = (RecordAbstract) record;
     rec.unsetDirty();
   }
@@ -84,7 +84,7 @@ public class RecordInternal {
   /**
    * Internal only. Sets the version.
    */
-  public static void setVersion(final Record record, final int iVersion) {
+  public static void setVersion(final DBRecord record, final int iVersion) {
     final RecordAbstract rec = (RecordAbstract) record;
     rec.setVersion(iVersion);
   }
@@ -92,7 +92,7 @@ public class RecordInternal {
   /**
    * Internal only. Return the record type.
    */
-  public static byte getRecordType(DatabaseSessionInternal db, final Record record) {
+  public static byte getRecordType(DatabaseSessionInternal db, final DBRecord record) {
     if (record instanceof RecordAbstract) {
       return ((RecordAbstract) record).getRecordType();
     }
@@ -100,27 +100,27 @@ public class RecordInternal {
     return rec.getRecordType();
   }
 
-  public static boolean isContentChanged(final Record record) {
+  public static boolean isContentChanged(final DBRecord record) {
     final RecordAbstract rec = (RecordAbstract) record;
     return rec.isContentChanged();
   }
 
-  public static void setContentChanged(final Record record, final boolean changed) {
+  public static void setContentChanged(final DBRecord record, final boolean changed) {
     final RecordAbstract rec = (RecordAbstract) record;
     rec.setContentChanged(changed);
   }
 
-  public static void clearSource(final Record record) {
+  public static void clearSource(final DBRecord record) {
     final RecordAbstract rec = (RecordAbstract) record;
     rec.clearSource();
   }
 
-  public static void setRecordSerializer(final Record record,
+  public static void setRecordSerializer(final DBRecord record,
       final RecordSerializer serializer) {
     ((RecordAbstract) record).recordFormat = serializer;
   }
 
-  public static RecordSerializer getRecordSerializer(Record iRecord) {
+  public static RecordSerializer getRecordSerializer(DBRecord iRecord) {
     return ((RecordAbstract) iRecord).recordFormat;
   }
 }

@@ -19,8 +19,8 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -150,7 +150,7 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
       String fieldName, Object v) {
     if (iClass != null) {
       // CHECK TYPE AND CONVERT IF NEEDED
-      final Property p = iClass.getProperty(fieldName);
+      final SchemaProperty p = iClass.getProperty(fieldName);
       if (p != null) {
         final SchemaClass embeddedType = p.getLinkedClass();
 

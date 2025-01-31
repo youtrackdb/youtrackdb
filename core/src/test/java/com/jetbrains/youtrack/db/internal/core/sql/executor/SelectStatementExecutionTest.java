@@ -9,15 +9,15 @@ import com.jetbrains.youtrack.db.api.query.ExecutionPlan;
 import com.jetbrains.youtrack.db.api.query.ExecutionStep;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.Vertex;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
@@ -3787,7 +3787,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
   public void testContainsAnyWithIndex() {
     String className = "testContainsAnyWithIndex";
     SchemaClass clazz = db.createClassIfNotExist(className);
-    Property prop = clazz.createProperty(db, "tags", PropertyType.EMBEDDEDLIST,
+    SchemaProperty prop = clazz.createProperty(db, "tags", PropertyType.EMBEDDEDLIST,
         PropertyType.STRING);
     prop.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
@@ -3897,7 +3897,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
   public void testInWithIndex() {
     String className = "testInWithIndex";
     SchemaClass clazz = db.createClassIfNotExist(className);
-    Property prop = clazz.createProperty(db, "tag", PropertyType.STRING);
+    SchemaProperty prop = clazz.createProperty(db, "tag", PropertyType.STRING);
     prop.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
@@ -3956,7 +3956,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     String className3 = "testIndexChain3";
 
     SchemaClass clazz3 = db.createClassIfNotExist(className3);
-    Property prop = clazz3.createProperty(db, "name", PropertyType.STRING);
+    SchemaProperty prop = clazz3.createProperty(db, "name", PropertyType.STRING);
     prop.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     SchemaClass clazz2 = db.createClassIfNotExist(className2);
@@ -4005,7 +4005,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     String className3 = "testIndexChainWithContainsAny3";
 
     SchemaClass clazz3 = db.createClassIfNotExist(className3);
-    Property prop = clazz3.createProperty(db, "name", PropertyType.STRING);
+    SchemaProperty prop = clazz3.createProperty(db, "name", PropertyType.STRING);
     prop.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     SchemaClass clazz2 = db.createClassIfNotExist(className2);
@@ -4061,7 +4061,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     String className = "testMapByKeyIndex";
 
     SchemaClass clazz1 = db.createClassIfNotExist(className);
-    Property prop = clazz1.createProperty(db, "themap", PropertyType.EMBEDDEDMAP);
+    SchemaProperty prop = clazz1.createProperty(db, "themap", PropertyType.EMBEDDEDMAP);
 
     db.command(
         "CREATE INDEX " + className + ".themap ON " + className + "(themap by key) NOTUNIQUE");
@@ -4136,7 +4136,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     String className = "testMapByValueIndex";
 
     SchemaClass clazz1 = db.createClassIfNotExist(className);
-    Property prop = clazz1.createProperty(db, "themap", PropertyType.EMBEDDEDMAP,
+    SchemaProperty prop = clazz1.createProperty(db, "themap", PropertyType.EMBEDDEDMAP,
         PropertyType.STRING);
 
     db.command(
@@ -4493,7 +4493,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
   public void testSimpleRangeQueryWithIndexGTE() {
     final String className = "testSimpleRangeQueryWithIndexGTE";
     final SchemaClass clazz = db.getMetadata().getSchema().getOrCreateClass(className);
-    final Property prop = clazz.createProperty(db, "name", PropertyType.STRING);
+    final SchemaProperty prop = clazz.createProperty(db, "name", PropertyType.STRING);
     prop.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     for (int i = 0; i < 10; i++) {
@@ -4518,7 +4518,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
   public void testSimpleRangeQueryWithIndexLTE() {
     final String className = "testSimpleRangeQueryWithIndexLTE";
     final SchemaClass clazz = db.getMetadata().getSchema().getOrCreateClass(className);
-    final Property prop = clazz.createProperty(db, "name", PropertyType.STRING);
+    final SchemaProperty prop = clazz.createProperty(db, "name", PropertyType.STRING);
     prop.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     for (int i = 0; i < 10; i++) {
@@ -4543,7 +4543,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
   public void testSimpleRangeQueryWithOutIndex() {
     final String className = "testSimpleRangeQueryWithOutIndex";
     final SchemaClass clazz = db.getMetadata().getSchema().getOrCreateClass(className);
-    final Property prop = clazz.createProperty(db, "name", PropertyType.STRING);
+    final SchemaProperty prop = clazz.createProperty(db, "name", PropertyType.STRING);
     // Hash Index skipped for range query
     prop.createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
@@ -4881,7 +4881,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
         String.join(
             ",",
             Stream.of(coupe1, coupe2, mw1, mw2, hatch1)
-                .map(Record::getIdentity)
+                .map(DBRecord::getIdentity)
                 .map(Object::toString)
                 .toList());
     var unionAllEnginesQuery =

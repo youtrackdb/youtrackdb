@@ -10,10 +10,10 @@ import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Vertex;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
@@ -906,7 +906,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
       throw new IllegalArgumentException("Class not found in source vertex: " + fromVertex);
     }
 
-    final Property prop = linkClass.getProperty(fieldName);
+    final SchemaProperty prop = linkClass.getProperty(fieldName);
     final PropertyType propType =
         prop != null && prop.getType() != PropertyType.ANY ? prop.getType() : null;
 

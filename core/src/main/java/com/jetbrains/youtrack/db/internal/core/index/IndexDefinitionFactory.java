@@ -21,9 +21,9 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
 import com.jetbrains.youtrack.db.api.schema.Collate;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -69,7 +69,7 @@ public class IndexDefinitionFactory {
       if (collates != null) {
         collate = collates.get(0);
       }
-      Property property = oClass.getProperty(fieldName);
+      SchemaProperty property = oClass.getProperty(fieldName);
       if (property != null) {
         if (collate == null) {
           collate = property.getCollate();
@@ -138,7 +138,7 @@ public class IndexDefinitionFactory {
       String field = fieldsToIndex.get(i);
       final String fieldName =
           SchemaClassImpl.decodeClassName(adjustFieldName(oClass, extractFieldName(field)));
-      Property property = oClass.getProperty(fieldName);
+      SchemaProperty property = oClass.getProperty(fieldName);
       if (property != null) {
         if (collate == null) {
           collate = property.getCollate();
@@ -169,7 +169,7 @@ public class IndexDefinitionFactory {
       final String fieldName = fieldNames.get(i);
       final PropertyType type = types.get(i);
 
-      final Property property = oClass.getProperty(fieldName);
+      final SchemaProperty property = oClass.getProperty(fieldName);
       if (property != null && !type.equals(property.getType())) {
         throw new IllegalArgumentException("Property type list not match with real property types");
       }
@@ -273,7 +273,7 @@ public class IndexDefinitionFactory {
   }
 
   private static String adjustFieldName(final SchemaClass clazz, final String fieldName) {
-    final Property property = clazz.getProperty(fieldName);
+    final SchemaProperty property = clazz.getProperty(fieldName);
     if (property != null) {
       return property.getName();
     } else {

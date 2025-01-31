@@ -7,10 +7,10 @@ import com.jetbrains.youtrack.db.api.query.ExecutionStep;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.util.PairIntegerObject;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
@@ -882,7 +882,7 @@ public class SelectExecutionPlanner {
         SQLLetItem item = iterator.next();
         if (item.getExpression() != null
             && (item.getExpression().isEarlyCalculated(ctx)
-            || isUnionAllOfQueries(info, item.getVarName(), item.getExpression()))) {
+            || isCombinationOfQueries(info, item.getVarName(), item.getExpression()))) {
           iterator.remove();
           addGlobalLet(info, item.getVarName(), item.getExpression());
         } else if (item.getQuery() != null && !item.getQuery().refersToParent()) {
@@ -893,7 +893,10 @@ public class SelectExecutionPlanner {
     }
   }
 
-  private static boolean isUnionAllOfQueries(
+  private static final Set<String> COMBINATION_FUNCTIONS =
+      Set.of("unionall", "intersect", "difference");
+
+  private static boolean isCombinationOfQueries(
       QueryPlanningInfo info, SQLIdentifier varName, SQLExpression expression) {
     if (expression.getMathExpression() instanceof SQLBaseExpression exp) {
       if (exp.getIdentifier() != null
@@ -901,7 +904,8 @@ public class SelectExecutionPlanner {
           && exp.getIdentifier().getLevelZero() != null
           && exp.getIdentifier().getLevelZero().getFunctionCall() != null) {
         SQLFunctionCall fc = exp.getIdentifier().getLevelZero().getFunctionCall();
-        if (fc.getName().getStringValue().equalsIgnoreCase("unionall")) {
+        if (COMBINATION_FUNCTIONS.stream()
+            .anyMatch(fc.getName().getStringValue()::equalsIgnoreCase)) {
           for (SQLExpression param : fc.getParams()) {
             if (param.toString().startsWith("$")) {
               return true;
@@ -1871,7 +1875,7 @@ public class SelectExecutionPlanner {
               .getItems()
               .forEach(
                   item -> {
-                    Property possibleEdgeProperty =
+                    SchemaProperty possibleEdgeProperty =
                         targetClass.getProperty("out_" + item.getAlias());
                     if (possibleEdgeProperty != null
                         && possibleEdgeProperty.getType() == PropertyType.LINKBAG) {
@@ -2839,7 +2843,7 @@ public class SelectExecutionPlanner {
   }
 
   private boolean isMap(SchemaClass clazz, String indexField) {
-    Property prop = clazz.getProperty(indexField);
+    SchemaProperty prop = clazz.getProperty(indexField);
     if (prop == null) {
       return false;
     }

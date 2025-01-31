@@ -24,9 +24,9 @@ import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -357,7 +357,7 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
       if (total > 0) {
         if (inverse) {
           // REMOVE THE OLD PROPERTY IF ANY
-          Property prop = destClass.getProperty(linkName);
+          SchemaProperty prop = destClass.getProperty(linkName);
           destClass = database.getMetadata().getSchema().getClass(destClassName);
           if (prop != null) {
             destClass.dropProperty(database, linkName);
@@ -373,7 +373,7 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
         } else {
 
           // REMOVE THE OLD PROPERTY IF ANY
-          Property prop = sourceClass.getProperty(linkName);
+          SchemaProperty prop = sourceClass.getProperty(linkName);
           sourceClass = database.getMetadata().getSchema().getClass(sourceClassName);
           if (prop != null) {
             sourceClass.dropProperty(database, linkName);

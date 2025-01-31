@@ -20,12 +20,12 @@
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.get;
 
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedDbAbstract;
 
 public class ServerCommandGetDocumentByClass extends ServerCommandAuthenticatedDbAbstract {
@@ -44,7 +44,7 @@ public class ServerCommandGetDocumentByClass extends ServerCommandAuthenticatedD
 
     iRequest.getData().commandInfo = "Load entity";
 
-    final Record rec;
+    final DBRecord rec;
     try (DatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
       if (db.getMetadata().getImmutableSchemaSnapshot().getClass(urlParts[2]) == null) {
         throw new IllegalArgumentException("Invalid class '" + urlParts[2] + "'");

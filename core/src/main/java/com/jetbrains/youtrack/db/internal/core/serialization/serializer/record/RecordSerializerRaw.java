@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
@@ -32,7 +32,7 @@ public class RecordSerializerRaw implements RecordSerializer {
 
   public static final String NAME = "ORecordDocumentRaw";
 
-  public static Record fromStream(DatabaseSessionInternal db, final byte[] iSource) {
+  public static DBRecord fromStream(DatabaseSessionInternal db, final byte[] iSource) {
     return new RecordBytes(db, iSource);
   }
 

@@ -5,12 +5,12 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.api.schema.Property;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.exception.SchemaException;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
-import com.jetbrains.youtrack.db.api.exception.SchemaException;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
@@ -51,7 +51,7 @@ public class TestMultiSuperClasses extends BaseMemoryInternalDatabase {
     assertTrue(aClass.isSuperClassOf(cClass));
     assertTrue(bClass.isSuperClassOf(cClass));
 
-    Property property = cClass.getProperty("propertyInt");
+    SchemaProperty property = cClass.getProperty("propertyInt");
     assertEquals(PropertyType.INTEGER, property.getType());
     property = cClass.propertiesMap(db).get("propertyInt");
     assertEquals(PropertyType.INTEGER, property.getType());

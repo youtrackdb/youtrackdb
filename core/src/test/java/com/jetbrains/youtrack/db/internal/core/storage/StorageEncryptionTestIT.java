@@ -8,8 +8,8 @@ import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -71,7 +71,7 @@ public class StorageEncryptionTestIT {
               session.query("select from EncryptedData where id = ?", random.nextInt(10_000_000))) {
             if (resultSet.hasNext()) {
               final Result result = resultSet.next();
-              result.getEntity().ifPresent(Record::delete);
+              result.getEntity().ifPresent(DBRecord::delete);
             }
           }
         }

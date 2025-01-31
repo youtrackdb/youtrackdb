@@ -6,16 +6,16 @@ import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.SchemaException;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionFactory;
 import com.jetbrains.youtrack.db.internal.core.index.IndexException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaPropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
@@ -39,7 +39,7 @@ public class SchemaClassRemote extends SchemaClassImpl {
     super(iOwner, iName, iClusterIds);
   }
 
-  protected Property addProperty(
+  protected SchemaProperty addProperty(
       DatabaseSessionInternal session, final String propertyName,
       final PropertyType type,
       final PropertyType linkedType,
@@ -62,11 +62,11 @@ public class SchemaClassRemote extends SchemaClassImpl {
     session.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
     if (linkedType != null) {
-      PropertyImpl.checkLinkTypeSupport(type);
+      SchemaPropertyImpl.checkLinkTypeSupport(type);
     }
 
     if (linkedClass != null) {
-      PropertyImpl.checkSupportLinkedClass(type);
+      SchemaPropertyImpl.checkSupportLinkedClass(type);
     }
 
     acquireSchemaWriteLock(session);
@@ -335,8 +335,8 @@ public class SchemaClassRemote extends SchemaClassImpl {
     return this;
   }
 
-  protected PropertyImpl createPropertyInstance() {
-    return new PropertyRemote(this);
+  protected SchemaPropertyImpl createPropertyInstance() {
+    return new SchemaPropertyRemote(this);
   }
 
   /**
@@ -558,12 +558,12 @@ public class SchemaClassRemote extends SchemaClassImpl {
 
   @Override
   public void getIndexedProperties(DatabaseSessionInternal session,
-      Collection<Property> indexedProperties) {
+      Collection<SchemaProperty> indexedProperties) {
     throw new UnsupportedOperationException("Not supported in remote environment");
   }
 
   @Override
-  public Collection<Property> getIndexedProperties(DatabaseSession session) {
+  public Collection<SchemaProperty> getIndexedProperties(DatabaseSession session) {
     throw new UnsupportedOperationException("Not supported in remote environment");
   }
 

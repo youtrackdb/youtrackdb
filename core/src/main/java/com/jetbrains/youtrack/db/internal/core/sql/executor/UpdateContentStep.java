@@ -3,8 +3,8 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
@@ -68,13 +68,13 @@ public class UpdateContentStep extends AbstractExecutionStep {
               .getMetadata()
               .getImmutableSchemaSnapshot()
               .getClass(Security.RESTRICTED_CLASSNAME);
-      for (Property prop : restricted.properties(ctx.getDatabase())) {
+      for (SchemaProperty prop : restricted.properties(ctx.getDatabase())) {
         fieldsToPreserve.field(prop.getName(), record.<Object>getProperty(prop.getName()));
       }
     }
     Map<String, Object> preDefaultValues = null;
     if (clazz != null) {
-      for (Property prop : clazz.properties(ctx.getDatabase())) {
+      for (SchemaProperty prop : clazz.properties(ctx.getDatabase())) {
         if (prop.getDefaultValue() != null) {
           if (preDefaultValues == null) {
             preDefaultValues = new HashMap<>();

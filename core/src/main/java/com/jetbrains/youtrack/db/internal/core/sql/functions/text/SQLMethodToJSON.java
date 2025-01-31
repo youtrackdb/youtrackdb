@@ -17,8 +17,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.functions.text;
 
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -57,7 +57,7 @@ public class SQLMethodToJSON extends AbstractSQLMethod {
     if (current instanceof Result result && result.isEntity()) {
       current = result.asEntity();
     }
-    if (current instanceof Record record) {
+    if (current instanceof DBRecord record) {
 
       if (record.isUnloaded()) {
         record = iContext.getDatabase().bindToSession(record);

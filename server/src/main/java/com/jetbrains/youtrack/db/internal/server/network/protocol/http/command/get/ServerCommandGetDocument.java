@@ -20,12 +20,12 @@
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.get;
 
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedDbAbstract;
 
 public class ServerCommandGetDocument extends ServerCommandAuthenticatedDbAbstract {
@@ -42,7 +42,7 @@ public class ServerCommandGetDocument extends ServerCommandAuthenticatedDbAbstra
 
     iRequest.getData().commandInfo = "Load document";
 
-    final Record rec;
+    final DBRecord rec;
 
     final int parametersPos = urlParts[2].indexOf('?');
     final String rid = parametersPos > -1 ? urlParts[2].substring(0, parametersPos) : urlParts[2];

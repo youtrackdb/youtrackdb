@@ -42,7 +42,7 @@ public abstract class RecordHookAbstract implements RecordHook {
    * @return True if the iRecord has been modified and a new marshalling is required, otherwise
    * false
    */
-  public RESULT onRecordBeforeCreate(final Record iRecord) {
+  public RESULT onRecordBeforeCreate(final DBRecord iRecord) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
@@ -52,13 +52,13 @@ public abstract class RecordHookAbstract implements RecordHook {
    * @param db
    * @param iRecord The iRecord just created
    */
-  public void onRecordAfterCreate(DatabaseSession db, final Record iRecord) {
+  public void onRecordAfterCreate(DatabaseSession db, final DBRecord iRecord) {
   }
 
-  public void onRecordCreateFailed(final Record iRecord) {
+  public void onRecordCreateFailed(final DBRecord iRecord) {
   }
 
-  public void onRecordCreateReplicated(final Record iRecord) {
+  public void onRecordCreateReplicated(final DBRecord iRecord) {
   }
 
   /**
@@ -66,7 +66,7 @@ public abstract class RecordHookAbstract implements RecordHook {
    *
    * @param iRecord The iRecord to read
    */
-  public RESULT onRecordBeforeRead(final Record iRecord) {
+  public RESULT onRecordBeforeRead(final DBRecord iRecord) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
@@ -76,13 +76,13 @@ public abstract class RecordHookAbstract implements RecordHook {
    * @param db
    * @param iRecord The iRecord just read
    */
-  public void onRecordAfterRead(DatabaseSession db, final Record iRecord) {
+  public void onRecordAfterRead(DatabaseSession db, final DBRecord iRecord) {
   }
 
-  public void onRecordReadFailed(final Record iRecord) {
+  public void onRecordReadFailed(final DBRecord iRecord) {
   }
 
-  public void onRecordReadReplicated(final Record iRecord) {
+  public void onRecordReadReplicated(final DBRecord iRecord) {
   }
 
   /**
@@ -92,7 +92,7 @@ public abstract class RecordHookAbstract implements RecordHook {
    * @return True if the iRecord has been modified and a new marshalling is required, otherwise
    * false
    */
-  public RESULT onRecordBeforeUpdate(final Record iRecord) {
+  public RESULT onRecordBeforeUpdate(final DBRecord iRecord) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
@@ -102,13 +102,13 @@ public abstract class RecordHookAbstract implements RecordHook {
    * @param db
    * @param iRecord The iRecord just updated
    */
-  public void onRecordAfterUpdate(DatabaseSession db, final Record iRecord) {
+  public void onRecordAfterUpdate(DatabaseSession db, final DBRecord iRecord) {
   }
 
-  public void onRecordUpdateFailed(final Record iRecord) {
+  public void onRecordUpdateFailed(final DBRecord iRecord) {
   }
 
-  public void onRecordUpdateReplicated(final Record iRecord) {
+  public void onRecordUpdateReplicated(final DBRecord iRecord) {
   }
 
   /**
@@ -118,7 +118,7 @@ public abstract class RecordHookAbstract implements RecordHook {
    * @return True if the iRecord has been modified and a new marshalling is required, otherwise
    * false
    */
-  public RESULT onRecordBeforeDelete(final Record iRecord) {
+  public RESULT onRecordBeforeDelete(final DBRecord iRecord) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
@@ -128,55 +128,55 @@ public abstract class RecordHookAbstract implements RecordHook {
    * @param db
    * @param iRecord The iRecord just deleted
    */
-  public void onRecordAfterDelete(DatabaseSession db, final Record iRecord) {
+  public void onRecordAfterDelete(DatabaseSession db, final DBRecord iRecord) {
   }
 
-  public void onRecordDeleteFailed(final Record iRecord) {
+  public void onRecordDeleteFailed(final DBRecord iRecord) {
   }
 
-  public void onRecordDeleteReplicated(final Record iRecord) {
+  public void onRecordDeleteReplicated(final DBRecord iRecord) {
   }
 
-  public RESULT onRecordBeforeReplicaAdd(final Record record) {
+  public RESULT onRecordBeforeReplicaAdd(final DBRecord record) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
-  public void onRecordAfterReplicaAdd(final Record record) {
+  public void onRecordAfterReplicaAdd(final DBRecord record) {
   }
 
-  public void onRecordReplicaAddFailed(final Record record) {
+  public void onRecordReplicaAddFailed(final DBRecord record) {
   }
 
-  public RESULT onRecordBeforeReplicaUpdate(final Record record) {
+  public RESULT onRecordBeforeReplicaUpdate(final DBRecord record) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
-  public void onRecordAfterReplicaUpdate(final Record record) {
+  public void onRecordAfterReplicaUpdate(final DBRecord record) {
   }
 
-  public void onRecordReplicaUpdateFailed(final Record record) {
+  public void onRecordReplicaUpdateFailed(final DBRecord record) {
   }
 
-  public RESULT onRecordBeforeReplicaDelete(final Record record) {
+  public RESULT onRecordBeforeReplicaDelete(final DBRecord record) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
-  public void onRecordAfterReplicaDelete(final Record record) {
+  public void onRecordAfterReplicaDelete(final DBRecord record) {
   }
 
-  public void onRecordReplicaDeleteFailed(final Record record) {
+  public void onRecordReplicaDeleteFailed(final DBRecord record) {
   }
 
-  public void onRecordFinalizeUpdate(final Record record) {
+  public void onRecordFinalizeUpdate(final DBRecord record) {
   }
 
-  public void onRecordFinalizeCreation(final Record record) {
+  public void onRecordFinalizeCreation(final DBRecord record) {
   }
 
-  public void onRecordFinalizeDeletion(final Record record) {
+  public void onRecordFinalizeDeletion(final DBRecord record) {
   }
 
-  public RESULT onTrigger(DatabaseSession db, final TYPE iType, final Record record) {
+  public RESULT onTrigger(DatabaseSession db, final TYPE iType, final DBRecord record) {
     switch (iType) {
       case BEFORE_CREATE:
         return onRecordBeforeCreate(record);

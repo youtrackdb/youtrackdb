@@ -25,9 +25,9 @@ import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.api.exception.ManualIndexesAreProhibited;
 import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.OneEntryPerKeyLockManager;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.PartitionedLockManager;
@@ -926,7 +926,7 @@ public abstract class IndexAbstract implements IndexInternal {
     var stat = new long[]{documentNum, documentIndexed};
 
     var clusterIterator = session.browseCluster(clusterName);
-    session.executeInTxBatches((Iterator<Record>) clusterIterator, (db, record) -> {
+    session.executeInTxBatches((Iterator<DBRecord>) clusterIterator, (db, record) -> {
       if (Thread.interrupted()) {
         throw new CommandExecutionException("The index rebuild has been interrupted");
       }

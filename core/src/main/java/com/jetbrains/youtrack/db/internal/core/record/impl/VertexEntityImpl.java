@@ -33,14 +33,14 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
   public Collection<String> getPropertyNames() {
     checkForBinding();
 
-    return EdgeInternal.filterPropertyNames(super.getPropertyNames());
+    return VertexInternal.filterPropertyNames(super.getPropertyNames());
   }
 
   @Override
   public <RET> RET getProperty(String fieldName) {
     checkForBinding();
 
-    EdgeInternal.checkPropertyName(fieldName);
+    VertexInternal.checkPropertyName(fieldName);
 
     return getPropertyInternal(fieldName);
   }
@@ -50,7 +50,7 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
   public Identifiable getLinkProperty(String fieldName) {
     checkForBinding();
 
-    EdgeInternal.checkPropertyName(fieldName);
+    VertexInternal.checkPropertyName(fieldName);
 
     return super.getLinkProperty(fieldName);
   }
@@ -59,23 +59,23 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
   public void setProperty(String fieldName, Object propertyValue) {
     checkForBinding();
 
-    setProperty(fieldName, propertyValue);
+    VertexInternal.checkPropertyName(fieldName);
+    super.setProperty(fieldName, propertyValue);
   }
 
   @Override
   public void setProperty(String name, Object propertyValue, PropertyType types) {
     checkForBinding();
 
-    EdgeInternal.checkPropertyName(name);
-
+    VertexInternal.checkPropertyName(name);
     super.setProperty(name, propertyValue, types);
   }
 
   @Override
   public <RET> RET removeProperty(String fieldName) {
     checkForBinding();
-    EdgeInternal.checkPropertyName(fieldName);
 
+    VertexInternal.checkPropertyName(fieldName);
     return removePropertyInternal(fieldName);
   }
 

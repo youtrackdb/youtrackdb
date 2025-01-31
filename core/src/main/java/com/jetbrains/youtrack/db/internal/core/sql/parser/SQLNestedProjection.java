@@ -5,7 +5,6 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
@@ -137,7 +136,7 @@ public class SQLNestedProjection extends SimpleNode {
     if (input instanceof Entity) {
       elem = (Entity) input;
     } else {
-      Record e = input.getRecord(db);
+      var e = input.getRecord(db);
       if (e instanceof Entity) {
         elem = (Entity) e;
       } else {

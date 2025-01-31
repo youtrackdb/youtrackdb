@@ -25,9 +25,9 @@ import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.SchemaException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -52,10 +52,10 @@ import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.index.SimpleKeyIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassEmbedded;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaPropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Identity;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
@@ -108,7 +108,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
   public static final int IMPORT_RECORD_DUMP_LAP_EVERY_MS = 5000;
 
-  private final Map<PropertyImpl, String> linkedClasses = new HashMap<>();
+  private final Map<SchemaPropertyImpl, String> linkedClasses = new HashMap<>();
   private final Map<SchemaClass, List<String>> superClasses = new HashMap<>();
   private JSONReader jsonReader;
   private boolean schemaImported = false;
@@ -190,17 +190,17 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
   @Override
   protected void parseSetting(final String option, final List<String> items) {
     if (option.equalsIgnoreCase("-deleteRIDMapping")) {
-      deleteRIDMapping = Boolean.parseBoolean(items.get(0));
+      deleteRIDMapping = Boolean.parseBoolean(items.getFirst());
     } else {
       if (option.equalsIgnoreCase("-preserveClusterIDs")) {
-        preserveClusterIDs = Boolean.parseBoolean(items.get(0));
+        preserveClusterIDs = Boolean.parseBoolean(items.getFirst());
       } else {
 
         if (option.equalsIgnoreCase("-migrateLinks")) {
-          migrateLinks = Boolean.parseBoolean(items.get(0));
+          migrateLinks = Boolean.parseBoolean(items.getFirst());
         } else {
           if (option.equalsIgnoreCase("-rebuildIndexes")) {
-            rebuildIndexes = Boolean.parseBoolean(items.get(0));
+            rebuildIndexes = Boolean.parseBoolean(items.getFirst());
           } else {
             super.parseSetting(option, items);
           }
@@ -286,12 +286,9 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
           "\n\nDatabase import completed in " + ((System.nanoTime() - time) / 1000000) + " ms");
     } catch (final Exception e) {
       final StringWriter writer = new StringWriter();
-      writer.append(
-          "Error on database import happened just before line "
-              + jsonReader.getLineNumber()
-              + ", column "
-              + jsonReader.getColumnNumber()
-              + "\n");
+      writer.append("Error on database import happened just before line ")
+          .append(String.valueOf(jsonReader.getLineNumber())).append(", column ")
+          .append(String.valueOf(jsonReader.getColumnNumber())).append("\n");
       final PrintWriter printWriter = new PrintWriter(writer);
       e.printStackTrace(printWriter);
       printWriter.flush();
@@ -327,16 +324,13 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
               + " export\n");
       jsonReader.readNext(JSONReader.BEGIN_COLLECTION);
 
-      while (true) {
+      do {
         jsonReader.readNext(JSONReader.NEXT_IN_ARRAY);
 
         final RecordId recordId = new RecordId(jsonReader.getValue());
         brokenRids.add(recordId);
 
-        if (jsonReader.lastChar() == ']') {
-          break;
-        }
-      }
+      } while (jsonReader.lastChar() != ']');
     }
     if (migrateLinks) {
       if (exporterVersion >= 12) {
@@ -370,7 +364,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     listener.onMessage("\nStale indexes were rebuilt...");
   }
 
-  public DatabaseImport removeExportImportRIDsMap() {
+  public void removeExportImportRIDsMap() {
     listener.onMessage("\nDeleting RID Mapping table...");
 
     Schema schema = database.getMetadata().getSchema();
@@ -379,7 +373,6 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     }
 
     listener.onMessage("OK\n");
-    return this;
   }
 
   public void close() {
@@ -399,18 +392,6 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
   public void setRebuildIndexes(boolean rebuildIndexes) {
     this.rebuildIndexes = rebuildIndexes;
-  }
-
-  public boolean isPreserveClusterIDs() {
-    return preserveClusterIDs;
-  }
-
-  public void setPreserveClusterIDs(boolean preserveClusterIDs) {
-    this.preserveClusterIDs = preserveClusterIDs;
-  }
-
-  public boolean isDeleteRIDMapping() {
-    return deleteRIDMapping;
   }
 
   public void setDeleteRIDMapping(boolean deleteRIDMapping) {
@@ -503,7 +484,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
         "\nNon merge mode (-merge=false): removing all default non security classes");
 
     final Schema schema = database.getMetadata().getSchema();
-    final Collection<SchemaClass> classes = schema.getClasses();
+    final Collection<SchemaClass> classes = schema.getClasses(database);
     final SchemaClass role = schema.getClass(Role.CLASS_NAME);
     final SchemaClass user = schema.getClass(SecurityUserImpl.CLASS_NAME);
     final SchemaClass identity = schema.getClass(Identity.CLASS_NAME);
@@ -516,9 +497,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
           && !dbClass.isSuperClassOf(user)
           && !dbClass.isSuperClassOf(identity) /*&& !dbClass.isSuperClassOf(oSecurityPolicy)*/) {
         classesToDrop.put(className, dbClass);
-        for (var index : ((SchemaClassInternal) dbClass).getIndexes(database)) {
-          indexNames.add(index);
-        }
+        indexNames.addAll(((SchemaClassInternal) dbClass).getIndexes(database));
       }
     }
 
@@ -558,7 +537,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
   }
 
   private void setLinkedClasses() {
-    for (final Entry<PropertyImpl, String> linkedClass : linkedClasses.entrySet()) {
+    for (final Entry<SchemaPropertyImpl, String> linkedClass : linkedClasses.entrySet()) {
       linkedClass
           .getKey()
           .setLinkedClass(database,
@@ -605,12 +584,12 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       String blobClusterIds = jsonReader.readString(JSONReader.END_COLLECTION, true).trim();
       blobClusterIds = blobClusterIds.substring(1, blobClusterIds.length() - 1);
 
-      if (!"".equals(blobClusterIds)) {
+      if (!blobClusterIds.isEmpty()) {
         // READ BLOB CLUSTER IDS
         for (String i :
             StringSerializerHelper.split(
                 blobClusterIds, StringSerializerHelper.RECORD_SEPARATOR)) {
-          Integer cluster = Integer.parseInt(i);
+          int cluster = Integer.parseInt(i);
           if (!ArrayUtils.contains(database.getBlobClusterIds(), cluster)) {
             String name = database.getClusterNameById(cluster);
             database.addBlobCluster(name);
@@ -873,10 +852,11 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       }
     }
 
-    PropertyImpl prop = (PropertyImpl) iClass.getProperty(propName);
+    SchemaPropertyImpl prop = (SchemaPropertyImpl) iClass.getProperty(propName);
     if (prop == null) {
       // CREATE IT
-      prop = (PropertyImpl) iClass.createProperty(database, propName, type, (PropertyType) null,
+      prop = (SchemaPropertyImpl) iClass.createProperty(database, propName, type,
+          (PropertyType) null,
           true);
     }
     prop.setMandatory(database, mandatory);
@@ -928,7 +908,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     return result;
   }
 
-  private long importClusters() throws ParseException, IOException {
+  private void importClusters() throws ParseException, IOException {
     listener.onMessage("\nImporting clusters...");
 
     long total = 0;
@@ -954,7 +934,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
               .checkContent("\"name\"")
               .readString(JSONReader.COMMA_SEPARATOR);
 
-      if (name.length() == 0) {
+      if (name.isEmpty()) {
         name = null;
       }
 
@@ -1124,7 +1104,6 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     }
     database.commit();
 
-    return total;
   }
 
   /**
@@ -1387,7 +1366,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     final HashSet<RID> recordsBeforeImport = new HashSet<>();
 
     for (final String clusterName : database.getClusterNames()) {
-      final Iterator<Record> recordIterator = database.browseCluster(clusterName);
+      final Iterator<DBRecord> recordIterator = database.browseCluster(clusterName);
       while (recordIterator.hasNext()) {
         recordsBeforeImport.add(recordIterator.next().getIdentity());
       }
@@ -1463,7 +1442,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     return total;
   }
 
-  private void importSkippedRidbag(final Record record, final Map<String, RidSet> bags) {
+  private void importSkippedRidbag(final DBRecord record, final Map<String, RidSet> bags) {
     if (bags == null) {
       return;
     }
@@ -1479,7 +1458,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
         });
   }
 
-  private void importSkippedRidbag(Record record, String value, Integer skippedPartsIndex) {
+  private void importSkippedRidbag(DBRecord record, String value, Integer skippedPartsIndex) {
     var entity = (EntityInternal) record;
 
     StringBuilder builder = new StringBuilder();
@@ -1713,20 +1692,13 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
     final IndexDefinition indexDefinition;
     final EntityImpl indexDefinitionEntity =
-        (EntityImpl) RecordSerializerJackson.INSTANCE.fromString(database, value, null, null);
+        RecordSerializerJackson.INSTANCE.fromString(database, value, null, null);
     try {
       final Class<?> indexDefClass = Class.forName(className);
       indexDefinition = (IndexDefinition) indexDefClass.getDeclaredConstructor().newInstance();
       indexDefinition.fromStream(indexDefinitionEntity);
-    } catch (final ClassNotFoundException e) {
-      throw new IOException("Error during deserialization of index definition", e);
-    } catch (final NoSuchMethodException e) {
-      throw new IOException("Error during deserialization of index definition", e);
-    } catch (final InvocationTargetException e) {
-      throw new IOException("Error during deserialization of index definition", e);
-    } catch (final InstantiationException e) {
-      throw new IOException("Error during deserialization of index definition", e);
-    } catch (final IllegalAccessException e) {
+    } catch (final ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
+                   InstantiationException | IllegalAccessException e) {
       throw new IOException("Error during deserialization of index definition", e);
     }
 
@@ -1768,7 +1740,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       while (positions.length > 0) {
         for (PhysicalPosition position : positions) {
           database.executeInTx(() -> {
-            Record record = database.load(new RecordId(clusterId, position.clusterPosition));
+            DBRecord record = database.load(new RecordId(clusterId, position.clusterPosition));
             if (record instanceof EntityImpl entity) {
               rewriteLinksInDocument(database, entity, brokenRids);
 

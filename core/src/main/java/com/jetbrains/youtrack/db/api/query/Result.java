@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.api.query;
 
 import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import java.util.Collection;
 import java.util.Map;
@@ -114,7 +114,7 @@ public interface Result {
 
   Optional<Blob> getBlob();
 
-  Optional<Record> getRecord();
+  Optional<DBRecord> getRecord();
 
   boolean isRecord();
 

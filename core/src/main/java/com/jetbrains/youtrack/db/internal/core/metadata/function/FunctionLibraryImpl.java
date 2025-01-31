@@ -24,7 +24,6 @@ import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
@@ -152,7 +151,7 @@ public class FunctionLibraryImpl {
     }
 
     var f = (SchemaClassInternal) db.getMetadata().getSchema().createClass("OFunction");
-    Property prop = f.createProperty(db, "name", PropertyType.STRING, (PropertyType) null, true);
+    var prop = f.createProperty(db, "name", PropertyType.STRING, (PropertyType) null, true);
     prop.createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
 
     f.createProperty(db, "code", PropertyType.STRING, (PropertyType) null, true);

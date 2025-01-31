@@ -22,15 +22,14 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassEmbedded;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaPropertyImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -304,7 +303,7 @@ public class CommandExecutorSQLCreateProperty extends CommandExecutorSQLAbstract
       throw new CommandExecutionException("Source class '" + className + "' not found");
     }
 
-    PropertyImpl prop = (PropertyImpl) sourceClass.getProperty(fieldName);
+    var prop = (SchemaPropertyImpl) sourceClass.getProperty(fieldName);
 
     if (prop != null) {
       if (ifNotExists) {
@@ -333,7 +332,7 @@ public class CommandExecutorSQLCreateProperty extends CommandExecutorSQLAbstract
     }
 
     // CREATE IT LOCALLY
-    Property internalProp =
+    var internalProp =
         sourceClass.addProperty(database, fieldName, type, linkedType, linkedClass, unsafe);
     if (readonly) {
       internalProp.setReadonly(database, true);

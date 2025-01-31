@@ -5,8 +5,8 @@ import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.SecurityException;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
@@ -396,7 +396,7 @@ public class SecurityEngine {
   }
 
   static boolean evaluateSecuirtyPolicyPredicate(
-      DatabaseSessionInternal session, SQLBooleanExpression predicate, Record record) {
+      DatabaseSessionInternal session, SQLBooleanExpression predicate, DBRecord record) {
     if (SQLBooleanExpression.TRUE.equals(predicate)) {
       return true;
     }

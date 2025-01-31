@@ -7,7 +7,6 @@ import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiCollectionIterator;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
@@ -82,7 +81,7 @@ public class SQLFunctionShortestPath extends SQLFunctionMathAbstract {
       final CommandContext iContext) {
 
     var db = iContext.getDatabase();
-    final Record record = iCurrentRecord != null ? iCurrentRecord.getRecord(db) : null;
+    var record = iCurrentRecord != null ? iCurrentRecord.getRecord(db) : null;
 
     final ShortestPathContext ctx = new ShortestPathContext();
 

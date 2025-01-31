@@ -47,7 +47,7 @@ public class SQLFunctionUnionAll extends SQLFunctionMultiValueAbstract<Collectio
       final Object iCurrentResult,
       final Object[] iParams,
       CommandContext iContext) {
-    if (iParams.length == 1) {
+    if (Boolean.TRUE.equals(iContext.getVariable("aggregation"))) {
       // AGGREGATION MODE (STATEFUL)
       Object value = iParams[0];
       if (value != null) {

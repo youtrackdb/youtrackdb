@@ -20,11 +20,11 @@
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiCollectionIterator;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
@@ -129,7 +129,7 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
     PropertyType type;
     SchemaClass linkedClass;
     PropertyType linkedType;
-    Property prop;
+    SchemaProperty prop;
 
     final Set<String> fieldSet;
 
@@ -323,7 +323,7 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
     return result;
   }
 
-  public byte[] writeClassOnly(Record iSource) {
+  public byte[] writeClassOnly(DBRecord iSource) {
     final EntityImpl record = (EntityImpl) iSource;
     StringBuilder iOutput = new StringBuilder();
     if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
@@ -335,7 +335,7 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
 
   @Override
   protected StringWriter toString(
-      DatabaseSessionInternal db, Record iRecord,
+      DatabaseSessionInternal db, DBRecord iRecord,
       final StringWriter iOutput,
       final String iFormat,
       final boolean autoDetectCollectionType) {
@@ -353,7 +353,7 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
       iOutput.append(StringSerializerHelper.CLASS_SEPARATOR);
     }
 
-    Property prop;
+    SchemaProperty prop;
     PropertyType type;
     SchemaClass linkedClass;
     PropertyType linkedType;
@@ -397,7 +397,7 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
           if (fieldValue.getClass() == byte[].class) {
             type = PropertyType.BINARY;
           } else if (DatabaseRecordThreadLocal.instance().isDefined()
-              && fieldValue instanceof Record) {
+              && fieldValue instanceof DBRecord) {
             if (type == null)
             // DETERMINE THE FIELD TYPE
             {
@@ -463,7 +463,7 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
                   } else if (DatabaseRecordThreadLocal.instance().isDefined()
                       && (firstValue instanceof EntityImpl
                       && !((EntityImpl) firstValue).isEmbedded())
-                      && (firstValue instanceof Record)) {
+                      && (firstValue instanceof DBRecord)) {
                     linkedClass =
                         getLinkInfo(
                             DatabaseRecordThreadLocal.instance().get(), getClassName(firstValue));
@@ -524,7 +524,7 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
                 if (DatabaseRecordThreadLocal.instance().isDefined()
                     && (firstValue instanceof EntityImpl
                     && !((EntityImpl) firstValue).isEmbedded())
-                    && (firstValue instanceof Record)) {
+                    && (firstValue instanceof DBRecord)) {
                   linkedClass =
                       getLinkInfo(
                           DatabaseRecordThreadLocal.instance().get(), getClassName(firstValue));

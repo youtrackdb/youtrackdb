@@ -4,10 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
@@ -102,7 +102,7 @@ public class ClassTest extends BaseMemoryInternalDatabase {
   public void testOClassAndOPropertyDescription() {
     final Schema oSchema = db.getMetadata().getSchema();
     SchemaClass oClass = oSchema.createClass("DescriptionTest");
-    Property property = oClass.createProperty(db, "property", PropertyType.STRING);
+    SchemaProperty property = oClass.createProperty(db, "property", PropertyType.STRING);
     oClass.setDescription(db, "DescriptionTest-class-description");
     property.setDescription(db, "DescriptionTest-property-description");
     assertEquals(oClass.getDescription(), "DescriptionTest-class-description");

@@ -19,16 +19,30 @@
  */
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string;
 
-import com.jetbrains.youtrack.db.api.record.Record;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import java.io.StringWriter;
 
 public class RecordSerializerJSON extends RecordSerializerStringAbstract {
+
   public static final String NAME = "json";
   public static final char[] PARAMETER_SEPARATOR = new char[]{':', ','};
 
+  @Override
+  public <T extends DBRecord> T fromString(DatabaseSessionInternal db, String iContent,
+      RecordAbstract iRecord, String[] iFields) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  protected StringWriter toString(DatabaseSessionInternal db, DBRecord iRecord,
+      StringWriter iOutput, String iFormat, boolean autoDetectCollectionType) {
+    throw new UnsupportedOperationException();
+  }
+
   public static class FormatSettings {
+
     public boolean includeVer;
     public boolean includeType;
     public boolean includeId;
@@ -131,20 +145,6 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
     return 0;
   }
 
-  @Override
-  public RecordAbstract fromString(DatabaseSessionInternal db, String source,
-      RecordAbstract record, final String[] fields) {
-    throw new UnsupportedOperationException("Not implemented");
-  }
-
-  @Override
-  public StringWriter toString(
-      DatabaseSessionInternal db, final Record record,
-      final StringWriter output,
-      final String format,
-      boolean autoDetectCollectionType) {
-    throw new UnsupportedOperationException("Not implemented");
-  }
 
   @Override
   public String toString() {

@@ -23,9 +23,9 @@ import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.NoTxRecordReadException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Record;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -96,7 +96,7 @@ public class FrontendTransactionNoTx extends FrontendTransactionAbstract {
     throw new UnsupportedOperationException("Rollback is not supported in no tx mode");
   }
 
-  public @Nonnull Record loadRecord(final RID rid) {
+  public @Nonnull DBRecord loadRecord(final RID rid) {
     checkNonTXReads();
     if (rid.isNew()) {
       throw new RecordNotFoundException(rid);
@@ -123,7 +123,7 @@ public class FrontendTransactionNoTx extends FrontendTransactionAbstract {
     return database.executeExists(rid);
   }
 
-  public Record saveRecord(final RecordAbstract iRecord, final String iClusterName) {
+  public DBRecord saveRecord(final RecordAbstract iRecord, final String iClusterName) {
     throw new DatabaseException("Cannot save record in no tx mode");
   }
 

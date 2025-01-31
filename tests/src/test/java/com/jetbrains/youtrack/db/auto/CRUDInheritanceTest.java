@@ -16,7 +16,6 @@
 package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import org.testng.Assert;
@@ -60,7 +59,7 @@ public class CRUDInheritanceTest extends BaseDBTest {
     Assert.assertFalse(resultSet.isEmpty());
     Assert.assertEquals(resultSet.size(), TOT_COMPANY_RECORDS);
 
-    int companyRecords = 0;
+    var companyRecords = 0;
     Entity account;
     for (var entries : resultSet) {
       account = entries.asEntity();
@@ -111,10 +110,10 @@ public class CRUDInheritanceTest extends BaseDBTest {
 
     createInheritanceTestClass();
 
-    SchemaClass abstractClass =
+    var abstractClass =
         db.getMetadata().getSchema().getClass("InheritanceTestAbstractClass");
-    SchemaClass baseClass = db.getMetadata().getSchema().getClass("InheritanceTestBaseClass");
-    SchemaClass testClass = db.getMetadata().getSchema().getClass("InheritanceTestClass");
+    var baseClass = db.getMetadata().getSchema().getClass("InheritanceTestBaseClass");
+    var testClass = db.getMetadata().getSchema().getClass("InheritanceTestClass");
 
     Assert.assertTrue(baseClass.getSuperClasses().contains(abstractClass));
     Assert.assertTrue(testClass.getSuperClasses().contains(baseClass));
@@ -124,8 +123,8 @@ public class CRUDInheritanceTest extends BaseDBTest {
   public void testIdFieldInheritanceFirstSubClass() {
     createInheritanceTestClass();
 
-    Entity a = db.newInstance("InheritanceTestBaseClass");
-    Entity b = db.newInstance("InheritanceTestClass");
+    var a = db.newInstance("InheritanceTestBaseClass");
+    var b = db.newInstance("InheritanceTestClass");
 
     db.begin();
     db.save(a);
@@ -138,9 +137,9 @@ public class CRUDInheritanceTest extends BaseDBTest {
 
   @Test
   public void testKeywordClass() {
-    SchemaClass klass = db.getMetadata().getSchema().createClass("Not");
+    var klass = db.getMetadata().getSchema().createClass("Not");
 
-    SchemaClass klass1 = db.getMetadata().getSchema().createClass("Extends_Not", klass);
+    var klass1 = db.getMetadata().getSchema().createClass("Extends_Not", klass);
     Assert.assertEquals(klass1.getSuperClasses().size(), 1, 1);
     Assert.assertEquals(klass1.getSuperClasses().getFirst().getName(), "Not");
   }
@@ -148,8 +147,8 @@ public class CRUDInheritanceTest extends BaseDBTest {
   @Test
   public void testSchemaGeneration() {
     var schema = db.getMetadata().getSchema();
-    SchemaClass testSchemaClass = schema.createClass("JavaTestSchemaGeneration");
-    SchemaClass childClass = schema.createClass("TestSchemaGenerationChild");
+    var testSchemaClass = schema.createClass("JavaTestSchemaGeneration");
+    var childClass = schema.createClass("TestSchemaGenerationChild");
 
     testSchemaClass.createProperty(db, "text", PropertyType.STRING);
     testSchemaClass.createProperty(db, "enumeration", PropertyType.STRING);
@@ -217,14 +216,14 @@ public class CRUDInheritanceTest extends BaseDBTest {
 
   protected static void checkProperty(SchemaClass iClass, String iPropertyName,
       PropertyType iType) {
-    Property prop = iClass.getProperty(iPropertyName);
+    var prop = iClass.getProperty(iPropertyName);
     Assert.assertNotNull(prop);
     Assert.assertEquals(prop.getType(), iType);
   }
 
   protected static void checkProperty(
       SchemaClass iClass, String iPropertyName, PropertyType iType, SchemaClass iLinkedClass) {
-    Property prop = iClass.getProperty(iPropertyName);
+    var prop = iClass.getProperty(iPropertyName);
     Assert.assertNotNull(prop);
     Assert.assertEquals(prop.getType(), iType);
     Assert.assertEquals(prop.getLinkedClass(), iLinkedClass);
@@ -232,7 +231,7 @@ public class CRUDInheritanceTest extends BaseDBTest {
 
   protected static void checkProperty(
       SchemaClass iClass, String iPropertyName, PropertyType iType, PropertyType iLinkedType) {
-    Property prop = iClass.getProperty(iPropertyName);
+    var prop = iClass.getProperty(iPropertyName);
     Assert.assertNotNull(prop);
     Assert.assertEquals(prop.getType(), iType);
     Assert.assertEquals(prop.getLinkedType(), iLinkedType);

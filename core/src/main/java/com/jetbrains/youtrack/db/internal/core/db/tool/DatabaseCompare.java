@@ -24,10 +24,10 @@ import static com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper.m
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
@@ -197,7 +197,7 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
     Schema schema2 = makeDbCall(databaseTwo,
         database2 -> database2.getMetadata().getImmutableSchemaSnapshot());
     boolean ok = true;
-    for (SchemaClass clazz : schema1.getClasses()) {
+    for (SchemaClass clazz : schema1.getClasses(databaseOne)) {
       SchemaClass clazz2 = schema2.getClass(clazz.getName());
 
       if (clazz2 == null) {
@@ -242,8 +242,8 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
         ok = false;
       }
 
-      for (Property prop : clazz.declaredProperties()) {
-        Property prop2 = clazz2.getProperty(prop.getName());
+      for (SchemaProperty prop : clazz.declaredProperties()) {
+        SchemaProperty prop2 = clazz2.getProperty(prop.getName());
         if (prop2 == null) {
           listener.onMessage(
               "\n- ERR: Class definition for "
@@ -932,12 +932,10 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
                                       + " <-> "
                                       + buffer2.buffer.length);
 
-                              if (buffer1.recordType == EntityImpl.RECORD_TYPE) {
-                                listener.onMessage("\n--- REC1: " + rec1);
-                              }
                               if (buffer2.recordType == EntityImpl.RECORD_TYPE) {
                                 listener.onMessage("\n--- REC2: " + rec2);
                               }
+
                               listener.onMessage("\n");
 
                               ++differences;
