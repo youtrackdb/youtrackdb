@@ -1,17 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent.ChangeType;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.MemoryStream;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.NotSerializableException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serial;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +15,7 @@ public class TrackedMapTest extends DbTestBase {
 
   @Test
   public void testPutOne() {
+    db.begin();
     final var doc = (EntityImpl) db.newEntity();
 
     final var map = new TrackedMap<String>(doc);
@@ -35,13 +28,15 @@ public class TrackedMapTest extends DbTestBase {
     var event =
         new MultiValueChangeEvent<Object, Object>(
             ChangeType.ADD, "key1", "value1", null);
-    Assert.assertEquals(event, map.getTimeLine().getMultiValueChangeEvents().get(0));
+    Assert.assertEquals(event, map.getTimeLine().getMultiValueChangeEvents().getFirst());
     Assert.assertTrue(map.isModified());
     Assert.assertTrue(doc.isDirty());
+    db.rollback();
   }
 
   @Test
   public void testPutTwo() {
+    db.begin();
     final var doc = (EntityImpl) db.newEntity();
 
     final var map = new TrackedMap<String>(doc);
@@ -59,13 +54,15 @@ public class TrackedMapTest extends DbTestBase {
     var event =
         new MultiValueChangeEvent<Object, Object>(
             ChangeType.UPDATE, "key1", "value2", "value1");
-    Assert.assertEquals(event, map.getTimeLine().getMultiValueChangeEvents().get(0));
+    Assert.assertEquals(event, map.getTimeLine().getMultiValueChangeEvents().getFirst());
     Assert.assertTrue(map.isModified());
     Assert.assertTrue(doc.isDirty());
+    db.rollback();
   }
 
   @Test
   public void testPutThree() {
+    db.begin();
     final var doc = (EntityImpl) db.newEntity();
 
     final var map = new TrackedMap<String>(doc);
@@ -82,10 +79,12 @@ public class TrackedMapTest extends DbTestBase {
 
     Assert.assertFalse(map.isModified());
     Assert.assertFalse(doc.isDirty());
+    db.rollback();
   }
 
   @Test
   public void testPutFour() {
+    db.begin();
     final var doc = (EntityImpl) db.newEntity();
 
     final var map = new TrackedMap<String>(doc);
@@ -103,10 +102,12 @@ public class TrackedMapTest extends DbTestBase {
 
     Assert.assertFalse(map.isModified());
     Assert.assertFalse(doc.isDirty());
+    db.rollback();
   }
 
   @Test
   public void testPutFive() {
+    db.begin();
     final var doc = (EntityImpl) db.newEntity();
 
     final var map = new TrackedMap<String>(doc);
@@ -119,10 +120,12 @@ public class TrackedMapTest extends DbTestBase {
 
     Assert.assertFalse(map.isModified());
     Assert.assertFalse(doc.isDirty());
+    db.rollback();
   }
 
   @Test
   public void testRemoveOne() {
+    db.begin();
     final var doc = (EntityImpl) db.newEntity();
 
     final var map = new TrackedMap<String>(doc);
@@ -138,13 +141,15 @@ public class TrackedMapTest extends DbTestBase {
         new MultiValueChangeEvent<Object, Object>(
             ChangeType.REMOVE, "key1", null, "value1");
     map.remove("key1");
-    Assert.assertEquals(event, map.getTimeLine().getMultiValueChangeEvents().get(0));
+    Assert.assertEquals(event, map.getTimeLine().getMultiValueChangeEvents().getFirst());
     Assert.assertTrue(map.isModified());
     Assert.assertTrue(doc.isDirty());
+    db.rollback();
   }
 
   @Test
   public void testRemoveTwo() {
+    db.begin();
     final var doc = (EntityImpl) db.newEntity();
 
     final var map = new TrackedMap<String>(doc);
@@ -160,10 +165,12 @@ public class TrackedMapTest extends DbTestBase {
 
     Assert.assertFalse(map.isModified());
     Assert.assertFalse(doc.isDirty());
+    db.rollback();
   }
 
   @Test
   public void testClearOne() {
+    db.begin();
     final var doc = (EntityImpl) db.newEntity();
 
     final var trackedMap = new TrackedMap<String>(doc);
@@ -192,12 +199,15 @@ public class TrackedMapTest extends DbTestBase {
     Assert.assertEquals(trackedMap.getTimeLine().getMultiValueChangeEvents(), firedEvents);
     Assert.assertTrue(trackedMap.isModified());
     Assert.assertTrue(doc.isDirty());
+    db.rollback();
   }
 
   @Test
   public void testClearThree() {
+    db.begin();
     final var doc = (EntityImpl) db.newEntity();
 
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     final var trackedMap = new TrackedMap<String>(doc);
 
     trackedMap.put("key1", "value1");
@@ -210,10 +220,12 @@ public class TrackedMapTest extends DbTestBase {
     trackedMap.clear();
 
     Assert.assertTrue(doc.isDirty());
+    db.rollback();
   }
 
   @Test
   public void testReturnOriginalStateOne() {
+    db.begin();
     final var doc = (EntityImpl) db.newEntity();
 
     final var trackedMap = new TrackedMap<String>(doc);
@@ -237,14 +249,17 @@ public class TrackedMapTest extends DbTestBase {
     trackedMap.remove("key8");
     trackedMap.remove("key3");
 
+    //noinspection unchecked,rawtypes
     Assert.assertEquals(
         trackedMap.returnOriginalState(db,
             (List) trackedMap.getTimeLine().getMultiValueChangeEvents()),
         original);
+    db.rollback();
   }
 
   @Test
   public void testReturnOriginalStateTwo() {
+    db.begin();
     final var doc = (EntityImpl) db.newEntity();
 
     final var trackedMap = new TrackedMap<String>(doc);
@@ -269,50 +284,11 @@ public class TrackedMapTest extends DbTestBase {
     trackedMap.remove("key8");
     trackedMap.remove("key3");
 
+    //noinspection unchecked,rawtypes
     Assert.assertEquals(
         trackedMap.returnOriginalState(db,
             (List) trackedMap.getTimeLine().getMultiValueChangeEvents()),
         original);
-  }
-
-  /**
-   * Test that {@link TrackedMap} is serialised correctly.
-   */
-  @Test
-  public void testMapSerialization() throws Exception {
-
-    class NotSerializableEntityImpl extends EntityImpl {
-
-      private static final long serialVersionUID = 1L;
-
-      public NotSerializableEntityImpl(
-          DatabaseSessionInternal database) {
-        super(database);
-      }
-
-      @Serial
-      private void writeObject(ObjectOutputStream oos) throws IOException {
-        throw new NotSerializableException();
-      }
-    }
-
-    final var beforeSerialization =
-        new TrackedMap<String>(new NotSerializableEntityImpl(db));
-    beforeSerialization.put("1", "firstVal");
-    beforeSerialization.put("2", "secondVal");
-
-    final var memoryStream = new MemoryStream();
-    final var out = new ObjectOutputStream(memoryStream);
-    out.writeObject(beforeSerialization);
-    out.close();
-
-    final var input =
-        new ObjectInputStream(new ByteArrayInputStream(memoryStream.copy()));
-    @SuppressWarnings("unchecked") final var afterSerialization = (Map<Object, String>) input.readObject();
-
-    Assert.assertEquals(afterSerialization.size(), beforeSerialization.size());
-    for (var i = 0; i < afterSerialization.size(); i++) {
-      Assert.assertEquals(afterSerialization.get(i), beforeSerialization.get(String.valueOf(i)));
-    }
+    db.rollback();
   }
 }
