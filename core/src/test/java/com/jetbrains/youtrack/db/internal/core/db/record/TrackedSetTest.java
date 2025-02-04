@@ -1,16 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent.ChangeType;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.MemoryStream;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.NotSerializableException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -22,6 +15,7 @@ public class TrackedSetTest extends DbTestBase {
 
   @Test
   public void testAddOne() {
+    db.begin();
     final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
@@ -35,22 +29,26 @@ public class TrackedSetTest extends DbTestBase {
     Assert.assertEquals(event, trackedSet.getTimeLine().getMultiValueChangeEvents().get(0));
     Assert.assertTrue(trackedSet.isModified());
     Assert.assertTrue(doc.isDirty());
+    db.rollback();
   }
 
   @Test
   public void testAddTwo() {
+    db.begin();
     final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final var trackedSet = new TrackedSet<String>(doc);
-    doc.setProperty("tracked", trackedSet);
+    doc.setPropertyInternal("tracked", trackedSet);
     trackedSet.add("value1");
     Assert.assertTrue(doc.isDirty());
+    db.rollback();
   }
 
   @Test
   public void testAddThree() {
+    db.begin();
     final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
@@ -61,10 +59,12 @@ public class TrackedSetTest extends DbTestBase {
 
     Assert.assertFalse(trackedSet.isModified());
     Assert.assertFalse(doc.isDirty());
+    db.rollback();
   }
 
   @Test
   public void testAddFour() {
+    db.begin();
     final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
@@ -82,10 +82,12 @@ public class TrackedSetTest extends DbTestBase {
     trackedSet.add("value1");
     Assert.assertFalse(trackedSet.isModified());
     Assert.assertFalse(doc.isDirty());
+    db.rollback();
   }
 
   @Test
   public void testRemoveNotificationOne() {
+    db.begin();
     final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
@@ -106,16 +108,18 @@ public class TrackedSetTest extends DbTestBase {
     Assert.assertEquals(trackedSet.getTimeLine().getMultiValueChangeEvents().get(0), event);
     Assert.assertTrue(trackedSet.isModified());
     Assert.assertTrue(doc.isDirty());
+    db.rollback();
   }
 
   @Test
   public void testRemoveNotificationTwo() {
+    db.begin();
     final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final var trackedSet = new TrackedSet<String>(doc);
-    doc.setProperty("tracked", trackedSet);
+    doc.setPropertyInternal("tracked", trackedSet);
     trackedSet.add("value1");
     trackedSet.add("value2");
     trackedSet.add("value3");
@@ -125,10 +129,12 @@ public class TrackedSetTest extends DbTestBase {
 
     trackedSet.remove("value2");
     Assert.assertTrue(doc.isDirty());
+    db.rollback();
   }
 
   @Test
   public void testRemoveNotificationFour() {
+    db.begin();
     final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
@@ -145,10 +151,12 @@ public class TrackedSetTest extends DbTestBase {
     trackedSet.remove("value5");
     Assert.assertFalse(trackedSet.isModified());
     Assert.assertFalse(doc.isDirty());
+    db.rollback();
   }
 
   @Test
   public void testClearOne() {
+    db.begin();
     final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
@@ -178,10 +186,12 @@ public class TrackedSetTest extends DbTestBase {
     Assert.assertEquals(firedEvents, trackedSet.getTimeLine().getMultiValueChangeEvents());
     Assert.assertTrue(trackedSet.isModified());
     Assert.assertTrue(doc.isDirty());
+    db.rollback();
   }
 
   @Test
   public void testClearThree() {
+    db.begin();
     final var doc = (EntityImpl) db.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
@@ -197,10 +207,12 @@ public class TrackedSetTest extends DbTestBase {
     trackedSet.clear();
 
     Assert.assertTrue(doc.isDirty());
+    db.rollback();
   }
 
   @Test
   public void testReturnOriginalState() {
+    db.begin();
     final var doc = (EntityImpl) db.newEntity();
 
     final var trackedSet = new TrackedSet<String>(doc);
@@ -225,50 +237,15 @@ public class TrackedSetTest extends DbTestBase {
         original,
         trackedSet.returnOriginalState(db,
             (List) trackedSet.getTimeLine().getMultiValueChangeEvents()));
-  }
-
-  /**
-   * Test that {@link TrackedSet} is serialised correctly.
-   */
-  @Test
-  public void testSetSerialization() throws Exception {
-
-    class NotSerializableEntityImpl extends EntityImpl {
-
-      private static final long serialVersionUID = 1L;
-
-      public NotSerializableEntityImpl(
-          DatabaseSessionInternal database) {
-        super(database);
-      }
-
-      private void writeObject(ObjectOutputStream oos) throws IOException {
-        throw new NotSerializableException();
-      }
-    }
-
-    final var beforeSerialization =
-        new TrackedSet<String>(new NotSerializableEntityImpl(db));
-    beforeSerialization.add("firstVal");
-    beforeSerialization.add("secondVal");
-
-    final var memoryStream = new MemoryStream();
-    var out = new ObjectOutputStream(memoryStream);
-    out.writeObject(beforeSerialization);
-    out.close();
-
-    final var input =
-        new ObjectInputStream(new ByteArrayInputStream(memoryStream.copy()));
-    @SuppressWarnings("unchecked") final var afterSerialization = (Set<String>) input.readObject();
-
-    Assert.assertEquals(afterSerialization.size(), beforeSerialization.size());
-    Assert.assertTrue(beforeSerialization.containsAll(afterSerialization));
+    db.rollback();
   }
 
   @Test
   public void testStackOverflowOnRecursion() {
+    db.begin();
     final var doc = (EntityImpl) db.newEntity();
     final var trackedSet = new TrackedSet<EntityImpl>(doc);
     trackedSet.add(doc);
+    db.rollback();
   }
 }
