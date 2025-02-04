@@ -24,7 +24,6 @@ import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -78,16 +77,19 @@ public class DocumentTest extends DbTestBase {
 
   @Test
   public void testConversionOnTypeSet() {
+    db.begin();
     var doc = (EntityImpl) db.newEntity();
 
     doc.field("some", 3);
     doc.setFieldType("some", PropertyType.STRING);
     Assert.assertEquals(PropertyType.STRING, doc.getPropertyType("some"));
     Assert.assertEquals("3", doc.field("some"));
+    db.rollback();
   }
 
   @Test
   public void testEval() {
+    db.begin();
     var doc = (EntityImpl) db.newEntity();
 
     doc.field("amount", 300);
@@ -95,10 +97,12 @@ public class DocumentTest extends DbTestBase {
     var amountPlusVat = (Number) doc.eval("amount * 120 / 100");
 
     Assert.assertEquals(360L, amountPlusVat.longValue());
+    db.rollback();
   }
 
   @Test
   public void testEvalInContext() {
+    db.begin();
     var doc = (EntityImpl) db.newEntity();
 
     doc.field("amount", 300);
@@ -109,5 +113,6 @@ public class DocumentTest extends DbTestBase {
     var amountPlusVat = (Number) doc.eval("amount * (100 + $vat) / 100", context);
 
     Assert.assertEquals(360L, amountPlusVat.longValue());
+    db.rollback();
   }
 }
