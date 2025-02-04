@@ -5,9 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.api.exception.ValidationException;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -17,10 +15,6 @@ public class DBRecordLazySetTest extends DbTestBase {
 
   private EntityImpl doc1;
   private EntityImpl doc2;
-  private EntityImpl doc3;
-  private RID rid1;
-  private RID rid2;
-  private RID rid3;
 
   public void beforeTest() throws Exception {
     super.beforeTest();
@@ -28,37 +22,38 @@ public class DBRecordLazySetTest extends DbTestBase {
     doc1 =
         db.save(
             ((EntityImpl) db.newEntity()).field("doc1", "doc1"));
-    rid1 = doc1.getIdentity();
     doc2 =
         db.save(
             ((EntityImpl) db.newEntity()).field("doc2", "doc2"));
-    rid2 = doc2.getIdentity();
-    doc3 =
-        db.save(
-            ((EntityImpl) db.newEntity()).field("doc3", "doc3"));
-    rid3 = doc3.getIdentity();
+    db.save(
+        ((EntityImpl) db.newEntity()).field("doc3", "doc3"));
     db.commit();
   }
 
-  @Test()
+  @Test
   public void testDocumentNotEmbedded() {
+    db.begin();
     var set = new LinkSet((EntityImpl) db.newEntity());
     var doc = (EntityImpl) db.newEntity();
     set.add(doc);
     assertFalse(doc.isEmbedded());
+    db.rollback();
   }
 
   @Test()
   public void testSetAddRemove() {
+    db.begin();
     var set = new LinkSet((EntityImpl) db.newEntity());
     var doc = (EntityImpl) db.newEntity();
     set.add(doc);
     set.remove(doc);
     assertTrue(set.isEmpty());
+    db.rollback();
   }
 
   @Test
   public void testSetRemoveNotPersistent() {
+    db.begin();
     var set = new LinkSet((EntityImpl) db.newEntity());
     doc1 = db.bindToSession(doc1);
     doc2 = db.bindToSession(doc2);
@@ -66,9 +61,10 @@ public class DBRecordLazySetTest extends DbTestBase {
     set.add(doc1);
     set.add(doc2);
     set.add(new RecordId(5, 1000));
-    assertEquals(set.size(), 3);
+    assertEquals(3, set.size());
     set.remove(new RecordId(5, 1000));
-    assertEquals(set.size(), 2);
+    assertEquals(2, set.size());
+    db.rollback();
   }
 
   @Test(expected = ValidationException.class)
