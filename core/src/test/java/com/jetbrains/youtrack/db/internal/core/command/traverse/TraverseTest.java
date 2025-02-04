@@ -21,14 +21,18 @@ public class TraverseTest extends DbTestBase {
   public void beforeTest() throws Exception {
     super.beforeTest();
 
-    rootDocument = (EntityImpl) db.newEntity();
-    traverse = new Traverse(db);
-    traverse.target(rootDocument).fields("*");
+    db.executeInTx(() -> {
+      rootDocument = (EntityImpl) db.newEntity();
+      traverse = new Traverse(db);
+      traverse.target(rootDocument).fields("*");
+    });
   }
 
   @Test
   public void testDepthTraverse() {
     db.begin();
+    rootDocument = db.bindToSession(rootDocument);
+
     final var aa = (EntityImpl) db.newEntity();
     final var ab = (EntityImpl) db.newEntity();
     final var ba = (EntityImpl) db.newEntity();
@@ -58,8 +62,7 @@ public class TraverseTest extends DbTestBase {
     c3.setProperty("c3a", c3a, PropertyType.LINK);
     final var c3b = (EntityImpl) db.newEntity();
     c3.setProperty("c3b", c3b, PropertyType.LINK);
-    rootDocument.setProperty("c", new ArrayList<>(Arrays.asList(c1, c2, c3)),
-        PropertyType.LINKLIST);
+    rootDocument.getOrCreateLinkList("c").addAll(new ArrayList<>(Arrays.asList(c1, c2, c3)));
 
     rootDocument.save();
     db.commit();
@@ -95,6 +98,8 @@ public class TraverseTest extends DbTestBase {
   public void testBreadthTraverse() throws Exception {
     traverse.setStrategy(Traverse.STRATEGY.BREADTH_FIRST);
 
+    db.begin();
+    rootDocument = db.bindToSession(rootDocument);
     final var aa = (EntityImpl) db.newEntity();
     final var ab = (EntityImpl) db.newEntity();
     final var ba = (EntityImpl) db.newEntity();
@@ -124,12 +129,12 @@ public class TraverseTest extends DbTestBase {
     c3.setProperty("c3a", c3a, PropertyType.LINK);
     final var c3b = (EntityImpl) db.newEntity();
     c3.setProperty("c3b", c3b, PropertyType.LINK);
-    rootDocument.setProperty("c", new ArrayList<>(Arrays.asList(c1, c2, c3)),
-        PropertyType.LINKLIST);
 
-    db.executeInTx(() -> rootDocument.save());
-
+    rootDocument.getOrCreateLinkList("c").addAll(new ArrayList<>(Arrays.asList(c1, c2, c3)));
+    db.commit();
+    db.begin();
     rootDocument = db.bindToSession(rootDocument);
+
     final var expectedResult =
         Arrays.asList(
             rootDocument,
@@ -148,10 +153,10 @@ public class TraverseTest extends DbTestBase {
             db.bindToSession(c2b),
             db.bindToSession(c3a),
             db.bindToSession(c3b));
-
     final var results = traverse.execute(db);
 
     compareTraverseResults(expectedResult, results);
+    db.rollback();
   }
 
   private void compareTraverseResults(List<EntityImpl> expectedResult,
