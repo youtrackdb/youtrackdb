@@ -30,6 +30,7 @@ import com.jetbrains.youtrack.db.internal.core.db.record.ClassTrigger;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.FunctionLibraryImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.MaterializedEntity;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityPolicy;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
@@ -46,6 +47,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class SchemaImmutableClass implements SchemaClassInternal {
 
@@ -95,6 +98,7 @@ public class SchemaImmutableClass implements SchemaClassInternal {
   private boolean orole;
   private boolean securityPolicy;
   private HashSet<Index> indexes;
+  private final Class<? extends MaterializedEntity> materializedEntity;
 
   public SchemaImmutableClass(DatabaseSessionInternal session, final SchemaClassInternal oClass,
       final ImmutableSchema schema) {
@@ -117,6 +121,7 @@ public class SchemaImmutableClass implements SchemaClassInternal {
     }
 
     shortName = oClass.getShortName();
+    materializedEntity = oClass.getMaterializedEntity();
 
     properties = new HashMap<>();
     for (SchemaProperty p : oClass.declaredProperties()) {
@@ -173,6 +178,18 @@ public class SchemaImmutableClass implements SchemaClassInternal {
 
   public boolean isSecurityPolicy() {
     return securityPolicy;
+  }
+
+  @Override
+  public void setMaterializedEntity(
+      @Nonnull Class<? extends MaterializedEntity> materializedEntityInterface) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Nullable
+  @Override
+  public Class<? extends MaterializedEntity> getMaterializedEntity() {
+    return materializedEntity;
   }
 
   @Override

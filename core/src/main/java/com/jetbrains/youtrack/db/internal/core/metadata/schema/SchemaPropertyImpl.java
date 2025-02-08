@@ -41,6 +41,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
+import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,6 +51,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Contains the description of a persistent class property.
@@ -72,6 +75,9 @@ public abstract class SchemaPropertyImpl implements SchemaPropertyInternal {
   protected Map<String, String> customFields;
   protected Collate collate = new DefaultCollate();
   protected GlobalProperty globalRef;
+
+  protected Method getter;
+  protected Method setter;
 
   private volatile int hashCode;
 
@@ -674,7 +680,7 @@ public abstract class SchemaPropertyImpl implements SchemaPropertyInternal {
   }
 
   @Override
-  public Collection<Index> getAllIndexesInternal(DatabaseSession session) {
+  public Collection<Index> getAllIndexesInternal(@Nonnull DatabaseSession session) {
     acquireSchemaReadLock();
     try {
       final Set<Index> indexes = new HashSet<Index>();
@@ -692,6 +698,24 @@ public abstract class SchemaPropertyImpl implements SchemaPropertyInternal {
     } finally {
       releaseSchemaReadLock();
     }
+  }
+
+  @Override
+  public void setMaterializedAccessMethods(@Nonnull Method getter, @Nullable Method setter) {
+    this.getter = getter;
+    this.setter = setter;
+  }
+
+  @Nonnull
+  @Override
+  public Method getMaterializedGetter() {
+    return getter;
+  }
+
+  @Nullable
+  @Override
+  public Method getMaterializedSetter() {
+    return setter;
   }
 
   public EntityImpl toStream() {
