@@ -28,6 +28,13 @@ public abstract class MaterializedEntityMetadataPorcessor {
       return processedEntities.get(materializedEntityInterface);
     }
 
+    if (materializedEntityInterface.isLocalClass()) {
+      throw new SchemaException("Materialized entity class must not be a local class");
+    }
+    if (materializedEntityInterface.isAnonymousClass()) {
+      throw new SchemaException("Materialized entity class must not be an anonymous class");
+    }
+
     //prevent infinite recursion in entity dependency graph
     //real value will be set at the end of method execution
     var metadata = new MaterializedEntityMetadata(materializedEntityInterface,
@@ -145,8 +152,9 @@ public abstract class MaterializedEntityMetadataPorcessor {
         linkedType = (Class<?>) ((ParameterizedType) getter.getGenericReturnType()).getActualTypeArguments()[1];
       }
 
-      properties.add(new MaterializedPropertyMetadata(propertyName, propertyType, linkedType, getter,
-          setters.get(propertyName)));
+      properties.add(
+          new MaterializedPropertyMetadata(propertyName, propertyType, linkedType, getter,
+              setters.get(propertyName)));
     }
   }
 
@@ -185,12 +193,13 @@ public abstract class MaterializedEntityMetadataPorcessor {
       @Nonnull HashSet<Class<? extends MaterializedEntity>> requiredEntities) {
     var methodName = method.getName();
 
-    if (method.getParameterCount() != 0) {
-      if (methodName.startsWith("get") && !(methodName.length() > 3 && Character.isUpperCase(
-          methodName.charAt(3)))) {
-        throw new SchemaException(invalidGetterNameMessage(methodName));
-      }
-      if (!(methodName.length() > 2 && Character.isUpperCase(
+    if (method.getParameterCount() == 0) {
+      if (methodName.startsWith("get")) {
+        if (!(methodName.length() > 3 && Character.isUpperCase(
+            methodName.charAt(3)))) {
+          throw new SchemaException(invalidGetterNameMessage(methodName));
+        }
+      } else if (!(methodName.length() > 2 && Character.isUpperCase(
           methodName.charAt(2)) && method.getReturnType().equals(boolean.class))) {
         throw new SchemaException(invalidGetterNameMessage(methodName));
       }
@@ -213,6 +222,7 @@ public abstract class MaterializedEntityMetadataPorcessor {
       @Nonnull HashSet<Class<? extends MaterializedEntity>> requiredEntities) {
     if (genericType instanceof Class<?> rawClass) {
       validateNonCollectionType(rawClass, methodName, true, requiredEntities);
+      return;
     }
 
     if (!(genericType instanceof ParameterizedType parameterizedType)) {
