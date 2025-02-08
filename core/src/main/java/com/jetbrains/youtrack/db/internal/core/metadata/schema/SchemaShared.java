@@ -312,7 +312,7 @@ public abstract class SchemaShared implements CloseableInStorage {
         }
 
         var linkedPropertyType = PropertyType.getTypeByClass(linkedType);
-        declaredClass.createProperty(session, propertyName, linkedPropertyType);
+        declaredClass.createProperty(session, propertyName, schemaPropertyType, linkedPropertyType);
       } else if (schemaPropertyType.isLink()) {
         declareLinkedProperty(session, propertyName, linkedType, declaredClass, schemaPropertyType);
       }

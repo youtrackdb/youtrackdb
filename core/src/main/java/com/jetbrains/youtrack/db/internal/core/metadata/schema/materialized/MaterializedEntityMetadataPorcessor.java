@@ -147,8 +147,9 @@ public abstract class MaterializedEntityMetadataPorcessor {
       var propertyType = getter.getReturnType();
 
       Class<?> linkedType = null;
-      if (propertyType.equals(List.class) || propertyType.equals(Set.class)
-          || propertyType.equals(Map.class)) {
+      if (propertyType.equals(List.class) || propertyType.equals(Set.class)) {
+        linkedType = (Class<?>) ((ParameterizedType) getter.getGenericReturnType()).getActualTypeArguments()[0];
+      } else if (propertyType.equals(Map.class)) {
         linkedType = (Class<?>) ((ParameterizedType) getter.getGenericReturnType()).getActualTypeArguments()[1];
       }
 

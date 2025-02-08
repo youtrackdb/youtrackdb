@@ -4,6 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.entities.EmptyEntity;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.entities.EntityWithEmbeddedCollections;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.entities.EntityWithPrimitiveProperties;
 import org.junit.Test;
 
 public class MaterializedEntityMetadataFetchTest extends DbTestBase {
@@ -41,38 +44,26 @@ public class MaterializedEntityMetadataFetchTest extends DbTestBase {
     assertEquals(PropertyType.SHORT, properties.get("shortProperty").getType());
   }
 
-  interface EmptyEntity extends MaterializedEntity {
+  @Test
+  public void registerEntityWithEmbeddedCollections() {
+    var schema = db.getSchema();
 
-  }
+    var result = schema.registerMaterializedEntity(EntityWithEmbeddedCollections.class);
 
-  interface EntityWithPrimitiveProperties extends MaterializedEntity {
+    assertEquals(0, result.getAllSuperClasses().size());
+    assertEquals(EntityWithEmbeddedCollections.class.getSimpleName(), result.getName());
+    assertEquals(EntityWithEmbeddedCollections.class, result.getMaterializedEntity());
 
-    int getIntProperty();
+    var properties = result.propertiesMap(db);
 
-    void setIntProperty(int value);
+    assertEquals(3, properties.size());
+    assertEquals(PropertyType.EMBEDDEDLIST, properties.get("stringList").getType());
+    assertEquals(PropertyType.STRING, properties.get("stringList").getLinkedType());
 
-    long getLongProperty();
+    assertEquals(PropertyType.EMBEDDEDSET, properties.get("stringSet").getType());
+    assertEquals(PropertyType.STRING, properties.get("stringSet").getLinkedType());
 
-    void setLongProperty(long value);
-
-    double getDoubleProperty();
-
-    void setDoubleProperty(double value);
-
-    float getFloatProperty();
-
-    void setFloatProperty(float value);
-
-    boolean getBooleanProperty();
-
-    void setBooleanProperty(boolean value);
-
-    byte getByteProperty();
-
-    void setByteProperty(byte value);
-
-    short getShortProperty();
-
-    void setShortProperty(short value);
+    assertEquals(PropertyType.EMBEDDEDMAP, properties.get("integerMap").getType());
+    assertEquals(PropertyType.INTEGER, properties.get("integerMap").getLinkedType());
   }
 }
