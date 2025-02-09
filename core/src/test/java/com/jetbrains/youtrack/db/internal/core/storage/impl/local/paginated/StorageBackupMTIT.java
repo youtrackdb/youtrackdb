@@ -1,6 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
 import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.YourTracks;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.api.exception.ModificationOperationProhibitedException;
@@ -12,9 +13,7 @@ import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigImpl;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBEmbedded;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseCompare;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.File;
@@ -42,16 +41,14 @@ public class StorageBackupMTIT {
   public void testParallelBackup() throws Exception {
     final String buildDirectory = System.getProperty("buildDirectory", ".");
     dbName = StorageBackupMTIT.class.getSimpleName();
-    final String dbDirectory =
-        buildDirectory + File.separator + "databases" + File.separator + dbName;
+
     final File backupDir = new File(buildDirectory, "backupDir");
     final String backupDbName = StorageBackupMTIT.class.getSimpleName() + "BackUp";
 
-    FileUtils.deleteRecursively(new File(dbDirectory));
+    FileUtils.deleteRecursively(new File(DbTestBase.getBaseDirectoryPath(getClass())));
 
     try {
-
-      youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
+      youTrackDB = YourTracks.embedded(DbTestBase.getBaseDirectoryPath(getClass()),
           YouTrackDBConfig.defaultConfig());
       youTrackDB.execute(
           "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
@@ -71,23 +68,24 @@ public class StorageBackupMTIT {
         Assert.assertTrue(backupDir.mkdirs());
       }
 
-      final ExecutorService executor = Executors.newCachedThreadPool();
-      final List<Future<Void>> futures = new ArrayList<>();
+      try (final ExecutorService executor = Executors.newCachedThreadPool()) {
+        final List<Future<Void>> futures = new ArrayList<>();
 
-      for (int i = 0; i < 4; i++) {
-        futures.add(executor.submit(new DataWriterCallable()));
-      }
+        for (int i = 0; i < 4; i++) {
+          futures.add(executor.submit(new DataWriterCallable()));
+        }
 
-      futures.add(executor.submit(new DBBackupCallable(backupDir.getAbsolutePath())));
+        futures.add(executor.submit(new DBBackupCallable(backupDir.getAbsolutePath())));
 
-      latch.countDown();
+        latch.countDown();
 
       TimeUnit.MINUTES.sleep(15);
 
-      stop = true;
+        stop = true;
 
-      for (Future<Void> future : futures) {
-        future.get();
+        for (Future<Void> future : futures) {
+          future.get();
+        }
       }
 
       System.out.println("do inc backup last time");
@@ -95,25 +93,13 @@ public class StorageBackupMTIT {
 
       youTrackDB.close();
 
-      final String backedUpDbDirectory = buildDirectory + File.separator + backupDbName;
-      FileUtils.deleteRecursively(new File(backedUpDbDirectory));
-
       System.out.println("create and restore");
 
-      YouTrackDBEmbedded embedded =
-          (YouTrackDBEmbedded)
-              YouTrackDBInternal.embedded(buildDirectory, YouTrackDBConfig.defaultConfig());
-      embedded.restore(
-          backupDbName,
-          null,
-          null,
-          null,
-          backupDir.getAbsolutePath(),
+      youTrackDB = YourTracks.embedded(DbTestBase.getBaseDirectoryPath(getClass()),
           YouTrackDBConfig.defaultConfig());
-      embedded.close();
+      youTrackDB.restore(backupDbName, null, null, backupDir.getAbsolutePath(),
+          YouTrackDBConfig.defaultConfig());
 
-      youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
-          YouTrackDBConfig.defaultConfig());
       final DatabaseCompare compare =
           new DatabaseCompare(
               (DatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin"),
@@ -135,8 +121,12 @@ public class StorageBackupMTIT {
       try {
         youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
             YouTrackDBConfig.defaultConfig());
-        youTrackDB.drop(dbName);
-        youTrackDB.drop(backupDbName);
+        if (youTrackDB.exists(dbName)) {
+          youTrackDB.drop(dbName);
+        }
+        if (youTrackDB.exists(backupDbName)) {
+          youTrackDB.drop(backupDbName);
+        }
 
         youTrackDB.close();
 
@@ -155,19 +145,17 @@ public class StorageBackupMTIT {
     final File backupDir = new File(buildDirectory, "backupDir");
 
     dbName = StorageBackupMTIT.class.getSimpleName();
-    String dbDirectory = buildDirectory + File.separator + dbName;
 
     final YouTrackDBConfigImpl config =
         (YouTrackDBConfigImpl) YouTrackDBConfig.builder()
             .addGlobalConfigurationParameter(GlobalConfiguration.STORAGE_ENCRYPTION_KEY,
                 "T1JJRU5UREJfSVNfQ09PTA==")
             .build();
-
     try {
 
-      FileUtils.deleteRecursively(new File(dbDirectory));
+      FileUtils.deleteRecursively(new File(DbTestBase.getBaseDirectoryPath(getClass())));
 
-      youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()), config);
+      youTrackDB = YourTracks.embedded(DbTestBase.getBaseDirectoryPath(getClass()), config);
       youTrackDB.execute(
           "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
 
@@ -214,14 +202,10 @@ public class StorageBackupMTIT {
 
       System.out.println("create and restore");
 
-      YouTrackDBEmbedded embedded =
-          (YouTrackDBEmbedded) YouTrackDBInternal.embedded(buildDirectory, config);
-      embedded.restore(backupDbName, null, null, null, backupDir.getAbsolutePath(), config);
-      embedded.close();
-
       GlobalConfiguration.STORAGE_ENCRYPTION_KEY.setValue("T1JJRU5UREJfSVNfQ09PTA==");
-      youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
-          YouTrackDBConfig.defaultConfig());
+      youTrackDB = YourTracks.embedded(DbTestBase.getBaseDirectoryPath(getClass()), config);
+      youTrackDB.restore(backupDbName, null, null, backupDir.getAbsolutePath(), config);
+
       final DatabaseCompare compare =
           new DatabaseCompare(
               (DatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin"),
@@ -262,7 +246,7 @@ public class StorageBackupMTIT {
 
       System.out.println(Thread.currentThread() + " - start writing");
 
-      try (var ignored = youTrackDB.open(dbName, "admin", "admin")) {
+      try (var databaseSession = youTrackDB.open(dbName, "admin", "admin")) {
         final Random random = new Random();
         while (!stop) {
           try {
@@ -271,11 +255,14 @@ public class StorageBackupMTIT {
 
             final int num = random.nextInt();
 
-            final EntityImpl document = new EntityImpl("BackupClass");
-            document.field("num", num);
-            document.field("data", data);
+            databaseSession.executeInTx(() -> {
 
-            document.save();
+              final EntityImpl document = new EntityImpl("BackupClass");
+              document.field("num", num);
+              document.field("data", data);
+
+              document.save();
+            });
           } catch (ModificationOperationProhibitedException e) {
             System.out.println("Modification prohibited ... wait ...");
             //noinspection BusyWait
