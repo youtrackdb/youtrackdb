@@ -4,11 +4,16 @@ import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.entities.EmptyEntity;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.entities.EntityWithEmbeddedCollections;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.entities.EntityWithLinkProperties;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.entities.EntityWithPrimitiveProperties;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.entities.MultiInheritanceEntity;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.entities.SelfReferencedEntity;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Test;
 
 public class MaterializedEntityMetadataFetchTest extends DbTestBase {
@@ -115,5 +120,58 @@ public class MaterializedEntityMetadataFetchTest extends DbTestBase {
         properties.get("entityWithEmbeddedCollectionsMap").getType());
     linkedType = properties.get("entityWithEmbeddedCollectionsMap").getLinkedClass();
     validateEntityWithEmbeddedCollections(linkedType);
+  }
+
+  @Test
+  public void registerSelfReferencedEntity() {
+    var schema = db.getSchema();
+    var result = schema.registerMaterializedEntity(SelfReferencedEntity.class);
+
+    validateSelfReferencedEntity(result);
+  }
+
+  private void validateSelfReferencedEntity(SchemaClass result) {
+    assertEquals(0, result.getAllSuperClasses().size());
+    assertEquals(SelfReferencedEntity.class.getSimpleName(), result.getName());
+    assertEquals(SelfReferencedEntity.class, result.getMaterializedEntity());
+
+    var properties = result.propertiesMap(db);
+
+    assertEquals(1, properties.size());
+    assertEquals(PropertyType.LINK, properties.get("selfReferencedEntity").getType());
+    assertEquals(result, properties.get("selfReferencedEntity").getLinkedClass());
+  }
+
+  @Test
+  public void registerMultiInheritanceEntity() {
+    var schema = db.getSchema();
+    var result = schema.registerMaterializedEntity(MultiInheritanceEntity.class);
+
+    validateMultiInheritanceEntity(result);
+  }
+
+  private void validateMultiInheritanceEntity(SchemaClass result) {
+    assertEquals(MultiInheritanceEntity.class.getSimpleName(), result.getName());
+    assertEquals(MultiInheritanceEntity.class, result.getMaterializedEntity());
+
+    HashMap<String, SchemaProperty> declaredProperties = new HashMap<>();
+    result.declaredProperties().forEach(p -> declaredProperties.put(p.getName(), p));
+
+    assertEquals(1, declaredProperties.size());
+    assertEquals(PropertyType.LINKSET, declaredProperties.get("emptyEntitySet").getType());
+    var linkedType = declaredProperties.get("emptyEntitySet").getLinkedClass();
+    validateEmptyEntity(linkedType);
+
+    Map<String, SchemaClass> superClasses = new HashMap<>();
+    result.getAllSuperClasses().forEach(sc -> superClasses.put(sc.getName(), sc));
+
+    assertEquals(2, superClasses.size());
+
+    var entityWithLinkProperties = superClasses.get(EntityWithLinkProperties.class.getSimpleName());
+    validateEntityWithLinkedProperties(entityWithLinkProperties);
+
+    var entityWithEmbeddedCollections = superClasses.get(
+        EntityWithEmbeddedCollections.class.getSimpleName());
+    validateEntityWithEmbeddedCollections(entityWithEmbeddedCollections);
   }
 }
