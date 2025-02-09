@@ -1,8 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.entities;
 
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.MaterializedEntity;
+import java.util.Date;
 
-public interface EntityWithPrimitiveProperties extends MaterializedEntity {
+public interface EntityWithSingleValueProperties extends MaterializedEntity {
 
   int getIntProperty();
 
@@ -31,4 +32,12 @@ public interface EntityWithPrimitiveProperties extends MaterializedEntity {
   short getShortProperty();
 
   void setShortProperty(short value);
+
+  byte[] getBinaryProperty();
+
+  void setBinaryProperty(byte[] value);
+
+  Date getDateProperty();
+
+  void setDateProperty(Date value);
 }

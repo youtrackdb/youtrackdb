@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -263,10 +264,7 @@ public abstract class MaterializedEntityMetadataProcessor {
   private static void validateNonCollectionType(@Nonnull Class<?> rawClass,
       @Nonnull String methodName,
       boolean getter, @Nonnull HashSet<Class<? extends MaterializedEntity>> requiredEntities) {
-    if (!(rawClass.isPrimitive() || rawClass.equals(String.class) || rawClass.equals(Byte.class)
-        || rawClass.equals(Short.class) || rawClass.equals(Integer.class) || rawClass.equals(
-        Long.class) || rawClass.equals(Float.class) || rawClass.equals(Double.class) || rawClass
-        .equals(Boolean.class) || MaterializedEntity.class.isAssignableFrom(rawClass))) {
+    if (!isSingleValueType(rawClass)) {
       if (getter) {
         throw new SchemaException(invalidGetterMethodReturnTypeMessage(methodName));
       } else {
@@ -279,6 +277,18 @@ public abstract class MaterializedEntityMetadataProcessor {
       var materializedEntity = (Class<? extends MaterializedEntity>) rawClass;
       requiredEntities.add(materializedEntity);
     }
+  }
+
+  private static boolean isSingleValueType(Class<?> rawClass) {
+    if (rawClass.isArray() && rawClass.getComponentType() == byte.class) {
+      return true;
+    }
+
+    return rawClass.isPrimitive() || rawClass.equals(String.class) || rawClass.equals(Byte.class)
+        || rawClass.equals(Short.class) || rawClass.equals(Integer.class) || rawClass.equals(
+        Long.class) || rawClass.equals(Float.class) || rawClass.equals(Double.class) || rawClass
+        .equals(Boolean.class) || Date.class.equals(rawClass)
+        || MaterializedEntity.class.isAssignableFrom(rawClass);
   }
 
   private static String invalidGetterMethodReturnTypeMessage(@Nonnull String methodName) {

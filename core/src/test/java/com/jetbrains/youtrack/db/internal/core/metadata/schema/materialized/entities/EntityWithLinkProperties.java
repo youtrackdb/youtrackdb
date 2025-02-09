@@ -9,7 +9,7 @@ public interface EntityWithLinkProperties extends MaterializedEntity {
 
   EntityWithEmbeddedCollections getEntityWithEmbeddedCollections();
 
-  Set<EntityWithPrimitiveProperties> getEntityWithPrimitivePropertiesSet();
+  Set<EntityWithSingleValueProperties> getEntityWithPrimitivePropertiesSet();
 
   List<EmptyEntity> getEmptyEntityList();
 

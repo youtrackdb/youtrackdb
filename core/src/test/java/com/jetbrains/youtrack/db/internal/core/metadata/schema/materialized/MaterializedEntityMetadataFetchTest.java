@@ -12,7 +12,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.enti
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.entities.EmptyEntity;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.entities.EntityWithEmbeddedCollections;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.entities.EntityWithLinkProperties;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.entities.EntityWithPrimitiveProperties;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.entities.EntityWithSingleValueProperties;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.entities.MultiInheritanceEntity;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.entities.SelfReferencedEntity;
 import java.util.HashMap;
@@ -37,21 +37,22 @@ public class MaterializedEntityMetadataFetchTest extends DbTestBase {
   }
 
   @Test
-  public void registerEntityWithPrimitiveProperties() {
+  public void registerEntityWithSingleValueProperties() {
     var schema = db.getSchema();
 
-    var result = schema.registerMaterializedEntity(EntityWithPrimitiveProperties.class);
-    validateEntityWithPrimitiveCollections(result);
+    var result = schema.registerMaterializedEntity(EntityWithSingleValueProperties.class);
+    validateEntityWithSingleValueProperties(result);
   }
 
-  private void validateEntityWithPrimitiveCollections(SchemaClass result) {
+  private void validateEntityWithSingleValueProperties(SchemaClass result) {
     assertEquals(0, result.getAllSuperClasses().size());
-    assertEquals(EntityWithPrimitiveProperties.class.getSimpleName(), result.getName());
-    assertEquals(EntityWithPrimitiveProperties.class, result.getMaterializedEntity());
+    assertEquals(EntityWithSingleValueProperties.class.getSimpleName(), result.getName());
+    assertEquals(EntityWithSingleValueProperties.class, result.getMaterializedEntity());
 
     var properties = result.propertiesMap(db);
 
-    assertEquals(7, properties.size());
+    assertEquals(9, properties.size());
+
     assertEquals(PropertyType.INTEGER, properties.get("intProperty").getType());
     assertEquals(PropertyType.LONG, properties.get("longProperty").getType());
     assertEquals(PropertyType.DOUBLE, properties.get("doubleProperty").getType());
@@ -59,6 +60,8 @@ public class MaterializedEntityMetadataFetchTest extends DbTestBase {
     assertEquals(PropertyType.BOOLEAN, properties.get("booleanProperty").getType());
     assertEquals(PropertyType.BYTE, properties.get("byteProperty").getType());
     assertEquals(PropertyType.SHORT, properties.get("shortProperty").getType());
+    assertEquals(PropertyType.BINARY, properties.get("binaryProperty").getType());
+    assertEquals(PropertyType.DATETIME, properties.get("dateProperty").getType());
   }
 
   @Test
@@ -113,7 +116,7 @@ public class MaterializedEntityMetadataFetchTest extends DbTestBase {
     assertEquals(PropertyType.LINKSET,
         properties.get("entityWithPrimitivePropertiesSet").getType());
     linkedType = properties.get("entityWithPrimitivePropertiesSet").getLinkedClass();
-    validateEntityWithPrimitiveCollections(linkedType);
+    validateEntityWithSingleValueProperties(linkedType);
 
     assertEquals(PropertyType.LINKLIST, properties.get("emptyEntityList").getType());
     linkedType = properties.get("emptyEntityList").getLinkedClass();
