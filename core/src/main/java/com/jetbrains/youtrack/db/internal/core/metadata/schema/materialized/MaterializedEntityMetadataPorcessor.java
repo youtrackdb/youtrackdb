@@ -34,6 +34,12 @@ public abstract class MaterializedEntityMetadataPorcessor {
     if (materializedEntityInterface.isAnonymousClass()) {
       throw new SchemaException("Materialized entity class must not be an anonymous class");
     }
+    if (materializedEntityInterface.isMemberClass()) {
+      throw new SchemaException("Materialized entity class must not be a member class");
+    }
+    if (!materializedEntityInterface.isInterface()) {
+      throw new SchemaException("Materialized entity class must be an interface");
+    }
 
     //prevent infinite recursion in entity dependency graph
     //real value will be set at the end of method execution
@@ -42,10 +48,6 @@ public abstract class MaterializedEntityMetadataPorcessor {
         new ArrayList<>(),
         new HashMap<>());
     processedEntities.put(materializedEntityInterface, metadata);
-
-    if (!materializedEntityInterface.isInterface()) {
-      throw new SchemaException("Materialized entity class must be an interface");
-    }
 
     var requiredEntities = new HashSet<Class<? extends MaterializedEntity>>();
     var parentInterfaces = materializedEntityInterface.getInterfaces();

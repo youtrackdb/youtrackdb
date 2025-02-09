@@ -295,26 +295,42 @@ public abstract class SchemaShared implements CloseableInStorage {
       var propertyName = property.name();
       var propertyType = property.type();
 
-      var linkedType = property.linkedType();
-      var schemaPropertyType = PropertyType.getTypeByClass(propertyType);
+      var containerType = property.containerType();
+      var schemaPropertyType = PropertyType.getTypeByClass(propertyType, containerType);
 
       if (!schemaPropertyType.isMultiValue()) {
         if (!schemaPropertyType.isLink()) {
           declaredClass.createProperty(session, propertyName, schemaPropertyType);
         } else {
-          declareLinkedProperty(session, propertyName, linkedType, declaredClass,
-              schemaPropertyType);
+          var schemaLinkedClass = getClass(propertyType);
+          if (schemaLinkedClass == null) {
+            throw new SchemaException("Linked class " + containerType.getSimpleName() +
+                " for property " + propertyName + " not found.");
+          }
+
+          declaredClass.createProperty(session, propertyName, schemaPropertyType,
+              schemaLinkedClass);
         }
       } else if (schemaPropertyType.isEmbedded()) {
-        if (linkedType == null) {
+        if (containerType == null) {
           throw new SchemaException("Embedded property " + propertyName +
               " must have a linked type declared.");
         }
 
-        var linkedPropertyType = PropertyType.getTypeByClass(linkedType);
+        var linkedPropertyType = PropertyType.getTypeByClass(containerType);
         declaredClass.createProperty(session, propertyName, schemaPropertyType, linkedPropertyType);
       } else if (schemaPropertyType.isLink()) {
-        declareLinkedProperty(session, propertyName, linkedType, declaredClass, schemaPropertyType);
+        if (containerType == null) {
+          throw new SchemaException("Link based property " + propertyName +
+              " must have a linked class declared.");
+        }
+
+        var schemaLinkedClass = getClass(containerType.getSimpleName());
+        if (schemaLinkedClass == null) {
+          throw new SchemaException("Linked class " + containerType.getSimpleName() +
+              " for property " + propertyName + " not found.");
+        }
+        declaredClass.createProperty(session, propertyName, schemaPropertyType, schemaLinkedClass);
       }
     }
 
@@ -325,21 +341,6 @@ public abstract class SchemaShared implements CloseableInStorage {
     declaredClass.setMaterializedEntity(entityInterface);
 
     return declaredClass;
-  }
-
-  private void declareLinkedProperty(DatabaseSessionInternal session, String propertyName,
-      Class<?> linkedType, SchemaClassInternal declaredClass, PropertyType schemaPropertyType) {
-    if (linkedType == null) {
-      throw new SchemaException("Link based property " + propertyName +
-          " must have a linked class declared.");
-    }
-
-    var schemaLinkedClass = getClass(linkedType.getSimpleName());
-    if (schemaLinkedClass == null) {
-      throw new SchemaException("Linked class " + linkedType.getSimpleName() +
-          " for property " + propertyName + " not found.");
-    }
-    declaredClass.createProperty(session, propertyName, schemaPropertyType, schemaLinkedClass);
   }
 
 

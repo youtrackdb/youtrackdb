@@ -5,7 +5,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public record MaterializedPropertyMetadata(@Nonnull String name, @Nonnull Class<?> type,
-                                           @Nullable Class<?> linkedType,
+                                           @Nullable Class<?> containerType,
                                            @Nonnull Method getter, @Nullable Method setter) {
 
 }
