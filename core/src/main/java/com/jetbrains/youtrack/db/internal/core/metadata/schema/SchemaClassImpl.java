@@ -43,7 +43,7 @@ import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionFactory;
 import com.jetbrains.youtrack.db.internal.core.index.IndexException;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.MaterializedEntity;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.MaterializedEntityMetadataPorcessor;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.MaterializedEntityMetadataProcessor;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -136,7 +136,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
 
   public void setMaterializedEntity(
       @Nonnull Class<? extends MaterializedEntity> materializedEntityInterface) {
-    MaterializedEntityMetadataPorcessor.validateAndFetchMaterializedEntityAccessMethods(
+    MaterializedEntityMetadataProcessor.validateAndFetchMaterializedEntityAccessMethods(
         materializedEntityInterface);
     if (this.materializedEntityInterface != null) {
       if (!this.materializedEntityInterface

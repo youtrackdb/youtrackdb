@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 
-public abstract class MaterializedEntityMetadataPorcessor {
+public abstract class MaterializedEntityMetadataProcessor {
 
   @Nonnull
   public static MaterializedEntityMetadata validateAndFetchMaterializedEntityAccessMethods(

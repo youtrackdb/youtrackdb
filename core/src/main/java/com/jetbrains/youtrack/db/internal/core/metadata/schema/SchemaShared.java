@@ -38,7 +38,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.clusterselection.ClusterSelectionFactory;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.MaterializedEntity;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.MaterializedEntityMetadata;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.MaterializedEntityMetadataPorcessor;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.MaterializedEntityMetadataProcessor;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -239,7 +239,7 @@ public abstract class SchemaShared implements CloseableInStorage {
   public SchemaClass registerMaterializedEntity(@Nonnull DatabaseSessionInternal session,
       @Nonnull Class<? extends MaterializedEntity> materializedEntityInterface) {
     var result =
-        MaterializedEntityMetadataPorcessor.validateAndFetchMaterializedEntityAccessMethods(
+        MaterializedEntityMetadataProcessor.validateAndFetchMaterializedEntityAccessMethods(
             materializedEntityInterface);
 
     return doRegisterMaterializedEntity(session, result, new HashSet<>());

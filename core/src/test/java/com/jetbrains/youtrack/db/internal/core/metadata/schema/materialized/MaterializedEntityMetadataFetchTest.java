@@ -6,6 +6,9 @@ import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.entities.CyclicGraphAEntity;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.entities.CyclicGraphBEntity;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.entities.CyclicGraphCEntity;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.entities.EmptyEntity;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.entities.EntityWithEmbeddedCollections;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.entities.EntityWithLinkProperties;
@@ -173,5 +176,59 @@ public class MaterializedEntityMetadataFetchTest extends DbTestBase {
     var entityWithEmbeddedCollections = superClasses.get(
         EntityWithEmbeddedCollections.class.getSimpleName());
     validateEntityWithEmbeddedCollections(entityWithEmbeddedCollections);
+  }
+
+  @Test
+  public void testCyclicGraphProcessing() {
+    var schema = db.getSchema();
+    var result = schema.registerMaterializedEntity(CyclicGraphAEntity.class);
+
+    validateCyclicGraphAEntity(result);
+  }
+
+  private void validateCyclicGraphAEntity(SchemaClass result) {
+    assertEquals(CyclicGraphAEntity.class.getSimpleName(), result.getName());
+    assertEquals(CyclicGraphAEntity.class, result.getMaterializedEntity());
+
+    HashMap<String, SchemaProperty> declaredProperties = new HashMap<>();
+    result.declaredProperties().forEach(p -> declaredProperties.put(p.getName(), p));
+
+    assertEquals(2, declaredProperties.size());
+    assertEquals(PropertyType.LINKLIST, declaredProperties.get("cyclicGraphListBEntity").getType());
+    var linkedType = declaredProperties.get("cyclicGraphListBEntity").getLinkedClass();
+
+    validateCyclicGraphBEntity(linkedType);
+
+    assertEquals(PropertyType.LINK, declaredProperties.get("cyclicGraphCEntity").getType());
+    linkedType = declaredProperties.get("cyclicGraphCEntity").getLinkedClass();
+    validateCyclicGraphCEntity(linkedType);
+  }
+
+  private void validateCyclicGraphBEntity(SchemaClass result) {
+    assertEquals(CyclicGraphBEntity.class.getSimpleName(), result.getName());
+    assertEquals(CyclicGraphBEntity.class, result.getMaterializedEntity());
+
+    HashMap<String, SchemaProperty> declaredProperties = new HashMap<>();
+    result.declaredProperties().forEach(p -> declaredProperties.put(p.getName(), p));
+
+    assertEquals(1, declaredProperties.size());
+    assertEquals(PropertyType.LINKSET, declaredProperties.get("cyclicGraphSetCEntity").getType());
+
+    var linkedType = declaredProperties.get("cyclicGraphSetCEntity").getLinkedClass();
+    validateCyclicGraphCEntity(linkedType);
+  }
+
+  private void validateCyclicGraphCEntity(SchemaClass result) {
+    assertEquals(CyclicGraphCEntity.class.getSimpleName(), result.getName());
+    assertEquals(CyclicGraphCEntity.class, result.getMaterializedEntity());
+
+    HashMap<String, SchemaProperty> declaredProperties = new HashMap<>();
+    result.declaredProperties().forEach(p -> declaredProperties.put(p.getName(), p));
+
+    assertEquals(1, declaredProperties.size());
+    assertEquals(PropertyType.LINKMAP, declaredProperties.get("cyclicGraphMapAEntity").getType());
+
+    var linkedType = declaredProperties.get("cyclicGraphMapAEntity").getLinkedClass();
+    assertEquals(CyclicGraphAEntity.class.getSimpleName(), linkedType.getName());
   }
 }
