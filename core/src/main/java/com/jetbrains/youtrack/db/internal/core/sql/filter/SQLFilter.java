@@ -49,7 +49,7 @@ public class SQLFilter extends SQLPredicate implements CommandPredicate {
       final var lastText = parserText;
       final var lastTextUpperCase = parserTextUpperCase;
 
-      text(iContext.getDatabase(), parserText.substring(lastPos));
+      text(iContext.getDatabaseSession(), parserText.substring(lastPos));
 
       parserText = lastText;
       parserTextUpperCase = lastTextUpperCase;
@@ -60,17 +60,17 @@ public class SQLFilter extends SQLPredicate implements CommandPredicate {
       // QUERY EXCEPTION BUT WITHOUT TEXT: NEST IT
       {
         throw BaseException.wrapException(
-            new QueryParsingException(
+            new QueryParsingException(iContext.getDatabaseSession().getDatabaseName(),
                 "Error on parsing query", parserText, parserGetCurrentPosition()),
-            e);
+            e, context.getDatabaseSession());
       }
 
       throw e;
     } catch (Exception e) {
       throw BaseException.wrapException(
-          new QueryParsingException(
+          new QueryParsingException(iContext.getDatabaseSession().getDatabaseName(),
               "Error on parsing query", parserText, parserGetCurrentPosition()),
-          e);
+          e, iContext.getDatabaseSession());
     }
 
     this.rootCondition = resetOperatorPrecedence(rootCondition);

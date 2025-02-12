@@ -32,7 +32,7 @@ public class ConvertToUpdatableResultStep extends AbstractExecutionStep {
     }
     if (result.isEntity()) {
       var element = result.asEntity();
-      return new UpdatableResult(ctx.getDatabase(), element);
+      return new UpdatableResult(ctx.getDatabaseSession(), element);
     }
     return null;
   }

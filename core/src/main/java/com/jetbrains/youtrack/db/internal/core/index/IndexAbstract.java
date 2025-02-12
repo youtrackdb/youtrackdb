@@ -33,7 +33,6 @@ import com.jetbrains.youtrack.db.internal.common.concur.lock.OneEntryPerKeyLockM
 import com.jetbrains.youtrack.db.internal.common.concur.lock.PartitionedLockManager;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.InvalidIndexEngineIdException;
 import com.jetbrains.youtrack.db.internal.core.index.comparator.AlwaysGreaterKey;
@@ -41,7 +40,6 @@ import com.jetbrains.youtrack.db.internal.core.index.comparator.AlwaysLessKey;
 import com.jetbrains.youtrack.db.internal.core.index.engine.BaseIndexEngine;
 import com.jetbrains.youtrack.db.internal.core.index.iterator.IndexCursorStream;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges.OPERATION;
@@ -53,7 +51,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -90,29 +87,30 @@ public abstract class IndexAbstract implements IndexInternal {
     }
   }
 
-  public static IndexMetadata loadMetadataFromDoc(final EntityImpl config) {
-    return loadMetadataInternal(
+  public static IndexMetadata loadMetadataFromMap(DatabaseSessionInternal db,
+      final Map<String, ?> config) {
+    return loadMetadataInternal(db,
         config,
-        config.field(CONFIG_TYPE),
-        config.field(ALGORITHM)
-    );
+        (String) config.get(CONFIG_TYPE),
+        (String) config.get(ALGORITHM));
   }
 
   public static IndexMetadata loadMetadataInternal(
-      final EntityImpl config,
+      DatabaseSessionInternal db, final Map<String, ?> config,
       final String type,
       final String algorithm) {
-    final String indexName = config.field(CONFIG_NAME);
+    final var indexName = (String) config.get(CONFIG_NAME);
 
-    final EntityImpl indexDefinitionEntity = config.field(INDEX_DEFINITION);
+    @SuppressWarnings("unchecked") final var indexDefinitionEntity = (Map<String, Object>) config.get(
+        INDEX_DEFINITION);
     IndexDefinition loadedIndexDefinition = null;
     if (indexDefinitionEntity != null) {
       try {
-        final String indexDefClassName = config.field(INDEX_DEFINITION_CLASS);
+        final var indexDefClassName = (String) config.get(INDEX_DEFINITION_CLASS);
         final var indexDefClass = Class.forName(indexDefClassName);
         loadedIndexDefinition =
             (IndexDefinition) indexDefClass.getDeclaredConstructor().newInstance();
-        loadedIndexDefinition.fromStream(indexDefinitionEntity);
+        loadedIndexDefinition.fromMap(indexDefinitionEntity);
 
       } catch (final ClassNotFoundException
                      | IllegalAccessException
@@ -120,61 +118,28 @@ public abstract class IndexAbstract implements IndexInternal {
                      | InvocationTargetException
                      | NoSuchMethodException e) {
         throw BaseException.wrapException(
-            new IndexException("Error during deserialization of index definition"), e);
-      }
-    } else {
-      // @COMPATIBILITY 1.0rc6 new index model was implemented
-      final Boolean isAutomatic = config.field(CONFIG_AUTOMATIC);
-      var factory = Indexes.getFactory(type, algorithm);
-      if (Boolean.TRUE.equals(isAutomatic)) {
-        final var pos = indexName.lastIndexOf('.');
-        if (pos < 0) {
-          throw new IndexException(
-              "Cannot convert from old index model to new one. "
-                  + "Invalid index name. Dot (.) separator should be present");
-        }
-        final var className = indexName.substring(0, pos);
-        final var propertyName = indexName.substring(pos + 1);
-
-        final String keyTypeStr = config.field(CONFIG_KEYTYPE);
-        if (keyTypeStr == null) {
-          throw new IndexException(
-              "Cannot convert from old index model to new one. " + "Index key type is absent");
-        }
-        final var keyType = PropertyType.valueOf(keyTypeStr.toUpperCase(Locale.ENGLISH));
-
-        loadedIndexDefinition = new PropertyIndexDefinition(className, propertyName, keyType);
-
-        config.removeField(CONFIG_AUTOMATIC);
-        config.removeField(CONFIG_KEYTYPE);
-      } else if (config.field(CONFIG_KEYTYPE) != null) {
-        final String keyTypeStr = config.field(CONFIG_KEYTYPE);
-        final var keyType = PropertyType.valueOf(keyTypeStr.toUpperCase(Locale.ENGLISH));
-
-        loadedIndexDefinition = new SimpleKeyIndexDefinition(keyType);
-
-        config.removeField(CONFIG_KEYTYPE);
+            new IndexException(db.getDatabaseName(),
+                "Error during deserialization of index definition"), e,
+            db.getDatabaseName());
       }
     }
 
-    final Set<String> clusters = new HashSet<>(
-        config.field(CONFIG_CLUSTERS, PropertyType.EMBEDDEDSET));
-
+    @SuppressWarnings("unchecked")
+    var clusters = (Set<String>) config.get(CONFIG_CLUSTERS);
     final var indexVersion =
-        config.field(INDEX_VERSION) == null
+        config.get(INDEX_VERSION) == null
             ? 1
-            : (Integer) config.field(INDEX_VERSION);
+            : (Integer) config.get(INDEX_VERSION);
 
-    //this trick is used to keep backward compatibility with old index model
-    var metadataEntity = config.<EntityImpl>field(METADATA);
+    @SuppressWarnings("unchecked")
+    var metadataEntity = (Map<String, ?>) config.get(METADATA);
     return new IndexMetadata(
         indexName,
         loadedIndexDefinition,
         clusters,
         type,
         algorithm,
-        indexVersion, metadataEntity != null ? metadataEntity.toMap() : null
-    );
+        indexVersion, metadataEntity);
   }
 
   @Override
@@ -238,7 +203,10 @@ public abstract class IndexAbstract implements IndexInternal {
         doDelete(session);
       }
       throw BaseException.wrapException(
-          new IndexException("Cannot create the index '" + im.getName() + "'"), e);
+          new IndexException(session.getDatabaseName(),
+              "Cannot create the index '" + im.getName() + "'"),
+          e,
+          session.getDatabaseName());
     } finally {
       releaseExclusiveLock();
     }
@@ -256,12 +224,12 @@ public abstract class IndexAbstract implements IndexInternal {
   }
 
   public boolean loadFromConfiguration(DatabaseSessionInternal session,
-      final EntityImpl config) {
+      final Map<String, ?> config) {
     acquireExclusiveLock();
     try {
       clustersToIndex.clear();
 
-      final var indexMetadata = loadMetadata(config);
+      final var indexMetadata = loadMetadata(session, config);
       this.im = indexMetadata;
       clustersToIndex.addAll(indexMetadata.getClustersToIndex());
 
@@ -317,8 +285,8 @@ public abstract class IndexAbstract implements IndexInternal {
   }
 
   @Override
-  public IndexMetadata loadMetadata(final EntityImpl config) {
-    return loadMetadataInternal(
+  public IndexMetadata loadMetadata(DatabaseSessionInternal session, final Map<String, ?> config) {
+    return loadMetadataInternal(session,
         config, im.getType(), im.getAlgorithm());
   }
 
@@ -483,7 +451,7 @@ public abstract class IndexAbstract implements IndexInternal {
         LogManager.instance().error(this, "Error during index '%s' delete", e, im.getName());
       }
 
-      var indexMetadata = this.loadMetadata(updateConfiguration(session));
+      var indexMetadata = this.loadMetadata(session, updateConfiguration(session));
       Map<String, String> engineProperties = new HashMap<>();
       indexId = storage.addIndexEngine(indexMetadata, engineProperties);
       apiVersion = AbstractPaginatedStorage.extractEngineAPIVersion(indexId);
@@ -501,8 +469,9 @@ public abstract class IndexAbstract implements IndexInternal {
       }
 
       throw BaseException.wrapException(
-          new IndexException("Error on rebuilding the index for clusters: " + clustersToIndex),
-          e);
+          new IndexException(session.getDatabaseName(),
+              "Error on rebuilding the index for clusters: " + clustersToIndex),
+          e, session.getDatabaseName());
     } finally {
       releaseExclusiveLock();
     }
@@ -523,8 +492,9 @@ public abstract class IndexAbstract implements IndexInternal {
       }
 
       throw BaseException.wrapException(
-          new IndexException("Error on rebuilding the index for clusters: " + clustersToIndex),
-          e);
+          new IndexException(session.getDatabaseName(),
+              "Error on rebuilding the index for clusters: " + clustersToIndex),
+          e, session.getDatabaseName());
     } finally {
       releaseSharedLock();
     }
@@ -731,38 +701,27 @@ public abstract class IndexAbstract implements IndexInternal {
     return im.getVersion();
   }
 
-  public EntityImpl updateConfiguration(DatabaseSessionInternal db) {
-    var entity = new EntityImpl(db);
-    entity.field(CONFIG_TYPE, im.getType());
-    entity.field(CONFIG_NAME, im.getName());
-    entity.field(INDEX_VERSION, im.getVersion());
+  public Map<String, ?> updateConfiguration(DatabaseSessionInternal db) {
+    var map = new HashMap<String, Object>();
+
+    map.put(CONFIG_TYPE, im.getType());
+    map.put(CONFIG_NAME, im.getName());
+    map.put(INDEX_VERSION, im.getVersion());
 
     if (im.getIndexDefinition() != null) {
-
-      final var indexDefEntity = im.getIndexDefinition()
-          .toStream(db, new EntityImpl(db));
-      if (!indexDefEntity.hasOwners()) {
-        EntityInternalUtils.addOwner(indexDefEntity, entity);
-      }
-
-      entity.field(INDEX_DEFINITION, indexDefEntity, PropertyType.EMBEDDED);
-      entity.field(
-          INDEX_DEFINITION_CLASS, im.getIndexDefinition().getClass().getName());
-    } else {
-      entity.removeField(INDEX_DEFINITION);
-      entity.removeField(INDEX_DEFINITION_CLASS);
+      final var indexDefEntity = im.getIndexDefinition().toMap();
+      map.put(INDEX_DEFINITION, indexDefEntity);
+      map.put(INDEX_DEFINITION_CLASS, im.getIndexDefinition().getClass().getName());
     }
 
-    entity.field(CONFIG_CLUSTERS, clustersToIndex, PropertyType.EMBEDDEDSET);
-    entity.field(ALGORITHM, im.getAlgorithm());
+    map.put(CONFIG_CLUSTERS, clustersToIndex);
+    map.put(ALGORITHM, im.getAlgorithm());
 
     if (im.getMetadata() != null) {
-      var imEntity = new EntityImpl(db);
-      imEntity.updateFromMap(im.getMetadata());
-      entity.field(METADATA, imEntity, PropertyType.EMBEDDED);
+      map.put(METADATA, im.getMetadata());
     }
 
-    return entity;
+    return map;
   }
 
   /**
@@ -781,7 +740,7 @@ public abstract class IndexAbstract implements IndexInternal {
     return changes.getEntriesAsList();
   }
 
-  public EntityImpl getConfiguration(DatabaseSessionInternal session) {
+  public Map<String, ?> getConfiguration(DatabaseSessionInternal session) {
     return updateConfiguration(session);
   }
 
@@ -916,11 +875,11 @@ public abstract class IndexAbstract implements IndexInternal {
       long documentTotal) {
     if (im.getIndexDefinition() == null) {
       throw new ConfigurationException(
-          "Index '"
-              + im.getName()
-              + "' cannot be rebuilt because has no a valid definition ("
-              + im.getIndexDefinition()
-              + ")");
+          session.getDatabaseName(), "Index '"
+          + im.getName()
+          + "' cannot be rebuilt because has no a valid definition ("
+          + im.getIndexDefinition()
+          + ")");
     }
 
     var stat = new long[]{documentNum, documentIndexed};
@@ -928,7 +887,8 @@ public abstract class IndexAbstract implements IndexInternal {
     var clusterIterator = session.browseCluster(clusterName);
     session.executeInTxBatches((Iterator<DBRecord>) clusterIterator, (db, record) -> {
       if (Thread.interrupted()) {
-        throw new CommandExecutionException("The index rebuild has been interrupted");
+        throw new CommandExecutionException(session.getDatabaseName(),
+            "The index rebuild has been interrupted");
       }
 
       if (record instanceof EntityImpl entity) {
@@ -980,9 +940,9 @@ public abstract class IndexAbstract implements IndexInternal {
     }
   }
 
-  public static void manualIndexesWarning() {
+  public static void manualIndexesWarning(String dbName) {
     if (!GlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES.getValueAsBoolean()) {
-      throw new ManualIndexesAreProhibited(
+      throw new ManualIndexesAreProhibited(dbName,
           "Manual indexes are deprecated, not supported any more and will be removed in next"
               + " versions if you still want to use them, please set global property `"
               + GlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES.getKey()

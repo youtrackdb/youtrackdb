@@ -19,9 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.misc;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionAbstract;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.text.SimpleDateFormat;
@@ -63,7 +63,7 @@ public class SQLFunctionSysdate extends SQLFunctionAbstract {
       if (iParams.length == 2) {
         format.setTimeZone(TimeZone.getTimeZone(iParams[1].toString()));
       } else {
-        format.setTimeZone(DateHelper.getDatabaseTimeZone());
+        format.setTimeZone(DateHelper.getDatabaseTimeZone(iContext.getDatabaseSession()));
       }
     }
 

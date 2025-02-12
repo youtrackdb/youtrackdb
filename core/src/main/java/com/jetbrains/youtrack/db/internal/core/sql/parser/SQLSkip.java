@@ -2,10 +2,10 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.Map;
 import java.util.Objects;
@@ -57,10 +57,11 @@ public class SQLSkip extends SimpleNode {
       if (paramValue instanceof Number) {
         return ((Number) paramValue).intValue();
       } else {
-        throw new CommandExecutionException("Invalid value for SKIP: " + paramValue);
+        throw new CommandExecutionException(ctx.getDatabaseSession(),
+            "Invalid value for SKIP: " + paramValue);
       }
     }
-    throw new CommandExecutionException("No value for SKIP");
+    throw new CommandExecutionException(ctx.getDatabaseSession(), "No value for SKIP");
   }
 
   public SQLSkip copy() {

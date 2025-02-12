@@ -28,14 +28,12 @@ import com.jetbrains.youtrack.db.internal.core.index.IndexFactory;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
 import com.jetbrains.youtrack.db.internal.core.index.IndexMetadata;
 import com.jetbrains.youtrack.db.internal.core.index.engine.BaseIndexEngine;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.lucene.engine.LuceneFullTextIndexEngine;
 import com.jetbrains.youtrack.db.internal.lucene.index.LuceneFullTextIndex;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
@@ -106,7 +104,7 @@ public class LuceneIndexFactory implements IndexFactory, DatabaseLifecycleListen
       return new LuceneFullTextIndex(im, storage);
     }
 
-    throw new ConfigurationException("Unsupported type : " + algorithm);
+    throw new ConfigurationException(storage.getName(), "Unsupported type : " + algorithm);
   }
 
   @Override
@@ -120,41 +118,38 @@ public class LuceneIndexFactory implements IndexFactory, DatabaseLifecycleListen
   }
 
   @Override
-  public void onCreate(DatabaseSessionInternal db) {
+  public void onCreate(DatabaseSessionInternal session) {
     LogManager.instance().debug(this, "onCreate");
   }
 
   @Override
-  public void onOpen(DatabaseSessionInternal db) {
+  public void onOpen(DatabaseSessionInternal session) {
     LogManager.instance().debug(this, "onOpen");
   }
 
   @Override
-  public void onClose(DatabaseSessionInternal db) {
+  public void onClose(DatabaseSessionInternal session) {
     LogManager.instance().debug(this, "onClose");
   }
 
   @Override
-  public void onDrop(final DatabaseSessionInternal db) {
+  public void onDrop(final DatabaseSessionInternal session) {
     try {
-      if (db.isClosed()) {
+      if (session.isClosed()) {
         return;
       }
 
       LogManager.instance().debug(this, "Dropping Lucene indexes...");
 
-      final var internal = db;
+      final var internal = session;
       internal.getMetadata().getIndexManagerInternal().getIndexes(internal).stream()
           .filter(idx -> idx.getInternal() instanceof LuceneFullTextIndex)
           .peek(idx -> LogManager.instance().debug(this, "deleting index " + idx.getName()))
-          .forEach(idx -> idx.delete(db));
+          .forEach(idx -> idx.delete(session));
 
     } catch (Exception e) {
       LogManager.instance().warn(this, "Error on dropping Lucene indexes", e);
     }
   }
 
-  @Override
-  public void onLocalNodeConfigurationRequest(EntityImpl iConfiguration) {
-  }
 }

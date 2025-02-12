@@ -27,7 +27,6 @@ import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
@@ -88,18 +87,18 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
   private boolean isUpsertAllowed = false;
   private boolean updated = false;
   private SchemaClass clazz = null;
-  private DISTRIBUTED_EXECUTION_MODE distributedMode;
 
   private boolean updateEdge = false;
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorSQLUpdate parse(DatabaseSessionInternal db, final CommandRequest iRequest) {
+  public CommandExecutorSQLUpdate parse(DatabaseSessionInternal session,
+      final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       if (updateEdge) {
         queryText =
             queryText.replaceFirst(
@@ -107,9 +106,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
       }
       textRequest.setText(queryText);
 
-      final var database = getDatabase();
-
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
       setEntries.clear();
       addEntries.clear();
@@ -121,19 +118,21 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
 
       query = null;
 
-      parserRequiredKeyword(KEYWORD_UPDATE);
+      parserRequiredKeyword(session.getDatabaseName(), KEYWORD_UPDATE);
 
-      subjectName = parserRequiredWord(false, "Invalid target", " =><,\r\n");
+      subjectName = parserRequiredWord(false, "Invalid target", " =><,\r\n",
+          session.getDatabaseName());
       if (subjectName == null) {
-        throwSyntaxErrorException(
+        throwSyntaxErrorException(session.getDatabaseName(),
             "Invalid subject name. Expected cluster, class, index or sub-query");
       }
       if (subjectName.equalsIgnoreCase("EDGE")) {
         updateEdge = true;
-        subjectName = parserRequiredWord(false, "Invalid target", " =><,\r\n");
+        subjectName = parserRequiredWord(false, "Invalid target", " =><,\r\n",
+            session.getDatabaseName());
       }
 
-      clazz = extractClassFromTarget(subjectName);
+      clazz = extractClassFromTarget(session, subjectName);
 
       var word = parserNextWord(true);
 
@@ -148,7 +147,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
           && !word.equals(KEYWORD_RETURN)
           && !word.equals(KEYWORD_UPSERT)
           && !word.equals(KEYWORD_EDGE))) {
-        throwSyntaxErrorException(
+        throwSyntaxErrorException(session.getDatabaseName(),
             "Expected keyword "
                 + KEYWORD_SET
                 + ","
@@ -177,13 +176,13 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         word = parserGetLastWord();
 
         if (word.equals(KEYWORD_CONTENT)) {
-          parseContent(db);
+          parseContent(session);
         } else if (word.equals(KEYWORD_MERGE)) {
-          parseMerge(db);
+          parseMerge(session);
         } else if (word.equals(KEYWORD_SET)) {
-          parseSetFields(db, clazz, setEntries);
+          parseSetFields(session, clazz, setEntries);
         } else if (word.equals(KEYWORD_ADD)) {
-          parseAddFields(db);
+          parseAddFields(session);
         } else if (word.equals(KEYWORD_PUT)) {
           parsePutFields();
         } else if (word.equals(KEYWORD_REMOVE)) {
@@ -209,7 +208,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
       if (subjectName.startsWith("(")) {
         subjectName = subjectName.trim();
         query =
-            database.command(
+            session.command(
                 new SQLAsynchQuery<EntityImpl>(
                     subjectName.substring(1, subjectName.length() - 1), this)
                     .setContext(context));
@@ -260,23 +259,26 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         }
 
         isUpsertAllowed =
-            (getDatabase().getMetadata().getImmutableSchemaSnapshot().getClass(subjectName)
+            (session.getMetadata().getImmutableSchemaSnapshot().getClass(subjectName)
                 != null);
       } else if (!additionalStatement.isEmpty()) {
-        throwSyntaxErrorException("Invalid keyword " + additionalStatement);
+        throwSyntaxErrorException(session.getDatabaseName(),
+            "Invalid keyword " + additionalStatement);
       } else {
         query = new SQLAsynchQuery<EntityImpl>("select from " + getSelectTarget(), this);
       }
 
       if (upsertMode && !isUpsertAllowed) {
-        throwSyntaxErrorException("Upsert only works with class names ");
+        throwSyntaxErrorException(session.getDatabaseName(), "Upsert only works with class names ");
       }
 
       if (upsertMode && !additionalStatement.equals(CommandExecutorSQLAbstract.KEYWORD_WHERE)) {
-        throwSyntaxErrorException("Upsert only works with WHERE keyword");
+        throwSyntaxErrorException(session.getDatabaseName(),
+            "Upsert only works with WHERE keyword");
       }
       if (upsertMode && updateEdge) {
-        throwSyntaxErrorException("Upsert is not supported with UPDATE EDGE");
+        throwSyntaxErrorException(session.getDatabaseName(),
+            "Upsert is not supported with UPDATE EDGE");
       }
     } finally {
       textRequest.setText(originalQuery);
@@ -296,9 +298,9 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     return ((SQLUpdateStatement) preParsedStatement).target.toString();
   }
 
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (subjectName == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -319,21 +321,21 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
 
     returnHandler.reset();
 
-    getDatabase().query(query, queryArgs);
+    session.query(query, queryArgs);
 
     if (upsertMode && !updated) {
       // IF UPDATE DOES NOT PRODUCE RESULTS AND UPSERT MODE IS ENABLED, CREATE DOCUMENT AND APPLY
       // SET/ADD/PUT/MERGE and so on
       final var entity =
-          subjectName != null ? new EntityImpl(db, subjectName) : new EntityImpl(db);
+          subjectName != null ? new EntityImpl(session, subjectName) : new EntityImpl(session);
       // locks by result(entity)
       try {
-        result(db, entity);
+        result(session, entity);
       } catch (RecordDuplicatedException e) {
         if (upsertMode)
         // UPDATE THE NEW RECORD
         {
-          getDatabase().query(query, queryArgs);
+          session.query(query, queryArgs);
         } else {
           throw e;
         }
@@ -341,7 +343,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         if (upsertMode)
         // UPDATE THE NEW RECORD
         {
-          getDatabase().query(query, queryArgs);
+          session.query(query, queryArgs);
         } else {
           throw e;
         }
@@ -349,7 +351,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         if (upsertMode)
         // UPDATE THE NEW RECORD
         {
-          getDatabase().query(query, queryArgs);
+          session.query(query, queryArgs);
         } else {
           throw e;
         }
@@ -363,11 +365,11 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
    * Update current record.
    */
   @SuppressWarnings("unchecked")
-  public boolean result(DatabaseSessionInternal db, final Object iRecord) {
-    final EntityImpl record = ((Identifiable) iRecord).getRecord(db);
+  public boolean result(DatabaseSessionInternal session, final Object iRecord) {
+    final EntityImpl record = ((Identifiable) iRecord).getRecord(session);
 
-    if (updateEdge && !isRecordInstanceOf(db, iRecord, "E")) {
-      throw new CommandExecutionException(
+    if (updateEdge && !isRecordInstanceOf(session, iRecord, "E")) {
+      throw new CommandExecutionException(session,
           "Using UPDATE EDGE on a record that is not an instance of E");
     }
     if (compiledFilter != null) {
@@ -381,16 +383,16 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
 
     returnHandler.beforeUpdate(record);
 
-    var updated = handleContent(db, record);
+    var updated = handleContent(session, record);
     updated |= handleMerge(record);
     updated |= handleSetEntries(record);
     updated |= handleIncrementEntries(record);
-    updated |= handleAddEntries(db, record);
-    updated |= handlePutEntries(db, record);
-    updated |= handleRemoveEntries(db, record);
+    updated |= handleAddEntries(session, record);
+    updated |= handlePutEntries(session, record);
+    updated |= handleRemoveEntries(session, record);
 
     if (updated) {
-      handleUpdateEdge(db, record);
+      handleUpdateEdge(session, record);
       record.setDirty();
       record.save();
       returnHandler.afterUpdate(record);
@@ -420,7 +422,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     if (iRecord == null) {
       return false;
     }
-    return (EntityInternalUtils.getImmutableSchemaClass(record).isSubClassOf(youTrackDbClass));
+    return (EntityInternalUtils.getImmutableSchemaClass(record).isSubClassOf(db, youTrackDbClass));
   }
 
   /**
@@ -483,14 +485,14 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     }
   }
 
-  private void validateOutInForEdge(DatabaseSessionInternal db, EntityImpl record,
+  private void validateOutInForEdge(DatabaseSessionInternal session, EntityImpl record,
       Object currentOut, Object currentIn) {
-    if (!isRecordInstanceOf(db, currentOut, "V")) {
-      throw new CommandExecutionException(
+    if (!isRecordInstanceOf(session, currentOut, "V")) {
+      throw new CommandExecutionException(session,
           "Error updating edge: 'out' is not a vertex - " + currentOut);
     }
-    if (!isRecordInstanceOf(db, currentIn, "V")) {
-      throw new CommandExecutionException(
+    if (!isRecordInstanceOf(session, currentIn, "V")) {
+      throw new CommandExecutionException(session,
           "Error updating edge: 'in' is not a vertex - " + currentIn);
     }
   }
@@ -503,26 +505,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
   }
 
   @Override
-  public CommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE
-  getDistributedExecutionMode() {
-    return DISTRIBUTED_EXECUTION_MODE.LOCAL;
-    // ALWAYS EXECUTE THE COMMAND LOCALLY BECAUSE THERE IS NO A DISTRIBUTED UNDO WITH SHARDING
-    /*
-    if (distributedMode == null)
-      // REPLICATE MODE COULD BE MORE EFFICIENT ON MASSIVE UPDATES
-      distributedMode = upsertMode || query == null || getDatabase().getTransaction().isActive() ?
-          DISTRIBUTED_EXECUTION_MODE.LOCAL :
-          DISTRIBUTED_EXECUTION_MODE.REPLICATE;
-    return distributedMode;*/
-  }
-
-  @Override
-  public DISTRIBUTED_RESULT_MGMT getDistributedResultManagement() {
-    return DISTRIBUTED_RESULT_MGMT.CHECK_FOR_EQUALS;
-  }
-
-  @Override
-  public void end() {
+  public void end(DatabaseSessionInternal db) {
   }
 
   @Override
@@ -530,16 +513,17 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     return Role.PERMISSION_UPDATE;
   }
 
-  protected void parseMerge(DatabaseSessionInternal db) {
+  protected void parseMerge(DatabaseSessionInternal session) {
     if (!parserIsEnded() && !parserGetLastWord().equals(KEYWORD_WHERE)) {
-      final var contentAsString = parserRequiredWord(false, "entity to merge expected").trim();
-      merge = new EntityImpl(db);
+      final var contentAsString = parserRequiredWord(false, "entity to merge expected",
+          session.getDatabaseName()).trim();
+      merge = new EntityImpl(session);
       merge.updateFromJSON(contentAsString);
       parserSkipWhiteSpaces();
     }
 
     if (merge == null) {
-      throwSyntaxErrorException(
+      throwSyntaxErrorException(session.getDatabaseName(),
           "Document to merge not provided. Example: MERGE { \"name\": \"Jay\" }");
     }
   }
@@ -601,7 +585,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
                   ? SQLHelper.parseValue(this, returning, this.getContext())
                   : null;
         } else {
-          throwSyntaxErrorException(
+          throwSyntaxErrorException(null,
               "record attribute (@attributes) or functions with $current variable expected");
         }
       }
@@ -613,37 +597,38 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
       }
 
     } else {
-      throwSyntaxErrorException(" COUNT | BEFORE | AFTER keywords expected");
+      throwSyntaxErrorException(null, " COUNT | BEFORE | AFTER keywords expected");
     }
   }
 
-  private boolean handleContent(DatabaseSessionInternal db, EntityImpl record) {
+  private boolean handleContent(DatabaseSessionInternal session, EntityImpl record) {
     var updated = false;
     if (content != null) {
       // REPLACE ALL THE CONTENT
-      final var fieldsToPreserve = new EntityImpl(db);
+      final var fieldsToPreserve = new EntityImpl(session);
 
       final var restricted =
-          getDatabase()
-              .getMetadata()
+          session.getMetadata()
               .getImmutableSchemaSnapshot()
               .getClass(Security.RESTRICTED_CLASSNAME);
 
       if (restricted != null
-          && restricted.isSuperClassOf(EntityInternalUtils.getImmutableSchemaClass(record))) {
-        for (var prop : restricted.properties(getDatabase())) {
-          fieldsToPreserve.field(prop.getName(), record.<Object>field(prop.getName()));
+          && restricted.isSuperClassOf(session,
+          EntityInternalUtils.getImmutableSchemaClass(record))) {
+        for (var prop : restricted.properties(session)) {
+          fieldsToPreserve.field(prop.getName(session),
+              record.<Object>field(prop.getName(session)));
         }
       }
 
       SchemaClass recordClass = EntityInternalUtils.getImmutableSchemaClass(record);
-      if (recordClass != null && recordClass.isSubClassOf("V")) {
+      if (recordClass != null && recordClass.isSubClassOf(session, "V")) {
         for (var fieldName : record.fieldNames()) {
           if (fieldName.startsWith("in_") || fieldName.startsWith("out_")) {
             fieldsToPreserve.field(fieldName, record.<Object>field(fieldName));
           }
         }
-      } else if (recordClass != null && recordClass.isSubClassOf("E")) {
+      } else if (recordClass != null && recordClass.isSubClassOf(session, "E")) {
         for (var fieldName : record.fieldNames()) {
           if (fieldName.equals("in") || fieldName.equals("out")) {
             fieldsToPreserve.field(fieldName, record.<Object>field(fieldName));
@@ -691,7 +676,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         } else if (entry.getValue() instanceof Number) {
           current = (Number) entry.getValue();
         } else {
-          throw new CommandExecutionException(
+          throw new CommandExecutionException((String) null,
               "Increment value is not a number (" + entry.getValue() + ")");
         }
 
@@ -710,7 +695,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     return updated;
   }
 
-  private boolean handleAddEntries(DatabaseSessionInternal querySession, EntityImpl record) {
+  private boolean handleAddEntries(DatabaseSessionInternal session, EntityImpl record) {
     var updated = false;
     // BIND VALUES TO ADD
     Object fieldValue;
@@ -721,15 +706,16 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         // GET THE TYPE IF ANY
         if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
           var prop =
-              EntityInternalUtils.getImmutableSchemaClass(record).getProperty(entry.getKey());
-          if (prop != null && prop.getType() == PropertyType.LINKSET)
+              EntityInternalUtils.getImmutableSchemaClass(record)
+                  .getProperty(session, entry.getKey());
+          if (prop != null && prop.getType(session) == PropertyType.LINKSET)
           // SET TYPE
           {
             coll = new HashSet<Object>();
           }
-          if (prop != null && prop.getType() == PropertyType.LINKBAG) {
+          if (prop != null && prop.getType(session) == PropertyType.LINKBAG) {
             // there is no ridbag value already but property type is defined as LINKBAG
-            bag = new RidBag(querySession);
+            bag = new RidBag(session);
             bag.setOwner(record);
             record.field(entry.getKey(), bag);
           }
@@ -762,7 +748,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         }
       }
 
-      final var value = extractValue(querySession, record, entry);
+      final var value = extractValue(session, record, entry);
 
       if (coll != null) {
         if (value instanceof Identifiable) {
@@ -772,7 +758,8 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         }
       } else {
         if (!(value instanceof Identifiable)) {
-          throw new CommandExecutionException("Only links or records can be added to LINKBAG");
+          throw new CommandExecutionException(session,
+              "Only links or records can be added to LINKBAG");
         }
 
         bag.add(((Identifiable) value).getIdentity());
@@ -783,7 +770,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  private boolean handlePutEntries(DatabaseSessionInternal querySession, EntityImpl record) {
+  private boolean handlePutEntries(DatabaseSessionInternal session, EntityImpl record) {
     var updated = false;
     if (!putEntries.isEmpty()) {
       // BIND VALUES TO PUT (AS MAP)
@@ -793,12 +780,13 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         if (fieldValue == null) {
           if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
             final var property =
-                EntityInternalUtils.getImmutableSchemaClass(record).getProperty(entry.getKey());
+                EntityInternalUtils.getImmutableSchemaClass(record)
+                    .getProperty(session, entry.getKey());
             if (property != null
-                && (property.getType() != null
-                && (!property.getType().equals(PropertyType.EMBEDDEDMAP)
-                && !property.getType().equals(PropertyType.LINKMAP)))) {
-              throw new CommandExecutionException(
+                && (property.getType(session) != null
+                && (!property.getType(session).equals(PropertyType.EMBEDDEDMAP)
+                && !property.getType(session).equals(PropertyType.LINKMAP)))) {
+              throw new CommandExecutionException(session,
                   "field " + entry.getKey() + " is not defined as a map");
             }
           }
@@ -811,15 +799,16 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
 
           var pair = entry.getValue();
 
-          var value = extractValue(querySession, record, pair);
+          var value = extractValue(session, record, pair);
 
           if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
             final var property =
-                EntityInternalUtils.getImmutableSchemaClass(record).getProperty(entry.getKey());
+                EntityInternalUtils.getImmutableSchemaClass(record)
+                    .getProperty(session, entry.getKey());
             if (property != null
-                && property.getType().equals(PropertyType.LINKMAP)
+                && property.getType(session).equals(PropertyType.LINKMAP)
                 && !(value instanceof Identifiable)) {
-              throw new CommandExecutionException(
+              throw new CommandExecutionException(session,
                   "field " + entry.getKey() + " defined of type LINKMAP accept only link values");
             }
           }
@@ -896,7 +885,8 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
 
   private static boolean removeSingleValueFromBag(RidBag bag, Object value, EntityImpl record) {
     if (!(value instanceof Identifiable)) {
-      throw new CommandExecutionException("Only links or records can be removed from LINKBAG");
+      throw new CommandExecutionException((String) null,
+          "Only links or records can be removed from LINKBAG");
     }
 
     bag.remove(((Identifiable) value).getIdentity());
@@ -921,7 +911,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     return value;
   }
 
-  private void parseAddFields(DatabaseSessionInternal db) {
+  private void parseAddFields(DatabaseSessionInternal session) {
     String fieldName;
     String fieldValue;
 
@@ -930,11 +920,12 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         && (firstLap || parserGetLastSeparator() == ',' || parserGetCurrentChar() == ',')
         && !parserGetLastWord().equals(KEYWORD_WHERE)) {
 
-      fieldName = parserRequiredWord(false, "Field name expected");
-      parserRequiredKeyword("=");
-      fieldValue = parserRequiredWord(false, "Value expected", " =><,\r\n");
+      fieldName = parserRequiredWord(false, "Field name expected", session.getDatabaseName());
+      parserRequiredKeyword(session.getDatabaseName(), "=");
+      fieldValue = parserRequiredWord(false, "Value expected", " =><,\r\n",
+          session.getDatabaseName());
 
-      final var v = convertValue(db, clazz, fieldName,
+      final var v = convertValue(session, clazz, fieldName,
           getFieldValueCountingParameters(fieldValue));
 
       // INSERT TRANSFORMED FIELD VALUE
@@ -945,7 +936,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     }
 
     if (addEntries.isEmpty()) {
-      throwSyntaxErrorException(
+      throwSyntaxErrorException(session.getDatabaseName(),
           "Entries to add <field> = <value> are missed. Example: name = 'Bill', salary = 300.2.");
     }
   }
@@ -960,10 +951,10 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         && (firstLap || parserGetLastSeparator() == ',' || parserGetCurrentChar() == ',')
         && !parserGetLastWord().equals(KEYWORD_WHERE)) {
 
-      fieldName = parserRequiredWord(false, "Field name expected");
-      parserRequiredKeyword("=");
-      fieldKey = parserRequiredWord(false, "Key expected");
-      fieldValue = getBlock(parserRequiredWord(false, "Value expected", " =><,\r\n"));
+      fieldName = parserRequiredWord(false, "Field name expected", null);
+      parserRequiredKeyword(null, "=");
+      fieldKey = parserRequiredWord(false, "Key expected", null);
+      fieldValue = getBlock(parserRequiredWord(false, "Value expected", " =><,\r\n", null));
 
       // INSERT TRANSFORMED FIELD VALUE
       putEntries.add(
@@ -977,7 +968,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     }
 
     if (putEntries.isEmpty()) {
-      throwSyntaxErrorException(
+      throwSyntaxErrorException(null,
           "Entries to put <field> = <key>, <value> are missed. Example: name = 'Bill', 30");
     }
   }
@@ -992,14 +983,15 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         && (firstLap || parserGetLastSeparator() == ',' || parserGetCurrentChar() == ',')
         && !parserGetLastWord().equals(KEYWORD_WHERE)) {
 
-      fieldName = parserRequiredWord(false, "Field name expected");
-      final var found = parserOptionalKeyword("=", "WHERE");
+      fieldName = parserRequiredWord(false, "Field name expected", null);
+      final var found = parserOptionalKeyword(null, "=", "WHERE");
       if (found) {
         if (parserGetLastWord().equals("WHERE")) {
           parserGoBack();
           value = EMPTY_VALUE;
         } else {
-          fieldValue = getBlock(parserRequiredWord(false, "Value expected", " =><,\r\n"));
+          fieldValue = getBlock(parserRequiredWord(false,
+              "Value expected", " =><,\r\n", null));
           value = getFieldValueCountingParameters(fieldValue);
         }
       } else {
@@ -1014,7 +1006,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     }
 
     if (removeEntries.size() == 0) {
-      throwSyntaxErrorException("Field(s) to remove are missed. Example: name, salary");
+      throwSyntaxErrorException(null, "Field(s) to remove are missed. Example: name, salary");
     }
   }
 
@@ -1027,9 +1019,9 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         && (firstLap || parserGetLastSeparator() == ',')
         && !parserGetLastWord().equals(KEYWORD_WHERE)) {
 
-      fieldName = parserRequiredWord(false, "Field name expected");
-      parserRequiredKeyword("=");
-      fieldValue = getBlock(parserRequiredWord(false, "Value expected"));
+      fieldName = parserRequiredWord(false, "Field name expected", null);
+      parserRequiredKeyword(null, "=");
+      fieldValue = getBlock(parserRequiredWord(false, "Value expected", null));
 
       // INSERT TRANSFORMED FIELD VALUE
       incrementEntries.add(new Pair(fieldName, getFieldValueCountingParameters(fieldValue)));
@@ -1039,14 +1031,9 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     }
 
     if (incrementEntries.size() == 0) {
-      throwSyntaxErrorException(
+      throwSyntaxErrorException(null,
           "Entries to increment <field> = <value> are missed. Example: salary = -100");
     }
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.WRITE;
   }
 
   @Override

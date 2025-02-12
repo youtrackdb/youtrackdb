@@ -116,7 +116,8 @@ public class ServerAdmin {
 
   private void checkConnected() {
     if (user == null || password == null) {
-      throw new StorageException("ServerAdmin not connect use connect before do an operation");
+      throw new StorageException(null,
+          "ServerAdmin not connect use connect before do an operation");
     }
   }
 

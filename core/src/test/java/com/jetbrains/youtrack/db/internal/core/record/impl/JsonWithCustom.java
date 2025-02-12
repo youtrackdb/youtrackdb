@@ -6,7 +6,6 @@ import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -21,14 +20,14 @@ public class JsonWithCustom extends DbTestBase {
   public void testCustomField() {
     var old = GlobalConfiguration.DB_CUSTOM_SUPPORT.getValueAsBoolean();
     GlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(true);
-    var doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) session.newEntity();
     doc.field("test", String.class, PropertyType.CUSTOM);
 
     var json = doc.toJSON();
 
     System.out.println(json);
 
-    var doc1 = (EntityImpl) db.newEntity();
+    var doc1 = (EntityImpl) session.newEntity();
     doc1.updateFromJSON(json);
     assertEquals(doc.<String>field("test"), doc1.field("test"));
     GlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(old);
@@ -36,14 +35,14 @@ public class JsonWithCustom extends DbTestBase {
 
   @Test(expected = DatabaseException.class)
   public void testCustomFieldDisabled() {
-    var doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) session.newEntity();
     doc.field("test", String.class, PropertyType.CUSTOM);
 
     var json = doc.toJSON();
 
     System.out.println(json);
 
-    var doc1 = (EntityImpl) db.newEntity();
+    var doc1 = (EntityImpl) session.newEntity();
     doc1.updateFromJSON(json);
     assertEquals(doc.<String>field("test"), doc1.field("test"));
   }

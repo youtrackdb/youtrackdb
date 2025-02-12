@@ -16,7 +16,6 @@
 package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import org.testng.Assert;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -30,7 +29,7 @@ public class WrongQueryTest extends BaseDBTest {
   }
 
   public void queryFieldOperatorNotSupported() {
-    try (var result = db.command(
+    try (var result = session.command(
         "select * from Account where name.not() like 'G%'")) {
 
       Assert.fail();

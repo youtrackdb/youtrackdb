@@ -51,7 +51,7 @@ public class BrowseClusterTest {
       db.save(v);
       db.commit();
     }
-    var cluster = db.getClass("One").getClusterIds()[0];
+    var cluster = db.getClass("One").getClusterIds(db)[0];
     var browser =
         ((AbstractPaginatedStorage) ((DatabaseSessionInternal) db).getStorage())
             .browseCluster(cluster);

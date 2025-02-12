@@ -21,9 +21,9 @@ package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedDbAbstract;
 import java.io.StringWriter;
 
@@ -42,7 +42,7 @@ public class ServerCommandGetClass extends ServerCommandAuthenticatedDbAbstract 
     DatabaseSessionInternal db = null;
 
     try {
-      db = getProfiledDatabaseInstance(iRequest);
+      db = getProfiledDatabaseSessionInstance(iRequest);
 
       if (db.getMetadata().getSchema().existsClass(urlParts[2])) {
         var cls = db.getMetadata().getSchemaInternal().getClassInternal(urlParts[2]);

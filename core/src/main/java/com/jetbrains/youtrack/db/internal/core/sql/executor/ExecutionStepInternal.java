@@ -74,33 +74,33 @@ public interface ExecutionStepInternal extends ExecutionStep {
   }
 
   default List<ExecutionStep> getSubSteps() {
-    return Collections.EMPTY_LIST;
+    return Collections.emptyList();
   }
 
   default List<ExecutionPlan> getSubExecutionPlans() {
-    return Collections.EMPTY_LIST;
+    return Collections.emptyList();
   }
 
   default void reset() {
     // do nothing
   }
 
-  default Result serialize(DatabaseSessionInternal db) {
+  default Result serialize(DatabaseSessionInternal session) {
     throw new UnsupportedOperationException();
   }
 
-  default void deserialize(Result fromResult) {
+  default void deserialize(Result fromResult, DatabaseSessionInternal session) {
     throw new UnsupportedOperationException();
   }
 
-  static ResultInternal basicSerialize(DatabaseSessionInternal db,
+  static ResultInternal basicSerialize(DatabaseSessionInternal session,
       ExecutionStepInternal step) {
-    var result = new ResultInternal(db);
+    var result = new ResultInternal(session);
     result.setProperty(InternalExecutionPlan.JAVA_TYPE, step.getClass().getName());
     if (step.getSubSteps() != null && !step.getSubSteps().isEmpty()) {
       List<Result> serializedSubsteps = new ArrayList<>();
       for (var substep : step.getSubSteps()) {
-        serializedSubsteps.add(((ExecutionStepInternal) substep).serialize(db));
+        serializedSubsteps.add(((ExecutionStepInternal) substep).serialize(session));
       }
       result.setProperty("subSteps", serializedSubsteps);
     }
@@ -108,14 +108,15 @@ public interface ExecutionStepInternal extends ExecutionStep {
     if (step.getSubExecutionPlans() != null && !step.getSubExecutionPlans().isEmpty()) {
       List<Result> serializedSubPlans = new ArrayList<>();
       for (var substep : step.getSubExecutionPlans()) {
-        serializedSubPlans.add(((InternalExecutionPlan) substep).serialize(db));
+        serializedSubPlans.add(((InternalExecutionPlan) substep).serialize(session));
       }
       result.setProperty("subExecutionPlans", serializedSubPlans);
     }
     return result;
   }
 
-  static void basicDeserialize(Result serialized, ExecutionStepInternal step)
+  static void basicDeserialize(Result serialized, ExecutionStepInternal step,
+      DatabaseSessionInternal session)
       throws ClassNotFoundException, IllegalAccessException, InstantiationException {
     List<Result> serializedSubsteps = serialized.getProperty("subSteps");
     if (serializedSubsteps != null) {
@@ -123,7 +124,7 @@ public interface ExecutionStepInternal extends ExecutionStep {
         String className = serializedSub.getProperty(InternalExecutionPlan.JAVA_TYPE);
         var subStep =
             (ExecutionStepInternal) Class.forName(className).newInstance();
-        subStep.deserialize(serializedSub);
+        subStep.deserialize(serializedSub, session);
         step.getSubSteps().add(subStep);
       }
     }
@@ -134,7 +135,7 @@ public interface ExecutionStepInternal extends ExecutionStep {
         String className = serializedSub.getProperty(InternalExecutionPlan.JAVA_TYPE);
         var subStep =
             (InternalExecutionPlan) Class.forName(className).newInstance();
-        subStep.deserialize(serializedSub);
+        subStep.deserialize(serializedSub, session);
         step.getSubExecutionPlans().add(subStep);
       }
     }

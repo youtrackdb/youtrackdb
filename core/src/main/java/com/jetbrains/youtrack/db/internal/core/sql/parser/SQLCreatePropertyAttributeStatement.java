@@ -74,37 +74,38 @@ public class SQLCreatePropertyAttributeStatement extends SimpleNode {
 
   public Object setOnProperty(SchemaPropertyImpl internalProp, CommandContext ctx) {
     var attrName = settingName.getStringValue();
-    var db = ctx.getDatabase();
+    var session = ctx.getDatabaseSession();
     var attrValue =
         this.settingValue == null ? true : this.settingValue.execute((Identifiable) null, ctx);
     try {
       if (attrName.equalsIgnoreCase("readonly")) {
-        internalProp.setReadonly(db, (boolean) attrValue);
+        internalProp.setReadonly(session, (boolean) attrValue);
       } else if (attrName.equalsIgnoreCase("mandatory")) {
-        internalProp.setMandatory(db, (boolean) attrValue);
+        internalProp.setMandatory(session, (boolean) attrValue);
       } else if (attrName.equalsIgnoreCase("notnull")) {
-        internalProp.setNotNull(db, (boolean) attrValue);
+        internalProp.setNotNull(session, (boolean) attrValue);
       } else if (attrName.equalsIgnoreCase("max")) {
-        internalProp.setMax(db, "" + attrValue);
+        internalProp.setMax(session, "" + attrValue);
       } else if (attrName.equalsIgnoreCase("min")) {
-        internalProp.setMin(db, "" + attrValue);
+        internalProp.setMin(session, "" + attrValue);
       } else if (attrName.equalsIgnoreCase("default")) {
         if (this.settingValue == null) {
-          throw new CommandExecutionException("");
+          throw new CommandExecutionException(session, "");
         }
-        internalProp.setDefaultValue(db, "" + attrValue);
+        internalProp.setDefaultValue(session, "" + attrValue);
       } else if (attrName.equalsIgnoreCase("collate")) {
-        internalProp.setCollate(db, "" + attrValue);
+        internalProp.setCollate(session, "" + attrValue);
       } else if (attrName.equalsIgnoreCase("regexp")) {
-        internalProp.setRegexp(db, "" + attrValue);
+        internalProp.setRegexp(session, "" + attrValue);
       } else {
-        throw new CommandExecutionException("Invalid attribute definition: '" + attrName + "'");
+        throw new CommandExecutionException(session,
+            "Invalid attribute definition: '" + attrName + "'");
       }
     } catch (Exception e) {
       throw BaseException.wrapException(
-          new CommandExecutionException(
+          new CommandExecutionException(session,
               "Cannot set attribute on property " + settingName.getStringValue() + " " + attrValue),
-          e);
+          e, session);
     }
     return attrValue;
   }

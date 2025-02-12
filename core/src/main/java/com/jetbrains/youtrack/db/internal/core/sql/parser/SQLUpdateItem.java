@@ -8,8 +8,8 @@ import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
@@ -22,7 +22,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -139,6 +138,7 @@ public class SQLUpdateItem extends SimpleNode {
   }
 
   public void applyUpdate(ResultInternal entity, CommandContext ctx) {
+    var db = ctx.getDatabaseSession();
     var rightValue = right.execute(entity, ctx);
     var linkedType = calculateLinkedTypeForThisItem(entity, ctx);
     if (leftModifier == null) {
@@ -148,18 +148,19 @@ public class SQLUpdateItem extends SimpleNode {
       rightValue = convertToType(rightValue, null, linkedType, ctx);
       var val = entity.getProperty(propertyName);
       if (val == null) {
-        val = initSchemafullCollections(entity, propertyName);
+        val = initSchemafullCollections(db, entity, propertyName);
       }
       leftModifier.setValue(entity, val, rightValue, ctx);
     }
   }
 
-  private Object initSchemafullCollections(ResultInternal entity, String propName) {
-    var oClass = entity.getEntity().flatMap(x -> x.getSchemaType()).orElse(null);
+  private Object initSchemafullCollections(DatabaseSessionInternal session, ResultInternal entity,
+      String propName) {
+    var oClass = entity.getEntity().flatMap(Entity::getSchemaType).orElse(null);
     if (oClass == null) {
       return null;
     }
-    var prop = oClass.getProperty(propName);
+    var prop = oClass.getProperty(session, propName);
 
     Object result = null;
     if (prop == null) {
@@ -168,15 +169,16 @@ public class SQLUpdateItem extends SimpleNode {
         entity.setProperty(propName, result);
       }
     } else {
-      if (prop.getType() == PropertyType.EMBEDDEDMAP || prop.getType() == PropertyType.LINKMAP) {
+      if (prop.getType(session) == PropertyType.EMBEDDEDMAP
+          || prop.getType(session) == PropertyType.LINKMAP) {
         result = new HashMap<>();
         entity.setProperty(propName, result);
-      } else if (prop.getType() == PropertyType.EMBEDDEDLIST
-          || prop.getType() == PropertyType.LINKLIST) {
+      } else if (prop.getType(session) == PropertyType.EMBEDDEDLIST
+          || prop.getType(session) == PropertyType.LINKLIST) {
         result = new ArrayList<>();
         entity.setProperty(propName, result);
-      } else if (prop.getType() == PropertyType.EMBEDDEDSET
-          || prop.getType() == PropertyType.LINKSET) {
+      } else if (prop.getType(session) == PropertyType.EMBEDDEDSET
+          || prop.getType(session) == PropertyType.LINKSET) {
         result = new HashSet<>();
         entity.setProperty(propName, result);
       }
@@ -244,19 +246,20 @@ public class SQLUpdateItem extends SimpleNode {
   public static Object convertToPropertyType(
       ResultInternal res, SQLIdentifier attrName, Object newValue, CommandContext ctx) {
 
+    var session = ctx.getDatabaseSession();
     var entity = res.asEntity();
     var optSchema = entity.getSchemaType();
     if (optSchema.isEmpty()) {
       return newValue;
     }
 
-    var prop = optSchema.get().getProperty(attrName.getStringValue());
+    var prop = optSchema.get().getProperty(ctx.getDatabaseSession(), attrName.getStringValue());
     if (prop == null) {
       return newValue;
     }
 
-    var type = prop.getType();
-    var linkedClass = prop.getLinkedClass();
+    var type = prop.getType(session);
+    var linkedClass = prop.getLinkedClass(session);
     return convertToType(newValue, type, linkedClass, ctx);
   }
 
@@ -273,7 +276,8 @@ public class SQLUpdateItem extends SimpleNode {
         } else if (((Collection<?>) value).size() == 1) {
           value = ((Collection<?>) value).iterator().next();
         } else {
-          throw new CommandExecutionException("Cannot assign a collection to a LINK property");
+          throw new CommandExecutionException(ctx.getDatabaseSession(),
+              "Cannot assign a collection to a LINK property");
         }
       } else {
         if (type == PropertyType.EMBEDDEDLIST && linkedClass != null) {
@@ -289,19 +293,19 @@ public class SQLUpdateItem extends SimpleNode {
               .collect(Collectors.toSet());
         }
         if (type == PropertyType.LINKSET && !(value instanceof LinkSet)) {
-          var db = ctx.getDatabase();
+          var db = ctx.getDatabaseSession();
           return ((Collection<?>) value)
               .stream()
               .map(item -> PropertyType.convert(db, item, Identifiable.class))
               .collect(Collectors.toSet());
         } else if (type == PropertyType.LINKLIST && !(value instanceof LinkList)) {
-          var db = ctx.getDatabase();
+          var db = ctx.getDatabaseSession();
           return ((Collection<?>) value)
               .stream()
               .map(item -> PropertyType.convert(db, item, Identifiable.class))
               .collect(Collectors.toList());
         } else if (type == PropertyType.LINKBAG && !(value instanceof RidBag)) {
-          var db = ctx.getDatabase();
+          var db = ctx.getDatabaseSession();
           var bag = new RidBag(db);
 
           ((Collection<?>) value)
@@ -316,10 +320,10 @@ public class SQLUpdateItem extends SimpleNode {
   }
 
   private static Object convertToType(Object item, SchemaClass linkedClass, CommandContext ctx) {
+    var db = ctx.getDatabaseSession();
     if (item instanceof Entity) {
       var currentType = ((Entity) item).getSchemaType().orElse(null);
-      if (currentType == null || !currentType.isSubClassOf(linkedClass)) {
-        var db = ctx.getDatabase();
+      if (currentType == null || !currentType.isSubClassOf(db, linkedClass)) {
         var result = db.newEmbededEntity(linkedClass);
 
         for (var prop : ((Entity) item).getPropertyNames()) {
@@ -331,7 +335,7 @@ public class SQLUpdateItem extends SimpleNode {
         return item;
       }
     } else if (item instanceof Map) {
-      var result = ctx.getDatabase().newEmbededEntity(linkedClass.getName());
+      var result = db.newEmbededEntity(linkedClass.getName(db));
 
       ((Map<String, Object>) item)
           .entrySet().stream().forEach(x -> result.setProperty(x.getKey(), x.getValue()));

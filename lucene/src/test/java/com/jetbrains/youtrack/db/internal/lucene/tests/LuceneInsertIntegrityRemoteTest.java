@@ -21,12 +21,9 @@ package com.jetbrains.youtrack.db.internal.lucene.tests;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -41,95 +38,95 @@ public class LuceneInsertIntegrityRemoteTest extends LuceneBaseTest {
   @Before
   public void init() {
 
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var oClass = schema.createClass("City");
 
-    oClass.createProperty(db, "name", PropertyType.STRING);
+    oClass.createProperty(session, "name", PropertyType.STRING);
     //noinspection deprecation
-    db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
+    session.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
 
   @Test
   @Ignore
   public void testInsertUpdateWithIndex() throws Exception {
-    db.getMetadata().reload();
-    var schema = db.getMetadata().getSchema();
+    session.getMetadata().reload();
+    var schema = session.getMetadata().getSchema();
 
-    var doc = ((EntityImpl) db.newEntity("City"));
+    var doc = ((EntityImpl) session.newEntity("City"));
     doc.field("name", "Rome");
 
-    db.begin();
-    db.save(doc);
-    db.commit();
-    var idx = schema.getClassInternal("City").getClassIndex(db, "City.name");
+    session.begin();
+    session.save(doc);
+    session.commit();
+    var idx = schema.getClassInternal("City").getClassIndex(session, "City.name");
 
     Collection<?> coll;
-    try (var stream = idx.getInternal().getRids(db, "Rome")) {
+    try (var stream = idx.getInternal().getRids(session, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(1, coll.size());
 
-    doc = db.load((RID) coll.iterator().next());
+    doc = session.load((RID) coll.iterator().next());
     Assert.assertEquals("Rome", doc.field("name"));
 
-    db.begin();
+    session.begin();
     doc.field("name", "London");
-    db.save(doc);
-    db.commit();
+    session.save(doc);
+    session.commit();
 
-    try (var stream = idx.getInternal().getRids(db, "Rome")) {
+    try (var stream = idx.getInternal().getRids(session, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(0, coll.size());
-    try (var stream = idx.getInternal().getRids(db, "London")) {
+    try (var stream = idx.getInternal().getRids(session, "London")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(1, coll.size());
 
-    doc = db.load((RID) coll.iterator().next());
+    doc = session.load((RID) coll.iterator().next());
     Assert.assertEquals("London", doc.field("name"));
 
-    db.begin();
+    session.begin();
     doc.field("name", "Berlin");
-    db.save(doc);
-    db.commit();
+    session.save(doc);
+    session.commit();
 
-    doc = db.load(doc.getIdentity());
+    doc = session.load(doc.getIdentity());
     Assert.assertEquals("Berlin", doc.field("name"));
 
-    try (var stream = idx.getInternal().getRids(db, "Rome")) {
+    try (var stream = idx.getInternal().getRids(session, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(0, coll.size());
-    try (var stream = idx.getInternal().getRids(db, "London")) {
+    try (var stream = idx.getInternal().getRids(session, "London")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(0, coll.size());
-    try (var stream = idx.getInternal().getRids(db, "Berlin")) {
+    try (var stream = idx.getInternal().getRids(session, "Berlin")) {
       coll = stream.collect(Collectors.toList());
     }
-    Assert.assertEquals(1, idx.getInternal().size(db));
+    Assert.assertEquals(1, idx.getInternal().size(session));
     Assert.assertEquals(1, coll.size());
 
     Thread.sleep(1000);
 
-    doc = db.load(doc.getIdentity());
+    doc = session.load(doc.getIdentity());
 
     Assert.assertEquals("Berlin", doc.field("name"));
 
-    schema = db.getMetadata().getSchema();
-    idx = schema.getClassInternal("City").getClassIndex(db, "City.name");
+    schema = session.getMetadata().getSchema();
+    idx = schema.getClassInternal("City").getClassIndex(session, "City.name");
 
-    Assert.assertEquals(1, idx.getInternal().size(db));
-    try (var stream = idx.getInternal().getRids(db, "Rome")) {
+    Assert.assertEquals(1, idx.getInternal().size(session));
+    try (var stream = idx.getInternal().getRids(session, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(0, coll.size());
-    try (var stream = idx.getInternal().getRids(db, "London")) {
+    try (var stream = idx.getInternal().getRids(session, "London")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(0, coll.size());
-    try (var stream = idx.getInternal().getRids(db, "Berlin")) {
+    try (var stream = idx.getInternal().getRids(session, "Berlin")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(1, coll.size());

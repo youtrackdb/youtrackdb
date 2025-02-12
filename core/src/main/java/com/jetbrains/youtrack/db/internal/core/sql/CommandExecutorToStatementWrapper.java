@@ -24,7 +24,6 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -50,7 +49,7 @@ public class CommandExecutorToStatementWrapper implements CommandExecutor {
 
   @SuppressWarnings("unchecked")
   @Override
-  public CommandExecutorToStatementWrapper parse(DatabaseSessionInternal db,
+  public CommandExecutorToStatementWrapper parse(DatabaseSessionInternal session,
       CommandRequest iCommand) {
     final var textRequest = (CommandRequestText) iCommand;
     if (iCommand instanceof SQLAsynchQuery) {
@@ -63,16 +62,13 @@ public class CommandExecutorToStatementWrapper implements CommandExecutor {
       }
     }
     var queryText = textRequest.getText();
-    statement = StatementCache.get(queryText, getDatabase());
+    statement = StatementCache.get(queryText, session);
     return this;
   }
 
-  public static DatabaseSessionInternal getDatabase() {
-    return DatabaseRecordThreadLocal.instance().get();
-  }
 
   @Override
-  public Object execute(DatabaseSessionInternal db, Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, Map<Object, Object> iArgs) {
     return statement.execute(request, context, this.progressListener);
   }
 
@@ -114,7 +110,7 @@ public class CommandExecutorToStatementWrapper implements CommandExecutor {
   }
 
   @Override
-  public Set<String> getInvolvedClusters() {
+  public Set<String> getInvolvedClusters(DatabaseSessionInternal session) {
     return Collections.EMPTY_SET;
   }
 
@@ -124,32 +120,12 @@ public class CommandExecutorToStatementWrapper implements CommandExecutor {
   }
 
   @Override
-  public boolean involveSchema() {
-    return false;
-  }
-
-  @Override
   public String getSyntax() {
     return "PROFILE STORAGE [ON | OFF]";
   }
 
   @Override
-  public boolean isLocalExecution() {
-    return true;
-  }
-
-  @Override
   public boolean isCacheable() {
     return false;
-  }
-
-  @Override
-  public long getDistributedTimeout() {
-    return 0;
-  }
-
-  @Override
-  public Object mergeResults(Map<String, Object> results) throws Exception {
-    return null;
   }
 }

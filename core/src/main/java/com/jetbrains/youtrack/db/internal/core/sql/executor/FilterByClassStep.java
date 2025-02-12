@@ -4,13 +4,11 @@ import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.ExecutionStep;
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
-import java.util.Optional;
 
 /**
  *
@@ -38,8 +36,9 @@ public class FilterByClassStep extends AbstractExecutionStep {
 
   private Result filterMap(Result result, CommandContext ctx) {
     if (result.isEntity()) {
+      var db = ctx.getDatabaseSession();
       var clazz = result.asEntity().getSchemaType();
-      if (clazz.isPresent() && clazz.get().isSubClassOf(className)) {
+      if (clazz.isPresent() && clazz.get().isSubClassOf(db, className)) {
         return result;
       }
     }
@@ -62,20 +61,20 @@ public class FilterByClassStep extends AbstractExecutionStep {
   }
 
   @Override
-  public Result serialize(DatabaseSessionInternal db) {
-    var result = ExecutionStepInternal.basicSerialize(db, this);
-    result.setProperty("identifier", identifier.serialize(db));
+  public Result serialize(DatabaseSessionInternal session) {
+    var result = ExecutionStepInternal.basicSerialize(session, this);
+    result.setProperty("identifier", identifier.serialize(session));
 
     return result;
   }
 
   @Override
-  public void deserialize(Result fromResult) {
+  public void deserialize(Result fromResult, DatabaseSessionInternal session) {
     try {
-      ExecutionStepInternal.basicDeserialize(fromResult, this);
+      ExecutionStepInternal.basicDeserialize(fromResult, this, session);
       identifier = SQLIdentifier.deserialize(fromResult.getProperty("identifier"));
     } catch (Exception e) {
-      throw BaseException.wrapException(new CommandExecutionException(""), e);
+      throw BaseException.wrapException(new CommandExecutionException(session, ""), e, session);
     }
   }
 

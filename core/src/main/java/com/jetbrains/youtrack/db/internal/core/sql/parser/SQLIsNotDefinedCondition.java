@@ -29,7 +29,7 @@ public class SQLIsNotDefinedCondition extends SQLBooleanExpression {
   @Override
   public boolean evaluate(Identifiable currentRecord, CommandContext ctx) {
     try {
-      var db = ctx.getDatabase();
+      var db = ctx.getDatabaseSession();
       Object elem = currentRecord.getRecord(db);
       if (elem instanceof Entity) {
         return !expression.isDefinedFor(db, (Entity) elem);

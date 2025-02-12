@@ -1,11 +1,8 @@
 package com.jetbrains.youtrack.db.internal.lucene.integration;
 
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
@@ -56,10 +53,10 @@ public class LuceneCreateIndexIntegrationTest {
     if (person == null) {
       person = session.getMetadata().getSchema().createClass("Person");
     }
-    if (!person.existsProperty("name")) {
+    if (!person.existsProperty(session, "name")) {
       person.createProperty(session, "name", PropertyType.STRING);
     }
-    if (!person.existsProperty("surname")) {
+    if (!person.existsProperty(session, "surname")) {
       person.createProperty(session, "surname", PropertyType.STRING);
     }
 

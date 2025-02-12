@@ -32,14 +32,14 @@ public class SBTreeV2CompositeKeyTest extends DbTestBase {
   @Before
   public void beforeMethod() throws Exception {
     atomicOperationsManager =
-        ((AbstractPaginatedStorage) db.getStorage()).getAtomicOperationsManager();
+        ((AbstractPaginatedStorage) session.getStorage()).getAtomicOperationsManager();
     //noinspection deprecation
     localSBTree =
         new SBTreeV2<>(
             "localSBTreeCompositeKeyTest",
             ".sbt",
             ".nbt",
-            (AbstractPaginatedStorage) db.getStorage());
+            (AbstractPaginatedStorage) session.getStorage());
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
         atomicOperation ->

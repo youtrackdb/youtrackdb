@@ -24,10 +24,7 @@ import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import java.io.BufferedWriter;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.SecureRandom;
@@ -179,7 +176,7 @@ public class SymmetricKey {
     } catch (Exception ex) {
       throw BaseException.wrapException(
           new SecurityException("SymmetricKey.SymmetricKey() Exception: " + ex.getMessage()),
-          ex);
+          ex, (String) null);
     }
   }
 
@@ -261,7 +258,8 @@ public class SymmetricKey {
       }
     } catch (Exception ex) {
       throw BaseException.wrapException(
-          new SecurityException("SymmetricKey.fromFile() Exception: " + ex.getMessage()), ex);
+          new SecurityException("SymmetricKey.fromFile() Exception: " + ex.getMessage()), ex,
+          (String) null);
     }
   }
 
@@ -275,7 +273,8 @@ public class SymmetricKey {
       base64Key = IOUtils.readStreamAsString(is);
     } catch (Exception ex) {
       throw BaseException.wrapException(
-          new SecurityException("SymmetricKey.fromStream() Exception: " + ex.getMessage()), ex);
+          new SecurityException("SymmetricKey.fromStream() Exception: " + ex.getMessage()), ex,
+          (String) null);
     }
 
     return new SymmetricKey(algorithm, base64Key);
@@ -310,7 +309,7 @@ public class SymmetricKey {
     } catch (Exception ex) {
       throw BaseException.wrapException(
           new SecurityException("SymmetricKey.fromKeystore() Exception: " + ex.getMessage()),
-          ex);
+          ex, (String) null);
     }
   }
 
@@ -360,8 +359,9 @@ public class SymmetricKey {
       sk = new SymmetricKey(secretKey);
     } catch (Exception ex) {
       throw BaseException.wrapException(
-          new SecurityException("SymmetricKey.fromKeystore() Exception: " + ex.getMessage()),
-          ex);
+          new SecurityException((String) null,
+              "SymmetricKey.fromKeystore() Exception: " + ex.getMessage()),
+          ex, (String) null);
     }
 
     return sk;
@@ -372,7 +372,7 @@ public class SymmetricKey {
    */
   public String getBase64Key() {
     if (secretKey == null) {
-      throw new SecurityException("SymmetricKey.getBase64Key() SecretKey is null");
+      throw new SecurityException((String) null, "SymmetricKey.getBase64Key() SecretKey is null");
     }
 
     return convertToBase64(secretKey.getEncoded());
@@ -416,7 +416,9 @@ public class SymmetricKey {
       return encrypt(value.getBytes(StandardCharsets.UTF_8));
     } catch (Exception ex) {
       throw BaseException.wrapException(
-          new SecurityException("SymmetricKey.encrypt() Exception: " + ex.getMessage()), ex);
+          new SecurityException((String) null,
+              "SymmetricKey.encrypt() Exception: " + ex.getMessage()), ex,
+          (String) null);
     }
   }
 
@@ -433,7 +435,9 @@ public class SymmetricKey {
       return encrypt(transform, value.getBytes(StandardCharsets.UTF_8));
     } catch (Exception ex) {
       throw BaseException.wrapException(
-          new SecurityException("SymmetricKey.encrypt() Exception: " + ex.getMessage()), ex);
+          new SecurityException((String) null,
+              "SymmetricKey.encrypt() Exception: " + ex.getMessage()), ex,
+          (String) null);
     }
   }
 
@@ -458,10 +462,10 @@ public class SymmetricKey {
     String encodedJSON = null;
 
     if (secretKey == null) {
-      throw new SecurityException("SymmetricKey.encrypt() SecretKey is null");
+      throw new SecurityException((String) null, "SymmetricKey.encrypt() SecretKey is null");
     }
     if (transform == null) {
-      throw new SecurityException(
+      throw new SecurityException((String) null,
           "SymmetricKey.encrypt() Cannot determine cipher transformation");
     }
 
@@ -485,7 +489,9 @@ public class SymmetricKey {
       encodedJSON = encodeJSON(encrypted, initVector);
     } catch (Exception ex) {
       throw BaseException.wrapException(
-          new SecurityException("SymmetricKey.encrypt() Exception: " + ex.getMessage()), ex);
+          new SecurityException((String) null,
+              "SymmetricKey.encrypt() Exception: " + ex.getMessage()), ex,
+          (String) null);
     }
 
     return encodedJSON;
@@ -544,8 +550,9 @@ public class SymmetricKey {
       return new String(decrypted, StandardCharsets.UTF_8);
     } catch (Exception ex) {
       throw BaseException.wrapException(
-          new SecurityException("SymmetricKey.decryptAsString() Exception: " + ex.getMessage()),
-          ex);
+          new SecurityException((String) null,
+              "SymmetricKey.decryptAsString() Exception: " + ex.getMessage()),
+          ex, (String) null);
     }
   }
 
@@ -560,14 +567,15 @@ public class SymmetricKey {
     byte[] result = null;
 
     if (encodedJSON == null) {
-      throw new SecurityException("SymmetricKey.decrypt(String) encodedJSON is null");
+      throw new SecurityException((String) null,
+          "SymmetricKey.decrypt(String) encodedJSON is null");
     }
 
     try {
       var decoded = convertFromBase64(encodedJSON);
 
       if (decoded == null) {
-        throw new SecurityException(
+        throw new SecurityException((String) null,
             "SymmetricKey.decrypt(String) encodedJSON could not be decoded");
       }
 
@@ -615,78 +623,11 @@ public class SymmetricKey {
       result = cipher.doFinal(payload);
     } catch (Exception ex) {
       throw BaseException.wrapException(
-          new SecurityException("SymmetricKey.decrypt(String) Exception: " + ex.getMessage()),
-          ex);
+          new SecurityException((String) null,
+              "SymmetricKey.decrypt(String) Exception: " + ex.getMessage()),
+          ex, (String) null);
     }
 
     return result;
-  }
-
-  /**
-   * Saves the internal SecretKey to the specified OutputStream as a Base64 String.
-   */
-  public void saveToStream(final OutputStream os) {
-    if (os == null) {
-      throw new SecurityException("SymmetricKey.saveToStream() OutputStream is null");
-    }
-
-    try {
-      final var osw = new OutputStreamWriter(os);
-      try {
-        final var writer = new BufferedWriter(osw);
-        try {
-          writer.write(getBase64Key());
-        } finally {
-          writer.close();
-        }
-      } finally {
-        os.close();
-      }
-    } catch (Exception ex) {
-      throw BaseException.wrapException(
-          new SecurityException("SymmetricKey.saveToStream() Exception: " + ex.getMessage()),
-          ex);
-    }
-  }
-
-  /**
-   * Saves the internal SecretKey as a KeyStore.
-   */
-  public void saveToKeystore(
-      final OutputStream os, final String ksPasswd, final String keyAlias, final String keyPasswd) {
-    if (os == null) {
-      throw new SecurityException("SymmetricKey.saveToKeystore() OutputStream is null");
-    }
-    if (ksPasswd == null) {
-      throw new SecurityException("SymmetricKey.saveToKeystore() Keystore Password is required");
-    }
-    if (keyAlias == null) {
-      throw new SecurityException("SymmetricKey.saveToKeystore() Key Alias is required");
-    }
-    if (keyPasswd == null) {
-      throw new SecurityException("SymmetricKey.saveToKeystore() Key Password is required");
-    }
-
-    try {
-      var ks = KeyStore.getInstance("JCEKS");
-
-      var ksPasswdCA = ksPasswd.toCharArray();
-      var keyPasswdCA = keyPasswd.toCharArray();
-
-      // Create a new KeyStore by passing null.
-      ks.load(null, ksPasswdCA);
-
-      KeyStore.ProtectionParameter protParam = new KeyStore.PasswordProtection(keyPasswdCA);
-
-      var skEntry = new KeyStore.SecretKeyEntry(secretKey);
-      ks.setEntry(keyAlias, skEntry, protParam);
-
-      // Save the KeyStore
-      ks.store(os, ksPasswdCA);
-    } catch (Exception ex) {
-      throw BaseException.wrapException(
-          new SecurityException("SymmetricKey.saveToKeystore() Exception: " + ex.getMessage()),
-          ex);
-    }
   }
 }

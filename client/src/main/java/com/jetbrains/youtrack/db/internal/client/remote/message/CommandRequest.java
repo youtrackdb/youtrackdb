@@ -55,17 +55,18 @@ public final class CommandRequest implements BinaryRequest<CommandResponse> {
   }
 
   @Override
-  public void write(DatabaseSessionInternal database, ChannelDataOutput network,
+  public void write(DatabaseSessionInternal databaseSession, ChannelDataOutput network,
       StorageRemoteSession session) throws IOException {
     if (live) {
       network.writeByte((byte) 'l');
     } else {
       network.writeByte((byte) (asynch ? 'a' : 's')); // ASYNC / SYNC
     }
-    network.writeBytes(StreamSerializerAnyStreamable.toStream(database, query));
+    network.writeBytes(StreamSerializerAnyStreamable.toStream(databaseSession, query));
   }
 
-  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+  public void read(DatabaseSessionInternal databaseSession, ChannelDataInput channel,
+      int protocolVersion,
       RecordSerializerNetwork serializer)
       throws IOException {
 
@@ -76,7 +77,8 @@ public final class CommandRequest implements BinaryRequest<CommandResponse> {
     if (type == (byte) 'a') {
       asynch = true;
     }
-    query = StreamSerializerAnyStreamable.INSTANCE.fromStream(db, channel.readBytes(), serializer);
+    query = StreamSerializerAnyStreamable.INSTANCE.fromStream(databaseSession, channel.readBytes(),
+        serializer);
   }
 
   @Override

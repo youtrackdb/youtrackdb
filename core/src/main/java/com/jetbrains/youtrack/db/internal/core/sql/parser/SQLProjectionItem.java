@@ -2,19 +2,18 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Vertex;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeToVertexIterable;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeToVertexIterator;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.AggregationContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalResultSet;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
@@ -195,7 +194,7 @@ public class SQLProjectionItem extends SimpleNode {
     }
     if (nestedProjection != null) {
       if (result instanceof EntityImpl entity && entity.isEmpty()) {
-        result = ctx.getDatabase().bindToSession(entity);
+        result = ctx.getDatabaseSession().bindToSession(entity);
       }
       result = nestedProjection.apply(expression, result, ctx);
     }
@@ -258,7 +257,7 @@ public class SQLProjectionItem extends SimpleNode {
    */
   public SQLProjectionItem splitForAggregation(
       AggregateProjectionSplit aggregateSplit, CommandContext ctx) {
-    if (isAggregate(ctx.getDatabase())) {
+    if (isAggregate(ctx.getDatabaseSession())) {
       var result = new SQLProjectionItem(-1);
       result.alias = getProjectionAlias();
       result.expression = expression.splitForAggregation(aggregateSplit, ctx);
@@ -271,7 +270,8 @@ public class SQLProjectionItem extends SimpleNode {
 
   public AggregationContext getAggregationContext(CommandContext ctx) {
     if (expression == null) {
-      throw new CommandExecutionException("Cannot aggregate on this projection: " + this);
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
+          "Cannot aggregate on this projection: " + this);
     }
     return expression.getAggregationContext(ctx);
   }

@@ -5,12 +5,10 @@ import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.ExecutionStep;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
@@ -50,9 +48,9 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
 
   private Iterator<DBRecord> init(CommandContext ctx) {
     var iterable =
-        ctx.getDatabase().getTransaction().getRecordOperations();
+        ctx.getDatabaseSession().getTransaction().getRecordOperations();
 
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     List<DBRecord> records = new ArrayList<>();
     if (iterable != null) {
       for (var op : iterable) {
@@ -97,10 +95,10 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
     SchemaClass schema = EntityInternalUtils.getImmutableSchemaClass(entity);
     if (schema == null) {
       return className == null;
-    } else if (schema.getName().equals(className)) {
+    } else if (schema.getName(db).equals(className)) {
       return true;
     } else {
-      return schema.isSubClassOf(className);
+      return schema.isSubClassOf(db, className);
     }
   }
 
@@ -121,19 +119,19 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
   }
 
   @Override
-  public Result serialize(DatabaseSessionInternal db) {
-    var result = ExecutionStepInternal.basicSerialize(db, this);
+  public Result serialize(DatabaseSessionInternal session) {
+    var result = ExecutionStepInternal.basicSerialize(session, this);
     result.setProperty("className", className);
     return result;
   }
 
   @Override
-  public void deserialize(Result fromResult) {
+  public void deserialize(Result fromResult, DatabaseSessionInternal session) {
     try {
-      ExecutionStepInternal.basicDeserialize(fromResult, this);
+      ExecutionStepInternal.basicDeserialize(fromResult, this, session);
       className = fromResult.getProperty("className");
     } catch (Exception e) {
-      throw BaseException.wrapException(new CommandExecutionException(""), e);
+      throw BaseException.wrapException(new CommandExecutionException(session, ""), e, session);
     }
   }
 

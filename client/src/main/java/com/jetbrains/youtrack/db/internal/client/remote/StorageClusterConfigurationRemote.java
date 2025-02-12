@@ -33,16 +33,6 @@ public class StorageClusterConfigurationRemote implements StorageClusterConfigur
   }
 
   @Override
-  public STATUS getStatus() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void setStatus(STATUS iStatus) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public int getBinaryVersion() {
     throw new UnsupportedOperationException();
   }

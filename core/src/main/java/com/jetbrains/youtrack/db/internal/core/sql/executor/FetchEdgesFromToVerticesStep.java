@@ -52,7 +52,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
     }
 
     final Iterator fromIter = loadFrom();
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     final var toList = loadTo(db);
 
     var res =
@@ -83,7 +83,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
     return ExecutionStream.resultIterator(
         StreamSupport.stream(FetchEdgesFromToVerticesStep.loadNextResults(db, val).spliterator(),
                 false)
-            .filter((e) -> filterResult(e, toList))
+            .filter((e) -> filterResult(db, e, toList))
             .map(
                 (edge) -> {
                   return (Result) new ResultInternal(db, edge);
@@ -91,7 +91,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
             .iterator());
   }
 
-  private Set<RID> loadTo(DatabaseSessionInternal db) {
+  private Set<RID> loadTo(DatabaseSessionInternal session) {
     Object toValues = null;
 
     toValues = ctx.getVariable(toAlias);
@@ -110,10 +110,10 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
           elem = result.asEntity();
         }
         if (elem instanceof Identifiable && !(elem instanceof Entity)) {
-          elem = ((Identifiable) elem).getRecord(db);
+          elem = ((Identifiable) elem).getRecord(session);
         }
         if (!(elem instanceof Entity)) {
-          throw new CommandExecutionException("Invalid vertex: " + elem);
+          throw new CommandExecutionException(session, "Invalid vertex: " + elem);
         }
         ((Entity) elem).asVertex().ifPresent(x -> toList.add(x.getIdentity()));
       }
@@ -135,26 +135,26 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
     return (Iterator<?>) fromValues;
   }
 
-  private boolean filterResult(Edge edge, Set<RID> toList) {
+  private boolean filterResult(DatabaseSessionInternal db, Edge edge, Set<RID> toList) {
     if (toList == null || toList.contains(edge.getTo().getIdentity())) {
-      return matchesClass(edge) && matchesCluster(edge);
+      return matchesClass(db, edge) && matchesCluster(edge);
     }
     return true;
   }
 
-  private static Iterable<Edge> loadNextResults(DatabaseSessionInternal db, Object from) {
+  private static Iterable<Edge> loadNextResults(DatabaseSessionInternal session, Object from) {
     if (from instanceof Result result && result.isEntity()) {
       from = result.asEntity();
     }
     if (from instanceof Identifiable && !(from instanceof Entity)) {
-      from = ((Identifiable) from).getRecord(db);
+      from = ((Identifiable) from).getRecord(session);
     }
     if (from instanceof Entity && ((Entity) from).isVertex()) {
       var vertex = ((Entity) from).toVertex();
       assert vertex != null;
       return vertex.getEdges(Direction.OUT);
     } else {
-      throw new CommandExecutionException("Invalid vertex: " + from);
+      throw new CommandExecutionException(session, "Invalid vertex: " + from);
     }
   }
 
@@ -163,17 +163,17 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
       return true;
     }
     var clusterId = edge.getIdentity().getClusterId();
-    var clusterName = ctx.getDatabase().getClusterNameById(clusterId);
+    var clusterName = ctx.getDatabaseSession().getClusterNameById(clusterId);
     return clusterName.equals(targetCluster.getStringValue());
   }
 
-  private boolean matchesClass(Edge edge) {
+  private boolean matchesClass(DatabaseSessionInternal db, Edge edge) {
     if (targetClass == null) {
       return true;
     }
     var schemaClass = edge.getSchemaClass();
     assert schemaClass != null;
-    return schemaClass.isSubClassOf(targetClass.getStringValue());
+    return schemaClass.isSubClassOf(db, targetClass.getStringValue());
   }
 
   @Override

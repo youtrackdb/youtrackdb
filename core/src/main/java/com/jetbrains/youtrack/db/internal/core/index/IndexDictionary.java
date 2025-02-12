@@ -39,7 +39,7 @@ public class IndexDictionary extends IndexOneValue {
   }
 
   @Override
-  public void doPut(DatabaseSessionInternal db, AbstractPaginatedStorage storage,
+  public void doPut(DatabaseSessionInternal session, AbstractPaginatedStorage storage,
       Object key,
       RID rid)
       throws InvalidIndexEngineIdException {

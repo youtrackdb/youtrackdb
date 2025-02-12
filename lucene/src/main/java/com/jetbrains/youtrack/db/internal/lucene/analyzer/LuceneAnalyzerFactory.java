@@ -4,7 +4,6 @@ import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexException;
-import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
@@ -91,7 +90,7 @@ public class LuceneAnalyzerFactory {
       return (Analyzer) constructor.newInstance();
     } catch (final ClassNotFoundException e) {
       throw BaseException.wrapException(
-          new IndexException("Analyzer: " + analyzerFQN + " not found"), e);
+          new IndexException("Analyzer: " + analyzerFQN + " not found"), e, (String) null);
     } catch (final NoSuchMethodException e) {
       Class classAnalyzer = null;
       try {
@@ -102,7 +101,7 @@ public class LuceneAnalyzerFactory {
         //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
         throw BaseException.wrapException(
             new IndexException("Couldn't instantiate analyzer:  public constructor  not found"),
-            e1);
+            e1, (String) null);
       }
     } catch (Exception e) {
       LogManager.instance()
@@ -121,10 +120,11 @@ public class LuceneAnalyzerFactory {
       return (Analyzer) constructor.newInstance(new CharArraySet(stopwords, true));
     } catch (final ClassNotFoundException e) {
       throw BaseException.wrapException(
-          new IndexException("Analyzer: " + analyzerFQN + " not found"), e);
+          new IndexException("Analyzer: " + analyzerFQN + " not found"), e, (String) null);
     } catch (final NoSuchMethodException e) {
       throw BaseException.wrapException(
-          new IndexException("Couldn't instantiate analyzer: public constructor not found"), e);
+          new IndexException("Couldn't instantiate analyzer: public constructor not found"), e,
+          (String) null);
     } catch (final Exception e) {
       LogManager.instance()
           .error(

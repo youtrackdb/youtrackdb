@@ -14,6 +14,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 
@@ -23,9 +24,10 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
  */
 public interface ClusterSelectionStrategy {
 
-  int getCluster(final SchemaClass iClass, final EntityImpl entity);
+  int getCluster(DatabaseSession session, final SchemaClass iClass, final EntityImpl entity);
 
-  int getCluster(final SchemaClass iClass, int[] selection, final EntityImpl entity);
+  int getCluster(DatabaseSession session, final SchemaClass iClass, int[] selection,
+      final EntityImpl entity);
 
   String getName();
 }

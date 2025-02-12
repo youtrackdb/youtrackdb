@@ -47,7 +47,7 @@ public class BasicCommandContext implements CommandContext {
   public static final String TIMEOUT_STRATEGY = "TIMEOUT_STARTEGY";
   public static final String INVALID_COMPARE_COUNT = "INVALID_COMPARE_COUNT";
 
-  protected DatabaseSessionInternal database;
+  protected DatabaseSessionInternal session;
   protected Object[] args;
 
   protected boolean recordMetrics = false;
@@ -73,7 +73,7 @@ public class BasicCommandContext implements CommandContext {
   }
 
   public BasicCommandContext(DatabaseSessionInternal session) {
-    this.database = session;
+    this.session = session;
   }
 
   public Object getVariable(String iName) {
@@ -106,7 +106,7 @@ public class BasicCommandContext implements CommandContext {
         if (lastPart.startsWith("$")) {
           result = parent.getVariable(lastPart.substring(1));
         } else {
-          result = EntityHelper.getFieldValue(getDatabase(), parent, lastPart);
+          result = EntityHelper.getFieldValue(getDatabaseSession(), parent, lastPart);
         }
 
         return result != null ? resolveValue(result) : iDefault;
@@ -120,7 +120,7 @@ public class BasicCommandContext implements CommandContext {
         if (lastPart.startsWith("$")) {
           result = p.getVariable(lastPart.substring(1));
         } else {
-          result = EntityHelper.getFieldValue(getDatabase(), p, lastPart, this);
+          result = EntityHelper.getFieldValue(getDatabaseSession(), p, lastPart, this);
         }
 
         return result != null ? resolveValue(result) : iDefault;
@@ -153,7 +153,7 @@ public class BasicCommandContext implements CommandContext {
     }
 
     if (pos > -1) {
-      result = EntityHelper.getFieldValue(getDatabase(), result, lastPart, this);
+      result = EntityHelper.getFieldValue(getDatabaseSession(), result, lastPart, this);
     }
 
     return result != null ? resolveValue(result) : iDefault;
@@ -301,7 +301,7 @@ public class BasicCommandContext implements CommandContext {
       if (child != null) {
         // REMOVE IT
         child.setParent(null);
-        child.setDatabase(null);
+        child.setDatabaseSession(null);
 
         child = null;
       }
@@ -309,7 +309,7 @@ public class BasicCommandContext implements CommandContext {
       // ADD IT
       child = iContext;
       iContext.setParent(this);
-      child.setDatabase(database);
+      child.setDatabaseSession(session);
     }
 
     return this;
@@ -393,7 +393,7 @@ public class BasicCommandContext implements CommandContext {
     copy.child = child.copy();
     copy.child.setParent(copy);
 
-    copy.setDatabase(null);
+    copy.setDatabaseSession(null);
 
     return copy;
   }
@@ -446,28 +446,28 @@ public class BasicCommandContext implements CommandContext {
     return this.uniqueResult.add(toAdd);
   }
 
-  public DatabaseSessionInternal getDatabase() {
-    if (database != null) {
-      return database;
+  public DatabaseSessionInternal getDatabaseSession() {
+    if (session != null) {
+      return session;
     }
 
     if (parent != null) {
-      database = parent.getDatabase();
+      session = parent.getDatabaseSession();
     }
 
-    if (database == null && !(this instanceof ServerCommandContext)) {
-      throw new DatabaseException("No database found in SQL context");
+    if (session == null && !(this instanceof ServerCommandContext)) {
+      throw new DatabaseException("No database session found in SQL context");
     }
 
-    return database;
+    return session;
   }
 
 
-  public void setDatabase(DatabaseSessionInternal database) {
-    this.database = database;
+  public void setDatabaseSession(DatabaseSessionInternal session) {
+    this.session = session;
 
     if (child != null) {
-      child.setDatabase(database);
+      child.setDatabaseSession(session);
     }
   }
 

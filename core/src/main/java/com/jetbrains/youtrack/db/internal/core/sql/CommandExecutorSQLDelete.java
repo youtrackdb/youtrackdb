@@ -19,7 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
@@ -71,17 +70,17 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
   }
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorSQLDelete parse(DatabaseSessionInternal db, final CommandRequest iRequest) {
+  public CommandExecutorSQLDelete parse(DatabaseSessionInternal session,
+      final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
-      final var database = getDatabase();
 
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
       query = null;
       recordCount = 0;
@@ -94,12 +93,13 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
                 0, parserTextUpperCase.length() - KEYWORD_UNSAFE.length() - 1);
       }
 
-      parserRequiredKeyword(CommandExecutorSQLDelete.KEYWORD_DELETE);
-      parserRequiredKeyword(CommandExecutorSQLDelete.KEYWORD_FROM);
+      parserRequiredKeyword(session.getDatabaseName(), CommandExecutorSQLDelete.KEYWORD_DELETE);
+      parserRequiredKeyword(session.getDatabaseName(), CommandExecutorSQLDelete.KEYWORD_FROM);
 
-      var subjectName = parserRequiredWord(false, "Syntax error", " =><,\r\n");
+      var subjectName = parserRequiredWord(false, "Syntax error", " =><,\r\n",
+          session.getDatabaseName());
       if (subjectName == null) {
-        throwSyntaxErrorException(
+        throwSyntaxErrorException(session.getDatabaseName(),
             "Invalid subject name. Expected cluster, class, index or sub-query");
       }
 
@@ -135,7 +135,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
       } else if (subjectName.startsWith("(")) {
         subjectName = subjectName.trim();
         query =
-            database.command(
+            session.command(
                 new SQLAsynchQuery<EntityImpl>(
                     subjectName.substring(1, subjectName.length() - 1), this));
         parserNextWord(true);
@@ -180,7 +180,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
                 ? " " + parserText.substring(parserGetCurrentPosition())
                 : "";
         query =
-            database.command(
+            session.command(
                 new SQLAsynchQuery<EntityImpl>(
                     "select from " + getSelectTarget(subjectName) + condition, this));
       }
@@ -198,9 +198,9 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
     return ((SQLDeleteStatement) preParsedStatement).fromClause.toString();
   }
 
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (query == null && indexName == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -214,7 +214,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
 
       var prevLockValue = query.getContext().getVariable("$locking");
 
-      query.execute(db, iArgs);
+      query.execute(session, iArgs);
 
       query.getContext().setVariable("$locking", prevLockValue);
 
@@ -234,16 +234,16 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
         compiledFilter.bindParameters(iArgs);
       }
       final var index =
-          db
+          session
               .getMetadata()
               .getIndexManagerInternal()
-              .getIndex(db, indexName)
+              .getIndex(session, indexName)
               .getInternal();
       if (index == null) {
-        throw new CommandExecutionException("Target index '" + indexName + "' not found");
+        throw new CommandExecutionException(session, "Target index '" + indexName + "' not found");
       }
 
-      IndexAbstract.manualIndexesWarning();
+      IndexAbstract.manualIndexesWarning(session.getDatabaseName());
 
       Object key = null;
       Object value = VALUE_NOT_FOUND;
@@ -251,23 +251,23 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
       if (compiledFilter == null || compiledFilter.getRootCondition() == null) {
         if (returning.equalsIgnoreCase("COUNT")) {
           // RETURNS ONLY THE COUNT
-          final var total = index.size(db);
-          index.clear(db);
+          final var total = index.size(session);
+          index.clear(session);
           return total;
         } else {
           // RETURNS ALL THE DELETED RECORDS
-          var cursor = index.stream(db).iterator();
+          var cursor = index.stream(session).iterator();
 
           while (cursor.hasNext()) {
             final var entry = cursor.next();
             Identifiable rec = entry.second;
-            rec = rec.getRecord(db);
+            rec = rec.getRecord(session);
             if (rec != null) {
               allDeletedRecords.add((DBRecord) rec);
             }
           }
 
-          index.clear(db);
+          index.clear(session);
 
           return allDeletedRecords;
         }
@@ -278,7 +278,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
         {
           key =
               getIndexKey(
-                  db, index.getDefinition(), compiledFilter.getRootCondition().getRight());
+                  session, index.getDefinition(), compiledFilter.getRootCondition().getRight());
         } else if (KEYWORD_RID.equalsIgnoreCase(
             compiledFilter.getRootCondition().getLeft().toString())) {
           // BY RID
@@ -288,7 +288,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
             instanceof SQLFilterCondition leftCondition) {
           // KEY AND VALUE
           if (KEYWORD_KEY.equalsIgnoreCase(leftCondition.getLeft().toString())) {
-            key = getIndexKey(db, index.getDefinition(), leftCondition.getRight());
+            key = getIndexKey(session, index.getDefinition(), leftCondition.getRight());
           }
 
           final var rightCondition =
@@ -301,9 +301,9 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
         final boolean result;
         if (value != VALUE_NOT_FOUND) {
           assert key != null;
-          result = index.remove(db, key, (Identifiable) value);
+          result = index.remove(session, key, (Identifiable) value);
         } else {
-          result = index.remove(db, key);
+          result = index.remove(session, key);
         }
 
         if (returning.equalsIgnoreCase("COUNT")) {
@@ -317,18 +317,12 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
     }
   }
 
-  @Override
-  public long getDistributedTimeout() {
-    return getDatabase()
-        .getConfiguration()
-        .getValueAsLong(GlobalConfiguration.DISTRIBUTED_COMMAND_TASK_SYNCH_TIMEOUT);
-  }
 
   /**
    * Deletes the current record.
    */
-  public boolean result(DatabaseSessionInternal db, final Object iRecord) {
-    final RecordAbstract record = ((Identifiable) iRecord).getRecord(db);
+  public boolean result(DatabaseSessionInternal session, final Object iRecord) {
+    final RecordAbstract record = ((Identifiable) iRecord).getRecord(session);
 
     if (record instanceof EntityImpl
         && compiledFilter != null
@@ -349,16 +343,16 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
         // CHECK IF ARE VERTICES OR EDGES
         final SchemaClass cls = EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) record));
         if (cls != null) {
-          if (cls.isSubClassOf("V"))
+          if (cls.isSubClassOf(session, "V"))
           // FOUND VERTEX
           {
-            throw new CommandExecutionException(
+            throw new CommandExecutionException(session,
                 "'DELETE' command cannot delete vertices. Use 'DELETE VERTEX' command instead, or"
                     + " apply the 'UNSAFE' keyword to force it");
-          } else if (cls.isSubClassOf("E"))
+          } else if (cls.isSubClassOf(session, "E"))
           // FOUND EDGE
           {
-            throw new CommandExecutionException(
+            throw new CommandExecutionException(session,
                 "'DELETE' command cannot delete edges. Use 'DELETE EDGE' command instead, or"
                     + " apply the 'UNSAFE' keyword to force it");
           }
@@ -379,7 +373,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
   }
 
   @Override
-  public void end() {
+  public void end(DatabaseSessionInternal db) {
   }
 
   @Override
@@ -394,7 +388,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
     final var returning = parserNextWord(true);
 
     if (!returning.equalsIgnoreCase("COUNT") && !returning.equalsIgnoreCase("BEFORE")) {
-      throwParsingException(
+      throwParsingException(null,
           "Invalid "
               + KEYWORD_RETURN
               + " value set to '"
@@ -428,29 +422,6 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
     } else {
       return SQLHelper.getValue(value);
     }
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.WRITE;
-  }
-
-  @Override
-  public CommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE
-  getDistributedExecutionMode() {
-    return DISTRIBUTED_EXECUTION_MODE.LOCAL;
-    // ALWAYS EXECUTE THE COMMAND LOCALLY BECAUSE THERE IS NO A DISTRIBUTED UNDO WITH SHARDING
-    //
-    // return (indexName != null || query != null) && !getDatabase().getTransaction().isActive() ?
-    // DISTRIBUTED_EXECUTION_MODE.REPLICATE
-    // : DISTRIBUTED_EXECUTION_MODE.LOCAL;
-  }
-
-  public DISTRIBUTED_RESULT_MGMT getDistributedResultManagement() {
-    return DISTRIBUTED_RESULT_MGMT.CHECK_FOR_EQUALS;
-    // return getDistributedExecutionMode() == DISTRIBUTED_EXECUTION_MODE.LOCAL ?
-    // DISTRIBUTED_RESULT_MGMT.CHECK_FOR_EQUALS
-    // : DISTRIBUTED_RESULT_MGMT.MERGE;
   }
 
   @Override

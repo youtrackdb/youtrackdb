@@ -4,12 +4,10 @@ import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
 import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.TokenAuthInfo;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.UserPasswordAuthInfo;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.security.ParsedToken;
 import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
 import com.jetbrains.youtrack.db.internal.core.security.TokenSign;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.TokenSecurityException;
@@ -36,16 +34,15 @@ public class DatabaseUserAuthenticator extends SecurityAuthenticatorAbstract {
       var token = ((TokenAuthInfo) info).getToken();
 
       if (tokenSign != null && !tokenSign.verifyTokenSign(token)) {
-        throw new TokenSecurityException("The token provided is expired");
+        throw new TokenSecurityException(session.getDatabaseName(),
+            "The token provided is expired");
       }
       if (!token.getToken().getIsValid()) {
-        throw new SecurityAccessException(session.getName(), "Token not valid");
+        throw new SecurityAccessException(session.getDatabaseName(), "Token not valid");
       }
 
       var user = token.getToken().getUser(session);
       if (user == null && token.getToken().getUserName() != null) {
-        var databaseSecurity =
-            (SecurityShared) session.getSharedContext().getSecurity();
         user = SecurityShared.getUserInternal(session, token.getToken().getUserName());
       }
       return user;
@@ -60,7 +57,7 @@ public class DatabaseUserAuthenticator extends SecurityAuthenticatorAbstract {
       return null;
     }
 
-    var dbName = session.getName();
+    var dbName = session.getDatabaseName();
     var user = SecurityShared.getUserInternal(session, username);
     if (user == null) {
       return null;

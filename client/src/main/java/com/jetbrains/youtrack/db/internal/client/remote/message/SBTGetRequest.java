@@ -46,13 +46,14 @@ public class SBTGetRequest implements BinaryRequest<SBTGetResponse> {
   }
 
   @Override
-  public void write(DatabaseSessionInternal database, ChannelDataOutput network,
+  public void write(DatabaseSessionInternal databaseSession, ChannelDataOutput network,
       StorageRemoteSession session) throws IOException {
     CollectionNetworkSerializer.INSTANCE.writeCollectionPointer(network, collectionPointer);
     network.writeBytes(keyStream);
   }
 
-  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+  public void read(DatabaseSessionInternal databaseSession, ChannelDataInput channel,
+      int protocolVersion,
       RecordSerializerNetwork serializer)
       throws IOException {
     this.collectionPointer = CollectionNetworkSerializer.INSTANCE.readCollectionPointer(channel);

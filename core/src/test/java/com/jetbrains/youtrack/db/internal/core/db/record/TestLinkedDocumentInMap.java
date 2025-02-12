@@ -1,6 +1,5 @@
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
@@ -14,32 +13,32 @@ public class TestLinkedDocumentInMap extends DbTestBase {
 
   @Test
   public void testLinkedValue() {
-    db.getMetadata().getSchema().createClass("PersonTest");
-    db.command("delete from PersonTest").close();
+    session.getMetadata().getSchema().createClass("PersonTest");
+    session.command("delete from PersonTest").close();
 
-    db.begin();
-    var jaimeDoc = (EntityImpl) db.newEntity("PersonTest");
+    session.begin();
+    var jaimeDoc = (EntityImpl) session.newEntity("PersonTest");
     jaimeDoc.field("name", "jaime");
     jaimeDoc.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    jaimeDoc = db.bindToSession(jaimeDoc);
-    var tyrionDoc = (EntityImpl) db.newEntity("PersonTest");
+    session.begin();
+    jaimeDoc = session.bindToSession(jaimeDoc);
+    var tyrionDoc = (EntityImpl) session.newEntity("PersonTest");
     tyrionDoc.updateFromJSON(
         "{\"@type\":\"d\",\"name\":\"tyrion\",\"emergency_contact\":[{\"relationship\":\"brother\",\"contact\":"
             + jaimeDoc.toJSON()
             + "}]}");
     tyrionDoc.save();
-    db.commit();
+    session.commit();
 
-    tyrionDoc = db.bindToSession(tyrionDoc);
+    tyrionDoc = session.bindToSession(tyrionDoc);
     List<Map<String, Identifiable>> res = tyrionDoc.field("emergency_contact");
     var doc = res.get(0);
     Assert.assertTrue(((RecordId) doc.get("contact").getIdentity()).isValid());
 
     reOpen("admin", "adminpwd");
-    try (var result = db.query("select from " + tyrionDoc.getIdentity())) {
+    try (var result = session.query("select from " + tyrionDoc.getIdentity())) {
       res = result.next().getProperty("emergency_contact");
       doc = res.get(0);
       Assert.assertTrue(((RecordId) doc.get("contact").getIdentity()).isValid());

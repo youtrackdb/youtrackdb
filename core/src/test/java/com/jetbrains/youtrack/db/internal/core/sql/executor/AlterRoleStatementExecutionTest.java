@@ -11,54 +11,55 @@ public class AlterRoleStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testAddPolicy() {
-    var security = db.getSharedContext().getSecurity();
+    var security = session.getSharedContext().getSecurity();
 
-    db.createClass("Person");
+    session.createClass("Person");
 
-    db.begin();
-    var policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(db, true);
-    policy.setReadRule(db, "name = 'foo'");
-    security.saveSecurityPolicy(db, policy);
-    db.command("ALTER ROLE reader SET POLICY testPolicy ON database.class.Person").close();
-    db.commit();
+    session.begin();
+    var policy = security.createSecurityPolicy(session, "testPolicy");
+    policy.setActive(session, true);
+    policy.setReadRule(session, "name = 'foo'");
+    security.saveSecurityPolicy(session, policy);
+    session.command("ALTER ROLE reader SET POLICY testPolicy ON database.class.Person").close();
+    session.commit();
 
     Assert.assertEquals(
         "testPolicy",
         security
-            .getSecurityPolicies(db, security.getRole(db, "reader"))
+            .getSecurityPolicies(session, security.getRole(session, "reader"))
             .get("database.class.Person")
-            .getName(db));
+            .getName(session));
   }
 
   @Test
   public void testRemovePolicy() {
-    var security = db.getSharedContext().getSecurity();
+    var security = session.getSharedContext().getSecurity();
 
-    db.createClass("Person");
+    session.createClass("Person");
 
-    db.begin();
-    var policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(db, true);
-    policy.setReadRule(db, "name = 'foo'");
-    security.saveSecurityPolicy(db, policy);
-    security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
-    db.commit();
+    session.begin();
+    var policy = security.createSecurityPolicy(session, "testPolicy");
+    policy.setActive(session, true);
+    policy.setReadRule(session, "name = 'foo'");
+    security.saveSecurityPolicy(session, policy);
+    security.setSecurityPolicy(session, security.getRole(session, "reader"),
+        "database.class.Person", policy);
+    session.commit();
 
     Assert.assertEquals(
         "testPolicy",
         security
-            .getSecurityPolicies(db, security.getRole(db, "reader"))
+            .getSecurityPolicies(session, security.getRole(session, "reader"))
             .get("database.class.Person")
-            .getName(db));
+            .getName(session));
 
-    db.begin();
-    db.command("ALTER ROLE reader REMOVE POLICY ON database.class.Person").close();
-    db.commit();
+    session.begin();
+    session.command("ALTER ROLE reader REMOVE POLICY ON database.class.Person").close();
+    session.commit();
 
     Assert.assertNull(
         security
-            .getSecurityPolicies(db, security.getRole(db, "reader"))
+            .getSecurityPolicies(session, security.getRole(session, "reader"))
             .get("database.class.Person"));
   }
 }

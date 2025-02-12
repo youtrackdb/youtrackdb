@@ -56,7 +56,7 @@ public final class CommandResponse implements BinaryResponse {
 
   private final boolean asynch;
   private final CommandResultListener listener;
-  private final DatabaseSessionInternal database;
+  private final DatabaseSessionInternal session;
   private boolean live;
   private Object result;
   private boolean isRecordResultSet;
@@ -68,14 +68,14 @@ public final class CommandResponse implements BinaryResponse {
       SimpleValueFetchPlanCommandListener listener,
       boolean isRecordResultSet,
       boolean async,
-      DatabaseSessionInternal database,
+      DatabaseSessionInternal session,
       CommandRequestText command,
       Map<Object, Object> params) {
     this.result = result;
     this.listener = listener;
     this.isRecordResultSet = isRecordResultSet;
     this.asynch = async;
-    this.database = database;
+    this.session = session;
     this.command = command;
     this.params = params;
   }
@@ -83,11 +83,11 @@ public final class CommandResponse implements BinaryResponse {
   public CommandResponse(
       boolean asynch,
       CommandResultListener listener,
-      DatabaseSessionInternal database,
+      DatabaseSessionInternal session,
       boolean live) {
     this.asynch = asynch;
     this.listener = listener;
-    this.database = database;
+    this.session = session;
     this.live = live;
   }
 
@@ -96,16 +96,16 @@ public final class CommandResponse implements BinaryResponse {
       throws IOException {
     if (asynch) {
       if (params == null) {
-        result = database.command(command).execute(session);
+        result = this.session.command(command).execute(session);
       } else {
-        result = database.command(command).execute(session, params);
+        result = this.session.command(command).execute(session, params);
       }
 
       // FETCHPLAN HAS TO BE ASSIGNED AGAIN, because it can be changed by SQL statement
       channel.writeByte((byte) 0); // NO MORE RECORDS
     } else {
       serializeValue(
-          database,
+          this.session,
           channel,
           (SimpleValueFetchPlanCommandListener) listener,
           result,
@@ -303,14 +303,7 @@ public final class CommandResponse implements BinaryResponse {
               // PUT AS PART OF THE RESULT SET. INVOKE THE LISTENER
               if (addNextRecord) {
                 addNextRecord = listener.result(db, record);
-                var cachedRecord = database.getLocalCache().findRecord(record.getIdentity());
-                if (cachedRecord != record) {
-                  if (cachedRecord != null) {
-                    record.copyTo(cachedRecord);
-                  } else {
-                    database.getLocalCache().updateRecord(record);
-                  }
-                }
+                updateCachedRecord(this.session, record);
               }
               break;
 
@@ -318,18 +311,11 @@ public final class CommandResponse implements BinaryResponse {
               if (record.getIdentity().getClusterId() == -2) {
                 temporaryResults.add(record);
               }
-              var cachedRecord = database.getLocalCache().findRecord(record.getIdentity());
-              if (cachedRecord != record) {
-                if (cachedRecord != null) {
-                  record.copyTo(cachedRecord);
-                } else {
-                  database.getLocalCache().updateRecord(record);
-                }
-              }
+              updateCachedRecord(this.session, record);
           }
         }
       } else {
-        result = readSynchResult(network, database, temporaryResults);
+        result = readSynchResult(network, this.session, temporaryResults);
         if (live) {
           final var entity = ((List<EntityImpl>) result).get(0);
           final Integer token = entity.field("token");
@@ -371,7 +357,8 @@ public final class CommandResponse implements BinaryResponse {
             //              });
             //            }
           } else {
-            throw new StorageException("Cannot execute live query, returned null token");
+            throw new StorageException(this.session.getDatabaseName(),
+                "Cannot execute live query, returned null token");
           }
         }
       }
@@ -384,7 +371,7 @@ public final class CommandResponse implements BinaryResponse {
       // TODO: this is here because we allow query in end listener.
       session.commandExecuting = false;
       if (listener != null && !live) {
-        listener.end();
+        listener.end(db);
       }
     }
   }
@@ -406,14 +393,7 @@ public final class CommandResponse implements BinaryResponse {
       case 'r':
         result = MessageHelper.readIdentifiable(database, network, serializer);
         if (result instanceof RecordAbstract record) {
-          var cachedRecord = database.getLocalCache().findRecord(record.getIdentity());
-          if (cachedRecord != record) {
-            if (cachedRecord != null) {
-              record.copyTo(cachedRecord);
-            } else {
-              database.getLocalCache().updateRecord(record);
-            }
-          }
+          updateCachedRecord(database, record);
         }
         break;
 
@@ -431,7 +411,8 @@ public final class CommandResponse implements BinaryResponse {
 
             if (cacheRecord != record) {
               if (cacheRecord != null) {
-                record.copyTo(cacheRecord);
+                cacheRecord.fromStream(record.toStream());
+                cacheRecord.setVersion(record.getVersion());
                 coll.add(cacheRecord);
               } else {
                 database.getLocalCache().updateRecord(record);
@@ -460,7 +441,8 @@ public final class CommandResponse implements BinaryResponse {
 
               if (cachedRecord != rec) {
                 if (cachedRecord != null) {
-                  rec.copyTo(cachedRecord);
+                  cachedRecord.fromStream(rec.toStream());
+                  cachedRecord.setVersion(rec.getVersion());
                   coll.add(cachedRecord);
                 } else {
                   database.getLocalCache().updateRecord(rec);
@@ -496,7 +478,8 @@ public final class CommandResponse implements BinaryResponse {
         var cachedRecord = database.getLocalCache().findRecord(record.getIdentity());
         if (cachedRecord != record) {
           if (cachedRecord != null) {
-            record.copyTo(cachedRecord);
+            cachedRecord.fromStream(record.toStream());
+            cachedRecord.setVersion(record.getVersion());
             record = cachedRecord;
           } else {
             database.getLocalCache().updateRecord(record);
@@ -510,6 +493,19 @@ public final class CommandResponse implements BinaryResponse {
     }
 
     return result;
+  }
+
+  private static void updateCachedRecord(DatabaseSessionInternal database, RecordAbstract record) {
+    var cachedRecord = database.getLocalCache().findRecord(record.getIdentity());
+
+    if (cachedRecord != record) {
+      if (cachedRecord != null) {
+        cachedRecord.fromStream(record.toStream());
+        cachedRecord.setVersion(record.getVersion());
+      } else {
+        database.getLocalCache().updateRecord(record);
+      }
+    }
   }
 
   public Object getResult() {

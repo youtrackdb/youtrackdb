@@ -18,12 +18,13 @@ public class SubscribeIndexManagerRequest
     implements BinaryRequest<SubscribeIndexManagerResponse> {
 
   @Override
-  public void write(DatabaseSessionInternal database, ChannelDataOutput network,
+  public void write(DatabaseSessionInternal databaseSession, ChannelDataOutput network,
       StorageRemoteSession session) throws IOException {
   }
 
   @Override
-  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+  public void read(DatabaseSessionInternal databaseSession, ChannelDataInput channel,
+      int protocolVersion,
       RecordSerializerNetwork serializer)
       throws IOException {
   }

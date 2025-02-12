@@ -49,7 +49,7 @@ public interface EntitySerializer {
       RecordElement owner);
 
   BinaryField deserializeField(
-      BytesContainer bytes,
+      DatabaseSessionInternal db, BytesContainer bytes,
       SchemaClass iClass,
       String iFieldName,
       boolean embedded,
@@ -61,10 +61,12 @@ public interface EntitySerializer {
   /**
    * Returns the array of field names with no values.
    *
+   * @param session
    * @param reference TODO
    * @param embedded
    */
-  String[] getFieldNames(EntityImpl reference, BytesContainer iBytes, boolean embedded);
+  String[] getFieldNames(DatabaseSessionInternal session, EntityImpl reference,
+      BytesContainer iBytes, boolean embedded);
 
   boolean isSerializingClassNameByDefault();
 

@@ -149,7 +149,7 @@ public class ServerSSLSocketFactory extends ServerSocketFactory {
 
     } catch (Exception e) {
       throw BaseException.wrapException(
-          new ConfigurationException("Failed to create SSL context"), e);
+          new ConfigurationException("Failed to create SSL context"), e, (String) null);
     }
   }
 

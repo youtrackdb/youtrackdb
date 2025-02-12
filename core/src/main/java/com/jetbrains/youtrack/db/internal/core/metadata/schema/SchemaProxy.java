@@ -42,29 +42,27 @@ import javax.annotation.Nonnull;
  * Proxy class to use the shared SchemaShared instance. Before to delegate each operations it sets
  * the current database in the thread local.
  */
-@SuppressWarnings("unchecked")
 public class SchemaProxy extends ProxedResource<SchemaShared> implements SchemaInternal {
-
   public SchemaProxy(final SchemaShared iDelegate, final DatabaseSessionInternal iDatabase) {
     super(iDelegate, iDatabase);
   }
 
   @Override
   public ImmutableSchema makeSnapshot() {
-    return delegate.makeSnapshot(database);
+    return delegate.makeSnapshot(session);
   }
 
   public void create() {
-    delegate.create(database);
+    delegate.create(session);
   }
 
   public int countClasses() {
-    return delegate.countClasses(database);
+    return delegate.countClasses(session);
   }
 
 
   public SchemaClass createClass(final String iClassName) {
-    return delegate.createClass(database, iClassName);
+    return delegate.createClass(session, iClassName);
   }
 
   public SchemaClass getOrCreateClass(final String iClassName) {
@@ -76,58 +74,58 @@ public class SchemaProxy extends ProxedResource<SchemaShared> implements SchemaI
       return null;
     }
 
-    SchemaClass cls = delegate.getClass(iClassName.toLowerCase(Locale.ENGLISH));
+    SchemaClass cls = delegate.getClass(session, iClassName.toLowerCase(Locale.ENGLISH));
     if (cls != null) {
       return cls;
     }
 
-    cls = delegate.getOrCreateClass(database, iClassName, iSuperClass);
+    cls = delegate.getOrCreateClass(session, iClassName, iSuperClass);
 
     return cls;
   }
 
   @Override
   public SchemaClass getOrCreateClass(String iClassName, SchemaClass... superClasses) {
-    return delegate.getOrCreateClass(database, iClassName, superClasses);
+    return delegate.getOrCreateClass(session, iClassName, superClasses);
   }
 
   @Override
   public SchemaClass createClass(final String iClassName, final SchemaClass iSuperClass) {
-    return delegate.createClass(database, iClassName, iSuperClass, null);
+    return delegate.createClass(session, iClassName, iSuperClass, null);
   }
 
   @Override
   public SchemaClass createClass(String iClassName, SchemaClass... superClasses) {
-    return delegate.createClass(database, iClassName, superClasses);
+    return delegate.createClass(session, iClassName, superClasses);
   }
 
   public SchemaClass createClass(
       final String iClassName, final SchemaClass iSuperClass, final int[] iClusterIds) {
-    return delegate.createClass(database, iClassName, iSuperClass, iClusterIds);
+    return delegate.createClass(session, iClassName, iSuperClass, iClusterIds);
   }
 
   @Override
   public SchemaClass createClass(String className, int[] clusterIds, SchemaClass... superClasses) {
-    return delegate.createClass(database, className, clusterIds, superClasses);
+    return delegate.createClass(session, className, clusterIds, superClasses);
   }
 
   @Override
   public SchemaClass createAbstractClass(final String iClassName) {
-    return delegate.createAbstractClass(database, iClassName);
+    return delegate.createAbstractClass(session, iClassName);
   }
 
   @Override
   public SchemaClass createAbstractClass(final String iClassName, final SchemaClass iSuperClass) {
-    return delegate.createAbstractClass(database, iClassName, iSuperClass);
+    return delegate.createAbstractClass(session, iClassName, iSuperClass);
   }
 
   @Override
   public SchemaClass createAbstractClass(String iClassName, SchemaClass... superClasses) {
-    return delegate.createAbstractClass(database, iClassName, superClasses);
+    return delegate.createAbstractClass(session, iClassName, superClasses);
   }
 
   public void dropClass(final String iClassName) {
-    delegate.dropClass(database, iClassName);
+    delegate.dropClass(session, iClassName);
   }
 
   public boolean existsClass(final String iClassName) {
@@ -135,7 +133,7 @@ public class SchemaProxy extends ProxedResource<SchemaShared> implements SchemaI
       return false;
     }
 
-    return delegate.existsClass(iClassName.toLowerCase(Locale.ENGLISH));
+    return delegate.existsClass(session, iClassName.toLowerCase(Locale.ENGLISH));
   }
 
   public SchemaClass getClass(final Class<?> iClass) {
@@ -143,7 +141,7 @@ public class SchemaProxy extends ProxedResource<SchemaShared> implements SchemaI
       return null;
     }
 
-    return delegate.getClass(iClass);
+    return delegate.getClass(session, iClass);
   }
 
   public SchemaClass getClass(final String iClassName) {
@@ -151,17 +149,16 @@ public class SchemaProxy extends ProxedResource<SchemaShared> implements SchemaI
       return null;
     }
 
-    return delegate.getClass(iClassName);
+    return delegate.getClass(session, iClassName);
   }
 
-  public Collection<SchemaClass> getClasses(DatabaseSession db) {
-    return delegate.getClasses(database);
+  public Collection<SchemaClass> getClasses() {
+    return delegate.getClasses(session);
   }
 
   @Override
-  public Collection<String> getIndexes(DatabaseSession db) {
-    var sessionInternal = (DatabaseSessionInternal) db;
-    var indexManager = sessionInternal.getMetadata().getIndexManager();
+  public Collection<String> getIndexes() {
+    var indexManager = session.getMetadata().getIndexManager();
 
     var indexesInternal = indexManager.getIndexes();
     var indexes = new HashSet<String>(indexesInternal.size());
@@ -173,18 +170,16 @@ public class SchemaProxy extends ProxedResource<SchemaShared> implements SchemaI
   }
 
   @Override
-  public boolean indexExists(DatabaseSession db, String indexName) {
-    var sessionInternal = (DatabaseSessionInternal) db;
-    var indexManager = sessionInternal.getMetadata().getIndexManagerInternal();
+  public boolean indexExists(String indexName) {
+    var indexManager = session.getMetadata().getIndexManagerInternal();
 
     return indexManager.existsIndex(indexName);
   }
 
   @Override
-  public @Nonnull IndexDefinition getIndexDefinition(DatabaseSession db, String indexName) {
-    var sessionInternal = (DatabaseSessionInternal) db;
-    var indexManager = sessionInternal.getMetadata().getIndexManagerInternal();
-    var index = indexManager.getIndex(sessionInternal, indexName);
+  public @Nonnull IndexDefinition getIndexDefinition(String indexName) {
+    var indexManager = session.getMetadata().getIndexManagerInternal();
+    var index = indexManager.getIndex(session, indexName);
 
     if (index == null) {
       throw new IllegalArgumentException("Index '" + indexName + "' not found");
@@ -208,11 +203,11 @@ public class SchemaProxy extends ProxedResource<SchemaShared> implements SchemaI
   @Deprecated
   public void load() {
 
-    delegate.load(database);
+    delegate.load(session);
   }
 
   public Schema reload() {
-    delegate.reload(database);
+    delegate.reload(session);
     return this;
   }
 
@@ -222,8 +217,7 @@ public class SchemaProxy extends ProxedResource<SchemaShared> implements SchemaI
   }
 
   public RecordId getIdentity() {
-
-    return delegate.getIdentity();
+    return delegate.getIdentity(session);
   }
 
   @Deprecated
@@ -238,17 +232,17 @@ public class SchemaProxy extends ProxedResource<SchemaShared> implements SchemaI
 
   @Override
   public Set<SchemaClass> getClassesRelyOnCluster(DatabaseSession db, final String iClusterName) {
-    return delegate.getClassesRelyOnCluster(database, iClusterName);
+    return delegate.getClassesRelyOnCluster(session, iClusterName);
   }
 
   @Override
   public SchemaClass createClass(String className, int clusters, SchemaClass... superClasses) {
-    return delegate.createClass(database, className, clusters, superClasses);
+    return delegate.createClass(session, className, clusters, superClasses);
   }
 
   @Override
   public SchemaClass getClassByClusterId(int clusterId) {
-    return delegate.getClassByClusterId(clusterId);
+    return delegate.getClassByClusterId(session, clusterId);
   }
 
 
@@ -273,7 +267,7 @@ public class SchemaProxy extends ProxedResource<SchemaShared> implements SchemaI
 
   @Override
   public SchemaClassInternal getClassInternal(String iClassName) {
-    return delegate.getClass(iClassName);
+    return delegate.getClass(session, iClassName);
   }
 
   public IntSet getBlobClusters() {
@@ -281,10 +275,10 @@ public class SchemaProxy extends ProxedResource<SchemaShared> implements SchemaI
   }
 
   public int addBlobCluster(final int clusterId) {
-    return delegate.addBlobCluster(database, clusterId);
+    return delegate.addBlobCluster(session, clusterId);
   }
 
   public void removeBlobCluster(String clusterName) {
-    delegate.removeBlobCluster(database, clusterName);
+    delegate.removeBlobCluster(session, clusterName);
   }
 }

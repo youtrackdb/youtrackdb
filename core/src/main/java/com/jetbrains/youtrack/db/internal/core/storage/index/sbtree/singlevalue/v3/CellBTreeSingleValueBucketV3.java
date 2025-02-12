@@ -28,6 +28,7 @@ import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSeri
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ShortSerializer;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurablePage;
 import java.util.ArrayList;
@@ -85,13 +86,14 @@ public final class CellBTreeSingleValueBucketV3<K> extends DurablePage {
     return size() == 0;
   }
 
-  public int find(final K key, final BinarySerializer<K> keySerializer) {
+  public int find(final K key, final BinarySerializer<K> keySerializer,
+      BinarySerializerFactory serializerFactory) {
     var low = 0;
     var high = size() - 1;
 
     while (low <= high) {
       final var mid = (low + high) >>> 1;
-      final var midVal = getKey(mid, keySerializer);
+      final var midVal = getKey(mid, keySerializer, serializerFactory);
       final var cmp = comparator.compare(midVal, key);
 
       if (cmp < 0) {
@@ -153,14 +155,15 @@ public final class CellBTreeSingleValueBucketV3<K> extends DurablePage {
   public int removeNonLeafEntry(
       final int entryIndex,
       boolean removeLeftChildPointer,
-      final BinarySerializer<K> keySerializer) {
+      final BinarySerializer<K> keySerializer, BinarySerializerFactory serializerFactory) {
     if (isLeaf()) {
       throw new IllegalStateException("Remove is applied to non-leaf buckets only");
     }
 
     final var entryPosition = getPointer(entryIndex);
     final var keySize =
-        getObjectSizeInDirectMemory(keySerializer, entryPosition + 2 * IntegerSerializer.INT_SIZE);
+        getObjectSizeInDirectMemory(keySerializer, serializerFactory,
+            entryPosition + 2 * IntegerSerializer.INT_SIZE);
     final var key = getBinaryValue(entryPosition + 2 * IntegerSerializer.INT_SIZE, keySize);
 
     return removeNonLeafEntry(entryIndex, key, removeLeftChildPointer);
@@ -236,15 +239,16 @@ public final class CellBTreeSingleValueBucketV3<K> extends DurablePage {
   }
 
   public CellBTreeSingleValueEntryV3<K> getEntry(
-      final int entryIndex, final BinarySerializer<K> keySerializer) {
+      final int entryIndex, final BinarySerializer<K> keySerializer,
+      BinarySerializerFactory serializerFactory) {
     var entryPosition = getPointer(entryIndex);
 
     if (isLeaf()) {
       final K key;
 
-      key = deserializeFromDirectMemory(keySerializer, entryPosition);
+      key = deserializeFromDirectMemory(keySerializer, serializerFactory, entryPosition);
 
-      entryPosition += getObjectSizeInDirectMemory(keySerializer, entryPosition);
+      entryPosition += getObjectSizeInDirectMemory(keySerializer, serializerFactory, entryPosition);
 
       final int clusterId = getShortValue(entryPosition);
       final var clusterPosition = getLongValue(entryPosition + ShortSerializer.SHORT_SIZE);
@@ -258,7 +262,7 @@ public final class CellBTreeSingleValueBucketV3<K> extends DurablePage {
       final var rightChild = getIntValue(entryPosition);
       entryPosition += IntegerSerializer.INT_SIZE;
 
-      final var key = deserializeFromDirectMemory(keySerializer, entryPosition);
+      final var key = deserializeFromDirectMemory(keySerializer, serializerFactory, entryPosition);
 
       return new CellBTreeSingleValueEntryV3<>(leftChild, rightChild, key, null);
     }
@@ -280,18 +284,21 @@ public final class CellBTreeSingleValueBucketV3<K> extends DurablePage {
     return getIntValue(entryPosition + IntegerSerializer.INT_SIZE);
   }
 
-  public byte[] getRawEntry(final int entryIndex, final BinarySerializer<K> keySerializer) {
+  public byte[] getRawEntry(final int entryIndex, final BinarySerializer<K> keySerializer,
+      BinarySerializerFactory serializerFactory) {
     var entryPosition = getPointer(entryIndex);
     final var startEntryPosition = entryPosition;
 
     if (isLeaf()) {
-      final var keySize = getObjectSizeInDirectMemory(keySerializer, entryPosition);
+      final var keySize = getObjectSizeInDirectMemory(keySerializer, serializerFactory,
+          entryPosition);
 
       return getBinaryValue(startEntryPosition, keySize + RID_SIZE);
     } else {
       entryPosition += 2 * IntegerSerializer.INT_SIZE;
 
-      final var keySize = getObjectSizeInDirectMemory(keySerializer, entryPosition);
+      final var keySize = getObjectSizeInDirectMemory(keySerializer, serializerFactory,
+          entryPosition);
 
       return getBinaryValue(startEntryPosition, keySize + 2 * IntegerSerializer.INT_SIZE);
     }
@@ -300,16 +307,18 @@ public final class CellBTreeSingleValueBucketV3<K> extends DurablePage {
   /**
    * Obtains the value stored under the given entry index in this bucket.
    *
-   * @param entryIndex the value entry index.
+   * @param entryIndex        the value entry index.
+   * @param serializerFactory
    * @return the obtained value.
    */
-  public RID getValue(final int entryIndex, final BinarySerializer<K> keySerializer) {
+  public RID getValue(final int entryIndex, final BinarySerializer<K> keySerializer,
+      BinarySerializerFactory serializerFactory) {
     assert isLeaf();
 
     var entryPosition = getPointer(entryIndex);
 
     // skip key
-    entryPosition += getObjectSizeInDirectMemory(keySerializer, entryPosition);
+    entryPosition += getObjectSizeInDirectMemory(keySerializer, serializerFactory, entryPosition);
 
     final int clusterId = getShortValue(entryPosition);
     final var clusterPosition = getLongValue(entryPosition + ShortSerializer.SHORT_SIZE);
@@ -317,19 +326,21 @@ public final class CellBTreeSingleValueBucketV3<K> extends DurablePage {
     return new RecordId(clusterId, clusterPosition);
   }
 
-  byte[] getRawValue(final int entryIndex, final BinarySerializer<K> keySerializer) {
+  byte[] getRawValue(final int entryIndex, final BinarySerializer<K> keySerializer,
+      BinarySerializerFactory serializerFactory) {
     assert isLeaf();
     assert entryIndex < getSize();
 
     var entryPosition = getPointer(entryIndex);
 
     // skip key
-    entryPosition += getObjectSizeInDirectMemory(keySerializer, entryPosition);
+    entryPosition += getObjectSizeInDirectMemory(keySerializer, serializerFactory, entryPosition);
 
     return getBinaryValue(entryPosition, RID_SIZE);
   }
 
-  public K getKey(final int index, final BinarySerializer<K> keySerializer) {
+  public K getKey(final int index, final BinarySerializer<K> keySerializer,
+      BinarySerializerFactory serializerFactory) {
     assert index < getSize();
     var entryPosition = getPointer(index);
 
@@ -337,21 +348,22 @@ public final class CellBTreeSingleValueBucketV3<K> extends DurablePage {
       entryPosition += 2 * IntegerSerializer.INT_SIZE;
     }
 
-    return deserializeFromDirectMemory(keySerializer, entryPosition);
+    return deserializeFromDirectMemory(keySerializer, serializerFactory, entryPosition);
   }
 
   private int getPointer(final int index) {
     return getIntValue(index * IntegerSerializer.INT_SIZE + POSITIONS_ARRAY_OFFSET);
   }
 
-  public byte[] getRawKey(final int index, final BinarySerializer<K> keySerializer) {
+  public byte[] getRawKey(final int index, final BinarySerializer<K> keySerializer,
+      BinarySerializerFactory serializerFactory) {
     var entryPosition = getPointer(index);
 
     if (!isLeaf()) {
       entryPosition += 2 * IntegerSerializer.INT_SIZE;
     }
 
-    final var keyLen = getObjectSizeInDirectMemory(keySerializer, entryPosition);
+    final var keyLen = getObjectSizeInDirectMemory(keySerializer, serializerFactory, entryPosition);
     return getBinaryValue(entryPosition, keyLen);
   }
 
@@ -368,17 +380,18 @@ public final class CellBTreeSingleValueBucketV3<K> extends DurablePage {
     setSize(rawEntries.size() + currentSize);
   }
 
-  public void shrink(final int newSize, final BinarySerializer<K> keySerializer) {
+  public void shrink(final int newSize, final BinarySerializer<K> keySerializer,
+      BinarySerializerFactory serializerFactory) {
     final var currentSize = size();
     final List<byte[]> rawEntries = new ArrayList<>(newSize);
     final List<byte[]> removedEntries = new ArrayList<>(currentSize - newSize);
 
     for (var i = 0; i < newSize; i++) {
-      rawEntries.add(getRawEntry(i, keySerializer));
+      rawEntries.add(getRawEntry(i, keySerializer, serializerFactory));
     }
 
     for (var i = newSize; i < currentSize; i++) {
-      removedEntries.add(getRawEntry(i, keySerializer));
+      removedEntries.add(getRawEntry(i, keySerializer, serializerFactory));
     }
 
     setFreePointer(MAX_PAGE_SIZE_BYTES);
@@ -494,14 +507,16 @@ public final class CellBTreeSingleValueBucketV3<K> extends DurablePage {
 
   @SuppressWarnings("BooleanMethodIsAlwaysInverted")
   public boolean updateKey(
-      final int entryIndex, final byte[] key, final BinarySerializer<K> keySerializer) {
+      final int entryIndex, final byte[] key, final BinarySerializer<K> keySerializer,
+      BinarySerializerFactory serializerFactory) {
     if (isLeaf()) {
       throw new IllegalStateException("Update key is applied to non-leaf buckets only");
     }
 
     final var entryPosition = getPointer(entryIndex);
     final var keySize =
-        getObjectSizeInDirectMemory(keySerializer, entryPosition + 2 * IntegerSerializer.INT_SIZE);
+        getObjectSizeInDirectMemory(keySerializer, serializerFactory,
+            entryPosition + 2 * IntegerSerializer.INT_SIZE);
     assert entryPosition + keySize < MAX_PAGE_SIZE_BYTES;
     if (key.length == keySize) {
       setBinaryValue(entryPosition + 2 * IntegerSerializer.INT_SIZE, key);

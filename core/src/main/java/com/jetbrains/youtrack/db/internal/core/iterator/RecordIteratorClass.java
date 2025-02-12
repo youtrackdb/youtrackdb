@@ -66,20 +66,15 @@ public class RecordIteratorClass<REC extends DBRecord> extends RecordIteratorClu
     }
 
     polymorphic = iPolymorphic;
-    clusterIds = polymorphic ? targetClass.getPolymorphicClusterIds() : targetClass.getClusterIds();
-    clusterIds = SchemaClassImpl.readableClusters(iDatabase, clusterIds, targetClass.getName());
+    clusterIds = polymorphic ? targetClass.getPolymorphicClusterIds(iDatabase)
+        : targetClass.getClusterIds(iDatabase);
+    clusterIds = SchemaClassImpl.readableClusters(iDatabase, clusterIds,
+        targetClass.getName(iDatabase));
 
     checkForSystemClusters(iDatabase, clusterIds);
 
     Arrays.sort(clusterIds);
     config();
-  }
-
-  protected RecordIteratorClass(
-      final DatabaseSessionInternal database, SchemaClass targetClass, boolean polymorphic) {
-    super(database, targetClass.getPolymorphicClusterIds());
-    this.targetClass = targetClass;
-    this.polymorphic = polymorphic;
   }
 
   @Override
@@ -114,7 +109,7 @@ public class RecordIteratorClass<REC extends DBRecord> extends RecordIteratorClu
   @Override
   protected boolean include(final DBRecord record) {
     return record instanceof EntityImpl
-        && targetClass.isSuperClassOf(
+        && targetClass.isSuperClassOf(database,
         EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) record)));
   }
 

@@ -20,25 +20,25 @@ public class ClassIteratorTest extends DbTestBase {
 
   private void createPerson(final String iClassName, final String first) {
     // Create Person document
-    db.begin();
-    final EntityImpl personDoc = db.newInstance(iClassName);
+    session.begin();
+    final EntityImpl personDoc = session.newInstance(iClassName);
     personDoc.field("First", first);
     personDoc.save();
-    db.commit();
+    session.commit();
   }
 
   public void beforeTest() throws Exception {
     super.beforeTest();
 
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
 
     // Create Person class
     final var personClass = schema.createClass("Person");
     personClass
-        .createProperty(db, "First", PropertyType.STRING)
-        .setMandatory(db, true)
-        .setNotNull(db, true)
-        .setMin(db, "1");
+        .createProperty(session, "First", PropertyType.STRING)
+        .setMandatory(session, true)
+        .setNotNull(session, true)
+        .setMin(session, "1");
 
     // Insert some data
     names = new HashSet<String>();
@@ -54,15 +54,15 @@ public class ClassIteratorTest extends DbTestBase {
 
   @Test
   public void testDescendentOrderIteratorWithMultipleClusters() throws Exception {
-    var personClass = (SchemaClassInternal) db.getMetadata().getSchema().getClass("Person");
+    var personClass = (SchemaClassInternal) session.getMetadata().getSchema().getClass("Person");
 
     // empty old cluster but keep it attached
-    personClass.truncate(db);
+    personClass.truncate(session);
 
     // reload the data in a new 'test' cluster
-    var testClusterId = db.addCluster("test");
-    personClass.addClusterId(db, testClusterId);
-    personClass.setClusterSelection(db, new DefaultClusterSelectionStrategy());
+    var testClusterId = session.addCluster("test");
+    personClass.addClusterId(session, testClusterId);
+    personClass.setClusterSelection(session, new DefaultClusterSelectionStrategy());
 
     for (var name : names) {
       createPerson("Person", name);
@@ -70,7 +70,7 @@ public class ClassIteratorTest extends DbTestBase {
 
     // Use descending class iterator.
     final RecordIteratorClass<EntityImpl> personIter =
-        new RecordIteratorClassDescendentOrder<EntityImpl>(db, db, "Person", true);
+        new RecordIteratorClassDescendentOrder<EntityImpl>(session, session, "Person", true);
 
     personIter.setRange(null, null); // open range
 
@@ -89,13 +89,13 @@ public class ClassIteratorTest extends DbTestBase {
   @Test
   public void testMultipleClusters() throws Exception {
     final var personClass =
-        db.getMetadata().getSchema().createClass("PersonMultipleClusters", 4, null);
+        session.getMetadata().getSchema().createClass("PersonMultipleClusters", 4, null);
     for (var name : names) {
       createPerson("PersonMultipleClusters", name);
     }
 
     final var personIter =
-        new RecordIteratorClass<EntityImpl>(db, "PersonMultipleClusters", true);
+        new RecordIteratorClass<EntityImpl>(session, "PersonMultipleClusters", true);
 
     var docNum = 0;
 

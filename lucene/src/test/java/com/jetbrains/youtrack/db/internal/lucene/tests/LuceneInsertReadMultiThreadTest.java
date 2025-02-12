@@ -20,16 +20,10 @@ package com.jetbrains.youtrack.db.internal.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.session.SessionPool;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -49,11 +43,11 @@ public class LuceneInsertReadMultiThreadTest extends LuceneBaseTest {
   @Before
   public void init() {
 
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var oClass = schema.createClass("City");
 
-    oClass.createProperty(db, "name", PropertyType.STRING);
-    db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE");
+    oClass.createProperty(session, "name", PropertyType.STRING);
+    session.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE");
   }
 
   @Test
@@ -77,7 +71,7 @@ public class LuceneInsertReadMultiThreadTest extends LuceneBaseTest {
     db1.getMetadata().reload();
     var schema = db1.getMetadata().getSchema();
 
-    var idx = schema.getClassInternal("City").getClassIndex(db, "City.name");
+    var idx = schema.getClassInternal("City").getClassIndex(session, "City.name");
 
     db1.begin();
     Assert.assertEquals(idx.getInternal().size(db1), THREADS * CYCLE);

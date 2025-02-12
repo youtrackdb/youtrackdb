@@ -39,7 +39,7 @@ public class LuceneAnalyzerFactoryTest extends LuceneBaseTest {
 
     var metajson =
         IOUtils.readFileAsString(new File("./src/test/resources/index_metadata_new.json"));
-    var metadataDocument = ((EntityImpl) db.newEntity());
+    var metadataDocument = ((EntityImpl) session.newEntity());
     metadataDocument.updateFromJSON(metajson);
     metadata = metadataDocument.toMap();
 

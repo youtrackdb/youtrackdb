@@ -14,8 +14,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.schema.clusterselection;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ClusterSelectionStrategy;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 
@@ -29,29 +30,26 @@ public class BalancedClusterSelectionStrategy implements ClusterSelectionStrateg
   protected long lastCount = -1;
   protected int smallerClusterId = -1;
 
-  public int getCluster(final SchemaClass iClass, final EntityImpl entity) {
-    return getCluster(iClass, iClass.getClusterIds(), entity);
+  public int getCluster(DatabaseSession session, final SchemaClass iClass,
+      final EntityImpl entity) {
+    return getCluster(session, iClass, iClass.getClusterIds(entity.getSession()), entity);
   }
 
-  public int getCluster(final SchemaClass iClass, final int[] clusters, final EntityImpl entity) {
-
+  public int getCluster(DatabaseSession session, final SchemaClass iClass, final int[] clusters,
+      final EntityImpl entity) {
     if (clusters.length == 1)
     // ONLY ONE: RETURN THE FIRST ONE
     {
       return clusters[0];
     }
 
-    final var db = DatabaseRecordThreadLocal.instance().getIfDefined();
-    if (db == null) {
-      return clusters[0];
-    }
-
+    var sessionInternal = (DatabaseSessionInternal) session;
     if (lastCount < 0 || System.currentTimeMillis() - lastCount > REFRESH_TIMEOUT) {
       // REFRESH COUNTERS
       var min = Long.MAX_VALUE;
 
       for (var cluster : clusters) {
-        final var count = db.countClusterElements(cluster);
+        final var count = sessionInternal.countClusterElements(cluster);
         if (count < min) {
           min = count;
           smallerClusterId = cluster;

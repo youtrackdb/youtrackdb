@@ -2,11 +2,9 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -24,15 +22,15 @@ public class DateBinaryComparatorTest extends DbTestBase {
   }
 
   private void initSchema() {
-    var testClass = db.getMetadata().getSchema().createClass("Test");
-    testClass.createProperty(db, "date", PropertyType.DATE);
-    db.begin();
-    var document = (EntityImpl) db.newEntity(testClass.getName());
+    var testClass = session.getMetadata().getSchema().createClass("Test");
+    testClass.createProperty(session, "date", PropertyType.DATE);
+    session.begin();
+    var document = (EntityImpl) session.newEntity(testClass.getName(session));
 
     try {
       document.field("date", new SimpleDateFormat(dateFormat).parse(dateValue));
       document.save();
-      db.commit();
+      session.commit();
     } catch (ParseException e) {
       throw new RuntimeException(e);
     }
@@ -44,7 +42,7 @@ public class DateBinaryComparatorTest extends DbTestBase {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("dateParam", new SimpleDateFormat(dateFormat).parse(dateValue));
 
-    try (var result = db.query(str, params)) {
+    try (var result = session.query(str, params)) {
       assertEquals(1, result.stream().count());
     }
   }

@@ -37,22 +37,22 @@ public class ContainsConditionTest extends DbTestBase {
   public void test() {
     var op = new SQLContainsCondition(-1);
 
-    Assert.assertFalse(op.execute(db, null, null));
-    Assert.assertFalse(op.execute(db, null, "foo"));
+    Assert.assertFalse(op.execute(session, null, null));
+    Assert.assertFalse(op.execute(session, null, "foo"));
 
     List<Object> left = new ArrayList<Object>();
-    Assert.assertFalse(op.execute(db, left, "foo"));
-    Assert.assertFalse(op.execute(db, left, null));
+    Assert.assertFalse(op.execute(session, left, "foo"));
+    Assert.assertFalse(op.execute(session, left, null));
 
     left.add("foo");
     left.add("bar");
 
-    Assert.assertTrue(op.execute(db, left, "foo"));
-    Assert.assertTrue(op.execute(db, left, "bar"));
-    Assert.assertFalse(op.execute(db, left, "fooz"));
+    Assert.assertTrue(op.execute(session, left, "foo"));
+    Assert.assertTrue(op.execute(session, left, "bar"));
+    Assert.assertFalse(op.execute(session, left, "fooz"));
 
     left.add(null);
-    Assert.assertTrue(op.execute(db, left, null));
+    Assert.assertTrue(op.execute(session, left, null));
   }
 
   @Test
@@ -78,6 +78,6 @@ public class ContainsConditionTest extends DbTestBase {
         };
 
     var op = new SQLContainsCondition(-1);
-    Assert.assertTrue(op.execute(db, left, right));
+    Assert.assertTrue(op.execute(session, left, right));
   }
 }

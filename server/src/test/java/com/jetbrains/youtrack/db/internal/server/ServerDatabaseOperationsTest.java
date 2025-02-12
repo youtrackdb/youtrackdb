@@ -63,7 +63,7 @@ public class ServerDatabaseOperationsTest {
             " memory users (admin identified by 'admin' role admin)");
     assertTrue(server.existsDatabase(ServerDatabaseOperationsTest.class.getSimpleName()));
 
-    try (DatabaseSession db = server.openDatabase(
+    try (DatabaseSession db = server.openSession(
         ServerDatabaseOperationsTest.class.getSimpleName())) {
       var securityConfig = ((EntityImpl) db.newEntity());
       securityConfig.updateFromJSON(
@@ -97,7 +97,7 @@ public class ServerDatabaseOperationsTest {
         .execute("create database " + ServerDatabaseOperationsTest.class.getSimpleName()
             + " memory users (admin identified by 'admin' role admin)");
     assertTrue(server.existsDatabase(ServerDatabaseOperationsTest.class.getSimpleName()));
-    DatabaseSession session = server.openDatabase(
+    DatabaseSession session = server.openSession(
         ServerDatabaseOperationsTest.class.getSimpleName());
     assertNotNull(session);
     session.close();

@@ -18,10 +18,8 @@
 
 package com.jetbrains.youtrack.db.internal.lucene.test;
 
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,30 +34,30 @@ public class DocumentEmbeddedTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    var type = db.getMetadata().getSchema().createClass("City");
-    type.createProperty(db, "name", PropertyType.STRING);
+    var type = session.getMetadata().getSchema().createClass("City");
+    type.createProperty(session, "name", PropertyType.STRING);
 
-    db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
+    session.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
 
   @Test
   public void embeddedNoTx() {
 
-    var doc = ((EntityImpl) db.newEntity("City"));
+    var doc = ((EntityImpl) session.newEntity("City"));
 
     doc.field("name", "London");
-    db.begin();
-    db.save(doc);
-    db.commit();
+    session.begin();
+    session.save(doc);
+    session.commit();
 
-    doc = ((EntityImpl) db.newEntity("City"));
+    doc = ((EntityImpl) session.newEntity("City"));
     doc.field("name", "Rome");
 
-    db.begin();
-    db.save(doc);
-    db.commit();
+    session.begin();
+    session.save(doc);
+    session.commit();
 
-    var results = db.query("select from City where name lucene 'London'");
+    var results = session.query("select from City where name lucene 'London'");
 
     Assert.assertEquals(1, results.stream().count());
   }
@@ -67,16 +65,16 @@ public class DocumentEmbeddedTest extends BaseLuceneTest {
   @Test
   public void embeddedTx() {
 
-    var doc = ((EntityImpl) db.newEntity("City"));
+    var doc = ((EntityImpl) session.newEntity("City"));
 
-    db.begin();
+    session.begin();
     doc.field("name", "Berlin");
 
-    db.save(doc);
+    session.save(doc);
 
-    db.commit();
+    session.commit();
 
-    var results = db.query("select from City where name lucene 'Berlin'");
+    var results = session.query("select from City where name lucene 'Berlin'");
 
     Assert.assertEquals(1, results.stream().count());
   }

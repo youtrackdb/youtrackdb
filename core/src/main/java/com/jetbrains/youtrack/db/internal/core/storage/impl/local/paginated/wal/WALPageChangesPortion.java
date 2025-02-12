@@ -1,11 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ShortSerializer;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import java.nio.ByteBuffer;
 
 /**
@@ -48,7 +48,7 @@ public final class WALPageChangesPortion implements WALChanges {
   @Override
   public void setIntValue(ByteBuffer pointer, int value, int offset) {
     var data = new byte[IntegerSerializer.INT_SIZE];
-    IntegerSerializer.INSTANCE.serializeNative(value, data, 0);
+    IntegerSerializer.serializeNative(value, data, 0);
 
     updateData(pointer, offset, data);
   }
@@ -94,7 +94,7 @@ public final class WALPageChangesPortion implements WALChanges {
 
     readData(pointer, offset, data);
 
-    return IntegerSerializer.INSTANCE.deserializeNative(data, 0);
+    return IntegerSerializer.deserializeNative(data, 0);
   }
 
   @Override

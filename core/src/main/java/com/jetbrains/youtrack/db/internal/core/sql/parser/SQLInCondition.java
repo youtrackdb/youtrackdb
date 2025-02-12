@@ -2,17 +2,16 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.IndexSearchInfo;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexCandidate;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexFinder;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.MetadataPath;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperatorEquals;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +48,7 @@ public class SQLInCondition extends SQLBooleanExpression {
     if (rightVal == null) {
       return false;
     }
-    return evaluateExpression(ctx.getDatabase(), leftVal, rightVal);
+    return evaluateExpression(ctx.getDatabaseSession(), leftVal, rightVal);
   }
 
   public Object evaluateRight(Identifiable currentRecord, CommandContext ctx) {
@@ -84,13 +83,13 @@ public class SQLInCondition extends SQLBooleanExpression {
     }
 
     var leftVal = evaluateLeft(currentRecord, ctx);
-    return evaluateExpression(ctx.getDatabase(), leftVal, rightVal);
+    return evaluateExpression(ctx.getDatabaseSession(), leftVal, rightVal);
   }
 
   private boolean evaluateAny(Result currentRecord, Object rightVal, CommandContext ctx) {
     for (var s : currentRecord.getPropertyNames()) {
       var leftVal = currentRecord.getProperty(s);
-      if (evaluateExpression(ctx.getDatabase(), leftVal, rightVal)) {
+      if (evaluateExpression(ctx.getDatabaseSession(), leftVal, rightVal)) {
         return true;
       }
     }
@@ -101,7 +100,7 @@ public class SQLInCondition extends SQLBooleanExpression {
       CommandContext ctx) {
     for (var s : currentRecord.getPropertyNames()) {
       var leftVal = currentRecord.getProperty(s);
-      if (!evaluateExpression(ctx.getDatabase(), leftVal, rightVal)) {
+      if (!evaluateExpression(ctx.getDatabaseSession(), leftVal, rightVal)) {
         return false;
       }
     }
@@ -127,7 +126,7 @@ public class SQLInCondition extends SQLBooleanExpression {
   protected static Object executeQuery(SQLSelectStatement rightStatement, CommandContext ctx) {
     var subCtx = new BasicCommandContext();
     subCtx.setParentWithoutOverridingChild(ctx);
-    var result = rightStatement.execute(ctx.getDatabase(), ctx.getInputParameters(), false);
+    var result = rightStatement.execute(ctx.getDatabaseSession(), ctx.getInputParameters(), false);
     return result.stream().collect(Collectors.toSet());
   }
 

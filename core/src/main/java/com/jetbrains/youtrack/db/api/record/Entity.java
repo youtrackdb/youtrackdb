@@ -34,6 +34,7 @@ import javax.annotation.Nullable;
  * It's schema aware.
  */
 public interface Entity extends DBRecord {
+
   String DEFAULT_CLASS_NAME = "O";
 
   /**
@@ -88,7 +89,8 @@ public interface Entity extends DBRecord {
     return entity
         .asVertex()
         .orElseThrow(
-            () -> new DatabaseException("Property " + propertyName + " is not a vertex"));
+            () -> new DatabaseException(getBoundedToSession().getDatabaseName(),
+                "Property " + propertyName + " is not a vertex"));
   }
 
   /**
@@ -108,7 +110,8 @@ public interface Entity extends DBRecord {
 
     return entity
         .asEdge()
-        .orElseThrow(() -> new DatabaseException("Property " + propertyName + " is not an edge"));
+        .orElseThrow(() -> new DatabaseException(getBoundedToSession().getDatabaseName(),
+            "Property " + propertyName + " is not an edge"));
   }
 
   /**
@@ -264,14 +267,7 @@ public interface Entity extends DBRecord {
    * @return the class name associated with this entity, or null if it does not have a schema class
    */
   @Nullable
-  default String getClassName() {
-    var schemaClass = getSchemaClass();
-    if (schemaClass == null) {
-      return null;
-    }
-
-    return schemaClass.getName();
-  }
+  String getClassName();
 
   /**
    * Fills a entity passing the property names/values as a Map String,Object where the keys are the

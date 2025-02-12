@@ -28,7 +28,7 @@ public class ClientConnectionManagerTest {
   private Token token;
 
   @Mock
-  private OTokenHandler handler;
+  private TokenHandler handler;
 
   @Mock
   private YouTrackDBServer server;

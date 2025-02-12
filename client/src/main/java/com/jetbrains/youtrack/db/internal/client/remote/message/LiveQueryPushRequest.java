@@ -71,7 +71,7 @@ public class LiveQueryPushRequest implements BinaryPushRequest {
   }
 
   @Override
-  public void read(DatabaseSessionInternal db, ChannelDataInput network) throws IOException {
+  public void read(DatabaseSessionInternal session, ChannelDataInput network) throws IOException {
     monitorId = network.readInt();
     status = network.readByte();
     if (status == ERROR) {
@@ -83,10 +83,10 @@ public class LiveQueryPushRequest implements BinaryPushRequest {
       events = new ArrayList<>(eventSize);
       while (eventSize-- > 0) {
         var type = network.readByte();
-        Result currentValue = MessageHelper.readResult(db, network);
+        Result currentValue = MessageHelper.readResult(session, network);
         Result oldValue = null;
         if (type == LiveQueryResult.UPDATE_EVENT) {
-          oldValue = MessageHelper.readResult(db, network);
+          oldValue = MessageHelper.readResult(session, network);
         }
         events.add(new LiveQueryResult(type, currentValue, oldValue));
       }

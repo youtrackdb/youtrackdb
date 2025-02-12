@@ -15,20 +15,15 @@ package com.jetbrains.youtrack.db.internal.spatial;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.lucene.test.BaseLuceneTest;
 import java.io.File;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
-import java.util.Enumeration;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.junit.Assert;
 import org.junit.Before;
@@ -42,16 +37,16 @@ public class LuceneSpatialQueryTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var v = schema.getClass("V");
 
     var oClass = schema.createClass("Place");
-    oClass.setSuperClass(db, v);
-    oClass.createProperty(db, "latitude", PropertyType.DOUBLE);
-    oClass.createProperty(db, "longitude", PropertyType.DOUBLE);
-    oClass.createProperty(db, "name", PropertyType.STRING);
+    oClass.setSuperClass(session, v);
+    oClass.createProperty(session, "latitude", PropertyType.DOUBLE);
+    oClass.createProperty(session, "longitude", PropertyType.DOUBLE);
+    oClass.createProperty(session, "name", PropertyType.STRING);
 
-    db.command("CREATE INDEX Place.l_lon ON Place(latitude,longitude) SPATIAL ENGINE LUCENE")
+    session.command("CREATE INDEX Place.l_lon ON Place(latitude,longitude) SPATIAL ENGINE LUCENE")
         .close();
 
     try {
@@ -94,13 +89,13 @@ public class LuceneSpatialQueryTest extends BaseLuceneTest {
           var i = 0;
           while ((line = lnr.readLine()) != null) {
             var nextLine = line.split(",");
-            var doc = ((EntityImpl) db.newEntity("Place"));
+            var doc = ((EntityImpl) session.newEntity("Place"));
             doc.field("name", nextLine[3]);
             doc.field("country", nextLine[1]);
             try {
 
-              Double lat = PropertyType.convert(db, nextLine[5], Double.class).doubleValue();
-              Double lng = PropertyType.convert(db, nextLine[6], Double.class).doubleValue();
+              Double lat = PropertyType.convert(session, nextLine[5], Double.class).doubleValue();
+              Double lng = PropertyType.convert(session, nextLine[6], Double.class).doubleValue();
               doc.field("latitude", lat);
               doc.field("longitude", lng);
             } catch (Exception e) {
@@ -110,14 +105,14 @@ public class LuceneSpatialQueryTest extends BaseLuceneTest {
             doc.save();
             if (i % 100000 == 0) {
               LogManager.instance().info(this, "Imported: [%d] records", i);
-              db.commit();
-              db.begin();
+              session.commit();
+              session.begin();
             }
             i++;
           }
           lnr.close();
           stream.close();
-          db.commit();
+          session.commit();
         }
       }
 
@@ -133,7 +128,7 @@ public class LuceneSpatialQueryTest extends BaseLuceneTest {
     var query =
         "select *,$distance from Place where [latitude,longitude,$spatial] NEAR"
             + " [41.893056,12.482778,{\"maxDistance\": 0.5}]";
-    var docs = db.query(query);
+    var docs = session.query(query);
 
     Assert.assertTrue(docs.hasNext());
 
@@ -151,7 +146,7 @@ public class LuceneSpatialQueryTest extends BaseLuceneTest {
     var query =
         "select * from Place where [latitude,longitude] WITHIN"
             + " [[51.507222,-0.1275],[55.507222,-0.1275]]";
-    var docs = db.query(query);
+    var docs = session.query(query);
     Assert.assertEquals(238, docs.stream().count());
   }
 }

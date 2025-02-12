@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.functions.misc;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunction;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionAbstract;
@@ -109,7 +109,7 @@ public class SQLStaticReflectiveFunction extends SQLFunctionAbstract {
     var method = pickMethod(iParams);
 
     if (method == null) {
-      throw new QueryParsingException(
+      throw new QueryParsingException(iContext.getDatabaseSession().getDatabaseName(),
           "Unable to find a function for " + name + paramsPrettyPrint.get());
     }
 
@@ -117,8 +117,9 @@ public class SQLStaticReflectiveFunction extends SQLFunctionAbstract {
       return method.invoke(null, iParams);
     } catch (ReflectiveOperationException e) {
       throw BaseException.wrapException(
-          new QueryParsingException("Error executing function " + name + paramsPrettyPrint.get()),
-          e);
+          new QueryParsingException(iContext.getDatabaseSession().getDatabaseName(),
+              "Error executing function " + name + paramsPrettyPrint.get()),
+          e, iContext.getDatabaseSession());
     } catch (IllegalArgumentException x) {
       LogManager.instance().error(this, "Error executing function %s", x, name);
 

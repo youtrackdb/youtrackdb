@@ -1,8 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -16,9 +14,9 @@ public class TestOrderByIndexPropDesc extends DbTestBase {
 
   public void beforeTest() throws Exception {
     super.beforeTest();
-    var oclass = db.getMetadata().getSchema().createClass(DOCUMENT_CLASS_NAME);
-    oclass.createProperty(db, PROP_INDEXED_STRING, PropertyType.INTEGER);
-    oclass.createIndex(db, "index", INDEX_TYPE.NOTUNIQUE, PROP_INDEXED_STRING);
+    var oclass = session.getMetadata().getSchema().createClass(DOCUMENT_CLASS_NAME);
+    oclass.createProperty(session, PROP_INDEXED_STRING, PropertyType.INTEGER);
+    oclass.createIndex(session, "index", INDEX_TYPE.NOTUNIQUE, PROP_INDEXED_STRING);
   }
 
   @Test
@@ -34,15 +32,15 @@ public class TestOrderByIndexPropDesc extends DbTestBase {
   private void test(int count) {
     EntityImpl doc;
     for (var i = 0; i < count; i++) {
-      db.begin();
-      doc = db.newInstance(DOCUMENT_CLASS_NAME);
+      session.begin();
+      doc = session.newInstance(DOCUMENT_CLASS_NAME);
       doc.field(PROP_INDEXED_STRING, i);
-      db.save(doc);
-      db.commit();
+      session.save(doc);
+      session.commit();
     }
 
     var result =
-        db.query(
+        session.query(
             "select from " + DOCUMENT_CLASS_NAME + " order by " + PROP_INDEXED_STRING + " desc");
 
     Assert.assertEquals(count, result.stream().count());

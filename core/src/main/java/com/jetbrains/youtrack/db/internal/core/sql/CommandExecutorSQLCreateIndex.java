@@ -34,10 +34,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionFactory;
 import com.jetbrains.youtrack.db.internal.core.index.IndexException;
-import com.jetbrains.youtrack.db.internal.core.index.Indexes;
 import com.jetbrains.youtrack.db.internal.core.index.PropertyMapIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.RuntimeKeyIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.SimpleKeyIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
@@ -76,38 +73,38 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
   private Map<String, ?> metadata = null;
   private String[] collates;
 
-  public CommandExecutorSQLCreateIndex parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLCreateIndex parse(DatabaseSessionInternal session,
       final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
 
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
       final var word = new StringBuilder();
 
       var oldPos = 0;
       var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CREATE)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session.getDatabaseName(),
             "Keyword " + KEYWORD_CREATE + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_INDEX)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session.getDatabaseName(),
             "Keyword " + KEYWORD_INDEX + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
       if (pos == -1) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session.getDatabaseName(),
             "Expected index name. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -116,7 +113,7 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Index type requested. Use " + getSyntax(), parserText, oldPos + 1);
       }
 
@@ -124,19 +121,20 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
         oldPos = pos;
         pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
         if (pos == -1) {
-          throw new CommandSQLParsingException(
+          throw new CommandSQLParsingException(session.getDatabaseName(),
               "Expected class name. Use " + getSyntax(), parserText, oldPos);
         }
         oldPos = pos;
-        oClass = findClass(decodeClassName(word.toString()));
+        oClass = findClass(session, decodeClassName(word.toString()));
 
         if (oClass == null) {
-          throw new CommandExecutionException("Class " + word + " not found");
+          throw new CommandExecutionException(session.getDatabaseName(),
+              "Class " + word + " not found");
         }
 
         pos = parserTextUpperCase.indexOf(')');
         if (pos == -1) {
-          throw new CommandSQLParsingException(
+          throw new CommandSQLParsingException(session.getDatabaseName(),
               "No right bracket found. Use " + getSyntax(), parserText, oldPos);
         }
 
@@ -181,16 +179,17 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
         oldPos = pos + 1;
         pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
         if (pos == -1) {
-          throw new CommandSQLParsingException(
+          throw new CommandSQLParsingException(session,
               "Index type requested. Use " + getSyntax(), parserText, oldPos + 1);
         }
       } else {
         if (indexName.indexOf('.') > 0) {
           final var parts = indexName.split("\\.");
 
-          oClass = findClass(parts[0]);
+          oClass = findClass(session, parts[0]);
           if (oClass == null) {
-            throw new CommandExecutionException("Class " + parts[0] + " not found");
+            throw new CommandExecutionException(session.getDatabaseName(),
+                "Class " + parts[0] + " not found");
           }
 
           fields = new String[]{parts[1]};
@@ -198,10 +197,6 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
       }
 
       indexType = SchemaClass.INDEX_TYPE.valueOf(word.toString());
-
-      if (indexType == null) {
-        throw new CommandSQLParsingException("Index type is null", parserText, oldPos);
-      }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
@@ -220,7 +215,7 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
       if (configPos > -1) {
         final var configString =
             parserText.substring(configPos + KEYWORD_METADATA.length()).trim();
-        var doc = new EntityImpl(db);
+        var doc = new EntityImpl(session);
         doc.updateFromJSON(configString);
         metadata = doc.toMap();
       }
@@ -251,14 +246,13 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
           keyTypeList.toArray(keyTypes);
 
           if (fields != null && fields.length != 0 && fields.length != keyTypes.length) {
-            throw new CommandSQLParsingException(
+            throw new CommandSQLParsingException(session.getDatabaseName(),
                 "Count of fields does not match with count of property types. "
                     + "Fields: "
                     + Arrays.toString(fields)
                     + "; Types: "
                     + Arrays.toString(keyTypes),
-                parserText,
-                oldPos);
+                parserText, oldPos);
           }
         }
       }
@@ -274,13 +268,12 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
    * Execute the CREATE INDEX.
    */
   @SuppressWarnings("rawtypes")
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (indexName == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session.getDatabaseName(),
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final var database = getDatabase();
     final Index idx;
     List<Collate> collatesList = null;
 
@@ -298,85 +291,52 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
     }
 
     if (fields == null || fields.length == 0) {
-      var factory = Indexes.getFactory(indexType.toString(), null);
-
-      if (keyTypes != null) {
-        idx =
-            database
-                .getMetadata()
-                .getIndexManagerInternal()
-                .createIndex(
-                    database,
-                    indexName,
-                    indexType.toString(),
-                    new SimpleKeyIndexDefinition(keyTypes, collatesList),
-                    null,
-                    null,
-                    metadata,
-                    engine);
-      } else if (serializerKeyId != 0) {
-        idx =
-            database
-                .getMetadata()
-                .getIndexManagerInternal()
-                .createIndex(
-                    database,
-                    indexName,
-                    indexType.toString(),
-                    new RuntimeKeyIndexDefinition(serializerKeyId),
-                    null,
-                    null,
-                    metadata,
-                    engine);
-      } else {
-        throw new DatabaseException(
-            "Impossible to create an index without specify the key type or the associated"
-                + " property");
-      }
+      throw new DatabaseException(session,
+          "Impossible to create an index without specify the key type or the associated"
+              + " property");
     } else {
       if ((keyTypes == null || keyTypes.length == 0) && collates == null) {
-        oClass.createIndex(database, indexName, indexType.toString(), null, metadata, engine,
+        oClass.createIndex(session, indexName, indexType.toString(), null, metadata, engine,
             fields);
-        idx = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
+        idx = session.getMetadata().getIndexManagerInternal().getIndex(session, indexName);
       } else {
         final List<PropertyType> fieldTypeList;
         if (keyTypes == null) {
           for (final var fieldName : fields) {
-            if (!fieldName.equals("@rid") && !oClass.existsProperty(fieldName)) {
-              throw new IndexException(
+            if (!fieldName.equals("@rid") && !oClass.existsProperty(session, fieldName)) {
+              throw new IndexException(session,
                   "Index with name : '"
                       + indexName
                       + "' cannot be created on class : '"
-                      + oClass.getName()
+                      + oClass.getName(session)
                       + "' because field: '"
                       + fieldName
                       + "' is absent in class definition.");
             }
           }
-          fieldTypeList = ((SchemaClassImpl) oClass).extractFieldTypes(fields);
+          fieldTypeList = ((SchemaClassImpl) oClass).extractFieldTypes(session, fields);
         } else {
           fieldTypeList = Arrays.asList(keyTypes);
         }
 
         final var idxDef =
-            IndexDefinitionFactory.createIndexDefinition(
+            IndexDefinitionFactory.createIndexDefinition(session,
                 oClass,
                 Arrays.asList(fields),
                 fieldTypeList,
                 collatesList,
-                indexType.toString(),
-                null);
+                indexType.toString());
 
         idx =
-            database
+            session
                 .getMetadata()
                 .getIndexManagerInternal()
                 .createIndex(
-                    database,
+                    session,
                     indexName,
                     indexType.name(),
                     idxDef,
-                    oClass.getPolymorphicClusterIds(),
+                    oClass.getPolymorphicClusterIds(session),
                     null,
                     metadata,
                     engine);
@@ -384,15 +344,10 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
     }
 
     if (idx != null) {
-      return idx.getInternal().size(database);
+      return idx.getInternal().size(session);
     }
 
     return null;
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.ALL;
   }
 
   @Override
@@ -401,8 +356,8 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
         + " [<key-type>] [ENGINE <engine>] [METADATA {JSON Index Metadata Document}]";
   }
 
-  private SchemaClass findClass(String part) {
-    return getDatabase().getMetadata().getSchema().getClass(part);
+  private SchemaClass findClass(DatabaseSessionInternal db, String part) {
+    return db.getMetadata().getSchema().getClass(part);
   }
 
   private void checkMapIndexSpecifier(final String fieldName, final String text, final int pos) {
@@ -422,9 +377,8 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
                   "Illegal field name format, should be '<property> [by key|value]' but was '"
                       + fieldName
                       + "'",
-                  text,
-                  pos),
-              iae);
+                  text, pos),
+              iae, (String) null);
         }
         return;
       }
@@ -432,19 +386,16 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
           "Illegal field name format, should be '<property> [by key|value]' but was '"
               + fieldName
               + "'",
-          text,
-          pos);
+          text, pos);
     }
 
     throw new CommandSQLParsingException(
         "Illegal field name format, should be '<property> [by key|value]' but was '"
             + fieldName
             + "'",
-        text,
-        pos);
+        text, pos);
   }
 
-  @Override
   public String getUndoCommand() {
     return "drop index " + indexName;
   }

@@ -28,7 +28,7 @@ public class EmptyDataGeneratorStep extends AbstractExecutionStep {
   }
 
   private static Result create(CommandContext ctx) {
-    var result = new ResultInternal(ctx.getDatabase());
+    var result = new ResultInternal(ctx.getDatabaseSession());
     ctx.setVariable("$current", result);
     return result;
   }

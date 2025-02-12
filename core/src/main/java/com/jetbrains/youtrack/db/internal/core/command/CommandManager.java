@@ -20,12 +20,12 @@
 package com.jetbrains.youtrack.db.internal.core.command;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
 import com.jetbrains.youtrack.db.internal.core.command.script.CommandExecutorFunction;
 import com.jetbrains.youtrack.db.internal.core.command.script.CommandExecutorScript;
 import com.jetbrains.youtrack.db.internal.core.command.script.CommandFunction;
 import com.jetbrains.youtrack.db.internal.core.command.script.CommandScript;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLDelegate;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLLiveSelect;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLResultsetDelegate;
@@ -33,7 +33,6 @@ import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLResultset;
 import com.jetbrains.youtrack.db.internal.core.sql.query.LiveQuery;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
-import com.jetbrains.youtrack.db.internal.core.sql.query.SQLNonBlockingQuery;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.HashMap;
 import java.util.Locale;
@@ -59,7 +58,6 @@ public class CommandManager {
 
     registerExecutor(SQLAsynchQuery.class, CommandExecutorSQLDelegate.class);
     registerExecutor(SQLSynchQuery.class, CommandExecutorSQLDelegate.class);
-    registerExecutor(SQLNonBlockingQuery.class, CommandExecutorSQLDelegate.class);
     registerExecutor(LiveQuery.class, CommandExecutorSQLLiveSelect.class);
     registerExecutor(CommandSQL.class, CommandExecutorSQLDelegate.class);
     registerExecutor(CommandSQLResultset.class, CommandExecutorSQLResultsetDelegate.class);
@@ -139,7 +137,7 @@ public class CommandManager {
         commandReqExecMap.get(iCommand.getClass());
 
     if (executorClass == null) {
-      throw new CommandExecutorNotFoundException(
+      throw new CommandExecutorNotFoundException(null,
           "Cannot find a command executor for the command request: " + iCommand);
     }
 
@@ -156,12 +154,12 @@ public class CommandManager {
 
     } catch (Exception e) {
       throw BaseException.wrapException(
-          new CommandExecutionException(
+          new CommandExecutionException((String) null,
               "Cannot create the command executor of class "
                   + executorClass
                   + " for the command request: "
                   + iCommand),
-          e);
+          e, iCommand.getContext().getDatabaseSession().getDatabaseName());
     }
   }
 

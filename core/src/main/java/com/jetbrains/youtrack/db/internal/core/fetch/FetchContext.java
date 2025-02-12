@@ -38,7 +38,8 @@ public interface FetchContext {
       final Identifiable[] iArray)
       throws FetchException;
 
-  void onAfterArray(final EntityImpl iRootRecord, final String iFieldName,
+  void onAfterArray(DatabaseSessionInternal db, final EntityImpl iRootRecord,
+      final String iFieldName,
       final Object iUserObject)
       throws FetchException;
 
@@ -50,14 +51,17 @@ public interface FetchContext {
       throws FetchException;
 
   void onAfterCollection(
-      final EntityImpl iRootRecord, final String iFieldName, final Object iUserObject)
-      throws FetchException;
-
-  void onBeforeMap(final EntityImpl iRootRecord, final String iFieldName,
+      DatabaseSessionInternal db, final EntityImpl iRootRecord, final String iFieldName,
       final Object iUserObject)
       throws FetchException;
 
-  void onAfterMap(final EntityImpl iRootRecord, final String iFieldName, final Object iUserObject)
+  void onBeforeMap(DatabaseSessionInternal db, final EntityImpl iRootRecord,
+      final String iFieldName,
+      final Object iUserObject)
+      throws FetchException;
+
+  void onAfterMap(DatabaseSessionInternal db, final EntityImpl iRootRecord, final String iFieldName,
+      final Object iUserObject)
       throws FetchException;
 
   void onBeforeDocument(
@@ -68,7 +72,7 @@ public interface FetchContext {
       throws FetchException;
 
   void onAfterDocument(
-      final EntityImpl iRootRecord,
+      DatabaseSessionInternal db, final EntityImpl iRootRecord,
       final EntityImpl entity,
       final String iFieldName,
       final Object iUserObject)

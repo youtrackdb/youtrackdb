@@ -34,7 +34,6 @@ import com.jetbrains.youtrack.db.internal.core.storage.cache.local.BackgroundExc
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.PageIsBrokenListener;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.LogSequenceNumber;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import java.io.IOException;
@@ -62,11 +61,18 @@ public final class DirectMemoryOnlyDiskCache extends AbstractWriteCache
 
   private final int pageSize;
   private final int id;
+  private final String storageName;
 
-  DirectMemoryOnlyDiskCache(final int pageSize, final int id) {
+  DirectMemoryOnlyDiskCache(final int pageSize, final int id, String storageName) {
     this.pageSize = pageSize;
     this.id = id;
+    this.storageName = storageName;
     fileNameIdMap.defaultReturnValue(-1);
+  }
+
+  @Override
+  public String getStorageName() {
+    return storageName;
   }
 
   /**
@@ -94,7 +100,7 @@ public final class DirectMemoryOnlyDiskCache extends AbstractWriteCache
 
         fileIdNameMap.put(fileId, fileName);
       } else {
-        throw new StorageException(fileName + " already exists.");
+        throw new StorageException(storageName, fileName + " already exists.");
       }
 
       return composeFileId(id, fileId);
@@ -158,11 +164,11 @@ public final class DirectMemoryOnlyDiskCache extends AbstractWriteCache
     metadataLock.lock();
     try {
       if (files.containsKey(intId)) {
-        throw new StorageException("File with id " + intId + " already exists.");
+        throw new StorageException(storageName, "File with id " + intId + " already exists.");
       }
 
       if (fileNameIdMap.containsKey(fileName)) {
-        throw new StorageException(fileName + " already exists.");
+        throw new StorageException(storageName, fileName + " already exists.");
       }
 
       files.put(intId, new MemoryFile(id, intId));
@@ -257,7 +263,7 @@ public final class DirectMemoryOnlyDiskCache extends AbstractWriteCache
     final var memoryFile = files.get(fileId);
 
     if (memoryFile == null) {
-      throw new StorageException("File with id " + fileId + " does not exist");
+      throw new StorageException(storageName, "File with id " + fileId + " does not exist");
     }
 
     return memoryFile;
@@ -502,7 +508,7 @@ public final class DirectMemoryOnlyDiskCache extends AbstractWriteCache
       final var fileId = fileNameIdMap.getInt(fileName);
 
       if (fileId == -1) {
-        throw new StorageException("File " + fileName + " does not exist.");
+        throw new StorageException(storageName, "File " + fileName + " does not exist.");
       }
 
       return composeFileId(id, fileId);

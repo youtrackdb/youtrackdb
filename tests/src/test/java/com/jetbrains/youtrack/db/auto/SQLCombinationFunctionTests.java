@@ -52,13 +52,13 @@ public class SQLCombinationFunctionTests extends BaseDBTest {
   @Test
   public void unionAllAsAggregationNotRemoveDuplicates() {
 
-    final var continents = db.query("SELECT continent FROM CountryExt").toList()
+    final var continents = session.query("SELECT continent FROM CountryExt").toList()
         .stream()
         .map(r -> r.<String>getProperty("continent"))
         .toList();
 
     final var continentsCombined =
-        db.query("SELECT unionAll(continent) AS continents FROM CountryExt").toList()
+        session.query("SELECT unionAll(continent) AS continents FROM CountryExt").toList()
             .getFirst()
             .<List<String>>getProperty("continents");
 
@@ -69,7 +69,7 @@ public class SQLCombinationFunctionTests extends BaseDBTest {
   @Test
   public void differenceAsAggregationThrowsError() {
     try {
-      db.query("SELECT difference(continent) AS continents FROM CountryExt").toList();
+      session.query("SELECT difference(continent) AS continents FROM CountryExt").toList();
       Assert.fail("Expected exception");
     } catch (CommandExecutionException e) {
       Assert.assertTrue(e.getMessage().contains("cannot be used in aggregation mode"));
@@ -102,7 +102,7 @@ public class SQLCombinationFunctionTests extends BaseDBTest {
   //       $r = unionAll($l0, $l1)
   private void findLanguagesForCountry(FunctionDefinition fDef) {
 
-    final var langsByCountry = db.query("select name, languages from CountryExt").toList()
+    final var langsByCountry = session.query("select name, languages from CountryExt").toList()
         .stream()
         .collect(Collectors.toMap(
             r -> r.<String>getProperty("name"),
@@ -132,7 +132,7 @@ public class SQLCombinationFunctionTests extends BaseDBTest {
                 .toList();
 
         query1.append(String.join(" OR ", countryConditions));
-        final var l1 = db.query(query1.toString()).toList()
+        final var l1 = session.query(query1.toString()).toList()
             .getFirst()
             .<Collection<String>>getProperty("langCombined");
 
@@ -163,7 +163,7 @@ public class SQLCombinationFunctionTests extends BaseDBTest {
           .append(String.join(",", lVars))
           .append(")");
 
-      final var langsCombined2 = db.query(query2.toString()).toList().getFirst()
+      final var langsCombined2 = session.query(query2.toString()).toList().getFirst()
           .<Collection<Result>>getProperty("langCombined")
           .stream()
           .map(e -> e.<String>getProperty("value"))
@@ -197,7 +197,7 @@ public class SQLCombinationFunctionTests extends BaseDBTest {
   private void findCountriesForLanguage(FunctionDefinition fDef) {
 
     final var countryByLang =
-        db.query("select name, languages from CountryExt").toList()
+        session.query("select name, languages from CountryExt").toList()
             .stream()
             .collect(Collectors.toMap(
                 r1 -> r1.<String>getProperty("name"),
@@ -229,7 +229,7 @@ public class SQLCombinationFunctionTests extends BaseDBTest {
       query.append(String.format("$r = %s(%s),", fDef.name, String.join(",", varNames)));
       query.append("$r2 = (SELECT from $r)");
 
-      final var selectedCountryNames = db.query(query.toString())
+      final var selectedCountryNames = session.query(query.toString())
           .stream()
           .map(r -> r.<String>getProperty("name"))
           .toList();
@@ -260,7 +260,7 @@ public class SQLCombinationFunctionTests extends BaseDBTest {
 
   private void runEdgeInlineTest(FunctionDefinition fDef) {
 
-    final var vertexes = db.query("SELECT FROM V").toList();
+    final var vertexes = session.query("SELECT FROM V").toList();
 
     final var insAndOuts = vertexes.stream().collect(Collectors.toMap(
         r -> r.<RecordId>getProperty("@rid"),
@@ -274,7 +274,7 @@ public class SQLCombinationFunctionTests extends BaseDBTest {
     ));
 
     final var query = "SELECT @rid, " + fDef.name + "(in_, out_) AS edges FROM V";
-    var edgesAggregated = db.query(query).stream().toList();
+    var edgesAggregated = session.query(query).stream().toList();
 
     for (var d : edgesAggregated) {
       Assert.assertTrue(d.hasProperty("edges"));
@@ -307,17 +307,17 @@ public class SQLCombinationFunctionTests extends BaseDBTest {
 
   private void generateGraphRandomData() {
 
-    var vehicleClass = db.createVertexClass("GraphVehicle");
-    db.createClass("GraphCar", vehicleClass.getName());
-    db.createClass("GraphMotocycle", "GraphVehicle");
+    var vehicleClass = session.createVertexClass("GraphVehicle");
+    session.createClass("GraphCar", vehicleClass.getName(session));
+    session.createClass("GraphMotocycle", "GraphVehicle");
     final var r = new Random();
 
     final var carsNo = r.nextInt(2, 32);
 
-    db.begin();
+    session.begin();
     final var cars = new ArrayList<Vertex>();
     for (var i = 0; i < carsNo; i++) {
-      var carNode = db.newVertex("GraphCar");
+      var carNode = session.newVertex("GraphCar");
       carNode.setProperty("brand", "Brand" + (i + 1));
       carNode.setProperty("model", "Car" + (i + 1));
       carNode.setProperty("year", r.nextInt(1990, 2024));
@@ -328,14 +328,14 @@ public class SQLCombinationFunctionTests extends BaseDBTest {
     final var motorcyclesNo = r.nextInt(2, 32);
     final var motorcycles = new ArrayList<Vertex>();
     for (var i = 0; i < motorcyclesNo; i++) {
-      var motorcycleNode = db.newVertex("GraphMotocycle");
+      var motorcycleNode = session.newVertex("GraphMotocycle");
       motorcycleNode.setProperty("brand", "Brand" + (i + 1));
       motorcycleNode.setProperty("model", "Motorcycle" + (i + 1));
       motorcycleNode.setProperty("year", r.nextInt(1990, 2024));
       motorcycleNode.save();
       motorcycles.add(motorcycleNode);
     }
-    db.commit();
+    session.commit();
 
     // creating random edges between cars and motocycles
     class EdgeDef {
@@ -361,7 +361,7 @@ public class SQLCombinationFunctionTests extends BaseDBTest {
     Collections.shuffle(edges, r);
     final var edgesToCreate = edges.stream().limit(r.nextInt(2, 32)).toList();
 
-    db.begin();
+    session.begin();
     for (var re : edgesToCreate) {
       final var car = cars.get(re.carIdx);
       final var motorcycle = motorcycles.get(re.monoIdx);
@@ -369,29 +369,29 @@ public class SQLCombinationFunctionTests extends BaseDBTest {
       final Vertex from;
       final Vertex to;
       if (re.reverse) {
-        from = db.bindToSession(motorcycle);
-        to = db.bindToSession(car);
+        from = session.bindToSession(motorcycle);
+        to = session.bindToSession(car);
       } else {
-        from = db.bindToSession(car);
-        to = db.bindToSession(motorcycle);
+        from = session.bindToSession(car);
+        to = session.bindToSession(motorcycle);
       }
-      db.newRegularEdge(from, to).save();
+      session.newRegularEdge(from, to).save();
     }
-    db.commit();
+    session.commit();
   }
 
   private void generateGeoData() {
-    var countryClass = db.createClass("CountryExt");
-    countryClass.createProperty(db, "name", PropertyType.STRING);
-    countryClass.createProperty(db, "continent", PropertyType.STRING);
-    countryClass.createProperty(db, "languages", PropertyType.EMBEDDEDLIST,
+    var countryClass = session.createClass("CountryExt");
+    countryClass.createProperty(session, "name", PropertyType.STRING);
+    countryClass.createProperty(session, "continent", PropertyType.STRING);
+    countryClass.createProperty(session, "languages", PropertyType.EMBEDDEDLIST,
         PropertyType.STRING);
 
-    var cls = db.createClass("CityExt");
-    cls.createProperty(db, "name", PropertyType.STRING);
-    cls.createProperty(db, "country", PropertyType.LINK, countryClass);
+    var cls = session.createClass("CityExt");
+    cls.createProperty(session, "name", PropertyType.STRING);
+    cls.createProperty(session, "country", PropertyType.LINK, countryClass);
 
-    db.begin();
+    session.begin();
 
     final var germany = createCountry("Germany", "Europe", List.of("German"));
     final var czech = createCountry("Czech Republic", "Europe", List.of("Czech"));
@@ -421,12 +421,12 @@ public class SQLCombinationFunctionTests extends BaseDBTest {
     createCity("London", null, uk);
     createCity("Glasgow", null, uk);
 
-    db.commit();
+    session.commit();
   }
 
   private Entity createCountry(String name, String continent, List<String> languages) {
 
-    var country = db.newInstance("CountryExt");
+    var country = session.newInstance("CountryExt");
     country.setProperty("name", name);
     country.setProperty("continent", continent);
     country.setProperty("languages", languages);
@@ -436,7 +436,7 @@ public class SQLCombinationFunctionTests extends BaseDBTest {
   }
 
   private Entity createCity(String name, String localName, Entity country) {
-    var city = db.newInstance("CityExt");
+    var city = session.newInstance("CityExt");
     city.setProperty("name", name);
     city.setProperty("localName", localName == null ? name : localName);
     city.setProperty("country", country);

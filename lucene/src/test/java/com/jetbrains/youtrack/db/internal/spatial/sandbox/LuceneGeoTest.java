@@ -18,7 +18,6 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.lucene.test.BaseLuceneTest;
 import com.jetbrains.youtrack.db.internal.spatial.shape.MultiPolygonShapeBuilder;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.ParseException;
 import java.util.Map;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -32,8 +31,6 @@ import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.spatial.prefix.RecursivePrefixTreeStrategy;
 import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 import org.apache.lucene.spatial.query.SpatialArgs;
@@ -174,7 +171,7 @@ public class LuceneGeoTest extends BaseLuceneTest {
     final var directory = new RAMDirectory();
     final var writer = new IndexWriter(directory, conf);
 
-    var entries = loadMultiPolygon(db);
+    var entries = loadMultiPolygon(session);
 
     var builder = new MultiPolygonShapeBuilder();
 

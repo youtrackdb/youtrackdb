@@ -19,7 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.ClusterDoesNotExistException;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
@@ -57,39 +56,38 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
   private Integer clusters = null;
   private boolean ifNotExists = false;
 
-  public CommandExecutorSQLCreateClass parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLCreateClass parse(DatabaseSessionInternal session,
       final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
 
-      final var database = getDatabase();
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
       var word = new StringBuilder();
 
       var oldPos = 0;
       var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CREATE)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_CREATE + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CLASS)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_CLASS + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
       if (pos == -1) {
-        throw new CommandSQLParsingException("Expected <class>", parserText, oldPos);
+        throw new CommandSQLParsingException(session, "Expected <class>", parserText, oldPos);
       }
 
       className = word.toString();
@@ -97,164 +95,162 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
         className = ((SQLCreateClassStatement) preParsedStatement).name.getStringValue();
       }
       if (className == null) {
-        throw new CommandSQLParsingException("Expected <class>", parserText, oldPos);
+        throw new CommandSQLParsingException(session, "Expected <class>", parserText, oldPos);
       }
 
       oldPos = pos;
 
       while ((pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true)) > -1) {
         final var k = word.toString();
-        if (k.equals(KEYWORD_EXTENDS)) {
-          boolean hasNext;
-          var newParser = this.preParsedStatement != null;
-          SchemaClass superClass;
-          do {
-            oldPos = pos;
-            pos = nextWord(parserText, parserTextUpperCase, pos, word, false);
-            if (pos == -1) {
-              throw new CommandSQLParsingException(
-                  "Syntax error after EXTENDS for class "
-                      + className
-                      + ". Expected the super-class name. Use "
-                      + getSyntax(),
-                  parserText,
-                  oldPos);
-            }
-            var superclassName = decodeClassName(word.toString());
-
-            if (!database.getMetadata().getImmutableSchemaSnapshot().existsClass(superclassName)
-                && !newParser) {
-              throw new CommandSQLParsingException(
-                  "Super-class " + word + " not exists", parserText, oldPos);
-            }
-            superClass = database.getMetadata().getSchema().getClass(superclassName);
-            superClasses.add(superClass);
-            hasNext = false;
-            for (; pos < parserText.length(); pos++) {
-              var ch = parserText.charAt(pos);
-              if (ch == ',') {
-                hasNext = true;
-              } else if (Character.isLetterOrDigit(ch)) {
-                break;
-              } else if (ch == '`') {
-                break;
+        switch (k) {
+          case KEYWORD_EXTENDS -> {
+            boolean hasNext;
+            var newParser = this.preParsedStatement != null;
+            SchemaClass superClass;
+            do {
+              oldPos = pos;
+              pos = nextWord(parserText, parserTextUpperCase, pos, word, false);
+              if (pos == -1) {
+                throw new CommandSQLParsingException(session,
+                    "Syntax error after EXTENDS for class "
+                        + className
+                        + ". Expected the super-class name. Use "
+                        + getSyntax(),
+                    parserText, oldPos);
               }
-            }
-          } while (hasNext);
-          if (newParser) {
-            var statement = (SQLCreateClassStatement) this.preParsedStatement;
-            var superclasses = statement.getSuperclasses();
-            this.superClasses.clear();
-            for (var superclass : superclasses) {
-              var superclassName = superclass.getStringValue();
-              if (!database.getMetadata().getSchema().existsClass(superclassName)) {
-                throw new CommandSQLParsingException(
+              var superclassName = decodeClassName(word.toString());
+
+              if (!session.getMetadata().getImmutableSchemaSnapshot().existsClass(superclassName)
+                  && !newParser) {
+                throw new CommandSQLParsingException(session,
                     "Super-class " + word + " not exists", parserText, oldPos);
               }
-              superClass = database.getMetadata().getSchema().getClass(superclassName);
-              this.superClasses.add(superClass);
-            }
-          }
-        } else if (k.equals(KEYWORD_CLUSTER)) {
-          oldPos = pos;
-          pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false, " =><()");
-          if (pos == -1) {
-            throw new CommandSQLParsingException(
-                "Syntax error after CLUSTER for class "
-                    + className
-                    + ". Expected the cluster id or name. Use "
-                    + getSyntax(),
-                parserText,
-                oldPos);
-          }
-
-          final var clusterIdsAsStrings = word.toString().split(",");
-          if (clusterIdsAsStrings.length > 0) {
-            clusterIds = new int[clusterIdsAsStrings.length];
-            for (var i = 0; i < clusterIdsAsStrings.length; ++i) {
-              if (Character.isDigit(clusterIdsAsStrings[i].charAt(0)))
-              // GET CLUSTER ID FROM NAME
-              {
-                clusterIds[i] = Integer.parseInt(clusterIdsAsStrings[i]);
-              } else
-              // GET CLUSTER ID
-              {
-                clusterIds[i] = database.getClusterIdByName(clusterIdsAsStrings[i]);
-              }
-
-              if (clusterIds[i] == -1) {
-                throw new CommandSQLParsingException(
-                    "Cluster with id " + clusterIds[i] + " does not exists", parserText, oldPos);
-              }
-
-              try {
-                var clusterName = database.getClusterNameById(clusterIds[i]);
-                if (clusterName == null) {
-                  throw new ClusterDoesNotExistException(
-                      "Cluster with id "
-                          + clusterIds[i]
-                          + " does not exist inside of storage "
-                          + database.getName());
+              superClass = session.getMetadata().getSchema().getClass(superclassName);
+              superClasses.add(superClass);
+              hasNext = false;
+              for (; pos < parserText.length(); pos++) {
+                var ch = parserText.charAt(pos);
+                if (ch == ',') {
+                  hasNext = true;
+                } else if (Character.isLetterOrDigit(ch)) {
+                  break;
+                } else if (ch == '`') {
+                  break;
                 }
-              } catch (Exception e) {
-                throw BaseException.wrapException(
-                    new CommandSQLParsingException(
-                        "Cluster with id " + clusterIds[i] + " does not exists",
-                        parserText,
-                        oldPos),
-                    e);
+              }
+            } while (hasNext);
+            if (newParser) {
+              var statement = (SQLCreateClassStatement) this.preParsedStatement;
+              var superclasses = statement.getSuperclasses();
+              this.superClasses.clear();
+              for (var superclass : superclasses) {
+                var superclassName = superclass.getStringValue();
+                if (!session.getMetadata().getSchema().existsClass(superclassName)) {
+                  throw new CommandSQLParsingException(session,
+                      "Super-class " + word + " not exists", parserText, oldPos);
+                }
+                superClass = session.getMetadata().getSchema().getClass(superclassName);
+                this.superClasses.add(superClass);
               }
             }
           }
-        } else if (k.equals(KEYWORD_CLUSTERS)) {
-          oldPos = pos;
-          pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false, " =><()");
-          if (pos == -1) {
-            throw new CommandSQLParsingException(
-                "Syntax error after CLUSTERS for class "
-                    + className
-                    + ". Expected the number of clusters. Use "
-                    + getSyntax(),
-                parserText,
-                oldPos);
-          }
+          case KEYWORD_CLUSTER -> {
+            oldPos = pos;
+            pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false, " =><()");
+            if (pos == -1) {
+              throw new CommandSQLParsingException(session,
+                  "Syntax error after CLUSTER for class "
+                      + className
+                      + ". Expected the cluster id or name. Use "
+                      + getSyntax(),
+                  parserText, oldPos);
+            }
 
-          clusters = Integer.parseInt(word.toString());
-        } else if (k.equals(KEYWORD_ABSTRACT)) {
-          clusterIds = new int[]{-1};
-        } else if (k.equals(KEYWORD_IF)) {
-          oldPos = pos;
-          pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false, " =><()");
-          if (!word.toString().equalsIgnoreCase(KEYWORD_NOT)) {
-            throw new CommandSQLParsingException(
-                "Syntax error after IF for class "
-                    + className
-                    + ". Expected NOT. Use "
-                    + getSyntax(),
-                parserText,
-                oldPos);
+            final var clusterIdsAsStrings = word.toString().split(",");
+            if (clusterIdsAsStrings.length > 0) {
+              clusterIds = new int[clusterIdsAsStrings.length];
+              for (var i = 0; i < clusterIdsAsStrings.length; ++i) {
+                if (Character.isDigit(clusterIdsAsStrings[i].charAt(0)))
+                // GET CLUSTER ID FROM NAME
+                {
+                  clusterIds[i] = Integer.parseInt(clusterIdsAsStrings[i]);
+                } else
+                // GET CLUSTER ID
+                {
+                  clusterIds[i] = session.getClusterIdByName(clusterIdsAsStrings[i]);
+                }
+
+                if (clusterIds[i] == -1) {
+                  throw new CommandSQLParsingException(session,
+                      "Cluster with id " + clusterIds[i] + " does not exists", parserText, oldPos);
+                }
+
+                try {
+                  var clusterName = session.getClusterNameById(clusterIds[i]);
+                  if (clusterName == null) {
+                    throw new ClusterDoesNotExistException(session.getDatabaseName(),
+                        "Cluster with id "
+                            + clusterIds[i]
+                            + " does not exist inside of storage "
+                            + session.getDatabaseName());
+                  }
+                } catch (Exception e) {
+                  throw BaseException.wrapException(
+                      new CommandSQLParsingException(session,
+                          "Cluster with id " + clusterIds[i] + " does not exists",
+                          parserText, oldPos),
+                      e, session);
+                }
+              }
+            }
           }
-          oldPos = pos;
-          pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false, " =><()");
-          if (!word.toString().equalsIgnoreCase(KEYWORD_EXISTS)) {
-            throw new CommandSQLParsingException(
-                "Syntax error after IF NOT for class "
-                    + className
-                    + ". Expected EXISTS. Use "
-                    + getSyntax(),
-                parserText,
-                oldPos);
+          case KEYWORD_CLUSTERS -> {
+            oldPos = pos;
+            pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false, " =><()");
+            if (pos == -1) {
+              throw new CommandSQLParsingException(session,
+                  "Syntax error after CLUSTERS for class "
+                      + className
+                      + ". Expected the number of clusters. Use "
+                      + getSyntax(),
+                  parserText, oldPos);
+            }
+
+            clusters = Integer.parseInt(word.toString());
           }
-          ifNotExists = true;
-        } else {
-          throw new CommandSQLParsingException("Invalid keyword: " + k);
+          case KEYWORD_ABSTRACT -> clusterIds = new int[]{-1};
+          case KEYWORD_IF -> {
+            oldPos = pos;
+            pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false, " =><()");
+            if (!word.toString().equalsIgnoreCase(KEYWORD_NOT)) {
+              throw new CommandSQLParsingException(session,
+                  "Syntax error after IF for class "
+                      + className
+                      + ". Expected NOT. Use "
+                      + getSyntax(),
+                  parserText, oldPos);
+            }
+            oldPos = pos;
+            pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false, " =><()");
+            if (!word.toString().equalsIgnoreCase(KEYWORD_EXISTS)) {
+              throw new CommandSQLParsingException(session,
+                  "Syntax error after IF NOT for class "
+                      + className
+                      + ". Expected EXISTS. Use "
+                      + getSyntax(),
+                  parserText, oldPos);
+            }
+            ifNotExists = true;
+          }
+          default -> throw new CommandSQLParsingException(session.getDatabaseName(),
+              "Invalid keyword: " + k);
         }
 
         oldPos = pos;
       }
 
       if (clusterIds == null) {
-        final var clusterId = database.getClusterIdByName(className);
+        final var clusterId = session.getClusterIdByName(className);
         if (clusterId > -1) {
           clusterIds = new int[]{clusterId};
         }
@@ -266,49 +262,31 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
     return this;
   }
 
-  @Override
-  public long getDistributedTimeout() {
-    return getDatabase()
-        .getConfiguration()
-        .getValueAsLong(GlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
-  }
-
-  @Override
-  public boolean isDistributedExecutingOnLocalNodeFirst() {
-    return false;
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.ALL;
-  }
-
   /**
    * Execute the CREATE CLASS.
    */
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (className == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final var database = getDatabase();
-
-    var alreadyExists = database.getMetadata().getSchema().existsClass(className);
+    var alreadyExists = session.getMetadata().getSchema().existsClass(className);
     if (!alreadyExists || !ifNotExists) {
       if (clusters != null) {
-        database
+        session
             .getMetadata()
             .getSchema()
             .createClass(className, clusters, superClasses.toArray(new SchemaClass[0]));
       } else {
-        database
+        session
             .getMetadata()
             .getSchema()
             .createClass(className, clusterIds, superClasses.toArray(new SchemaClass[0]));
       }
     }
-    return database.getMetadata().getSchema().getClasses(database).size();
+
+    return session.getMetadata().getSchema().getClasses().size();
   }
 
   @Override
@@ -317,13 +295,8 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
         + " [CLUSTER <clusterId>*] [CLUSTERS <total-cluster-number>] [ABSTRACT]";
   }
 
-  @Override
   public String getUndoCommand() {
     return "drop class " + className;
   }
 
-  @Override
-  public boolean involveSchema() {
-    return true;
-  }
 }

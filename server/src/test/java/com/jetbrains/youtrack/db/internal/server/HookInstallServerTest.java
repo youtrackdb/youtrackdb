@@ -1,5 +1,6 @@
 package com.jetbrains.youtrack.db.internal.server;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.YourTracks;
 import com.jetbrains.youtrack.db.internal.client.remote.ServerAdmin;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
@@ -22,12 +23,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class HookInstallServerTest {
-
   private static final String SERVER_DIRECTORY = "./target/dbfactory";
 
   public static class MyHook extends DocumentHookAbstract {
 
-    public MyHook() {
+    public MyHook(DatabaseSession session) {
+      super(session);
     }
 
     @Override

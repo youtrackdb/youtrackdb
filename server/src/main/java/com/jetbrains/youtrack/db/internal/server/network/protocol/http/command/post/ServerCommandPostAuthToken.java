@@ -7,14 +7,13 @@ import com.jetbrains.youtrack.db.internal.common.concur.lock.LockException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.server.OTokenHandler;
+import com.jetbrains.youtrack.db.internal.server.TokenHandler;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAbstract;
 import java.io.IOException;
 import java.util.Locale;
-import java.util.Map;
 
 /**
  *
@@ -23,7 +22,7 @@ public class ServerCommandPostAuthToken extends ServerCommandAbstract {
 
   private static final String[] NAMES = {"POST|token/*"};
   private static final String RESPONSE_FORMAT = "indent:-1,attribSameRow";
-  private volatile OTokenHandler tokenHandler;
+  private volatile TokenHandler tokenHandler;
 
   @Override
   public String[] getNames() {
@@ -71,7 +70,7 @@ public class ServerCommandPostAuthToken extends ServerCommandAbstract {
         // Generate and return a JWT access token
 
         SecurityUser user = null;
-        try (var db = server.openDatabase(iRequest.getDatabaseName(),
+        try (var db = server.openSession(iRequest.getDatabaseName(),
             username,
             password)) {
           user = db.geCurrentUser();
@@ -112,7 +111,7 @@ public class ServerCommandPostAuthToken extends ServerCommandAbstract {
     DatabaseSessionInternal db = null;
     String userRid = null;
     try {
-      db = server.openDatabase(iDatabaseName, username, password);
+      db = server.openSession(iDatabaseName, username, password);
 
       userRid = (db.geCurrentUser() == null ? "<server user>"
           : db.geCurrentUser().getIdentity().toString());

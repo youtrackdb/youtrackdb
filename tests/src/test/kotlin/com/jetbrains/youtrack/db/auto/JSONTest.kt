@@ -41,32 +41,32 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
         super.beforeClass()
         addBarackObamaAndFollowers()
 
-        db.createClass("Device")
-        db.createClass("Track")
-        db.createClass("NestedLinkCreation")
-        db.createClass("NestedLinkCreationFieldTypes")
-        db.createClass("InnerDocCreation")
-        db.createClass("InnerDocCreationFieldTypes")
+        session.createClass("Device")
+        session.createClass("Track")
+        session.createClass("NestedLinkCreation")
+        session.createClass("NestedLinkCreationFieldTypes")
+        session.createClass("InnerDocCreation")
+        session.createClass("InnerDocCreationFieldTypes")
     }
 
     @Test
     fun testAlmostLink() {
-        db.executeInTx {
+        session.executeInTx {
             val doc =
-                (db.newEntity() as EntityImpl)
+                (session.newEntity() as EntityImpl)
             doc.updateFromJSON("{\"title\": \"#330: Dollar Coins Are Done\"}")
         }
     }
 
     @Test
     fun testNullList() {
-        db.executeInTx {
+        session.executeInTx {
             val documentSource =
-                (db.newEntity() as EntityImpl)
+                (session.newEntity() as EntityImpl)
             documentSource.updateFromJSON("{\"list\" : [\"string\", null]}")
 
             val documentTarget =
-                (db.newEntity() as EntityImpl)
+                (session.newEntity() as EntityImpl)
             RecordInternal.unsetDirty(documentTarget)
             documentTarget.fromStream(documentSource.toStream())
 
@@ -79,13 +79,13 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testBooleanList() {
-        db.executeInTx {
+        session.executeInTx {
             val documentSource =
-                (db.newEntity() as EntityImpl)
+                (session.newEntity() as EntityImpl)
             documentSource.updateFromJSON("{\"list\" : [true, false]}")
 
             val documentTarget =
-                (db.newEntity() as EntityImpl)
+                (session.newEntity() as EntityImpl)
             RecordInternal.unsetDirty(documentTarget)
             documentTarget.fromStream(documentSource.toStream())
 
@@ -98,13 +98,13 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testNumericIntegerList() {
-        db.executeInTx {
+        session.executeInTx {
             val documentSource =
-                (db.newEntity() as EntityImpl)
+                (session.newEntity() as EntityImpl)
             documentSource.updateFromJSON("{\"list\" : [17,42]}")
 
             val documentTarget =
-                (db.newEntity() as EntityImpl)
+                (session.newEntity() as EntityImpl)
             RecordInternal.unsetDirty(documentTarget)
             documentTarget.fromStream(documentSource.toStream())
 
@@ -117,13 +117,13 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testNumericLongList() {
-        db.executeInTx {
+        session.executeInTx {
             val documentSource =
-                (db.newEntity() as EntityImpl)
+                (session.newEntity() as EntityImpl)
             documentSource.updateFromJSON("{\"list\" : [100000000000,100000000001]}")
 
             val documentTarget =
-                (db.newEntity() as EntityImpl)
+                (session.newEntity() as EntityImpl)
             RecordInternal.unsetDirty(documentTarget)
             documentTarget.fromStream(documentSource.toStream())
 
@@ -136,13 +136,13 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testNumericDoubleList() {
-        db.executeInTx {
+        session.executeInTx {
             val documentSource =
-                (db.newEntity() as EntityImpl)
+                (session.newEntity() as EntityImpl)
             documentSource.updateFromJSON("{\"list\" : [17.3,42.7]}")
 
             val documentTarget =
-                (db.newEntity() as EntityImpl)
+                (session.newEntity() as EntityImpl)
             RecordInternal.unsetDirty(documentTarget)
             documentTarget.fromStream(documentSource.toStream())
 
@@ -155,8 +155,8 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testNullity() {
-        val rid = db.computeInTx {
-            val entity = db.newEntity()
+        val rid = session.computeInTx {
+            val entity = session.newEntity()
             entity.updateFromJSON(
                 "{\"gender\":{\"name\":\"Male\"},\"firstName\":\"Jack\",\"lastName\":\"Williams\"," +
                         "\"phone\":\"561-401-3348\",\"email\":\"0586548571@example.com\",\"address\":{\"street1\":\"Smith" +
@@ -192,28 +192,28 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testNanNoTypes() {
-        val rid1 = db.computeInTx {
-            val entity = db.newEntity()
+        val rid1 = session.computeInTx {
+            val entity = session.newEntity()
             entity.setProperty("nan", Double.NaN)
             entity.setProperty("p_infinity", Double.POSITIVE_INFINITY)
             entity.setProperty("n_infinity", Double.NEGATIVE_INFINITY)
             entity.identity
         }
 
-        val (map1, json1) = db.computeInTx {
-            val entity = db.loadEntity(rid1)
+        val (map1, json1) = session.computeInTx {
+            val entity = session.loadEntity(rid1)
             Pair(entity.toMap(), entity.toJSON())
         }
 
-        db.executeInTx {
-            val entity = db.entityFromJson(json1)
+        session.executeInTx {
+            val entity = session.entityFromJson(json1)
             Assert.assertTrue(entity.isDirty)
             Assert.assertEquals(entity.toMap(), map1)
         }
 
 
-        val rid2 = db.computeInTx {
-            val entity = db.newEntity()
+        val rid2 = session.computeInTx {
+            val entity = session.newEntity()
             entity.setProperty("nan", Float.NaN)
             entity.setProperty("p_infinity", Float.POSITIVE_INFINITY)
             entity.setProperty("n_infinity", Float.NEGATIVE_INFINITY)
@@ -221,13 +221,13 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
             entity.identity
         }
 
-        val (map2, json2) = db.computeInTx {
-            val entity = db.loadEntity(rid2)
+        val (map2, json2) = session.computeInTx {
+            val entity = session.loadEntity(rid2)
             Pair(entity.toMap(), entity.toJSON())
         }
 
-        db.executeInTx {
-            val entity = db.entityFromJson(json2)
+        session.executeInTx {
+            val entity = session.entityFromJson(json2)
             Assert.assertTrue(entity.isDirty)
             Assert.assertEquals(entity.toMap(), map2)
         }
@@ -235,15 +235,15 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testEmbeddedList() {
-        val rid = db.computeInTx {
-            val original = db.newEntity()
+        val rid = session.computeInTx {
+            val original = session.newEntity()
             val list = original.getOrCreateEmbeddedList<Entity>("embeddedList")
 
-            val entityOne = db.newEntity()
+            val entityOne = session.newEntity()
             entityOne.setProperty("name", "Luca")
             list.add(entityOne)
 
-            val entityTwo = db.newEntity()
+            val entityTwo = session.newEntity()
             entityTwo.setProperty("name", "Marcus")
             list.add(entityTwo)
             original.identity
@@ -254,19 +254,19 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testEmbeddedMap() {
-        val rid = db.computeInTx {
-            val original = db.newEntity()
+        val rid = session.computeInTx {
+            val original = session.newEntity()
             val map = original.getOrCreateEmbeddedMap<Entity>("embeddedMap")
 
-            val entityOne = db.newEntity()
+            val entityOne = session.newEntity()
             entityOne.setProperty("name", "Luca")
             map["Luca"] = entityOne
 
-            val entityTwo = db.newEntity()
+            val entityTwo = session.newEntity()
             entityTwo.setProperty("name", "Marcus")
             map["Marcus"] = entityTwo
 
-            val entityThree = db.newEntity()
+            val entityThree = session.newEntity()
             entityThree.setProperty("name", "Cesare")
             map["Cesare"] = entityThree
 
@@ -278,15 +278,15 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testListToJSON() {
-        val rid = db.computeInTx {
-            val original = db.newEntity()
+        val rid = session.computeInTx {
+            val original = session.newEntity()
             val list = original.getOrCreateEmbeddedList<Entity>("embeddedList")
 
-            val entityOne = db.newEntity()
+            val entityOne = session.newEntity()
             entityOne.setProperty("name", "Luca")
             list.add(entityOne)
 
-            val entityTwo = db.newEntity()
+            val entityTwo = session.newEntity()
             entityTwo.setProperty("name", "Marcus")
             list.add(entityTwo)
             original.identity
@@ -298,8 +298,8 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testEmptyEmbeddedMap() {
-        val rid = db.computeInTx {
-            val original = db.newEntity()
+        val rid = session.computeInTx {
+            val original = session.newEntity()
             original.getOrCreateEmbeddedMap<Entity>("embeddedMap")
             original.identity
         }
@@ -308,23 +308,23 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testMultiLevelTypes() {
-        val rid = db.computeInTx {
-            val newEntity = db.newEntity()
+        val rid = session.computeInTx {
+            val newEntity = session.newEntity()
             newEntity.setProperty("long", 100000000000L)
             newEntity.setProperty("date", Date())
             newEntity.setProperty("byte", 12.toByte())
 
-            val firstLevelEntity = db.newEntity()
+            val firstLevelEntity = session.newEntity()
             firstLevelEntity.setProperty("long", 200000000000L)
             firstLevelEntity.setProperty("date", Date())
             firstLevelEntity.setProperty("byte", 13.toByte())
 
-            val secondLevelEntity = db.newEntity()
+            val secondLevelEntity = session.newEntity()
             secondLevelEntity.setProperty("long", 300000000000L)
             secondLevelEntity.setProperty("date", Date())
             secondLevelEntity.setProperty("byte", 14.toByte())
 
-            val thirdLevelEntity = db.newEntity()
+            val thirdLevelEntity = session.newEntity()
             thirdLevelEntity.setProperty("long", 400000000000L)
             thirdLevelEntity.setProperty("date", Date())
             thirdLevelEntity.setProperty("byte", 15.toByte())
@@ -341,8 +341,8 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testNestedEmbeddedMap() {
-        val rid = db.computeInTx {
-            val entity = db.newEntity()
+        val rid = session.computeInTx {
+            val entity = session.newEntity()
 
             val map1 = mutableMapOf<String, Map<String, Any>>()
             entity.getOrCreateEmbeddedMap<Any>("map1")["map1"] = map1
@@ -362,7 +362,7 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
     @Test
     fun testFetchedJson() {
         val resultSet =
-            db
+            session
                 .command("select * from Profile where name = 'Barack' and surname = 'Obama'")
                 .toList()
 
@@ -374,9 +374,9 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testSpecialChar() {
-        val rid = db.computeInTx {
+        val rid = session.computeInTx {
             val entity =
-                db.entityFromJson("{\"name\":{\"%Field\":[\"value1\",\"value2\"],\"%Field2\":{},\"%Field3\":\"value3\"}}")
+                session.entityFromJson("{\"name\":{\"%Field\":[\"value1\",\"value2\"],\"%Field2\":{},\"%Field3\":\"value3\"}}")
             entity.identity
         }
 
@@ -396,8 +396,8 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testArrayOfArray() {
-        val rid = db.computeInTx {
-            val entity = db.entityFromJson(
+        val rid = session.computeInTx {
+            val entity = session.entityFromJson(
                 "{\"@type\": \"d\",\"@class\": \"Track\",\"type\": \"LineString\",\"coordinates\": [ [ 100,"
                         + "  0 ],  [ 101, 1 ] ]}"
             )
@@ -419,8 +419,8 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testLongTypes() {
-        val rid = db.computeInTx {
-            val entity = db.entityFromJson(
+        val rid = session.computeInTx {
+            val entity = session.entityFromJson(
                 "{\"@type\": \"d\",\"@class\": \"Track\",\"type\": \"LineString\",\"coordinates\": [ ["
                         + " 32874387347347,  0 ],  [ -23736753287327, 1 ] ]}"
             )
@@ -442,9 +442,9 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testSpecialChars() {
-        val rid = db.computeInTx {
+        val rid = session.computeInTx {
             val entity =
-                db.entityFromJson("{\"Field\":{\"Key1\":[\"Value1\",\"Value2\"],\"Key2\":{\"%%dummy%%\":null},\"Key3\":\"Value3\"}}")
+                session.entityFromJson("{\"Field\":{\"Key1\":[\"Value1\",\"Value2\"],\"Key2\":{\"%%dummy%%\":null},\"Key3\":\"Value3\"}}")
             entity.identity
 
         }
@@ -467,19 +467,19 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testSameNameCollectionsAndMap() {
-        val rid1 = db.computeInTx {
-            val entity = db.newEntity()
+        val rid1 = session.computeInTx {
+            val entity = session.newEntity()
             entity.setProperty("string", "STRING_VALUE")
             for (i in 0..0) {
-                val entity1 = db.newEntity()
+                val entity1 = session.newEntity()
                 entity.setProperty("number", i)
                 entity.getOrCreateLinkSet("out").add(entity1)
 
                 for (j in 0..0) {
-                    val entity2 = db.newEntity()
+                    val entity2 = session.newEntity()
                     entity2.setProperty("blabla", j)
                     entity1.getOrCreateLinkMap("out")[j.toString()] = entity2
-                    val doc3 = (db.newEntity() as EntityImpl)
+                    val doc3 = (session.newEntity() as EntityImpl)
                     doc3.field("blubli", 0.toString())
                     entity2.setProperty("out", doc3)
                 }
@@ -490,20 +490,20 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
         checkJsonSerialization(rid1)
 
-        val rid2 = db.computeInTx {
-            val entity = db.newEntity()
+        val rid2 = session.computeInTx {
+            val entity = session.newEntity()
             entity.setProperty("string", "STRING_VALUE")
             for (i in 0..9) {
-                val entity1 = db.newEntity()
+                val entity1 = session.newEntity()
                 entity.setProperty("number", i)
 
                 entity1.getOrCreateLinkList("out").add(entity)
                 for (j in 0..4) {
-                    val entity2 = db.newEntity()
+                    val entity2 = session.newEntity()
                     entity2.setProperty("blabla", j)
 
                     entity1.getOrCreateLinkList("out").add(entity2)
-                    val entity3 = db.newEntity()
+                    val entity3 = session.newEntity()
 
                     entity3.setProperty("blubli", (i + j).toString())
                     entity2.setProperty("out", entity3)
@@ -518,16 +518,16 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testSameNameCollectionsAndMap2() {
-        val rid = db.computeInTx {
-            val entity = db.newEntity()
+        val rid = session.computeInTx {
+            val entity = session.newEntity()
             entity.setProperty("string", "STRING_VALUE")
 
             for (i in 0..1) {
-                val entity1 = db.newEntity()
+                val entity1 = session.newEntity()
                 entity.getOrCreateLinkList("theList").add(entity1)
 
                 for (j in 0..4) {
-                    val entity2 = db.newEntity()
+                    val entity2 = session.newEntity()
                     entity2.setProperty("blabla", j)
                     entity1.getOrCreateLinkMap("theMap")[j.toString()] = entity2
                 }
@@ -543,14 +543,14 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testSameNameCollectionsAndMap3() {
-        val rid = db.computeInTx {
-            val entity = db.newEntity()
+        val rid = session.computeInTx {
+            val entity = session.newEntity()
             entity.setProperty("string", "STRING_VALUE")
             for (i in 0..1) {
                 val docMap = mutableMapOf<String, Entity>()
 
                 for (j in 0..4) {
-                    val doc1 = (db.newEntity() as EntityImpl)
+                    val doc1 = (session.newEntity() as EntityImpl)
                     doc1.field("blabla", j)
                     docMap[j.toString()] = doc1
                 }
@@ -565,8 +565,8 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testNestedJsonCollection() {
-        db.executeInTx {
-            db
+        session.executeInTx {
+            session
                 .command(
                     "insert into device (resource_id, domainset) VALUES (0, [ { 'domain' : 'abc' }, {"
                             + " 'domain' : 'pqr' } ])"
@@ -574,34 +574,34 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
                 .close()
         }
 
-        var result = db.query("select from device where domainset.domain contains 'abc'")
+        var result = session.query("select from device where domainset.domain contains 'abc'")
         Assert.assertTrue(result.stream().findAny().isPresent)
 
-        result = db.query("select from device where domainset[domain = 'abc'] is not null")
+        result = session.query("select from device where domainset[domain = 'abc'] is not null")
         Assert.assertTrue(result.stream().findAny().isPresent)
 
-        result = db.query("select from device where domainset.domain contains 'pqr'")
+        result = session.query("select from device where domainset.domain contains 'pqr'")
         Assert.assertTrue(result.stream().findAny().isPresent)
     }
 
     @Test
     fun testNestedEmbeddedJson() {
-        db.executeInTx {
-            db
+        session.executeInTx {
+            session
                 .command("insert into device (resource_id, domainset) VALUES (1, { 'domain' : 'eee' })")
                 .close()
         }
 
-        db.executeInTx {
-            val result = db.query("select from device where domainset.domain = 'eee'")
+        session.executeInTx {
+            val result = session.query("select from device where domainset.domain = 'eee'")
             Assert.assertTrue(result.stream().findAny().isPresent)
         }
     }
 
     @Test
     fun testNestedMultiLevelEmbeddedJson() {
-        db.executeInTx {
-            db
+        session.executeInTx {
+            session
                 .command(
                     "insert into device (domainset) values ({'domain' : { 'lvlone' : { 'value' : 'five' } }"
                             + " } )"
@@ -609,9 +609,9 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
                 .close()
         }
 
-        db.executeInTx {
+        session.executeInTx {
             val result =
-                db.query("select from device where domainset.domain.lvlone.value = 'five'")
+                session.query("select from device where domainset.domain.lvlone.value = 'five'")
 
             Assert.assertTrue(result.stream().findAny().isPresent)
         }
@@ -619,8 +619,8 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testSpaces() {
-        val rid = db.computeInTx {
-            val entity = db.newEntity()
+        val rid = session.computeInTx {
+            val entity = session.newEntity()
             val test =
                 ("{"
                         + "\"embedded\": {"
@@ -633,20 +633,20 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
             entity.identity
         }
 
-        db.executeInTx {
-            val entity = db.loadEntity(rid)
+        session.executeInTx {
+            val entity = session.loadEntity(rid)
             Assert.assertTrue(entity.toJSON("fetchPlan:*:0,rid").contains("this is a test"))
         }
     }
 
     @Test
     fun testEscaping() {
-        val rid = db.computeInTx {
+        val rid = session.computeInTx {
             val s =
                 ("{\"name\": \"test\", \"nested\": { \"key\": \"value\", \"anotherKey\": 123 }, \"deep\":"
                         + " {\"deeper\": { \"k\": \"v\",\"quotes\": \"\\\"\\\",\\\"oops\\\":\\\"123\\\"\","
                         + " \"likeJson\": \"[1,2,3]\",\"spaces\": \"value with spaces\"}}}")
-            val entity = db.entityFromJson(s)
+            val entity = session.entityFromJson(s)
             Assert.assertEquals(
                 entity.getProperty<Map<String, Map<String, String>>>("deep")!!["deeper"]!!["quotes"],
                 "\"\",\"oops\":\"123\""
@@ -654,15 +654,15 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
             entity.identity
         }
 
-        db.executeInTx {
-            val res = db.loadEntity(rid).toJSON()
+        session.executeInTx {
+            val res = session.loadEntity(rid).toJSON()
             Assert.assertTrue(res.contains("\"quotes\":\"\\\"\\\",\\\"oops\\\":\\\"123\\\"\""))
         }
     }
 
     @Test
     fun testEscapingDoubleQuotes() {
-        val rid = db.computeInTx {
+        val rid = session.computeInTx {
             val sb =
                 (""" {
                         "foo":{
@@ -679,11 +679,11 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
                                 "three": "a"
                             }
                     } """)
-            db.entityFromJson(sb).identity
+            session.entityFromJson(sb).identity
         }
 
-        db.executeInTx {
-            val entity = db.loadEntity(rid)
+        session.executeInTx {
+            val entity = session.loadEntity(rid)
             Assert.assertEquals(entity.getProperty<Map<String, Any>>("foo")!!["three"], "a")
 
             val c =
@@ -698,7 +698,7 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testEscapingDoubleQuotes2() {
-        val rid = db.computeInTx {
+        val rid = session.computeInTx {
             val sb =
                 (""" {
                         "foo":{
@@ -716,11 +716,11 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
                                 "three": "a"
                         }
                     } """)
-            db.entityFromJson(sb).identity
+            session.entityFromJson(sb).identity
         }
 
-        db.executeInTx {
-            val entity = db.loadEntity(rid)
+        session.executeInTx {
+            val entity = session.loadEntity(rid)
             Assert.assertEquals(entity.getProperty<Map<String, Any>>("foo")!!["three"], "a")
 
             val c =
@@ -735,7 +735,7 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testEscapingDoubleQuotes3() {
-        val rid = db.computeInTx {
+        val rid = session.computeInTx {
             val sb =
                 (""" {
                         "foo":{
@@ -752,11 +752,11 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
                                 }
                             }
                      } """)
-            db.entityFromJson(sb).identity
+            session.entityFromJson(sb).identity
         }
 
-        db.executeInTx {
-            val entity = db.loadEntity(rid)
+        session.executeInTx {
+            val entity = session.loadEntity(rid)
             val c =
                 entity.getProperty<Map<String, Map<String, List<Map<String, Map<String, String>>>>>>(
                     "foo"
@@ -769,9 +769,9 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testEmbeddedQuotes() {
-        db.executeInTx {
+        session.executeInTx {
             val entity =
-                db.entityFromJson("{\"mainsnak\":{\"datavalue\":{\"value\":\"Sub\\\\urban\"}}}")
+                session.entityFromJson("{\"mainsnak\":{\"datavalue\":{\"value\":\"Sub\\\\urban\"}}}")
             Assert.assertEquals(
                 entity.getProperty<Map<String, Map<String, String>>>("mainsnak")!!["datavalue"]!!["value"],
                 "Sub\\urban"
@@ -781,8 +781,8 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testEmbeddedQuotes2() {
-        db.executeInTx {
-            val entity = db.entityFromJson("{\"datavalue\":{\"value\":\"Sub\\\\urban\"}}")
+        session.executeInTx {
+            val entity = session.entityFromJson("{\"datavalue\":{\"value\":\"Sub\\\\urban\"}}")
             Assert.assertEquals(
                 entity.getProperty<Map<String, Map<String, String>>>("datavalue")!!["value"],
                 "Sub\\urban"
@@ -792,17 +792,17 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testEmbeddedQuotes2a() {
-        db.executeInTx {
-            val entity = db.entityFromJson("{\"datavalue\":\"Sub\\\\urban\"}")
+        session.executeInTx {
+            val entity = session.entityFromJson("{\"datavalue\":\"Sub\\\\urban\"}")
             Assert.assertEquals(entity.getProperty("datavalue"), "Sub\\urban")
         }
     }
 
     @Test
     fun testEmbeddedQuotes3() {
-        db.executeInTx {
+        session.executeInTx {
             val entity =
-                db.entityFromJson("{\"mainsnak\":{\"datavalue\":{\"value\":\"Suburban\\\\\\\"\"}}}")
+                session.entityFromJson("{\"mainsnak\":{\"datavalue\":{\"value\":\"Suburban\\\\\\\"\"}}}")
             Assert.assertEquals(
                 entity.getProperty<Map<String, Map<String, String>>>("mainsnak")!!["datavalue"]!!["value"],
                 "Suburban\\\""
@@ -812,16 +812,16 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testEmbeddedQuotes4() {
-        db.executeInTx {
-            val entity = db.entityFromJson("{\"datavalue\":\"Suburban\\\\\\\"\"}")
+        session.executeInTx {
+            val entity = session.entityFromJson("{\"datavalue\":\"Suburban\\\\\\\"\"}")
             Assert.assertEquals(entity.getProperty("datavalue"), "Suburban\\\"")
         }
     }
 
     @Test
     fun testEmbeddedQuotes5() {
-        db.executeInTx {
-            val entity = db.newEntity()
+        session.executeInTx {
+            val entity = session.newEntity()
             entity.updateFromJSON("{\"mainsnak\":{\"datavalue\":{\"value\":\"Suburban\\\\\"}}}")
             Assert.assertEquals(
                 entity.getProperty<Map<String, Map<String, String>>>("mainsnak")!!["datavalue"]!!["value"],
@@ -832,8 +832,8 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testEmbeddedQuotes6() {
-        db.executeInTx {
-            val entity = db.newEntity()
+        session.executeInTx {
+            val entity = session.newEntity()
             entity.updateFromJSON("{\"datavalue\":{\"value\":\"Suburban\\\\\"}}")
             Assert.assertEquals(
                 entity.getProperty<Map<String, Map<String, String>>>("datavalue")!!["value"],
@@ -844,8 +844,8 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testEmbeddedQuotes7() {
-        db.executeInTx {
-            val entity = db.entityFromJson("{\"datavalue\":\"Suburban\\\\\"}")
+        session.executeInTx {
+            val entity = session.entityFromJson("{\"datavalue\":\"Suburban\\\\\"}")
             Assert.assertEquals(entity.getProperty("datavalue"), "Suburban\\")
         }
     }
@@ -853,8 +853,8 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testEmpty() {
-        db.executeInTx {
-            val entity = db.entityFromJson("{}")
+        session.executeInTx {
+            val entity = session.entityFromJson("{}")
             Assert.assertTrue(entity.propertyNames.isEmpty())
         }
     }
@@ -862,8 +862,8 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
     @Test
     fun testInvalidJson() {
         try {
-            db.executeInTx {
-                db.entityFromJson("{")
+            session.executeInTx {
+                session.entityFromJson("{")
             }
             Assert.fail()
         } catch (ignored: SerializationException) {
@@ -871,31 +871,31 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
 
         try {
-            db.executeInTx {
-                db.entityFromJson("{\"foo\":{}")
+            session.executeInTx {
+                session.entityFromJson("{\"foo\":{}")
             }
             Assert.fail()
         } catch (ignored: SerializationException) {
         }
 
         try {
-            db.executeInTx {
-                db.entityFromJson("{{}")
+            session.executeInTx {
+                session.entityFromJson("{{}")
             }
         } catch (ignored: SerializationException) {
         }
 
         try {
-            db.executeInTx {
-                db.entityFromJson("{}}")
+            session.executeInTx {
+                session.entityFromJson("{}}")
             }
             Assert.fail()
         } catch (ignored: SerializationException) {
         }
 
         try {
-            db.executeInTx {
-                db.entityFromJson("}")
+            session.executeInTx {
+                session.entityFromJson("}")
             }
             Assert.fail()
         } catch (ignored: SerializationException) {
@@ -906,17 +906,17 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
     fun testDates() {
         val now = Date(1350518475000L)
 
-        val rid = db.computeInTx {
-            val entity = db.newEntity()
+        val rid = session.computeInTx {
+            val entity = session.newEntity()
             entity.setProperty("date", now)
             entity.identity
         }
 
-        db.executeInTx {
-            val entity = db.loadEntity(rid)
+        session.executeInTx {
+            val entity = session.loadEntity(rid)
             val json = entity.toJSON(FORMAT_WITHOUT_RID)
 
-            val unmarshalled = db.entityFromJson(json)
+            val unmarshalled = session.entityFromJson(json)
             Assert.assertEquals(unmarshalled.getProperty("date"), now)
         }
     }
@@ -924,8 +924,8 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
     @Test
     fun shouldDeserializeFieldWithCurlyBraces() {
         val json = "{\"a\":\"{dd}\",\"bl\":{\"b\":\"c\",\"a\":\"d\"}}"
-        db.executeInTx {
-            val entity = db.entityFromJson(json)
+        session.executeInTx {
+            val entity = session.entityFromJson(json)
             Assert.assertEquals(entity.getProperty("a"), "{dd}")
             Assert.assertTrue(entity.getProperty<Any>("bl") is Map<*, *>)
         }
@@ -933,8 +933,8 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testList() {
-        db.executeInTx {
-            val entity = db.entityFromJson("{\"list\" : [\"string\", 42]}")
+        session.executeInTx {
+            val entity = session.entityFromJson("{\"list\" : [\"string\", 42]}")
             val list = entity.getProperty<List<Any>>("list")
 
             Assert.assertEquals(list!![0], "string")
@@ -944,8 +944,8 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testEmbeddedRIDBagDeserialisationWhenFieldTypeIsProvided() {
-        db.executeInTx {
-            val entity = db.entityFromJson(
+        session.executeInTx {
+            val entity = session.entityFromJson(
                 "{\"@fieldTypes\":{\"in_EHasGoodStudents\": \"g\"}, \"FirstName\":\"Student A"
                         + " 0\",\"in_EHasGoodStudents\":[\"#57:0\"]}"
             )
@@ -960,15 +960,15 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testNestedLinkCreation() {
-        val jaimeRid = db.computeInTx {
-            val jaimeEntity = db.newEntity("NestedLinkCreation")
+        val jaimeRid = session.computeInTx {
+            val jaimeEntity = session.newEntity("NestedLinkCreation")
             jaimeEntity.setProperty("name", "jaime")
             jaimeEntity.identity
         }
 
-        val cerseiRid = db.computeInTx {
-            val jaimeEntity = db.loadEntity(jaimeRid)
-            val cerseiEntity = db.newEntity("NestedLinkCreation")
+        val cerseiRid = session.computeInTx {
+            val jaimeEntity = session.loadEntity(jaimeRid)
+            val cerseiEntity = session.newEntity("NestedLinkCreation")
 
             cerseiEntity.updateFromJSON(
                 "{\"name\":\"cersei\",\"valonqar\":" + jaimeEntity.toJSON() + "}"
@@ -977,10 +977,10 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
         }
 
 
-        val tyrionRid = db.computeInTx {
+        val tyrionRid = session.computeInTx {
             // The link between jamie and tyrion is not saved properly
-            val jaimeEntity = db.loadEntity(jaimeRid)
-            val tyrionEntity = db.newEntity("NestedLinkCreation")
+            val jaimeEntity = session.loadEntity(jaimeRid)
+            val tyrionEntity = session.newEntity("NestedLinkCreation")
 
             tyrionEntity.updateFromJSON(
                 ("{\"name\":\"tyrion\",\"emergency_contact\":{\"@type\":\"d\","
@@ -1027,15 +1027,15 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testNestedLinkCreationFieldTypes() {
-        val jaimeRid = db.computeInTx {
-            val jaimeDoc = (db.newEntity("NestedLinkCreationFieldTypes") as EntityImpl)
+        val jaimeRid = session.computeInTx {
+            val jaimeDoc = (session.newEntity("NestedLinkCreationFieldTypes") as EntityImpl)
             jaimeDoc.field("name", "jaime")
             jaimeDoc.identity
         }
 
-        val cerseiRid = db.computeInTx {
+        val cerseiRid = session.computeInTx {
             // The link between jaime and cersei is saved properly - the #2263 test case
-            val cerseiDoc = db.newEntity("NestedLinkCreationFieldTypes")
+            val cerseiDoc = session.newEntity("NestedLinkCreationFieldTypes")
             cerseiDoc.updateFromJSON(
                 ("{\"@type\":\"d\"," +
                         "\"@fieldTypes\":{\"valonqar\" : \"x\"},\"name\":\"cersei\",\"valonqar\":\""
@@ -1045,9 +1045,9 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
             cerseiDoc.identity
         }
 
-        val tyrionRid = db.computeInTx {
+        val tyrionRid = session.computeInTx {
             // The link between jamie and tyrion is not saved properly
-            val tyrionDoc = (db.newEntity("NestedLinkCreationFieldTypes") as EntityImpl)
+            val tyrionDoc = (session.newEntity("NestedLinkCreationFieldTypes") as EntityImpl)
             tyrionDoc.updateFromJSON(
                 "{\"@type\":\"d\",\"name\":\"tyrion\",\"emergency_contact\":{\"@type\":\"d\","
                         + " \"@fieldTypes\":{\"contact\":\"x\"},\"relationship\":\"brother\",\"contact\":\""
@@ -1091,16 +1091,16 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testInnerDocCreation() {
-        val adamRid = db.computeInTx {
-            val adamDoc = (db.newEntity("InnerDocCreation") as EntityImpl)
+        val adamRid = session.computeInTx {
+            val adamDoc = (session.newEntity("InnerDocCreation") as EntityImpl)
             adamDoc.updateFromJSON("{\"name\":\"adam\"}")
 
             adamDoc.identity
         }
 
-        val eveRid = db.computeInTx {
-            val adamDoc = db.loadEntity(adamRid)
-            val eveDoc = (db.newEntity("InnerDocCreation") as EntityImpl)
+        val eveRid = session.computeInTx {
+            val adamDoc = session.loadEntity(adamRid)
+            val eveDoc = (session.newEntity("InnerDocCreation") as EntityImpl)
             eveDoc.updateFromJSON(
                 "{\"@type\":\"d\",\"name\":\"eve\",\"friends\":[" + adamDoc.toJSON() + "]}"
             )
@@ -1128,11 +1128,11 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testInnerDocCreationFieldTypes() {
-        val (adamRid, eveRid) = db.computeInTx {
-            val adamDoc = (db.newEntity("InnerDocCreationFieldTypes") as EntityImpl)
+        val (adamRid, eveRid) = session.computeInTx {
+            val adamDoc = (session.newEntity("InnerDocCreationFieldTypes") as EntityImpl)
             adamDoc.updateFromJSON("{\"name\":\"adam\"}")
 
-            val eveDoc = (db.newEntity("InnerDocCreationFieldTypes") as EntityImpl)
+            val eveDoc = (session.newEntity("InnerDocCreationFieldTypes") as EntityImpl)
             eveDoc.updateFromJSON(
                 ("{\"@type\":\"d\", \"@fieldTypes\" : { \"friends\":\"z\"}, \"name\":\"eve\",\"friends\":[\""
                         + adamDoc.identity
@@ -1165,8 +1165,8 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
     @Test
     fun testInvalidLink() {
         try {
-            db.executeInTx {
-                val nullRefDoc = (db.newEntity() as EntityImpl)
+            session.executeInTx {
+                val nullRefDoc = (session.newEntity() as EntityImpl)
                 nullRefDoc.updateFromJSON("{\"name\":\"Luca\", \"ref\":\"#-1:-1\"}")
             }
             Assert.fail()
@@ -1178,8 +1178,8 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testOtherJson() {
-        val rid = db.computeInTx {
-            val entity = db.newEntity()
+        val rid = session.computeInTx {
+            val entity = session.newEntity()
             entity.updateFromJSON(
                 ("{\"Salary\":1500.0,\"Type\":\"Person\",\"Address\":[{\"Zip\":\"JX2"
                         + " MSX\",\"Type\":\"Home\",\"Street1\":\"13 Marge"
@@ -1225,8 +1225,8 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
     @Test
     fun testScientificNotation() {
-        val rid = db.computeInTx {
-            val doc = (db.newEntity() as EntityImpl)
+        val rid = session.computeInTx {
+            val doc = (session.newEntity() as EntityImpl)
             doc.updateFromJSON("{\"number1\": -9.2741500e-31, \"number2\": 741800E+290}")
             doc.identity
         }
@@ -1242,12 +1242,12 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
     }
 
     private fun checkJsonSerialization(rid: RID) {
-        db.begin()
+        session.begin()
         try {
-            val original = db.loadEntity(rid)
+            val original = session.loadEntity(rid)
             val json = original.toJSON(FORMAT_WITHOUT_RID)
 
-            val newEntity = db.entityFromJson(json)
+            val newEntity = session.entityFromJson(json)
 
             val originalMap = original.toMap()
             val loadedMap = newEntity.toMap()
@@ -1257,13 +1257,13 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
 
             Assert.assertEquals(originalMap, loadedMap)
         } finally {
-            db.rollback()
+            session.rollback()
         }
     }
 
     private fun checkJsonSerialization(rid: RID, expectedMap: Map<String, Any>) {
-        db.executeInTx {
-            val original = db.loadEntity(rid)
+        session.executeInTx {
+            val original = session.loadEntity(rid)
             val originalMap = original.toMap()
             Assert.assertEquals(originalMap, expectedMap)
         }

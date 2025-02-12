@@ -5,8 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.lucene.test.BaseLuceneTest;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Before;
@@ -22,12 +20,12 @@ public class LuceneSearchOnIndexFunctionTest extends BaseLuceneTest {
     var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
 
     //    db.execute("sql", getScriptFromStream(stream)).close();
-    db.execute("sql", getScriptFromStream(stream));
+    session.execute("sql", getScriptFromStream(stream));
 
-    db.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE ");
-    db.command("create index Song.author on Song (author) FULLTEXT ENGINE LUCENE ");
-    db.command("create index Author.name on Author (name) FULLTEXT ENGINE LUCENE ");
-    db.command(
+    session.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE ");
+    session.command("create index Song.author on Song (author) FULLTEXT ENGINE LUCENE ");
+    session.command("create index Author.name on Author (name) FULLTEXT ENGINE LUCENE ");
+    session.command(
         "create index Song.lyrics_description on Song (lyrics,description) FULLTEXT ENGINE LUCENE"
             + " ");
   }
@@ -36,19 +34,19 @@ public class LuceneSearchOnIndexFunctionTest extends BaseLuceneTest {
   public void shouldSearchOnSingleIndex() throws Exception {
 
     var resultSet =
-        db.query("SELECT from Song where SEARCH_INDEX('Song.title', 'BELIEVE') = true");
+        session.query("SELECT from Song where SEARCH_INDEX('Song.title', 'BELIEVE') = true");
 
     //    resultSet.getExecutionPlan().ifPresent(x -> System.out.println(x.prettyPrint(0, 2)));
     assertThat(resultSet).hasSize(2);
 
     resultSet.close();
 
-    resultSet = db.query("SELECT from Song where SEARCH_INDEX('Song.title', \"bel*\") = true");
+    resultSet = session.query("SELECT from Song where SEARCH_INDEX('Song.title', \"bel*\") = true");
 
     assertThat(resultSet).hasSize(3);
     resultSet.close();
 
-    resultSet = db.query("SELECT from Song where SEARCH_INDEX('Song.title', 'bel*') = true");
+    resultSet = session.query("SELECT from Song where SEARCH_INDEX('Song.title', 'bel*') = true");
 
     assertThat(resultSet).hasSize(3);
 
@@ -58,7 +56,7 @@ public class LuceneSearchOnIndexFunctionTest extends BaseLuceneTest {
   @Test
   public void shouldFindNothingOnEmptyQuery() throws Exception {
 
-    var resultSet = db.query(
+    var resultSet = session.query(
         "SELECT from Song where SEARCH_INDEX('Song.title', '') = true");
 
     //    resultSet.getExecutionPlan().ifPresent(x -> System.out.println(x.prettyPrint(0, 2)));
@@ -73,7 +71,7 @@ public class LuceneSearchOnIndexFunctionTest extends BaseLuceneTest {
 
     // TODO: metadata still not used
     var resultSet =
-        db.query(
+        session.query(
             "SELECT from Song where SEARCH_INDEX('Song.title', '*EVE*', {'allowLeadingWildcard':"
                 + " true}) = true");
 
@@ -87,7 +85,7 @@ public class LuceneSearchOnIndexFunctionTest extends BaseLuceneTest {
   public void shouldSearchOnTwoIndexesInOR() throws Exception {
 
     var resultSet =
-        db.query(
+        session.query(
             "SELECT from Song where SEARCH_INDEX('Song.title', 'BELIEVE') = true OR"
                 + " SEARCH_INDEX('Song.author', 'Bob') = true ");
 
@@ -99,7 +97,7 @@ public class LuceneSearchOnIndexFunctionTest extends BaseLuceneTest {
   public void shouldSearchOnTwoIndexesInAND() throws Exception {
 
     var resultSet =
-        db.query(
+        session.query(
             "SELECT from Song where SEARCH_INDEX('Song.title', 'tambourine') = true AND"
                 + " SEARCH_INDEX('Song.author', 'Bob') = true ");
 
@@ -111,7 +109,7 @@ public class LuceneSearchOnIndexFunctionTest extends BaseLuceneTest {
   public void shouldSearchOnTwoIndexesWithLeadingWildcardInAND() throws Exception {
 
     var resultSet =
-        db.query(
+        session.query(
             "SELECT from Song where SEARCH_INDEX('Song.title', 'tambourine') = true AND"
                 + " SEARCH_INDEX('Song.author', 'Bob', {'allowLeadingWildcard': true}) = true ");
 
@@ -122,18 +120,19 @@ public class LuceneSearchOnIndexFunctionTest extends BaseLuceneTest {
   @Test(expected = CommandExecutionException.class)
   public void shouldFailWithWrongIndexName() throws Exception {
 
-    db.query("SELECT from Song where SEARCH_INDEX('Song.wrongName', 'tambourine') = true ").close();
+    session.query("SELECT from Song where SEARCH_INDEX('Song.wrongName', 'tambourine') = true ")
+        .close();
   }
 
   @Test
   public void shouldSupportParameterizedMetadata() throws Exception {
     final var query = "SELECT from Song where SEARCH_INDEX('Song.title', '*EVE*', ?) = true";
 
-    db.query(query, "{'allowLeadingWildcard': true}").close();
-    db.query(query, new EntityImpl(db, "allowLeadingWildcard", Boolean.TRUE)).close();
+    session.query(query, "{'allowLeadingWildcard': true}").close();
+    session.query(query, new EntityImpl(session, "allowLeadingWildcard", Boolean.TRUE)).close();
 
     Map<String, Object> mdMap = new HashMap();
     mdMap.put("allowLeadingWildcard", true);
-    db.query(query, new Object[]{mdMap}).close();
+    session.query(query, new Object[]{mdMap}).close();
   }
 }

@@ -20,6 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.core.index;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.jetbrains.youtrack.db.api.schema.Collate;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.collate.DefaultCollate;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nonnull;
 
 public class SimpleKeyIndexDefinition extends AbstractIndexDefinition {
@@ -118,15 +120,19 @@ public class SimpleKeyIndexDefinition extends AbstractIndexDefinition {
     return Arrays.copyOf(keyTypes, keyTypes.length);
   }
 
+  @Nonnull
   @Override
-  public @Nonnull EntityImpl toStream(DatabaseSessionInternal db, @Nonnull EntityImpl entity) {
-    serializeToStream(db, entity);
-    return entity;
+  public Map<String, Object> toMap() {
+    return Map.of();
   }
 
   @Override
-  protected void serializeToStream(DatabaseSessionInternal db, EntityImpl entity) {
-    super.serializeToStream(db, entity);
+  public void toJson(@Nonnull JsonGenerator jsonGenerator) {
+  }
+
+  @Override
+  protected void serializeToMap(@Nonnull Map<String, Object> map) {
+    super.serializeToMap(map);
 
     final List<String> keyTypeNames = new ArrayList<>(keyTypes.length);
 
@@ -134,30 +140,30 @@ public class SimpleKeyIndexDefinition extends AbstractIndexDefinition {
       keyTypeNames.add(keyType.toString());
     }
 
-    entity.field("keyTypes", keyTypeNames, PropertyType.EMBEDDEDLIST);
+    map.put("keyTypes", keyTypeNames);
     if (collate instanceof CompositeCollate) {
       List<String> collatesNames = new ArrayList<>();
       for (var curCollate : ((CompositeCollate) this.collate).getCollates()) {
         collatesNames.add(curCollate.getName());
       }
-      entity.field("collates", collatesNames, PropertyType.EMBEDDEDLIST);
+      map.put("collates", collatesNames);
     } else {
-      entity.field("collate", collate.getName());
+      map.put("collate", collate.getName());
     }
 
-    entity.field("nullValuesIgnored", isNullValuesIgnored());
+    map.put("nullValuesIgnored", isNullValuesIgnored());
   }
 
   @Override
-  public void fromStream(@Nonnull EntityImpl entity) {
-    serializeFromStream(entity);
+  public void fromMap(@Nonnull Map<String, ?> map) {
+    serializeFromMap(map);
   }
 
   @Override
-  protected void serializeFromStream(EntityImpl entity) {
-    super.serializeFromStream(entity);
+  protected void serializeFromMap(@Nonnull Map<String, ?> map) {
+    super.serializeFromMap(map);
 
-    final List<String> keyTypeNames = entity.field("keyTypes");
+    @SuppressWarnings("unchecked") final var keyTypeNames = (List<String>) map.get("keyTypes");
     keyTypes = new PropertyType[keyTypeNames.size()];
 
     var i = 0;
@@ -165,11 +171,12 @@ public class SimpleKeyIndexDefinition extends AbstractIndexDefinition {
       keyTypes[i] = PropertyType.valueOf(keyTypeName);
       i++;
     }
-    String collate = entity.field("collate");
+
+    var collate = (String) map.get("collate");
     if (collate != null) {
       setCollate(collate);
     } else {
-      final List<String> collatesNames = entity.field("collates");
+      @SuppressWarnings("unchecked") final var collatesNames = (List<String>) map.get("collates");
       if (collatesNames != null) {
         var collates = new CompositeCollate(this);
         for (var collateName : collatesNames) {
@@ -179,12 +186,13 @@ public class SimpleKeyIndexDefinition extends AbstractIndexDefinition {
       }
     }
 
-    setNullValuesIgnored(!Boolean.FALSE.equals(entity.<Boolean>field("nullValuesIgnored")));
+    setNullValuesIgnored(!Boolean.FALSE.equals(map.get("nullValuesIgnored")));
   }
 
   public Object getDocumentValueToIndex(
       DatabaseSessionInternal session, final EntityImpl entity) {
-    throw new IndexException("This method is not supported in given index definition.");
+    throw new IndexException(session.getDatabaseName(),
+        "This method is not supported in given index definition.");
   }
 
   @Override

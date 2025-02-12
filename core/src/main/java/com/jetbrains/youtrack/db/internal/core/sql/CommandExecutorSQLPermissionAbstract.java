@@ -19,7 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 
@@ -54,12 +53,5 @@ public abstract class CommandExecutorSQLPermissionAbstract extends CommandExecut
       throw new CommandSQLParsingException(
           "Unrecognized privilege '" + privilegeName + "'", parserText, oldPos);
     }
-  }
-
-  @Override
-  public long getDistributedTimeout() {
-    return getDatabase()
-        .getConfiguration()
-        .getValueAsLong(GlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
   }
 }

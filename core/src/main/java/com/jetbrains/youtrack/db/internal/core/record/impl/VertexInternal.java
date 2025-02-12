@@ -13,10 +13,8 @@ import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
@@ -26,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -262,10 +259,13 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
   @Override
   default Iterable<Vertex> getVertices(Direction direction, SchemaClass... type) {
+    var baseEntity = getBaseEntity();
+    var session = baseEntity.getSession();
+
     List<String> types = new ArrayList<>();
     if (type != null) {
       for (var t : type) {
-        types.add(t.getName());
+        types.add(t.getName(session));
       }
     }
 
@@ -288,7 +288,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
     if (schemaClass == null) {
       throw new IllegalArgumentException("Schema class for label" + type + " not found");
     }
-    if (schemaClass.isAbstract()) {
+    if (schemaClass.isAbstract(db)) {
       return db.newLightweightEdge(this, to, type);
     }
 
@@ -312,8 +312,9 @@ public interface VertexInternal extends Vertex, EntityInternal {
   @Override
   default Edge addEdge(Vertex to, SchemaClass type) {
     final String className;
+    var session = getBaseEntity().getSession();
     if (type != null) {
-      className = type.getName();
+      className = type.getName(session);
     } else {
       className = EdgeInternal.CLASS_NAME;
     }
@@ -325,8 +326,9 @@ public interface VertexInternal extends Vertex, EntityInternal {
   default Edge addRegularEdge(Vertex to, SchemaClass label) {
     final String className;
 
+    var session = getBaseEntity().getSession();
     if (label != null) {
-      className = label.getName();
+      className = label.getName(session);
     } else {
       className = EdgeInternal.CLASS_NAME;
     }
@@ -337,9 +339,10 @@ public interface VertexInternal extends Vertex, EntityInternal {
   @Override
   default Edge addLightWeightEdge(Vertex to, SchemaClass label) {
     final String className;
+    var session = getBaseEntity().getSession();
 
     if (label != null) {
-      className = label.getName();
+      className = label.getName(session);
     } else {
       className = EdgeInternal.CLASS_NAME;
     }
@@ -350,9 +353,12 @@ public interface VertexInternal extends Vertex, EntityInternal {
   @Override
   default Iterable<Edge> getEdges(Direction direction, SchemaClass... type) {
     List<String> types = new ArrayList<>();
+    var baseEntity = getBaseEntity();
+    var session = baseEntity.getSession();
+
     if (type != null) {
       for (var t : type) {
-        types.add(t.getName());
+        types.add(t.getName(session));
       }
     }
     return getEdges(direction, types.toArray(new String[]{}));
@@ -408,12 +414,12 @@ public interface VertexInternal extends Vertex, EntityInternal {
     var db = getBaseEntity().getSession();
     var schema = db.getMetadata().getImmutableSchemaSnapshot();
 
-    labels = resolveAliases(schema, labels);
+    labels = resolveAliases(db, schema, labels);
     Collection<String> fieldNames = null;
     var entity = getBaseEntity();
     if (labels != null && labels.length > 0) {
       // EDGE LABELS: CREATE FIELD NAME TABLE (FASTER THAN EXTRACT FIELD NAMES FROM THE DOCUMENT)
-      var toLoadFieldNames = getEdgeFieldNames(schema, direction, labels);
+      var toLoadFieldNames = getEdgeFieldNames(db, schema, direction, labels);
 
       if (toLoadFieldNames != null) {
         // EARLY FETCH ALL THE FIELDS THAT MATTERS
@@ -429,7 +435,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
     var iterables = new ArrayList<Iterable<Edge>>(fieldNames.size());
     for (var fieldName : fieldNames) {
       final var connection =
-          getConnection(schema, direction, fieldName, labels);
+          getConnection(db, schema, direction, fieldName, labels);
       if (connection == null)
       // SKIP THIS FIELD
       {
@@ -471,7 +477,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   private static ArrayList<String> getEdgeFieldNames(
-      Schema schema, final Direction iDirection, String... classNames) {
+      DatabaseSessionInternal db, Schema schema, final Direction iDirection, String... classNames) {
     if (classNames == null)
     // FALL BACK TO LOAD ALL FIELD NAMES
     {
@@ -489,10 +495,10 @@ public interface VertexInternal extends Vertex, EntityInternal {
       allClassNames.add(className);
       var clazz = schema.getClass(className);
       if (clazz != null) {
-        allClassNames.add(clazz.getName()); // needed for aliases
-        var subClasses = clazz.getAllSubclasses();
+        allClassNames.add(clazz.getName(db)); // needed for aliases
+        var subClasses = clazz.getAllSubclasses(db);
         for (var subClass : subClasses) {
-          allClassNames.add(subClass.getName());
+          allClassNames.add(subClass.getName(db));
         }
       }
     }
@@ -517,7 +523,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   static Pair<Direction, String> getConnection(
-      final Schema schema,
+      DatabaseSessionInternal db, final Schema schema,
       final Direction direction,
       final String fieldName,
       String... classNames) {
@@ -545,8 +551,8 @@ public interface VertexInternal extends Vertex, EntityInternal {
           // GO DOWN THROUGH THE INHERITANCE TREE
           var type = schema.getClass(clsName);
           if (type != null) {
-            for (var subType : type.getAllSubclasses()) {
-              clsName = subType.getName();
+            for (var subType : type.getAllSubclasses(db)) {
+              clsName = subType.getName(db);
 
               if (fieldName.equals(DIRECTION_OUT_PREFIX + clsName)) {
                 return new Pair<>(Direction.OUT, clsName);
@@ -574,8 +580,8 @@ public interface VertexInternal extends Vertex, EntityInternal {
           // GO DOWN THROUGH THE INHERITANCE TREE
           var type = schema.getClass(clsName);
           if (type != null) {
-            for (var subType : type.getAllSubclasses()) {
-              clsName = subType.getName();
+            for (var subType : type.getAllSubclasses(db)) {
+              clsName = subType.getName(db);
               if (fieldName.equals(DIRECTION_IN_PREFIX + clsName)) {
                 return new Pair<>(Direction.IN, clsName);
               }
@@ -659,23 +665,24 @@ public interface VertexInternal extends Vertex, EntityInternal {
   default RID moveTo(final String className, final String clusterName) {
 
     final var baseEntity = getBaseEntity();
-    var db = baseEntity.getSession();
-    if (!db.getTransaction().isActive()) {
-      throw new DatabaseException("This operation is allowed only inside a transaction");
+    var session = baseEntity.getSession();
+    if (!session.getTransaction().isActive()) {
+      throw new DatabaseException(session.getDatabaseName(),
+          "This operation is allowed only inside a transaction");
     }
-    if (checkDeletedInTx(getIdentity())) {
-      throw new RecordNotFoundException(
+    if (checkDeletedInTx(session, getIdentity())) {
+      throw new RecordNotFoundException(session.getDatabaseName(),
           getIdentity(), "The vertex " + getIdentity() + " has been deleted");
     }
 
     var oldIdentity = ((RecordId) getIdentity()).copy();
-    final var oldRecord = (EntityImpl) oldIdentity.getEntity(db);
+    final var oldRecord = (EntityImpl) oldIdentity.getEntity(session);
 
-    var newEntity = (EntityImpl) db.newEntity(className);
+    var newEntity = (EntityImpl) session.newEntity(className);
     newEntity.copyPropertiesFromOtherEntity(oldRecord);
 
     // DELETE THE OLD RECORD FIRST TO AVOID ISSUES WITH UNIQUE CONSTRAINTS
-    db.delete(oldRecord);
+    session.delete(oldRecord);
 
     var delegate = new VertexDelegate(newEntity);
     final var outEdges = delegate.getEdges(Direction.OUT);
@@ -691,7 +698,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
       String schemaType;
       //noinspection OptionalIsPresent
       if (optSchemaType.isPresent()) {
-        schemaType = optSchemaType.get().getName();
+        schemaType = optSchemaType.get().getName(session);
       } else {
         schemaType = null;
       }
@@ -703,7 +710,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
       if (inVLink.equals(oldIdentity)) {
         inRecord = newEntity;
       } else {
-        inRecord = inVLink.getRecord(db);
+        inRecord = inVLink.getRecord(session);
       }
       //noinspection deprecation
       if (oe.isLightweight()) {
@@ -714,7 +721,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
         ((EntityInternal) oe).setPropertyInternal(EdgeInternal.DIRECTION_OUT, newIdentity);
       }
 
-      db.save(oe);
+      session.save(oe);
     }
 
     for (var ine : inEdges) {
@@ -725,7 +732,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
       String schemaType;
       //noinspection OptionalIsPresent
       if (optSchemaType.isPresent()) {
-        schemaType = optSchemaType.get().getName();
+        schemaType = optSchemaType.get().getName(session);
       } else {
         schemaType = null;
       }
@@ -736,7 +743,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
       if (outVLink.equals(oldIdentity)) {
         outRecord = newEntity;
       } else {
-        outRecord = outVLink.getRecord(db);
+        outRecord = outVLink.getRecord(session);
       }
       //noinspection deprecation
       if (ine.isLightweight()) {
@@ -747,20 +754,15 @@ public interface VertexInternal extends Vertex, EntityInternal {
         ((EdgeInternal) ine).setPropertyInternal(Edge.DIRECTION_IN, newIdentity);
       }
 
-      db.save(ine);
+      session.save(ine);
     }
 
     // FINAL SAVE
     return newIdentity;
   }
 
-  static boolean checkDeletedInTx(RID id) {
-    var db = DatabaseRecordThreadLocal.instance().get();
-    if (db == null) {
-      return false;
-    }
-
-    final var oper = db.getTransaction().getRecordEntry(id);
+  static boolean checkDeletedInTx(DatabaseSessionInternal session, RID id) {
+    final var oper = session.getTransaction().getRecordEntry(id);
     if (oper == null) {
       return id.isTemporary();
     } else {
@@ -850,23 +852,24 @@ public interface VertexInternal extends Vertex, EntityInternal {
     }
   }
 
-  private static String[] resolveAliases(Schema schema, String[] labels) {
+  private static String[] resolveAliases(DatabaseSessionInternal db, Schema schema,
+      String[] labels) {
     if (labels == null) {
       return null;
     }
     var result = new String[labels.length];
 
     for (var i = 0; i < labels.length; i++) {
-      result[i] = resolveAlias(labels[i], schema);
+      result[i] = resolveAlias(db, labels[i], schema);
     }
 
     return result;
   }
 
-  private static String resolveAlias(String label, Schema schema) {
+  private static String resolveAlias(DatabaseSessionInternal db, String label, Schema schema) {
     var clazz = schema.getClass(label);
     if (clazz != null) {
-      return clazz.getName();
+      return clazz.getName(db);
     }
 
     return label;
@@ -895,7 +898,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
    * Creates a link between a vertices and a Graph Element.
    */
   static void createLink(
-      DatabaseSessionInternal db, final EntityImpl fromVertex, final Identifiable to,
+      DatabaseSessionInternal session, final EntityImpl fromVertex, final Identifiable to,
       final String fieldName) {
     final Object out;
     var outType = fromVertex.getPropertyType(fieldName);
@@ -906,14 +909,14 @@ public interface VertexInternal extends Vertex, EntityInternal {
       throw new IllegalArgumentException("Class not found in source vertex: " + fromVertex);
     }
 
-    final var prop = linkClass.getProperty(fieldName);
+    final var prop = linkClass.getProperty(session, fieldName);
     final var propType =
-        prop != null && prop.getType() != PropertyType.ANY ? prop.getType() : null;
+        prop != null && prop.getType(session) != PropertyType.ANY ? prop.getType(session) : null;
 
     if (found == null) {
       if (propType == PropertyType.LINKLIST
           || (prop != null
-          && "true".equalsIgnoreCase(prop.getCustom("ordered")))) { // TODO constant
+          && "true".equalsIgnoreCase(prop.getCustom(session, "ordered")))) { // TODO constant
         var coll = new LinkList(fromVertex);
         coll.add(to);
         out = coll;
@@ -927,21 +930,22 @@ public interface VertexInternal extends Vertex, EntityInternal {
         out = to;
         outType = PropertyType.LINK;
       } else {
-        throw new DatabaseException(
+        throw new DatabaseException(session.getDatabaseName(),
             "Type of field provided in schema '"
-                + prop.getType()
+                + prop.getType(session)
                 + "' cannot be used for link creation.");
       }
 
     } else if (found instanceof Identifiable foundId) {
       if (prop != null && propType == PropertyType.LINK) {
-        throw new DatabaseException(
+        throw new DatabaseException(session.getDatabaseName(),
             "Type of field provided in schema '"
-                + prop.getType()
+                + prop.getType(session)
                 + "' cannot be used for creation to hold several links.");
       }
 
-      if (prop != null && "true".equalsIgnoreCase(prop.getCustom("ordered"))) { // TODO constant
+      if (prop != null && "true".equalsIgnoreCase(
+          prop.getCustom(session, "ordered"))) { // TODO constant
         var coll = new LinkList(fromVertex);
         coll.add(foundId);
         coll.add(to);
@@ -957,7 +961,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
     } else if (found instanceof RidBag) {
       // ADD THE LINK TO THE COLLECTION
       out = null;
-      ((RidBag) found).add(to.getRecord(db).getIdentity());
+      ((RidBag) found).add(to.getRecord(session).getIdentity());
     } else if (found instanceof Collection<?>) {
       // USE THE FOUND COLLECTION
       out = null;
@@ -965,7 +969,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
       ((Collection<Identifiable>) found).add(to);
 
     } else {
-      throw new DatabaseException(
+      throw new DatabaseException(session.getDatabaseName(),
           "Relationship content is invalid on field " + fieldName + ". Found: " + found);
     }
 
@@ -976,11 +980,12 @@ public interface VertexInternal extends Vertex, EntityInternal {
     }
   }
 
-  private static void removeLinkFromEdge(EntityImpl vertex, Edge edge, Direction direction) {
+  private static void removeLinkFromEdge(DatabaseSessionInternal db, EntityImpl vertex, Edge edge,
+      Direction direction) {
     var schemaType = edge.getSchemaType();
     assert schemaType.isPresent();
 
-    var className = schemaType.get().getName();
+    var className = schemaType.get().getName(db);
     Identifiable edgeId = edge.getIdentity();
 
     removeLinkFromEdge(
@@ -1033,11 +1038,11 @@ public interface VertexInternal extends Vertex, EntityInternal {
       }
   }
 
-  static void removeIncomingEdge(Vertex vertex, Edge edge) {
-    removeLinkFromEdge(((VertexInternal) vertex).getBaseEntity(), edge, Direction.IN);
+  static void removeIncomingEdge(DatabaseSessionInternal db, Vertex vertex, Edge edge) {
+    removeLinkFromEdge(db, ((VertexInternal) vertex).getBaseEntity(), edge, Direction.IN);
   }
 
-  static void removeOutgoingEdge(Vertex vertex, Edge edge) {
-    removeLinkFromEdge(((VertexInternal) vertex).getBaseEntity(), edge, Direction.OUT);
+  static void removeOutgoingEdge(DatabaseSessionInternal db, Vertex vertex, Edge edge) {
+    removeLinkFromEdge(db, ((VertexInternal) vertex).getBaseEntity(), edge, Direction.OUT);
   }
 }

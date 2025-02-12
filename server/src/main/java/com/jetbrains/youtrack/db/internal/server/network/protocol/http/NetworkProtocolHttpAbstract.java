@@ -31,7 +31,6 @@ import com.jetbrains.youtrack.db.internal.common.concur.lock.LockException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.QueryDatabaseState;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
@@ -41,7 +40,6 @@ import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.NetworkProto
 import com.jetbrains.youtrack.db.internal.enterprise.channel.text.SocketChannelTextServer;
 import com.jetbrains.youtrack.db.internal.server.ClientConnection;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
-import com.jetbrains.youtrack.db.internal.server.config.ServerCommandConfiguration;
 import com.jetbrains.youtrack.db.internal.server.network.ServerNetworkListener;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.NetworkProtocol;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommand;
@@ -110,7 +108,6 @@ import java.util.IllegalFormatException;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
@@ -298,7 +295,7 @@ public abstract class NetworkProtocolHttpAbstract extends NetworkProtocol
     connection.getStats().lastCommandInfo = connection.getData().commandInfo;
     connection.getStats().lastCommandDetail = connection.getData().commandDetail;
 
-    connection.getStats().activeQueries = getActiveQueries(connection.getDatabase());
+    connection.getStats().activeQueries = getActiveQueries(connection.getDatabaseSession());
 
     connection.getStats().lastCommandExecutionTime = System.currentTimeMillis() - begin;
     connection.getStats().totalCommandExecutionTime +=
@@ -442,7 +439,7 @@ public abstract class NetworkProtocolHttpAbstract extends NetworkProtocol
                   server
                       .getSecurity()
                       .getAuthenticationHeader(
-                          ((SecurityAccessException) cause).getDatabaseName());
+                          ((SecurityAccessException) cause).getDbName());
             }
             errorMessage = null;
           } else {
@@ -1101,6 +1098,6 @@ public abstract class NetworkProtocolHttpAbstract extends NetworkProtocol
 
   @Override
   public void setDatabase(DatabaseSessionInternal db) {
-    connection.setDatabase(db);
+    connection.setSession(db);
   }
 }

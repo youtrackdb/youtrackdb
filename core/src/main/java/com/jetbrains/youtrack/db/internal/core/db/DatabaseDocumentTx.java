@@ -56,7 +56,6 @@ import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPo
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransaction;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionNoTx.NonTxReadMode;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
-import com.jetbrains.youtrack.db.internal.core.util.DatabaseURLConnection;
 import com.jetbrains.youtrack.db.internal.core.util.URLHelper;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -215,7 +214,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   public DatabaseDocumentTx(DatabaseSessionInternal ref, String baseUrl) {
     url = ref.getURL();
     this.baseUrl = baseUrl;
-    dbName = ref.getName();
+    dbName = ref.getDatabaseName();
     internal = ref;
     this.ownerProtection = true;
   }
@@ -416,7 +415,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
 
   protected void checkOpenness() {
     if (internal == null) {
-      throw new DatabaseException("Database '" + url + "' is closed");
+      throw new DatabaseException(url, "Database '" + url + "' is closed");
     }
   }
 
@@ -566,9 +565,15 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public Vertex newEntity() {
+  public EntityImpl newEntity() {
     checkOpenness();
     return internal.newInstance();
+  }
+
+  @Override
+  public EntityImpl newInternalInstance() {
+    checkOpenness();
+    return internal.newInternalInstance();
   }
 
   @Override
@@ -888,7 +893,6 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   @Override
   public void drop() {
     checkOpenness();
-    DatabaseRecordThreadLocal.instance().remove();
     factory.drop(this.dbName, null, null);
     this.internal = null;
     clearOwner();
@@ -935,7 +939,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public String getName() {
+  public String getDatabaseName() {
     return dbName;
   }
 
@@ -948,12 +952,6 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   public LocalRecordCache getLocalCache() {
     checkOpenness();
     return internal.getLocalCache();
-  }
-
-  @Override
-  public int getDefaultClusterId() {
-    checkOpenness();
-    return internal.getDefaultClusterId();
   }
 
   @Override
@@ -1139,7 +1137,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public Entity newInstance(String className) {
+  public EntityImpl newInstance(String className) {
     checkOpenness();
     return internal.newInstance(className);
   }
@@ -1367,11 +1365,6 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   @Override
   public long getLastClusterPosition(int clusterId) {
     return internal.getLastClusterPosition(clusterId);
-  }
-
-  @Override
-  public void setDefaultClusterId(int addCluster) {
-    internal.setDefaultClusterId(addCluster);
   }
 
   @Override

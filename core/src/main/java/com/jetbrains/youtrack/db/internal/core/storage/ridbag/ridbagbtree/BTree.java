@@ -4,6 +4,7 @@ import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.util.RawPairObjectInteger;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
@@ -28,10 +29,13 @@ public final class BTree extends DurableComponent {
   private static final int ROOT_INDEX = 1;
 
   private volatile long fileId;
+  private final BinarySerializerFactory serializerFactory;
 
-  public BTree(
-      final AbstractPaginatedStorage storage, final String name, final String fileExtension) {
+  public BTree(final AbstractPaginatedStorage storage, final String name,
+      final String fileExtension) {
     super(storage, name, fileExtension, name + fileExtension);
+
+    this.serializerFactory = storage.getComponentsFactory().binarySerializerFactory;
   }
 
   public long getFileId() {
@@ -69,7 +73,8 @@ public final class BTree extends DurableComponent {
       fileId = openFile(atomicOperation, getFullName());
     } catch (final IOException e) {
       throw BaseException.wrapException(
-          new StorageException("Exception during loading of rid bag " + getFullName()), e);
+          new StorageException(storage.getName(),
+              "Exception during loading of rid bag " + getFullName()), e, storage.getName());
     } finally {
       releaseExclusiveLock();
     }
@@ -104,16 +109,16 @@ public final class BTree extends DurableComponent {
         try (final var keyBucketCacheEntry =
             loadPageForRead(atomicOperation, fileId, pageIndex)) {
           final var keyBucket = new Bucket(keyBucketCacheEntry);
-          return keyBucket.getValue(bucketSearchResult.getItemIndex());
+          return keyBucket.getValue(bucketSearchResult.getItemIndex(), serializerFactory);
         }
       } finally {
         releaseSharedLock();
       }
     } catch (final IOException e) {
       throw BaseException.wrapException(
-          new StorageException(
+          new StorageException(storage.getName(),
               "Error during retrieving  of value for rid bag with name " + getName()),
-          e);
+          e, storage.getName());
     } finally {
       atomicOperationsManager.releaseReadLock(this);
     }
@@ -127,7 +132,8 @@ public final class BTree extends DurableComponent {
           acquireExclusiveLock();
           try {
             final var serializedKey =
-                EdgeKeySerializer.INSTANCE.serializeNativeAsWhole(key, (Object[]) null);
+                EdgeKeySerializer.INSTANCE.serializeNativeAsWhole(serializerFactory, key,
+                    (Object[]) null);
             var bucketSearchResult = findBucketForUpdate(key, atomicOperation);
 
             var keyBucketCacheEntry =
@@ -137,7 +143,8 @@ public final class BTree extends DurableComponent {
             final byte[] oldRawValue;
 
             if (bucketSearchResult.getItemIndex() > -1) {
-              oldRawValue = keyBucket.getRawValue(bucketSearchResult.getItemIndex());
+              oldRawValue = keyBucket.getRawValue(bucketSearchResult.getItemIndex(),
+                  serializerFactory);
               result = false;
             } else {
               oldRawValue = null;
@@ -145,7 +152,8 @@ public final class BTree extends DurableComponent {
             }
 
             final var serializedValue =
-                IntSerializer.INSTANCE.serializeNativeAsWhole(value, (Object[]) null);
+                IntSerializer.INSTANCE.serializeNativeAsWhole(serializerFactory, value,
+                    (Object[]) null);
 
             int insertionIndex;
             final int sizeDiff;
@@ -154,7 +162,8 @@ public final class BTree extends DurableComponent {
 
               if (oldRawValue.length == serializedValue.length) {
                 keyBucket.updateValue(
-                    bucketSearchResult.getItemIndex(), serializedValue, serializedKey.length);
+                    bucketSearchResult.getItemIndex(), serializedValue, serializedKey.length,
+                    serializerFactory);
                 keyBucketCacheEntry.close();
                 return false;
               } else {
@@ -222,14 +231,15 @@ public final class BTree extends DurableComponent {
         try (final var cacheEntry =
             loadPageForRead(atomicOperation, fileId, result.getPageIndex())) {
           final var bucket = new Bucket(cacheEntry);
-          return bucket.getKey(result.getItemIndex());
+          return bucket.getKey(result.getItemIndex(), serializerFactory);
         }
       } finally {
         releaseSharedLock();
       }
     } catch (final IOException e) {
       throw BaseException.wrapException(
-          new StorageException("Error during finding first key in btree [" + getName() + "]"), e);
+          new StorageException(storage.getName(),
+              "Error during finding first key in btree [" + getName() + "]"), e, storage.getName());
     } finally {
       atomicOperationsManager.releaseReadLock(this);
     }
@@ -312,14 +322,16 @@ public final class BTree extends DurableComponent {
         try (final var cacheEntry =
             loadPageForRead(atomicOperation, fileId, result.getPageIndex())) {
           final var bucket = new Bucket(cacheEntry);
-          return bucket.getKey(result.getItemIndex());
+          return bucket.getKey(result.getItemIndex(), serializerFactory);
         }
       } finally {
         releaseSharedLock();
       }
     } catch (final IOException e) {
       throw BaseException.wrapException(
-          new StorageException("Error during finding last key in btree [" + getName() + "]"), e);
+          new StorageException(storage.getName(),
+              "Error during finding last key in btree [" + getName() + "]"),
+          e, storage.getName());
     } finally {
       atomicOperationsManager.releaseReadLock(this);
     }
@@ -402,13 +414,13 @@ public final class BTree extends DurableComponent {
     final var bucketSize = bucketToSplit.size();
 
     final var indexToSplit = bucketSize >>> 1;
-    final var separationKey = bucketToSplit.getKey(indexToSplit);
+    final var separationKey = bucketToSplit.getKey(indexToSplit, serializerFactory);
     final List<byte[]> rightEntries = new ArrayList<>(indexToSplit);
 
     final var startRightIndex = splitLeaf ? indexToSplit : indexToSplit + 1;
 
     for (var i = startRightIndex; i < bucketSize; i++) {
-      rightEntries.add(bucketToSplit.getRawEntry(i));
+      rightEntries.add(bucketToSplit.getRawEntry(i, serializerFactory));
     }
 
     if (entryToSplit.getPageIndex() != ROOT_INDEX) {
@@ -472,7 +484,7 @@ public final class BTree extends DurableComponent {
       newRightBucket.init(splitLeaf);
       newRightBucket.addAll(rightEntries);
 
-      bucketToSplit.shrink(indexToSplit);
+      bucketToSplit.shrink(indexToSplit, serializerFactory);
 
       if (splitLeaf) {
         final var rightSiblingPageIndex = bucketToSplit.getRightSibling();
@@ -501,7 +513,8 @@ public final class BTree extends DurableComponent {
             insertionIndex,
             pageIndex,
             rightBucketEntry.getPageIndex(),
-            EdgeKeySerializer.INSTANCE.serializeNativeAsWhole(separationKey, (Object[]) null),
+            EdgeKeySerializer.INSTANCE.serializeNativeAsWhole(serializerFactory, separationKey,
+                (Object[]) null),
             true)) {
           final var bucketSearchResult =
               splitBucket(
@@ -571,7 +584,7 @@ public final class BTree extends DurableComponent {
     final List<byte[]> leftEntries = new ArrayList<>(indexToSplit);
 
     for (var i = 0; i < indexToSplit; i++) {
-      leftEntries.add(bucketToSplit.getRawEntry(i));
+      leftEntries.add(bucketToSplit.getRawEntry(i, serializerFactory));
     }
 
     final CacheEntry leftBucketEntry;
@@ -631,7 +644,7 @@ public final class BTree extends DurableComponent {
     }
 
     bucketToSplit = new Bucket(bucketEntry);
-    bucketToSplit.shrink(0);
+    bucketToSplit.shrink(0, serializerFactory);
     if (splitLeaf) {
       bucketToSplit.switchBucketType();
     }
@@ -640,7 +653,8 @@ public final class BTree extends DurableComponent {
         0,
         leftBucketEntry.getPageIndex(),
         rightBucketEntry.getPageIndex(),
-        EdgeKeySerializer.INSTANCE.serializeNativeAsWhole(separationKey, (Object[]) null),
+        EdgeKeySerializer.INSTANCE.serializeNativeAsWhole(serializerFactory, separationKey,
+            (Object[]) null),
         true);
 
     final var resultPath = new IntArrayList(8);
@@ -686,7 +700,7 @@ public final class BTree extends DurableComponent {
 
     while (true) {
       if (path.size() > MAX_PATH_LENGTH) {
-        throw new StorageException(
+        throw new StorageException(storage.getName(),
             "We reached max level of depth of SBTree but still found nothing, seems like tree is in"
                 + " corrupted state. You should rebuild index related to given query.");
       }
@@ -695,7 +709,7 @@ public final class BTree extends DurableComponent {
 
       try (final var bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
         final var keyBucket = new Bucket(bucketEntry);
-        final var index = keyBucket.find(key);
+        final var index = keyBucket.find(key, serializerFactory);
 
         if (keyBucket.isLeaf()) {
           itemIndexes.add(index);
@@ -728,14 +742,14 @@ public final class BTree extends DurableComponent {
     while (true) {
       depth++;
       if (depth > MAX_PATH_LENGTH) {
-        throw new StorageException(
+        throw new StorageException(storage.getName(),
             "We reached max level of depth of SBTree but still found nothing, seems like tree is in"
                 + " corrupted state. You should rebuild index related to given query.");
       }
 
       try (final var bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
         final var keyBucket = new Bucket(bucketEntry);
-        final var index = keyBucket.find(key);
+        final var index = keyBucket.find(key, serializerFactory);
 
         if (keyBucket.isLeaf()) {
           return new BucketSearchResult(index, pageIndex);
@@ -768,19 +782,22 @@ public final class BTree extends DurableComponent {
               return -1;
             }
 
-            final var serializedKey = EdgeKeySerializer.INSTANCE.serializeNativeAsWhole(key);
+            final var serializedKey = EdgeKeySerializer.INSTANCE.serializeNativeAsWhole(
+                serializerFactory, key);
             final byte[] rawValue;
             try (final var keyBucketCacheEntry =
                 loadPageForWrite(
                     atomicOperation, fileId, bucketSearchResult.getPageIndex(), true)) {
               final var keyBucket = new Bucket(keyBucketCacheEntry);
-              rawValue = keyBucket.getRawValue(bucketSearchResult.getItemIndex());
+              rawValue = keyBucket.getRawValue(bucketSearchResult.getItemIndex(),
+                  serializerFactory);
               keyBucket.removeLeafEntry(
                   bucketSearchResult.getItemIndex(), serializedKey.length, rawValue.length);
               updateSize(-1, atomicOperation);
             }
 
-            removedValue = IntSerializer.INSTANCE.deserializeNativeObject(rawValue, 0);
+            removedValue = IntSerializer.INSTANCE.deserializeNativeObject(serializerFactory,
+                rawValue, 0);
             return removedValue;
           } finally {
             releaseExclusiveLock();
@@ -949,7 +966,9 @@ public final class BTree extends DurableComponent {
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw BaseException.wrapException(new StorageException("Error during entity iteration"), e);
+      throw BaseException.wrapException(
+          new StorageException(storage.getName(), "Error during entity iteration"),
+          e, storage.getName());
     } finally {
       atomicOperationsManager.releaseReadLock(BTree.this);
     }
@@ -986,7 +1005,7 @@ public final class BTree extends DurableComponent {
               iter.getItemIndex() < bucketSize && iter.getDataCache().size() < 10;
               iter.incrementItemIndex()) {
             @SuppressWarnings("ObjectAllocationInLoop")
-            var entry = bucket.getEntry(iter.getItemIndex());
+            var entry = bucket.getEntry(iter.getItemIndex(), serializerFactory);
 
             if (iter.getToKey() != null) {
               if (iter.isToKeyInclusive()) {
@@ -1082,7 +1101,9 @@ public final class BTree extends DurableComponent {
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw BaseException.wrapException(new StorageException("Error during entity iteration"), e);
+      throw BaseException.wrapException(
+          new StorageException(storage.getName(), "Error during entity iteration"),
+          e, storage.getName());
     } finally {
       atomicOperationsManager.releaseReadLock(BTree.this);
     }
@@ -1115,7 +1136,7 @@ public final class BTree extends DurableComponent {
 
           for (; iter.getItemIndex() >= 0 && iter.getDataCache().size() < 10; iter.decItemIndex()) {
             @SuppressWarnings("ObjectAllocationInLoop")
-            var entry = bucket.getEntry(iter.getItemIndex());
+            var entry = bucket.getEntry(iter.getItemIndex(), serializerFactory);
 
             if (iter.getFromKey() != null) {
               if (iter.isFromKeyInclusive()) {

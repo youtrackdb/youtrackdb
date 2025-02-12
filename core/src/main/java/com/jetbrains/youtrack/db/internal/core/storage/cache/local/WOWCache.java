@@ -19,32 +19,32 @@
  */
 package com.jetbrains.youtrack.db.internal.core.storage.cache.local;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.SecurityException;
 import com.jetbrains.youtrack.db.internal.common.collection.closabledictionary.ClosableEntry;
 import com.jetbrains.youtrack.db.internal.common.collection.closabledictionary.ClosableLinkedContainer;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.LockManager;
-import com.jetbrains.youtrack.db.internal.common.concur.lock.ThreadInterruptedException;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.PartitionedLockManager;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.ReadersWriterSpinLock;
+import com.jetbrains.youtrack.db.internal.common.concur.lock.ThreadInterruptedException;
 import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
 import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator;
 import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator.Intention;
 import com.jetbrains.youtrack.db.internal.common.directmemory.Pointer;
-import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.StringSerializer;
 import com.jetbrains.youtrack.db.internal.common.thread.ThreadPoolExecutors;
 import com.jetbrains.youtrack.db.internal.common.types.ModifiableBoolean;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.common.util.RawPairLongObject;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.exception.InvalidStorageEncryptionKeyException;
-import com.jetbrains.youtrack.db.api.exception.SecurityException;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
-import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.exception.WriteCacheException;
 import com.jetbrains.youtrack.db.internal.core.storage.ChecksumMode;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.AbstractWriteCache;
@@ -62,7 +62,6 @@ import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.MetaDataRecord;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WriteAheadLog;
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
@@ -88,7 +87,6 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -112,7 +110,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.Lock;
 import java.util.zip.CRC32;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -215,7 +212,7 @@ public final class WOWCache extends AbstractWriteCache
    *
    * @see #NAME_ID_MAP_V3
    */
-  private static final int MAX_FILE_RECORD_LEN = 16 * 1024;
+  private static final int MAX_FILE_RECORD_LEN = 16 << 10;
 
   /**
    * Marks pages which have a checksum stored.
@@ -350,11 +347,6 @@ public final class WOWCache extends AbstractWriteCache
   private final AtomicLong exclusiveWriteCacheSize = new AtomicLong();
 
   /**
-   * Serialized is used to encode/decode names of files are managed by write cache.
-   */
-  private final BinarySerializer<String> stringSerializer;
-
-  /**
    * Size of single page in cache in bytes.
    */
   private final int pageSize;
@@ -469,7 +461,6 @@ public final class WOWCache extends AbstractWriteCache
       final long exclusiveWriteCacheMaxSize,
       final Path storagePath,
       final String storageName,
-      final BinarySerializer<String> stringSerializer,
       final ClosableLinkedContainer<Long, File> files,
       final int id,
       final ChecksumMode checksumMode,
@@ -480,12 +471,12 @@ public final class WOWCache extends AbstractWriteCache
 
     this.logFileDeletion = logFileDeletion;
     if (aesKey != null && aesKey.length != 16 && aesKey.length != 24 && aesKey.length != 32) {
-      throw new InvalidStorageEncryptionKeyException(
+      throw new InvalidStorageEncryptionKeyException(storageName,
           "Invalid length of the encryption key, provided size is " + aesKey.length);
     }
 
     if (aesKey != null && iv == null) {
-      throw new InvalidStorageEncryptionKeyException("IV can not be null");
+      throw new InvalidStorageEncryptionKeyException(storageName, "IV can not be null");
     }
 
     this.shutdownTimeout = shutdownTimeout;
@@ -514,10 +505,10 @@ public final class WOWCache extends AbstractWriteCache
         this.fileStore = Files.getFileStore(this.storagePath);
       } catch (final IOException e) {
         throw BaseException.wrapException(
-            new StorageException("Error during retrieving of file store"), e);
+            new StorageException(storageName, "Error during retrieving of file store"), e,
+            storageName);
       }
 
-      this.stringSerializer = stringSerializer;
       this.storageName = storageName;
 
       this.doubleWriteLog = doubleWriteLog;
@@ -665,7 +656,7 @@ public final class WOWCache extends AbstractWriteCache
         if (fileId < 0) {
           return composeFileId(id, -fileId);
         } else {
-          throw new StorageException(
+          throw new StorageException(storageName,
               "File " + fileName + " has already been added to the storage");
         }
       }
@@ -707,7 +698,7 @@ public final class WOWCache extends AbstractWriteCache
         if (fileClassic != null) {
           return externalId;
         } else {
-          throw new StorageException(
+          throw new StorageException(storageName,
               "File with given name " + fileName + " only partially registered in storage");
         }
       }
@@ -728,7 +719,7 @@ public final class WOWCache extends AbstractWriteCache
       fileClassic = createFileInstance(fileName, fileId);
 
       if (!fileClassic.exists()) {
-        throw new StorageException(
+        throw new StorageException(storageName,
             "File with name " + fileName + " does not exist in storage " + storageName);
       } else {
         // REGISTER THE FILE
@@ -740,7 +731,7 @@ public final class WOWCache extends AbstractWriteCache
                     + "' is not registered in 'file name - id' map, but exists in file system."
                     + " Registering it");
 
-        openFile(fileClassic);
+        openFile(storageName, fileClassic);
 
         final var externalId = composeFileId(id, fileId);
         files.add(externalId, fileClassic);
@@ -753,7 +744,8 @@ public final class WOWCache extends AbstractWriteCache
         return externalId;
       }
     } catch (final java.lang.InterruptedException e) {
-      throw BaseException.wrapException(new StorageException("Load file was interrupted"), e);
+      throw BaseException.wrapException(
+          new StorageException(storageName, "Load file was interrupted"), e, storageName);
     } finally {
       filesLock.releaseWriteLock();
     }
@@ -769,7 +761,7 @@ public final class WOWCache extends AbstractWriteCache
       final File fileClassic;
 
       if (fileId != null && fileId >= 0) {
-        throw new StorageException(
+        throw new StorageException(storageName,
             "File with name " + fileName + " already exists in storage " + storageName);
       }
 
@@ -799,7 +791,8 @@ public final class WOWCache extends AbstractWriteCache
 
       return externalId;
     } catch (final java.lang.InterruptedException e) {
-      throw BaseException.wrapException(new StorageException("File add was interrupted"), e);
+      throw BaseException.wrapException(
+          new StorageException(storageName, "File add was interrupted"), e, storageName);
     } finally {
       filesLock.releaseWriteLock();
     }
@@ -880,10 +873,10 @@ public final class WOWCache extends AbstractWriteCache
 
       if (existingFileId != null && existingFileId >= 0) {
         if (existingFileId == intId) {
-          throw new StorageException(
+          throw new StorageException(storageName,
               "File with name '" + fileName + "'' already exists in storage '" + storageName + "'");
         } else {
-          throw new StorageException(
+          throw new StorageException(storageName,
               "File with given name '"
                   + fileName
                   + "' already exists but has different id "
@@ -898,7 +891,7 @@ public final class WOWCache extends AbstractWriteCache
 
       if (fileClassic != null) {
         if (!fileClassic.getName().equals(createInternalFileName(fileName, intId))) {
-          throw new StorageException(
+          throw new StorageException(storageName,
               "File with given id exists but has different name "
                   + fileClassic.getName()
                   + " vs. proposed "
@@ -926,7 +919,8 @@ public final class WOWCache extends AbstractWriteCache
 
       return fileId;
     } catch (final java.lang.InterruptedException e) {
-      throw BaseException.wrapException(new StorageException("File add was interrupted"), e);
+      throw BaseException.wrapException(
+          new StorageException(storageName, "File add was interrupted"), e, storageName);
     } finally {
       filesLock.releaseWriteLock();
     }
@@ -972,8 +966,9 @@ public final class WOWCache extends AbstractWriteCache
         doubleWriteLog.endCheckpoint();
       }
     } catch (final java.lang.InterruptedException e) {
-      throw BaseException.wrapException(new StorageException("Fuzzy checkpoint was interrupted"),
-          e);
+      throw BaseException.wrapException(
+          new StorageException(storageName, "Fuzzy checkpoint was interrupted"),
+          e, storageName);
     } finally {
       filesLock.releaseReadLock();
     }
@@ -985,7 +980,8 @@ public final class WOWCache extends AbstractWriteCache
     try {
       future.get();
     } catch (final Exception e) {
-      throw DatabaseException.wrapException(new StorageException("Error during data flush"), e);
+      throw DatabaseException.wrapException(
+          new StorageException(storageName, "Error during data flush"), e, storageName);
     }
   }
 
@@ -1195,7 +1191,7 @@ public final class WOWCache extends AbstractWriteCache
       }
     } catch (final java.lang.InterruptedException e) {
       throw BaseException.wrapException(
-          new StorageException("Allocation of page was interrupted"), e);
+          new StorageException(storageName, "Allocation of page was interrupted"), e, storageName);
     } finally {
       filesLock.releaseReadLock();
     }
@@ -1226,10 +1222,11 @@ public final class WOWCache extends AbstractWriteCache
     } catch (final java.lang.InterruptedException e) {
       Thread.currentThread().interrupt();
       throw BaseException.wrapException(
-          new ThreadInterruptedException("File flush was interrupted"), e);
+          new ThreadInterruptedException("File flush was interrupted"), e, storageName);
     } catch (final Exception e) {
       throw BaseException.wrapException(
-          new WriteCacheException("File flush was abnormally terminated"), e);
+          new WriteCacheException(storageName, "File flush was abnormally terminated"), e,
+          storageName);
     }
   }
 
@@ -1242,10 +1239,11 @@ public final class WOWCache extends AbstractWriteCache
     } catch (final java.lang.InterruptedException e) {
       Thread.currentThread().interrupt();
       throw BaseException.wrapException(
-          new ThreadInterruptedException("File flush was interrupted"), e);
+          new ThreadInterruptedException("File flush was interrupted"), e, storageName);
     } catch (final Exception e) {
       throw BaseException.wrapException(
-          new WriteCacheException("File flush was abnormally terminated"), e);
+          new WriteCacheException(storageName, "File flush was abnormally terminated"), e,
+          storageName);
     }
   }
 
@@ -1285,10 +1283,11 @@ public final class WOWCache extends AbstractWriteCache
         file = future.get();
       } catch (final java.lang.InterruptedException e) {
         throw BaseException.wrapException(
-            new ThreadInterruptedException("File data removal was interrupted"), e);
+            new ThreadInterruptedException("File data removal was interrupted"), e, storageName);
       } catch (final Exception e) {
         throw BaseException.wrapException(
-            new WriteCacheException("File data removal was abnormally terminated"), e);
+            new WriteCacheException(storageName, "File data removal was abnormally terminated"), e,
+            storageName);
       }
 
       if (file != null) {
@@ -1316,7 +1315,9 @@ public final class WOWCache extends AbstractWriteCache
         files.release(entry);
       }
     } catch (final java.lang.InterruptedException e) {
-      throw BaseException.wrapException(new StorageException("File truncation was interrupted"), e);
+      throw BaseException.wrapException(
+          new StorageException(storageName, "File truncation was interrupted"),
+          e, storageName);
     } finally {
       filesLock.releaseWriteLock();
     }
@@ -1368,7 +1369,9 @@ public final class WOWCache extends AbstractWriteCache
       writeNameIdEntry(new NameFileIdEntry(oldFileName, -1, oldOsFileName), false);
       writeNameIdEntry(new NameFileIdEntry(newFileName, intId, newOsFileName), true);
     } catch (final java.lang.InterruptedException e) {
-      throw BaseException.wrapException(new StorageException("Rename of file was interrupted"), e);
+      throw BaseException.wrapException(
+          new StorageException(storageName, "Rename of file was interrupted"),
+          e, storageName);
     } finally {
       filesLock.releaseWriteLock();
     }
@@ -1411,7 +1414,9 @@ public final class WOWCache extends AbstractWriteCache
       nameIdMap.remove(fileName);
       nameIdMap.put(newFileName, intFileId);
     } catch (final java.lang.InterruptedException e) {
-      throw BaseException.wrapException(new StorageException("Replace of file was interrupted"), e);
+      throw BaseException.wrapException(
+          new StorageException(storageName, "Replace of file was interrupted"),
+          e, storageName);
     } finally {
       filesLock.releaseWriteLock();
     }
@@ -1423,13 +1428,14 @@ public final class WOWCache extends AbstractWriteCache
     for (final var completionLatch : triggeredTasks.values()) {
       try {
         if (!completionLatch.await(shutdownTimeout, TimeUnit.MINUTES)) {
-          throw new WriteCacheException("Can not shutdown data flush for storage " + storageName);
+          throw new WriteCacheException(storageName,
+              "Can not shutdown data flush for storage " + storageName);
         }
       } catch (final java.lang.InterruptedException e) {
         throw BaseException.wrapException(
-            new WriteCacheException(
+            new WriteCacheException(storageName,
                 "Flush of the data for storage " + storageName + " has been interrupted"),
-            e);
+            e, storageName);
       }
     }
 
@@ -1440,12 +1446,14 @@ public final class WOWCache extends AbstractWriteCache
         // ignore
       } catch (final ExecutionException e) {
         throw BaseException.wrapException(
-            new WriteCacheException(
+            new WriteCacheException(storageName,
                 "Error in execution of data flush for storage " + storageName),
-            e);
+            e, storageName);
       } catch (final TimeoutException e) {
         throw BaseException.wrapException(
-            new WriteCacheException("Can not shutdown data flush for storage " + storageName), e);
+            new WriteCacheException(storageName,
+                "Can not shutdown data flush for storage " + storageName),
+            e, storageName);
       }
     }
   }
@@ -1529,7 +1537,7 @@ public final class WOWCache extends AbstractWriteCache
 
   private void checkForClose() {
     if (closed) {
-      throw new StorageException("Write cache is closed and can not be used");
+      throw new StorageException(storageName, "Write cache is closed and can not be used");
     }
   }
 
@@ -1549,7 +1557,7 @@ public final class WOWCache extends AbstractWriteCache
       }
 
       if (!files.close(fileId)) {
-        throw new StorageException(
+        throw new StorageException(storageName,
             "Can not close file with id " + internalFileId(fileId) + " because it is still in use");
       }
     } finally {
@@ -1598,7 +1606,8 @@ public final class WOWCache extends AbstractWriteCache
 
       return errors.toArray(new PageDataVerificationError[0]);
     } catch (final java.lang.InterruptedException e) {
-      throw BaseException.wrapException(new StorageException("Thread was interrupted"), e);
+      throw BaseException.wrapException(new StorageException(storageName, "Thread was interrupted"),
+          e, storageName);
     } finally {
       filesLock.releaseWriteLock();
     }
@@ -1670,7 +1679,7 @@ public final class WOWCache extends AbstractWriteCache
 
         if (magicNumber != MAGIC_NUMBER_WITHOUT_CHECKSUM) {
           final var storedCRC32 =
-              IntegerSerializer.INSTANCE.deserializeNative(data, CHECKSUM_OFFSET);
+              IntegerSerializer.deserializeNative(data, CHECKSUM_OFFSET);
 
           final var crc32 = new CRC32();
           crc32.update(
@@ -1752,10 +1761,11 @@ public final class WOWCache extends AbstractWriteCache
           file = future.get();
         } catch (final java.lang.InterruptedException e) {
           throw BaseException.wrapException(
-              new ThreadInterruptedException("File data removal was interrupted"), e);
+              new ThreadInterruptedException("File data removal was interrupted"), e, storageName);
         } catch (final Exception e) {
           throw BaseException.wrapException(
-              new WriteCacheException("File data removal was abnormally terminated"), e);
+              new WriteCacheException(storageName, "File data removal was abnormally terminated"),
+              e, storageName);
         }
 
         if (file != null) {
@@ -1802,13 +1812,13 @@ public final class WOWCache extends AbstractWriteCache
     return id;
   }
 
-  private static void openFile(final File fileClassic) {
+  private static void openFile(String storageName, final File fileClassic) {
     if (fileClassic.exists()) {
       if (!fileClassic.isOpen()) {
         fileClassic.open();
       }
     } else {
-      throw new StorageException("File " + fileClassic + " does not exist.");
+      throw new StorageException(storageName, "File " + fileClassic + " does not exist.");
     }
   }
 
@@ -1921,7 +1931,8 @@ public final class WOWCache extends AbstractWriteCache
   private File createFileInstance(final String fileName, final int fileId) {
     final var internalFileName = createInternalFileName(fileName, fileId);
     return new AsyncFile(
-        storagePath.resolve(internalFileName), pageSize, logFileDeletion, this.executor);
+        storagePath.resolve(internalFileName), pageSize, logFileDeletion, this.executor,
+        storageName);
   }
 
   private static String createInternalFileName(final String fileName, final int fileId) {
@@ -2005,7 +2016,8 @@ public final class WOWCache extends AbstractWriteCache
         if (files.get(externalId) == null) {
           final var path =
               storagePath.resolve(idFileNameMap.get((nameIdEntry.getValue().intValue())));
-          final var file = new AsyncFile(path, pageSize, logFileDeletion, this.executor);
+          final var file = new AsyncFile(path, pageSize, logFileDeletion, this.executor,
+              storageName);
 
           if (file.exists()) {
             file.open();
@@ -2073,7 +2085,8 @@ public final class WOWCache extends AbstractWriteCache
         if (files.get(externalId) == null) {
           final var path =
               storagePath.resolve(idFileNameMap.get((nameIdEntry.getValue().intValue())));
-          final var file = new AsyncFile(path, pageSize, logFileDeletion, this.executor);
+          final var file = new AsyncFile(path, pageSize, logFileDeletion, this.executor,
+              storageName);
 
           if (file.exists()) {
             file.open();
@@ -2151,7 +2164,7 @@ public final class WOWCache extends AbstractWriteCache
                   storagePath.resolve(nameIdEntry.getKey()),
                   pageSize,
                   logFileDeletion,
-                  this.executor);
+                  this.executor, storageName);
 
           if (fileClassic.exists()) {
             fileClassic.open();
@@ -2219,7 +2232,7 @@ public final class WOWCache extends AbstractWriteCache
       IOUtils.readByteBuffer(buffer, nameIdMapHolder);
       buffer.rewind();
 
-      final var name = stringSerializer.deserializeFromByteBufferObject(buffer);
+      final var name = StringSerializer.staticDeserializeFromByteBufferObject(buffer);
       final var fileId = (int) buffer.getLong();
 
       return new NameFileIdEntry(name, fileId);
@@ -2242,7 +2255,7 @@ public final class WOWCache extends AbstractWriteCache
       IOUtils.readByteBuffer(buffer, nameIdMapHolder);
       buffer.rewind();
 
-      final var name = stringSerializer.deserializeFromByteBufferObject(buffer);
+      final var name = StringSerializer.staticDeserializeFromByteBufferObject(buffer);
 
       buffer = ByteBuffer.allocate(IntegerSerializer.INT_SIZE);
       IOUtils.readByteBuffer(buffer, nameIdMapHolder);
@@ -2254,7 +2267,7 @@ public final class WOWCache extends AbstractWriteCache
       IOUtils.readByteBuffer(buffer, nameIdMapHolder);
       buffer.rewind();
 
-      final var fileName = stringSerializer.deserializeFromByteBufferObject(buffer);
+      final var fileName = StringSerializer.staticDeserializeFromByteBufferObject(buffer);
 
       return new NameFileIdEntry(name, fileId, fileName);
 
@@ -2301,8 +2314,8 @@ public final class WOWCache extends AbstractWriteCache
       }
 
       final var fileId = buffer.getInt();
-      final var name = stringSerializer.deserializeFromByteBufferObject(buffer);
-      final var fileName = stringSerializer.deserializeFromByteBufferObject(buffer);
+      final var name = StringSerializer.staticDeserializeFromByteBufferObject(buffer);
+      final var fileName = StringSerializer.staticDeserializeFromByteBufferObject(buffer);
 
       return new NameFileIdEntry(name, fileId, fileName);
 
@@ -2325,8 +2338,9 @@ public final class WOWCache extends AbstractWriteCache
     final var xxHashSize = 8;
     final var recordLenSize = 4;
 
-    final var nameSize = stringSerializer.getObjectSize(nameFileIdEntry.getName());
-    final var fileNameSize = stringSerializer.getObjectSize(nameFileIdEntry.getFileSystemName());
+    final var nameSize = StringSerializer.staticGetObjectSize(nameFileIdEntry.getName());
+    final var fileNameSize = StringSerializer.staticGetObjectSize(
+        nameFileIdEntry.getFileSystemName());
 
     // file id size + file name + file system name + xx_hash size + record_size size
     final var serializedRecord =
@@ -2336,19 +2350,19 @@ public final class WOWCache extends AbstractWriteCache
     serializedRecord.position(xxHashSize + recordLenSize);
 
     // serialize file id
-    IntegerSerializer.INSTANCE.serializeInByteBufferObject(
-        nameFileIdEntry.getFileId(), serializedRecord);
+    serializedRecord.putInt(nameFileIdEntry.getFileId());
 
     // serialize file name
-    stringSerializer.serializeInByteBufferObject(nameFileIdEntry.getName(), serializedRecord);
+    StringSerializer.staticSerializeInByteBufferObject(nameFileIdEntry.getName(),
+        serializedRecord);
 
     // serialize file system name
-    stringSerializer.serializeInByteBufferObject(
-        nameFileIdEntry.getFileSystemName(), serializedRecord);
+    StringSerializer.staticSerializeInByteBufferObject(nameFileIdEntry.getFileSystemName(),
+        serializedRecord);
 
     final var recordLen = serializedRecord.position() - xxHashSize - recordLenSize;
     if (recordLen > MAX_FILE_RECORD_LEN) {
-      throw new StorageException(
+      throw new StorageException(storageName,
           "Maximum record length in file registry can not exceed "
               + MAX_FILE_RECORD_LEN
               + " bytes. But actual record length "
@@ -2377,10 +2391,11 @@ public final class WOWCache extends AbstractWriteCache
       future.get();
     } catch (final java.lang.InterruptedException e) {
       throw BaseException.wrapException(
-          new ThreadInterruptedException("File data removal was interrupted"), e);
+          new ThreadInterruptedException("File data removal was interrupted"), e, storageName);
     } catch (final Exception e) {
       throw BaseException.wrapException(
-          new WriteCacheException("File data removal was abnormally terminated"), e);
+          new WriteCacheException(storageName, "File data removal was abnormally terminated"), e,
+          storageName);
     }
   }
 
@@ -2460,7 +2475,8 @@ public final class WOWCache extends AbstractWriteCache
         files.release(entry);
       }
     } catch (final java.lang.InterruptedException e) {
-      throw BaseException.wrapException(new StorageException("Data load was interrupted"), e);
+      throw BaseException.wrapException(
+          new StorageException(storageName, "Data load was interrupted"), e, storageName);
     }
   }
 
@@ -2475,7 +2491,7 @@ public final class WOWCache extends AbstractWriteCache
 
     if (checksumMode == ChecksumMode.StoreAndThrow) {
       bufferPool.release(pointer);
-      throw new StorageException(message);
+      throw new StorageException(storageName, message);
     } else if (checksumMode == ChecksumMode.StoreAndSwitchReadOnlyMode) {
       dumpStackTrace(message);
       callPageIsBrokenListeners(fileNameById(fileId), pageIndex);
@@ -2560,8 +2576,9 @@ public final class WOWCache extends AbstractWriteCache
       buffer.put(outBuffer);
 
     } catch (InvalidKeyException e) {
-      throw BaseException.wrapException(new InvalidStorageEncryptionKeyException(e.getMessage()),
-          e);
+      throw BaseException.wrapException(
+          new InvalidStorageEncryptionKeyException(storageName, e.getMessage()),
+          e, storageName);
     } catch (InvalidAlgorithmParameterException e) {
       throw new IllegalArgumentException("Invalid IV.", e);
     } catch (IllegalBlockSizeException | BadPaddingException | ShortBufferException e) {
@@ -2575,7 +2592,7 @@ public final class WOWCache extends AbstractWriteCache
     assert buffer.order() == ByteOrder.nativeOrder();
 
     buffer.position(MAGIC_NUMBER_OFFSET);
-    final long magicNumber = LongSerializer.INSTANCE.deserializeFromByteBufferObject(buffer);
+    final long magicNumber = buffer.getLong();
 
     if ((aesKey == null && magicNumber != MAGIC_NUMBER_WITH_CHECKSUM)
         || (magicNumber != MAGIC_NUMBER_WITH_CHECKSUM
@@ -2600,7 +2617,7 @@ public final class WOWCache extends AbstractWriteCache
     }
 
     buffer.position(CHECKSUM_OFFSET);
-    final int storedChecksum = IntegerSerializer.INSTANCE.deserializeFromByteBufferObject(buffer);
+    final int storedChecksum = buffer.getInt();
 
     buffer.position(PAGE_OFFSET_TO_CHECKSUM_FROM);
     final var crc32 = new CRC32();
@@ -2797,7 +2814,7 @@ public final class WOWCache extends AbstractWriteCache
           fileSize = files.get(externalFileId(fileId)).getUnderlyingFileSize();
 
           if ((fileSize & (pageSize - 1)) != 0) {
-            throw new StorageException(
+            throw new StorageException(storageName,
                 "Storage : "
                     + storageName
                     + ". File size is not multiple of page size. File id : "
@@ -2984,12 +3001,12 @@ public final class WOWCache extends AbstractWriteCache
       }
     } catch (final IOException | java.lang.InterruptedException e) {
       throw BaseException.wrapException(
-          new StorageException(
+          new StorageException(storageName,
               "Storage : "
                   + storageName
                   + "Error during of writing initial blank page for file  "
                   + idNameMap.get(internalFileId)),
-          e);
+          e, storageName);
     }
   }
 
@@ -3123,7 +3140,7 @@ public final class WOWCache extends AbstractWriteCache
         containerBuffer.put(buffer);
       }
 
-      final var firstPage = chunk.get(0);
+      final var firstPage = chunk.getFirst();
       final var firstCachePointer = firstPage.originalPagePointer;
 
       final var fileId = firstCachePointer.getFileId();
@@ -3519,9 +3536,15 @@ public final class WOWCache extends AbstractWriteCache
       return Cipher.getInstance(TRANSFORMATION);
     } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
       throw BaseException.wrapException(
-          new SecurityException("Implementation of encryption " + TRANSFORMATION + " is absent"),
-          e);
+          new SecurityException((String) null,
+              "Implementation of encryption " + TRANSFORMATION + " is absent"),
+          e, (String) null);
     }
+  }
+
+  @Override
+  public String getStorageName() {
+    return storageName;
   }
 
   public RawPair<String, String> executeDeleteFile(long externalFileId)

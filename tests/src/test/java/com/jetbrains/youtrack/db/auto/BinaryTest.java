@@ -37,53 +37,53 @@ public class BinaryTest extends BaseDBTest {
 
   @Test
   public void testMixedCreateEmbedded() {
-    db.begin();
-    var doc = ((EntityImpl) db.newEntity());
+    session.begin();
+    var doc = ((EntityImpl) session.newEntity());
     doc.field("binary", "Binary data".getBytes());
 
     doc.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    doc = db.bindToSession(doc);
+    session.begin();
+    doc = session.bindToSession(doc);
     Assert.assertEquals(new String((byte[]) doc.field("binary", PropertyType.BINARY)),
         "Binary data");
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testBasicCreateExternal() {
-    db.begin();
-    Blob record = new RecordBytes(db, "This is a test".getBytes());
+    session.begin();
+    Blob record = new RecordBytes(session, "This is a test".getBytes());
     record.save();
-    db.commit();
+    session.commit();
 
     rid = record.getIdentity();
   }
 
   @Test(dependsOnMethods = "testBasicCreateExternal")
   public void testBasicReadExternal() {
-    RecordAbstract record = db.load(rid);
+    RecordAbstract record = session.load(rid);
 
     Assert.assertEquals("This is a test", new String(record.toStream()));
   }
 
   @Test(dependsOnMethods = "testBasicReadExternal")
   public void testMixedCreateExternal() {
-    db.begin();
+    session.begin();
 
-    var doc = ((EntityImpl) db.newEntity());
-    doc.field("binary", new RecordBytes(db, "Binary data".getBytes()));
+    var doc = ((EntityImpl) session.newEntity());
+    doc.field("binary", new RecordBytes(session, "Binary data".getBytes()));
 
     doc.save();
-    db.commit();
+    session.commit();
 
     rid = doc.getIdentity();
   }
 
   @Test(dependsOnMethods = "testMixedCreateExternal")
   public void testMixedReadExternal() {
-    EntityImpl doc = rid.getRecord(db);
+    EntityImpl doc = rid.getRecord(session);
     Assert.assertEquals("Binary data",
         new String(((RecordAbstract) doc.field("binary")).toStream()));
   }

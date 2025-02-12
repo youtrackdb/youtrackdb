@@ -24,45 +24,45 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
 
   public void beforeTest() throws Exception {
     super.beforeTest();
-    clazz = db.getMetadata().getSchema().createClass("testClass");
-    clazz.createProperty(db, "integer", PropertyType.INTEGER);
-    clazz.createProperty(db, "string", PropertyType.STRING);
-    clazz.createProperty(db, "boolean", PropertyType.BOOLEAN);
-    clazz.createProperty(db, "long", PropertyType.LONG);
-    clazz.createProperty(db, "float", PropertyType.FLOAT);
-    clazz.createProperty(db, "double", PropertyType.DOUBLE);
-    clazz.createProperty(db, "decimal", PropertyType.DECIMAL);
-    clazz.createProperty(db, "date", PropertyType.DATE);
+    clazz = session.getMetadata().getSchema().createClass("testClass");
+    clazz.createProperty(session, "integer", PropertyType.INTEGER);
+    clazz.createProperty(session, "string", PropertyType.STRING);
+    clazz.createProperty(session, "boolean", PropertyType.BOOLEAN);
+    clazz.createProperty(session, "long", PropertyType.LONG);
+    clazz.createProperty(session, "float", PropertyType.FLOAT);
+    clazz.createProperty(session, "double", PropertyType.DOUBLE);
+    clazz.createProperty(session, "decimal", PropertyType.DECIMAL);
+    clazz.createProperty(session, "date", PropertyType.DATE);
 
-    clazz.createProperty(db, "byteList", PropertyType.EMBEDDEDLIST, PropertyType.BYTE);
-    clazz.createProperty(db, "integerList", PropertyType.EMBEDDEDLIST, PropertyType.INTEGER);
-    clazz.createProperty(db, "longList", PropertyType.EMBEDDEDLIST, PropertyType.LONG);
-    clazz.createProperty(db, "stringList", PropertyType.EMBEDDEDLIST, PropertyType.STRING);
-    clazz.createProperty(db, "floatList", PropertyType.EMBEDDEDLIST, PropertyType.FLOAT);
-    clazz.createProperty(db, "doubleList", PropertyType.EMBEDDEDLIST, PropertyType.DOUBLE);
-    clazz.createProperty(db, "decimalList", PropertyType.EMBEDDEDLIST, PropertyType.DECIMAL);
-    clazz.createProperty(db, "booleanList", PropertyType.EMBEDDEDLIST, PropertyType.BOOLEAN);
-    clazz.createProperty(db, "dateList", PropertyType.EMBEDDEDLIST, PropertyType.DATE);
+    clazz.createProperty(session, "byteList", PropertyType.EMBEDDEDLIST, PropertyType.BYTE);
+    clazz.createProperty(session, "integerList", PropertyType.EMBEDDEDLIST, PropertyType.INTEGER);
+    clazz.createProperty(session, "longList", PropertyType.EMBEDDEDLIST, PropertyType.LONG);
+    clazz.createProperty(session, "stringList", PropertyType.EMBEDDEDLIST, PropertyType.STRING);
+    clazz.createProperty(session, "floatList", PropertyType.EMBEDDEDLIST, PropertyType.FLOAT);
+    clazz.createProperty(session, "doubleList", PropertyType.EMBEDDEDLIST, PropertyType.DOUBLE);
+    clazz.createProperty(session, "decimalList", PropertyType.EMBEDDEDLIST, PropertyType.DECIMAL);
+    clazz.createProperty(session, "booleanList", PropertyType.EMBEDDEDLIST, PropertyType.BOOLEAN);
+    clazz.createProperty(session, "dateList", PropertyType.EMBEDDEDLIST, PropertyType.DATE);
 
-    clazz.createProperty(db, "byteSet", PropertyType.EMBEDDEDSET, PropertyType.BYTE);
-    clazz.createProperty(db, "integerSet", PropertyType.EMBEDDEDSET, PropertyType.INTEGER);
-    clazz.createProperty(db, "longSet", PropertyType.EMBEDDEDSET, PropertyType.LONG);
-    clazz.createProperty(db, "stringSet", PropertyType.EMBEDDEDSET, PropertyType.STRING);
-    clazz.createProperty(db, "floatSet", PropertyType.EMBEDDEDSET, PropertyType.FLOAT);
-    clazz.createProperty(db, "doubleSet", PropertyType.EMBEDDEDSET, PropertyType.DOUBLE);
-    clazz.createProperty(db, "decimalSet", PropertyType.EMBEDDEDSET, PropertyType.DECIMAL);
-    clazz.createProperty(db, "booleanSet", PropertyType.EMBEDDEDSET, PropertyType.BOOLEAN);
-    clazz.createProperty(db, "dateSet", PropertyType.EMBEDDEDSET, PropertyType.DATE);
+    clazz.createProperty(session, "byteSet", PropertyType.EMBEDDEDSET, PropertyType.BYTE);
+    clazz.createProperty(session, "integerSet", PropertyType.EMBEDDEDSET, PropertyType.INTEGER);
+    clazz.createProperty(session, "longSet", PropertyType.EMBEDDEDSET, PropertyType.LONG);
+    clazz.createProperty(session, "stringSet", PropertyType.EMBEDDEDSET, PropertyType.STRING);
+    clazz.createProperty(session, "floatSet", PropertyType.EMBEDDEDSET, PropertyType.FLOAT);
+    clazz.createProperty(session, "doubleSet", PropertyType.EMBEDDEDSET, PropertyType.DOUBLE);
+    clazz.createProperty(session, "decimalSet", PropertyType.EMBEDDEDSET, PropertyType.DECIMAL);
+    clazz.createProperty(session, "booleanSet", PropertyType.EMBEDDEDSET, PropertyType.BOOLEAN);
+    clazz.createProperty(session, "dateSet", PropertyType.EMBEDDEDSET, PropertyType.DATE);
 
-    clazz.createProperty(db, "byteMap", PropertyType.EMBEDDEDMAP, PropertyType.BYTE);
-    clazz.createProperty(db, "integerMap", PropertyType.EMBEDDEDMAP, PropertyType.INTEGER);
-    clazz.createProperty(db, "longMap", PropertyType.EMBEDDEDMAP, PropertyType.LONG);
-    clazz.createProperty(db, "stringMap", PropertyType.EMBEDDEDMAP, PropertyType.STRING);
-    clazz.createProperty(db, "floatMap", PropertyType.EMBEDDEDMAP, PropertyType.FLOAT);
-    clazz.createProperty(db, "doubleMap", PropertyType.EMBEDDEDMAP, PropertyType.DOUBLE);
-    clazz.createProperty(db, "decimalMap", PropertyType.EMBEDDEDMAP, PropertyType.DECIMAL);
-    clazz.createProperty(db, "booleanMap", PropertyType.EMBEDDEDMAP, PropertyType.BOOLEAN);
-    clazz.createProperty(db, "dateMap", PropertyType.EMBEDDEDMAP, PropertyType.DATE);
+    clazz.createProperty(session, "byteMap", PropertyType.EMBEDDEDMAP, PropertyType.BYTE);
+    clazz.createProperty(session, "integerMap", PropertyType.EMBEDDEDMAP, PropertyType.INTEGER);
+    clazz.createProperty(session, "longMap", PropertyType.EMBEDDEDMAP, PropertyType.LONG);
+    clazz.createProperty(session, "stringMap", PropertyType.EMBEDDEDMAP, PropertyType.STRING);
+    clazz.createProperty(session, "floatMap", PropertyType.EMBEDDEDMAP, PropertyType.FLOAT);
+    clazz.createProperty(session, "doubleMap", PropertyType.EMBEDDEDMAP, PropertyType.DOUBLE);
+    clazz.createProperty(session, "decimalMap", PropertyType.EMBEDDEDMAP, PropertyType.DECIMAL);
+    clazz.createProperty(session, "booleanMap", PropertyType.EMBEDDEDMAP, PropertyType.BOOLEAN);
+    clazz.createProperty(session, "dateMap", PropertyType.EMBEDDEDMAP, PropertyType.DATE);
   }
 
   @Test
@@ -71,8 +71,9 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
     calendare.set(Calendar.MILLISECOND, 0);
     var date = calendare.getTime();
 
-    var dateString = db.getStorage().getConfiguration().getDateTimeFormatInstance().format(date);
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var dateString = session.getStorage().getConfiguration().getDateTimeFormatInstance()
+        .format(date);
+    var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("date", dateString);
     assertTrue(doc.field("date") instanceof Date);
     assertEquals(date, doc.field("date"));
@@ -96,7 +97,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testLiteralToSchemaConversionInteger() {
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("integer", 2L);
     assertTrue(doc.field("integer") instanceof Integer);
     //    assertEquals(2, doc.field("integer"));
@@ -135,7 +136,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   @Test
   public void testLiteralToSchemaConversionString() {
 
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var doc = (EntityImpl) session.newEntity(clazz);
 
     doc.field("string", 1);
     assertTrue(doc.field("string") instanceof String);
@@ -165,7 +166,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   @Test
   public void testLiteralToSchemaConversionFloat() {
 
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var doc = (EntityImpl) session.newEntity(clazz);
 
     doc.field("float", 1);
     assertTrue(doc.field("float") instanceof Float);
@@ -205,7 +206,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   @Test
   public void testLiteralToSchemaConversionDouble() {
 
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var doc = (EntityImpl) session.newEntity(clazz);
 
     doc.field("double", 1);
     assertTrue(doc.field("double") instanceof Double);
@@ -246,7 +247,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   @Test
   public void testLiteralToSchemaConversionLong() {
 
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var doc = (EntityImpl) session.newEntity(clazz);
 
     doc.field("long", 1);
     assertTrue(doc.field("long") instanceof Long);
@@ -287,7 +288,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   @Test
   public void testLiteralToSchemaConversionBoolean() {
 
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var doc = (EntityImpl) session.newEntity(clazz);
 
     doc.field("boolean", 0);
     assertTrue(doc.field("boolean") instanceof Boolean);
@@ -317,7 +318,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   @Test
   public void testLiteralToSchemaConversionDecimal() {
 
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var doc = (EntityImpl) session.newEntity(clazz);
 
     doc.field("decimal", 0);
     assertTrue(doc.field("decimal") instanceof BigDecimal);
@@ -347,7 +348,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   @Test
   public void testConversionAlsoWithWrongType() {
 
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var doc = (EntityImpl) session.newEntity(clazz);
 
     doc.field("float", 2, PropertyType.INTEGER);
     assertTrue(doc.field("float") instanceof Float);
@@ -377,7 +378,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   @Test
   public void testLiteralConversionAfterSchemaSet() {
 
-    var doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) session.newEntity();
 
     doc.field("float", 1);
     doc.field("integer", 3f);
@@ -422,7 +423,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   public void testListByteCoversion() {
 
     List values = new ArrayList();
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("byteList", values);
     fillList(values);
 
@@ -450,7 +451,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   public void testCollectionIntegerCoversion() {
 
     List values = new ArrayList();
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("integerList", values);
     fillList(values);
     Set set = new HashSet();
@@ -478,7 +479,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   public void testCollectionLongCoversion() {
 
     List values = new ArrayList();
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("longList", values);
     fillList(values);
     Set set = new HashSet();
@@ -506,7 +507,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   public void testCollectionBooleanCoversion() {
 
     List values = new ArrayList();
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("booleanList", values);
     values.add((byte) 1);
     values.add("true");
@@ -548,7 +549,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   public void testCollectionStringCoversion() {
 
     List values = new ArrayList();
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("stringList", values);
     values.add((byte) 1);
     values.add(1L);
@@ -601,7 +602,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   public void testCollectionFloatCoversion() {
 
     List values = new ArrayList();
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("floatList", values);
     fillList(values);
 
@@ -642,7 +643,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   public void testCollectionDoubleCoversion() {
 
     List values = new ArrayList();
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("doubleList", values);
     fillList(values);
 
@@ -671,7 +672,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   public void testCollectionDecimalCoversion() {
 
     List values = new ArrayList();
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("decimalList", values);
     fillList(values);
 
@@ -706,7 +707,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   public void testCollectionDateCoversion() {
 
     List values = new ArrayList();
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("dateList", values);
     values.add(1L);
     values.add(1);
@@ -743,7 +744,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   public void testMapIntegerConversion() {
 
     Map<String, Object> values = new HashMap<String, Object>();
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("integerMap", values);
     fillMap(values);
     doc.autoConvertValues();
@@ -758,7 +759,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   public void testMapLongConversion() {
 
     Map<String, Object> values = new HashMap<String, Object>();
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("longMap", values);
     fillMap(values);
     doc.autoConvertValues();
@@ -773,7 +774,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   public void testMapByteConversion() {
 
     Map<String, Object> values = new HashMap<String, Object>();
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("byteMap", values);
     fillMap(values);
     doc.autoConvertValues();
@@ -788,7 +789,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   public void testMapFloatConversion() {
 
     Map<String, Object> values = new HashMap<String, Object>();
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("floatMap", values);
     fillMap(values);
     doc.autoConvertValues();
@@ -803,7 +804,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   public void testMapDoubleConversion() {
 
     Map<String, Object> values = new HashMap<String, Object>();
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("doubleMap", values);
     fillMap(values);
     doc.autoConvertValues();
@@ -818,7 +819,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   public void testMapDecimalConversion() {
 
     Map<String, Object> values = new HashMap<String, Object>();
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("decimalMap", values);
     fillMap(values);
     doc.autoConvertValues();
@@ -833,7 +834,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   public void testMapStringConversion() {
 
     Map<String, Object> values = new HashMap<String, Object>();
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("stringMap", values);
     fillMap(values);
     doc.autoConvertValues();
@@ -848,7 +849,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   public void testMapDateConversion() {
 
     Map<String, Object> values = new HashMap<String, Object>();
-    var doc = (EntityImpl) db.newEntity(clazz);
+    var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("dateMap", values);
     values.put("first", (byte) 1);
     values.put("second", (short) 1);

@@ -24,17 +24,14 @@ import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.parser.BaseParser;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
@@ -77,7 +74,7 @@ public class SQLHelper {
     final var func = SQLHelper.getFunction(session, null, iWord);
     if (func != null) {
       var context = new BasicCommandContext();
-      context.setDatabase(session);
+      context.setDatabaseSession(session);
 
       return func.execute(iRecord, iRecord, null, context);
     }
@@ -142,7 +139,7 @@ public class SQLHelper {
             StringSerializerHelper.smartSplit(item, StringSerializerHelper.ENTRY_SEPARATOR);
 
         if (parts == null || parts.size() != 2) {
-          throw new CommandSQLParsingException(
+          throw new CommandSQLParsingException(iContext.getDatabaseSession().getDatabaseName(),
               "Map found but entries are not defined as <key>:<value>");
         }
 
@@ -161,7 +158,7 @@ public class SQLHelper {
       // IT'S A DOCUMENT
       // TODO: IMPROVE THIS CASE AVOIDING DOUBLE PARSING
       {
-        var entity = new EntityImpl(iContext.getDatabase());
+        var entity = new EntityImpl(iContext.getDatabaseSession());
         entity.updateFromJSON(iValue);
         fieldValue = entity;
       } else {
@@ -201,7 +198,7 @@ public class SQLHelper {
       {
         fieldValue = Boolean.FALSE;
       } else if (iValue.startsWith("date(")) {
-        final var func = SQLHelper.getFunction(iContext.getDatabase(), null,
+        final var func = SQLHelper.getFunction(iContext.getDatabaseSession(), null,
             iValue);
         if (func != null) {
           fieldValue = func.execute(null, null, null, iContext);
@@ -282,7 +279,7 @@ public class SQLHelper {
 
     if (!iWord.equalsIgnoreCase("any()") && !iWord.equalsIgnoreCase("all()")) {
       // TRY TO PARSE AS FUNCTION
-      final Object func = SQLHelper.getFunction(iContext.getDatabase(), iCommand, iWord);
+      final Object func = SQLHelper.getFunction(iContext.getDatabaseSession(), iCommand, iWord);
       if (func != null) {
         return func;
       }
@@ -291,11 +288,11 @@ public class SQLHelper {
     if (iWord.startsWith("$"))
     // CONTEXT VARIABLE
     {
-      return new SQLFilterItemVariable(iContext.getDatabase(), iCommand, iWord);
+      return new SQLFilterItemVariable(iContext.getDatabaseSession(), iCommand, iWord);
     }
 
     // PARSE AS FIELD
-    return new SQLFilterItemField(iContext.getDatabase(), iCommand, iWord, null);
+    return new SQLFilterItemField(iContext.getDatabaseSession(), iCommand, iWord, null);
   }
 
   public static SQLFunctionRuntime getFunction(DatabaseSessionInternal session,
@@ -344,7 +341,7 @@ public class SQLHelper {
           && !Character.isDigit(s.charAt(0)))
       // INTERPRETS IT
       {
-        return EntityHelper.getFieldValue(iContext.getDatabase(), iRecord, s, iContext);
+        return EntityHelper.getFieldValue(iContext.getDatabaseSession(), iRecord, s, iContext);
       }
     }
 
@@ -414,6 +411,7 @@ public class SQLHelper {
       return null;
     }
 
+    var session = iContext.getDatabaseSession();
     // BIND VALUES
     for (var field : iFields) {
       final var fieldName = field.getKey();
@@ -422,15 +420,15 @@ public class SQLHelper {
       if (fieldValue != null) {
         if (fieldValue instanceof CommandSQL cmd) {
           cmd.getContext().setParent(iContext);
-          fieldValue = DatabaseRecordThreadLocal.instance().get().command(cmd)
-              .execute(iContext.getDatabase());
+          fieldValue = session.command(cmd)
+              .execute(iContext.getDatabaseSession());
 
           // CHECK FOR CONVERSIONS
           var immutableClass = EntityInternalUtils.getImmutableSchemaClass(e);
           if (immutableClass != null) {
-            final var prop = immutableClass.getProperty(fieldName);
+            final var prop = immutableClass.getProperty(session, fieldName);
             if (prop != null) {
-              if (prop.getType() == PropertyType.LINK) {
+              if (prop.getType(session) == PropertyType.LINK) {
                 if (MultiValue.isMultiValue(fieldValue)) {
                   final var size = MultiValue.getSize(fieldValue);
                   if (size == 1)
@@ -444,7 +442,7 @@ public class SQLHelper {
                   }
                 }
               }
-            } else if (immutableClass.isEdgeType()
+            } else if (immutableClass.isEdgeType(session)
                 && ("out".equals(fieldName) || "in".equals(fieldName))
                 && (fieldValue instanceof List lst)) {
               if (lst.size() == 1) {
@@ -457,12 +455,11 @@ public class SQLHelper {
             final List<Object> tempColl = new ArrayList<Object>(MultiValue.getSize(fieldValue));
 
             String singleFieldName = null;
-            var db = iContext.getDatabase();
             for (var o : MultiValue.getMultiValueIterable(fieldValue)) {
               if (o instanceof Identifiable && !((Identifiable) o).getIdentity()
                   .isPersistent()) {
                 // TEMPORARY / EMBEDDED
-                var rec = ((Identifiable) o).getRecord(db);
+                var rec = ((Identifiable) o).getRecord(session);
                 if (rec != null && rec instanceof EntityImpl entity) {
                   // CHECK FOR ONE FIELD ONLY
                   if (entity.fields() == 1) {
@@ -488,7 +485,7 @@ public class SQLHelper {
 
       e.field(
           fieldName,
-          resolveFieldValue(iContext.getDatabase(), e, fieldName, fieldValue, iArguments,
+          resolveFieldValue(iContext.getDatabaseSession(), e, fieldName, fieldValue, iArguments,
               iContext));
     }
     return e;

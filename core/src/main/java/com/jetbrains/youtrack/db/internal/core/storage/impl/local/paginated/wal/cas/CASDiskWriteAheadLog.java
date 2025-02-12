@@ -228,12 +228,12 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       throws IOException {
 
     if (aesKey != null && aesKey.length != 16 && aesKey.length != 24 && aesKey.length != 32) {
-      throw new InvalidStorageEncryptionKeyException(
+      throw new InvalidStorageEncryptionKeyException(storageName,
           "Invalid length of the encryption key, provided size is " + aesKey.length);
     }
 
     if (aesKey != null && iv == null) {
-      throw new InvalidStorageEncryptionKeyException("IV can not be null");
+      throw new InvalidStorageEncryptionKeyException(storageName, "IV can not be null");
     }
 
     this.keepSingleWALSegment = keepSingleWALSegment;
@@ -528,10 +528,13 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
         wf.get();
       } catch (final InterruptedException e) {
         throw BaseException.wrapException(
-            new StorageException("WAL write for storage " + storageName + " was interrupted"), e);
+            new StorageException(storageName,
+                "WAL write for storage " + storageName + " was interrupted"),
+            e, storageName);
       } catch (final ExecutionException e) {
         throw BaseException.wrapException(
-            new StorageException("Error during WAL write for storage " + storageName), e);
+            new StorageException(storageName, "Error during WAL write for storage " + storageName),
+            e, storageName);
       }
     }
   }
@@ -632,7 +635,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
                   } else {
                     buffer.get(
                         recordLenBytes, recordLenRead, IntegerSerializer.INT_SIZE - recordLenRead);
-                    recordLen = IntegerSerializer.INSTANCE.deserializeNative(recordLenBytes, 0);
+                    recordLen = IntegerSerializer.deserializeNative(recordLenBytes, 0);
                   }
 
                   if (recordLen == 0) {
@@ -860,7 +863,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
 
     if (magicNumber == CASWALPage.MAGIC_NUMBER_WITH_ENCRYPTION) {
       if (aesKey == null) {
-        throw new EncryptionKeyAbsentException(
+        throw new EncryptionKeyAbsentException(storageName,
             "Can not decrypt WAL page because decryption key is absent.");
       }
 
@@ -951,17 +954,17 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
         recordsWriterFuture.get();
       } catch (final InterruptedException interruptedException) {
         throw BaseException.wrapException(
-            new StorageException(
+            new StorageException(storageName,
                 "WAL records write task for storage '" + storageName + "'  was interrupted"),
-            interruptedException);
+            interruptedException, storageName);
       } catch (ExecutionException executionException) {
         throw BaseException.wrapException(
-            new StorageException(
+            new StorageException(storageName,
                 "WAL records write task for storage '" + storageName + "' was finished with error"),
-            executionException);
+            executionException, storageName);
       }
 
-      throw new StorageException(
+      throw new StorageException(storageName,
           "WAL records write task for storage '" + storageName + "' was unexpectedly finished");
     }
 
@@ -1262,7 +1265,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
     }
 
     if (!recordsWriterFuture.cancel(false) && !recordsWriterFuture.isDone()) {
-      throw new StorageException("Can not cancel background write thread in WAL");
+      throw new StorageException(storageName, "Can not cancel background write thread in WAL");
     }
 
     cancelRecordsWriting = true;
@@ -1272,8 +1275,9 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       // ignore, we canceled scheduled execution
     } catch (InterruptedException | ExecutionException e) {
       throw BaseException.wrapException(
-          new StorageException("Error during writing of WAL records in storage " + storageName),
-          e);
+          new StorageException(storageName,
+              "Error during writing of WAL records in storage " + storageName),
+          e, storageName);
     }
 
     recordsWriterLock.lock();
@@ -1284,9 +1288,9 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
           future.get();
         } catch (InterruptedException | ExecutionException e) {
           throw BaseException.wrapException(
-              new StorageException(
+              new StorageException(storageName,
                   "Error during writing of WAL records in storage " + storageName),
-              e);
+              e, storageName);
         }
       }
 
@@ -1401,8 +1405,9 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       buffer.put(outBuffer);
 
     } catch (InvalidKeyException e) {
-      throw BaseException.wrapException(new InvalidStorageEncryptionKeyException(e.getMessage()),
-          e);
+      throw BaseException.wrapException(
+          new InvalidStorageEncryptionKeyException(storageName, e.getMessage()),
+          e, storageName);
     } catch (InvalidAlgorithmParameterException e) {
       throw new IllegalArgumentException("Invalid IV.", e);
     } catch (IllegalBlockSizeException | BadPaddingException | ShortBufferException e) {
@@ -1838,7 +1843,7 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
                       continue;
                     } else {
                       recordSize = new byte[IntegerSerializer.INT_SIZE];
-                      IntegerSerializer.INSTANCE.serializeNative(
+                      IntegerSerializer.serializeNative(
                           recordContentBinarySize, recordSize, 0);
 
                       recordSizeWritten =
@@ -2034,7 +2039,8 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       LogManager.instance().error(this, "WAL write was interrupted", e);
     } catch (final Exception e) {
       LogManager.instance().error(this, "Error during WAL write", e);
-      throw BaseException.wrapException(new StorageException("Error during WAL data write"), e);
+      throw BaseException.wrapException(
+          new StorageException(storageName, "Error during WAL data write"), e, storageName);
     }
 
     assert file.position() == currentPosition;
@@ -2176,8 +2182,9 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
       return Cipher.getInstance(TRANSFORMATION);
     } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
       throw BaseException.wrapException(
-          new SecurityException("Implementation of encryption " + TRANSFORMATION + " is absent"),
-          e);
+          new SecurityException((String) null,
+              "Implementation of encryption " + TRANSFORMATION + " is absent"),
+          e, (String) null);
     }
   }
 }

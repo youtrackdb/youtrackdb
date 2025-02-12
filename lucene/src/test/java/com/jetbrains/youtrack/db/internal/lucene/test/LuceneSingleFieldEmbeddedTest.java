@@ -18,8 +18,6 @@
 
 package com.jetbrains.youtrack.db.internal.lucene.test;
 
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import java.io.InputStream;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,11 +30,11 @@ public class LuceneSingleFieldEmbeddedTest extends BaseLuceneTest {
   @Test
   public void loadAndTest() {
 
-    var docs = db.query("select * from Song where [title] LUCENE \"(title:mountain)\"");
+    var docs = session.query("select * from Song where [title] LUCENE \"(title:mountain)\"");
 
     Assert.assertEquals(docs.stream().count(), 4);
 
-    docs = db.query("select * from Song where [author] LUCENE \"(author:Fabbio)\"");
+    docs = session.query("select * from Song where [author] LUCENE \"(author:Fabbio)\"");
 
     Assert.assertEquals(docs.stream().count(), 87);
 
@@ -45,7 +43,7 @@ public class LuceneSingleFieldEmbeddedTest extends BaseLuceneTest {
     // LUCENE \"(author:Fabbio)\""
     var query =
         "select * from Song where [title] LUCENE \"(title:mountain)\"  and author = 'Fabbio'";
-    docs = db.query(query);
+    docs = session.query(query);
 
     Assert.assertEquals(docs.stream().count(), 1);
   }
@@ -54,9 +52,9 @@ public class LuceneSingleFieldEmbeddedTest extends BaseLuceneTest {
   public void init() {
     var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
 
-    db.execute("sql", getScriptFromStream(stream)).close();
+    session.execute("sql", getScriptFromStream(stream)).close();
 
-    db.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE").close();
-    db.command("create index Song.author on Song (author) FULLTEXT ENGINE LUCENE").close();
+    session.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE").close();
+    session.command("create index Song.author on Song (author) FULLTEXT ENGINE LUCENE").close();
   }
 }

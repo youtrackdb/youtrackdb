@@ -19,11 +19,6 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
     super(session, cl);
   }
 
-  public EdgeEntityImpl(DatabaseSessionInternal session) {
-    super(session);
-  }
-
-
   public EdgeEntityImpl(DatabaseSessionInternal database, RecordId rid) {
     super(database, rid);
   }
@@ -54,7 +49,7 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
     }
 
     var rid = result.getIdentity();
-    if (schema.getClassByClusterId(rid.getClusterId()).isVertexType()) {
+    if (schema.getClassByClusterId(rid.getClusterId()).isVertexType(db)) {
       return rid;
     }
 
@@ -86,7 +81,7 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
     }
 
     var rid = result.getIdentity();
-    if (schema.getClassByClusterId(rid.getClusterId()).isVertexType()) {
+    if (schema.getClassByClusterId(rid.getClusterId()).isVertexType(db)) {
       return rid;
     }
 
@@ -111,12 +106,6 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
     return this;
   }
 
-  @Override
-  public EdgeEntityImpl copy() {
-    checkForBinding();
-
-    return (EdgeEntityImpl) super.copyTo(new EdgeEntityImpl(getSession()));
-  }
 
   @Override
   public Collection<String> getPropertyNames() {
@@ -216,14 +205,14 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
     return super.removeProperty(fieldName);
   }
 
-  public static void deleteLinks(Edge delegate) {
+  public static void deleteLinks(DatabaseSessionInternal db, Edge delegate) {
     var from = delegate.getFrom();
     if (from != null) {
-      VertexInternal.removeOutgoingEdge(from, delegate);
+      VertexInternal.removeOutgoingEdge(db, from, delegate);
     }
     var to = delegate.getTo();
     if (to != null) {
-      VertexInternal.removeIncomingEdge(to, delegate);
+      VertexInternal.removeIncomingEdge(db, to, delegate);
     }
   }
 }

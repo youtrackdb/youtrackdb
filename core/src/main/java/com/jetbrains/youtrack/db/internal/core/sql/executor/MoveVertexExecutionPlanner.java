@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBatch;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCluster;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
@@ -97,7 +97,7 @@ public class MoveVertexExecutionPlanner {
         case SQLUpdateOperations.TYPE_PUT:
         case SQLUpdateOperations.TYPE_INCREMENT:
         case SQLUpdateOperations.TYPE_ADD:
-          throw new CommandExecutionException(
+          throw new CommandExecutionException(ctx.getDatabaseSession(),
               "Cannot execute with UPDATE PUT/ADD/INCREMENT new executor: " + op);
       }
     }

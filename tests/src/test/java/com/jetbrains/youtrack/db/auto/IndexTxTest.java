@@ -4,12 +4,10 @@ import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -30,20 +28,20 @@ public class IndexTxTest extends BaseDBTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     final var cls = schema.createClass("IndexTxTestClass");
-    cls.createProperty(db, "name", PropertyType.STRING);
-    cls.createIndex(db, "IndexTxTestIndex", SchemaClass.INDEX_TYPE.UNIQUE, "name");
+    cls.createProperty(session, "name", PropertyType.STRING);
+    cls.createIndex(session, "IndexTxTestIndex", SchemaClass.INDEX_TYPE.UNIQUE, "name");
   }
 
   @BeforeMethod
   public void beforeMethod() throws Exception {
     super.beforeMethod();
 
-    var schema = db.getMetadata().getSchema();
+    var schema = session.getMetadata().getSchema();
     var cls = schema.getClassInternal("IndexTxTestClass");
     if (cls != null) {
-      cls.truncate(db);
+      cls.truncate(session);
     }
   }
 
@@ -51,10 +49,10 @@ public class IndexTxTest extends BaseDBTest {
   public void testIndexCrossReferencedDocuments() {
     checkEmbeddedDB();
 
-    db.begin();
+    session.begin();
 
-    final var doc1 = ((EntityImpl) db.newEntity("IndexTxTestClass"));
-    final var doc2 = ((EntityImpl) db.newEntity("IndexTxTestClass"));
+    final var doc1 = ((EntityImpl) session.newEntity("IndexTxTestClass"));
+    final var doc2 = ((EntityImpl) session.newEntity("IndexTxTestClass"));
 
     doc1.save();
     doc2.save();
@@ -67,7 +65,7 @@ public class IndexTxTest extends BaseDBTest {
     doc1.save();
     doc2.save();
 
-    db.commit();
+    session.commit();
 
     Map<String, RID> expectedResult = new HashMap<>();
     expectedResult.put("doc1", doc1.getIdentity());
@@ -83,7 +81,7 @@ public class IndexTxTest extends BaseDBTest {
 
         final var expectedValue = expectedResult.get(key);
         final RID value;
-        try (var stream = index.getInternal().getRids(db, key)) {
+        try (var stream = index.getInternal().getRids(session, key)) {
           value = stream.findAny().orElse(null);
         }
 

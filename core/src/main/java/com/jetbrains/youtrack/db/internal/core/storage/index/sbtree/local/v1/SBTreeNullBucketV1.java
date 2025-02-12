@@ -20,6 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.v1;
 
 import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurablePage;
 
@@ -53,7 +54,8 @@ public final class SBTreeNullBucketV1<V> extends DurablePage {
     setBinaryValue(NEXT_FREE_POSITION + 2, value);
   }
 
-  public SBTreeValue<V> getValue(final BinarySerializer<V> valueSerializer) {
+  public SBTreeValue<V> getValue(final BinarySerializer<V> valueSerializer,
+      BinarySerializerFactory serializerFactory) {
     if (getByteValue(NEXT_FREE_POSITION) == 0) {
       return null;
     }
@@ -62,14 +64,16 @@ public final class SBTreeNullBucketV1<V> extends DurablePage {
     assert !isLink;
 
     return new SBTreeValue<>(
-        false, -1, deserializeFromDirectMemory(valueSerializer, NEXT_FREE_POSITION + 2));
+        false, -1, deserializeFromDirectMemory(valueSerializer, serializerFactory,
+        NEXT_FREE_POSITION + 2));
   }
 
   public void removeValue(BinarySerializer<V> valueSerializer) {
     setByteValue(NEXT_FREE_POSITION, (byte) 0);
   }
 
-  public byte[] getRawValue(final BinarySerializer<V> valueSerializer) {
+  public byte[] getRawValue(final BinarySerializer<V> valueSerializer,
+      BinarySerializerFactory serializerFactory) {
     if (getByteValue(NEXT_FREE_POSITION) == 0) {
       return null;
     }
@@ -79,6 +83,6 @@ public final class SBTreeNullBucketV1<V> extends DurablePage {
 
     return getBinaryValue(
         NEXT_FREE_POSITION + 2,
-        getObjectSizeInDirectMemory(valueSerializer, NEXT_FREE_POSITION + 2));
+        getObjectSizeInDirectMemory(valueSerializer, serializerFactory, NEXT_FREE_POSITION + 2));
   }
 }

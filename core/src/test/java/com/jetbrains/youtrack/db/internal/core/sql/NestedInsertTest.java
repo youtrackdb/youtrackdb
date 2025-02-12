@@ -1,12 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -14,18 +12,18 @@ public class NestedInsertTest extends DbTestBase {
 
   @Test
   public void testEmbeddedValueDate() {
-    Schema schm = db.getMetadata().getSchema();
+    Schema schm = session.getMetadata().getSchema();
     schm.createClass("myClass");
 
-    db.begin();
+    session.begin();
     var result =
-        db.command(
+        session.command(
             "insert into myClass (name,meta) values"
                 + " (\"claudio\",{\"@type\":\"d\",\"country\":\"italy\","
                 + " \"date\":\"2013-01-01\",\"@fieldTypes\":\"date=a\"}) return @this");
-    db.commit();
+    session.commit();
 
-    final EntityImpl res = ((Identifiable) result.next().getProperty("@this")).getRecord(db);
+    final EntityImpl res = ((Identifiable) result.next().getProperty("@this")).getRecord(session);
     final EntityImpl embedded = res.field("meta");
     Assert.assertNotNull(embedded);
 
@@ -36,19 +34,19 @@ public class NestedInsertTest extends DbTestBase {
 
   @Test
   public void testLinkedNested() {
-    Schema schm = db.getMetadata().getSchema();
+    Schema schm = session.getMetadata().getSchema();
     var cl = schm.createClass("myClass");
     var linked = schm.createClass("Linked");
-    cl.createProperty(db, "some", PropertyType.LINK, linked);
+    cl.createProperty(session, "some", PropertyType.LINK, linked);
 
-    db.begin();
+    session.begin();
     var result =
-        db.command(
+        session.command(
             "insert into myClass set some ={\"@type\":\"d\",\"@class\":\"Linked\",\"name\":\"a"
                 + " name\"} return @this");
-    db.commit();
+    session.commit();
 
-    final EntityImpl res = ((Identifiable) result.next().getProperty("@this")).getRecord(db);
+    final EntityImpl res = ((Identifiable) result.next().getProperty("@this")).getRecord(session);
     final EntityImpl ln = res.field("some");
     Assert.assertNotNull(ln);
     Assert.assertTrue(ln.getIdentity().isPersistent());

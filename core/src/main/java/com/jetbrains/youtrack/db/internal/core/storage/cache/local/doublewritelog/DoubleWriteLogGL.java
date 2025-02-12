@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 import net.jpountz.lz4.LZ4Compressor;
 import net.jpountz.lz4.LZ4Factory;
 import net.jpountz.lz4.LZ4FastDecompressor;
@@ -582,7 +581,7 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
                   try {
                     Files.delete(path);
                   } catch (IOException e) {
-                    throw new StorageException(
+                    throw new StorageException(storageName,
                         "Can not delete file " + path + " in storage " + storageName);
                   }
                 });

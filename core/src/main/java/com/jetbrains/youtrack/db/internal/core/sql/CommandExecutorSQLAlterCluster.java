@@ -19,7 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.ClusterDoesNotExistException;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
@@ -51,38 +50,38 @@ public class CommandExecutorSQLAlterCluster extends CommandExecutorSQLAbstract
   protected ATTRIBUTES attribute;
   protected String value;
 
-  public CommandExecutorSQLAlterCluster parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLAlterCluster parse(DatabaseSessionInternal session,
       final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
 
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
       var word = new StringBuilder();
 
       var oldPos = 0;
       var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_ALTER)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_ALTER + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CLUSTER)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_CLUSTER + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
       if (pos == -1) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Expected <cluster-name>. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -98,7 +97,7 @@ public class CommandExecutorSQLAlterCluster extends CommandExecutorSQLAbstract
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Missing cluster attribute to change. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -109,14 +108,13 @@ public class CommandExecutorSQLAlterCluster extends CommandExecutorSQLAbstract
             attributeAsString.toUpperCase(Locale.ENGLISH));
       } catch (IllegalArgumentException e) {
         throw BaseException.wrapException(
-            new CommandSQLParsingException(
+            new CommandSQLParsingException(session,
                 "Unknown class attribute '"
                     + attributeAsString
                     + "'. Supported attributes are: "
-                    + Arrays.toString(StorageCluster.ATTRIBUTES.values()),
-                parserText,
-                oldPos),
-            e);
+                    + Arrays.toString(ATTRIBUTES.values()),
+                parserText, oldPos),
+            e, session);
       }
 
       value = parserText.substring(pos + 1).trim();
@@ -128,13 +126,12 @@ public class CommandExecutorSQLAlterCluster extends CommandExecutorSQLAbstract
       }
 
       if (value.length() == 0) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Missing property value to change for attribute '"
                 + attribute
                 + "'. Use "
                 + getSyntax(),
-            parserText,
-            oldPos);
+            parserText, oldPos);
       }
 
       if (value.equalsIgnoreCase("null")) {
@@ -150,67 +147,57 @@ public class CommandExecutorSQLAlterCluster extends CommandExecutorSQLAbstract
   /**
    * Execute the ALTER CLASS.
    */
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (attribute == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final var clusters = getClusters();
+    final var clusters = getClusters(session);
 
     if (clusters.isEmpty()) {
-      throw new CommandExecutionException("Cluster '" + clusterName + "' not found");
+      throw new CommandExecutionException(session, "Cluster '" + clusterName + "' not found");
     }
 
     Object result = null;
 
-    final var database = getDatabase();
-
-    for (final int clusterId : getClusters()) {
+    for (final int clusterId : getClusters(session)) {
       if (this.clusterId > -1 && clusterName.equals(String.valueOf(this.clusterId))) {
-        clusterName = database.getClusterNameById(clusterId);
+        clusterName = session.getClusterNameById(clusterId);
         if (clusterName == null) {
-          throw new ClusterDoesNotExistException(
+          throw new ClusterDoesNotExistException(session.getDatabaseName(),
               "Cluster with id "
                   + clusterId
                   + " does not exist inside of storage "
-                  + database.getName());
+                  + session.getDatabaseName());
         }
       } else {
         this.clusterId = clusterId;
       }
-      final var storage = database.getStorage();
+      final var storage = session.getStorage();
       result = storage.setClusterAttribute(clusterId, attribute, value);
     }
 
     return result;
   }
 
-  @Override
-  public long getDistributedTimeout() {
-    return getDatabase()
-        .getConfiguration()
-        .getValueAsLong(GlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
-  }
 
-  protected IntArrayList getClusters() {
-    final var database = getDatabase();
-
+  protected IntArrayList getClusters(DatabaseSessionInternal db) {
     final var result = new IntArrayList();
 
     if (clusterName.endsWith("*")) {
       final var toMatch =
           clusterName.substring(0, clusterName.length() - 1).toLowerCase(Locale.ENGLISH);
-      for (var cl : database.getClusterNames()) {
+      for (var cl : db.getClusterNames()) {
         if (cl.startsWith(toMatch)) {
-          result.add(database.getStorage().getClusterIdByName(cl));
+          result.add(db.getStorage().getClusterIdByName(cl));
         }
       }
     } else {
       if (clusterId > -1) {
         result.add(clusterId);
       } else {
-        result.add(database.getStorage().getClusterIdByName(clusterName));
+        result.add(db.getStorage().getClusterIdByName(clusterName));
       }
     }
 
@@ -219,10 +206,5 @@ public class CommandExecutorSQLAlterCluster extends CommandExecutorSQLAbstract
 
   public String getSyntax() {
     return "ALTER CLUSTER <cluster-name>|<cluster-id> <attribute-name> <attribute-value>";
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.ALL;
   }
 }

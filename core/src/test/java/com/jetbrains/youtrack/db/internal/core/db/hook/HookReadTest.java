@@ -14,7 +14,7 @@ public class HookReadTest extends DbTestBase {
 
   @Test
   public void testSelectChangedInHook() {
-    db.registerHook(
+    session.registerHook(
         new RecordHook() {
           @Override
           public void onUnregister() {
@@ -37,14 +37,14 @@ public class HookReadTest extends DbTestBase {
           }
         });
 
-    db.getMetadata().getSchema().createClass("TestClass");
-    db.begin();
-    db.save(db.newEntity("TestClass"));
-    db.commit();
+    session.getMetadata().getSchema().createClass("TestClass");
+    session.begin();
+    session.save(session.newEntity("TestClass"));
+    session.commit();
 
-    db.begin();
-    var res = db.query("select from TestClass");
+    session.begin();
+    var res = session.query("select from TestClass");
     assertEquals("test", res.next().getProperty("read"));
-    db.commit();
+    session.commit();
   }
 }

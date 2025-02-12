@@ -7,7 +7,6 @@ import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.AggregationContext;
@@ -35,10 +34,6 @@ public class SQLFunctionCall extends SimpleNode {
 
   public SQLFunctionCall(YouTrackDBSql p, int id) {
     super(p, id);
-  }
-
-  public static DatabaseSessionInternal getDatabase() {
-    return DatabaseRecordThreadLocal.instance().get();
   }
 
   public boolean isStar() {
@@ -136,14 +131,15 @@ public class SQLFunctionCall extends SimpleNode {
       } else if (record == null) {
         paramValues.add(expr.execute((Result) record, ctx));
       } else {
-        throw new CommandExecutionException("Invalid value for $current: " + record);
+        throw new CommandExecutionException(ctx.getDatabaseSession(),
+            "Invalid value for $current: " + record);
       }
     }
-    var function = SQLEngine.getInstance().getFunction(ctx.getDatabase(), name);
+    var function = SQLEngine.getInstance().getFunction(ctx.getDatabaseSession(), name);
     if (function != null) {
       function.config(this.params.toArray());
 
-      validateFunctionParams(ctx.getDatabase(), function, paramValues);
+      validateFunctionParams(ctx.getDatabaseSession(), function, paramValues);
 
       ctx.setVariable("aggregation", false);
       if (record instanceof Identifiable) {
@@ -159,10 +155,11 @@ public class SQLFunctionCall extends SimpleNode {
       } else if (record == null) {
         return function.execute(targetObjects, null, null, paramValues.toArray(), ctx);
       } else {
-        throw new CommandExecutionException("Invalid value for $current: " + record);
+        throw new CommandExecutionException(ctx.getDatabaseSession(),
+            "Invalid value for $current: " + record);
       }
     } else {
-      throw new CommandExecutionException("Funciton not found: " + name);
+      throw new CommandExecutionException(ctx.getDatabaseSession(), "Funciton not found: " + name);
     }
   }
 
@@ -178,7 +175,7 @@ public class SQLFunctionCall extends SimpleNode {
         } else {
           params = function.getMinParams() + "-" + function.getMaxParams(session);
         }
-        throw new CommandExecutionException(
+        throw new CommandExecutionException(session,
             "Syntax error: function '"
                 + function.getName(session)
                 + "' needs "
@@ -207,7 +204,7 @@ public class SQLFunctionCall extends SimpleNode {
       SQLFromClause target, CommandContext ctx, SQLBinaryCompareOperator operator,
       Object rightValue) {
     var function = SQLEngine.getInstance()
-        .getFunction(ctx.getDatabase(), name.getStringValue());
+        .getFunction(ctx.getDatabaseSession(), name.getStringValue());
     if (function instanceof IndexableSQLFunction) {
       return ((IndexableSQLFunction) function)
           .searchFromTarget(
@@ -228,7 +225,7 @@ public class SQLFunctionCall extends SimpleNode {
       SQLFromClause target, CommandContext ctx, SQLBinaryCompareOperator operator,
       Object rightValue) {
     var function = SQLEngine.getInstance()
-        .getFunction(ctx.getDatabase(), name.getStringValue());
+        .getFunction(ctx.getDatabaseSession(), name.getStringValue());
     if (function instanceof IndexableSQLFunction) {
       return ((IndexableSQLFunction) function)
           .estimate(target, operator, rightValue, ctx, this.params.toArray(new SQLExpression[]{}));
@@ -251,7 +248,7 @@ public class SQLFunctionCall extends SimpleNode {
       SQLFromClause target, CommandContext context, SQLBinaryCompareOperator operator,
       Object right) {
     var function = SQLEngine.getInstance()
-        .getFunction(context.getDatabase(), name.getStringValue());
+        .getFunction(context.getDatabaseSession(), name.getStringValue());
     if (function instanceof IndexableSQLFunction) {
       return ((IndexableSQLFunction) function)
           .canExecuteInline(
@@ -274,7 +271,7 @@ public class SQLFunctionCall extends SimpleNode {
       SQLFromClause target, CommandContext context, SQLBinaryCompareOperator operator,
       Object right) {
     var function = SQLEngine.getInstance()
-        .getFunction(context.getDatabase(), name.getStringValue());
+        .getFunction(context.getDatabaseSession(), name.getStringValue());
     if (function instanceof IndexableSQLFunction) {
       return ((IndexableSQLFunction) function)
           .allowsIndexedExecution(
@@ -298,7 +295,7 @@ public class SQLFunctionCall extends SimpleNode {
       SQLFromClause target, CommandContext context, SQLBinaryCompareOperator operator,
       Object right) {
     var function = SQLEngine.getInstance()
-        .getFunction(context.getDatabase(), name.getStringValue());
+        .getFunction(context.getDatabaseSession(), name.getStringValue());
     if (function instanceof IndexableSQLFunction) {
       return ((IndexableSQLFunction) function)
           .shouldExecuteAfterSearch(
@@ -336,7 +333,7 @@ public class SQLFunctionCall extends SimpleNode {
 
   public SimpleNode splitForAggregation(
       AggregateProjectionSplit aggregateProj, CommandContext ctx) {
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     if (isAggregate(db)) {
       var newFunct = new SQLFunctionCall(-1);
       newFunct.name = this.name;
@@ -351,7 +348,7 @@ public class SQLFunctionCall extends SimpleNode {
         } else {
           for (var param : params) {
             if (param.isAggregate(db)) {
-              throw new CommandExecutionException(
+              throw new CommandExecutionException(ctx.getDatabaseSession(),
                   "Cannot calculate an aggregate function of another aggregate function " + this);
             }
             var nextAlias = aggregateProj.getNextAlias();
@@ -404,7 +401,7 @@ public class SQLFunctionCall extends SimpleNode {
 
   public boolean isEarlyCalculated(CommandContext ctx) {
 
-    if (isTraverseFunction(ctx.getDatabase())) {
+    if (isTraverseFunction(ctx.getDatabaseSession())) {
       return false;
     }
 
@@ -427,7 +424,7 @@ public class SQLFunctionCall extends SimpleNode {
 
   public AggregationContext getAggregationContext(CommandContext ctx) {
     var function = SQLEngine.getInstance()
-        .getFunction(ctx.getDatabase(), name.getStringValue());
+        .getFunction(ctx.getDatabaseSession(), name.getStringValue());
     function.config(this.params.toArray());
 
     var result = new FuncitonAggregationContext(function, this.params);

@@ -73,26 +73,26 @@ public class LiveQueryTest extends BaseDBTest implements CommandOutputListener {
   public void checkLiveQuery1() throws IOException, InterruptedException {
     final var className1 = "LiveQueryTest1_1";
     final var className2 = "LiveQueryTest1_2";
-    db.getMetadata().getSchema().createClass(className1);
-    db.getMetadata().getSchema().createClass(className2);
+    session.getMetadata().getSchema().createClass(className1);
+    session.getMetadata().getSchema().createClass(className2);
 
     var listener = new MyLiveQueryListener();
 
     LegacyResultSet<EntityImpl> tokens =
-        db.query(new LiveQuery<EntityImpl>("live select from " + className1, listener));
+        session.query(new LiveQuery<EntityImpl>("live select from " + className1, listener));
     Assert.assertEquals(tokens.size(), 1);
     var tokenDoc = tokens.get(0);
     int token = tokenDoc.field("token");
     Assert.assertNotNull(token);
 
-    db.command("insert into " + className1 + " set name = 'foo', surname = 'bar'").close();
-    db.command("insert into  " + className1 + " set name = 'foo', surname = 'baz'").close();
+    session.command("insert into " + className1 + " set name = 'foo', surname = 'bar'").close();
+    session.command("insert into  " + className1 + " set name = 'foo', surname = 'baz'").close();
     /// TODO check
-    db.command("insert into " + className2 + " set name = 'foo'").close();
+    session.command("insert into " + className2 + " set name = 'foo'").close();
     latch.await(1, TimeUnit.MINUTES);
 
-    db.command("live unsubscribe " + token).close();
-    db.command("insert into " + className1 + " set name = 'foo', surname = 'bax'").close();
+    session.command("live unsubscribe " + token).close();
+    session.command("insert into " + className1 + " set name = 'foo', surname = 'bax'").close();
     Assert.assertEquals(listener.ops.size(), 2);
     for (var doc : listener.ops) {
       Assert.assertEquals(doc.type, RecordOperation.CREATED);

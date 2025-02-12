@@ -30,7 +30,7 @@ public class SQLMoveVertexStatement extends SQLStatement {
 
   @Override
   public ResultSet execute(
-      DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
+      DatabaseSessionInternal session, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
@@ -38,18 +38,18 @@ public class SQLMoveVertexStatement extends SQLStatement {
         params.put(i, args[i]);
       }
     }
-    return execute(db, params, parentCtx, usePlanCache);
+    return execute(session, params, parentCtx, usePlanCache);
   }
 
   @Override
   public ResultSet execute(
-      DatabaseSessionInternal db, Map<Object, Object> params, CommandContext parentCtx,
+      DatabaseSessionInternal session, Map<Object, Object> params, CommandContext parentCtx,
       boolean usePlanCache) {
     var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
-    ctx.setDatabase(db);
+    ctx.setDatabaseSession(session);
     ctx.setInputParameters(params);
     UpdateExecutionPlan executionPlan;
     if (usePlanCache) {
@@ -58,7 +58,7 @@ public class SQLMoveVertexStatement extends SQLStatement {
       executionPlan = (UpdateExecutionPlan) createExecutionPlanNoCache(ctx, false);
     }
     executionPlan.executeInternal();
-    return new LocalResultSet(executionPlan);
+    return new LocalResultSet(session, executionPlan);
   }
 
   public UpdateExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {

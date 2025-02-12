@@ -19,22 +19,15 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command;
 
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.common.parser.BaseParser;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.ExecutionThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.exception.CommandInterruptedException;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -49,12 +42,9 @@ public abstract class CommandExecutorAbstract extends BaseParser implements Comm
   protected Map<Object, Object> parameters;
   protected CommandContext context;
 
-  public static DatabaseSessionInternal getDatabase() {
-    return DatabaseRecordThreadLocal.instance().get();
-  }
-
-  public CommandExecutorAbstract init(final CommandRequestText iRequest) {
-    getDatabase().checkSecurity(Rule.ResourceGeneric.COMMAND, Role.PERMISSION_READ);
+  public CommandExecutorAbstract init(DatabaseSessionInternal db,
+      final CommandRequestText iRequest) {
+    db.checkSecurity(Rule.ResourceGeneric.COMMAND, Role.PERMISSION_READ);
     parserText = iRequest.getText().trim();
     parserTextUpperCase = SQLPredicate.upperCase(parserText);
     return this;
@@ -73,16 +63,6 @@ public abstract class CommandExecutorAbstract extends BaseParser implements Comm
       final ProgressListener progressListener) {
     this.progressListener = progressListener;
     return (RET) this;
-  }
-
-  public String getUndoCommand() {
-    return null;
-  }
-
-  public long getDistributedTimeout() {
-    return getDatabase()
-        .getConfiguration()
-        .getValueAsLong(GlobalConfiguration.DISTRIBUTED_COMMAND_LONG_TASK_SYNCH_TIMEOUT);
   }
 
   public int getLimit() {
@@ -112,7 +92,7 @@ public abstract class CommandExecutorAbstract extends BaseParser implements Comm
   }
 
   @Override
-  public Set<String> getInvolvedClusters() {
+  public Set<String> getInvolvedClusters(DatabaseSessionInternal session) {
     return Collections.EMPTY_SET;
   }
 
@@ -121,30 +101,17 @@ public abstract class CommandExecutorAbstract extends BaseParser implements Comm
     return Role.PERMISSION_READ;
   }
 
-  public boolean involveSchema() {
-    return false;
-  }
-
   protected boolean checkInterruption() {
     return checkInterruption(this.context);
   }
 
   public static boolean checkInterruption(final CommandContext iContext) {
     if (ExecutionThreadLocal.isInterruptCurrentOperation()) {
-      throw new CommandInterruptedException("The command has been interrupted");
+      throw new CommandInterruptedException(iContext.getDatabaseSession().getDatabaseName(),
+          "The command has been interrupted");
     }
 
     return iContext == null || iContext.checkTimeout();
-  }
-
-  public CommandDistributedReplicateRequest.DISTRIBUTED_RESULT_MGMT
-  getDistributedResultManagement() {
-    return CommandDistributedReplicateRequest.DISTRIBUTED_RESULT_MGMT.CHECK_FOR_EQUALS;
-  }
-
-  @Override
-  public boolean isLocalExecution() {
-    return false;
   }
 
   @Override
@@ -152,50 +119,4 @@ public abstract class CommandExecutorAbstract extends BaseParser implements Comm
     return false;
   }
 
-  public Object mergeResults(final Map<String, Object> results) throws Exception {
-
-    if (results.isEmpty()) {
-      return null;
-    }
-
-    Object aggregatedResult = null;
-
-    for (var entry : results.entrySet()) {
-      final var nodeName = entry.getKey();
-      final var nodeResult = entry.getValue();
-
-      if (nodeResult instanceof Collection) {
-        if (aggregatedResult == null) {
-          aggregatedResult = new ArrayList();
-        }
-
-        ((List) aggregatedResult).addAll((Collection<?>) nodeResult);
-
-      } else if (nodeResult instanceof Exception)
-
-      // RECEIVED EXCEPTION
-      {
-        throw (Exception) nodeResult;
-      } else if (nodeResult instanceof Identifiable) {
-        if (aggregatedResult == null) {
-          aggregatedResult = new ArrayList();
-        }
-
-        ((List) aggregatedResult).add(nodeResult);
-
-      } else if (nodeResult instanceof Number) {
-        if (aggregatedResult == null) {
-          aggregatedResult = nodeResult;
-        } else {
-          MultiValue.add(aggregatedResult, nodeResult);
-        }
-      }
-    }
-
-    return aggregatedResult;
-  }
-
-  public boolean isDistributedExecutingOnLocalNodeFirst() {
-    return true;
-  }
 }

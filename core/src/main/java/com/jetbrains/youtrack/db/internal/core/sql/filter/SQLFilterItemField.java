@@ -25,20 +25,15 @@ import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.Collate;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.parser.BaseParser;
-import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyEncryption;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BinaryField;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BytesContainer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.EntitySerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerBinary;
-import com.jetbrains.youtrack.db.internal.core.sql.method.SQLMethodRuntime;
 import com.jetbrains.youtrack.db.internal.core.sql.method.misc.SQLMethodField;
 import java.util.Set;
 
@@ -93,9 +88,10 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
     }
   }
 
-  public SQLFilterItemField(final String iName, final SchemaClass iClass) {
+  public SQLFilterItemField(DatabaseSessionInternal db, final String iName,
+      final SchemaClass iClass) {
     this.name = IOUtils.getStringContent(iName);
-    collate = getCollateForField(iClass, name);
+    collate = getCollateForField(db, iClass, name);
     if (iClass != null) {
       collatePreset = true;
     }
@@ -105,7 +101,7 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
       DatabaseSessionInternal session, final BaseParser iQueryToParse, final String iName,
       final SchemaClass iClass) {
     super(session, iQueryToParse, iName);
-    collate = getCollateForField(iClass, iName);
+    collate = getCollateForField(session, iClass, iName);
     if (iClass != null) {
       collatePreset = true;
     }
@@ -114,7 +110,7 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
   public Object getValue(
       final Identifiable iRecord, final Object iCurrentResult, final CommandContext iContext) {
     if (iRecord == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(iContext.getDatabaseSession(),
           "expression item '" + name + "' cannot be resolved because current record is NULL");
     }
 
@@ -124,7 +120,7 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
       }
     }
 
-    final EntityImpl entity = iRecord.getRecord(iContext.getDatabase());
+    final EntityImpl entity = iRecord.getRecord(iContext.getDatabaseSession());
 
     if (preLoadedFieldsArray == null
         && preLoadedFields != null
@@ -146,16 +142,16 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
     if (!collatePreset) {
       SchemaClass schemaClass = EntityInternalUtils.getImmutableSchemaClass(entity);
       if (schemaClass != null) {
-        collate = getCollateForField(schemaClass, name);
+        collate = getCollateForField(iContext.getDatabaseSession(), schemaClass, name);
       }
     }
 
     return transformValue(iRecord, iContext, v);
   }
 
-  public BinaryField getBinaryField(DatabaseSessionInternal db, final Identifiable iRecord) {
+  public BinaryField getBinaryField(DatabaseSessionInternal session, final Identifiable iRecord) {
     if (iRecord == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "expression item '" + name + "' cannot be resolved because current record is NULL");
     }
 
@@ -165,20 +161,19 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
       return null;
     }
 
-    final EntityImpl rec = iRecord.getRecord(db);
+    final EntityImpl rec = iRecord.getRecord(session);
     var encryption = EntityInternalUtils.getPropertyEncryption(rec);
     var serialized = new BytesContainer(rec.toStream());
     var version = serialized.bytes[serialized.offset++];
     var serializer = RecordSerializerBinary.INSTANCE.getSerializer(version);
 
     // check for embedded objects, they have invalid ID and they are serialized with class name
-    return serializer.deserializeField(
+    return serializer.deserializeField(session,
         serialized,
         EntityInternalUtils.getImmutableSchemaClass(rec),
         name,
         rec.isEmbedded(),
-        db.getMetadata().getImmutableSchemaSnapshot(),
-        encryption);
+        session.getMetadata().getImmutableSchemaSnapshot(), encryption);
   }
 
   public String getRoot(DatabaseSession session) {
@@ -249,11 +244,11 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
    * get the collate of this expression, based on the fully evaluated field chain starting from the
    * passed object.
    *
-   * @param db
-   * @param object the root element (entity?) of this field chain
+   * @param session
+   * @param object  the root element (entity?) of this field chain
    * @return the collate, null if no collate is defined
    */
-  public Collate getCollate(DatabaseSessionInternal db, Object object) {
+  public Collate getCollate(DatabaseSessionInternal session, Object object) {
     if (collate != null || operationsChain == null || !isFieldChain()) {
       return collate;
     }
@@ -262,24 +257,24 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
     }
     var chain = getFieldChain();
     try {
-      EntityImpl lastDoc = ((Identifiable) object).getRecord(db);
+      EntityImpl lastDoc = ((Identifiable) object).getRecord(session);
       for (var i = 0; i < chain.getItemCount() - 1; i++) {
         var nextDoc = lastDoc.field(chain.getItemName(i));
         if (!(nextDoc instanceof Identifiable)) {
           return null;
         }
-        lastDoc = ((Identifiable) nextDoc).getRecord(db);
+        lastDoc = ((Identifiable) nextDoc).getRecord(session);
       }
       SchemaClass schemaClass = EntityInternalUtils.getImmutableSchemaClass(lastDoc);
       if (schemaClass == null) {
         return null;
       }
-      var property = schemaClass.getProperty(
+      var property = schemaClass.getProperty(session,
           chain.getItemName(chain.getItemCount() - 1));
       if (property == null) {
         return null;
       }
-      return property.getCollate();
+      return property.getCollate(session);
     } catch (RecordNotFoundException rnf) {
       return null;
     }

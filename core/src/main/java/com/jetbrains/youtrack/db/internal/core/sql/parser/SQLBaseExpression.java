@@ -7,7 +7,6 @@ import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.Collate;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
@@ -315,7 +314,7 @@ public class SQLBaseExpression extends SQLMathExpression {
 
   public SimpleNode splitForAggregation(
       AggregateProjectionSplit aggregateProj, CommandContext ctx) {
-    if (isAggregate(ctx.getDatabase())) {
+    if (isAggregate(ctx.getDatabaseSession())) {
       var splitResult = identifier.splitForAggregation(aggregateProj, ctx);
       if (splitResult instanceof SQLBaseIdentifier) {
         var result = new SQLBaseExpression(-1);
@@ -332,7 +331,7 @@ public class SQLBaseExpression extends SQLMathExpression {
     if (identifier != null) {
       return identifier.getAggregationContext(ctx);
     } else {
-      throw new CommandExecutionException("cannot aggregate on " + this);
+      throw new CommandExecutionException(ctx.getDatabaseSession(), "cannot aggregate on " + this);
     }
   }
 
@@ -519,10 +518,11 @@ public class SQLBaseExpression extends SQLMathExpression {
     if (modifier == null) {
       return false;
     }
+    var db = ctx.getDatabaseSession();
     if (identifier.isIndexChain(ctx, clazz)) {
-      var prop = clazz.getProperty(
+      var prop = clazz.getProperty(db,
           identifier.getSuffix().getIdentifier().getStringValue());
-      var linkedClass = (SchemaClassInternal) prop.getLinkedClass();
+      var linkedClass = (SchemaClassInternal) prop.getLinkedClass(ctx.getDatabaseSession());
       if (linkedClass != null) {
         return modifier.isIndexChain(ctx, linkedClass);
       }

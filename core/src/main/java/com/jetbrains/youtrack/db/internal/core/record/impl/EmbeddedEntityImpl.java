@@ -4,7 +4,6 @@ import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import java.lang.ref.WeakReference;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -25,14 +24,6 @@ public class EmbeddedEntityImpl extends EntityImpl {
     return true;
   }
 
-  @Override
-  public EmbeddedEntityImpl copy() {
-    var entity = new EmbeddedEntityImpl(getSession());
-    RecordInternal.unsetDirty(entity);
-    var newEntity = (EmbeddedEntityImpl) copyTo(entity);
-    newEntity.dirty = 1;
-    return newEntity;
-  }
 
   @Override
   protected void addOwner(RecordElement iOwner) {

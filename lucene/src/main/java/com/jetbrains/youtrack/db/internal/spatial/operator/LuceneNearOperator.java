@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.locationtech.spatial4j.distance.DistanceUtils;
-import org.locationtech.spatial4j.shape.Circle;
 import org.locationtech.spatial4j.shape.Point;
 import org.locationtech.spatial4j.shape.Shape;
 import org.locationtech.spatial4j.shape.SpatialRelation;
@@ -99,14 +98,14 @@ public class LuceneNearOperator extends QueryTargetOperator {
     var spatial = iContext.getVariable("spatial");
     if (spatial != null) {
       if (spatial instanceof Number) {
-        distance = PropertyType.convert(iContext.getDatabase(), spatial,
+        distance = PropertyType.convert(iContext.getDatabaseSession(), spatial,
             Double.class).doubleValue();
       } else if (spatial instanceof Map) {
         var params = (Map<String, Object>) spatial;
 
         var dst = params.get("maxDistance");
         if (dst != null && dst instanceof Number) {
-          distance = PropertyType.convert(iContext.getDatabase(), dst,
+          distance = PropertyType.convert(iContext.getDatabaseSession(), dst,
               Double.class).doubleValue();
         }
       }
@@ -116,7 +115,7 @@ public class LuceneNearOperator extends QueryTargetOperator {
 
     return index
         .getInternal()
-        .getRids(iContext.getDatabase(),
+        .getRids(iContext.getDatabaseSession(),
             new SpatialCompositeKey(keyParams).setMaxDistance(distance).setContext(iContext))
         .map((rid) -> new RawPair<>(new SpatialCompositeKey(keyParams), rid));
   }

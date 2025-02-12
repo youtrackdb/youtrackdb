@@ -75,7 +75,7 @@ public class BeginTransaction38Request implements BinaryRequest<BeginTransaction
   }
 
   @Override
-  public void write(DatabaseSessionInternal db, ChannelDataOutput network,
+  public void write(DatabaseSessionInternal databaseSession, ChannelDataOutput network,
       StorageRemoteSession session) throws IOException {
     // from 3.0 the the serializer is bound to the protocol
     var serializer = RecordSerializerNetworkV37Client.INSTANCE;
@@ -94,7 +94,8 @@ public class BeginTransaction38Request implements BinaryRequest<BeginTransaction
   }
 
   @Override
-  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+  public void read(DatabaseSessionInternal databaseSession, ChannelDataInput channel,
+      int protocolVersion,
       RecordSerializerNetwork serializer)
       throws IOException {
     txId = channel.readLong();

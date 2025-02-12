@@ -37,15 +37,11 @@ public class BinaryTokenSerializer implements TokenMetaInfo {
     associetedTypes = createMap(entityTypes);
   }
 
-  private TokenPayloadDeserializer getForType(String type) {
-    switch (type) {
-      // The "node" token is for backward compatibility for old distributed binary, may be removed
-      // if we do not support runtime compatibility with 3.1 or less
-      case "node":
-        return new DistributedBinaryTokenPayloadDeserializer();
-      case "YouTrackDB":
-        return new BinaryTokenPayloadDeserializer();
+  private static TokenPayloadDeserializer getForType(String type) {
+    if ("YouTrackDB".equals(type)) {
+      return new BinaryTokenPayloadDeserializer();
     }
+
     throw new DatabaseException("Unknown payload type");
   }
 

@@ -13,8 +13,6 @@
  */
 package com.jetbrains.youtrack.db.internal.security.auditing;
 
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
@@ -103,7 +101,7 @@ public class SystemDBImporter extends Thread {
         return;
       }
 
-      sysdb = context.getSystemDatabase().openSystemDatabase();
+      sysdb = context.getSystemDatabase().openSystemDatabaseSession();
 
       LogManager.instance()
           .info(this, "Starting import of the auditing log from database: %s", dbName);

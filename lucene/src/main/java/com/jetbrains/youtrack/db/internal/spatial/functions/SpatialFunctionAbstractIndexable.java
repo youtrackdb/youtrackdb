@@ -17,18 +17,14 @@ import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.IndexableSQLFunction;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCompareOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLJson;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLeOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLtOperator;
@@ -57,7 +53,7 @@ public abstract class SpatialFunctionAbstractIndexable extends SpatialFunctionAb
   protected LuceneSpatialIndex searchForIndex(DatabaseSessionInternal session,
       SQLFromClause target,
       SQLExpression[] args) {
-    var dbMetadata = getDb().getMetadata();
+    var dbMetadata = session.getMetadata();
 
     var item = target.getItem();
     var identifier = item.getIdentifier();
@@ -83,13 +79,10 @@ public abstract class SpatialFunctionAbstractIndexable extends SpatialFunctionAb
     return indices.isEmpty() ? null : indices.get(0);
   }
 
-  protected DatabaseSessionInternal getDb() {
-    return DatabaseRecordThreadLocal.instance().get();
-  }
-
   protected Iterable<Identifiable> results(
       SQLFromClause target, SQLExpression[] args, CommandContext ctx, Object rightValue) {
-    Index index = searchForIndex(ctx.getDatabase(), target, args);
+    var session = ctx.getDatabaseSession();
+    Index index = searchForIndex(session, target, args);
 
     if (index == null) {
       return null;
@@ -98,7 +91,7 @@ public abstract class SpatialFunctionAbstractIndexable extends SpatialFunctionAb
     Map<String, Object> queryParams = new HashMap<>();
     queryParams.put(SpatialQueryBuilderAbstract.GEO_FILTER, operator());
     Object shape;
-    var db = ctx.getDatabase();
+
     if (args[1].getValue() instanceof SQLJson json) {
       var doc = new EntityImpl(null);
       doc.updateFromJSON(json.toString());
@@ -129,7 +122,8 @@ public abstract class SpatialFunctionAbstractIndexable extends SpatialFunctionAb
           }
         }
       } else {
-        throw new CommandExecutionException("The collection in input cannot be major than 1");
+        throw new CommandExecutionException(session,
+            "The collection in input cannot be major than 1");
       }
     }
 
@@ -146,7 +140,8 @@ public abstract class SpatialFunctionAbstractIndexable extends SpatialFunctionAb
       ctx.setVariable("involvedIndexes", indexes);
     }
     indexes.add(index.getName());
-    return index.getInternal().getRids(ctx.getDatabase(), queryParams).collect(Collectors.toSet());
+    return index.getInternal().getRids(ctx.getDatabaseSession(), queryParams)
+        .collect(Collectors.toSet());
   }
 
   protected void onAfterParsing(
@@ -177,7 +172,7 @@ public abstract class SpatialFunctionAbstractIndexable extends SpatialFunctionAb
     if (!isValidBinaryOperator(operator)) {
       return false;
     }
-    var index = searchForIndex(ctx.getDatabase(), target, args);
+    var index = searchForIndex(ctx.getDatabaseSession(), target, args);
 
     return index != null;
   }
@@ -200,8 +195,8 @@ public abstract class SpatialFunctionAbstractIndexable extends SpatialFunctionAb
       CommandContext ctx,
       SQLExpression... args) {
 
-    var index = searchForIndex(ctx.getDatabase(), target, args);
-    return index == null ? -1 : index.size(ctx.getDatabase());
+    var index = searchForIndex(ctx.getDatabaseSession(), target, args);
+    return index == null ? -1 : index.size(ctx.getDatabaseSession());
   }
 
   public static <T> boolean intersect(List<T> list1, List<T> list2) {

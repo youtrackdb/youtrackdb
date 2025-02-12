@@ -2,15 +2,11 @@ package com.jetbrains.youtrack.db.auto;
 
 import static org.testng.AssertJUnit.assertTrue;
 
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.client.remote.ServerAdmin;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
-import com.jetbrains.youtrack.db.internal.core.storage.StorageOperationResult;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Random;
 import org.testng.Assert;
 import org.testng.annotations.Parameters;
@@ -64,9 +60,9 @@ public class RemoteProtocolCommandsTest extends BaseDBTest {
   // This is not supported anymore direct record operations are removed from the storage, only tx is
   // available
   public void testRawCreateWithoutIDTest() {
-    var clazz = this.db.getMetadata().getSchema().createClass("RidCreationTestClass");
-    var storage = (AbstractPaginatedStorage) this.db.getStorage();
-    var doc = ((EntityImpl) db.newEntity("RidCreationTestClass"));
+    var clazz = this.session.getMetadata().getSchema().createClass("RidCreationTestClass");
+    var storage = (AbstractPaginatedStorage) this.session.getStorage();
+    var doc = ((EntityImpl) session.newEntity("RidCreationTestClass"));
     doc.field("test", "test");
     var bad = new RecordId(-1, -1);
     var res =
@@ -74,12 +70,12 @@ public class RemoteProtocolCommandsTest extends BaseDBTest {
 
     // assertTrue(" the cluster is not valid", bad.clusterId >= 0);
     var ids = "";
-    for (var aId : clazz.getClusterIds()) {
+    for (var aId : clazz.getClusterIds(session)) {
       ids += aId;
     }
 
     assertTrue(
         " returned id:" + bad.getClusterId() + " shoud be one of:" + ids,
-        Arrays.binarySearch(clazz.getClusterIds(), bad.getClusterId()) >= 0);
+        Arrays.binarySearch(clazz.getClusterIds(session), bad.getClusterId()) >= 0);
   }
 }

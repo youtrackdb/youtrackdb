@@ -50,7 +50,7 @@ public final class ReadRecordRequest implements BinaryRequest<ReadRecordResponse
   }
 
   @Override
-  public void write(DatabaseSessionInternal database, ChannelDataOutput network,
+  public void write(DatabaseSessionInternal databaseSession, ChannelDataOutput network,
       StorageRemoteSession session) throws IOException {
     network.writeRID(rid);
     network.writeString(fetchPlan != null ? fetchPlan : "");
@@ -58,7 +58,8 @@ public final class ReadRecordRequest implements BinaryRequest<ReadRecordResponse
     network.writeByte((byte) (loadTumbstone ? 1 : 0));
   }
 
-  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+  public void read(DatabaseSessionInternal databaseSession, ChannelDataInput channel,
+      int protocolVersion,
       RecordSerializerNetwork serializer)
       throws IOException {
     rid = channel.readRID();

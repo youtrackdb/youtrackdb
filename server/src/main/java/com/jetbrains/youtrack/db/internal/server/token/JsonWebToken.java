@@ -68,7 +68,7 @@ public class JsonWebToken implements
   }
 
   @Override
-  public String getDatabase() {
+  public String getDatabaseName() {
     return payload.getDatabase();
   }
 

@@ -13,9 +13,8 @@
  */
 package com.jetbrains.youtrack.db.internal.spatial;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import java.util.HashMap;
 import org.junit.Assert;
 import org.junit.Test;
@@ -41,7 +40,7 @@ public class LuceneSpatialFunctionAsGeoJSONTest extends DbTestBase {
   protected void queryAndMatch(String wkt, String geoJson) {
 
     var query =
-        db.query(
+        session.query(
             "SELECT ST_GeomFromText(:wkt) as wkt,ST_GeomFromGeoJSON(:geoJson) as geoJson;",
             new HashMap() {
               {

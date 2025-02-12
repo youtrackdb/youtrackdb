@@ -49,23 +49,23 @@ public class SQLMethodNext extends AbstractSQLMethod {
       Object ioResult,
       Object[] iParams) {
     if (iThis == null) {
-      throw new CommandSQLParsingException(
+      throw new CommandSQLParsingException(iContext.getDatabaseSession().getDatabaseName(),
           "Method 'next()' can be invoked only on OSequence instances, while NULL was found");
     }
 
     if (!(iThis instanceof DBSequence)) {
-      throw new CommandSQLParsingException(
+      throw new CommandSQLParsingException(iContext.getDatabaseSession().getDatabaseName(),
           "Method 'next()' can be invoked only on OSequence instances, while '"
               + iThis.getClass()
               + "' was found");
     }
 
     try {
-      return ((DBSequence) iThis).next(iContext.getDatabase());
+      return ((DBSequence) iThis).next(iContext.getDatabaseSession());
     } catch (DatabaseException exc) {
       var message = "Unable to execute command: " + exc.getMessage();
       LogManager.instance().error(this, message, exc, (Object) null);
-      throw new CommandExecutionException(message);
+      throw new CommandExecutionException(iContext.getDatabaseSession(), message);
     }
   }
 }

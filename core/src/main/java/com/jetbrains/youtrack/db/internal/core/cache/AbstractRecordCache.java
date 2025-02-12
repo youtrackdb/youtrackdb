@@ -23,8 +23,10 @@ import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.profiler.AbstractProfiler.ProfilerHookValue;
 import com.jetbrains.youtrack.db.internal.common.profiler.Profiler.METRIC_TYPE;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.util.HashSet;
 import java.util.Set;
+import javax.annotation.Nonnull;
 
 /**
  * Cache of documents. Delegates real work on storing to {@link RecordCache} implementation passed
@@ -127,7 +129,7 @@ public abstract class AbstractRecordCache {
   /**
    * All operations running at cache initialization stage
    */
-  public void startup() {
+  public void startup(@Nonnull DatabaseSessionInternal db) {
     underlying.startup();
 
     YouTrackDBEnginesManager.instance()

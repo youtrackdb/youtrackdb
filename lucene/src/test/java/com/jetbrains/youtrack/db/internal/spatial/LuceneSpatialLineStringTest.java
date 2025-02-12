@@ -13,10 +13,7 @@
  */
 package com.jetbrains.youtrack.db.internal.spatial;
 
-import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
@@ -39,16 +36,17 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
 
   @Before
   public void initMore() {
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var v = schema.getClass("V");
     var oClass = schema.createClass("Place");
-    oClass.setSuperClass(db, v);
-    oClass.createProperty(db, "location", PropertyType.EMBEDDED, schema.getClass("OLineString"));
-    oClass.createProperty(db, "name", PropertyType.STRING);
+    oClass.setSuperClass(session, v);
+    oClass.createProperty(session, "location", PropertyType.EMBEDDED,
+        schema.getClass("OLineString"));
+    oClass.createProperty(session, "name", PropertyType.STRING);
 
-    db.command("CREATE INDEX Place.location ON Place(location) SPATIAL ENGINE LUCENE").close();
+    session.command("CREATE INDEX Place.location ON Place(location) SPATIAL ENGINE LUCENE").close();
 
-    var linestring1 = ((EntityImpl) db.newEntity("Place"));
+    var linestring1 = ((EntityImpl) session.newEntity("Place"));
     linestring1.field("name", "LineString1");
     linestring1.field(
         "location",
@@ -60,7 +58,7 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
               }
             }));
 
-    var linestring2 = ((EntityImpl) db.newEntity("Place"));
+    var linestring2 = ((EntityImpl) session.newEntity("Place"));
     linestring2.field("name", "LineString2");
     linestring2.field(
         "location",
@@ -72,29 +70,29 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
               }
             }));
 
-    db.begin();
-    db.save(linestring1);
-    db.save(linestring2);
-    db.commit();
+    session.begin();
+    session.save(linestring1);
+    session.save(linestring2);
+    session.commit();
 
-    db.begin();
-    db.command(
+    session.begin();
+    session.command(
             "insert into Place set name = 'LineString3' , location = ST_GeomFromText('"
                 + LINEWKT
                 + "')")
         .close();
-    db.commit();
+    session.commit();
   }
 
   public EntityImpl createLineString(List<List<Double>> coordinates) {
-    var location = ((EntityImpl) db.newEntity("OLineString"));
+    var location = ((EntityImpl) session.newEntity("OLineString"));
     location.field("coordinates", coordinates);
     return location;
   }
 
   @Ignore
   public void testLineStringWithoutIndex() throws IOException {
-    db.command("drop index Place.location").close();
+    session.command("drop index Place.location").close();
     queryLineString();
   }
 
@@ -102,17 +100,17 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
     var query =
         "select * from Place where location && { 'shape' : { 'type' : 'OLineString' , 'coordinates'"
             + " : [[1,2],[4,6]]} } ";
-    var docs = db.query(query).toEntityList();
+    var docs = session.query(query).toEntityList();
 
     Assert.assertEquals(1, docs.size());
 
     query = "select * from Place where location && 'LINESTRING(1 2, 4 6)' ";
-    docs = db.query(new SQLSynchQuery<EntityImpl>(query));
+    docs = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(1, docs.size());
 
     query = "select * from Place where location && ST_GeomFromText('LINESTRING(1 2, 4 6)') ";
-    docs = db.query(query).toEntityList();
+    docs = session.query(query).toEntityList();
 
     Assert.assertEquals(1, docs.size());
 
@@ -121,7 +119,7 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
             + " 61.40723633876356,-149.2657470703125 61.40723633876356,-149.2657470703125"
             + " 61.05562700886678,-150.205078125 61.05562700886678,-150.205078125"
             + " 61.40723633876356))' ";
-    docs = db.query(query).toEntityList();
+    docs = session.query(query).toEntityList();
 
     Assert.assertEquals(1, docs.size());
   }
@@ -129,11 +127,11 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
   @Ignore
   public void testIndexingLineString() throws IOException {
 
-    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Place.location");
+    var index = session.getMetadata().getIndexManagerInternal().getIndex(session, "Place.location");
 
-    db.begin();
-    Assert.assertEquals(3, index.getInternal().size(db));
-    db.commit();
+    session.begin();
+    Assert.assertEquals(3, index.getInternal().size(session));
+    session.commit();
     queryLineString();
   }
 }

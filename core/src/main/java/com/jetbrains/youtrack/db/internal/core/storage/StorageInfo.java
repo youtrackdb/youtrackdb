@@ -15,8 +15,6 @@ public interface StorageInfo {
 
   int getClusters();
 
-  int getDefaultClusterId();
-
   String getURL();
 
   RecordConflictStrategy getRecordConflictStrategy();

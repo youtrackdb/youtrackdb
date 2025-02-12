@@ -41,7 +41,7 @@ public class PushDistributedConfigurationRequest
   }
 
   @Override
-  public void read(DatabaseSessionInternal db, ChannelDataInput network) throws IOException {
+  public void read(DatabaseSessionInternal session, ChannelDataInput network) throws IOException {
     var size = network.readInt();
     hosts = new ArrayList<>(size);
     while (size-- > 0) {

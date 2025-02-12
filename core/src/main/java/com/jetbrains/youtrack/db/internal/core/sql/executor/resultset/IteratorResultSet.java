@@ -1,15 +1,16 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor.resultset;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.query.ExecutionPlan;
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.Nullable;
 
 /**
  *
@@ -17,20 +18,23 @@ import java.util.Optional;
 public class IteratorResultSet implements ResultSet {
 
   protected final Iterator iterator;
-  protected final DatabaseSessionInternal db;
+  @Nullable
+  protected final DatabaseSessionInternal session;
 
-  public IteratorResultSet(DatabaseSessionInternal db, Iterator iter) {
+  public IteratorResultSet(@Nullable DatabaseSessionInternal session, Iterator iter) {
     this.iterator = iter;
-    this.db = db;
+    this.session = session;
   }
 
   @Override
   public boolean hasNext() {
+    assert session == null || session.assertIfNotActive();
     return iterator.hasNext();
   }
 
   @Override
   public Result next() {
+    assert session == null || session.assertIfNotActive();
     var val = iterator.next();
     if (val instanceof Result) {
       return (Result) val;
@@ -38,9 +42,9 @@ public class IteratorResultSet implements ResultSet {
 
     ResultInternal result;
     if (val instanceof Identifiable) {
-      result = new ResultInternal(db, (Identifiable) val);
+      result = new ResultInternal(session, (Identifiable) val);
     } else {
-      result = new ResultInternal(db);
+      result = new ResultInternal(session);
       result.setProperty("value", val);
     }
     return result;
@@ -48,15 +52,18 @@ public class IteratorResultSet implements ResultSet {
 
   @Override
   public void close() {
+    assert session == null || session.assertIfNotActive();
   }
 
   @Override
   public Optional<ExecutionPlan> getExecutionPlan() {
+    assert session == null || session.assertIfNotActive();
     return Optional.empty();
   }
 
   @Override
   public Map<String, Long> getQueryStats() {
+    assert session == null || session.assertIfNotActive();
     return new HashMap<>();
   }
 }

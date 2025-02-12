@@ -29,19 +29,20 @@ public class SubscribeRequest implements BinaryRequest<SubscribeResponse> {
   }
 
   @Override
-  public void write(DatabaseSessionInternal database, ChannelDataOutput network,
+  public void write(DatabaseSessionInternal databaseSession, ChannelDataOutput network,
       StorageRemoteSession session) throws IOException {
     network.writeByte(pushMessage);
-    pushRequest.write(database, network, session);
+    pushRequest.write(databaseSession, network, session);
   }
 
   @Override
-  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+  public void read(DatabaseSessionInternal databaseSession, ChannelDataInput channel,
+      int protocolVersion,
       RecordSerializerNetwork serializer)
       throws IOException {
     pushMessage = channel.readByte();
     pushRequest = createBinaryRequest(pushMessage);
-    pushRequest.read(db, channel, protocolVersion, serializer);
+    pushRequest.read(databaseSession, channel, protocolVersion, serializer);
   }
 
   private BinaryRequest<? extends BinaryResponse> createBinaryRequest(byte message) {

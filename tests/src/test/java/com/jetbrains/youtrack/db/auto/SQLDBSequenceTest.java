@@ -2,10 +2,8 @@ package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.exception.SequenceException;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceLibrary;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import org.testng.Assert;
@@ -34,11 +32,11 @@ public class SQLDBSequenceTest extends BaseDBTest {
 
   private void testSequence(String sequenceName, DBSequence.SEQUENCE_TYPE sequenceType) {
 
-    db.command("CREATE SEQUENCE " + sequenceName + " TYPE " + sequenceType).close();
+    session.command("CREATE SEQUENCE " + sequenceName + " TYPE " + sequenceType).close();
 
     CommandExecutionException err = null;
     try {
-      db.command("CREATE SEQUENCE " + sequenceName + " TYPE " + sequenceType).close();
+      session.command("CREATE SEQUENCE " + sequenceName + " TYPE " + sequenceType).close();
     } catch (CommandExecutionException se) {
       err = se;
     }
@@ -75,14 +73,14 @@ public class SQLDBSequenceTest extends BaseDBTest {
 
   private long sequenceSql(String sequenceName, String cmd) {
     try (var ret =
-        db.command("SELECT sequence('" + sequenceName + "')." + cmd + " as value")) {
+        session.command("SELECT sequence('" + sequenceName + "')." + cmd + " as value")) {
       return ret.next().getProperty("value");
     }
   }
 
   @Test
   public void testFree() throws ExecutionException, InterruptedException {
-    var sequenceManager = db.getMetadata().getSequenceLibrary();
+    var sequenceManager = session.getMetadata().getSequenceLibrary();
 
     DBSequence seq = null;
     try {
@@ -111,9 +109,10 @@ public class SQLDBSequenceTest extends BaseDBTest {
 
     //
     try {
-      db.begin();
-      seq.updateParams(db, new DBSequence.CreateParams().setStart(SECOND_START).setCacheSize(13));
-      db.commit();
+      session.begin();
+      seq.updateParams(session,
+          new DBSequence.CreateParams().setStart(SECOND_START).setCacheSize(13));
+      session.commit();
     } catch (DatabaseException exc) {
       Assert.fail("Unable to update paramas");
     }
@@ -123,15 +122,15 @@ public class SQLDBSequenceTest extends BaseDBTest {
   private void testUsage(DBSequence seq, long reset)
       throws ExecutionException, InterruptedException {
     for (var i = 0; i < 2; ++i) {
-      Assert.assertEquals(seq.reset(db), reset);
-      Assert.assertEquals(seq.current(db), reset);
-      Assert.assertEquals(seq.next(db), reset + 1L);
-      Assert.assertEquals(seq.current(db), reset + 1L);
-      Assert.assertEquals(seq.next(db), reset + 2L);
-      Assert.assertEquals(seq.next(db), reset + 3L);
-      Assert.assertEquals(seq.next(db), reset + 4L);
-      Assert.assertEquals(seq.current(db), reset + 4L);
-      Assert.assertEquals(seq.reset(db), reset);
+      Assert.assertEquals(seq.reset(session), reset);
+      Assert.assertEquals(seq.current(session), reset);
+      Assert.assertEquals(seq.next(session), reset + 1L);
+      Assert.assertEquals(seq.current(session), reset + 1L);
+      Assert.assertEquals(seq.next(session), reset + 2L);
+      Assert.assertEquals(seq.next(session), reset + 3L);
+      Assert.assertEquals(seq.next(session), reset + 4L);
+      Assert.assertEquals(seq.current(session), reset + 4L);
+      Assert.assertEquals(seq.reset(session), reset);
     }
   }
 }

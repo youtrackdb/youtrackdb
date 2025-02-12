@@ -18,9 +18,6 @@
 
 package com.jetbrains.youtrack.db.internal.lucene.test;
 
-import com.jetbrains.youtrack.db.api.record.RID;
-import java.io.InputStream;
-import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Before;
@@ -35,7 +32,7 @@ public class LuceneSkipLimitTest extends BaseLuceneTest {
   public void testContext() {
 
     var docs =
-        db.query("select * from Song where [title] LUCENE \"(title:man)\"").stream()
+        session.query("select * from Song where [title] LUCENE \"(title:man)\"").stream()
             .map((r) -> r.getIdentity().get())
             .collect(Collectors.toList());
 
@@ -43,7 +40,7 @@ public class LuceneSkipLimitTest extends BaseLuceneTest {
 
     var doc = docs.get(9);
     docs =
-        db
+        session
             .query("select * from Song where [title] LUCENE \"(title:man)\" skip 10 limit 10")
             .stream()
             .map((r) -> r.getIdentity().get())
@@ -54,7 +51,7 @@ public class LuceneSkipLimitTest extends BaseLuceneTest {
     Assert.assertFalse(docs.contains(doc));
 
     docs =
-        db
+        session
             .query("select * from Song where [title] LUCENE \"(title:man)\" skip 14 limit 10")
             .stream()
             .map((r) -> r.getIdentity().get())
@@ -67,9 +64,9 @@ public class LuceneSkipLimitTest extends BaseLuceneTest {
   public void init() {
     var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
 
-    db.execute("sql", getScriptFromStream(stream)).close();
+    session.execute("sql", getScriptFromStream(stream)).close();
 
-    db.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE").close();
-    db.command("create index Song.author on Song (author) FULLTEXT ENGINE LUCENE").close();
+    session.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE").close();
+    session.command("create index Song.author on Song (author) FULLTEXT ENGINE LUCENE").close();
   }
 }

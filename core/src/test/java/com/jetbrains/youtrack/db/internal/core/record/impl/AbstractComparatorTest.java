@@ -20,9 +20,10 @@ public abstract class AbstractComparatorTest extends DbTestBase {
   protected void testEquals(DatabaseSessionInternal db, PropertyType sourceType,
       PropertyType destType) {
     try {
-      Assert.assertTrue(comparator.isEqual(field(db, sourceType, 10), field(db, destType, 10)));
-      Assert.assertFalse(comparator.isEqual(field(db, sourceType, 10), field(db, destType, 9)));
-      Assert.assertFalse(comparator.isEqual(field(db, sourceType, 10), field(db, destType, 11)));
+      Assert.assertTrue(comparator.isEqual(db, field(db, sourceType, 10), field(db, destType, 10)));
+      Assert.assertFalse(comparator.isEqual(db, field(db, sourceType, 10), field(db, destType, 9)));
+      Assert.assertFalse(
+          comparator.isEqual(db, field(db, sourceType, 10), field(db, destType, 11)));
     } catch (AssertionError e) {
       System.out.println("ERROR: testEquals(" + sourceType + "," + destType + ")");
       throw e;

@@ -26,14 +26,12 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.command.traverse.Traverse;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -68,21 +66,21 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
   /**
    * Compile the filter conditions only the first time.
    */
-  public CommandExecutorSQLTraverse parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLTraverse parse(DatabaseSessionInternal session,
       final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      traverse = new Traverse(iRequest.getContext().getDatabase());
-      queryText = preParse(queryText, iRequest);
+      traverse = new Traverse(iRequest.getContext().getDatabaseSession());
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
 
-      super.parse(db, iRequest);
+      super.parse(session, iRequest);
 
       final var pos = parseFields();
       if (pos == -1) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session.getDatabaseName(),
             "Traverse must have the field list. Use " + getSyntax());
       }
       parserSetCurrentPosition(pos);
@@ -119,7 +117,7 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
                       KEYWORD_WHILE);
 
           traverse.predicate(compiledFilter);
-          optimize(getDatabase());
+          optimize(session);
           int position;
           if (compiledFilter.parserIsEnded()) {
             position = endPosition;
@@ -135,13 +133,12 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
       parserSkipWhiteSpaces();
 
       while (!parserIsEnded()) {
-        if (parserOptionalKeyword(
+        if (parserOptionalKeyword(session.getDatabaseName(),
             KEYWORD_LIMIT,
             KEYWORD_SKIP,
             KEYWORD_OFFSET,
             KEYWORD_TIMEOUT,
-            KEYWORD_MAXDEPTH,
-            KEYWORD_STRATEGY)) {
+            KEYWORD_MAXDEPTH, KEYWORD_STRATEGY)) {
           final var w = parserGetLastWord();
           if (w.equals(KEYWORD_LIMIT)) {
             parseLimit(w);
@@ -180,7 +177,7 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
     try {
       traverse.setMaxDepth(Integer.parseInt(word));
     } catch (Exception ignore) {
-      throwParsingException(
+      throwParsingException(null,
           "Invalid "
               + KEYWORD_MAXDEPTH
               + " value set to '"
@@ -191,7 +188,7 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
     }
 
     if (traverse.getMaxDepth() < 0) {
-      throwParsingException(
+      throwParsingException(null,
           "Invalid "
               + KEYWORD_MAXDEPTH
               + ": value set minor than ZERO. Example: "
@@ -202,21 +199,21 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
     return true;
   }
 
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     context.beginExecution(timeoutMs, timeoutStrategy);
 
-    if (!assignTarget(iArgs)) {
-      throw new QueryParsingException(
+    if (!assignTarget(session, iArgs)) {
+      throw new QueryParsingException(session.getDatabaseName(),
           "No source found in query: specify class, cluster(s) or single record(s)");
     }
 
     try {
       if (traverse == null) {
-        traverse = new Traverse(db);
+        traverse = new Traverse(session);
       }
 
       // BROWSE ALL THE RECORDS AND COLLECTS RESULT
-      final var result = traverse.execute(db);
+      final var result = traverse.execute(session);
       for (var r : result) {
         if (!handleResult(r, context))
         // LIMIT REACHED
@@ -225,9 +222,9 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
         }
       }
 
-      return getResult(db);
+      return getResult(session);
     } finally {
-      request.getResultListener().end();
+      request.getResultListener().end(session);
     }
   }
 
@@ -236,13 +233,13 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
     return traverse.getContext();
   }
 
-  public Iterator<Identifiable> iterator() {
-    return iterator(DatabaseRecordThreadLocal.instance().get(), null);
+  public Iterator<Identifiable> iterator(DatabaseSessionInternal session) {
+    return iterator(session, null);
   }
 
-  public Iterator<Identifiable> iterator(DatabaseSessionInternal db,
+  public Iterator<Identifiable> iterator(DatabaseSessionInternal session,
       final Map<Object, Object> iArgs) {
-    assignTarget(iArgs);
+    assignTarget(session, iArgs);
     return traverse;
   }
 
@@ -261,8 +258,8 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
   }
 
   @Override
-  protected boolean assignTarget(Map<Object, Object> iArgs) {
-    if (super.assignTarget(iArgs)) {
+  protected boolean assignTarget(DatabaseSessionInternal session, Map<Object, Object> iArgs) {
+    if (super.assignTarget(session, iArgs)) {
       traverse.target(target);
       return true;
     }
@@ -280,7 +277,7 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
 
     var fromPosition = parserTextUpperCase.indexOf(KEYWORD_FROM_2FIND, currentPos);
     if (fromPosition == -1) {
-      throw new QueryParsingException("Missed " + KEYWORD_FROM, parserText, currentPos);
+      throw new QueryParsingException(null, "Missed " + KEYWORD_FROM, parserText, currentPos);
     }
 
     Set<Object> fields = new HashSet<Object>();
@@ -300,7 +297,7 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
         }
       }
     } else {
-      throw new QueryParsingException(
+      throw new QueryParsingException(null,
           "Missed field list to cross in TRAVERSE. Use " + getSyntax(), parserText, currentPos);
     }
 
@@ -324,17 +321,12 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
     try {
       traverse.setStrategy(Traverse.STRATEGY.valueOf(strategyWord.toUpperCase(Locale.ENGLISH)));
     } catch (IllegalArgumentException ignore) {
-      throwParsingException(
+      throwParsingException(null,
           "Invalid "
               + KEYWORD_STRATEGY
               + ". Use one between "
               + Arrays.toString(Traverse.STRATEGY.values()));
     }
     return true;
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.READ;
   }
 }

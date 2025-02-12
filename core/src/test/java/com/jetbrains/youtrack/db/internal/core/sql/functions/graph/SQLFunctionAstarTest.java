@@ -22,16 +22,13 @@ package com.jetbrains.youtrack.db.internal.core.sql.functions.graph;
 import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.api.YouTrackDB;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Direction;
-import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -220,7 +217,7 @@ public class SQLFunctionAstarTest {
     v1 = graph.bindToSession(v1);
     v4 = graph.bindToSession(v4);
 
-    ctx.setDatabase(graph);
+    ctx.setDatabaseSession(graph);
     final List<Vertex> result =
         functionAstar.execute(null, null, null, new Object[]{v1, v4, "'weight'", options}, ctx);
     try (var rs = graph.query("select count(*) as count from has_path")) {
@@ -241,7 +238,7 @@ public class SQLFunctionAstarTest {
     options.put(SQLFunctionAstar.PARAM_PARALLEL, true);
     options.put(SQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
     var ctx = new BasicCommandContext();
-    ctx.setDatabase(graph);
+    ctx.setDatabaseSession(graph);
 
     v1 = graph.bindToSession(v1);
     v6 = graph.bindToSession(v6);
@@ -265,7 +262,7 @@ public class SQLFunctionAstarTest {
     options.put(SQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
     options.put(SQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     var ctx = new BasicCommandContext();
-    ctx.setDatabase(graph);
+    ctx.setDatabaseSession(graph);
 
     v1 = graph.bindToSession(v1);
     v6 = graph.bindToSession(v6);
@@ -290,7 +287,7 @@ public class SQLFunctionAstarTest {
     options.put(SQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
     options.put(SQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon", "alt"});
     var ctx = new BasicCommandContext();
-    ctx.setDatabase(graph);
+    ctx.setDatabaseSession(graph);
 
     v1 = graph.bindToSession(v1);
     v6 = graph.bindToSession(v6);
@@ -315,7 +312,7 @@ public class SQLFunctionAstarTest {
     options.put(SQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
     options.put(SQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     var ctx = new BasicCommandContext();
-    ctx.setDatabase(graph);
+    ctx.setDatabaseSession(graph);
 
     v3 = graph.bindToSession(v3);
     v5 = graph.bindToSession(v5);
@@ -340,7 +337,7 @@ public class SQLFunctionAstarTest {
     options.put(SQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
     options.put(SQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     var ctx = new BasicCommandContext();
-    ctx.setDatabase(graph);
+    ctx.setDatabaseSession(graph);
 
     v6 = graph.bindToSession(v6);
     v1 = graph.bindToSession(v1);
@@ -369,7 +366,7 @@ public class SQLFunctionAstarTest {
     options.put(SQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     options.put(SQLFunctionAstar.PARAM_HEURISTIC_FORMULA, "EucliDEAN");
     var ctx = new BasicCommandContext();
-    ctx.setDatabase(graph);
+    ctx.setDatabaseSession(graph);
 
     v6 = graph.bindToSession(v6);
     v1 = graph.bindToSession(v1);
@@ -399,7 +396,7 @@ public class SQLFunctionAstarTest {
     options.put(SQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     options.put(SQLFunctionAstar.PARAM_HEURISTIC_FORMULA, HeuristicFormula.EUCLIDEANNOSQR);
     var ctx = new BasicCommandContext();
-    ctx.setDatabase(graph);
+    ctx.setDatabaseSession(graph);
 
     v6 = graph.bindToSession(v6);
     v1 = graph.bindToSession(v1);
@@ -428,7 +425,7 @@ public class SQLFunctionAstarTest {
     options.put(SQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     options.put(SQLFunctionAstar.PARAM_HEURISTIC_FORMULA, HeuristicFormula.MAXAXIS);
     var ctx = new BasicCommandContext();
-    ctx.setDatabase(graph);
+    ctx.setDatabaseSession(graph);
 
     v6 = graph.bindToSession(v6);
     v1 = graph.bindToSession(v1);
@@ -455,7 +452,7 @@ public class SQLFunctionAstarTest {
     options.put(SQLFunctionAstar.PARAM_HEURISTIC_FORMULA, HeuristicFormula.CUSTOM);
     options.put(SQLFunctionAstar.PARAM_CUSTOM_HEURISTIC_FORMULA, "myCustomHeuristic");
     var ctx = new BasicCommandContext();
-    ctx.setDatabase(graph);
+    ctx.setDatabaseSession(graph);
 
     v6 = graph.bindToSession(v6);
     v1 = graph.bindToSession(v1);
@@ -487,7 +484,7 @@ public class SQLFunctionAstarTest {
     options.put(SQLFunctionAstar.PARAM_HEURISTIC_FORMULA, HeuristicFormula.CUSTOM);
     options.put(SQLFunctionAstar.PARAM_CUSTOM_HEURISTIC_FORMULA, "myCustomHeuristic");
     var ctx = new BasicCommandContext();
-    ctx.setDatabase(graph);
+    ctx.setDatabaseSession(graph);
 
     v6 = graph.bindToSession(v6);
     v1 = graph.bindToSession(v1);
@@ -514,7 +511,7 @@ public class SQLFunctionAstarTest {
     options.put(SQLFunctionAstar.PARAM_HEURISTIC_FORMULA, HeuristicFormula.CUSTOM);
     options.put(SQLFunctionAstar.PARAM_CUSTOM_HEURISTIC_FORMULA, "myCustomHeuristic");
     var ctx = new BasicCommandContext();
-    ctx.setDatabase(graph);
+    ctx.setDatabaseSession(graph);
 
     v6 = graph.bindToSession(v6);
     v1 = graph.bindToSession(v1);

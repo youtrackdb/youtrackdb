@@ -19,16 +19,11 @@
 package com.jetbrains.youtrack.db.internal.lucene.tests;
 
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.util.Collection;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,71 +36,71 @@ public class LuceneInsertUpdateTest extends LuceneBaseTest {
   @Before
   public void init() {
 
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var oClass = schema.createClass("City");
 
-    oClass.createProperty(db, "name", PropertyType.STRING);
+    oClass.createProperty(session, "name", PropertyType.STRING);
     //noinspection EmptyTryBlock
     try (var command =
-        db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE")) {
+        session.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE")) {
     }
   }
 
   @Test
   public void testInsertUpdateWithIndex() {
-    var schema = db.getMetadata().getSchema();
+    var schema = session.getMetadata().getSchema();
 
-    var doc = ((EntityImpl) db.newEntity("City"));
+    var doc = ((EntityImpl) session.newEntity("City"));
     doc.field("name", "Rome");
 
-    db.begin();
-    db.save(doc);
-    db.commit();
-    db.begin();
-    var idx = schema.getClassInternal("City").getClassIndex(db, "City.name");
+    session.begin();
+    session.save(doc);
+    session.commit();
+    session.begin();
+    var idx = schema.getClassInternal("City").getClassIndex(session, "City.name");
     Collection<?> coll;
-    try (var stream = idx.getInternal().getRids(db, "Rome")) {
+    try (var stream = idx.getInternal().getRids(session, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(1, coll.size());
 
     var next = (Identifiable) coll.iterator().next();
-    doc = db.load(next.getIdentity());
+    doc = session.load(next.getIdentity());
     Assert.assertEquals("Rome", doc.field("name"));
 
     doc.field("name", "London");
 
-    db.save(doc);
-    db.commit();
-    db.begin();
-    try (var stream = idx.getInternal().getRids(db, "Rome")) {
+    session.save(doc);
+    session.commit();
+    session.begin();
+    try (var stream = idx.getInternal().getRids(session, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(0, coll.size());
-    try (var stream = idx.getInternal().getRids(db, "London")) {
+    try (var stream = idx.getInternal().getRids(session, "London")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(1, coll.size());
 
     next = (Identifiable) coll.iterator().next();
-    doc = db.load(next.getIdentity());
+    doc = session.load(next.getIdentity());
     Assert.assertEquals("London", doc.field("name"));
 
     doc.field("name", "Berlin");
 
-    db.save(doc);
-    db.commit();
+    session.save(doc);
+    session.commit();
 
-    try (var stream = idx.getInternal().getRids(db, "Rome")) {
+    try (var stream = idx.getInternal().getRids(session, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(0, coll.size());
-    try (var stream = idx.getInternal().getRids(db, "London")) {
+    try (var stream = idx.getInternal().getRids(session, "London")) {
       coll = stream.collect(Collectors.toList());
     }
 
     Assert.assertEquals(0, coll.size());
-    try (var stream = idx.getInternal().getRids(db, "Berlin")) {
+    try (var stream = idx.getInternal().getRids(session, "Berlin")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(1, coll.size());

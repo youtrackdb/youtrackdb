@@ -8,7 +8,6 @@ import com.jetbrains.youtrack.db.internal.core.command.script.CommandFunction;
 import com.jetbrains.youtrack.db.internal.core.command.traverse.AbstractScriptExecutor;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.RetryExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.RetryStep;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ScriptExecutionPlan;
@@ -42,7 +41,7 @@ public class SqlScriptExecutor extends AbstractScriptExecutor {
     var statements = SQLEngine.parseScript(script, database);
 
     CommandContext scriptContext = new BasicCommandContext();
-    scriptContext.setDatabase(database);
+    scriptContext.setDatabaseSession(database);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
       for (var i = 0; i < args.length; i++) {
@@ -62,7 +61,7 @@ public class SqlScriptExecutor extends AbstractScriptExecutor {
     var statements = SQLEngine.parseScript(script, database);
 
     CommandContext scriptContext = new BasicCommandContext();
-    scriptContext.setDatabase(database);
+    scriptContext.setDatabaseSession(database);
 
     scriptContext.setInputParameters(params);
 
@@ -99,7 +98,9 @@ public class SqlScriptExecutor extends AbstractScriptExecutor {
           if (((SQLCommitStatement) stm).getRetry() != null) {
             var nRetries = ((SQLCommitStatement) stm).getRetry().getValue().intValue();
             if (nRetries <= 0) {
-              throw new CommandExecutionException("Invalid retry number: " + nRetries);
+              throw new CommandExecutionException(
+                  scriptContext.getDatabaseSession().getDatabaseName(),
+                  "Invalid retry number: " + nRetries);
             }
 
             var step =
@@ -127,7 +128,7 @@ public class SqlScriptExecutor extends AbstractScriptExecutor {
         scriptContext.declareScriptVariable(((SQLLetStatement) stm).getName().getStringValue());
       }
     }
-    return new LocalResultSet(plan);
+    return new LocalResultSet(scriptContext.getDatabaseSession(), plan);
   }
 
   @Override
@@ -135,7 +136,7 @@ public class SqlScriptExecutor extends AbstractScriptExecutor {
       CommandContext context, final String functionName, final Map<Object, Object> iArgs) {
 
     final var command = new CommandExecutorFunction();
-    command.parse(context.getDatabase(), new CommandFunction(functionName));
+    command.parse(context.getDatabaseSession(), new CommandFunction(functionName));
     return command.executeInContext(context, iArgs);
   }
 }

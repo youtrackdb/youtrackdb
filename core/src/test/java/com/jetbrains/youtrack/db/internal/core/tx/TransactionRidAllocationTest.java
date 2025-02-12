@@ -7,16 +7,12 @@ import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.exception.ConcurrentCreateException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
-import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.util.ArrayList;
 import java.util.List;
@@ -108,19 +104,20 @@ public class TransactionRidAllocationTest {
         .preallocateRids((TransactionInternal) db.getTransaction());
     var generated = v.getIdentity();
     var transaction = db.getTransaction();
-    List<RawPair<RecordAbstract, Byte>> recordOperations = new ArrayList<>();
+    List<RawPair<byte[], Byte>> recordOperations = new ArrayList<>();
     for (var operation : transaction.getRecordOperations()) {
       var record = operation.record;
-      recordOperations.add(new RawPair<>(record.copy(), operation.type));
+      recordOperations.add(new RawPair<>(record.toStream(), operation.type));
     }
 
     second.activateOnCurrentThread();
     second.begin();
     var transactionOptimistic = (FrontendTransactionOptimistic) second.getTransaction();
+    var serializer = second.getSerializer();
     for (var recordOperation : recordOperations) {
       var record = recordOperation.first;
-      record.setup(second);
-      transactionOptimistic.addRecordOperation(record, recordOperation.second, null);
+      transactionOptimistic.addRecordOperation(serializer.fromStream(second, record, null, null),
+          recordOperation.second, null);
     }
 
     ((AbstractPaginatedStorage) second.getStorage()).preallocateRids(transactionOptimistic);
@@ -170,10 +167,10 @@ public class TransactionRidAllocationTest {
     ((AbstractPaginatedStorage) db.getStorage())
         .preallocateRids((FrontendTransactionOptimistic) db.getTransaction());
     var transaction = db.getTransaction();
-    List<RawPair<RecordAbstract, Byte>> recordOperations = new ArrayList<>();
+    List<RawPair<byte[], Byte>> recordOperations = new ArrayList<>();
     for (var operation : transaction.getRecordOperations()) {
       var record = operation.record;
-      recordOperations.add(new RawPair<>(record.copy(), operation.type));
+      recordOperations.add(new RawPair<>(record.toStream(), operation.type));
     }
 
     second.activateOnCurrentThread();
@@ -181,8 +178,9 @@ public class TransactionRidAllocationTest {
     var transactionOptimistic = (FrontendTransactionOptimistic) second.getTransaction();
     for (var recordOperation : recordOperations) {
       var record = recordOperation.first;
-      record.setup(second);
-      transactionOptimistic.addRecordOperation(record, recordOperation.second, null);
+      var serializer = second.getSerializer();
+      transactionOptimistic.addRecordOperation(serializer.fromStream(second, record, null, null),
+          recordOperation.second, null);
     }
     ((AbstractPaginatedStorage) second.getStorage()).preallocateRids(transactionOptimistic);
   }

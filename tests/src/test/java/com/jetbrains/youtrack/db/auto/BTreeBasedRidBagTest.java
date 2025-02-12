@@ -20,7 +20,6 @@ import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.client.remote.EngineRemote;
 import com.jetbrains.youtrack.db.internal.client.remote.ServerAdmin;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.engine.memory.EngineMemory;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -60,7 +59,6 @@ public class BTreeBasedRidBagTest extends RidBagTest {
   @BeforeClass
   @Override
   public void beforeClass() throws Exception {
-    DatabaseRecordThreadLocal.instance().remove();
     super.beforeClass();
   }
 
@@ -71,9 +69,9 @@ public class BTreeBasedRidBagTest extends RidBagTest {
     bottomThreshold =
         GlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.getValueAsInteger();
 
-    if (db.isRemote()) {
+    if (session.isRemote()) {
       var server =
-          new ServerAdmin(db.getURL())
+          new ServerAdmin(session.getURL())
               .connect("root", SERVER_PASSWORD);
       server.setGlobalConfiguration(
           GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, -1);
@@ -91,9 +89,9 @@ public class BTreeBasedRidBagTest extends RidBagTest {
     GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(topThreshold);
     GlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(bottomThreshold);
 
-    if (db.isRemote()) {
+    if (session.isRemote()) {
       var server =
-          new ServerAdmin(db.getURL())
+          new ServerAdmin(session.getURL())
               .connect("root", SERVER_PASSWORD);
       server.setGlobalConfiguration(
           GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, topThreshold);
@@ -104,25 +102,25 @@ public class BTreeBasedRidBagTest extends RidBagTest {
   }
 
   public void testRidBagClusterDistribution() {
-    if (db.getStorage().getType().equals(EngineRemote.NAME)
-        || db.getStorage().getType().equals(EngineMemory.NAME)) {
+    if (session.getStorage().getType().equals(EngineRemote.NAME)
+        || session.getStorage().getType().equals(EngineMemory.NAME)) {
       return;
     }
 
-    final var clusterIdOne = db.addCluster("clusterOne");
+    final var clusterIdOne = session.addCluster("clusterOne");
 
-    var docClusterOne = ((EntityImpl) db.newEntity());
-    var ridBagClusterOne = new RidBag(db);
+    var docClusterOne = ((EntityImpl) session.newEntity());
+    var ridBagClusterOne = new RidBag(session);
     docClusterOne.field("ridBag", ridBagClusterOne);
 
-    db.begin();
+    session.begin();
     docClusterOne.save();
-    db.commit();
+    session.commit();
 
-    final var directory = db.getStorage().getConfiguration().getDirectory();
+    final var directory = session.getStorage().getConfiguration().getDirectory();
 
     final var wowCache =
-        (WOWCache) ((LocalPaginatedStorage) (db.getStorage())).getWriteCache();
+        (WOWCache) ((LocalPaginatedStorage) (session.getStorage())).getWriteCache();
 
     final var fileId =
         wowCache.fileIdByName(
@@ -136,51 +134,51 @@ public class BTreeBasedRidBagTest extends RidBagTest {
   }
 
   public void testIteratorOverAfterRemove() {
-    db.begin();
+    session.begin();
     var scuti =
-        ((EntityImpl) db.newEntity())
+        ((EntityImpl) session.newEntity())
             .field("name", "UY Scuti");
     scuti.save();
     var cygni =
-        ((EntityImpl) db.newEntity())
+        ((EntityImpl) session.newEntity())
             .field("name", "NML Cygni");
     cygni.save();
     var scorpii =
-        ((EntityImpl) db.newEntity())
+        ((EntityImpl) session.newEntity())
             .field("name", "AH Scorpii");
     scorpii.save();
-    db.commit();
+    session.commit();
 
-    scuti = db.bindToSession(scuti);
-    cygni = db.bindToSession(cygni);
-    scorpii = db.bindToSession(scorpii);
+    scuti = session.bindToSession(scuti);
+    cygni = session.bindToSession(cygni);
+    scorpii = session.bindToSession(scorpii);
 
     var expectedResult = new HashSet<EntityImpl>(Arrays.asList(scuti, scorpii));
 
-    var bag = new RidBag(db);
+    var bag = new RidBag(session);
     bag.add(scuti.getIdentity());
     bag.add(cygni.getIdentity());
     bag.add(scorpii.getIdentity());
 
-    var doc = ((EntityImpl) db.newEntity());
+    var doc = ((EntityImpl) session.newEntity());
     doc.field("ridBag", bag);
 
-    db.begin();
+    session.begin();
     doc.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    doc = db.bindToSession(doc);
+    session.begin();
+    doc = session.bindToSession(doc);
     bag = doc.field("ridBag");
     bag.remove(cygni.getIdentity());
 
     Set<EntityImpl> result = new HashSet<>();
     for (Identifiable identifiable : bag) {
-      result.add(identifiable.getRecord(db));
+      result.add(identifiable.getRecord(session));
     }
 
     Assert.assertEquals(result, expectedResult);
-    db.commit();
+    session.commit();
   }
 
   public void testRidBagConversion() {
@@ -188,22 +186,22 @@ public class BTreeBasedRidBagTest extends RidBagTest {
         GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
     GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(5);
 
-    db.begin();
-    var doc_1 = ((EntityImpl) db.newEntity());
+    session.begin();
+    var doc_1 = ((EntityImpl) session.newEntity());
     doc_1.save();
 
-    var doc_2 = ((EntityImpl) db.newEntity());
+    var doc_2 = ((EntityImpl) session.newEntity());
     doc_2.save();
 
-    var doc_3 = ((EntityImpl) db.newEntity());
+    var doc_3 = ((EntityImpl) session.newEntity());
     doc_3.save();
 
-    var doc_4 = ((EntityImpl) db.newEntity());
+    var doc_4 = ((EntityImpl) session.newEntity());
     doc_4.save();
 
-    var doc = ((EntityImpl) db.newEntity());
+    var doc = ((EntityImpl) session.newEntity());
 
-    var bag = new RidBag(db);
+    var bag = new RidBag(session);
     bag.add(doc_1.getIdentity());
     bag.add(doc_2.getIdentity());
     bag.add(doc_3.getIdentity());
@@ -211,14 +209,14 @@ public class BTreeBasedRidBagTest extends RidBagTest {
 
     doc.field("ridBag", bag);
     doc.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    doc = db.bindToSession(doc);
-    var doc_5 = ((EntityImpl) db.newEntity());
+    session.begin();
+    doc = session.bindToSession(doc);
+    var doc_5 = ((EntityImpl) session.newEntity());
     doc_5.save();
 
-    var doc_6 = ((EntityImpl) db.newEntity());
+    var doc_6 = ((EntityImpl) session.newEntity());
     doc_6.save();
 
     bag = doc.field("ridBag");
@@ -226,10 +224,10 @@ public class BTreeBasedRidBagTest extends RidBagTest {
     bag.add(doc_6.getIdentity());
 
     doc.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    doc = db.bindToSession(doc);
+    session.begin();
+    doc = session.bindToSession(doc);
     bag = doc.field("ridBag");
     Assert.assertEquals(bag.size(), 6);
 
@@ -249,12 +247,12 @@ public class BTreeBasedRidBagTest extends RidBagTest {
     Assert.assertTrue(docs.isEmpty());
 
     GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(oldThreshold);
-    db.rollback();
+    session.rollback();
   }
 
   public void testRidBagDelete() {
-    if (db.getStorage().getType().equals(EngineRemote.NAME)
-        || db.getStorage().getType().equals(EngineMemory.NAME)) {
+    if (session.getStorage().getType().equals(EngineRemote.NAME)
+        || session.getStorage().getType().equals(EngineMemory.NAME)) {
       return;
     }
 
@@ -262,28 +260,28 @@ public class BTreeBasedRidBagTest extends RidBagTest {
         GlobalConfiguration.SBTREEBOSAI_FREE_SPACE_REUSE_TRIGGER.getValueAsFloat();
     GlobalConfiguration.SBTREEBOSAI_FREE_SPACE_REUSE_TRIGGER.setValue(Float.MIN_VALUE);
 
-    var realDoc = ((EntityImpl) db.newEntity());
-    var realDocRidBag = new RidBag(db);
+    var realDoc = ((EntityImpl) session.newEntity());
+    var realDocRidBag = new RidBag(session);
     realDoc.field("ridBag", realDocRidBag);
 
     for (var i = 0; i < 10; i++) {
-      var docToAdd = ((EntityImpl) db.newEntity());
+      var docToAdd = ((EntityImpl) session.newEntity());
       realDocRidBag.add(docToAdd.getIdentity());
     }
 
     assertEmbedded(realDocRidBag.isEmbedded());
 
-    db.begin();
+    session.begin();
     realDoc.save();
-    db.commit();
+    session.commit();
 
-    final var clusterId = db.addCluster("ridBagDeleteTest");
+    final var clusterId = session.addCluster("ridBagDeleteTest");
 
     var testDocument = crateTestDeleteDoc(realDoc);
-    db.freeze();
-    db.release();
+    session.freeze();
+    session.release();
 
-    final var directory = db.getStorage().getConfiguration().getDirectory();
+    final var directory = session.getStorage().getConfiguration().getDirectory();
 
     var testRidBagFile =
         new File(
@@ -294,15 +292,15 @@ public class BTreeBasedRidBagTest extends RidBagTest {
     var testRidBagSize = testRidBagFile.length();
 
     for (var i = 0; i < 100; i++) {
-      db.begin();
-      db.bindToSession(testDocument).delete();
-      db.commit();
+      session.begin();
+      session.bindToSession(testDocument).delete();
+      session.commit();
 
       testDocument = crateTestDeleteDoc(realDoc);
     }
 
-    db.freeze();
-    db.release();
+    session.freeze();
+    session.release();
 
     GlobalConfiguration.SBTREEBOSAI_FREE_SPACE_REUSE_TRIGGER.setValue(reuseTrigger);
     testRidBagFile =
@@ -314,27 +312,27 @@ public class BTreeBasedRidBagTest extends RidBagTest {
 
     Assert.assertEquals(testRidBagFile.length(), testRidBagSize);
 
-    realDoc = db.load(realDoc.getIdentity());
+    realDoc = session.load(realDoc.getIdentity());
     RidBag ridBag = realDoc.field("ridBag");
     Assert.assertEquals(ridBag.size(), 10);
   }
 
   private EntityImpl crateTestDeleteDoc(EntityImpl realDoc) {
-    var testDocument = ((EntityImpl) db.newEntity());
-    var highLevelRidBag = new RidBag(db);
+    var testDocument = ((EntityImpl) session.newEntity());
+    var highLevelRidBag = new RidBag(session);
     testDocument.field("ridBag", highLevelRidBag);
-    realDoc = db.bindToSession(realDoc);
+    realDoc = session.bindToSession(realDoc);
     testDocument.field("realDoc", realDoc);
 
-    db.begin();
+    session.begin();
     testDocument.save();
-    db.commit();
+    session.commit();
 
     return testDocument;
   }
 
   @Override
   protected void assertEmbedded(boolean isEmbedded) {
-    Assert.assertTrue((!isEmbedded || DatabaseRecordThreadLocal.instance().get().isRemote()));
+    Assert.assertTrue((!isEmbedded || session.isRemote()));
   }
 }

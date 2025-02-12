@@ -35,7 +35,6 @@ import com.jetbrains.youtrack.db.internal.core.sql.SQLHelper;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
@@ -86,7 +85,7 @@ public class SQLFunctionAstar extends SQLFunctionHeuristicPathFinderAbstract {
     context = iContext;
     final var context = this;
 
-    var db = iContext.getDatabase();
+    var db = iContext.getDatabaseSession();
     var record = iCurrentRecord != null ? iCurrentRecord.getRecord(db) : null;
 
     var source = iParams[0];
@@ -140,7 +139,7 @@ public class SQLFunctionAstar extends SQLFunctionHeuristicPathFinderAbstract {
     if (paramSourceVertex == null || paramDestinationVertex == null) {
       return new LinkedList<>();
     }
-    return internalExecute(iContext, iContext.getDatabase());
+    return internalExecute(iContext, iContext.getDatabaseSession());
   }
 
   private LinkedList<Vertex> internalExecute(
@@ -242,7 +241,7 @@ public class SQLFunctionAstar extends SQLFunctionHeuristicPathFinderAbstract {
     if (additionalParams == null) {
       return;
     }
-    var db = context.getDatabase();
+    var db = context.getDatabaseSession();
     Map<String, ?> mapParams = null;
     if (additionalParams instanceof Map) {
       mapParams = (Map) additionalParams;

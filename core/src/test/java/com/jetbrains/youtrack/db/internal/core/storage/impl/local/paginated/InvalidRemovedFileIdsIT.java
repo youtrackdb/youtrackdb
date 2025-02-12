@@ -3,14 +3,12 @@ package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.StringSerializer;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.Storage;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.WriteCache;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.io.File;
 import java.io.IOException;
@@ -141,13 +139,13 @@ public class InvalidRemovedFileIdsIT {
 
   private static void writeNameIdEntry(RandomAccessFile file, String name, int fileId)
       throws IOException {
-    final var nameSize = StringSerializer.INSTANCE.getObjectSize(name);
+    final var nameSize = StringSerializer.staticGetObjectSize(name);
 
     var serializedRecord =
         new byte[IntegerSerializer.INT_SIZE + nameSize + LongSerializer.LONG_SIZE];
-    IntegerSerializer.INSTANCE.serializeLiteral(nameSize, serializedRecord, 0);
-    StringSerializer.INSTANCE.serialize(name, serializedRecord, IntegerSerializer.INT_SIZE);
-    LongSerializer.INSTANCE.serializeLiteral(
+    IntegerSerializer.serializeLiteral(nameSize, serializedRecord, 0);
+    StringSerializer.staticSerialize(name, serializedRecord, IntegerSerializer.INT_SIZE);
+    LongSerializer.serializeLiteral(
         fileId, serializedRecord, IntegerSerializer.INT_SIZE + nameSize);
 
     file.write(serializedRecord);

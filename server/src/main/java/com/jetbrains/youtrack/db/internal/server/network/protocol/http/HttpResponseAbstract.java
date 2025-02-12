@@ -167,9 +167,9 @@ public abstract class HttpResponseAbstract implements HttpResponse {
   }
 
   @Override
-  public void writeResult(final Object result, DatabaseSessionInternal databaseDocumentInternal)
+  public void writeResult(final Object result, DatabaseSessionInternal session)
       throws IOException {
-    writeResult(result, null, null, null, databaseDocumentInternal);
+    writeResult(result, null, null, null, session);
   }
 
   @Override
@@ -177,9 +177,9 @@ public abstract class HttpResponseAbstract implements HttpResponse {
       Object iResult,
       final String iFormat,
       final String iAccept,
-      DatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal session)
       throws IOException {
-    writeResult(iResult, iFormat, iAccept, null, databaseDocumentInternal);
+    writeResult(iResult, iFormat, iAccept, null, session);
   }
 
   @Override
@@ -188,9 +188,9 @@ public abstract class HttpResponseAbstract implements HttpResponse {
       final String iFormat,
       final String iAccept,
       final Map<String, Object> iAdditionalProperties,
-      DatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal session)
       throws IOException {
-    writeResult(iResult, iFormat, iAccept, iAdditionalProperties, null, databaseDocumentInternal);
+    writeResult(iResult, iFormat, iAccept, iAdditionalProperties, null, session);
   }
 
   @Override
@@ -200,7 +200,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
       final String iAccept,
       final Map<String, Object> iAdditionalProperties,
       final String mode,
-      DatabaseSessionInternal db)
+      DatabaseSessionInternal session)
       throws IOException {
     if (iResult == null) {
       send(HttpUtils.STATUS_OK_NOCONTENT_CODE, "", HttpUtils.CONTENT_TEXT_PLAIN, null, null);
@@ -236,25 +236,25 @@ public abstract class HttpResponseAbstract implements HttpResponse {
             iAccept,
             iAdditionalProperties,
             mode,
-            db);
+            session);
       }
     }
   }
 
   @Override
   public void writeRecords(final Object iRecords,
-      DatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal session)
       throws IOException {
-    writeRecords(iRecords, null, null, null, null, databaseDocumentInternal);
+    writeRecords(iRecords, null, null, null, null, session);
   }
 
   @Override
   public void writeRecords(
       final Object iRecords,
       final String iFetchPlan,
-      DatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal session)
       throws IOException {
-    writeRecords(iRecords, iFetchPlan, null, null, null, databaseDocumentInternal);
+    writeRecords(iRecords, iFetchPlan, null, null, null, session);
   }
 
   @Override
@@ -263,9 +263,9 @@ public abstract class HttpResponseAbstract implements HttpResponse {
       final String iFetchPlan,
       String iFormat,
       final String accept,
-      DatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal session)
       throws IOException {
-    writeRecords(iRecords, iFetchPlan, iFormat, accept, null, databaseDocumentInternal);
+    writeRecords(iRecords, iFetchPlan, iFormat, accept, null, session);
   }
 
   @Override
@@ -275,7 +275,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
       String iFormat,
       final String accept,
       final Map<String, Object> iAdditionalProperties,
-      DatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal session)
       throws IOException {
     writeRecords(
         iRecords,
@@ -284,7 +284,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
         accept,
         iAdditionalProperties,
         null,
-        databaseDocumentInternal);
+        session);
   }
 
   @Override
@@ -295,7 +295,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
       final String accept,
       final Map<String, Object> iAdditionalProperties,
       final String mode,
-      DatabaseSessionInternal db)
+      DatabaseSessionInternal session)
       throws IOException {
     if (iRecords == null) {
       send(HttpUtils.STATUS_OK_NOCONTENT_CODE, "", HttpUtils.CONTENT_TEXT_PLAIN, null, null);
@@ -325,8 +325,8 @@ public abstract class HttpResponseAbstract implements HttpResponse {
                     var entity = result.asEntity();
                     entity
                         .getSchemaType()
-                        .ifPresent(x -> x.properties(db)
-                            .forEach(prop -> colNames.add(prop.getName())));
+                        .ifPresent(x -> x.properties(session)
+                            .forEach(prop -> colNames.add(prop.getName(session))));
                     records.add(entity);
                   } else {
                     maps.add(result.toMap());
@@ -335,7 +335,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
                   colNames.addAll(result.getPropertyNames());
                 } else if (r instanceof Identifiable) {
                   try {
-                    var rec = ((Identifiable) r).getRecord(db);
+                    var rec = ((Identifiable) r).getRecord(session);
                     if (rec instanceof EntityImpl entity) {
                       records.add(entity);
                       Collections.addAll(colNames, entity.fieldNames());
@@ -430,7 +430,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
                     iAdditionalProperties,
                     it,
                     writer,
-                    db);
+                    session);
                 writer.flush();
               } catch (IOException e) {
                 LogManager.instance()
@@ -441,7 +441,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
       } else {
         final var buffer = new StringWriter();
         writeRecordsOnStream(
-            iFetchPlan, iFormat, iAdditionalProperties, it, buffer, db);
+            iFetchPlan, iFormat, iAdditionalProperties, it, buffer, session);
         send(
             HttpUtils.STATUS_OK_CODE,
             HttpUtils.STATUS_OK_DESCRIPTION,
@@ -497,7 +497,7 @@ public abstract class HttpResponseAbstract implements HttpResponse {
       final Iterator<?> iIterator,
       final Writer buffer,
       final String format,
-      DatabaseSessionInternal db)
+      DatabaseSessionInternal session)
       throws IOException {
     if (iIterator != null) {
       var counter = 0;
@@ -515,9 +515,9 @@ public abstract class HttpResponseAbstract implements HttpResponse {
             buffer.append(objectJson);
           } else if (entry instanceof Identifiable identifiable) {
             try {
-              var rec = identifiable.getRecord(db);
-              if (rec.isNotBound(db)) {
-                rec = db.bindToSession(rec);
+              var rec = identifiable.getRecord(session);
+              if (rec.isNotBound(session)) {
+                rec = session.bindToSession(rec);
               }
 
               objectJson = rec.toJSON(format);
@@ -528,14 +528,14 @@ public abstract class HttpResponseAbstract implements HttpResponse {
                   .error(this, "Error transforming record " + identifiable + " to JSON", e);
             }
           } else if (entry instanceof Map<?, ?>) {
-            buffer.append(JSONWriter.writeValue(db, entry, format));
+            buffer.append(JSONWriter.writeValue(session, entry, format));
           } else if (MultiValue.isMultiValue(entry)) {
             buffer.append("[");
             formatMultiValue(
-                MultiValue.getMultiValueIterator(entry), buffer, format, db);
+                MultiValue.getMultiValueIterator(entry), buffer, format, session);
             buffer.append("]");
           } else {
-            buffer.append(JSONWriter.writeValue(db, entry, format));
+            buffer.append(JSONWriter.writeValue(session, entry, format));
           }
         }
 

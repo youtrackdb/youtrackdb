@@ -30,14 +30,14 @@ public interface HttpResponse {
 
   void writeContent(String iContent) throws IOException;
 
-  void writeResult(Object result, DatabaseSessionInternal databaseDocumentInternal)
+  void writeResult(Object result, DatabaseSessionInternal session)
       throws InterruptedException, IOException;
 
   void writeResult(
       Object iResult,
       String iFormat,
       String iAccept,
-      DatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal session)
       throws InterruptedException, IOException;
 
   void writeResult(
@@ -45,7 +45,7 @@ public interface HttpResponse {
       String iFormat,
       String iAccept,
       Map<String, Object> iAdditionalProperties,
-      DatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal session)
       throws InterruptedException, IOException;
 
   void writeResult(
@@ -54,14 +54,14 @@ public interface HttpResponse {
       String iAccept,
       Map<String, Object> iAdditionalProperties,
       String mode,
-      DatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal session)
       throws InterruptedException, IOException;
 
-  void writeRecords(Object iRecords, DatabaseSessionInternal databaseDocumentInternal)
+  void writeRecords(Object iRecords, DatabaseSessionInternal session)
       throws IOException;
 
   void writeRecords(
-      Object iRecords, String iFetchPlan, DatabaseSessionInternal databaseDocumentInternal)
+      Object iRecords, String iFetchPlan, DatabaseSessionInternal session)
       throws IOException;
 
   void writeRecords(
@@ -69,7 +69,7 @@ public interface HttpResponse {
       String iFetchPlan,
       String iFormat,
       String accept,
-      DatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal session)
       throws IOException;
 
   void writeRecords(
@@ -78,7 +78,7 @@ public interface HttpResponse {
       String iFormat,
       String accept,
       Map<String, Object> iAdditionalProperties,
-      DatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal session)
       throws IOException;
 
   void writeRecords(
@@ -88,14 +88,14 @@ public interface HttpResponse {
       String accept,
       Map<String, Object> iAdditionalProperties,
       String mode,
-      DatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal session)
       throws IOException;
 
   void formatMultiValue(
       Iterator<?> iIterator,
       Writer buffer,
       String format,
-      DatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal session)
       throws IOException;
 
   void writeRecord(DBRecord iRecord) throws IOException;

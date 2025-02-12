@@ -137,7 +137,7 @@ public class RecordSerializerNetworkBase implements RecordSerializerNetwork {
   }
 
   @Override
-  public String[] getFieldNames(DatabaseSessionInternal db, EntityImpl reference,
+  public String[] getFieldNames(DatabaseSessionInternal session, EntityImpl reference,
       byte[] iSource) {
     if (iSource == null || iSource.length == 0) {
       return new String[0];
@@ -146,7 +146,7 @@ public class RecordSerializerNetworkBase implements RecordSerializerNetwork {
     final var container = new BytesContainer(iSource).skip(1);
 
     try {
-      return serializerByVersion[iSource[0]].getFieldNames(reference, container, false);
+      return serializerByVersion[iSource[0]].getFieldNames(session, reference, container, false);
     } catch (RuntimeException e) {
       LogManager.instance()
           .warn(

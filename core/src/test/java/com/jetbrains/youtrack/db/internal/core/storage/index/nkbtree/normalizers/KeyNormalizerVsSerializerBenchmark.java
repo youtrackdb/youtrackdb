@@ -15,6 +15,7 @@ import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSeriali
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ShortSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.StringSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.UTF8Serializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.index.nkbtree.normalizers.benchmark.Plotter;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -32,7 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import org.knowm.xchart.XYChart;
 import org.knowm.xchart.style.Styler;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -46,11 +46,9 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.profile.StackProfiler;
-import org.openjdk.jmh.results.Result;
 import org.openjdk.jmh.results.RunResult;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
-import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 @State(Scope.Thread)
@@ -63,6 +61,8 @@ public class KeyNormalizerVsSerializerBenchmark {
 
   private KeyNormalizer keyNormalizer;
   private ByteOrder byteOrder;
+  private final BinarySerializerFactory serializerFactory = BinarySerializerFactory.create(
+      BinarySerializerFactory.currentBinaryFormatVersion());
 
   public static void main(String[] args) throws RunnerException, IOException {
     final var opt =
@@ -171,7 +171,7 @@ public class KeyNormalizerVsSerializerBenchmark {
   @Benchmark
   public void booleanSerializer() {
     final var serializer = new BooleanSerializer();
-    serializer.serialize(true, new byte[1], 0);
+    serializer.serialize(true, serializerFactory, new byte[1], 0);
   }
 
   @Benchmark
@@ -183,7 +183,7 @@ public class KeyNormalizerVsSerializerBenchmark {
   @Benchmark
   public void byteSerializer() {
     final var serializer = new ByteSerializer();
-    serializer.serialize((byte) 3, new byte[1], 0);
+    serializer.serialize((byte) 3, serializerFactory, new byte[1], 0);
   }
 
   @Benchmark
@@ -195,7 +195,7 @@ public class KeyNormalizerVsSerializerBenchmark {
   @Benchmark
   public void integerSerializer() {
     final var serializer = new IntegerSerializer();
-    serializer.serialize(5, new byte[4], 0);
+    serializer.serialize(5, serializerFactory, new byte[4], 0);
   }
 
   @Benchmark
@@ -207,7 +207,7 @@ public class KeyNormalizerVsSerializerBenchmark {
   @Benchmark
   public void floatSerializer() {
     final var serializer = new FloatSerializer();
-    serializer.serialize(1.5f, new byte[4], 0);
+    serializer.serialize(1.5f, serializerFactory, new byte[4], 0);
   }
 
   @Benchmark
@@ -219,7 +219,7 @@ public class KeyNormalizerVsSerializerBenchmark {
   @Benchmark
   public void doubleSerializer() {
     final var serializer = new DoubleSerializer();
-    serializer.serialize(1.5d, new byte[8], 0);
+    serializer.serialize(1.5d, serializerFactory, new byte[8], 0);
   }
 
   @Benchmark
@@ -231,7 +231,7 @@ public class KeyNormalizerVsSerializerBenchmark {
   @Benchmark
   public void shortSerializer() {
     final var serializer = new ShortSerializer();
-    serializer.serialize((short) 3, new byte[2], 0);
+    serializer.serialize((short) 3, serializerFactory, new byte[2], 0);
   }
 
   @Benchmark
@@ -243,7 +243,7 @@ public class KeyNormalizerVsSerializerBenchmark {
   @Benchmark
   public void longSerializer() {
     final var serializer = new LongSerializer();
-    serializer.serialize(5L, new byte[LONG_SIZE], 0);
+    serializer.serialize(5L, serializerFactory, new byte[LONG_SIZE], 0);
   }
 
   @Benchmark
@@ -255,13 +255,13 @@ public class KeyNormalizerVsSerializerBenchmark {
   @Benchmark
   public void stringSerializer() {
     final var serializer = new StringSerializer();
-    serializer.serialize("abcd", new byte[16], 0);
+    serializer.serialize("abcd", serializerFactory, new byte[16], 0);
   }
 
   @Benchmark
   public void stringUtf8Serializer() {
     final var serializer = new UTF8Serializer();
-    serializer.serialize("abcd", new byte[16], 0);
+    serializer.serialize("abcd", serializerFactory, new byte[16], 0);
   }
 
   @Benchmark
@@ -274,7 +274,8 @@ public class KeyNormalizerVsSerializerBenchmark {
   public void binarySerializer() {
     final var serializer = new BinaryTypeSerializer();
     final var binary = new byte[]{1, 2, 3, 4, 5, 6};
-    serializer.serialize(binary, new byte[binary.length + IntegerSerializer.INT_SIZE], 0);
+    serializer.serialize(binary, serializerFactory,
+        new byte[binary.length + IntegerSerializer.INT_SIZE], 0);
   }
 
   @Benchmark
@@ -288,7 +289,7 @@ public class KeyNormalizerVsSerializerBenchmark {
   public void dateSerializer() {
     final var serializer = new DateSerializer();
     final var date = new GregorianCalendar(2013, Calendar.NOVEMBER, 5).getTime();
-    serializer.serialize(date, new byte[LONG_SIZE], 0);
+    serializer.serialize(date, serializerFactory, new byte[LONG_SIZE], 0);
   }
 
   @Benchmark
@@ -303,7 +304,7 @@ public class KeyNormalizerVsSerializerBenchmark {
     final var serializer = new DateTimeSerializer();
     final var ldt = LocalDateTime.of(2013, 11, 5, 3, 3, 3);
     final var date = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
-    serializer.serialize(date, new byte[LONG_SIZE], 0);
+    serializer.serialize(date, serializerFactory, new byte[LONG_SIZE], 0);
   }
 
   @Benchmark
@@ -317,7 +318,8 @@ public class KeyNormalizerVsSerializerBenchmark {
   @Benchmark
   public void decimalSerializer() {
     final var serializer = new DecimalSerializer();
-    serializer.serialize(new BigDecimal(new BigInteger("20"), 2), new byte[9], 0);
+    serializer.serialize(new BigDecimal(new BigInteger("20"), 2), serializerFactory, new byte[9],
+        0);
   }
 
   @Benchmark

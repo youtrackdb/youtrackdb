@@ -33,8 +33,8 @@ public abstract class QueryAbstract<T extends Object> extends CommandRequestAbst
   }
 
   @SuppressWarnings("unchecked")
-  public <RET> RET execute(@Nonnull DatabaseSessionInternal querySession, final Object... iArgs) {
-    return (RET) run(iArgs);
+  public <RET> RET execute(@Nonnull DatabaseSessionInternal session, final Object... iArgs) {
+    return (RET) run(session, iArgs);
   }
 
   /**

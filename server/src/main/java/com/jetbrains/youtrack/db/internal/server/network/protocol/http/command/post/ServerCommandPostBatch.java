@@ -88,7 +88,7 @@ public class ServerCommandPostBatch extends ServerCommandDocumentAbstract {
 
     EntityImpl batch = null;
     Object lastResult = null;
-    try (var db = getProfiledDatabaseInstance(iRequest)) {
+    try (var db = getProfiledDatabaseSessionInstance(iRequest)) {
 
       if (db.getTransaction().isActive()) {
         // TEMPORARY PATCH TO UNDERSTAND WHY UNDER HIGH LOAD TX IS NOT COMMITTED AFTER BATCH. MAYBE

@@ -19,7 +19,6 @@
  */
 package com.jetbrains.youtrack.db.api.schema;
 
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.query.Result;
@@ -31,7 +30,6 @@ import com.jetbrains.youtrack.db.internal.common.collection.MultiCollectionItera
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
@@ -390,7 +388,7 @@ public enum PropertyType {
    * @return The converted value or the original if no conversion was applied
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public static <T> T convert(@Nullable DatabaseSession session, final Object value,
+  public static <T> T convert(@Nullable DatabaseSessionInternal session, final Object value,
       final Class<? extends T> targetClass) {
     if (value == null) {
       return null;
@@ -433,44 +431,69 @@ public enum PropertyType {
         }
 
       } else if (targetClass.equals(Short.TYPE) || targetClass.equals(Short.class)) {
-        if (value instanceof Short) {
-          return (T) value;
-        } else if (value instanceof String) {
-          return (T) Short.valueOf((String) value);
-        } else if (value instanceof Number number) {
-          return (T) (Short) number.shortValue();
+        switch (value) {
+          case Short i -> {
+            return (T) value;
+          }
+          case String s -> {
+            return (T) Short.valueOf(s);
+          }
+          case Number number -> {
+            return (T) (Short) number.shortValue();
+          }
+          default -> {
+          }
         }
 
       } else if (targetClass.equals(Integer.TYPE) || targetClass.equals(Integer.class)) {
-        if (value instanceof Integer) {
-          return (T) value;
-        } else if (value instanceof String) {
-          if (value.toString().isEmpty()) {
-            return null;
+        switch (value) {
+          case Integer i -> {
+            return (T) value;
           }
-          return (T) Integer.valueOf((String) value);
-        } else if (value instanceof Number number) {
-          return (T) (Integer) number.intValue();
+          case String s -> {
+            if (value.toString().isEmpty()) {
+              return null;
+            }
+            return (T) Integer.valueOf(s);
+          }
+          case Number number -> {
+            return (T) (Integer) number.intValue();
+          }
+          default -> {
+          }
         }
 
       } else if (targetClass.equals(Long.TYPE) || targetClass.equals(Long.class)) {
-        if (value instanceof Long) {
-          return (T) value;
-        } else if (value instanceof String) {
-          return (T) Long.valueOf((String) value);
-        } else if (value instanceof Date) {
-          return (T) (Long) ((Date) value).getTime();
-        } else if (value instanceof Number number) {
-          return (T) (Long) number.longValue();
+        switch (value) {
+          case Long l -> {
+            return (T) value;
+          }
+          case String s -> {
+            return (T) Long.valueOf(s);
+          }
+          case Date date -> {
+            return (T) (Long) date.getTime();
+          }
+          case Number number -> {
+            return (T) (Long) number.longValue();
+          }
+          default -> {
+          }
         }
 
       } else if (targetClass.equals(Float.TYPE) || targetClass.equals(Float.class)) {
-        if (value instanceof Float) {
-          return (T) value;
-        } else if (value instanceof String) {
-          return (T) Float.valueOf((String) value);
-        } else if (value instanceof Number number) {
-          return (T) (Float) number.floatValue();
+        switch (value) {
+          case Float v -> {
+            return (T) value;
+          }
+          case String s -> {
+            return (T) Float.valueOf(s);
+          }
+          case Number number -> {
+            return (T) (Float) number.floatValue();
+          }
+          default -> {
+          }
         }
 
       } else if (targetClass.equals(BigDecimal.class)) {
@@ -481,31 +504,47 @@ public enum PropertyType {
         }
 
       } else if (targetClass.equals(Double.TYPE) || targetClass.equals(Double.class)) {
-        if (value instanceof Double) {
-          return (T) value;
-        } else if (value instanceof String) {
-          return (T) Double.valueOf((String) value);
-        } else if (value instanceof Float)
-        // THIS IS NECESSARY DUE TO A BUG/STRANGE BEHAVIOR OF JAVA BY LOSSING PRECISION
-        {
-          return (T) Double.valueOf(value.toString());
-        } else if (value instanceof Number number) {
-          return (T) (Double) number.doubleValue();
+        switch (value) {
+          case Double v -> {
+            return (T) value;
+          }
+          case String s -> {
+            return (T) Double.valueOf(s);
+          }
+          case Float v -> {
+            // THIS IS NECESSARY DUE TO A BUG/STRANGE BEHAVIOR OF JAVA BY LOSSING PRECISION
+
+            return (T) Double.valueOf(value.toString());
+            // THIS IS NECESSARY DUE TO A BUG/STRANGE BEHAVIOR OF JAVA BY LOSSING PRECISION
+          }
+          case Number number -> {
+            return (T) (Double) number.doubleValue();
+          }
+          default -> {
+          }
         }
 
       } else if (targetClass.equals(Boolean.TYPE) || targetClass.equals(Boolean.class)) {
-        if (value instanceof Boolean) {
-          return (T) value;
-        } else if (value instanceof String) {
-          if (((String) value).equalsIgnoreCase("true")) {
-            return (T) Boolean.TRUE;
-          } else if (((String) value).equalsIgnoreCase("false")) {
-            return (T) Boolean.FALSE;
+        switch (value) {
+          case Boolean b -> {
+            return (T) value;
           }
-          throw new DatabaseException(
-              String.format("Error in conversion of value '%s' to type '%s'", value, targetClass));
-        } else if (value instanceof Number) {
-          return (T) (Boolean) (((Number) value).intValue() != 0);
+          case String s -> {
+            if (s.equalsIgnoreCase("true")) {
+              return (T) Boolean.TRUE;
+            } else if (((String) value).equalsIgnoreCase("false")) {
+              return (T) Boolean.FALSE;
+            }
+
+            throw new DatabaseException(session != null ? session.getDatabaseName() : null,
+                String.format("Error in conversion of value '%s' to type '%s'", value,
+                    targetClass));
+          }
+          case Number number -> {
+            return (T) (Boolean) (number.intValue() != 0);
+          }
+          default -> {
+          }
         }
 
       } else if (Set.class.isAssignableFrom(targetClass)) {
@@ -547,12 +586,10 @@ public enum PropertyType {
             return (T) new Date(Long.parseLong(value.toString()));
           }
           try {
-            return (T) DateHelper.getDateTimeFormatInstance(
-                    DatabaseRecordThreadLocal.instance().get())
+            return (T) DateHelper.getDateTimeFormatInstance(session)
                 .parse((String) value);
           } catch (ParseException ignore) {
-            return (T) DateHelper.getDateFormatInstance(
-                    DatabaseRecordThreadLocal.instance().get())
+            return (T) DateHelper.getDateFormatInstance(session)
                 .parse((String) value);
           }
         }
@@ -574,10 +611,10 @@ public enum PropertyType {
                 result.add(new RecordId(value.toString()));
               } catch (Exception e) {
                 throw BaseException.wrapException(
-                    new DatabaseException(
+                    new DatabaseException(session != null ? session.getDatabaseName() : null,
                         String.format(
                             "Error in conversion of value '%s' to type '%s'", value, targetClass)),
-                    e);
+                    e, session.getDatabaseName());
               }
             } else if (o instanceof Result res && res.isEntity()) {
               result.add(res.getRecordId());
@@ -588,10 +625,10 @@ public enum PropertyType {
             return null;
           }
           if (result.size() == 1) {
-            return (T) result.get(0);
+            return (T) result.getFirst();
           }
 
-          throw new DatabaseException(
+          throw new DatabaseException(session != null ? session.getDatabaseName() : null,
               String.format(
                   "Error in conversion of value '%s' to type '%s'", value, targetClass));
         } else if (value instanceof String) {
@@ -608,7 +645,7 @@ public enum PropertyType {
       }
 
       if (targetClass.equals(RidBag.class) && value instanceof Iterable<?> iterable) {
-        var ridBag = new RidBag((DatabaseSessionInternal) session);
+        var ridBag = new RidBag(session);
 
         for (var item : iterable) {
           if (item instanceof Identifiable identifiable) {
@@ -624,40 +661,38 @@ public enum PropertyType {
     } catch (IllegalArgumentException e) {
       // PASS THROUGH
       throw BaseException.wrapException(
-          new DatabaseException(
+          new DatabaseException(session != null ? session.getDatabaseName() : null,
               String.format("Error in conversion of value '%s' to type '%s'", value, targetClass)),
-          e);
+          e, session.getDatabaseName());
     } catch (Exception e) {
-      if (value instanceof Collection
-          && ((Collection) value).size() == 1
-          && !Collection.class.isAssignableFrom(targetClass)) {
-        // this must be a comparison with the result of a subquery, try to unbox the collection
-        return convert(session, ((Collection) value).iterator().next(), targetClass);
-      } else if (value instanceof Result
-          && ((Result) value).getPropertyNames().size() == 1
-          && !Result.class.isAssignableFrom(targetClass)) {
-        // try to unbox Result with a single property, for subqueries
-        return convert(session,
-            ((Result) value).getProperty(((Result) value).getPropertyNames().iterator().next()),
-            targetClass);
-      } else if (value instanceof Entity
-          && ((EntityInternal) value).getPropertyNamesInternal().size() == 1
-          && !Entity.class.isAssignableFrom(targetClass)) {
-        // try to unbox Result with a single property, for subqueries
-        return convert(session,
-            ((Entity) value)
-                .getProperty(
-                    ((EntityInternal) value).getPropertyNamesInternal().iterator().next()),
-            targetClass);
-      }
-
-      throw BaseException.wrapException(
-          new DatabaseException(
-              String.format("Error in conversion of value '%s' to type '%s'", value, targetClass)),
-          e);
+      return switch (value) {
+        case Collection collection when collection.size() == 1
+            && !Collection.class.isAssignableFrom(targetClass) ->
+          // this must be a comparison with the result of a subquery, try to unbox the collection
+            convert(session, collection.iterator().next(), targetClass);
+        case Result result when result.getPropertyNames().size() == 1
+            && !Result.class.isAssignableFrom(targetClass) ->
+          // try to unbox Result with a single property, for subqueries
+            convert(session,
+                result.getProperty(result.getPropertyNames().iterator().next()),
+                targetClass);
+        case Entity entity when ((EntityInternal) value).getPropertyNamesInternal().size() == 1
+            && !Entity.class.isAssignableFrom(targetClass) ->
+          // try to unbox Result with a single property, for subqueries
+            convert(session,
+                entity
+                    .getProperty(
+                        ((EntityInternal) value).getPropertyNamesInternal().iterator().next()),
+                targetClass);
+        default -> throw BaseException.wrapException(
+            new DatabaseException(session != null ? session.getDatabaseName() : null,
+                String.format("Error in conversion of value '%s' to type '%s'", value,
+                    targetClass)),
+            e, session.getDatabaseName());
+      };
     }
 
-    throw new DatabaseException(
+    throw new DatabaseException(session != null ? session.getDatabaseName() : null,
         String.format("Error in conversion of value '%s' to type '%s'", value, targetClass));
   }
 
@@ -666,118 +701,176 @@ public enum PropertyType {
       throw new IllegalArgumentException("Cannot increment a null value");
     }
 
-    if (a instanceof Integer) {
-      if (b instanceof Integer) {
-        final var sum = a.intValue() + b.intValue();
-        if (sum < 0 && a.intValue() > 0 && b.intValue() > 0)
-        // SPECIAL CASE: UPGRADE TO LONG
-        {
-          return (long) (a.intValue() + b.intValue());
+    switch (a) {
+      case Integer i -> {
+        switch (b) {
+          case Integer integer -> {
+            final var sum = a.intValue() + b.intValue();
+            if (sum < 0 && a.intValue() > 0 && b.intValue() > 0)
+            // SPECIAL CASE: UPGRADE TO LONG
+            {
+              return (long) (a.intValue() + b.intValue());
+            }
+            return sum;
+          }
+          case Long l -> {
+            return a.intValue() + b.longValue();
+          }
+          case Short aShort -> {
+            final var sum = a.intValue() + b.shortValue();
+            if (sum < 0 && a.intValue() > 0 && b.shortValue() > 0)
+            // SPECIAL CASE: UPGRADE TO LONG
+            {
+              return (long) (a.intValue() + b.shortValue());
+            }
+            return sum;
+          }
+          case Float v -> {
+            return a.intValue() + b.floatValue();
+          }
+          case Double v -> {
+            return a.intValue() + b.doubleValue();
+          }
+          case BigDecimal bigDecimal -> {
+            return new BigDecimal(a.intValue()).add(bigDecimal);
+          }
+          default -> {
+          }
         }
-        return sum;
-      } else if (b instanceof Long) {
-        return a.intValue() + b.longValue();
-      } else if (b instanceof Short) {
-        final var sum = a.intValue() + b.shortValue();
-        if (sum < 0 && a.intValue() > 0 && b.shortValue() > 0)
-        // SPECIAL CASE: UPGRADE TO LONG
-        {
-          return (long) (a.intValue() + b.shortValue());
+      }
+      case Long l -> {
+        switch (b) {
+          case Integer i -> {
+            return a.longValue() + b.intValue();
+          }
+          case Long aLong -> {
+            return a.longValue() + b.longValue();
+          }
+          case Short i -> {
+            return a.longValue() + b.shortValue();
+          }
+          case Float v -> {
+            return a.longValue() + b.floatValue();
+          }
+          case Double v -> {
+            return a.longValue() + b.doubleValue();
+          }
+          case BigDecimal bigDecimal -> {
+            return new BigDecimal(a.longValue()).add(bigDecimal);
+          }
+          default -> {
+          }
         }
-        return sum;
-      } else if (b instanceof Float) {
-        return a.intValue() + b.floatValue();
-      } else if (b instanceof Double) {
-        return a.intValue() + b.doubleValue();
-      } else if (b instanceof BigDecimal) {
-        return new BigDecimal(a.intValue()).add((BigDecimal) b);
       }
-
-    } else if (a instanceof Long) {
-      if (b instanceof Integer) {
-        return a.longValue() + b.intValue();
-      } else if (b instanceof Long) {
-        return a.longValue() + b.longValue();
-      } else if (b instanceof Short) {
-        return a.longValue() + b.shortValue();
-      } else if (b instanceof Float) {
-        return a.longValue() + b.floatValue();
-      } else if (b instanceof Double) {
-        return a.longValue() + b.doubleValue();
-      } else if (b instanceof BigDecimal) {
-        return new BigDecimal(a.longValue()).add((BigDecimal) b);
-      }
-
-    } else if (a instanceof Short) {
-      if (b instanceof Integer) {
-        final var sum = a.shortValue() + b.intValue();
-        if (sum < 0 && a.shortValue() > 0 && b.intValue() > 0)
-        // SPECIAL CASE: UPGRADE TO LONG
-        {
-          return (long) (a.shortValue() + b.intValue());
+      case Short i -> {
+        switch (b) {
+          case Integer integer -> {
+            final var sum = a.shortValue() + b.intValue();
+            if (sum < 0 && a.shortValue() > 0 && b.intValue() > 0)
+            // SPECIAL CASE: UPGRADE TO LONG
+            {
+              return (long) (a.shortValue() + b.intValue());
+            }
+            return sum;
+          }
+          case Long l -> {
+            return a.shortValue() + b.longValue();
+          }
+          case Short aShort -> {
+            final var sum = a.shortValue() + b.shortValue();
+            if (sum < 0 && a.shortValue() > 0 && b.shortValue() > 0)
+            // SPECIAL CASE: UPGRADE TO INTEGER
+            {
+              return a.intValue() + b.intValue();
+            }
+            return sum;
+          }
+          case Float v -> {
+            return a.shortValue() + b.floatValue();
+          }
+          case Double v -> {
+            return a.shortValue() + b.doubleValue();
+          }
+          case BigDecimal bigDecimal -> {
+            return new BigDecimal(a.shortValue()).add(bigDecimal);
+          }
+          default -> {
+          }
         }
-        return sum;
-      } else if (b instanceof Long) {
-        return a.shortValue() + b.longValue();
-      } else if (b instanceof Short) {
-        final var sum = a.shortValue() + b.shortValue();
-        if (sum < 0 && a.shortValue() > 0 && b.shortValue() > 0)
-        // SPECIAL CASE: UPGRADE TO INTEGER
-        {
-          return a.intValue() + b.intValue();
+      }
+      case Float v -> {
+        switch (b) {
+          case Integer i -> {
+            return a.floatValue() + b.intValue();
+          }
+          case Long l -> {
+            return a.floatValue() + b.longValue();
+          }
+          case Short i -> {
+            return a.floatValue() + b.shortValue();
+          }
+          case Float aFloat -> {
+            return a.floatValue() + b.floatValue();
+          }
+          case Double aDouble -> {
+            return a.floatValue() + b.doubleValue();
+          }
+          case BigDecimal bigDecimal -> {
+            return BigDecimal.valueOf(a.floatValue()).add(bigDecimal);
+          }
+          default -> {
+          }
         }
-        return sum;
-      } else if (b instanceof Float) {
-        return a.shortValue() + b.floatValue();
-      } else if (b instanceof Double) {
-        return a.shortValue() + b.doubleValue();
-      } else if (b instanceof BigDecimal) {
-        return new BigDecimal(a.shortValue()).add((BigDecimal) b);
       }
-
-    } else if (a instanceof Float) {
-      if (b instanceof Integer) {
-        return a.floatValue() + b.intValue();
-      } else if (b instanceof Long) {
-        return a.floatValue() + b.longValue();
-      } else if (b instanceof Short) {
-        return a.floatValue() + b.shortValue();
-      } else if (b instanceof Float) {
-        return a.floatValue() + b.floatValue();
-      } else if (b instanceof Double) {
-        return a.floatValue() + b.doubleValue();
-      } else if (b instanceof BigDecimal) {
-        return BigDecimal.valueOf(a.floatValue()).add((BigDecimal) b);
+      case Double v -> {
+        switch (b) {
+          case Integer i -> {
+            return a.doubleValue() + b.intValue();
+          }
+          case Long l -> {
+            return a.doubleValue() + b.longValue();
+          }
+          case Short i -> {
+            return a.doubleValue() + b.shortValue();
+          }
+          case Float aFloat -> {
+            return a.doubleValue() + b.floatValue();
+          }
+          case Double aDouble -> {
+            return a.doubleValue() + b.doubleValue();
+          }
+          case BigDecimal bigDecimal -> {
+            return BigDecimal.valueOf(a.doubleValue()).add(bigDecimal);
+          }
+          default -> {
+          }
+        }
       }
-
-    } else if (a instanceof Double) {
-      if (b instanceof Integer) {
-        return a.doubleValue() + b.intValue();
-      } else if (b instanceof Long) {
-        return a.doubleValue() + b.longValue();
-      } else if (b instanceof Short) {
-        return a.doubleValue() + b.shortValue();
-      } else if (b instanceof Float) {
-        return a.doubleValue() + b.floatValue();
-      } else if (b instanceof Double) {
-        return a.doubleValue() + b.doubleValue();
-      } else if (b instanceof BigDecimal) {
-        return BigDecimal.valueOf(a.doubleValue()).add((BigDecimal) b);
+      case BigDecimal bigDecimal -> {
+        switch (b) {
+          case Integer i -> {
+            return ((BigDecimal) a).add(new BigDecimal(b.intValue()));
+          }
+          case Long l -> {
+            return ((BigDecimal) a).add(new BigDecimal(b.longValue()));
+          }
+          case Short i -> {
+            return ((BigDecimal) a).add(new BigDecimal(b.shortValue()));
+          }
+          case Float v -> {
+            return ((BigDecimal) a).add(BigDecimal.valueOf(b.floatValue()));
+          }
+          case Double v -> {
+            return ((BigDecimal) a).add(BigDecimal.valueOf(b.doubleValue()));
+          }
+          case BigDecimal decimal -> {
+            return ((BigDecimal) a).add(decimal);
+          }
+          default -> {
+          }
+        }
       }
-
-    } else if (a instanceof BigDecimal) {
-      if (b instanceof Integer) {
-        return ((BigDecimal) a).add(new BigDecimal(b.intValue()));
-      } else if (b instanceof Long) {
-        return ((BigDecimal) a).add(new BigDecimal(b.longValue()));
-      } else if (b instanceof Short) {
-        return ((BigDecimal) a).add(new BigDecimal(b.shortValue()));
-      } else if (b instanceof Float) {
-        return ((BigDecimal) a).add(BigDecimal.valueOf(b.floatValue()));
-      } else if (b instanceof Double) {
-        return ((BigDecimal) a).add(BigDecimal.valueOf(b.doubleValue()));
-      } else if (b instanceof BigDecimal) {
-        return ((BigDecimal) a).add((BigDecimal) b);
+      default -> {
       }
     }
 

@@ -39,14 +39,11 @@ import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.security.SecurityUser;
-import com.jetbrains.youtrack.db.api.session.SessionListener;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.ScriptExecutor;
 import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategy;
 import com.jetbrains.youtrack.db.internal.core.db.record.ClassTrigger;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
@@ -54,8 +51,6 @@ import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.FunctionLibraryImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaProxy;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ImmutableUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyAccess;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyEncryptionNone;
@@ -63,7 +58,6 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.RestrictedAcces
 import com.jetbrains.youtrack.db.internal.core.metadata.security.RestrictedOperation;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
@@ -80,7 +74,6 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
 import com.jetbrains.youtrack.db.internal.core.schedule.ScheduledEvent;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
@@ -106,7 +99,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
@@ -166,9 +158,10 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       databaseOwner = this;
 
     } catch (Exception t) {
-      DatabaseRecordThreadLocal.instance().remove();
-
-      throw BaseException.wrapException(new DatabaseException("Error on opening database "), t);
+      activeSession.remove();
+      throw BaseException.wrapException(
+          new DatabaseException(
+              getDatabaseName(), "Error on opening database "), t, getDatabaseName());
     }
   }
 
@@ -192,21 +185,21 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       var serializerFactory = RecordSerializerFactory.instance();
       var serializeName = getStorageInfo().getConfiguration().getRecordSerializer();
       if (serializeName == null) {
-        throw new DatabaseException(
+        throw new DatabaseException(getDatabaseName(),
             "Impossible to open database from version before 2.x use export import instead");
       }
       serializer = serializerFactory.getFormat(serializeName);
       if (serializer == null) {
-        throw new DatabaseException(
+        throw new DatabaseException(getDatabaseName(),
             "RecordSerializer with name '" + serializeName + "' not found ");
       }
       if (getStorageInfo().getConfiguration().getRecordSerializerVersion()
           > serializer.getMinSupportedVersion()) {
-        throw new DatabaseException(
+        throw new DatabaseException(getDatabaseName(),
             "Persistent record serializer version is not support by the current implementation");
       }
 
-      localCache.startup();
+      localCache.startup(this);
 
       loadMetadata();
 
@@ -216,12 +209,13 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
       initialized = true;
     } catch (BaseException e) {
-      DatabaseRecordThreadLocal.instance().remove();
+      activeSession.remove();
       throw e;
     } catch (Exception e) {
-      DatabaseRecordThreadLocal.instance().remove();
+      activeSession.remove();
       throw BaseException.wrapException(
-          new DatabaseException("Cannot open database url=" + getURL()), e);
+          new DatabaseException(getDatabaseName(), "Cannot open database url=" + getURL()), e,
+          getDatabaseName());
     }
   }
 
@@ -243,12 +237,13 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       }
 
     } catch (BaseException e) {
-      DatabaseRecordThreadLocal.instance().remove();
+      activeSession.remove();
       throw e;
     } catch (Exception e) {
-      DatabaseRecordThreadLocal.instance().remove();
+      activeSession.remove();
       throw BaseException.wrapException(
-          new DatabaseException("Cannot open database url=" + getURL()), e);
+          new DatabaseException(getDatabaseName(), "Cannot open database url=" + getURL()), e,
+          getDatabaseName());
     }
   }
 
@@ -282,12 +277,13 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
               checkSecurity(Rule.ResourceGeneric.DATABASE, Role.PERMISSION_READ);
             }
           } catch (BaseException e) {
-            DatabaseRecordThreadLocal.instance().remove();
+            activeSession.remove();
             throw e;
           } catch (Exception e) {
-            DatabaseRecordThreadLocal.instance().remove();
+            activeSession.remove();
             throw BaseException.wrapException(
-                new DatabaseException("Cannot open database url=" + getURL()), e);
+                new DatabaseException(getDatabaseName(), "Cannot open database url=" + getURL()), e,
+                getDatabaseName());
           }
         });
   }
@@ -323,7 +319,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   public void internalCreate(YouTrackDBConfigImpl config, SharedContext ctx) {
     var serializer = RecordSerializerFactory.instance().getDefaultRecordSerializer();
     if (serializer.toString().equals("ORecordDocument2csv")) {
-      throw new DatabaseException(
+      throw new DatabaseException(getDatabaseName(),
           "Impossible to create the database with ORecordDocument2csv serializer");
     }
     storage.setRecordSerializer(serializer.toString(), serializer.getCurrentVersion());
@@ -583,7 +579,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       preQueryStart();
       var statement = SQLEngine.parse(query, this);
       if (!statement.isIdempotent()) {
-        throw new CommandExecutionException(
+        throw new CommandExecutionException(getDatabaseName(),
             "Cannot execute query on non idempotent statement: " + query);
       }
       var original = statement.execute(this, args, true);
@@ -605,7 +601,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     try {
       var statement = SQLEngine.parse(query, this);
       if (!statement.isIdempotent()) {
-        throw new CommandExecutionException(
+        throw new CommandExecutionException(getDatabaseName(),
             "Cannot execute query on non idempotent statement: " + query);
       }
       var original = statement.execute(this, args, true);
@@ -631,8 +627,8 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       LocalResultSetLifecycleDecorator result;
       if (!statement.isIdempotent()) {
         // fetch all, close and detach
-        var prefetched = new InternalResultSet();
-        original.forEachRemaining(x -> prefetched.add(x));
+        var prefetched = new InternalResultSet(this);
+        original.forEachRemaining(prefetched::add);
         original.close();
         queryCompleted();
         result = new LocalResultSetLifecycleDecorator(prefetched);
@@ -662,8 +658,8 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       LocalResultSetLifecycleDecorator result;
       if (!statement.isIdempotent()) {
         // fetch all, close and detach
-        var prefetched = new InternalResultSet();
-        original.forEachRemaining(x -> prefetched.add(x));
+        var prefetched = new InternalResultSet(this);
+        original.forEachRemaining(prefetched::add);
         original.close();
         queryCompleted();
         result = new LocalResultSetLifecycleDecorator(prefetched);
@@ -775,10 +771,10 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     try {
       preQueryStart();
       var ctx = new BasicCommandContext();
-      ctx.setDatabase(this);
+      ctx.setDatabaseSession(this);
       ctx.setInputParameters(params);
 
-      var result = new LocalResultSet((InternalExecutionPlan) plan);
+      var result = new LocalResultSet(this, (InternalExecutionPlan) plan);
       var decorator = new LocalResultSetLifecycleDecorator(result);
       queryStarted(decorator);
 
@@ -822,8 +818,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
         new LiveQueryListenerImpl(listener, query, this, (Map) args);
     var dbCopy = this.copy();
     this.activateOnCurrentThread();
-    LiveQueryMonitor monitor = new YTLiveQueryMonitorEmbedded(queryListener.getToken(), dbCopy);
-    return monitor;
+    return new YTLiveQueryMonitorEmbedded(queryListener.getToken(), dbCopy);
   }
 
   @Override
@@ -854,7 +849,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     if (id instanceof EntityImpl entity) {
 
       if (!getSharedContext().getSecurity().canCreate(this, entity)) {
-        throw new SecurityException(
+        throw new SecurityException(getDatabaseName(),
             "Cannot update record "
                 + entity
                 + ": the resource has restricted access due to security policies");
@@ -862,7 +857,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
       var clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
-        checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_CREATE, clazz.getName());
+        checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_CREATE, clazz.getName(this));
         if (clazz.isScheduler()) {
           getSharedContext().getScheduler().initScheduleRecord(entity);
           changed = true;
@@ -914,7 +909,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
         if (clazz.isRestricted()) {
           if (!RestrictedAccessHook.isAllowed(
               this, entity, RestrictedOperation.ALLOW_UPDATE, true)) {
-            throw new SecurityException(
+            throw new SecurityException(getDatabaseName(),
                 "Cannot update record "
                     + entity.getIdentity()
                     + ": the resource has restricted access");
@@ -924,7 +919,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
           FunctionLibraryImpl.validateFunctionRecord(entity);
         }
         if (!getSharedContext().getSecurity().canUpdate(this, entity)) {
-          throw new SecurityException(
+          throw new SecurityException(getDatabaseName(),
               "Cannot update record "
                   + entity.getIdentity()
                   + ": the resource has restricted access due to security policies");
@@ -953,7 +948,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     assert assertIfNotActive();
 
     if (record == null) {
-      throw new DatabaseException("Cannot delete null entity");
+      throw new DatabaseException(getDatabaseName(), "Cannot delete null entity");
     }
 
     if (record instanceof Entity) {
@@ -961,7 +956,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
         VertexInternal.deleteLinks(((Entity) record).toVertex());
       } else {
         if (((Entity) record).isEdge()) {
-          EdgeEntityImpl.deleteLinks(((Entity) record).toEdge());
+          EdgeEntityImpl.deleteLinks(this, ((Entity) record).toEdge());
         }
       }
     }
@@ -981,16 +976,18 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     } catch (Exception e) {
       if (record instanceof EntityImpl) {
         throw BaseException.wrapException(
-            new DatabaseException(
+            new DatabaseException(getDatabaseName(),
                 "Error on deleting record "
                     + record.getIdentity()
                     + " of class '"
                     + ((EntityImpl) record).getClassName()
                     + "'"),
-            e);
+            e, getDatabaseName());
       } else {
         throw BaseException.wrapException(
-            new DatabaseException("Error on deleting record " + record.getIdentity()), e);
+            new DatabaseException(getDatabaseName(),
+                "Error on deleting record " + record.getIdentity()),
+            e, getDatabaseName());
       }
     }
   }
@@ -1008,14 +1005,14 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
         if (clazz.isRestricted()) {
           if (!RestrictedAccessHook.isAllowed(
               this, entity, RestrictedOperation.ALLOW_DELETE, true)) {
-            throw new SecurityException(
+            throw new SecurityException(getDatabaseName(),
                 "Cannot delete record "
                     + entity.getIdentity()
                     + ": the resource has restricted access");
           }
         }
         if (!getSharedContext().getSecurity().canDelete(this, entity)) {
-          throw new SecurityException(
+          throw new SecurityException(getDatabaseName(),
               "Cannot delete record "
                   + entity.getIdentity()
                   + ": the resource has restricted access due to security policies");
@@ -1076,7 +1073,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       var clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
         if (clazz.isFunction()) {
-          this.getSharedContext().getFunctionLibrary().droppedFunction(entity);
+          this.getSharedContext().getFunctionLibrary().droppedFunction(this, entity);
         }
         if (clazz.isSequence()) {
           ((SequenceLibraryProxy) getMetadata().getSequenceLibrary())
@@ -1130,7 +1127,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
           }
         }
         try {
-          checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_READ, clazz.getName());
+          checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_READ, clazz.getName(this));
         } catch (SecurityException e) {
           return true;
         }
@@ -1238,16 +1235,19 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       }
       if (schemaClass != null) {
         // FIND THE RIGHT CLUSTER AS CONFIGURED IN CLASS
-        if (schemaClass.isAbstract()) {
-          throw new SchemaException(
+        if (schemaClass.isAbstract(this)) {
+          throw new SchemaException(getDatabaseName(),
               "Entity belongs to abstract class '"
-                  + schemaClass.getName()
+                  + schemaClass.getName(this)
                   + "' and cannot be saved");
         }
-        clusterId = schemaClass.getClusterForNewInstance((EntityImpl) record);
+        clusterId = schemaClass.getClusterForNewInstance(this, (EntityImpl) record);
         return getClusterNameById(clusterId);
       } else {
-        return getClusterNameById(storage.getDefaultClusterId());
+        throw new SchemaException(getDatabaseName(),
+            "Cannot find the cluster id for record "
+                + record
+                + " because the schema class is not defined");
       }
 
     } else {
@@ -1286,13 +1286,13 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       return storage.recordExists(this, rid);
     } catch (Exception t) {
       throw BaseException.wrapException(
-          new DatabaseException(
+          new DatabaseException(getDatabaseName(),
               "Error on retrieving record "
                   + rid
                   + " (cluster: "
                   + storage.getPhysicalClusterNameById(rid.getClusterId())
                   + ")"),
-          t);
+          t, getDatabaseName());
     }
   }
 
@@ -1443,9 +1443,9 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       return storage.getClusterRecordsSizeByName(clusterName);
     } catch (Exception e) {
       throw BaseException.wrapException(
-          new DatabaseException(
+          new DatabaseException(getDatabaseName(),
               "Error on reading records size for cluster '" + clusterName + "'"),
-          e);
+          e, getDatabaseName());
     }
   }
 
@@ -1456,9 +1456,9 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       return storage.getClusterRecordsSizeById(clusterId);
     } catch (Exception e) {
       throw BaseException.wrapException(
-          new DatabaseException(
+          new DatabaseException(getDatabaseName(),
               "Error on reading records size for cluster with id '" + clusterId + "'"),
-          e);
+          e, getDatabaseName());
     }
   }
 
@@ -1657,7 +1657,8 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     YouTrackDBEnginesManager.instance()
         .getProfiler()
         .stopChrono(
-            "db." + getName() + ".freeze", "Time to freeze the database", startTime, "db.*.freeze");
+            "db." + getDatabaseName() + ".freeze", "Time to freeze the database", startTime,
+            "db.*.freeze");
   }
 
   /**
@@ -1696,7 +1697,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     YouTrackDBEnginesManager.instance()
         .getProfiler()
         .stopChrono(
-            "db." + getName() + ".release",
+            "db." + getDatabaseName() + ".release",
             "Time to release the database",
             startTime,
             "db.*.release");
@@ -1727,7 +1728,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     assert assertIfNotActive();
 
     if (this.isClosed()) {
-      throw new DatabaseException("Cannot reload a closed db");
+      throw new DatabaseException(getDatabaseName(), "Cannot reload a closed db");
     }
     metadata.reload();
     storage.reload(this);
@@ -1745,7 +1746,6 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     }
 
     assert assertIfNotActive();
-
     try {
       closeActiveQueries();
       localCache.shutdown();
@@ -1774,7 +1774,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
     } finally {
       // ALWAYS RESET TL
-      DatabaseRecordThreadLocal.instance().remove();
+      activeSession.remove();
     }
   }
 
@@ -1782,12 +1782,6 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   public long[] getClusterDataRange(int currentClusterId) {
     assert assertIfNotActive();
     return storage.getClusterDataRange(this, currentClusterId);
-  }
-
-  @Override
-  public void setDefaultClusterId(int addCluster) {
-    assert assertIfNotActive();
-    storage.setDefaultClusterId(addCluster);
   }
 
   @Override
@@ -1823,10 +1817,10 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     assert assertIfNotActive();
     this.checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_UPDATE);
     var clazz = getClass(name);
-    if (clazz.isSubClassOf(SecurityShared.RESTRICTED_CLASSNAME)) {
-      throw new SecurityException(
+    if (clazz.isSubClassOf(this, SecurityShared.RESTRICTED_CLASSNAME)) {
+      throw new SecurityException(getDatabaseName(),
           "Class '"
-              + getName()
+              + getDatabaseName()
               + "' cannot be truncated because has record level security enabled (extends '"
               + SecurityShared.RESTRICTED_CLASSNAME
               + "')");
@@ -1834,9 +1828,9 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
     int[] clusterIds;
     if (polimorfic) {
-      clusterIds = clazz.getPolymorphicClusterIds();
+      clusterIds = clazz.getPolymorphicClusterIds(this);
     } else {
-      clusterIds = clazz.getClusterIds();
+      clusterIds = clazz.getClusterIds(this);
     }
     long count = 0;
     for (var id : clusterIds) {
@@ -1866,16 +1860,17 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
     var id = getClusterIdByName(clusterName);
     if (id == -1) {
-      throw new DatabaseException("Cluster with name " + clusterName + " does not exist");
+      throw new DatabaseException(getDatabaseName(),
+          "Cluster with name " + clusterName + " does not exist");
     }
     final var clazz = getMetadata().getSchema().getClassByClusterId(id);
     if (clazz != null) {
-      checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_DELETE, clazz.getName());
+      checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_DELETE, clazz.getName(this));
     }
 
     long count = 0;
     final var iteratorCluster =
-        new RecordIteratorCluster<DBRecord>(this, id);
+        new RecordIteratorCluster<>(this, id);
 
     while (iteratorCluster.hasNext()) {
       executeInTx(

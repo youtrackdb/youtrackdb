@@ -20,12 +20,12 @@ package com.jetbrains.youtrack.db.internal.lucene.engine;
 
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.ContextualRecordId;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngine;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.FreezableStorageComponent;
 import com.jetbrains.youtrack.db.internal.lucene.query.LuceneQueryContext;
 import com.jetbrains.youtrack.db.internal.lucene.tx.LuceneTxChanges;
-import com.jetbrains.youtrack.db.internal.core.id.ContextualRecordId;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.FreezableStorageComponent;
 import java.io.IOException;
 import java.util.Set;
 import org.apache.lucene.analysis.Analyzer;
@@ -45,9 +45,9 @@ public interface LuceneIndexEngine extends IndexEngine, FreezableStorageComponen
       LuceneQueryContext queryContext, ContextualRecordId recordId, Document ret,
       ScoreDoc score);
 
-  Document buildDocument(DatabaseSessionInternal db, Object key, Identifiable value);
+  Document buildDocument(DatabaseSessionInternal session, Object key, Identifiable value);
 
-  Query buildQuery(Object query);
+  Query buildQuery(Object query, DatabaseSessionInternal session);
 
   Analyzer indexAnalyzer();
 
@@ -61,7 +61,7 @@ public interface LuceneIndexEngine extends IndexEngine, FreezableStorageComponen
 
   void release(Storage storage, IndexSearcher searcher);
 
-  Set<Identifiable> getInTx(DatabaseSessionInternal db, Object key,
+  Set<Identifiable> getInTx(DatabaseSessionInternal session, Object key,
       LuceneTxChanges changes);
 
   long sizeInTx(LuceneTxChanges changes, Storage storage);

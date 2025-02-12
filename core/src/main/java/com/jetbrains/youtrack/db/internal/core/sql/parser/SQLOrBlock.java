@@ -66,7 +66,7 @@ public class SQLOrBlock extends SQLBooleanExpression {
     } else if (currentRecord instanceof Identifiable) {
       return evaluate((Identifiable) currentRecord, ctx);
     } else if (currentRecord instanceof Map<?, ?> map) {
-      var result = new ResultInternal(ctx.getDatabase());
+      var result = new ResultInternal(ctx.getDatabaseSession());
 
       for (var entry : map.entrySet()) {
         result.setProperty(entry.getKey().toString(), entry.getValue());

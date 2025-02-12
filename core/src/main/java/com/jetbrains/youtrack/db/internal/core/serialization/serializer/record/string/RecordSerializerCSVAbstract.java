@@ -29,7 +29,6 @@ import com.jetbrains.youtrack.db.internal.common.collection.LazyIterator;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiCollectionIterator;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
@@ -52,9 +51,7 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.string.S
 import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 @SuppressWarnings({"unchecked", "serial"})
@@ -65,14 +62,14 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
   /**
    * Serialize the link.
    *
-   * @param db
+   * @param session
    * @param buffer
    * @param iParentRecord
    * @param iLinked       Can be an instance of RID or a Record<?>
    * @return
    */
   private static Identifiable linkToStream(
-      DatabaseSessionInternal db, final StringWriter buffer, final EntityImpl iParentRecord,
+      DatabaseSessionInternal session, final StringWriter buffer, final EntityImpl iParentRecord,
       Object iLinked) {
     if (iLinked == null)
     // NULL REFERENCE
@@ -87,8 +84,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
       // JUST THE REFERENCE
       rid = (RecordId) iLinked;
 
-      assert ((RecordId) rid.getIdentity()).isValid() || DatabaseRecordThreadLocal.instance().get()
-          .isRemote()
+      assert ((RecordId) rid.getIdentity()).isValid() || session.isRemote()
           : "Impossible to serialize invalid link " + rid.getIdentity();
       resultRid = rid;
     } else {
@@ -105,16 +101,14 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
       }
 
       // RECORD
-      var iLinkedRecord = ((Identifiable) iLinked).getRecord(db);
+      var iLinkedRecord = ((Identifiable) iLinked).getRecord(session);
       rid = (RecordId) iLinkedRecord.getIdentity();
 
-      assert ((RecordId) rid.getIdentity()).isValid() || DatabaseRecordThreadLocal.instance().get()
-          .isRemote()
+      assert ((RecordId) rid.getIdentity()).isValid() || session.isRemote()
           : "Impossible to serialize invalid link " + rid.getIdentity();
 
-      final var database = DatabaseRecordThreadLocal.instance().get();
       if (iParentRecord != null) {
-        if (!database.isRetainRecords())
+        if (!session.isRetainRecords())
         // REPLACE CURRENT RECORD WITH ITS ID: THIS SAVES A LOT OF MEMORY
         {
           resultRid = iLinkedRecord.getIdentity();
@@ -130,7 +124,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
   }
 
   public Object fieldFromStream(
-      DatabaseSessionInternal db, final RecordAbstract iSourceRecord,
+      DatabaseSessionInternal session, final RecordAbstract iSourceRecord,
       final PropertyType iType,
       SchemaClass iLinkedClass,
       PropertyType iLinkedType,
@@ -144,7 +138,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
     switch (iType) {
       case EMBEDDEDLIST:
       case EMBEDDEDSET:
-        return embeddedCollectionFromStream(db,
+        return embeddedCollectionFromStream(session,
             (EntityImpl) iSourceRecord, iType, iLinkedClass, iLinkedType, iValue);
 
       case LINKSET:
@@ -160,9 +154,9 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
                 : iValue;
 
         if (iType == PropertyType.LINKLIST) {
-          return unserializeList(db, (EntityImpl) iSourceRecord, value);
+          return unserializeList(session, (EntityImpl) iSourceRecord, value);
         } else {
-          return unserializeSet(db, (EntityImpl) iSourceRecord, value);
+          return unserializeSet(session, (EntityImpl) iSourceRecord, value);
         }
       }
 
@@ -196,7 +190,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
                 mapValue = mapValue.substring(1);
               }
               map.put(
-                  fieldTypeFromStream(db, (EntityImpl) iSourceRecord, PropertyType.STRING,
+                  fieldTypeFromStream(session, (EntityImpl) iSourceRecord, PropertyType.STRING,
                       entry.get(0)),
                   new RecordId(mapValue));
             }
@@ -206,15 +200,14 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
       }
 
       case EMBEDDEDMAP:
-        return embeddedMapFromStream(db, (EntityImpl) iSourceRecord, iLinkedType, iValue, iName);
+        return embeddedMapFromStream(session, (EntityImpl) iSourceRecord, iLinkedType, iValue,
+            iName);
 
       case LINK:
         if (iValue.length() > 1) {
           var pos = iValue.indexOf(StringSerializerHelper.CLASS_SEPARATOR);
           if (pos > -1) {
-            DatabaseRecordThreadLocal.instance()
-                .get()
-                .getMetadata()
+            session.getMetadata()
                 .getImmutableSchemaSnapshot()
                 .getClass(iValue.substring(1, pos));
           } else {
@@ -244,7 +237,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
           // REMOVE BEGIN & END EMBEDDED CHARACTERS
           final var value = iValue.substring(1, iValue.length() - 1);
 
-          final var embeddedObject = StringSerializerEmbedded.INSTANCE.fromStream(db, value);
+          final var embeddedObject = StringSerializerEmbedded.INSTANCE.fromStream(session, value);
           if (embeddedObject instanceof EntityImpl) {
             EntityInternalUtils.addOwner((EntityImpl) embeddedObject, iSourceRecord);
           }
@@ -259,14 +252,14 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
             iValue.charAt(0) == StringSerializerHelper.BAG_BEGIN
                 ? iValue.substring(1, iValue.length() - 1)
                 : iValue;
-        return RidBag.fromStream(db, value);
+        return RidBag.fromStream(session, value);
       default:
-        return fieldTypeFromStream(db, (EntityImpl) iSourceRecord, iType, iValue);
+        return fieldTypeFromStream(session, (EntityImpl) iSourceRecord, iType, iValue);
     }
   }
 
   public static Map<String, Object> embeddedMapFromStream(
-      DatabaseSessionInternal db, final EntityImpl iSourceDocument,
+      DatabaseSessionInternal session, final EntityImpl iSourceDocument,
       final PropertyType iLinkedType,
       final String iValue,
       final String iName) {
@@ -330,7 +323,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
               mapValue = mapValue.substring(1, mapValue.length() - 1);
             }
 
-            mapValueObject = fieldTypeFromStream(db, iSourceDocument, linkedType, mapValue);
+            mapValueObject = fieldTypeFromStream(session, iSourceDocument, linkedType, mapValue);
 
             if (mapValueObject != null && mapValueObject instanceof EntityImpl) {
               EntityInternalUtils.addOwner((EntityImpl) mapValueObject, iSourceDocument);
@@ -339,13 +332,13 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
             mapValueObject = null;
           }
 
-          final var key = fieldTypeFromStream(db, iSourceDocument, PropertyType.STRING,
+          final var key = fieldTypeFromStream(session, iSourceDocument, PropertyType.STRING,
               entries.get(0));
           try {
             map.put(key, mapValueObject);
           } catch (ClassCastException e) {
             throw BaseException.wrapException(
-                new SerializationException(
+                new SerializationException(session,
                     "Cannot load map because the type was not the expected: key="
                         + key
                         + "(type "
@@ -355,7 +348,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
                         + "(type "
                         + key.getClass()
                         + ")"),
-                e);
+                e, session);
           }
         }
       }
@@ -365,7 +358,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
   }
 
   public void fieldToStream(
-      DatabaseSessionInternal db, final EntityImpl iRecord,
+      DatabaseSessionInternal session, final EntityImpl iRecord,
       final StringWriter iOutput,
       final PropertyType iType,
       final SchemaClass iLinkedClass,
@@ -381,7 +374,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
     switch (iType) {
       case LINK: {
         if (!(iValue instanceof Identifiable)) {
-          throw new SerializationException(
+          throw new SerializationException(session,
               "Found an unexpected type during marshalling of a LINK where a Identifiable (RID"
                   + " or any Record) was expected. The string representation of the object is: "
                   + iValue);
@@ -391,7 +384,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
             && iValue instanceof EntityImpl
             && ((EntityImpl) iValue).isEmbedded()) {
           // WRONG: IT'S EMBEDDED!
-          fieldToStream(db,
+          fieldToStream(session,
               iRecord,
               iOutput,
               PropertyType.EMBEDDED,
@@ -400,7 +393,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
               iName,
               iValue);
         } else {
-          final Object link = linkToStream(db, iOutput, iRecord, iValue);
+          final Object link = linkToStream(session, iOutput, iRecord, iValue);
           if (link != null)
           // OVERWRITE CONTENT
           {
@@ -455,7 +448,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
 
             final var item = it.next();
 
-            final var newRid = linkToStream(db, buffer, iRecord, item);
+            final var newRid = linkToStream(session, buffer, iRecord, item);
             if (newRid != null) {
               ((LazyIterator<Identifiable>) it).update(newRid);
             }
@@ -493,7 +486,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
 
         } else {
           // LAZY SET
-          coll.toStream(db, iOutput);
+          coll.toStream(session, iOutput);
         }
 
         PROFILER.stopChrono(
@@ -515,9 +508,9 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
             iOutput.append(StringSerializerHelper.RECORD_SEPARATOR);
           }
 
-          fieldTypeToString(db, iOutput, PropertyType.STRING, entry.getKey());
+          fieldTypeToString(session, iOutput, PropertyType.STRING, entry.getKey());
           iOutput.append(StringSerializerHelper.ENTRY_SEPARATOR);
-          final Object link = linkToStream(db, iOutput, iRecord, entry.getValue());
+          final Object link = linkToStream(session, iOutput, iRecord, entry.getValue());
 
           if (link != null && !invalidMap)
           // IDENTITY IS CHANGED, RE-SET INTO THE COLLECTION TO RECOMPUTE THE HASH
@@ -548,14 +541,14 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
       case EMBEDDED:
         if (iValue instanceof DBRecord) {
           iOutput.append(StringSerializerHelper.EMBEDDED_BEGIN);
-          toString(db, (DBRecord) iValue, iOutput, null, true);
+          toString(session, (DBRecord) iValue, iOutput, null, true);
           iOutput.append(StringSerializerHelper.EMBEDDED_END);
         } else if (iValue instanceof EntitySerializable) {
-          final var entity = ((EntitySerializable) iValue).toEntity(db);
+          final var entity = ((EntitySerializable) iValue).toEntity(session);
           entity.field(EntitySerializable.CLASS_NAME, iValue.getClass().getName());
 
           iOutput.append(StringSerializerHelper.EMBEDDED_BEGIN);
-          toString(db, entity, iOutput, null, true);
+          toString(session, entity, iOutput, null, true);
           iOutput.append(StringSerializerHelper.EMBEDDED_END);
 
         } else {
@@ -596,13 +589,13 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
 
       case LINKBAG: {
         iOutput.append(StringSerializerHelper.BAG_BEGIN);
-        ((RidBag) iValue).toStream(db, iOutput);
+        ((RidBag) iValue).toStream(session, iOutput);
         iOutput.append(StringSerializerHelper.BAG_END);
         break;
       }
 
       default:
-        fieldTypeToString(db, iOutput, iType, iValue);
+        fieldTypeToString(session, iOutput, iType, iValue);
     }
   }
 
@@ -669,7 +662,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
   }
 
   public Object embeddedCollectionFromStream(
-      DatabaseSessionInternal db, final EntityImpl e,
+      DatabaseSessionInternal session, final EntityImpl e,
       final PropertyType iType,
       SchemaClass iLinkedClass,
       final PropertyType iLinkedType,
@@ -692,13 +685,13 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
       if (e != null) {
         coll =
             (iType == PropertyType.EMBEDDEDLIST
-                ? unserializeList(db, e, value)
-                : unserializeSet(db, e, value));
+                ? unserializeList(session, e, value)
+                : unserializeSet(session, e, value));
       } else {
         if (iType == PropertyType.EMBEDDEDLIST) {
-          coll = unserializeList(db, e, value);
+          coll = unserializeList(session, e, value);
         } else {
-          return unserializeSet(db, e, value);
+          return unserializeSet(session, e, value);
         }
       }
     } else {
@@ -732,16 +725,16 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
         if (!item.isEmpty()) {
           // EMBEDDED RECORD, EXTRACT THE CLASS NAME IF DIFFERENT BY THE PASSED (SUB-CLASS OR IT WAS
           // PASSED NULL)
-          iLinkedClass = StringSerializerHelper.getRecordClassName(item, iLinkedClass);
+          iLinkedClass = StringSerializerHelper.getRecordClassName(session, item, iLinkedClass);
 
           if (iLinkedClass != null) {
-            var entity = new EntityImpl(db);
-            objectToAdd = fromString(db, item, entity, null);
-            EntityInternalUtils.fillClassNameIfNeeded(entity, iLinkedClass.getName());
+            var entity = new EntityImpl(session);
+            objectToAdd = fromString(session, item, entity, null);
+            EntityInternalUtils.fillClassNameIfNeeded(entity, iLinkedClass.getName(session));
           } else
           // EMBEDDED OBJECT
           {
-            objectToAdd = fieldTypeFromStream(db, e, PropertyType.EMBEDDED, item);
+            objectToAdd = fieldTypeFromStream(session, e, PropertyType.EMBEDDED, item);
           }
         }
       } else {
@@ -766,7 +759,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
           item = item.substring(1, item.length() - 1);
         }
 
-        objectToAdd = fieldTypeFromStream(db, e, linkedType, item);
+        objectToAdd = fieldTypeFromStream(session, e, linkedType, item);
       }
 
       if (objectToAdd != null
@@ -782,7 +775,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
   }
 
   public void embeddedCollectionToStream(
-      DatabaseSessionInternal db,
+      DatabaseSessionInternal session,
       final StringWriter iOutput,
       final SchemaClass iLinkedClass,
       final PropertyType iLinkedType,
@@ -838,7 +831,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
 
           assert linkedType == PropertyType.EMBEDDED
               || ((RecordId) id.getIdentity()).isValid()
-              || DatabaseRecordThreadLocal.instance().get().isRemote()
+              || session.isRemote()
               : "Impossible to serialize invalid link " + id.getIdentity();
 
           linkedClass = EntityInternalUtils.getImmutableSchemaClass(entity);
@@ -852,9 +845,9 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
       }
 
       if (linkedType == PropertyType.EMBEDDED && o instanceof Identifiable) {
-        toString(db, ((Identifiable) o).getRecord(db), iOutput, null);
+        toString(session, ((Identifiable) o).getRecord(session), iOutput, null);
       } else if (linkedType != PropertyType.LINK && (linkedClass != null || entity != null)) {
-        toString(db, entity, iOutput, null, true);
+        toString(session, entity, iOutput, null, true);
       } else {
         // EMBEDDED LITERALS
         if (iLinkedType == null) {
@@ -862,7 +855,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
         } else if (iLinkedType == PropertyType.CUSTOM) {
           iOutput.append(StringSerializerHelper.CUSTOM_TYPE);
         }
-        fieldTypeToString(db, iOutput, linkedType, o);
+        fieldTypeToString(session, iOutput, linkedType, o);
       }
 
       if (id != null && linkedType != PropertyType.LINK) {

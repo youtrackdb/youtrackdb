@@ -17,7 +17,6 @@ package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Optional;
@@ -39,41 +38,41 @@ public class SQLDropClassIndexTest extends BaseDBTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     final var oClass = schema.createClass("SQLDropClassTestClass");
-    oClass.createProperty(db, "prop1", EXPECTED_PROP1_TYPE);
-    oClass.createProperty(db, "prop2", EXPECTED_PROP2_TYPE);
+    oClass.createProperty(session, "prop1", EXPECTED_PROP1_TYPE);
+    oClass.createProperty(session, "prop2", EXPECTED_PROP2_TYPE);
   }
 
   @Test
   public void testIndexDeletion() throws Exception {
-    db
+    session
         .command(
             "CREATE INDEX SQLDropClassCompositeIndex ON SQLDropClassTestClass (prop1, prop2)"
                 + " UNIQUE")
         .close();
 
     Assert.assertNotNull(
-        db
+        session
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(db, "SQLDropClassCompositeIndex"));
+            .getIndex(session, "SQLDropClassCompositeIndex"));
 
-    db.command("DROP CLASS SQLDropClassTestClass").close();
+    session.command("DROP CLASS SQLDropClassTestClass").close();
 
-    Assert.assertNull(db.getMetadata().getSchema().getClass("SQLDropClassTestClass"));
+    Assert.assertNull(session.getMetadata().getSchema().getClass("SQLDropClassTestClass"));
     Assert.assertNull(
-        db
+        session
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(db, "SQLDropClassCompositeIndex"));
-    db.close();
-    db = createSessionInstance();
-    Assert.assertNull(db.getMetadata().getSchema().getClass("SQLDropClassTestClass"));
+            .getIndex(session, "SQLDropClassCompositeIndex"));
+    session.close();
+    session = createSessionInstance();
+    Assert.assertNull(session.getMetadata().getSchema().getClass("SQLDropClassTestClass"));
     Assert.assertNull(
-        db
+        session
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(db, "SQLDropClassCompositeIndex"));
+            .getIndex(session, "SQLDropClassCompositeIndex"));
   }
 }

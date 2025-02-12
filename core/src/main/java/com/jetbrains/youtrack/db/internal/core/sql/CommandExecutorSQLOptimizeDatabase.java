@@ -28,7 +28,6 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -47,30 +46,30 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
   private boolean verbose = true;
   private final int batch = 1000;
 
-  public CommandExecutorSQLOptimizeDatabase parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLOptimizeDatabase parse(DatabaseSessionInternal session,
       final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
       var word = new StringBuilder();
 
       var oldPos = 0;
       var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_OPTIMIZE)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_OPTIMIZE + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_DATABASE)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_DATABASE + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -93,19 +92,17 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
   /**
    * Execute the ALTER DATABASE.
    */
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     final var result = new StringBuilder();
 
     if (optimizeEdges) {
-      result.append(optimizeEdges());
+      result.append(optimizeEdges(session));
     }
 
     return result.toString();
   }
 
-  private String optimizeEdges() {
-    final var db = getDatabase();
-
+  private String optimizeEdges(DatabaseSessionInternal db) {
     long transformed = 0;
     if (db.getTransaction().isActive()) {
       db.commit();
@@ -205,11 +202,6 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
       }
     }
     return "Transformed " + transformed + " regular edges in lightweight edges";
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.ALL;
   }
 
   public String getSyntax() {

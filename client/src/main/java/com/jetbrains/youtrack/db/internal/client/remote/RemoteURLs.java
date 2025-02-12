@@ -2,19 +2,17 @@ package com.jetbrains.youtrack.db.internal.client.remote;
 
 import static com.jetbrains.youtrack.db.api.config.GlobalConfiguration.CLIENT_CONNECTION_FETCH_HOST_LIST;
 
-import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
-import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemote.CONNECTION_STRATEGY;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
@@ -202,7 +200,7 @@ public class RemoteURLs {
     if (serverURLs.isEmpty()) {
       reloadOriginalURLs();
       if (serverURLs.isEmpty()) {
-        throw new StorageException(
+        throw new StorageException(null,
             "Cannot create a connection to remote server because url list is empty");
       }
     }
@@ -233,7 +231,7 @@ public class RemoteURLs {
     if (serverURLs.isEmpty()) {
       reloadOriginalURLs();
       if (serverURLs.isEmpty()) {
-        throw new StorageException(
+        throw new StorageException(null,
             "Cannot create a connection to remote server because url list is empty");
       }
     }

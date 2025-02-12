@@ -57,7 +57,7 @@ public abstract class YouTrackDbJdbcDbPerMethodTemplateTest {
     conn = (YouTrackDbJdbcConnection) ds.getConnection();
     youTrackDB = conn.getYouTrackDb();
 
-    db = (DatabaseSessionInternal) ((YouTrackDbJdbcConnection) ds.getConnection()).getDatabase();
+    db = (DatabaseSessionInternal) ((YouTrackDbJdbcConnection) ds.getConnection()).getDatabaseSession();
 
     createSchemaDB(db);
 

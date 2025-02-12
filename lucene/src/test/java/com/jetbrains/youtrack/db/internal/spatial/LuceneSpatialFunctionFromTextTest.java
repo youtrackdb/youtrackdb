@@ -17,7 +17,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.spatial.shape.legacy.PointLegecyBuilder;
@@ -41,7 +40,7 @@ public class LuceneSpatialFunctionFromTextTest extends BaseSpatialLuceneTest {
 
   protected void checkFromText(EntityImpl source, String query) {
 
-    var docs = db.command(query);
+    var docs = session.command(query);
 
     assertTrue(docs.hasNext());
 
@@ -50,13 +49,13 @@ public class LuceneSpatialFunctionFromTextTest extends BaseSpatialLuceneTest {
     assertFalse(docs.hasNext());
   }
 
-  private static void assertGeometry(Entity source, Entity geom) {
+  private void assertGeometry(Entity source, Entity geom) {
     Assert.assertNotNull(geom);
 
     Assert.assertNotNull(geom.getProperty("coordinates"));
 
     Assert.assertEquals(
-        source.getSchemaType().get().getName(), geom.getSchemaType().get().getName());
+        source.getSchemaType().get().getName(session), geom.getSchemaType().get().getName(session));
     Assert.assertEquals(
         geom.<PointLegecyBuilder>getProperty("coordinates"), source.getProperty("coordinates"));
   }
@@ -112,7 +111,7 @@ public class LuceneSpatialFunctionFromTextTest extends BaseSpatialLuceneTest {
 
   protected void checkFromCollectionText(EntityImpl source, String query) {
 
-    var docs = db.command(query);
+    var docs = session.command(query);
 
     assertTrue(docs.hasNext());
     var geom = ((Result) docs.next().getProperty("geom")).asEntity();
@@ -121,7 +120,7 @@ public class LuceneSpatialFunctionFromTextTest extends BaseSpatialLuceneTest {
 
     Assert.assertNotNull(geom.getProperty("geometries"));
 
-    Assert.assertEquals(source.getClassName(), geom.getSchemaType().get().getName());
+    Assert.assertEquals(source.getClassName(), geom.getSchemaType().get().getName(session));
 
     List<EntityImpl> sourceCollection = source.getProperty("geometries");
     List<EntityImpl> targetCollection = source.getProperty("geometries");

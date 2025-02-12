@@ -14,11 +14,7 @@
 package com.jetbrains.youtrack.db.internal.security.ldap;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
@@ -27,7 +23,6 @@ import com.jetbrains.youtrack.db.internal.core.security.SecurityAuthenticator;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityComponent;
 import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +31,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.naming.directory.DirContext;
 import javax.security.auth.Subject;
 
 /**
@@ -644,7 +638,7 @@ public class LDAPImporter implements SecurityComponent {
                   "LDAPImporter.retrieveLDAPUsers() Roles is missing for entry Database: %s,"
                       + " Domain: %s",
                   null,
-                  odb.getName(),
+                  odb.getDatabaseName(),
                   domain);
         }
       }
@@ -654,7 +648,7 @@ public class LDAPImporter implements SecurityComponent {
               this,
               "LDAPImporter.retrieveLDAPUsers() Database: %s, Domain: %s",
               ex,
-              odb.getName(),
+              odb.getDatabaseName(),
               domain);
     }
   }
@@ -681,14 +675,14 @@ public class LDAPImporter implements SecurityComponent {
                 .info(
                     this,
                     "LDAPImporter.retrieveAllUsers() Database: %s, User: %s",
-                    odb.getName(),
+                    odb.getDatabaseName(),
                     name);
           }
         }
       }
     } catch (Exception ex) {
       LogManager.instance()
-          .error(this, "LDAPImporter.retrieveAllUsers() Database: %s", ex, odb.getName());
+          .error(this, "LDAPImporter.retrieveAllUsers() Database: %s", ex, odb.getDatabaseName());
     }
   }
 
@@ -702,11 +696,11 @@ public class LDAPImporter implements SecurityComponent {
                 this,
                 "LDAPImporter.deleteUsers() Deleted User: %s from Database: %s",
                 user,
-                odb.getName());
+                odb.getDatabaseName());
       }
     } catch (Exception ex) {
       LogManager.instance()
-          .error(this, "LDAPImporter.deleteUsers() Database: %s", ex, odb.getName());
+          .error(this, "LDAPImporter.deleteUsers() Database: %s", ex, odb.getDatabaseName());
     }
   }
 
@@ -717,7 +711,8 @@ public class LDAPImporter implements SecurityComponent {
 
         if (upsertDbUser(odb, upn, entry.getValue().getRoles())) {
           LogManager.instance()
-              .info(this, "Added/Modified Database User %s in Database %s", upn, odb.getName());
+              .info(this, "Added/Modified Database User %s in Database %s", upn,
+                  odb.getDatabaseName());
         } else {
           LogManager.instance()
               .error(
@@ -725,12 +720,12 @@ public class LDAPImporter implements SecurityComponent {
                   "Failed to add/update Database User %s in Database %s",
                   null,
                   upn,
-                  odb.getName());
+                  odb.getDatabaseName());
         }
       }
     } catch (Exception ex) {
       LogManager.instance()
-          .error(this, "LDAPImporter.importUsers() Database: %s", ex, odb.getName());
+          .error(this, "LDAPImporter.importUsers() Database: %s", ex, odb.getDatabaseName());
     }
   }
 

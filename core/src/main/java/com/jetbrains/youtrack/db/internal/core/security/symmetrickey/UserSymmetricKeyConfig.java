@@ -90,7 +90,8 @@ public class UserSymmetricKeyConfig implements SymmetricKeyConfig {
     EntityImpl props = entity.field("properties");
 
     if (props == null) {
-      throw new SecurityException("UserSymmetricKeyConfig() OUser properties is null");
+      throw new SecurityException(entity.getSession().getDatabaseName(),
+          "UserSymmetricKeyConfig() OUser properties is null");
     }
 
     this.keyString = props.field("key");
@@ -101,7 +102,7 @@ public class UserSymmetricKeyConfig implements SymmetricKeyConfig {
       this.keyAlgorithm = props.field("keyAlgorithm");
 
       if (this.keyAlgorithm == null) {
-        throw new SecurityException(
+        throw new SecurityException(entity.getSession().getDatabaseName(),
             "UserSymmetricKeyConfig() keyAlgorithm is required with key");
       }
     } else {
@@ -114,7 +115,7 @@ public class UserSymmetricKeyConfig implements SymmetricKeyConfig {
         this.keyAlgorithm = props.field("keyAlgorithm");
 
         if (this.keyAlgorithm == null) {
-          throw new SecurityException(
+          throw new SecurityException(entity.getSession().getDatabaseName(),
               "UserSymmetricKeyConfig() keyAlgorithm is required with keyFile");
         }
       } else {
@@ -129,10 +130,12 @@ public class UserSymmetricKeyConfig implements SymmetricKeyConfig {
         this.keystoreKeyPassword = ksDoc.field("keyPassword");
 
         if (this.keystoreFile == null) {
-          throw new SecurityException("UserSymmetricKeyConfig() keyStore.file is required");
+          throw new SecurityException(entity.getSession().getDatabaseName(),
+              "UserSymmetricKeyConfig() keyStore.file is required");
         }
         if (this.keystoreKeyAlias == null) {
-          throw new SecurityException("UserSymmetricKeyConfig() keyStore.keyAlias is required");
+          throw new SecurityException(entity.getSession().getDatabaseName(),
+              "UserSymmetricKeyConfig() keyStore.keyAlias is required");
         }
       }
     }

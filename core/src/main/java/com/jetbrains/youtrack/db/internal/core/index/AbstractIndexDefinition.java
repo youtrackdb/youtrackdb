@@ -24,8 +24,9 @@ import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.Collate;
 import com.jetbrains.youtrack.db.internal.core.collate.DefaultCollate;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
+import java.util.Map;
+import javax.annotation.Nonnull;
 
 /**
  * Abstract index definition implementation.
@@ -92,10 +93,11 @@ public abstract class AbstractIndexDefinition implements IndexDefinition {
     nullValuesIgnored = value;
   }
 
-  protected void serializeToStream(DatabaseSessionInternal db, EntityImpl entity) {
+  protected void serializeToMap(@Nonnull Map<String, Object> map) {
   }
 
-  protected void serializeFromStream(EntityImpl entity) {
+
+  protected void serializeFromMap(@Nonnull Map<String, ?> map) {
   }
 
   protected static <T> T refreshRid(DatabaseSessionInternal session, T value) {

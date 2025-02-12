@@ -36,7 +36,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serial;
-import java.util.List;
 import javax.annotation.Nonnull;
 
 public class RecordId implements RID, SerializableStream {
@@ -305,11 +304,11 @@ public class RecordId implements RID, SerializableStream {
   @Nonnull
   public <T extends DBRecord> T getRecord(DatabaseSession db) {
     if (!isValid()) {
-      throw new RecordNotFoundException(this);
+      throw new RecordNotFoundException(db.getDatabaseName(), this);
     }
 
     if (db == null) {
-      throw new DatabaseException(
+      throw new DatabaseException(db.getDatabaseName(),
           "No database found in current thread local space. If you manually control databases over"
               + " threads assure to set the current database before to use it by calling:"
               + " DatabaseRecordThreadLocal.instance().set(db);");

@@ -20,7 +20,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
@@ -51,38 +50,38 @@ public class CommandExecutorSQLAlterClass extends CommandExecutorSQLAbstract
   private String value;
   private boolean unsafe = false;
 
-  public CommandExecutorSQLAlterClass parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLAlterClass parse(DatabaseSessionInternal session,
       final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
 
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
       var word = new StringBuilder();
 
       var oldPos = 0;
       var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_ALTER)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_ALTER + " not found", parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CLASS)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_CLASS + " not found", parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
       if (pos == -1) {
-        throw new CommandSQLParsingException("Expected <class>", parserText, oldPos);
+        throw new CommandSQLParsingException(session, "Expected <class>", parserText, oldPos);
       }
 
       className = decodeClassName(word.toString());
@@ -90,7 +89,7 @@ public class CommandExecutorSQLAlterClass extends CommandExecutorSQLAbstract
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Missed the class's attribute to change", parserText, oldPos);
       }
 
@@ -100,14 +99,13 @@ public class CommandExecutorSQLAlterClass extends CommandExecutorSQLAbstract
         attribute = SchemaClass.ATTRIBUTES.valueOf(attributeAsString.toUpperCase(Locale.ENGLISH));
       } catch (IllegalArgumentException e) {
         throw BaseException.wrapException(
-            new CommandSQLParsingException(
+            new CommandSQLParsingException(session,
                 "Unknown class's attribute '"
                     + attributeAsString
                     + "'. Supported attributes are: "
-                    + Arrays.toString(SchemaClass.ATTRIBUTES.values()),
-                parserText,
-                oldPos),
-            e);
+                    + Arrays.toString(ATTRIBUTES.values()),
+                parserText, oldPos),
+            e, session);
       }
 
       value = parserText.substring(pos + 1).trim();
@@ -129,10 +127,9 @@ public class CommandExecutorSQLAlterClass extends CommandExecutorSQLAbstract
         }
       }
       if (value.length() == 0) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Missed the property's value to change for attribute '" + attribute + "'",
-            parserText,
-            oldPos);
+            parserText, oldPos);
       }
 
       if (value.equalsIgnoreCase("null")) {
@@ -148,22 +145,21 @@ public class CommandExecutorSQLAlterClass extends CommandExecutorSQLAbstract
   /**
    * Execute the ALTER CLASS.
    */
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
-    final var database = getDatabase();
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (attribute == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final var cls = (SchemaClassImpl) database.getMetadata().getSchema()
+    final var cls = (SchemaClassImpl) session.getMetadata().getSchema()
         .getClass(className);
     if (cls == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot alter class '" + className + "' because not found");
     }
 
-    if (!unsafe && attribute == ATTRIBUTES.NAME && cls.isSubClassOf("E")) {
-      throw new CommandExecutionException(
+    if (!unsafe && attribute == ATTRIBUTES.NAME && cls.isSubClassOf(session, "E")) {
+      throw new CommandExecutionException(session,
           "Cannot alter class '"
               + className
               + "' because is an Edge class and could break vertices. Use UNSAFE if you want to"
@@ -171,46 +167,40 @@ public class CommandExecutorSQLAlterClass extends CommandExecutorSQLAbstract
     }
 
     if (value != null && attribute == ATTRIBUTES.SUPERCLASS) {
-      checkClassExists(database, className, decodeClassName(value));
+      checkClassExists(session, className, decodeClassName(value));
     }
     if (value != null && attribute == ATTRIBUTES.SUPERCLASSES) {
       var classes = value.split(",\\s*");
       for (var cName : classes) {
-        checkClassExists(database, className, decodeClassName(cName));
+        checkClassExists(session, className, decodeClassName(cName));
       }
     }
     if (!unsafe && value != null && attribute == ATTRIBUTES.NAME) {
-      if (!cls.getIndexes(database).isEmpty()) {
-        throw new CommandExecutionException(
+      if (!cls.getIndexes(session).isEmpty()) {
+        throw new CommandExecutionException(session,
             "Cannot rename class '"
                 + className
                 + "' because it has indexes defined on it. Drop indexes before or use UNSAFE (at"
                 + " your won risk)");
       }
     }
-    cls.set(database, attribute, value);
+    cls.set(session, attribute, value);
 
     return Boolean.TRUE;
   }
 
-  @Override
-  public long getDistributedTimeout() {
-    return getDatabase()
-        .getConfiguration()
-        .getValueAsLong(GlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
-  }
 
-  protected void checkClassExists(
-      DatabaseSession database, String targetClass, String superClass) {
+  protected static void checkClassExists(
+      DatabaseSession session, String targetClass, String superClass) {
     if (superClass.startsWith("+") || superClass.startsWith("-")) {
       superClass = superClass.substring(1);
     }
-    if (((DatabaseSessionInternal) database)
+    if (((DatabaseSessionInternal) session)
         .getMetadata()
         .getImmutableSchemaSnapshot()
         .getClass(decodeClassName(superClass))
         == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot alter superClass of '"
               + targetClass
               + "' because "
@@ -221,15 +211,5 @@ public class CommandExecutorSQLAlterClass extends CommandExecutorSQLAbstract
 
   public String getSyntax() {
     return "ALTER CLASS <class> <attribute-name> <attribute-value> [UNSAFE]";
-  }
-
-  @Override
-  public boolean involveSchema() {
-    return true;
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.ALL;
   }
 }

@@ -1,11 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary;
 
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
-import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeTimeLine;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 
 public class DocumentSerializerDeltaDistributed extends DocumentSerializerDelta {
 
@@ -16,7 +12,7 @@ public class DocumentSerializerDeltaDistributed extends DocumentSerializerDelta 
     return INSTANCE;
   }
 
-  protected void deserializeDeltaLinkBag(DatabaseSessionInternal db, BytesContainer bytes,
+  protected void deserializeDeltaLinkBag(DatabaseSessionInternal session, BytesContainer bytes,
       RidBag toUpdate) {
     var isTree = deserializeByte(bytes) == 1;
     var rootChanges = VarIntSerializer.readAsLong(bytes);
@@ -24,7 +20,7 @@ public class DocumentSerializerDeltaDistributed extends DocumentSerializerDelta 
       var change = deserializeByte(bytes);
       switch (change) {
         case CREATED: {
-          var link = readOptimizedLink(db, bytes);
+          var link = readOptimizedLink(session, bytes);
           if (toUpdate != null) {
             toUpdate.add(link);
           }
@@ -34,7 +30,7 @@ public class DocumentSerializerDeltaDistributed extends DocumentSerializerDelta 
           break;
         }
         case REMOVED: {
-          var link = readOptimizedLink(db, bytes);
+          var link = readOptimizedLink(session, bytes);
           if (toUpdate != null) {
             toUpdate.remove(link);
           }
@@ -51,7 +47,7 @@ public class DocumentSerializerDeltaDistributed extends DocumentSerializerDelta 
     }
   }
 
-  protected void serializeDeltaLinkBag(DatabaseSessionInternal db, BytesContainer bytes,
+  protected void serializeDeltaLinkBag(DatabaseSessionInternal session, BytesContainer bytes,
       RidBag value) {
     serializeByte(bytes, value.isEmbedded() ? (byte) 0 : 1);
     var timeline =
@@ -63,14 +59,14 @@ public class DocumentSerializerDeltaDistributed extends DocumentSerializerDelta 
       switch (event.getChangeType()) {
         case ADD:
           serializeByte(bytes, CREATED);
-          writeOptimizedLink(db, bytes, event.getValue());
+          writeOptimizedLink(session, bytes, event.getValue());
           break;
         case UPDATE:
           throw new UnsupportedOperationException(
               "update do not happen in sets, it will be like and add");
         case REMOVE:
           serializeByte(bytes, REMOVED);
-          writeOptimizedLink(db, bytes, event.getOldValue());
+          writeOptimizedLink(session, bytes, event.getOldValue());
           break;
       }
     }

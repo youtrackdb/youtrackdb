@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.index.CompositeKeySerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
@@ -251,7 +250,7 @@ public class CompositeKeyTest extends DbTestBase {
     compositeKeyOne.addKey(null);
     compositeKeyOne.addKey(2);
 
-    var document = compositeKeyOne.toEntity(db);
+    var document = compositeKeyOne.toEntity(session);
 
     final var compositeKeyTwo = new CompositeKey();
     compositeKeyTwo.fromDocument(document);
@@ -267,12 +266,14 @@ public class CompositeKeyTest extends DbTestBase {
     compositeKeyOne.addKey(null);
     compositeKeyOne.addKey(2);
 
-    var len = CompositeKeySerializer.INSTANCE.getObjectSize(compositeKeyOne);
+    var serializerFactory = session.getSerializerFactory();
+    var len = CompositeKeySerializer.INSTANCE.getObjectSize(serializerFactory, compositeKeyOne);
     var data = new byte[len];
-    CompositeKeySerializer.INSTANCE.serializeNativeObject(compositeKeyOne, data, 0);
+    CompositeKeySerializer.INSTANCE.serializeNativeObject(compositeKeyOne, serializerFactory, data,
+        0);
 
     final var compositeKeyTwo =
-        CompositeKeySerializer.INSTANCE.deserializeNativeObject(data, 0);
+        CompositeKeySerializer.INSTANCE.deserializeNativeObject(serializerFactory, data, 0);
 
     assertEquals(compositeKeyOne, compositeKeyTwo);
     assertNotSame(compositeKeyOne, compositeKeyTwo);
@@ -287,22 +288,26 @@ public class CompositeKeyTest extends DbTestBase {
     compositeKeyOne.addKey(null);
     compositeKeyOne.addKey(2);
 
-    final var len = CompositeKeySerializer.INSTANCE.getObjectSize(compositeKeyOne);
+    var serializerFactory = session.getSerializerFactory();
+    final var len = CompositeKeySerializer.INSTANCE.getObjectSize(serializerFactory,
+        compositeKeyOne);
 
     final var buffer = ByteBuffer.allocate(len + serializationOffset);
     buffer.position(serializationOffset);
 
-    CompositeKeySerializer.INSTANCE.serializeInByteBufferObject(compositeKeyOne, buffer);
+    CompositeKeySerializer.INSTANCE.serializeInByteBufferObject(serializerFactory, compositeKeyOne,
+        buffer);
 
     final var binarySize = buffer.position() - serializationOffset;
     assertEquals(binarySize, len);
 
     buffer.position(serializationOffset);
-    assertEquals(CompositeKeySerializer.INSTANCE.getObjectSizeInByteBuffer(buffer), len);
+    assertEquals(
+        CompositeKeySerializer.INSTANCE.getObjectSizeInByteBuffer(serializerFactory, buffer), len);
 
     buffer.position(serializationOffset);
     final var compositeKeyTwo =
-        CompositeKeySerializer.INSTANCE.deserializeFromByteBufferObject(buffer);
+        CompositeKeySerializer.INSTANCE.deserializeFromByteBufferObject(serializerFactory, buffer);
 
     assertEquals(compositeKeyOne, compositeKeyTwo);
     assertNotSame(compositeKeyOne, compositeKeyTwo);
@@ -319,13 +324,14 @@ public class CompositeKeyTest extends DbTestBase {
     compositeKey.addKey(null);
     compositeKey.addKey(2);
 
-    final var len = CompositeKeySerializer.INSTANCE.getObjectSize(compositeKey);
+    var serializerFactory = session.getSerializerFactory();
+    final var len = CompositeKeySerializer.INSTANCE.getObjectSize(serializerFactory, compositeKey);
     final var buffer =
         ByteBuffer.allocateDirect(len + serializationOffset + WALPageChangesPortion.PORTION_BYTES)
             .order(ByteOrder.nativeOrder());
     final var data = new byte[len];
 
-    CompositeKeySerializer.INSTANCE.serializeNativeObject(compositeKey, data, 0);
+    CompositeKeySerializer.INSTANCE.serializeNativeObject(compositeKey, serializerFactory, data, 0);
     final WALChanges walChanges = new WALPageChangesPortion();
     walChanges.setBinaryValue(buffer, data, serializationOffset);
 
@@ -334,7 +340,7 @@ public class CompositeKeyTest extends DbTestBase {
             buffer, walChanges, serializationOffset),
         len);
     assertEquals(
-        CompositeKeySerializer.INSTANCE.deserializeFromByteBufferObject(
+        CompositeKeySerializer.INSTANCE.deserializeFromByteBufferObject(serializerFactory,
             buffer, walChanges, serializationOffset),
         compositeKey);
   }
@@ -347,11 +353,11 @@ public class CompositeKeyTest extends DbTestBase {
     var serializer = RecordSerializerNetworkV37.INSTANCE;
     var outStream = new ByteArrayOutputStream();
     var out = new DataOutputStream(outStream);
-    compositeKey.toStream(db, serializer, out);
+    compositeKey.toStream(session, serializer, out);
     var inStream = new ByteArrayInputStream(outStream.toByteArray());
     var in = new DataInputStream(inStream);
     var deserializedCompositeKey = new CompositeKey();
-    deserializedCompositeKey.fromStream(db, serializer, in);
+    deserializedCompositeKey.fromStream(session, serializer, in);
     assertEquals(compositeKey, deserializedCompositeKey);
   }
 }

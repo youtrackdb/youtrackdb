@@ -25,7 +25,7 @@ public class RemoteErrorMessageTest extends DbTestBase {
     response.write(null, channel, 0, null);
     channel.close();
     var readResponse = new Error37Response();
-    readResponse.read(db, channel, null);
+    readResponse.read(session, channel, null);
 
     assertEquals(readResponse.getCode(), ErrorCode.GENERIC_ERROR);
     assertEquals(readResponse.getErrorIdentifier(), 10);

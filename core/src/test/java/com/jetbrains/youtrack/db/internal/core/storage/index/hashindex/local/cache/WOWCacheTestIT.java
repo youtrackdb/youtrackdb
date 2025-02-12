@@ -1,14 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.cache;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.common.collection.closabledictionary.ClosableLinkedContainer;
 import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
 import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator.Intention;
-import com.jetbrains.youtrack.db.internal.common.directmemory.Pointer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.StringSerializer;
 import com.jetbrains.youtrack.db.internal.common.types.ModifiableBoolean;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.storage.ChecksumMode;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CachePointer;
@@ -30,7 +28,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Locale;
-import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Random;
 import java.util.TreeMap;
@@ -163,7 +160,6 @@ public class WOWCacheTestIT {
             100,
             storagePath,
             storageName,
-            StringSerializer.INSTANCE,
             files,
             1,
             ChecksumMode.StoreAndVerify,
@@ -267,7 +263,7 @@ public class WOWCacheTestIT {
             100,
             storagePath,
             storageName,
-            StringSerializer.INSTANCE,
+
             files,
             1,
             ChecksumMode.StoreAndVerify,
@@ -494,7 +490,6 @@ public class WOWCacheTestIT {
             100,
             storagePath,
             storageName,
-            StringSerializer.INSTANCE,
             files,
             1,
             ChecksumMode.StoreAndVerify,
@@ -698,7 +693,8 @@ public class WOWCacheTestIT {
     assert fileName != null;
 
     final var path = storagePath.resolve(fileName);
-    final File file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool());
+    final File file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool(),
+        wowCache.getStorageName());
     file.open();
     file.write(
         DurablePage.NEXT_FREE_POSITION,
@@ -737,7 +733,8 @@ public class WOWCacheTestIT {
     assert fileName != null;
 
     final var path = storagePath.resolve(fileName);
-    final File file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool());
+    final File file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool(),
+        wowCache.getStorageName());
     file.open();
     file.write(0, ByteBuffer.wrap(new byte[]{1}).order(ByteOrder.nativeOrder()));
     file.close();
@@ -774,7 +771,8 @@ public class WOWCacheTestIT {
     assert fileName != null;
 
     final var path = storagePath.resolve(fileName);
-    final File file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool());
+    final File file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool(),
+        wowCache.getStorageName());
     file.open();
     file.write(
         DurablePage.NEXT_FREE_POSITION,
@@ -808,7 +806,8 @@ public class WOWCacheTestIT {
     assert fileName != null;
 
     final var path = storagePath.resolve(fileName);
-    final File file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool());
+    final File file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool(),
+        wowCache.getStorageName());
     file.open();
     file.write(
         DurablePage.NEXT_FREE_POSITION,
@@ -842,7 +841,8 @@ public class WOWCacheTestIT {
     assert fileName != null;
 
     final var path = storagePath.resolve(fileName);
-    final File file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool());
+    final File file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool(),
+        wowCache.getStorageName());
     file.open();
     file.write(
         DurablePage.NEXT_FREE_POSITION,
@@ -876,7 +876,8 @@ public class WOWCacheTestIT {
     assert fileName != null;
 
     final var path = storagePath.resolve(fileName);
-    final File file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool());
+    final File file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool(),
+        wowCache.getStorageName());
     file.open();
     file.write(
         DurablePage.NEXT_FREE_POSITION,
@@ -891,7 +892,8 @@ public class WOWCacheTestIT {
       long pageIndex, byte[] value, LogSequenceNumber lsn, String fileName) throws IOException {
     File fileClassic =
         new AsyncFile(
-            storagePath.resolve(fileName), pageSize, false, Executors.newCachedThreadPool());
+            storagePath.resolve(fileName), pageSize, false, Executors.newCachedThreadPool(),
+            wowCache.getStorageName());
     fileClassic.open();
     var content = new byte[8 + DurablePage.NEXT_FREE_POSITION];
     fileClassic.read(
@@ -910,7 +912,7 @@ public class WOWCacheTestIT {
     var segment =
         LongSerializer.INSTANCE.deserializeNative(content, DurablePage.WAL_SEGMENT_OFFSET);
     var position =
-        IntegerSerializer.INSTANCE.deserializeNative(content, DurablePage.WAL_POSITION_OFFSET);
+        IntegerSerializer.deserializeNative(content, DurablePage.WAL_POSITION_OFFSET);
 
     var readLsn = new LogSequenceNumber(segment, position);
 
@@ -930,7 +932,8 @@ public class WOWCacheTestIT {
       throws Exception {
     File fileClassic =
         new AsyncFile(
-            storagePath.resolve(fileName), pageSize, false, Executors.newCachedThreadPool());
+            storagePath.resolve(fileName), pageSize, false, Executors.newCachedThreadPool(),
+            wowCache.getStorageName());
     fileClassic.open();
     var content = new byte[8 + DurablePage.NEXT_FREE_POSITION];
     fileClassic.read(
@@ -1001,7 +1004,7 @@ public class WOWCacheTestIT {
 
     @Override
     public int toStream(byte[] content, int offset) {
-      IntegerSerializer.INSTANCE.serializeNative(data.length, content, offset);
+      IntegerSerializer.serializeNative(data.length, content, offset);
       offset += IntegerSerializer.INT_SIZE;
 
       System.arraycopy(data, 0, content, offset, data.length);
@@ -1018,7 +1021,7 @@ public class WOWCacheTestIT {
 
     @Override
     public int fromStream(byte[] content, int offset) {
-      var len = IntegerSerializer.INSTANCE.deserializeNative(content, offset);
+      var len = IntegerSerializer.deserializeNative(content, offset);
       offset += IntegerSerializer.INT_SIZE;
 
       data = new byte[len];

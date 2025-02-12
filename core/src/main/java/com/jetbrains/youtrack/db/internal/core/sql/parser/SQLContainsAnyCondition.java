@@ -4,7 +4,6 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -12,7 +11,6 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassIntern
 import com.jetbrains.youtrack.db.internal.core.sql.executor.IndexSearchInfo;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexCandidate;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexFinder;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.MetadataPath;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -292,8 +290,9 @@ public class SQLContainsAnyCondition extends SQLBooleanExpression {
 
       var nextClazz =
           clazz
-              .getProperty(base.getIdentifier().suffix.getIdentifier().getStringValue())
-              .getLinkedClass();
+              .getProperty(ctx.getDatabaseSession(),
+                  base.getIdentifier().suffix.getIdentifier().getStringValue())
+              .getLinkedClass(ctx.getDatabaseSession());
       var newRight = new SQLParenthesisExpression(-1);
       newRight.statement =
           SQLBinaryCondition.indexChainToStatement(

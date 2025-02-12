@@ -48,327 +48,321 @@ public class CommandExecutorSQLCreateSchemaPropertyTest extends BaseMemoryIntern
   @Test
   public void testBasicCreateProperty() throws Exception {
 
-    db.command("CREATE class company").close();
-    db.command("CREATE property company.name STRING").close();
+    session.command("CREATE class company").close();
+    session.command("CREATE property company.name STRING").close();
 
-    var companyClass = db.getMetadata().getSchema().getClass("company");
-    var nameProperty = companyClass.getProperty(PROP_NAME);
+    var companyClass = session.getMetadata().getSchema().getClass("company");
+    var nameProperty = companyClass.getProperty(session, PROP_NAME);
 
-    assertEquals(nameProperty.getName(), PROP_NAME);
-    assertEquals(nameProperty.getFullName(), PROP_FULL_NAME);
-    assertEquals(nameProperty.getType(), PropertyType.STRING);
-    assertFalse(nameProperty.isMandatory());
-    assertFalse(nameProperty.isNotNull());
-    assertFalse(nameProperty.isReadonly());
+    assertEquals(PROP_NAME, nameProperty.getName(session));
+    assertEquals(PROP_FULL_NAME, nameProperty.getFullName(session));
+    assertEquals(PropertyType.STRING, nameProperty.getType(session));
+    assertFalse(nameProperty.isMandatory(session));
+    assertFalse(nameProperty.isNotNull(session));
+    assertFalse(nameProperty.isReadonly(session));
   }
 
   @Test
   public void testBasicUnsafeCreateProperty() throws Exception {
 
-    db.command("CREATE class company").close();
-    db.command("CREATE property company.name STRING UNSAFE").close();
+    session.command("CREATE class company").close();
+    session.command("CREATE property company.name STRING UNSAFE").close();
 
-    var companyClass = db.getMetadata().getSchema().getClass("company");
-    var nameProperty = companyClass.getProperty(PROP_NAME);
+    var companyClass = session.getMetadata().getSchema().getClass("company");
+    var nameProperty = companyClass.getProperty(session, PROP_NAME);
 
-    assertEquals(nameProperty.getName(), PROP_NAME);
-    assertEquals(nameProperty.getFullName(), PROP_FULL_NAME);
-    assertEquals(nameProperty.getType(), PropertyType.STRING);
-    assertFalse(nameProperty.isMandatory());
-    assertFalse(nameProperty.isNotNull());
-    assertFalse(nameProperty.isReadonly());
+    assertEquals(PROP_NAME, nameProperty.getName(session));
+    assertEquals(PROP_FULL_NAME, nameProperty.getFullName(session));
+    assertEquals(PropertyType.STRING, nameProperty.getType(session));
+    assertFalse(nameProperty.isMandatory(session));
+    assertFalse(nameProperty.isNotNull(session));
+    assertFalse(nameProperty.isReadonly(session));
   }
 
   @Test
   public void testCreatePropertyWithLinkedClass() throws Exception {
+    session.command("CREATE class division").close();
+    session.command("CREATE class company").close();
+    session.command("CREATE property company.division LINK division").close();
 
-    db.command("CREATE class division").close();
-    db.command("CREATE class company").close();
-    db.command("CREATE property company.division LINK division").close();
+    var companyClass = session.getMetadata().getSchema().getClass("company");
+    var nameProperty = companyClass.getProperty(session, PROP_DIVISION);
 
-    var companyClass = db.getMetadata().getSchema().getClass("company");
-    var nameProperty = companyClass.getProperty(PROP_DIVISION);
-
-    assertEquals(nameProperty.getName(), PROP_DIVISION);
-    assertEquals(nameProperty.getFullName(), PROP_FULL_DIVISION);
-    assertEquals(nameProperty.getType(), PropertyType.LINK);
-    assertEquals(nameProperty.getLinkedClass().getName(), "division");
-    assertFalse(nameProperty.isMandatory());
-    assertFalse(nameProperty.isNotNull());
-    assertFalse(nameProperty.isReadonly());
+    assertEquals(PROP_DIVISION, nameProperty.getName(session));
+    assertEquals(PROP_FULL_DIVISION, nameProperty.getFullName(session));
+    assertEquals(PropertyType.LINK, nameProperty.getType(session));
+    assertEquals("division", nameProperty.getLinkedClass(session).getName(session));
+    assertFalse(nameProperty.isMandatory(session));
+    assertFalse(nameProperty.isNotNull(session));
+    assertFalse(nameProperty.isReadonly(session));
   }
 
   @Test
   public void testCreatePropertyWithEmbeddedType() throws Exception {
 
-    db.command("CREATE Class company").close();
-    db.command("CREATE Property company.officers EMBEDDEDLIST STRING").close();
+    session.command("CREATE Class company").close();
+    session.command("CREATE Property company.officers EMBEDDEDLIST STRING").close();
 
-    var companyClass = db.getMetadata().getSchema().getClass("company");
-    var nameProperty = companyClass.getProperty(PROP_OFFICERS);
+    var companyClass = session.getMetadata().getSchema().getClass("company");
+    var nameProperty = companyClass.getProperty(session, PROP_OFFICERS);
 
-    assertEquals(nameProperty.getName(), PROP_OFFICERS);
-    assertEquals(nameProperty.getFullName(), PROP_FULL_OFFICERS);
-    assertEquals(nameProperty.getType(), PropertyType.EMBEDDEDLIST);
-    assertEquals(nameProperty.getLinkedType(), PropertyType.STRING);
-    assertFalse(nameProperty.isMandatory());
-    assertFalse(nameProperty.isNotNull());
-    assertFalse(nameProperty.isReadonly());
+    assertEquals(PROP_OFFICERS, nameProperty.getName(session));
+    assertEquals(PROP_FULL_OFFICERS, nameProperty.getFullName(session));
+    assertEquals(PropertyType.EMBEDDEDLIST, nameProperty.getType(session));
+    assertEquals(PropertyType.STRING, nameProperty.getLinkedType(session));
+    assertFalse(nameProperty.isMandatory(session));
+    assertFalse(nameProperty.isNotNull(session));
+    assertFalse(nameProperty.isReadonly(session));
   }
 
   @Test
   public void testCreateMandatoryProperty() throws Exception {
+    session.command("CREATE class company").close();
+    session.command("CREATE property company.name STRING (MANDATORY)").close();
 
-    db.command("CREATE class company").close();
-    db.command("CREATE property company.name STRING (MANDATORY)").close();
+    var companyClass = session.getMetadata().getSchema().getClass("company");
+    var nameProperty = companyClass.getProperty(session, PROP_NAME);
 
-    var companyClass = db.getMetadata().getSchema().getClass("company");
-    var nameProperty = companyClass.getProperty(PROP_NAME);
-
-    assertEquals(nameProperty.getName(), PROP_NAME);
-    assertEquals(nameProperty.getFullName(), PROP_FULL_NAME);
-    assertTrue(nameProperty.isMandatory());
-    assertFalse(nameProperty.isNotNull());
-    assertFalse(nameProperty.isReadonly());
+    assertEquals(PROP_NAME, nameProperty.getName(session));
+    assertEquals(PROP_FULL_NAME, nameProperty.getFullName(session));
+    assertTrue(nameProperty.isMandatory(session));
+    assertFalse(nameProperty.isNotNull(session));
+    assertFalse(nameProperty.isReadonly(session));
   }
 
   @Test
-  public void testCreateNotNullProperty() throws Exception {
+  public void testCreateNotNullProperty() {
+    session.command("CREATE class company").close();
+    session.command("CREATE property company.name STRING (NOTNULL)").close();
 
-    db.command("CREATE class company").close();
-    db.command("CREATE property company.name STRING (NOTNULL)").close();
+    var companyClass = session.getMetadata().getSchema().getClass("company");
+    var nameProperty = companyClass.getProperty(session, PROP_NAME);
 
-    var companyClass = db.getMetadata().getSchema().getClass("company");
-    var nameProperty = companyClass.getProperty(PROP_NAME);
-
-    assertEquals(nameProperty.getName(), PROP_NAME);
-    assertEquals(nameProperty.getFullName(), PROP_FULL_NAME);
-    assertFalse(nameProperty.isMandatory());
-    assertTrue(nameProperty.isNotNull());
-    assertFalse(nameProperty.isReadonly());
+    assertEquals(PROP_NAME, nameProperty.getName(session));
+    assertEquals(PROP_FULL_NAME, nameProperty.getFullName(session));
+    assertFalse(nameProperty.isMandatory(session));
+    assertTrue(nameProperty.isNotNull(session));
+    assertFalse(nameProperty.isReadonly(session));
   }
 
   @Test
-  public void testCreateReadOnlyProperty() throws Exception {
+  public void testCreateReadOnlyProperty() {
+    session.command("CREATE class company").close();
+    session.command("CREATE property company.name STRING (READONLY)").close();
 
-    db.command("CREATE class company").close();
-    db.command("CREATE property company.name STRING (READONLY)").close();
+    var companyClass = session.getMetadata().getSchema().getClass("company");
+    var nameProperty = companyClass.getProperty(session, PROP_NAME);
 
-    var companyClass = db.getMetadata().getSchema().getClass("company");
-    var nameProperty = companyClass.getProperty(PROP_NAME);
-
-    assertEquals(nameProperty.getName(), PROP_NAME);
-    assertEquals(nameProperty.getFullName(), PROP_FULL_NAME);
-    assertFalse(nameProperty.isMandatory());
-    assertFalse(nameProperty.isNotNull());
-    assertTrue(nameProperty.isReadonly());
+    assertEquals(PROP_NAME, nameProperty.getName(session));
+    assertEquals(PROP_FULL_NAME, nameProperty.getFullName(session));
+    assertFalse(nameProperty.isMandatory(session));
+    assertFalse(nameProperty.isNotNull(session));
+    assertTrue(nameProperty.isReadonly(session));
   }
 
   @Test
-  public void testCreateReadOnlyFalseProperty() throws Exception {
+  public void testCreateReadOnlyFalseProperty() {
+    session.command("CREATE class company").close();
+    session.command("CREATE property company.name STRING (READONLY false)").close();
 
-    db.command("CREATE class company").close();
-    db.command("CREATE property company.name STRING (READONLY false)").close();
+    var companyClass = session.getMetadata().getSchema().getClass("company");
+    var nameProperty = companyClass.getProperty(session, PROP_NAME);
 
-    var companyClass = db.getMetadata().getSchema().getClass("company");
-    var nameProperty = companyClass.getProperty(PROP_NAME);
-
-    assertEquals(nameProperty.getName(), PROP_NAME);
-    assertEquals(nameProperty.getFullName(), PROP_FULL_NAME);
-    assertFalse(nameProperty.isReadonly());
+    assertEquals(PROP_NAME, nameProperty.getName(session));
+    assertEquals(PROP_FULL_NAME, nameProperty.getFullName(session));
+    assertFalse(nameProperty.isReadonly(session));
   }
 
   @Test
-  public void testCreateMandatoryPropertyWithEmbeddedType() throws Exception {
+  public void testCreateMandatoryPropertyWithEmbeddedType() {
 
-    db.command("CREATE Class company").close();
-    db.command("CREATE Property company.officers EMBEDDEDLIST STRING (MANDATORY)").close();
+    session.command("CREATE Class company").close();
+    session.command("CREATE Property company.officers EMBEDDEDLIST STRING (MANDATORY)").close();
 
-    var companyClass = db.getMetadata().getSchema().getClass("company");
-    var nameProperty = companyClass.getProperty(PROP_OFFICERS);
+    var companyClass = session.getMetadata().getSchema().getClass("company");
+    var nameProperty = companyClass.getProperty(session, PROP_OFFICERS);
 
-    assertEquals(nameProperty.getName(), PROP_OFFICERS);
-    assertEquals(nameProperty.getFullName(), PROP_FULL_OFFICERS);
-    assertEquals(nameProperty.getType(), PropertyType.EMBEDDEDLIST);
-    assertEquals(nameProperty.getLinkedType(), PropertyType.STRING);
-    assertTrue(nameProperty.isMandatory());
-    assertFalse(nameProperty.isNotNull());
-    assertFalse(nameProperty.isReadonly());
+    assertEquals(PROP_OFFICERS, nameProperty.getName(session));
+    assertEquals(PROP_FULL_OFFICERS, nameProperty.getFullName(session));
+    assertEquals(PropertyType.EMBEDDEDLIST, nameProperty.getType(session));
+    assertEquals(PropertyType.STRING, nameProperty.getLinkedType(session));
+    assertTrue(nameProperty.isMandatory(session));
+    assertFalse(nameProperty.isNotNull(session));
+    assertFalse(nameProperty.isReadonly(session));
   }
 
   @Test
-  public void testCreateUnsafePropertyWithEmbeddedType() throws Exception {
+  public void testCreateUnsafePropertyWithEmbeddedType() {
 
-    db.command("CREATE Class company").close();
-    db.command("CREATE Property company.officers EMBEDDEDLIST STRING UNSAFE").close();
+    session.command("CREATE Class company").close();
+    session.command("CREATE Property company.officers EMBEDDEDLIST STRING UNSAFE").close();
 
-    var companyClass = db.getMetadata().getSchema().getClass("company");
-    var nameProperty = companyClass.getProperty(PROP_OFFICERS);
+    var companyClass = session.getMetadata().getSchema().getClass("company");
+    var nameProperty = companyClass.getProperty(session, PROP_OFFICERS);
 
-    assertEquals(nameProperty.getName(), PROP_OFFICERS);
-    assertEquals(nameProperty.getFullName(), PROP_FULL_OFFICERS);
-    assertEquals(nameProperty.getType(), PropertyType.EMBEDDEDLIST);
-    assertEquals(nameProperty.getLinkedType(), PropertyType.STRING);
+    assertEquals(PROP_OFFICERS, nameProperty.getName(session));
+    assertEquals(PROP_FULL_OFFICERS, nameProperty.getFullName(session));
+    assertEquals(PropertyType.EMBEDDEDLIST, nameProperty.getType(session));
+    assertEquals(PropertyType.STRING, nameProperty.getLinkedType(session));
   }
 
   @Test
   public void testComplexCreateProperty() throws Exception {
 
-    db.command("CREATE Class company").close();
-    db.command(
+    session.command("CREATE Class company").close();
+    session.command(
             "CREATE Property company.officers EMBEDDEDLIST STRING (MANDATORY, READONLY, NOTNULL)"
                 + " UNSAFE")
         .close();
 
-    var companyClass = db.getMetadata().getSchema().getClass("company");
-    var nameProperty = companyClass.getProperty(PROP_OFFICERS);
+    var companyClass = session.getMetadata().getSchema().getClass("company");
+    var nameProperty = companyClass.getProperty(session, PROP_OFFICERS);
 
-    assertEquals(nameProperty.getName(), PROP_OFFICERS);
-    assertEquals(nameProperty.getFullName(), PROP_FULL_OFFICERS);
-    assertEquals(nameProperty.getType(), PropertyType.EMBEDDEDLIST);
-    assertEquals(nameProperty.getLinkedType(), PropertyType.STRING);
-    assertTrue(nameProperty.isMandatory());
-    assertTrue(nameProperty.isNotNull());
-    assertTrue(nameProperty.isReadonly());
+    assertEquals(PROP_OFFICERS, nameProperty.getName(session));
+    assertEquals(PROP_FULL_OFFICERS, nameProperty.getFullName(session));
+    assertEquals(PropertyType.EMBEDDEDLIST, nameProperty.getType(session));
+    assertEquals(PropertyType.STRING, nameProperty.getLinkedType(session));
+    assertTrue(nameProperty.isMandatory(session));
+    assertTrue(nameProperty.isNotNull(session));
+    assertTrue(nameProperty.isReadonly(session));
   }
 
   @Test
-  public void testLinkedTypeDefaultAndMinMaxUnsafeProperty() throws Exception {
-
-    db.command("CREATE CLASS company").close();
-    db.command("CREATE PROPERTY company.id EMBEDDEDLIST Integer (DEFAULT 5, MIN 1, MAX 10) UNSAFE")
+  public void testLinkedTypeDefaultAndMinMaxUnsafeProperty() {
+    session.command("CREATE CLASS company").close();
+    session.command(
+            "CREATE PROPERTY company.id EMBEDDEDLIST Integer (DEFAULT 5, MIN 1, MAX 10) UNSAFE")
         .close();
 
-    var companyClass = db.getMetadata().getSchema().getClass("company");
-    var idProperty = companyClass.getProperty(PROP_ID);
+    var companyClass = session.getMetadata().getSchema().getClass("company");
+    var idProperty = companyClass.getProperty(session, PROP_ID);
 
-    assertEquals(idProperty.getName(), PROP_ID);
-    assertEquals(idProperty.getFullName(), PROP_FULL_ID);
-    assertEquals(idProperty.getType(), PropertyType.EMBEDDEDLIST);
-    assertEquals(idProperty.getLinkedType(), PropertyType.INTEGER);
-    assertFalse(idProperty.isMandatory());
-    assertFalse(idProperty.isNotNull());
-    assertFalse(idProperty.isReadonly());
-    assertEquals(idProperty.getDefaultValue(), "5");
-    assertEquals(idProperty.getMin(), "1");
-    assertEquals(idProperty.getMax(), "10");
+    assertEquals(PROP_ID, idProperty.getName(session));
+    assertEquals(PROP_FULL_ID, idProperty.getFullName(session));
+    assertEquals(PropertyType.EMBEDDEDLIST, idProperty.getType(session));
+    assertEquals(PropertyType.INTEGER, idProperty.getLinkedType(session));
+    assertFalse(idProperty.isMandatory(session));
+    assertFalse(idProperty.isNotNull(session));
+    assertFalse(idProperty.isReadonly(session));
+    assertEquals("5", idProperty.getDefaultValue(session));
+    assertEquals("1", idProperty.getMin(session));
+    assertEquals("10", idProperty.getMax(session));
   }
 
   @Test
-  public void testDefaultAndMinMaxUnsafeProperty() throws Exception {
+  public void testDefaultAndMinMaxUnsafeProperty() {
+    session.command("CREATE CLASS company").close();
+    session.command("CREATE PROPERTY company.id INTEGER (DEFAULT 5, MIN 1, MAX 10) UNSAFE").close();
 
-    db.command("CREATE CLASS company").close();
-    db.command("CREATE PROPERTY company.id INTEGER (DEFAULT 5, MIN 1, MAX 10) UNSAFE").close();
+    var companyClass = session.getMetadata().getSchema().getClass("company");
+    var idProperty = companyClass.getProperty(session, PROP_ID);
 
-    var companyClass = db.getMetadata().getSchema().getClass("company");
-    var idProperty = companyClass.getProperty(PROP_ID);
-
-    assertEquals(idProperty.getName(), PROP_ID);
-    assertEquals(idProperty.getFullName(), PROP_FULL_ID);
-    assertEquals(idProperty.getType(), PropertyType.INTEGER);
-    assertNull(idProperty.getLinkedType());
-    assertFalse(idProperty.isMandatory());
-    assertFalse(idProperty.isNotNull());
-    assertFalse(idProperty.isReadonly());
-    assertEquals(idProperty.getDefaultValue(), "5");
-    assertEquals(idProperty.getMin(), "1");
-    assertEquals(idProperty.getMax(), "10");
+    assertEquals(PROP_ID, idProperty.getName(session));
+    assertEquals(PROP_FULL_ID, idProperty.getFullName(session));
+    assertEquals(PropertyType.INTEGER, idProperty.getType(session));
+    assertNull(idProperty.getLinkedType(session));
+    assertFalse(idProperty.isMandatory(session));
+    assertFalse(idProperty.isNotNull(session));
+    assertFalse(idProperty.isReadonly(session));
+    assertEquals("5", idProperty.getDefaultValue(session));
+    assertEquals("1", idProperty.getMin(session));
+    assertEquals("10", idProperty.getMax(session));
   }
 
   @Test
   public void testExtraSpaces() throws Exception {
+    session.command("CREATE CLASS company").close();
+    session.command("CREATE PROPERTY company.id INTEGER  ( DEFAULT  5 ,  MANDATORY  )  UNSAFE ")
+        .close();
 
-    db.command("CREATE CLASS company").close();
-    db.command("CREATE PROPERTY company.id INTEGER  ( DEFAULT  5 ,  MANDATORY  )  UNSAFE ").close();
+    var companyClass = session.getMetadata().getSchema().getClass("company");
+    var idProperty = companyClass.getProperty(session, PROP_ID);
 
-    var companyClass = db.getMetadata().getSchema().getClass("company");
-    var idProperty = companyClass.getProperty(PROP_ID);
-
-    assertEquals(idProperty.getName(), PROP_ID);
-    assertEquals(idProperty.getFullName(), PROP_FULL_ID);
-    assertEquals(idProperty.getType(), PropertyType.INTEGER);
-    assertNull(idProperty.getLinkedType());
-    assertTrue(idProperty.isMandatory());
-    assertEquals(idProperty.getDefaultValue(), "5");
+    assertEquals(PROP_ID, idProperty.getName(session));
+    assertEquals(PROP_FULL_ID, idProperty.getFullName(session));
+    assertEquals(PropertyType.INTEGER, idProperty.getType(session));
+    assertNull(idProperty.getLinkedType(session));
+    assertTrue(idProperty.isMandatory(session));
+    assertEquals("5", idProperty.getDefaultValue(session));
   }
 
   @Test
   public void testNonStrict() throws Exception {
 
-    db.getStorage().setProperty(SQLStatement.CUSTOM_STRICT_SQL, "false");
+    session.getStorage().setProperty(SQLStatement.CUSTOM_STRICT_SQL, "false");
 
-    db.command("CREATE CLASS company").close();
-    db.command(
+    session.command("CREATE CLASS company").close();
+    session.command(
             "CREATE PROPERTY company.id INTEGER (MANDATORY, NOTNULL false, READONLY true, MAX 10,"
                 + " MIN 4, DEFAULT 6)  UNSAFE")
         .close();
 
-    var companyClass = db.getMetadata().getSchema().getClass("company");
-    var idProperty = companyClass.getProperty(PROP_ID);
+    var companyClass = session.getMetadata().getSchema().getClass("company");
+    var idProperty = companyClass.getProperty(session, PROP_ID);
 
-    assertEquals(idProperty.getName(), PROP_ID);
-    assertEquals(idProperty.getFullName(), PROP_FULL_ID);
-    assertEquals(idProperty.getType(), PropertyType.INTEGER);
-    assertNull(idProperty.getLinkedType());
-    assertTrue(idProperty.isMandatory());
-    assertFalse(idProperty.isNotNull());
-    assertTrue(idProperty.isReadonly());
-    assertEquals(idProperty.getMin(), "4");
-    assertEquals(idProperty.getMax(), "10");
-    assertEquals(idProperty.getDefaultValue(), "6");
+    assertEquals(PROP_ID, idProperty.getName(session));
+    assertEquals(PROP_FULL_ID, idProperty.getFullName(session));
+    assertEquals(PropertyType.INTEGER, idProperty.getType(session));
+    assertNull(idProperty.getLinkedType(session));
+    assertTrue(idProperty.isMandatory(session));
+    assertFalse(idProperty.isNotNull(session));
+    assertTrue(idProperty.isReadonly(session));
+    assertEquals("4", idProperty.getMin(session));
+    assertEquals("10", idProperty.getMax(session));
+    assertEquals("6", idProperty.getDefaultValue(session));
   }
 
   @Test(expected = CommandExecutionException.class)
   public void testInvalidAttributeName() throws Exception {
-    db.command("CREATE CLASS company").close();
-    db.command("CREATE PROPERTY company.id INTEGER (MANDATORY, INVALID, NOTNULL)  UNSAFE").close();
+    session.command("CREATE CLASS company").close();
+    session.command("CREATE PROPERTY company.id INTEGER (MANDATORY, INVALID, NOTNULL)  UNSAFE")
+        .close();
   }
 
   @Test(expected = CommandExecutionException.class)
   public void testMissingAttributeValue() throws Exception {
 
-    db.command("CREATE CLASS company").close();
-    db.command("CREATE PROPERTY company.id INTEGER (DEFAULT)  UNSAFE").close();
+    session.command("CREATE CLASS company").close();
+    session.command("CREATE PROPERTY company.id INTEGER (DEFAULT)  UNSAFE").close();
   }
 
   @Test(expected = CommandSQLParsingException.class)
   public void tooManyAttributeParts() throws Exception {
 
-    db.command("CREATE CLASS company").close();
-    db.command("CREATE PROPERTY company.id INTEGER (DEFAULT 5 10)  UNSAFE").close();
+    session.command("CREATE CLASS company").close();
+    session.command("CREATE PROPERTY company.id INTEGER (DEFAULT 5 10)  UNSAFE").close();
   }
 
   @Test
   public void testMandatoryAsLinkedName() throws Exception {
-    db.command("CREATE CLASS company").close();
-    db.command("CREATE CLASS Mandatory").close();
-    db.command("CREATE PROPERTY company.id EMBEDDEDLIST Mandatory UNSAFE").close();
+    session.command("CREATE CLASS company").close();
+    session.command("CREATE CLASS Mandatory").close();
+    session.command("CREATE PROPERTY company.id EMBEDDEDLIST Mandatory UNSAFE").close();
 
-    var companyClass = db.getMetadata().getSchema().getClass("company");
-    var mandatoryClass = db.getMetadata().getSchema().getClass("Mandatory");
-    var idProperty = companyClass.getProperty(PROP_ID);
+    var companyClass = session.getMetadata().getSchema().getClass("company");
+    var mandatoryClass = session.getMetadata().getSchema().getClass("Mandatory");
+    var idProperty = companyClass.getProperty(session, PROP_ID);
 
-    assertEquals(idProperty.getName(), PROP_ID);
-    assertEquals(idProperty.getFullName(), PROP_FULL_ID);
-    assertEquals(idProperty.getType(), PropertyType.EMBEDDEDLIST);
-    assertEquals(idProperty.getLinkedClass(), mandatoryClass);
-    assertFalse(idProperty.isMandatory());
+    assertEquals(PROP_ID, idProperty.getName(session));
+    assertEquals(PROP_FULL_ID, idProperty.getFullName(session));
+    assertEquals(PropertyType.EMBEDDEDLIST, idProperty.getType(session));
+    assertEquals(idProperty.getLinkedClass(session), mandatoryClass);
+    assertFalse(idProperty.isMandatory(session));
   }
 
   @Test
-  public void testIfNotExists() throws Exception {
+  public void testIfNotExists() {
+    session.command("CREATE class testIfNotExists").close();
+    session.command("CREATE property testIfNotExists.name if not exists STRING").close();
 
-    db.command("CREATE class testIfNotExists").close();
-    db.command("CREATE property testIfNotExists.name if not exists STRING").close();
+    var companyClass = session.getMetadata().getSchema().getClass("testIfNotExists");
+    var property = companyClass.getProperty(session, "name");
+    assertEquals(PROP_NAME, property.getName(session));
 
-    var companyClass = db.getMetadata().getSchema().getClass("testIfNotExists");
-    var property = companyClass.getProperty("name");
-    assertEquals(property.getName(), PROP_NAME);
+    session.command("CREATE property testIfNotExists.name if not exists STRING").close();
 
-    db.command("CREATE property testIfNotExists.name if not exists STRING").close();
-
-    companyClass = db.getMetadata().getSchema().getClass("testIfNotExists");
-    property = companyClass.getProperty("name");
-    assertEquals(property.getName(), PROP_NAME);
+    companyClass = session.getMetadata().getSchema().getClass("testIfNotExists");
+    property = companyClass.getProperty(session, "name");
+    assertEquals(PROP_NAME, property.getName(session));
   }
 }

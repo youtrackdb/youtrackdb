@@ -27,7 +27,7 @@ import java.util.Set;
 /**
  * Contains the description of a persistent class property.
  */
-public interface SchemaProperty extends Comparable<SchemaProperty> {
+public interface SchemaProperty {
   enum ATTRIBUTES {
     LINKEDTYPE,
     LINKEDCLASS,
@@ -45,18 +45,18 @@ public interface SchemaProperty extends Comparable<SchemaProperty> {
     DESCRIPTION
   }
 
-  String getName();
+  String getName(DatabaseSession session);
 
   /**
    * Returns the full name as <class>.<property>
    */
-  String getFullName();
+  String getFullName(DatabaseSession session);
 
   SchemaProperty setName(DatabaseSession session, String iName);
 
   void set(DatabaseSession session, ATTRIBUTES attribute, Object iValue);
 
-  PropertyType getType();
+  PropertyType getType(DatabaseSession db);
 
   /**
    * Returns the linked class in lazy mode because while unmarshalling the class could be not loaded
@@ -64,29 +64,29 @@ public interface SchemaProperty extends Comparable<SchemaProperty> {
    *
    * @return
    */
-  SchemaClass getLinkedClass();
+  SchemaClass getLinkedClass(DatabaseSession session);
 
   SchemaProperty setLinkedClass(DatabaseSession session, SchemaClass oClass);
 
-  PropertyType getLinkedType();
+  PropertyType getLinkedType(DatabaseSession session);
 
   SchemaProperty setLinkedType(DatabaseSession session, PropertyType type);
 
-  boolean isNotNull();
+  boolean isNotNull(DatabaseSession session);
 
   SchemaProperty setNotNull(DatabaseSession session, boolean iNotNull);
 
-  Collate getCollate();
+  Collate getCollate(DatabaseSession session);
 
   SchemaProperty setCollate(DatabaseSession session, String iCollateName);
 
   SchemaProperty setCollate(DatabaseSession session, Collate collate);
 
-  boolean isMandatory();
+  boolean isMandatory(DatabaseSession session);
 
   SchemaProperty setMandatory(DatabaseSession session, boolean mandatory);
 
-  boolean isReadonly();
+  boolean isReadonly(DatabaseSession session);
 
   SchemaProperty setReadonly(DatabaseSession session, boolean iReadonly);
 
@@ -106,13 +106,13 @@ public interface SchemaProperty extends Comparable<SchemaProperty> {
    *
    * @return String, can be null
    */
-  String getMin();
+  String getMin(DatabaseSession session);
 
   /**
    * @param session
    * @param min     can be null
    * @return this property
-   * @see SchemaProperty#getMin()
+   * @see SchemaProperty#getMin(DatabaseSession)
    */
   SchemaProperty setMin(DatabaseSession session, String min);
 
@@ -132,13 +132,13 @@ public interface SchemaProperty extends Comparable<SchemaProperty> {
    *
    * @return String, can be null
    */
-  String getMax();
+  String getMax(DatabaseSession session);
 
   /**
    * @param session
    * @param max     can be null
    * @return this property
-   * @see SchemaProperty#getMax()
+   * @see SchemaProperty#getMax(DatabaseSession)
    */
   SchemaProperty setMax(DatabaseSession session, String max);
 
@@ -147,13 +147,13 @@ public interface SchemaProperty extends Comparable<SchemaProperty> {
    *
    * @return String, can be null
    */
-  String getDefaultValue();
+  String getDefaultValue(DatabaseSession session);
 
   /**
    * @param session
    * @param defaultValue can be null
    * @return this property
-   * @see SchemaProperty#getDefaultValue()
+   * @see SchemaProperty#getDefaultValue(DatabaseSession)
    */
   SchemaProperty setDefaultValue(DatabaseSession session, String defaultValue);
 
@@ -218,7 +218,7 @@ public interface SchemaProperty extends Comparable<SchemaProperty> {
   String createIndex(DatabaseSession session, INDEX_TYPE iType, Map<String, ?> metadata);
 
 
-  String getRegexp();
+  String getRegexp(DatabaseSession session);
 
   SchemaProperty setRegexp(DatabaseSession session, String regexp);
 
@@ -227,7 +227,7 @@ public interface SchemaProperty extends Comparable<SchemaProperty> {
    */
   SchemaProperty setType(DatabaseSession session, final PropertyType iType);
 
-  String getCustom(final String iName);
+  String getCustom(DatabaseSession db, final String iName);
 
   SchemaProperty setCustom(DatabaseSession session, final String iName, final String iValue);
 
@@ -235,15 +235,15 @@ public interface SchemaProperty extends Comparable<SchemaProperty> {
 
   void clearCustom(DatabaseSession session);
 
-  Set<String> getCustomKeys();
+  Set<String> getCustomKeys(DatabaseSession db);
 
   SchemaClass getOwnerClass();
 
-  Object get(ATTRIBUTES iAttribute);
+  Object get(DatabaseSession db, ATTRIBUTES iAttribute);
 
   Integer getId();
 
-  String getDescription();
+  String getDescription(DatabaseSession session);
 
   SchemaProperty setDescription(DatabaseSession session, String iDescription);
 }

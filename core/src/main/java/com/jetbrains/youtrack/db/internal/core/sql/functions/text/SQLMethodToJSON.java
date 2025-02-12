@@ -60,7 +60,7 @@ public class SQLMethodToJSON extends AbstractSQLMethod {
     if (current instanceof DBRecord record) {
 
       if (record.isUnloaded()) {
-        record = iContext.getDatabase().bindToSession(record);
+        record = iContext.getDatabaseSession().bindToSession(record);
       }
 
       return iParams.length == 1 ? record.toJSON(format) : record.toJSON();

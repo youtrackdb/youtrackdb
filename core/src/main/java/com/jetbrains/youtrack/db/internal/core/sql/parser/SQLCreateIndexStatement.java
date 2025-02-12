@@ -13,7 +13,6 @@ import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionFactory;
 import com.jetbrains.youtrack.db.internal.core.index.IndexException;
-import com.jetbrains.youtrack.db.internal.core.index.IndexFactory;
 import com.jetbrains.youtrack.db.internal.core.index.Indexes;
 import com.jetbrains.youtrack.db.internal.core.index.SimpleKeyIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
@@ -60,7 +59,7 @@ public class SQLCreateIndexStatement extends DDLStatement {
   public ExecutionStream executeDDL(CommandContext ctx) {
     var execResult = execute(ctx);
     if (execResult != null) {
-      var result = new ResultInternal(ctx.getDatabase());
+      var result = new ResultInternal(ctx.getDatabaseSession());
       result.setProperty("operation", "create index");
       result.setProperty("name", name.getValue());
       return ExecutionStream.singleton(result);
@@ -70,13 +69,13 @@ public class SQLCreateIndexStatement extends DDLStatement {
   }
 
   Object execute(CommandContext ctx) {
-    final var database = ctx.getDatabase();
+    final var session = ctx.getDatabaseSession();
 
-    if (database.getMetadata().getIndexManagerInternal().existsIndex(name.getValue())) {
+    if (session.getMetadata().getIndexManagerInternal().existsIndex(name.getValue())) {
       if (ifNotExists) {
         return null;
       } else {
-        throw new CommandExecutionException("Index " + name + " already exists");
+        throw new CommandExecutionException(session, "Index " + name + " already exists");
       }
     }
 
@@ -86,18 +85,18 @@ public class SQLCreateIndexStatement extends DDLStatement {
         this.engine == null ? null : this.engine.getStringValue().toUpperCase(Locale.ENGLISH);
     var metadataDoc = calculateMetadata(ctx);
 
-    if (propertyList == null || propertyList.size() == 0) {
+    if (propertyList == null || propertyList.isEmpty()) {
       var factory = Indexes.getFactory(type.getStringValue(), engine);
 
       var keyTypes = calculateKeyTypes(ctx);
 
       if (keyTypes != null && keyTypes.length > 0) {
         idx =
-            database
+            session
                 .getMetadata()
                 .getIndexManagerInternal()
                 .createIndex(
-                    database,
+                    session,
                     name.getValue(),
                     type.getStringValue(),
                     new SimpleKeyIndexDefinition(keyTypes, collatesList),
@@ -112,11 +111,11 @@ public class SQLCreateIndexStatement extends DDLStatement {
         IndexDefinition keyDef =
             new SimpleKeyIndexDefinition(new PropertyType[]{PropertyType.STRING}, collatesList);
         idx =
-            database
+            session
                 .getMetadata()
                 .getIndexManagerInternal()
                 .createIndex(
-                    database,
+                    session,
                     name.getValue(),
                     type.getStringValue(),
                     keyDef,
@@ -129,25 +128,25 @@ public class SQLCreateIndexStatement extends DDLStatement {
         // legacy: create index without specifying property names
         var split = name.getValue().split("\\.");
         if (split.length != 2) {
-          throw new DatabaseException(
+          throw new DatabaseException(session,
               "Impossible to create an index without specify class and property name nor key types:"
                   + " "
                   + this);
         }
-        var oClass = database.getClass(split[0]);
+        var oClass = session.getClass(split[0]);
         if (oClass == null) {
-          throw new DatabaseException(
+          throw new DatabaseException(session,
               "Impossible to create an index, class not found: " + split[0]);
         }
-        if (oClass.getProperty(split[1]) == null) {
-          throw new DatabaseException(
+        if (oClass.getProperty(session, split[1]) == null) {
+          throw new DatabaseException(session,
               "Impossible to create an index, property not found: " + name.getValue());
         }
         var fields = new String[]{split[1]};
-        idx = getoIndex(oClass, fields, engine, database, collatesList, metadataDoc);
+        idx = getoIndex(oClass, fields, engine, session, collatesList, metadataDoc);
 
       } else {
-        throw new DatabaseException(
+        throw new DatabaseException(session,
             "Impossible to create an index without specify the key type or the associated property:"
                 + " "
                 + this);
@@ -155,11 +154,11 @@ public class SQLCreateIndexStatement extends DDLStatement {
     } else {
       var fields = calculateProperties(ctx);
       var oClass = getIndexClass(ctx);
-      idx = getoIndex(oClass, fields, engine, database, collatesList, metadataDoc);
+      idx = getoIndex(oClass, fields, engine, session, collatesList, metadataDoc);
     }
 
     if (idx != null) {
-      return database.computeInTx(() -> idx.getInternal().size(database));
+      return session.computeInTx(() -> idx.getInternal().size(session));
     }
 
     return null;
@@ -169,32 +168,32 @@ public class SQLCreateIndexStatement extends DDLStatement {
       SchemaClass oClass,
       String[] fields,
       String engine,
-      DatabaseSessionInternal database,
+      DatabaseSessionInternal session,
       List<Collate> collatesList,
       EntityImpl metadataDoc) {
     Index idx;
-    if ((keyTypes == null || keyTypes.size() == 0) && collatesList == null) {
+    if ((keyTypes == null || keyTypes.isEmpty()) && collatesList == null) {
       var indexName = name.getValue();
-      oClass.createIndex(database,
+      oClass.createIndex(session,
           indexName, type.getStringValue(), null, metadataDoc != null ? metadataDoc.toMap() : null,
           engine, fields);
-      idx = database.getIndex(indexName);
+      idx = session.getIndex(indexName);
     } else {
       final List<PropertyType> fieldTypeList;
-      if (keyTypes == null || keyTypes.size() == 0 && fields.length > 0) {
+      if (keyTypes == null || keyTypes.isEmpty() && fields.length > 0) {
         for (final var fieldName : fields) {
-          if (!fieldName.equals("@rid") && !oClass.existsProperty(fieldName)) {
-            throw new IndexException(
+          if (!fieldName.equals("@rid") && !oClass.existsProperty(session, fieldName)) {
+            throw new IndexException(session,
                 "Index with name : '"
                     + name.getValue()
                     + "' cannot be created on class : '"
-                    + oClass.getName()
+                    + oClass.getName(session)
                     + "' because field: '"
                     + fieldName
                     + "' is absent in class definition.");
           }
         }
-        fieldTypeList = ((SchemaClassImpl) oClass).extractFieldTypes(fields);
+        fieldTypeList = ((SchemaClassImpl) oClass).extractFieldTypes(session, fields);
       } else {
         fieldTypeList =
             keyTypes.stream()
@@ -203,24 +202,23 @@ public class SQLCreateIndexStatement extends DDLStatement {
       }
 
       final var idxDef =
-          IndexDefinitionFactory.createIndexDefinition(
+          IndexDefinitionFactory.createIndexDefinition(session,
               oClass,
               Arrays.asList(fields),
               fieldTypeList,
               collatesList,
-              type.getStringValue(),
-              engine);
+              type.getStringValue());
 
       idx =
-          database
+          session
               .getMetadata()
               .getIndexManagerInternal()
               .createIndex(
-                  database,
+                  session,
                   name.getValue(),
                   type.getStringValue(),
                   idxDef,
-                  oClass.getPolymorphicClusterIds(),
+                  oClass.getPolymorphicClusterIds(session),
                   null,
                   metadataDoc != null ? metadataDoc.toMap() : null,
                   engine);
@@ -251,10 +249,10 @@ public class SQLCreateIndexStatement extends DDLStatement {
     if (className == null) {
       return null;
     }
-    var result =
-        ctx.getDatabase().getMetadata().getSchema().getClass(className.getStringValue());
+    var session = ctx.getDatabaseSession();
+    var result = session.getMetadata().getSchema().getClass(className.getStringValue());
     if (result == null) {
-      throw new CommandExecutionException("Cannot find class " + className);
+      throw new CommandExecutionException(session, "Cannot find class " + className);
     }
     return result;
   }

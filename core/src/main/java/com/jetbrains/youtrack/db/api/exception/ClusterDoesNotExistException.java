@@ -9,7 +9,7 @@ public class ClusterDoesNotExistException extends StorageException
     super(exception);
   }
 
-  public ClusterDoesNotExistException(String string) {
-    super(string);
+  public ClusterDoesNotExistException(String dbName, String string) {
+    super(dbName, string);
   }
 }

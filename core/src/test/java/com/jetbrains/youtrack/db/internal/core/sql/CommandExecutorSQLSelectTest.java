@@ -32,15 +32,12 @@ import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.query.ExecutionPlan;
 import com.jetbrains.youtrack.db.api.query.ExecutionStep;
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.profiler.Profiler;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStepInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.FetchFromIndexStep;
@@ -66,131 +63,134 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     super.beforeTest();
     getProfilerInstance().startRecording();
 
-    db.command("CREATE class foo").close();
-    db.command("CREATE property foo.name STRING").close();
-    db.command("CREATE property foo.bar INTEGER").close();
-    db.command("CREATE property foo.address EMBEDDED").close();
-    db.command("CREATE property foo.comp STRING").close();
-    db.command("CREATE property foo.osite INTEGER").close();
+    session.command("CREATE class foo").close();
+    session.command("CREATE property foo.name STRING").close();
+    session.command("CREATE property foo.bar INTEGER").close();
+    session.command("CREATE property foo.address EMBEDDED").close();
+    session.command("CREATE property foo.comp STRING").close();
+    session.command("CREATE property foo.osite INTEGER").close();
 
-    db.command("CREATE index foo_name on foo (name) NOTUNIQUE").close();
-    db.command("CREATE index foo_bar on foo (bar) NOTUNIQUE").close();
-    db.command("CREATE index foo_comp_osite on foo (comp, osite) NOTUNIQUE").close();
+    session.command("CREATE index foo_name on foo (name) NOTUNIQUE").close();
+    session.command("CREATE index foo_bar on foo (bar) NOTUNIQUE").close();
+    session.command("CREATE index foo_comp_osite on foo (comp, osite) NOTUNIQUE").close();
 
-    db.begin();
-    db.command(
+    session.begin();
+    session.command(
             "insert into foo (name, bar, address) values ('a', 1, {'street':'1st street',"
                 + " 'city':'NY', '@type':'d'})")
         .close();
-    db.command("insert into foo (name, bar) values ('b', 2)").close();
-    db.command("insert into foo (name, bar) values ('c', 3)").close();
+    session.command("insert into foo (name, bar) values ('b', 2)").close();
+    session.command("insert into foo (name, bar) values ('c', 3)").close();
 
-    db.command("insert into foo (comp, osite) values ('a', 1)").close();
-    db.command("insert into foo (comp, osite) values ('b', 2)").close();
-    db.commit();
+    session.command("insert into foo (comp, osite) values ('a', 1)").close();
+    session.command("insert into foo (comp, osite) values ('b', 2)").close();
+    session.commit();
 
-    db.command("CREATE class bar").close();
+    session.command("CREATE class bar").close();
 
-    db.begin();
-    db.command("insert into bar (name, foo) values ('a', 1)").close();
-    db.command("insert into bar (name, foo) values ('b', 2)").close();
-    db.command("insert into bar (name, foo) values ('c', 3)").close();
-    db.command("insert into bar (name, foo) values ('d', 4)").close();
-    db.command("insert into bar (name, foo) values ('e', 5)").close();
-    db.command("insert into bar (name, foo) values ('f', 1)").close();
-    db.command("insert into bar (name, foo) values ('g', 2)").close();
-    db.command("insert into bar (name, foo) values ('h', 3)").close();
-    db.command("insert into bar (name, foo) values ('i', 4)").close();
-    db.command("insert into bar (name, foo) values ('j', 5)").close();
-    db.command("insert into bar (name, foo) values ('k', 1)").close();
-    db.command("insert into bar (name, foo) values ('l', 2)").close();
-    db.command("insert into bar (name, foo) values ('m', 3)").close();
-    db.command("insert into bar (name, foo) values ('n', 4)").close();
-    db.command("insert into bar (name, foo) values ('o', 5)").close();
-    db.commit();
+    session.begin();
+    session.command("insert into bar (name, foo) values ('a', 1)").close();
+    session.command("insert into bar (name, foo) values ('b', 2)").close();
+    session.command("insert into bar (name, foo) values ('c', 3)").close();
+    session.command("insert into bar (name, foo) values ('d', 4)").close();
+    session.command("insert into bar (name, foo) values ('e', 5)").close();
+    session.command("insert into bar (name, foo) values ('f', 1)").close();
+    session.command("insert into bar (name, foo) values ('g', 2)").close();
+    session.command("insert into bar (name, foo) values ('h', 3)").close();
+    session.command("insert into bar (name, foo) values ('i', 4)").close();
+    session.command("insert into bar (name, foo) values ('j', 5)").close();
+    session.command("insert into bar (name, foo) values ('k', 1)").close();
+    session.command("insert into bar (name, foo) values ('l', 2)").close();
+    session.command("insert into bar (name, foo) values ('m', 3)").close();
+    session.command("insert into bar (name, foo) values ('n', 4)").close();
+    session.command("insert into bar (name, foo) values ('o', 5)").close();
+    session.commit();
 
-    db.command("CREATE class ridsorttest clusters 1").close();
-    db.command("CREATE property ridsorttest.name INTEGER").close();
-    db.command("CREATE index ridsorttest_name on ridsorttest (name) NOTUNIQUE").close();
+    session.command("CREATE class ridsorttest clusters 1").close();
+    session.command("CREATE property ridsorttest.name INTEGER").close();
+    session.command("CREATE index ridsorttest_name on ridsorttest (name) NOTUNIQUE").close();
 
-    db.begin();
-    db.command("insert into ridsorttest (name) values (1)").close();
-    db.command("insert into ridsorttest (name) values (5)").close();
-    db.command("insert into ridsorttest (name) values (3)").close();
-    db.command("insert into ridsorttest (name) values (4)").close();
-    db.command("insert into ridsorttest (name) values (1)").close();
-    db.command("insert into ridsorttest (name) values (8)").close();
-    db.command("insert into ridsorttest (name) values (6)").close();
-    db.commit();
+    session.begin();
+    session.command("insert into ridsorttest (name) values (1)").close();
+    session.command("insert into ridsorttest (name) values (5)").close();
+    session.command("insert into ridsorttest (name) values (3)").close();
+    session.command("insert into ridsorttest (name) values (4)").close();
+    session.command("insert into ridsorttest (name) values (1)").close();
+    session.command("insert into ridsorttest (name) values (8)").close();
+    session.command("insert into ridsorttest (name) values (6)").close();
+    session.commit();
 
-    db.command("CREATE class unwindtest").close();
+    session.command("CREATE class unwindtest").close();
 
-    db.begin();
-    db.command("insert into unwindtest (name, coll) values ('foo', ['foo1', 'foo2'])").close();
-    db.command("insert into unwindtest (name, coll) values ('bar', ['bar1', 'bar2'])").close();
-    db.commit();
+    session.begin();
+    session.command("insert into unwindtest (name, coll) values ('foo', ['foo1', 'foo2'])").close();
+    session.command("insert into unwindtest (name, coll) values ('bar', ['bar1', 'bar2'])").close();
+    session.commit();
 
-    db.command("CREATE class unwindtest2").close();
-    db.begin();
-    db.command("insert into unwindtest2 (name, coll) values ('foo', [])").close();
-    db.commit();
+    session.command("CREATE class unwindtest2").close();
+    session.begin();
+    session.command("insert into unwindtest2 (name, coll) values ('foo', [])").close();
+    session.commit();
 
-    db.command("CREATE class `edge`").close();
+    session.command("CREATE class `edge`").close();
 
-    db.command("CREATE class TestFromInSquare").close();
-    db.begin();
-    db.command("insert into TestFromInSquare set tags = {' from ':'foo',' to ':'bar'}").close();
-    db.commit();
+    session.command("CREATE class TestFromInSquare").close();
+    session.begin();
+    session.command("insert into TestFromInSquare set tags = {' from ':'foo',' to ':'bar'}")
+        .close();
+    session.commit();
 
-    db.command("CREATE class TestMultipleClusters").close();
-    db.command("alter class TestMultipleClusters add_cluster testmultipleclusters1 ").close();
-    db.command("alter class TestMultipleClusters add_cluster testmultipleclusters2 ").close();
+    session.command("CREATE class TestMultipleClusters").close();
+    session.command("alter class TestMultipleClusters add_cluster testmultipleclusters1 ").close();
+    session.command("alter class TestMultipleClusters add_cluster testmultipleclusters2 ").close();
 
-    db.begin();
-    db.command("insert into cluster:testmultipleclusters set name = 'aaa'").close();
-    db.command("insert into cluster:testmultipleclusters1 set name = 'foo'").close();
-    db.command("insert into cluster:testmultipleclusters2 set name = 'bar'").close();
-    db.commit();
+    session.begin();
+    session.command("insert into cluster:testmultipleclusters set name = 'aaa'").close();
+    session.command("insert into cluster:testmultipleclusters1 set name = 'foo'").close();
+    session.command("insert into cluster:testmultipleclusters2 set name = 'bar'").close();
+    session.commit();
 
-    db.command("CREATE class TestUrl").close();
-    db.begin();
-    db.command("insert into TestUrl content { \"url\": \"http://www.google.com\" }").close();
-    db.commit();
+    session.command("CREATE class TestUrl").close();
+    session.begin();
+    session.command("insert into TestUrl content { \"url\": \"http://www.google.com\" }").close();
+    session.commit();
 
-    db.command("CREATE class TestParams").close();
-    db.begin();
-    db.command("insert into TestParams  set name = 'foo', surname ='foo', active = true").close();
-    db.command("insert into TestParams  set name = 'foo', surname ='bar', active = false").close();
-    db.commit();
+    session.command("CREATE class TestParams").close();
+    session.begin();
+    session.command("insert into TestParams  set name = 'foo', surname ='foo', active = true")
+        .close();
+    session.command("insert into TestParams  set name = 'foo', surname ='bar', active = false")
+        .close();
+    session.commit();
 
-    db.command("CREATE class TestParamsEmbedded").close();
-    db.begin();
-    db.command(
+    session.command("CREATE class TestParamsEmbedded").close();
+    session.begin();
+    session.command(
             "insert into TestParamsEmbedded set emb = {  \n"
                 + "            \"count\":0,\n"
                 + "            \"testupdate\":\"1441258203385\"\n"
                 + "         }")
         .close();
-    db.command(
+    session.command(
             "insert into TestParamsEmbedded set emb = {  \n"
                 + "            \"count\":1,\n"
                 + "            \"testupdate\":\"1441258203385\"\n"
                 + "         }")
         .close();
-    db.commit();
+    session.commit();
 
-    db.command("CREATE class TestBacktick").close();
-    db.begin();
-    db.command("insert into TestBacktick  set foo = 1, bar = 2, `foo-bar` = 10").close();
-    db.commit();
+    session.command("CREATE class TestBacktick").close();
+    session.begin();
+    session.command("insert into TestBacktick  set foo = 1, bar = 2, `foo-bar` = 10").close();
+    session.commit();
 
     // /*** from issue #2743
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     if (!schema.existsClass("alphabet")) {
       schema.createClass("alphabet", 1, null);
     }
 
-    var iter = db.browseClass("alphabet");
+    var iter = session.browseClass("alphabet");
     while (iter.hasNext()) {
       iter.next().delete();
     }
@@ -199,22 +199,22 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
     var rowModel = "{\"letter\": \"%s\", \"number\": %d}";
     for (var i = 0; i < 26; ++i) {
-      db.begin();
+      session.begin();
       var l = String.valueOf((char) ('A' + i));
       var json = String.format(rowModel, l, i);
-      EntityImpl doc = db.newInstance("alphabet");
+      EntityImpl doc = session.newInstance("alphabet");
       doc.updateFromJSON(json);
       doc.save();
-      db.commit();
+      session.commit();
     }
 
-    db.command("create class OCommandExecutorSQLSelectTest_aggregations").close();
-    db.begin();
-    db.command(
+    session.command("create class OCommandExecutorSQLSelectTest_aggregations").close();
+    session.begin();
+    session.command(
             "insert into OCommandExecutorSQLSelectTest_aggregations set data = [{\"size\": 0},"
                 + " {\"size\": 0}, {\"size\": 30}, {\"size\": 50}, {\"size\": 50}]")
         .close();
-    db.commit();
+    session.commit();
   }
 
   private static void initCollateOnLinked(DatabaseSession db) {
@@ -392,53 +392,55 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testUseIndexWithOrderBy2() throws Exception {
-    var idxUsagesBefore = indexUsages(db);
+    var idxUsagesBefore = indexUsages(session);
 
     List<EntityImpl> qResult =
-        db.command(new CommandSQL("select * from foo where address.city = 'NY' order by name ASC"))
-            .execute(db);
+        session.command(
+                new CommandSQL("select * from foo where address.city = 'NY' order by name ASC"))
+            .execute(session);
     assertEquals(1, qResult.size());
   }
 
   @Test
   public void testUseIndexWithOr() throws Exception {
-    var idxUsagesBefore = indexUsages(db);
+    var idxUsagesBefore = indexUsages(session);
 
     List<EntityImpl> qResult =
-        db.command(new CommandSQL("select * from foo where bar = 2 or name ='a' and bar >= 0"))
-            .execute(db);
+        session.command(new CommandSQL("select * from foo where bar = 2 or name ='a' and bar >= 0"))
+            .execute(session);
 
     assertEquals(2, qResult.size());
-    assertEquals(indexUsages(db), idxUsagesBefore + 2);
+    assertEquals(indexUsages(session), idxUsagesBefore + 2);
   }
 
   @Test
   public void testDoNotUseIndexWithOrNotIndexed() throws Exception {
 
-    var idxUsagesBefore = indexUsages(db);
+    var idxUsagesBefore = indexUsages(session);
 
     List<EntityImpl> qResult =
-        db.command(new CommandSQL("select * from foo where bar = 2 or notIndexed = 3"))
-            .execute(db);
+        session.command(new CommandSQL("select * from foo where bar = 2 or notIndexed = 3"))
+            .execute(session);
 
-    assertEquals(indexUsages(db), idxUsagesBefore);
+    assertEquals(indexUsages(session), idxUsagesBefore);
   }
 
   @Test
   public void testCompositeIndex() {
-    var idxUsagesBefore = indexUsages(db);
+    var idxUsagesBefore = indexUsages(session);
 
     List<EntityImpl> qResult =
-        db.command(new CommandSQL("select * from foo where comp = 'a' and osite = 1")).execute(db);
+        session.command(new CommandSQL("select * from foo where comp = 'a' and osite = 1")).execute(
+            session);
 
     assertEquals(1, qResult.size());
-    assertEquals(indexUsages(db), idxUsagesBefore + 1);
+    assertEquals(indexUsages(session), idxUsagesBefore + 1);
   }
 
   @Test
   public void testProjection() {
-    try (var rs = db.query("select a from foo where name = 'a' or bar = 1")) {
-      if (!db.isRemote()) {
+    try (var rs = session.query("select a from foo where name = 'a' or bar = 1")) {
+      if (!session.isRemote()) {
         assertEquals(2, indexUsages(rs.getExecutionPlan().orElseThrow()));
       }
 
@@ -449,8 +451,8 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testProjection2() {
-    try (var rs = db.query("select a from foo where name = 'a' or bar = 2")) {
-      if (!db.isRemote()) {
+    try (var rs = session.query("select a from foo where name = 'a' or bar = 2")) {
+      if (!session.isRemote()) {
         assertEquals(2, indexUsages(rs.getExecutionPlan().orElseThrow()));
       }
 
@@ -461,50 +463,53 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testCompositeIndex2() {
-    var idxUsagesBefore = indexUsages(db);
+    var idxUsagesBefore = indexUsages(session);
 
     List<EntityImpl> qResult =
-        db.command(
+        session.command(
                 new CommandSQL("select * from foo where (comp = 'a' and osite = 1) or name = 'a'"))
-            .execute(db);
+            .execute(session);
 
     assertEquals(2, qResult.size());
-    assertEquals(indexUsages(db), idxUsagesBefore + 2);
+    assertEquals(indexUsages(session), idxUsagesBefore + 2);
   }
 
   @Test
   public void testOperatorPriority() {
 
     var qResult =
-        db.command("select * from foo where name ='a' and bar = 1000 or name = 'b'").stream()
+        session.command("select * from foo where name ='a' and bar = 1000 or name = 'b'").stream()
             .toList();
 
     var qResult2 =
-        db.command("select * from foo where name = 'b' or name ='a' and bar = 1000").stream()
+        session.command("select * from foo where name = 'b' or name ='a' and bar = 1000").stream()
             .toList();
 
     var qResult3 =
-        db.command("select * from foo where name = 'b' or (name ='a' and bar = 1000)").stream()
+        session.command("select * from foo where name = 'b' or (name ='a' and bar = 1000)").stream()
             .toList();
 
     var qResult4 =
-        db.command("select * from foo where (name ='a' and bar = 1000) or name = 'b'").stream()
+        session.command("select * from foo where (name ='a' and bar = 1000) or name = 'b'").stream()
             .toList();
 
     var qResult5 =
-        db.command("select * from foo where ((name ='a' and bar = 1000) or name = 'b')").stream()
+        session.command("select * from foo where ((name ='a' and bar = 1000) or name = 'b')")
+            .stream()
             .toList();
 
     var qResult6 =
-        db.command("select * from foo where ((name ='a' and (bar = 1000)) or name = 'b')").stream()
+        session.command("select * from foo where ((name ='a' and (bar = 1000)) or name = 'b')")
+            .stream()
             .toList();
 
     var qResult7 =
-        db.command("select * from foo where (((name ='a' and bar = 1000)) or name = 'b')").stream()
+        session.command("select * from foo where (((name ='a' and bar = 1000)) or name = 'b')")
+            .stream()
             .toList();
 
     var qResult8 =
-        db
+        session
             .command("select * from foo where (((name ='a' and bar = 1000)) or (name = 'b'))")
             .stream()
             .toList();
@@ -521,7 +526,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testOperatorPriority2() {
     var qResult =
-        db
+        session
             .command(
                 "select * from bar where name ='a' and foo = 1 or name='b' or name='c' and foo = 3"
                     + " and other = 4 or name = 'e' and foo = 5 or name = 'm' and foo > 2 ")
@@ -529,7 +534,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
             .toList();
 
     var qResult2 =
-        db
+        session
             .command(
                 "select * from bar where (name ='a' and foo = 1) or name='b' or (name='c' and foo ="
                     + " 3 and other = 4) or (name = 'e' and foo = 5) or (name = 'm' and foo > 2)")
@@ -537,7 +542,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
             .toList();
 
     var qResult3 =
-        db
+        session
             .command(
                 "select * from bar where (name ='a' and foo = 1) or (name='b') or (name='c' and foo"
                     + " = 3 and other = 4) or (name ='e' and foo = 5) or (name = 'm' and foo > 2)")
@@ -545,7 +550,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
             .toList();
 
     var qResult4 =
-        db
+        session
             .command(
                 "select * from bar where (name ='a' and foo = 1) or ((name='b') or (name='c' and"
                     + " foo = 3 and other = 4)) or (name = 'e' and foo = 5) or (name = 'm' and foo"
@@ -554,7 +559,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
             .toList();
 
     var qResult5 =
-        db
+        session
             .command(
                 "select * from bar where (name ='a' and foo = 1) or ((name='b') or (name='c' and"
                     + " foo = 3 and other = 4) or (name = 'e' and foo = 5)) or (name = 'm' and foo"
@@ -571,7 +576,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testOperatorPriority3() {
     var qResult =
-        db
+        session
             .command(
                 "select * from bar where name <> 'a' and foo = 1 or name='b' or name='c' and foo ="
                     + " 3 and other <> 4 or name = 'e' and foo = 5 or name = 'm' and foo > 2 ")
@@ -579,7 +584,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
             .toList();
 
     var qResult2 =
-        db
+        session
             .command(
                 "select * from bar where (name <> 'a' and foo = 1) or name='b' or (name='c' and foo"
                     + " = 3 and other <>  4) or (name = 'e' and foo = 5) or (name = 'm' and foo >"
@@ -588,7 +593,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
             .toList();
 
     var qResult3 =
-        db
+        session
             .command(
                 "select * from bar where ( name <> 'a' and foo = 1) or (name='b') or (name='c' and"
                     + " foo = 3 and other <>  4) or (name ='e' and foo = 5) or (name = 'm' and foo"
@@ -597,7 +602,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
             .toList();
 
     var qResult4 =
-        db
+        session
             .command(
                 "select * from bar where (name <> 'a' and foo = 1) or ( (name='b') or (name='c' and"
                     + " foo = 3 and other <>  4)) or  (name = 'e' and foo = 5) or (name = 'm' and"
@@ -606,7 +611,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
             .toList();
 
     var qResult5 =
-        db
+        session
             .command(
                 "select * from bar where (name <> 'a' and foo = 1) or ((name='b') or (name='c' and"
                     + " foo = 3 and other <>  4) or (name = 'e' and foo = 5)) or (name = 'm' and"
@@ -622,7 +627,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testExpandOnEmbedded() {
-    try (var qResult = db.command("select expand(address) from foo where name = 'a'")) {
+    try (var qResult = session.command("select expand(address) from foo where name = 'a'")) {
       assertEquals("NY", qResult.next().getProperty("city"));
       assertFalse(qResult.hasNext());
     }
@@ -631,8 +636,8 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testFlattenOnEmbedded() {
     List<EntityImpl> qResult =
-        db.command(new CommandSQL("select flatten(address) from foo where name = 'a'"))
-            .execute(db);
+        session.command(new CommandSQL("select flatten(address) from foo where name = 'a'"))
+            .execute(session);
 
     assertEquals(1, qResult.size());
     assertEquals("NY", qResult.get(0).field("city"));
@@ -640,25 +645,25 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testLimit() {
-    var qResult = db.query("select from foo limit 3");
+    var qResult = session.query("select from foo limit 3");
     assertEquals(3, qResult.stream().count());
   }
 
   @Test
   public void testLimitWithMetadataQuery() {
-    var qResult = db.query("select expand(classes) from metadata:schema limit 3");
+    var qResult = session.query("select expand(classes) from metadata:schema limit 3");
     assertEquals(3, qResult.stream().count());
   }
 
   @Test
   public void testOrderByWithMetadataQuery() {
-    var qResult = db.query("select expand(classes) from metadata:schema order by name");
+    var qResult = session.query("select expand(classes) from metadata:schema order by name");
     assertTrue(qResult.stream().count() > 0);
   }
 
   @Test
   public void testLimitWithUnnamedParam() {
-    var qResult = db.query("select from foo limit ?", 3);
+    var qResult = session.query("select from foo limit ?", 3);
     assertEquals(3, qResult.stream().count());
   }
 
@@ -666,7 +671,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testLimitWithNamedParam() {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("lim", 2);
-    var qResult = db.command("select from foo limit :lim", params);
+    var qResult = session.command("select from foo limit :lim", params);
     assertEquals(2, qResult.stream().count());
   }
 
@@ -675,7 +680,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     // issue #5493
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("limit", 2);
-    var qResult = db.command("select from foo limit :limit", params);
+    var qResult = session.command("select from foo limit :limit", params);
     assertEquals(2, qResult.stream().count());
   }
 
@@ -684,7 +689,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("name", "foo");
     var qResult =
-        db.command(
+        session.command(
             "select from TestParams let $foo = (select name from TestParams where surname = :name)"
                 + " where surname in $foo.name ",
             params);
@@ -695,13 +700,13 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testBooleanParams() {
     // issue #4224
     var qResult =
-        db.command("select name from TestParams where name = ? and active = ?", "foo", true);
+        session.command("select name from TestParams where name = ? and active = ?", "foo", true);
     assertEquals(1, qResult.stream().count());
   }
 
   @Test
   public void testFromInSquareBrackets() {
-    try (var qResult = db.command("select tags[' from '] as a from TestFromInSquare")) {
+    try (var qResult = session.command("select tags[' from '] as a from TestFromInSquare")) {
       assertEquals("foo", qResult.next().getProperty("a"));
       assertFalse(qResult.hasNext());
     }
@@ -709,13 +714,13 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testNewline() {
-    var qResult = db.command("select\n1 as ACTIVE\nFROM foo");
+    var qResult = session.command("select\n1 as ACTIVE\nFROM foo");
     assertEquals(5, qResult.stream().count());
   }
 
   @Test
   public void testOrderByRid() {
-    var qResult = db.query("select from ridsorttest order by @rid ASC");
+    var qResult = session.query("select from ridsorttest order by @rid ASC");
     assertTrue(qResult.hasNext());
 
     var prev = qResult.next();
@@ -726,7 +731,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     }
     qResult.close();
 
-    qResult = db.query("select from ridsorttest order by @rid DESC");
+    qResult = session.query("select from ridsorttest order by @rid DESC");
     assertTrue(qResult.hasNext());
 
     prev = qResult.next();
@@ -737,7 +742,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     }
     qResult.close();
 
-    qResult = db.query("select from ridsorttest where name > 3 order by @rid DESC");
+    qResult = session.query("select from ridsorttest where name > 3 order by @rid DESC");
     assertTrue(qResult.hasNext());
 
     prev = qResult.next();
@@ -751,7 +756,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testUnwind() {
     var qResult =
-        db.command("select from unwindtest unwind coll").stream().toList();
+        session.command("select from unwindtest unwind coll").stream().toList();
 
     assertEquals(4, qResult.size());
     for (var doc : qResult) {
@@ -765,7 +770,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testUnwind2() {
     var qResult =
-        db.command("select from unwindtest2 unwind coll").stream().toList();
+        session.command("select from unwindtest2 unwind coll").stream().toList();
 
     assertEquals(1, qResult.size());
     for (var doc : qResult) {
@@ -778,7 +783,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testUnwindOrder() {
     var qResult =
-        db.command("select from unwindtest order by coll unwind coll").stream()
+        session.command("select from unwindtest order by coll unwind coll").stream()
             .toList();
 
     assertEquals(4, qResult.size());
@@ -793,7 +798,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testUnwindSkip() {
     var qResult =
-        db.command("select from unwindtest unwind coll skip 1").stream()
+        session.command("select from unwindtest unwind coll skip 1").stream()
             .toList();
 
     assertEquals(3, qResult.size());
@@ -807,7 +812,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testUnwindLimit() {
     var qResult =
-        db.command("select from unwindtest unwind coll limit 1").stream()
+        session.command("select from unwindtest unwind coll limit 1").stream()
             .toList();
 
     assertEquals(1, qResult.size());
@@ -821,7 +826,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testUnwindLimit3() {
     var qResult =
-        db.command("select from unwindtest unwind coll limit 3").stream()
+        session.command("select from unwindtest unwind coll limit 3").stream()
             .toList();
 
     assertEquals(3, qResult.size());
@@ -835,7 +840,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testUnwindSkipAndLimit() {
     var qResult =
-        db.command("select from unwindtest unwind coll skip 1 limit 1").stream()
+        session.command("select from unwindtest unwind coll skip 1 limit 1").stream()
             .toList();
 
     assertEquals(1, qResult.size());
@@ -848,11 +853,11 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testMultipleClusters() {
-    var qResult = db.command("select from cluster:[testmultipleclusters1]");
+    var qResult = session.command("select from cluster:[testmultipleclusters1]");
 
     assertEquals(1, qResult.stream().count());
 
-    qResult = db.command("select from cluster:[testmultipleclusters1, testmultipleclusters2]");
+    qResult = session.command("select from cluster:[testmultipleclusters1, testmultipleclusters2]");
 
     assertEquals(2, qResult.stream().count());
   }
@@ -860,7 +865,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testMatches() {
     var result =
-        db.query(
+        session.query(
             new SQLSynchQuery<Object>(
                 "select from foo where name matches"
                     + " '(?i)(^\\\\Qa\\\\E$)|(^\\\\Qname2\\\\E$)|(^\\\\Qname3\\\\E$)' and bar ="
@@ -871,21 +876,21 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testStarPosition() {
     var result =
-        db.query("select *, name as blabla from foo where name = 'a'").stream()
+        session.query("select *, name as blabla from foo where name = 'a'").stream()
             .collect(Collectors.toList());
 
     assertEquals(1, result.size());
     assertEquals("a", result.get(0).getProperty("blabla"));
 
     result =
-        db.query("select name as blabla, * from foo where name = 'a'").stream()
+        session.query("select name as blabla, * from foo where name = 'a'").stream()
             .collect(Collectors.toList());
 
     assertEquals(1, result.size());
     assertEquals("a", result.get(0).getProperty("blabla"));
 
     result =
-        db.query("select name as blabla, *, fff as zzz from foo where name = 'a'").stream()
+        session.query("select name as blabla, *, fff as zzz from foo where name = 'a'").stream()
             .collect(Collectors.toList());
 
     assertEquals(1, result.size());
@@ -894,14 +899,14 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testQuotedClassName() {
-    var qResult = db.query("select from `edge`");
+    var qResult = session.query("select from `edge`");
 
     assertEquals(0, qResult.stream().count());
   }
 
   public void testUrl() {
 
-    var qResult = db.command("select from TestUrl").stream().toList();
+    var qResult = session.command("select from TestUrl").stream().toList();
 
     assertEquals(1, qResult.size());
     assertEquals("http://www.google.com", qResult.get(0).getProperty("url"));
@@ -910,7 +915,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testUnwindSkipAndLimit2() {
     var qResult =
-        db.command("select from unwindtest unwind coll skip 1 limit 2").stream()
+        session.command("select from unwindtest unwind coll skip 1 limit 2").stream()
             .toList();
 
     assertEquals(2, qResult.size());
@@ -926,11 +931,11 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("param1", "foo");
     var qResult =
-        db.query("select from TestParams where name like '%' + :param1 + '%'", params);
+        session.query("select from TestParams where name like '%' + :param1 + '%'", params);
     assertEquals(2, qResult.stream().count());
 
     qResult =
-        db.query(
+        session.query(
             "select from TestParams where name like '%' + :param1 + '%' and surname like '%' +"
                 + " :param1 + '%'",
             params);
@@ -939,50 +944,51 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     params = new HashMap<String, Object>();
     params.put("param1", "bar");
 
-    qResult = db.query("select from TestParams where surname like '%' + :param1 + '%'", params);
+    qResult = session.query("select from TestParams where surname like '%' + :param1 + '%'",
+        params);
     assertEquals(1, qResult.stream().count());
   }
 
   // /*** from issue #2743
   @Test
   public void testBasicQueryOrdered() {
-    var results = db.query("SELECT from alphabet ORDER BY letter");
+    var results = session.query("SELECT from alphabet ORDER BY letter");
     assertEquals(26, results.stream().count());
   }
 
   @Test
   public void testSkipZeroOrdered() {
-    var results = db.query("SELECT from alphabet ORDER BY letter SKIP 0");
+    var results = session.query("SELECT from alphabet ORDER BY letter SKIP 0");
     assertEquals(26, results.stream().count());
   }
 
   @Test
   public void testSkipOrdered() {
-    var results = db.query("SELECT from alphabet ORDER BY letter SKIP 7");
+    var results = session.query("SELECT from alphabet ORDER BY letter SKIP 7");
     assertEquals(19, results.stream().count());
   }
 
   @Test
   public void testLimitOrdered() {
-    var results = db.query("SELECT from alphabet ORDER BY letter LIMIT 9");
+    var results = session.query("SELECT from alphabet ORDER BY letter LIMIT 9");
     assertEquals(9, results.stream().count());
   }
 
   @Test
   public void testLimitMinusOneOrdered() {
-    var results = db.query("SELECT from alphabet ORDER BY letter LIMIT -1");
+    var results = session.query("SELECT from alphabet ORDER BY letter LIMIT -1");
     assertEquals(26, results.stream().count());
   }
 
   @Test
   public void testSkipAndLimitOrdered() {
-    var results = db.query("SELECT from alphabet ORDER BY letter SKIP 7 LIMIT 9");
+    var results = session.query("SELECT from alphabet ORDER BY letter SKIP 7 LIMIT 9");
     assertEquals(9, results.stream().count());
   }
 
   @Test
   public void testSkipAndLimitMinusOneOrdered() {
-    var results = db.query("SELECT from alphabet ORDER BY letter SKIP 7 LIMIT -1");
+    var results = session.query("SELECT from alphabet ORDER BY letter SKIP 7 LIMIT -1");
     assertEquals(19, results.stream().count());
   }
 
@@ -990,7 +996,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testLetAsListAsString() {
     var sql =
         "SELECT $ll as lll from unwindtest let $ll = coll.asList().asString() where name = 'bar'";
-    var results = db.query(sql).stream().toList();
+    var results = session.query(sql).stream().toList();
     assertEquals(1, results.size());
     assertNotNull(results.get(0).getProperty("lll"));
     assertEquals("[bar1, bar2]", results.get(0).getProperty("lll"));
@@ -998,7 +1004,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testAggregations() {
-    var results = db.query(
+    var results = session.query(
         "select data.size as collection_content, data.size() as collection_size, min(data.size)"
             + " as collection_min, max(data.size) as collection_max, sum(data.size) as"
             + " collection_sum, avg(data.size) as collection_avg from"
@@ -1033,7 +1039,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
                 + "  GROUP BY"
                 + "  source");
     try {
-      List<EntityImpl> results = db.query(sql);
+      List<EntityImpl> results = session.query(sql);
       fail(
           "Invalid query, usage of LET, aggregate functions and GROUP BY together is not"
               + " supported");
@@ -1047,7 +1053,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     var sql =
         "SELECT 1 AS integer, 'Test' AS string, NULL AS nothing, [] AS array, {} AS object";
 
-    var results = db.query(sql).stream().toList();
+    var results = session.query(sql).stream().toList();
     assertEquals(1, results.size());
     var doc = results.get(0);
     assertThat(doc.<Integer>getProperty("integer")).isEqualTo(1);
@@ -1065,10 +1071,10 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testExpandSkipLimit() {
-    initExpandSkipLimit(db);
+    initExpandSkipLimit(session);
     // issue #4985
     var results =
-        db.query(
+        session.query(
             "SELECT expand(linked) from ExpandSkipLimit where parent = true order by nnum skip 1"
                 + " limit 1");
     var doc = results.next();
@@ -1077,7 +1083,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testBacktick() {
-    var results = db.query("SELECT `foo-bar` as r from TestBacktick");
+    var results = session.query("SELECT `foo-bar` as r from TestBacktick");
     var doc = results.next();
     assertThat(doc.<Integer>getProperty("r")).isEqualTo(10);
   }
@@ -1088,7 +1094,8 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     Map<String, Object> parameters = new HashMap<String, Object>();
     parameters.put("paramvalue", "count");
     var qResult =
-        db.command("select from TestParamsEmbedded order by emb[:paramvalue] DESC", parameters);
+        session.command("select from TestParamsEmbedded order by emb[:paramvalue] DESC",
+            parameters);
     Map embedded = qResult.next().getProperty("emb");
     assertEquals(1, embedded.get("count"));
     qResult.close();
@@ -1100,21 +1107,22 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     Map<String, Object> parameters = new HashMap<String, Object>();
     parameters.put("paramvalue", "count");
     var qResult =
-        db.command("select from TestParamsEmbedded order by emb[:paramvalue] ASC", parameters);
+        session.command("select from TestParamsEmbedded order by emb[:paramvalue] ASC", parameters);
     Map embedded = qResult.next().getProperty("emb");
     assertEquals(0, embedded.get("count"));
     qResult.close();
     qResult =
-        db.command("select from TestParamsEmbedded order by emb[:paramvalue] ASC", parameters);
+        session.command("select from TestParamsEmbedded order by emb[:paramvalue] ASC", parameters);
     assertEquals(2, qResult.stream().count());
   }
 
   @Test
   public void testMassiveOrderAscSkipLimit() {
-    initMassiveOrderSkipLimit(db);
+    initMassiveOrderSkipLimit(session);
     var skip = 1000;
     var results =
-        db.query("SELECT from MassiveOrderSkipLimit order by nnum asc skip " + skip + " limit 5");
+        session.query(
+            "SELECT from MassiveOrderSkipLimit order by nnum asc skip " + skip + " limit 5");
 
     var i = 0;
     while (results.hasNext()) {
@@ -1127,10 +1135,11 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testMassiveOrderDescSkipLimit() {
-    initMassiveOrderSkipLimit(db);
+    initMassiveOrderSkipLimit(session);
     var skip = 1000;
     var results =
-        db.query("SELECT from MassiveOrderSkipLimit order by nnum desc skip " + skip + " limit 5");
+        session.query(
+            "SELECT from MassiveOrderSkipLimit order by nnum desc skip " + skip + " limit 5");
     var i = 0;
     while (results.hasNext()) {
       var doc = results.next();
@@ -1144,7 +1153,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testIntersectExpandLet() {
     // issue #5121
     var results =
-        db.query(
+        session.query(
             "select expand(intersect($q1, $q2)) "
                 + "let $q1 = (select from OUser where name ='admin'),"
                 + "$q2 = (select from OUser where name ='admin')");
@@ -1156,11 +1165,11 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testDatesListContainsString() {
-    initDatesSet(db);
+    initDatesSet(session);
     // issue #3526
 
     var results =
-        db.query(
+        session.query(
             "select from OCommandExecutorSQLSelectTest_datesSet where foo contains '2015-10-21'");
     assertEquals(1, results.stream().count());
   }
@@ -1170,38 +1179,38 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     // issue #5229
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("param1", "adm.*");
-    var results = db.query("select from OUser where name matches :param1", params);
+    var results = session.query("select from OUser where name matches :param1", params);
     assertEquals(1, results.stream().count());
   }
 
   @Test
   public void testParamWithMatchesQuoteRegex() {
-    initMatchesWithRegex(db);
+    initMatchesWithRegex(session);
     // issue #5229
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("param1", ".*admin[name].*"); // will not work
-    var results = db.query("select from matchesstuff where name matches :param1", params);
+    var results = session.query("select from matchesstuff where name matches :param1", params);
     assertEquals(0, results.stream().count());
     params.put("param1", Pattern.quote("admin[name]") + ".*"); // should work
-    results = db.query("select from matchesstuff where name matches :param1", params);
+    results = session.query("select from matchesstuff where name matches :param1", params);
     assertEquals(1, results.stream().count());
   }
 
   @Test
   public void testMatchesWithQuotes() {
-    initMatchesWithRegex(db);
+    initMatchesWithRegex(session);
     // issue #5229
     var pattern = Pattern.quote("adm") + ".*";
-    var results = db.query("SELECT FROM matchesstuff WHERE (name matches ?)", pattern);
+    var results = session.query("SELECT FROM matchesstuff WHERE (name matches ?)", pattern);
     assertEquals(1, results.stream().count());
   }
 
   @Test
   public void testMatchesWithQuotes2() {
-    initMatchesWithRegex(db);
+    initMatchesWithRegex(session);
     // issue #5229
     var results =
-        db.query(
+        session.query(
             "SELECT FROM matchesstuff WHERE (name matches '\\\\Qadm\\\\E.*' and not ( name matches"
                 + " '(.*)foo(.*)' ) )");
     assertEquals(1, results.stream().count());
@@ -1209,10 +1218,10 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testMatchesWithQuotes3() {
-    initMatchesWithRegex(db);
+    initMatchesWithRegex(session);
     // issue #5229
     var results =
-        db.query(
+        session.query(
             "SELECT FROM matchesstuff WHERE (name matches '\\\\Qadm\\\\E.*' and  ( name matches"
                 + " '\\\\Qadmin\\\\E.*' ) )");
     assertEquals(1, results.stream().count());
@@ -1225,14 +1234,14 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     params.put("param1", "adm.*");
     params.put("param2", "foo.*");
     var results =
-        db.query(
+        session.query(
             "select from OUser where (name matches :param1 and not (name matches :param2))",
             params);
     assertEquals(1, results.stream().count());
 
     params.put("param1", Pattern.quote("adm") + ".*");
     results =
-        db.query(
+        session.query(
             "select from OUser where (name matches :param1 and not (name matches :param2))",
             params);
     assertEquals(1, results.stream().count());
@@ -1240,36 +1249,36 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testDistinctLimit() {
-    initDistinctLimit(db);
-    var results = db.query("select distinct(name) from DistinctLimit limit 1");
+    initDistinctLimit(session);
+    var results = session.query("select distinct(name) from DistinctLimit limit 1");
     assertEquals(1, results.stream().count());
 
-    results = db.query("select distinct(name) from DistinctLimit limit 2");
+    results = session.query("select distinct(name) from DistinctLimit limit 2");
     assertEquals(2, results.stream().count());
 
-    results = db.query("select distinct(name) from DistinctLimit limit 3");
+    results = session.query("select distinct(name) from DistinctLimit limit 3");
     assertEquals(2, results.stream().count());
 
-    results = db.query("select distinct(name) from DistinctLimit limit -1");
+    results = session.query("select distinct(name) from DistinctLimit limit -1");
     assertEquals(2, results.stream().count());
   }
 
   @Test
   public void testSelectFromClusterNumber() {
-    initDistinctLimit(db);
-    var clazz = db.getMetadata().getSchema().getClass("DistinctLimit");
-    var clusterId = clazz.getClusterIds()[0];
-    var results = db.query("select from cluster:" + clusterId + " limit 1");
+    initDistinctLimit(session);
+    var clazz = session.getMetadata().getSchema().getClass("DistinctLimit");
+    var clusterId = clazz.getClusterIds(session)[0];
+    var results = session.query("select from cluster:" + clusterId + " limit 1");
     assertEquals(1, results.stream().count());
   }
 
   @Test
   public void testLinkListSequence1() {
-    initLinkListSequence(db);
+    initLinkListSequence(session);
     var sql =
         new SQLSynchQuery(
             "select expand(children.children.children) from LinkListSequence where name = 'root'");
-    List<EntityImpl> results = db.query(sql);
+    List<EntityImpl> results = session.query(sql);
     assertEquals(4, results.size());
     for (var result : results) {
       String value = result.field("name");
@@ -1279,12 +1288,12 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testLinkListSequence2() {
-    initLinkListSequence(db);
+    initLinkListSequence(session);
     var sql =
         new SQLSynchQuery(
             "select expand(children[0].children.children) from LinkListSequence where name ="
                 + " 'root'");
-    List<EntityImpl> results = db.query(sql);
+    List<EntityImpl> results = session.query(sql);
     assertEquals(4, results.size());
     for (var result : results) {
       String value = result.field("name");
@@ -1294,10 +1303,10 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testLinkListSequence3() {
-    initLinkListSequence(db);
+    initLinkListSequence(session);
     var sql =
         "select expand(children[0].children[0].children) from LinkListSequence where name = 'root'";
-    var results = db.query(sql).stream().toList();
+    var results = session.query(sql).stream().toList();
     assertEquals(2, results.size());
     for (var result : results) {
       String value = result.getProperty("name");
@@ -1307,24 +1316,24 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testMaxLongNumber() {
-    initMaxLongNumber(db);
+    initMaxLongNumber(session);
     // issue #5664
-    var results = db.query("select from MaxLongNumberTest WHERE last < 10 OR last is null");
+    var results = session.query("select from MaxLongNumberTest WHERE last < 10 OR last is null");
     assertEquals(3, results.stream().count());
-    db.begin();
-    db.command("update MaxLongNumberTest set last = max(91,ifnull(last,0))").close();
-    db.commit();
-    results = db.query("select from MaxLongNumberTest WHERE last < 10 OR last is null");
+    session.begin();
+    session.command("update MaxLongNumberTest set last = max(91,ifnull(last,0))").close();
+    session.commit();
+    results = session.query("select from MaxLongNumberTest WHERE last < 10 OR last is null");
     assertEquals(0, results.stream().count());
   }
 
   @Test
   public void testFilterAndOrderBy() {
-    initFilterAndOrderByTest(db);
+    initFilterAndOrderByTest(session);
     // issue http://www.prjhub.com/#/issues/6199
 
     var sql = "SELECT FROM FilterAndOrderByTest WHERE active = true ORDER BY dc DESC";
-    var results = db.query(sql).stream().toList();
+    var results = session.query(sql).stream().toList();
     assertEquals(3, results.size());
 
     Calendar cal = new GregorianCalendar();
@@ -1344,28 +1353,28 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testComplexFilterInSquareBrackets() {
-    initComplexFilterInSquareBrackets(db);
+    initComplexFilterInSquareBrackets(session);
     // issues #513 #5451
 
     var sql = "SELECT expand(collection[name = 'n1']) FROM ComplexFilterInSquareBrackets2";
-    var results = db.query(sql).stream().collect(Collectors.toList());
+    var results = session.query(sql).stream().collect(Collectors.toList());
     assertEquals(1, results.size());
     assertEquals("n1", results.iterator().next().getProperty("name"));
 
     sql =
         "SELECT expand(collection[name = 'n1' and value = 1]) FROM ComplexFilterInSquareBrackets2";
-    results = db.query(sql).stream().collect(Collectors.toList());
+    results = session.query(sql).stream().collect(Collectors.toList());
     assertEquals(1, results.size());
     assertEquals("n1", results.iterator().next().getProperty("name"));
 
     sql =
         "SELECT expand(collection[name = 'n1' and value > 1]) FROM ComplexFilterInSquareBrackets2";
-    results = db.query(sql).stream().collect(Collectors.toList());
+    results = session.query(sql).stream().collect(Collectors.toList());
     assertEquals(0, results.size());
 
     sql =
         "SELECT expand(collection[name = 'n1' or value = -1]) FROM ComplexFilterInSquareBrackets2";
-    results = db.query(sql).stream().collect(Collectors.toList());
+    results = session.query(sql).stream().collect(Collectors.toList());
     assertEquals(2, results.size());
     for (var doc : results) {
       assertTrue(doc.getProperty("name").equals("n1") || doc.getProperty("value").equals(-1));
@@ -1374,60 +1383,60 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     sql =
         "SELECT expand(collection[name = 'n1' and not value = 1]) FROM"
             + " ComplexFilterInSquareBrackets2";
-    results = db.query(sql).stream().collect(Collectors.toList());
+    results = session.query(sql).stream().collect(Collectors.toList());
     assertEquals(0, results.size());
 
     sql = "SELECT expand(collection[value < 0]) FROM ComplexFilterInSquareBrackets2";
-    results = db.query(sql).stream().collect(Collectors.toList());
+    results = session.query(sql).stream().collect(Collectors.toList());
     assertEquals(1, results.size());
     //    assertEquals(results.iterator().next().field("value"), -1);
     assertThat(results.iterator().next().<Integer>getProperty("value")).isEqualTo(-1);
 
     sql = "SELECT expand(collection[2]) FROM ComplexFilterInSquareBrackets2";
-    results = db.query(sql).stream().collect(Collectors.toList());
+    results = session.query(sql).stream().collect(Collectors.toList());
     assertEquals(1, results.size());
   }
 
   @Test
   public void testCollateOnCollections() {
     // issue #4851
-    db.command("create class OCommandExecutorSqlSelectTest_collateOnCollections").close();
-    db.command(
+    session.command("create class OCommandExecutorSqlSelectTest_collateOnCollections").close();
+    session.command(
             "create property OCommandExecutorSqlSelectTest_collateOnCollections.categories"
                 + " EMBEDDEDLIST string")
         .close();
 
-    db.begin();
-    db.command(
+    session.begin();
+    session.command(
             "insert into OCommandExecutorSqlSelectTest_collateOnCollections set"
                 + " categories=['a','b']")
         .close();
-    db.commit();
+    session.commit();
 
-    db.command(
+    session.command(
             "alter property OCommandExecutorSqlSelectTest_collateOnCollections.categories COLLATE"
                 + " ci")
         .close();
 
-    db.begin();
-    db.command(
+    session.begin();
+    session.command(
             "insert into OCommandExecutorSqlSelectTest_collateOnCollections set"
                 + " categories=['Math','English']")
         .close();
-    db.command(
+    session.command(
             "insert into OCommandExecutorSqlSelectTest_collateOnCollections set"
                 + " categories=['a','b','c']")
         .close();
-    db.commit();
+    session.commit();
 
     List<EntityImpl> results =
-        db.query(
+        session.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from OCommandExecutorSqlSelectTest_collateOnCollections where 'Math' in"
                     + " categories"));
     assertEquals(1, results.size());
     results =
-        db.query(
+        session.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from OCommandExecutorSqlSelectTest_collateOnCollections where 'math' in"
                     + " categories"));
@@ -1437,16 +1446,16 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testCountUniqueIndex() {
     // issue http://www.prjhub.com/#/issues/6419
-    db.command("create class OCommandExecutorSqlSelectTest_testCountUniqueIndex").close();
-    db.command("create property OCommandExecutorSqlSelectTest_testCountUniqueIndex.AAA String")
+    session.command("create class OCommandExecutorSqlSelectTest_testCountUniqueIndex").close();
+    session.command("create property OCommandExecutorSqlSelectTest_testCountUniqueIndex.AAA String")
         .close();
-    db.command(
+    session.command(
             "create index OCommandExecutorSqlSelectTest_testCountUniqueIndex.AAA on"
                 + " OCommandExecutorSqlSelectTest_testCountUniqueIndex(AAA) unique")
         .close();
 
     var results =
-        db
+        session
             .query(
                 "select count(*) as count from OCommandExecutorSqlSelectTest_testCountUniqueIndex"
                     + " where AAA='missing'")
@@ -1462,7 +1471,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testEvalLong() {
     // http://www.prjhub.com/#/issues/6472
     var results =
-        db.query("SELECT EVAL(\"86400000 * 26\") AS value").stream().toList();
+        session.query("SELECT EVAL(\"86400000 * 26\") AS value").stream().toList();
     assertEquals(1, results.size());
 
     //    assertEquals(results.get(0).field("value"), 86400000l * 26);
@@ -1471,15 +1480,15 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
 
   @Test
   public void testCollateOnLinked() {
-    initCollateOnLinked(db);
+    initCollateOnLinked(session);
 
     List<EntityImpl> results =
-        db.query(
+        session.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from CollateOnLinked2 where linked.name = 'foo' "));
     assertEquals(1, results.size());
     results =
-        db.query(
+        session.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from CollateOnLinked2 where linked.name = 'FOO' "));
     assertEquals(1, results.size());
@@ -1488,62 +1497,64 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testParamConcat() {
     // issue #6049
-    var results = db.query("select from TestParams where surname like ? + '%'", "fo");
+    var results = session.query("select from TestParams where surname like ? + '%'", "fo");
     assertEquals(1, results.stream().count());
   }
 
   @Test
   public void testCompositeIndexWithoutNullValues() {
-    db.command("create class CompositeIndexWithoutNullValues").close();
-    db.command("create property CompositeIndexWithoutNullValues.one String").close();
-    db.command("create property CompositeIndexWithoutNullValues.two String").close();
-    db.command(
+    session.command("create class CompositeIndexWithoutNullValues").close();
+    session.command("create property CompositeIndexWithoutNullValues.one String").close();
+    session.command("create property CompositeIndexWithoutNullValues.two String").close();
+    session.command(
             "create index CompositeIndexWithoutNullValues.one_two on"
                 + " CompositeIndexWithoutNullValues (one, two) NOTUNIQUE METADATA"
                 + " {ignoreNullValues: true}")
         .close();
 
-    db.begin();
-    db.command("insert into CompositeIndexWithoutNullValues set one = 'foo'").close();
-    db.command("insert into CompositeIndexWithoutNullValues set one = 'foo', two = 'bar'").close();
-    db.commit();
+    session.begin();
+    session.command("insert into CompositeIndexWithoutNullValues set one = 'foo'").close();
+    session.command("insert into CompositeIndexWithoutNullValues set one = 'foo', two = 'bar'")
+        .close();
+    session.commit();
 
     List<EntityImpl> results =
-        db.query(
+        session.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from CompositeIndexWithoutNullValues where one = ?"),
             "foo");
     assertEquals(2, results.size());
     results =
-        db.query(
+        session.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from CompositeIndexWithoutNullValues where one = ? and two = ?"),
             "foo",
             "bar");
     assertEquals(1, results.size());
 
-    db.command("create class CompositeIndexWithoutNullValues2").close();
-    db.command("create property CompositeIndexWithoutNullValues2.one String").close();
-    db.command("create property CompositeIndexWithoutNullValues2.two String").close();
-    db.command(
+    session.command("create class CompositeIndexWithoutNullValues2").close();
+    session.command("create property CompositeIndexWithoutNullValues2.one String").close();
+    session.command("create property CompositeIndexWithoutNullValues2.two String").close();
+    session.command(
             "create index CompositeIndexWithoutNullValues2.one_two on"
                 + " CompositeIndexWithoutNullValues2 (one, two) NOTUNIQUE METADATA"
                 + " {ignoreNullValues: false}")
         .close();
 
-    db.begin();
-    db.command("insert into CompositeIndexWithoutNullValues2 set one = 'foo'").close();
-    db.command("insert into CompositeIndexWithoutNullValues2 set one = 'foo', two = 'bar'").close();
-    db.commit();
+    session.begin();
+    session.command("insert into CompositeIndexWithoutNullValues2 set one = 'foo'").close();
+    session.command("insert into CompositeIndexWithoutNullValues2 set one = 'foo', two = 'bar'")
+        .close();
+    session.commit();
 
     results =
-        db.query(
+        session.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from CompositeIndexWithoutNullValues2 where one = ?"),
             "foo");
     assertEquals(2, results.size());
     results =
-        db.query(
+        session.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from CompositeIndexWithoutNullValues where one = ? and two = ?"),
             "foo",
@@ -1554,7 +1565,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testDateFormat() {
     var results =
-        db.query("select date('2015-07-20', 'yyyy-MM-dd').format('dd.MM.yyyy') as dd").stream()
+        session.query("select date('2015-07-20', 'yyyy-MM-dd').format('dd.MM.yyyy') as dd").stream()
             .toList();
     assertEquals(1, results.size());
     assertEquals("20.07.2015", results.get(0).getProperty("dd"));
@@ -1564,10 +1575,10 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testConcatenateNamedParams() {
     // issue #5572
     var results =
-        db.query("select from TestMultipleClusters where name like :p1 + '%'", "fo");
+        session.query("select from TestMultipleClusters where name like :p1 + '%'", "fo");
     assertEquals(1, results.stream().count());
 
-    results = db.query("select from TestMultipleClusters where name like :p1 ", "fo");
+    results = session.query("select from TestMultipleClusters where name like :p1 ", "fo");
     assertEquals(0, results.stream().count());
   }
 
@@ -1575,7 +1586,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testMethodsOnStrings() {
     // issue #5671
     var results =
-        db.query("select '1'.asLong() as long").stream().toList();
+        session.query("select '1'.asLong() as long").stream().toList();
     assertEquals(1, results.size());
     //    assertEquals(results.get(0).field("long"), 1L);
     assertThat(results.get(0).<Long>getProperty("long")).isEqualTo(1L);
@@ -1585,7 +1596,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testDifferenceOfInlineCollections() {
     // issue #5294
     var results =
-        db.query("select difference([1,2,3],[1,2]) as difference").stream()
+        session.query("select difference([1,2,3],[1,2]) as difference").stream()
             .toList();
     assertEquals(1, results.size());
     var differenceFieldValue = results.get(0).getProperty("difference");
@@ -1597,15 +1608,15 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   @Test
   public void testFoo() {
     // dispose it!
-    db.command("create class testFoo");
+    session.command("create class testFoo");
 
-    db.begin();
-    db.command("insert into testFoo set val = 1, name = 'foo'");
-    db.command("insert into testFoo set val = 3, name = 'foo'");
-    db.command("insert into testFoo set val = 5, name = 'bar'");
-    db.commit();
+    session.begin();
+    session.command("insert into testFoo set val = 1, name = 'foo'");
+    session.command("insert into testFoo set val = 3, name = 'foo'");
+    session.command("insert into testFoo set val = 5, name = 'bar'");
+    session.commit();
 
-    var results = db.query("select sum(val), name from testFoo group by name");
+    var results = session.query("select sum(val), name from testFoo group by name");
     assertEquals(2, results.stream().count());
   }
 
@@ -1613,17 +1624,17 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testDateComparison() {
     // issue #6389
 
-    db.command("create class TestDateComparison").close();
-    db.command("create property TestDateComparison.dateProp DATE").close();
+    session.command("create class TestDateComparison").close();
+    session.command("create property TestDateComparison.dateProp DATE").close();
 
-    db.begin();
-    db.command("insert into TestDateComparison set dateProp = '2016-05-01'").close();
-    db.commit();
+    session.begin();
+    session.command("insert into TestDateComparison set dateProp = '2016-05-01'").close();
+    session.commit();
 
-    var results = db.query("SELECT from TestDateComparison WHERE dateProp >= '2016-05-01'");
+    var results = session.query("SELECT from TestDateComparison WHERE dateProp >= '2016-05-01'");
 
     assertEquals(1, results.stream().count());
-    results = db.query("SELECT from TestDateComparison WHERE dateProp <= '2016-05-01'");
+    results = session.query("SELECT from TestDateComparison WHERE dateProp <= '2016-05-01'");
 
     assertEquals(1, results.stream().count());
   }
@@ -1632,19 +1643,19 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testOrderByRidDescMultiCluster() {
     // issue #6694
 
-    var clazz = db.getMetadata().getSchema().createClass("TestOrderByRidDescMultiCluster");
-    if (clazz.getClusterIds().length < 2) {
-      clazz.addCluster(db, "TestOrderByRidDescMultiCluster_11111");
+    var clazz = session.getMetadata().getSchema().createClass("TestOrderByRidDescMultiCluster");
+    if (clazz.getClusterIds(session).length < 2) {
+      clazz.addCluster(session, "TestOrderByRidDescMultiCluster_11111");
     }
 
     for (var i = 0; i < 100; i++) {
-      db.begin();
-      db.command("insert into TestOrderByRidDescMultiCluster set foo = " + i).close();
-      db.commit();
+      session.begin();
+      session.command("insert into TestOrderByRidDescMultiCluster set foo = " + i).close();
+      session.commit();
     }
 
     var results =
-        db.query("SELECT from TestOrderByRidDescMultiCluster order by @rid desc").stream()
+        session.query("SELECT from TestOrderByRidDescMultiCluster order by @rid desc").stream()
             .collect(Collectors.toList());
     assertEquals(100, results.size());
     Result lastDoc = null;
@@ -1656,7 +1667,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     }
 
     results =
-        db.query("SELECT from TestOrderByRidDescMultiCluster order by @rid asc").stream()
+        session.query("SELECT from TestOrderByRidDescMultiCluster order by @rid asc").stream()
             .toList();
     assertEquals(100, results.size());
     lastDoc = null;
@@ -1672,41 +1683,46 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testCountOnSubclassIndexes() {
     // issue #6737
 
-    db.command("create class testCountOnSubclassIndexes_superclass").close();
-    db.command("create property testCountOnSubclassIndexes_superclass.foo boolean").close();
-    db.command(
+    session.command("create class testCountOnSubclassIndexes_superclass").close();
+    session.command("create property testCountOnSubclassIndexes_superclass.foo boolean").close();
+    session.command(
             "create index testCountOnSubclassIndexes_superclass.foo on"
                 + " testCountOnSubclassIndexes_superclass (foo) notunique")
         .close();
 
-    db.command(
+    session.command(
             "create class testCountOnSubclassIndexes_sub1 extends"
                 + " testCountOnSubclassIndexes_superclass")
         .close();
-    db.command(
+    session.command(
             "create index testCountOnSubclassIndexes_sub1.foo on testCountOnSubclassIndexes_sub1"
                 + " (foo) notunique")
         .close();
 
-    db.command(
+    session.command(
             "create class testCountOnSubclassIndexes_sub2 extends"
                 + " testCountOnSubclassIndexes_superclass")
         .close();
-    db.command(
+    session.command(
             "create index testCountOnSubclassIndexes_sub2.foo on testCountOnSubclassIndexes_sub2"
                 + " (foo) notunique")
         .close();
 
-    db.begin();
-    db.command("insert into testCountOnSubclassIndexes_sub1 set name = 'a', foo = true").close();
-    db.command("insert into testCountOnSubclassIndexes_sub1 set name = 'b', foo = false").close();
-    db.command("insert into testCountOnSubclassIndexes_sub2 set name = 'c', foo = true").close();
-    db.command("insert into testCountOnSubclassIndexes_sub2 set name = 'd', foo = true").close();
-    db.command("insert into testCountOnSubclassIndexes_sub2 set name = 'e', foo = false").close();
-    db.commit();
+    session.begin();
+    session.command("insert into testCountOnSubclassIndexes_sub1 set name = 'a', foo = true")
+        .close();
+    session.command("insert into testCountOnSubclassIndexes_sub1 set name = 'b', foo = false")
+        .close();
+    session.command("insert into testCountOnSubclassIndexes_sub2 set name = 'c', foo = true")
+        .close();
+    session.command("insert into testCountOnSubclassIndexes_sub2 set name = 'd', foo = true")
+        .close();
+    session.command("insert into testCountOnSubclassIndexes_sub2 set name = 'e', foo = false")
+        .close();
+    session.commit();
 
     var results =
-        db
+        session
             .query("SELECT count(*) as count from testCountOnSubclassIndexes_sub1 where foo = true")
             .stream()
             .collect(Collectors.toList());
@@ -1714,7 +1730,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     assertEquals((Object) 1L, results.get(0).getProperty("count"));
 
     results =
-        db
+        session
             .query("SELECT count(*) as count from testCountOnSubclassIndexes_sub2 where foo = true")
             .stream()
             .collect(Collectors.toList());
@@ -1722,7 +1738,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     assertEquals((Object) 2L, results.get(0).getProperty("count"));
 
     results =
-        db
+        session
             .query(
                 "SELECT count(*) as count from testCountOnSubclassIndexes_superclass where foo ="
                     + " true")
@@ -1736,7 +1752,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testDoubleExponentNotation() {
     // issue #7013
 
-    var results = db.query("select 1e-2 as a").stream().toList();
+    var results = session.query("select 1e-2 as a").stream().toList();
     assertEquals(1, results.size());
     assertEquals((Object) 0.01f, results.get(0).getProperty("a"));
   }
@@ -1745,14 +1761,14 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testConvertDouble() {
     // issue #7234
 
-    db.command("create class testConvertDouble").close();
+    session.command("create class testConvertDouble").close();
 
-    db.begin();
-    db.command("insert into testConvertDouble set num = 100000").close();
-    db.commit();
+    session.begin();
+    session.command("insert into testConvertDouble set num = 100000").close();
+    session.commit();
 
     var results =
-        db.query("SELECT FROM testConvertDouble WHERE num >= 50000 AND num <=300000000");
+        session.query("SELECT FROM testConvertDouble WHERE num >= 50000 AND num <=300000000");
 
     assertEquals(1, results.stream().count());
   }
@@ -1761,20 +1777,20 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testFilterListsOfMaps() {
     var className = "testFilterListaOfMaps";
 
-    db.command("create class " + className).close();
-    db.command("create property " + className + ".tagz embeddedmap").close();
+    session.command("create class " + className).close();
+    session.command("create property " + className + ".tagz embeddedmap").close();
 
-    db.begin();
-    db.command("insert into " + className + " set tagz = {}").close();
-    db.command(
+    session.begin();
+    session.command("insert into " + className + " set tagz = {}").close();
+    session.command(
             "update "
                 + className
                 + " SET tagz.foo = [{name:'a', surname:'b'}, {name:'c', surname:'d'}]")
         .close();
-    db.commit();
+    session.commit();
 
     var results =
-        db.query(
+        session.query(
             "select tagz.values()[0][name = 'a'] as t from " + className).toList();
     assertEquals(1, results.size());
     var result = results.get(0).<Map>getProperty("t");
@@ -1785,19 +1801,19 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testComparisonOfShorts() {
     // issue #7578
     var className = "testComparisonOfShorts";
-    db.command("create class " + className).close();
-    db.command("create property " + className + ".state Short").close();
+    session.command("create class " + className).close();
+    session.command("create property " + className + ".state Short").close();
 
-    db.begin();
-    db.command("INSERT INTO " + className + " set state = 1").close();
-    db.command("INSERT INTO " + className + " set state = 1").close();
-    db.command("INSERT INTO " + className + " set state = 2").close();
-    db.commit();
+    session.begin();
+    session.command("INSERT INTO " + className + " set state = 1").close();
+    session.command("INSERT INTO " + className + " set state = 1").close();
+    session.command("INSERT INTO " + className + " set state = 2").close();
+    session.commit();
 
-    var results = db.query("select from " + className + " where state in [1]");
+    var results = session.query("select from " + className + " where state in [1]");
     assertEquals(2, results.stream().count());
 
-    results = db.query("select from " + className + " where [1] contains state");
+    results = session.query("select from " + className + " where [1] contains state");
 
     assertEquals(2, results.stream().count());
   }
@@ -1806,20 +1822,20 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testEnumAsParams() {
     // issue #7418
     var className = "testEnumAsParams";
-    db.command("create class " + className).close();
+    session.command("create class " + className).close();
 
-    db.begin();
-    db.command("INSERT INTO " + className + " set status = ?", PropertyType.STRING).close();
-    db.command("INSERT INTO " + className + " set status = ?", PropertyType.ANY).close();
-    db.command("INSERT INTO " + className + " set status = ?", PropertyType.BYTE).close();
-    db.commit();
+    session.begin();
+    session.command("INSERT INTO " + className + " set status = ?", PropertyType.STRING).close();
+    session.command("INSERT INTO " + className + " set status = ?", PropertyType.ANY).close();
+    session.command("INSERT INTO " + className + " set status = ?", PropertyType.BYTE).close();
+    session.commit();
 
     Map<String, Object> params = new HashMap<String, Object>();
     List enums = new ArrayList();
     enums.add(PropertyType.STRING);
     enums.add(PropertyType.BYTE);
     params.put("status", enums);
-    var results = db.query("select from " + className + " where status in :status", params);
+    var results = session.query("select from " + className + " where status in :status", params);
     assertEquals(2, results.stream().count());
   }
 
@@ -1828,27 +1844,27 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     // issue #7793
     var className = "testEmbeddedMapOfMapsContainsValue";
 
-    db.command("create class " + className).close();
-    db.command("create property " + className + ".embedded_map EMBEDDEDMAP").close();
-    db.command("create property " + className + ".id INTEGER").close();
+    session.command("create class " + className).close();
+    session.command("create property " + className + ".embedded_map EMBEDDEDMAP").close();
+    session.command("create property " + className + ".id INTEGER").close();
 
-    db.begin();
-    db.command(
+    session.begin();
+    session.command(
             "INSERT INTO "
                 + className
                 + " SET id = 0, embedded_map = {\"key_2\" : {\"name\" : \"key_2\", \"id\" :"
                 + " \"0\"}}")
         .close();
-    db.command(
+    session.command(
             "INSERT INTO "
                 + className
                 + " SET id = 1, embedded_map = {\"key_1\" : {\"name\" : \"key_1\", \"id\" : \"1\""
                 + " }}")
         .close();
-    db.commit();
+    session.commit();
 
     var results =
-        db.query(
+        session.query(
             "select from "
                 + className
                 + " where embedded_map CONTAINSVALUE {\"name\":\"key_2\", \"id\":\"0\"}");
@@ -1860,29 +1876,30 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     // issue #7820
     var className = "testInvertedIndexedCondition";
 
-    db.command("create class " + className).close();
-    db.command("create property " + className + ".name STRING").close();
+    session.command("create class " + className).close();
+    session.command("create property " + className + ".name STRING").close();
 
-    db.begin();
-    db.command("insert into " + className + " SET name = \"1\"").close();
-    db.command("insert into " + className + " SET name = \"2\"").close();
-    db.commit();
+    session.begin();
+    session.command("insert into " + className + " SET name = \"1\"").close();
+    session.command("insert into " + className + " SET name = \"2\"").close();
+    session.commit();
 
-    var results = db.query("SELECT * FROM " + className + " WHERE name >= \"0\"");
+    var results = session.query("SELECT * FROM " + className + " WHERE name >= \"0\"");
     assertEquals(2, results.stream().count());
 
-    results = db.query("SELECT * FROM " + className + " WHERE \"0\" <= name");
+    results = session.query("SELECT * FROM " + className + " WHERE \"0\" <= name");
     assertEquals(2, results.stream().count());
 
-    db.command("CREATE INDEX " + className + ".name on " + className + " (name) UNIQUE").close();
+    session.command("CREATE INDEX " + className + ".name on " + className + " (name) UNIQUE")
+        .close();
 
-    results = db.query("SELECT * FROM " + className + " WHERE \"0\" <= name");
+    results = session.query("SELECT * FROM " + className + " WHERE \"0\" <= name");
     assertEquals(2, results.stream().count());
 
-    results = db.query("SELECT * FROM " + className + " WHERE \"2\" <= name");
+    results = session.query("SELECT * FROM " + className + " WHERE \"2\" <= name");
     assertEquals(1, results.stream().count());
 
-    results = db.query("SELECT * FROM " + className + " WHERE name >= \"0\"");
+    results = session.query("SELECT * FROM " + className + " WHERE name >= \"0\"");
     assertEquals(2, results.stream().count());
   }
 
@@ -1891,18 +1908,18 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     // issue #7879
     var className = "testIsDefinedOnNull";
 
-    db.command("create class " + className).close();
-    db.command("create property " + className + ".name STRING").close();
+    session.command("create class " + className).close();
+    session.command("create property " + className + ".name STRING").close();
 
-    db.begin();
-    db.command("insert into " + className + " SET name = null, x = 1").close();
-    db.command("insert into " + className + " SET x = 2").close();
-    db.commit();
+    session.begin();
+    session.command("insert into " + className + " SET name = null, x = 1").close();
+    session.command("insert into " + className + " SET x = 2").close();
+    session.commit();
 
-    var results = db.query("SELECT * FROM " + className + " WHERE name is defined");
+    var results = session.query("SELECT * FROM " + className + " WHERE name is defined");
     assertEquals(1, (int) results.next().getProperty("x"));
     results.close();
-    results = db.query("SELECT * FROM " + className + " WHERE name is not defined");
+    results = session.query("SELECT * FROM " + className + " WHERE name is not defined");
 
     assertEquals(2, (int) results.next().getProperty("x"));
     results.close();
@@ -1911,7 +1928,8 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   private long indexUsages(DatabaseSession db) {
     final long oldIndexUsage;
     try {
-      oldIndexUsage = getProfilerInstance().getCounter("db." + db.getName() + ".query.indexUsed");
+      oldIndexUsage = getProfilerInstance().getCounter(
+          "db." + db.getDatabaseName() + ".query.indexUsed");
       return oldIndexUsage == -1 ? 0 : oldIndexUsage;
     } catch (Exception e) {
       fail();

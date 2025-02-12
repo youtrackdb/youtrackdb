@@ -15,8 +15,6 @@
  */
 package com.jetbrains.youtrack.db.auto;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import org.testng.Assert;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -31,25 +29,25 @@ public class SQLDeleteTest extends BaseDBTest {
 
   @Test
   public void deleteWithWhereOperator() {
-    db.begin();
-    db.command("insert into Profile (sex, salary) values ('female', 2100)").close();
-    db.commit();
+    session.begin();
+    session.command("insert into Profile (sex, salary) values ('female', 2100)").close();
+    session.commit();
 
-    final Long total = db.countClass("Profile");
+    final Long total = session.countClass("Profile");
 
     var resultset =
-        db.query("select from Profile where sex = 'female' and salary = 2100");
+        session.query("select from Profile where sex = 'female' and salary = 2100");
     var queryCount = resultset.stream().count();
 
-    db.begin();
+    session.begin();
     var result =
-        db.command("delete from Profile where sex = 'female' and salary = 2100");
-    db.commit();
+        session.command("delete from Profile where sex = 'female' and salary = 2100");
+    session.commit();
     long count = result.next().getProperty("count");
 
     Assert.assertEquals(count, queryCount);
 
-    Assert.assertEquals(db.countClass("Profile"), total - count);
+    Assert.assertEquals(session.countClass("Profile"), total - count);
   }
 
   @Test

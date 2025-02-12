@@ -32,7 +32,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.FieldTypesString;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJSON.FormatSettings;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJackson.FormatSettings;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -67,7 +67,9 @@ public class JSONFetchContext implements FetchContext {
             true,
             FieldTypesString.ATTRIBUTE_FIELD_TYPES, sb.toString());
       } catch (final IOException e) {
-        throw BaseException.wrapException(new FetchException("Error writing field types"), e);
+        throw BaseException.wrapException(
+            new FetchException(db.getDatabaseName(), "Error writing field types"), e,
+            db.getDatabaseName());
       }
     }
   }
@@ -93,8 +95,9 @@ public class JSONFetchContext implements FetchContext {
   }
 
   public void onAfterArray(
-      final EntityImpl iRootRecord, final String iFieldName, final Object iUserObject) {
-    onAfterCollection(iRootRecord, iFieldName, iUserObject);
+      DatabaseSessionInternal db, final EntityImpl iRootRecord, final String iFieldName,
+      final Object iUserObject) {
+    onAfterCollection(db, iRootRecord, iFieldName, iUserObject);
   }
 
   public void onBeforeCollection(
@@ -108,33 +111,35 @@ public class JSONFetchContext implements FetchContext {
       collectionStack.add(rootRecord);
     } catch (final IOException e) {
       throw BaseException.wrapException(
-          new FetchException(
+          new FetchException(db.getDatabaseName(),
               "Error writing collection field "
                   + fieldName
                   + " of record "
                   + rootRecord.getIdentity()),
-          e);
+          e, db.getDatabaseName());
     }
   }
 
   public void onAfterCollection(
-      final EntityImpl iRootRecord, final String iFieldName, final Object iUserObject) {
+      DatabaseSessionInternal db, final EntityImpl iRootRecord, final String iFieldName,
+      final Object iUserObject) {
     try {
       jsonWriter.endCollection(settings.indentLevel--, true);
       collectionStack.pop();
     } catch (IOException e) {
       throw BaseException.wrapException(
-          new FetchException(
+          new FetchException(db.getDatabaseName(),
               "Error writing collection field "
                   + iFieldName
                   + " of record "
                   + iRootRecord.getIdentity()),
-          e);
+          e, db.getDatabaseName());
     }
   }
 
   public void onBeforeMap(
-      final EntityImpl iRootRecord, final String iFieldName, final Object iUserObject) {
+      DatabaseSessionInternal db, final EntityImpl iRootRecord, final String iFieldName,
+      final Object iUserObject) {
     try {
       jsonWriter.beginObject(++settings.indentLevel, true, iFieldName);
       if (!(iUserObject instanceof EntityImpl)) {
@@ -144,14 +149,15 @@ public class JSONFetchContext implements FetchContext {
       }
     } catch (IOException e) {
       throw BaseException.wrapException(
-          new FetchException(
+          new FetchException(db.getDatabaseName(),
               "Error writing map field " + iFieldName + " of record " + iRootRecord.getIdentity()),
-          e);
+          e, db.getDatabaseName());
     }
   }
 
   public void onAfterMap(
-      final EntityImpl iRootRecord, final String iFieldName, final Object iUserObject) {
+      DatabaseSessionInternal db, final EntityImpl iRootRecord, final String iFieldName,
+      final Object iUserObject) {
     try {
       jsonWriter.endObject(--settings.indentLevel, true);
       if (!(iUserObject instanceof EntityImpl)) {
@@ -159,9 +165,9 @@ public class JSONFetchContext implements FetchContext {
       }
     } catch (IOException e) {
       throw BaseException.wrapException(
-          new FetchException(
+          new FetchException(db.getDatabaseName(),
               "Error writing map field " + iFieldName + " of record " + iRootRecord.getIdentity()),
-          e);
+          e, db.getDatabaseName());
     }
   }
 
@@ -181,14 +187,14 @@ public class JSONFetchContext implements FetchContext {
       writeSignature(db, jsonWriter, entity);
     } catch (IOException e) {
       throw BaseException.wrapException(
-          new FetchException(
+          new FetchException(db.getDatabaseName(),
               "Error writing link field " + iFieldName + " of record " + iRootRecord.getIdentity()),
-          e);
+          e, db.getDatabaseName());
     }
   }
 
   public void onAfterDocument(
-      final EntityImpl iRootRecord,
+      DatabaseSessionInternal db, final EntityImpl iRootRecord,
       final EntityImpl entity,
       final String iFieldName,
       final Object iUserObject) {
@@ -196,9 +202,9 @@ public class JSONFetchContext implements FetchContext {
       jsonWriter.endObject(settings.indentLevel--, true);
     } catch (IOException e) {
       throw BaseException.wrapException(
-          new FetchException(
+          new FetchException(db.getDatabaseName(),
               "Error writing link field " + iFieldName + " of record " + iRootRecord.getIdentity()),
-          e);
+          e, db.getDatabaseName());
     }
   }
 

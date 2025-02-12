@@ -2,12 +2,9 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import static com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionPlanPrintUtils.printExecutionPlan;
 
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -20,17 +17,17 @@ public class DeleteStatementExecutionTest extends DbTestBase {
   @Test
   public void testSimple() {
     var className = "testSimple";
-    db.getMetadata().getSchema().createClass(className);
+    session.getMetadata().getSchema().createClass(className);
     for (var i = 0; i < 10; i++) {
-      db.begin();
-      EntityImpl doc = db.newInstance(className);
+      session.begin();
+      EntityImpl doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
-      db.commit();
+      session.commit();
     }
 
-    db.begin();
-    var result = db.command("delete from  " + className + " where name = 'name4'");
+    session.begin();
+    var result = session.command("delete from  " + className + " where name = 'name4'");
     printExecutionPlan(result);
     for (var i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
@@ -39,9 +36,9 @@ public class DeleteStatementExecutionTest extends DbTestBase {
       Assert.assertEquals((Object) 1L, item.getProperty("count"));
     }
     Assert.assertFalse(result.hasNext());
-    db.commit();
+    session.commit();
 
-    result = db.query("select from " + className);
+    result = session.query("select from " + className);
     for (var i = 0; i < 9; i++) {
       Assert.assertTrue(result.hasNext());
       var item = result.next();
@@ -55,20 +52,20 @@ public class DeleteStatementExecutionTest extends DbTestBase {
   @Test
   public void testUnsafe1() {
     var className = "testUnsafe1";
-    var v = db.getMetadata().getSchema().getClass("V");
+    var v = session.getMetadata().getSchema().getClass("V");
     if (v == null) {
-      db.getMetadata().getSchema().createClass("V");
+      session.getMetadata().getSchema().createClass("V");
     }
-    db.getMetadata().getSchema().createClass(className, v);
+    session.getMetadata().getSchema().createClass(className, v);
     for (var i = 0; i < 10; i++) {
-      db.begin();
-      EntityImpl doc = db.newInstance(className);
+      session.begin();
+      EntityImpl doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
-      db.commit();
+      session.commit();
     }
     try {
-      var result = db.command("delete from  " + className + " where name = 'name4'");
+      var result = session.command("delete from  " + className + " where name = 'name4'");
       Assert.fail();
     } catch (CommandExecutionException ex) {
 
@@ -80,21 +77,21 @@ public class DeleteStatementExecutionTest extends DbTestBase {
   @Test
   public void testUnsafe2() {
     var className = "testUnsafe2";
-    var v = db.getMetadata().getSchema().getClass("V");
+    var v = session.getMetadata().getSchema().getClass("V");
     if (v == null) {
-      db.getMetadata().getSchema().createClass("V");
+      session.getMetadata().getSchema().createClass("V");
     }
-    db.getMetadata().getSchema().createClass(className, v);
+    session.getMetadata().getSchema().createClass(className, v);
     for (var i = 0; i < 10; i++) {
-      db.begin();
-      EntityImpl doc = db.newInstance(className);
+      session.begin();
+      EntityImpl doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
-      db.commit();
+      session.commit();
     }
 
-    db.begin();
-    var result = db.command("delete from  " + className + " where name = 'name4' unsafe");
+    session.begin();
+    var result = session.command("delete from  " + className + " where name = 'name4' unsafe");
 
     printExecutionPlan(result);
     for (var i = 0; i < 1; i++) {
@@ -104,9 +101,9 @@ public class DeleteStatementExecutionTest extends DbTestBase {
       Assert.assertEquals((Object) 1L, item.getProperty("count"));
     }
     Assert.assertFalse(result.hasNext());
-    db.commit();
+    session.commit();
 
-    result = db.query("select from " + className);
+    result = session.query("select from " + className);
     for (var i = 0; i < 9; i++) {
       Assert.assertTrue(result.hasNext());
       var item = result.next();
@@ -120,24 +117,24 @@ public class DeleteStatementExecutionTest extends DbTestBase {
   @Test
   public void testReturnBefore() {
     var className = "testReturnBefore";
-    db.getMetadata().getSchema().createClass(className);
+    session.getMetadata().getSchema().createClass(className);
     RID fourthId = null;
 
     for (var i = 0; i < 10; i++) {
-      db.begin();
-      EntityImpl doc = db.newInstance(className);
+      session.begin();
+      EntityImpl doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
       if (i == 4) {
         fourthId = doc.getIdentity();
       }
 
       doc.save();
-      db.commit();
+      session.commit();
     }
 
-    db.begin();
+    session.begin();
     var result =
-        db.command("delete from  " + className + " return before where name = 'name4' ");
+        session.command("delete from  " + className + " return before where name = 'name4' ");
     printExecutionPlan(result);
     for (var i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
@@ -146,9 +143,9 @@ public class DeleteStatementExecutionTest extends DbTestBase {
       Assert.assertEquals(fourthId, item.getRecordId());
     }
     Assert.assertFalse(result.hasNext());
-    db.commit();
+    session.commit();
 
-    result = db.query("select from " + className);
+    result = session.query("select from " + className);
     for (var i = 0; i < 9; i++) {
       Assert.assertTrue(result.hasNext());
       var item = result.next();
@@ -162,16 +159,16 @@ public class DeleteStatementExecutionTest extends DbTestBase {
   @Test
   public void testLimit() {
     var className = "testLimit";
-    db.getMetadata().getSchema().createClass(className);
+    session.getMetadata().getSchema().createClass(className);
     for (var i = 0; i < 10; i++) {
-      db.begin();
-      EntityImpl doc = db.newInstance(className);
+      session.begin();
+      EntityImpl doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
-      db.commit();
+      session.commit();
     }
-    db.begin();
-    var result = db.command("delete from  " + className + " limit 5");
+    session.begin();
+    var result = session.command("delete from  " + className + " limit 5");
     printExecutionPlan(result);
     for (var i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
@@ -180,9 +177,9 @@ public class DeleteStatementExecutionTest extends DbTestBase {
       Assert.assertEquals((Object) 5L, item.getProperty("count"));
     }
     Assert.assertFalse(result.hasNext());
-    db.commit();
+    session.commit();
 
-    result = db.query("select from " + className);
+    result = session.query("select from " + className);
     for (var i = 0; i < 5; i++) {
       Assert.assertTrue(result.hasNext());
       var item = result.next();

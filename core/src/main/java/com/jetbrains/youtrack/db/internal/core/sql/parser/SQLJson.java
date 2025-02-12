@@ -5,7 +5,6 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
@@ -64,7 +63,7 @@ public class SQLJson extends SimpleNode {
 
   public EntityImpl toEntity(Identifiable source, CommandContext ctx) {
     var className = getClassNameForDocument(ctx);
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     EntityImpl entity;
     if (className != null) {
       entity = new EntityImpl(db, className);
@@ -89,7 +88,7 @@ public class SQLJson extends SimpleNode {
   }
 
   private EntityImpl toEntity(Result source, CommandContext ctx, String className) {
-    var retDoc = new EntityImpl(ctx.getDatabase(), className);
+    var retDoc = new EntityImpl(ctx.getDatabaseSession(), className);
     Map<String, Character> types = null;
     for (var item : items) {
       var name = item.getLeftValue();
@@ -140,7 +139,7 @@ public class SQLJson extends SimpleNode {
   }
 
   public Object toObjectDetermineType(Identifiable source, CommandContext ctx) {
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     var className = getClassNameForDocument(ctx);
     var type = getTypeForDocument(ctx);
     if (className != null || ("d".equalsIgnoreCase(type))) {
@@ -226,7 +225,7 @@ public class SQLJson extends SimpleNode {
   }
 
   public SQLJson splitForAggregation(AggregateProjectionSplit aggregateSplit, CommandContext ctx) {
-    if (isAggregate(ctx.getDatabase())) {
+    if (isAggregate(ctx.getDatabaseSession())) {
       var result = new SQLJson(-1);
       for (var item : items) {
         result.items.add(item.splitForAggregation(aggregateSplit, ctx));

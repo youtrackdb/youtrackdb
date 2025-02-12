@@ -44,7 +44,7 @@ public class SQLFunctionDocument extends SQLFunctionMultiValueAbstract<EntityImp
       final Object[] iParams,
       CommandContext iContext) {
 
-    var db = iContext.getDatabase();
+    var db = iContext.getDatabaseSession();
     if (iParams.length > 2)
     // IN LINE MODE
     {

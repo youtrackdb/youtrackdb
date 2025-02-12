@@ -397,7 +397,8 @@ public class SQLModifier extends SimpleNode {
       } else if (suffix != null) {
         suffix.applyRemove(currentValue, ctx);
       } else {
-        throw new CommandExecutionException("cannot apply REMOVE " + this);
+        throw new CommandExecutionException(ctx.getDatabaseSession(),
+            "cannot apply REMOVE " + this);
       }
     }
   }
@@ -481,12 +482,13 @@ public class SQLModifier extends SimpleNode {
 
   public boolean isIndexChain(CommandContext ctx, SchemaClassInternal clazz) {
     if (suffix != null && suffix.isBaseIdentifier()) {
-      var prop = clazz.getPropertyInternal(suffix.getIdentifier().getStringValue());
+      var prop = clazz.getPropertyInternal(ctx.getDatabaseSession(),
+          suffix.getIdentifier().getStringValue());
       if (prop != null
-          && prop.getAllIndexesInternal(ctx.getDatabase()).stream()
+          && prop.getAllIndexesInternal(ctx.getDatabaseSession()).stream()
           .anyMatch(idx -> idx.getDefinition().getFields().size() == 1)) {
         if (next != null) {
-          var linkedClazz = (SchemaClassInternal) prop.getLinkedClass();
+          var linkedClazz = (SchemaClassInternal) prop.getLinkedClass(ctx.getDatabaseSession());
           return next.isIndexChain(ctx, linkedClazz);
         }
         return true;

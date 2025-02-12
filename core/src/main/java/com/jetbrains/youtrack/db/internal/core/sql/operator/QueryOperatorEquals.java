@@ -28,13 +28,10 @@ import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionMultiValue;
-import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BinaryField;
@@ -52,17 +49,12 @@ import javax.annotation.Nullable;
  */
 public class QueryOperatorEquals extends QueryOperatorEqualityNotNulls {
 
-  private boolean binaryEvaluate = false;
-
   public QueryOperatorEquals() {
     super("=", 5, false);
-    var db = DatabaseRecordThreadLocal.instance().getIfDefined();
-    if (db != null) {
-      binaryEvaluate = db.getSerializer().getSupportBinaryEvaluate();
-    }
   }
 
-  public static boolean equals(DatabaseSession session, final Object iLeft, final Object iRight,
+  public static boolean equals(DatabaseSessionInternal session, final Object iLeft,
+      final Object iRight,
       PropertyType type) {
     if (type == null) {
       return equals(session, iLeft, iRight);
@@ -72,7 +64,8 @@ public class QueryOperatorEquals extends QueryOperatorEqualityNotNulls {
     return equals(session, left, right);
   }
 
-  public static boolean equals(@Nullable DatabaseSession session, Object iLeft, Object iRight) {
+  public static boolean equals(@Nullable DatabaseSessionInternal session, Object iLeft,
+      Object iRight) {
     if (iLeft == null || iRight == null) {
       return false;
     }
@@ -198,16 +191,16 @@ public class QueryOperatorEquals extends QueryOperatorEqualityNotNulls {
       if (indexDefinition instanceof IndexDefinitionMultiValue) {
         key =
             ((IndexDefinitionMultiValue) indexDefinition)
-                .createSingleValue(iContext.getDatabase(), keyParams.get(0));
+                .createSingleValue(iContext.getDatabaseSession(), keyParams.get(0));
       } else {
-        key = indexDefinition.createValue(iContext.getDatabase(), keyParams);
+        key = indexDefinition.createValue(iContext.getDatabaseSession(), keyParams);
       }
 
       if (key == null) {
         return null;
       }
 
-      stream = index.getInternal().getRids(iContext.getDatabase(), key)
+      stream = index.getInternal().getRids(iContext.getDatabaseSession(), key)
           .map((rid) -> new RawPair<>(key, rid));
     } else {
       // in case of composite keys several items can be returned in case of we perform search
@@ -217,22 +210,22 @@ public class QueryOperatorEquals extends QueryOperatorEqualityNotNulls {
           (CompositeIndexDefinition) indexDefinition;
 
       final Object keyOne =
-          compositeIndexDefinition.createSingleValue(iContext.getDatabase(), keyParams);
+          compositeIndexDefinition.createSingleValue(iContext.getDatabaseSession(), keyParams);
 
       if (keyOne == null) {
         return null;
       }
 
       final Object keyTwo =
-          compositeIndexDefinition.createSingleValue(iContext.getDatabase(), keyParams);
+          compositeIndexDefinition.createSingleValue(iContext.getDatabaseSession(), keyParams);
 
       if (internalIndex.hasRangeQuerySupport()) {
         stream = index.getInternal()
-            .streamEntriesBetween(iContext.getDatabase(), keyOne, true, keyTwo, true,
+            .streamEntriesBetween(iContext.getDatabaseSession(), keyOne, true, keyTwo, true,
                 ascSortOrder);
       } else {
         if (indexDefinition.getParamCount() == keyParams.size()) {
-          stream = index.getInternal().getRids(iContext.getDatabase(), keyOne)
+          stream = index.getInternal().getRids(iContext.getDatabaseSession(), keyOne)
               .map((rid) -> new RawPair<>(keyOne, rid));
         } else {
           return null;
@@ -286,20 +279,21 @@ public class QueryOperatorEquals extends QueryOperatorEqualityNotNulls {
       final Object iLeft,
       final Object iRight,
       CommandContext iContext) {
-    return equals(iContext.getDatabase(), iLeft, iRight);
+    return equals(iContext.getDatabaseSession(), iLeft, iRight);
   }
 
   @Override
   public boolean evaluate(
-      final BinaryField iFirstField,
-      final BinaryField iSecondField,
-      CommandContext iContext,
+      final BinaryField firstField,
+      final BinaryField secondField,
+      CommandContext context,
       final EntitySerializer serializer) {
-    return serializer.getComparator().isEqual(iFirstField, iSecondField);
+    return serializer.getComparator()
+        .isEqual(context.getDatabaseSession(), firstField, secondField);
   }
 
   @Override
   public boolean isSupportingBinaryEvaluate() {
-    return binaryEvaluate;
+    return true;
   }
 }

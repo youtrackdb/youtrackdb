@@ -1,6 +1,5 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -12,14 +11,14 @@ public class ProfileStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testProfile() {
-    db.createClass("testProfile");
+    session.createClass("testProfile");
 
-    db.begin();
-    db.command("insert into testProfile set name ='foo'");
-    db.command("insert into testProfile set name ='bar'");
-    db.commit();
+    session.begin();
+    session.command("insert into testProfile set name ='foo'");
+    session.command("insert into testProfile set name ='bar'");
+    session.commit();
 
-    var result = db.query("PROFILE SELECT FROM testProfile WHERE name ='bar'");
+    var result = session.query("PROFILE SELECT FROM testProfile WHERE name ='bar'");
     Assert.assertTrue(result.getExecutionPlan().get().prettyPrint(0, 2).contains("μs"));
 
     result.close();

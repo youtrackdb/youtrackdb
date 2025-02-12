@@ -28,7 +28,6 @@ import com.jetbrains.youtrack.db.internal.server.network.protocol.http.multipart
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.multipart.HttpMultipartRequestCommand;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 
@@ -67,7 +66,7 @@ public class ServerCommandPostUploadSingleFile extends
           "Content stream is null or empty",
           null);
     } else {
-      database = getProfiledDatabaseInstance(iRequest);
+      database = getProfiledDatabaseSessionInstance(iRequest);
       try {
         buffer = new StringWriter();
         writer = new JSONWriter(buffer);

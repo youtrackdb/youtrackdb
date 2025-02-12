@@ -35,7 +35,6 @@ import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.query.LiveResultListener;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.SocketChannelBinary;
 import com.jetbrains.youtrack.db.internal.server.ClientConnection;
 import com.jetbrains.youtrack.db.internal.server.ClientSessions;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
@@ -43,7 +42,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -183,7 +181,7 @@ public class LiveCommandResultListener extends AbstractCommandResultListener
                 e,
                 protocol.getRemoteAddress());
         protocol.getServer().getClientConnectionManager().disconnect(connection);
-        LiveQueryHook.unsubscribe(iToken, connection.getDatabase());
+        LiveQueryHook.unsubscribe(iToken, connection.getDatabaseSession());
         break;
       }
 

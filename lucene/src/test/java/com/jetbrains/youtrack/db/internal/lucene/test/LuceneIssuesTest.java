@@ -1,10 +1,6 @@
 package com.jetbrains.youtrack.db.internal.lucene.test;
 
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
-import java.io.InputStream;
-import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -18,15 +14,15 @@ public class LuceneIssuesTest extends BaseLuceneTest {
   public void testGh_7382() throws Exception {
 
     try (var stream = ClassLoader.getSystemResourceAsStream("testGh_7382.osql")) {
-      db.execute("sql", getScriptFromStream(stream)).close();
+      session.execute("sql", getScriptFromStream(stream)).close();
     }
 
     final var index =
-        db.getMetadata().getIndexManagerInternal().getIndex(db, "class_7382_multi");
+        session.getMetadata().getIndexManagerInternal().getIndex(session, "class_7382_multi");
     try (var rids =
         index
             .getInternal()
-            .getRids(db, "server:206012226875414 AND date:[201703120000 TO  201703120001]")) {
+            .getRids(session, "server:206012226875414 AND date:[201703120000 TO  201703120001]")) {
       Assertions.assertThat(rids.count()).isEqualTo(1);
     }
   }
@@ -34,15 +30,16 @@ public class LuceneIssuesTest extends BaseLuceneTest {
   @Test
   public void testGh_4880_moreIndexesOnProperty() throws Exception {
     try (final var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql")) {
-      db.execute("sql", getScriptFromStream(stream)).close();
+      session.execute("sql", getScriptFromStream(stream)).close();
     }
 
-    db.command("create index Song.title_ft on Song (title,author) FULLTEXT ENGINE LUCENE").close();
-    db.command("CREATE INDEX Song.author on Song (author)  NOTUNIQUE").close();
+    session.command("create index Song.title_ft on Song (title,author) FULLTEXT ENGINE LUCENE")
+        .close();
+    session.command("CREATE INDEX Song.author on Song (author)  NOTUNIQUE").close();
 
-    db.query("SELECT from Song where title = 'BELIEVE IT OR NOT' ").close();
+    session.query("SELECT from Song where title = 'BELIEVE IT OR NOT' ").close();
 
-    db.command(
+    session.command(
             "EXPLAIN SELECT from Song where author = 'Traditional'  OR [title,author] LUCENE"
                 + " '(title:believe'")
         .close();
@@ -53,11 +50,11 @@ public class LuceneIssuesTest extends BaseLuceneTest {
   public void testGh_issue7513() throws Exception {
 
     try (var stream = ClassLoader.getSystemResourceAsStream("testGh_7513.osql")) {
-      db.execute("sql", getScriptFromStream(stream)).close();
+      session.execute("sql", getScriptFromStream(stream)).close();
     }
 
-    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Item.content");
-    try (var rids = index.getInternal().getRids(db, "'Харько~0.2")) {
+    var index = session.getMetadata().getIndexManagerInternal().getIndex(session, "Item.content");
+    try (var rids = index.getInternal().getRids(session, "'Харько~0.2")) {
       Assertions.assertThat(rids.count() >= 3).isTrue();
     }
   }
@@ -65,20 +62,20 @@ public class LuceneIssuesTest extends BaseLuceneTest {
   @Test
   public void test_ph8929() throws Exception {
     try (var stream = ClassLoader.getSystemResourceAsStream("testPh_8929.osql")) {
-      db.execute("sql", getScriptFromStream(stream)).close();
+      session.execute("sql", getScriptFromStream(stream)).close();
     }
 
     ResultSet documents;
 
-    documents = db.query("select from Test where [a] lucene 'lion'");
+    documents = session.query("select from Test where [a] lucene 'lion'");
 
     Assertions.assertThat(documents).hasSize(1);
 
-    documents = db.query("select from Test where [b] lucene 'mouse'");
+    documents = session.query("select from Test where [b] lucene 'mouse'");
 
     Assertions.assertThat(documents).hasSize(1);
 
-    documents = db.query("select from Test where [a] lucene 'lion' OR [b] LUCENE 'mouse' ");
+    documents = session.query("select from Test where [a] lucene 'lion' OR [b] LUCENE 'mouse' ");
 
     Assertions.assertThat(documents).hasSize(2);
   }
@@ -87,20 +84,20 @@ public class LuceneIssuesTest extends BaseLuceneTest {
   public void test_ph8929_Single() throws Exception {
 
     try (var stream = ClassLoader.getSystemResourceAsStream("testPh_8929.osql")) {
-      db.execute("sql", getScriptFromStream(stream)).close();
+      session.execute("sql", getScriptFromStream(stream)).close();
     }
 
     ResultSet documents;
 
-    documents = db.query("select from Test where a lucene 'lion'");
+    documents = session.query("select from Test where a lucene 'lion'");
 
     Assertions.assertThat(documents).hasSize(1);
 
-    documents = db.query("select from Test where b lucene 'mouse'");
+    documents = session.query("select from Test where b lucene 'mouse'");
 
     Assertions.assertThat(documents).hasSize(1);
 
-    documents = db.query("select from Test where a lucene 'lion' OR b LUCENE 'mouse' ");
+    documents = session.query("select from Test where a lucene 'lion' OR b LUCENE 'mouse' ");
 
     Assertions.assertThat(documents).hasSize(2);
   }

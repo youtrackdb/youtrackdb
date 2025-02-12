@@ -38,7 +38,6 @@ import java.net.BindException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -85,7 +84,7 @@ public class ServerNetworkListener extends Thread {
       final var message = "Error on reading protocol version for " + iProtocol;
       LogManager.instance().error(this, message, e);
 
-      throw BaseException.wrapException(new NetworkProtocolException(message), e);
+      throw BaseException.wrapException(new NetworkProtocolException(message), e, (String) null);
     }
 
     listen(iHostName, iHostPortRange, iProtocolName, iProtocol);

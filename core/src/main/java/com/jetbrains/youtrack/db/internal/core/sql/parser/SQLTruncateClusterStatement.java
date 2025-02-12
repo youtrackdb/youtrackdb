@@ -2,9 +2,9 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionAbstract;
-import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
@@ -26,23 +26,23 @@ public class SQLTruncateClusterStatement extends DDLStatement {
 
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
-    var database = (DatabaseSessionAbstract) ctx.getDatabase();
+    var session = (DatabaseSessionAbstract) ctx.getDatabaseSession();
 
     Integer clusterId = null;
     if (clusterNumber != null) {
       clusterId = clusterNumber.getValue().intValue();
     } else {
-      clusterId = database.getClusterIdByName(clusterName.getStringValue());
+      clusterId = session.getClusterIdByName(clusterName.getStringValue());
     }
 
     if (clusterId < 0) {
-      throw new DatabaseException("Cluster with name " + clusterName + " does not exist");
+      throw new DatabaseException(session, "Cluster with name " + clusterName + " does not exist");
     }
 
-    var name = database.getClusterNameById(clusterId);
-    var count = database.truncateClusterInternal(name);
+    var name = session.getClusterNameById(clusterId);
+    var count = session.truncateClusterInternal(name);
 
-    var result = new ResultInternal(database);
+    var result = new ResultInternal(session);
     result.setProperty("operation", "truncate cluster");
     result.setProperty("clusterName", name);
     result.setProperty("clusterId", clusterId);

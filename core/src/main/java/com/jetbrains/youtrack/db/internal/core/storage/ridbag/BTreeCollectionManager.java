@@ -21,6 +21,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.ridbag;
 
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.EdgeBTree;
@@ -30,11 +31,9 @@ import java.util.UUID;
 
 public interface BTreeCollectionManager {
 
-  EdgeBTree<RID, Integer> createAndLoadTree(
-      AtomicOperation atomicOperation, int clusterId) throws IOException;
-
   BonsaiCollectionPointer createSBTree(
-      int clusterId, AtomicOperation atomicOperation, UUID ownerUUID) throws IOException;
+      int clusterId, AtomicOperation atomicOperation, UUID ownerUUID,
+      DatabaseSessionInternal session) throws IOException;
 
   EdgeBTree<RID, Integer> loadSBTree(BonsaiCollectionPointer collectionPointer);
 
@@ -42,13 +41,14 @@ public interface BTreeCollectionManager {
 
   void delete(BonsaiCollectionPointer collectionPointer);
 
-  UUID listenForChanges(RidBag collection);
+  UUID listenForChanges(RidBag collection, DatabaseSessionInternal session);
 
-  void updateCollectionPointer(UUID uuid, BonsaiCollectionPointer pointer);
+  void updateCollectionPointer(UUID uuid, BonsaiCollectionPointer pointer,
+      DatabaseSessionInternal session);
 
   void clearPendingCollections();
 
-  Map<UUID, BonsaiCollectionPointer> changedIds();
+  Map<UUID, BonsaiCollectionPointer> changedIds(DatabaseSessionInternal session);
 
-  void clearChangedIds();
+  void clearChangedIds(DatabaseSessionInternal session);
 }

@@ -45,7 +45,7 @@ public class EntityComparator implements Comparator<Identifiable> {
     this.orderCriteria = iOrderCriteria;
     this.context = iContext;
 
-    var db = context.getDatabase();
+    var db = context.getDatabaseSession();
     collator =
         Collator.getInstance(
             new Locale(
@@ -65,7 +65,7 @@ public class EntityComparator implements Comparator<Identifiable> {
 
     var partialResult = 0;
 
-    var db = context.getDatabase();
+    var db = context.getDatabaseSession();
     for (var field : orderCriteria) {
       final var fieldName = field.getKey();
       final var ordering = field.getValue();

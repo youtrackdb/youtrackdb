@@ -17,8 +17,6 @@
  */
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.get;
 
-import com.jetbrains.youtrack.db.internal.core.command.script.ScriptManager;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
@@ -38,7 +36,7 @@ public class ServerCommandGetSupportedLanguages extends ServerCommandAuthenticat
 
     iRequest.getData().commandInfo = "Returns the supported languages";
 
-    try (var db = getProfiledDatabaseInstance(iRequest)) {
+    try (var db = getProfiledDatabaseSessionInstance(iRequest)) {
       var result = new EntityImpl(null);
       Set<String> languages = new HashSet<>();
 

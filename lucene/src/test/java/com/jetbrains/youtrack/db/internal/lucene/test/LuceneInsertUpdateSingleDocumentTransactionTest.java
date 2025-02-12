@@ -18,15 +18,11 @@
 
 package com.jetbrains.youtrack.db.internal.lucene.test;
 
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,45 +38,45 @@ public class LuceneInsertUpdateSingleDocumentTransactionTest extends BaseLuceneT
 
   @Before
   public void init() {
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
 
     var oClass = schema.createClass("City");
-    oClass.createProperty(db, "name", PropertyType.STRING);
-    db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
+    oClass.createProperty(session, "name", PropertyType.STRING);
+    session.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
 
   @Test
   public void testInsertUpdateTransactionWithIndex() {
 
-    db.close();
-    db = openDatabase();
-    Schema schema = db.getMetadata().getSchema();
-    db.begin();
-    var doc = ((EntityImpl) db.newEntity("City"));
+    session.close();
+    session = openDatabase();
+    Schema schema = session.getMetadata().getSchema();
+    session.begin();
+    var doc = ((EntityImpl) session.newEntity("City"));
     doc.field("name", "");
-    var doc1 = ((EntityImpl) db.newEntity("City"));
+    var doc1 = ((EntityImpl) session.newEntity("City"));
     doc1.field("name", "");
-    doc = db.save(doc);
-    doc1 = db.save(doc1);
-    db.commit();
-    db.begin();
-    doc = db.load(doc.getIdentity());
-    doc1 = db.load(doc1.getIdentity());
+    doc = session.save(doc);
+    doc1 = session.save(doc1);
+    session.commit();
+    session.begin();
+    doc = session.load(doc.getIdentity());
+    doc1 = session.load(doc1.getIdentity());
 
     doc.field("name", "Rome");
     doc1.field("name", "Rome");
-    db.save(doc);
-    db.save(doc1);
-    db.commit();
-    var idx = db.getClassInternal("City").getClassIndex(db, "City.name");
+    session.save(doc);
+    session.save(doc1);
+    session.commit();
+    var idx = session.getClassInternal("City").getClassIndex(session, "City.name");
     Collection<?> coll;
-    try (var stream = idx.getInternal().getRids(db, "Rome")) {
+    try (var stream = idx.getInternal().getRids(session, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
 
-    db.begin();
+    session.begin();
     Assert.assertEquals(coll.size(), 2);
-    Assert.assertEquals(2, idx.getInternal().size(db));
-    db.commit();
+    Assert.assertEquals(2, idx.getInternal().size(session));
+    session.commit();
   }
 }

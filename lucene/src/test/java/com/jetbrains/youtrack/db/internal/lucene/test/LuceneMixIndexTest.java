@@ -18,8 +18,6 @@
 
 package com.jetbrains.youtrack.db.internal.lucene.test;
 
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import java.io.InputStream;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,38 +32,39 @@ public class LuceneMixIndexTest extends BaseLuceneTest {
 
     var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
 
-    db.execute("sql", getScriptFromStream(stream)).close();
+    session.execute("sql", getScriptFromStream(stream)).close();
 
-    db.command("create index Song.author on Song (author) NOTUNIQUE").close();
+    session.command("create index Song.author on Song (author) NOTUNIQUE").close();
 
-    db.command("create index Song.composite on Song (title,lyrics) FULLTEXT ENGINE LUCENE").close();
+    session.command("create index Song.composite on Song (title,lyrics) FULLTEXT ENGINE LUCENE")
+        .close();
   }
 
   @Test
   public void testMixQuery() {
 
     var docs =
-        db.query(
+        session.query(
             "select * from Song where  author = 'Hornsby' and [title,lyrics]  LUCENE"
                 + " \"(title:mountain)\" ");
 
     Assert.assertEquals(1, docs.stream().count());
 
     docs =
-        db.query(
+        session.query(
             "select * from Song where  author = 'Hornsby' and [title,lyrics] LUCENE"
                 + " \"(title:mountain)\" ");
 
     Assert.assertEquals(1, docs.stream().count());
 
     docs =
-        db.query(
+        session.query(
             "select * from Song where  author = 'Hornsby' and [title,lyrics] LUCENE"
                 + " \"(title:ballad)\" ");
     Assert.assertEquals(0, docs.stream().count());
 
     docs =
-        db.query(
+        session.query(
             "select * from Song where  author = 'Hornsby' and [title,lyrics] LUCENE"
                 + " \"(title:ballad)\" ");
     Assert.assertEquals(0, docs.stream().count());
@@ -76,14 +75,14 @@ public class LuceneMixIndexTest extends BaseLuceneTest {
   public void testMixCompositeQuery() {
 
     var docs =
-        db.query(
+        session.query(
             "select * from Song where  author = 'Hornsby' and [title,lyrics] LUCENE"
                 + " \"title:mountain\" ");
 
     Assert.assertEquals(1, docs.stream().count());
 
     docs =
-        db.query(
+        session.query(
             "select * from Song where author = 'Hornsby' and [title,lyrics] LUCENE \"lyrics:happy\""
                 + " ");
 

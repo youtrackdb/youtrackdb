@@ -19,12 +19,13 @@
  */
 package com.jetbrains.youtrack.db.internal.core.index;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.jetbrains.youtrack.db.api.schema.Collate;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nonnull;
 
 /**
@@ -112,19 +113,19 @@ public interface IndexDefinition extends IndexCallback {
   PropertyType[] getTypes();
 
   /**
-   * Serializes internal index state to entity.
-   *
-   * @return Entity that contains internal index state.
+   * Serializes internal index state to map.
    */
   @Nonnull
-  EntityImpl toStream(DatabaseSessionInternal db, @Nonnull EntityImpl entity);
+  Map<String, Object> toMap();
+
+  void toJson(@Nonnull JsonGenerator jsonGenerator);
 
   /**
-   * Deserialize internal index state from entity.
+   * Deserialize internal index state from map.
    *
-   * @param entity Serialized index presentation.
+   * @param map Serialized index presentation.
    */
-  void fromStream(@Nonnull EntityImpl entity);
+  void fromMap(@Nonnull Map<String, ?> map);
 
   String toCreateIndexDDL(String indexName, String indexType, String engine);
 

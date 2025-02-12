@@ -1,9 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.index.IndexAbstract;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAndBlock;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBooleanExpression;
@@ -13,7 +11,6 @@ import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIndexIdentifier;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLimit;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
-import java.util.List;
 
 /**
  *
@@ -37,16 +34,18 @@ public class DeleteExecutionPlanner {
   public DeleteExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
     var result = new DeleteExecutionPlan(ctx);
 
+    var session = ctx.getDatabaseSession();
     if (handleIndexAsTarget(
         result, fromClause.getItem().getIndex(), whereClause, ctx, enableProfiling)) {
       if (limit != null) {
-        throw new CommandExecutionException("Cannot apply a LIMIT on a delete from index");
+        throw new CommandExecutionException(session, "Cannot apply a LIMIT on a delete from index");
       }
       if (unsafe) {
-        throw new CommandExecutionException("Cannot apply a UNSAFE on a delete from index");
+        throw new CommandExecutionException(session,
+            "Cannot apply a UNSAFE on a delete from index");
       }
       if (returnBefore) {
-        throw new CommandExecutionException(
+        throw new CommandExecutionException(session,
             "Cannot apply a RETURN BEFORE on a delete from index");
       }
 
@@ -71,26 +70,26 @@ public class DeleteExecutionPlanner {
       return false;
     }
     var indexName = indexIdentifier.getIndexName();
-    final var database = ctx.getDatabase();
-    var index = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
+    final var session = ctx.getDatabaseSession();
+    var index = session.getMetadata().getIndexManagerInternal().getIndex(session, indexName);
     if (index == null) {
-      throw new CommandExecutionException("Index not found: " + indexName);
+      throw new CommandExecutionException(session, "Index not found: " + indexName);
     }
     var flattenedWhereClause = whereClause == null ? null : whereClause.flatten();
 
     switch (indexIdentifier.getType()) {
       case INDEX:
-        IndexAbstract.manualIndexesWarning();
+        IndexAbstract.manualIndexesWarning(session.getDatabaseName());
 
         SQLBooleanExpression keyCondition = null;
         SQLBooleanExpression ridCondition = null;
         if (flattenedWhereClause == null || flattenedWhereClause.size() == 0) {
           if (!index.supportsOrderedIterations()) {
-            throw new CommandExecutionException(
+            throw new CommandExecutionException(session,
                 "Index " + indexName + " does not allow iteration without a condition");
           }
         } else if (flattenedWhereClause.size() > 1) {
-          throw new CommandExecutionException(
+          throw new CommandExecutionException(session,
               "Index queries with this kind of condition are not supported yet: " + whereClause);
         } else {
           var andBlock = flattenedWhereClause.get(0);
@@ -101,7 +100,7 @@ public class DeleteExecutionPlanner {
             flattenedWhereClause = null;
             keyCondition = getKeyCondition(andBlock);
             if (keyCondition == null) {
-              throw new CommandExecutionException(
+              throw new CommandExecutionException(session,
                   "Index queries with this kind of condition are not supported yet: "
                       + whereClause);
             }
@@ -112,12 +111,12 @@ public class DeleteExecutionPlanner {
             keyCondition = getKeyCondition(andBlock);
             ridCondition = getRidCondition(andBlock);
             if (keyCondition == null || ridCondition == null) {
-              throw new CommandExecutionException(
+              throw new CommandExecutionException(session,
                   "Index queries with this kind of condition are not supported yet: "
                       + whereClause);
             }
           } else {
-            throw new CommandExecutionException(
+            throw new CommandExecutionException(session,
                 "Index queries with this kind of condition are not supported yet: " + whereClause);
           }
         }
@@ -133,7 +132,7 @@ public class DeleteExecutionPlanner {
       case VALUES:
       case VALUESASC:
         if (!index.supportsOrderedIterations()) {
-          throw new CommandExecutionException(
+          throw new CommandExecutionException(session,
               "Index " + indexName + " does not allow iteration on values");
         }
         result.chain(
@@ -143,7 +142,7 @@ public class DeleteExecutionPlanner {
         break;
       case VALUESDESC:
         if (!index.supportsOrderedIterations()) {
-          throw new CommandExecutionException(
+          throw new CommandExecutionException(session,
               "Index " + indexName + " does not allow iteration on values");
         }
         result.chain(

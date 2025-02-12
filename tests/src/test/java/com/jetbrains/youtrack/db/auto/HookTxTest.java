@@ -151,13 +151,13 @@ public class HookTxTest extends BaseDBTest {
 
   @Test
   public void testRegisterHook() {
-    db.registerHook(new RecordHook());
+    session.registerHook(new RecordHook());
   }
 
   @Test(dependsOnMethods = "testRegisterHook")
   public void testHookCallsCreate() {
-    db.registerHook(new RecordHook());
-    profile = db.newInstance("Profile");
+    session.registerHook(new RecordHook());
+    profile = session.newInstance("Profile");
     profile.setProperty("nick", "HookTxTest");
     profile.setProperty("value", 0);
 
@@ -165,9 +165,9 @@ public class HookTxTest extends BaseDBTest {
 
     // TEST HOOKS ON CREATE
     Assert.assertEquals(callbackCount, 0);
-    db.begin();
-    db.save(profile);
-    db.commit();
+    session.begin();
+    session.save(profile);
+    session.commit();
 
     expectedHookState += RECORD_BEFORE_CREATE + RECORD_AFTER_CREATE;
     Assert.assertEquals(callbackCount, expectedHookState);
@@ -175,27 +175,27 @@ public class HookTxTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "testHookCallsCreate")
   public void testHookCallsRead() {
-    db.registerHook(new RecordHook());
+    session.registerHook(new RecordHook());
     // TEST HOOKS ON READ
-    db.begin();
+    session.begin();
 
     expectedHookState += RECORD_BEFORE_READ + RECORD_AFTER_READ;
 
-    this.profile = db.load(profile.getIdentity());
+    this.profile = session.load(profile.getIdentity());
     Assert.assertEquals(callbackCount, expectedHookState);
 
     Assert.assertEquals(callbackCount, expectedHookState);
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testHookCallsRead")
   public void testHookCallsUpdate() {
-    db.registerHook(new RecordHook());
-    db.begin();
-    profile = db.load(profile.getIdentity());
+    session.registerHook(new RecordHook());
+    session.begin();
+    profile = session.load(profile.getIdentity());
     // TEST HOOKS ON UPDATE
     profile.setProperty("value", profile.<Integer>getProperty("value") + 1000);
-    db.commit();
+    session.commit();
 
     expectedHookState +=
         RECORD_BEFORE_UPDATE + RECORD_AFTER_UPDATE + RECORD_BEFORE_READ + RECORD_AFTER_READ;
@@ -204,16 +204,16 @@ public class HookTxTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "testHookCallsUpdate")
   public void testHookCallsDelete() {
-    db.registerHook(new RecordHook());
+    session.registerHook(new RecordHook());
     // TEST HOOKS ON DELETE
-    db.begin();
-    db.delete(db.bindToSession(profile));
-    db.commit();
+    session.begin();
+    session.delete(session.bindToSession(profile));
+    session.commit();
 
     expectedHookState +=
         RECORD_BEFORE_DELETE + RECORD_AFTER_DELETE + RECORD_BEFORE_READ + RECORD_AFTER_READ;
     Assert.assertEquals(callbackCount, expectedHookState);
 
-    db.unregisterHook(new RecordHook());
+    session.unregisterHook(new RecordHook());
   }
 }

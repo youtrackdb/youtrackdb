@@ -47,14 +47,6 @@ import com.jetbrains.youtrack.db.internal.core.security.ParsedToken;
 import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
 import com.jetbrains.youtrack.db.internal.server.config.ServerConfiguration;
 import com.jetbrains.youtrack.db.internal.server.config.ServerConfigurationManager;
-import com.jetbrains.youtrack.db.internal.server.config.ServerEntryConfiguration;
-import com.jetbrains.youtrack.db.internal.server.config.ServerHandlerConfiguration;
-import com.jetbrains.youtrack.db.internal.server.config.ServerNetworkListenerConfiguration;
-import com.jetbrains.youtrack.db.internal.server.config.ServerNetworkProtocolConfiguration;
-import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfiguration;
-import com.jetbrains.youtrack.db.internal.server.config.ServerSocketFactoryConfiguration;
-import com.jetbrains.youtrack.db.internal.server.config.ServerStorageConfiguration;
-import com.jetbrains.youtrack.db.internal.server.config.ServerUserConfiguration;
 import com.jetbrains.youtrack.db.internal.server.handler.ConfigurableHooksManager;
 import com.jetbrains.youtrack.db.internal.server.network.ServerNetworkListener;
 import com.jetbrains.youtrack.db.internal.server.network.ServerSocketFactory;
@@ -113,7 +105,7 @@ public class YouTrackDBServer {
   private HttpSessionManager httpSessionManager;
   private PushManager pushManager;
   private ClassLoader extensionClassLoader;
-  private OTokenHandler tokenHandler;
+  private TokenHandler tokenHandler;
   private YouTrackDBImpl context;
   private YouTrackDBInternal databases;
   protected Date startedOn = new Date();
@@ -323,7 +315,7 @@ public class YouTrackDBServer {
       final var message =
           "Error on reading server configuration from file: " + iConfigurationFile;
       LogManager.instance().error(this, message, e);
-      throw BaseException.wrapException(new ConfigurationException(message), e);
+      throw BaseException.wrapException(new ConfigurationException(message), e, (String) null);
     }
   }
 
@@ -507,7 +499,7 @@ public class YouTrackDBServer {
         final var message = "Error on reading server configuration";
         LogManager.instance().error(this, message, e);
 
-        throw BaseException.wrapException(new ConfigurationException(message), e);
+        throw BaseException.wrapException(new ConfigurationException(message), e, (String) null);
       }
 
       registerPlugins();
@@ -818,30 +810,6 @@ public class YouTrackDBServer {
   }
 
   @SuppressWarnings("unchecked")
-  public <RET extends ServerPlugin> RET getPluginByClass(final Class<RET> iPluginClass) {
-    if (startupLatch == null) {
-      throw new DatabaseException("Error on plugin lookup: the server did not start correctly");
-    }
-
-    try {
-      startupLatch.await();
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-    }
-    if (!running) {
-      throw new DatabaseException("Error on plugin lookup the server did not start correctly.");
-    }
-
-    for (var h : getPlugins()) {
-      if (h.getInstance() != null && h.getInstance().getClass().equals(iPluginClass)) {
-        return (RET) h.getInstance();
-      }
-    }
-
-    return null;
-  }
-
-  @SuppressWarnings("unchecked")
   public <RET extends ServerPlugin> RET getPlugin(final String iName) {
     if (startupLatch == null) {
       throw new DatabaseException("Error on plugin lookup: the server did not start correctly");
@@ -891,16 +859,16 @@ public class YouTrackDBServer {
     return this;
   }
 
-  public DatabaseSessionInternal openDatabase(final String iDbUrl, final ParsedToken iToken) {
+  public DatabaseSessionInternal openSession(final String iDbUrl, final ParsedToken iToken) {
     return databases.open(new TokenAuthInfo(iToken), YouTrackDBConfig.defaultConfig());
   }
 
-  public DatabaseSessionInternal openDatabase(
+  public DatabaseSessionInternal openSession(
       final String iDbUrl, final String user, final String password) {
-    return openDatabase(iDbUrl, user, password, null);
+    return openSession(iDbUrl, user, password, null);
   }
 
-  public DatabaseSessionInternal openDatabase(
+  public DatabaseSessionInternal openSession(
       final String iDbUrl, final String user, final String password, NetworkProtocolData data) {
     final DatabaseSessionInternal database;
     var serverAuth = false;
@@ -918,7 +886,7 @@ public class YouTrackDBServer {
     return database;
   }
 
-  public DatabaseSessionInternal openDatabase(String database) {
+  public DatabaseSessionInternal openSession(String database) {
     return databases.openNoAuthorization(database);
   }
 
@@ -1206,7 +1174,7 @@ public class YouTrackDBServer {
   protected void defaultSettings() {
   }
 
-  public OTokenHandler getTokenHandler() {
+  public TokenHandler getTokenHandler() {
     return tokenHandler;
   }
 
@@ -1230,7 +1198,8 @@ public class YouTrackDBServer {
     if (databases.exists(databaseName, null, null)) {
       databases.drop(databaseName, null, null);
     } else {
-      throw new StorageException("Database with name '" + databaseName + "' does not exist");
+      throw new StorageException(databaseName,
+          "Database with name '" + databaseName + "' does not exist");
     }
   }
 

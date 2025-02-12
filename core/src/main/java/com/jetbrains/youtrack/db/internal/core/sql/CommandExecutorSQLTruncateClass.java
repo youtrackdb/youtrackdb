@@ -19,16 +19,13 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
-import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
 
@@ -47,48 +44,46 @@ public class CommandExecutorSQLTruncateClass extends CommandExecutorSQLAbstract
   private boolean deep = false;
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorSQLTruncateClass parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLTruncateClass parse(DatabaseSessionInternal session,
       final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
 
-      final var database = getDatabase();
-
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
       var word = new StringBuilder();
 
       var oldPos = 0;
       var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_TRUNCATE)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session.getDatabaseName(),
             "Keyword " + KEYWORD_TRUNCATE + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CLASS)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session.getDatabaseName(),
             "Keyword " + KEYWORD_CLASS + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserText, oldPos, word, true);
       if (pos == -1) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session.getDatabaseName(),
             "Expected class name. Use " + getSyntax(), parserText, oldPos);
       }
 
       final var className = word.toString();
-      schemaClass = (SchemaClassInternal) database.getMetadata().getSchema().getClass(className);
+      schemaClass = (SchemaClassInternal) session.getMetadata().getSchema().getClass(className);
 
       if (schemaClass == null) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session.getDatabaseName(),
             "Class '" + className + "' not found", parserText, oldPos);
       }
 
@@ -115,70 +110,58 @@ public class CommandExecutorSQLTruncateClass extends CommandExecutorSQLAbstract
   /**
    * Execute the command.
    */
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (schemaClass == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session.getDatabaseName(),
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    var database = getDatabase();
-    final var recs = schemaClass.count(database, deep);
+    final var recs = schemaClass.count(session, deep);
     if (recs > 0 && !unsafe) {
-      if (schemaClass.isSubClassOf("V")) {
-        throw new CommandExecutionException(
+      if (schemaClass.isSubClassOf(session, "V")) {
+        throw new CommandExecutionException(session.getDatabaseName(),
             "'TRUNCATE CLASS' command cannot be used on not empty vertex classes. Apply the"
                 + " 'UNSAFE' keyword to force it (at your own risk)");
-      } else if (schemaClass.isSubClassOf("E")) {
-        throw new CommandExecutionException(
+      } else if (schemaClass.isSubClassOf(session, "E")) {
+        throw new CommandExecutionException(session.getDatabaseName(),
             "'TRUNCATE CLASS' command cannot be used on not empty edge classes. Apply the 'UNSAFE'"
                 + " keyword to force it (at your own risk)");
       }
     }
 
-    var subclasses = schemaClass.getAllSubclasses();
+    var subclasses = schemaClass.getAllSubclasses(session);
     if (deep && !unsafe) { // for multiple inheritance
       for (var subclass : subclasses) {
-        var subclassRecs = schemaClass.count(database);
+        var subclassRecs = schemaClass.count(session);
         if (subclassRecs > 0) {
-          if (subclass.isSubClassOf("V")) {
-            throw new CommandExecutionException(
+          if (subclass.isSubClassOf(session, "V")) {
+            throw new CommandExecutionException(session.getDatabaseName(),
                 "'TRUNCATE CLASS' command cannot be used on not empty vertex classes ("
-                    + subclass.getName()
+                    + subclass.getName(session)
                     + "). Apply the 'UNSAFE' keyword to force it (at your own risk)");
-          } else if (subclass.isSubClassOf("E")) {
-            throw new CommandExecutionException(
+          } else if (subclass.isSubClassOf(session, "E")) {
+            throw new CommandExecutionException(session.getDatabaseName(),
                 "'TRUNCATE CLASS' command cannot be used on not empty edge classes ("
-                    + subclass.getName()
+                    + subclass.getName(session)
                     + "). Apply the 'UNSAFE' keyword to force it (at your own risk)");
           }
         }
       }
     }
 
-    schemaClass.truncate(database);
+    schemaClass.truncate(session);
     if (deep) {
       for (var subclass : subclasses) {
-        ((SchemaClassInternal) subclass).truncate(database);
+        ((SchemaClassInternal) subclass).truncate(session);
       }
     }
 
     return recs;
   }
 
-  @Override
-  public long getDistributedTimeout() {
-    return getDatabase()
-        .getConfiguration()
-        .getValueAsLong(GlobalConfiguration.DISTRIBUTED_COMMAND_TASK_SYNCH_TIMEOUT);
-  }
 
   @Override
   public String getSyntax() {
     return "TRUNCATE CLASS <class-name>";
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.WRITE;
   }
 }

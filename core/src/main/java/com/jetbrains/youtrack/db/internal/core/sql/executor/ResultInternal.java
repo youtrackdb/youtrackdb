@@ -1,5 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Blob;
@@ -36,13 +37,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
 /**
  *
  */
 public class ResultInternal implements Result {
+
   protected Map<String, Object> content;
   protected Map<String, Object> temporaryContent;
   protected Map<String, Object> metadata;
@@ -64,6 +65,7 @@ public class ResultInternal implements Result {
   }
 
   public void setProperty(String name, Object value) {
+    assert session == null || session.assertIfNotActive();
     assert identifiable == null;
     if (value instanceof Optional) {
       value = ((Optional) value).orElse(null);
@@ -81,12 +83,14 @@ public class ResultInternal implements Result {
 
   @Override
   public boolean isRecord() {
+    assert session == null || session.assertIfNotActive();
     return identifiable != null;
   }
 
   @Nullable
   @Override
   public RID getRecordId() {
+    assert session == null || session.assertIfNotActive();
     if (identifiable == null) {
       return null;
     }
@@ -143,12 +147,14 @@ public class ResultInternal implements Result {
   }
 
   public void removeProperty(String name) {
+    assert session == null || session.assertIfNotActive();
     if (content != null) {
       content.remove(name);
     }
   }
 
   public <T> T getProperty(String name) {
+    assert session == null || session.assertIfNotActive();
     loadIdentifiable();
 
     T result = null;
@@ -169,6 +175,7 @@ public class ResultInternal implements Result {
 
   @Override
   public Entity getEntityProperty(String name) {
+    assert session == null || session.assertIfNotActive();
     loadIdentifiable();
 
     Object result = null;
@@ -194,6 +201,7 @@ public class ResultInternal implements Result {
 
   @Override
   public Vertex getVertexProperty(String name) {
+    assert session == null || session.assertIfNotActive();
     loadIdentifiable();
     Object result = null;
     if (content != null && content.containsKey(name)) {
@@ -218,6 +226,7 @@ public class ResultInternal implements Result {
 
   @Override
   public Edge getEdgeProperty(String name) {
+    assert session == null || session.assertIfNotActive();
     loadIdentifiable();
     Object result = null;
     if (content != null && content.containsKey(name)) {
@@ -242,6 +251,7 @@ public class ResultInternal implements Result {
 
   @Override
   public Blob getBlobProperty(String name) {
+    assert session == null || session.assertIfNotActive();
     loadIdentifiable();
     Object result = null;
     if (content != null && content.containsKey(name)) {
@@ -271,7 +281,7 @@ public class ResultInternal implements Result {
       for (var prop : elem.getPropertyNamesInternal()) {
         result.setProperty(prop, elem.getPropertyInternal(prop));
       }
-      elem.getSchemaType().ifPresent(x -> result.setProperty("@class", x.getName()));
+      elem.getSchemaType().ifPresent(x -> result.setProperty("@class", x.getName(session)));
       return result;
     } else {
       if (isEmbeddedList(input)) {
@@ -311,6 +321,7 @@ public class ResultInternal implements Result {
   }
 
   public Collection<String> getPropertyNames() {
+    assert session == null || session.assertIfNotActive();
     loadIdentifiable();
     if (isEntity()) {
       return ((Entity) identifiable).getPropertyNames();
@@ -324,6 +335,7 @@ public class ResultInternal implements Result {
   }
 
   public boolean hasProperty(String propName) {
+    assert session == null || session.assertIfNotActive();
     loadIdentifiable();
     if (isEntity() && ((Entity) identifiable).hasProperty(propName)) {
       return true;
@@ -334,8 +346,15 @@ public class ResultInternal implements Result {
     return false;
   }
 
+  @Nullable
+  @Override
+  public DatabaseSession getBoundedToSession() {
+    return session;
+  }
+
   @Override
   public boolean isEntity() {
+    assert session == null || session.assertIfNotActive();
     if (identifiable == null) {
       return false;
     }
@@ -355,6 +374,7 @@ public class ResultInternal implements Result {
   }
 
   public Optional<Entity> getEntity() {
+    assert session == null || session.assertIfNotActive();
     loadIdentifiable();
     if (isEntity()) {
       return Optional.ofNullable((Entity) identifiable);
@@ -364,6 +384,7 @@ public class ResultInternal implements Result {
 
   @Override
   public Entity asEntity() {
+    assert session == null || session.assertIfNotActive();
     loadIdentifiable();
     if (isEntity()) {
       return (Entity) identifiable;
@@ -374,6 +395,7 @@ public class ResultInternal implements Result {
 
   @Override
   public Optional<RID> getIdentity() {
+    assert session == null || session.assertIfNotActive();
     if (identifiable != null) {
       return Optional.of(identifiable.getIdentity());
     }
@@ -382,23 +404,27 @@ public class ResultInternal implements Result {
 
   @Override
   public boolean isProjection() {
+    assert session == null || session.assertIfNotActive();
     return this.identifiable == null;
   }
 
   @Override
   public Optional<DBRecord> getRecord() {
+    assert session == null || session.assertIfNotActive();
     loadIdentifiable();
     return Optional.ofNullable((DBRecord) this.identifiable);
   }
 
   @Override
   public boolean isBlob() {
+    assert session == null || session.assertIfNotActive();
     loadIdentifiable();
     return this.identifiable instanceof Blob;
   }
 
   @Override
   public Optional<Blob> getBlob() {
+    assert session == null || session.assertIfNotActive();
     loadIdentifiable();
 
     if (isBlob()) {
@@ -409,6 +435,7 @@ public class ResultInternal implements Result {
 
   @Override
   public Object getMetadata(String key) {
+    assert session == null || session.assertIfNotActive();
     if (key == null) {
       return null;
     }
@@ -416,6 +443,7 @@ public class ResultInternal implements Result {
   }
 
   public void setMetadata(String key, Object value) {
+    assert session == null || session.assertIfNotActive();
     if (key == null) {
       return;
     }
@@ -426,18 +454,8 @@ public class ResultInternal implements Result {
     metadata.put(key, value);
   }
 
-  public void clearMetadata() {
-    metadata = null;
-  }
-
-  public void removeMetadata(String key) {
-    if (key == null || metadata == null) {
-      return;
-    }
-    metadata.remove(key);
-  }
-
   public void addMetadata(Map<String, Object> values) {
+    assert session == null || session.assertIfNotActive();
     if (values == null) {
       return;
     }
@@ -449,10 +467,12 @@ public class ResultInternal implements Result {
 
   @Override
   public Set<String> getMetadataKeys() {
+    assert session == null || session.assertIfNotActive();
     return metadata == null ? Collections.emptySet() : metadata.keySet();
   }
 
   public void loadIdentifiable() {
+    assert session == null || session.assertIfNotActive();
     switch (identifiable) {
       case null -> {
         return;
@@ -490,12 +510,14 @@ public class ResultInternal implements Result {
   }
 
   public void setIdentifiable(Identifiable identifiable) {
+    assert session == null || session.assertIfNotActive();
     this.identifiable = identifiable;
     this.content = null;
   }
 
   @Override
   public Map<String, ?> toMap() {
+    assert session == null || session.assertIfNotActive();
     if (isEntity()) {
       return getEntity().orElseThrow().toMap();
     }
@@ -561,6 +583,7 @@ public class ResultInternal implements Result {
   }
 
   public String toJSON() {
+    assert session == null || session.assertIfNotActive();
     if (isEntity()) {
       return getEntity().orElseThrow().toJSON();
     }
@@ -580,7 +603,7 @@ public class ResultInternal implements Result {
     return result.toString();
   }
 
-  private static String toJson(Object val) {
+  private String toJson(Object val) {
     String jsonVal = null;
     if (val == null) {
       jsonVal = "null";
@@ -649,7 +672,7 @@ public class ResultInternal implements Result {
     } else if (val instanceof byte[]) {
       jsonVal = "\"" + Base64.getEncoder().encodeToString((byte[]) val) + "\"";
     } else if (val instanceof Date) {
-      jsonVal = "\"" + DateHelper.getDateTimeFormatInstance().format(val) + "\"";
+      jsonVal = "\"" + DateHelper.getDateTimeFormatInstance(session).format(val) + "\"";
     } else if (val.getClass().isArray()) {
       var builder = new StringBuilder();
       builder.append("[");

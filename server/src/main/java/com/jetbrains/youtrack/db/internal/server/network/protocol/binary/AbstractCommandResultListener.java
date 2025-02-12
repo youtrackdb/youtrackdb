@@ -46,9 +46,9 @@ public abstract class AbstractCommandResultListener
   public abstract boolean isEmpty();
 
   @Override
-  public void end() {
+  public void end(DatabaseSessionInternal db) {
     if (wrappedResultListener != null) {
-      wrappedResultListener.end();
+      wrappedResultListener.end(db);
     }
   }
 

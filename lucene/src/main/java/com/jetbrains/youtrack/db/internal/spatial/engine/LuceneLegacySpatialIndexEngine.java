@@ -49,10 +49,7 @@ import java.util.Set;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.DoubleValuesSource;
-import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.spatial.SpatialStrategy;
@@ -93,7 +90,7 @@ public class LuceneLegacySpatialIndexEngine extends LuceneSpatialIndexEngineAbst
     } else if (key instanceof CompositeKey) {
       return searchIntersect(session, (CompositeKey) key, 0, null, changes);
     }
-    throw new IndexEngineException("Unknown key" + key, null);
+    throw new IndexEngineException(session.getDatabaseName(), "Unknown key" + key, null);
   }
 
   private Set<Identifiable> searchIntersect(
@@ -138,7 +135,7 @@ public class LuceneLegacySpatialIndexEngine extends LuceneSpatialIndexEngineAbst
   private Set<Identifiable> searchWithin(
       SpatialCompositeKey key, CommandContext context, LuceneTxChanges changes) {
 
-    var db = context.getDatabase();
+    var db = context.getDatabaseSession();
     var shape = legacyBuilder.makeShape(db, key, ctx);
     if (shape == null) {
       return null;
@@ -182,14 +179,15 @@ public class LuceneLegacySpatialIndexEngine extends LuceneSpatialIndexEngineAbst
   }
 
   @Override
-  public Set<Identifiable> getInTx(DatabaseSessionInternal db, Object key,
+  public Set<Identifiable> getInTx(DatabaseSessionInternal session, Object key,
       LuceneTxChanges changes) {
     try {
       updateLastAccess();
-      openIfClosed(db.getStorage());
-      return legacySearch(db, key, changes);
+      openIfClosed(session.getStorage());
+      return legacySearch(session, key, changes);
     } catch (IOException e) {
-      throw BaseException.wrapException(new DatabaseException("Error while searching"), e);
+      throw BaseException.wrapException(new DatabaseException(session, "Error while searching"), e,
+          session);
     }
   }
 
@@ -231,12 +229,12 @@ public class LuceneLegacySpatialIndexEngine extends LuceneSpatialIndexEngineAbst
   }
 
   @Override
-  public Document buildDocument(DatabaseSessionInternal db, Object key,
+  public Document buildDocument(DatabaseSessionInternal session, Object key,
       Identifiable value) {
     return newGeoDocument(
         value,
-        legacyBuilder.makeShape(db, (CompositeKey) key, ctx),
-        ((CompositeKey) key).toEntity(db));
+        legacyBuilder.makeShape(session, (CompositeKey) key, ctx),
+        ((CompositeKey) key).toEntity(session));
   }
 
   @Override

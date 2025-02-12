@@ -2,10 +2,8 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityPolicyImpl;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
@@ -38,53 +36,54 @@ public class SQLAlterSecurityPolicyStatement extends SQLSimpleExecStatement {
 
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
-    var db = ctx.getDatabase();
-    var security = db.getSharedContext().getSecurity();
-    var policy = security.getSecurityPolicy(db, name.getStringValue());
+    var session = ctx.getDatabaseSession();
+    var security = session.getSharedContext().getSecurity();
+    var policy = security.getSecurityPolicy(session, name.getStringValue());
     if (policy == null) {
-      throw new CommandExecutionException("Cannot find security policy " + name.toString());
+      throw new CommandExecutionException(session,
+          "Cannot find security policy " + name.toString());
     }
 
     if (create != null) {
-      policy.setCreateRule(db, create.toString());
+      policy.setCreateRule(session, create.toString());
     }
     if (read != null) {
-      policy.setReadRule(db, read.toString());
+      policy.setReadRule(session, read.toString());
     }
     if (beforeUpdate != null) {
-      policy.setBeforeUpdateRule(db, beforeUpdate.toString());
+      policy.setBeforeUpdateRule(session, beforeUpdate.toString());
     }
     if (afterUpdate != null) {
-      policy.setAfterUpdateRule(db, afterUpdate.toString());
+      policy.setAfterUpdateRule(session, afterUpdate.toString());
     }
     if (delete != null) {
-      policy.setDeleteRule(db, delete.toString());
+      policy.setDeleteRule(session, delete.toString());
     }
     if (execute != null) {
-      policy.setExecuteRule(db, execute.toString());
+      policy.setExecuteRule(session, execute.toString());
     }
 
     if (removeCreate) {
-      policy.setCreateRule(db, null);
+      policy.setCreateRule(session, null);
     }
     if (removeRead) {
-      policy.setReadRule(db, null);
+      policy.setReadRule(session, null);
     }
     if (removeBeforeUpdate) {
-      policy.setBeforeUpdateRule(db, null);
+      policy.setBeforeUpdateRule(session, null);
     }
     if (removeAfterUpdate) {
-      policy.setAfterUpdateRule(db, null);
+      policy.setAfterUpdateRule(session, null);
     }
     if (removeDelete) {
-      policy.setDeleteRule(db, null);
+      policy.setDeleteRule(session, null);
     }
     if (removeExecute) {
-      policy.setExecuteRule(db, null);
+      policy.setExecuteRule(session, null);
     }
-    security.saveSecurityPolicy(db, policy);
+    security.saveSecurityPolicy(session, policy);
 
-    var result = new ResultInternal(db);
+    var result = new ResultInternal(session);
     result.setProperty("operation", "alter security policy");
     result.setProperty("name", name.getStringValue());
     return ExecutionStream.singleton(result);

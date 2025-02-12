@@ -21,16 +21,16 @@ public class GetSchemaPropertyOnLoadValueTest extends DbTestBase {
 
   @Test
   public void testOnloadValue() {
-    db.createClass("test");
-    db.begin();
-    var doc = (EntityImpl) db.newEntity("test");
+    session.createClass("test");
+    session.begin();
+    var doc = (EntityImpl) session.newEntity("test");
     doc.setProperty("name", "John Doe");
     doc.save();
-    db.commit();
+    session.commit();
     RID id = doc.getIdentity();
-    db.activateOnCurrentThread();
-    db.begin();
-    EntityImpl doc2 = db.load(id);
+    session.activateOnCurrentThread();
+    session.begin();
+    EntityImpl doc2 = session.load(id);
     doc2.setProperty("name", "Sun Doe");
     doc2.save();
     doc2.setProperty("name", "Jane Doe");
@@ -40,36 +40,36 @@ public class GetSchemaPropertyOnLoadValueTest extends DbTestBase {
 
   @Test(expected = IllegalArgumentException.class)
   public void testOnLoadValueForList() throws IllegalArgumentException {
-    db.createVertexClass("test");
-    db.createEdgeClass("myLink");
-    db.begin();
-    var doc = db.newVertex("test");
+    session.createVertexClass("test");
+    session.createEdgeClass("myLink");
+    session.begin();
+    var doc = session.newVertex("test");
 
     IntStream.rangeClosed(1, 8)
         .forEach(
             i -> {
-              var linked = db.newVertex("test");
+              var linked = session.newVertex("test");
               linked.setProperty("name", i + "");
               doc.addEdge(linked, "myLink");
             });
     doc.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    var loadedDoc = db.<Entity>load(doc.getIdentity());
+    session.begin();
+    var loadedDoc = session.<Entity>load(doc.getIdentity());
     loadedDoc.getPropertyOnLoadValue(Vertex.DIRECTION_OUT_PREFIX + "myLink");
   }
 
   @Test
   public void testOnLoadValueForScalarList() throws IllegalArgumentException {
-    db.createVertexClass("test");
-    db.begin();
-    var doc = db.newVertex("test");
+    session.createVertexClass("test");
+    session.begin();
+    var doc = session.newVertex("test");
     doc.setProperty("list", Arrays.asList(1, 2, 3));
     doc.save();
-    db.commit();
-    db.begin();
-    doc = db.load(doc.getIdentity());
+    session.commit();
+    session.begin();
+    doc = session.load(doc.getIdentity());
     List<Integer> storedList = doc.getProperty("list");
     storedList.add(4);
     doc.save();
@@ -79,14 +79,14 @@ public class GetSchemaPropertyOnLoadValueTest extends DbTestBase {
 
   @Test
   public void testOnLoadValueForScalarSet() throws IllegalArgumentException {
-    db.createVertexClass("test");
-    db.begin();
-    var doc = db.newVertex("test");
+    session.createVertexClass("test");
+    session.begin();
+    var doc = session.newVertex("test");
     doc.setProperty("set", new HashSet<>(Arrays.asList(1, 2, 3)));
     doc.save();
-    db.commit();
-    db.begin();
-    doc = db.load(doc.getIdentity());
+    session.commit();
+    session.begin();
+    doc = session.load(doc.getIdentity());
     Set<Integer> storedSet = doc.getProperty("set");
     storedSet.add(4);
     doc.save();
@@ -96,26 +96,26 @@ public class GetSchemaPropertyOnLoadValueTest extends DbTestBase {
 
   @Test
   public void testStringBlobOnLoadValue() {
-    db.createVertexClass("test");
+    session.createVertexClass("test");
 
-    db.begin();
+    session.begin();
     var before = "Hello World";
     var byteArrayBefore = before.getBytes();
     var after = "Goodbye Cruel World";
 
     var byteArrayAfter = after.getBytes();
-    var oBlob = db.newBlob(byteArrayBefore);
-    var oBlob2 = db.newBlob(byteArrayAfter);
+    var oBlob = session.newBlob(byteArrayBefore);
+    var oBlob2 = session.newBlob(byteArrayAfter);
 
-    var doc = (VertexEntityImpl) db.newVertex("test");
+    var doc = (VertexEntityImpl) session.newVertex("test");
     doc.setProperty("stringBlob", oBlob);
     doc.save();
-    db.commit();
-    db.begin();
+    session.commit();
+    session.begin();
 
-    doc = db.bindToSession(doc);
+    doc = session.bindToSession(doc);
     doc.setLazyLoad(true);
-    doc = db.load(doc.getIdentity());
+    doc = session.load(doc.getIdentity());
     doc.setProperty("stringBlob", oBlob2);
     doc.save();
     RecordBytes onLoad = doc.getPropertyOnLoadValue("stringBlob");
@@ -160,9 +160,9 @@ public class GetSchemaPropertyOnLoadValueTest extends DbTestBase {
           return null;
         });
 
-    db.createVertexClass("test");
-    db.begin();
-    var doc = db.newVertex("test");
+    session.createVertexClass("test");
+    session.begin();
+    var doc = session.newVertex("test");
     var initialValues = new HashMap<String, Object>();
     propertyNames.forEach(
         name -> {
@@ -171,10 +171,10 @@ public class GetSchemaPropertyOnLoadValueTest extends DbTestBase {
         });
 
     doc.save();
-    db.commit();
+    session.commit();
     for (var txId = 0; txId < 5; txId++) {
-      db.begin();
-      var boundDoc = db.bindToSession(doc);
+      session.begin();
+      var boundDoc = session.bindToSession(doc);
       propertyNames.forEach(name -> initialValues.put(name, boundDoc.getProperty(name)));
       for (var i = 0; i < 1000; i++) {
         var operation = operations.get(random.nextInt(operations.size()));
@@ -182,7 +182,7 @@ public class GetSchemaPropertyOnLoadValueTest extends DbTestBase {
         operation.apply(boundDoc, propertyName);
         assertInitialValues(boundDoc, initialValues);
       }
-      db.commit();
+      session.commit();
     }
   }
 

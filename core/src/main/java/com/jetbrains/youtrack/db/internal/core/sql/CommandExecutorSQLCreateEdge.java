@@ -61,42 +61,42 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
   private int batch = 100;
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorSQLCreateEdge parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLCreateEdge parse(DatabaseSessionInternal session,
       final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
 
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
-      parserRequiredKeyword("CREATE");
-      parserRequiredKeyword("EDGE");
+      parserRequiredKeyword(session.getDatabaseName(), "CREATE");
+      parserRequiredKeyword(session.getDatabaseName(), "EDGE");
 
       String className = null;
 
-      var tempLower = parseOptionalWord(false);
+      var tempLower = parseOptionalWord(session.getDatabaseName(), false);
       var temp = tempLower == null ? null : tempLower.toUpperCase(Locale.ENGLISH);
 
       while (temp != null) {
         if (temp.equals("CLUSTER")) {
-          clusterName = parserRequiredWord(false);
+          clusterName = parserRequiredWord(session.getDatabaseName(), false);
 
         } else if (temp.equals(KEYWORD_FROM)) {
-          from = parserRequiredWord(false, "Syntax error", " =><,\r\n");
+          from = parserRequiredWord(false, "Syntax error", " =><,\r\n", session.getDatabaseName());
 
         } else if (temp.equals("TO")) {
-          to = parserRequiredWord(false, "Syntax error", " =><,\r\n");
+          to = parserRequiredWord(false, "Syntax error", " =><,\r\n", session.getDatabaseName());
 
         } else if (temp.equals(KEYWORD_SET)) {
           fields = new ArrayList<Pair<String, Object>>();
-          parseSetFields(db, clazz, fields);
+          parseSetFields(session, clazz, fields);
 
         } else if (temp.equals(KEYWORD_CONTENT)) {
-          parseContent(db);
+          parseContent(session);
 
         } else if (temp.equals(KEYWORD_BATCH)) {
           temp = parserNextWord(true);
@@ -107,11 +107,11 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
         } else if (className == null && !temp.isEmpty()) {
           className = tempLower;
 
-          clazz = (SchemaClassInternal) db.getMetadata().getImmutableSchemaSnapshot()
+          clazz = (SchemaClassInternal) session.getMetadata().getImmutableSchemaSnapshot()
               .getClass(temp);
           if (clazz == null) {
             final int committed;
-            if (db.getTransaction().isActive()) {
+            if (session.getTransaction().isActive()) {
               LogManager.instance()
                   .warn(
                       this,
@@ -120,26 +120,26 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
                           + "' must be executed outside active transaction: the transaction will be"
                           + " committed and reopen right after it. To avoid this behavior execute"
                           + " it outside a transaction");
-              committed = db.getTransaction().amountOfNestedTxs();
-              db.commit();
+              committed = session.getTransaction().amountOfNestedTxs();
+              session.commit();
             } else {
               committed = 0;
             }
 
             try {
-              Schema schema = db.getMetadata().getSchema();
+              Schema schema = session.getMetadata().getSchema();
               var e = schema.getClass("E");
               clazz = (SchemaClassInternal) schema.createClass(className, e);
             } finally {
               // RESTART TRANSACTION
               for (var i = 0; i < committed; ++i) {
-                db.begin();
+                session.begin();
               }
             }
           }
         }
 
-        temp = parseOptionalWord(true);
+        temp = parseOptionalWord(session.getDatabaseName(), true);
         if (parserIsEnded()) {
           break;
         }
@@ -148,13 +148,14 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
       if (className == null) {
         // ASSIGN DEFAULT CLASS
         className = "E";
-        clazz = (SchemaClassInternal) db.getMetadata().getImmutableSchemaSnapshot()
+        clazz = (SchemaClassInternal) session.getMetadata().getImmutableSchemaSnapshot()
             .getClass(className);
       }
 
       // GET/CHECK CLASS NAME
       if (clazz == null) {
-        throw new CommandSQLParsingException("Class '" + className + "' was not found");
+        throw new CommandSQLParsingException(session.getDatabaseName(),
+            "Class '" + className + "' was not found");
       }
 
       edgeLabel = className;
@@ -167,25 +168,26 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
   /**
    * Execute the command and return the EntityImpl object created.
    */
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (clazz == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not been parsed yet");
     }
 
     final List<Object> edges = new ArrayList<Object>();
     Set<Identifiable> fromIds = null;
     Set<Identifiable> toIds = null;
-    db.begin();
+    session.begin();
     try {
-      fromIds = SQLEngine.getInstance().parseRIDTarget(db, from, context, iArgs);
-      toIds = SQLEngine.getInstance().parseRIDTarget(db, to, context, iArgs);
+      fromIds = SQLEngine.getInstance().parseRIDTarget(session, from, context, iArgs);
+      toIds = SQLEngine.getInstance().parseRIDTarget(session, to, context, iArgs);
 
       // CREATE EDGES
       for (var from : fromIds) {
-        final var fromVertex = toVertex(from);
+        final var fromVertex = toVertex(session, from);
         if (fromVertex == null) {
-          throw new CommandExecutionException("Source vertex '" + from + "' does not exist");
+          throw new CommandExecutionException(session,
+              "Source vertex '" + from + "' does not exist");
         }
 
         for (var to : toIds) {
@@ -193,10 +195,11 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
           if (from.equals(to)) {
             toVertex = fromVertex;
           } else {
-            toVertex = toVertex(to);
+            toVertex = toVertex(session, to);
           }
           if (toVertex == null) {
-            throw new CommandExecutionException("Source vertex '" + to + "' does not exist");
+            throw new CommandExecutionException(session,
+                "Source vertex '" + to + "' does not exist");
           }
 
           if (fields != null)
@@ -226,7 +229,7 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
           edge = (EdgeInternal) fromVertex.addEdge(toVertex, edgeLabel);
           if (fields != null && !fields.isEmpty()) {
             SQLHelper.bindParameters(
-                edge.getRecord(db), fields, new CommandParameters(iArgs), context);
+                edge.getRecord(session), fields, new CommandParameters(iArgs), context);
           }
 
           edge.getBaseEntity().save(clusterName);
@@ -236,31 +239,31 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
           edges.add(edge);
 
           if (batch > 0 && edges.size() % batch == 0) {
-            db.commit();
-            db.begin();
+            session.commit();
+            session.begin();
           }
         }
       }
 
     } finally {
-      db.commit();
+      session.commit();
     }
 
     if (edges.isEmpty()) {
       if (fromIds.isEmpty()) {
-        throw new CommandExecutionException(
+        throw new CommandExecutionException(session,
             "No edge has been created because no source vertices: " + this);
       } else if (toIds.isEmpty()) {
-        throw new CommandExecutionException(
+        throw new CommandExecutionException(session,
             "No edge has been created because no target vertices: " + this);
       }
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "No edge has been created between " + fromIds + " and " + toIds + ": " + this);
     }
     return edges;
   }
 
-  private static Vertex toVertex(Identifiable item) {
+  private static Vertex toVertex(DatabaseSessionInternal db, Identifiable item) {
     if (item == null) {
       return null;
     }
@@ -268,7 +271,7 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
       return ((Entity) item).asVertex().orElse(null);
     } else {
       try {
-        item = getDatabase().load(item.getIdentity());
+        item = db.load(item.getIdentity());
       } catch (RecordNotFoundException e) {
         return null;
       }
@@ -280,26 +283,18 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
   }
 
   @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.WRITE;
-  }
-
-  @Override
-  public Set getInvolvedClusters() {
+  public Set getInvolvedClusters(DatabaseSessionInternal session) {
     if (clazz != null) {
       return Collections.singleton(
-          getDatabase().getClusterNameById(clazz.getClusterSelection().getCluster(clazz, null)));
+          session.getClusterNameById(
+              clazz.getClusterSelection(session).getCluster(session, clazz, null)));
     } else if (clusterName != null) {
-      return getInvolvedClustersOfClusters(Collections.singleton(clusterName));
+      return getInvolvedClustersOfClusters(session, Collections.singleton(clusterName));
     }
 
     return Collections.EMPTY_SET;
   }
 
-  @Override
-  public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
-    return DISTRIBUTED_EXECUTION_MODE.LOCAL;
-  }
 
   @Override
   public String getSyntax() {

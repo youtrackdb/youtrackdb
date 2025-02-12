@@ -52,7 +52,7 @@ public class ClientConnection {
   private final Set<NetworkProtocol> protocols =
       Collections.newSetFromMap(new WeakHashMap<NetworkProtocol, Boolean>());
   private volatile NetworkProtocol protocol;
-  private volatile DatabaseSessionInternal database;
+  private volatile DatabaseSessionInternal session;
   private volatile SecurityUser serverUser;
   private NetworkProtocolData data = new NetworkProtocolData();
   private final ClientConnectionStats stats = new ClientConnectionStats();
@@ -72,17 +72,17 @@ public class ClientConnection {
   }
 
   public void close() {
-    if (database != null) {
-      if (!database.isClosed()) {
-        database.activateOnCurrentThread();
+    if (session != null) {
+      if (!session.isClosed()) {
+        session.activateOnCurrentThread();
         try {
-          database.close();
+          session.close();
         } catch (Exception e) {
           // IGNORE IT (ALREADY CLOSED?)
         }
       }
 
-      database = null;
+      session = null;
     }
   }
 
@@ -168,7 +168,7 @@ public class ClientConnection {
   }
 
   public void validateSession(
-      byte[] tokenFromNetwork, OTokenHandler handler, NetworkProtocolBinary protocol) {
+      byte[] tokenFromNetwork, TokenHandler handler, NetworkProtocolBinary protocol) {
     if (tokenFromNetwork == null || tokenFromNetwork.length == 0) {
       if (!protocols.contains(protocol)) {
         throw new TokenSecurityException("No valid session found, provide a token");
@@ -189,7 +189,8 @@ public class ClientConnection {
           token = handler.parseOnlyBinary(tokenFromNetwork);
         }
       } catch (Exception e) {
-        throw BaseException.wrapException(new SystemException("Error on token parse"), e);
+        throw BaseException.wrapException(new SystemException("Error on token parse"), e,
+            (String) null);
       }
 
       if (token == null || !handler.validateBinaryToken(token)) {
@@ -216,20 +217,20 @@ public class ClientConnection {
   }
 
   public void cleanSession() {
-    if (database != null && !database.isClosed()) {
-      database.activateOnCurrentThread();
-      database.close();
+    if (session != null && !session.isClosed()) {
+      session.activateOnCurrentThread();
+      session.close();
     }
-    database = null;
+    session = null;
     protocols.clear();
   }
 
   public void endOperation() {
-    if (database != null) {
-      if (!database.isClosed()
-          && !database.getTransaction().isActive()
-          && database.getLocalCache() != null) {
-        database.getLocalCache().clear();
+    if (session != null) {
+      if (!session.isClosed()
+          && !session.getTransaction().isActive()
+          && session.getLocalCache() != null) {
+        session.getLocalCache().clear();
       }
     }
 
@@ -244,17 +245,17 @@ public class ClientConnection {
   }
 
   public void init(final YouTrackDBServer server) {
-    if (database == null) {
+    if (session == null) {
       data = server.getTokenHandler().getProtocolDataFromToken(this, token.getToken());
 
       if (data == null) {
         throw new TokenSecurityException("missing in token data");
       }
 
-      final var db = token.getToken().getDatabase();
+      final var dbName = token.getToken().getDatabaseName();
       final var type = token.getToken().getDatabaseType();
-      if (db != null && type != null) {
-        database = server.openDatabase(db, token);
+      if (dbName != null && type != null) {
+        session = server.openSession(dbName, token);
       }
     }
   }
@@ -292,39 +293,29 @@ public class ClientConnection {
   }
 
   @Nullable
-  public DatabaseSessionInternal getDatabase() {
-    return database;
+  public DatabaseSessionInternal getDatabaseSession() {
+    return session;
   }
 
   public void activateDatabaseOnCurrentThread() {
-    var database = this.database;
+    var database = this.session;
     if (database != null) {
       database.activateOnCurrentThread();
     }
   }
 
-  public boolean hasDatabase() {
-    if (database != null) {
-      return true;
-    } else if (token != null) {
-      return token.getToken().getDatabase() != null;
-    } else {
-      return false;
-    }
-  }
-
   public String getDatabaseName() {
-    if (database != null) {
-      return database.getName();
+    if (session != null) {
+      return session.getDatabaseName();
     } else if (token != null) {
-      return token.getToken().getDatabase();
+      return token.getToken().getDatabaseName();
     } else {
       return null;
     }
   }
 
-  public void setDatabase(DatabaseSessionInternal database) {
-    this.database = database;
+  public void setSession(DatabaseSessionInternal session) {
+    this.session = session;
   }
 
   public SecurityUser getServerUser() {
@@ -348,12 +339,12 @@ public class ClientConnection {
   }
 
   public void statsUpdate() {
-    if (database != null) {
-      database.activateOnCurrentThread();
-      stats.lastDatabase = database.getName();
+    if (session != null) {
+      session.activateOnCurrentThread();
+      stats.lastDatabase = session.getDatabaseName();
       stats.lastUser =
-          database.geCurrentUser() != null ? database.geCurrentUser().getName(database) : null;
-      stats.activeQueries = getActiveQueries(database);
+          session.geCurrentUser() != null ? session.geCurrentUser().getName(session) : null;
+      stats.activeQueries = getActiveQueries(session);
     } else {
       stats.lastDatabase = null;
       stats.lastUser = null;

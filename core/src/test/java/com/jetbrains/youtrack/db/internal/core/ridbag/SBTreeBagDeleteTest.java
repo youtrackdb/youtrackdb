@@ -5,13 +5,10 @@ import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.EdgeBTree;
 import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,14 +20,14 @@ public class SBTreeBagDeleteTest extends BaseMemoryInternalDatabase {
 
   public void beforeTest() throws Exception {
     super.beforeTest();
-    db.getConfiguration().setValue(RID_BAG_SBTREEBONSAI_DELETE_DELAY, 50);
+    session.getConfiguration().setValue(RID_BAG_SBTREEBONSAI_DELETE_DELAY, 50);
   }
 
   @Test
   public void testDeleteRidbagTx() throws InterruptedException {
 
-    var doc = (EntityImpl) db.newEntity();
-    var bag = new RidBag(db);
+    var doc = (EntityImpl) session.newEntity();
+    var bag = new RidBag(session);
     var size =
         GlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger() << 1;
     for (var i = 0; i < size; i++) {
@@ -38,21 +35,21 @@ public class SBTreeBagDeleteTest extends BaseMemoryInternalDatabase {
     }
     doc.field("bag", bag);
 
-    db.begin();
-    var id = db.save(doc).getIdentity();
-    db.commit();
+    session.begin();
+    var id = session.save(doc).getIdentity();
+    session.commit();
 
-    doc = db.bindToSession(doc);
+    doc = session.bindToSession(doc);
     bag = doc.field("bag");
     var pointer = bag.getPointer();
 
-    db.begin();
-    doc = db.bindToSession(doc);
-    db.delete(doc);
-    db.commit();
+    session.begin();
+    doc = session.bindToSession(doc);
+    session.delete(doc);
+    session.commit();
 
     try {
-      db.load(id);
+      session.load(id);
       Assert.fail();
     } catch (RecordNotFoundException e) {
       // ignore
@@ -60,7 +57,7 @@ public class SBTreeBagDeleteTest extends BaseMemoryInternalDatabase {
 
     Thread.sleep(100);
     var tree =
-        db.getSbTreeCollectionManager().loadSBTree(pointer);
+        session.getSbTreeCollectionManager().loadSBTree(pointer);
     assertEquals(0, tree.getRealBagSize(Collections.emptyMap()));
   }
 }

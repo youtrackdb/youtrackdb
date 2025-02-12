@@ -31,29 +31,18 @@ import com.jetbrains.youtrack.db.internal.client.remote.StorageRemote.CONNECTION
 import com.jetbrains.youtrack.db.internal.client.remote.db.DatabaseSessionRemote;
 import com.jetbrains.youtrack.db.internal.client.remote.db.SharedContextRemote;
 import com.jetbrains.youtrack.db.internal.client.remote.message.Connect37Request;
-import com.jetbrains.youtrack.db.internal.client.remote.message.ConnectResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.CreateDatabaseRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.CreateDatabaseResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.DropDatabaseRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.ExistsDatabaseRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.ExistsDatabaseResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.FreezeDatabaseRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.FreezeDatabaseResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.GetGlobalConfigurationRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.GetGlobalConfigurationResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.ListDatabasesRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.ListDatabasesResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.ListGlobalConfigurationsRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.ListGlobalConfigurationsResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.ReleaseDatabaseRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.ReleaseDatabaseResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.RemoteResultSet;
 import com.jetbrains.youtrack.db.internal.client.remote.message.ServerInfoRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.ServerInfoResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.ServerQueryRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.ServerQueryResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SetGlobalConfigurationRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.SetGlobalConfigurationResponse;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.thread.ThreadPoolExecutors;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
@@ -70,7 +59,6 @@ import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.security.CredentialInterceptor;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityManager;
 import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37Client;
@@ -179,13 +167,13 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
           storages.put(name, storage);
         }
       }
-      var db =
+      var session =
           new DatabaseSessionRemote(storage, getOrCreateSharedContext(storage));
-      db.internalOpen(user, password, resolvedConfig);
-      return db;
+      session.internalOpen(user, password, resolvedConfig);
+      return session;
     } catch (Exception e) {
       throw BaseException.wrapException(
-          new DatabaseException("Cannot open database '" + name + "'"), e);
+          new DatabaseException(name, "Cannot open database '" + name + "'"), e, name);
     }
   }
 
@@ -213,7 +201,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
     if (name == null || name.length() <= 0 || name.contains("`")) {
       final var message = "Cannot create unnamed remote storage. Check your syntax";
       LogManager.instance().error(this, message, null);
-      throw new StorageException(message);
+      throw new StorageException(name, message);
     }
     var create = String.format("CREATE DATABASE `%s` %s ", name, databaseType.name());
     Map<String, Object> parameters = new HashMap<String, Object>();
@@ -244,7 +232,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
           storages.put(name, storage);
         } catch (Exception e) {
           throw BaseException.wrapException(
-              new DatabaseException("Cannot open database '" + name + "'"), e);
+              new DatabaseException(name, "Cannot open database '" + name + "'"), e, name);
         }
       }
     }
@@ -272,6 +260,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
 
     return res;
   }
+
   public String getGlobalConfiguration(
       String username, String password, GlobalConfiguration config) {
     var request = new GetGlobalConfigurationRequest(config.getKey());
@@ -344,7 +333,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
     if (name == null || name.length() <= 0) {
       final var message = "Cannot create unnamed remote storage. Check your syntax";
       LogManager.instance().error(this, message, null);
-      throw new StorageException(message);
+      throw new StorageException(name, message);
     }
 
     var request =
@@ -691,7 +680,8 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
         connectionManager.release(network);
       }
       session.closeAllSessions(connectionManager, config);
-      throw BaseException.wrapException(new StorageException(errorMessage), e);
+      throw BaseException.wrapException(new StorageException(session.currentUrl, errorMessage), e,
+          session.currentUrl);
     }
   }
 
@@ -701,7 +691,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
   }
 
   private <T> T connectAndExecute(
-      String name, String user, String password, SessionOperation<T> operation) {
+      String dbName, String user, String password, SessionOperation<T> operation) {
     checkOpen();
     var newSession = new StorageRemoteSession(-1);
     var retry = configurations.getConfiguration().getValueAsInteger(NETWORK_SOCKET_RETRY);
@@ -711,7 +701,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
 
         String username;
         String foundPassword;
-        var url = buildUrl(name);
+        var url = buildUrl(dbName);
         if (ci != null) {
           ci.intercept(url, user, password);
           username = ci.getUsername();
@@ -749,16 +739,16 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
         retry--;
         if (retry == 0) {
           throw BaseException.wrapException(
-              new DatabaseException(
+              new DatabaseException(dbName,
                   "Reached maximum retry limit on admin operations, the server may be offline"),
-              e);
+              e, dbName);
         }
       } finally {
         newSession.closeAllSessions(connectionManager, configurations.getConfiguration());
       }
     }
     // SHOULD NEVER REACH THIS POINT
-    throw new DatabaseException(
+    throw new DatabaseException(dbName,
         "Reached maximum retry limit on admin operations, the server may be offline");
   }
 

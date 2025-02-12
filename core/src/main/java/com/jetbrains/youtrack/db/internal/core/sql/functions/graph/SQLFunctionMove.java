@@ -44,7 +44,7 @@ public abstract class SQLFunctionMove extends SQLFunctionConfigurableAbstract {
       final Object[] iParameters,
       final CommandContext iContext) {
 
-    var db = iContext.getDatabase();
+    var db = iContext.getDatabaseSession();
     final String[] labels;
     if (iParameters != null && iParameters.length > 0 && iParameters[0] != null) {
       labels =

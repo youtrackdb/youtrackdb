@@ -19,7 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command.script;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestTextAbstract;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -39,9 +38,6 @@ public class CommandScript extends CommandRequestTextAbstract {
 
   private String language;
   private CompiledScript compiledScript;
-
-  private CommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE executionMode =
-      CommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE.LOCAL;
 
   public CommandScript() {
     useCache = true;
@@ -78,17 +74,6 @@ public class CommandScript extends CommandRequestTextAbstract {
       throws SerializationException {
     final var buffer = new MemoryStream(iStream);
     language = buffer.getAsString();
-
-    // FIX TO HANDLE USAGE OF EXECUTION MODE STARTING FROM v2.1.3
-    final var currPosition = buffer.getPosition();
-    final var value = buffer.getAsString();
-    try {
-      executionMode = CommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE.valueOf(value);
-    } catch (IllegalArgumentException ignore) {
-      // OLD VERSION: RESET TO THE OLD POSITION
-      buffer.setPosition(currPosition);
-    }
-
     fromStream(db, buffer, serializer);
     return this;
   }
@@ -97,7 +82,6 @@ public class CommandScript extends CommandRequestTextAbstract {
       throws SerializationException {
     final var buffer = new MemoryStream();
     buffer.setUtf8(language);
-    buffer.setUtf8(executionMode.name());
     return toStream(buffer);
   }
 
@@ -115,15 +99,5 @@ public class CommandScript extends CommandRequestTextAbstract {
       return language + "." + text;
     }
     return "script." + text;
-  }
-
-  public CommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE getExecutionMode() {
-    return executionMode;
-  }
-
-  public CommandScript setExecutionMode(
-      CommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE executionMode) {
-    this.executionMode = executionMode;
-    return this;
   }
 }

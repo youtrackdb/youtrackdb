@@ -20,6 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.common.serialization.types;
 
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
 import java.nio.ByteBuffer;
 import java.util.Calendar;
@@ -35,23 +36,27 @@ public class DateTimeSerializer implements BinarySerializer<Date> {
   public static final byte ID = 5;
   public static final DateTimeSerializer INSTANCE = new DateTimeSerializer();
 
-  public int getObjectSize(Date object, Object... hints) {
+  public int getObjectSize(BinarySerializerFactory serializerFactory, Date object,
+      Object... hints) {
     return LongSerializer.LONG_SIZE;
   }
 
-  public void serialize(Date object, byte[] stream, int startPosition, Object... hints) {
+  public void serialize(Date object, BinarySerializerFactory serializerFactory, byte[] stream,
+      int startPosition, Object... hints) {
     final var calendar = Calendar.getInstance();
     calendar.setTime(object);
-    LongSerializer.INSTANCE.serializeLiteral(calendar.getTimeInMillis(), stream, startPosition);
+    LongSerializer.serializeLiteral(calendar.getTimeInMillis(), stream, startPosition);
   }
 
-  public Date deserialize(byte[] stream, int startPosition) {
+  public Date deserialize(BinarySerializerFactory serializerFactory, byte[] stream,
+      int startPosition) {
     final var calendar = Calendar.getInstance();
-    calendar.setTimeInMillis(LongSerializer.INSTANCE.deserializeLiteral(stream, startPosition));
+    calendar.setTimeInMillis(LongSerializer.deserializeLiteral(stream, startPosition));
     return calendar.getTime();
   }
 
-  public int getObjectSize(byte[] stream, int startPosition) {
+  public int getObjectSize(BinarySerializerFactory serializerFactory, byte[] stream,
+      int startPosition) {
     return LongSerializer.LONG_SIZE;
   }
 
@@ -59,20 +64,23 @@ public class DateTimeSerializer implements BinarySerializer<Date> {
     return ID;
   }
 
-  public int getObjectSizeNative(byte[] stream, int startPosition) {
+  public int getObjectSizeNative(BinarySerializerFactory serializerFactory, byte[] stream,
+      int startPosition) {
     return LongSerializer.LONG_SIZE;
   }
 
   @Override
   public void serializeNativeObject(
-      Date object, byte[] stream, int startPosition, Object... hints) {
+      Date object, BinarySerializerFactory serializerFactory, byte[] stream, int startPosition,
+      Object... hints) {
     final var calendar = Calendar.getInstance();
     calendar.setTime(object);
     LongSerializer.INSTANCE.serializeNative(calendar.getTimeInMillis(), stream, startPosition);
   }
 
   @Override
-  public Date deserializeNativeObject(byte[] stream, int startPosition) {
+  public Date deserializeNativeObject(BinarySerializerFactory serializerFactory, byte[] stream,
+      int startPosition) {
     final var calendar = Calendar.getInstance();
     calendar.setTimeInMillis(LongSerializer.INSTANCE.deserializeNative(stream, startPosition));
     return calendar.getTime();
@@ -87,7 +95,7 @@ public class DateTimeSerializer implements BinarySerializer<Date> {
   }
 
   @Override
-  public Date preprocess(Date value, Object... hints) {
+  public Date preprocess(BinarySerializerFactory serializerFactory, Date value, Object... hints) {
     return value;
   }
 
@@ -95,7 +103,8 @@ public class DateTimeSerializer implements BinarySerializer<Date> {
    * {@inheritDoc}
    */
   @Override
-  public void serializeInByteBufferObject(Date object, ByteBuffer buffer, Object... hints) {
+  public void serializeInByteBufferObject(BinarySerializerFactory serializerFactory, Date object,
+      ByteBuffer buffer, Object... hints) {
     final var calendar = Calendar.getInstance();
     calendar.setTime(object);
     buffer.putLong(calendar.getTimeInMillis());
@@ -105,14 +114,16 @@ public class DateTimeSerializer implements BinarySerializer<Date> {
    * {@inheritDoc}
    */
   @Override
-  public Date deserializeFromByteBufferObject(ByteBuffer buffer) {
+  public Date deserializeFromByteBufferObject(BinarySerializerFactory serializerFactory,
+      ByteBuffer buffer) {
     final var calendar = Calendar.getInstance();
     calendar.setTimeInMillis(buffer.getLong());
     return calendar.getTime();
   }
 
   @Override
-  public Date deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
+  public Date deserializeFromByteBufferObject(BinarySerializerFactory serializerFactory, int offset,
+      ByteBuffer buffer) {
     final var calendar = Calendar.getInstance();
     calendar.setTimeInMillis(buffer.getLong(offset));
 
@@ -123,12 +134,14 @@ public class DateTimeSerializer implements BinarySerializer<Date> {
    * {@inheritDoc}
    */
   @Override
-  public int getObjectSizeInByteBuffer(ByteBuffer buffer) {
+  public int getObjectSizeInByteBuffer(BinarySerializerFactory serializerFactory,
+      ByteBuffer buffer) {
     return LongSerializer.LONG_SIZE;
   }
 
   @Override
-  public int getObjectSizeInByteBuffer(int offset, ByteBuffer buffer) {
+  public int getObjectSizeInByteBuffer(BinarySerializerFactory serializerFactory, int offset,
+      ByteBuffer buffer) {
     return LongSerializer.LONG_SIZE;
   }
 
@@ -137,7 +150,8 @@ public class DateTimeSerializer implements BinarySerializer<Date> {
    */
   @Override
   public Date deserializeFromByteBufferObject(
-      ByteBuffer buffer, WALChanges walChanges, int offset) {
+      BinarySerializerFactory serializerFactory, ByteBuffer buffer, WALChanges walChanges,
+      int offset) {
     final var calendar = Calendar.getInstance();
     calendar.setTimeInMillis(walChanges.getLongValue(buffer, offset));
     return calendar.getTime();

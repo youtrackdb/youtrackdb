@@ -25,8 +25,6 @@ import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.ScriptExecutor;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.RetryQueryException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
@@ -167,7 +165,7 @@ public class Function extends IdentityWrapper {
     if (iContext == null) {
       iContext = new BasicCommandContext();
     }
-    var database = iContext.getDatabase();
+    var database = iContext.getDatabaseSession();
     final var params = parameters;
 
     // CONVERT PARAMETERS IN A MAP
@@ -206,7 +204,7 @@ public class Function extends IdentityWrapper {
 
   public Object executeInContext(@Nonnull CommandContext iContext,
       @Nonnull final Map<String, Object> iArgs) {
-    var database = iContext.getDatabase();
+    var database = iContext.getDatabaseSession();
     // CONVERT PARAMETERS IN A MAP
     final Map<Object, Object> args = new LinkedHashMap<>();
 
@@ -265,7 +263,7 @@ public class Function extends IdentityWrapper {
       YouTrackDBEnginesManager.instance()
           .getProfiler()
           .stopChrono(
-              "db." + DatabaseRecordThreadLocal.instance().get().getName() + ".function.execute",
+              "db." + session.getDatabaseName() + ".function.execute",
               "Time to execute a function",
               start,
               "db.*.function.execute");

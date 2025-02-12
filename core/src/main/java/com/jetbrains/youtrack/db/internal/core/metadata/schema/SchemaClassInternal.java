@@ -4,6 +4,7 @@ import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
@@ -13,12 +14,12 @@ public interface SchemaClassInternal extends SchemaClass {
 
   SchemaClass truncateCluster(DatabaseSession session, String clusterName);
 
-  ClusterSelectionStrategy getClusterSelection();
+  ClusterSelectionStrategy getClusterSelection(DatabaseSession db);
 
   SchemaClass setClusterSelection(DatabaseSession session,
       final ClusterSelectionStrategy clusterSelection);
 
-  int getClusterForNewInstance(final EntityImpl entity);
+  int getClusterForNewInstance(DatabaseSession db, final EntityImpl entity);
 
   Set<Index> getInvolvedIndexesInternal(DatabaseSession session, String... fields);
 
@@ -46,7 +47,7 @@ public interface SchemaClassInternal extends SchemaClass {
 
   long count(DatabaseSession session, final boolean isPolymorphic);
 
-  SchemaPropertyInternal getPropertyInternal(String propertyName);
+  SchemaPropertyInternal getPropertyInternal(DatabaseSessionInternal db, String propertyName);
 
   Set<Index> getClassInvolvedIndexesInternal(DatabaseSession session, String... fields);
 

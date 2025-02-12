@@ -33,7 +33,7 @@ public class SaveElementStep extends AbstractExecutionStep {
 
   private Result mapResult(Result result, CommandContext ctx) {
     if (result.isEntity()) {
-      var db = ctx.getDatabase();
+      var db = ctx.getDatabaseSession();
 
       if (cluster == null) {
         db.save(result.getEntity().orElse(null));

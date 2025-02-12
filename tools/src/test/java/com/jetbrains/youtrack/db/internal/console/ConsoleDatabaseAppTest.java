@@ -39,7 +39,7 @@ public class ConsoleDatabaseAppTest {
           "create database test memory users (admin identified by 'admin' role admin)");
       app.open("test", "admin", "admin");
 
-      var db = (DatabaseSessionInternal) app.getCurrentDatabase();
+      var db = (DatabaseSessionInternal) app.getCurrentDatabaseSession();
       db.addBlobCluster("blobTest");
 
       db.begin();
@@ -76,7 +76,7 @@ public class ConsoleDatabaseAppTest {
     try {
       console.run();
 
-      try (var db = console.getCurrentDatabase()) {
+      try (var db = console.getCurrentDatabaseSession()) {
         var result = db.query("select from foo where name = 'foo'");
         var doc = result.next();
         Assert.assertNull(doc.getProperty("surname"));
@@ -104,7 +104,7 @@ public class ConsoleDatabaseAppTest {
     try {
       console.run();
 
-      try (var db = console.getCurrentDatabase()) {
+      try (var db = console.getCurrentDatabaseSession()) {
         var size = db.query("select from foo where name = 'foo'").stream().count();
         Assert.assertEquals(1, size);
       }
@@ -240,7 +240,7 @@ public class ConsoleDatabaseAppTest {
     try {
       console.run();
 
-      var db = console.getCurrentDatabase();
+      var db = console.getCurrentDatabaseSession();
       var result = db.query("select from foo where name = 'foo'");
       var doc = result.next();
       Assert.assertEquals("bar", doc.getProperty("surname"));
@@ -305,7 +305,7 @@ public class ConsoleDatabaseAppTest {
     try {
       console.run();
 
-      var db = console.getCurrentDatabase();
+      var db = console.getCurrentDatabaseSession();
       var result = db.query("select from foo where name = 'foo'");
       var doc = result.next();
       Assert.assertEquals("bar", doc.getProperty("surname"));

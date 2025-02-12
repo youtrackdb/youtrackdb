@@ -2,14 +2,12 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.command.script.CommandScript;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.junit.Assert;
@@ -21,15 +19,15 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
   public void beforeTest() throws Exception {
     super.beforeTest();
 
-    db.command("CREATE class foo").close();
+    session.command("CREATE class foo").close();
 
-    db.begin();
-    db.command("insert into foo (name, bar) values ('a', 1)").close();
-    db.command("insert into foo (name, bar) values ('b', 2)").close();
-    db.command("insert into foo (name, bar) values ('c', 3)").close();
-    db.commit();
+    session.begin();
+    session.command("insert into foo (name, bar) values ('a', 1)").close();
+    session.command("insert into foo (name, bar) values ('b', 2)").close();
+    session.command("insert into foo (name, bar) values ('c', 3)").close();
+    session.commit();
 
-    db.activateOnCurrentThread();
+    session.activateOnCurrentThread();
   }
 
   @Test
@@ -40,7 +38,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
         commit
         return $a
         """;
-    List<EntityImpl> qResult = db.command(new CommandScript("sql", script)).execute(db);
+    List<EntityImpl> qResult = session.command(new CommandScript("sql", script)).execute(session);
 
     Assert.assertEquals(3, qResult.size());
   }
@@ -54,7 +52,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
             commit retry 10
             return $a
             """;
-    EntityImpl qResult = db.command(new CommandScript("sql", script)).execute(db);
+    EntityImpl qResult = session.command(new CommandScript("sql", script)).execute(session);
 
     Assert.assertNotNull(qResult);
   }
@@ -66,28 +64,28 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
     script.append("let $a = insert into V set test = 'sql script test'\n");
     script.append("commit\n");
     script.append("return $a.toJSON()\n");
-    String qResult = db.command(new CommandScript("sql", script.toString())).execute(db);
+    String qResult = session.command(new CommandScript("sql", script.toString())).execute(session);
     Assert.assertNotNull(qResult);
 
-    db.newEntity().updateFromJSON(qResult);
+    session.newEntity().updateFromJSON(qResult);
 
     script = new StringBuilder();
     script.append("let $a = select from V limit 2\n");
     script.append("return $a.toJSON()\n");
-    String result = db.command(new CommandScript("sql", script.toString())).execute(db);
+    String result = session.command(new CommandScript("sql", script.toString())).execute(session);
 
     Assert.assertNotNull(result);
     result = result.trim();
     Assert.assertTrue(result.startsWith("["));
     Assert.assertTrue(result.endsWith("]"));
-    db.newEntity().updateFromJSON(result.substring(1, result.length() - 1));
+    session.newEntity().updateFromJSON(result.substring(1, result.length() - 1));
   }
 
   @Test
   public void testSleep() {
     var begin = System.currentTimeMillis();
 
-    db.command(new CommandScript("sql", "sleep 500")).execute(db);
+    session.command(new CommandScript("sql", "sleep 500")).execute(session);
 
     Assert.assertTrue(System.currentTimeMillis() - begin >= 500);
   }
@@ -95,25 +93,25 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
   @Test
   public void testConsoleLog() {
     var script = "LET $a = 'log'\n" + "console.log 'This is a test of log for ${a}'";
-    db.command(new CommandScript("sql", script)).execute(db);
+    session.command(new CommandScript("sql", script)).execute(session);
   }
 
   @Test
   public void testConsoleOutput() {
     var script = "LET $a = 'output'\n" + "console.output 'This is a test of log for ${a}'";
-    db.command(new CommandScript("sql", script)).execute(db);
+    session.command(new CommandScript("sql", script)).execute(session);
   }
 
   @Test
   public void testConsoleError() {
     var script = "LET $a = 'error'\n" + "console.error 'This is a test of log for ${a}'";
-    db.command(new CommandScript("sql", script)).execute(db);
+    session.command(new CommandScript("sql", script)).execute(session);
   }
 
   @Test
   public void testReturnObject() {
     Collection<Object> result =
-        db.command(new CommandScript("sql", "return [{ a: 'b' }]")).execute(db);
+        session.command(new CommandScript("sql", "return [{ a: 'b' }]")).execute(session);
 
     Assert.assertNotNull(result);
 
@@ -134,9 +132,9 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
             UPDATE TestCounter INCREMENT weight = $counter[0].count RETURN AfTER @this;
             commit;
             """;
-    List<EntityImpl> qResult = db.command(new CommandScript("sql", script)).execute(db);
+    List<EntityImpl> qResult = session.command(new CommandScript("sql", script)).execute(session);
 
-    assertThat(db.bindToSession(qResult.get(0)).<Long>field("weight")).isEqualTo(4L);
+    assertThat(session.bindToSession(qResult.get(0)).<Long>field("weight")).isEqualTo(4L);
   }
 
   @Test
@@ -152,7 +150,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
             UPDATE TestCounter INCREMENT weight = $counter[0].count RETURN AfTER @this;
             commit;
             """;
-    var qResult = db.execute("sql", script);
+    var qResult = session.execute("sql", script);
 
     assertThat(qResult.next().getEntity().orElseThrow().<Long>getProperty("weight")).isEqualTo(4L);
   }
@@ -168,7 +166,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
             };
             return 'FAIL';
             """;
-    var qResult = db.execute("sql", script).stream().findFirst().orElseThrow();
+    var qResult = session.execute("sql", script).stream().findFirst().orElseThrow();
 
     Assert.assertNotNull(qResult);
     Assert.assertEquals("OK", qResult.getProperty("value"));
@@ -185,7 +183,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
                  };     \s
             return 'FAIL';
             """;
-    var qResult = db.execute("sql", script).stream().findFirst().orElseThrow();
+    var qResult = session.execute("sql", script).stream().findFirst().orElseThrow();
 
     Assert.assertNotNull(qResult);
     Assert.assertEquals("OK", qResult.getProperty("value"));
@@ -194,7 +192,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
   @Test
   public void testIf3() {
     var qResult =
-        db.execute(
+        session.execute(
 
                 "sql",
                 "let $a = select 1 as one; if($a[0].one = 1){return 'OK';}return 'FAIL';").stream()
@@ -217,7 +215,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
             };
             return 'FAIL';
             """;
-    var qResult = db.execute("sql", script).stream().findFirst().orElseThrow();
+    var qResult = session.execute("sql", script).stream().findFirst().orElseThrow();
 
     Assert.assertNotNull(qResult);
     Assert.assertEquals("OK", qResult.getProperty("value"));
@@ -237,7 +235,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
             };
             return 'OK';
             """;
-    var qResult = db.execute("sql", script).stream().findFirst().orElseThrow();
+    var qResult = session.execute("sql", script).stream().findFirst().orElseThrow();
 
     Assert.assertNotNull(qResult);
     Assert.assertEquals("OK", qResult.getProperty("value"));
@@ -254,7 +252,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
             }
             return 'FAIL'
             """;
-    var qResult = db.command(new CommandScript("sql", script)).execute(db);
+    var qResult = session.command(new CommandScript("sql", script)).execute(session);
 
     Assert.assertNotNull(qResult);
     Assert.assertEquals(3, ((List<?>) qResult).size());
@@ -272,7 +270,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
             };
             return 'FAIL';
             """;
-    var qResult = db.execute("sql", script).stream().findFirst().orElseThrow();
+    var qResult = session.execute("sql", script).stream().findFirst().orElseThrow();
 
     Assert.assertNotNull(qResult);
     Assert.assertEquals("OK", qResult.getProperty("value"));
@@ -286,7 +284,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
             let $a = select from foo limit 1
             select from (traverse doesnotexist from $a)
             """;
-    Iterable<?> qResult = db.command(new CommandScript("sql", script)).execute(db);
+    Iterable<?> qResult = session.command(new CommandScript("sql", script)).execute(session);
 
     Assert.assertNotNull(qResult);
     var iterator = qResult.iterator();
@@ -305,18 +303,18 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
             let $a = select "foo ; bar" as one;
             let $b = select "foo \\"; bar" as one;
             """;
-    db.execute("sql", script).close();
+    session.execute("sql", script).close();
   }
 
   @Test
   public void testQuotedRegex() {
     // issue #4996 (simplified)
-    db.command("CREATE CLASS QuotedRegex2").close();
+    session.command("CREATE CLASS QuotedRegex2").close();
     var batch = "begin;INSERT INTO QuotedRegex2 SET regexp=\"'';\";commit;";
 
-    db.command(new CommandScript(batch)).execute(db);
+    session.command(new CommandScript(batch)).execute(session);
 
-    List<EntityImpl> result = db.query(
+    List<EntityImpl> result = session.query(
         new SQLSynchQuery<EntityImpl>("SELECT FROM QuotedRegex2"));
     Assert.assertEquals(1, result.size());
     var doc = result.get(0);
@@ -326,7 +324,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
   @Test
   public void testParameters1() {
     var className = "testParameters1";
-    db.createVertexClass(className);
+    session.createVertexClass(className);
     var script =
         "BEGIN;"
             + "LET $a = CREATE VERTEX "
@@ -343,10 +341,10 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
     map.put("name", "bozo");
     map.put("_name2", "bozi");
 
-    var rs = db.execute("sql", script, map);
+    var rs = session.execute("sql", script, map);
     rs.close();
 
-    rs = db.query("SELECT FROM " + className + " WHERE name = ?", "bozo");
+    rs = session.query("SELECT FROM " + className + " WHERE name = ?", "bozo");
 
     Assert.assertTrue(rs.hasNext());
     rs.next();
@@ -356,7 +354,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
   @Test
   public void testPositionalParameters() {
     var className = "testPositionalParameters";
-    db.createVertexClass(className);
+    session.createVertexClass(className);
     var script =
         "BEGIN;"
             + "LET $a = CREATE VERTEX "
@@ -369,10 +367,10 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
             + "COMMIT;"
             + "RETURN $edge;";
 
-    var rs = db.execute("sql", script, "bozo", "bozi");
+    var rs = session.execute("sql", script, "bozo", "bozi");
     rs.close();
 
-    rs = db.query("SELECT FROM " + className + " WHERE name = ?", "bozo");
+    rs = session.query("SELECT FROM " + className + " WHERE name = ?", "bozo");
 
     Assert.assertTrue(rs.hasNext());
     rs.next();

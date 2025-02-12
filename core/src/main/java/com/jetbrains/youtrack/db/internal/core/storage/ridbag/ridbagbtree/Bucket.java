@@ -3,6 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurablePage;
 import java.util.ArrayList;
@@ -58,13 +59,13 @@ final class Bucket extends DurablePage {
     return getByteValue(IS_LEAF_OFFSET) > 0;
   }
 
-  public int find(final EdgeKey key) {
+  public int find(final EdgeKey key, BinarySerializerFactory serializerFactory) {
     var low = 0;
     var high = size() - 1;
 
     while (low <= high) {
       final var mid = (low + high) >>> 1;
-      final var midKey = getKey(mid);
+      final var midKey = getKey(mid, serializerFactory);
       final var cmp = midKey.compareTo(key);
 
       if (cmp < 0) {
@@ -79,24 +80,26 @@ final class Bucket extends DurablePage {
     return -(low + 1); // key not found.
   }
 
-  public EdgeKey getKey(final int index) {
+  public EdgeKey getKey(final int index, BinarySerializerFactory serializerFactory) {
     var entryPosition = getPointer(index);
 
     if (!isLeaf()) {
       entryPosition += 2 * IntegerSerializer.INT_SIZE;
     }
 
-    return deserializeFromDirectMemory(EdgeKeySerializer.INSTANCE, entryPosition);
+    return deserializeFromDirectMemory(EdgeKeySerializer.INSTANCE, serializerFactory,
+        entryPosition);
   }
 
-  private byte[] getRawKey(final int index) {
+  private byte[] getRawKey(final int index, BinarySerializerFactory serializerFactory) {
     var entryPosition = getPointer(index);
 
     if (!isLeaf()) {
       entryPosition += 2 * IntegerSerializer.INT_SIZE;
     }
 
-    final var keySize = getObjectSizeInDirectMemory(EdgeKeySerializer.INSTANCE, entryPosition);
+    final var keySize = getObjectSizeInDirectMemory(EdgeKeySerializer.INSTANCE, serializerFactory,
+        entryPosition);
     return getBinaryValue(entryPosition, keySize);
   }
 
@@ -199,17 +202,20 @@ final class Bucket extends DurablePage {
     }
   }
 
-  public TreeEntry getEntry(final int entryIndex) {
+  public TreeEntry getEntry(final int entryIndex, BinarySerializerFactory serializerFactory) {
     var entryPosition = getPointer(entryIndex);
 
     if (isLeaf()) {
       final EdgeKey key;
 
-      key = deserializeFromDirectMemory(EdgeKeySerializer.INSTANCE, entryPosition);
+      key = deserializeFromDirectMemory(EdgeKeySerializer.INSTANCE, serializerFactory,
+          entryPosition);
 
-      entryPosition += getObjectSizeInDirectMemory(EdgeKeySerializer.INSTANCE, entryPosition);
+      entryPosition += getObjectSizeInDirectMemory(EdgeKeySerializer.INSTANCE, serializerFactory,
+          entryPosition);
 
-      final int value = deserializeFromDirectMemory(IntSerializer.INSTANCE, entryPosition);
+      final int value = deserializeFromDirectMemory(IntSerializer.INSTANCE, serializerFactory,
+          entryPosition);
 
       return new TreeEntry(-1, -1, key, value);
     } else {
@@ -219,7 +225,8 @@ final class Bucket extends DurablePage {
       final var rightChild = getIntValue(entryPosition);
       entryPosition += IntegerSerializer.INT_SIZE;
 
-      final var key = deserializeFromDirectMemory(EdgeKeySerializer.INSTANCE, entryPosition);
+      final var key = deserializeFromDirectMemory(EdgeKeySerializer.INSTANCE, serializerFactory,
+          entryPosition);
 
       return new TreeEntry(leftChild, rightChild, key, -1);
     }
@@ -241,25 +248,28 @@ final class Bucket extends DurablePage {
     return getIntValue(entryPosition + IntegerSerializer.INT_SIZE);
   }
 
-  public int getValue(final int entryIndex) {
+  public int getValue(final int entryIndex, BinarySerializerFactory serializerFactory) {
     assert isLeaf();
 
     var entryPosition = getPointer(entryIndex);
 
     // skip key
-    entryPosition += getObjectSizeInDirectMemory(EdgeKeySerializer.INSTANCE, entryPosition);
-    return deserializeFromDirectMemory(IntSerializer.INSTANCE, entryPosition);
+    entryPosition += getObjectSizeInDirectMemory(EdgeKeySerializer.INSTANCE, serializerFactory,
+        entryPosition);
+    return deserializeFromDirectMemory(IntSerializer.INSTANCE, serializerFactory, entryPosition);
   }
 
-  byte[] getRawValue(final int entryIndex) {
+  byte[] getRawValue(final int entryIndex, BinarySerializerFactory serializerFactory) {
     assert isLeaf();
 
     var entryPosition = getPointer(entryIndex);
 
     // skip key
-    entryPosition += getObjectSizeInDirectMemory(EdgeKeySerializer.INSTANCE, entryPosition);
+    entryPosition += getObjectSizeInDirectMemory(EdgeKeySerializer.INSTANCE, serializerFactory,
+        entryPosition);
 
-    final var intSize = getObjectSizeInDirectMemory(IntSerializer.INSTANCE, entryPosition);
+    final var intSize = getObjectSizeInDirectMemory(IntSerializer.INSTANCE, serializerFactory,
+        entryPosition);
     return getBinaryValue(entryPosition, intSize);
   }
 
@@ -286,11 +296,11 @@ final class Bucket extends DurablePage {
     setBinaryValue(freePointer, rawEntry);
   }
 
-  public void shrink(final int newSize) {
+  public void shrink(final int newSize, BinarySerializerFactory serializerFactory) {
     final List<byte[]> rawEntries = new ArrayList<>(newSize);
 
     for (var i = 0; i < newSize; i++) {
-      rawEntries.add(getRawEntry(i));
+      rawEntries.add(getRawEntry(i, serializerFactory));
     }
 
     setFreePointer(MAX_PAGE_SIZE_BYTES);
@@ -302,19 +312,22 @@ final class Bucket extends DurablePage {
     setSize(newSize);
   }
 
-  public byte[] getRawEntry(final int entryIndex) {
+  public byte[] getRawEntry(final int entryIndex, BinarySerializerFactory serializerFactory) {
     var entryPosition = getPointer(entryIndex);
     final var startEntryPosition = entryPosition;
 
     if (isLeaf()) {
-      final var keySize = getObjectSizeInDirectMemory(EdgeKeySerializer.INSTANCE, entryPosition);
+      final var keySize = getObjectSizeInDirectMemory(EdgeKeySerializer.INSTANCE, serializerFactory,
+          entryPosition);
       final var valueSize =
-          getObjectSizeInDirectMemory(IntSerializer.INSTANCE, startEntryPosition + keySize);
+          getObjectSizeInDirectMemory(IntSerializer.INSTANCE, serializerFactory,
+              startEntryPosition + keySize);
       return getBinaryValue(startEntryPosition, keySize + valueSize);
     } else {
       entryPosition += 2 * IntegerSerializer.INT_SIZE;
 
-      final var keySize = getObjectSizeInDirectMemory(EdgeKeySerializer.INSTANCE, entryPosition);
+      final var keySize = getObjectSizeInDirectMemory(EdgeKeySerializer.INSTANCE, serializerFactory,
+          entryPosition);
 
       return getBinaryValue(startEntryPosition, keySize + 2 * IntegerSerializer.INT_SIZE);
     }
@@ -422,14 +435,16 @@ final class Bucket extends DurablePage {
     return getLongValue(RIGHT_SIBLING_OFFSET);
   }
 
-  public void updateValue(final int index, final byte[] value, final int keySize) {
+  public void updateValue(final int index, final byte[] value, final int keySize,
+      BinarySerializerFactory serializerFactory) {
     final var entryPosition = getPointer(index) + keySize;
 
-    final var valueSize = getObjectSizeInDirectMemory(IntSerializer.INSTANCE, entryPosition);
+    final var valueSize = getObjectSizeInDirectMemory(IntSerializer.INSTANCE, serializerFactory,
+        entryPosition);
     if (valueSize == value.length) {
       setBinaryValue(entryPosition, value);
     } else {
-      final var rawKey = getRawKey(index);
+      final var rawKey = getRawKey(index, serializerFactory);
 
       removeLeafEntry(index, keySize, valueSize);
       addLeafEntry(index, rawKey, value);

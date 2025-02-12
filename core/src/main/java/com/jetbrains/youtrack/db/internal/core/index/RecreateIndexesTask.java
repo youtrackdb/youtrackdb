@@ -1,15 +1,15 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionEmbedded;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionEmbedded;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 public class RecreateIndexesTask implements Runnable {
@@ -37,20 +37,15 @@ public class RecreateIndexesTask implements Runnable {
       newDb.init(null, ctx);
       newDb.internalOpen("admin", "nopass", false);
 
-      final Collection<EntityImpl> indexesToRebuild;
-      indexManager.acquireExclusiveLock();
+      final ArrayList<Map<String, Object>> indexesToRebuild;
+      indexManager.acquireExclusiveLock(newDb);
       try {
-        final Collection<EntityImpl> knownIndexes =
-            indexManager.getDocument(newDb).field(IndexManagerShared.CONFIG_INDEXES);
-        if (knownIndexes == null) {
-          LogManager.instance().warn(this, "List of indexes is empty");
-          indexesToRebuild = Collections.emptyList();
-        } else {
-          indexesToRebuild = new ArrayList<>();
-          for (var index : knownIndexes) {
-            indexesToRebuild.add(index.copy()); // make copies to safely iterate them later
-          }
-        }
+        var knownIndexes =
+            (indexManager.getDocument(newDb)
+                .<Set<Entity>>getProperty(IndexManagerShared.CONFIG_INDEXES)).stream()
+                .map(Entity::toMap).toList();
+        // make copies to safely iterate them later
+        indexesToRebuild = new ArrayList<>(knownIndexes);
       } finally {
         indexManager.releaseExclusiveLock(newDb);
       }
@@ -71,7 +66,7 @@ public class RecreateIndexesTask implements Runnable {
   }
 
   private void recreateIndexes(
-      Collection<EntityImpl> indexesToRebuild, DatabaseSessionEmbedded db) {
+      Collection<Map<String, Object>> indexesToRebuild, DatabaseSessionEmbedded db) {
     ok = 0;
     errors = 0;
     for (var index : indexesToRebuild) {
@@ -91,9 +86,9 @@ public class RecreateIndexesTask implements Runnable {
         .info(this, "%d indexes were restored successfully, %d errors", ok, errors);
   }
 
-  private void recreateIndex(EntityImpl indexDocument, DatabaseSessionEmbedded db) {
-    final var index = createIndex(indexDocument);
-    final var indexMetadata = index.loadMetadata(indexDocument);
+  private void recreateIndex(Map<String, Object> indexMap, DatabaseSessionEmbedded db) {
+    final var index = createIndex(db, indexMap);
+    final var indexMetadata = index.loadMetadata(db, indexMap);
     final var indexDefinition = indexMetadata.getIndexDefinition();
 
     final var automatic = indexDefinition != null && indexDefinition.isAutomatic();
@@ -113,14 +108,14 @@ public class RecreateIndexesTask implements Runnable {
                 "Index '%s' is a durable automatic index and will be added as is without"
                     + " rebuilding",
                 indexMetadata.getName());
-        addIndexAsIs(indexDocument, index, db);
+        addIndexAsIs(indexMap, index, db);
       } else {
         LogManager.instance()
             .info(
                 this,
                 "Index '%s' is a non-durable automatic index and must be rebuilt",
                 indexMetadata.getName());
-        rebuildNonDurableAutomaticIndex(db, indexDocument, index, indexMetadata, indexDefinition);
+        rebuildNonDurableAutomaticIndex(db, indexMap, index, indexMetadata, indexDefinition);
       }
     } else {
       if (durable) {
@@ -130,7 +125,7 @@ public class RecreateIndexesTask implements Runnable {
                 "Index '%s' is a durable non-automatic index and will be added as is without"
                     + " rebuilding",
                 indexMetadata.getName());
-        addIndexAsIs(indexDocument, index, db);
+        addIndexAsIs(indexMap, index, db);
       } else {
         LogManager.instance()
             .info(
@@ -138,17 +133,17 @@ public class RecreateIndexesTask implements Runnable {
                 "Index '%s' is a non-durable non-automatic index and will be added as is without"
                     + " rebuilding",
                 indexMetadata.getName());
-        addIndexAsIs(indexDocument, index, db);
+        addIndexAsIs(indexMap, index, db);
       }
     }
   }
 
   private void rebuildNonDurableAutomaticIndex(
-      DatabaseSessionInternal session, EntityImpl indexDocument,
+      DatabaseSessionInternal session, Map<String, ?> indexMap,
       IndexInternal index,
       IndexMetadata indexMetadata,
       IndexDefinition indexDefinition) {
-    index.loadFromConfiguration(session, indexDocument);
+    index.loadFromConfiguration(session, indexMap);
     index.delete(session);
 
     final var indexName = indexMetadata.getName();
@@ -189,8 +184,8 @@ public class RecreateIndexesTask implements Runnable {
   }
 
   private void addIndexAsIs(
-      EntityImpl indexDocument, IndexInternal index, DatabaseSessionEmbedded database) {
-    if (index.loadFromConfiguration(database, indexDocument)) {
+      Map<String, ?> indexMap, IndexInternal index, DatabaseSessionEmbedded database) {
+    if (index.loadFromConfiguration(database, indexMap)) {
       indexManager.addIndexInternal(database, index);
 
       ok++;
@@ -207,15 +202,15 @@ public class RecreateIndexesTask implements Runnable {
     }
   }
 
-  private IndexInternal createIndex(EntityImpl idx) {
-    final String indexType = idx.field(IndexInternal.CONFIG_TYPE);
+  private IndexInternal createIndex(DatabaseSessionInternal db, Map<String, Object> idx) {
+    final var indexType = (String) idx.get(IndexInternal.CONFIG_TYPE);
 
     if (indexType == null) {
       LogManager.instance().error(this, "Index type is null, will process other record", null);
-      throw new IndexException(
+      throw new IndexException(db.getDatabaseName(),
           "Index type is null, will process other record. Index configuration: " + idx);
     }
-    var m = IndexAbstract.loadMetadataFromDoc(idx);
+    var m = IndexAbstract.loadMetadataFromMap(db, idx);
     return Indexes.createIndex(indexManager.storage, m);
   }
 }

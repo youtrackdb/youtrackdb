@@ -6,7 +6,6 @@ import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
@@ -28,26 +27,27 @@ public class SQLDropSequenceStatement extends DDLStatement {
 
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
-    final var database = ctx.getDatabase();
+    final var session = ctx.getDatabaseSession();
     var sequence =
-        database.getMetadata().getSequenceLibrary().getSequence(this.name.getStringValue());
+        session.getMetadata().getSequenceLibrary().getSequence(this.name.getStringValue());
     if (sequence == null) {
       if (ifExists) {
         return ExecutionStream.empty();
       } else {
-        throw new CommandExecutionException("Sequence not found: " + name);
+        throw new CommandExecutionException(ctx.getDatabaseSession(),
+            "Sequence not found: " + name);
       }
     }
 
     try {
-      database.getMetadata().getSequenceLibrary().dropSequence(name.getStringValue());
+      session.getMetadata().getSequenceLibrary().dropSequence(name.getStringValue());
     } catch (DatabaseException exc) {
       var message = "Unable to execute command: " + exc.getMessage();
       LogManager.instance().error(this, message, exc, (Object) null);
-      throw new CommandExecutionException(message);
+      throw new CommandExecutionException(session, message);
     }
 
-    var result = new ResultInternal(database);
+    var result = new ResultInternal(session);
     result.setProperty("operation", "drop sequence");
     result.setProperty("sequenceName", name.getStringValue());
     return ExecutionStream.singleton(result);

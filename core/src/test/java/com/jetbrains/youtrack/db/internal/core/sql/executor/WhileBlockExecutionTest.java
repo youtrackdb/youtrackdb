@@ -1,7 +1,5 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -16,7 +14,7 @@ public class WhileBlockExecutionTest extends DbTestBase {
 
     var className = "testPlain";
 
-    db.createClass(className);
+    session.createClass(className);
 
     var script = "";
     script += "LET $i = 0;";
@@ -27,7 +25,7 @@ public class WhileBlockExecutionTest extends DbTestBase {
     script += "  commit;";
     script += "}";
     script += "SELECT FROM " + className;
-    var results = db.execute("sql", script);
+    var results = session.execute("sql", script);
 
     var tot = 0;
     var sum = 0;
@@ -45,7 +43,7 @@ public class WhileBlockExecutionTest extends DbTestBase {
   public void testReturn() {
     var className = "testReturn";
 
-    db.createClass(className);
+    session.createClass(className);
 
     var script = "";
     script += "LET $i = 0;";
@@ -59,9 +57,9 @@ public class WhileBlockExecutionTest extends DbTestBase {
     script += "  LET $i = $i + 1;";
     script += "}";
 
-    var results = db.execute("sql", script);
+    var results = session.execute("sql", script);
     results.close();
-    results = db.query("SELECT FROM " + className);
+    results = session.query("SELECT FROM " + className);
 
     var tot = 0;
     var sum = 0;

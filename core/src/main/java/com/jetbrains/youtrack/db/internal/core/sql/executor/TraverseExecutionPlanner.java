@@ -1,15 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLAbstract;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCluster;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
@@ -122,7 +119,8 @@ public class TraverseExecutionPlanner {
       handleSubqueryAsTarget(result, target.getStatement(), ctx, profilingEnabled);
     } else if (target.getFunctionCall() != null) {
       //        handleFunctionCallAsTarget(result, target.getFunctionCall(), ctx);//TODO
-      throw new CommandExecutionException("function call as target is not supported yet");
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
+          "function call as target is not supported yet");
     } else if (target.getInputParam() != null) {
       handleInputParamAsTarget(result, target.getInputParam(), ctx, profilingEnabled);
     } else if (target.getIndex() != null) {
@@ -148,7 +146,8 @@ public class TraverseExecutionPlanner {
       var from = new SQLFromClause(-1);
       var item = new SQLFromItem(-1);
       from.setItem(item);
-      item.setIdentifier(new SQLIdentifier(((SchemaClass) paramValue).getName()));
+      item.setIdentifier(
+          new SQLIdentifier(((SchemaClass) paramValue).getName(ctx.getDatabaseSession())));
       handleClassAsTarget(result, from, ctx, profilingEnabled);
     } else if (paramValue instanceof String) {
       // strings are treated as classes
@@ -175,7 +174,8 @@ public class TraverseExecutionPlanner {
       List<SQLRid> rids = new ArrayList<>();
       for (var x : (Iterable) paramValue) {
         if (!(x instanceof Identifiable)) {
-          throw new CommandExecutionException("Cannot use colleciton as target: " + paramValue);
+          throw new CommandExecutionException(ctx.getDatabaseSession(),
+              "Cannot use colleciton as target: " + paramValue);
         }
         var orid = ((Identifiable) x).getIdentity();
 
@@ -191,7 +191,8 @@ public class TraverseExecutionPlanner {
       }
       handleRidsAsTarget(result, rids, ctx, profilingEnabled);
     } else {
-      throw new CommandExecutionException("Invalid target: " + paramValue);
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
+          "Invalid target: " + paramValue);
     }
   }
 
@@ -206,16 +207,17 @@ public class TraverseExecutionPlanner {
       CommandContext ctx,
       boolean profilingEnabled) {
     var indexName = indexIdentifier.getIndexName();
-    final var database = ctx.getDatabase();
+    final var database = ctx.getDatabaseSession();
     var index = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
     if (index == null) {
-      throw new CommandExecutionException("Index not found: " + indexName);
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
+          "Index not found: " + indexName);
     }
 
     switch (indexIdentifier.getType()) {
       case INDEX:
         if (!index.supportsOrderedIterations()) {
-          throw new CommandExecutionException(
+          throw new CommandExecutionException(ctx.getDatabaseSession(),
               "Index " + indexName + " does not allow iteration without a condition");
         }
 
@@ -226,7 +228,7 @@ public class TraverseExecutionPlanner {
       case VALUES:
       case VALUESASC:
         if (!index.supportsOrderedIterations()) {
-          throw new CommandExecutionException(
+          throw new CommandExecutionException(ctx.getDatabaseSession(),
               "Index " + indexName + " does not allow iteration on values");
         }
         result.chain(
@@ -236,7 +238,7 @@ public class TraverseExecutionPlanner {
         break;
       case VALUESDESC:
         if (!index.supportsOrderedIterations()) {
-          throw new CommandExecutionException(
+          throw new CommandExecutionException(ctx.getDatabaseSession(),
               "Index " + indexName + " does not allow iteration on values");
         }
         result.chain(
@@ -252,7 +254,7 @@ public class TraverseExecutionPlanner {
       SQLMetadataIdentifier metadata,
       CommandContext ctx,
       boolean profilingEnabled) {
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     String schemaRecordIdAsString;
     if (metadata.getName().equalsIgnoreCase(CommandExecutorSQLAbstract.METADATA_SCHEMA)) {
       schemaRecordIdAsString = db.getStorageInfo().getConfiguration().getSchemaRecordId();
@@ -293,7 +295,7 @@ public class TraverseExecutionPlanner {
       List<SQLCluster> clusters,
       CommandContext ctx,
       boolean profilingEnabled) {
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     Boolean orderByRidAsc = null; // null: no order. true: asc, false:desc
     if (clusters.size() == 1) {
       var cluster = clusters.get(0);
@@ -302,7 +304,8 @@ public class TraverseExecutionPlanner {
         clusterId = db.getClusterIdByName(cluster.getClusterName());
       }
       if (clusterId == null) {
-        throw new CommandExecutionException("Cluster " + cluster + " does not exist");
+        throw new CommandExecutionException(ctx.getDatabaseSession(),
+            "Cluster " + cluster + " does not exist");
       }
       var step =
           new FetchFromClusterExecutionStep(clusterId, ctx, profilingEnabled);
@@ -321,7 +324,8 @@ public class TraverseExecutionPlanner {
           clusterId = db.getClusterIdByName(cluster.getClusterName());
         }
         if (clusterId == null) {
-          throw new CommandExecutionException("Cluster " + cluster + " does not exist");
+          throw new CommandExecutionException(ctx.getDatabaseSession(),
+              "Cluster " + cluster + " does not exist");
         }
         clusterIds[i] = clusterId;
       }
@@ -337,7 +341,7 @@ public class TraverseExecutionPlanner {
       CommandContext ctx,
       boolean profilingEnabled) {
     var subCtx = new BasicCommandContext();
-    subCtx.setDatabase(ctx.getDatabase());
+    subCtx.setDatabaseSession(ctx.getDatabaseSession());
     subCtx.setParent(ctx);
     var subExecutionPlan =
         subQuery.createExecutionPlan(subCtx, profilingEnabled);

@@ -161,9 +161,9 @@ public final class AsyncReadCache implements ReadCache {
                       return null;
                     } catch (final IOException e) {
                       throw BaseException.wrapException(
-                          new StorageException(
+                          new StorageException(writeCache.getStorageName(),
                               "Error during loading of page " + pageIndex + " for file " + fileId),
-                          e);
+                          e, writeCache.getStorageName());
                     }
 
                   } else {
@@ -235,9 +235,9 @@ public final class AsyncReadCache implements ReadCache {
                           page.getFileId(), page.getPageIndex(), pointer, true, this);
                     } catch (final IOException e) {
                       throw BaseException.wrapException(
-                          new StorageException(
+                          new StorageException(writeCache.getStorageName(),
                               "Error during loading of page " + pageIndex + " for file " + fileId),
-                          e);
+                          e, writeCache.getStorageName());
                     }
                   } else {
                     read[0] = true;
@@ -264,7 +264,7 @@ public final class AsyncReadCache implements ReadCache {
             } catch (final java.lang.InterruptedException e) {
               throw BaseException.wrapException(
                   new ThreadInterruptedException("Check of write cache overflow was interrupted"),
-                  e);
+                  e, writeCache.getStorageName());
             }
           }
 
@@ -494,7 +494,7 @@ public final class AsyncReadCache implements ReadCache {
         if (entry.freeze()) {
           policy.onRemove(entry);
         } else {
-          throw new StorageException(
+          throw new StorageException(null,
               "Page with index "
                   + entry.getPageIndex()
                   + " for file id "
@@ -585,10 +585,10 @@ public final class AsyncReadCache implements ReadCache {
             } catch (final java.lang.InterruptedException e) {
               throw BaseException.wrapException(
                   new ThreadInterruptedException("Check of write cache overflow was interrupted"),
-                  e);
+                  e, writeCache.getStorageName());
             }
           } else {
-            throw new StorageException(
+            throw new StorageException(writeCache.getStorageName(),
                 "Page with index "
                     + cacheEntry.getPageIndex()
                     + " for file id "

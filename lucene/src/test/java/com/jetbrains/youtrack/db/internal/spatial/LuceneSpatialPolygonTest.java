@@ -15,12 +15,9 @@ package com.jetbrains.youtrack.db.internal.spatial;
 
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import org.junit.Assert;
@@ -34,32 +31,32 @@ public class LuceneSpatialPolygonTest extends BaseSpatialLuceneTest {
 
   @Before
   public void init() {
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var v = schema.getClass("V");
     var oClass = schema.createClass("Place");
-    oClass.setSuperClass(db, v);
-    oClass.createProperty(db, "location", PropertyType.EMBEDDED, schema.getClass("OPolygon"));
-    oClass.createProperty(db, "name", PropertyType.STRING);
+    oClass.setSuperClass(session, v);
+    oClass.createProperty(session, "location", PropertyType.EMBEDDED, schema.getClass("OPolygon"));
+    oClass.createProperty(session, "name", PropertyType.STRING);
 
-    db.command("CREATE INDEX Place.location ON Place(location) SPATIAL ENGINE LUCENE").close();
+    session.command("CREATE INDEX Place.location ON Place(location) SPATIAL ENGINE LUCENE").close();
   }
 
   @Test
   public void testPolygonWithoutIndex() throws IOException {
     testIndexingPolygon();
-    db.command("drop index Place.location").close();
+    session.command("drop index Place.location").close();
     queryPolygon();
   }
 
   protected void queryPolygon() {
 
     var query = "select * from Place where location && 'POINT(13.383333 52.516667)'";
-    List<EntityImpl> docs = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> docs = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(docs.size(), 1);
 
     query = "select * from Place where location && 'POINT(12.5 41.9)'";
-    docs = db.query(new SQLSynchQuery<EntityImpl>(query));
+    docs = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(docs.size(), 0);
   }
@@ -69,26 +66,26 @@ public class LuceneSpatialPolygonTest extends BaseSpatialLuceneTest {
 
     var systemResourceAsStream = ClassLoader.getSystemResourceAsStream("germany.json");
 
-    EntityImpl doc = ((EntityImpl) db.newEntity()).updateFromJSON(systemResourceAsStream);
+    EntityImpl doc = ((EntityImpl) session.newEntity()).updateFromJSON(systemResourceAsStream);
 
     Map geometry = doc.field("geometry");
 
     var type = (String) geometry.get("type");
-    var location = ((EntityImpl) db.newEntity("O" + type));
+    var location = ((EntityImpl) session.newEntity("O" + type));
     location.field("coordinates", geometry.get("coordinates"));
-    var germany = ((EntityImpl) db.newEntity("Place"));
+    var germany = ((EntityImpl) session.newEntity("Place"));
     germany.field("name", "Germany");
     germany.field("location", location);
 
-    db.begin();
-    db.save(germany);
-    db.commit();
+    session.begin();
+    session.save(germany);
+    session.commit();
 
-    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Place.location");
+    var index = session.getMetadata().getIndexManagerInternal().getIndex(session, "Place.location");
 
-    db.begin();
-    Assert.assertEquals(1, index.getInternal().size(db));
-    db.commit();
+    session.begin();
+    Assert.assertEquals(1, index.getInternal().size(session));
+    session.commit();
     queryPolygon();
   }
 }

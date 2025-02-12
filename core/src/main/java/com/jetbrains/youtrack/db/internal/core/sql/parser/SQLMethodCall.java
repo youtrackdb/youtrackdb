@@ -2,13 +2,12 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunction;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionFiltered;
@@ -127,7 +126,7 @@ public class SQLMethodCall extends SimpleNode {
       return null;
     }
     var paramValues = resolveParams(targetObjects, ctx, iParams, val);
-    if (resolveIsGraphFunction(ctx.getDatabase())) {
+    if (resolveIsGraphFunction(ctx.getDatabaseSession())) {
       return invokeGraphFunction(
           this.graphFunction, targetObjects, ctx, iPossibleResults, paramValues);
     }
@@ -199,7 +198,7 @@ public class SQLMethodCall extends SimpleNode {
       return null;
     }
     var paramValues = resolveParams(targetObjects, ctx, iParams, val);
-    var function = SQLEngine.getInstance().getFunction(ctx.getDatabase(), name);
+    var function = SQLEngine.getInstance().getFunction(ctx.getDatabaseSession(), name);
     return invokeGraphFunction(function, targetObjects, ctx, iPossibleResults, paramValues);
   }
 
@@ -216,7 +215,8 @@ public class SQLMethodCall extends SimpleNode {
       } else if (targetObjects instanceof Result) {
         paramValues.add(expr.execute((Result) targetObjects, ctx));
       } else {
-        throw new CommandExecutionException("Invalild value for $current: " + val);
+        throw new CommandExecutionException(ctx.getDatabaseSession(),
+            "Invalild value for $current: " + val);
       }
     }
     return paramValues;
@@ -264,10 +264,6 @@ public class SQLMethodCall extends SimpleNode {
     }
 
     throw new UnsupportedOperationException("Invalid reverse traversal: " + methodName);
-  }
-
-  public static DatabaseSessionInternal getDatabase() {
-    return DatabaseRecordThreadLocal.instance().get();
   }
 
   public boolean needsAliases(Set<String> aliases) {

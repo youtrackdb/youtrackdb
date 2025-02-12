@@ -23,7 +23,6 @@ import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -226,7 +225,7 @@ public interface Index extends Comparable<Index> {
    *
    * @return An EntityImpl object containing all the index properties
    */
-  EntityImpl getConfiguration(DatabaseSessionInternal session);
+  Map<String, ?> getConfiguration(DatabaseSessionInternal session);
 
   /**
    * Returns the internal index used.

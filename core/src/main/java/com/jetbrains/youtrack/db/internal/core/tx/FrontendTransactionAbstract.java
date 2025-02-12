@@ -28,7 +28,7 @@ import javax.annotation.Nonnull;
 public abstract class FrontendTransactionAbstract implements FrontendTransaction {
 
   @Nonnull
-  protected DatabaseSessionInternal database;
+  protected DatabaseSessionInternal session;
   protected TXSTATUS status = TXSTATUS.INVALID;
 
   /**
@@ -39,7 +39,7 @@ public abstract class FrontendTransactionAbstract implements FrontendTransaction
   public static final RecordAbstract DELETED_RECORD = new RecordBytes(null);
 
   protected FrontendTransactionAbstract(@Nonnull final DatabaseSessionInternal iDatabase) {
-    database = iDatabase;
+    session = iDatabase;
   }
 
   public boolean isActive() {
@@ -53,13 +53,13 @@ public abstract class FrontendTransactionAbstract implements FrontendTransaction
   }
 
   @Nonnull
-  public final DatabaseSessionInternal getDatabase() {
-    return database;
+  public final DatabaseSessionInternal getDatabaseSession() {
+    return session;
   }
 
   public abstract void internalRollback();
 
-  public void setDatabase(@Nonnull DatabaseSessionInternal database) {
-    this.database = database;
+  public void setSession(@Nonnull DatabaseSessionInternal session) {
+    this.session = session;
   }
 }

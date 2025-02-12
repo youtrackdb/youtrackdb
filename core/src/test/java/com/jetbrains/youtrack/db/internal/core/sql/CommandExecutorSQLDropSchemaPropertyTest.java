@@ -21,7 +21,6 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,41 +29,41 @@ public class CommandExecutorSQLDropSchemaPropertyTest extends DbTestBase {
 
   @Test
   public void test() {
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var foo = schema.createClass("Foo");
 
-    foo.createProperty(db, "name", PropertyType.STRING);
-    Assert.assertTrue(schema.getClass("Foo").existsProperty("name"));
-    db.command("DROP PROPERTY Foo.name").close();
-    Assert.assertFalse(schema.getClass("Foo").existsProperty("name"));
+    foo.createProperty(session, "name", PropertyType.STRING);
+    Assert.assertTrue(schema.getClass("Foo").existsProperty(session, "name"));
+    session.command("DROP PROPERTY Foo.name").close();
+    Assert.assertFalse(schema.getClass("Foo").existsProperty(session, "name"));
 
-    foo.createProperty(db, "name", PropertyType.STRING);
-    Assert.assertTrue(schema.getClass("Foo").existsProperty("name"));
-    db.command("DROP PROPERTY `Foo`.name").close();
-    Assert.assertFalse(schema.getClass("Foo").existsProperty("name"));
+    foo.createProperty(session, "name", PropertyType.STRING);
+    Assert.assertTrue(schema.getClass("Foo").existsProperty(session, "name"));
+    session.command("DROP PROPERTY `Foo`.name").close();
+    Assert.assertFalse(schema.getClass("Foo").existsProperty(session, "name"));
 
-    foo.createProperty(db, "name", PropertyType.STRING);
-    Assert.assertTrue(schema.getClass("Foo").existsProperty("name"));
-    db.command("DROP PROPERTY Foo.`name`").close();
-    Assert.assertFalse(schema.getClass("Foo").existsProperty("name"));
+    foo.createProperty(session, "name", PropertyType.STRING);
+    Assert.assertTrue(schema.getClass("Foo").existsProperty(session, "name"));
+    session.command("DROP PROPERTY Foo.`name`").close();
+    Assert.assertFalse(schema.getClass("Foo").existsProperty(session, "name"));
 
-    foo.createProperty(db, "name", PropertyType.STRING);
-    Assert.assertTrue(schema.getClass("Foo").existsProperty("name"));
-    db.command("DROP PROPERTY `Foo`.`name`").close();
-    Assert.assertFalse(schema.getClass("Foo").existsProperty("name"));
+    foo.createProperty(session, "name", PropertyType.STRING);
+    Assert.assertTrue(schema.getClass("Foo").existsProperty(session, "name"));
+    session.command("DROP PROPERTY `Foo`.`name`").close();
+    Assert.assertFalse(schema.getClass("Foo").existsProperty(session, "name"));
   }
 
   @Test
   public void testIfExists() {
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var testIfExistsClass = schema.createClass("testIfExists");
 
-    testIfExistsClass.createProperty(db, "name", PropertyType.STRING);
-    Assert.assertTrue(schema.getClass("testIfExists").existsProperty("name"));
-    db.command("DROP PROPERTY testIfExists.name if exists").close();
-    Assert.assertFalse(schema.getClass("testIfExists").existsProperty("name"));
+    testIfExistsClass.createProperty(session, "name", PropertyType.STRING);
+    Assert.assertTrue(schema.getClass("testIfExists").existsProperty(session, "name"));
+    session.command("DROP PROPERTY testIfExists.name if exists").close();
+    Assert.assertFalse(schema.getClass("testIfExists").existsProperty(session, "name"));
 
-    db.command("DROP PROPERTY testIfExists.name if exists").close();
-    Assert.assertFalse(schema.getClass("testIfExists").existsProperty("name"));
+    session.command("DROP PROPERTY testIfExists.name if exists").close();
+    Assert.assertFalse(schema.getClass("testIfExists").existsProperty(session, "name"));
   }
 }

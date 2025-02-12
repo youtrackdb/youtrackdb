@@ -20,7 +20,6 @@
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.post;
 
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
@@ -39,7 +38,7 @@ public class ServerCommandPostDocument extends ServerCommandDocumentAbstract {
     iRequest.getData().commandInfo = "Create document";
 
     EntityImpl d;
-    try (var db = getProfiledDatabaseInstance(iRequest)) {
+    try (var db = getProfiledDatabaseSessionInstance(iRequest)) {
       d =
           db.computeInTx(
               () -> {

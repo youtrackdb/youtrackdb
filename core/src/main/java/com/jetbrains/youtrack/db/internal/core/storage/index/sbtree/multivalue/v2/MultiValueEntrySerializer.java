@@ -3,6 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.multivalue.
 import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ShortSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
 import java.nio.ByteBuffer;
 
@@ -12,41 +13,45 @@ public final class MultiValueEntrySerializer implements BinarySerializer<MultiVa
   public static final MultiValueEntrySerializer INSTANCE = new MultiValueEntrySerializer();
 
   @Override
-  public int getObjectSize(final MultiValueEntry object, final Object... hints) {
+  public int getObjectSize(BinarySerializerFactory serializerFactory, final MultiValueEntry object,
+      final Object... hints) {
     return 2 * LongSerializer.LONG_SIZE + ShortSerializer.SHORT_SIZE;
   }
 
   @Override
-  public int getObjectSize(final byte[] stream, final int startPosition) {
+  public int getObjectSize(BinarySerializerFactory serializerFactory, final byte[] stream,
+      final int startPosition) {
     return 2 * LongSerializer.LONG_SIZE + ShortSerializer.SHORT_SIZE;
   }
 
   @Override
   public void serialize(
       final MultiValueEntry object,
-      final byte[] stream,
+      BinarySerializerFactory serializerFactory, final byte[] stream,
       final int startPosition,
       final Object... hints) {
     var pos = startPosition;
-    LongSerializer.INSTANCE.serialize(object.id, stream, pos);
+    LongSerializer.INSTANCE.serialize(object.id, serializerFactory, stream, pos);
     pos += LongSerializer.LONG_SIZE;
 
-    ShortSerializer.INSTANCE.serialize((short) object.clusterId, stream, pos);
+    ShortSerializer.INSTANCE.serialize((short) object.clusterId, serializerFactory, stream, pos);
     pos += ShortSerializer.SHORT_SIZE;
 
-    LongSerializer.INSTANCE.serialize(object.clusterPosition, stream, pos);
+    LongSerializer.INSTANCE.serialize(object.clusterPosition, serializerFactory, stream, pos);
   }
 
   @Override
-  public MultiValueEntry deserialize(final byte[] stream, final int startPosition) {
+  public MultiValueEntry deserialize(BinarySerializerFactory serializerFactory, final byte[] stream,
+      final int startPosition) {
     var pos = startPosition;
-    final long id = LongSerializer.INSTANCE.deserialize(stream, pos);
+    final long id = LongSerializer.INSTANCE.deserialize(serializerFactory, stream, pos);
     pos += LongSerializer.LONG_SIZE;
 
-    final int clusterId = ShortSerializer.INSTANCE.deserialize(stream, pos);
+    final int clusterId = ShortSerializer.INSTANCE.deserialize(serializerFactory, stream, pos);
     pos += ShortSerializer.SHORT_SIZE;
 
-    final long clusterPosition = LongSerializer.INSTANCE.deserialize(stream, pos);
+    final long clusterPosition = LongSerializer.INSTANCE.deserialize(serializerFactory, stream,
+        pos);
     return new MultiValueEntry(id, clusterId, clusterPosition);
   }
 
@@ -68,7 +73,7 @@ public final class MultiValueEntrySerializer implements BinarySerializer<MultiVa
   @Override
   public void serializeNativeObject(
       final MultiValueEntry object,
-      final byte[] stream,
+      BinarySerializerFactory serializerFactory, final byte[] stream,
       final int startPosition,
       final Object... hints) {
     var pos = startPosition;
@@ -82,7 +87,8 @@ public final class MultiValueEntrySerializer implements BinarySerializer<MultiVa
   }
 
   @Override
-  public MultiValueEntry deserializeNativeObject(final byte[] stream, final int startPosition) {
+  public MultiValueEntry deserializeNativeObject(BinarySerializerFactory serializerFactory,
+      final byte[] stream, final int startPosition) {
     var pos = startPosition;
     final var id = LongSerializer.INSTANCE.deserializeNative(stream, pos);
     pos += LongSerializer.LONG_SIZE;
@@ -95,25 +101,29 @@ public final class MultiValueEntrySerializer implements BinarySerializer<MultiVa
   }
 
   @Override
-  public int getObjectSizeNative(final byte[] stream, final int startPosition) {
+  public int getObjectSizeNative(BinarySerializerFactory serializerFactory, final byte[] stream,
+      final int startPosition) {
     return 2 * LongSerializer.LONG_SIZE + ShortSerializer.SHORT_SIZE;
   }
 
   @Override
-  public MultiValueEntry preprocess(final MultiValueEntry value, final Object... hints) {
+  public MultiValueEntry preprocess(BinarySerializerFactory serializerFactory,
+      final MultiValueEntry value, final Object... hints) {
     return value;
   }
 
   @Override
   public void serializeInByteBufferObject(
-      final MultiValueEntry object, final ByteBuffer buffer, final Object... hints) {
+      BinarySerializerFactory serializerFactory, final MultiValueEntry object,
+      final ByteBuffer buffer, final Object... hints) {
     buffer.putLong(object.id);
     buffer.putShort((short) object.clusterId);
     buffer.putLong(object.clusterPosition);
   }
 
   @Override
-  public MultiValueEntry deserializeFromByteBufferObject(final ByteBuffer buffer) {
+  public MultiValueEntry deserializeFromByteBufferObject(BinarySerializerFactory serializerFactory,
+      final ByteBuffer buffer) {
     final var id = buffer.getLong();
     final int clusterId = buffer.getShort();
     final var clusterPosition = buffer.getLong();
@@ -122,7 +132,8 @@ public final class MultiValueEntrySerializer implements BinarySerializer<MultiVa
   }
 
   @Override
-  public MultiValueEntry deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
+  public MultiValueEntry deserializeFromByteBufferObject(BinarySerializerFactory serializerFactory,
+      int offset, ByteBuffer buffer) {
     final var id = buffer.getLong(offset);
     offset += Long.BYTES;
 
@@ -135,18 +146,21 @@ public final class MultiValueEntrySerializer implements BinarySerializer<MultiVa
   }
 
   @Override
-  public int getObjectSizeInByteBuffer(final ByteBuffer buffer) {
+  public int getObjectSizeInByteBuffer(BinarySerializerFactory serializerFactory,
+      final ByteBuffer buffer) {
     return 2 * LongSerializer.LONG_SIZE + ShortSerializer.SHORT_SIZE;
   }
 
   @Override
-  public int getObjectSizeInByteBuffer(int offset, ByteBuffer buffer) {
+  public int getObjectSizeInByteBuffer(BinarySerializerFactory serializerFactory, int offset,
+      ByteBuffer buffer) {
     return 2 * LongSerializer.LONG_SIZE + ShortSerializer.SHORT_SIZE;
   }
 
   @Override
   public MultiValueEntry deserializeFromByteBufferObject(
-      final ByteBuffer buffer, final WALChanges walChanges, final int offset) {
+      BinarySerializerFactory serializerFactory, final ByteBuffer buffer,
+      final WALChanges walChanges, final int offset) {
     var position = offset;
 
     final var id = walChanges.getLongValue(buffer, position);

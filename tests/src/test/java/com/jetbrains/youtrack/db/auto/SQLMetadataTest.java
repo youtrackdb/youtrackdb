@@ -37,10 +37,10 @@ public class SQLMetadataTest extends BaseDBTest {
   @Test
   public void querySchemaClasses() {
     List<EntityImpl> result =
-        db
+        session
             .command(
                 new SQLSynchQuery<EntityImpl>("select expand(classes) from metadata:schema"))
-            .execute(db);
+            .execute(session);
 
     Assert.assertTrue(result.size() != 0);
   }
@@ -48,12 +48,12 @@ public class SQLMetadataTest extends BaseDBTest {
   @Test
   public void querySchemaProperties() {
     List<EntityImpl> result =
-        db
+        session
             .command(
                 new SQLSynchQuery<EntityImpl>(
                     "select expand(properties) from (select expand(classes) from metadata:schema)"
                         + " where name = 'OUser'"))
-            .execute(db);
+            .execute(session);
 
     Assert.assertTrue(result.size() != 0);
   }
@@ -61,11 +61,11 @@ public class SQLMetadataTest extends BaseDBTest {
   @Test
   public void queryIndexes() {
     List<EntityImpl> result =
-        db
+        session
             .command(
                 new SQLSynchQuery<EntityImpl>(
                     "select expand(indexes) from metadata:indexmanager"))
-            .execute(db);
+            .execute(session);
 
     Assert.assertTrue(result.size() != 0);
   }
@@ -73,9 +73,9 @@ public class SQLMetadataTest extends BaseDBTest {
   @Test
   public void queryMetadataNotSupported() {
     try {
-      db
+      session
           .command(new SQLSynchQuery<EntityImpl>("select expand(indexes) from metadata:blaaa"))
-          .execute(db);
+          .execute(session);
       Assert.fail();
     } catch (QueryParsingException e) {
     }

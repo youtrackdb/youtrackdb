@@ -22,7 +22,6 @@ package com.jetbrains.youtrack.db.internal.server.network.protocol.http;
 import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.client.binary.BinaryRequestExecutor;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.server.ClientConnection;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
 import com.jetbrains.youtrack.db.internal.server.network.ServerNetworkListener;
@@ -70,11 +69,6 @@ public class NetworkProtocolHttpDb extends NetworkProtocolHttpAbstract {
 
   public String getType() {
     return "http";
-  }
-
-  @Override
-  protected void afterExecution() throws InterruptedException {
-    DatabaseRecordThreadLocal.instance().remove();
   }
 
   @Override

@@ -5,12 +5,10 @@ import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.IndexableSQLFunction;
@@ -18,7 +16,6 @@ import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionAbstract
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCompareOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromItem;
 import com.jetbrains.youtrack.db.internal.lucene.collections.LuceneCompositeKey;
 import com.jetbrains.youtrack.db.internal.lucene.exception.LuceneIndexException;
 import com.jetbrains.youtrack.db.internal.lucene.index.LuceneFullTextIndex;
@@ -34,7 +31,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queries.mlt.MoreLikeThis;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -99,7 +95,7 @@ public class LuceneSearchMoreLikeThisFunction extends SQLFunctionAbstract
 
     var ridsAsString = parseRids(ctx, expression);
 
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     var others =
         ridsAsString.stream()
             .map(
@@ -127,7 +123,7 @@ public class LuceneSearchMoreLikeThisFunction extends SQLFunctionAbstract
     try (var rids =
         index
             .getInternal()
-            .getRids(ctx.getDatabase(),
+            .getRids(ctx.getDatabaseSession(),
                 new LuceneKeyAndMetadata(
                     new LuceneCompositeKey(Collections.singletonList(mltQuery.toString()))
                         .setContext(ctx),
@@ -280,7 +276,7 @@ public class LuceneSearchMoreLikeThisFunction extends SQLFunctionAbstract
   }
 
   private LuceneFullTextIndex searchForIndex(CommandContext ctx, String className) {
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     db.activateOnCurrentThread();
     var dbMetadata = db.getMetadata();
 
@@ -307,7 +303,7 @@ public class LuceneSearchMoreLikeThisFunction extends SQLFunctionAbstract
       SQLExpression... args) {
     var index = this.searchForIndex(target, ctx);
     if (index != null) {
-      return index.size(ctx.getDatabase());
+      return index.size(ctx.getDatabaseSession());
     }
     return 0;
   }

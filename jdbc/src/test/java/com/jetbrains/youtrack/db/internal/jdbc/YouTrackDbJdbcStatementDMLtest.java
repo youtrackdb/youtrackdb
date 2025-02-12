@@ -15,14 +15,11 @@ package com.jetbrains.youtrack.db.internal.jdbc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.io.IOException;
 import java.sql.Date;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import org.junit.Test;
 
 public class YouTrackDbJdbcStatementDMLtest extends YouTrackDbJdbcDbPerMethodTemplateTest {
@@ -101,18 +98,19 @@ public class YouTrackDbJdbcStatementDMLtest extends YouTrackDbJdbcDbPerMethodTem
     stmt.close();
 
     // double value test pattern?
-    var database = (DatabaseSessionInternal) conn.getDatabase();
-    assertThat(database.getClusterIdByName("account")).isNotNull();
-    var account = database.getMetadata().getSchema().getClass("Account");
+    var session = (DatabaseSessionInternal) conn.getDatabaseSession();
+    assertThat(session.getClusterIdByName("account")).isNotNull();
+    var account = session.getMetadata().getSchema().getClass("Account");
     assertThat(account).isNotNull();
-    assertThat(account.getProperty("id").getType()).isEqualTo(PropertyType.INTEGER);
-    assertThat(account.getProperty("birthDate").getType()).isEqualTo(PropertyType.DATE);
-    assertThat(account.getProperty("binary").getType()).isEqualTo(PropertyType.BINARY);
+    assertThat(account.getProperty(session, "id").getType(session)).isEqualTo(PropertyType.INTEGER);
+    assertThat(account.getProperty(session, "birthDate").getType(session)).isEqualTo(
+        PropertyType.DATE);
+    assertThat(account.getProperty(session, "binary").getType(session)).isEqualTo(
+        PropertyType.BINARY);
   }
 
   @Test
   public void shouldCreateClassWithBatchCommand() throws IOException, SQLException {
-
     var stmt = conn.createStatement();
 
     stmt.addBatch("CREATE CLASS Account ");
@@ -123,12 +121,15 @@ public class YouTrackDbJdbcStatementDMLtest extends YouTrackDbJdbcDbPerMethodTem
     stmt.close();
 
     // double value test pattern?
-    var database = (DatabaseSessionInternal) conn.getDatabase();
-    assertThat(database.getClusterIdByName("account")).isNotNull();
-    var account = database.getMetadata().getSchema().getClass("Account");
+    var session = (DatabaseSessionInternal) conn.getDatabaseSession();
+    assertThat(session.getClusterIdByName("account")).isNotNull();
+
+    var account = session.getMetadata().getSchema().getClass("Account");
     assertThat(account).isNotNull();
-    assertThat(account.getProperty("id").getType()).isEqualTo(PropertyType.INTEGER);
-    assertThat(account.getProperty("birthDate").getType()).isEqualTo(PropertyType.DATE);
-    assertThat(account.getProperty("binary").getType()).isEqualTo(PropertyType.BINARY);
+    assertThat(account.getProperty(session, "id").getType(session)).isEqualTo(PropertyType.INTEGER);
+    assertThat(account.getProperty(session, "birthDate").getType(session)).isEqualTo(
+        PropertyType.DATE);
+    assertThat(account.getProperty(session, "binary").getType(session)).isEqualTo(
+        PropertyType.BINARY);
   }
 }

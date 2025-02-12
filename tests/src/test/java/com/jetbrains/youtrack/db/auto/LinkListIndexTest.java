@@ -1,16 +1,13 @@
 package com.jetbrains.youtrack.db.auto;
 
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -33,32 +30,32 @@ public class LinkListIndexTest extends BaseDBTest {
   @BeforeClass
   public void setupSchema() {
     final var linkListIndexTestClass =
-        db.getMetadata().getSchema().createClass("LinkListIndexTestClass");
+        session.getMetadata().getSchema().createClass("LinkListIndexTestClass");
 
-    linkListIndexTestClass.createProperty(db, "linkCollection", PropertyType.LINKLIST);
+    linkListIndexTestClass.createProperty(session, "linkCollection", PropertyType.LINKLIST);
 
-    linkListIndexTestClass.createIndex(db,
+    linkListIndexTestClass.createIndex(session,
         "linkCollectionIndex", SchemaClass.INDEX_TYPE.NOTUNIQUE, "linkCollection");
   }
 
   @AfterClass
   public void destroySchema() {
-    db = acquireSession();
-    db.getMetadata().getSchema().dropClass("LinkListIndexTestClass");
+    session = acquireSession();
+    session.getMetadata().getSchema().dropClass("LinkListIndexTestClass");
   }
 
   @AfterMethod
   public void afterMethod() throws Exception {
-    db.begin();
-    db.command("DELETE FROM LinkListIndexTestClass").close();
-    db.commit();
+    session.begin();
+    session.command("DELETE FROM LinkListIndexTestClass").close();
+    session.commit();
 
-    var result = db.query("select from LinkListIndexTestClass");
+    var result = session.query("select from LinkListIndexTestClass");
     Assert.assertEquals(result.stream().count(), 0);
 
-    if (!db.getStorage().isRemote()) {
+    if (!session.getStorage().isRemote()) {
       final var index = getIndex("linkCollectionIndex");
-      Assert.assertEquals(index.getInternal().size(db), 0);
+      Assert.assertEquals(index.getInternal().size(session), 0);
     }
 
     super.afterMethod();
@@ -67,22 +64,22 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollection() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
     document.save();
-    db.commit();
+    session.commit();
 
     var index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(index.getInternal().size(session), 2);
 
     Iterator<Object> keyIterator;
     try (var indexKeyStream = index.getInternal().keyStream()) {
@@ -102,29 +99,29 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollectionInTx() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
-    db.commit();
+    session.commit();
 
     try {
-      db.begin();
-      final var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+      session.begin();
+      final var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
       document.field(
           "linkCollection",
           new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
       document.save();
-      db.commit();
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     var index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(index.getInternal().size(session), 2);
 
     Iterator<Object> keyIterator;
     try (var indexKeyStream = index.getInternal().keyStream()) {
@@ -143,17 +140,17 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdate() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) session.newEntity());
     docThree.save();
 
-    final var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
 
     document.field(
         "linkCollection",
@@ -164,10 +161,10 @@ public class LinkListIndexTest extends BaseDBTest {
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docThree.getIdentity())));
     document.save();
-    db.commit();
+    session.commit();
 
     var index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(index.getInternal().size(session), 2);
 
     Iterator<Object> keyIterator;
     try (var indexKeyStream = index.getInternal().keyStream()) {
@@ -186,39 +183,39 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateInTx() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) session.newEntity());
     docThree.save();
 
-    var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
 
     document.save();
-    db.commit();
+    session.commit();
 
     try {
-      db.begin();
-      document = db.bindToSession(document);
+      session.begin();
+      document = session.bindToSession(document);
       document.field(
           "linkCollection",
           new ArrayList<>(Arrays.asList(docOne.getIdentity(), docThree.getIdentity())));
       document.save();
-      db.commit();
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     var index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(index.getInternal().size(session), 2);
 
     Iterator<Object> keyIterator;
     try (var indexKeyStream = index.getInternal().keyStream()) {
@@ -238,34 +235,34 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateInTxRollback() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) session.newEntity());
     docThree.save();
 
-    var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
 
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
+    session.begin();
+    document = session.bindToSession(document);
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docThree.getIdentity())));
     document.save();
-    db.rollback();
+    session.rollback();
 
     var index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(index.getInternal().size(session), 2);
 
     Iterator<Object> keyIterator;
     try (var indexKeyStream = index.getInternal().keyStream()) {
@@ -284,35 +281,35 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateAddItem() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) session.newEntity());
     docThree.save();
 
-    final var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    db
+    session.begin();
+    session
         .command(
             "UPDATE "
                 + document.getIdentity()
                 + " set linkCollection = linkCollection || "
                 + docThree.getIdentity())
         .close();
-    db.commit();
+    session.commit();
 
     var index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(db), 3);
+    Assert.assertEquals(index.getInternal().size(session), 3);
 
     Iterator<Object> keyIterator;
     try (var indexKeyStream = index.getInternal().keyStream()) {
@@ -332,36 +329,36 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateAddItemInTx() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) session.newEntity());
     docThree.save();
 
-    final var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
     document.save();
-    db.commit();
+    session.commit();
 
     try {
-      db.begin();
-      EntityImpl loadedDocument = db.load(document.getIdentity());
+      session.begin();
+      EntityImpl loadedDocument = session.load(document.getIdentity());
       loadedDocument.<List<Identifiable>>field("linkCollection").add(docThree.getIdentity());
       loadedDocument.save();
-      db.commit();
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     var index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(db), 3);
+    Assert.assertEquals(index.getInternal().size(session), 3);
 
     Iterator<Object> keyIterator;
     try (var indexKeyStream = index.getInternal().keyStream()) {
@@ -381,31 +378,31 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateAddItemInTxRollback() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) session.newEntity());
     docThree.save();
 
-    final var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    EntityImpl loadedDocument = db.load(document.getIdentity());
+    session.begin();
+    EntityImpl loadedDocument = session.load(document.getIdentity());
     loadedDocument.<List<Identifiable>>field("linkCollection").add(docThree.getIdentity());
     loadedDocument.save();
-    db.rollback();
+    session.rollback();
 
     var index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(index.getInternal().size(session), 2);
 
     Iterator<Object> keyIterator;
     try (var indexKeyStream = index.getInternal().keyStream()) {
@@ -424,33 +421,33 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateRemoveItemInTx() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
     document.save();
-    db.commit();
+    session.commit();
 
     try {
-      db.begin();
-      EntityImpl loadedDocument = db.load(document.getIdentity());
+      session.begin();
+      EntityImpl loadedDocument = session.load(document.getIdentity());
       loadedDocument.<List>field("linkCollection").remove(docTwo.getIdentity());
       loadedDocument.save();
-      db.commit();
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     var index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(db), 1);
+    Assert.assertEquals(index.getInternal().size(session), 1);
 
     Iterator<Object> keyIterator;
     try (var indexKeyStream = index.getInternal().keyStream()) {
@@ -468,28 +465,28 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateRemoveItemInTxRollback() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    EntityImpl loadedDocument = db.load(document.getIdentity());
+    session.begin();
+    EntityImpl loadedDocument = session.load(document.getIdentity());
     loadedDocument.<List>field("linkCollection").remove(docTwo.getIdentity());
     loadedDocument.save();
-    db.rollback();
+    session.rollback();
 
     var index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(index.getInternal().size(session), 2);
 
     Iterator<Object> keyIterator;
     try (var indexKeyStream = index.getInternal().keyStream()) {
@@ -508,27 +505,27 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateRemoveItem() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    db.command(
+    session.begin();
+    session.command(
         "UPDATE " + document.getIdentity() + " remove linkCollection = " + docTwo.getIdentity());
-    db.commit();
+    session.commit();
 
     var index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(db), 1);
+    Assert.assertEquals(index.getInternal().size(session), 1);
 
     Iterator<Object> keyIterator;
     try (var indexKeyStream = index.getInternal().keyStream()) {
@@ -547,85 +544,85 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollectionRemove() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
+    session.begin();
+    document = session.bindToSession(document);
     document.delete();
-    db.commit();
+    session.commit();
 
     var index = getIndex("linkCollectionIndex");
 
-    Assert.assertEquals(index.getInternal().size(db), 0);
+    Assert.assertEquals(index.getInternal().size(session), 0);
   }
 
   public void testIndexCollectionRemoveInTx() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
     document.save();
-    db.commit();
+    session.commit();
 
     try {
-      db.begin();
-      document = db.bindToSession(document);
+      session.begin();
+      document = session.bindToSession(document);
       document.delete();
-      db.commit();
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     var index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(db), 0);
+    Assert.assertEquals(index.getInternal().size(session), 0);
   }
 
   public void testIndexCollectionRemoveInTxRollback() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    db.bindToSession(document).delete();
-    db.rollback();
+    session.begin();
+    session.bindToSession(document).delete();
+    session.rollback();
 
     var index = getIndex("linkCollectionIndex");
 
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(index.getInternal().size(session), 2);
 
     Iterator<Object> keyIterator;
     try (var indexKeyStream = index.getInternal().keyStream()) {
@@ -642,22 +639,22 @@ public class LinkListIndexTest extends BaseDBTest {
   }
 
   public void testIndexCollectionSQL() {
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var document = ((EntityImpl) db.newEntity("LinkListIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
     document.save();
-    db.commit();
+    session.commit();
 
     var result =
-        db.query(
+        session.query(
             "select * from LinkListIndexTestClass where linkCollection contains ?",
             docOne.getIdentity());
     Assert.assertEquals(

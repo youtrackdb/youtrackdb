@@ -31,7 +31,7 @@ public class DocumentTest extends DbTestBase {
 
   @Test
   public void testFromMapNotSaved() {
-    final var doc = new EntityImpl(db);
+    final var doc = new EntityImpl(session);
     doc.field("name", "Jay");
     doc.field("surname", "Miner");
     var map = doc.toMap();
@@ -43,8 +43,8 @@ public class DocumentTest extends DbTestBase {
 
   @Test
   public void testFromMapWithClass() {
-    db.begin();
-    final var doc = (EntityImpl) db.newEntity("OUser");
+    session.begin();
+    final var doc = (EntityImpl) session.newEntity("OUser");
     doc.field("name", "Jay");
     doc.field("surname", "Miner");
     var map = doc.toMap();
@@ -54,19 +54,19 @@ public class DocumentTest extends DbTestBase {
     Assert.assertEquals("Miner", map.get("surname"));
     Assert.assertEquals("OUser", map.get("@class"));
     Assert.assertTrue(map.containsKey("@rid"));
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testFromMapWithClassAndRid() {
-    db.begin();
-    final var doc = (EntityImpl) db.newEntity("V");
+    session.begin();
+    final var doc = (EntityImpl) session.newEntity("V");
     doc.field("name", "Jay");
     doc.field("surname", "Miner");
     doc.save();
-    db.commit();
+    session.commit();
 
-    var map = db.bindToSession(doc).toMap();
+    var map = session.bindToSession(doc).toMap();
 
     Assert.assertEquals(4, map.size());
     Assert.assertEquals("Jay", map.get("name"));
@@ -77,42 +77,42 @@ public class DocumentTest extends DbTestBase {
 
   @Test
   public void testConversionOnTypeSet() {
-    db.begin();
-    var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    var doc = (EntityImpl) session.newEntity();
 
     doc.field("some", 3);
     doc.setFieldType("some", PropertyType.STRING);
     Assert.assertEquals(PropertyType.STRING, doc.getPropertyType("some"));
     Assert.assertEquals("3", doc.field("some"));
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testEval() {
-    db.begin();
-    var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    var doc = (EntityImpl) session.newEntity();
 
     doc.field("amount", 300);
 
     var amountPlusVat = (Number) doc.eval("amount * 120 / 100");
 
     Assert.assertEquals(360L, amountPlusVat.longValue());
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testEvalInContext() {
-    db.begin();
-    var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    var doc = (EntityImpl) session.newEntity();
 
     doc.field("amount", 300);
 
     var context = new BasicCommandContext();
     context.setVariable("vat", 20);
-    context.setDatabase(db);
+    context.setDatabaseSession(session);
     var amountPlusVat = (Number) doc.eval("amount * (100 + $vat) / 100", context);
 
     Assert.assertEquals(360L, amountPlusVat.longValue());
-    db.rollback();
+    session.rollback();
   }
 }

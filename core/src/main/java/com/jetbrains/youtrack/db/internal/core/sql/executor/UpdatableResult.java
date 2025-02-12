@@ -18,10 +18,12 @@ public class UpdatableResult extends ResultInternal {
 
   @Override
   public boolean isEntity() {
+    assert session == null || session.assertIfNotActive();
     return true;
   }
 
   public <T> T getProperty(String name) {
+    assert session == null || session.assertIfNotActive();
     loadIdentifiable();
     T result = null;
     if (content != null && content.containsKey(name)) {
@@ -38,10 +40,12 @@ public class UpdatableResult extends ResultInternal {
 
   @Override
   public void setProperty(String name, Object value) {
+    assert session == null || session.assertIfNotActive();
     ((EntityInternal) identifiable).setPropertyInternal(name, value);
   }
 
   public void removeProperty(String name) {
+    assert session == null || session.assertIfNotActive();
     ((Entity) identifiable).removeProperty(name);
   }
 }

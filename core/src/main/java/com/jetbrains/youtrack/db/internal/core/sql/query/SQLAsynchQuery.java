@@ -19,9 +19,10 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.query;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestAsynch;
 import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.util.List;
 import java.util.Map;
 
@@ -72,12 +73,12 @@ public class SQLAsynchQuery<T extends Object> extends SQLQuery<T>
   }
 
   @Override
-  public List<T> run(Object... iArgs) {
+  public List<T> run(DatabaseSessionInternal session, Object... iArgs) {
     if (resultListener == null) {
-      throw new CommandExecutionException("Listener not found on asynch query");
+      throw new CommandExecutionException(session, "Listener not found on asynch query");
     }
 
-    return super.run(iArgs);
+    return super.run(session, iArgs);
   }
 
   /**

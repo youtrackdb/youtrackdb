@@ -33,7 +33,7 @@ public class SQLCommitStatement extends SQLSimpleExecStatement {
 
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     db.commit(); // no RETRY and ELSE here, that case is allowed only for batch scripts;
     var item = new ResultInternal(db);
     item.setProperty("operation", "commit");

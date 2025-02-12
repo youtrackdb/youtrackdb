@@ -39,22 +39,22 @@ public class CollectionIndexTest extends BaseDBTest {
 
   @BeforeClass
   public void setupSchema() {
-    if (db.getMetadata().getSchema().existsClass("Collector")) {
-      db.getMetadata().getSchema().dropClass("Collector");
+    if (session.getMetadata().getSchema().existsClass("Collector")) {
+      session.getMetadata().getSchema().dropClass("Collector");
     }
-    final var collector = db.createClass("Collector");
-    collector.createProperty(db, "id", PropertyType.STRING);
+    final var collector = session.createClass("Collector");
+    collector.createProperty(session, "id", PropertyType.STRING);
     collector
-        .createProperty(db, "stringCollection", PropertyType.EMBEDDEDLIST,
+        .createProperty(session, "stringCollection", PropertyType.EMBEDDEDLIST,
             PropertyType.STRING)
-        .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+        .createIndex(session, SchemaClass.INDEX_TYPE.NOTUNIQUE);
   }
 
   @AfterMethod
   public void afterMethod() throws Exception {
-    db.begin();
-    db.command("delete from Collector").close();
-    db.commit();
+    session.begin();
+    session.command("delete from Collector").close();
+    session.commit();
 
     super.afterMethod();
   }
@@ -62,15 +62,15 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollection() {
     checkEmbeddedDB();
 
-    db.begin();
-    var collector = db.newEntity("Collector");
+    session.begin();
+    var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
 
-    db.save(collector);
-    db.commit();
+    session.save(collector);
+    session.commit();
 
     final var index = getIndex("Collector.stringCollection");
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(index.getInternal().size(session), 2);
 
     Iterator<Object> keysIterator;
     try (var keyStream = index.getInternal().keyStream()) {
@@ -89,18 +89,18 @@ public class CollectionIndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     try {
-      db.begin();
-      var collector = db.newEntity("Collector");
+      session.begin();
+      var collector = session.newEntity("Collector");
       collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
-      db.save(collector);
-      db.commit();
+      session.save(collector);
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     final var index = getIndex("Collector.stringCollection");
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(index.getInternal().size(session), 2);
 
     Iterator<Object> keysIterator;
     try (var keyStream = index.getInternal().keyStream()) {
@@ -117,16 +117,16 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdate() {
     checkEmbeddedDB();
 
-    db.begin();
-    var collector = db.newEntity("Collector");
+    session.begin();
+    var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
-    collector = db.save(collector);
+    collector = session.save(collector);
     collector.setProperty("stringCollection", Arrays.asList("spam", "bacon"));
-    db.save(collector);
-    db.commit();
+    session.save(collector);
+    session.commit();
 
     final var index = getIndex("Collector.stringCollection");
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(index.getInternal().size(session), 2);
 
     Iterator<Object> keysIterator;
     try (var keyStream = index.getInternal().keyStream()) {
@@ -144,25 +144,25 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateInTx() {
     checkEmbeddedDB();
 
-    var collector = db.newEntity("Collector");
+    var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
-    db.begin();
-    collector = db.save(collector);
-    db.commit();
+    session.begin();
+    collector = session.save(collector);
+    session.commit();
     try {
-      db.begin();
-      collector = db.bindToSession(collector);
+      session.begin();
+      collector = session.bindToSession(collector);
       collector.setProperty("stringCollection", Arrays.asList("spam", "bacon"));
-      db.save(collector);
-      db.commit();
+      session.save(collector);
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     final var index = getIndex("Collector.stringCollection");
 
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(index.getInternal().size(session), 2);
     Iterator<Object> keysIterator;
     try (var keyStream = index.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
@@ -179,21 +179,21 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateInTxRollback() {
     checkEmbeddedDB();
 
-    db.begin();
-    var collector = db.newEntity("Collector");
+    session.begin();
+    var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
-    collector = db.save(collector);
-    db.commit();
+    collector = session.save(collector);
+    session.commit();
 
-    db.begin();
-    collector = db.bindToSession(collector);
+    session.begin();
+    collector = session.bindToSession(collector);
     collector.setProperty("stringCollection", Arrays.asList("spam", "bacon"));
-    db.save(collector);
-    db.rollback();
+    session.save(collector);
+    session.rollback();
 
     final var index = getIndex("Collector.stringCollection");
 
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(index.getInternal().size(session), 2);
 
     Iterator<Object> keysIterator;
     try (var keyStream = index.getInternal().keyStream()) {
@@ -211,24 +211,24 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateAddItem() {
     checkEmbeddedDB();
 
-    var collector = db.newEntity("Collector");
+    var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
 
-    db.begin();
-    collector = db.save(collector);
-    db.commit();
+    session.begin();
+    collector = session.save(collector);
+    session.commit();
 
-    db.begin();
-    db
+    session.begin();
+    session
         .command(
             "UPDATE "
                 + collector.getIdentity()
                 + " set stringCollection = stringCollection || 'cookies'")
         .close();
-    db.commit();
+    session.commit();
 
     final var index = getIndex("Collector.stringCollection");
-    Assert.assertEquals(index.getInternal().size(db), 3);
+    Assert.assertEquals(index.getInternal().size(session), 3);
 
     Iterator<Object> keysIterator;
     try (var keyStream = index.getInternal().keyStream()) {
@@ -246,26 +246,26 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateAddItemInTx() {
     checkEmbeddedDB();
 
-    var collector = db.newEntity("Collector");
+    var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", new ArrayList<>(Arrays.asList("spam", "eggs")));
-    db.begin();
-    collector = db.save(collector);
-    db.commit();
+    session.begin();
+    collector = session.save(collector);
+    session.commit();
 
     try {
-      db.begin();
-      Entity loadedCollector = db.load(collector.getIdentity());
+      session.begin();
+      Entity loadedCollector = session.load(collector.getIdentity());
       loadedCollector.<List<String>>getProperty("stringCollection").add("cookies");
-      db.save(loadedCollector);
-      db.commit();
+      session.save(loadedCollector);
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     final var index = getIndex("Collector.stringCollection");
 
-    Assert.assertEquals(index.getInternal().size(db), 3);
+    Assert.assertEquals(index.getInternal().size(session), 3);
 
     Iterator<Object> keysIterator;
     try (var keyStream = index.getInternal().keyStream()) {
@@ -283,20 +283,20 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateAddItemInTxRollback() {
     checkEmbeddedDB();
 
-    var collector = db.newEntity("Collector");
+    var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", new ArrayList<>(Arrays.asList("spam", "eggs")));
-    db.begin();
-    collector = db.save(collector);
-    db.commit();
+    session.begin();
+    collector = session.save(collector);
+    session.commit();
 
-    db.begin();
-    Entity loadedCollector = db.load(collector.getIdentity());
+    session.begin();
+    Entity loadedCollector = session.load(collector.getIdentity());
     loadedCollector.<List<String>>getProperty("stringCollection").add("cookies");
-    db.save(loadedCollector);
-    db.rollback();
+    session.save(loadedCollector);
+    session.rollback();
 
     final var index = getIndex("Collector.stringCollection");
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(index.getInternal().size(session), 2);
 
     Iterator<Object> keysIterator;
     try (var keyStream = index.getInternal().keyStream()) {
@@ -314,25 +314,25 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateRemoveItemInTx() {
     checkEmbeddedDB();
 
-    var collector = db.newEntity("Collector");
+    var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", new ArrayList<>(Arrays.asList("spam", "eggs")));
-    db.begin();
-    collector = db.save(collector);
-    db.commit();
+    session.begin();
+    collector = session.save(collector);
+    session.commit();
 
     try {
-      db.begin();
-      Entity loadedCollector = db.load(collector.getIdentity());
+      session.begin();
+      Entity loadedCollector = session.load(collector.getIdentity());
       loadedCollector.<List<String>>getProperty("stringCollection").remove("spam");
-      db.save(loadedCollector);
-      db.commit();
+      session.save(loadedCollector);
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     final var index = getIndex("Collector.stringCollection");
-    Assert.assertEquals(index.getInternal().size(db), 1);
+    Assert.assertEquals(index.getInternal().size(session), 1);
 
     Iterator<Object> keysIterator;
     try (var keyStream = index.getInternal().keyStream()) {
@@ -350,20 +350,20 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateRemoveItemInTxRollback() {
     checkEmbeddedDB();
 
-    var collector = db.newEntity("Collector");
+    var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", new ArrayList<>(Arrays.asList("spam", "eggs")));
-    db.begin();
-    collector = db.save(collector);
-    db.commit();
+    session.begin();
+    collector = session.save(collector);
+    session.commit();
 
-    db.begin();
-    Entity loadedCollector = db.load(collector.getIdentity());
+    session.begin();
+    Entity loadedCollector = session.load(collector.getIdentity());
     loadedCollector.<List<String>>getProperty("stringCollection").remove("spam");
-    db.save(loadedCollector);
-    db.rollback();
+    session.save(loadedCollector);
+    session.rollback();
 
     final var index = getIndex("Collector.stringCollection");
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(index.getInternal().size(session), 2);
 
     Iterator<Object> keysIterator;
     try (var keyStream = index.getInternal().keyStream()) {
@@ -381,17 +381,17 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionUpdateRemoveItem() {
     checkEmbeddedDB();
 
-    var collector = db.newEntity("Collector");
+    var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
-    db.begin();
-    collector = db.save(collector);
-    db.commit();
+    session.begin();
+    collector = session.save(collector);
+    session.commit();
 
-    db.begin();
-    db
+    session.begin();
+    session
         .command("UPDATE " + collector.getIdentity() + " remove stringCollection = 'spam'")
         .close();
-    db.commit();
+    session.commit();
 
     final var index = getIndex("Collector.stringCollection");
 
@@ -411,55 +411,55 @@ public class CollectionIndexTest extends BaseDBTest {
   public void testIndexCollectionRemove() {
     checkEmbeddedDB();
 
-    var collector = db.newEntity("Collector");
+    var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
-    db.begin();
-    collector = db.save(collector);
-    db.delete(collector);
-    db.commit();
+    session.begin();
+    collector = session.save(collector);
+    session.delete(collector);
+    session.commit();
 
     final var index = getIndex("Collector.stringCollection");
 
-    Assert.assertEquals(index.getInternal().size(db), 0);
+    Assert.assertEquals(index.getInternal().size(session), 0);
   }
 
   public void testIndexCollectionRemoveInTx() {
     checkEmbeddedDB();
 
-    var collector = db.newEntity("Collector");
+    var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
-    db.begin();
-    collector = db.save(collector);
-    db.commit();
+    session.begin();
+    collector = session.save(collector);
+    session.commit();
     try {
-      db.begin();
-      db.delete(db.bindToSession(collector));
-      db.commit();
+      session.begin();
+      session.delete(session.bindToSession(collector));
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     final var index = getIndex("Collector.stringCollection");
 
-    Assert.assertEquals(index.getInternal().size(db), 0);
+    Assert.assertEquals(index.getInternal().size(session), 0);
   }
 
   public void testIndexCollectionRemoveInTxRollback() {
     checkEmbeddedDB();
 
-    var collector = db.newEntity("Collector");
+    var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
-    db.begin();
-    collector = db.save(collector);
-    db.commit();
+    session.begin();
+    collector = session.save(collector);
+    session.commit();
 
-    db.begin();
-    db.delete(db.bindToSession(collector));
-    db.rollback();
+    session.begin();
+    session.delete(session.bindToSession(collector));
+    session.rollback();
 
     final var index = getIndex("Collector.stringCollection");
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(index.getInternal().size(session), 2);
 
     Iterator<Object> keysIterator;
     try (var keyStream = index.getInternal().keyStream()) {
@@ -475,12 +475,12 @@ public class CollectionIndexTest extends BaseDBTest {
   }
 
   public void testIndexCollectionSQL() {
-    var collector = db.newEntity("Collector");
+    var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
 
-    db.begin();
-    db.save(collector);
-    db.commit();
+    session.begin();
+    session.save(collector);
+    session.commit();
 
     var result =
         executeQuery("select * from Collector where stringCollection contains ?", "eggs");

@@ -16,12 +16,7 @@
 package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Direction;
-import com.jetbrains.youtrack.db.api.record.Edge;
-import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
@@ -29,7 +24,6 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.testng.Assert;
@@ -52,93 +46,93 @@ public class GraphDatabaseTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "populate")
   public void testSQLAgainstGraph() {
-    db.createEdgeClass("drives");
+    session.createEdgeClass("drives");
 
-    db.begin();
-    var tom = db.newVertex();
+    session.begin();
+    var tom = session.newVertex();
     tom.setProperty("name", "Tom");
     tom.save();
 
-    var ferrari = db.newVertex("GraphCar");
+    var ferrari = session.newVertex("GraphCar");
     ferrari.setProperty("brand", "Ferrari");
     ferrari.save();
 
-    var maserati = db.newVertex("GraphCar");
+    var maserati = session.newVertex("GraphCar");
     maserati.setProperty("brand", "Maserati");
     maserati.save();
 
-    var porsche = db.newVertex("GraphCar");
+    var porsche = session.newVertex("GraphCar");
     porsche.setProperty("brand", "Porsche");
     porsche.save();
 
-    db.newRegularEdge(tom, ferrari, "drives").save();
-    db.newRegularEdge(tom, maserati, "drives").save();
-    db.newRegularEdge(tom, porsche, "owns").save();
+    session.newRegularEdge(tom, ferrari, "drives").save();
+    session.newRegularEdge(tom, maserati, "drives").save();
+    session.newRegularEdge(tom, porsche, "owns").save();
 
-    db.commit();
+    session.commit();
 
-    tom = db.bindToSession(tom);
+    tom = session.bindToSession(tom);
     Assert.assertEquals(CollectionUtils.size(tom.getEdges(Direction.OUT, "drives")), 2);
 
     var result =
-        db.query("select out_[in.@class = 'GraphCar'].in_ from V where name = 'Tom'");
+        session.query("select out_[in.@class = 'GraphCar'].in_ from V where name = 'Tom'");
     Assert.assertEquals(result.stream().count(), 1);
 
     result =
-        db.query(
+        session.query(
             "select out_[label='drives'][in.brand = 'Ferrari'].in_ from V where name = 'Tom'");
     Assert.assertEquals(result.stream().count(), 1);
 
-    result = db.query("select out_[in.brand = 'Ferrari'].in_ from V where name = 'Tom'");
+    result = session.query("select out_[in.brand = 'Ferrari'].in_ from V where name = 'Tom'");
     Assert.assertEquals(result.stream().count(), 1);
   }
 
   public void testNotDuplicatedIndexTxChanges() throws IOException {
-    var oc = (SchemaClassInternal) db.createVertexClass("vertexA");
+    var oc = (SchemaClassInternal) session.createVertexClass("vertexA");
     if (oc == null) {
-      oc = (SchemaClassInternal) db.createVertexClass("vertexA");
+      oc = (SchemaClassInternal) session.createVertexClass("vertexA");
     }
 
-    if (!oc.existsProperty("name")) {
-      oc.createProperty(db, "name", PropertyType.STRING);
-      oc.createIndex(db, "vertexA_name_idx", SchemaClass.INDEX_TYPE.UNIQUE, "name");
+    if (!oc.existsProperty(session, "name")) {
+      oc.createProperty(session, "name", PropertyType.STRING);
+      oc.createIndex(session, "vertexA_name_idx", SchemaClass.INDEX_TYPE.UNIQUE, "name");
     }
 
-    db.begin();
-    var vertexA = db.newVertex("vertexA");
+    session.begin();
+    var vertexA = session.newVertex("vertexA");
     vertexA.setProperty("name", "myKey");
     vertexA.save();
 
-    var vertexB = db.newVertex("vertexA");
+    var vertexB = session.newVertex("vertexA");
     vertexB.setProperty("name", "anotherKey");
     vertexB.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    db.bindToSession(vertexB).delete();
-    db.bindToSession(vertexA).delete();
+    session.begin();
+    session.bindToSession(vertexB).delete();
+    session.bindToSession(vertexA).delete();
 
-    var v = db.newVertex("vertexA");
+    var v = session.newVertex("vertexA");
     v.setProperty("name", "myKey");
     v.save();
 
-    db.commit();
+    session.commit();
   }
 
   public void testNewVertexAndEdgesWithFieldsInOneShoot() {
-    db.begin();
-    var vertexA = db.newVertex();
+    session.begin();
+    var vertexA = session.newVertex();
     vertexA.setProperty("field1", "value1");
     vertexA.setProperty("field2", "value2");
 
-    var vertexB = db.newVertex();
+    var vertexB = session.newVertex();
     vertexB.setProperty("field1", "value1");
     vertexB.setProperty("field2", "value2");
 
-    var edgeC = db.newRegularEdge(vertexA, vertexB);
+    var edgeC = session.newRegularEdge(vertexA, vertexB);
     edgeC.setProperty("edgeF1", "edgeV2");
 
-    db.commit();
+    session.commit();
 
     Assert.assertEquals(vertexA.getProperty("field1"), "value1");
     Assert.assertEquals(vertexA.getProperty("field2"), "value2");
@@ -151,83 +145,83 @@ public class GraphDatabaseTest extends BaseDBTest {
 
   @Test
   public void sqlNestedQueries() {
-    db.begin();
-    var vertex1 = db.newVertex();
+    session.begin();
+    var vertex1 = session.newVertex();
     vertex1.setProperty("driver", "John");
     vertex1.save();
 
-    var vertex2 = db.newVertex();
+    var vertex2 = session.newVertex();
     vertex2.setProperty("car", "ford");
     vertex2.save();
 
-    var targetVertex = db.newVertex();
+    var targetVertex = session.newVertex();
     targetVertex.setProperty("car", "audi");
     targetVertex.save();
 
-    var edge = db.newRegularEdge(vertex1, vertex2);
+    var edge = session.newRegularEdge(vertex1, vertex2);
     edge.setProperty("color", "red");
     edge.setProperty("action", "owns");
     edge.save();
 
-    edge = db.newRegularEdge(vertex1, targetVertex);
+    edge = session.newRegularEdge(vertex1, targetVertex);
     edge.setProperty("color", "red");
     edge.setProperty("action", "wants");
     edge.save();
 
-    db.commit();
+    session.commit();
 
     var query1 = "select driver from V where out().car contains 'ford'";
-    var result = db.query(query1);
+    var result = session.query(query1);
     Assert.assertEquals(result.stream().count(), 1);
 
     var query2 = "select driver from V where outE()[color='red'].inV().car contains 'ford'";
-    result = db.query(query2);
+    result = session.query(query2);
     Assert.assertEquals(result.stream().count(), 1);
 
     var query3 = "select driver from V where outE()[action='owns'].inV().car = 'ford'";
-    result = db.query(query3);
+    result = session.query(query3);
     Assert.assertEquals(result.stream().count(), 1);
 
     var query4 =
         "select driver from V where outE()[color='red'][action='owns'].inV().car = 'ford'";
-    result = db.query(query4);
+    result = session.query(query4);
     Assert.assertEquals(result.stream().count(), 1);
   }
 
   @SuppressWarnings("unchecked")
   public void nestedQuery() {
-    db.createEdgeClass("owns");
-    db.begin();
+    session.createEdgeClass("owns");
+    session.begin();
 
-    var countryVertex1 = db.newVertex();
+    var countryVertex1 = session.newVertex();
     countryVertex1.setProperty("name", "UK");
     countryVertex1.setProperty("area", "Europe");
     countryVertex1.setProperty("code", "2");
     countryVertex1.save();
 
-    var cityVertex1 = db.newVertex();
+    var cityVertex1 = session.newVertex();
     cityVertex1.setProperty("name", "leicester");
     cityVertex1.setProperty("lat", "52.64640");
     cityVertex1.setProperty("long", "-1.13159");
     cityVertex1.save();
 
-    var cityVertex2 = db.newVertex();
+    var cityVertex2 = session.newVertex();
     cityVertex2.setProperty("name", "manchester");
     cityVertex2.setProperty("lat", "53.47497");
     cityVertex2.setProperty("long", "-2.25769");
 
-    db.newRegularEdge(countryVertex1, cityVertex1, "owns").save();
-    db.newRegularEdge(countryVertex1, cityVertex2, "owns").save();
+    session.newRegularEdge(countryVertex1, cityVertex1, "owns").save();
+    session.newRegularEdge(countryVertex1, cityVertex2, "owns").save();
 
-    db.commit();
+    session.commit();
     var subquery = "select out('owns') as out from V where name = 'UK'";
-    var result = db.query(subquery).stream().collect(Collectors.toList());
+    var result = session.query(subquery).stream().collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 1);
     Assert.assertEquals(((Collection) result.get(0).getProperty("out")).size(), 2);
 
     subquery = "select expand(out('owns')) from V where name = 'UK'";
-    result = db.query(subquery).stream().collect(Collectors.toList());
+    result = session.query(subquery).stream().collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 2);
     for (var value : result) {
@@ -237,7 +231,7 @@ public class GraphDatabaseTest extends BaseDBTest {
     var query =
         "select name, lat, long, distance(lat,long,51.5,0.08) as distance from (select"
             + " expand(out('owns')) from V where name = 'UK') order by distance";
-    result = db.query(query).stream().collect(Collectors.toList());
+    result = session.query(query).stream().collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 2);
     for (var oResult : result) {
@@ -248,7 +242,7 @@ public class GraphDatabaseTest extends BaseDBTest {
 
   public void testDeleteOfVerticesWithDeleteCommandMustFail() {
     try {
-      db.command("delete from GraphVehicle").close();
+      session.command("delete from GraphVehicle").close();
       Assert.fail();
     } catch (CommandExecutionException e) {
       Assert.assertTrue(true);
@@ -257,7 +251,7 @@ public class GraphDatabaseTest extends BaseDBTest {
 
   public void testInsertOfEdgeWithInsertCommand() {
     try {
-      db.command(new CommandSQL("insert into E set a = 33")).execute(db);
+      session.command(new CommandSQL("insert into E set a = 33")).execute(session);
       Assert.fail();
     } catch (CommandExecutionException e) {
       Assert.assertTrue(true);
@@ -265,46 +259,46 @@ public class GraphDatabaseTest extends BaseDBTest {
   }
 
   public void testInsertOfEdgeWithInsertCommandUnsafe() {
-    db.begin();
+    session.begin();
     var insertedEdge =
-        db
+        session
             .command("insert into E set in = #9:0, out = #9:1, a = 33 unsafe")
             .next()
             .asEntity();
-    db.commit();
+    session.commit();
 
     Assert.assertNotNull(insertedEdge);
 
-    db.begin();
+    session.begin();
     var confirmDeleted =
-        db
+        session
             .command("delete from " + insertedEdge.getIdentity() + " unsafe")
             .next()
             .<Long>getProperty("count");
-    db.commit();
+    session.commit();
 
     Assert.assertEquals(confirmDeleted.intValue(), 1);
   }
 
   public void testEmbeddedDoc() {
-    db.createClass("NonVertex");
+    session.createClass("NonVertex");
 
-    db.begin();
-    var vertex = db.newVertex();
+    session.begin();
+    var vertex = session.newVertex();
     vertex.setProperty("name", "vertexWithEmbedded");
     vertex.save();
 
-    var doc = ((EntityImpl) db.newEntity());
+    var doc = ((EntityImpl) session.newEntity());
     doc.field("foo", "bar");
     doc.save();
 
     vertex.setProperty("emb1", doc);
 
-    var doc2 = ((EntityImpl) db.newEntity("V"));
+    var doc2 = ((EntityImpl) session.newEntity("V"));
     doc2.field("foo", "bar1");
     vertex.setProperty("emb2", doc2, PropertyType.EMBEDDED);
 
-    var doc3 = ((EntityImpl) db.newEntity("NonVertex"));
+    var doc3 = ((EntityImpl) session.newEntity("NonVertex"));
     doc3.field("foo", "bar2");
     vertex.setProperty("emb3", doc3, PropertyType.EMBEDDED);
 
@@ -319,6 +313,6 @@ public class GraphDatabaseTest extends BaseDBTest {
     var res3 = vertex.getProperty("emb3");
     Assert.assertNotNull(res3);
     Assert.assertTrue(res3 instanceof EntityImpl);
-    db.commit();
+    session.commit();
   }
 }

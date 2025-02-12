@@ -46,20 +46,20 @@ public class SQLFunctionEval extends SQLFunctionMathAbstract {
       final Identifiable iRecord,
       final Object iCurrentResult,
       final Object[] iParams,
-      @Nonnull CommandContext iContext) {
+      @Nonnull CommandContext context) {
     if (iParams.length < 1) {
-      throw new CommandExecutionException("invalid ");
+      throw new CommandExecutionException(context.getDatabaseSession(), "invalid ");
     }
     if (predicate == null) {
-      predicate = new SQLPredicate(iContext, String.valueOf(iParams[0]));
+      predicate = new SQLPredicate(context, String.valueOf(iParams[0]));
     }
 
     final var currentResult =
         iCurrentResult instanceof EntityImpl ? (EntityImpl) iCurrentResult : null;
     try {
       return predicate.evaluate(
-          iRecord != null ? iRecord.getRecord(iContext.getDatabase()) : null, currentResult,
-          iContext);
+          iRecord != null ? iRecord.getRecord(context.getDatabaseSession()) : null, currentResult,
+          context);
     } catch (ArithmeticException e) {
       LogManager.instance().error(this, "Division by 0", e);
       // DIVISION BY 0

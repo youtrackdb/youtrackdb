@@ -73,7 +73,7 @@ public class LuceneOperatorUtil {
         }
         i++;
       }
-      if (lastResult != null && LuceneOperatorUtil.checkIndexExistence(context.getDatabase(),
+      if (lastResult != null && LuceneOperatorUtil.checkIndexExistence(context.getDatabaseSession(),
           iSchemaClass,
           lastResult)) {
         iIndexSearchResults.add(lastResult);
@@ -90,7 +90,8 @@ public class LuceneOperatorUtil {
         return null;
       }
 
-      if (LuceneOperatorUtil.checkIndexExistence(context.getDatabase(), iSchemaClass, result)) {
+      if (LuceneOperatorUtil.checkIndexExistence(context.getDatabaseSession(), iSchemaClass,
+          result)) {
         iIndexSearchResults.add(result);
       }
 
@@ -107,16 +108,16 @@ public class LuceneOperatorUtil {
 
     if (result.lastField.isLong()) {
       final var fieldCount = result.lastField.getItemCount();
-      var cls = (SchemaClassInternal) iSchemaClass.getProperty(
-          result.lastField.getItemName(0)).getLinkedClass();
+      var cls = (SchemaClassInternal) iSchemaClass.getProperty(session,
+          result.lastField.getItemName(0)).getLinkedClass(session);
 
       for (var i = 1; i < fieldCount; i++) {
         if (cls == null || !cls.areIndexed(session, result.lastField.getItemName(i))) {
           return false;
         }
 
-        cls = (SchemaClassInternal) cls.getProperty(result.lastField.getItemName(i))
-            .getLinkedClass();
+        cls = (SchemaClassInternal) cls.getProperty(session, result.lastField.getItemName(i))
+            .getLinkedClass(session);
       }
     }
     return true;

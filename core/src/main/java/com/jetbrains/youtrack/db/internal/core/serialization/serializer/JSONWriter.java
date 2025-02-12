@@ -26,7 +26,6 @@ import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiCollectionIterator;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
-import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
@@ -34,12 +33,10 @@ import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.Base64;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
@@ -165,7 +162,7 @@ public class JSONWriter {
         buffer.append(((Date) iValue).getTime());
       } else {
         buffer.append('"');
-        buffer.append(DateHelper.getDateTimeFormatInstance().format(iValue));
+        buffer.append(DateHelper.getDateTimeFormatInstance(db).format(iValue));
         buffer.append('"');
       }
     } else if (iValue instanceof BigDecimal) {
@@ -231,53 +228,6 @@ public class JSONWriter {
     }
   }
 
-  public static String listToJSON(
-      DatabaseSessionInternal db, final Collection<? extends Identifiable> iRecords,
-      final String iFormat) {
-    try {
-      final var buffer = new StringWriter();
-      final var json = new JSONWriter(buffer);
-      // WRITE RECORDS
-      json.beginCollection(db, 0, false, null);
-      if (iRecords != null) {
-        if (iFormat != null && iFormat.contains("shallow")) {
-          buffer.append("" + iRecords.size());
-        } else {
-          var counter = 0;
-          String objectJson;
-          for (var rec : iRecords) {
-            if (rec != null) {
-              try {
-                objectJson =
-                    iFormat != null ? rec.getRecord(db).toJSON(iFormat)
-                        : rec.getRecord(db).toJSON();
-
-                if (counter++ > 0) {
-                  buffer.append(",");
-                }
-
-                buffer.append(objectJson);
-              } catch (Exception e) {
-                LogManager.instance()
-                    .error(json, "Error transforming record " + rec.getIdentity() + " to JSON", e);
-              }
-            }
-          }
-        }
-      }
-      json.endCollection(0, false);
-
-      return buffer.toString();
-    } catch (IOException e) {
-      throw BaseException.wrapException(
-          new SerializationException("Error on serializing collection"), e);
-    }
-  }
-
-  public static String mapToJSON(DatabaseSessionInternal db, Map<?, ?> iMap) {
-    return mapToJSON(db, iMap, null, new StringBuilder(128));
-  }
-
   public static String mapToJSON(
       DatabaseSessionInternal db, final Map<?, ?> iMap, final String iFormat,
       final StringBuilder buffer) {
@@ -299,7 +249,9 @@ public class JSONWriter {
       buffer.append('}');
       return buffer.toString();
     } catch (IOException e) {
-      throw BaseException.wrapException(new SerializationException("Error on serializing map"), e);
+      throw BaseException.wrapException(
+          new SerializationException(db.getDatabaseName(), "Error on serializing map"), e,
+          db.getDatabaseName());
     }
   }
 

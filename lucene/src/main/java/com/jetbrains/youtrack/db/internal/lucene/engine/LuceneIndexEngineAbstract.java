@@ -19,15 +19,15 @@ package com.jetbrains.youtrack.db.internal.lucene.engine;
 import static com.jetbrains.youtrack.db.internal.lucene.analyzer.LuceneAnalyzerFactory.AnalyzerKind.INDEX;
 import static com.jetbrains.youtrack.db.internal.lucene.analyzer.LuceneAnalyzerFactory.AnalyzerKind.QUERY;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.config.IndexEngineData;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.id.ContextualRecordId;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
@@ -48,11 +48,10 @@ import com.jetbrains.youtrack.db.internal.lucene.tx.LuceneTxChangesMultiRid;
 import com.jetbrains.youtrack.db.internal.lucene.tx.LuceneTxChangesSingleRid;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystem;
+import java.io.StringWriter;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TimerTask;
@@ -63,7 +62,6 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
-import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -73,7 +71,6 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.SearcherManager;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
@@ -194,21 +191,20 @@ public abstract class LuceneIndexEngineAbstract implements LuceneIndexEngine {
   }
 
   private boolean shouldClose() {
-    //noinspection resource
     return !(directory.getDirectory() instanceof RAMDirectory)
         && System.currentTimeMillis() - lastAccess.get() > closeAfterInterval;
   }
 
-  private void checkCollectionIndex(DatabaseSessionInternal db, IndexDefinition indexDefinition) {
-
+  private void checkCollectionIndex(DatabaseSessionInternal session,
+      IndexDefinition indexDefinition) {
     var fields = indexDefinition.getFields();
 
     var aClass =
-        db.getMetadata().getSchema().getClass(indexDefinition.getClassName());
+        session.getMetadata().getSchema().getClass(indexDefinition.getClassName());
     for (var field : fields) {
-      var property = aClass.getProperty(field);
+      var property = aClass.getProperty(session, field);
 
-      if (property.getType().isEmbedded() && property.getLinkedType() != null) {
+      if (property.getType(session).isEmbedded() && property.getLinkedType(session) != null) {
         collectionFields.put(field, true);
       } else {
         collectionFields.put(field, false);
@@ -217,7 +213,6 @@ public abstract class LuceneIndexEngineAbstract implements LuceneIndexEngine {
   }
 
   private void reOpen(Storage storage) throws IOException {
-    //noinspection resource
     if (indexWriter != null
         && indexWriter.isOpen()
         && directory.getDirectory() instanceof RAMDirectory) {
@@ -257,15 +252,25 @@ public abstract class LuceneIndexEngineAbstract implements LuceneIndexEngine {
   private void addMetadataDocumentIfNotPresent(Storage storage) {
 
     final var searcher = searcher(storage);
-
     try {
       final var topDocs =
           searcher.search(new TermQuery(new Term("_CLASS", "JSON_METADATA")), 1);
+      var jsonFactory = new JsonFactory();
       if (topDocs.totalHits == 0) {
         var metaDoc = new EntityImpl(null);
         metaDoc.updateFromMap(metadata);
         var metaAsJson = metaDoc.toJSON();
-        var defAsJson = indexDefinition.toStream(null, new EntityImpl(null)).toJSON();
+
+        String defAsJson;
+        var jsonWriter = new StringWriter();
+        try (var jsonGenerator = jsonFactory.createGenerator(jsonWriter)) {
+          indexDefinition.toJson(jsonGenerator);
+          defAsJson = jsonWriter.toString();
+        } catch (IOException e) {
+          throw BaseException.wrapException(
+              new SerializationException(storage.getName(),
+                  "Error while converting index definition to JSON"), e, storage.getName());
+        }
 
         var lMetaDoc = new Document();
         lMetaDoc.add(new StringField("_META_JSON", metaAsJson, Field.Store.YES));
@@ -352,14 +357,14 @@ public abstract class LuceneIndexEngineAbstract implements LuceneIndexEngine {
       }
     } catch (IOException e) {
       throw BaseException.wrapException(
-          new StorageException("Error during deletion of Lucene index " + name), e);
+          new StorageException(storage.getName(), "Error during deletion of Lucene index " + name),
+          e, storage.getName());
     }
   }
 
   private void deleteIndexFolder(File baseStoragePath) throws IOException {
-    @SuppressWarnings("resource") final var files = directory.getDirectory().listAll();
+    final var files = directory.getDirectory().listAll();
     for (var fileName : files) {
-      //noinspection resource
       directory.getDirectory().deleteFile(fileName);
     }
     directory.getDirectory().close();
@@ -440,7 +445,7 @@ public abstract class LuceneIndexEngineAbstract implements LuceneIndexEngine {
             .error(
                 this,
                 "Error on deleting entity by query '%s' to Lucene index",
-                new IndexException("Error deleting entity"),
+                new IndexException(storage.getName(), "Error deleting entity"),
                 query);
       }
     } catch (IOException e) {
@@ -482,7 +487,8 @@ public abstract class LuceneIndexEngineAbstract implements LuceneIndexEngine {
     } catch (Exception e) {
       LogManager.instance().error(this, "Error on get searcher from Lucene index", e);
       throw BaseException.wrapException(
-          new LuceneIndexException("Error on get searcher from Lucene index"), e);
+          new LuceneIndexException("Error on get searcher from Lucene index"), e,
+          storage.getName());
     }
   }
 
@@ -492,7 +498,6 @@ public abstract class LuceneIndexEngineAbstract implements LuceneIndexEngine {
     openIfClosed(storage);
     var searcher = searcher(storage);
     try {
-      @SuppressWarnings("resource")
       var reader = searcher.getIndexReader();
 
       // we subtract metadata document added during open

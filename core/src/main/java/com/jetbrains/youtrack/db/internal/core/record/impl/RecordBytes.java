@@ -42,32 +42,29 @@ public class RecordBytes extends RecordAbstract implements Blob {
   private static final byte[] EMPTY_SOURCE = new byte[]{};
 
   public RecordBytes(DatabaseSessionInternal session) {
-    setup(session);
+    super(session);
   }
 
   public RecordBytes(final DatabaseSessionInternal iDatabase, final byte[] iSource) {
-    super(iSource);
+    super(iDatabase, iSource);
     dirty = 1;
     contentChanged = true;
-    setup(iDatabase);
   }
 
   public RecordBytes(DatabaseSessionInternal session, final RecordId iRecordId) {
-    recordId = iRecordId.copy();
-    setup(session);
-  }
-
-  public RecordBytes copy() {
-    return (RecordBytes) copyTo(new RecordBytes(getSession()));
+    super(session);
+    recordId.setClusterId(iRecordId.getClusterId());
+    recordId.setClusterPosition(iRecordId.getClusterPosition());
   }
 
   @Override
   public RecordBytes fromStream(final byte[] iRecordBuffer) {
-    if (dirty > 0) {
-      throw new DatabaseException("Cannot call fromStream() on dirty records");
-    }
-
     checkForBinding();
+
+    if (dirty > 0) {
+      throw new DatabaseException(getSession().getDatabaseName(),
+          "Cannot call fromStream() on dirty records");
+    }
 
     source = iRecordBuffer;
     status = RecordElement.STATUS.LOADED;
@@ -98,7 +95,6 @@ public class RecordBytes extends RecordAbstract implements Blob {
    *
    * @param in Input Stream, use buffered input stream wrapper to speed up reading
    * @return Buffer read from the stream. It's also the internal buffer size in bytes
-   * @throws IOException
    */
   public int fromInputStream(final InputStream in) throws IOException {
     incrementLoading();

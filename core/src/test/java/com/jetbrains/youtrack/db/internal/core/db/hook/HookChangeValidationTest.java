@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import com.jetbrains.youtrack.db.api.exception.ValidationException;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.hook.DocumentHookAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -17,13 +16,13 @@ public class HookChangeValidationTest extends DbTestBase {
   @Test
   public void testHookCreateChangeTx() {
 
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var classA = schema.createClass("TestClass");
-    classA.createProperty(db, "property1", PropertyType.STRING).setNotNull(db, true);
-    classA.createProperty(db, "property2", PropertyType.STRING).setReadonly(db, true);
-    classA.createProperty(db, "property3", PropertyType.STRING).setMandatory(db, true);
-    db.registerHook(
-        new DocumentHookAbstract() {
+    classA.createProperty(session, "property1", PropertyType.STRING).setNotNull(session, true);
+    classA.createProperty(session, "property2", PropertyType.STRING).setReadonly(session, true);
+    classA.createProperty(session, "property3", PropertyType.STRING).setMandatory(session, true);
+    session.registerHook(
+        new DocumentHookAbstract(session) {
           @Override
           public RESULT onRecordBeforeCreate(EntityImpl entity) {
             entity.removeField("property1");
@@ -42,14 +41,14 @@ public class HookChangeValidationTest extends DbTestBase {
             return DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE;
           }
         });
-    db.begin();
-    var doc = (EntityImpl) db.newEntity(classA);
+    session.begin();
+    var doc = (EntityImpl) session.newEntity(classA);
     doc.field("property1", "value1-create");
     doc.field("property2", "value2-create");
     doc.field("property3", "value3-create");
     try {
       doc.save();
-      db.commit();
+      session.commit();
       Assert.fail("The document save should fail for validation exception");
     } catch (ValidationException ex) {
 
@@ -59,13 +58,13 @@ public class HookChangeValidationTest extends DbTestBase {
   @Test
   public void testHookUpdateChangeTx() {
 
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var classA = schema.createClass("TestClass");
-    classA.createProperty(db, "property1", PropertyType.STRING).setNotNull(db, true);
-    classA.createProperty(db, "property2", PropertyType.STRING).setReadonly(db, true);
-    classA.createProperty(db, "property3", PropertyType.STRING).setMandatory(db, true);
-    db.registerHook(
-        new DocumentHookAbstract() {
+    classA.createProperty(session, "property1", PropertyType.STRING).setNotNull(session, true);
+    classA.createProperty(session, "property2", PropertyType.STRING).setReadonly(session, true);
+    classA.createProperty(session, "property3", PropertyType.STRING).setMandatory(session, true);
+    session.registerHook(
+        new DocumentHookAbstract(session) {
           @Override
           public RESULT onRecordBeforeCreate(EntityImpl entity) {
             return RESULT.RECORD_NOT_CHANGED;
@@ -85,17 +84,17 @@ public class HookChangeValidationTest extends DbTestBase {
           }
         });
 
-    db.begin();
-    var doc = (EntityImpl) db.newEntity(classA);
+    session.begin();
+    var doc = (EntityImpl) session.newEntity(classA);
     doc.field("property1", "value1-create");
     doc.field("property2", "value2-create");
     doc.field("property3", "value3-create");
     doc.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
+    session.begin();
     try {
-      doc = db.bindToSession(doc);
+      doc = session.bindToSession(doc);
       assertEquals("value1-create", doc.field("property1"));
       assertEquals("value2-create", doc.field("property2"));
       assertEquals("value3-create", doc.field("property3"));
@@ -104,7 +103,7 @@ public class HookChangeValidationTest extends DbTestBase {
       doc.field("property2", "value2-update");
 
       doc.save();
-      db.commit();
+      session.commit();
       Assert.fail("The document save should fail for validation exception");
     } catch (ValidationException ex) {
     }

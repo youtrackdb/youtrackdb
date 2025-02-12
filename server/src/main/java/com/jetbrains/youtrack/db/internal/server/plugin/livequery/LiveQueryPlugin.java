@@ -21,7 +21,6 @@ package com.jetbrains.youtrack.db.internal.server.plugin.livequery;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseLifecycleListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
 import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfiguration;
 import com.jetbrains.youtrack.db.internal.server.plugin.ServerPluginAbstract;
@@ -71,22 +70,19 @@ public class LiveQueryPlugin extends ServerPluginAbstract implements DatabaseLif
   }
 
   @Override
-  public void onCreate(DatabaseSessionInternal iDatabase) {
+  public void onCreate(DatabaseSessionInternal session) {
   }
 
   @Override
-  public void onOpen(DatabaseSessionInternal iDatabase) {
+  public void onOpen(DatabaseSessionInternal session) {
   }
 
   @Override
-  public void onClose(DatabaseSessionInternal iDatabase) {
+  public void onClose(DatabaseSessionInternal session) {
   }
 
   @Override
-  public void onDrop(DatabaseSessionInternal iDatabase) {
+  public void onDrop(DatabaseSessionInternal session) {
   }
 
-  @Override
-  public void onLocalNodeConfigurationRequest(EntityImpl iConfiguration) {
-  }
 }

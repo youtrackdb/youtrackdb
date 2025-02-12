@@ -57,10 +57,10 @@ public class LiveQuery<T> extends SQLSynchQuery<T> {
   }
 
   @Override
-  public <RET> RET execute(@Nonnull DatabaseSessionInternal db, Object... iArgs) {
-    if (db.isRemote()) {
+  public <RET> RET execute(@Nonnull DatabaseSessionInternal session, Object... iArgs) {
+    if (session.isRemote()) {
       var listener = new BackwardLiveQueryResultListener();
-      var monitor = db.live(getText(), listener, iArgs);
+      var monitor = session.live(getText(), listener, iArgs);
       listener.token = monitor.getMonitorId();
       var entity = new EntityImpl(null);
       entity.setProperty("token", listener.token);
@@ -68,7 +68,7 @@ public class LiveQuery<T> extends SQLSynchQuery<T> {
       result.add(entity);
       return (RET) result;
     }
-    return super.execute(db, iArgs);
+    return super.execute(session, iArgs);
   }
 
   private class BackwardLiveQueryResultListener implements LiveQueryResultListener {
@@ -76,36 +76,36 @@ public class LiveQuery<T> extends SQLSynchQuery<T> {
     protected int token;
 
     @Override
-    public void onCreate(DatabaseSessionInternal database, Result data) {
+    public void onCreate(DatabaseSessionInternal session, Result data) {
       ((LocalLiveResultListener) getResultListener())
-          .onLiveResult(database,
+          .onLiveResult(session,
               token,
               new RecordOperation((RecordAbstract) data.asEntity(), RecordOperation.CREATED));
     }
 
     @Override
-    public void onUpdate(DatabaseSessionInternal database, Result before, Result after) {
+    public void onUpdate(DatabaseSessionInternal session, Result before, Result after) {
       ((LocalLiveResultListener) getResultListener())
-          .onLiveResult(database,
+          .onLiveResult(session,
               token,
               new RecordOperation((RecordAbstract) after.asEntity(), RecordOperation.UPDATED));
     }
 
     @Override
-    public void onDelete(DatabaseSessionInternal database, Result data) {
+    public void onDelete(DatabaseSessionInternal session, Result data) {
       ((LocalLiveResultListener) getResultListener())
-          .onLiveResult(database,
+          .onLiveResult(session,
               token,
               new RecordOperation((RecordAbstract) data.asEntity(), RecordOperation.DELETED));
     }
 
     @Override
-    public void onError(DatabaseSession database, BaseException exception) {
+    public void onError(DatabaseSession session, BaseException exception) {
       ((LocalLiveResultListener) getResultListener()).onError(token);
     }
 
     @Override
-    public void onEnd(DatabaseSession database) {
+    public void onEnd(DatabaseSession session) {
       ((LocalLiveResultListener) getResultListener()).onUnsubscribe(token);
     }
   }

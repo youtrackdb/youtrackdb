@@ -21,7 +21,6 @@ package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.
 
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
@@ -47,7 +46,7 @@ public class ServerCommandGetDocument extends ServerCommandAuthenticatedDbAbstra
     final var parametersPos = urlParts[2].indexOf('?');
     final var rid = parametersPos > -1 ? urlParts[2].substring(0, parametersPos) : urlParts[2];
 
-    try (var db = getProfiledDatabaseInstance(iRequest)) {
+    try (var db = getProfiledDatabaseSessionInstance(iRequest)) {
       try {
         rec = db.load(new RecordId(rid));
       } catch (RecordNotFoundException e) {

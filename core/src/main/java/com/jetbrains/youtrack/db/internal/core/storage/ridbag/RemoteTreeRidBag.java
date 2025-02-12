@@ -20,11 +20,9 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage.ridbag;
 
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeTimeLine;
@@ -36,7 +34,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.NavigableMap;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -59,61 +56,17 @@ public class RemoteTreeRidBag implements RidBagDelegate {
   private RecordId ownerRecord;
   private String fieldName;
   private final BonsaiCollectionPointer collectionPointer;
+  private final DatabaseSessionInternal session;
 
-  private class RemovableIterator implements Iterator<RID> {
-
-    private final Iterator<RID> iter;
-    private RID next;
-    private RID removeNext;
-
-    public RemovableIterator(Iterator<RID> iterator) {
-      this.iter = iterator;
-    }
-
-    @Override
-    public boolean hasNext() {
-      if (next != null) {
-        return true;
-      } else {
-        if (iter.hasNext()) {
-          next = iter.next();
-          return true;
-        } else {
-          return false;
-        }
-      }
-    }
-
-    @Override
-    public RID next() {
-      if (!hasNext()) {
-        throw new NoSuchElementException();
-      }
-      var val = next;
-      removeNext = next;
-      next = null;
-      return val;
-    }
-
-    @Override
-    public void remove() {
-      if (removeNext != null) {
-        RemoteTreeRidBag.this.remove(removeNext);
-        removeNext = null;
-      } else {
-        throw new IllegalStateException();
-      }
-    }
+  public RemoteTreeRidBag(BonsaiCollectionPointer pointer, DatabaseSessionInternal session) {
+    this.session = session;
+    this.size = -1;
+    this.collectionPointer = pointer;
   }
 
   @Override
   public void setSize(int size) {
     this.size = size;
-  }
-
-  public RemoteTreeRidBag(BonsaiCollectionPointer pointer) {
-    this.size = -1;
-    this.collectionPointer = pointer;
   }
 
   @Override
@@ -135,16 +88,14 @@ public class RemoteTreeRidBag implements RidBagDelegate {
 
   @Override
   public @Nonnull Iterator<RID> iterator() {
-    var set = loadElements();
+    var set = loadElements(session);
     return new RemovableIterator(set.iterator());
   }
 
-  private List<RID> loadElements() {
-    var database = DatabaseRecordThreadLocal.instance().get();
+  private List<RID> loadElements(DatabaseSessionInternal session) {
     List<RID> list;
-
     try (var result =
-        database.query("select list(@this.field(?)) as entities from ?", fieldName,
+        session.query("select list(@this.field(?)) as entities from ?", fieldName,
             ownerRecord.getIdentity())) {
       if (result.hasNext()) {
         list = (result.next().getProperty("entities"));
@@ -190,7 +141,7 @@ public class RemoteTreeRidBag implements RidBagDelegate {
 
   @Override
   public boolean contains(RID identifiable) {
-    return loadElements().contains(identifiable);
+    return loadElements(session).contains(identifiable);
   }
 
   @Override
@@ -226,7 +177,7 @@ public class RemoteTreeRidBag implements RidBagDelegate {
   public Object returnOriginalState(
       DatabaseSessionInternal session,
       List<MultiValueChangeEvent<RID, RID>> multiValueChangeEvents) {
-    final var reverted = new RemoteTreeRidBag(this.collectionPointer);
+    final var reverted = new RemoteTreeRidBag(this.collectionPointer, session);
     for (var identifiable : this) {
       reverted.add(identifiable);
     }
@@ -257,7 +208,8 @@ public class RemoteTreeRidBag implements RidBagDelegate {
   }
 
   @Override
-  public int serialize(DatabaseSessionInternal db, byte[] stream, int offset, UUID ownerUuid) {
+  public int serialize(@Nonnull DatabaseSessionInternal session, byte[] stream, int offset,
+      UUID ownerUuid) {
     throw new UnsupportedOperationException();
   }
 
@@ -267,7 +219,7 @@ public class RemoteTreeRidBag implements RidBagDelegate {
   }
 
   @Override
-  public int deserialize(DatabaseSessionInternal db, byte[] stream, int offset) {
+  public int deserialize(@Nonnull DatabaseSessionInternal session, byte[] stream, int offset) {
     throw new UnsupportedOperationException();
   }
 
@@ -277,7 +229,7 @@ public class RemoteTreeRidBag implements RidBagDelegate {
    * @return real size
    */
   private int updateSize() {
-    this.size = loadElements().size();
+    this.size = loadElements(session).size();
     return size;
   }
 
@@ -383,5 +335,52 @@ public class RemoteTreeRidBag implements RidBagDelegate {
 
   public BonsaiCollectionPointer getCollectionPointer() {
     return collectionPointer;
+  }
+
+
+  private class RemovableIterator implements Iterator<RID> {
+
+    private final Iterator<RID> iter;
+    private RID next;
+    private RID removeNext;
+
+    public RemovableIterator(Iterator<RID> iterator) {
+      this.iter = iterator;
+    }
+
+    @Override
+    public boolean hasNext() {
+      if (next != null) {
+        return true;
+      } else {
+        if (iter.hasNext()) {
+          next = iter.next();
+          return true;
+        } else {
+          return false;
+        }
+      }
+    }
+
+    @Override
+    public RID next() {
+      if (!hasNext()) {
+        throw new NoSuchElementException();
+      }
+      var val = next;
+      removeNext = next;
+      next = null;
+      return val;
+    }
+
+    @Override
+    public void remove() {
+      if (removeNext != null) {
+        RemoteTreeRidBag.this.remove(removeNext);
+        removeNext = null;
+      } else {
+        throw new IllegalStateException();
+      }
+    }
   }
 }

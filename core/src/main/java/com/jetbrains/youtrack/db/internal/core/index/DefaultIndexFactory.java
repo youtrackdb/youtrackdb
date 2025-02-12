@@ -104,7 +104,7 @@ public class DefaultIndexFactory implements IndexFactory {
       return new IndexNotUnique(im, storage);
     }
 
-    throw new ConfigurationException("Unsupported type: " + indexType);
+    throw new ConfigurationException(storage.getName(), "Unsupported type: " + indexType);
   }
 
   @Override
@@ -122,7 +122,7 @@ public class DefaultIndexFactory implements IndexFactory {
   public BaseIndexEngine createIndexEngine(Storage storage, IndexEngineData data) {
 
     if (data.getAlgorithm() == null) {
-      throw new IndexException("Name of algorithm is not specified");
+      throw new IndexException(storage.getName(), "Name of algorithm is not specified");
     }
     final BaseIndexEngine indexEngine;
     var storageType = storage.getType();
@@ -157,7 +157,7 @@ public class DefaultIndexFactory implements IndexFactory {
         indexEngine = new RemoteIndexEngine(data.getIndexId(), data.getName());
         break;
       default:
-        throw new IndexException("Unsupported storage type: " + storageType);
+        throw new IndexException(storage.getName(), "Unsupported storage type: " + storageType);
     }
 
     return indexEngine;

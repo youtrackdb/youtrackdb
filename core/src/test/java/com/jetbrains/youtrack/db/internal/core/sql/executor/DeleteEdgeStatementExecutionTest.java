@@ -1,8 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -14,35 +13,35 @@ public class DeleteEdgeStatementExecutionTest extends DbTestBase {
   @Test
   public void testDeleteSingleEdge() {
     var vertexClassName = "testDeleteSingleEdgeV";
-    db.createVertexClass(vertexClassName);
+    session.createVertexClass(vertexClassName);
 
     var edgeClassName = "testDeleteSingleEdgeE";
-    db.createEdgeClass(edgeClassName);
+    session.createEdgeClass(edgeClassName);
 
     Vertex prev = null;
     for (var i = 0; i < 10; i++) {
-      db.begin();
-      var v1 = db.newVertex(vertexClassName);
+      session.begin();
+      var v1 = session.newVertex(vertexClassName);
       v1.setProperty("name", "a" + i);
       v1.save();
       if (prev != null) {
-        prev = db.bindToSession(prev);
+        prev = session.bindToSession(prev);
         prev.addEdge(v1, edgeClassName).save();
       }
       prev = v1;
-      db.commit();
+      session.commit();
     }
 
-    var rs = db.query("SELECT expand(out()) FROM " + vertexClassName);
+    var rs = session.query("SELECT expand(out()) FROM " + vertexClassName);
     Assert.assertEquals(9, rs.stream().count());
     rs.close();
 
-    rs = db.query("SELECT expand(in()) FROM " + vertexClassName);
+    rs = session.query("SELECT expand(in()) FROM " + vertexClassName);
     Assert.assertEquals(9, rs.stream().count());
     rs.close();
 
-    db.begin();
-    db.command(
+    session.begin();
+    session.command(
             "DELETE EDGE "
                 + edgeClassName
                 + " from (SELECT FROM "
@@ -51,17 +50,17 @@ public class DeleteEdgeStatementExecutionTest extends DbTestBase {
                 + vertexClassName
                 + " where name = 'a2')")
         .close();
-    db.commit();
+    session.commit();
 
-    rs = db.query("SELECT FROM " + edgeClassName);
+    rs = session.query("SELECT FROM " + edgeClassName);
     Assert.assertEquals(8, rs.stream().count());
     rs.close();
 
-    rs = db.query("SELECT expand(out()) FROM " + vertexClassName + " where name = 'a1'");
+    rs = session.query("SELECT expand(out()) FROM " + vertexClassName + " where name = 'a1'");
     Assert.assertEquals(0, rs.stream().count());
     rs.close();
 
-    rs = db.query("SELECT expand(in()) FROM " + vertexClassName + " where name = 'a2'");
+    rs = session.query("SELECT expand(in()) FROM " + vertexClassName + " where name = 'a2'");
     Assert.assertEquals(0, rs.stream().count());
     rs.close();
   }
@@ -69,46 +68,46 @@ public class DeleteEdgeStatementExecutionTest extends DbTestBase {
   @Test
   public void testDeleteAll() {
     var vertexClassName = "testDeleteAllV";
-    db.createVertexClass(vertexClassName);
+    session.createVertexClass(vertexClassName);
 
     var edgeClassName = "testDeleteAllE";
-    db.createEdgeClass(edgeClassName);
+    session.createEdgeClass(edgeClassName);
 
     Vertex prev = null;
     for (var i = 0; i < 10; i++) {
-      db.begin();
-      var v1 = db.newVertex(vertexClassName);
+      session.begin();
+      var v1 = session.newVertex(vertexClassName);
       v1.setProperty("name", "a" + i);
       v1.save();
       if (prev != null) {
-        prev = db.bindToSession(prev);
+        prev = session.bindToSession(prev);
         prev.addEdge(v1, edgeClassName).save();
       }
       prev = v1;
-      db.commit();
+      session.commit();
     }
 
-    var rs = db.query("SELECT expand(out()) FROM " + vertexClassName);
+    var rs = session.query("SELECT expand(out()) FROM " + vertexClassName);
     Assert.assertEquals(9, rs.stream().count());
     rs.close();
 
-    rs = db.query("SELECT expand(in()) FROM " + vertexClassName);
+    rs = session.query("SELECT expand(in()) FROM " + vertexClassName);
     Assert.assertEquals(9, rs.stream().count());
     rs.close();
 
-    db.begin();
-    db.command("DELETE EDGE " + edgeClassName).close();
-    db.commit();
+    session.begin();
+    session.command("DELETE EDGE " + edgeClassName).close();
+    session.commit();
 
-    rs = db.query("SELECT FROM " + edgeClassName);
+    rs = session.query("SELECT FROM " + edgeClassName);
     Assert.assertEquals(0, rs.stream().count());
     rs.close();
 
-    rs = db.query("SELECT expand(out()) FROM " + vertexClassName);
+    rs = session.query("SELECT expand(out()) FROM " + vertexClassName);
     Assert.assertEquals(0, rs.stream().count());
     rs.close();
 
-    rs = db.query("SELECT expand(in()) FROM " + vertexClassName);
+    rs = session.query("SELECT expand(in()) FROM " + vertexClassName);
     Assert.assertEquals(0, rs.stream().count());
     rs.close();
   }

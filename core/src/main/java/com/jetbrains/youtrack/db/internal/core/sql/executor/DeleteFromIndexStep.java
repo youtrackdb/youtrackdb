@@ -1,18 +1,18 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.MultipleExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStreamProducer;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.MultipleExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAndBlock;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBetweenCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCompareOperator;
@@ -20,7 +20,6 @@ import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBooleanExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCollection;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLEqualsCompareOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLGeOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLGtOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLeOperator;
@@ -78,7 +77,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
       prev.start(ctx).close(ctx);
     }
 
-    var session = ctx.getDatabase();
+    var session = ctx.getDatabaseSession();
     var streams = init(session, condition);
     var res =
         new ExecutionStreamProducer() {
@@ -120,7 +119,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
 
   private boolean filter(RawPair<Object, RID> entry, CommandContext ctx) {
     if (ridCondition != null) {
-      var res = new ResultInternal(ctx.getDatabase());
+      var res = new ResultInternal(ctx.getDatabaseSession());
       res.setProperty("rid", entry.second);
       return ridCondition.evaluate(res, ctx);
     } else {
@@ -143,13 +142,13 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     if (condition == null) {
       processFlatIteration(session, acquiredStreams);
     } else if (condition instanceof SQLBinaryCondition) {
-      processBinaryCondition(acquiredStreams);
+      processBinaryCondition(acquiredStreams, session);
     } else if (condition instanceof SQLBetweenCondition) {
       processBetweenCondition(session, acquiredStreams);
     } else if (condition instanceof SQLAndBlock) {
       processAndBlock(acquiredStreams);
     } else {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "search for index for " + condition + " is not supported yet");
     }
     return acquiredStreams;
@@ -194,7 +193,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     var thirdValue = toKey.execute((Result) null, ctx);
     var indexDef = index.getDefinition();
     Stream<RawPair<Object, RID>> stream;
-    var database = ctx.getDatabase();
+    var database = ctx.getDatabaseSession();
     if (index.supportsOrderedIterations()) {
       stream =
           index.streamEntriesBetween(database,
@@ -204,7 +203,8 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
               toKeyIncluded, orderAsc);
       storeAcquiredStream(stream, acquiredStreams);
     } else if (additional == null && allEqualities((SQLAndBlock) condition)) {
-      stream = index.streamEntries(database, toIndexKey(ctx.getDatabase(), indexDef, secondValue),
+      stream = index.streamEntries(database,
+          toIndexKey(ctx.getDatabaseSession(), indexDef, secondValue),
           orderAsc);
       storeAcquiredStream(stream, acquiredStreams);
     } else {
@@ -234,7 +234,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     var definition = index.getDefinition();
     var key = ((SQLBetweenCondition) condition).getFirst();
     if (!key.toString().equalsIgnoreCase("key")) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "search for index for " + condition + " is not supported yet");
     }
     var second = ((SQLBetweenCondition) condition).getSecond();
@@ -251,17 +251,18 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     storeAcquiredStream(stream, acquiredStreams);
   }
 
-  private void processBinaryCondition(Set<Stream<RawPair<Object, RID>>> acquiredStreams) {
+  private void processBinaryCondition(Set<Stream<RawPair<Object, RID>>> acquiredStreams,
+      DatabaseSessionInternal session) {
     var definition = index.getDefinition();
     var operator = ((SQLBinaryCondition) condition).getOperator();
     var left = ((SQLBinaryCondition) condition).getLeft();
     if (!left.toString().equalsIgnoreCase("key")) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "search for index for " + condition + " is not supported yet");
     }
     var rightValue = ((SQLBinaryCondition) condition).getRight().execute((Result) null, ctx);
     var stream =
-        createStream(ctx.getDatabase(), operator, definition, rightValue);
+        createStream(ctx.getDatabaseSession(), operator, definition, rightValue);
     storeAcquiredStream(stream, acquiredStreams);
   }
 
@@ -311,7 +312,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     } else if (operator instanceof SQLLtOperator) {
       return index.streamEntriesMinor(session, value, false, orderAsc);
     } else {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "search for index for " + condition + " is not supported yet");
     }
   }

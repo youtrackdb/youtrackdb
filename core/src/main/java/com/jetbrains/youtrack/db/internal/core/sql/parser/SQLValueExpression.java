@@ -97,7 +97,7 @@ public class SQLValueExpression extends SQLExpression {
   }
 
   public AggregationContext getAggregationContext(CommandContext ctx) {
-    throw new CommandExecutionException("Cannot aggregate on " + this);
+    throw new CommandExecutionException(ctx.getDatabaseSession(), "Cannot aggregate on " + this);
   }
 
   public SQLValueExpression copy() {
@@ -141,7 +141,7 @@ public class SQLValueExpression extends SQLExpression {
   }
 
   public void applyRemove(ResultInternal result, CommandContext ctx) {
-    throw new CommandExecutionException("Cannot apply REMOVE " + this);
+    throw new CommandExecutionException(ctx.getDatabaseSession(), "Cannot apply REMOVE " + this);
   }
 
   public boolean isCount() {

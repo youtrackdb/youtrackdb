@@ -61,38 +61,38 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
   private PropertyType linkType;
   private boolean inverse = false;
 
-  public CommandExecutorSQLCreateLink parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLCreateLink parse(DatabaseSessionInternal session,
       final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
 
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
       var word = new StringBuilder();
 
       var oldPos = 0;
       var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CREATE)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_CREATE + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_LINK)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_LINK + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
       if (pos == -1) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_FROM + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -101,7 +101,7 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
         linkName = word.toString();
 
         if (StringSerializerHelper.contains(linkName, ' ')) {
-          throw new CommandSQLParsingException(
+          throw new CommandSQLParsingException(session,
               "Link name '" + linkName + "' contains not valid characters", parserText, oldPos);
         }
 
@@ -114,7 +114,7 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
         pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
 
         if (pos == -1) {
-          throw new CommandSQLParsingException(
+          throw new CommandSQLParsingException(session,
               "Link type missed. Use " + getSyntax(), parserText, oldPos);
         }
 
@@ -125,49 +125,49 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
       }
 
       if (pos == -1 || !word.toString().equals(KEYWORD_FROM)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_FROM + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, false);
       if (pos == -1) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Expected <class>.<property>. Use " + getSyntax(), parserText, pos);
       }
 
       var parts = word.toString().split("\\.");
       if (parts.length != 2) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Expected <class>.<property>. Use " + getSyntax(), parserText, pos);
       }
 
       sourceClassName = parts[0];
       if (sourceClassName == null) {
-        throw new CommandSQLParsingException("Class not found", parserText, pos);
+        throw new CommandSQLParsingException(session, "Class not found", parserText, pos);
       }
       sourceField = parts[1];
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_TO)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_TO + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, false);
       if (pos == -1) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Expected <class>.<property>. Use " + getSyntax(), parserText, pos);
       }
 
       parts = word.toString().split("\\.");
       if (parts.length != 2) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Expected <class>.<property>. Use " + getSyntax(), parserText, pos);
       }
 
       destClassName = parts[0];
       if (destClassName == null) {
-        throw new CommandSQLParsingException("Class not found", parserText, pos);
+        throw new CommandSQLParsingException(session, "Class not found", parserText, pos);
       }
       destField = parts[1];
 
@@ -177,7 +177,7 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
       }
 
       if (!word.toString().equalsIgnoreCase("INVERSE")) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Missed 'INVERSE'. Use " + getSyntax(), parserText, pos);
       }
 
@@ -192,30 +192,31 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
   /**
    * Execute the CREATE LINK.
    */
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (destField == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final var database = getDatabase();
-    if (database.getDatabaseOwner() == null) {
-      throw new CommandSQLParsingException(
+    if (session.getDatabaseOwner() == null) {
+      throw new CommandSQLParsingException(session.getDatabaseName(),
           "This command supports only the database type DatabaseDocumentTx and type '"
-              + database.getClass()
+              + session.getClass()
               + "' was found");
     }
 
     var sourceClass =
-        database.getMetadata().getImmutableSchemaSnapshot().getClass(sourceClassName);
+        session.getMetadata().getImmutableSchemaSnapshot().getClass(sourceClassName);
     if (sourceClass == null) {
-      throw new CommandExecutionException("Source class '" + sourceClassName + "' not found");
+      throw new CommandExecutionException(session,
+          "Source class '" + sourceClassName + "' not found");
     }
 
-    var destClass = database.getMetadata().getImmutableSchemaSnapshot()
+    var destClass = session.getMetadata().getImmutableSchemaSnapshot()
         .getClass(destClassName);
     if (destClass == null) {
-      throw new CommandExecutionException("Destination class '" + destClassName + "' not found");
+      throw new CommandExecutionException(session,
+          "Destination class '" + destClassName + "' not found");
     }
 
     Object value;
@@ -245,7 +246,7 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
       multipleRelationship = false;
     }
 
-    var totRecords = db.countClass(sourceClass.getName());
+    var totRecords = session.countClass(sourceClass.getName(session));
     long currRecord = 0;
 
     if (progressListener != null) {
@@ -254,7 +255,7 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
 
     try {
       // BROWSE ALL THE RECORDS OF THE SOURCE CLASS
-      for (var entity : db.browseClass(sourceClass.getName())) {
+      for (var entity : session.browseClass(sourceClass.getName(session))) {
         value = entity.field(sourceField);
 
         if (value != null) {
@@ -274,15 +275,15 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
               }
             }
 
-            result = database.command(new SQLSynchQuery<EntityImpl>(cmd + value))
-                .execute(database);
+            result = session.command(new SQLSynchQuery<EntityImpl>(cmd + value))
+                .execute(session);
 
             if (result == null || result.size() == 0) {
               value = null;
             } else if (result.size() > 1) {
-              throw new CommandExecutionException(
+              throw new CommandExecutionException(session,
                   "Cannot create link because multiple records was found in class '"
-                      + destClass.getName()
+                      + destClass.getName(session)
                       + "' with value "
                       + value
                       + " in field '"
@@ -354,10 +355,10 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
       if (total > 0) {
         if (inverse) {
           // REMOVE THE OLD PROPERTY IF ANY
-          var prop = destClass.getProperty(linkName);
-          destClass = database.getMetadata().getSchema().getClass(destClassName);
+          var prop = destClass.getProperty(session, linkName);
+          destClass = session.getMetadata().getSchema().getClass(destClassName);
           if (prop != null) {
-            destClass.dropProperty(database, linkName);
+            destClass.dropProperty(session, linkName);
           }
 
           if (linkType == null) {
@@ -365,33 +366,33 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
           }
 
           // CREATE THE PROPERTY
-          destClass.createProperty(db, linkName, linkType, sourceClass);
+          destClass.createProperty(session, linkName, linkType, sourceClass);
 
         } else {
 
           // REMOVE THE OLD PROPERTY IF ANY
-          var prop = sourceClass.getProperty(linkName);
-          sourceClass = database.getMetadata().getSchema().getClass(sourceClassName);
+          var prop = sourceClass.getProperty(session, linkName);
+          sourceClass = session.getMetadata().getSchema().getClass(sourceClassName);
           if (prop != null) {
-            sourceClass.dropProperty(database, linkName);
+            sourceClass.dropProperty(session, linkName);
           }
 
           // CREATE THE PROPERTY
-          sourceClass.createProperty(db, linkName, PropertyType.LINK, destClass);
+          sourceClass.createProperty(session, linkName, PropertyType.LINK, destClass);
         }
       }
 
       if (progressListener != null) {
-        progressListener.onCompletition(database, this, true);
+        progressListener.onCompletition(session, this, true);
       }
 
     } catch (Exception e) {
       if (progressListener != null) {
-        progressListener.onCompletition(database, this, false);
+        progressListener.onCompletition(session, this, false);
       }
 
       throw BaseException.wrapException(
-          new CommandExecutionException("Error on creation of links"), e);
+          new CommandExecutionException(session, "Error on creation of links"), e, session);
     }
     return total;
   }

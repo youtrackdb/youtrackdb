@@ -20,27 +20,32 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.util.Iterator;
 import java.util.Map;
+import javax.annotation.Nonnull;
 
 /**
  * SQL UPDATE command.
  */
 @SuppressWarnings("unchecked")
 public class CommandExecutorSQLResultsetDelegate extends CommandExecutorSQLDelegate
-    implements IterableRecordSource, Iterable<Identifiable> {
+    implements IterableRecordSource {
 
   @Override
-  public Iterator<Identifiable> iterator() {
-    return ((IterableRecordSource) delegate).iterator(DatabaseRecordThreadLocal.instance().get(),
-        null);
+  public Iterator<Identifiable> iterator(DatabaseSessionInternal session,
+      final Map<Object, Object> iArgs) {
+    return ((IterableRecordSource) delegate).iterator(session, iArgs);
   }
 
-  @Override
-  public Iterator<Identifiable> iterator(DatabaseSessionInternal db,
-      final Map<Object, Object> iArgs) {
-    return ((IterableRecordSource) delegate).iterator(db, iArgs);
+  public Iterable<Identifiable> toIterable(DatabaseSessionInternal session,
+      Map<Object, Object> iArgs) {
+    return new Iterable<>() {
+      @Override
+      @Nonnull
+      public Iterator<Identifiable> iterator() {
+        return ((IterableRecordSource) delegate).iterator(session, iArgs);
+      }
+    };
   }
 }

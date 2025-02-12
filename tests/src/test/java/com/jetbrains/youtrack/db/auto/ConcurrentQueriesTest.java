@@ -73,16 +73,16 @@ public class ConcurrentQueriesTest extends BaseDBTest {
 
   @BeforeClass
   public void init() {
-    if (db.getMetadata().getSchema().existsClass("Concurrent")) {
-      db.getMetadata().getSchema().dropClass("Concurrent");
+    if (session.getMetadata().getSchema().existsClass("Concurrent")) {
+      session.getMetadata().getSchema().dropClass("Concurrent");
     }
 
-    db.getMetadata().getSchema().createClass("Concurrent");
+    session.getMetadata().getSchema().createClass("Concurrent");
 
     for (var i = 0; i < 1000; ++i) {
-      db.begin();
-      db.<EntityImpl>newInstance("Concurrent").field("test", i).save();
-      db.commit();
+      session.begin();
+      session.newInstance("Concurrent").field("test", i).save();
+      session.commit();
     }
   }
 

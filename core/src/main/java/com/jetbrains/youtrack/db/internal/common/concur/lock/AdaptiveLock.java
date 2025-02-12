@@ -94,11 +94,10 @@ public class AdaptiveLock extends AbstractLock {
                       + getClass()
                       + "' with timeout="
                       + timeout),
-              e);
+              e, (String) null);
         }
 
         throwTimeoutException(lock);
-
       } else {
         lock.lock();
       }
@@ -121,7 +120,7 @@ public class AdaptiveLock extends AbstractLock {
                       + getClass()
                       + "' with timeout="
                       + timeout),
-              e);
+              e, (String) null);
         }
       } else {
         return lock.tryLock();

@@ -25,7 +25,8 @@ public class MoveVertexStep extends AbstractExecutionStep {
     if (targetCluster != null) {
       this.targetCluster = targetCluster.getClusterName();
       if (this.targetCluster == null) {
-        this.targetCluster = ctx.getDatabase().getClusterNameById(targetCluster.getClusterNumber());
+        this.targetCluster = ctx.getDatabaseSession()
+            .getClusterNameById(targetCluster.getClusterNumber());
       }
     }
   }

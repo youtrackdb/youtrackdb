@@ -40,7 +40,7 @@ public class CheckClusterTypeStep extends AbstractExecutionStep {
       prev.start(context).close(ctx);
     }
 
-    var db = context.getDatabase();
+    var db = context.getDatabaseSession();
 
     int clusterId;
     if (clusterName != null) {
@@ -50,27 +50,30 @@ public class CheckClusterTypeStep extends AbstractExecutionStep {
     } else {
       clusterId = cluster.getClusterNumber();
       if (db.getClusterNameById(clusterId) == null) {
-        throw new CommandExecutionException("Cluster not found: " + clusterId);
+        throw new CommandExecutionException(context.getDatabaseSession(),
+            "Cluster not found: " + clusterId);
       }
     }
     if (clusterId < 0) {
-      throw new CommandExecutionException("Cluster not found: " + clusterName);
+      throw new CommandExecutionException(context.getDatabaseSession(),
+          "Cluster not found: " + clusterName);
     }
 
     var clazz = db.getMetadata().getImmutableSchemaSnapshot().getClass(targetClass);
     if (clazz == null) {
-      throw new CommandExecutionException("Class not found: " + targetClass);
+      throw new CommandExecutionException(context.getDatabaseSession(),
+          "Class not found: " + targetClass);
     }
 
     var found = false;
-    for (var clust : clazz.getPolymorphicClusterIds()) {
+    for (var clust : clazz.getPolymorphicClusterIds(db)) {
       if (clust == clusterId) {
         found = true;
         break;
       }
     }
     if (!found) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(context.getDatabaseSession(),
           "Cluster " + clusterId + " does not belong to class " + targetClass);
     }
     return ExecutionStream.empty();

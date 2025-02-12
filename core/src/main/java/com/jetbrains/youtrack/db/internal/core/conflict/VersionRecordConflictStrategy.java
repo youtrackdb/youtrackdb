@@ -20,9 +20,8 @@
 
 package com.jetbrains.youtrack.db.internal.core.conflict;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.api.exception.ConcurrentModificationException;
-import com.jetbrains.youtrack.db.internal.core.exception.FastConcurrentModificationException;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -43,7 +42,7 @@ public class VersionRecordConflictStrategy implements RecordConflictStrategy {
       final int iRecordVersion,
       final byte[] iRecordContent,
       final AtomicInteger iDatabaseVersion) {
-    checkVersions(rid, iRecordVersion, iDatabaseVersion.get());
+    checkVersions(storage.getName(), rid, iRecordVersion, iDatabaseVersion.get());
     return null;
   }
 
@@ -52,13 +51,10 @@ public class VersionRecordConflictStrategy implements RecordConflictStrategy {
     return NAME;
   }
 
-  protected void checkVersions(
-      final RecordId rid, final int iRecordVersion, final int iDatabaseVersion) {
-    if (FastConcurrentModificationException.enabled()) {
-      throw FastConcurrentModificationException.instance();
-    } else {
-      throw new ConcurrentModificationException(
-          rid, iDatabaseVersion, iRecordVersion, RecordOperation.UPDATED);
-    }
+  protected static void checkVersions(
+      String dbName, final RecordId rid, final int iRecordVersion, final int iDatabaseVersion) {
+    throw new ConcurrentModificationException(dbName
+        , rid, iDatabaseVersion, iRecordVersion, RecordOperation.UPDATED);
+
   }
 }

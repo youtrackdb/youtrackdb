@@ -19,10 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,7 +32,7 @@ public class CommandExecutorSQLDeleteVertexTest extends DbTestBase {
 
   public void beforeTest() throws Exception {
     super.beforeTest();
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     schema.createClass("User", schema.getClass("V"));
   }
 
@@ -42,16 +41,16 @@ public class CommandExecutorSQLDeleteVertexTest extends DbTestBase {
     // for issue #4148
 
     for (var i = 0; i < 10; i++) {
-      db.begin();
-      db.command("create vertex User set name = 'foo" + i + "'").close();
-      db.commit();
+      session.begin();
+      session.command("create vertex User set name = 'foo" + i + "'").close();
+      session.commit();
     }
 
-    db.begin();
-    db.command("delete vertex User limit 4").close();
-    db.commit();
+    session.begin();
+    session.command("delete vertex User limit 4").close();
+    session.commit();
 
-    var result = db.query("select from User");
+    var result = session.query("select from User");
     Assert.assertEquals(result.stream().count(), 6);
   }
 
@@ -60,35 +59,35 @@ public class CommandExecutorSQLDeleteVertexTest extends DbTestBase {
     // for issue #4622
 
     for (var i = 0; i < 100; i++) {
-      db.begin();
-      db.command("create vertex User set name = 'foo" + i + "'").close();
-      db.commit();
+      session.begin();
+      session.command("create vertex User set name = 'foo" + i + "'").close();
+      session.commit();
     }
 
-    db.begin();
-    db.command("delete vertex User batch 5").close();
-    db.commit();
+    session.begin();
+    session.command("delete vertex User batch 5").close();
+    session.commit();
 
-    var result = db.query("select from User");
+    var result = session.query("select from User");
     Assert.assertEquals(result.stream().count(), 0);
   }
 
   @Test(expected = CommandExecutionException.class)
   public void testDeleteVertexWithEdgeRid() throws Exception {
 
-    db.begin();
-    db.command("create vertex User set name = 'foo1'").close();
-    db.command("create vertex User set name = 'foo2'").close();
-    db.command(
+    session.begin();
+    session.command("create vertex User set name = 'foo1'").close();
+    session.command("create vertex User set name = 'foo2'").close();
+    session.command(
             "create edge E from (select from user where name = 'foo1') to (select from user where"
                 + " name = 'foo2')")
         .close();
-    db.commit();
+    session.commit();
 
-    try (var edges = db.query("select from e limit 1")) {
-      db.begin();
-      db.command("delete vertex [" + edges.next().getIdentity().get() + "]").close();
-      db.commit();
+    try (var edges = session.query("select from e limit 1")) {
+      session.begin();
+      session.command("delete vertex [" + edges.next().getIdentity().get() + "]").close();
+      session.commit();
       Assert.fail("Error on deleting a vertex with a rid of an edge");
     }
   }
@@ -98,16 +97,16 @@ public class CommandExecutorSQLDeleteVertexTest extends DbTestBase {
     // for issue #4523
 
     for (var i = 0; i < 100; i++) {
-      db.begin();
-      db.command("create vertex User set name = 'foo" + i + "'").close();
-      db.commit();
+      session.begin();
+      session.command("create vertex User set name = 'foo" + i + "'").close();
+      session.commit();
     }
 
-    db.begin();
-    db.command("delete vertex from (select from User)").close();
-    db.commit();
+    session.begin();
+    session.command("delete vertex from (select from User)").close();
+    session.commit();
 
-    var result = db.query("select from User");
+    var result = session.query("select from User");
     Assert.assertEquals(result.stream().count(), 0);
   }
 
@@ -116,16 +115,16 @@ public class CommandExecutorSQLDeleteVertexTest extends DbTestBase {
     // for issue #4523
 
     for (var i = 0; i < 100; i++) {
-      db.begin();
-      db.command("create vertex User set name = 'foo" + i + "'").close();
-      db.commit();
+      session.begin();
+      session.command("create vertex User set name = 'foo" + i + "'").close();
+      session.commit();
     }
 
-    db.begin();
-    db.command("delete vertex from (select from User where name = 'foo10')").close();
-    db.commit();
+    session.begin();
+    session.command("delete vertex from (select from User where name = 'foo10')").close();
+    session.commit();
 
-    var result = db.query("select from User");
+    var result = session.query("select from User");
     Assert.assertEquals(result.stream().count(), 99);
   }
 }

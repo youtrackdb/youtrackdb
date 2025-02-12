@@ -32,7 +32,6 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.Authentica
 import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Map;
@@ -65,7 +64,7 @@ public interface YouTrackDBInternal extends AutoCloseable, SchedulerInternal {
       return remote(url.substring(url.indexOf(':') + 1).split(";"),
           (YouTrackDBConfigImpl) configuration);
     }
-    throw new DatabaseException("not supported database type");
+    throw new DatabaseException(url, "not supported database type");
   }
 
   default YouTrackDBImpl newYouTrackDb() {
@@ -100,12 +99,13 @@ public interface YouTrackDBInternal extends AutoCloseable, SchedulerInternal {
              | NoSuchMethodException
              | IllegalAccessException
              | InstantiationException e) {
-      throw BaseException.wrapException(new DatabaseException("YouTrackDB client API missing"), e);
+      throw BaseException.wrapException(
+          new DatabaseException((String) null, "YouTrackDB client API missing"), e, (String) null);
     } catch (InvocationTargetException e) {
       //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
       throw BaseException.wrapException(
-          new DatabaseException("Error creating YouTrackDB remote factory"),
-          e.getTargetException());
+          new DatabaseException((String) null, "Error creating YouTrackDB remote factory"),
+          e.getTargetException(), (String) null);
     }
     return factory;
   }

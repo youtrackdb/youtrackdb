@@ -1,21 +1,14 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.api.query.ExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.ExecutionPlanCache;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBatch;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCreateEdgeStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInputParameter;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInsertBody;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInsertSetExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLJson;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLUpdateItem;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,9 +50,9 @@ public class CreateEdgeExecutionPlanner {
 
   public InsertExecutionPlan createExecutionPlan(
       CommandContext ctx, boolean enableProfiling, boolean useCache) {
-    var db = ctx.getDatabase();
-    if (useCache && !enableProfiling && statement.executinPlanCanBeCached(db)) {
-      var plan = ExecutionPlanCache.get(statement.getOriginalStatement(), ctx, db);
+    var session = ctx.getDatabaseSession();
+    if (useCache && !enableProfiling && statement.executinPlanCanBeCached(session)) {
+      var plan = ExecutionPlanCache.get(statement.getOriginalStatement(), ctx, session);
       if (plan != null) {
         return (InsertExecutionPlan) plan;
       }
@@ -72,11 +65,12 @@ public class CreateEdgeExecutionPlanner {
         targetClass = new SQLIdentifier("E");
       } else {
         var clazz =
-            db.getMetadata()
+            session.getMetadata()
                 .getImmutableSchemaSnapshot()
-                .getClassByClusterId(db.getClusterIdByName(targetClusterName.getStringValue()));
+                .getClassByClusterId(
+                    session.getClusterIdByName(targetClusterName.getStringValue()));
         if (clazz != null) {
-          targetClass = new SQLIdentifier(clazz.getName());
+          targetClass = new SQLIdentifier(clazz.getName(session));
         } else {
           targetClass = new SQLIdentifier("E");
         }
@@ -103,16 +97,16 @@ public class CreateEdgeExecutionPlanner {
     String uniqueIndexName = null;
     if (upsert) {
       var clazz =
-          ctx.getDatabase()
+          ctx.getDatabaseSession()
               .getMetadata()
               .getImmutableSchemaSnapshot()
               .getClassInternal(targetClass.getStringValue());
       if (clazz == null) {
-        throw new CommandExecutionException(
+        throw new CommandExecutionException(session,
             "Class " + targetClass + " not found in the db schema");
       }
       uniqueIndexName =
-          clazz.getIndexesInternal(db).stream()
+          clazz.getIndexesInternal(session).stream()
               .filter(Index::isUnique)
               .filter(
                   x ->
@@ -124,7 +118,7 @@ public class CreateEdgeExecutionPlanner {
               .orElse(null);
 
       if (uniqueIndexName == null) {
-        throw new CommandExecutionException(
+        throw new CommandExecutionException(session,
             "Cannot perform an UPSERT on "
                 + targetClass
                 + " edge class: no unique index present on out/in");
@@ -150,10 +144,10 @@ public class CreateEdgeExecutionPlanner {
 
     if (useCache
         && !enableProfiling
-        && statement.executinPlanCanBeCached(db)
+        && statement.executinPlanCanBeCached(session)
         && result.canBeCached()
-        && ExecutionPlanCache.getLastInvalidation(db) < planningStart) {
-      ExecutionPlanCache.put(statement.getOriginalStatement(), result, ctx.getDatabase());
+        && ExecutionPlanCache.getLastInvalidation(session) < planningStart) {
+      ExecutionPlanCache.put(statement.getOriginalStatement(), result, ctx.getDatabaseSession());
     }
 
     return result;

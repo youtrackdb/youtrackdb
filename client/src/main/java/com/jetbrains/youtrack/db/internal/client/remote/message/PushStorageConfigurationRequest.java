@@ -29,7 +29,7 @@ public class PushStorageConfigurationRequest implements BinaryPushRequest<Binary
   }
 
   @Override
-  public void read(DatabaseSessionInternal db, ChannelDataInput network) throws IOException {
+  public void read(DatabaseSessionInternal session, ChannelDataInput network) throws IOException {
     payload.read(network);
   }
 

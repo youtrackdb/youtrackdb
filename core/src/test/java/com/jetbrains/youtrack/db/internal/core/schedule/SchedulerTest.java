@@ -1,20 +1,15 @@
 package com.jetbrains.youtrack.db.internal.core.schedule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.api.session.SessionPool;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.concur.NeedRetryException;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseThreadLocalFactory;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
@@ -144,10 +139,7 @@ public class SchedulerTest {
         youTrackDb.cachedPool("test", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     var db = (DatabaseSessionInternal) pool.acquire();
 
-    assertEquals(db, DatabaseRecordThreadLocal.instance().getIfDefined());
     createLogEvent(db);
-    assertEquals(db, DatabaseRecordThreadLocal.instance().getIfDefined());
-
     youTrackDb.close();
   }
 

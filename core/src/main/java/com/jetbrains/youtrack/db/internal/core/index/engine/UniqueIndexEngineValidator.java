@@ -7,14 +7,8 @@ import com.jetbrains.youtrack.db.internal.core.index.IndexUnique;
 
 public class UniqueIndexEngineValidator implements IndexEngineValidator<Object, RID> {
 
-  /**
-   *
-   */
   private final IndexUnique indexUnique;
 
-  /**
-   * @param oIndexUnique
-   */
   public UniqueIndexEngineValidator(IndexUnique oIndexUnique) {
     indexUnique = oIndexUnique;
   }
@@ -29,13 +23,12 @@ public class UniqueIndexEngineValidator implements IndexEngineValidator<Object, 
             metadata != null ? (Boolean) metadata.get(IndexInternal.MERGE_KEYS) : Boolean.FALSE;
         if (mergeSameKey == null || !mergeSameKey) {
           throw new RecordDuplicatedException(
-              String.format(
-                  "Cannot index record %s: found duplicated key '%s' in index '%s' previously"
-                      + " assigned to the record %s",
-                  newValue.getIdentity(), key, indexUnique.getName(), oldValue.getIdentity()),
+              null, String.format(
+              "Cannot index record %s: found duplicated key '%s' in index '%s' previously"
+                  + " assigned to the record %s",
+              newValue.getIdentity(), key, indexUnique.getName(), oldValue.getIdentity()),
               indexUnique.getName(),
-              oldValue.getIdentity(),
-              key);
+              oldValue.getIdentity(), key);
         }
       } else {
         return IndexEngineValidator.IGNORE;

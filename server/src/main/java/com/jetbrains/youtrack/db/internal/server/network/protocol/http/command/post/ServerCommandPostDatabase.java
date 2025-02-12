@@ -23,19 +23,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jetbrains.youtrack.db.api.DatabaseType;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.config.StorageEntryConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.engine.local.EngineLocalPaginated;
 import com.jetbrains.youtrack.db.internal.core.engine.memory.EngineMemory;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
@@ -46,7 +40,6 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerAbstract {
@@ -98,21 +91,21 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
         server.createDatabase(
             databaseName, DatabaseType.valueOf(storageMode.toUpperCase(Locale.ENGLISH)), null);
 
-        try (var database =
-            server.openDatabase(databaseName, serverUser, serverPassword, null)) {
+        try (var session =
+            server.openSession(databaseName, serverUser, serverPassword, null)) {
 
           if (createAdmin) {
             try {
-              database.begin();
-              database.command("CREATE USER admin IDENTIFIED BY ? ROLE admin", adminPwd);
-              database.commit();
+              session.begin();
+              session.command("CREATE USER admin IDENTIFIED BY ? ROLE admin", adminPwd);
+              session.commit();
             } catch (Exception e) {
               LogManager.instance()
                   .warn(this, "Could not create admin user for database " + databaseName, e);
             }
           }
 
-          sendDatabaseInfo(iRequest, iResponse, database);
+          sendDatabaseInfo(iRequest, iResponse, session);
         }
       }
     } else {
@@ -139,21 +132,21 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
 
   protected void sendDatabaseInfo(
       final HttpRequest iRequest, final HttpResponse iResponse,
-      final DatabaseSessionInternal db)
+      final DatabaseSessionInternal session)
       throws IOException {
     final var buffer = new StringWriter();
     final var json = new JSONWriter(buffer);
 
     json.beginObject();
 
-    if (db.getMetadata().getSchema().getClasses(db) != null) {
-      json.beginCollection(db, 1, false, "classes");
+    if (session.getMetadata().getSchema().getClasses() != null) {
+      json.beginCollection(session, 1, false, "classes");
       Set<String> exportedNames = new HashSet<String>();
-      for (var cls : db.getMetadata().getSchema().getClasses(db)) {
-        if (!exportedNames.contains(cls.getName())) {
+      for (var cls : session.getMetadata().getSchema().getClasses()) {
+        if (!exportedNames.contains(cls.getName(session))) {
           try {
-            exportClass(db, json, (SchemaClassInternal) cls);
-            exportedNames.add(cls.getName());
+            exportClass(session, json, (SchemaClassInternal) cls);
+            exportedNames.add(cls.getName(session));
           } catch (Exception e) {
             LogManager.instance().error(this, "Error on exporting class '" + cls + "'", e);
           }
@@ -162,42 +155,44 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
       json.endCollection(1, true);
     }
 
-    if (db.getClusterNames() != null) {
-      json.beginCollection(db, 1, false, "clusters");
-      for (var clusterName : db.getClusterNames()) {
-        final var clusterId = db.getClusterIdByName(clusterName);
+    if (session.getClusterNames() != null) {
+      json.beginCollection(session, 1, false, "clusters");
+      for (var clusterName : session.getClusterNames()) {
+        final var clusterId = session.getClusterIdByName(clusterName);
         if (clusterId < 0) {
           continue;
         }
 
         try {
           json.beginObject(2, true, null);
-          json.writeAttribute(db, 3, false, "id", clusterId);
-          json.writeAttribute(db, 3, false, "name", clusterName);
-          json.writeAttribute(db, 3, false, "records", db.countClusterElements(clusterId));
-          json.writeAttribute(db, 3, false, "size", "-");
-          json.writeAttribute(db, 3, false, "filled", "-");
-          json.writeAttribute(db, 3, false, "maxSize", "-");
-          json.writeAttribute(db, 3, false, "files", "-");
+          json.writeAttribute(session, 3, false, "id", clusterId);
+          json.writeAttribute(session, 3, false, "name", clusterName);
+          json.writeAttribute(session, 3, false, "records",
+              session.countClusterElements(clusterId));
+          json.writeAttribute(session, 3, false, "size", "-");
+          json.writeAttribute(session, 3, false, "filled", "-");
+          json.writeAttribute(session, 3, false, "maxSize", "-");
+          json.writeAttribute(session, 3, false, "files", "-");
         } catch (Exception e) {
-          json.writeAttribute(db, 3, false, "records", "? (Unauthorized)");
+          json.writeAttribute(session, 3, false, "records", "? (Unauthorized)");
         }
         json.endObject(2, false);
       }
       json.endCollection(1, true);
     }
 
-    if (db.geCurrentUser() != null) {
-      json.writeAttribute(db, 1, false, "currentUser", db.geCurrentUser().getName(db));
+    if (session.geCurrentUser() != null) {
+      json.writeAttribute(session, 1, false, "currentUser",
+          session.geCurrentUser().getName(session));
     }
 
-    json.beginCollection(db, 1, false, "users");
+    json.beginCollection(session, 1, false, "users");
     SecurityUserImpl user;
-    for (var entity : db.getMetadata().getSecurity().getAllUsers()) {
-      user = new SecurityUserImpl(db, entity);
+    for (var entity : session.getMetadata().getSecurity().getAllUsers()) {
+      user = new SecurityUserImpl(session, entity);
       json.beginObject(2, true, null);
-      json.writeAttribute(db, 3, false, "name", user.getName(db));
-      json.writeAttribute(db,
+      json.writeAttribute(session, 3, false, "name", user.getName(session));
+      json.writeAttribute(session,
           3,
           false,
           "roles", user.getRoles() != null ? Arrays.toString(user.getRoles().toArray()) : "null");
@@ -205,23 +200,24 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
     }
     json.endCollection(1, true);
 
-    json.beginCollection(db, 1, true, "roles");
+    json.beginCollection(session, 1, true, "roles");
     Role role;
-    for (var entity : db.getMetadata().getSecurity().getAllRoles()) {
-      role = new Role(db, entity);
+    for (var entity : session.getMetadata().getSecurity().getAllRoles()) {
+      role = new Role(session, entity);
       json.beginObject(2, true, null);
-      json.writeAttribute(db, 3, false, "name", role.getName(db));
-      json.beginCollection(db, 3, true, "rules");
+      json.writeAttribute(session, 3, false, "name", role.getName(session));
+      json.beginCollection(session, 3, true, "rules");
 
       for (var rule : role.getEncodedRules().entrySet()) {
         json.beginObject(4);
-        json.writeAttribute(db, 4, true, "name", rule.getKey());
-        json.writeAttribute(db, 4, false, "create",
+        json.writeAttribute(session, 4, true, "name", rule.getKey());
+        json.writeAttribute(session, 4, false, "create",
             role.allow(rule.getKey(), Role.PERMISSION_CREATE));
-        json.writeAttribute(db, 4, false, "read", role.allow(rule.getKey(), Role.PERMISSION_READ));
-        json.writeAttribute(db, 4, false, "update",
+        json.writeAttribute(session, 4, false, "read",
+            role.allow(rule.getKey(), Role.PERMISSION_READ));
+        json.writeAttribute(session, 4, false, "update",
             role.allow(rule.getKey(), Role.PERMISSION_UPDATE));
-        json.writeAttribute(db, 4, false, "delete",
+        json.writeAttribute(session, 4, false, "delete",
             role.allow(rule.getKey(), Role.PERMISSION_DELETE));
         json.endObject(4, true);
       }
@@ -233,36 +229,38 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
 
     json.beginObject(1, true, "config");
 
-    json.beginCollection(db, 2, true, "values");
-    json.writeObjects(db,
+    json.beginCollection(session, 2, true, "values");
+    json.writeObjects(session,
         3,
         true,
         null,
         new Object[]{
-            "name", "dateFormat", "value", db.getStorage().getConfiguration().getDateFormat()
+            "name", "dateFormat", "value", session.getStorage().getConfiguration().getDateFormat()
         },
         new Object[]{
             "name", "dateTimeFormat", "value",
-            db.getStorage().getConfiguration().getDateTimeFormat()
+            session.getStorage().getConfiguration().getDateTimeFormat()
         },
         new Object[]{
-            "name", "localeCountry", "value", db.getStorage().getConfiguration().getLocaleCountry()
+            "name", "localeCountry", "value",
+            session.getStorage().getConfiguration().getLocaleCountry()
         },
         new Object[]{
             "name", "localeLanguage", "value",
-            db.getStorage().getConfiguration().getLocaleLanguage()
+            session.getStorage().getConfiguration().getLocaleLanguage()
         }, new Object[]{
-            "name", "definitionVersion", "value", db.getStorage().getConfiguration().getVersion()
+            "name", "definitionVersion", "value",
+            session.getStorage().getConfiguration().getVersion()
         });
     json.endCollection(2, true);
 
-    json.beginCollection(db, 2, true, "properties");
-    if (db.getStorage().getConfiguration().getProperties() != null) {
-      for (var entry : db.getStorage().getConfiguration().getProperties()) {
+    json.beginCollection(session, 2, true, "properties");
+    if (session.getStorage().getConfiguration().getProperties() != null) {
+      for (var entry : session.getStorage().getConfiguration().getProperties()) {
         if (entry != null) {
           json.beginObject(3, true, null);
-          json.writeAttribute(db, 4, false, "name", entry.name);
-          json.writeAttribute(db, 4, false, "value", entry.value);
+          json.writeAttribute(session, 4, false, "name", entry.name);
+          json.writeAttribute(session, 4, false, "value", entry.value);
           json.endObject(3, true);
         }
       }
@@ -282,54 +280,58 @@ public class ServerCommandPostDatabase extends ServerCommandAuthenticatedServerA
   }
 
   protected void exportClass(
-      final DatabaseSessionInternal db, final JSONWriter json, final SchemaClassInternal cls)
+      final DatabaseSessionInternal session, final JSONWriter json, final SchemaClassInternal cls)
       throws IOException {
     json.beginObject(2, true, null);
-    json.writeAttribute(db, 3, true, "name", cls.getName());
-    json.writeAttribute(db,
-        3, true, "superClass", cls.getSuperClass() != null ? cls.getSuperClass().getName() : "");
-    json.writeAttribute(db, 3, true, "alias", cls.getShortName());
-    json.writeAttribute(db, 3, true, "clusters", cls.getClusterIds());
-    json.writeAttribute(db, 3, true, "clusterSelection", cls.getClusterSelectionStrategyName());
+    json.writeAttribute(session, 3, true, "name", cls.getName(session));
+    json.writeAttribute(session,
+        3, true, "superClass",
+        cls.getSuperClass(session) != null ? cls.getSuperClass(session).getName(session) : "");
+    json.writeAttribute(session, 3, true, "alias", cls.getShortName(session));
+    json.writeAttribute(session, 3, true, "clusters", cls.getClusterIds(session));
+    json.writeAttribute(session, 3, true, "clusterSelection",
+        cls.getClusterSelectionStrategyName(session));
     try {
-      json.writeAttribute(db, 3, false, "records", db.countClass(cls.getName()));
+      json.writeAttribute(session, 3, false, "records", session.countClass(cls.getName(session)));
     } catch (SecurityAccessException e) {
-      json.writeAttribute(db, 3, false, "records", "? (Unauthorized)");
+      json.writeAttribute(session, 3, false, "records", "? (Unauthorized)");
     }
 
-    if (cls.properties(db) != null && cls.properties(db).size() > 0) {
-      json.beginCollection(db, 3, true, "properties");
-      for (final var prop : cls.properties(db)) {
+    if (cls.properties(session) != null && cls.properties(session).size() > 0) {
+      json.beginCollection(session, 3, true, "properties");
+      for (final var prop : cls.properties(session)) {
         json.beginObject(4, true, null);
-        json.writeAttribute(db, 4, true, "name", prop.getName());
-        if (prop.getLinkedClass() != null) {
-          json.writeAttribute(db, 4, true, "linkedClass", prop.getLinkedClass().getName());
+        json.writeAttribute(session, 4, true, "name", prop.getName(session));
+        if (prop.getLinkedClass(session) != null) {
+          json.writeAttribute(session, 4, true, "linkedClass",
+              prop.getLinkedClass(session).getName(session));
         }
-        if (prop.getLinkedType() != null) {
-          json.writeAttribute(db, 4, true, "linkedType", prop.getLinkedType().toString());
+        if (prop.getLinkedType(session) != null) {
+          json.writeAttribute(session, 4, true, "linkedType",
+              prop.getLinkedType(session).toString());
         }
-        json.writeAttribute(db, 4, true, "type", prop.getType().toString());
-        json.writeAttribute(db, 4, true, "mandatory", prop.isMandatory());
-        json.writeAttribute(db, 4, true, "readonly", prop.isReadonly());
-        json.writeAttribute(db, 4, true, "notNull", prop.isNotNull());
-        json.writeAttribute(db, 4, true, "min", prop.getMin());
-        json.writeAttribute(db, 4, true, "max", prop.getMax());
+        json.writeAttribute(session, 4, true, "type", prop.getType(session).toString());
+        json.writeAttribute(session, 4, true, "mandatory", prop.isMandatory(session));
+        json.writeAttribute(session, 4, true, "readonly", prop.isReadonly(session));
+        json.writeAttribute(session, 4, true, "notNull", prop.isNotNull(session));
+        json.writeAttribute(session, 4, true, "min", prop.getMin(session));
+        json.writeAttribute(session, 4, true, "max", prop.getMax(session));
         json.endObject(3, true);
       }
       json.endCollection(1, true);
     }
 
-    final var indexes = cls.getIndexesInternal(db);
+    final var indexes = cls.getIndexesInternal(session);
     if (!indexes.isEmpty()) {
-      json.beginCollection(db, 3, true, "indexes");
+      json.beginCollection(session, 3, true, "indexes");
       for (final var index : indexes) {
         json.beginObject(4, true, null);
-        json.writeAttribute(db, 4, true, "name", index.getName());
-        json.writeAttribute(db, 4, true, "type", index.getType());
+        json.writeAttribute(session, 4, true, "name", index.getName());
+        json.writeAttribute(session, 4, true, "type", index.getType());
 
         final var indexDefinition = index.getDefinition();
         if (indexDefinition != null && !indexDefinition.getFields().isEmpty()) {
-          json.writeAttribute(db, 4, true, "fields", indexDefinition.getFields());
+          json.writeAttribute(session, 4, true, "fields", indexDefinition.getFields());
         }
         json.endObject(3, true);
       }

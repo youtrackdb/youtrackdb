@@ -325,13 +325,6 @@ public interface Vertex extends Entity {
   void delete();
 
   /**
-   * Creates a copy of the current vertex.
-   *
-   * @return a copy of the current vertex
-   */
-  Vertex copy();
-
-  /**
    * @return reference to current instance.
    */
   @Override

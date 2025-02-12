@@ -3,7 +3,6 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
@@ -13,7 +12,6 @@ import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 /**
  *
@@ -54,7 +52,7 @@ public class MatchEdgeTraverser {
       return null;
     }
 
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     var result = new ResultInternal(db);
     for (var prop : sourceRecord.getPropertyNames()) {
       result.setProperty(prop, sourceRecord.getProperty(prop));
@@ -125,7 +123,7 @@ public class MatchEdgeTraverser {
       className = targetClassName(item, iCommandContext);
       var clusterName = targetClusterName(item, iCommandContext);
       if (clusterName != null) {
-        clusterId = iCommandContext.getDatabase().getClusterIdByName(clusterName);
+        clusterId = iCommandContext.getDatabaseSession().getClusterIdByName(clusterName);
       }
       targetRid = targetRid(item, iCommandContext);
     }
@@ -155,7 +153,7 @@ public class MatchEdgeTraverser {
           && matchesClass(iCommandContext, className, startingPoint)
           && matchesCluster(iCommandContext, clusterId, startingPoint)
           && matchesRid(iCommandContext, targetRid, startingPoint)) {
-        var rs = new ResultInternal(iCommandContext.getDatabase(), startingPoint);
+        var rs = new ResultInternal(iCommandContext.getDatabaseSession(), startingPoint);
         // set traversal depth in the metadata
         rs.setMetadata("$depth", depth);
         // set traversal path in the metadata
@@ -251,7 +249,7 @@ public class MatchEdgeTraverser {
       return true;
     }
 
-    var db = context.getDatabase();
+    var db = context.getDatabaseSession();
     Entity element = null;
     if (origin instanceof Entity) {
       element = (Entity) origin;
@@ -266,7 +264,7 @@ public class MatchEdgeTraverser {
       if (!clazz.isPresent()) {
         return false;
       }
-      return clazz.get().isSubClassOf(className);
+      return clazz.get().isSubClassOf(db, className);
     }
     return false;
   }
@@ -324,7 +322,7 @@ public class MatchEdgeTraverser {
     }
     if (qR instanceof Identifiable) {
       return ExecutionStream.singleton(new ResultInternal(
-          iCommandContext.getDatabase(), (Identifiable) qR));
+          iCommandContext.getDatabaseSession(), (Identifiable) qR));
     }
     if (qR instanceof Iterable) {
       return ExecutionStream.iterator(((Iterable) qR).iterator());

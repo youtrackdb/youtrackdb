@@ -18,10 +18,11 @@
 
 package com.jetbrains.youtrack.db.internal.lucene.builder;
 
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.ParseException;
 import com.jetbrains.youtrack.db.internal.lucene.analyzer.LuceneAnalyzerFactory;
 import com.jetbrains.youtrack.db.internal.lucene.parser.LuceneMultiFieldQueryParser;
@@ -67,13 +68,13 @@ public class LuceneQueryBuilder {
       final IndexDefinition index,
       final Object key,
       final Map<String, ?> metadata,
-      final Analyzer analyzer)
+      final Analyzer analyzer, DatabaseSessionInternal session)
       throws ParseException {
     final var query = constructQueryString(key);
     if (query.isEmpty()) {
       return new MatchNoDocsQuery();
     }
-    return buildQuery(index, query, metadata, analyzer);
+    return buildQuery(index, query, metadata, analyzer, session);
   }
 
   private static String constructQueryString(final Object key) {
@@ -89,7 +90,7 @@ public class LuceneQueryBuilder {
       final IndexDefinition index,
       final String query,
       final Map<String, ?> metadata,
-      final Analyzer queryAnalyzer)
+      final Analyzer queryAnalyzer, DatabaseSessionInternal session)
       throws ParseException {
     String[] fields;
     if (index.isAutomatic()) {
@@ -106,7 +107,7 @@ public class LuceneQueryBuilder {
       final var field = fields[i];
       types.put(field, index.getTypes()[i]);
     }
-    return getQuery(index, query, metadata, queryAnalyzer, fields, types);
+    return getQuery(index, query, metadata, queryAnalyzer, fields, types, session);
   }
 
   private Query getQuery(
@@ -115,7 +116,7 @@ public class LuceneQueryBuilder {
       final Map<String, ?> metadata,
       final Analyzer queryAnalyzer,
       final String[] fields,
-      final Map<String, PropertyType> types)
+      final Map<String, PropertyType> types, DatabaseSessionInternal session)
       throws ParseException {
     @SuppressWarnings("unchecked") final var boost =
         Optional.ofNullable((Map<String, Number>) metadata.get("boost"))
@@ -132,7 +133,7 @@ public class LuceneQueryBuilder {
                         index, LuceneAnalyzerFactory.AnalyzerKind.QUERY, metadata))
             .orElse(queryAnalyzer);
     final var queryParser =
-        new LuceneMultiFieldQueryParser(types, fields, analyzer, boost);
+        new LuceneMultiFieldQueryParser(types, fields, analyzer, boost, session);
     queryParser.setAllowLeadingWildcard(
         Optional.ofNullable((Boolean) metadata.get("allowLeadingWildcard"))
             .orElse(allowLeadingWildcard));

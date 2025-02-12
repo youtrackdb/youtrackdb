@@ -21,142 +21,142 @@ public class TraverseTest extends DbTestBase {
   public void beforeTest() throws Exception {
     super.beforeTest();
 
-    db.executeInTx(() -> {
-      rootDocument = (EntityImpl) db.newEntity();
-      traverse = new Traverse(db);
+    session.executeInTx(() -> {
+      rootDocument = (EntityImpl) session.newEntity();
+      traverse = new Traverse(session);
       traverse.target(rootDocument).fields("*");
     });
   }
 
   @Test
   public void testDepthTraverse() {
-    db.begin();
-    rootDocument = db.bindToSession(rootDocument);
+    session.begin();
+    rootDocument = session.bindToSession(rootDocument);
 
-    final var aa = (EntityImpl) db.newEntity();
-    final var ab = (EntityImpl) db.newEntity();
-    final var ba = (EntityImpl) db.newEntity();
-    final var bb = (EntityImpl) db.newEntity();
-    final var a = (EntityImpl) db.newEntity();
+    final var aa = (EntityImpl) session.newEntity();
+    final var ab = (EntityImpl) session.newEntity();
+    final var ba = (EntityImpl) session.newEntity();
+    final var bb = (EntityImpl) session.newEntity();
+    final var a = (EntityImpl) session.newEntity();
     a.setProperty("aa", aa, PropertyType.LINK);
     a.setProperty("ab", ab, PropertyType.LINK);
-    final var b = (EntityImpl) db.newEntity();
+    final var b = (EntityImpl) session.newEntity();
     b.setProperty("ba", ba, PropertyType.LINK);
     b.setProperty("bb", bb, PropertyType.LINK);
 
     rootDocument.setProperty("a", a, PropertyType.LINK);
     rootDocument.setProperty("b", b, PropertyType.LINK);
 
-    final var c1 = (EntityImpl) db.newEntity();
-    final var c1a = (EntityImpl) db.newEntity();
+    final var c1 = (EntityImpl) session.newEntity();
+    final var c1a = (EntityImpl) session.newEntity();
     c1.setProperty("c1a", c1a, PropertyType.LINK);
-    final var c1b = (EntityImpl) db.newEntity();
+    final var c1b = (EntityImpl) session.newEntity();
     c1.setProperty("c1b", c1b, PropertyType.LINK);
-    final var c2 = (EntityImpl) db.newEntity();
-    final var c2a = (EntityImpl) db.newEntity();
+    final var c2 = (EntityImpl) session.newEntity();
+    final var c2a = (EntityImpl) session.newEntity();
     c2.setProperty("c2a", c2a, PropertyType.LINK);
-    final var c2b = (EntityImpl) db.newEntity();
+    final var c2b = (EntityImpl) session.newEntity();
     c2.setProperty("c2b", c2b, PropertyType.LINK);
-    final var c3 = (EntityImpl) db.newEntity();
-    final var c3a = (EntityImpl) db.newEntity();
+    final var c3 = (EntityImpl) session.newEntity();
+    final var c3a = (EntityImpl) session.newEntity();
     c3.setProperty("c3a", c3a, PropertyType.LINK);
-    final var c3b = (EntityImpl) db.newEntity();
+    final var c3b = (EntityImpl) session.newEntity();
     c3.setProperty("c3b", c3b, PropertyType.LINK);
     rootDocument.getOrCreateLinkList("c").addAll(new ArrayList<>(Arrays.asList(c1, c2, c3)));
 
     rootDocument.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    rootDocument = db.bindToSession(rootDocument);
+    session.begin();
+    rootDocument = session.bindToSession(rootDocument);
     final var expectedResult =
         Arrays.asList(
             rootDocument,
-            db.bindToSession(a),
-            db.bindToSession(aa),
-            db.bindToSession(ab),
-            db.bindToSession(b),
-            db.bindToSession(ba),
-            db.bindToSession(bb),
-            db.bindToSession(c1),
-            db.bindToSession(c1a),
-            db.bindToSession(c1b),
-            db.bindToSession(c2),
-            db.bindToSession(c2a),
-            db.bindToSession(c2b),
-            db.bindToSession(c3),
-            db.bindToSession(c3a),
-            db.bindToSession(c3b));
+            session.bindToSession(a),
+            session.bindToSession(aa),
+            session.bindToSession(ab),
+            session.bindToSession(b),
+            session.bindToSession(ba),
+            session.bindToSession(bb),
+            session.bindToSession(c1),
+            session.bindToSession(c1a),
+            session.bindToSession(c1b),
+            session.bindToSession(c2),
+            session.bindToSession(c2a),
+            session.bindToSession(c2b),
+            session.bindToSession(c3),
+            session.bindToSession(c3a),
+            session.bindToSession(c3b));
 
-    final var results = traverse.execute(db);
+    final var results = traverse.execute(session);
 
     compareTraverseResults(expectedResult, results);
-    db.commit();
+    session.commit();
   }
 
   @Test
   public void testBreadthTraverse() throws Exception {
     traverse.setStrategy(Traverse.STRATEGY.BREADTH_FIRST);
 
-    db.begin();
-    rootDocument = db.bindToSession(rootDocument);
-    final var aa = (EntityImpl) db.newEntity();
-    final var ab = (EntityImpl) db.newEntity();
-    final var ba = (EntityImpl) db.newEntity();
-    final var bb = (EntityImpl) db.newEntity();
-    final var a = (EntityImpl) db.newEntity();
+    session.begin();
+    rootDocument = session.bindToSession(rootDocument);
+    final var aa = (EntityImpl) session.newEntity();
+    final var ab = (EntityImpl) session.newEntity();
+    final var ba = (EntityImpl) session.newEntity();
+    final var bb = (EntityImpl) session.newEntity();
+    final var a = (EntityImpl) session.newEntity();
     a.setProperty("aa", aa, PropertyType.LINK);
     a.setProperty("ab", ab, PropertyType.LINK);
-    final var b = (EntityImpl) db.newEntity();
+    final var b = (EntityImpl) session.newEntity();
     b.setProperty("ba", ba, PropertyType.LINK);
     b.setProperty("bb", bb, PropertyType.LINK);
 
     rootDocument.setProperty("a", a, PropertyType.LINK);
     rootDocument.setProperty("b", b, PropertyType.LINK);
 
-    final var c1 = (EntityImpl) db.newEntity();
-    final var c1a = (EntityImpl) db.newEntity();
+    final var c1 = (EntityImpl) session.newEntity();
+    final var c1a = (EntityImpl) session.newEntity();
     c1.setProperty("c1a", c1a, PropertyType.LINK);
-    final var c1b = (EntityImpl) db.newEntity();
+    final var c1b = (EntityImpl) session.newEntity();
     c1.setProperty("c1b", c1b, PropertyType.LINK);
-    final var c2 = (EntityImpl) db.newEntity();
-    final var c2a = (EntityImpl) db.newEntity();
+    final var c2 = (EntityImpl) session.newEntity();
+    final var c2a = (EntityImpl) session.newEntity();
     c2.setProperty("c2a", c2a, PropertyType.LINK);
-    final var c2b = (EntityImpl) db.newEntity();
+    final var c2b = (EntityImpl) session.newEntity();
     c2.setProperty("c2b", c2b, PropertyType.LINK);
-    final var c3 = (EntityImpl) db.newEntity();
-    final var c3a = (EntityImpl) db.newEntity();
+    final var c3 = (EntityImpl) session.newEntity();
+    final var c3a = (EntityImpl) session.newEntity();
     c3.setProperty("c3a", c3a, PropertyType.LINK);
-    final var c3b = (EntityImpl) db.newEntity();
+    final var c3b = (EntityImpl) session.newEntity();
     c3.setProperty("c3b", c3b, PropertyType.LINK);
 
     rootDocument.getOrCreateLinkList("c").addAll(new ArrayList<>(Arrays.asList(c1, c2, c3)));
-    db.commit();
-    db.begin();
-    rootDocument = db.bindToSession(rootDocument);
+    session.commit();
+    session.begin();
+    rootDocument = session.bindToSession(rootDocument);
 
     final var expectedResult =
         Arrays.asList(
             rootDocument,
-            db.bindToSession(a),
-            db.bindToSession(b),
-            db.bindToSession(aa),
-            db.bindToSession(ab),
-            db.bindToSession(ba),
-            db.bindToSession(bb),
-            db.bindToSession(c1),
-            db.bindToSession(c2),
-            db.bindToSession(c3),
-            db.bindToSession(c1a),
-            db.bindToSession(c1b),
-            db.bindToSession(c2a),
-            db.bindToSession(c2b),
-            db.bindToSession(c3a),
-            db.bindToSession(c3b));
-    final var results = traverse.execute(db);
+            session.bindToSession(a),
+            session.bindToSession(b),
+            session.bindToSession(aa),
+            session.bindToSession(ab),
+            session.bindToSession(ba),
+            session.bindToSession(bb),
+            session.bindToSession(c1),
+            session.bindToSession(c2),
+            session.bindToSession(c3),
+            session.bindToSession(c1a),
+            session.bindToSession(c1b),
+            session.bindToSession(c2a),
+            session.bindToSession(c2b),
+            session.bindToSession(c3a),
+            session.bindToSession(c3b));
+    final var results = traverse.execute(session);
 
     compareTraverseResults(expectedResult, results);
-    db.rollback();
+    session.rollback();
   }
 
   private void compareTraverseResults(List<EntityImpl> expectedResult,

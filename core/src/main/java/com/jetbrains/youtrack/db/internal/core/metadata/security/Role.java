@@ -27,7 +27,6 @@ import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
 import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule.ResourceGeneric;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.type.IdentityWrapper;
@@ -36,7 +35,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
@@ -223,16 +221,16 @@ public class Role extends IdentityWrapper implements SecurityRole {
     var schema = session.getMetadata().getSchema();
     final var roleClass = schema.getClassInternal(CLASS_NAME);
 
-    final var rules = roleClass.getProperty(RULES);
+    final var rules = roleClass.getProperty(session, RULES);
     if (rules == null) {
       roleClass.createProperty(session, RULES, PropertyType.EMBEDDEDSET);
     }
 
-    if (!roleClass.existsProperty(INHERITED_ROLE)) {
+    if (!roleClass.existsProperty(session, INHERITED_ROLE)) {
       roleClass.createProperty(session, INHERITED_ROLE, PropertyType.LINK, roleClass);
     }
 
-    p = roleClass.getProperty(NAME);
+    p = roleClass.getProperty(session, NAME);
     if (p == null) {
       p = roleClass.createProperty(session, NAME, PropertyType.STRING).
           setMandatory(session, true)
@@ -243,7 +241,7 @@ public class Role extends IdentityWrapper implements SecurityRole {
       p.createIndex(session, INDEX_TYPE.UNIQUE);
     }
 
-    if (!roleClass.existsProperty(POLICIES)) {
+    if (!roleClass.existsProperty(session, POLICIES)) {
       roleClass.createProperty(session, POLICIES, PropertyType.LINKMAP,
           schema.getClass(SecurityPolicy.CLASS_NAME));
     }

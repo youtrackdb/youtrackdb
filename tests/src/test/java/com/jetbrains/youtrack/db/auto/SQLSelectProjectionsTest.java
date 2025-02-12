@@ -52,7 +52,7 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
   @Test
   public void queryProjectionOk() {
     var result =
-        db
+        session
             .command(
                 "select nick, followings, followers from Profile where nick is defined and"
                     + " followings is defined and followers is defined")
@@ -71,7 +71,7 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
   @Test
   public void queryProjectionObjectLevel() {
     var result =
-        db.query("select nick, followings, followers from Profile")
+        session.query("select nick, followings, followers from Profile")
             .toList();
 
     Assert.assertFalse(result.isEmpty());
@@ -84,7 +84,7 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
   @Test
   public void queryProjectionLinkedAndFunction() {
     var result =
-        db.query(
+        session.query(
             "select name.toUpperCase(Locale.ENGLISH), address.city.country.name from"
                 + " Profile").toList();
 
@@ -102,7 +102,7 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
   @Test
   public void queryProjectionSameFieldTwice() {
     var result =
-        db
+        session
             .query(
                 "select name, name.toUpperCase(Locale.ENGLISH) as name2 from Profile where name is"
                     + " not null").toList();
@@ -119,7 +119,7 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
   @Test
   public void queryProjectionStaticValues() {
     var result =
-        db
+        session
             .query(
                 "select location.city.country.name as location, address.city.country.name as"
                     + " address from Profile where location.city.country.name is not null")
@@ -187,7 +187,7 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
       Assert.assertTrue(r.getPropertyNames().size() <= 1);
       Assert.assertNotNull(r.getProperty("json"));
 
-      new EntityImpl(db).updateFromJSON((String) r.getProperty("json"));
+      new EntityImpl(session).updateFromJSON((String) r.getProperty("json"));
     }
   }
 
@@ -234,10 +234,10 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
 
       final EntityImpl a0doc = r.getProperty("a0");
       final EntityImpl firstADoc =
-          r.<Iterable<Identifiable>>getProperty("a").iterator().next().getRecord(db);
+          r.<Iterable<Identifiable>>getProperty("a").iterator().next().getRecord(session);
 
       Assert.assertTrue(
-          EntityHelper.hasSameContentOf(a0doc, db, firstADoc, db, null));
+          EntityHelper.hasSameContentOf(a0doc, session, firstADoc, session, null));
     }
   }
 
@@ -297,12 +297,12 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
   @Test
   public void testSelectExcludeFunction() {
     try {
-      db.createClass("A");
-      db.createClass("B");
+      session.createClass("A");
+      session.createClass("B");
 
-      db.begin();
-      var rootElement = db.newInstance("A");
-      var childElement = db.newInstance("B");
+      session.begin();
+      var rootElement = session.newInstance("A");
+      var childElement = session.newInstance("B");
 
       rootElement.setProperty("a", "a");
       rootElement.setProperty("b", "b");
@@ -314,7 +314,7 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
       rootElement.setProperty("child", childElement, PropertyType.LINK);
 
       rootElement.save();
-      db.commit();
+      session.commit();
 
       var res =
           executeQuery("select a,b, child.exclude('d') as child from " + rootElement.getIdentity());
@@ -325,23 +325,23 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
       Assert.assertNull(res.getFirst().<EntityImpl>getProperty("child").getProperty("d"));
       Assert.assertNotNull(res.getFirst().<EntityImpl>getProperty("child").getProperty("e"));
     } finally {
-      db.command("drop class A").close();
-      db.command("drop class B").close();
+      session.command("drop class A").close();
+      session.command("drop class B").close();
     }
   }
 
   @Test
   public void testSimpleExpandExclude() {
     try {
-      db.createClass("A");
-      db.createClass("B");
+      session.createClass("A");
+      session.createClass("B");
 
-      db.begin();
-      var rootElement = db.newInstance("A");
+      session.begin();
+      var rootElement = session.newInstance("A");
       rootElement.setProperty("a", "a");
       rootElement.setProperty("b", "b");
 
-      var childElement = db.newInstance("B");
+      var childElement = session.newInstance("B");
       childElement.setProperty("c", "c");
       childElement.setProperty("d", "d");
       childElement.setProperty("e", "e");
@@ -350,7 +350,7 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
       childElement.setProperty("root", List.of(rootElement), PropertyType.LINKLIST);
 
       rootElement.save();
-      db.commit();
+      session.commit();
 
       var res =
           executeQuery(
@@ -367,8 +367,8 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
       Assert.assertNotNull(root.<EntityImpl>getProperty("link").getProperty("e"));
 
     } finally {
-      db.command("drop class A").close();
-      db.command("drop class B").close();
+      session.command("drop class A").close();
+      session.command("drop class B").close();
     }
   }
 

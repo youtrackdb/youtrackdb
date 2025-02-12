@@ -22,13 +22,10 @@ package com.jetbrains.youtrack.db.internal.core.index;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import java.util.List;
 import org.junit.Test;
 
 /**
@@ -38,66 +35,67 @@ public class TxUniqueIndexWithCollationTest extends DbTestBase {
 
   public void beforeTest() throws Exception {
     super.beforeTest();
-    db.getMetadata()
+    session.getMetadata()
         .getSchema()
         .createClass("user")
-        .createProperty(db, "name", PropertyType.STRING)
-        .setCollate(db, "ci")
-        .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
+        .createProperty(session, "name", PropertyType.STRING)
+        .setCollate(session, "ci")
+        .createIndex(session, SchemaClass.INDEX_TYPE.UNIQUE);
 
-    db.begin();
-    var one = db.newEntity("user");
+    session.begin();
+    var one = session.newEntity("user");
     one.setProperty("name", "abc");
-    db.save(one);
+    session.save(one);
 
-    var two = db.newEntity("user");
+    var two = session.newEntity("user");
     two.setProperty("name", "aby");
-    db.save(two);
+    session.save(two);
 
-    var three = db.newEntity("user");
+    var three = session.newEntity("user");
     three.setProperty("name", "abz");
-    db.save(three);
-    db.commit();
+    session.save(three);
+    session.commit();
   }
 
   @Test
   public void testSubstrings() {
-    db.begin();
+    session.begin();
 
-    db.command("update user set name='abd' where name='Aby'").close();
+    session.command("update user set name='abd' where name='Aby'").close();
 
-    final var r = db.command("select * from user where name like '%B%' order by name");
+    final var r = session.command("select * from user where name like '%B%' order by name");
     assertEquals("abc", r.next().getProperty("name"));
     assertEquals("abd", r.next().getProperty("name"));
     assertEquals("abz", r.next().getProperty("name"));
     assertFalse(r.hasNext());
     r.close();
 
-    db.commit();
+    session.commit();
   }
 
   @Test
   public void testRange() {
-    db.begin();
+    session.begin();
 
-    db.command("update user set name='Abd' where name='Aby'").close();
+    session.command("update user set name='Abd' where name='Aby'").close();
 
-    final var r = db.command("select * from user where name >= 'abd' order by name");
+    final var r = session.command("select * from user where name >= 'abd' order by name");
     assertEquals("Abd", r.next().getProperty("name"));
     assertEquals("abz", r.next().getProperty("name"));
     assertFalse(r.hasNext());
 
-    db.commit();
+    session.commit();
   }
 
   @Test
   public void testIn() {
-    db.begin();
+    session.begin();
 
-    db.command("update user set name='abd' where name='Aby'").close();
+    session.command("update user set name='abd' where name='Aby'").close();
 
     final var r =
-        db.query("select * from user where name in ['Abc', 'Abd', 'Abz'] order by name").stream()
+        session.query("select * from user where name in ['Abc', 'Abd', 'Abz'] order by name")
+            .stream()
             .map(x -> ((EntityImpl) (x.asEntity())))
             .toList();
     assertEquals(3, r.size());
@@ -105,6 +103,6 @@ public class TxUniqueIndexWithCollationTest extends DbTestBase {
     assertEquals("abd", r.get(1).field("name"));
     assertEquals("abz", r.get(2).field("name"));
 
-    db.commit();
+    session.commit();
   }
 }

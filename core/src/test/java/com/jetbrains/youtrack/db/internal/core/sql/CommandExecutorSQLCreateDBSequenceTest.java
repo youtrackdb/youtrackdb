@@ -29,22 +29,22 @@ public class CommandExecutorSQLCreateDBSequenceTest extends DbTestBase {
 
   @Test
   public void testSimple() {
-    db.command("CREATE SEQUENCE Sequence1 TYPE ORDERED").close();
+    session.command("CREATE SEQUENCE Sequence1 TYPE ORDERED").close();
 
     var results =
-        db.query("select sequence('Sequence1').next() as val").toList();
+        session.query("select sequence('Sequence1').next() as val").toList();
     assertEquals(1, results.size());
     for (var result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(1L);
     }
     results =
-        db.query("select sequence('Sequence1').next() as val").toList();
+        session.query("select sequence('Sequence1').next() as val").toList();
     assertEquals(1, results.size());
     for (var result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(2L);
     }
     results =
-        db.query("select sequence('Sequence1').next() as val").toList();
+        session.query("select sequence('Sequence1').next() as val").toList();
     assertEquals(1, results.size());
     for (var result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(3L);
@@ -53,21 +53,21 @@ public class CommandExecutorSQLCreateDBSequenceTest extends DbTestBase {
 
   @Test
   public void testIncrement() {
-    db.command("CREATE SEQUENCE SequenceIncrement TYPE ORDERED INCREMENT 3").close();
+    session.command("CREATE SEQUENCE SequenceIncrement TYPE ORDERED INCREMENT 3").close();
     var results =
-        db.query("select sequence('SequenceIncrement').next() as val").toList();
+        session.query("select sequence('SequenceIncrement').next() as val").toList();
     assertEquals(1, results.size());
     for (var result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(3L);
     }
     results =
-        db.query("select sequence('SequenceIncrement').next() as val").toList();
+        session.query("select sequence('SequenceIncrement').next() as val").toList();
     assertEquals(1, results.size());
     for (var result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(6L);
     }
     results =
-        db.query("select sequence('SequenceIncrement').next() as val").toList();
+        session.query("select sequence('SequenceIncrement').next() as val").toList();
     assertEquals(1, results.size());
     for (var result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(9L);
@@ -76,22 +76,22 @@ public class CommandExecutorSQLCreateDBSequenceTest extends DbTestBase {
 
   @Test
   public void testStart() {
-    db.command("CREATE SEQUENCE SequenceStart TYPE ORDERED START 3").close();
+    session.command("CREATE SEQUENCE SequenceStart TYPE ORDERED START 3").close();
 
     var results =
-        db.query("select sequence('SequenceStart').next() as val").toList();
+        session.query("select sequence('SequenceStart').next() as val").toList();
     assertEquals(1, results.size());
     for (var result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(4L);
     }
     results =
-        db.query("select sequence('SequenceStart').next() as val").toList();
+        session.query("select sequence('SequenceStart').next() as val").toList();
     assertEquals(1, results.size());
     for (var result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(5L);
     }
     results =
-        db.query("select sequence('SequenceStart').next() as val").toList();
+        session.query("select sequence('SequenceStart').next() as val").toList();
     assertEquals(1, results.size());
     for (var result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(6L);
@@ -100,22 +100,23 @@ public class CommandExecutorSQLCreateDBSequenceTest extends DbTestBase {
 
   @Test
   public void testStartIncrement() {
-    db.command("CREATE SEQUENCE SequenceStartIncrement TYPE ORDERED START 3 INCREMENT 10").close();
+    session.command("CREATE SEQUENCE SequenceStartIncrement TYPE ORDERED START 3 INCREMENT 10")
+        .close();
 
     var results =
-        db.query("select sequence('SequenceStartIncrement').next() as val").toList();
+        session.query("select sequence('SequenceStartIncrement').next() as val").toList();
     assertEquals(1, results.size());
     for (var result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(13L);
     }
     results =
-        db.query("select sequence('SequenceStartIncrement').next() as val").toList();
+        session.query("select sequence('SequenceStartIncrement').next() as val").toList();
     assertEquals(1, results.size());
     for (var result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(23L);
     }
     results =
-        db.query("select sequence('SequenceStartIncrement').next() as val").toList();
+        session.query("select sequence('SequenceStartIncrement').next() as val").toList();
     assertEquals(1, results.size());
     for (var result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(33L);

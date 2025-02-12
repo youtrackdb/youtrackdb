@@ -2,11 +2,11 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperatorEquals;
 import java.util.ArrayList;
@@ -133,7 +133,7 @@ public class SQLContainsCondition extends SQLBooleanExpression {
     var leftValue = left.execute(currentRecord, ctx);
     if (right != null) {
       var rightValue = right.execute(currentRecord, ctx);
-      return execute(ctx.getDatabase(), leftValue, rightValue);
+      return execute(ctx.getDatabaseSession(), leftValue, rightValue);
     } else {
       if (!MultiValue.isMultiValue(leftValue)) {
         return false;
@@ -164,7 +164,7 @@ public class SQLContainsCondition extends SQLBooleanExpression {
     var leftValue = left.execute(currentRecord, ctx);
     if (right != null) {
       var rightValue = right.execute(currentRecord, ctx);
-      return execute(ctx.getDatabase(), leftValue, rightValue);
+      return execute(ctx.getDatabaseSession(), leftValue, rightValue);
     } else {
       if (!MultiValue.isMultiValue(leftValue)) {
         return false;
@@ -177,7 +177,7 @@ public class SQLContainsCondition extends SQLBooleanExpression {
         } else if (item instanceof Result && condition.evaluate((Result) item, ctx)) {
           return true;
         } else if (item instanceof Map) {
-          var res = new ResultInternal(ctx.getDatabase());
+          var res = new ResultInternal(ctx.getDatabaseSession());
           ((Map<String, Object>) item)
               .entrySet()
               .forEach(x -> res.setProperty(x.getKey(), x.getValue()));
@@ -195,7 +195,7 @@ public class SQLContainsCondition extends SQLBooleanExpression {
       for (var s : currentRecord.getPropertyNames()) {
         var leftVal = currentRecord.getProperty(s);
         var rightValue = right.execute(currentRecord, ctx);
-        if (execute(ctx.getDatabase(), leftVal, rightValue)) {
+        if (execute(ctx.getDatabaseSession(), leftVal, rightValue)) {
           return true;
         }
       }
@@ -215,7 +215,7 @@ public class SQLContainsCondition extends SQLBooleanExpression {
           } else if (item instanceof Result && condition.evaluate((Result) item, ctx)) {
             return true;
           } else if (item instanceof Map) {
-            var res = new ResultInternal(ctx.getDatabase());
+            var res = new ResultInternal(ctx.getDatabaseSession());
             ((Map<String, Object>) item)
                 .entrySet()
                 .forEach(x -> res.setProperty(x.getKey(), x.getValue()));
@@ -234,7 +234,7 @@ public class SQLContainsCondition extends SQLBooleanExpression {
       for (var s : currentRecord.getPropertyNames()) {
         var leftVal = currentRecord.getProperty(s);
         var rightValue = right.execute(currentRecord, ctx);
-        if (!execute(ctx.getDatabase(), leftVal, rightValue)) {
+        if (!execute(ctx.getDatabaseSession(), leftVal, rightValue)) {
           return false;
         }
       }
@@ -257,7 +257,7 @@ public class SQLContainsCondition extends SQLBooleanExpression {
             found = true;
             break;
           } else if (item instanceof Map) {
-            var res = new ResultInternal(ctx.getDatabase());
+            var res = new ResultInternal(ctx.getDatabaseSession());
             ((Map<String, Object>) item)
                 .entrySet()
                 .forEach(x -> res.setProperty(x.getKey(), x.getValue()));

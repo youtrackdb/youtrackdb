@@ -20,11 +20,6 @@ package com.jetbrains.youtrack.db.internal.lucene.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import java.io.InputStream;
-import java.util.stream.Stream;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.junit.Before;
@@ -44,11 +39,11 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
   public void init() throws Exception {
     try (var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql")) {
       //noinspection deprecation
-      db.execute("sql", getScriptFromStream(stream)).close();
+      session.execute("sql", getScriptFromStream(stream)).close();
     }
 
     //noinspection deprecation
-    db.command(
+    session.command(
             "create index Song.title_author on Song (title,author) FULLTEXT ENGINE LUCENE METADATA"
                 + " {\"title_index\":\""
                 + EnglishAnalyzer.class.getName()
@@ -62,7 +57,8 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
         .close();
 
     final var index =
-        db.getMetadata().getIndexManagerInternal().getIndex(db, "Song.title_author").getMetadata();
+        session.getMetadata().getIndexManagerInternal().getIndex(session, "Song.title_author")
+            .getMetadata();
 
     assertThat(index.get("author_index")).isEqualTo(StandardAnalyzer.class.getName());
     assertThat(index.get("title_index")).isEqualTo(EnglishAnalyzer.class.getName());
@@ -72,7 +68,7 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
   public void testSelectSingleDocumentWithAndOperator() {
 
     var docs =
-        db.query(
+        session.query(
             "select * from Song where [title,author] LUCENE \"(title:mountain AND"
                 + " author:Fabbio)\"");
     assertThat(docs).hasSize(1);
@@ -81,7 +77,7 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
   @Test
   public void testSelectSingleDocumentWithAndOperatorNEwExec() {
     try (var docs =
-        db.query(
+        session.query(
             "select * from Song where [title,author] LUCENE \"(title:mountain AND"
                 + " author:Fabbio)\"")) {
 
@@ -94,7 +90,7 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
   @Test
   public void testSelectMultipleDocumentsWithOrOperator() {
     var docs =
-        db.query(
+        session.query(
             "select * from Song where [title,author] LUCENE \"(title:mountain OR author:Fabbio)\"");
 
     assertThat(docs).hasSize(91);
@@ -102,14 +98,14 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
 
   @Test
   public void testSelectOnTitleAndAuthorWithMatchOnTitle() {
-    var docs = db.query("select * from Song where [title,author] LUCENE \"mountain\"");
+    var docs = session.query("select * from Song where [title,author] LUCENE \"mountain\"");
 
     assertThat(docs).hasSize(5);
   }
 
   @Test
   public void testSelectOnTitleAndAuthorWithMatchOnAuthor() {
-    var docs = db.query("select * from Song where [title,author] LUCENE \"author:fabbio\"");
+    var docs = session.query("select * from Song where [title,author] LUCENE \"author:fabbio\"");
 
     assertThat(docs).hasSize(87);
   }
@@ -117,7 +113,7 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
   @Test
   @Ignore
   public void testSelectOnAuthorWithMatchOnAuthor() {
-    var docs = db.query("select * from Song where [author,title] LUCENE \"(fabbio)\"");
+    var docs = session.query("select * from Song where [author,title] LUCENE \"(fabbio)\"");
 
     assertThat(docs).hasSize(87);
   }
@@ -138,19 +134,20 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
             insert into Item set Title = 'test', content = 'this is a test';
             commit;
             """;
-    db.execute("sql", script).close();
+    session.execute("sql", script).close();
 
-    var docs = db.query("select * from Item where Title lucene 'te*'");
+    var docs = session.query("select * from Item where Title lucene 'te*'");
     assertThat(docs).hasSize(1);
 
     //noinspection deprecation
-    docs = db.query("select * from Item where [Title, Summary, Content] lucene 'test'");
+    docs = session.query("select * from Item where [Title, Summary, Content] lucene 'test'");
 
     assertThat(docs).hasSize(1);
 
     // nidex api
-    final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Item.i_lucene");
-    try (var stream = index.getInternal().getRids(db, "(Title:test )")) {
+    final var index = session.getMetadata().getIndexManagerInternal()
+        .getIndex(session, "Item.i_lucene");
+    try (var stream = index.getInternal().getRids(session, "(Title:test )")) {
       assertThat(stream.findAny().isPresent()).isTrue();
     }
   }

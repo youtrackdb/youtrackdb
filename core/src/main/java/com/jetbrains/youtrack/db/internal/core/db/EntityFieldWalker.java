@@ -21,7 +21,6 @@ package com.jetbrains.youtrack.db.internal.core.db;
 
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.db.record.IdentifiableMultiValue;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -50,8 +49,8 @@ import java.util.Set;
  * {@link EntityPropertiesVisitor} instance.
  *
  * <p>Fields will be visited till method
- * {@link EntityPropertiesVisitor#goFurther(PropertyType, PropertyType,
- * Object, Object)} returns true.
+ * {@link EntityPropertiesVisitor#goFurther(PropertyType, PropertyType, Object, Object)} returns
+ * true.
  */
 public class EntityFieldWalker {
 
@@ -95,10 +94,10 @@ public class EntityFieldWalker {
 
       PropertyType linkedType = null;
       if (fieldType == null && clazz != null) {
-        var property = clazz.getProperty(fieldName);
+        var property = clazz.getProperty(session, fieldName);
         if (property != null) {
-          fieldType = property.getType();
-          linkedType = property.getLinkedType();
+          fieldType = property.getType(session);
+          linkedType = property.getLinkedType(session);
         }
       }
 

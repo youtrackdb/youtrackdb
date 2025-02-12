@@ -41,13 +41,13 @@ public class SQLFindReferencesStatement extends SQLStatement {
 
   @Override
   public ResultSet execute(
-      DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
+      DatabaseSessionInternal session, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
     var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
-    ctx.setDatabase(db);
+    ctx.setDatabaseSession(session);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
       for (var i = 0; i < args.length; i++) {
@@ -62,18 +62,18 @@ public class SQLFindReferencesStatement extends SQLStatement {
       executionPlan = createExecutionPlanNoCache(ctx, false);
     }
 
-    return new LocalResultSet(executionPlan);
+    return new LocalResultSet(session, executionPlan);
   }
 
   @Override
   public ResultSet execute(
-      DatabaseSessionInternal db, Map<Object, Object> params, CommandContext parentCtx,
+      DatabaseSessionInternal session, Map<Object, Object> params, CommandContext parentCtx,
       boolean usePlanCache) {
     var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
-    ctx.setDatabase(db);
+    ctx.setDatabaseSession(session);
     ctx.setInputParameters(params);
     InternalExecutionPlan executionPlan;
     if (usePlanCache) {
@@ -82,7 +82,7 @@ public class SQLFindReferencesStatement extends SQLStatement {
       executionPlan = createExecutionPlanNoCache(ctx, false);
     }
 
-    return new LocalResultSet(executionPlan);
+    return new LocalResultSet(session, executionPlan);
   }
 
   @Override

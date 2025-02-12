@@ -21,9 +21,7 @@ package com.jetbrains.youtrack.db.internal.lucene.test;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Assert;
 import org.junit.Before;
@@ -43,19 +41,19 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
   @Before
   public void init() {
 
-    url = db.getURL();
-    Schema schema = db.getMetadata().getSchema();
+    url = session.getURL();
+    Schema schema = session.getMetadata().getSchema();
     var oClass = schema.createClass("City");
 
-    oClass.createProperty(db, "name", PropertyType.STRING);
-    db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
+    oClass.createProperty(session, "name", PropertyType.STRING);
+    session.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
 
   @Test
   public void testConcurrentInsertWithIndex() throws Exception {
 
-    db.getMetadata().reload();
-    Schema schema = db.getMetadata().getSchema();
+    session.getMetadata().reload();
+    Schema schema = session.getMetadata().getSchema();
 
     var threads = new Thread[THREADS + RTHREADS];
     for (var i = 0; i < THREADS; ++i) {
@@ -81,11 +79,11 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
 
     System.out.println("LuceneInsertReadMultithreadBaseTest all threads completed");
 
-    var idx = db.getClassInternal("City").getClassIndex(db, "City.name");
+    var idx = session.getClassInternal("City").getClassIndex(session, "City.name");
 
-    db.begin();
-    Assert.assertEquals(idx.getInternal().size(db), THREADS * CYCLE);
-    db.commit();
+    session.begin();
+    Assert.assertEquals(idx.getInternal().size(session), THREADS * CYCLE);
+    session.commit();
   }
 
   public class LuceneInsertThread implements Runnable {
@@ -136,7 +134,7 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
       databaseDocumentTx = openDatabase();
 
       Schema schema = databaseDocumentTx.getMetadata().getSchema();
-      var idx = databaseDocumentTx.getClassInternal("City").getClassIndex(db, "City.name");
+      var idx = databaseDocumentTx.getClassInternal("City").getClassIndex(session, "City.name");
 
       for (var i = 0; i < cycle; i++) {
 

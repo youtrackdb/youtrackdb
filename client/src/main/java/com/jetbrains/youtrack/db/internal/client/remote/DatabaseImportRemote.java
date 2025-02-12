@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.client.remote;
 
-import com.jetbrains.youtrack.db.internal.client.remote.db.DatabaseSessionRemote;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.client.remote.db.DatabaseSessionRemote;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -48,7 +48,7 @@ public class DatabaseImportRemote extends DatabaseImpExpAbstract {
           getListener());
     } catch (FileNotFoundException e) {
       throw BaseException.wrapException(
-          new DatabaseImportException("Error importing the database"), e);
+          new DatabaseImportException("Error importing the database"), e, storage.getName());
     }
   }
 

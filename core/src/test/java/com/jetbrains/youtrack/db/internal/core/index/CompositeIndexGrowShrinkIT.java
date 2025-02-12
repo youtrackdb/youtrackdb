@@ -1,10 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import java.util.Arrays;
 import java.util.Random;
 import org.junit.Test;
@@ -24,18 +22,18 @@ public class CompositeIndexGrowShrinkIT extends DbTestBase {
 
   @Test
   public void testCompositeGrowShirnk() {
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     var clazz = schema.createClass("CompositeIndex");
-    clazz.createProperty(db, "id", PropertyType.INTEGER);
-    clazz.createProperty(db, "bar", PropertyType.INTEGER);
-    clazz.createProperty(db, "tags", PropertyType.EMBEDDEDLIST, PropertyType.STRING);
-    clazz.createProperty(db, "name", PropertyType.STRING);
+    clazz.createProperty(session, "id", PropertyType.INTEGER);
+    clazz.createProperty(session, "bar", PropertyType.INTEGER);
+    clazz.createProperty(session, "tags", PropertyType.EMBEDDEDLIST, PropertyType.STRING);
+    clazz.createProperty(session, "name", PropertyType.STRING);
 
-    db.command(
+    session.command(
             "create index CompositeIndex_id_tags_name on CompositeIndex (id, tags, name) NOTUNIQUE")
         .close();
     for (var i = 0; i < 150000; i++) {
-      var rec = db.newEntity("CompositeIndex");
+      var rec = session.newEntity("CompositeIndex");
       rec.setProperty("id", i);
       rec.setProperty("bar", i);
       rec.setProperty(
@@ -45,25 +43,25 @@ public class CompositeIndexGrowShrinkIT extends DbTestBase {
       rec.setProperty("name", "name" + i);
       rec.save();
     }
-    db.command("delete from CompositeIndex").close();
+    session.command("delete from CompositeIndex").close();
   }
 
   @Test
   public void testCompositeGrowDrop() {
 
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     var clazz = schema.createClass("CompositeIndex");
-    clazz.createProperty(db, "id", PropertyType.INTEGER);
-    clazz.createProperty(db, "bar", PropertyType.INTEGER);
-    clazz.createProperty(db, "tags", PropertyType.EMBEDDEDLIST, PropertyType.STRING);
-    clazz.createProperty(db, "name", PropertyType.STRING);
+    clazz.createProperty(session, "id", PropertyType.INTEGER);
+    clazz.createProperty(session, "bar", PropertyType.INTEGER);
+    clazz.createProperty(session, "tags", PropertyType.EMBEDDEDLIST, PropertyType.STRING);
+    clazz.createProperty(session, "name", PropertyType.STRING);
 
-    db.command(
+    session.command(
             "create index CompositeIndex_id_tags_name on CompositeIndex (id, tags, name) NOTUNIQUE")
         .close();
 
     for (var i = 0; i < 150000; i++) {
-      var rec = db.newEntity("CompositeIndex");
+      var rec = session.newEntity("CompositeIndex");
       rec.setProperty("id", i);
       rec.setProperty("bar", i);
       rec.setProperty(
@@ -73,6 +71,6 @@ public class CompositeIndexGrowShrinkIT extends DbTestBase {
       rec.setProperty("name", "name" + i);
       rec.save();
     }
-    db.command("drop index CompositeIndex_id_tags_name").close();
+    session.command("drop index CompositeIndex_id_tags_name").close();
   }
 }

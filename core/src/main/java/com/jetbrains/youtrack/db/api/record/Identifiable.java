@@ -70,13 +70,14 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * @throws DatabaseException if the record is not an element.
    */
   @Nonnull
-  default Entity getEntity(DatabaseSession db) {
+  default Entity getEntity(@Nonnull DatabaseSession db) {
     var record = getRecord(db);
     if (record instanceof Entity element) {
       return element;
     }
 
-    throw new DatabaseException("Record " + getIdentity() + " is not an entity.");
+    throw new DatabaseException(db.getDatabaseName(),
+        "Record " + getIdentity() + " is not an entity.");
   }
 
   /**
@@ -102,13 +103,14 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * @throws DatabaseException if the record is not a blob.
    */
   @Nonnull
-  default Blob getBlob(DatabaseSession db) {
+  default Blob getBlob(@Nonnull DatabaseSession db) {
     var record = getRecord(db);
     if (record instanceof Blob blob) {
       return blob;
     }
 
-    throw new DatabaseException("Record " + getIdentity() + " is not a blob.");
+    throw new DatabaseException(db.getDatabaseName(),
+        "Record " + getIdentity() + " is not a blob.");
   }
 
   /**
@@ -134,13 +136,14 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * @throws DatabaseException if the record is not an edge.
    */
   @Nonnull
-  default Edge getEdge(DatabaseSession db) {
+  default Edge getEdge(@Nonnull DatabaseSession db) {
     var record = getRecord(db);
     if (record instanceof Edge edge) {
       return edge;
     }
 
-    throw new DatabaseException("Record " + getIdentity() + " is not an edge.");
+    throw new DatabaseException(db.getDatabaseName(),
+        "Record " + getIdentity() + " is not an edge.");
   }
 
   /**
@@ -166,13 +169,14 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * @throws DatabaseException if the record is not a vertex.
    */
   @Nonnull
-  default Vertex getVertex(DatabaseSession db) {
+  default Vertex getVertex(@Nonnull DatabaseSession db) {
     var record = getRecord(db);
     if (record instanceof Vertex vertex) {
       return vertex;
     }
 
-    throw new DatabaseException("Record " + getIdentity() + " is not a vertex.");
+    throw new DatabaseException(db.getDatabaseName(),
+        "Record " + getIdentity() + " is not a vertex.");
   }
 
   /**

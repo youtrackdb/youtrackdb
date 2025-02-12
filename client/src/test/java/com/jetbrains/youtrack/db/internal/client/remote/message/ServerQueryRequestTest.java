@@ -29,7 +29,7 @@ public class ServerQueryRequestTest extends DbTestBase {
     channel.close();
 
     var other = new ServerQueryRequest();
-    other.read(db, channel, -1, RecordSerializerNetworkFactory.current());
+    other.read(session, channel, -1, RecordSerializerNetworkFactory.current());
 
     Assert.assertEquals(request.getCommand(), other.getCommand());
 
@@ -59,7 +59,7 @@ public class ServerQueryRequestTest extends DbTestBase {
     channel.close();
 
     var other = new ServerQueryRequest();
-    other.read(db, channel, -1, RecordSerializerNetworkFactory.current());
+    other.read(session, channel, -1, RecordSerializerNetworkFactory.current());
 
     Assert.assertEquals(request.getCommand(), other.getCommand());
     Assert.assertTrue(other.isNamedParams());
@@ -85,7 +85,7 @@ public class ServerQueryRequestTest extends DbTestBase {
     channel.close();
 
     var other = new ServerQueryRequest();
-    other.read(db, channel, -1, RecordSerializerNetworkFactory.current());
+    other.read(session, channel, -1, RecordSerializerNetworkFactory.current());
 
     Assert.assertEquals(request.getCommand(), other.getCommand());
     Assert.assertTrue(other.isNamedParams());

@@ -6,8 +6,6 @@ import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
@@ -83,6 +81,7 @@ public class SQLRecordAttribute extends SimpleNode {
   }
 
   public Object evaluate(Result iCurrentRecord, CommandContext ctx) {
+    var session = ctx.getDatabaseSession();
     if (name.equalsIgnoreCase("@rid")) {
       var identity = iCurrentRecord.getIdentity().orElse(null);
       if (identity == null) {
@@ -92,7 +91,7 @@ public class SQLRecordAttribute extends SimpleNode {
     } else if (name.equalsIgnoreCase("@class")) {
       var entity = iCurrentRecord.asEntity();
       if (entity != null) {
-        return entity.getSchemaType().map(SchemaClass::getName).orElse(null);
+        return entity.getSchemaType().map(schemaClass -> schemaClass.getName(session)).orElse(null);
       }
       return null;
     } else if (name.equalsIgnoreCase("@version")) {
@@ -102,7 +101,7 @@ public class SQLRecordAttribute extends SimpleNode {
           .getRecord()
           .map(
               r -> {
-                var recordType = RecordInternal.getRecordType(ctx.getDatabase(), r);
+                var recordType = RecordInternal.getRecordType(ctx.getDatabaseSession(), r);
                 if (recordType == EntityImpl.RECORD_TYPE) {
                   return "document";
                 } else if (recordType == RecordBytes.RECORD_TYPE) {
@@ -130,14 +129,15 @@ public class SQLRecordAttribute extends SimpleNode {
     if (iCurrentRecord == null) {
       return null;
     }
-    var db = ctx.getDatabase();
+    var session = ctx.getDatabaseSession();
     if (name.equalsIgnoreCase("@rid")) {
       return iCurrentRecord.getIdentity();
     } else if (name.equalsIgnoreCase("@class")) {
-      return iCurrentRecord.getSchemaType().map(SchemaClass::getName).orElse(null);
+      return iCurrentRecord.getSchemaType().map(schemaClass -> schemaClass.getName(session))
+          .orElse(null);
     } else if (name.equalsIgnoreCase("@version")) {
       try {
-        var record = iCurrentRecord.getRecord(db);
+        var record = iCurrentRecord.getRecord(session);
         return record.getVersion();
       } catch (RecordNotFoundException e) {
         return null;

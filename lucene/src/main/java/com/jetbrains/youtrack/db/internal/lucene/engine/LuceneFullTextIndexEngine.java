@@ -46,7 +46,6 @@ import com.jetbrains.youtrack.db.internal.lucene.tx.LuceneTxChanges;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
@@ -54,11 +53,8 @@ import java.util.stream.Stream;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.SortField;
-import org.apache.lucene.search.highlight.TextFragment;
 import org.apache.lucene.store.Directory;
 
 public class LuceneFullTextIndexEngine extends LuceneIndexEngineAbstract {
@@ -169,7 +165,7 @@ public class LuceneFullTextIndexEngine extends LuceneIndexEngineAbstract {
       final Map<String, ?> metadata) {
     // sort
     final var fields = LuceneIndexEngineUtils.buildSortFields(metadata);
-    var db = context.getDatabase();
+    var db = context.getDatabaseSession();
     final var luceneSearcher = searcher(db.getStorage());
     final var queryContext =
         new LuceneQueryContext(context, luceneSearcher, query, fields).withChanges(changes);
@@ -200,7 +196,7 @@ public class LuceneFullTextIndexEngine extends LuceneIndexEngineAbstract {
   }
 
   @Override
-  public Document buildDocument(DatabaseSessionInternal db, Object key,
+  public Document buildDocument(DatabaseSessionInternal session, Object key,
       Identifiable value) {
     if (indexDefinition.isAutomatic()) {
       //      builder.newBuild(index, key, value);
@@ -241,35 +237,37 @@ public class LuceneFullTextIndexEngine extends LuceneIndexEngineAbstract {
   }
 
   @Override
-  public Query buildQuery(final Object maybeQuery) {
+  public Query buildQuery(final Object maybeQuery, DatabaseSessionInternal session) {
     try {
       if (maybeQuery instanceof String) {
         return queryBuilder.query(indexDefinition, maybeQuery, EMPTY_METADATA,
-            queryAnalyzer());
+            queryAnalyzer(), session);
       } else {
         var q = (LuceneKeyAndMetadata) maybeQuery;
-        return queryBuilder.query(indexDefinition, q.key, q.metadata, queryAnalyzer());
+        return queryBuilder.query(indexDefinition, q.key, q.metadata, queryAnalyzer(), session);
       }
     } catch (final ParseException e) {
-      throw BaseException.wrapException(new IndexEngineException("Error parsing query"), e);
+      throw BaseException.wrapException(new IndexEngineException(null, "Error parsing query"), e,
+          (String) null);
     }
   }
 
   @Override
-  public Set<Identifiable> getInTx(DatabaseSessionInternal db, Object key,
+  public Set<Identifiable> getInTx(DatabaseSessionInternal session, Object key,
       LuceneTxChanges changes) {
     updateLastAccess();
-    openIfClosed(db.getStorage());
+    openIfClosed(session.getStorage());
     try {
       if (key instanceof LuceneKeyAndMetadata q) {
-        var query = queryBuilder.query(indexDefinition, q.key, q.metadata, queryAnalyzer());
+        var query = queryBuilder.query(indexDefinition, q.key, q.metadata, queryAnalyzer(),
+            session);
 
         var commandContext = q.key.getContext();
         return getResults(query, commandContext, changes, q.metadata);
 
       } else {
         var query = queryBuilder.query(indexDefinition, key, EMPTY_METADATA,
-            queryAnalyzer());
+            queryAnalyzer(), session);
 
         CommandContext commandContext = null;
         if (key instanceof LuceneCompositeKey) {
@@ -278,7 +276,9 @@ public class LuceneFullTextIndexEngine extends LuceneIndexEngineAbstract {
         return getResults(query, commandContext, changes, EMPTY_METADATA);
       }
     } catch (ParseException e) {
-      throw BaseException.wrapException(new IndexEngineException("Error parsing lucene query"), e);
+      throw BaseException.wrapException(
+          new IndexEngineException(session.getDatabaseName(), "Error parsing lucene query"),
+          e, session);
     }
   }
 }

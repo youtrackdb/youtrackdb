@@ -25,7 +25,7 @@ public class ConvertToResultInternalStepTest extends TestUtilsFixture {
   @Test
   public void shouldConvertUpdatableResult() {
     CommandContext context = new BasicCommandContext();
-    context.setDatabase(db);
+    context.setDatabaseSession(session);
     var step = new ConvertToResultInternalStep(context, false);
     var previous =
         new AbstractExecutionStep(context, false) {
@@ -36,11 +36,11 @@ public class ConvertToResultInternalStepTest extends TestUtilsFixture {
             List<Result> result = new ArrayList<>();
             if (!done) {
               for (var i = 0; i < 10; i++) {
-                var document = (EntityImpl) db.newEntity();
+                var document = (EntityImpl) session.newEntity();
                 document.setProperty(STRING_PROPERTY, RandomStringUtils.randomAlphanumeric(10));
                 document.setProperty(INTEGER_PROPERTY, new Random().nextInt());
                 documents.add(document);
-                var item = new UpdatableResult(db, document);
+                var item = new UpdatableResult(session, document);
                 result.add(item);
               }
               done = true;

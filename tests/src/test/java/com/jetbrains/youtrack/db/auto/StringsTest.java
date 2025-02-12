@@ -18,7 +18,6 @@ package com.jetbrains.youtrack.db.auto;
 import com.jetbrains.youtrack.db.internal.common.parser.StringParser;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
-import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
@@ -104,10 +103,10 @@ public class StringsTest extends BaseDBTest {
 
   @Test
   public void testDocumentSelfReference() {
-    var document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) session.newEntity());
     document.field("selfref", document);
 
-    var docTwo = ((EntityImpl) db.newEntity());
+    var docTwo = ((EntityImpl) session.newEntity());
     docTwo.field("ref", document);
     document.field("ref", docTwo);
 

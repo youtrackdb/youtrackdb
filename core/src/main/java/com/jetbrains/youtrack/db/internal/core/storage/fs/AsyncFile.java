@@ -39,6 +39,7 @@ public final class AsyncFile implements File {
 
   private final int pageSize;
   private final ExecutorService executor;
+  private final String dbName;
 
   private final Semaphore syncSemaphore = new Semaphore(Integer.MAX_VALUE);
   private static final Set<OpenOption> options;
@@ -50,11 +51,13 @@ public final class AsyncFile implements File {
   }
 
   public AsyncFile(
-      final Path osFile, final int pageSize, boolean logFileDeletion, ExecutorService executor) {
+      final Path osFile, final int pageSize, boolean logFileDeletion, ExecutorService executor,
+      String dbName) {
     this.osFile = osFile;
     this.pageSize = pageSize;
     this.executor = executor;
     this.logFileDeletion = logFileDeletion;
+    this.dbName = dbName;
   }
 
   @Override
@@ -62,7 +65,7 @@ public final class AsyncFile implements File {
     lock.exclusiveLock();
     try {
       if (fileChannel != null) {
-        throw new StorageException("File " + osFile + " is already opened.");
+        throw new StorageException(dbName, "File " + osFile + " is already opened.");
       }
 
       Files.createFile(osFile);
@@ -85,10 +88,11 @@ public final class AsyncFile implements File {
           written += writeFuture.get();
         } catch (java.lang.InterruptedException e) {
           throw BaseException.wrapException(
-              new ThreadInterruptedException("File write was interrupted"), e);
+              new ThreadInterruptedException("File write was interrupted"), e, dbName);
         } catch (ExecutionException e) {
           throw BaseException.wrapException(
-              new StorageException("Error during write operation to the file " + osFile), e);
+              new StorageException(dbName, "Error during write operation to the file " + osFile), e,
+              dbName);
         }
       } while (written < HEADER_SIZE);
 
@@ -132,7 +136,8 @@ public final class AsyncFile implements File {
     try {
       doOpen();
     } catch (IOException e) {
-      throw BaseException.wrapException(new StorageException("Can not open file " + osFile), e);
+      throw BaseException.wrapException(new StorageException(dbName, "Can not open file " + osFile),
+          e, dbName);
     } finally {
       lock.exclusiveUnlock();
     }
@@ -140,7 +145,7 @@ public final class AsyncFile implements File {
 
   private void doOpen() throws IOException {
     if (fileChannel != null) {
-      throw new StorageException("File " + osFile + " is already opened.");
+      throw new StorageException(dbName, "File " + osFile + " is already opened.");
     }
     fileChannel = AsynchronousFileChannel.open(osFile, options, executor);
 
@@ -197,10 +202,11 @@ public final class AsyncFile implements File {
           written += writeFuture.get();
         } catch (java.lang.InterruptedException e) {
           throw BaseException.wrapException(
-              new ThreadInterruptedException("File write was interrupted"), e);
+              new ThreadInterruptedException("File write was interrupted"), e, dbName);
         } catch (ExecutionException e) {
           throw BaseException.wrapException(
-              new StorageException("Error during write operation to the file " + osFile), e);
+              new StorageException(dbName, "Error during write operation to the file " + osFile), e,
+              dbName);
         }
       } while (written < buffer.limit());
 
@@ -215,7 +221,7 @@ public final class AsyncFile implements File {
   @Override
   public IOResult write(List<RawPairLongObject<ByteBuffer>> buffers) {
     final var latch = new CountDownLatch(buffers.size());
-    final var asyncIOResult = new AsyncIOResult(latch);
+    final var asyncIOResult = new AsyncIOResult(latch, dbName);
 
     syncSemaphore.acquireUninterruptibly(buffers.size());
     for (final var pair : buffers) {
@@ -257,10 +263,11 @@ public final class AsyncFile implements File {
           bytesRead = readFuture.get();
         } catch (java.lang.InterruptedException e) {
           throw BaseException.wrapException(
-              new ThreadInterruptedException("File write was interrupted"), e);
+              new ThreadInterruptedException("File write was interrupted"), e, dbName);
         } catch (ExecutionException e) {
           throw BaseException.wrapException(
-              new StorageException("Error during read operation from the file " + osFile), e);
+              new StorageException(dbName, "Error during read operation from the file " + osFile),
+              e, dbName);
         }
 
         if (bytesRead == -1) {
@@ -339,7 +346,7 @@ public final class AsyncFile implements File {
       doClose();
     } catch (IOException e) {
       throw BaseException.wrapException(
-          new StorageException("Error during closing the file " + osFile), e);
+          new StorageException(dbName, "Error during closing the file " + osFile), e, dbName);
     } finally {
       lock.exclusiveUnlock();
     }
@@ -400,7 +407,7 @@ public final class AsyncFile implements File {
   private void checkPosition(long offset) {
     final var fileSize = size.get();
     if (offset < 0 || offset >= fileSize) {
-      throw new StorageException(
+      throw new StorageException(dbName,
           "You are going to access region outside of allocated file position. File size = "
               + fileSize
               + ", requested position "
@@ -410,7 +417,7 @@ public final class AsyncFile implements File {
 
   private void checkForClose() {
     if (fileChannel == null) {
-      throw new StorageException("File " + osFile + " is closed");
+      throw new StorageException(dbName, "File " + osFile + " is closed");
     }
   }
 
@@ -463,9 +470,11 @@ public final class AsyncFile implements File {
 
     private final CountDownLatch latch;
     private Throwable exc;
+    private final String dbName;
 
-    private AsyncIOResult(CountDownLatch latch) {
+    private AsyncIOResult(CountDownLatch latch, String dbName) {
       this.latch = latch;
+      this.dbName = dbName;
     }
 
     @Override
@@ -475,10 +484,11 @@ public final class AsyncFile implements File {
       } catch (java.lang.InterruptedException e) {
         throw BaseException.wrapException(
             new ThreadInterruptedException("File write was interrupted"),
-            e);
+            e, dbName);
       }
       if (exc != null) {
-        throw BaseException.wrapException(new StorageException("Error during IO operation"), exc);
+        throw BaseException.wrapException(new StorageException(dbName, "Error during IO operation"),
+            exc, dbName);
       }
     }
   }

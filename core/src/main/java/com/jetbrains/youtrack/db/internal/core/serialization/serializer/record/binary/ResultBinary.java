@@ -15,6 +15,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
@@ -45,10 +46,10 @@ public class ResultBinary implements Result {
   private final int offset;
   private final int fieldLength;
   private final ImmutableSchema schema;
-  private final DatabaseSessionInternal db;
+  private final DatabaseSessionInternal session;
 
   public ResultBinary(
-      DatabaseSessionInternal db,
+      DatabaseSessionInternal session,
       ImmutableSchema schema,
       byte[] bytes,
       int offset,
@@ -60,24 +61,24 @@ public class ResultBinary implements Result {
     this.serializer = serializer;
     this.offset = offset;
     this.fieldLength = fieldLength;
-    this.db = db;
+    this.session = session;
 
   }
 
   public ResultBinary(
-      DatabaseSessionInternal db,
+      DatabaseSessionInternal session,
       byte[] bytes,
       int offset,
       int fieldLength,
       EntitySerializer serializer,
       @Nullable RecordId id) {
-    schema = db.getMetadata().getImmutableSchemaSnapshot();
+    schema = session.getMetadata().getImmutableSchemaSnapshot();
     this.id = id;
     this.bytes = bytes;
     this.serializer = serializer;
     this.offset = offset;
     this.fieldLength = fieldLength;
-    this.db = db;
+    this.session = session;
   }
 
   public int getFieldLength() {
@@ -94,11 +95,11 @@ public class ResultBinary implements Result {
 
   @Override
   public <T> T getProperty(String name) {
-    assert db != null && db.assertIfNotActive();
+    assert session != null && session.assertIfNotActive();
 
     var bytes = new BytesContainer(this.bytes);
     bytes.skip(offset);
-    return serializer.deserializeFieldTyped(db, bytes, name, id == null, schema, null);
+    return serializer.deserializeFieldTyped(session, bytes, name, id == null, schema, null);
   }
 
   @Override
@@ -125,83 +126,97 @@ public class ResultBinary implements Result {
 
   @Override
   public Set<String> getPropertyNames() {
-    assert db != null && db.assertIfNotActive();
+    assert session != null && session.assertIfNotActive();
 
     final var container = new BytesContainer(bytes);
     container.skip(offset);
     // TODO: use something more correct that new EntityImpl
-    var fields = serializer.getFieldNames(new EntityImpl(db), container, id == null);
+    var fields = serializer.getFieldNames(session, new EntityImpl(session), container, id == null);
     return new HashSet<>(Arrays.asList(fields));
   }
 
   @Override
   public Optional<RID> getIdentity() {
+    assert session != null && session.assertIfNotActive();
     return Optional.ofNullable(id);
   }
 
   @Nullable
   @Override
   public RID getRecordId() {
+    assert session != null && session.assertIfNotActive();
     return id;
   }
 
   @Override
   public boolean isEntity() {
+    assert session != null && session.assertIfNotActive();
     return true;
   }
 
   @Override
   public boolean isRecord() {
+    assert session != null && session.assertIfNotActive();
     return true;
   }
 
   @Override
   public Optional<Entity> getEntity() {
+    assert session != null && session.assertIfNotActive();
     return Optional.of(asEntity());
   }
 
   @Override
   public Entity asEntity() {
+    assert session != null && session.assertIfNotActive();
     return toEntityImpl();
   }
 
   @Override
   public boolean isBlob() {
+    assert session != null && session.assertIfNotActive();
     return false;
   }
 
   @Override
   public Map<String, ?> toMap() {
+    assert session != null && session.assertIfNotActive();
     return toEntityImpl().toMap();
   }
 
   @Override
   public String toJSON() {
+    assert session != null && session.assertIfNotActive();
     return toEntityImpl().toJSON();
   }
 
   @Override
   public Optional<Blob> getBlob() {
+    assert session != null && session.assertIfNotActive();
     return Optional.empty();
   }
 
   @Override
   public Optional<DBRecord> getRecord() {
+    assert session != null && session.assertIfNotActive();
     return Optional.of(toEntityImpl());
   }
 
   @Override
   public boolean isProjection() {
+    assert session != null && session.assertIfNotActive();
     return false;
   }
 
   @Override
   public Object getMetadata(String key) {
+    assert session != null && session.assertIfNotActive();
     return null;
   }
 
   @Override
   public Set<String> getMetadataKeys() {
+    assert session != null && session.assertIfNotActive();
     return null;
   }
 
@@ -211,12 +226,18 @@ public class ResultBinary implements Result {
         "Not supported yet."); // To change body of generated methods, choose Tools | Templates.
   }
 
+  @Nullable
+  @Override
+  public DatabaseSession getBoundedToSession() {
+    return session;
+  }
+
   private EntityImpl toEntityImpl() {
-    var entity = new EntityImpl(db);
+    var entity = new EntityImpl(session);
     var bytes = new BytesContainer(this.bytes);
     bytes.skip(offset);
 
-    serializer.deserialize(db, entity, bytes);
+    serializer.deserialize(session, entity, bytes);
     return entity;
   }
 }

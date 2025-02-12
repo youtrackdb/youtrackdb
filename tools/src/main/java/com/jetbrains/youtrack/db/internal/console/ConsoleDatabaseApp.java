@@ -101,7 +101,7 @@ import java.util.stream.Collectors;
 public class ConsoleDatabaseApp extends ConsoleApplication
     implements CommandOutputListener, ProgressListener, TableFormatter.OTableOutput {
 
-  protected DatabaseSessionInternal currentDatabase;
+  protected DatabaseSessionInternal currentDatabaseSession;
   protected String currentDatabaseName;
   protected List<RawPair<RID, Object>> currentResultSet;
   protected DatabaseURLConnection urlConnection;
@@ -239,10 +239,10 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     if (!"".equals(urlConnection.getDbName())) {
       // OPEN DB
       message("\nConnecting to database [" + iURL + "] with user '" + iUserName + "'...");
-      currentDatabase =
+      currentDatabaseSession =
           (DatabaseSessionInternal)
               youTrackDB.open(urlConnection.getDbName(), iUserName, iUserPassword);
-      currentDatabaseName = currentDatabase.getName();
+      currentDatabaseName = currentDatabaseSession.getDatabaseName();
     }
 
     message("OK");
@@ -253,15 +253,15 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       description = "Disconnect from the current database",
       onlineHelp = "Console-Command-Disconnect")
   public void disconnect() {
-    if (currentDatabase != null) {
+    if (currentDatabaseSession != null) {
       message("\nDisconnecting from the database [" + currentDatabaseName + "]...");
 
-      currentDatabase.activateOnCurrentThread();
-      if (!currentDatabase.isClosed()) {
-        currentDatabase.close();
+      currentDatabaseSession.activateOnCurrentThread();
+      if (!currentDatabaseSession.isClosed()) {
+        currentDatabaseSession.close();
       }
 
-      currentDatabase = null;
+      currentDatabaseSession = null;
       currentDatabaseName = null;
 
       message("OK");
@@ -375,10 +375,10 @@ public class ConsoleDatabaseApp extends ConsoleApplication
         youTrackDB.create(urlConnection.getDbName(), type);
       }
     }
-    currentDatabase =
+    currentDatabaseSession =
         (DatabaseSessionInternal) youTrackDB.open(urlConnection.getDbName(), userName,
             userPassword);
-    currentDatabaseName = currentDatabase.getName();
+    currentDatabaseName = currentDatabaseSession.getDatabaseName();
 
     message("\nDatabase created successfully.");
     message("\n\nCurrent database is: " + databaseURL);
@@ -482,7 +482,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     formatter.setMaxWidthSize(getConsoleWidth());
     formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-    formatter.writeRecords(resultSet, -1);
+    formatter.writeRecords(resultSet, -1, currentDatabaseSession);
 
     out.println();
   }
@@ -517,14 +517,14 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
     message("\nDropping cluster [" + iClusterName + "] in database " + currentDatabaseName + "...");
 
-    var result = currentDatabase.dropCluster(iClusterName);
+    var result = currentDatabaseSession.dropCluster(iClusterName);
 
     if (!result) {
       // TRY TO GET AS CLUSTER ID
       try {
         var clusterId = Integer.parseInt(iClusterName);
         if (clusterId > -1) {
-          result = currentDatabase.dropCluster(clusterId);
+          result = currentDatabaseSession.dropCluster(clusterId);
         }
       } catch (Exception ignored) {
       }
@@ -553,15 +553,15 @@ public class ConsoleDatabaseApp extends ConsoleApplication
   public void begin() throws IOException {
     checkForDatabase();
 
-    if (currentDatabase.getTransaction().isActive()) {
+    if (currentDatabaseSession.getTransaction().isActive()) {
       message(
           "\nError: an active transaction is currently open (id="
-              + currentDatabase.getTransaction().getId()
+              + currentDatabaseSession.getTransaction().getId()
               + "). Commit or rollback before starting a new one.");
       return;
     }
 
-    if (currentDatabase.isRemote()) {
+    if (currentDatabaseSession.isRemote()) {
       message(
           """
               WARNING - Transactions are not supported from console in remote, please use an sql\
@@ -578,23 +578,23 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       return;
     }
 
-    currentDatabase.begin();
-    message("\nTransaction " + currentDatabase.getTransaction().getId() + " is running");
+    currentDatabaseSession.begin();
+    message("\nTransaction " + currentDatabaseSession.getTransaction().getId() + " is running");
   }
 
   @ConsoleCommand(description = "Commits transaction changes to the database")
   public void commit() throws IOException {
     checkForDatabase();
 
-    if (!currentDatabase.getTransaction().isActive()) {
+    if (!currentDatabaseSession.getTransaction().isActive()) {
       message("\nError: no active transaction is currently open.");
       return;
     }
 
     final var begin = System.currentTimeMillis();
 
-    final var txId = currentDatabase.getTransaction().getId();
-    currentDatabase.commit();
+    final var txId = currentDatabaseSession.getTransaction().getId();
+    currentDatabaseSession.commit();
 
     message(
         "\nTransaction "
@@ -608,15 +608,15 @@ public class ConsoleDatabaseApp extends ConsoleApplication
   public void rollback() throws IOException {
     checkForDatabase();
 
-    if (!currentDatabase.getTransaction().isActive()) {
+    if (!currentDatabaseSession.getTransaction().isActive()) {
       message("\nError: no active transaction is running right now.");
       return;
     }
 
     final var begin = System.currentTimeMillis();
 
-    final var txId = currentDatabase.getTransaction().getId();
-    currentDatabase.rollback();
+    final var txId = currentDatabaseSession.getTransaction().getId();
+    currentDatabaseSession.rollback();
     message(
         "\nTransaction "
             + txId
@@ -703,7 +703,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     resetResultSet();
     final var start = System.currentTimeMillis();
 
-    var rs = currentDatabase.command(command);
+    var rs = currentDatabaseSession.command(command);
     var result =
         rs.stream().map(x -> new RawPair<RID, Object>(x.getRecordId(), x.toMap())).toList();
     rs.close();
@@ -765,7 +765,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       String iCommandText) {
     sqlCommand("update", iCommandText, "\nUpdated record(s) '%s' in %f sec(s).\n", true);
     updateDatabaseInfo();
-    currentDatabase.getLocalCache().invalidate();
+    currentDatabaseSession.getLocalCache().invalidate();
   }
 
   @ConsoleCommand(
@@ -813,7 +813,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       String iCommandText) {
     sqlCommand("delete", iCommandText, "\nDelete record(s) '%s' in %f sec(s).\n", true);
     updateDatabaseInfo();
-    currentDatabase.getLocalCache().invalidate();
+    currentDatabaseSession.getLocalCache().invalidate();
   }
 
   @ConsoleCommand(
@@ -877,19 +877,19 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       throws IOException {
     checkForDatabase();
 
-    final var dbName = currentDatabase.getName();
+    final var dbName = currentDatabaseSession.getDatabaseName();
 
-    if (currentDatabase.isRemote()) {
+    if (currentDatabaseSession.isRemote()) {
       if (storageType == null) {
         storageType = "plocal";
       }
 
-      new ServerAdmin(currentDatabase.getURL())
+      new ServerAdmin(currentDatabaseSession.getURL())
           .connect(currentDatabaseUserName, currentDatabaseUserPassword)
           .freezeDatabase(storageType);
     } else {
       // LOCAL CONNECTION
-      currentDatabase.freeze();
+      currentDatabaseSession.freeze();
     }
 
     message("\n\nDatabase '" + dbName + "' was frozen successfully");
@@ -907,19 +907,19 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       throws IOException {
     checkForDatabase();
 
-    final var dbName = currentDatabase.getName();
+    final var dbName = currentDatabaseSession.getDatabaseName();
 
-    if (currentDatabase.isRemote()) {
+    if (currentDatabaseSession.isRemote()) {
       if (storageType == null) {
         storageType = "plocal";
       }
 
-      new ServerAdmin(currentDatabase.getURL())
+      new ServerAdmin(currentDatabaseSession.getURL())
           .connect(currentDatabaseUserName, currentDatabaseUserPassword)
           .releaseDatabase(storageType);
     } else {
       // LOCAL CONNECTION
-      currentDatabase.release();
+      currentDatabaseSession.release();
     }
 
     message("\n\nDatabase '" + dbName + "' was released successfully");
@@ -1053,7 +1053,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     }
 
     var start = System.currentTimeMillis();
-    var rs = currentDatabase.command("traverse " + iQueryText);
+    var rs = currentDatabaseSession.command("traverse " + iQueryText);
     currentResultSet = rs.stream().map(x -> new RawPair<RID, Object>(x.getRecordId(), x.toMap()))
         .toList();
     rs.close();
@@ -1101,7 +1101,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
     final var start = System.currentTimeMillis();
     List<RawPair<RID, Object>> result = new ArrayList<>();
-    try (var rs = currentDatabase.query(queryText)) {
+    try (var rs = currentDatabaseSession.query(queryText)) {
       var count = 0;
       while (rs.hasNext()) {
         var item = rs.next();
@@ -1158,7 +1158,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
     final var start = System.currentTimeMillis();
     List<RawPair<RID, Object>> result = new ArrayList<>();
-    var rs = currentDatabase.query(queryText);
+    var rs = currentDatabaseSession.query(queryText);
     var count = 0;
     while (rs.hasNext() && (queryLimit < 0 || count < queryLimit)) {
       var resultItem = rs.next();
@@ -1211,7 +1211,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     resetResultSet();
 
     var start = System.currentTimeMillis();
-    currentResultSet = currentDatabase.execute("JavaScript", iText).stream()
+    currentResultSet = currentDatabaseSession.execute("JavaScript", iText).stream()
         .map(result -> new RawPair<RID, Object>(result.getRecordId(), result.toMap())).toList();
     var elapsedSeconds = getElapsedSecs(start);
 
@@ -1260,7 +1260,8 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
     final var serverCfgFile = new File("../config/youtrackdb-server-config.xml");
     if (!serverCfgFile.exists()) {
-      throw new ConfigurationException("Cannot access to file " + serverCfgFile);
+      throw new ConfigurationException(currentDatabaseSession,
+          "Cannot access to file " + serverCfgFile);
     }
 
     try {
@@ -1294,7 +1295,8 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
     final var serverCfgFile = new File("../config/youtrackdb-server-config.xml");
     if (!serverCfgFile.exists()) {
-      throw new ConfigurationException("Cannot access to file " + serverCfgFile);
+      throw new ConfigurationException(currentDatabaseSession,
+          "Cannot access to file " + serverCfgFile);
     }
 
     try {
@@ -1322,7 +1324,8 @@ public class ConsoleDatabaseApp extends ConsoleApplication
   public void listServerUsers() {
     final var serverCfgFile = new File("../config/youtrackdb-server-config.xml");
     if (!serverCfgFile.exists()) {
-      throw new ConfigurationException("Cannot access to file " + serverCfgFile);
+      throw new ConfigurationException(currentDatabaseSession,
+          "Cannot access to file " + serverCfgFile);
     }
 
     try {
@@ -1370,8 +1373,8 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       throws IOException {
     checkForDatabase();
 
-    final var dbName = currentDatabase.getName();
-    currentDatabase.close();
+    final var dbName = currentDatabaseSession.getDatabaseName();
+    currentDatabaseSession.close();
     if (storageType != null
         && !"plocal".equalsIgnoreCase(storageType)
         && !"local".equalsIgnoreCase(storageType)
@@ -1380,7 +1383,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       return;
     }
     youTrackDB.drop(dbName);
-    currentDatabase = null;
+    currentDatabaseSession = null;
     currentDatabaseName = null;
     message("\n\nDatabase '" + dbName + "' deleted successfully");
   }
@@ -1471,7 +1474,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
     resetResultSet();
 
-    final IdentifiableIterator<?> it = currentDatabase.browseClass(iClassName);
+    final IdentifiableIterator<?> it = currentDatabaseSession.browseClass(iClassName);
 
     browseRecords(it);
   }
@@ -1485,7 +1488,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
     resetResultSet();
 
-    final RecordIteratorCluster<?> it = currentDatabase.browseCluster(iClusterName);
+    final RecordIteratorCluster<?> it = currentDatabaseSession.browseCluster(iClusterName);
 
     browseRecords(it);
   }
@@ -1497,9 +1500,10 @@ public class ConsoleDatabaseApp extends ConsoleApplication
   public void info() {
     if (currentDatabaseName != null) {
       message(
-          "\nCurrent database: " + currentDatabaseName + " (url=" + currentDatabase.getURL() + ")");
+          "\nCurrent database: " + currentDatabaseName + " (url=" + currentDatabaseSession.getURL()
+              + ")");
 
-      currentDatabase.getMetadata().reload();
+      currentDatabaseSession.getMetadata().reload();
 
       listProperties();
       listClusters(null);
@@ -1510,11 +1514,11 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
   @ConsoleCommand(description = "Display the database properties")
   public void listProperties() {
-    if (currentDatabase == null) {
+    if (currentDatabaseSession == null) {
       return;
     }
 
-    final var dbCfg = currentDatabase.getStorageInfo().getConfiguration();
+    final var dbCfg = currentDatabaseSession.getStorageInfo().getConfiguration();
 
     message("\n\nDATABASE PROPERTIES");
 
@@ -1552,7 +1556,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       formatter.setMaxWidthSize(getConsoleWidth());
       formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-      formatter.writeRecords(resultSet, -1);
+      formatter.writeRecords(resultSet, -1, currentDatabaseSession);
 
       message("\n");
 
@@ -1569,7 +1573,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
         formatter.setMaxWidthSize(getConsoleWidth());
         formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-        dbFormatter.writeRecords(dbResultSet, -1);
+        dbFormatter.writeRecords(dbResultSet, -1, currentDatabaseSession);
       }
     }
   }
@@ -1582,10 +1586,11 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       @ConsoleParameter(name = "class-name", description = "The name of the class") final String iClassName) {
     checkForDatabase();
 
-    currentDatabase.getMetadata().reload();
+    currentDatabaseSession.getMetadata().reload();
 
     final var cls =
-        currentDatabase.getMetadata().getImmutableSchemaSnapshot().getClassInternal(iClassName);
+        currentDatabaseSession.getMetadata().getImmutableSchemaSnapshot()
+            .getClassInternal(iClassName);
 
     if (cls == null) {
       message(
@@ -1597,74 +1602,85 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       return;
     }
 
-    message("\nCLASS '" + cls.getName() + "'\n");
+    message("\nCLASS '" + cls.getName(currentDatabaseSession) + "'\n");
 
-    final var count = currentDatabase.countClass(cls.getName(), false);
+    final var count = currentDatabaseSession.countClass(cls.getName(currentDatabaseSession), false);
     message("\nRecords..............: " + count);
 
-    if (cls.getShortName() != null) {
-      message("\nAlias................: " + cls.getShortName());
+    if (cls.getShortName(currentDatabaseSession) != null) {
+      message("\nAlias................: " + cls.getShortName(currentDatabaseSession));
     }
-    if (cls.hasSuperClasses()) {
-      message("\nSuper classes........: " + Arrays.toString(cls.getSuperClassesNames().toArray()));
+    if (cls.hasSuperClasses(currentDatabaseSession)) {
+      message("\nSuper classes........: " + Arrays.toString(
+          cls.getSuperClassesNames(currentDatabaseSession).toArray()));
     }
 
     message(
         "\nDefault cluster......: "
-            + currentDatabase.getClusterNameById(cls.getClusterIds()[0])
+            + currentDatabaseSession.getClusterNameById(
+            cls.getClusterIds(currentDatabaseSession)[0])
             + " (id="
-            + cls.getClusterIds()[0]
+            + cls.getClusterIds(currentDatabaseSession)[0]
             + ")");
 
     final var clusters = new StringBuilder();
-    for (var clId : cls.getClusterIds()) {
+    for (var clId : cls.getClusterIds(currentDatabaseSession)) {
       if (!clusters.isEmpty()) {
         clusters.append(", ");
       }
 
-      clusters.append(currentDatabase.getClusterNameById(clId));
+      clusters.append(currentDatabaseSession.getClusterNameById(clId));
       clusters.append("(");
       clusters.append(clId);
       clusters.append(")");
     }
 
     message("\nSupported clusters...: " + clusters);
-    message("\nCluster selection....: " + cls.getClusterSelectionStrategyName());
+    message("\nCluster selection....: " + cls.getClusterSelectionStrategyName(
+        currentDatabaseSession));
 
-    if (!cls.getSubclasses().isEmpty()) {
+    if (!cls.getSubclasses(currentDatabaseSession).isEmpty()) {
       message("\nSubclasses.........: ");
       var i = 0;
-      for (var c : cls.getSubclasses()) {
+      for (var c : cls.getSubclasses(currentDatabaseSession)) {
         if (i > 0) {
           message(", ");
         }
-        message(c.getName());
+        message(c.getName(currentDatabaseSession));
         ++i;
       }
       out.println();
     }
 
-    if (!cls.properties(currentDatabase).isEmpty()) {
+    if (!cls.properties(currentDatabaseSession).isEmpty()) {
       message("\n\nPROPERTIES");
       final List<RawPair<RID, Object>> resultSet = new ArrayList<>();
 
-      for (final var p : cls.properties(currentDatabase)) {
+      for (final var p : cls.properties(currentDatabaseSession)) {
         try {
           var row = new HashMap<>();
           resultSet.add(new RawPair<>(null, row));
 
-          row.put("NAME", p.getName());
-          row.put("TYPE", p.getType());
+          row.put("NAME", p.getName(currentDatabaseSession));
+          row.put("TYPE", p.getType(currentDatabaseSession));
           row.put(
               "LINKED-TYPE/CLASS",
-              p.getLinkedClass() != null ? p.getLinkedClass() : p.getLinkedType());
-          row.put("MANDATORY", p.isMandatory());
-          row.put("READONLY", p.isReadonly());
-          row.put("NOT-NULL", p.isNotNull());
-          row.put("MIN", p.getMin() != null ? p.getMin() : "");
-          row.put("MAX", p.getMax() != null ? p.getMax() : "");
-          row.put("COLLATE", p.getCollate() != null ? p.getCollate().getName() : "");
-          row.put("DEFAULT", p.getDefaultValue() != null ? p.getDefaultValue() : "");
+              p.getLinkedClass(currentDatabaseSession) != null ? p.getLinkedClass(
+                  currentDatabaseSession)
+                  : p.getLinkedType(currentDatabaseSession));
+          row.put("MANDATORY", p.isMandatory(currentDatabaseSession));
+          row.put("READONLY", p.isReadonly(currentDatabaseSession));
+          row.put("NOT-NULL", p.isNotNull(currentDatabaseSession));
+          row.put("MIN",
+              p.getMin(currentDatabaseSession) != null ? p.getMin(currentDatabaseSession) : "");
+          row.put("MAX",
+              p.getMax(currentDatabaseSession) != null ? p.getMax(currentDatabaseSession) : "");
+          row.put("COLLATE",
+              p.getCollate(currentDatabaseSession) != null ? p.getCollate(currentDatabaseSession)
+                  .getName() : "");
+          row.put("DEFAULT",
+              p.getDefaultValue(currentDatabaseSession) != null ? p.getDefaultValue(
+                  currentDatabaseSession) : "");
 
         } catch (Exception ignored) {
         }
@@ -1674,10 +1690,10 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       formatter.setMaxWidthSize(getConsoleWidth());
       formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-      formatter.writeRecords(resultSet, -1);
+      formatter.writeRecords(resultSet, -1, currentDatabaseSession);
     }
 
-    final var indexes = cls.getClassIndexes(currentDatabase);
+    final var indexes = cls.getClassIndexes(currentDatabaseSession);
     if (!indexes.isEmpty()) {
       message("\n\nINDEXES (" + indexes.size() + " altogether)");
 
@@ -1694,21 +1710,21 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       formatter.setMaxWidthSize(getConsoleWidth());
       formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-      formatter.writeRecords(resultSet, -1);
+      formatter.writeRecords(resultSet, -1, currentDatabaseSession);
     }
 
-    if (!cls.getCustomKeys().isEmpty()) {
+    if (!cls.getCustomKeys(currentDatabaseSession).isEmpty()) {
       message("\n\nCUSTOM ATTRIBUTES");
 
       final List<RawPair<RID, Object>> resultSet = new ArrayList<>();
 
-      for (final var k : cls.getCustomKeys()) {
+      for (final var k : cls.getCustomKeys(currentDatabaseSession)) {
         try {
           var row = new HashMap<>();
           resultSet.add(new RawPair<>(null, row));
 
           row.put("NAME", k);
-          row.put("VALUE", cls.getCustom(k));
+          row.put("VALUE", cls.getCustom(currentDatabaseSession, k));
 
         } catch (Exception ignored) {
           // IGNORED
@@ -1719,7 +1735,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       formatter.setMaxWidthSize(getConsoleWidth());
       formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-      formatter.writeRecords(resultSet, -1);
+      formatter.writeRecords(resultSet, -1, currentDatabaseSession);
     }
   }
 
@@ -1739,7 +1755,8 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     final var parts = iPropertyName.split("\\.");
 
     final var cls =
-        currentDatabase.getMetadata().getImmutableSchemaSnapshot().getClassInternal(parts[0]);
+        currentDatabaseSession.getMetadata().getImmutableSchemaSnapshot()
+            .getClassInternal(parts[0]);
 
     if (cls == null) {
       message(
@@ -1751,38 +1768,38 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       return;
     }
 
-    var prop = cls.getPropertyInternal(parts[1]);
+    var prop = cls.getPropertyInternal(currentDatabaseSession, parts[1]);
 
     if (prop == null) {
       message("\n! Property '" + parts[1] + "' does not exist in class '" + parts[0] + "'");
       return;
     }
 
-    message("\nPROPERTY '" + prop.getFullName() + "'\n");
-    message("\nType.................: " + prop.getType());
-    message("\nMandatory............: " + prop.isMandatory());
-    message("\nNot null.............: " + prop.isNotNull());
-    message("\nRead only............: " + prop.isReadonly());
-    message("\nDefault value........: " + prop.getDefaultValue());
-    message("\nMinimum value........: " + prop.getMin());
-    message("\nMaximum value........: " + prop.getMax());
-    message("\nREGEXP...............: " + prop.getRegexp());
-    message("\nCollate..............: " + prop.getCollate());
-    message("\nLinked class.........: " + prop.getLinkedClass());
-    message("\nLinked type..........: " + prop.getLinkedType());
+    message("\nPROPERTY '" + prop.getFullName(currentDatabaseSession) + "'\n");
+    message("\nType.................: " + prop.getType(currentDatabaseSession));
+    message("\nMandatory............: " + prop.isMandatory(currentDatabaseSession));
+    message("\nNot null.............: " + prop.isNotNull(currentDatabaseSession));
+    message("\nRead only............: " + prop.isReadonly(currentDatabaseSession));
+    message("\nDefault value........: " + prop.getDefaultValue(currentDatabaseSession));
+    message("\nMinimum value........: " + prop.getMin(currentDatabaseSession));
+    message("\nMaximum value........: " + prop.getMax(currentDatabaseSession));
+    message("\nREGEXP...............: " + prop.getRegexp(currentDatabaseSession));
+    message("\nCollate..............: " + prop.getCollate(currentDatabaseSession));
+    message("\nLinked class.........: " + prop.getLinkedClass(currentDatabaseSession));
+    message("\nLinked type..........: " + prop.getLinkedType(currentDatabaseSession));
 
-    if (!prop.getCustomKeys().isEmpty()) {
+    if (!prop.getCustomKeys(currentDatabaseSession).isEmpty()) {
       message("\n\nCUSTOM ATTRIBUTES");
 
       final List<RawPair<RID, Object>> resultSet = new ArrayList<>();
 
-      for (final var k : prop.getCustomKeys()) {
+      for (final var k : prop.getCustomKeys(currentDatabaseSession)) {
         try {
           var row = new HashMap<>();
           resultSet.add(new RawPair<>(null, row));
 
           row.put("NAME", k);
-          row.put("VALUE", prop.getCustom(k));
+          row.put("VALUE", prop.getCustom(currentDatabaseSession, k));
 
         } catch (Exception ignored) {
         }
@@ -1792,11 +1809,11 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       formatter.setMaxWidthSize(getConsoleWidth());
       formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-      formatter.writeRecords(resultSet, -1);
+      formatter.writeRecords(resultSet, -1, currentDatabaseSession);
     }
 
-    if (currentDatabase.isRemote()) {
-      final var indexes = prop.getAllIndexes(currentDatabase);
+    if (currentDatabaseSession.isRemote()) {
+      final var indexes = prop.getAllIndexes(currentDatabaseSession);
       if (!indexes.isEmpty()) {
         message("\n\nINDEXES (" + indexes.size() + " altogether)");
 
@@ -1812,7 +1829,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
         formatter.setMaxWidthSize(getConsoleWidth());
         formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-        formatter.writeRecords(resultSet, -1);
+        formatter.writeRecords(resultSet, -1, currentDatabaseSession);
       }
     }
   }
@@ -1832,7 +1849,8 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
       final List<Index> indexes =
           new ArrayList<Index>(
-              currentDatabase.getMetadata().getIndexManagerInternal().getIndexes(currentDatabase));
+              currentDatabaseSession.getMetadata().getIndexManagerInternal().getIndexes(
+                  currentDatabaseSession));
       indexes.sort((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
 
       long totalIndexedRecords = 0;
@@ -1842,7 +1860,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
         resultSet.add(new RawPair<>(null, row));
 
         final var indexSize = index.getSize(
-            currentDatabase); // getInternal doesn't work in remote...
+            currentDatabaseSession); // getInternal doesn't work in remote...
         totalIndexedRecords += indexSize;
 
         row.put("NAME", index.getName());
@@ -1850,7 +1868,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
         row.put("RECORDS", indexSize);
         try {
           final var indexDefinition = index.getDefinition();
-          final var size = index.getInternal().size(currentDatabase);
+          final var size = index.getInternal().size(currentDatabaseSession);
           if (indexDefinition != null) {
             row.put("CLASS", indexDefinition.getClassName());
             row.put("COLLATE", indexDefinition.getCollate().getName());
@@ -1887,7 +1905,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
           "RECORDS", String.valueOf(totalIndexedRecords));
       formatter.setFooter(footer);
 
-      formatter.writeRecords(resultSet, -1);
+      formatter.writeRecords(resultSet, -1, currentDatabaseSession);
 
     } else {
       message("\nNo database selected yet.");
@@ -1916,30 +1934,33 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       long totalTombstones = 0;
       long count;
 
-      final List<String> clusters = new ArrayList<>(currentDatabase.getClusterNames());
+      final List<String> clusters = new ArrayList<>(currentDatabaseSession.getClusterNames());
       Collections.sort(clusters);
 
-      final var isRemote = currentDatabase.isRemote();
+      final var isRemote = currentDatabaseSession.isRemote();
       for (var clusterName : clusters) {
         try {
           var row = new HashMap<String, Object>();
           resultSet.add(new RawPair<>(null, row));
 
-          clusterId = currentDatabase.getClusterIdByName(clusterName);
+          clusterId = currentDatabaseSession.getClusterIdByName(clusterName);
 
           final var conflictStrategy =
-              Optional.ofNullable(currentDatabase.getClusterRecordConflictStrategy(clusterId))
+              Optional.ofNullable(
+                      currentDatabaseSession.getClusterRecordConflictStrategy(clusterId))
                   .orElse("");
 
-          count = currentDatabase.countClusterElements(clusterName);
+          count = currentDatabaseSession.countClusterElements(clusterName);
           totalElements += count;
 
           final var cls =
-              currentDatabase
+              currentDatabaseSession
                   .getMetadata()
                   .getImmutableSchemaSnapshot()
                   .getClassByClusterId(clusterId);
-          final var className = Optional.ofNullable(cls).map(SchemaClass::getName).orElse(null);
+          final var className = Optional.ofNullable(cls)
+              .map(schemaClass -> schemaClass.getName(currentDatabaseSession))
+              .orElse(null);
 
           row.put("NAME", clusterName);
           row.put("ID", clusterId);
@@ -1965,7 +1986,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       footer.put("COUNT", String.valueOf(totalElements));
       formatter.setFooter(footer);
 
-      formatter.writeRecords(resultSet, -1);
+      formatter.writeRecords(resultSet, -1, currentDatabaseSession);
 
       message("\n");
 
@@ -1987,12 +2008,14 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       long totalElements = 0;
       long count;
 
-      currentDatabase.getMetadata().reload();
+      currentDatabaseSession.getMetadata().reload();
       final List<SchemaClass> classes =
           new ArrayList<>(
-              currentDatabase.getMetadata().getImmutableSchemaSnapshot()
-                  .getClasses(currentDatabase));
-      classes.sort((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
+              currentDatabaseSession.getMetadata().getImmutableSchemaSnapshot()
+                  .getClasses());
+      classes.sort(
+          (o1, o2) -> o1.getName(currentDatabaseSession).compareToIgnoreCase(o2.getName(
+              currentDatabaseSession)));
 
       for (var cls : classes) {
         try {
@@ -2000,29 +2023,30 @@ public class ConsoleDatabaseApp extends ConsoleApplication
           resultSet.add(new RawPair<>(null, row));
 
           final var clusters = new StringBuilder(1024);
-          if (cls.isAbstract()) {
+          if (cls.isAbstract(currentDatabaseSession)) {
             clusters.append("-");
           } else {
-            var clusterIds = cls.getClusterIds();
+            var clusterIds = cls.getClusterIds(currentDatabaseSession);
             for (var i = 0; i < clusterIds.length; ++i) {
               if (i > 0) {
                 clusters.append(",");
               }
 
-              clusters.append(currentDatabase.getClusterNameById(clusterIds[i]));
+              clusters.append(currentDatabaseSession.getClusterNameById(clusterIds[i]));
               clusters.append("(");
               clusters.append(clusterIds[i]);
               clusters.append(")");
             }
           }
 
-          count = currentDatabase.countClass(cls.getName(), false);
+          count = currentDatabaseSession.countClass(cls.getName(currentDatabaseSession), false);
           totalElements += count;
 
           final var superClasses =
-              cls.hasSuperClasses() ? Arrays.toString(cls.getSuperClassesNames().toArray()) : "";
+              cls.hasSuperClasses(currentDatabaseSession) ? Arrays.toString(
+                  cls.getSuperClassesNames(currentDatabaseSession).toArray()) : "";
 
-          row.put("NAME", cls.getName());
+          row.put("NAME", cls.getName(currentDatabaseSession));
           row.put("SUPER-CLASSES", superClasses);
           row.put("CLUSTERS", clusters);
           row.put("COUNT", count);
@@ -2044,7 +2068,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       footer.put("COUNT", String.valueOf(totalElements));
       formatter.setFooter(footer);
 
-      formatter.writeRecords(resultSet, -1);
+      formatter.writeRecords(resultSet, -1, currentDatabaseSession);
 
       message("\n");
 
@@ -2059,7 +2083,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       throws IOException {
     checkForDatabase();
 
-    if (currentDatabase.getStorage().isRemote()) {
+    if (currentDatabaseSession.getStorage().isRemote()) {
       message("\nCannot check integrity of non-local database. Connect to it using local mode.");
       return;
     }
@@ -2068,7 +2092,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
     message("\nChecking storage.");
     try {
-      ((AbstractPaginatedStorage) currentDatabase.getStorage()).check(verbose, this);
+      ((AbstractPaginatedStorage) currentDatabaseSession.getStorage()).check(verbose, this);
     } catch (DatabaseImportException e) {
       printError(e);
     }
@@ -2095,7 +2119,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     if (fix_graph || force_embedded) {
       // REPAIR GRAPH
       final var options = parseOptions(iOptions);
-      new GraphRepair().repair(currentDatabase, this, options);
+      new GraphRepair().repair(currentDatabaseSession, this, options);
     }
 
     final var fix_links = iOptions == null || iOptions.contains("--fix-links");
@@ -2103,8 +2127,8 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       // REPAIR DATABASE AT LOW LEVEL
       var verbose = iOptions != null && iOptions.contains("-v");
 
-      new DatabaseRepair(currentDatabase)
-          .setDatabase(currentDatabase)
+      new DatabaseRepair(currentDatabaseSession)
+          .setDatabase(currentDatabaseSession)
           .setOutputListener(
               new CommandOutputListener() {
                 @Override
@@ -2116,7 +2140,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
           .run();
     }
 
-    if (!currentDatabase.getURL().startsWith("plocal")) {
+    if (!currentDatabaseSession.getURL().startsWith("plocal")) {
       message("\n fix-bonsai can be run only on plocal connection \n");
       return;
     }
@@ -2125,7 +2149,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     final var fix_bonsai = iOptions == null || iOptions.contains("--fix-bonsai");
     if (fix_ridbags || fix_bonsai || force_embedded) {
       var repairer = new BonsaiTreeRepair();
-      repairer.repairDatabaseRidbags(currentDatabase, this);
+      repairer.repairDatabaseRidbags(currentDatabaseSession, this);
     }
   }
 
@@ -2220,16 +2244,16 @@ public class ConsoleDatabaseApp extends ConsoleApplication
             : text;
 
     try {
-      if (currentDatabase.isRemote()) {
+      if (currentDatabaseSession.isRemote()) {
         var databaseImport =
-            new DatabaseImportRemote(currentDatabase, fileName, this);
+            new DatabaseImportRemote(currentDatabaseSession, fileName, this);
 
         databaseImport.setOptions(options);
         databaseImport.importDatabase();
         databaseImport.close();
 
       } else {
-        var databaseImport = new DatabaseImport(currentDatabase, fileName, this);
+        var databaseImport = new DatabaseImport(currentDatabaseSession, fileName, this);
 
         databaseImport.setOptions(options);
         databaseImport.importDatabase();
@@ -2304,7 +2328,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
               + "' to: "
               + iText
               + "...");
-      fName = currentDatabase.incrementalBackup(Path.of(fileName));
+      fName = currentDatabaseSession.incrementalBackup(Path.of(fileName));
 
       message(
           String.format(
@@ -2334,7 +2358,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
             : iText;
 
     try {
-      new DatabaseExport(currentDatabase, fileName, this)
+      new DatabaseExport(currentDatabaseSession, fileName, this)
           .setOptions(options)
           .exportDatabase()
           .close();
@@ -2361,7 +2385,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     formatter.setMaxWidthSize(getConsoleWidth());
     formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-    formatter.writeRecords(resultSet, -1);
+    formatter.writeRecords(resultSet, -1, currentDatabaseSession);
 
     message("\n");
   }
@@ -2500,7 +2524,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       formatter.setMaxWidthSize(getConsoleWidth());
       formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-      formatter.writeRecords(resultSet, -1);
+      formatter.writeRecords(resultSet, -1, currentDatabaseSession);
 
     } else {
       // LOCAL STORAGE
@@ -2520,7 +2544,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       formatter.setMaxWidthSize(getConsoleWidth());
       formatter.setMaxMultiValueEntries(getMaxMultiValueEntries());
 
-      formatter.writeRecords(resultSet, -1);
+      formatter.writeRecords(resultSet, -1, currentDatabaseSession);
     }
 
     message("\n");
@@ -2529,16 +2553,17 @@ public class ConsoleDatabaseApp extends ConsoleApplication
   /**
    * Should be used only by console commands
    */
-  public DatabaseSession getCurrentDatabase() {
-    return currentDatabase;
+  public DatabaseSession getCurrentDatabaseSession() {
+    return currentDatabaseSession;
   }
 
   /**
    * Pass an existent database instance to be used as current.
    */
-  public ConsoleDatabaseApp setCurrentDatabase(final DatabaseSessionInternal iCurrentDatabase) {
-    currentDatabase = iCurrentDatabase;
-    currentDatabaseName = iCurrentDatabase.getName();
+  public ConsoleDatabaseApp setCurrentDatabaseSession(
+      final DatabaseSessionInternal iCurrentDatabase) {
+    currentDatabaseSession = iCurrentDatabase;
+    currentDatabaseName = iCurrentDatabase.getDatabaseName();
     return this;
   }
 
@@ -2589,9 +2614,9 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       return;
     }
 
-    currentDatabase = (DatabaseSessionInternal) youTrackDB.open(dbName, user, password);
+    currentDatabaseSession = (DatabaseSessionInternal) youTrackDB.open(dbName, user, password);
 
-    currentDatabaseName = currentDatabase.getName();
+    currentDatabaseName = currentDatabaseSession.getDatabaseName();
     message("OK");
   }
 
@@ -2686,12 +2711,13 @@ public class ConsoleDatabaseApp extends ConsoleApplication
    * Should be used only by console commands
    */
   protected void checkForDatabase() {
-    if (currentDatabase == null) {
+    if (currentDatabaseSession == null) {
       throw new SystemException(
           "Database not selected. Use 'connect <url> <user> <password>' to connect to a database.");
     }
-    if (currentDatabase.isClosed()) {
-      throw new DatabaseException("Database '" + currentDatabaseName + "' is closed");
+    if (currentDatabaseSession.isClosed()) {
+      throw new DatabaseException(currentDatabaseSession,
+          "Database '" + currentDatabaseName + "' is closed");
     }
   }
 
@@ -2767,10 +2793,10 @@ public class ConsoleDatabaseApp extends ConsoleApplication
    * Closes the console freeing all the used resources.
    */
   public void close() {
-    if (currentDatabase != null) {
-      currentDatabase.activateOnCurrentThread();
-      currentDatabase.close();
-      currentDatabase = null;
+    if (currentDatabaseSession != null) {
+      currentDatabaseSession.activateOnCurrentThread();
+      currentDatabaseSession.close();
+      currentDatabaseSession = null;
     }
     if (youTrackDB != null) {
       youTrackDB.close();
@@ -2814,7 +2840,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     new TableFormatter(this)
         .setMaxWidthSize(getConsoleWidth())
         .setMaxMultiValueEntries(getMaxMultiValueEntries())
-        .writeRecords(currentResultSet, limit);
+        .writeRecords(currentResultSet, limit, currentDatabaseSession);
   }
 
   protected static float getElapsedSecs(final long start) {
@@ -2841,21 +2867,21 @@ public class ConsoleDatabaseApp extends ConsoleApplication
   }
 
   protected void updateDatabaseInfo() {
-    currentDatabase.reload();
+    currentDatabaseSession.reload();
   }
 
   @Override
   protected String getContext() {
     final var buffer = new StringBuilder(64);
 
-    if (currentDatabase != null && currentDatabaseName != null) {
-      currentDatabase.activateOnCurrentThread();
+    if (currentDatabaseSession != null && currentDatabaseName != null) {
+      currentDatabaseSession.activateOnCurrentThread();
 
       buffer.append(" {db=");
       buffer.append(currentDatabaseName);
-      if (currentDatabase.getTransaction().isActive()) {
+      if (currentDatabaseSession.getTransaction().isActive()) {
         buffer.append(" tx=[");
-        buffer.append(currentDatabase.getTransaction().getEntryCount());
+        buffer.append(currentDatabaseSession.getTransaction().getEntryCount());
         buffer.append(" entries]");
       }
     } else if (urlConnection != null) {
@@ -2898,7 +2924,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
     resetResultSet();
     var start = System.currentTimeMillis();
-    var rs = currentDatabase.execute(iLanguage, script);
+    var rs = currentDatabaseSession.execute(iLanguage, script);
     currentResultSet = rs.stream().map(x -> new RawPair<RID, Object>(x.getRecordId(), x.toMap()))
         .toList();
     rs.close();
@@ -2958,7 +2984,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     currentResultSet = new ArrayList<>();
     while (it.hasNext() && currentResultSet.size() <= limit) {
       var identifialble = it.next();
-      var record = identifialble.getRecord(currentDatabase);
+      var record = identifialble.getRecord(currentDatabaseSession);
       if (record instanceof Entity entity) {
         currentResultSet.add(new RawPair<>(identifialble.getIdentity(), entity.toMap()));
       } else if (record instanceof Blob blob) {
@@ -2966,7 +2992,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       }
     }
 
-    tableFormatter.writeRecords(currentResultSet, limit);
+    tableFormatter.writeRecords(currentResultSet, limit, currentDatabaseSession);
   }
 
   private List<Map<String, ?>> sqlCommand(
@@ -2988,7 +3014,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     final var start = System.currentTimeMillis();
 
     List<Map<String, ?>> result;
-    try (var rs = currentDatabase.command(iReceivedCommand)) {
+    try (var rs = currentDatabaseSession.command(iReceivedCommand)) {
       result = rs.stream().map(Result::toMap).collect(Collectors.toList());
     }
     var elapsedSeconds = getElapsedSecs(start);

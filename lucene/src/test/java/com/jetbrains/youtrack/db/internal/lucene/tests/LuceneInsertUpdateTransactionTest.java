@@ -18,17 +18,12 @@
 
 package com.jetbrains.youtrack.db.internal.lucene.tests;
 
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,47 +35,47 @@ public class LuceneInsertUpdateTransactionTest extends LuceneBaseTest {
 
   @Before
   public void init() {
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
 
     var oClass = schema.createClass("City");
-    oClass.createProperty(db, "name", PropertyType.STRING);
+    oClass.createProperty(session, "name", PropertyType.STRING);
     //noinspection EmptyTryBlock
     try (var command =
-        db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE")) {
+        session.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE")) {
     }
   }
 
   @Test
   public void testInsertUpdateTransactionWithIndex() {
 
-    var schema = db.getMetadata().getSchema();
-    db.begin();
-    var doc = ((EntityImpl) db.newEntity("City"));
+    var schema = session.getMetadata().getSchema();
+    session.begin();
+    var doc = ((EntityImpl) session.newEntity("City"));
     doc.field("name", "Rome");
-    db.save(doc);
+    session.save(doc);
 
-    var idx = schema.getClassInternal("City").getClassIndex(db, "City.name");
+    var idx = schema.getClassInternal("City").getClassIndex(session, "City.name");
     Assert.assertNotNull(idx);
     Collection<?> coll;
-    try (var stream = idx.getInternal().getRids(db, "Rome")) {
+    try (var stream = idx.getInternal().getRids(session, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(1, coll.size());
-    db.rollback();
-    try (var stream = idx.getInternal().getRids(db, "Rome")) {
+    session.rollback();
+    try (var stream = idx.getInternal().getRids(session, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(0, coll.size());
-    db.begin();
-    doc = ((EntityImpl) db.newEntity("City"));
+    session.begin();
+    doc = ((EntityImpl) session.newEntity("City"));
     doc.field("name", "Rome");
-    db.save(doc);
+    session.save(doc);
 
-    var user = new SecurityUserImpl(db, "test", "test");
-    user.save(db);
+    var user = new SecurityUserImpl(session, "test", "test");
+    user.save(session);
 
-    db.commit();
-    try (var stream = idx.getInternal().getRids(db, "Rome")) {
+    session.commit();
+    try (var stream = idx.getInternal().getRids(session, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(1, coll.size());

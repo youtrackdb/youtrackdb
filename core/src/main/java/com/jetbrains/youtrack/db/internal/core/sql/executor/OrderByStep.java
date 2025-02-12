@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLOrderBy;
 import java.util.ArrayList;
@@ -68,7 +68,7 @@ public class OrderByStep extends AbstractExecutionStep {
       var item = lastBatch.next(ctx);
       cachedResult.add(item);
       if (maxElementsAllowed >= 0 && maxElementsAllowed < cachedResult.size()) {
-        throw new CommandExecutionException(
+        throw new CommandExecutionException(ctx.getDatabaseSession(),
             "Limit of allowed entities for in-heap ORDER BY in a single query exceeded ("
                 + maxElementsAllowed
                 + ") . You can set "

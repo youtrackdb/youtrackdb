@@ -28,7 +28,7 @@ public abstract class SQLSimpleExecStatement extends SQLStatement {
   public abstract ExecutionStream executeSimple(CommandContext ctx);
 
   public ResultSet execute(
-      DatabaseSessionInternal db,
+      DatabaseSessionInternal session,
       Object[] args,
       CommandContext parentContext,
       boolean usePlanCache) {
@@ -36,7 +36,7 @@ public abstract class SQLSimpleExecStatement extends SQLStatement {
     if (parentContext != null) {
       ctx.setParentWithoutOverridingChild(parentContext);
     }
-    ctx.setDatabase(db);
+    ctx.setDatabaseSession(session);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
       for (var i = 0; i < args.length; i++) {
@@ -49,7 +49,7 @@ public abstract class SQLSimpleExecStatement extends SQLStatement {
   }
 
   public ResultSet execute(
-      DatabaseSessionInternal db,
+      DatabaseSessionInternal session,
       Map<Object, Object> params,
       CommandContext parentContext,
       boolean usePlanCache) {
@@ -57,7 +57,7 @@ public abstract class SQLSimpleExecStatement extends SQLStatement {
     if (parentContext != null) {
       ctx.setParentWithoutOverridingChild(parentContext);
     }
-    ctx.setDatabase(db);
+    ctx.setDatabaseSession(session);
     ctx.setInputParameters(params);
     var executionPlan = (SingleOpExecutionPlan) createExecutionPlan(ctx, false);
     return new ExecutionResultSet(executionPlan.executeInternal(ctx), ctx, executionPlan);

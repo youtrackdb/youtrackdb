@@ -23,7 +23,6 @@ import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.CommandScriptException;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequestWrapper;
@@ -39,12 +38,10 @@ public abstract class ServerCommandAbstractLogic extends ServerCommandAuthentica
   public boolean execute(final HttpRequest iRequest, final HttpResponse iResponse)
       throws Exception {
     final var parts = init(iRequest, iResponse);
-    DatabaseSessionInternal db = null;
 
-    try {
-      db = getProfiledDatabaseInstance(iRequest);
+    try (var session = getProfiledDatabaseSessionInstance(iRequest)) {
 
-      final var f = db.getMetadata().getFunctionLibrary().getFunction(parts[2]);
+      final var f = session.getMetadata().getFunctionLibrary().getFunction(session, parts[2]);
       if (f == null) {
         throw new IllegalArgumentException("Function '" + parts[2] + "' is not configured");
       }
@@ -66,7 +63,7 @@ public abstract class ServerCommandAbstractLogic extends ServerCommandAuthentica
 
       // BIND CONTEXT VARIABLES
       final var context = new BasicCommandContext();
-      context.setDatabase(db);
+      context.setDatabaseSession(session);
       context.setVariable(
           "session", server.getHttpSessionManager().getSession(iRequest.getSessionId()));
       context.setVariable("request", new HttpRequestWrapper(iRequest, (String[]) args));
@@ -81,13 +78,14 @@ public abstract class ServerCommandAbstractLogic extends ServerCommandAuthentica
           functionResult = f.executeInContext(context, params.toMap());
         } catch (Exception e) {
           throw BaseException.wrapException(
-              new CommandScriptException("Error on parsing parameters from request body"), e);
+              new CommandScriptException(session.getDatabaseName(),
+                  "Error on parsing parameters from request body"), e, session);
         }
       } else {
         functionResult = f.executeInContext(context, args);
       }
 
-      handleResult(iRequest, iResponse, functionResult, db);
+      handleResult(iRequest, iResponse, functionResult, session);
 
     } catch (CommandScriptException e) {
       // EXCEPTION
@@ -118,10 +116,6 @@ public abstract class ServerCommandAbstractLogic extends ServerCommandAuthentica
             null);
       }
 
-    } finally {
-      if (db != null) {
-        db.close();
-      }
     }
 
     return false;

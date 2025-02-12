@@ -19,6 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.index;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.schema.Collate;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
@@ -35,7 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -183,7 +184,7 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
 
   public String getMultiValueField() {
     if (multiValueDefinitionIndex >= 0) {
-      return indexDefinitions.get(multiValueDefinitionIndex).getFields().get(0);
+      return indexDefinitions.get(multiValueDefinitionIndex).getFields().getFirst();
     }
 
     return null;
@@ -306,7 +307,8 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
           compositeKeys.add(compositeKey);
         }
       } else {
-        throw new IndexException("Composite key cannot contain more than one collection item");
+        throw new IndexException((String) null,
+            "Composite key cannot contain more than one collection item");
       }
 
       var compositeIndex = 0;
@@ -424,32 +426,60 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
         + '}';
   }
 
-  /**
-   * {@inheritDoc}
-   */
+
+  @Nonnull
   @Override
-  public @Nonnull EntityImpl toStream(DatabaseSessionInternal db, @Nonnull EntityImpl entity) {
-    serializeToStream(db, entity);
-    return entity;
+  public Map<String, Object> toMap() {
+    var result = new HashMap<String, Object>();
+    serializeToMap(result);
+    return result;
   }
 
   @Override
-  protected void serializeToStream(DatabaseSessionInternal db, EntityImpl entity) {
-    super.serializeToStream(db, entity);
+  public void toJson(@Nonnull JsonGenerator jsonGenerator) {
+    try {
+      jsonGenerator.writeStartObject();
+      jsonGenerator.writeStringField("className", className);
+      jsonGenerator.writeArrayFieldStart("indexDefinitions");
 
-    final List<EntityImpl> inds = new ArrayList<>(indexDefinitions.size());
+      for (final var indexDefinition : indexDefinitions) {
+        indexDefinition.toJson(jsonGenerator);
+      }
+      jsonGenerator.writeEndArray();
+
+      jsonGenerator.writeArrayFieldStart("indClasses");
+      for (final var indexDefinition : indexDefinitions) {
+        jsonGenerator.writeString(indexDefinition.getClass().getName());
+      }
+
+      jsonGenerator.writeBooleanField("nullValuesIgnored", isNullValuesIgnored());
+      jsonGenerator.writeEndObject();
+    } catch (final Exception e) {
+      throw BaseException.wrapException(
+          new IndexException((String) null, "Error during composite index serialization"), e,
+          (String) null);
+    }
+  }
+
+
+  @Override
+  protected void serializeToMap(@Nonnull Map<String, Object> map) {
+    super.serializeToMap(map);
+
+    final List<Map<String, Object>> inds = new ArrayList<>(indexDefinitions.size());
     final List<String> indClasses = new ArrayList<>(indexDefinitions.size());
 
-    entity.setPropertyInternal("className", className);
+    map.put("className", className);
     for (final var indexDefinition : indexDefinitions) {
-      final var indexEntity = indexDefinition.toStream(db, new EntityImpl(db));
+      final var indexEntity = indexDefinition.toMap();
       inds.add(indexEntity);
 
       indClasses.add(indexDefinition.getClass().getName());
     }
-    entity.setPropertyInternal("indexDefinitions", inds, PropertyType.EMBEDDEDLIST);
-    entity.setPropertyInternal("indClasses", indClasses, PropertyType.EMBEDDEDLIST);
-    entity.setPropertyInternal("nullValuesIgnored", isNullValuesIgnored());
+
+    map.put("indexDefinitions", inds);
+    map.put("indClasses", indClasses);
+    map.put("nullValuesIgnored", isNullValuesIgnored());
   }
 
   /**
@@ -488,12 +518,12 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
     return ddl.toString();
   }
 
-  private String quoteFieldName(String next) {
+  private static String quoteFieldName(String next) {
     if (next == null) {
       return null;
     }
     next = next.trim();
-    if (next.startsWith("`")) {
+    if (!next.isEmpty() && next.charAt(0) == '`') {
       return next;
     }
     if (next.toLowerCase(Locale.ENGLISH).endsWith("collate ci")) {
@@ -503,19 +533,20 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
     return "`" + next + "`";
   }
 
-  public void fromStream(@Nonnull EntityImpl entity) {
-    serializeFromStream(entity);
+  public void fromMap(@Nonnull Map<String, ?> map) {
+    serializeFromMap(map);
   }
 
   @Override
-  protected void serializeFromStream(EntityImpl entity) {
-    super.serializeFromStream(entity);
+  protected void serializeFromMap(@Nonnull Map<String, ?> map) {
+    super.serializeFromMap(map);
 
     try {
-      className = entity.field("className");
+      className = (String) map.get("className");
 
-      final List<EntityImpl> inds = entity.field("indexDefinitions");
-      final List<String> indClasses = entity.field("indClasses");
+      @SuppressWarnings("unchecked") final var inds = (List<Map<String, Object>>) map.get(
+          "indexDefinitions");
+      @SuppressWarnings("unchecked") final var indClasses = (List<String>) map.get("indClasses");
 
       indexDefinitions.clear();
 
@@ -527,7 +558,7 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
 
         final var indexDefinition =
             (IndexDefinition) clazz.getDeclaredConstructor().newInstance();
-        indexDefinition.fromStream(indEntity);
+        indexDefinition.fromMap(indEntity);
 
         indexDefinitions.add(indexDefinition);
         collate.addCollate(indexDefinition.getCollate());
@@ -537,14 +568,14 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
         }
       }
 
-      setNullValuesIgnored(!Boolean.FALSE.equals(entity.<Boolean>field("nullValuesIgnored")));
+      setNullValuesIgnored(!Boolean.FALSE.equals(map.get("nullValuesIgnored")));
     } catch (final ClassNotFoundException
                    | InvocationTargetException
                    | InstantiationException
                    | IllegalAccessException
                    | NoSuchMethodException e) {
       throw BaseException.wrapException(
-          new IndexException("Error during composite index deserialization"), e);
+          new IndexException("Error during composite index deserialization"), e, (String) null);
     }
   }
 
@@ -667,6 +698,6 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
 
   @Override
   public boolean isAutomatic() {
-    return indexDefinitions.get(0).isAutomatic();
+    return indexDefinitions.getFirst().isAutomatic();
   }
 }

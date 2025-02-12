@@ -20,12 +20,11 @@
 package com.jetbrains.youtrack.db.internal.common.concur.lock;
 
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
-import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,8 +36,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * Original Lock Manager implementation that uses a concurrent linked hash map to store one entry
  * per key. This could be very expensive in case the number of locks are a lot. This implementation
- * works better than {@link PartitionedLockManager} when running distributed because there is no
- * way to
+ * works better than {@link PartitionedLockManager} when running distributed because there is no way
+ * to
  *
  * @param <T> Type of keys
  */
@@ -213,7 +212,7 @@ public class OneEntryPerKeyLockManager<T> implements LockManager<T> {
           throw BaseException.wrapException(
               new LockException(
                   "Thread interrupted while waiting for resource '" + iResourceId + "'"),
-              e);
+              e, (String) null);
         }
       }
 

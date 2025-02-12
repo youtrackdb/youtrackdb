@@ -52,10 +52,10 @@ public class DateConversionTestCase extends DbTestBase {
     var format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     var dateToInsert = format.parse("1975-06-01 01:00:00");
 
-    var document = (EntityImpl) db.newEntity();
+    var document = (EntityImpl) session.newEntity();
     document.field("date", dateToInsert, PropertyType.DATE);
-    var res = serializer.toStream(db, document);
-    var extr = (EntityImpl) serializer.fromStream(db, res, (EntityImpl) db.newEntity(),
+    var res = serializer.toStream(session, document);
+    var extr = (EntityImpl) serializer.fromStream(session, res, (EntityImpl) session.newEntity(),
         new String[]{});
     final var fields = extr.fieldNames();
 

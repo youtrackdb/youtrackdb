@@ -19,13 +19,10 @@ package com.jetbrains.youtrack.db.internal.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.lucene.analyzer.LucenePerFieldAnalyzerWrapper;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -37,8 +34,6 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
 import org.junit.Before;
@@ -57,9 +52,9 @@ public class LuceneIndexVsLuceneTest extends LuceneBaseTest {
   public void init() {
     var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
 
-    db.execute("sql", getScriptFromStream(stream));
+    session.execute("sql", getScriptFromStream(stream));
 
-    db.getMetadata().getSchema();
+    session.getMetadata().getSchema();
 
     FileUtils.deleteRecursively(getPath().getAbsoluteFile());
     try {
@@ -75,7 +70,7 @@ public class LuceneIndexVsLuceneTest extends LuceneBaseTest {
     } catch (IOException e) {
       e.printStackTrace();
     }
-    db.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE").close();
+    session.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE").close();
   }
 
   private File getPath() {
@@ -90,7 +85,7 @@ public class LuceneIndexVsLuceneTest extends LuceneBaseTest {
   @Ignore
   public void testLuceneVsLucene() throws IOException, ParseException {
 
-    for (var oDocument : db.browseClass("Song")) {
+    for (var oDocument : session.browseClass("Song")) {
 
       String title = oDocument.field("title");
       if (title != null) {
@@ -106,7 +101,7 @@ public class LuceneIndexVsLuceneTest extends LuceneBaseTest {
     indexWriter.close();
 
     IndexReader reader = DirectoryReader.open(getDirectory());
-    assertThat(reader.numDocs()).isEqualTo(Long.valueOf(db.countClass("Song")).intValue());
+    assertThat(reader.numDocs()).isEqualTo(Long.valueOf(session.countClass("Song")).intValue());
 
     var searcher = new IndexSearcher(reader);
 
@@ -114,7 +109,7 @@ public class LuceneIndexVsLuceneTest extends LuceneBaseTest {
     final var docs = searcher.search(query, Integer.MAX_VALUE);
 
     var resultSet =
-        db.query("select *,$score from Song where search_class('down the')=true");
+        session.query("select *,$score from Song where search_class('down the')=true");
 
     resultSet.stream()
         .forEach(

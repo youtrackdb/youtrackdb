@@ -19,8 +19,6 @@
 package com.jetbrains.youtrack.db.internal.lucene.test;
 
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import java.io.InputStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -34,38 +32,38 @@ public class LuceneCreateIndexTest extends BaseLuceneTest {
   public void loadAndTest() {
     var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
 
-    db.execute("sql", getScriptFromStream(stream)).close();
+    session.execute("sql", getScriptFromStream(stream)).close();
 
-    db.command(
+    session.command(
             "create index Song.title on Song (title) FULLTEXT ENGINE LUCENE METADATA"
                 + " {\"analyzer\":\""
                 + StandardAnalyzer.class.getName()
                 + "\"}")
         .close();
-    db.command(
+    session.command(
             "create index Song.author on Song (author) FULLTEXT ENGINE LUCENE METADATA"
                 + " {\"analyzer\":\""
                 + StandardAnalyzer.class.getName()
                 + "\"}")
         .close();
 
-    var doc = ((EntityImpl) db.newEntity("Song"));
+    var doc = ((EntityImpl) session.newEntity("Song"));
 
     doc.field("title", "Local");
     doc.field("author", "Local");
 
-    db.begin();
-    db.save(doc);
-    db.commit();
+    session.begin();
+    session.save(doc);
+    session.commit();
 
     testMetadata();
     assertQuery();
 
     assertNewQuery();
 
-    db.close();
+    session.close();
 
-    db = openDatabase();
+    session = openDatabase();
 
     assertQuery();
 
@@ -74,17 +72,18 @@ public class LuceneCreateIndexTest extends BaseLuceneTest {
 
   protected void testMetadata() {
     var index =
-        db.getMetadata().getIndexManagerInternal().getIndex(db, "Song.title").getMetadata();
+        session.getMetadata().getIndexManagerInternal().getIndex(session, "Song.title")
+            .getMetadata();
 
     Assert.assertEquals(index.get("analyzer"), StandardAnalyzer.class.getName());
   }
 
   protected void assertQuery() {
-    var docs = db.query("select * from Song where title LUCENE \"mountain\"");
+    var docs = session.query("select * from Song where title LUCENE \"mountain\"");
 
     Assert.assertEquals(4, docs.stream().count());
 
-    docs = db.query("select * from Song where author LUCENE \"Fabbio\"");
+    docs = session.query("select * from Song where author LUCENE \"Fabbio\"");
 
     Assert.assertEquals(87, docs.stream().count());
 
@@ -93,18 +92,18 @@ public class LuceneCreateIndexTest extends BaseLuceneTest {
         "select * from Song where title LUCENE \"mountain\" and author LUCENE \"Fabbio\"  ";
     // String query = "select * from Song where [title] LUCENE \"(title:mountain)\"  and author =
     // 'Fabbio'";
-    docs = db.query(query);
+    docs = session.query(query);
     Assert.assertEquals(1, docs.stream().count());
 
     query = "select * from Song where title LUCENE \"mountain\"  and author = 'Fabbio'";
-    docs = db.query(query);
+    docs = session.query(query);
 
     Assert.assertEquals(1, docs.stream().count());
   }
 
   protected void assertNewQuery() {
 
-    var docs = db.query("select * from Song where [title] LUCENE \"(title:Local)\"");
+    var docs = session.query("select * from Song where [title] LUCENE \"(title:Local)\"");
 
     Assert.assertEquals(1, docs.stream().count());
   }

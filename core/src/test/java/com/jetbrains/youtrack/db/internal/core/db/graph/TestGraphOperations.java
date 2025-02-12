@@ -1,11 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.db.graph;
 
 import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
-import com.jetbrains.youtrack.db.api.record.Edge;
-import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -18,40 +15,40 @@ public class TestGraphOperations extends DbTestBase {
   @Test
   public void testEdgeUniqueConstraint() {
 
-    db.createVertexClass("TestVertex");
+    session.createVertexClass("TestVertex");
 
-    var testLabel = db.createEdgeClass("TestLabel");
+    var testLabel = session.createEdgeClass("TestLabel");
 
-    var key = testLabel.createProperty(db, "key", PropertyType.STRING);
+    var key = testLabel.createProperty(session, "key", PropertyType.STRING);
 
-    key.createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
+    key.createIndex(session, SchemaClass.INDEX_TYPE.UNIQUE);
 
-    db.begin();
-    var vertex = db.newVertex("TestVertex");
+    session.begin();
+    var vertex = session.newVertex("TestVertex");
 
-    var vertex1 = db.newVertex("TestVertex");
+    var vertex1 = session.newVertex("TestVertex");
 
     var edge = vertex.addEdge(vertex1, "TestLabel");
 
     edge.setProperty("key", "unique");
-    db.save(vertex);
-    db.commit();
+    session.save(vertex);
+    session.commit();
 
     try {
-      db.begin();
-      edge = db.bindToSession(vertex).addEdge(db.bindToSession(vertex1), "TestLabel");
+      session.begin();
+      edge = session.bindToSession(vertex).addEdge(session.bindToSession(vertex1), "TestLabel");
       edge.setProperty("key", "unique");
-      db.save(edge);
-      db.commit();
+      session.save(edge);
+      session.commit();
       Assert.fail("It should not be inserted  a duplicated edge");
     } catch (RecordDuplicatedException e) {
 
     }
 
-    db.begin();
-    edge = db.bindToSession(vertex).addEdge(db.bindToSession(vertex1), "TestLabel");
+    session.begin();
+    edge = session.bindToSession(vertex).addEdge(session.bindToSession(vertex1), "TestLabel");
     edge.setProperty("key", "notunique");
-    db.save(edge);
-    db.commit();
+    session.save(edge);
+    session.commit();
   }
 }

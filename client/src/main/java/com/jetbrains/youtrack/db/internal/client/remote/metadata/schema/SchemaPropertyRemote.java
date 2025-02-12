@@ -11,8 +11,6 @@ import com.jetbrains.youtrack.db.internal.common.util.Collections;
 import com.jetbrains.youtrack.db.internal.core.collate.DefaultCollate;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.index.PropertyIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaPropertyImpl;
@@ -36,32 +34,34 @@ public class SchemaPropertyRemote extends SchemaPropertyImpl {
   }
 
   public SchemaPropertyImpl setType(DatabaseSession session, final PropertyType type) {
-    var database = (DatabaseSessionInternal) session;
-    database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
-    acquireSchemaWriteLock(database);
+    var sessionInternal = (DatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
+    acquireSchemaWriteLock(sessionInternal);
     try {
       final var cmd =
           String.format(
-              "alter property %s type %s", getFullNameQuoted(), quoteString(type.toString()));
-      database.command(cmd).close();
+              "alter property %s type %s", getFullNameQuoted(sessionInternal),
+              quoteString(type.toString()));
+      sessionInternal.command(cmd).close();
     } finally {
-      releaseSchemaWriteLock(database);
+      releaseSchemaWriteLock(sessionInternal);
     }
     return this;
   }
 
   public SchemaProperty setName(DatabaseSession session, final String name) {
-    var database = (DatabaseSessionInternal) session;
-    database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
+    var sessionInternal = (DatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock(database);
+    acquireSchemaWriteLock(sessionInternal);
     try {
       final var cmd =
-          String.format("alter property %s name %s", getFullNameQuoted(), quoteString(name));
-      database.command(cmd).close();
+          String.format("alter property %s name %s", getFullNameQuoted(sessionInternal),
+              quoteString(name));
+      sessionInternal.command(cmd).close();
 
     } finally {
-      releaseSchemaWriteLock(database);
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
@@ -69,18 +69,19 @@ public class SchemaPropertyRemote extends SchemaPropertyImpl {
 
   @Override
   public SchemaPropertyImpl setDescription(DatabaseSession session, final String iDescription) {
-    var database = (DatabaseSessionInternal) session;
-    database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
+    var sessionInternal = (DatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock(database);
+    acquireSchemaWriteLock(sessionInternal);
     try {
       final var cmd =
           String.format(
-              "alter property %s description %s", getFullNameQuoted(), quoteString(iDescription));
-      database.command(cmd).close();
+              "alter property %s description %s", getFullNameQuoted(sessionInternal),
+              quoteString(iDescription));
+      sessionInternal.command(cmd).close();
 
     } finally {
-      releaseSchemaWriteLock(database);
+      releaseSchemaWriteLock(sessionInternal);
     }
     return this;
   }
@@ -90,203 +91,214 @@ public class SchemaPropertyRemote extends SchemaPropertyImpl {
       collate = DefaultCollate.NAME;
     }
 
-    var database = (DatabaseSessionInternal) session;
-    database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
+    var sessionInternal = (DatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock(database);
+    acquireSchemaWriteLock(sessionInternal);
     try {
       final var cmd =
-          String.format("alter property %s collate %s", getFullNameQuoted(), quoteString(collate));
-      database.command(cmd).close();
+          String.format("alter property %s collate %s", getFullNameQuoted(sessionInternal),
+              quoteString(collate));
+      sessionInternal.command(cmd).close();
     } finally {
-      releaseSchemaWriteLock(database);
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
   }
 
   public void clearCustom(DatabaseSession session) {
-    var database = (DatabaseSessionInternal) session;
-    database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
+    var sessionInternal = (DatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock(database);
+    acquireSchemaWriteLock(sessionInternal);
     try {
-      final var cmd = String.format("alter property %s custom clear", getFullNameQuoted());
-      database.command(cmd).close();
+      final var cmd = String.format("alter property %s custom clear",
+          getFullNameQuoted(sessionInternal));
+      sessionInternal.command(cmd).close();
     } finally {
-      releaseSchemaWriteLock(database);
+      releaseSchemaWriteLock(sessionInternal);
     }
   }
 
   public SchemaPropertyImpl setCustom(DatabaseSession session, final String name,
       final String value) {
-    var database = (DatabaseSessionInternal) session;
-    database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
+    var sessionInternal = (DatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock(database);
+    acquireSchemaWriteLock(sessionInternal);
     try {
       final var cmd =
           String.format(
-              "alter property %s custom %s=%s", getFullNameQuoted(), name, quoteString(value));
-      database.command(cmd).close();
+              "alter property %s custom %s=%s", getFullNameQuoted(sessionInternal), name,
+              quoteString(value));
+      sessionInternal.command(cmd).close();
     } finally {
-      releaseSchemaWriteLock(database);
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
   }
 
   public SchemaPropertyImpl setRegexp(DatabaseSession session, final String regexp) {
-    var database = (DatabaseSessionInternal) session;
-    database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
+    var sessionInternal = (DatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock(database);
+    acquireSchemaWriteLock(sessionInternal);
     try {
       final var cmd =
-          String.format("alter property %s regexp %s", getFullNameQuoted(), quoteString(regexp));
-      database.command(cmd).close();
+          String.format("alter property %s regexp %s", getFullNameQuoted(sessionInternal),
+              quoteString(regexp));
+      sessionInternal.command(cmd).close();
     } finally {
-      releaseSchemaWriteLock(database);
+      releaseSchemaWriteLock(sessionInternal);
     }
     return this;
   }
 
   public SchemaPropertyImpl setLinkedClass(DatabaseSession session, final SchemaClass linkedClass) {
-    var database = (DatabaseSessionInternal) session;
-    database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
+    var sessionInternal = (DatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
-    checkSupportLinkedClass(getType());
+    checkSupportLinkedClass(getType(sessionInternal));
 
-    acquireSchemaWriteLock(database);
+    acquireSchemaWriteLock(sessionInternal);
     try {
       final var cmd =
           String.format(
               "alter property %s linkedclass %s",
-              getFullNameQuoted(), quoteString(linkedClass.getName()));
-      database.command(cmd).close();
+              getFullNameQuoted(sessionInternal),
+              quoteString(linkedClass.getName(sessionInternal)));
+      sessionInternal.command(cmd).close();
 
     } finally {
-      releaseSchemaWriteLock(database);
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
   }
 
   public SchemaProperty setLinkedType(DatabaseSession session, final PropertyType linkedType) {
-    var database = (DatabaseSessionInternal) session;
-    database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
+    var sessionInternal = (DatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
-    checkLinkTypeSupport(getType());
+    checkLinkTypeSupport(getType(sessionInternal));
 
-    acquireSchemaWriteLock(database);
+    acquireSchemaWriteLock(sessionInternal);
     try {
       final var cmd =
           String.format(
               "alter property %s linkedtype %s",
-              getFullNameQuoted(), quoteString(linkedType.toString()));
-      database.command(cmd).close();
+              getFullNameQuoted(sessionInternal), quoteString(linkedType.toString()));
+      sessionInternal.command(cmd).close();
 
     } finally {
-      releaseSchemaWriteLock(database);
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
   }
 
   public SchemaPropertyImpl setNotNull(DatabaseSession session, final boolean isNotNull) {
-    var database = (DatabaseSessionInternal) session;
-    database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
+    var sessionInternal = (DatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock(database);
+    acquireSchemaWriteLock(sessionInternal);
     try {
       final var cmd =
-          String.format("alter property %s notnull %s", getFullNameQuoted(), isNotNull);
-      database.command(cmd).close();
+          String.format("alter property %s notnull %s", getFullNameQuoted(sessionInternal),
+              isNotNull);
+      sessionInternal.command(cmd).close();
 
     } finally {
-      releaseSchemaWriteLock(database);
+      releaseSchemaWriteLock(sessionInternal);
     }
     return this;
   }
 
   public SchemaPropertyImpl setDefaultValue(DatabaseSession session, final String defaultValue) {
-    var database = (DatabaseSessionInternal) session;
-    database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
+    var sessionInternal = (DatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock(database);
+    acquireSchemaWriteLock(sessionInternal);
     try {
       final var cmd =
           String.format(
-              "alter property %s default %s", getFullNameQuoted(), quoteString(defaultValue));
-      database.command(cmd).close();
+              "alter property %s default %s", getFullNameQuoted(sessionInternal),
+              quoteString(defaultValue));
+      sessionInternal.command(cmd).close();
 
     } finally {
-      releaseSchemaWriteLock(database);
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
   }
 
   public SchemaPropertyImpl setMax(DatabaseSession session, final String max) {
-    var database = (DatabaseSessionInternal) session;
-    database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
+    var sessionInternal = (DatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock(database);
+    acquireSchemaWriteLock(sessionInternal);
     try {
       final var cmd =
-          String.format("alter property %s max %s", getFullNameQuoted(), quoteString(max));
-      database.command(cmd).close();
+          String.format("alter property %s max %s", getFullNameQuoted(sessionInternal),
+              quoteString(max));
+      sessionInternal.command(cmd).close();
     } finally {
-      releaseSchemaWriteLock(database);
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
   }
 
   public SchemaPropertyImpl setMin(DatabaseSession session, final String min) {
-    var database = (DatabaseSessionInternal) session;
-    database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
+    var sessionInternal = (DatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock(database);
+    acquireSchemaWriteLock(sessionInternal);
     try {
       final var cmd =
-          String.format("alter property %s min %s", getFullNameQuoted(), quoteString(min));
-      database.command(cmd).close();
+          String.format("alter property %s min %s", getFullNameQuoted(sessionInternal),
+              quoteString(min));
+      sessionInternal.command(cmd).close();
     } finally {
-      releaseSchemaWriteLock(database);
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
   }
 
   public SchemaPropertyImpl setReadonly(DatabaseSession session, final boolean isReadonly) {
-    var database = (DatabaseSessionInternal) session;
-    database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
+    var sessionInternal = (DatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock(database);
+    acquireSchemaWriteLock(sessionInternal);
     try {
       final var cmd =
-          String.format("alter property %s readonly %s", getFullNameQuoted(), isReadonly);
-      database.command(cmd).close();
+          String.format("alter property %s readonly %s", getFullNameQuoted(sessionInternal),
+              isReadonly);
+      sessionInternal.command(cmd).close();
 
     } finally {
-      releaseSchemaWriteLock(database);
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
   }
 
   public SchemaPropertyImpl setMandatory(DatabaseSession session, final boolean isMandatory) {
-    var database = (DatabaseSessionInternal) session;
-    database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
+    var sessionInternal = (DatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock(database);
+    acquireSchemaWriteLock(sessionInternal);
     try {
       final var cmd =
-          String.format("alter property %s mandatory %s", getFullNameQuoted(), isMandatory);
-      database.command(cmd).close();
+          String.format("alter property %s mandatory %s", getFullNameQuoted(sessionInternal),
+              isMandatory);
+      sessionInternal.command(cmd).close();
     } finally {
-      releaseSchemaWriteLock(database);
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
@@ -294,7 +306,7 @@ public class SchemaPropertyRemote extends SchemaPropertyImpl {
 
   @Override
   public String createIndex(DatabaseSession session, String iType) {
-    var indexName = getFullName();
+    var indexName = getFullName(session);
     owner.createIndex(session, indexName, iType, globalRef.getName());
     return indexName;
   }
@@ -306,7 +318,7 @@ public class SchemaPropertyRemote extends SchemaPropertyImpl {
 
   @Override
   public String createIndex(DatabaseSession session, String iType, Map<String, ?> metadata) {
-    var indexName = getFullName();
+    var indexName = getFullName(session);
     owner.createIndex(session,
         indexName, iType, null, metadata, new String[]{globalRef.getName()});
     return indexName;
@@ -324,7 +336,7 @@ public class SchemaPropertyRemote extends SchemaPropertyImpl {
     final var indexManager = session.getMetadata().getIndexManagerInternal();
 
     final var relatedIndexes = new ArrayList<Index>();
-    for (final var index : indexManager.getClassIndexes(session, owner.getName())) {
+    for (final var index : indexManager.getClassIndexes(session, owner.getName(session))) {
       final var definition = index.getDefinition();
 
       if (Collections.indexOf(

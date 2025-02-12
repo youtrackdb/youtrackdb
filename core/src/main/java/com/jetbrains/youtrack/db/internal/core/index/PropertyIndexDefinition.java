@@ -19,6 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.index;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.collate.DefaultCollate;
@@ -27,7 +28,9 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLCreateIndex;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nonnull;
 
 /**
@@ -134,7 +137,7 @@ public class PropertyIndexDefinition extends AbstractIndexDefinition {
   }
 
   public Object createValue(DatabaseSessionInternal session, final List<?> params) {
-    return PropertyType.convert(session, params.get(0), keyType.getDefaultJavaType());
+    return PropertyType.convert(session, params.getFirst(), keyType.getDefaultJavaType());
   }
 
   /**
@@ -153,38 +156,62 @@ public class PropertyIndexDefinition extends AbstractIndexDefinition {
     return new PropertyType[]{keyType};
   }
 
-  public void fromStream(@Nonnull EntityImpl entity) {
-    serializeFromStream(entity);
+  public void fromMap(@Nonnull Map<String, ?> map) {
+    serializeFromMap(map);
+  }
+
+  @Nonnull
+  @Override
+  public Map<String, Object> toMap() {
+    var result = new HashMap<String, Object>();
+    serializeToMap(result);
+    return result;
   }
 
   @Override
-  public final @Nonnull EntityImpl toStream(DatabaseSessionInternal db,
-      @Nonnull EntityImpl entity) {
-    serializeToStream(db, entity);
-    return entity;
+  public void toJson(@Nonnull JsonGenerator jsonGenerator) {
+    try {
+      jsonGenerator.writeStartObject();
+      serializeToJson(jsonGenerator);
+      jsonGenerator.writeEndObject();
+    } catch (final Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
-  protected void serializeToStream(DatabaseSessionInternal db, EntityImpl entity) {
-    super.serializeToStream(db, entity);
-
-    entity.setPropertyInternal("className", className);
-    entity.setPropertyInternal("field", field);
-    entity.setPropertyInternal("keyType", keyType.toString());
-    entity.setPropertyInternal("collate", collate.getName());
-    entity.setPropertyInternal("nullValuesIgnored", isNullValuesIgnored());
+  protected void serializeToJson(JsonGenerator jsonGenerator) {
+    try {
+      jsonGenerator.writeStringField("className", className);
+      jsonGenerator.writeStringField("field", field);
+      jsonGenerator.writeStringField("keyType", keyType.toString());
+      jsonGenerator.writeStringField("collate", collate.getName());
+      jsonGenerator.writeBooleanField("nullValuesIgnored", isNullValuesIgnored());
+    } catch (final Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
-  protected void serializeFromStream(EntityImpl entity) {
-    super.serializeFromStream(entity);
+  protected void serializeToMap(@Nonnull Map<String, Object> map) {
+    super.serializeToMap(map);
 
-    className = entity.field("className");
-    field = entity.field("field");
+    map.put("className", className);
+    map.put("field", field);
+    map.put("keyType", keyType.toString());
+    map.put("collate", collate.getName());
+    map.put("nullValuesIgnored", isNullValuesIgnored());
+  }
 
-    final String keyTypeStr = entity.field("keyType");
+  protected void serializeFromMap(@Nonnull Map<String, ?> map) {
+    super.serializeFromMap(map);
+
+    className = (String) map.get("className");
+    field = (String) map.get("field");
+
+    final var keyTypeStr = (String) map.get("keyType");
     keyType = PropertyType.valueOf(keyTypeStr);
 
-    setCollate((String) entity.field("collate"));
-    setNullValuesIgnored(!Boolean.FALSE.equals(entity.<Boolean>field("nullValuesIgnored")));
+    setCollate((String) map.get("collate"));
+    setNullValuesIgnored(!Boolean.FALSE.equals(map.get("nullValuesIgnored")));
   }
 
   /**
@@ -225,36 +252,22 @@ public class PropertyIndexDefinition extends AbstractIndexDefinition {
     return ddl;
   }
 
-  protected void processAdd(
+  protected static void processAdd(
       final Object value,
       final Object2IntMap<Object> keysToAdd,
       final Object2IntMap<Object> keysToRemove) {
-    if (value == null) {
-      return;
-    }
-
-    final var removeCount = keysToRemove.getInt(value);
-    if (removeCount > 0) {
-      var newRemoveCount = removeCount - 1;
-      if (newRemoveCount > 0) {
-        keysToRemove.put(value, newRemoveCount);
-      } else {
-        keysToRemove.removeInt(value);
-      }
-    } else {
-      final var addCount = keysToAdd.getInt(value);
-      if (addCount > 0) {
-        keysToAdd.put(value, addCount + 1);
-      } else {
-        keysToAdd.put(value, 1);
-      }
-    }
+    processAddRemoval(value, keysToRemove, keysToAdd);
   }
 
-  protected void processRemoval(
+  protected static void processRemoval(
       final Object value,
       final Object2IntMap<Object> keysToAdd,
       final Object2IntMap<Object> keysToRemove) {
+    processAddRemoval(value, keysToAdd, keysToRemove);
+  }
+
+  private static void processAddRemoval(Object value, Object2IntMap<Object> keysToAdd,
+      Object2IntMap<Object> keysToRemove) {
     if (value == null) {
       return;
     }

@@ -1,7 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.schema.Collate;
 import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -10,16 +9,12 @@ import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.collate.DefaultCollate;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
-import com.jetbrains.youtrack.db.internal.core.index.IndexMetadata;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 /**
  *
@@ -175,7 +170,7 @@ public class SchemaPropertyEmbedded extends SchemaPropertyImpl {
           var definition = index.getDefinition();
 
           final var fields = definition.getFields();
-          if (fields.contains(getName())) {
+          if (fields.contains(getName(session))) {
             indexesToRecreate.add(index);
           }
         }
@@ -193,7 +188,7 @@ public class SchemaPropertyEmbedded extends SchemaPropertyImpl {
           for (var indexToRecreate : indexesToRecreate) {
             final var indexMetadata =
                 indexToRecreate.getInternal()
-                    .loadMetadata(indexToRecreate.getConfiguration(session));
+                    .loadMetadata(session, indexToRecreate.getConfiguration(session));
 
             final var fields = indexMetadata.getIndexDefinition().getFields();
             final var fieldsToIndex = fields.toArray(new String[0]);
@@ -298,7 +293,7 @@ public class SchemaPropertyEmbedded extends SchemaPropertyImpl {
     var sessionInternal = (DatabaseSessionInternal) session;
     sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
-    checkSupportLinkedClass(getType());
+    checkSupportLinkedClass(getType(session));
 
     acquireSchemaWriteLock(sessionInternal);
     try {
@@ -329,7 +324,7 @@ public class SchemaPropertyEmbedded extends SchemaPropertyImpl {
     var sessionInternal = (DatabaseSessionInternal) session;
     sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
-    checkLinkTypeSupport(getType());
+    checkLinkTypeSupport(getType(sessionInternal));
 
     acquireSchemaWriteLock(sessionInternal);
     try {
@@ -426,27 +421,27 @@ public class SchemaPropertyEmbedded extends SchemaPropertyImpl {
 
   private void checkCorrectLimitValue(DatabaseSessionInternal session, final String value) {
     if (value != null) {
-      if (this.getType().equals(PropertyType.STRING)
-          || this.getType().equals(PropertyType.LINKBAG)
-          || this.getType().equals(PropertyType.BINARY)
-          || this.getType().equals(PropertyType.EMBEDDEDLIST)
-          || this.getType().equals(PropertyType.EMBEDDEDSET)
-          || this.getType().equals(PropertyType.LINKLIST)
-          || this.getType().equals(PropertyType.LINKSET)
-          || this.getType().equals(PropertyType.LINKBAG)
-          || this.getType().equals(PropertyType.EMBEDDEDMAP)
-          || this.getType().equals(PropertyType.LINKMAP)) {
+      if (this.getType(session).equals(PropertyType.STRING)
+          || this.getType(session).equals(PropertyType.LINKBAG)
+          || this.getType(session).equals(PropertyType.BINARY)
+          || this.getType(session).equals(PropertyType.EMBEDDEDLIST)
+          || this.getType(session).equals(PropertyType.EMBEDDEDSET)
+          || this.getType(session).equals(PropertyType.LINKLIST)
+          || this.getType(session).equals(PropertyType.LINKSET)
+          || this.getType(session).equals(PropertyType.LINKBAG)
+          || this.getType(session).equals(PropertyType.EMBEDDEDMAP)
+          || this.getType(session).equals(PropertyType.LINKMAP)) {
         PropertyType.convert(session, value, Integer.class);
-      } else if (this.getType().equals(PropertyType.DATE)
-          || this.getType().equals(PropertyType.BYTE)
-          || this.getType().equals(PropertyType.SHORT)
-          || this.getType().equals(PropertyType.INTEGER)
-          || this.getType().equals(PropertyType.LONG)
-          || this.getType().equals(PropertyType.FLOAT)
-          || this.getType().equals(PropertyType.DOUBLE)
-          || this.getType().equals(PropertyType.DECIMAL)
-          || this.getType().equals(PropertyType.DATETIME)) {
-        PropertyType.convert(session, value, this.getType().getDefaultJavaType());
+      } else if (this.getType(session).equals(PropertyType.DATE)
+          || this.getType(session).equals(PropertyType.BYTE)
+          || this.getType(session).equals(PropertyType.SHORT)
+          || this.getType(session).equals(PropertyType.INTEGER)
+          || this.getType(session).equals(PropertyType.LONG)
+          || this.getType(session).equals(PropertyType.FLOAT)
+          || this.getType(session).equals(PropertyType.DOUBLE)
+          || this.getType(session).equals(PropertyType.DECIMAL)
+          || this.getType(session).equals(PropertyType.DATETIME)) {
+        PropertyType.convert(session, value, this.getType(session).getDefaultJavaType());
       }
     }
   }

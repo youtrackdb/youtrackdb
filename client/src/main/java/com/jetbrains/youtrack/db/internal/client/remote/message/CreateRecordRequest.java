@@ -73,7 +73,7 @@ public class CreateRecordRequest implements BinaryAsyncRequest<CreateRecordRespo
   }
 
   @Override
-  public void write(DatabaseSessionInternal database, final ChannelDataOutput network,
+  public void write(DatabaseSessionInternal databaseSession, final ChannelDataOutput network,
       final StorageRemoteSession session)
       throws IOException {
     network.writeShort((short) rid.getClusterId());
@@ -82,7 +82,8 @@ public class CreateRecordRequest implements BinaryAsyncRequest<CreateRecordRespo
     network.writeByte(mode);
   }
 
-  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+  public void read(DatabaseSessionInternal databaseSession, ChannelDataInput channel,
+      int protocolVersion,
       RecordSerializerNetwork serializer)
       throws IOException {
     final var dataSegmentId = protocolVersion < 24 ? channel.readInt() : 0;
@@ -94,8 +95,8 @@ public class CreateRecordRequest implements BinaryAsyncRequest<CreateRecordRespo
     content =
         YouTrackDBEnginesManager.instance()
             .getRecordFactoryManager()
-            .newInstance(recordType, rid, db);
-    serializer.fromStream(db, rec, content, null);
+            .newInstance(recordType, rid, databaseSession);
+    serializer.fromStream(databaseSession, rec, content, null);
   }
 
   public RecordId getRid() {

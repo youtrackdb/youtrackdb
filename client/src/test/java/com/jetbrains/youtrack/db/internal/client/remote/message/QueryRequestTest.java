@@ -17,7 +17,7 @@ public class QueryRequestTest extends DbTestBase {
   public void testWithPositionalParams() throws IOException {
     var params = new Object[]{1, "Foo"};
     var request =
-        new QueryRequest(db,
+        new QueryRequest(session,
             "sql",
             "select from Foo where a = ?",
             params,
@@ -29,13 +29,13 @@ public class QueryRequestTest extends DbTestBase {
     channel.close();
 
     var other = new QueryRequest();
-    other.read(db, channel, -1, RecordSerializerNetworkFactory.current());
+    other.read(session, channel, -1, RecordSerializerNetworkFactory.current());
 
     Assert.assertEquals(request.getCommand(), other.getCommand());
 
     Assert.assertFalse(other.isNamedParams());
-    Assert.assertArrayEquals(request.getPositionalParameters(db),
-        other.getPositionalParameters(db));
+    Assert.assertArrayEquals(request.getPositionalParameters(session),
+        other.getPositionalParameters(session));
 
     Assert.assertEquals(request.getOperationType(), other.getOperationType());
     Assert.assertEquals(request.getRecordsPerPage(), other.getRecordsPerPage());
@@ -47,7 +47,7 @@ public class QueryRequestTest extends DbTestBase {
     params.put("foo", "bar");
     params.put("baz", 12);
     var request =
-        new QueryRequest(db,
+        new QueryRequest(session,
             "sql",
             "select from Foo where a = ?",
             params,
@@ -60,11 +60,11 @@ public class QueryRequestTest extends DbTestBase {
     channel.close();
 
     var other = new QueryRequest();
-    other.read(db, channel, -1, RecordSerializerNetworkFactory.current());
+    other.read(session, channel, -1, RecordSerializerNetworkFactory.current());
 
     Assert.assertEquals(request.getCommand(), other.getCommand());
     Assert.assertTrue(other.isNamedParams());
-    Assert.assertEquals(request.getNamedParameters(db), other.getNamedParameters(db));
+    Assert.assertEquals(request.getNamedParameters(session), other.getNamedParameters(session));
     Assert.assertEquals(request.getOperationType(), other.getOperationType());
     Assert.assertEquals(request.getRecordsPerPage(), other.getRecordsPerPage());
   }
@@ -73,7 +73,7 @@ public class QueryRequestTest extends DbTestBase {
   public void testWithNoParams() throws IOException {
     Map<String, Object> params = null;
     var request =
-        new QueryRequest(db,
+        new QueryRequest(session,
             "sql",
             "select from Foo where a = ?",
             params,
@@ -86,11 +86,11 @@ public class QueryRequestTest extends DbTestBase {
     channel.close();
 
     var other = new QueryRequest();
-    other.read(db, channel, -1, RecordSerializerNetworkFactory.current());
+    other.read(session, channel, -1, RecordSerializerNetworkFactory.current());
 
     Assert.assertEquals(request.getCommand(), other.getCommand());
     Assert.assertTrue(other.isNamedParams());
-    Assert.assertEquals(request.getNamedParameters(db), other.getNamedParameters(db));
+    Assert.assertEquals(request.getNamedParameters(session), other.getNamedParameters(session));
     Assert.assertEquals(request.getOperationType(), other.getOperationType());
     Assert.assertEquals(request.getRecordsPerPage(), other.getRecordsPerPage());
   }

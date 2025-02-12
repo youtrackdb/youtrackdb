@@ -431,15 +431,6 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public int getDefaultClusterId() {
-          return 0;
-        }
-
-        @Override
-        public void setDefaultClusterId(int defaultClusterId) {
-        }
-
-        @Override
         public int getClusterIdByName(String iClusterName) {
           return 0;
         }

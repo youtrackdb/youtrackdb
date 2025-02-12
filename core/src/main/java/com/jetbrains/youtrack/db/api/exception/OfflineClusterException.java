@@ -14,6 +14,7 @@
  */
 package com.jetbrains.youtrack.db.api.exception;
 
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.CoreException;
 
 /**
@@ -27,7 +28,7 @@ public class OfflineClusterException extends CoreException implements HighLevelE
     super(exception);
   }
 
-  public OfflineClusterException(final String s) {
-    super(s);
+  public OfflineClusterException(DatabaseSessionInternal db, final String s) {
+    super(db, s);
   }
 }

@@ -18,45 +18,45 @@ public class DBRecordLazySetTest extends DbTestBase {
 
   public void beforeTest() throws Exception {
     super.beforeTest();
-    db.begin();
+    session.begin();
     doc1 =
-        db.save(
-            ((EntityImpl) db.newEntity()).field("doc1", "doc1"));
+        session.save(
+            ((EntityImpl) session.newEntity()).field("doc1", "doc1"));
     doc2 =
-        db.save(
-            ((EntityImpl) db.newEntity()).field("doc2", "doc2"));
-    db.save(
-        ((EntityImpl) db.newEntity()).field("doc3", "doc3"));
-    db.commit();
+        session.save(
+            ((EntityImpl) session.newEntity()).field("doc2", "doc2"));
+    session.save(
+        ((EntityImpl) session.newEntity()).field("doc3", "doc3"));
+    session.commit();
   }
 
   @Test
   public void testDocumentNotEmbedded() {
-    db.begin();
-    var set = new LinkSet((EntityImpl) db.newEntity());
-    var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    var set = new LinkSet((EntityImpl) session.newEntity());
+    var doc = (EntityImpl) session.newEntity();
     set.add(doc);
     assertFalse(doc.isEmbedded());
-    db.rollback();
+    session.rollback();
   }
 
   @Test()
   public void testSetAddRemove() {
-    db.begin();
-    var set = new LinkSet((EntityImpl) db.newEntity());
-    var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    var set = new LinkSet((EntityImpl) session.newEntity());
+    var doc = (EntityImpl) session.newEntity();
     set.add(doc);
     set.remove(doc);
     assertTrue(set.isEmpty());
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testSetRemoveNotPersistent() {
-    db.begin();
-    var set = new LinkSet((EntityImpl) db.newEntity());
-    doc1 = db.bindToSession(doc1);
-    doc2 = db.bindToSession(doc2);
+    session.begin();
+    var set = new LinkSet((EntityImpl) session.newEntity());
+    doc1 = session.bindToSession(doc1);
+    doc2 = session.bindToSession(doc2);
 
     set.add(doc1);
     set.add(doc2);
@@ -64,21 +64,21 @@ public class DBRecordLazySetTest extends DbTestBase {
     assertEquals(3, set.size());
     set.remove(new RecordId(5, 1000));
     assertEquals(2, set.size());
-    db.rollback();
+    session.rollback();
   }
 
   @Test(expected = ValidationException.class)
   public void testSetWithNotExistentRecordWithValidation() {
-    var test = db.getMetadata().getSchema().createClass("test");
-    var test1 = db.getMetadata().getSchema().createClass("test1");
-    test.createProperty(db, "fi", PropertyType.LINKSET).setLinkedClass(db, test1);
+    var test = session.getMetadata().getSchema().createClass("test");
+    var test1 = session.getMetadata().getSchema().createClass("test1");
+    test.createProperty(session, "fi", PropertyType.LINKSET).setLinkedClass(session, test1);
 
-    db.begin();
-    var doc = (EntityImpl) db.newEntity(test);
+    session.begin();
+    var doc = (EntityImpl) session.newEntity(test);
     var set = new LinkSet(doc);
     set.add(new RecordId(5, 1000));
     doc.field("fi", set);
-    db.save(doc);
-    db.commit();
+    session.save(doc);
+    session.commit();
   }
 }

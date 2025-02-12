@@ -21,12 +21,12 @@ package com.jetbrains.youtrack.db.internal.core.cache;
 
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.record.RecordVersionHelper;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import javax.annotation.Nonnull;
 
 /**
  * Local cache. it's one to one with record database instances. It is needed to avoid cases when
@@ -36,6 +36,7 @@ public class LocalRecordCache extends AbstractRecordCache {
 
   private String cacheHit;
   private String cacheMiss;
+  private DatabaseSessionInternal db;
 
   public LocalRecordCache() {
     super(
@@ -45,16 +46,15 @@ public class LocalRecordCache extends AbstractRecordCache {
   }
 
   @Override
-  public void startup() {
-    var db = DatabaseRecordThreadLocal.instance().get();
-
-    profilerPrefix = "db." + db.getName() + ".cache.level1.";
+  public void startup(@Nonnull DatabaseSessionInternal db) {
+    profilerPrefix = "db." + db.getDatabaseName() + ".cache.level1.";
     profilerMetadataPrefix = "db.*.cache.level1.";
 
     cacheHit = profilerPrefix + "cache.found";
     cacheMiss = profilerPrefix + "cache.notFound";
 
-    super.startup();
+    super.startup(db);
+    this.db = db;
   }
 
   /**
@@ -74,7 +74,7 @@ public class LocalRecordCache extends AbstractRecordCache {
       if (loadedRecord == null) {
         underlying.put(record);
       } else if (loadedRecord != record) {
-        throw new DatabaseException(
+        throw new DatabaseException(db.getDatabaseName(),
             "Record with id "
                 + record.getIdentity()
                 + " already registered in current session, please load "

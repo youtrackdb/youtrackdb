@@ -20,7 +20,6 @@
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.get;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Direction;
 import com.jetbrains.youtrack.db.api.record.Edge;
@@ -67,7 +66,7 @@ public class ServerCommandGetGephi extends ServerCommandAuthenticatedDbAbstract 
     iRequest.getData().commandInfo = "Gephi";
     iRequest.getData().commandDetail = text;
 
-    try (var db = getProfiledDatabaseInstance(iRequest)) {
+    try (var db = getProfiledDatabaseSessionInstance(iRequest)) {
       final ResultSet resultSet;
       if (language.equals("sql")) {
         resultSet = executeStatement(language, text, new HashMap<>(), db);

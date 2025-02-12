@@ -2,7 +2,6 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor.metadata;
 
 import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexFinder.Operation;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -66,6 +65,7 @@ public class MultipleIndexCanditate implements IndexCandidate {
   private Collection<IndexCandidate> normalizeBetween(
       List<IndexCandidate> canditates, CommandContext ctx) {
     List<IndexCandidate> newCanditates = new ArrayList<>();
+    var sesssion = ctx.getDatabaseSession();
     for (var i = 0; i < canditates.size(); i++) {
       var matched = false;
       var canditate = canditates.get(i);
@@ -75,7 +75,7 @@ public class MultipleIndexCanditate implements IndexCandidate {
         var lastProperties = lastCandidate.properties();
         if (properties.size() == 1
             && lastProperties.size() == 1
-            && properties.get(0).getName() == lastProperties.get(0).getName()) {
+            && properties.get(0).getName(sesssion) == lastProperties.get(0).getName(sesssion)) {
           if (canditate.getOperation().isRange() || lastCandidate.getOperation().isRange()) {
             newCanditates.add(new RangeIndexCanditate(canditate.getName(), properties.get(0)));
             canditates.remove(z);
@@ -95,16 +95,18 @@ public class MultipleIndexCanditate implements IndexCandidate {
 
   private Collection<IndexCandidate> normalizeComposite(
       Collection<IndexCandidate> canditates, CommandContext ctx) {
+    var session = ctx.getDatabaseSession();
     var propeties = properties();
     Map<String, IndexCandidate> newCanditates = new HashMap<>();
     for (var cand : canditates) {
       if (!newCanditates.containsKey(cand.getName())) {
-        var index = ctx.getDatabase().getMetadata().getIndexManager().getIndex(cand.getName());
+        var index = ctx.getDatabaseSession().getMetadata().getIndexManager()
+            .getIndex(cand.getName());
         List<SchemaProperty> foundProps = new ArrayList<>();
         for (var field : index.getDefinition().getFields()) {
           var found = false;
           for (var property : propeties) {
-            if (property.getName().equals(field)) {
+            if (property.getName(session).equals(field)) {
               found = true;
               foundProps.add(property);
               break;

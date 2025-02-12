@@ -127,7 +127,7 @@ public class SQLDatabaseUserData extends SimpleNode {
   public void executeCreate(DatabaseSessionInternal db, CommandContext parentCtx) {
     var ctx = new BasicCommandContext();
     ctx.setInputParameters(parentCtx.getInputParameters());
-    ctx.setDatabase(db);
+    ctx.setDatabaseSession(db);
     var stm = new SQLCreateUserStatement(-1);
     if (name != null) {
       stm.name = name.copy();

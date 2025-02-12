@@ -62,7 +62,7 @@ public class DirectMemoryStorage extends AbstractPaginatedStorage {
         new DirectMemoryOnlyDiskCache(
             contextConfiguration.getValueAsInteger(GlobalConfiguration.DISK_CACHE_PAGE_SIZE)
                 * ONE_KB,
-            1);
+            1, getName());
 
     if (readCache == null) {
       readCache = diskCache;

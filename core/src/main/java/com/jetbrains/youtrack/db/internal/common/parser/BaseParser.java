@@ -202,9 +202,10 @@ public abstract class BaseParser {
   /**
    * Throws a syntax error exception.
    *
-   * @param iText Text about the problem.
+   * @param dbName
+   * @param iText  Text about the problem.
    */
-  protected abstract void throwSyntaxErrorException(final String iText);
+  protected abstract void throwSyntaxErrorException(String dbName, final String iText);
 
   /**
    * Parses the next word. It returns the word parsed if any.
@@ -227,10 +228,12 @@ public abstract class BaseParser {
    * parameter. If the parsed word is not enlisted in it a SyntaxError exception is thrown. It
    * returns the word parsed if any.
    *
+   * @param dbName
    * @param iUpperCase True if must return UPPERCASE, otherwise false
    * @return The word parsed if any, otherwise null
    */
-  protected String parseOptionalWord(final boolean iUpperCase, final String... iWords) {
+  protected String parseOptionalWord(String dbName, final boolean iUpperCase,
+      final String... iWords) {
     parserNextWord(iUpperCase);
 
     if (iWords.length > 0) {
@@ -247,7 +250,7 @@ public abstract class BaseParser {
       }
 
       if (!found) {
-        throwSyntaxErrorException(
+        throwSyntaxErrorException(dbName,
             "Found unexpected keyword '"
                 + parserLastWord
                 + "' while it was expected '"
@@ -279,11 +282,12 @@ public abstract class BaseParser {
    * Parses the next word. If no word is found an SyntaxError exception is thrown It returns the
    * word parsed if any.
    *
+   * @param dbName
    * @param iUpperCase True if must return UPPERCASE, otherwise false
    * @return The word parsed
    */
-  protected String parserRequiredWord(final boolean iUpperCase) {
-    return parserRequiredWord(iUpperCase, "Syntax error", null);
+  protected String parserRequiredWord(String dbName, final boolean iUpperCase) {
+    return parserRequiredWord(iUpperCase, "Syntax error", null, dbName);
   }
 
   /**
@@ -292,10 +296,12 @@ public abstract class BaseParser {
    *
    * @param iUpperCase     True if must return UPPERCASE, otherwise false
    * @param iCustomMessage Custom message to include in case of SyntaxError exception
+   * @param dbName
    * @return The word parsed
    */
-  protected String parserRequiredWord(final boolean iUpperCase, final String iCustomMessage) {
-    return parserRequiredWord(iUpperCase, iCustomMessage, null);
+  protected String parserRequiredWord(final boolean iUpperCase, final String iCustomMessage,
+      String dbName) {
+    return parserRequiredWord(iUpperCase, iCustomMessage, null, dbName);
   }
 
   /**
@@ -306,17 +312,18 @@ public abstract class BaseParser {
    * @param iUpperCase     True if must return UPPERCASE, otherwise false
    * @param iCustomMessage Custom message to include in case of SyntaxError exception
    * @param iSeparators    Separator characters
+   * @param dbName
    * @return The word parsed
    */
   protected String parserRequiredWord(
-      final boolean iUpperCase, final String iCustomMessage, String iSeparators) {
+      final boolean iUpperCase, final String iCustomMessage, String iSeparators, String dbName) {
     if (iSeparators == null) {
       iSeparators = " ()=><,\r\n";
     }
 
     parserNextWord(iUpperCase, iSeparators);
     if (parserLastWord.length() == 0) {
-      throwSyntaxErrorException(iCustomMessage);
+      throwSyntaxErrorException(dbName, iCustomMessage);
     }
     if (parserLastWord.charAt(0) == '`'
         && parserLastWord.charAt(parserLastWord.length() - 1) == '`') {
@@ -329,12 +336,14 @@ public abstract class BaseParser {
    * Parses the next word. If no word is found or the parsed word is not present in the word array
    * received as parameter then a SyntaxError exception is thrown.
    *
+   * @param dbName
    * @param iWords Array of expected keywords
    */
-  protected void parserRequiredKeyword(final String... iWords) {
+  protected void parserRequiredKeyword(String dbName, final String... iWords) {
     parserNextWord(true, " \r\n,()");
     if (parserLastWord.length() == 0) {
-      throwSyntaxErrorException("Cannot find expected keyword '" + Arrays.toString(iWords) + "'");
+      throwSyntaxErrorException(dbName,
+          "Cannot find expected keyword '" + Arrays.toString(iWords) + "'");
     }
 
     var found = false;
@@ -346,7 +355,7 @@ public abstract class BaseParser {
     }
 
     if (!found) {
-      throwSyntaxErrorException(
+      throwSyntaxErrorException(dbName,
           "Found unexpected keyword '"
               + parserLastWord
               + "' while it was expected '"
@@ -362,7 +371,8 @@ public abstract class BaseParser {
    * true
    */
   protected int parserNextChars(
-      final boolean iUpperCase, final boolean iMandatory, final String... iCandidateWords) {
+      String dbName, final boolean iUpperCase, final boolean iMandatory,
+      final String... iCandidateWords) {
     parserPreviousPos = parserCurrentPos;
     parserSkipWhiteSpaces();
 
@@ -425,7 +435,7 @@ public abstract class BaseParser {
     }
 
     if (iMandatory) {
-      throwSyntaxErrorException(
+      throwSyntaxErrorException(dbName,
           "Found unexpected keyword '"
               + parserLastWord
               + "' while it was expected '"
@@ -440,11 +450,12 @@ public abstract class BaseParser {
    * Parses optional keywords between the iWords. If a keyword is found but doesn't match with
    * iWords then a SyntaxError is raised.
    *
+   * @param dbName
    * @param iWords Optional words to match as keyword. If at least one is passed, then the check is
    *               made
    * @return true if a keyword was found, otherwise false
    */
-  protected boolean parserOptionalKeyword(final String... iWords) {
+  protected boolean parserOptionalKeyword(String dbName, final String... iWords) {
     parserNextWord(true, " \r\n,");
     if (parserLastWord.length() == 0) {
       return false;
@@ -460,7 +471,7 @@ public abstract class BaseParser {
     }
 
     if (!found) {
-      throwSyntaxErrorException(
+      throwSyntaxErrorException(dbName,
           "Found unexpected keyword '"
               + parserLastWord
               + "' while it was expected '"

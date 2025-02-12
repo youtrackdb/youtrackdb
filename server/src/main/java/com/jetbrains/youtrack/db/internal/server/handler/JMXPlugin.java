@@ -29,7 +29,6 @@ import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
 import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfiguration;
 import com.jetbrains.youtrack.db.internal.server.plugin.ServerPluginAbstract;
 import java.lang.management.ManagementFactory;
-import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 public class JMXPlugin extends ServerPluginAbstract {
@@ -72,7 +71,7 @@ public class JMXPlugin extends ServerPluginAbstract {
 
     } catch (Exception e) {
       throw BaseException.wrapException(
-          new ConfigurationException("Cannot initialize JMX server"), e);
+          new ConfigurationException("Cannot initialize JMX server"), e, (String) null);
     }
   }
 

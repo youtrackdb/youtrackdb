@@ -22,13 +22,10 @@ package com.jetbrains.youtrack.db.internal.core.metadata.security;
 import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
-import java.util.Set;
 
 /**
  * Checks the access against restricted resources. Restricted resources are those documents of
@@ -40,12 +37,12 @@ public class RestrictedAccessHook {
       final EntityImpl entity, DatabaseSessionInternal database) {
     final var cls = EntityInternalUtils.getImmutableSchemaClass(database, entity);
     if (cls != null && cls.isRestricted()) {
-      var fieldNames = cls.getCustom(SecurityShared.ONCREATE_FIELD);
+      var fieldNames = cls.getCustom(database, SecurityShared.ONCREATE_FIELD);
       if (fieldNames == null) {
         fieldNames = RestrictedOperation.ALLOW_ALL.getFieldName();
       }
       final var fields = fieldNames.split(",");
-      var identityType = cls.getCustom(SecurityShared.ONCREATE_IDENTITY_TYPE);
+      var identityType = cls.getCustom(database, SecurityShared.ONCREATE_IDENTITY_TYPE);
       if (identityType == null) {
         identityType = "user";
       }
@@ -63,10 +60,10 @@ public class RestrictedAccessHook {
         }
       } else {
         throw new ConfigurationException(
-            "Wrong custom field '"
+            database, "Wrong custom field '"
                 + SecurityShared.ONCREATE_IDENTITY_TYPE
                 + "' in class '"
-                + cls.getName()
+            + cls.getName(database)
                 + "' with value '"
                 + identityType
                 + "'. Supported ones are: 'user', 'role'");

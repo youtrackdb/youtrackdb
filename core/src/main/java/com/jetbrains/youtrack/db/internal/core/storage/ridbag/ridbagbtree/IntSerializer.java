@@ -1,6 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree;
 
 import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
 import java.nio.ByteBuffer;
 
@@ -9,7 +10,8 @@ public final class IntSerializer implements BinarySerializer<Integer> {
   public static final IntSerializer INSTANCE = new IntSerializer();
 
   @Override
-  public int getObjectSize(Integer object, Object... hints) {
+  public int getObjectSize(BinarySerializerFactory serializerFactory, Integer object,
+      Object... hints) {
     int value = object;
 
     final var zeroBits = Integer.numberOfLeadingZeros(value);
@@ -20,17 +22,20 @@ public final class IntSerializer implements BinarySerializer<Integer> {
   }
 
   @Override
-  public int getObjectSize(byte[] stream, int startPosition) {
+  public int getObjectSize(BinarySerializerFactory serializerFactory, byte[] stream,
+      int startPosition) {
     return stream[startPosition] + 1;
   }
 
   @Override
-  public void serialize(Integer object, byte[] stream, int startPosition, Object... hints) {
+  public void serialize(Integer object, BinarySerializerFactory serializerFactory, byte[] stream,
+      int startPosition, Object... hints) {
     serializePrimitive(stream, startPosition, object);
   }
 
   @Override
-  public Integer deserialize(byte[] stream, int startPosition) {
+  public Integer deserialize(BinarySerializerFactory serializerFactory, byte[] stream,
+      int startPosition) {
     return doDeserialize(stream, startPosition);
   }
 
@@ -51,27 +56,32 @@ public final class IntSerializer implements BinarySerializer<Integer> {
 
   @Override
   public void serializeNativeObject(
-      Integer object, byte[] stream, int startPosition, Object... hints) {
+      Integer object, BinarySerializerFactory serializerFactory, byte[] stream, int startPosition,
+      Object... hints) {
     serializePrimitive(stream, startPosition, object);
   }
 
   @Override
-  public Integer deserializeNativeObject(byte[] stream, int startPosition) {
+  public Integer deserializeNativeObject(BinarySerializerFactory serializerFactory, byte[] stream,
+      int startPosition) {
     return doDeserialize(stream, startPosition);
   }
 
   @Override
-  public int getObjectSizeNative(byte[] stream, int startPosition) {
+  public int getObjectSizeNative(BinarySerializerFactory serializerFactory, byte[] stream,
+      int startPosition) {
     return stream[startPosition] + 1;
   }
 
   @Override
-  public Integer preprocess(final Integer value, Object... hints) {
+  public Integer preprocess(BinarySerializerFactory serializerFactory, final Integer value,
+      Object... hints) {
     return value;
   }
 
   @Override
-  public void serializeInByteBufferObject(Integer object, ByteBuffer buffer, Object... hints) {
+  public void serializeInByteBufferObject(BinarySerializerFactory serializerFactory, Integer object,
+      ByteBuffer buffer, Object... hints) {
     int value = object;
 
     final var zeroBits = Integer.numberOfLeadingZeros(value);
@@ -87,7 +97,8 @@ public final class IntSerializer implements BinarySerializer<Integer> {
   }
 
   @Override
-  public Integer deserializeFromByteBufferObject(ByteBuffer buffer) {
+  public Integer deserializeFromByteBufferObject(BinarySerializerFactory serializerFactory,
+      ByteBuffer buffer) {
     final int numberSize = buffer.get();
 
     var value = 0;
@@ -99,7 +110,8 @@ public final class IntSerializer implements BinarySerializer<Integer> {
   }
 
   @Override
-  public Integer deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
+  public Integer deserializeFromByteBufferObject(BinarySerializerFactory serializerFactory,
+      int offset, ByteBuffer buffer) {
     final int numberSize = buffer.get(offset);
     offset++;
 
@@ -113,18 +125,21 @@ public final class IntSerializer implements BinarySerializer<Integer> {
   }
 
   @Override
-  public int getObjectSizeInByteBuffer(ByteBuffer buffer) {
+  public int getObjectSizeInByteBuffer(BinarySerializerFactory serializerFactory,
+      ByteBuffer buffer) {
     return buffer.get() + 1;
   }
 
   @Override
-  public int getObjectSizeInByteBuffer(int offset, ByteBuffer buffer) {
+  public int getObjectSizeInByteBuffer(BinarySerializerFactory serializerFactory, int offset,
+      ByteBuffer buffer) {
     return buffer.get(offset) + 1;
   }
 
   @Override
   public Integer deserializeFromByteBufferObject(
-      ByteBuffer buffer, WALChanges walChanges, int offset) {
+      BinarySerializerFactory serializerFactory, ByteBuffer buffer, WALChanges walChanges,
+      int offset) {
     final int numberSize = walChanges.getByteValue(buffer, offset);
     offset++;
 

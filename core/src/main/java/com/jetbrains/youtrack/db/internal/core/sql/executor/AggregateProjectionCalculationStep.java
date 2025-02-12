@@ -44,7 +44,7 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
   private List<Result> executeAggregation(CommandContext ctx) {
     var timeoutBegin = System.currentTimeMillis();
     if (prev == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(ctx.getDatabaseSession().getDatabaseName(),
           "Cannot execute an aggregation or a GROUP BY without a previous result");
     }
 
@@ -77,7 +77,7 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
 
   private void aggregate(
       Result next, CommandContext ctx, Map<List<?>, ResultInternal> aggregateResults) {
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     List<Object> key = new ArrayList<>();
     if (groupBy != null) {
       for (var item : groupBy.getItems()) {
@@ -90,7 +90,7 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
       if (limit > 0 && aggregateResults.size() > limit) {
         return;
       }
-      preAggr = new ResultInternal(ctx.getDatabase());
+      preAggr = new ResultInternal(ctx.getDatabaseSession());
 
       for (var proj : this.projection.getItems()) {
         var alias = proj.getProjectionAlias().getStringValue();

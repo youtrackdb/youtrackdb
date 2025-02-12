@@ -38,15 +38,17 @@ import com.jetbrains.youtrack.db.internal.common.serialization.types.NullSeriali
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ShortSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.StringSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.UTF8Serializer;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.CompactedLinkSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.LinkSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.index.CompositeKeySerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.index.SimpleKeySerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.stream.StreamSerializerRID;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.multivalue.v2.MultiValueEntrySerializer;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectArrayMap;
+import java.util.EnumMap;
+import javax.annotation.Nonnull;
 
 /**
  * This class is responsible for obtaining OBinarySerializer realization, by it's id of type of
@@ -59,17 +61,28 @@ public class BinarySerializerFactory {
    */
   public static final int TYPE_IDENTIFIER_SIZE = 1;
 
-  private final ConcurrentMap<Byte, BinarySerializer<?>> serializerIdMap =
-      new ConcurrentHashMap<Byte, BinarySerializer<?>>();
-  private final ConcurrentMap<Byte, Class<? extends BinarySerializer>> serializerClassesIdMap =
-      new ConcurrentHashMap<Byte, Class<? extends BinarySerializer>>();
-  private final ConcurrentMap<PropertyType, BinarySerializer<?>> serializerTypeMap =
-      new ConcurrentHashMap<PropertyType, BinarySerializer<?>>();
+  public static final byte CURRENT_BINARY_FORMAT_VERSION = 0;
+
+  private final Byte2ObjectArrayMap<BinarySerializer<?>> serializerIdMap = new Byte2ObjectArrayMap<>();
+  private final Byte2ObjectArrayMap<Class<? extends BinarySerializer>> serializerClassesIdMap =
+      new Byte2ObjectArrayMap<>();
+  private final EnumMap<PropertyType, BinarySerializer<?>> serializerTypeMap = new EnumMap<>(
+      PropertyType.class);
+
 
   private BinarySerializerFactory() {
   }
 
+  public static byte currentBinaryFormatVersion() {
+    return CURRENT_BINARY_FORMAT_VERSION;
+  }
+
   public static BinarySerializerFactory create(int binaryFormatVersion) {
+    if (binaryFormatVersion != CURRENT_BINARY_FORMAT_VERSION) {
+      throw new StorageException(null,
+          "Binary format version " + binaryFormatVersion + " is not supported");
+    }
+
     final var factory = new BinarySerializerFactory();
 
     // STATELESS SERIALIER
@@ -97,20 +110,16 @@ public class BinarySerializerFactory {
     factory.registerSerializer(SimpleKeySerializer.ID, SimpleKeySerializer.class);
 
     factory.registerSerializer(CompactedLinkSerializer.INSTANCE, null);
-
     factory.registerSerializer(UTF8Serializer.INSTANCE, null);
     factory.registerSerializer(MultiValueEntrySerializer.INSTANCE, null);
 
+    //used for spatial indexes
+    factory.registerSerializer(MockSerializer.INSTANCE, PropertyType.EMBEDDED);
     return factory;
   }
 
-  public static BinarySerializerFactory getInstance() {
-    final var database = DatabaseRecordThreadLocal.instance().getIfDefined();
-    if (database != null) {
-      return database.getSerializerFactory();
-    } else {
-      return BinarySerializerFactory.create(Integer.MAX_VALUE);
-    }
+  public static BinarySerializerFactory getInstance(@Nonnull DatabaseSessionInternal session) {
+    return session.getSerializerFactory();
   }
 
   public void registerSerializer(final BinarySerializer<?> iInstance, final PropertyType iType) {
@@ -125,8 +134,9 @@ public class BinarySerializerFactory {
     }
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  public void registerSerializer(final byte iId, final Class<? extends BinarySerializer> iClass) {
+  @SuppressWarnings({"rawtypes"})
+  public void registerSerializer(final byte iId,
+      final Class<? extends BinarySerializer> iClass) {
     if (serializerClassesIdMap.containsKey(iId)) {
       throw new IllegalStateException(
           "Serializer with id " + iId + " has been already registered.");

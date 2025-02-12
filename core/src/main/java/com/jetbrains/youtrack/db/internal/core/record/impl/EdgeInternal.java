@@ -8,6 +8,7 @@ import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,6 +18,39 @@ public interface EdgeInternal extends Edge, EntityInternal {
 
   @Nullable
   EntityImpl getBaseEntity();
+
+  @Override
+  default boolean isLabeled(String[] labels) {
+    if (labels == null) {
+      return true;
+    }
+    if (labels.length == 0) {
+      return true;
+    }
+    Set<String> types = new HashSet<>();
+
+    var typeClass = getSchemaType();
+    var baseEntity = getBaseEntity();
+    var db = baseEntity.getSession();
+
+    if (typeClass.isPresent()) {
+      types.add(typeClass.get().getName(db));
+      typeClass.get().getAllSuperClasses().stream().map(schemaClass -> schemaClass.getName(db))
+          .forEach(types::add);
+    } else {
+      types.add(CLASS_NAME);
+    }
+
+    for (var s : labels) {
+      for (var type : types) {
+        if (type.equalsIgnoreCase(s)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
 
   @Override
   default Collection<String> getPropertyNames() {

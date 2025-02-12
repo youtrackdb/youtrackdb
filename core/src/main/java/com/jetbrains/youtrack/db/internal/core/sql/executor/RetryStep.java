@@ -44,7 +44,8 @@ public class RetryStep extends AbstractExecutionStep {
       try {
 
         if (ExecutionThreadLocal.isInterruptCurrentOperation()) {
-          throw new CommandInterruptedException("The command has been interrupted");
+          throw new CommandInterruptedException(ctx.getDatabaseSession(),
+              "The command has been interrupted");
         }
         var plan = initPlan(body, ctx);
         var result = plan.executeFull();
@@ -54,7 +55,7 @@ public class RetryStep extends AbstractExecutionStep {
         break;
       } catch (NeedRetryException ex) {
         try {
-          var db = ctx.getDatabase();
+          var db = ctx.getDatabaseSession();
           db.rollback();
         } catch (Exception ignored) {
         }

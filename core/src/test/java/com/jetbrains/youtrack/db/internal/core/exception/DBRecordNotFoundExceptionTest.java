@@ -14,10 +14,10 @@ public class DBRecordNotFoundExceptionTest {
 
   @Test
   public void simpleExceptionCopyTest() {
-    var ex = new RecordNotFoundException(new RecordId(1, 2));
+    var ex = new RecordNotFoundException((String) null, new RecordId(1, 2));
     var ex1 = new RecordNotFoundException(ex);
     assertNotNull(ex1.getRid());
-    assertEquals(ex1.getRid().getClusterId(), 1);
-    assertEquals(ex1.getRid().getClusterPosition(), 2);
+    assertEquals(1, ex1.getRid().getClusterId());
+    assertEquals(2, ex1.getRid().getClusterPosition());
   }
 }

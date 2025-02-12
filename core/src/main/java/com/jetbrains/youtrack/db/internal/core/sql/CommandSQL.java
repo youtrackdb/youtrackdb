@@ -20,8 +20,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestTextAbstract;
-import com.jetbrains.youtrack.db.internal.core.replication.AsyncReplicationError;
-import com.jetbrains.youtrack.db.internal.core.replication.AsyncReplicationOk;
 
 /**
  * SQL command request implementation. It just stores the request and delegated the execution to the
@@ -44,21 +42,5 @@ public class CommandSQL extends CommandRequestTextAbstract {
   @Override
   public String toString() {
     return "sql." + text; // IOUtils.getStringMaxLength(text, 50, "...");
-  }
-
-  /**
-   * Defines a callback to call in case of the asynchronous replication succeed.
-   */
-  @Override
-  public CommandSQL onAsyncReplicationOk(final AsyncReplicationOk iCallback) {
-    return (CommandSQL) super.onAsyncReplicationOk(iCallback);
-  }
-
-  /**
-   * Defines a callback to call in case of error during the asynchronous replication.
-   */
-  @Override
-  public CommandSQL onAsyncReplicationError(final AsyncReplicationError iCallback) {
-    return (CommandSQL) super.onAsyncReplicationError(iCallback);
   }
 }

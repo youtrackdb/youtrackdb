@@ -14,8 +14,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.schema.clusterselection;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.ClusterSelectionStrategy;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.ClusterSelectionStrategy;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 
 /**
@@ -25,13 +26,15 @@ public class DefaultClusterSelectionStrategy implements ClusterSelectionStrategy
 
   public static final String NAME = "default";
 
-  public int getCluster(final SchemaClass iClass, final EntityImpl entity) {
-    return iClass.getClusterIds()[0];
+  public int getCluster(DatabaseSession session, final SchemaClass iClass,
+      final EntityImpl entity) {
+    return iClass.getClusterIds(session)[0];
   }
 
   @Override
-  public int getCluster(SchemaClass iClass, int[] selection, EntityImpl entity) {
-    return iClass.getClusterIds()[0];
+  public int getCluster(DatabaseSession session, SchemaClass iClass, int[] selection,
+      EntityImpl entity) {
+    return iClass.getClusterIds(session)[0];
   }
 
   @Override

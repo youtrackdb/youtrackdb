@@ -16,19 +16,19 @@ public class FunctionSqlTest extends DbTestBase {
 
   @Test
   public void functionSqlWithParameters() {
-    db.getMetadata().getSchema().createClass("Test");
+    session.getMetadata().getSchema().createClass("Test");
 
-    db.begin();
-    var doc1 = ((EntityImpl) db.newEntity("Test"));
+    session.begin();
+    var doc1 = ((EntityImpl) session.newEntity("Test"));
     doc1.field("name", "Enrico");
-    db.save(doc1);
-    doc1 = ((EntityImpl) db.newEntity("Test"));
+    session.save(doc1);
+    doc1 = ((EntityImpl) session.newEntity("Test"));
     doc1.field("name", "Luca");
-    db.save(doc1);
-    db.commit();
+    session.save(doc1);
+    session.commit();
 
-    db.begin();
-    var function = new Function(db);
+    session.begin();
+    var function = new Function(session);
     function.setName("test");
     function.setCode("select from Test where name = :name");
     function.setParameters(
@@ -37,11 +37,11 @@ public class FunctionSqlTest extends DbTestBase {
             add("name");
           }
         });
-    function.save(db);
-    db.commit();
+    function.save(session);
+    session.commit();
 
     var context = new BasicCommandContext();
-    context.setDatabase(db);
+    context.setDatabaseSession(session);
 
     var result = function.executeInContext(context, "Enrico");
 
@@ -51,18 +51,18 @@ public class FunctionSqlTest extends DbTestBase {
   @Test
   public void functionSqlWithInnerFunctionJs() {
 
-    db.getMetadata().getSchema().createClass("Test");
-    db.begin();
-    var doc1 = ((EntityImpl) db.newEntity("Test"));
+    session.getMetadata().getSchema().createClass("Test");
+    session.begin();
+    var doc1 = ((EntityImpl) session.newEntity("Test"));
     doc1.field("name", "Enrico");
-    db.save(doc1);
-    doc1 = ((EntityImpl) db.newEntity("Test"));
+    session.save(doc1);
+    doc1 = ((EntityImpl) session.newEntity("Test"));
     doc1.field("name", "Luca");
-    db.save(doc1);
-    db.commit();
+    session.save(doc1);
+    session.commit();
 
-    db.begin();
-    var function = new Function(db);
+    session.begin();
+    var function = new Function(session);
     function.setName("test");
     function.setCode(
         "select name from Test where name = :name and hello(:name) = 'Hello Enrico'");
@@ -72,11 +72,11 @@ public class FunctionSqlTest extends DbTestBase {
             add("name");
           }
         });
-    function.save(db);
-    db.commit();
+    function.save(session);
+    session.commit();
 
-    db.begin();
-    var function1 = new Function(db);
+    session.begin();
+    var function1 = new Function(session);
     function1.setName("hello");
     function1.setLanguage("javascript");
     function1.setCode("return 'Hello ' + name");
@@ -86,11 +86,11 @@ public class FunctionSqlTest extends DbTestBase {
             add("name");
           }
         });
-    function1.save(db);
-    db.commit();
+    function1.save(session);
+    session.commit();
 
     var context = new BasicCommandContext();
-    context.setDatabase(db);
+    context.setDatabaseSession(session);
 
     var result = function.executeInContext(context, "Enrico");
     Assert.assertEquals(1, ((LegacyResultSet) result).size());

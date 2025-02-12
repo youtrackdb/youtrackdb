@@ -15,8 +15,6 @@ package com.jetbrains.youtrack.db.internal.spatial.functions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.spatial.BaseSpatialLuceneTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,7 +28,7 @@ public class LuceneSpatialWithinTest extends BaseSpatialLuceneTest {
   public void testWithinNoIndex() {
 
     var execute =
-        db.query(
+        session.query(
             "select ST_Within(smallc,smallc) as smallinsmall,ST_Within(smallc, bigc) As smallinbig,"
                 + " ST_Within(bigc,smallc) As biginsmall from (SELECT"
                 + " ST_Buffer(ST_GeomFromText('POINT(50 50)'), 20) As"
@@ -45,26 +43,28 @@ public class LuceneSpatialWithinTest extends BaseSpatialLuceneTest {
   @Test
   public void testWithinIndex() {
 
-    db.command("create class Polygon extends v").close();
-    db.command("create property Polygon.geometry EMBEDDED OPolygon").close();
+    session.command("create class Polygon extends v").close();
+    session.command("create property Polygon.geometry EMBEDDED OPolygon").close();
 
-    db.begin();
-    db.command("insert into Polygon set geometry = ST_Buffer(ST_GeomFromText('POINT(50 50)'), 20)")
+    session.begin();
+    session.command(
+            "insert into Polygon set geometry = ST_Buffer(ST_GeomFromText('POINT(50 50)'), 20)")
         .close();
-    db.command("insert into Polygon set geometry = ST_Buffer(ST_GeomFromText('POINT(50 50)'), 40)")
+    session.command(
+            "insert into Polygon set geometry = ST_Buffer(ST_GeomFromText('POINT(50 50)'), 40)")
         .close();
-    db.commit();
+    session.commit();
 
-    db.command("create index Polygon.g on Polygon (geometry) SPATIAL engine lucene").close();
+    session.command("create index Polygon.g on Polygon (geometry) SPATIAL engine lucene").close();
     var execute =
-        db.query(
+        session.query(
             "SELECT from Polygon where ST_Within(geometry, ST_Buffer(ST_GeomFromText('POINT(50"
                 + " 50)'), 50)) = true");
 
     Assert.assertEquals(execute.stream().count(), 2);
 
     execute =
-        db.query(
+        session.query(
             "SELECT from Polygon where ST_Within(geometry, ST_Buffer(ST_GeomFromText('POINT(50"
                 + " 50)'), 30)) = true");
 
@@ -73,24 +73,26 @@ public class LuceneSpatialWithinTest extends BaseSpatialLuceneTest {
 
   @Test
   public void testWithinNewExecutor() throws Exception {
-    db.command("create class Polygon extends v");
-    db.command("create property Polygon.geometry EMBEDDED OPolygon");
+    session.command("create class Polygon extends v");
+    session.command("create property Polygon.geometry EMBEDDED OPolygon");
 
-    db.begin();
-    db.command("insert into Polygon set geometry = ST_Buffer(ST_GeomFromText('POINT(50 50)'), 20)");
-    db.command("insert into Polygon set geometry = ST_Buffer(ST_GeomFromText('POINT(50 50)'), 40)");
-    db.commit();
+    session.begin();
+    session.command(
+        "insert into Polygon set geometry = ST_Buffer(ST_GeomFromText('POINT(50 50)'), 20)");
+    session.command(
+        "insert into Polygon set geometry = ST_Buffer(ST_GeomFromText('POINT(50 50)'), 40)");
+    session.commit();
 
-    db.command("create index Polygon.g on Polygon(geometry) SPATIAL ENGINE LUCENE");
+    session.command("create index Polygon.g on Polygon(geometry) SPATIAL ENGINE LUCENE");
     var execute =
-        db.query(
+        session.query(
             "SELECT from Polygon where ST_Within(geometry, ST_Buffer(ST_GeomFromText('POINT(50"
                 + " 50)'), 50)) = true");
 
     assertThat(execute).hasSize(2);
 
     execute =
-        db.query(
+        session.query(
             "SELECT from Polygon where ST_Within(geometry, ST_Buffer(ST_GeomFromText('POINT(50"
                 + " 50)'), 30)) = true");
 

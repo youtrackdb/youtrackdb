@@ -21,10 +21,9 @@ package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandDocumentAbstract;
 
 public class ServerCommandDeleteIndex extends ServerCommandDocumentAbstract {
@@ -41,7 +40,7 @@ public class ServerCommandDeleteIndex extends ServerCommandDocumentAbstract {
 
     DatabaseSessionInternal db = null;
     try {
-      db = getProfiledDatabaseInstance(iRequest);
+      db = getProfiledDatabaseSessionInstance(iRequest);
 
       final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, urlParts[2]);
       if (index == null) {

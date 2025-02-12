@@ -203,13 +203,12 @@ public class DefaultCommandExecutorSQLFactory implements CommandExecutorSQLFacto
     try {
       return clazz.newInstance();
     } catch (Exception e) {
-      throw BaseException.wrapException(
-          new CommandExecutionException(
+      throw BaseException.wrapException(new CommandExecutionException(
               "Error in creation of command "
                   + name
                   + "(). Probably there is not an empty constructor or the constructor generates"
                   + " errors"),
-          e);
+          e, (String) null);
     }
   }
 }

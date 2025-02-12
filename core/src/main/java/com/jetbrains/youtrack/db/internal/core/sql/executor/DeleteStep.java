@@ -4,9 +4,7 @@ import com.jetbrains.youtrack.db.api.query.ExecutionStep;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import java.util.Optional;
 
 /**
  * Deletes records coming from upstream steps
@@ -27,7 +25,7 @@ public class DeleteStep extends AbstractExecutionStep {
   private Result mapResult(Result result, CommandContext ctx) {
     var id = result.getIdentity();
     if (id.isPresent()) {
-      ctx.getDatabase().delete(id.get());
+      ctx.getDatabaseSession().delete(id.get());
     }
     return result;
   }

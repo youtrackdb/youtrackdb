@@ -20,11 +20,8 @@
 
 package com.jetbrains.youtrack.db.internal.core.metadata.sequence;
 
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.common.concur.NeedRetryException;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.MetadataUpdateListener;
 import com.jetbrains.youtrack.db.internal.core.exception.SequenceException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence.SEQUENCE_TYPE;
@@ -177,7 +174,7 @@ public class SequenceLibraryImpl {
 
   private static void onSequenceLibraryUpdate(DatabaseSessionInternal database) {
     for (var one : database.getSharedContext().browseListeners()) {
-      one.onSequenceLibraryUpdate(database, database.getName());
+      one.onSequenceLibraryUpdate(database, database.getDatabaseName());
     }
   }
 

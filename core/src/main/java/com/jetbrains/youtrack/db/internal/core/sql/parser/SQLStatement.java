@@ -57,43 +57,43 @@ public class SQLStatement extends SimpleNode {
     throw new UnsupportedOperationException("Unsupported command: " + getClass().getSimpleName());
   }
 
-  public ResultSet execute(DatabaseSessionInternal db, Object[] args) {
-    return execute(db, args, true);
+  public ResultSet execute(DatabaseSessionInternal session, Object[] args) {
+    return execute(session, args, true);
   }
 
   public ResultSet execute(
-      DatabaseSessionInternal db, Object[] args, CommandContext parentContext) {
-    return execute(db, args, parentContext, true);
+      DatabaseSessionInternal session, Object[] args, CommandContext parentContext) {
+    return execute(session, args, parentContext, true);
   }
 
-  public ResultSet execute(DatabaseSessionInternal db, Map<Object, Object> args) {
-    return execute(db, args, true);
+  public ResultSet execute(DatabaseSessionInternal session, Map<Object, Object> args) {
+    return execute(session, args, true);
   }
 
-  public ResultSet execute(DatabaseSessionInternal db, Map<Object, Object> args,
+  public ResultSet execute(DatabaseSessionInternal session, Map<Object, Object> args,
       CommandContext parentContext) {
-    return execute(db, args, parentContext, true);
+    return execute(session, args, parentContext, true);
   }
 
-  public ResultSet execute(DatabaseSessionInternal db, Object[] args, boolean usePlanCache) {
-    return execute(db, args, null, usePlanCache);
+  public ResultSet execute(DatabaseSessionInternal session, Object[] args, boolean usePlanCache) {
+    return execute(session, args, null, usePlanCache);
   }
 
   public ResultSet execute(
-      DatabaseSessionInternal db,
+      DatabaseSessionInternal session,
       Object[] args,
       CommandContext parentContext,
       boolean usePlanCache) {
     throw new UnsupportedOperationException();
   }
 
-  public ResultSet execute(DatabaseSessionInternal db, Map<Object, Object> args,
+  public ResultSet execute(DatabaseSessionInternal session, Map<Object, Object> args,
       boolean usePlanCache) {
-    return execute(db, args, null, usePlanCache);
+    return execute(session, args, null, usePlanCache);
   }
 
   public ResultSet execute(
-      DatabaseSessionInternal db, Map<Object, Object> args, CommandContext parentContext,
+      DatabaseSessionInternal session, Map<Object, Object> args, CommandContext parentContext,
       boolean usePlanCache) {
     throw new UnsupportedOperationException();
   }
@@ -145,7 +145,9 @@ public class SQLStatement extends SimpleNode {
                   .newInstance(-1);
       result.deserialize(res);
     } catch (Exception e) {
-      throw BaseException.wrapException(new CommandExecutionException(""), e);
+      throw BaseException.wrapException(
+          new CommandExecutionException(res.getBoundedToSession(), ""), e,
+          res.getBoundedToSession());
     }
     return null;
   }

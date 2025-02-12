@@ -55,7 +55,7 @@ public class ForEachStep extends AbstractExecutionStep {
   }
 
   protected Iterator<?> init(CommandContext ctx) {
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     var val = source.execute(new ResultInternal(db), ctx);
     return MultiValue.getMultiValueIterator(val);
   }

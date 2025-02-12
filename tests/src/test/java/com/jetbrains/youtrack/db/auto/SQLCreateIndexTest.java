@@ -1,19 +1,16 @@
 package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.PropertyIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.PropertyRidBagIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.IndexException;
-import com.jetbrains.youtrack.db.internal.core.index.PropertyListIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.PropertyMapIndexDefinition;
+import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.IndexException;
+import com.jetbrains.youtrack.db.internal.core.index.PropertyIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.PropertyListIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.PropertyMapIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.PropertyRidBagIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
-import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import java.util.Arrays;
 import java.util.List;
 import org.testng.Assert;
@@ -38,36 +35,36 @@ public class SQLCreateIndexTest extends BaseDBTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     final var oClass = schema.createClass("sqlCreateIndexTestClass");
-    oClass.createProperty(db, "prop1", EXPECTED_PROP1_TYPE);
-    oClass.createProperty(db, "prop2", EXPECTED_PROP2_TYPE);
-    oClass.createProperty(db, "prop3", PropertyType.EMBEDDEDMAP, PropertyType.INTEGER);
-    oClass.createProperty(db, "prop5", PropertyType.EMBEDDEDLIST, PropertyType.INTEGER);
-    oClass.createProperty(db, "prop6", PropertyType.EMBEDDEDLIST);
-    oClass.createProperty(db, "prop7", PropertyType.EMBEDDEDMAP);
-    oClass.createProperty(db, "prop8", PropertyType.INTEGER);
-    oClass.createProperty(db, "prop9", PropertyType.LINKBAG);
+    oClass.createProperty(session, "prop1", EXPECTED_PROP1_TYPE);
+    oClass.createProperty(session, "prop2", EXPECTED_PROP2_TYPE);
+    oClass.createProperty(session, "prop3", PropertyType.EMBEDDEDMAP, PropertyType.INTEGER);
+    oClass.createProperty(session, "prop5", PropertyType.EMBEDDEDLIST, PropertyType.INTEGER);
+    oClass.createProperty(session, "prop6", PropertyType.EMBEDDEDLIST);
+    oClass.createProperty(session, "prop7", PropertyType.EMBEDDEDMAP);
+    oClass.createProperty(session, "prop8", PropertyType.INTEGER);
+    oClass.createProperty(session, "prop9", PropertyType.LINKBAG);
   }
 
   @AfterClass
   public void afterClass() throws Exception {
-    if (db.isClosed()) {
-      db = createSessionInstance();
+    if (session.isClosed()) {
+      session = createSessionInstance();
     }
 
-    db.command("delete from sqlCreateIndexTestClass").close();
-    db.command("drop class sqlCreateIndexTestClass").close();
+    session.command("delete from sqlCreateIndexTestClass").close();
+    session.command("drop class sqlCreateIndexTestClass").close();
 
     super.afterClass();
   }
 
   @Test
   public void testOldSyntax() throws Exception {
-    db.command("CREATE INDEX sqlCreateIndexTestClass.prop1 UNIQUE").close();
+    session.command("CREATE INDEX sqlCreateIndexTestClass.prop1 UNIQUE").close();
 
     final var index =
-        db
+        session
             .getMetadata()
             .getIndexManager()
             .getIndex("sqlCreateIndexTestClass.prop1");
@@ -84,18 +81,18 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
   @Test
   public void testCreateCompositeIndex() throws Exception {
-    db
+    session
         .command(
             "CREATE INDEX sqlCreateIndexCompositeIndex ON sqlCreateIndexTestClass (prop1, prop2)"
                 + " UNIQUE")
         .close();
 
     final var index =
-        db
+        session
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(db, "sqlCreateIndexCompositeIndex");
+            .getClassIndex(session, "sqlCreateIndexCompositeIndex");
 
     Assert.assertNotNull(index);
 
@@ -110,17 +107,17 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
   @Test
   public void testCreateEmbeddedMapIndex() throws Exception {
-    db
+    session
         .command(
             "CREATE INDEX sqlCreateIndexEmbeddedMapIndex ON sqlCreateIndexTestClass (prop3) UNIQUE")
         .close();
 
     final var index =
-        db
+        session
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(db, "sqlCreateIndexEmbeddedMapIndex");
+            .getClassIndex(session, "sqlCreateIndexEmbeddedMapIndex");
 
     Assert.assertNotNull(index);
 
@@ -137,14 +134,14 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
   @Test
   public void testOldStileCreateEmbeddedMapIndex() throws Exception {
-    db.command("CREATE INDEX sqlCreateIndexTestClass.prop3 UNIQUE").close();
+    session.command("CREATE INDEX sqlCreateIndexTestClass.prop3 UNIQUE").close();
 
     final var index =
-        db
+        session
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(db, "sqlCreateIndexTestClass.prop3");
+            .getClassIndex(session, "sqlCreateIndexTestClass.prop3");
 
     Assert.assertNotNull(index);
 
@@ -162,7 +159,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
   @Test
   public void testCreateEmbeddedMapWrongSpecifierIndexOne() throws Exception {
     try {
-      db
+      session
           .command(
               "CREATE INDEX sqlCreateIndexEmbeddedMapWrongSpecifierIndex ON sqlCreateIndexTestClass"
                   + " (prop3 by ttt) UNIQUE")
@@ -171,11 +168,11 @@ public class SQLCreateIndexTest extends BaseDBTest {
     } catch (CommandSQLParsingException e) {
     }
     final var index =
-        db
+        session
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(db, "sqlCreateIndexEmbeddedMapWrongSpecifierIndex");
+            .getClassIndex(session, "sqlCreateIndexEmbeddedMapWrongSpecifierIndex");
 
     Assert.assertNull(index, "Index created while wrong query was executed");
   }
@@ -183,7 +180,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
   @Test
   public void testCreateEmbeddedMapWrongSpecifierIndexTwo() throws Exception {
     try {
-      db
+      session
           .command(
               "CREATE INDEX sqlCreateIndexEmbeddedMapWrongSpecifierIndex ON sqlCreateIndexTestClass"
                   + " (prop3 b value) UNIQUE")
@@ -193,11 +190,11 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
     }
     final var index =
-        db
+        session
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(db, "sqlCreateIndexEmbeddedMapWrongSpecifierIndex");
+            .getClassIndex(session, "sqlCreateIndexEmbeddedMapWrongSpecifierIndex");
 
     Assert.assertNull(index, "Index created while wrong query was executed");
   }
@@ -205,7 +202,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
   @Test
   public void testCreateEmbeddedMapWrongSpecifierIndexThree() throws Exception {
     try {
-      db
+      session
           .command(
               "CREATE INDEX sqlCreateIndexEmbeddedMapWrongSpecifierIndex ON sqlCreateIndexTestClass"
                   + " (prop3 by value t) UNIQUE")
@@ -215,29 +212,29 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
     }
     final var index =
-        db
+        session
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(db, "sqlCreateIndexEmbeddedMapWrongSpecifierIndex");
+            .getClassIndex(session, "sqlCreateIndexEmbeddedMapWrongSpecifierIndex");
 
     Assert.assertNull(index, "Index created while wrong query was executed");
   }
 
   @Test
   public void testCreateEmbeddedMapByKeyIndex() throws Exception {
-    db
+    session
         .command(
             "CREATE INDEX sqlCreateIndexEmbeddedMapByKeyIndex ON sqlCreateIndexTestClass (prop3 by"
                 + " key) UNIQUE")
         .close();
 
     final var index =
-        db
+        session
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(db, "sqlCreateIndexEmbeddedMapByKeyIndex");
+            .getClassIndex(session, "sqlCreateIndexEmbeddedMapByKeyIndex");
 
     Assert.assertNotNull(index);
 
@@ -254,18 +251,18 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
   @Test
   public void testCreateEmbeddedMapByValueIndex() throws Exception {
-    db
+    session
         .command(
             "CREATE INDEX sqlCreateIndexEmbeddedMapByValueIndex ON sqlCreateIndexTestClass (prop3"
                 + " by value) UNIQUE")
         .close();
 
     final var index =
-        db
+        session
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(db, "sqlCreateIndexEmbeddedMapByValueIndex");
+            .getClassIndex(session, "sqlCreateIndexEmbeddedMapByValueIndex");
 
     Assert.assertNotNull(index);
 
@@ -282,18 +279,18 @@ public class SQLCreateIndexTest extends BaseDBTest {
 
   @Test
   public void testCreateEmbeddedListIndex() throws Exception {
-    db
+    session
         .command(
             "CREATE INDEX sqlCreateIndexEmbeddedListIndex ON sqlCreateIndexTestClass (prop5)"
                 + " NOTUNIQUE")
         .close();
 
     final var index =
-        db
+        session
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(db, "sqlCreateIndexEmbeddedListIndex");
+            .getClassIndex(session, "sqlCreateIndexEmbeddedListIndex");
 
     Assert.assertNotNull(index);
 
@@ -306,17 +303,17 @@ public class SQLCreateIndexTest extends BaseDBTest {
   }
 
   public void testCreateRidBagIndex() throws Exception {
-    db
+    session
         .command(
             "CREATE INDEX sqlCreateIndexRidBagIndex ON sqlCreateIndexTestClass (prop9) NOTUNIQUE")
         .close();
 
     final var index =
-        db
+        session
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(db, "sqlCreateIndexRidBagIndex");
+            .getClassIndex(session, "sqlCreateIndexRidBagIndex");
 
     Assert.assertNotNull(index);
 
@@ -329,14 +326,14 @@ public class SQLCreateIndexTest extends BaseDBTest {
   }
 
   public void testCreateOldStileEmbeddedListIndex() throws Exception {
-    db.command("CREATE INDEX sqlCreateIndexTestClass.prop5 NOTUNIQUE").close();
+    session.command("CREATE INDEX sqlCreateIndexTestClass.prop5 NOTUNIQUE").close();
 
     final var index =
-        db
+        session
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(db, "sqlCreateIndexTestClass.prop5");
+            .getClassIndex(session, "sqlCreateIndexTestClass.prop5");
 
     Assert.assertNotNull(index);
 
@@ -349,14 +346,14 @@ public class SQLCreateIndexTest extends BaseDBTest {
   }
 
   public void testCreateOldStileRidBagIndex() throws Exception {
-    db.command("CREATE INDEX sqlCreateIndexTestClass.prop9 NOTUNIQUE").close();
+    session.command("CREATE INDEX sqlCreateIndexTestClass.prop9 NOTUNIQUE").close();
 
     final var index =
-        db
+        session
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(db, "sqlCreateIndexTestClass.prop9");
+            .getClassIndex(session, "sqlCreateIndexTestClass.prop9");
 
     Assert.assertNotNull(index);
 
@@ -371,7 +368,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
   @Test
   public void testCreateEmbeddedListWithoutLinkedTypeIndex() throws Exception {
     try {
-      db
+      session
           .command(
               "CREATE INDEX sqlCreateIndexEmbeddedListWithoutLinkedTypeIndex ON"
                   + " sqlCreateIndexTestClass (prop6) UNIQUE")
@@ -385,11 +382,11 @@ public class SQLCreateIndexTest extends BaseDBTest {
                       + " collections that are going to be indexed."));
     }
     final var index =
-        db
+        session
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(db, "sqlCreateIndexEmbeddedListWithoutLinkedTypeIndex");
+            .getClassIndex(session, "sqlCreateIndexEmbeddedListWithoutLinkedTypeIndex");
 
     Assert.assertNull(index, "Index created while wrong query was executed");
   }
@@ -397,7 +394,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
   @Test
   public void testCreateEmbeddedMapWithoutLinkedTypeIndex() throws Exception {
     try {
-      db
+      session
           .command(
               "CREATE INDEX sqlCreateIndexEmbeddedMapWithoutLinkedTypeIndex ON"
                   + " sqlCreateIndexTestClass (prop7 by value) UNIQUE")
@@ -411,11 +408,11 @@ public class SQLCreateIndexTest extends BaseDBTest {
                       + " collections that are going to be indexed."));
     }
     final var index =
-        db
+        session
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(db, "sqlCreateIndexEmbeddedMapWithoutLinkedTypeIndex");
+            .getClassIndex(session, "sqlCreateIndexEmbeddedMapWithoutLinkedTypeIndex");
 
     Assert.assertNull(index, "Index created while wrong query was executed");
   }
@@ -429,14 +426,14 @@ public class SQLCreateIndexTest extends BaseDBTest {
             + ", "
             + EXPECTED_PROP2_TYPE;
 
-    db.command(query).close();
+    session.command(query).close();
 
     final var index =
-        db
+        session
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(db, "sqlCreateIndexCompositeIndex2");
+            .getClassIndex(session, "sqlCreateIndexCompositeIndex2");
 
     Assert.assertNotNull(index);
 
@@ -459,7 +456,7 @@ public class SQLCreateIndexTest extends BaseDBTest {
             + EXPECTED_PROP1_TYPE;
 
     try {
-      db.command(new CommandSQL(query)).execute(db);
+      session.command(new CommandSQL(query)).execute(session);
       Assert.fail();
     } catch (CommandExecutionException e) {
       Assert.assertTrue(
@@ -476,28 +473,28 @@ public class SQLCreateIndexTest extends BaseDBTest {
       Assert.assertEquals(cause.getClass(), IllegalArgumentException.class);
     }
     final var index =
-        db
+        session
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(db, "sqlCreateIndexCompositeIndex3");
+            .getClassIndex(session, "sqlCreateIndexCompositeIndex3");
 
     Assert.assertNull(index, "Index created while wrong query was executed");
   }
 
   public void testCompositeIndexWithMetadata() {
-    db
+    session
         .command(
             "CREATE INDEX sqlCreateIndexCompositeIndexWithMetadata ON sqlCreateIndexTestClass"
                 + " (prop1, prop2) UNIQUE metadata {v1:23, v2:\"val2\"}")
         .close();
 
     final var index =
-        db
+        session
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(db, "sqlCreateIndexCompositeIndexWithMetadata");
+            .getClassIndex(session, "sqlCreateIndexCompositeIndexWithMetadata");
 
     Assert.assertNotNull(index);
 
@@ -516,17 +513,17 @@ public class SQLCreateIndexTest extends BaseDBTest {
   }
 
   public void testOldIndexWithMetadata() {
-    db
+    session
         .command(
             "CREATE INDEX sqlCreateIndexTestClass.prop8 NOTUNIQUE  metadata {v1:23, v2:\"val2\"}")
         .close();
 
     final var index =
-        db
+        session
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(db, "sqlCreateIndexTestClass.prop8");
+            .getClassIndex(session, "sqlCreateIndexTestClass.prop8");
 
     Assert.assertNotNull(index);
 
@@ -552,14 +549,14 @@ public class SQLCreateIndexTest extends BaseDBTest {
             + EXPECTED_PROP2_TYPE
             + " metadata {v1:23, v2:\"val2\"}";
 
-    db.command(query).close();
+    session.command(query).close();
 
     final var index =
-        db
+        session
             .getMetadata()
             .getSchema()
             .getClassInternal("sqlCreateIndexTestClass")
-            .getClassIndex(db, "sqlCreateIndexCompositeIndex2WithConfig");
+            .getClassIndex(session, "sqlCreateIndexCompositeIndex2WithConfig");
 
     Assert.assertNotNull(index);
 

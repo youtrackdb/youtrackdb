@@ -112,7 +112,7 @@ public final class ClusterPositionMapBucket extends DurablePage {
     final var size = getIntValue(SIZE_OFFSET);
 
     if (index >= size) {
-      throw new StorageException("Provided index " + index + " is out of range");
+      throw new StorageException(null, "Provided index " + index + " is out of range");
     }
 
     final var position = entryPosition(index);
@@ -121,7 +121,7 @@ public final class ClusterPositionMapBucket extends DurablePage {
     if (flag == ALLOCATED) {
       flag = FILLED;
     } else if (flag != FILLED) {
-      throw new StorageException("Provided index " + index + " points to removed entry");
+      throw new StorageException(null, "Provided index " + index + " points to removed entry");
     }
 
     updateEntry(index, (int) entry.pageIndex, entry.recordPosition, flag);

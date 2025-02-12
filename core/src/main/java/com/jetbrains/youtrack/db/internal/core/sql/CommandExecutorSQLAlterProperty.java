@@ -19,7 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
@@ -54,38 +53,38 @@ public class CommandExecutorSQLAlterProperty extends CommandExecutorSQLAbstract
   private ATTRIBUTES attribute;
   private String value;
 
-  public CommandExecutorSQLAlterProperty parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLAlterProperty parse(DatabaseSessionInternal session,
       final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
 
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
       var word = new StringBuilder();
 
       var oldPos = 0;
       var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_ALTER)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_ALTER + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_PROPERTY)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_PROPERTY + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
       if (pos == -1) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Expected <class>.<property>. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -101,21 +100,21 @@ public class CommandExecutorSQLAlterProperty extends CommandExecutorSQLAbstract
           }
           parts = new String[]{parts[0], fullName.toString()};
         } else {
-          throw new CommandSQLParsingException(
+          throw new CommandSQLParsingException(session,
               "Expected <class>.<property>. Use " + getSyntax(), parserText, oldPos);
         }
       }
 
       className = decodeClassName(parts[0]);
       if (className == null) {
-        throw new CommandSQLParsingException("Class not found", parserText, oldPos);
+        throw new CommandSQLParsingException(session, "Class not found", parserText, oldPos);
       }
       fieldName = decodeClassName(parts[1]);
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Missing property attribute to change. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -126,14 +125,13 @@ public class CommandExecutorSQLAlterProperty extends CommandExecutorSQLAbstract
             attributeAsString.toUpperCase(Locale.ENGLISH));
       } catch (IllegalArgumentException e) {
         throw BaseException.wrapException(
-            new CommandSQLParsingException(
+            new CommandSQLParsingException(session,
                 "Unknown property attribute '"
                     + attributeAsString
                     + "'. Supported attributes are: "
-                    + Arrays.toString(SchemaProperty.ATTRIBUTES.values()),
-                parserText,
-                oldPos),
-            e);
+                    + Arrays.toString(ATTRIBUTES.values()),
+                parserText, oldPos),
+            e, session);
       }
 
       value = parserText.substring(pos + 1).trim();
@@ -142,13 +140,12 @@ public class CommandExecutorSQLAlterProperty extends CommandExecutorSQLAbstract
       }
 
       if (value.length() == 0) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Missing property value to change for attribute '"
                 + attribute
                 + "'. Use "
                 + getSyntax(),
-            parserText,
-            oldPos);
+            parserText, oldPos);
       }
 
       if (preParsedStatement != null) {
@@ -159,7 +156,7 @@ public class CommandExecutorSQLAlterProperty extends CommandExecutorSQLAbstract
             expValue = settingExp.toString();
           }
           if (expValue instanceof Date) {
-            value = DateHelper.getDateTimeFormatInstance().format((Date) expValue);
+            value = DateHelper.getDateTimeFormatInstance(session).format((Date) expValue);
           } else {
             value = expValue.toString();
           }
@@ -198,43 +195,31 @@ public class CommandExecutorSQLAlterProperty extends CommandExecutorSQLAbstract
     return s.startsWith("`") && s.endsWith("`");
   }
 
-  @Override
-  public long getDistributedTimeout() {
-    return getDatabase()
-        .getConfiguration()
-        .getValueAsLong(GlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.ALL;
-  }
-
   /**
    * Execute the ALTER PROPERTY.
    */
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (attribute == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not yet been parsed");
     }
 
     final var sourceClass =
-        (SchemaClassImpl) db.getMetadata().getSchema().getClass(className);
+        (SchemaClassImpl) session.getMetadata().getSchema().getClass(className);
     if (sourceClass == null) {
-      throw new CommandExecutionException("Source class '" + className + "' not found");
+      throw new CommandExecutionException(session, "Source class '" + className + "' not found");
     }
 
-    final var prop = (SchemaPropertyImpl) sourceClass.getProperty(fieldName);
+    final var prop = (SchemaPropertyImpl) sourceClass.getProperty(session, fieldName);
     if (prop == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Property '" + className + "." + fieldName + "' not exists");
     }
 
     if ("null".equalsIgnoreCase(value)) {
-      prop.set(db, attribute, null);
+      prop.set(session, attribute, null);
     } else {
-      prop.set(db, attribute, value);
+      prop.set(session, attribute, value);
     }
     return null;
   }

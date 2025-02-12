@@ -83,7 +83,7 @@ public class AuditingLoggingThread extends Thread {
 
         var logEntry = auditingQueue.take();
         var systemDatabase = context.getSystemDatabase();
-        try (var systemSession = systemDatabase.openSystemDatabase()) {
+        try (var systemSession = systemDatabase.openSystemDatabaseSession()) {
           systemSession.executeInTx(
               () -> {
                 var log = systemSession.newEntity(className);

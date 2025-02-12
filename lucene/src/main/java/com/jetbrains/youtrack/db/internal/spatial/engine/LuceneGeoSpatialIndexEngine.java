@@ -63,21 +63,22 @@ public class LuceneGeoSpatialIndexEngine extends LuceneSpatialIndexEngineAbstrac
   }
 
   @Override
-  public Set<Identifiable> getInTx(DatabaseSessionInternal db, Object key,
+  public Set<Identifiable> getInTx(DatabaseSessionInternal session, Object key,
       LuceneTxChanges changes) {
     updateLastAccess();
-    openIfClosed(db.getStorage());
+    openIfClosed(session.getStorage());
     try {
       if (key instanceof Map) {
         //noinspection unchecked
-        return newGeoSearch(db, (Map<String, Object>) key, changes);
+        return newGeoSearch(session, (Map<String, Object>) key, changes);
       }
     } catch (Exception e) {
       if (e instanceof BaseException forward) {
         throw forward;
       } else {
-        throw BaseException.wrapException(new IndexEngineException("Error parsing lucene query"),
-            e);
+        throw BaseException.wrapException(
+            new IndexEngineException(session.getDatabaseName(), "Error parsing lucene query"),
+            e, session);
       }
     }
 
@@ -102,7 +103,7 @@ public class LuceneGeoSpatialIndexEngine extends LuceneSpatialIndexEngineAbstrac
     var spatialContext = (SpatialQueryContext) queryContext;
     if (spatialContext.spatialArgs != null) {
       updateLastAccess();
-      openIfClosed(queryContext.getContext().getDatabase().getStorage());
+      openIfClosed(queryContext.getContext().getDatabaseSession().getStorage());
       @SuppressWarnings("deprecation")
       var docPoint = (Point) ctx.readShape(doc.get(strategy.getFieldName()));
       var docDistDEG =
@@ -145,9 +146,9 @@ public class LuceneGeoSpatialIndexEngine extends LuceneSpatialIndexEngineAbstrac
   }
 
   @Override
-  public Document buildDocument(DatabaseSessionInternal db, Object key,
+  public Document buildDocument(DatabaseSessionInternal session, Object key,
       Identifiable value) {
-    EntityImpl location = ((Identifiable) key).getRecord(db);
+    EntityImpl location = ((Identifiable) key).getRecord(session);
     return newGeoDocument(value, factory.fromDoc(location), location);
   }
 

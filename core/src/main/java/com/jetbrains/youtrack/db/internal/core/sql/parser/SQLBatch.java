@@ -2,8 +2,8 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import java.util.Map;
 import java.util.Objects;
 
@@ -27,7 +27,8 @@ public class SQLBatch extends SimpleNode {
     } else if (inputParam != null) {
       var obj = inputParam.getValue(ctx.getInputParameters());
       if (obj == null || !(obj instanceof Number)) {
-        throw new CommandExecutionException(obj + " is not a number (BATCH)");
+        throw new CommandExecutionException(ctx.getDatabaseSession(),
+            obj + " is not a number (BATCH)");
       }
       return ((Number) obj).intValue();
     }

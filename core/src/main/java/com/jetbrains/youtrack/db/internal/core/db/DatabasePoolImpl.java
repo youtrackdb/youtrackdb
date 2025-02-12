@@ -70,8 +70,6 @@ public class DatabasePoolImpl implements DatabasePoolInternal {
                 return true;
               }
             });
-
-    DatabaseRecordThreadLocal.instance().remove();
   }
 
   @Override
@@ -112,7 +110,7 @@ public class DatabasePoolImpl implements DatabasePoolInternal {
     if (p != null) {
       pool.returnResource(database);
     } else {
-      throw new DatabaseException("The pool is closed");
+      throw new DatabaseException(database.getDatabaseName(), "The pool is closed");
     }
     lastCloseTime = System.currentTimeMillis();
   }

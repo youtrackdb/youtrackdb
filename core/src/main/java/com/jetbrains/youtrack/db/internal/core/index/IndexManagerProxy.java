@@ -43,20 +43,20 @@ public class IndexManagerProxy extends ProxedResource<IndexManagerAbstract>
    * Force reloading of indexes.
    */
   public IndexManagerProxy reload() {
-    delegate.load(database);
+    delegate.load(session);
     return this;
   }
 
   public void create() {
-    delegate.create(database);
+    delegate.create(session);
   }
 
   public Collection<? extends Index> getIndexes() {
-    return delegate.getIndexes(database);
+    return delegate.getIndexes(session);
   }
 
   public Index getIndex(final String iName) {
-    return delegate.getIndex(database, iName);
+    return delegate.getIndex(session, iName);
   }
 
   public boolean existsIndex(final String iName) {
@@ -71,7 +71,7 @@ public class IndexManagerProxy extends ProxedResource<IndexManagerAbstract>
       final ProgressListener progressListener,
       final Map<String, ?> metadata) {
     return delegate.createIndex(
-        database, iName, iType, indexDefinition, clusterIdsToIndex, progressListener, metadata);
+        session, iName, iType, indexDefinition, clusterIdsToIndex, progressListener, metadata);
   }
 
   @Override
@@ -84,7 +84,7 @@ public class IndexManagerProxy extends ProxedResource<IndexManagerAbstract>
       final Map<String, ?> metadata,
       final String algorithm) {
     return delegate.createIndex(
-        database,
+        session,
         iName,
         iType,
         iIndexDefinition,
@@ -99,7 +99,7 @@ public class IndexManagerProxy extends ProxedResource<IndexManagerAbstract>
   }
 
   public IndexManager dropIndex(final String iIndexName) {
-    delegate.dropIndex(database, iIndexName);
+    delegate.dropIndex(session, iIndexName);
     return this;
   }
 
@@ -108,16 +108,16 @@ public class IndexManagerProxy extends ProxedResource<IndexManagerAbstract>
   }
 
   public void setDefaultClusterName(final String defaultClusterName) {
-    delegate.setDefaultClusterName(database, defaultClusterName);
+    delegate.setDefaultClusterName(session, defaultClusterName);
   }
 
   public Set<Index> getClassInvolvedIndexes(
       final String className, final Collection<String> fields) {
-    return delegate.getClassInvolvedIndexes(database, className, fields);
+    return delegate.getClassInvolvedIndexes(session, className, fields);
   }
 
   public Set<Index> getClassInvolvedIndexes(final String className, final String... fields) {
-    return delegate.getClassInvolvedIndexes(database, className, fields);
+    return delegate.getClassInvolvedIndexes(session, className, fields);
   }
 
   public boolean areIndexed(final String className, final Collection<String> fields) {
@@ -129,16 +129,16 @@ public class IndexManagerProxy extends ProxedResource<IndexManagerAbstract>
   }
 
   public Set<Index> getClassIndexes(final String className) {
-    return delegate.getClassIndexes(database, className);
+    return delegate.getClassIndexes(session, className);
   }
 
   @Override
   public void getClassIndexes(final String className, final Collection<Index> indexes) {
-    delegate.getClassIndexes(database, className, indexes);
+    delegate.getClassIndexes(session, className, indexes);
   }
 
   public Index getClassIndex(final String className, final String indexName) {
-    return delegate.getClassIndex(database, className, indexName);
+    return delegate.getClassIndex(session, className, indexName);
   }
 
   @Override
@@ -148,7 +148,7 @@ public class IndexManagerProxy extends ProxedResource<IndexManagerAbstract>
 
   @Override
   public void recreateIndexes() {
-    delegate.recreateIndexes(database);
+    delegate.recreateIndexes(session);
   }
 
   @Override
@@ -158,7 +158,7 @@ public class IndexManagerProxy extends ProxedResource<IndexManagerAbstract>
 
   @Override
   public boolean autoRecreateIndexesAfterCrash() {
-    return delegate.autoRecreateIndexesAfterCrash(database);
+    return delegate.autoRecreateIndexesAfterCrash(session);
   }
 
   @Override

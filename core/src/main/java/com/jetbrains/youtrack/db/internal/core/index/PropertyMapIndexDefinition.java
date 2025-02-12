@@ -19,16 +19,21 @@
  */
 package com.jetbrains.youtrack.db.internal.core.index;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
+import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 
 /**
  * Index implementation bound to one schema class property that presents
@@ -109,15 +114,27 @@ public class PropertyMapIndexDefinition extends PropertyIndexDefinition
   }
 
   @Override
-  protected void serializeToStream(DatabaseSessionInternal db, EntityImpl entity) {
-    super.serializeToStream(db, entity);
-    entity.setPropertyInternal("mapIndexBy", indexBy.toString());
+  protected void serializeToJson(JsonGenerator jsonGenerator) {
+    try {
+      super.serializeToJson(jsonGenerator);
+      jsonGenerator.writeStringField("mapIndexBy", indexBy.toString());
+    } catch (IOException e) {
+      throw BaseException.wrapException(
+          new SerializationException("Failed to serialize index definition to JSON"),
+          e, (String) null);
+    }
   }
 
   @Override
-  protected void serializeFromStream(EntityImpl entity) {
-    super.serializeFromStream(entity);
-    indexBy = INDEX_BY.valueOf(entity.field("mapIndexBy"));
+  protected void serializeToMap(@Nonnull Map<String, Object> map) {
+    super.serializeToMap(map);
+    map.put("mapIndexBy", indexBy.toString());
+  }
+
+  @Override
+  protected void serializeFromMap(@Nonnull Map<String, ?> map) {
+    super.serializeFromMap(map);
+    indexBy = INDEX_BY.valueOf((String) map.get("mapIndexBy"));
   }
 
   private Collection<?> extractMapParams(Map<?, ?> map) {

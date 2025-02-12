@@ -34,7 +34,7 @@ public interface InternalExecutionPlan extends ExecutionPlan {
     throw new UnsupportedOperationException();
   }
 
-  default void deserialize(Result serializedExecutionPlan) {
+  default void deserialize(Result serializedExecutionPlan, DatabaseSessionInternal session) {
     throw new UnsupportedOperationException();
   }
 

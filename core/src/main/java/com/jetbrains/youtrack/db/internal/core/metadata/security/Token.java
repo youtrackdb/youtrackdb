@@ -23,7 +23,7 @@ public interface Token {
 
   SecurityUserImpl getUser(DatabaseSessionInternal db);
 
-  String getDatabase();
+  String getDatabaseName();
 
   String getDatabaseType();
 

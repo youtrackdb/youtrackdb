@@ -1,8 +1,7 @@
 package com.jetbrains.youtrack.db.internal.lucene.test;
 
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Assert;
 import org.junit.Before;
@@ -553,28 +552,29 @@ public class LuceneSortTest extends BaseLuceneTest {
 
   @Before
   public void setUp() throws Exception {
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
 
     var cls = schema.createClass("Person");
-    cls.createProperty(db, "name", PropertyType.STRING);
-    cls.createProperty(db, "surname", PropertyType.STRING);
-    cls.createProperty(db, "description", PropertyType.STRING);
+    cls.createProperty(session, "name", PropertyType.STRING);
+    cls.createProperty(session, "surname", PropertyType.STRING);
+    cls.createProperty(session, "description", PropertyType.STRING);
   }
 
   @Test
   public void shouldIndexVeryLongDescriptionWithWildCardConfig() throws Exception {
 
-    db.begin();
-    db.save(((EntityImpl) db.newEntity("Person")).field("description", DESCRIPTION));
-    db.commit();
+    session.begin();
+    session.save(((EntityImpl) session.newEntity("Person")).field("description", DESCRIPTION));
+    session.commit();
 
-    db.command(
+    session.command(
             "create index Person.description on Person(description) FULLTEXT ENGINE LUCENE METADATA"
                 + " { \"*_index_sorted\" : false }")
         .close();
 
     var count =
-        db.query("SELECT FROM Person WHERE SEARCH_CLASS(\"verylong\")  = true").stream().count();
+        session.query("SELECT FROM Person WHERE SEARCH_CLASS(\"verylong\")  = true").stream()
+            .count();
 
     Assert.assertEquals(1, count);
   }
@@ -582,17 +582,18 @@ public class LuceneSortTest extends BaseLuceneTest {
   @Test
   public void shouldIndexVeryLongDescriptionWithSingleField() throws Exception {
 
-    db.begin();
-    db.save(((EntityImpl) db.newEntity("Person")).field("description", DESCRIPTION));
-    db.commit();
+    session.begin();
+    session.save(((EntityImpl) session.newEntity("Person")).field("description", DESCRIPTION));
+    session.commit();
 
-    db.command(
+    session.command(
             "create index Person.description on Person(description) FULLTEXT ENGINE LUCENE METADATA"
                 + " { \"description_index_sorted\" : false }")
         .close();
 
     var count =
-        db.query("SELECT FROM Person WHERE SEARCH_CLASS(\"verylong\") = true ").stream().count();
+        session.query("SELECT FROM Person WHERE SEARCH_CLASS(\"verylong\") = true ").stream()
+            .count();
 
     Assert.assertEquals(1, count);
   }

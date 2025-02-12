@@ -9,7 +9,7 @@ import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionAbstract;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerSchemaAware2CSV;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerBinary;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerStringAbstract;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,13 +24,12 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class DocumentSchemalessSerializationTest extends DbTestBase {
-
   protected RecordSerializer serializer;
   private RecordSerializer defaultSerializer;
 
   @Before
   public void before() {
-    serializer = new RecordSerializerSchemaAware2CSV();
+    serializer = new RecordSerializerBinary();
     defaultSerializer = DatabaseSessionAbstract.getDefaultSerializer();
     DatabaseSessionAbstract.setDefaultSerializer(serializer);
   }
@@ -42,7 +41,7 @@ public class DocumentSchemalessSerializationTest extends DbTestBase {
 
   @Test
   public void testSimpleSerialization() {
-    var document = (EntityImpl) db.newEntity();
+    var document = (EntityImpl) session.newEntity();
 
     document.field("name", "name");
     document.field("age", 20);
@@ -56,8 +55,8 @@ public class DocumentSchemalessSerializationTest extends DbTestBase {
     document.field("date", new Date());
     document.field("recordId", new RecordId(10, 10));
 
-    var res = serializer.toStream(db, document);
-    var extr = (EntityImpl) serializer.fromStream(db, res, (EntityImpl) db.newEntity(),
+    var res = serializer.toStream(session, document);
+    var extr = (EntityImpl) serializer.fromStream(session, res, (EntityImpl) session.newEntity(),
         new String[]{});
 
     assertEquals(extr.fields(), document.fields());
@@ -80,7 +79,7 @@ public class DocumentSchemalessSerializationTest extends DbTestBase {
   @Test
   public void testSimpleLiteralList() {
 
-    var document = (EntityImpl) db.newEntity();
+    var document = (EntityImpl) session.newEntity();
     List<String> strings = new ArrayList<String>();
     strings.add("a");
     strings.add("b");
@@ -154,8 +153,8 @@ public class DocumentSchemalessSerializationTest extends DbTestBase {
     listMixed.add((byte) 10);
     document.field("listMixed", listMixed);
 
-    var res = serializer.toStream(db, document);
-    var extr = (EntityImpl) serializer.fromStream(db, res, (EntityImpl) db.newEntity(),
+    var res = serializer.toStream(session, document);
+    var extr = (EntityImpl) serializer.fromStream(session, res, (EntityImpl) session.newEntity(),
         new String[]{});
 
     assertEquals(extr.fields(), document.fields());
@@ -170,7 +169,7 @@ public class DocumentSchemalessSerializationTest extends DbTestBase {
 
   @Test
   public void testSimpleMapStringLiteral() {
-    var document = (EntityImpl) db.newEntity();
+    var document = (EntityImpl) session.newEntity();
 
     Map<String, String> mapString = new HashMap<String, String>();
     mapString.put("key", "value");
@@ -212,8 +211,8 @@ public class DocumentSchemalessSerializationTest extends DbTestBase {
     bytesMap.put("key1", (byte) 11);
     document.field("bytesMap", bytesMap);
 
-    var res = serializer.toStream(db, document);
-    var extr = (EntityImpl) serializer.fromStream(db, res, (EntityImpl) db.newEntity(),
+    var res = serializer.toStream(session, document);
+    var extr = (EntityImpl) serializer.fromStream(session, res, (EntityImpl) session.newEntity(),
         new String[]{});
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<String>field("mapString"), document.field("mapString"));
@@ -226,14 +225,14 @@ public class DocumentSchemalessSerializationTest extends DbTestBase {
 
   @Test
   public void testSimpleEmbeddedDoc() {
-    var document = (EntityImpl) db.newEntity();
-    var embedded = (EntityImpl) db.newEntity();
+    var document = (EntityImpl) session.newEntity();
+    var embedded = (EntityImpl) session.newEntity();
     embedded.field("name", "test");
     embedded.field("surname", "something");
     document.field("embed", embedded, PropertyType.EMBEDDED);
 
-    var res = serializer.toStream(db, document);
-    var extr = (EntityImpl) serializer.fromStream(db, res, (EntityImpl) db.newEntity(),
+    var res = serializer.toStream(session, document);
+    var extr = (EntityImpl) serializer.fromStream(session, res, (EntityImpl) session.newEntity(),
         new String[]{});
     assertEquals(document.fields(), extr.fields());
     EntityImpl emb = extr.field("embed");
@@ -245,17 +244,17 @@ public class DocumentSchemalessSerializationTest extends DbTestBase {
   @Test
   public void testMapOfEmbeddedDocument() {
 
-    var document = (EntityImpl) db.newEntity();
+    var document = (EntityImpl) session.newEntity();
 
-    var embeddedInMap = (EntityImpl) db.newEntity();
+    var embeddedInMap = (EntityImpl) session.newEntity();
     embeddedInMap.field("name", "test");
     embeddedInMap.field("surname", "something");
     Map<String, EntityImpl> map = new HashMap<String, EntityImpl>();
     map.put("embedded", embeddedInMap);
     document.field("map", map, PropertyType.EMBEDDEDMAP);
 
-    var res = serializer.toStream(db, document);
-    var extr = (EntityImpl) serializer.fromStream(db, res, (EntityImpl) db.newEntity(),
+    var res = serializer.toStream(session, document);
+    var extr = (EntityImpl) serializer.fromStream(session, res, (EntityImpl) session.newEntity(),
         new String[]{});
     Map<String, EntityImpl> mapS = extr.field("map");
     assertEquals(1, mapS.size());
@@ -268,9 +267,9 @@ public class DocumentSchemalessSerializationTest extends DbTestBase {
   @Test
   public void testCollectionOfEmbeddedDocument() {
 
-    var document = (EntityImpl) db.newEntity();
+    var document = (EntityImpl) session.newEntity();
 
-    var embeddedInList = (EntityImpl) db.newEntity();
+    var embeddedInList = (EntityImpl) session.newEntity();
     embeddedInList.field("name", "test");
     embeddedInList.field("surname", "something");
 
@@ -278,7 +277,7 @@ public class DocumentSchemalessSerializationTest extends DbTestBase {
     embeddedList.add(embeddedInList);
     document.field("embeddedList", embeddedList, PropertyType.EMBEDDEDLIST);
 
-    var embeddedInSet = (EntityImpl) db.newEntity();
+    var embeddedInSet = (EntityImpl) session.newEntity();
     embeddedInSet.field("name", "test1");
     embeddedInSet.field("surname", "something2");
 
@@ -286,8 +285,8 @@ public class DocumentSchemalessSerializationTest extends DbTestBase {
     embeddedSet.add(embeddedInSet);
     document.field("embeddedSet", embeddedSet, PropertyType.EMBEDDEDSET);
 
-    var res = serializer.toStream(db, document);
-    var extr = (EntityImpl) serializer.fromStream(db, res, (EntityImpl) db.newEntity(),
+    var res = serializer.toStream(session, document);
+    var extr = (EntityImpl) serializer.fromStream(session, res, (EntityImpl) session.newEntity(),
         new String[]{});
 
     List<EntityImpl> ser = extr.field("embeddedList");
@@ -308,9 +307,9 @@ public class DocumentSchemalessSerializationTest extends DbTestBase {
   @Test
   @Ignore
   public void testCsvGetTypeByValue() {
-    var res = RecordSerializerStringAbstract.getTypeValue(db, "-");
+    var res = RecordSerializerStringAbstract.getTypeValue(session, "-");
     assertTrue(res instanceof String);
-    res = RecordSerializerStringAbstract.getTypeValue(db, "-email-@gmail.com");
+    res = RecordSerializerStringAbstract.getTypeValue(session, "-email-@gmail.com");
     assertTrue(res instanceof String);
   }
 }

@@ -28,16 +28,20 @@ public class CheckRecordTypeStep extends AbstractExecutionStep {
 
   private Result mapResult(Result result, CommandContext ctx) {
     if (!result.isEntity()) {
-      throw new CommandExecutionException("record " + result + " is not an instance of " + clazz);
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
+          "record " + result + " is not an instance of " + clazz);
     }
     var entity = result.asEntity();
     if (entity == null) {
-      throw new CommandExecutionException("record " + result + " is not an instance of " + clazz);
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
+          "record " + result + " is not an instance of " + clazz);
     }
     var schema = entity.getSchemaType();
 
-    if (schema.isEmpty() || !schema.get().isSubClassOf(clazz)) {
-      throw new CommandExecutionException("record " + result + " is not an instance of " + clazz);
+    var db = ctx.getDatabaseSession();
+    if (schema.isEmpty() || !schema.get().isSubClassOf(db, clazz)) {
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
+          "record " + result + " is not an instance of " + clazz);
     }
     return result;
   }

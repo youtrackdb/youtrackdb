@@ -55,20 +55,20 @@ public class LuceneTxChangesSingleRid extends LuceneTxChangesAbstract {
       writer.addDocument(doc);
     } catch (IOException e) {
       throw BaseException.wrapException(
-          new LuceneIndexException("unable to add entity to changes index"), e);
+          new LuceneIndexException("unable to add entity to changes index"), e, (String) null);
     }
   }
 
-  public void remove(DatabaseSessionInternal db, final Object key,
+  public void remove(DatabaseSessionInternal session, final Object key,
       final Identifiable value) {
     try {
       if (value == null) {
-        writer.deleteDocuments(engine.deleteQuery(db.getStorage(), key, value));
+        writer.deleteDocuments(engine.deleteQuery(session.getStorage(), key, value));
       } else if (value.getIdentity().isTemporary()) {
-        writer.deleteDocuments(engine.deleteQuery(db.getStorage(), key, value));
+        writer.deleteDocuments(engine.deleteQuery(session.getStorage(), key, value));
       } else {
         deleted.add(value.getIdentity().toString());
-        var doc = engine.buildDocument(db, key, value);
+        var doc = engine.buildDocument(session, key, value);
         deletedDocs.add(doc);
         deletedIdx.addDocument(doc);
       }
@@ -76,7 +76,7 @@ public class LuceneTxChangesSingleRid extends LuceneTxChangesAbstract {
       throw BaseException.wrapException(
           new LuceneIndexException(
               "Error while deleting entities in transaction from lucene index"),
-          e);
+          e, (String) null);
     }
   }
 

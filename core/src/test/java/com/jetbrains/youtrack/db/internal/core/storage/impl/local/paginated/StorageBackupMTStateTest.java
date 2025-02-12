@@ -5,8 +5,6 @@ import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.ConcurrentModificationException;
 import com.jetbrains.youtrack.db.api.exception.ModificationOperationProhibitedException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -19,7 +17,6 @@ import com.jetbrains.youtrack.db.internal.core.db.PartitionedDatabasePool;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseCompare;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,10 +24,8 @@ import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Assert;
@@ -200,21 +195,21 @@ public class StorageBackupMTStateTest {
     FileUtils.deleteRecursively(backupDir);
   }
 
-  private SchemaClass createClass(Schema schema, DatabaseSession db) {
+  private SchemaClass createClass(Schema schema, DatabaseSession session) {
     var cls = schema.createClass(CLASS_PREFIX + classCounter.getAndIncrement());
 
-    cls.createProperty(db, "id", PropertyType.LONG);
-    cls.createProperty(db, "intValue", PropertyType.INTEGER);
-    cls.createProperty(db, "stringValue", PropertyType.STRING);
-    cls.createProperty(db, "linkedDocuments", PropertyType.LINKBAG);
+    cls.createProperty(session, "id", PropertyType.LONG);
+    cls.createProperty(session, "intValue", PropertyType.INTEGER);
+    cls.createProperty(session, "stringValue", PropertyType.STRING);
+    cls.createProperty(session, "linkedDocuments", PropertyType.LINKBAG);
 
-    cls.createIndex(db, cls.getName() + "IdIndex", SchemaClass.INDEX_TYPE.UNIQUE, "id");
-    cls.createIndex(db,
-        cls.getName() + "IntValueIndex", SchemaClass.INDEX_TYPE.NOTUNIQUE, "intValue");
+    cls.createIndex(session, cls.getName(session) + "IdIndex", SchemaClass.INDEX_TYPE.UNIQUE, "id");
+    cls.createIndex(session,
+        cls.getName(session) + "IntValueIndex", SchemaClass.INDEX_TYPE.NOTUNIQUE, "intValue");
 
-    classInstancesCounters.put(cls.getName(), new AtomicInteger());
+    classInstancesCounters.put(cls.getName(session), new AtomicInteger());
 
-    System.out.println("Class " + cls.getName() + " is added");
+    System.out.println("Class " + cls.getName(session) + " is added");
 
     return cls;
   }

@@ -5,7 +5,6 @@ import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,10 +39,10 @@ public class CheckSafeDeleteStepTest extends TestUtilsFixture {
     CommandContext context = new BasicCommandContext();
     switch (className) {
       case VERTEX_CLASS_NAME:
-        db.createVertexClass(VERTEX_CLASS_NAME);
+        session.createVertexClass(VERTEX_CLASS_NAME);
         break;
       case EDGE_CLASS_NAME:
-        db.createEdgeClass(EDGE_CLASS_NAME);
+        session.createEdgeClass(EDGE_CLASS_NAME);
         break;
     }
 
@@ -55,7 +54,8 @@ public class CheckSafeDeleteStepTest extends TestUtilsFixture {
           @Override
           public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
             List<Result> result = new ArrayList<>();
-            var simpleClassName = createClassInstance().getName();
+            var db = ctx.getDatabaseSession();
+            var simpleClassName = createClassInstance().getName(db);
             if (!done) {
               for (var i = 0; i < 10; i++) {
                 result.add(
@@ -89,8 +89,8 @@ public class CheckSafeDeleteStepTest extends TestUtilsFixture {
             if (!done) {
               for (var i = 0; i < 10; i++) {
                 result.add(
-                    new ResultInternal(db,
-                        (EntityImpl) db.newEntity(createClassInstance().getName())));
+                    new ResultInternal(session,
+                        session.newEntity(createClassInstance().getName(session))));
               }
               done = true;
             }

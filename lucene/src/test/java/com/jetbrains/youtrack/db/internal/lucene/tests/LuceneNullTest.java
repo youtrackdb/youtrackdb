@@ -1,6 +1,5 @@
 package com.jetbrains.youtrack.db.internal.lucene.tests;
 
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Assert;
 import org.junit.Before;
@@ -13,55 +12,55 @@ public class LuceneNullTest extends LuceneBaseTest {
 
   @Before
   public void setUp() throws Exception {
-    db.command("create class Test extends V");
+    session.command("create class Test extends V");
 
-    db.command("create property Test.names EMBEDDEDLIST STRING");
+    session.command("create property Test.names EMBEDDEDLIST STRING");
 
-    db.command("create index Test.names on Test(names) FULLTEXT ENGINE LUCENE");
+    session.command("create index Test.names on Test(names) FULLTEXT ENGINE LUCENE");
   }
 
   @Test
   public void testNullChangeToNotNullWithLists() {
 
-    db.begin();
-    var doc = ((EntityImpl) db.newEntity("Test"));
-    db.save(doc);
-    db.commit();
+    session.begin();
+    var doc = ((EntityImpl) session.newEntity("Test"));
+    session.save(doc);
+    session.commit();
 
-    db.begin();
-    doc = db.bindToSession(doc);
+    session.begin();
+    doc = session.bindToSession(doc);
     doc.field("names", new String[]{"foo"});
-    db.save(doc);
-    db.commit();
+    session.save(doc);
+    session.commit();
 
-    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Test.names");
+    var index = session.getMetadata().getIndexManagerInternal().getIndex(session, "Test.names");
 
-    db.begin();
-    Assert.assertEquals(1, index.getInternal().size(db));
-    db.commit();
+    session.begin();
+    Assert.assertEquals(1, index.getInternal().size(session));
+    session.commit();
   }
 
   @Test
   public void testNotNullChangeToNullWithLists() {
 
-    var doc = ((EntityImpl) db.newEntity("Test"));
+    var doc = ((EntityImpl) session.newEntity("Test"));
 
-    db.begin();
+    session.begin();
     doc.field("names", new String[]{"foo"});
-    db.save(doc);
-    db.commit();
+    session.save(doc);
+    session.commit();
 
-    db.begin();
+    session.begin();
 
-    doc = db.bindToSession(doc);
+    doc = session.bindToSession(doc);
     doc.removeField("names");
 
-    db.save(doc);
-    db.commit();
+    session.save(doc);
+    session.commit();
 
-    db.begin();
-    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Test.names");
-    Assert.assertEquals(0, index.getInternal().size(db));
-    db.commit();
+    session.begin();
+    var index = session.getMetadata().getIndexManagerInternal().getIndex(session, "Test.names");
+    Assert.assertEquals(0, index.getInternal().size(session));
+    session.commit();
   }
 }

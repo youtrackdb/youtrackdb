@@ -17,8 +17,6 @@ package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.ValidationException;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -29,7 +27,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
@@ -48,40 +45,40 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
 
   @Test
   public void openDb() {
-    db.begin();
-    account = ((EntityImpl) db.newEntity("Account"));
+    session.begin();
+    account = ((EntityImpl) session.newEntity("Account"));
     account.save();
     account.field("id", "1234567890");
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "validationMandatoryNullableNoCloseDb")
   public void validationDisabledAdDatabaseLevel() {
-    db.getMetadata().reload();
+    session.getMetadata().reload();
     try {
-      var entity = ((EntityImpl) db.newEntity("MyTestClass"));
-      db.begin();
+      var entity = ((EntityImpl) session.newEntity("MyTestClass"));
+      session.begin();
       entity.save();
-      db.commit();
+      session.commit();
       Assert.fail();
     } catch (ValidationException ignored) {
     }
 
-    db
+    session
         .command("ALTER DATABASE " + ATTRIBUTES_INTERNAL.VALIDATION.name() + " FALSE")
         .close();
     try {
-      var doc = ((EntityImpl) db.newEntity("MyTestClass"));
-      db.begin();
+      var doc = ((EntityImpl) session.newEntity("MyTestClass"));
+      session.begin();
       doc.save();
-      db.commit();
+      session.commit();
 
-      db.begin();
-      db.bindToSession(doc).delete();
-      db.commit();
+      session.begin();
+      session.bindToSession(doc).delete();
+      session.commit();
     } finally {
-      db.setValidationEnabled(true);
-      db
+      session.setValidationEnabled(true);
+      session
           .command("ALTER DATABASE " + DatabaseSessionInternal.ATTRIBUTES_INTERNAL.VALIDATION.name()
               + " TRUE")
           .close();
@@ -90,23 +87,23 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "openDb", expectedExceptions = ValidationException.class)
   public void validationMandatory() {
-    db.begin();
-    record = db.newInstance("Whiz");
+    session.begin();
+    record = session.newInstance("Whiz");
     record.clear();
     record.save();
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "validationMandatory", expectedExceptions = ValidationException.class)
   public void validationMinString() {
-    db.begin();
-    record = db.newInstance("Whiz");
-    account = db.bindToSession(account);
+    session.begin();
+    record = session.newInstance("Whiz");
+    account = session.bindToSession(account);
     record.field("account", account);
     record.field("id", 23723);
     record.field("text", "");
     record.save();
-    db.commit();
+    session.commit();
   }
 
   @Test(
@@ -114,9 +111,9 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
       expectedExceptions = ValidationException.class,
       expectedExceptionsMessageRegExp = "(?s).*more.*than.*")
   public void validationMaxString() {
-    db.begin();
-    record = db.newInstance("Whiz");
-    account = db.bindToSession(account);
+    session.begin();
+    record = session.newInstance("Whiz");
+    account = session.bindToSession(account);
     record.field("account", account);
     record.field("id", 23723);
     record.field(
@@ -124,7 +121,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
         "clfdkkjsd hfsdkjhf fjdkghjkfdhgjdfh gfdgjfdkhgfd skdjaksdjf skdjf sdkjfsd jfkldjfkjsdf"
             + " kljdk fsdjf kldjgjdhjg khfdjgk hfjdg hjdfhgjkfhdgj kfhdjghrjg");
     record.save();
-    db.commit();
+    session.commit();
   }
 
   @Test(
@@ -132,72 +129,72 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
       expectedExceptions = ValidationException.class,
       expectedExceptionsMessageRegExp = "(?s).*precedes.*")
   public void validationMinDate() throws ParseException {
-    db.begin();
-    record = db.newInstance("Whiz");
-    account = db.bindToSession(account);
+    session.begin();
+    record = session.newInstance("Whiz");
+    account = session.bindToSession(account);
     record.field("account", account);
     record.field("date", new SimpleDateFormat("dd/MM/yyyy").parse("01/33/1976"));
     record.field("text", "test");
     record.save();
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "validationMinDate", expectedExceptions = DatabaseException.class)
   public void validationEmbeddedType() {
-    db.begin();
-    record = db.newInstance("Whiz");
-    record.field("account", db.geCurrentUser());
+    session.begin();
+    record = session.newInstance("Whiz");
+    record.field("account", session.geCurrentUser());
     record.save();
-    db.commit();
+    session.commit();
   }
 
   @Test(
       dependsOnMethods = "validationEmbeddedType",
       expectedExceptions = ValidationException.class)
   public void validationStrictClass() {
-    db.begin();
-    var doc = ((EntityImpl) db.newEntity("StrictTest"));
+    session.begin();
+    var doc = ((EntityImpl) session.newEntity("StrictTest"));
     doc.field("id", 122112);
     doc.field("antani", "122112");
     doc.save();
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "validationStrictClass")
   public void closeDb() {
-    db.close();
+    session.close();
   }
 
   @Test(dependsOnMethods = "closeDb")
   public void createSchemaForMandatoryNullableTest() {
-    if (db.getMetadata().getSchema().existsClass("MyTestClass")) {
-      db.getMetadata().getSchema().dropClass("MyTestClass");
+    if (session.getMetadata().getSchema().existsClass("MyTestClass")) {
+      session.getMetadata().getSchema().dropClass("MyTestClass");
     }
 
-    db.command("CREATE CLASS MyTestClass").close();
-    db.command("CREATE PROPERTY MyTestClass.keyField STRING").close();
-    db.command("ALTER PROPERTY MyTestClass.keyField MANDATORY true").close();
-    db.command("ALTER PROPERTY MyTestClass.keyField NOTNULL true").close();
-    db.command("CREATE PROPERTY MyTestClass.dateTimeField DATETIME").close();
-    db.command("ALTER PROPERTY MyTestClass.dateTimeField MANDATORY true").close();
-    db.command("ALTER PROPERTY MyTestClass.dateTimeField NOTNULL false").close();
-    db.command("CREATE PROPERTY MyTestClass.stringField STRING").close();
-    db.command("ALTER PROPERTY MyTestClass.stringField MANDATORY true").close();
-    db.command("ALTER PROPERTY MyTestClass.stringField NOTNULL false").close();
+    session.command("CREATE CLASS MyTestClass").close();
+    session.command("CREATE PROPERTY MyTestClass.keyField STRING").close();
+    session.command("ALTER PROPERTY MyTestClass.keyField MANDATORY true").close();
+    session.command("ALTER PROPERTY MyTestClass.keyField NOTNULL true").close();
+    session.command("CREATE PROPERTY MyTestClass.dateTimeField DATETIME").close();
+    session.command("ALTER PROPERTY MyTestClass.dateTimeField MANDATORY true").close();
+    session.command("ALTER PROPERTY MyTestClass.dateTimeField NOTNULL false").close();
+    session.command("CREATE PROPERTY MyTestClass.stringField STRING").close();
+    session.command("ALTER PROPERTY MyTestClass.stringField MANDATORY true").close();
+    session.command("ALTER PROPERTY MyTestClass.stringField NOTNULL false").close();
 
-    db.begin();
-    db
+    session.begin();
+    session
         .command(
             "INSERT INTO MyTestClass (keyField,dateTimeField,stringField) VALUES"
                 + " (\"K1\",null,null)")
         .close();
-    db.commit();
-    db.reload();
-    db.getMetadata().reload();
-    db.close();
-    db = acquireSession();
+    session.commit();
+    session.reload();
+    session.getMetadata().reload();
+    session.close();
+    session = acquireSession();
     var result =
-        db.query("SELECT FROM MyTestClass WHERE keyField = ?", "K1").stream().toList();
+        session.query("SELECT FROM MyTestClass WHERE keyField = ?", "K1").stream().toList();
     Assert.assertEquals(result.size(), 1);
     var doc = result.getFirst();
     Assert.assertTrue(doc.hasProperty("keyField"));
@@ -208,76 +205,76 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
   @Test(dependsOnMethods = "createSchemaForMandatoryNullableTest")
   public void testUpdateDocDefined() {
     var result =
-        db.query("SELECT FROM MyTestClass WHERE keyField = ?", "K1").stream().toList();
-    db.begin();
+        session.query("SELECT FROM MyTestClass WHERE keyField = ?", "K1").stream().toList();
+    session.begin();
     Assert.assertEquals(result.size(), 1);
     var readDoc = result.getFirst().asEntity();
     assert readDoc != null;
     readDoc.setProperty("keyField", "K1N");
     readDoc.save();
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testUpdateDocDefined")
   public void validationMandatoryNullableCloseDb() {
-    var doc = ((EntityImpl) db.newEntity("MyTestClass"));
+    var doc = ((EntityImpl) session.newEntity("MyTestClass"));
     doc.field("keyField", "K2");
     doc.field("dateTimeField", (Date) null);
     doc.field("stringField", (String) null);
-    db.begin();
+    session.begin();
     doc.save();
-    db.commit();
+    session.commit();
 
-    db.close();
-    db = acquireSession();
+    session.close();
+    session = acquireSession();
 
     var result =
-        db.query("SELECT FROM MyTestClass WHERE keyField = ?", "K2").stream().toList();
-    db.begin();
+        session.query("SELECT FROM MyTestClass WHERE keyField = ?", "K2").stream().toList();
+    session.begin();
     Assert.assertEquals(result.size(), 1);
     var readDoc = result.getFirst().asEntity();
     assert readDoc != null;
     readDoc.setProperty("keyField", "K2N");
     readDoc.save();
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "validationMandatoryNullableCloseDb")
   public void validationMandatoryNullableNoCloseDb() {
-    var doc = ((EntityImpl) db.newEntity("MyTestClass"));
+    var doc = ((EntityImpl) session.newEntity("MyTestClass"));
     doc.field("keyField", "K3");
     doc.field("dateTimeField", (Date) null);
     doc.field("stringField", (String) null);
 
-    db.begin();
+    session.begin();
     doc.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
+    session.begin();
     var result =
-        db.query("SELECT FROM MyTestClass WHERE keyField = ?", "K3").stream().toList();
+        session.query("SELECT FROM MyTestClass WHERE keyField = ?", "K3").stream().toList();
     Assert.assertEquals(result.size(), 1);
     var readDoc = result.getFirst().asEntity();
     assert readDoc != null;
     readDoc.setProperty("keyField", "K3N");
     readDoc.save();
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "validationDisabledAdDatabaseLevel")
   public void dropSchemaForMandatoryNullableTest() {
-    db.command("DROP CLASS MyTestClass").close();
-    db.getMetadata().reload();
+    session.command("DROP CLASS MyTestClass").close();
+    session.getMetadata().reload();
   }
 
   @Test
   public void testNullComparison() {
     // given
-    var doc1 = ((EntityImpl) db.newEntity()).field("testField", (Object) null);
-    var doc2 = ((EntityImpl) db.newEntity()).field("testField", (Object) null);
+    var doc1 = ((EntityImpl) session.newEntity()).field("testField", (Object) null);
+    var doc2 = ((EntityImpl) session.newEntity()).field("testField", (Object) null);
 
     var context = new BasicCommandContext();
-    context.setDatabase(db);
+    context.setDatabaseSession(session);
     var comparator =
         new EntityComparator(
             Collections.singletonList(new Pair<>("testField", "asc")),

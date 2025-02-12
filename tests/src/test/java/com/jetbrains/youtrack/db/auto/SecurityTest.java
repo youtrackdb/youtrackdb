@@ -21,18 +21,11 @@ import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
 import com.jetbrains.youtrack.db.api.exception.SecurityException;
 import com.jetbrains.youtrack.db.api.exception.ValidationException;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.Security;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 import java.util.stream.Collectors;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
@@ -61,12 +54,12 @@ public class SecurityTest extends BaseDBTest {
   public void beforeMethod() throws Exception {
     super.beforeMethod();
 
-    db.close();
+    session.close();
   }
 
   public void testWrongPassword() throws IOException {
     try {
-      db = createSessionInstance("reader", "swdsds");
+      session = createSessionInstance("reader", "swdsds");
     } catch (BaseException e) {
       Assert.assertTrue(
           e instanceof SecurityAccessException
@@ -78,30 +71,30 @@ public class SecurityTest extends BaseDBTest {
   }
 
   public void testSecurityAccessWriter() throws IOException {
-    db = createSessionInstance("writer", "writer");
+    session = createSessionInstance("writer", "writer");
 
     try {
-      db.begin();
-      (new EntityImpl(db)).save("internal");
-      db.commit();
+      session.begin();
+      (new EntityImpl(session)).save("internal");
+      session.commit();
 
       Assert.fail();
     } catch (SecurityAccessException e) {
       Assert.assertTrue(true);
     } finally {
-      db.close();
+      session.close();
     }
   }
 
   @Test
   public void testSecurityAccessReader() throws IOException {
-    db = createSessionInstance("reader", "reader");
+    session = createSessionInstance("reader", "reader");
 
     try {
-      db.createClassIfNotExist("Profile");
+      session.createClassIfNotExist("Profile");
 
-      db.begin();
-      ((EntityImpl) db.newEntity("Profile"))
+      session.begin();
+      ((EntityImpl) session.newEntity("Profile"))
           .fields(
               "nick",
               "error",
@@ -112,138 +105,138 @@ public class SecurityTest extends BaseDBTest {
               "registeredOn",
               new Date())
           .save();
-      db.commit();
+      session.commit();
     } catch (SecurityAccessException e) {
       Assert.assertTrue(true);
     } finally {
-      db.close();
+      session.close();
     }
   }
 
   @Test
   public void testEncryptPassword() throws IOException {
-    db = createSessionInstance("admin", "admin");
+    session = createSessionInstance("admin", "admin");
 
-    db.begin();
+    session.begin();
     Long updated =
-        db
+        session
             .command("update ouser set password = 'test' where name = 'reader'")
             .next()
             .getProperty("count");
-    db.commit();
+    session.commit();
 
     Assert.assertEquals(updated.intValue(), 1);
 
-    db.begin();
-    var result = db.query("select from ouser where name = 'reader'");
+    session.begin();
+    var result = session.query("select from ouser where name = 'reader'");
     Assert.assertNotEquals(result.next().getProperty("password"), "test");
-    db.commit();
+    session.commit();
 
     // RESET OLD PASSWORD
-    db.begin();
+    session.begin();
     updated =
-        db
+        session
             .command("update ouser set password = 'reader' where name = 'reader'")
             .next()
             .getProperty("count");
-    db.commit();
+    session.commit();
     Assert.assertEquals(updated.intValue(), 1);
 
-    db.begin();
-    result = db.query("select from ouser where name = 'reader'");
+    session.begin();
+    result = session.query("select from ouser where name = 'reader'");
     Assert.assertNotEquals(result.next().getProperty("password"), "reader");
-    db.commit();
+    session.commit();
 
-    db.close();
+    session.close();
   }
 
   public void testParentRole() {
-    db = createSessionInstance("admin", "admin");
+    session = createSessionInstance("admin", "admin");
 
-    db.begin();
-    var security = db.getMetadata().getSecurity();
+    session.begin();
+    var security = session.getMetadata().getSecurity();
     var writer = security.getRole("writer");
 
     var writerChild =
         security.createRole("writerChild", writer);
-    writerChild.save(db);
-    db.commit();
+    writerChild.save(session);
+    session.commit();
 
     try {
-      db.begin();
+      session.begin();
       var writerGrandChild =
           security.createRole(
               "writerGrandChild", writerChild);
-      writerGrandChild.save(db);
-      db.commit();
+      writerGrandChild.save(session);
+      session.commit();
 
       try {
-        db.begin();
+        session.begin();
         var child = security.createUser("writerChild", "writerChild",
             writerGrandChild);
-        child.save(db);
-        db.commit();
+        child.save(session);
+        session.commit();
 
         try {
-          db.begin();
-          Assert.assertTrue(child.hasRole(db, "writer", true));
-          Assert.assertFalse(child.hasRole(db, "wrter", true));
-          db.commit();
+          session.begin();
+          Assert.assertTrue(child.hasRole(session, "writer", true));
+          Assert.assertFalse(child.hasRole(session, "wrter", true));
+          session.commit();
 
-          db.close();
-          if (!db.isRemote()) {
-            db = createSessionInstance("writerChild", "writerChild");
+          session.close();
+          if (!session.isRemote()) {
+            session = createSessionInstance("writerChild", "writerChild");
 
-            db.begin();
-            var user = db.geCurrentUser();
-            Assert.assertTrue(user.hasRole(db, "writer", true));
-            Assert.assertFalse(user.hasRole(db, "wrter", true));
-            db.commit();
+            session.begin();
+            var user = session.geCurrentUser();
+            Assert.assertTrue(user.hasRole(session, "writer", true));
+            Assert.assertFalse(user.hasRole(session, "wrter", true));
+            session.commit();
 
-            db.close();
+            session.close();
           }
-          db = createSessionInstance();
-          security = db.getMetadata().getSecurity();
+          session = createSessionInstance();
+          security = session.getMetadata().getSecurity();
         } finally {
-          db.begin();
+          session.begin();
           security.dropUser("writerChild");
-          db.commit();
+          session.commit();
         }
       } finally {
-        db.begin();
+        session.begin();
         security.dropRole("writerGrandChild");
-        db.commit();
+        session.commit();
       }
     } finally {
-      db.begin();
+      session.begin();
       security.dropRole("writerChild");
-      db.commit();
+      session.commit();
     }
   }
 
   @Test
   public void testQuotedUserName() {
-    db = createSessionInstance();
+    session = createSessionInstance();
 
-    db.begin();
-    var security = db.getMetadata().getSecurity();
+    session.begin();
+    var security = session.getMetadata().getSecurity();
 
     var adminRole = security.getRole("admin");
     security.createUser("user'quoted", "foobar", adminRole);
-    db.commit();
-    db.close();
+    session.commit();
+    session.close();
 
-    db = createSessionInstance();
-    db.begin();
-    security = db.getMetadata().getSecurity();
+    session = createSessionInstance();
+    session.begin();
+    security = session.getMetadata().getSecurity();
     var user = security.getUser("user'quoted");
     Assert.assertNotNull(user);
-    security.dropUser(user.getName(db));
-    db.commit();
-    db.close();
+    security.dropUser(user.getName(session));
+    session.commit();
+    session.close();
 
     try {
-      db = createSessionInstance("user'quoted", "foobar");
+      session = createSessionInstance("user'quoted", "foobar");
       Assert.fail();
     } catch (Exception e) {
 
@@ -252,65 +245,65 @@ public class SecurityTest extends BaseDBTest {
 
   @Test
   public void testUserNoRole() {
-    db = createSessionInstance();
+    session = createSessionInstance();
 
-    var security = db.getMetadata().getSecurity();
+    var security = session.getMetadata().getSecurity();
 
-    db.begin();
+    session.begin();
     security.createUser("noRole", "noRole", (String[]) null);
-    db.commit();
+    session.commit();
 
-    db.close();
+    session.close();
 
     try {
-      db = createSessionInstance("noRole", "noRole");
+      session = createSessionInstance("noRole", "noRole");
       Assert.fail();
     } catch (SecurityAccessException e) {
-      db = createSessionInstance();
-      db.begin();
-      security = db.getMetadata().getSecurity();
+      session = createSessionInstance();
+      session.begin();
+      security = session.getMetadata().getSecurity();
       security.dropUser("noRole");
-      db.commit();
+      session.commit();
     }
   }
 
   @Test
   public void testAdminCanSeeSystemClusters() {
-    db = createSessionInstance();
+    session = createSessionInstance();
 
-    db.begin();
+    session.begin();
     var result =
-        db.command("select from ouser").stream().collect(Collectors.toList());
+        session.command("select from ouser").stream().collect(Collectors.toList());
     Assert.assertFalse(result.isEmpty());
-    db.commit();
+    session.commit();
 
-    db.begin();
-    Assert.assertTrue(db.browseClass("OUser").hasNext());
-    db.commit();
+    session.begin();
+    Assert.assertTrue(session.browseClass("OUser").hasNext());
+    session.commit();
 
-    db.begin();
-    Assert.assertTrue(db.browseCluster("OUser").hasNext());
-    db.commit();
+    session.begin();
+    Assert.assertTrue(session.browseCluster("OUser").hasNext());
+    session.commit();
   }
 
   @Test
   @Ignore
   public void testOnlyAdminCanSeeSystemClusters() {
-    db = createSessionInstance("reader", "reader");
+    session = createSessionInstance("reader", "reader");
 
     try {
-      db.command(new CommandSQL("select from ouser")).execute(db);
+      session.command(new CommandSQL("select from ouser")).execute(session);
     } catch (SecurityException e) {
     }
 
     try {
-      Assert.assertFalse(db.browseClass("OUser").hasNext());
+      Assert.assertFalse(session.browseClass("OUser").hasNext());
       Assert.fail();
     } catch (SecurityException e) {
     }
 
     try {
-      Assert.assertFalse(db.browseCluster("OUser").hasNext());
+      Assert.assertFalse(session.browseCluster("OUser").hasNext());
       Assert.fail();
     } catch (SecurityException e) {
     }
@@ -318,173 +311,173 @@ public class SecurityTest extends BaseDBTest {
 
   @Test
   public void testCannotExtendClassWithNoUpdateProvileges() {
-    db = createSessionInstance();
-    db.getMetadata().getSchema().createClass("Protected");
-    db.close();
+    session = createSessionInstance();
+    session.getMetadata().getSchema().createClass("Protected");
+    session.close();
 
-    db = createSessionInstance("writer", "writer");
+    session = createSessionInstance("writer", "writer");
 
     try {
-      db.command(new CommandSQL("alter class Protected superclass OUser")).execute(db);
+      session.command(new CommandSQL("alter class Protected superclass OUser")).execute(session);
       Assert.fail();
     } catch (SecurityException e) {
     } finally {
-      db.close();
+      session.close();
 
-      db = createSessionInstance();
-      db.getMetadata().getSchema().dropClass("Protected");
+      session = createSessionInstance();
+      session.getMetadata().getSchema().dropClass("Protected");
     }
   }
 
   @Test
   public void testSuperUserCanExtendClassWithNoUpdateProvileges() {
-    db = createSessionInstance();
-    db.getMetadata().getSchema().createClass("Protected");
+    session = createSessionInstance();
+    session.getMetadata().getSchema().createClass("Protected");
 
     try {
-      db.command("alter class Protected superclass OUser").close();
+      session.command("alter class Protected superclass OUser").close();
     } finally {
-      db.getMetadata().getSchema().dropClass("Protected");
+      session.getMetadata().getSchema().dropClass("Protected");
     }
   }
 
   @Test
   public void testEmptyUserName() {
-    db = createSessionInstance();
+    session = createSessionInstance();
     try {
-      var security = db.getMetadata().getSecurity();
+      var security = session.getMetadata().getSecurity();
       var userName = "";
       try {
-        db.begin();
+        session.begin();
         var reader = security.getRole("reader");
         security.createUser(userName, "foobar", reader);
-        db.commit();
+        session.commit();
         Assert.fail();
       } catch (ValidationException ve) {
         Assert.assertTrue(true);
       }
       Assert.assertNull(security.getUser(userName));
     } finally {
-      db.close();
+      session.close();
     }
   }
 
   @Test
   public void testUserNameWithAllSpaces() {
-    db = createSessionInstance();
+    session = createSessionInstance();
     try {
-      var security = db.getMetadata().getSecurity();
+      var security = session.getMetadata().getSecurity();
 
-      db.begin();
+      session.begin();
       var reader = security.getRole("reader");
-      db.commit();
+      session.commit();
       final var userName = "  ";
       try {
-        db.begin();
+        session.begin();
         security.createUser(userName, "foobar", reader);
-        db.commit();
+        session.commit();
         Assert.fail();
       } catch (ValidationException ve) {
         Assert.assertTrue(true);
       }
       Assert.assertNull(security.getUser(userName));
     } finally {
-      db.close();
+      session.close();
     }
   }
 
   @Test
   public void testUserNameWithSurroundingSpacesOne() {
-    db = createSessionInstance();
+    session = createSessionInstance();
     try {
-      var security = db.getMetadata().getSecurity();
+      var security = session.getMetadata().getSecurity();
 
-      db.begin();
+      session.begin();
       var reader = security.getRole("reader");
-      db.commit();
+      session.commit();
       final var userName = " sas";
       try {
-        db.begin();
+        session.begin();
         security.createUser(userName, "foobar", reader);
-        db.commit();
+        session.commit();
         Assert.fail();
       } catch (ValidationException ve) {
         Assert.assertTrue(true);
       }
       Assert.assertNull(security.getUser(userName));
     } finally {
-      db.close();
+      session.close();
     }
   }
 
   @Test
   public void testUserNameWithSurroundingSpacesTwo() {
-    db = createSessionInstance();
+    session = createSessionInstance();
     try {
-      var security = db.getMetadata().getSecurity();
+      var security = session.getMetadata().getSecurity();
 
-      db.begin();
+      session.begin();
       var reader = security.getRole("reader");
       final var userName = "sas ";
       try {
         security.createUser(userName, "foobar", reader);
-        db.commit();
+        session.commit();
         Assert.fail();
       } catch (ValidationException ve) {
         Assert.assertTrue(true);
       }
       Assert.assertNull(security.getUser(userName));
     } finally {
-      db.close();
+      session.close();
     }
   }
 
   @Test
   public void testUserNameWithSurroundingSpacesThree() {
-    db = createSessionInstance();
+    session = createSessionInstance();
     try {
-      var security = db.getMetadata().getSecurity();
+      var security = session.getMetadata().getSecurity();
 
-      db.begin();
+      session.begin();
       var reader = security.getRole("reader");
-      db.commit();
+      session.commit();
       final var userName = " sas ";
       try {
-        db.begin();
+        session.begin();
         security.createUser(userName, "foobar", reader);
-        db.commit();
+        session.commit();
         Assert.fail();
       } catch (ValidationException ve) {
         Assert.assertTrue(true);
       }
       Assert.assertNull(security.getUser(userName));
     } finally {
-      db.close();
+      session.close();
     }
   }
 
   @Test
   public void testUserNameWithSpacesInTheMiddle() {
-    db = createSessionInstance();
+    session = createSessionInstance();
     try {
-      var security = db.getMetadata().getSecurity();
+      var security = session.getMetadata().getSecurity();
 
-      db.begin();
+      session.begin();
       var reader = security.getRole("reader");
-      db.commit();
+      session.commit();
       final var userName = "s a s";
-      db.begin();
+      session.begin();
       security.createUser(userName, "foobar", reader);
-      db.commit();
-      db.begin();
+      session.commit();
+      session.begin();
       Assert.assertNotNull(security.getUser(userName));
       security.dropUser(userName);
-      db.commit();
-      db.begin();
+      session.commit();
+      session.begin();
       Assert.assertNull(security.getUser(userName));
-      db.commit();
+      session.commit();
     } finally {
-      db.close();
+      session.close();
     }
   }
 }

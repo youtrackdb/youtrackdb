@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLDeleteVertexStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIndexIdentifier;
@@ -31,10 +31,11 @@ public class DeleteVertexExecutionPlanner {
 
     if (handleIndexAsTarget(result, fromClause.getItem().getIndex(), whereClause, ctx)) {
       if (limit != null) {
-        throw new CommandExecutionException("Cannot apply a LIMIT on a delete from index");
+        throw new CommandExecutionException(ctx.getDatabaseSession(),
+            "Cannot apply a LIMIT on a delete from index");
       }
       if (returnBefore) {
-        throw new CommandExecutionException(
+        throw new CommandExecutionException(ctx.getDatabaseSession(),
             "Cannot apply a RETURN BEFORE on a delete from index");
       }
 
@@ -56,7 +57,8 @@ public class DeleteVertexExecutionPlanner {
     if (indexIdentifier == null) {
       return false;
     }
-    throw new CommandExecutionException("DELETE VERTEX FROM INDEX is not supported");
+    throw new CommandExecutionException(ctx.getDatabaseSession(),
+        "DELETE VERTEX FROM INDEX is not supported");
   }
 
   private void handleDelete(

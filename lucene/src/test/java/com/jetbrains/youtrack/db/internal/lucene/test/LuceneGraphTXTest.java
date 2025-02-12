@@ -19,9 +19,6 @@
 package com.jetbrains.youtrack.db.internal.lucene.test;
 
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.record.Vertex;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,42 +30,42 @@ public class LuceneGraphTXTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    var type = db.createVertexClass("City");
-    type.createProperty(db, "name", PropertyType.STRING);
+    var type = session.createVertexClass("City");
+    type.createProperty(session, "name", PropertyType.STRING);
 
-    db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
+    session.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
 
   @Test
   public void graphTxTest() throws Exception {
 
-    var v = db.newVertex("City");
+    var v = session.newVertex("City");
     v.setProperty("name", "London");
 
-    db.begin();
-    db.save(v);
-    db.commit();
+    session.begin();
+    session.save(v);
+    session.commit();
 
-    db.begin();
-    var results = db.command("select from City where name lucene 'London'");
+    session.begin();
+    var results = session.command("select from City where name lucene 'London'");
     Assert.assertEquals(results.stream().count(), 1);
 
-    v = db.bindToSession(v);
+    v = session.bindToSession(v);
     v.setProperty("name", "Berlin");
 
     v.save();
-    db.commit();
+    session.commit();
 
-    results = db.command("select from City where name lucene 'Berlin'");
+    results = session.command("select from City where name lucene 'Berlin'");
     Assert.assertEquals(results.stream().count(), 1);
 
-    results = db.command("select from City where name lucene 'London'");
+    results = session.command("select from City where name lucene 'London'");
     Assert.assertEquals(results.stream().count(), 0);
 
     // Assert After Commit
-    results = db.command("select from City where name lucene 'Berlin'");
+    results = session.command("select from City where name lucene 'Berlin'");
     Assert.assertEquals(results.stream().count(), 1);
-    results = db.command("select from City where name lucene 'London'");
+    results = session.command("select from City where name lucene 'London'");
     Assert.assertEquals(results.stream().count(), 0);
   }
 }

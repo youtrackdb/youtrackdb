@@ -28,7 +28,6 @@ import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.iterator.LazyWrapperIterator;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
@@ -110,7 +109,6 @@ public class EdgeIterator extends LazyWrapperIterator<Edge> {
     final Edge edge;
     if (value.isVertex()) {
       // DIRECT VERTEX, CREATE DUMMY EDGE
-      var db = DatabaseRecordThreadLocal.instance().getIfDefined();
       SchemaImmutableClass clazz = null;
       if (db != null && connection.getValue() != null) {
         clazz =
@@ -119,11 +117,11 @@ public class EdgeIterator extends LazyWrapperIterator<Edge> {
       }
       if (connection.getKey() == Direction.OUT) {
         edge =
-            new EdgeDelegate(
+            new EdgeDelegate(db,
                 this.sourceVertex, value.asVertex().get(), clazz, connection.getValue());
       } else {
         edge =
-            new EdgeDelegate(
+            new EdgeDelegate(db,
                 value.asVertex().get(), this.sourceVertex, clazz, connection.getValue());
       }
     } else if (value.isEdge()) {

@@ -39,10 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
@@ -52,7 +49,6 @@ import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
 import org.apache.lucene.search.highlight.QueryTermScorer;
 import org.apache.lucene.search.highlight.Scorer;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
-import org.apache.lucene.search.highlight.TextFragment;
 import org.apache.lucene.search.highlight.TokenSources;
 
 /**
@@ -72,21 +68,21 @@ public class LuceneResultSet implements Set<Identifiable> {
   private long deletedMatchCount = 0;
 
   private boolean closed = false;
-  private final DatabaseSessionInternal db;
+  private final DatabaseSessionInternal session;
 
-  protected LuceneResultSet(DatabaseSessionInternal db) {
-    this.db = db;
+  protected LuceneResultSet(DatabaseSessionInternal session) {
+    this.session = session;
   }
 
   public LuceneResultSet(
-      DatabaseSessionInternal db, final LuceneIndexEngine engine,
+      DatabaseSessionInternal session, final LuceneIndexEngine engine,
       final LuceneQueryContext queryContext,
       final Map<String, ?> metadata) {
     this.engine = engine;
     this.queryContext = queryContext;
     this.query = queryContext.getQuery();
     this.indexName = engine.indexName();
-    this.db = db;
+    this.session = session;
 
     fetchFirstBatch();
     deletedMatchCount = calculateDeletedMatch();
@@ -217,8 +213,8 @@ public class LuceneResultSet implements Set<Identifiable> {
       if (!hasNext && !closed) {
         final var searcher = queryContext.getSearcher();
         if (searcher.getIndexReader().getRefCount() > 1) {
-          assert db.assertIfNotActive();
-          engine.release(db.getStorage(), searcher);
+          assert session.assertIfNotActive();
+          engine.release(session.getStorage(), searcher);
           closed = true;
         }
       }
@@ -227,8 +223,8 @@ public class LuceneResultSet implements Set<Identifiable> {
 
     @Override
     public Identifiable next() {
-      assert db.assertIfNotActive();
-      var storage = db.getStorage();
+      assert session.assertIfNotActive();
+      var storage = session.getStorage();
       ScoreDoc scoreDoc;
       ContextualRecordId res;
       Document doc;
@@ -280,7 +276,8 @@ public class LuceneResultSet implements Set<Identifiable> {
         engine.onRecordAddedToResultSet(queryContext, res, doc, score);
         return res;
       } catch (IOException | InvalidTokenOffsetsException e) {
-        throw BaseException.wrapException(new LuceneIndexException("error while highlighting"), e);
+        throw BaseException.wrapException(new LuceneIndexException("error while highlighting"), e,
+            session);
       }
     }
 

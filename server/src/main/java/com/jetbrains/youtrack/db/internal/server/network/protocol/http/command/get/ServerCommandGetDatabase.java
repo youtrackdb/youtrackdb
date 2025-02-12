@@ -43,67 +43,70 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
   private static final String[] NAMES = {"GET|database/*"};
 
   public static void exportClass(
-      final DatabaseSessionInternal db, final JSONWriter json, final SchemaClassInternal cls)
+      final DatabaseSessionInternal session, final JSONWriter json, final SchemaClassInternal cls)
       throws IOException {
     json.beginObject();
-    json.writeAttribute(db, "name", cls.getName());
-    json.writeAttribute(db,
-        "superClass", cls.getSuperClass() != null ? cls.getSuperClass().getName() : "");
+    json.writeAttribute(session, "name", cls.getName(session));
+    json.writeAttribute(session,
+        "superClass",
+        cls.getSuperClass(session) != null ? cls.getSuperClass(session).getName(session) : "");
 
-    json.beginCollection(db, "superClasses");
+    json.beginCollection(session, "superClasses");
     var i = 0;
-    for (var oClass : cls.getSuperClasses()) {
-      json.write((i > 0 ? "," : "") + "\"" + oClass.getName() + "\"");
+    for (var oClass : cls.getSuperClasses(session)) {
+      json.write((i > 0 ? "," : "") + "\"" + oClass.getName(session) + "\"");
       i++;
     }
     json.endCollection();
 
-    json.writeAttribute(db, "alias", cls.getShortName());
-    json.writeAttribute(db, "abstract", cls.isAbstract());
-    json.writeAttribute(db, "strictmode", cls.isStrictMode());
-    json.writeAttribute(db, "clusters", cls.getClusterIds());
-    json.writeAttribute(db, "clusterSelection", cls.getClusterSelectionStrategyName());
+    json.writeAttribute(session, "alias", cls.getShortName(session));
+    json.writeAttribute(session, "abstract", cls.isAbstract(session));
+    json.writeAttribute(session, "strictmode", cls.isStrictMode(session));
+    json.writeAttribute(session, "clusters", cls.getClusterIds(session));
+    json.writeAttribute(session, "clusterSelection", cls.getClusterSelectionStrategyName(session));
     if (cls instanceof SchemaClassImpl) {
-      final var custom = ((SchemaClassImpl) cls).getCustomInternal();
+      final var custom = ((SchemaClassImpl) cls).getCustomInternal(session);
       if (custom != null && !custom.isEmpty()) {
-        json.writeAttribute(db, "custom", custom);
+        json.writeAttribute(session, "custom", custom);
       }
     }
 
     try {
-      json.writeAttribute(db, "records", db.countClass(cls.getName()));
+      json.writeAttribute(session, "records", session.countClass(cls.getName(session)));
     } catch (SecurityAccessException e) {
-      json.writeAttribute(db, "records", "? (Unauthorized)");
+      json.writeAttribute(session, "records", "? (Unauthorized)");
     } catch (Exception e) {
-      json.writeAttribute(db, "records", "? (Error)");
+      json.writeAttribute(session, "records", "? (Error)");
     }
 
-    if (cls.properties(db) != null && cls.properties(db).size() > 0) {
-      json.beginCollection(db, "properties");
-      for (final var prop : cls.properties(db)) {
+    if (cls.properties(session) != null && cls.properties(session).size() > 0) {
+      json.beginCollection(session, "properties");
+      for (final var prop : cls.properties(session)) {
         json.beginObject();
-        json.writeAttribute(db, "name", prop.getName());
-        if (prop.getLinkedClass() != null) {
-          json.writeAttribute(db, "linkedClass", prop.getLinkedClass().getName());
+        json.writeAttribute(session, "name", prop.getName(session));
+        if (prop.getLinkedClass(session) != null) {
+          json.writeAttribute(session, "linkedClass",
+              prop.getLinkedClass(session).getName(session));
         }
-        if (prop.getLinkedType() != null) {
-          json.writeAttribute(db, "linkedType", prop.getLinkedType().toString());
+        if (prop.getLinkedType(session) != null) {
+          json.writeAttribute(session, "linkedType", prop.getLinkedType(session).toString());
         }
-        json.writeAttribute(db, "type", prop.getType().toString());
-        json.writeAttribute(db, "mandatory", prop.isMandatory());
-        json.writeAttribute(db, "readonly", prop.isReadonly());
-        json.writeAttribute(db, "notNull", prop.isNotNull());
-        json.writeAttribute(db, "min", prop.getMin());
-        json.writeAttribute(db, "max", prop.getMax());
-        json.writeAttribute(db, "regexp", prop.getRegexp());
-        json.writeAttribute(db,
-            "collate", prop.getCollate() != null ? prop.getCollate().getName() : "default");
-        json.writeAttribute(db, "defaultValue", prop.getDefaultValue());
+        json.writeAttribute(session, "type", prop.getType(session).toString());
+        json.writeAttribute(session, "mandatory", prop.isMandatory(session));
+        json.writeAttribute(session, "readonly", prop.isReadonly(session));
+        json.writeAttribute(session, "notNull", prop.isNotNull(session));
+        json.writeAttribute(session, "min", prop.getMin(session));
+        json.writeAttribute(session, "max", prop.getMax(session));
+        json.writeAttribute(session, "regexp", prop.getRegexp(session));
+        json.writeAttribute(session,
+            "collate",
+            prop.getCollate(session) != null ? prop.getCollate(session).getName() : "default");
+        json.writeAttribute(session, "defaultValue", prop.getDefaultValue(session));
 
         if (prop instanceof SchemaPropertyImpl) {
-          final var custom = ((SchemaPropertyImpl) prop).getCustomInternal();
+          final var custom = ((SchemaPropertyImpl) prop).getCustomInternal(session);
           if (custom != null && !custom.isEmpty()) {
-            json.writeAttribute(db, "custom", custom);
+            json.writeAttribute(session, "custom", custom);
           }
         }
 
@@ -112,17 +115,17 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
       json.endCollection();
     }
 
-    final var indexes = cls.getIndexesInternal(db);
+    final var indexes = cls.getIndexesInternal(session);
     if (!indexes.isEmpty()) {
-      json.beginCollection(db, "indexes");
+      json.beginCollection(session, "indexes");
       for (final var index : indexes) {
         json.beginObject();
-        json.writeAttribute(db, "name", index.getName());
-        json.writeAttribute(db, "type", index.getType());
+        json.writeAttribute(session, "name", index.getName());
+        json.writeAttribute(session, "type", index.getType());
 
         final var indexDefinition = index.getDefinition();
         if (indexDefinition != null && !indexDefinition.getFields().isEmpty()) {
-          json.writeAttribute(db, "fields", indexDefinition.getFields());
+          json.writeAttribute(session, "fields", indexDefinition.getFields());
         }
         json.endObject();
       }
@@ -156,12 +159,12 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
   protected void exec(
       final HttpRequest iRequest, final HttpResponse iResponse, final String[] urlParts)
       throws InterruptedException, IOException {
-    DatabaseSessionInternal db = null;
+    DatabaseSessionInternal session = null;
     try {
       if (urlParts.length > 2) {
-        db = server.openDatabase(urlParts[1], urlParts[2], urlParts[3]);
+        session = server.openSession(urlParts[1], urlParts[2], urlParts[3]);
       } else {
-        db = getProfiledDatabaseInstance(iRequest);
+        session = getProfiledDatabaseSessionInstance(iRequest);
       }
 
       final var buffer = new StringWriter();
@@ -169,17 +172,17 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
       json.beginObject();
 
       json.beginObject("server");
-      json.writeAttribute(db, "version", YouTrackDBConstants.getRawVersion());
+      json.writeAttribute(session, "version", YouTrackDBConstants.getRawVersion());
       if (YouTrackDBConstants.getBuildNumber() != null) {
-        json.writeAttribute(db, "build", YouTrackDBConstants.getBuildNumber());
+        json.writeAttribute(session, "build", YouTrackDBConstants.getBuildNumber());
       }
-      json.writeAttribute(db, "osName", System.getProperty("os.name"));
-      json.writeAttribute(db, "osVersion", System.getProperty("os.version"));
-      json.writeAttribute(db, "osArch", System.getProperty("os.arch"));
-      json.writeAttribute(db, "javaVendor", System.getProperty("java.vm.vendor"));
-      json.writeAttribute(db, "javaVersion", System.getProperty("java.vm.version"));
+      json.writeAttribute(session, "osName", System.getProperty("os.name"));
+      json.writeAttribute(session, "osVersion", System.getProperty("os.version"));
+      json.writeAttribute(session, "osArch", System.getProperty("os.arch"));
+      json.writeAttribute(session, "javaVendor", System.getProperty("java.vm.vendor"));
+      json.writeAttribute(session, "javaVersion", System.getProperty("java.vm.version"));
 
-      json.beginCollection(db, "conflictStrategies");
+      json.beginCollection(session, "conflictStrategies");
 
       var strategies =
           YouTrackDBEnginesManager.instance().getRecordConflictStrategy()
@@ -192,9 +195,9 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
       }
       json.endCollection();
 
-      json.beginCollection(db, "clusterSelectionStrategies");
+      json.beginCollection(session, "clusterSelectionStrategies");
       var clusterSelectionStrategies =
-          db.getMetadata()
+          session.getMetadata()
               .getImmutableSchemaSnapshot()
               .getClusterSelectionFactory()
               .getRegisteredNames();
@@ -207,21 +210,21 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
 
       json.endObject();
 
-      if (db.getMetadata().getImmutableSchemaSnapshot().getClasses(db) != null) {
-        json.beginCollection(db, "classes");
+      if (session.getMetadata().getImmutableSchemaSnapshot().getClasses() != null) {
+        json.beginCollection(session, "classes");
         List<String> classNames = new ArrayList<String>();
 
-        for (var cls : db.getMetadata().getImmutableSchemaSnapshot().getClasses(db)) {
-          classNames.add(cls.getName());
+        for (var cls : session.getMetadata().getImmutableSchemaSnapshot().getClasses()) {
+          classNames.add(cls.getName(session));
         }
         Collections.sort(classNames);
 
         for (var className : classNames) {
-          var cls = db.getMetadata().getImmutableSchemaSnapshot()
+          var cls = session.getMetadata().getImmutableSchemaSnapshot()
               .getClassInternal(className);
 
           try {
-            exportClass(db, json, cls);
+            exportClass(session, json, cls);
           } catch (Exception e) {
             LogManager.instance().error(this, "Error on exporting class '" + cls + "'", e);
           }
@@ -229,45 +232,45 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
         json.endCollection();
       }
 
-      if (db.getClusterNames() != null) {
-        json.beginCollection(db, "clusters");
-        for (var clusterName : db.getClusterNames()) {
-          final var clusterId = db.getClusterIdByName(clusterName);
+      if (session.getClusterNames() != null) {
+        json.beginCollection(session, "clusters");
+        for (var clusterName : session.getClusterNames()) {
+          final var clusterId = session.getClusterIdByName(clusterName);
           if (clusterId < 0) {
             continue;
           }
           try {
-            final var conflictStrategy = db.getClusterRecordConflictStrategy(clusterId);
+            final var conflictStrategy = session.getClusterRecordConflictStrategy(clusterId);
 
             json.beginObject();
-            json.writeAttribute(db, "id", clusterId);
-            json.writeAttribute(db, "name", clusterName);
-            json.writeAttribute(db, "records", db.countClusterElements(clusterId));
-            json.writeAttribute(db, "conflictStrategy", conflictStrategy);
-            json.writeAttribute(db, "size", "-");
-            json.writeAttribute(db, "filled", "-");
-            json.writeAttribute(db, "maxSize", "-");
-            json.writeAttribute(db, "files", "-");
+            json.writeAttribute(session, "id", clusterId);
+            json.writeAttribute(session, "name", clusterName);
+            json.writeAttribute(session, "records", session.countClusterElements(clusterId));
+            json.writeAttribute(session, "conflictStrategy", conflictStrategy);
+            json.writeAttribute(session, "size", "-");
+            json.writeAttribute(session, "filled", "-");
+            json.writeAttribute(session, "maxSize", "-");
+            json.writeAttribute(session, "files", "-");
           } catch (Exception e) {
-            json.writeAttribute(db, "records", "? (Unauthorized)");
+            json.writeAttribute(session, "records", "? (Unauthorized)");
           }
           json.endObject();
         }
         json.endCollection();
       }
 
-      if (db.geCurrentUser() != null) {
-        json.writeAttribute(db, "currentUser", db.geCurrentUser().getName(db));
+      if (session.geCurrentUser() != null) {
+        json.writeAttribute(session, "currentUser", session.geCurrentUser().getName(session));
 
         // exportSecurityInfo(db, json);
       }
-      final var idxManager = db.getMetadata().getIndexManagerInternal();
-      json.beginCollection(db, "indexes");
-      for (var index : idxManager.getIndexes(db)) {
+      final var idxManager = session.getMetadata().getIndexManagerInternal();
+      json.beginCollection(session, "indexes");
+      for (var index : idxManager.getIndexes(session)) {
         json.beginObject();
         try {
-          json.writeAttribute(db, "name", index.getName());
-          json.writeAttribute(db, "configuration", index.getConfiguration(db));
+          json.writeAttribute(session, "name", index.getName());
+          json.writeAttribute(session, "configuration", index.getConfiguration(session));
           // Exclude index size because it's too costly
           // json.writeAttribute("size", index.getSize());
         } catch (Exception e) {
@@ -279,9 +282,9 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
 
       json.beginObject("config");
 
-      json.beginCollection(db, "values");
-      var configuration = db.getStorageInfo().getConfiguration();
-      json.writeObjects(db,
+      json.beginCollection(session, "values");
+      var configuration = session.getStorageInfo().getConfiguration();
+      json.writeObjects(session,
           null,
           new Object[]{"name", "dateFormat", "value", configuration.getDateFormat()},
           new Object[]{"name", "dateTimeFormat", "value", configuration.getDateTimeFormat()},
@@ -295,13 +298,13 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
           new Object[]{"name", "conflictStrategy", "value", configuration.getConflictStrategy()});
       json.endCollection();
 
-      json.beginCollection(db, "properties");
+      json.beginCollection(session, "properties");
       if (configuration.getProperties() != null) {
         for (var entry : configuration.getProperties()) {
           if (entry != null) {
             json.beginObject();
-            json.writeAttribute(db, "name", entry.name);
-            json.writeAttribute(db, "value", entry.value);
+            json.writeAttribute(session, "name", entry.name);
+            json.writeAttribute(session, "value", entry.value);
             json.endObject();
           }
         }
@@ -319,8 +322,8 @@ public class ServerCommandGetDatabase extends ServerCommandGetConnect {
           buffer.toString(),
           null);
     } finally {
-      if (db != null) {
-        db.close();
+      if (session != null) {
+        session.close();
       }
     }
   }

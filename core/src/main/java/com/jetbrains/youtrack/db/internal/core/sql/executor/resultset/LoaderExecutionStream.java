@@ -46,7 +46,7 @@ public final class LoaderExecutionStream implements ExecutionStream {
     if (nextResult != null) {
       return;
     }
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     while (iterator.hasNext()) {
       var nextRid = iterator.next();
 

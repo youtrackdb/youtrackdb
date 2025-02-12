@@ -3,7 +3,6 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ProduceExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
@@ -46,8 +45,9 @@ public class CountFromIndexWithKeyStep extends AbstractExecutionStep {
   }
 
   private Result produce(CommandContext ctx) {
-    var idx = ctx.getDatabase().getMetadata().getIndexManager().getIndex(target.getIndexName());
-    var db = ctx.getDatabase();
+    var idx = ctx.getDatabaseSession().getMetadata().getIndexManager()
+        .getIndex(target.getIndexName());
+    var db = ctx.getDatabaseSession();
     var val =
         idx.getDefinition()
             .createValue(db, keyValue.execute(new ResultInternal(db), ctx));

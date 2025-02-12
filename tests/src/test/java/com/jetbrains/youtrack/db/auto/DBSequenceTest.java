@@ -3,7 +3,6 @@ package com.jetbrains.youtrack.db.auto;
 import com.jetbrains.youtrack.db.internal.core.exception.SequenceException;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence.SEQUENCE_TYPE;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceLibrary;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import org.testng.Assert;
@@ -33,7 +32,7 @@ public class DBSequenceTest extends BaseDBTest {
 
   private void testSequence(String sequenceName, SEQUENCE_TYPE sequenceType)
       throws ExecutionException, InterruptedException {
-    var sequenceLibrary = db.getMetadata().getSequenceLibrary();
+    var sequenceLibrary = session.getMetadata().getSequenceLibrary();
 
     var seq = sequenceLibrary.createSequence(sequenceName, sequenceType, null);
 
@@ -54,19 +53,19 @@ public class DBSequenceTest extends BaseDBTest {
 
     // Doing it twice to check everything works after reset
     for (var i = 0; i < 2; ++i) {
-      Assert.assertEquals(seq.next(db), 1L);
-      Assert.assertEquals(seq.current(db), 1L);
-      Assert.assertEquals(seq.next(db), 2L);
-      Assert.assertEquals(seq.next(db), 3L);
-      Assert.assertEquals(seq.next(db), 4L);
-      Assert.assertEquals(seq.current(db), 4L);
-      Assert.assertEquals(seq.reset(db), 0L);
+      Assert.assertEquals(seq.next(session), 1L);
+      Assert.assertEquals(seq.current(session), 1L);
+      Assert.assertEquals(seq.next(session), 2L);
+      Assert.assertEquals(seq.next(session), 3L);
+      Assert.assertEquals(seq.next(session), 4L);
+      Assert.assertEquals(seq.current(session), 4L);
+      Assert.assertEquals(seq.reset(session), 0L);
     }
   }
 
   @Test
   public void testOrdered() throws ExecutionException, InterruptedException {
-    var sequenceManager = db.getMetadata().getSequenceLibrary();
+    var sequenceManager = session.getMetadata().getSequenceLibrary();
 
     var seq = sequenceManager.createSequence("seqOrdered", SEQUENCE_TYPE.ORDERED, null);
 
@@ -86,9 +85,10 @@ public class DBSequenceTest extends BaseDBTest {
     testUsage(seq, FIRST_START);
 
     //
-    db.begin();
-    seq.updateParams(db, new DBSequence.CreateParams().setStart(SECOND_START).setCacheSize(13));
-    db.commit();
+    session.begin();
+    seq.updateParams(session,
+        new DBSequence.CreateParams().setStart(SECOND_START).setCacheSize(13));
+    session.commit();
 
     testUsage(seq, SECOND_START);
   }
@@ -96,15 +96,15 @@ public class DBSequenceTest extends BaseDBTest {
   private void testUsage(DBSequence seq, long reset)
       throws ExecutionException, InterruptedException {
     for (var i = 0; i < 2; ++i) {
-      Assert.assertEquals(seq.reset(db), reset);
-      Assert.assertEquals(seq.current(db), reset);
-      Assert.assertEquals(seq.next(db), reset + 1L);
-      Assert.assertEquals(seq.current(db), reset + 1L);
-      Assert.assertEquals(seq.next(db), reset + 2L);
-      Assert.assertEquals(seq.next(db), reset + 3L);
-      Assert.assertEquals(seq.next(db), reset + 4L);
-      Assert.assertEquals(seq.current(db), reset + 4L);
-      Assert.assertEquals(seq.reset(db), reset);
+      Assert.assertEquals(seq.reset(session), reset);
+      Assert.assertEquals(seq.current(session), reset);
+      Assert.assertEquals(seq.next(session), reset + 1L);
+      Assert.assertEquals(seq.current(session), reset + 1L);
+      Assert.assertEquals(seq.next(session), reset + 2L);
+      Assert.assertEquals(seq.next(session), reset + 3L);
+      Assert.assertEquals(seq.next(session), reset + 4L);
+      Assert.assertEquals(seq.current(session), reset + 4L);
+      Assert.assertEquals(seq.reset(session), reset);
     }
   }
 }

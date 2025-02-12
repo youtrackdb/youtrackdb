@@ -62,7 +62,8 @@ public class LuceneWithinOperator extends QueryTargetOperator {
     Shape shape = SpatialContext.GEO.makePoint(lon, lat);
 
     var shape1 =
-        shapeFactory.makeShape(iContext.getDatabase(), new SpatialCompositeKey((List<?>) iRight),
+        shapeFactory.makeShape(iContext.getDatabaseSession(),
+            new SpatialCompositeKey((List<?>) iRight),
             SpatialContext.GEO);
 
     return shape.relate(shape1) == SpatialRelation.WITHIN;
@@ -79,7 +80,7 @@ public class LuceneWithinOperator extends QueryTargetOperator {
     iContext.setVariable("$luceneIndex", true);
     return index
         .getInternal()
-        .getRids(iContext.getDatabase(),
+        .getRids(iContext.getDatabaseSession(),
             new SpatialCompositeKey(keyParams).setOperation(SpatialOperation.IsWithin)
                 .setContext(iContext))
         .map(

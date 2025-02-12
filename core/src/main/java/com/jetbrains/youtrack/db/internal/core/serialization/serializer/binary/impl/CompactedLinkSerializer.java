@@ -3,12 +3,12 @@ package com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.
 import static com.jetbrains.youtrack.db.internal.core.serialization.BinaryProtocol.bytes2short;
 import static com.jetbrains.youtrack.db.internal.core.serialization.BinaryProtocol.short2bytes;
 
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ShortSerializer;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
 import java.nio.ByteBuffer;
 
@@ -18,7 +18,8 @@ public class CompactedLinkSerializer implements BinarySerializer<Identifiable> {
   public static final CompactedLinkSerializer INSTANCE = new CompactedLinkSerializer();
 
   @Override
-  public int getObjectSize(Identifiable rid, Object... hints) {
+  public int getObjectSize(BinarySerializerFactory serializerFactory, Identifiable rid,
+      Object... hints) {
     final var r = rid.getIdentity();
 
     var size = ShortSerializer.SHORT_SIZE + ByteSerializer.BYTE_SIZE;
@@ -32,14 +33,16 @@ public class CompactedLinkSerializer implements BinarySerializer<Identifiable> {
   }
 
   @Override
-  public int getObjectSize(byte[] stream, int startPosition) {
+  public int getObjectSize(BinarySerializerFactory serializerFactory, byte[] stream,
+      int startPosition) {
     return stream[startPosition + ShortSerializer.SHORT_SIZE]
         + ByteSerializer.BYTE_SIZE
         + ShortSerializer.SHORT_SIZE;
   }
 
   @Override
-  public void serialize(Identifiable rid, byte[] stream, int startPosition, Object... hints) {
+  public void serialize(Identifiable rid, BinarySerializerFactory serializerFactory, byte[] stream,
+      int startPosition, Object... hints) {
     final var r = rid.getIdentity();
 
     final var zeroBits = Long.numberOfLeadingZeros(r.getClusterPosition());
@@ -60,7 +63,8 @@ public class CompactedLinkSerializer implements BinarySerializer<Identifiable> {
   }
 
   @Override
-  public Identifiable deserialize(byte[] stream, int startPosition) {
+  public Identifiable deserialize(BinarySerializerFactory serializerFactory, byte[] stream,
+      int startPosition) {
     final int cluster = bytes2short(stream, startPosition);
     startPosition += ShortSerializer.SHORT_SIZE;
 
@@ -92,7 +96,8 @@ public class CompactedLinkSerializer implements BinarySerializer<Identifiable> {
 
   @Override
   public void serializeNativeObject(
-      Identifiable rid, byte[] stream, int startPosition, Object... hints) {
+      Identifiable rid, BinarySerializerFactory serializerFactory, byte[] stream, int startPosition,
+      Object... hints) {
     final var r = rid.getIdentity();
 
     ShortSerializer.INSTANCE.serializeNative((short) r.getClusterId(), stream, startPosition);
@@ -113,8 +118,10 @@ public class CompactedLinkSerializer implements BinarySerializer<Identifiable> {
   }
 
   @Override
-  public Identifiable deserializeNativeObject(byte[] stream, int startPosition) {
-    final int cluster = ShortSerializer.INSTANCE.deserializeNativeObject(stream, startPosition);
+  public Identifiable deserializeNativeObject(BinarySerializerFactory serializerFactory,
+      byte[] stream, int startPosition) {
+    final int cluster = ShortSerializer.INSTANCE.deserializeNativeObject(serializerFactory, stream,
+        startPosition);
     startPosition += ShortSerializer.SHORT_SIZE;
 
     final int numberSize = stream[startPosition];
@@ -129,19 +136,22 @@ public class CompactedLinkSerializer implements BinarySerializer<Identifiable> {
   }
 
   @Override
-  public int getObjectSizeNative(byte[] stream, int startPosition) {
+  public int getObjectSizeNative(BinarySerializerFactory serializerFactory, byte[] stream,
+      int startPosition) {
     return stream[startPosition + ShortSerializer.SHORT_SIZE]
         + ByteSerializer.BYTE_SIZE
         + ShortSerializer.SHORT_SIZE;
   }
 
   @Override
-  public Identifiable preprocess(Identifiable value, Object... hints) {
+  public Identifiable preprocess(BinarySerializerFactory serializerFactory, Identifiable value,
+      Object... hints) {
     return value.getIdentity();
   }
 
   @Override
-  public void serializeInByteBufferObject(Identifiable rid, ByteBuffer buffer, Object... hints) {
+  public void serializeInByteBufferObject(BinarySerializerFactory serializerFactory,
+      Identifiable rid, ByteBuffer buffer, Object... hints) {
     final var r = rid.getIdentity();
     buffer.putShort((short) r.getClusterId());
 
@@ -163,7 +173,8 @@ public class CompactedLinkSerializer implements BinarySerializer<Identifiable> {
   }
 
   @Override
-  public Identifiable deserializeFromByteBufferObject(ByteBuffer buffer) {
+  public Identifiable deserializeFromByteBufferObject(BinarySerializerFactory serializerFactory,
+      ByteBuffer buffer) {
     final int cluster = buffer.getShort();
 
     final int numberSize = buffer.get();
@@ -179,7 +190,8 @@ public class CompactedLinkSerializer implements BinarySerializer<Identifiable> {
   }
 
   @Override
-  public Identifiable deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
+  public Identifiable deserializeFromByteBufferObject(BinarySerializerFactory serializerFactory,
+      int offset, ByteBuffer buffer) {
     final int cluster = buffer.getShort(offset);
     offset += Short.BYTES;
 
@@ -198,14 +210,16 @@ public class CompactedLinkSerializer implements BinarySerializer<Identifiable> {
   }
 
   @Override
-  public int getObjectSizeInByteBuffer(ByteBuffer buffer) {
+  public int getObjectSizeInByteBuffer(BinarySerializerFactory serializerFactory,
+      ByteBuffer buffer) {
     return buffer.get(buffer.position() + ShortSerializer.SHORT_SIZE)
         + ByteSerializer.BYTE_SIZE
         + ShortSerializer.SHORT_SIZE;
   }
 
   @Override
-  public int getObjectSizeInByteBuffer(int offset, ByteBuffer buffer) {
+  public int getObjectSizeInByteBuffer(BinarySerializerFactory serializerFactory, int offset,
+      ByteBuffer buffer) {
     return buffer.get(offset + ShortSerializer.SHORT_SIZE)
         + ByteSerializer.BYTE_SIZE
         + ShortSerializer.SHORT_SIZE;
@@ -213,7 +227,8 @@ public class CompactedLinkSerializer implements BinarySerializer<Identifiable> {
 
   @Override
   public Identifiable deserializeFromByteBufferObject(
-      ByteBuffer buffer, WALChanges walChanges, int offset) {
+      BinarySerializerFactory serializerFactory, ByteBuffer buffer, WALChanges walChanges,
+      int offset) {
     final int cluster = walChanges.getShortValue(buffer, offset);
     offset += ShortSerializer.SHORT_SIZE;
 

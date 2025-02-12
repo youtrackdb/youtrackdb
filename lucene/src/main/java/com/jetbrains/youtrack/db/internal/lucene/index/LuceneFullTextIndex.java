@@ -48,7 +48,7 @@ public class LuceneFullTextIndex extends LuceneIndexNotUnique {
     }
   }
 
-  public Query buildQuery(final Object query) {
+  public Query buildQuery(final Object query, DatabaseSessionInternal session) {
     while (true) {
       try {
         return storage.callIndexEngine(
@@ -56,7 +56,7 @@ public class LuceneFullTextIndex extends LuceneIndexNotUnique {
             indexId,
             engine -> {
               var indexEngine = (LuceneIndexEngine) engine;
-              return indexEngine.buildQuery(query);
+              return indexEngine.buildQuery(query, session);
             });
       } catch (InvalidIndexEngineIdException e) {
         doReloadIndexEngine();

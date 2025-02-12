@@ -7,7 +7,6 @@ import com.jetbrains.youtrack.db.api.DatabaseType;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.YourTracks;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
@@ -39,7 +38,7 @@ public class RemoteTransactionHookTest extends DbTestBase {
 
     super.beforeTest();
 
-    db.createClass("SomeTx");
+    session.createClass("SomeTx");
   }
 
   @Override
@@ -73,19 +72,19 @@ public class RemoteTransactionHookTest extends DbTestBase {
   @Test
   @Ignore
   public void testCalledInTx() {
-    var calls = new CountCallHook(db);
-    db.registerHook(calls);
+    var calls = new CountCallHook(session);
+    session.registerHook(calls);
 
-    db.begin();
-    var doc = ((EntityImpl) db.newEntity("SomeTx"));
+    session.begin();
+    var doc = ((EntityImpl) session.newEntity("SomeTx"));
     doc.setProperty("name", "some");
-    db.save(doc);
-    db.command("insert into SomeTx set name='aa' ").close();
-    var res = db.command("update SomeTx set name='bb' where name=\"some\"");
+    session.save(doc);
+    session.command("insert into SomeTx set name='aa' ").close();
+    var res = session.command("update SomeTx set name='bb' where name=\"some\"");
     assertEquals((Long) 1L, res.next().getProperty("count"));
     res.close();
-    db.command("delete from SomeTx where name='aa'").close();
-    db.commit();
+    session.command("delete from SomeTx where name='aa'").close();
+    session.commit();
 
     assertEquals(2, calls.getBeforeCreate());
     assertEquals(2, calls.getAfterCreate());
@@ -119,23 +118,23 @@ public class RemoteTransactionHookTest extends DbTestBase {
     assertEquals(1, calls.getAfterDelete());
     database.close();
     youTrackDB.close();
-    this.db.activateOnCurrentThread();
+    this.session.activateOnCurrentThread();
   }
 
   @Test
   @Ignore
   public void testCalledInTxServer() {
-    db.begin();
+    session.begin();
     var calls = CountCallHookServer.instance;
-    var doc = ((EntityImpl) db.newEntity("SomeTx"));
+    var doc = ((EntityImpl) session.newEntity("SomeTx"));
     doc.setProperty("name", "some");
-    db.save(doc);
-    db.command("insert into SomeTx set name='aa' ").close();
-    var res = db.command("update SomeTx set name='bb' where name=\"some\"");
+    session.save(doc);
+    session.command("insert into SomeTx set name='aa' ").close();
+    var res = session.command("update SomeTx set name='bb' where name=\"some\"");
     assertEquals((Long) 1L, res.next().getProperty("count"));
     res.close();
-    db.command("delete from SomeTx where name='aa'").close();
-    db.commit();
+    session.command("delete from SomeTx where name='aa'").close();
+    session.commit();
     assertEquals(2, calls.getBeforeCreate());
     assertEquals(2, calls.getAfterCreate());
     assertEquals(1, calls.getBeforeUpdate());

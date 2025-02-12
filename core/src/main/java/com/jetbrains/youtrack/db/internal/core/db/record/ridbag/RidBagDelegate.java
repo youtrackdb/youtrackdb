@@ -30,6 +30,7 @@ import com.jetbrains.youtrack.db.internal.core.storage.ridbag.Change;
 import java.util.Collection;
 import java.util.NavigableMap;
 import java.util.UUID;
+import javax.annotation.Nonnull;
 
 public interface RidBagDelegate
     extends Iterable<RID>,
@@ -53,15 +54,16 @@ public interface RidBagDelegate
    * <p>OwnerUuid is needed to notify db about changes of collection pointer if some happens during
    * serialization.
    *
-   * @param db Current database session instance
+   * @param session Current database session instance
    * @param stream    to write content
    * @param offset    in stream where start to write content
    * @param ownerUuid id of delegate owner
    * @return offset where content of stream is ended
    */
-  int serialize(DatabaseSessionInternal db, byte[] stream, int offset, UUID ownerUuid);
+  int serialize(@Nonnull DatabaseSessionInternal session, byte[] stream, int offset,
+      UUID ownerUuid);
 
-  int deserialize(DatabaseSessionInternal db, byte[] stream, int offset);
+  int deserialize(@Nonnull DatabaseSessionInternal session, byte[] stream, int offset);
 
   void requestDelete();
 

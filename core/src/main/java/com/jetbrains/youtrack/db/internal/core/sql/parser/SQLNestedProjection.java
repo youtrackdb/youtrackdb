@@ -78,7 +78,7 @@ public class SQLNestedProjection extends SimpleNode {
   }
 
   private Object apply(SQLExpression expression, Result elem, CommandContext ctx, int recursion) {
-    var result = new ResultInternal(ctx.getDatabase());
+    var result = new ResultInternal(ctx.getDatabaseSession());
     if (starItem != null || includeItems.isEmpty()) {
       for (var property : elem.getPropertyNames()) {
         if (isExclude(property)) {
@@ -132,7 +132,7 @@ public class SQLNestedProjection extends SimpleNode {
   private Object apply(
       SQLExpression expression, Identifiable input, CommandContext ctx, int recursion) {
     Entity elem;
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     if (input instanceof Entity) {
       elem = (Entity) input;
     } else {
@@ -143,7 +143,7 @@ public class SQLNestedProjection extends SimpleNode {
         return input;
       }
     }
-    var result = new ResultInternal(ctx.getDatabase());
+    var result = new ResultInternal(ctx.getDatabaseSession());
     if (starItem != null || includeItems.isEmpty()) {
       for (var property : elem.getPropertyNames()) {
         if (isExclude(property)) {
@@ -174,7 +174,7 @@ public class SQLNestedProjection extends SimpleNode {
 
   private Object apply(
       SQLExpression expression, Map<String, Object> input, CommandContext ctx, int recursion) {
-    var result = new ResultInternal(ctx.getDatabase());
+    var result = new ResultInternal(ctx.getDatabaseSession());
 
     if (starItem != null || includeItems.size() == 0) {
       for (var property : input.keySet()) {
@@ -193,7 +193,7 @@ public class SQLNestedProjection extends SimpleNode {
             item.alias != null
                 ? item.alias.getStringValue()
                 : item.expression.getDefaultAlias().getStringValue();
-        var elem = new ResultInternal(ctx.getDatabase());
+        var elem = new ResultInternal(ctx.getDatabaseSession());
         input.forEach(elem::setProperty);
         var value = item.expression.execute(elem, ctx);
         if (item.expansion != null) {

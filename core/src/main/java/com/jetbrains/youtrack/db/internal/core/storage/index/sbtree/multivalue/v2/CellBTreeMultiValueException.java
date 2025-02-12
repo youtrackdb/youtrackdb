@@ -33,6 +33,11 @@ public final class CellBTreeMultiValueException extends DurableComponentExceptio
   }
 
   CellBTreeMultiValueException(final String message, final CellBTreeMultiValueV2 component) {
-    super(message, component);
+    super(null, message, component);
+  }
+
+  CellBTreeMultiValueException(final String dbName, final String message,
+      final CellBTreeMultiValueV2 component) {
+    super(dbName, message, component);
   }
 }

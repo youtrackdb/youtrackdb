@@ -69,21 +69,23 @@ public class CreateEdgesStep extends AbstractExecutionStep {
     var fromIter = fetchFroms();
     var toList = fetchTo();
     var uniqueIndex = findIndex(this.uniqueIndexName);
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     var stream =
         StreamSupport.stream(Spliterators.spliteratorUnknownSize(fromIter, 0), false)
             .map(currentFrom1 -> asVertex(db, currentFrom1))
-            .flatMap((currentFrom) -> mapTo(ctx.getDatabase(), toList, currentFrom, uniqueIndex));
+            .flatMap(
+                (currentFrom) -> mapTo(ctx.getDatabaseSession(), toList, currentFrom, uniqueIndex));
     return ExecutionStream.resultIterator(stream.iterator());
   }
 
   private Index findIndex(String uniqueIndexName) {
     if (uniqueIndexName != null) {
-      final var database = ctx.getDatabase();
+      final var session = ctx.getDatabaseSession();
       var uniqueIndex =
-          database.getMetadata().getIndexManagerInternal().getIndex(database, uniqueIndexName);
+          session.getMetadata().getIndexManagerInternal().getIndex(session, uniqueIndexName);
       if (uniqueIndex == null) {
-        throw new CommandExecutionException("Index not found for upsert: " + uniqueIndexName);
+        throw new CommandExecutionException(session,
+            "Index not found for upsert: " + uniqueIndexName);
       }
       return uniqueIndex;
     }
@@ -136,19 +138,19 @@ public class CreateEdgesStep extends AbstractExecutionStep {
     return fromIter;
   }
 
-  public Stream<Result> mapTo(DatabaseSessionInternal db, List<Object> to, Vertex currentFrom,
+  public Stream<Result> mapTo(DatabaseSessionInternal session, List<Object> to, Vertex currentFrom,
       Index uniqueIndex) {
     return to.stream()
         .map(
             (obj) -> {
-              var currentTo = asVertex(db, obj);
+              var currentTo = asVertex(session, obj);
               if (currentTo == null) {
-                throw new CommandExecutionException("Invalid TO vertex for edge");
+                throw new CommandExecutionException(session, "Invalid TO vertex for edge");
               }
               EdgeInternal edgeToUpdate = null;
               if (uniqueIndex != null) {
                 var existingEdge =
-                    getExistingEdge(ctx.getDatabase(), currentFrom, currentTo, uniqueIndex);
+                    getExistingEdge(ctx.getDatabaseSession(), currentFrom, currentTo, uniqueIndex);
                 if (existingEdge != null) {
                   edgeToUpdate = existingEdge;
                 }
@@ -159,7 +161,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
                     (EdgeInternal) currentFrom.addEdge(currentTo, targetClass.getStringValue());
                 if (targetCluster != null) {
                   if (edgeToUpdate.isLightweight()) {
-                    throw new CommandExecutionException(
+                    throw new CommandExecutionException(session,
                         "Cannot set target cluster on lightweight edges");
                   }
 
@@ -171,7 +173,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
               currentTo.save();
               edgeToUpdate.save();
 
-              return new UpdatableResult(db, edgeToUpdate);
+              return new UpdatableResult(session, edgeToUpdate);
             });
   }
 
@@ -196,9 +198,9 @@ public class CreateEdgesStep extends AbstractExecutionStep {
     return null;
   }
 
-  private static Vertex asVertex(DatabaseSessionInternal db, Object currentFrom) {
+  private static Vertex asVertex(DatabaseSessionInternal session, Object currentFrom) {
     if (currentFrom instanceof RID) {
-      currentFrom = ((RID) currentFrom).getRecord(db);
+      currentFrom = ((RID) currentFrom).getRecord(session);
     }
     if (currentFrom instanceof Result) {
       var from = currentFrom;
@@ -207,7 +209,8 @@ public class CreateEdgesStep extends AbstractExecutionStep {
               .getVertex()
               .orElseThrow(
                   () ->
-                      new CommandExecutionException("Invalid vertex for edge creation: " + from));
+                      new CommandExecutionException(session,
+                          "Invalid vertex for edge creation: " + from));
     }
     if (currentFrom instanceof Vertex) {
       return (Vertex) currentFrom;
@@ -217,9 +220,10 @@ public class CreateEdgesStep extends AbstractExecutionStep {
       return ((Entity) currentFrom)
           .asVertex()
           .orElseThrow(
-              () -> new CommandExecutionException("Invalid vertex for edge creation: " + from));
+              () -> new CommandExecutionException(session,
+                  "Invalid vertex for edge creation: " + from));
     }
-    throw new CommandExecutionException(
+    throw new CommandExecutionException(session,
         "Invalid vertex for edge creation: "
             + (currentFrom == null ? "null" : currentFrom.toString()));
   }

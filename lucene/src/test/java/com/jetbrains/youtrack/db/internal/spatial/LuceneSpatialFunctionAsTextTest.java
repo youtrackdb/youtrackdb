@@ -16,19 +16,14 @@ package com.jetbrains.youtrack.db.internal.spatial;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.text.ParseException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.spatial4j.shape.Shape;
 
 /**
  *
@@ -38,12 +33,12 @@ public class LuceneSpatialFunctionAsTextTest extends BaseSpatialLuceneTest {
   @Before
   public void init() {
 
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var v = schema.getClass("V");
     var oClass = schema.createClass("Location");
-    oClass.setSuperClass(db, v);
-    oClass.createProperty(db, "geometry", PropertyType.EMBEDDED, schema.getClass("OShape"));
-    oClass.createProperty(db, "name", PropertyType.STRING);
+    oClass.setSuperClass(session, v);
+    oClass.createProperty(session, "geometry", PropertyType.EMBEDDED, schema.getClass("OShape"));
+    oClass.createProperty(session, "name", PropertyType.STRING);
 
     initData();
   }
@@ -61,13 +56,13 @@ public class LuceneSpatialFunctionAsTextTest extends BaseSpatialLuceneTest {
   }
 
   protected void createLocation(String name, EntityImpl geometry) {
-    var doc = ((EntityImpl) db.newEntity("Location"));
+    var doc = ((EntityImpl) session.newEntity("Location"));
     doc.field("name", name);
     doc.field("geometry", geometry);
 
-    db.begin();
-    db.save(doc);
-    db.commit();
+    session.begin();
+    session.save(doc);
+    session.commit();
   }
 
   @Test
@@ -78,7 +73,8 @@ public class LuceneSpatialFunctionAsTextTest extends BaseSpatialLuceneTest {
 
   protected void queryAndAssertGeom(String name, String wkt) {
     var results =
-        db.command("select *, ST_AsText(geometry) as text from Location where name = ? ", name);
+        session.command("select *, ST_AsText(geometry) as text from Location where name = ? ",
+            name);
 
     assertTrue(results.hasNext());
     var doc = results.next();

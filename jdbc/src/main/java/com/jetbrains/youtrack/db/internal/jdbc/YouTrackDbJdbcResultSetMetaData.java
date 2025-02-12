@@ -13,6 +13,7 @@
  */
 package com.jetbrains.youtrack.db.internal.jdbc;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
@@ -64,11 +65,14 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
 
   private final String[] fieldNames;
   private final YouTrackDbJdbcResultSet resultSet;
+  private final DatabaseSession session;
 
   public YouTrackDbJdbcResultSetMetaData(
-      YouTrackDbJdbcResultSet youTrackDbJdbcResultSet, List<String> fieldNames) {
+      YouTrackDbJdbcResultSet youTrackDbJdbcResultSet, List<String> fieldNames,
+      DatabaseSession session) {
     resultSet = youTrackDbJdbcResultSet;
     this.fieldNames = fieldNames.toArray(new String[]{});
+    this.session = session;
   }
 
   public static Integer getSqlType(final PropertyType iType) {
@@ -126,8 +130,8 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
           currentRecord
               .asEntity()
               .getSchemaType()
-              .map(st -> st.getProperty(fieldName))
-              .map(SchemaProperty::getType)
+              .map(st -> st.getProperty(session, fieldName))
+              .map(schemaProperty -> schemaProperty.getType(session))
               .orElse(null);
     }
 
@@ -237,8 +241,8 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
       return currentRecord
           .asEntity()
           .getSchemaType()
-          .map(st -> st.getProperty(columnLabel))
-          .map(SchemaProperty::getType)
+          .map(st -> st.getProperty(session, columnLabel))
+          .map(schemaProperty -> schemaProperty.getType(session))
           .map(Enum::toString)
           .orElse(null);
     }
@@ -259,13 +263,13 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
     if (currentRecord == null || !currentRecord.isEntity()) {
       return "";
     } else {
-      return ((EntityImpl) currentRecord.asEntity()).getSession().getName();
+      return ((EntityImpl) currentRecord.asEntity()).getSession().getDatabaseName();
     }
   }
 
   public String getTableName(final int column) throws SQLException {
     final var p = getProperty(column);
-    return p != null ? p.getOwnerClass().getName() : null;
+    return p != null ? p.getOwnerClass().getName(session) : null;
   }
 
   public boolean isAutoIncrement(final int column) {
@@ -274,7 +278,7 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
 
   public boolean isCaseSensitive(final int column) throws SQLException {
     final var p = getProperty(column);
-    return p != null && p.getCollate().getName().equalsIgnoreCase("ci");
+    return p != null && p.getCollate(session).getName().equalsIgnoreCase("ci");
   }
 
   public boolean isCurrency(final int column) {
@@ -293,7 +297,7 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
 
   public boolean isReadOnly(final int column) throws SQLException {
     final var p = getProperty(column);
-    return p != null && p.isReadonly();
+    return p != null && p.isReadonly(session);
   }
 
   public boolean isSearchable(int column) {
@@ -307,7 +311,7 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
       otype = currentRecord
           .asEntity()
           .getSchemaType()
-          .map(st -> st.getProperty(fieldNames[column - 1]).getType())
+          .map(st -> st.getProperty(session, fieldNames[column - 1]).getType(session))
           .orElse(null);
     }
 
@@ -343,7 +347,7 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
       return currentRecord
           .asEntity()
           .getSchemaType()
-          .map(st -> st.getProperty(fieldName))
+          .map(st -> st.getProperty(session, fieldName))
           .orElse(null);
     }
 

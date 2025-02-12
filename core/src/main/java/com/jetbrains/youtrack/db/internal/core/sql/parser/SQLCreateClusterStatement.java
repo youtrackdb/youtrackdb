@@ -2,8 +2,8 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
@@ -32,13 +32,13 @@ public class SQLCreateClusterStatement extends DDLStatement {
 
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     var existingId = db.getClusterIdByName(name.getStringValue());
     if (existingId >= 0) {
       if (ifNotExists) {
         return ExecutionStream.empty();
       } else {
-        throw new CommandExecutionException(
+        throw new CommandExecutionException(ctx.getDatabaseSession(),
             "Cluster " + name.getStringValue() + " already exists");
       }
     }
@@ -48,7 +48,8 @@ public class SQLCreateClusterStatement extends DDLStatement {
         if (ifNotExists) {
           return ExecutionStream.empty();
         } else {
-          throw new CommandExecutionException("Cluster " + id.getValue() + " already exists");
+          throw new CommandExecutionException(ctx.getDatabaseSession(),
+              "Cluster " + id.getValue() + " already exists");
         }
       }
     }
@@ -64,7 +65,8 @@ public class SQLCreateClusterStatement extends DDLStatement {
         finalId = db.addBlobCluster(name.getStringValue());
         result.setProperty("finalId", finalId);
       } else {
-        throw new CommandExecutionException("Request id not supported by blob cluster creation.");
+        throw new CommandExecutionException(ctx.getDatabaseSession(),
+            "Request id not supported by blob cluster creation.");
       }
     } else {
       if (requestedId == -1) {

@@ -24,9 +24,9 @@ import java.io.StringWriter;
 
 public interface StringSerializer {
 
-  StringWriter toStream(DatabaseSessionInternal db, StringWriter iOutput, Object iSource);
+  StringWriter toStream(DatabaseSessionInternal session, StringWriter iOutput, Object iSource);
 
-  Object fromStream(DatabaseSessionInternal db, String iSource);
+  Object fromStream(DatabaseSessionInternal session, String iSource);
 
   String getName();
 }

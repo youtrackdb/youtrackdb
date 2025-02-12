@@ -100,7 +100,7 @@ public class AutomaticBackup extends ServerPluginAbstract implements OServerPlug
 
         final var f = new File(SystemVariableResolver.resolveSystemVariables(configFile));
         if (!f.exists()) {
-          throw new ConfigurationException(
+          throw new ConfigurationException((String) null,
               "Automatic Backup configuration file '"
                   + configFile
                   + "' not found. Automatic Backup will be disabled");
@@ -138,7 +138,7 @@ public class AutomaticBackup extends ServerPluginAbstract implements OServerPlug
 
     if (enabled) {
       if (delay <= 0) {
-        throw new ConfigurationException("Cannot find mandatory parameter 'delay'");
+        throw new ConfigurationException((String) null, "Cannot find mandatory parameter 'delay'");
       }
       if (!targetDirectory.endsWith("/")) {
         targetDirectory += "/";
@@ -147,7 +147,8 @@ public class AutomaticBackup extends ServerPluginAbstract implements OServerPlug
       final var filePath = new File(targetDirectory);
       if (filePath.exists()) {
         if (!filePath.isDirectory()) {
-          throw new ConfigurationException("Parameter 'path' points to a file, not a directory");
+          throw new ConfigurationException((String) null,
+              "Parameter 'path' points to a file, not a directory");
         }
       } else {
         // CREATE BACKUP FOLDER(S) IF ANY
@@ -290,11 +291,11 @@ public class AutomaticBackup extends ServerPluginAbstract implements OServerPlug
         configuration.updateFromJSON(configurationContent);
       } catch (IOException e) {
         throw BaseException.wrapException(
-            new ConfigurationException(
+            new ConfigurationException((String) null,
                 "Cannot load Automatic Backup configuration file '"
                     + configFile
                     + "'. Automatic Backup will be disabled"),
-            e);
+            e, (String) null);
       }
 
     } else {
@@ -308,11 +309,11 @@ public class AutomaticBackup extends ServerPluginAbstract implements OServerPlug
             .info(this, "Automatic Backup: migrated configuration to file '%s'", f);
       } catch (IOException e) {
         throw BaseException.wrapException(
-            new ConfigurationException(
+            new ConfigurationException((String) null,
                 "Cannot create Automatic Backup configuration file '"
                     + configFile
                     + "'. Automatic Backup will be disabled"),
-            e);
+            e, (String) null);
       }
     }
 
@@ -340,9 +341,9 @@ public class AutomaticBackup extends ServerPluginAbstract implements OServerPlug
           }
         } catch (ParseException e) {
           throw BaseException.wrapException(
-              new ConfigurationException(
+              new ConfigurationException((String) null,
                   "Parameter 'firstTime' has invalid format, expected: HH:mm:ss"),
-              e);
+              e, (String) null);
         }
       } else if (settingName.equalsIgnoreCase("targetDirectory")) {
         targetDirectory = settingValueAsString;
@@ -391,7 +392,7 @@ public class AutomaticBackup extends ServerPluginAbstract implements OServerPlug
     if (!iPath.endsWith("/")) {
       iPath += "/";
     }
-    iPath += db.getName();
+    iPath += db.getDatabaseName();
 
     LogManager.instance()
         .info(

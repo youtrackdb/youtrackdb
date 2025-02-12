@@ -20,14 +20,11 @@ package com.jetbrains.youtrack.db.internal.lucene.test;
 
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
-import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.memory.MemoryIndex;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -42,13 +39,13 @@ public class LuceneBooleanIndexTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var v = schema.getClass("V");
     var song = schema.createClass("Person");
-    song.setSuperClass(db, v);
-    song.createProperty(db, "isDeleted", PropertyType.BOOLEAN);
+    song.setSuperClass(session, v);
+    song.createProperty(session, "isDeleted", PropertyType.BOOLEAN);
 
-    db.command("create index Person.isDeleted on Person (isDeleted) FULLTEXT ENGINE LUCENE")
+    session.command("create index Person.isDeleted on Person (isDeleted) FULLTEXT ENGINE LUCENE")
         .close();
   }
 
@@ -56,18 +53,18 @@ public class LuceneBooleanIndexTest extends BaseLuceneTest {
   public void insertPerson() {
 
     for (var i = 0; i < 1000; i++) {
-      var doc = ((EntityImpl) db.newEntity("Person"));
+      var doc = ((EntityImpl) session.newEntity("Person"));
       doc.field("isDeleted", i % 2 == 0);
-      db.begin();
-      db.save(doc);
-      db.commit();
+      session.begin();
+      session.save(doc);
+      session.commit();
     }
 
-    var docs = db.query("select from Person where isDeleted lucene false");
+    var docs = session.query("select from Person where isDeleted lucene false");
 
     Assert.assertEquals(
         500, docs.stream().filter((doc) -> !((Boolean) doc.getProperty("isDeleted"))).count());
-    docs = db.query("select from Person where isDeleted lucene true");
+    docs = session.query("select from Person where isDeleted lucene true");
     Assert.assertEquals(500, docs.stream().filter((doc) -> doc.getProperty("isDeleted")).count());
   }
 

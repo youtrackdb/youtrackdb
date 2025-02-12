@@ -16,6 +16,7 @@
 
 package com.jetbrains.youtrack.db.internal.common.serialization.types;
 
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALPageChangesPortion;
 import java.nio.ByteBuffer;
@@ -23,7 +24,7 @@ import java.nio.ByteOrder;
 import java.util.Calendar;
 import java.util.Date;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -34,45 +35,50 @@ public class DateSerializerTest {
   private static final int FIELD_SIZE = 8;
   private final byte[] stream = new byte[FIELD_SIZE];
   private final Date OBJECT = new Date();
-  private DateSerializer dateSerializer;
+  private static DateSerializer dateSerializer;
+  private static BinarySerializerFactory serializerFactory;
 
-  @Before
-  public void beforeClass() {
+  @BeforeClass
+  public static void beforeClass() {
     dateSerializer = new DateSerializer();
+    serializerFactory = BinarySerializerFactory.create(
+        BinarySerializerFactory.currentBinaryFormatVersion());
   }
 
   @Test
   public void testFieldSize() {
-    Assert.assertEquals(dateSerializer.getObjectSize(OBJECT), FIELD_SIZE);
+    Assert.assertEquals(FIELD_SIZE, dateSerializer.getObjectSize(serializerFactory, OBJECT));
   }
 
   @Test
   public void testSerialize() {
-    dateSerializer.serialize(OBJECT, stream, 0);
+    dateSerializer.serialize(OBJECT, serializerFactory, stream, 0);
     var calendar = Calendar.getInstance();
     calendar.setTime(OBJECT);
     calendar.set(Calendar.HOUR_OF_DAY, 0);
     calendar.set(Calendar.MINUTE, 0);
     calendar.set(Calendar.SECOND, 0);
     calendar.set(Calendar.MILLISECOND, 0);
-    Assert.assertEquals(dateSerializer.deserialize(stream, 0), calendar.getTime());
+    Assert.assertEquals(dateSerializer.deserialize(serializerFactory, stream, 0),
+        calendar.getTime());
   }
 
   @Test
   public void testSerializeNative() {
-    dateSerializer.serializeNativeObject(OBJECT, stream, 0);
+    dateSerializer.serializeNativeObject(OBJECT, serializerFactory, stream, 0);
     var calendar = Calendar.getInstance();
     calendar.setTime(OBJECT);
     calendar.set(Calendar.HOUR_OF_DAY, 0);
     calendar.set(Calendar.MINUTE, 0);
     calendar.set(Calendar.SECOND, 0);
     calendar.set(Calendar.MILLISECOND, 0);
-    Assert.assertEquals(dateSerializer.deserializeNativeObject(stream, 0), calendar.getTime());
+    Assert.assertEquals(dateSerializer.deserializeNativeObject(serializerFactory, stream, 0),
+        calendar.getTime());
   }
 
   @Test
   public void testNativeDirectMemoryCompatibility() {
-    dateSerializer.serializeNativeObject(OBJECT, stream, 0);
+    dateSerializer.serializeNativeObject(OBJECT, serializerFactory, stream, 0);
     var calendar = Calendar.getInstance();
     calendar.setTime(OBJECT);
     calendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -85,7 +91,8 @@ public class DateSerializerTest {
     buffer.put(stream);
     buffer.position(0);
 
-    Assert.assertEquals(dateSerializer.deserializeFromByteBufferObject(buffer), calendar.getTime());
+    Assert.assertEquals(dateSerializer.deserializeFromByteBufferObject(serializerFactory, buffer),
+        calendar.getTime());
   }
 
   @Test
@@ -102,16 +109,18 @@ public class DateSerializerTest {
     calendar.set(Calendar.MILLISECOND, 0);
 
     buffer.position(serializationOffset);
-    dateSerializer.serializeInByteBufferObject(OBJECT, buffer);
+    dateSerializer.serializeInByteBufferObject(serializerFactory, OBJECT, buffer);
 
     final var binarySize = buffer.position() - serializationOffset;
-    Assert.assertEquals(binarySize, FIELD_SIZE);
+    Assert.assertEquals(FIELD_SIZE, binarySize);
 
     buffer.position(serializationOffset);
-    Assert.assertEquals(dateSerializer.getObjectSizeInByteBuffer(buffer), FIELD_SIZE);
+    Assert.assertEquals(FIELD_SIZE,
+        dateSerializer.getObjectSizeInByteBuffer(serializerFactory, buffer));
 
     buffer.position(serializationOffset);
-    Assert.assertEquals(dateSerializer.deserializeFromByteBufferObject(buffer), calendar.getTime());
+    Assert.assertEquals(dateSerializer.deserializeFromByteBufferObject(serializerFactory, buffer),
+        calendar.getTime());
 
     Assert.assertEquals(buffer.position() - serializationOffset, binarySize);
   }
@@ -130,18 +139,20 @@ public class DateSerializerTest {
     calendar.set(Calendar.MILLISECOND, 0);
 
     buffer.position(serializationOffset);
-    dateSerializer.serializeInByteBufferObject(OBJECT, buffer);
+    dateSerializer.serializeInByteBufferObject(serializerFactory, OBJECT, buffer);
 
     final var binarySize = buffer.position() - serializationOffset;
-    Assert.assertEquals(binarySize, FIELD_SIZE);
+    Assert.assertEquals(FIELD_SIZE, binarySize);
 
     buffer.position(0);
     Assert.assertEquals(
-        dateSerializer.getObjectSizeInByteBuffer(serializationOffset, buffer), FIELD_SIZE);
+        FIELD_SIZE,
+        dateSerializer.getObjectSizeInByteBuffer(serializerFactory, serializationOffset, buffer));
     Assert.assertEquals(0, buffer.position());
 
     Assert.assertEquals(
-        dateSerializer.deserializeFromByteBufferObject(serializationOffset, buffer),
+        dateSerializer.deserializeFromByteBufferObject(serializerFactory, serializationOffset,
+            buffer),
         calendar.getTime());
     Assert.assertEquals(0, buffer.position());
   }
@@ -154,7 +165,7 @@ public class DateSerializerTest {
                 FIELD_SIZE + serializationOffset + WALPageChangesPortion.PORTION_BYTES)
             .order(ByteOrder.nativeOrder());
     final var data = new byte[FIELD_SIZE];
-    dateSerializer.serializeNativeObject(OBJECT, data, 0);
+    dateSerializer.serializeNativeObject(OBJECT, serializerFactory, data, 0);
     final WALChanges walChanges = new WALPageChangesPortion();
 
     walChanges.setBinaryValue(buffer, data, serializationOffset);
@@ -167,10 +178,11 @@ public class DateSerializerTest {
     calendar.set(Calendar.MILLISECOND, 0);
 
     Assert.assertEquals(
-        dateSerializer.getObjectSizeInByteBuffer(buffer, walChanges, serializationOffset),
-        FIELD_SIZE);
+        FIELD_SIZE,
+        dateSerializer.getObjectSizeInByteBuffer(buffer, walChanges, serializationOffset));
     Assert.assertEquals(
-        dateSerializer.deserializeFromByteBufferObject(buffer, walChanges, serializationOffset),
+        dateSerializer.deserializeFromByteBufferObject(serializerFactory, buffer, walChanges,
+            serializationOffset),
         calendar.getTime());
 
     Assert.assertEquals(0, buffer.position());

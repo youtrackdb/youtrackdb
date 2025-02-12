@@ -19,37 +19,37 @@ public class TruncateClusterStatementExecutionTest extends DbTestBase {
   @Test
   public void testClusterWithIndex() {
     final var clusterName = "TruncateClusterWithIndex";
-    final var clusterId = db.addCluster(clusterName);
+    final var clusterId = session.addCluster(clusterName);
 
     final var className = "TruncateClusterClass";
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
 
     final var clazz = schema.createClass(className);
-    clazz.addClusterId(db, clusterId);
+    clazz.addClusterId(session, clusterId);
 
-    clazz.createProperty(db, "value", PropertyType.STRING);
-    clazz.createIndex(db, "TruncateClusterIndex", SchemaClass.INDEX_TYPE.UNIQUE, "value");
+    clazz.createProperty(session, "value", PropertyType.STRING);
+    clazz.createIndex(session, "TruncateClusterIndex", SchemaClass.INDEX_TYPE.UNIQUE, "value");
 
-    db.begin();
-    final var document = ((EntityImpl) db.newEntity(className));
+    session.begin();
+    final var document = ((EntityImpl) session.newEntity(className));
     document.field("value", "val");
 
     document.save();
-    db.commit();
+    session.commit();
 
-    Assert.assertEquals(1, db.countClass(className));
-    Assert.assertEquals(1, db.countClusterElements(clusterId));
+    Assert.assertEquals(1, session.countClass(className));
+    Assert.assertEquals(1, session.countClusterElements(clusterId));
 
-    var indexQuery = db.query("select from TruncateClusterClass where value='val'");
+    var indexQuery = session.query("select from TruncateClusterClass where value='val'");
     Assert.assertEquals(1, toList(indexQuery).size());
     indexQuery.close();
 
-    db.command("truncate cluster " + clusterName);
+    session.command("truncate cluster " + clusterName);
 
-    Assert.assertEquals(0, db.countClass(className));
-    Assert.assertEquals(0, db.countClusterElements(clusterId));
+    Assert.assertEquals(0, session.countClass(className));
+    Assert.assertEquals(0, session.countClusterElements(clusterId));
 
-    indexQuery = db.query("select from TruncateClusterClass where value='val'");
+    indexQuery = session.query("select from TruncateClusterClass where value='val'");
 
     Assert.assertEquals(0, toList(indexQuery).size());
     indexQuery.close();

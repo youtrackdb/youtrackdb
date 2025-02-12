@@ -32,15 +32,8 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.MultiLineString;
-import org.locationtech.jts.geom.MultiPoint;
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Polygon;
 import org.locationtech.spatial4j.shape.Point;
-import org.locationtech.spatial4j.shape.Rectangle;
-import org.locationtech.spatial4j.shape.Shape;
 import org.locationtech.spatial4j.shape.jts.JtsGeometry;
 
 /**
@@ -52,7 +45,7 @@ public class LuceneSpatialIOTest extends BaseSpatialLuceneTest {
   @Test
   public void testPointIO() throws ParseException, org.locationtech.jts.io.ParseException {
 
-    var doc = ((EntityImpl) db.newEntity("OPoint"));
+    var doc = ((EntityImpl) session.newEntity("OPoint"));
     doc.field(
         "coordinates",
         new ArrayList<Double>() {
@@ -81,7 +74,7 @@ public class LuceneSpatialIOTest extends BaseSpatialLuceneTest {
   @Test
   public void testMultiPointIO() {
 
-    var doc = ((EntityImpl) db.newEntity("OMultiPoint"));
+    var doc = ((EntityImpl) session.newEntity("OMultiPoint"));
     doc.field(
         "coordinates",
         new ArrayList<List<Double>>() {
@@ -134,7 +127,7 @@ public class LuceneSpatialIOTest extends BaseSpatialLuceneTest {
   @Test
   public void testLineStringIO() {
 
-    var doc = ((EntityImpl) db.newEntity("OLineString"));
+    var doc = ((EntityImpl) session.newEntity("OLineString"));
     doc.field(
         "coordinates",
         new ArrayList<List<Double>>() {
@@ -167,7 +160,7 @@ public class LuceneSpatialIOTest extends BaseSpatialLuceneTest {
   @Test
   public void testMultiLineStringIO() {
 
-    var doc = ((EntityImpl) db.newEntity("OMultiLineString"));
+    var doc = ((EntityImpl) session.newEntity("OMultiLineString"));
     doc.field(
         "coordinates",
         new ArrayList<List<List<Double>>>() {
@@ -210,7 +203,7 @@ public class LuceneSpatialIOTest extends BaseSpatialLuceneTest {
   @Test
   public void testPolygonNoHolesIO() {
 
-    var doc = ((EntityImpl) db.newEntity("OPolygon"));
+    var doc = ((EntityImpl) session.newEntity("OPolygon"));
     doc.field(
         "coordinates",
         new ArrayList<List<List<Double>>>() {
@@ -248,7 +241,7 @@ public class LuceneSpatialIOTest extends BaseSpatialLuceneTest {
   @Test
   public void testPolygonHolesIO() {
 
-    var doc = ((EntityImpl) db.newEntity("OPolygon"));
+    var doc = ((EntityImpl) session.newEntity("OPolygon"));
     doc.field("coordinates", polygonCoordTestHole());
 
     var polygon1 = polygonTestHole();

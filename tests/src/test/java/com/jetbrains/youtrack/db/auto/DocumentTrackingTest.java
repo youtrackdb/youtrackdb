@@ -2,7 +2,6 @@ package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent.ChangeType;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeTimeLine;
@@ -36,20 +35,20 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    if (!db.getMetadata().getSchema().existsClass("DocumentTrackingTestClass")) {
+    if (!session.getMetadata().getSchema().existsClass("DocumentTrackingTestClass")) {
       final var trackedClass =
-          db.getMetadata().getSchema().createClass("DocumentTrackingTestClass");
-      trackedClass.createProperty(db, "embeddedlist", PropertyType.EMBEDDEDLIST);
-      trackedClass.createProperty(db, "embeddedmap", PropertyType.EMBEDDEDMAP);
-      trackedClass.createProperty(db, "embeddedset", PropertyType.EMBEDDEDSET);
-      trackedClass.createProperty(db, "linkset", PropertyType.LINKSET);
-      trackedClass.createProperty(db, "linklist", PropertyType.LINKLIST);
-      trackedClass.createProperty(db, "linkmap", PropertyType.LINKMAP);
+          session.getMetadata().getSchema().createClass("DocumentTrackingTestClass");
+      trackedClass.createProperty(session, "embeddedlist", PropertyType.EMBEDDEDLIST);
+      trackedClass.createProperty(session, "embeddedmap", PropertyType.EMBEDDEDMAP);
+      trackedClass.createProperty(session, "embeddedset", PropertyType.EMBEDDEDSET);
+      trackedClass.createProperty(session, "linkset", PropertyType.LINKSET);
+      trackedClass.createProperty(session, "linklist", PropertyType.LINKLIST);
+      trackedClass.createProperty(session, "linkmap", PropertyType.LINKMAP);
     }
   }
 
   public void testDocumentEmbeddedListTrackingAfterSave() {
-    var document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) session.newEntity());
 
     final List<String> list = new ArrayList<>();
     list.add("value1");
@@ -57,13 +56,13 @@ public class DocumentTrackingTest extends BaseDBTest {
     document.field("embeddedlist", list, PropertyType.EMBEDDEDLIST);
     document.field("val", 1);
 
-    db.begin();
+    session.begin();
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    session.begin();
+    document = session.bindToSession(document);
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist");
@@ -82,12 +81,12 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedlist"});
-    db.rollback();
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{"embeddedlist"});
+    session.rollback();
   }
 
   public void testDocumentEmbeddedMapTrackingAfterSave() {
-    var document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) session.newEntity());
 
     final Map<String, String> map = new HashMap<>();
     map.put("key1", "value1");
@@ -95,13 +94,13 @@ public class DocumentTrackingTest extends BaseDBTest {
     document.field("embeddedmap", map, PropertyType.EMBEDDEDMAP);
     document.field("val", 1);
 
-    db.begin();
+    session.begin();
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    session.begin();
+    document = session.bindToSession(document);
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final Map<String, String> trackedMap = document.field("embeddedmap");
@@ -120,12 +119,12 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedmap"});
-    db.rollback();
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{"embeddedmap"});
+    session.rollback();
   }
 
   public void testDocumentEmbeddedSetTrackingAfterSave() {
-    var document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) session.newEntity());
 
     final Set<String> set = new HashSet<>();
     set.add("value1");
@@ -133,14 +132,14 @@ public class DocumentTrackingTest extends BaseDBTest {
     document.field("embeddedset", set, PropertyType.EMBEDDEDSET);
     document.field("val", 1);
 
-    db.begin();
+    session.begin();
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
+    session.begin();
+    document = session.bindToSession(document);
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
 
     final Set<String> trackedSet = document.field("embeddedset");
     trackedSet.add("value2");
@@ -158,19 +157,19 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedset"});
-    db.rollback();
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{"embeddedset"});
+    session.rollback();
   }
 
   public void testDocumentLinkSetTrackingAfterSave() {
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    var document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) session.newEntity());
 
     final Set<RID> set = new HashSet<>();
     set.add(docOne.getIdentity());
@@ -178,12 +177,12 @@ public class DocumentTrackingTest extends BaseDBTest {
     document.field("linkset", set, PropertyType.LINKSET);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
+    session.begin();
+    document = session.bindToSession(document);
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
 
     final Set<RID> trackedSet = document.field("linkset");
     trackedSet.add(docTwo.getIdentity());
@@ -193,19 +192,19 @@ public class DocumentTrackingTest extends BaseDBTest {
     final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linkset");
     Assert.assertNotNull(timeLine);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{"linkset"});
-    db.rollback();
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{"linkset"});
+    session.rollback();
   }
 
   public void testDocumentLinkListTrackingAfterSave() {
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    var document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) session.newEntity());
 
     final List<RID> list = new ArrayList<>();
     list.add(docOne.getIdentity());
@@ -213,13 +212,13 @@ public class DocumentTrackingTest extends BaseDBTest {
     document.field("linklist", list, PropertyType.LINKLIST);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
+    session.begin();
+    document = session.bindToSession(document);
 
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
 
     final List<RID> trackedList = document.field("linklist");
     trackedList.add(docTwo.getIdentity());
@@ -229,19 +228,19 @@ public class DocumentTrackingTest extends BaseDBTest {
     final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linklist");
     Assert.assertNotNull(timeLine);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{"linklist"});
-    db.rollback();
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{"linklist"});
+    session.rollback();
   }
 
   public void testDocumentLinkMapTrackingAfterSave() {
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    var document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) session.newEntity());
 
     final Map<String, RID> map = new HashMap<>();
     map.put("key1", docOne.getIdentity());
@@ -249,13 +248,13 @@ public class DocumentTrackingTest extends BaseDBTest {
     document.field("linkmap", map, PropertyType.LINKMAP);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
+    session.begin();
+    document = session.bindToSession(document);
 
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
 
     final Map<String, RID> trackedMap = document.field("linkmap");
     trackedMap.put("key2", docTwo.getIdentity());
@@ -263,13 +262,13 @@ public class DocumentTrackingTest extends BaseDBTest {
     final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linkmap");
     Assert.assertNotNull(timeLine);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{"linkmap"});
-    db.rollback();
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{"linkmap"});
+    session.rollback();
   }
 
   public void testDocumentEmbeddedListTrackingAfterSaveCacheDisabled() {
-    db.begin();
-    var document = ((EntityImpl) db.newEntity());
+    session.begin();
+    var document = ((EntityImpl) session.newEntity());
 
     final List<String> list = new ArrayList<>();
     list.add("value1");
@@ -277,11 +276,11 @@ public class DocumentTrackingTest extends BaseDBTest {
     document.field("embeddedlist", list, PropertyType.EMBEDDEDLIST);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    session.begin();
+    document = session.bindToSession(document);
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist");
@@ -300,13 +299,13 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedlist"});
-    db.rollback();
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{"embeddedlist"});
+    session.rollback();
   }
 
   public void testDocumentEmbeddedMapTrackingAfterSaveCacheDisabled() {
-    db.begin();
-    var document = ((EntityImpl) db.newEntity());
+    session.begin();
+    var document = ((EntityImpl) session.newEntity());
 
     final Map<String, String> map = new HashMap<>();
     map.put("key1", "value1");
@@ -314,11 +313,11 @@ public class DocumentTrackingTest extends BaseDBTest {
     document.field("embeddedmap", map, PropertyType.EMBEDDEDMAP);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    session.begin();
+    document = session.bindToSession(document);
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final Map<String, String> trackedMap = document.field("embeddedmap");
@@ -337,13 +336,13 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedmap"});
-    db.rollback();
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{"embeddedmap"});
+    session.rollback();
   }
 
   public void testDocumentEmbeddedSetTrackingAfterSaveCacheDisabled() {
-    db.begin();
-    var document = ((EntityImpl) db.newEntity());
+    session.begin();
+    var document = ((EntityImpl) session.newEntity());
 
     final Set<String> set = new HashSet<>();
     set.add("value1");
@@ -351,12 +350,12 @@ public class DocumentTrackingTest extends BaseDBTest {
     document.field("embeddedset", set, PropertyType.EMBEDDEDSET);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
+    session.begin();
+    document = session.bindToSession(document);
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
 
     final Set<String> trackedSet = document.field("embeddedset");
     trackedSet.add("value2");
@@ -374,19 +373,19 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedset"});
-    db.rollback();
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{"embeddedset"});
+    session.rollback();
   }
 
   public void testDocumentLinkSetTrackingAfterSaveCacheDisabled() {
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    var document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) session.newEntity());
 
     final Set<RID> set = new HashSet<>();
     set.add(docOne.getIdentity());
@@ -394,12 +393,12 @@ public class DocumentTrackingTest extends BaseDBTest {
     document.field("linkset", set, PropertyType.LINKSET);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
+    session.begin();
+    document = session.bindToSession(document);
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
 
     final Set<RID> trackedSet = document.field("linkset");
     trackedSet.add(docTwo.getIdentity());
@@ -409,19 +408,19 @@ public class DocumentTrackingTest extends BaseDBTest {
     final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linkset");
     Assert.assertNotNull(timeLine);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{"linkset"});
-    db.rollback();
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{"linkset"});
+    session.rollback();
   }
 
   public void testDocumentLinkListTrackingAfterSaveCacheDisabled() {
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    var document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) session.newEntity());
 
     final List<RID> list = new ArrayList<>();
     list.add(docOne.getIdentity());
@@ -429,12 +428,12 @@ public class DocumentTrackingTest extends BaseDBTest {
     document.field("linklist", list, PropertyType.LINKLIST);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
+    session.begin();
+    document = session.bindToSession(document);
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
 
     final List<RID> trackedList = document.field("linklist");
     trackedList.add(docTwo.getIdentity());
@@ -444,19 +443,19 @@ public class DocumentTrackingTest extends BaseDBTest {
     final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linklist");
     Assert.assertNotNull(timeLine);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{"linklist"});
-    db.rollback();
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{"linklist"});
+    session.rollback();
   }
 
   public void testDocumentLinkMapTrackingAfterSaveCacheDisabled() {
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    var document = ((EntityImpl) db.newEntity());
+    var document = ((EntityImpl) session.newEntity());
 
     final Map<String, RID> map = new HashMap<>();
     map.put("key1", docOne.getIdentity());
@@ -464,12 +463,12 @@ public class DocumentTrackingTest extends BaseDBTest {
     document.field("linkmap", map, PropertyType.LINKMAP);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
+    session.begin();
+    document = session.bindToSession(document);
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
 
     final Map<String, RID> trackedMap = document.field("linkmap");
     trackedMap.put("key2", docTwo.getIdentity());
@@ -477,25 +476,25 @@ public class DocumentTrackingTest extends BaseDBTest {
     final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linkmap");
     Assert.assertNotNull(timeLine);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{"linkmap"});
-    db.rollback();
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{"linkmap"});
+    session.rollback();
   }
 
   public void testDocumentEmbeddedListTrackingAfterSaveWitClass() {
-    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) session.newEntity("DocumentTrackingTestClass"));
 
-    db.begin();
+    session.begin();
     final List<String> list = new ArrayList<>();
     list.add("value1");
 
     document.field("embeddedlist", list);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    session.begin();
+    document = session.bindToSession(document);
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist");
@@ -515,25 +514,25 @@ public class DocumentTrackingTest extends BaseDBTest {
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
     Assert.assertTrue(document.isDirty());
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedlist"});
-    db.rollback();
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{"embeddedlist"});
+    session.rollback();
   }
 
   public void testDocumentEmbeddedMapTrackingAfterSaveWithClass() {
-    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) session.newEntity("DocumentTrackingTestClass"));
 
     final Map<String, String> map = new HashMap<>();
     map.put("key1", "value1");
 
-    db.begin();
+    session.begin();
     document.field("embeddedmap", map);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    session.begin();
+    document = session.bindToSession(document);
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final Map<String, String> trackedMap = document.field("embeddedmap");
@@ -552,26 +551,26 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedmap"});
-    db.rollback();
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{"embeddedmap"});
+    session.rollback();
   }
 
   public void testDocumentEmbeddedSetTrackingAfterSaveWithClass() {
-    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) session.newEntity("DocumentTrackingTestClass"));
 
     final Set<String> set = new HashSet<>();
     set.add("value1");
 
-    db.begin();
+    session.begin();
     document.field("embeddedset", set);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
+    session.begin();
+    document = session.bindToSession(document);
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
 
     final Set<String> trackedSet = document.field("embeddedset");
     trackedSet.add("value2");
@@ -589,19 +588,19 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedset"});
-    db.rollback();
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{"embeddedset"});
+    session.rollback();
   }
 
   public void testDocumentLinkSetTrackingAfterSaveWithClass() {
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) session.newEntity("DocumentTrackingTestClass"));
 
     final Set<RID> set = new HashSet<>();
     set.add(docOne.getIdentity());
@@ -609,12 +608,12 @@ public class DocumentTrackingTest extends BaseDBTest {
     document.field("linkset", set);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
+    session.begin();
+    document = session.bindToSession(document);
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
 
     final Set<RID> trackedSet = document.field("linkset");
     trackedSet.add(docTwo.getIdentity());
@@ -622,19 +621,19 @@ public class DocumentTrackingTest extends BaseDBTest {
     final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linkset");
     Assert.assertNotNull(timeLine);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{"linkset"});
-    db.rollback();
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{"linkset"});
+    session.rollback();
   }
 
   public void testDocumentLinkListTrackingAfterSaveWithClass() {
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) session.newEntity("DocumentTrackingTestClass"));
 
     final List<RID> list = new ArrayList<>();
     list.add(docOne.getIdentity());
@@ -642,12 +641,12 @@ public class DocumentTrackingTest extends BaseDBTest {
     document.field("linklist", list);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
+    session.begin();
+    document = session.bindToSession(document);
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
 
     final List<RID> trackedList = document.field("linklist");
     trackedList.add(docTwo.getIdentity());
@@ -657,19 +656,19 @@ public class DocumentTrackingTest extends BaseDBTest {
     final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linklist");
     Assert.assertNotNull(timeLine);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{"linklist"});
-    db.rollback();
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{"linklist"});
+    session.rollback();
   }
 
   public void testDocumentLinkMapTrackingAfterSaveWithClass() {
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) session.newEntity("DocumentTrackingTestClass"));
 
     final Map<String, RID> map = new HashMap<>();
     map.put("key1", docOne.getIdentity());
@@ -677,12 +676,12 @@ public class DocumentTrackingTest extends BaseDBTest {
     document.field("linkmap", map);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
+    session.begin();
+    document = session.bindToSession(document);
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
 
     final Map<String, RID> trackedMap = document.field("linkmap");
     trackedMap.put("key2", docTwo.getIdentity());
@@ -690,14 +689,14 @@ public class DocumentTrackingTest extends BaseDBTest {
     final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linkmap");
     Assert.assertNotNull(timeLine);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{"linkmap"});
-    db.rollback();
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{"linkmap"});
+    session.rollback();
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testDocumentEmbeddedListTrackingAfterConversion() {
-    db.begin();
-    var document = ((EntityImpl) db.newEntity());
+    session.begin();
+    var document = ((EntityImpl) session.newEntity());
 
     final Set<String> set = new HashSet<>();
     set.add("value1");
@@ -705,22 +704,22 @@ public class DocumentTrackingTest extends BaseDBTest {
     document.field("embeddedlist", set);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    session.begin();
+    document = session.bindToSession(document);
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist", PropertyType.EMBEDDEDLIST);
     trackedList.add("value2");
-    db.rollback();
+    session.rollback();
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testDocumentEmbeddedSetTrackingFailAfterConversion() {
-    db.begin();
-    var document = ((EntityImpl) db.newEntity());
+    session.begin();
+    var document = ((EntityImpl) session.newEntity());
 
     final List<String> list = new ArrayList<>();
     list.add("value1");
@@ -728,33 +727,33 @@ public class DocumentTrackingTest extends BaseDBTest {
     document.field("embeddedset", list);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
+    session.begin();
+    document = session.bindToSession(document);
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
 
     final Set<String> trackedSet = document.field("embeddedset", PropertyType.EMBEDDEDSET);
     trackedSet.add("value2");
-    db.rollback();
+    session.rollback();
   }
 
   public void testDocumentEmbeddedListTrackingFailAfterReplace() {
-    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) session.newEntity("DocumentTrackingTestClass"));
 
     final List<String> list = new ArrayList<>();
     list.add("value1");
 
-    db.begin();
+    session.begin();
     document.field("embeddedlist", list);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    session.begin();
+    document = session.bindToSession(document);
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist");
@@ -769,25 +768,25 @@ public class DocumentTrackingTest extends BaseDBTest {
     final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedlist");
     Assert.assertNull(timeLine);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedlist"});
-    db.rollback();
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{"embeddedlist"});
+    session.rollback();
   }
 
   public void testDocumentEmbeddedMapTrackingAfterReplace() {
-    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) session.newEntity("DocumentTrackingTestClass"));
 
     final Map<String, String> map = new HashMap<>();
     map.put("key1", "value1");
 
-    db.begin();
+    session.begin();
     document.field("embeddedmap", map);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    session.begin();
+    document = session.bindToSession(document);
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final Map<String, String> trackedMap = document.field("embeddedmap");
@@ -802,26 +801,26 @@ public class DocumentTrackingTest extends BaseDBTest {
     final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedmap");
     Assert.assertNull(timeLine);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedmap"});
-    db.rollback();
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{"embeddedmap"});
+    session.rollback();
   }
 
   public void testDocumentEmbeddedSetTrackingAfterReplace() {
-    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) session.newEntity("DocumentTrackingTestClass"));
 
     final Set<String> set = new HashSet<>();
     set.add("value1");
 
-    db.begin();
+    session.begin();
     document.field("embeddedset", set);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
+    session.begin();
+    document = session.bindToSession(document);
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
 
     final Set<String> trackedSet = document.field("embeddedset");
     trackedSet.add("value2");
@@ -835,25 +834,25 @@ public class DocumentTrackingTest extends BaseDBTest {
     final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedset");
     Assert.assertNull(timeLine);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedset"});
-    db.rollback();
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{"embeddedset"});
+    session.rollback();
   }
 
   public void testRemoveField() {
-    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) session.newEntity("DocumentTrackingTestClass"));
 
     final List<String> list = new ArrayList<>();
     list.add("value1");
 
-    db.begin();
+    session.begin();
     document.field("embeddedlist", list);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    session.begin();
+    document = session.bindToSession(document);
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist");
@@ -861,27 +860,27 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     document.removeField("embeddedlist");
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedlist"});
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{"embeddedlist"});
     Assert.assertTrue(document.isDirty());
     Assert.assertNull(document.getCollectionTimeLine("embeddedlist"));
-    db.rollback();
+    session.rollback();
   }
 
   public void testTrackingChangesSwitchedOff() {
-    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) session.newEntity("DocumentTrackingTestClass"));
 
     final List<String> list = new ArrayList<>();
     list.add("value1");
 
-    db.begin();
+    session.begin();
     document.field("embeddedlist", list);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    session.begin();
+    document = session.bindToSession(document);
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist");
@@ -889,27 +888,27 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     document.setTrackingChanges(false);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
     Assert.assertTrue(document.isDirty());
     Assert.assertNull(document.getCollectionTimeLine("embeddedlist"));
-    db.rollback();
+    session.rollback();
   }
 
   public void testTrackingChangesSwitchedOn() {
-    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) session.newEntity("DocumentTrackingTestClass"));
 
     final List<String> list = new ArrayList<>();
     list.add("value1");
 
-    db.begin();
+    session.begin();
     document.field("embeddedlist", list);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    session.begin();
+    document = session.bindToSession(document);
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist");
@@ -920,7 +919,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     trackedList.add("value3");
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedlist"});
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{"embeddedlist"});
     Assert.assertTrue(document.isDirty());
     Assert.assertNotNull(document.getCollectionTimeLine("embeddedlist"));
 
@@ -931,52 +930,52 @@ public class DocumentTrackingTest extends BaseDBTest {
     MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedlist");
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
-    db.rollback();
+    session.rollback();
   }
 
   public void testReset() {
-    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) session.newEntity("DocumentTrackingTestClass"));
 
     final List<String> list = new ArrayList<>();
     list.add("value1");
 
-    db.begin();
+    session.begin();
     document.field("embeddedlist", list);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    session.begin();
+    document = session.bindToSession(document);
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist");
     trackedList.add("value2");
 
-    document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    document = ((EntityImpl) session.newEntity("DocumentTrackingTestClass"));
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
     Assert.assertTrue(document.isDirty());
     Assert.assertNull(document.getCollectionTimeLine("embeddedlist"));
-    db.rollback();
+    session.rollback();
   }
 
   public void testClear() {
-    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) session.newEntity("DocumentTrackingTestClass"));
 
     final List<String> list = new ArrayList<>();
     list.add("value1");
 
-    db.begin();
+    session.begin();
     document.field("embeddedlist", list);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    session.begin();
+    document = session.bindToSession(document);
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist");
@@ -984,27 +983,27 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     document.clear();
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
     Assert.assertTrue(document.isDirty());
     Assert.assertNull(document.getCollectionTimeLine("embeddedlist"));
-    db.rollback();
+    session.rollback();
   }
 
   public void testUnload() {
-    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) session.newEntity("DocumentTrackingTestClass"));
 
     final List<String> list = new ArrayList<>();
     list.add("value1");
 
-    db.begin();
+    session.begin();
     document.field("embeddedlist", list);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    session.begin();
+    document = session.bindToSession(document);
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist");
@@ -1014,24 +1013,24 @@ public class DocumentTrackingTest extends BaseDBTest {
     document.unload();
 
     Assert.assertFalse(document.isDirty());
-    db.rollback();
+    session.rollback();
   }
 
   public void testUnsetDirty() {
-    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) session.newEntity("DocumentTrackingTestClass"));
 
     final List<String> list = new ArrayList<>();
     list.add("value1");
 
-    db.begin();
+    session.begin();
     document.field("embeddedlist", list);
     document.field("val", 1);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    session.begin();
+    document = session.bindToSession(document);
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist");
@@ -1040,23 +1039,23 @@ public class DocumentTrackingTest extends BaseDBTest {
     RecordInternal.unsetDirty(document);
 
     Assert.assertFalse(document.isDirty());
-    db.rollback();
+    session.rollback();
   }
 
   public void testRemoveFieldUsingIterator() {
-    var document = ((EntityImpl) db.newEntity("DocumentTrackingTestClass"));
+    var document = ((EntityImpl) session.newEntity("DocumentTrackingTestClass"));
 
     final List<String> list = new ArrayList<>();
     list.add("value1");
 
-    db.begin();
+    session.begin();
     document.field("embeddedlist", list);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[]{});
+    session.begin();
+    document = session.bindToSession(document);
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist");
@@ -1066,9 +1065,9 @@ public class DocumentTrackingTest extends BaseDBTest {
     fieldIterator.next();
     fieldIterator.remove();
 
-    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedlist"});
+    Assert.assertEquals(document.getDirtyProperties(), new String[]{"embeddedlist"});
     Assert.assertTrue(document.isDirty());
     Assert.assertNull(document.getCollectionTimeLine("embeddedlist"));
-    db.rollback();
+    session.rollback();
   }
 }

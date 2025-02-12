@@ -47,7 +47,7 @@ public class SQLFunctionEncode extends SQLFunctionAbstract {
       Identifiable iCurrentRecord,
       Object iCurrentResult,
       final Object[] iParams,
-      CommandContext iContext) {
+      CommandContext context) {
 
     final var candidate = iParams[0];
     final var format = iParams[1].toString();
@@ -57,7 +57,7 @@ public class SQLFunctionEncode extends SQLFunctionAbstract {
       data = (byte[]) candidate;
     } else if (candidate instanceof RecordId) {
       try {
-        final RecordAbstract rec = ((RecordId) candidate).getRecord(iContext.getDatabase());
+        final RecordAbstract rec = ((RecordId) candidate).getRecord(context.getDatabaseSession());
         if (rec instanceof Blob) {
           data = rec.toStream();
         }
@@ -75,7 +75,7 @@ public class SQLFunctionEncode extends SQLFunctionAbstract {
     if (FORMAT_BASE64.equalsIgnoreCase(format)) {
       return Base64.getEncoder().encodeToString(data);
     } else {
-      throw new DatabaseException("unknowned format :" + format);
+      throw new DatabaseException(context.getDatabaseSession(), "unknowned format :" + format);
     }
   }
 

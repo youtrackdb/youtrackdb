@@ -5,12 +5,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializationDebug;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerBinary;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerBinaryDebug;
 import org.junit.After;
@@ -35,7 +33,7 @@ public class DBRecordSerializerBinaryDebugTest extends DbTestBase {
   @Test
   public void testSimpleDocumentDebug() {
 
-    var doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) session.newEntity();
     doc.field("test", "test");
     doc.field("anInt", 2);
     doc.field("anDouble", 2D);
@@ -43,7 +41,7 @@ public class DBRecordSerializerBinaryDebugTest extends DbTestBase {
     var bytes = doc.toStream();
 
     var debugger = new RecordSerializerBinaryDebug();
-    var debug = debugger.deserializeDebug(bytes, db);
+    var debug = debugger.deserializeDebug(bytes, session);
 
     assertEquals(debug.properties.size(), 3);
     assertEquals(debug.properties.get(0).name, "test");
@@ -61,10 +59,10 @@ public class DBRecordSerializerBinaryDebugTest extends DbTestBase {
 
   @Test
   public void testSchemaFullDocumentDebug() {
-    var clazz = db.getMetadata().getSchema().createClass("some");
-    clazz.createProperty(db, "testP", PropertyType.STRING);
-    clazz.createProperty(db, "theInt", PropertyType.INTEGER);
-    var doc = (EntityImpl) db.newEntity("some");
+    var clazz = session.getMetadata().getSchema().createClass("some");
+    clazz.createProperty(session, "testP", PropertyType.STRING);
+    clazz.createProperty(session, "theInt", PropertyType.INTEGER);
+    var doc = (EntityImpl) session.newEntity("some");
     doc.field("testP", "test");
     doc.field("theInt", 2);
     doc.field("anDouble", 2D);
@@ -72,7 +70,7 @@ public class DBRecordSerializerBinaryDebugTest extends DbTestBase {
     var bytes = doc.toStream();
 
     var debugger = new RecordSerializerBinaryDebug();
-    var debug = debugger.deserializeDebug(bytes, db);
+    var debug = debugger.deserializeDebug(bytes, session);
 
     assertEquals(debug.properties.size(), 3);
     assertEquals(debug.properties.get(0).name, "testP");
@@ -90,7 +88,7 @@ public class DBRecordSerializerBinaryDebugTest extends DbTestBase {
 
   @Test
   public void testSimpleBrokenDocumentDebug() {
-    var doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) session.newEntity();
     doc.field("test", "test");
     doc.field("anInt", 2);
     doc.field("anDouble", 2D);
@@ -100,7 +98,7 @@ public class DBRecordSerializerBinaryDebugTest extends DbTestBase {
     System.arraycopy(bytes, 0, brokenBytes, 0, bytes.length - 10);
 
     var debugger = new RecordSerializerBinaryDebug();
-    var debug = debugger.deserializeDebug(brokenBytes, db);
+    var debug = debugger.deserializeDebug(brokenBytes, session);
 
     assertEquals(debug.properties.size(), 3);
     assertEquals(debug.properties.get(0).name, "test");
@@ -121,10 +119,10 @@ public class DBRecordSerializerBinaryDebugTest extends DbTestBase {
 
   @Test
   public void testBrokenSchemaFullDocumentDebug() {
-    var clazz = db.getMetadata().getSchema().createClass("some");
-    clazz.createProperty(db, "testP", PropertyType.STRING);
-    clazz.createProperty(db, "theInt", PropertyType.INTEGER);
-    var doc = (EntityImpl) db.newEntity("some");
+    var clazz = session.getMetadata().getSchema().createClass("some");
+    clazz.createProperty(session, "testP", PropertyType.STRING);
+    clazz.createProperty(session, "theInt", PropertyType.INTEGER);
+    var doc = (EntityImpl) session.newEntity("some");
     doc.field("testP", "test");
     doc.field("theInt", 2);
     doc.field("anDouble", 2D);
@@ -134,7 +132,7 @@ public class DBRecordSerializerBinaryDebugTest extends DbTestBase {
     System.arraycopy(bytes, 0, brokenBytes, 0, bytes.length - 10);
 
     var debugger = new RecordSerializerBinaryDebug();
-    var debug = debugger.deserializeDebug(brokenBytes, db);
+    var debug = debugger.deserializeDebug(brokenBytes, session);
 
     assertEquals(debug.properties.size(), 3);
     assertEquals(debug.properties.get(0).name, "testP");

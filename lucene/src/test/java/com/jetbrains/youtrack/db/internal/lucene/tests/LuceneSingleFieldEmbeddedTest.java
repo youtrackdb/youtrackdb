@@ -20,8 +20,6 @@ package com.jetbrains.youtrack.db.internal.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import java.io.InputStream;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,27 +32,29 @@ public class LuceneSingleFieldEmbeddedTest extends LuceneBaseTest {
   public void init() {
     var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
 
-    db.execute("sql", getScriptFromStream(stream));
+    session.execute("sql", getScriptFromStream(stream));
 
-    db.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE");
-    db.command("create index Song.author on Song (author) FULLTEXT ENGINE LUCENE");
+    session.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE");
+    session.command("create index Song.author on Song (author) FULLTEXT ENGINE LUCENE");
   }
 
   @Test
   public void loadAndTest() {
 
     var docs =
-        db.query("select * from Song where search_fields(['title'],\"(title:mountain)\")=true");
+        session.query(
+            "select * from Song where search_fields(['title'],\"(title:mountain)\")=true");
 
     assertThat(docs).hasSize(4);
     docs.close();
 
-    docs = db.query("select * from Song where search_fields(['author'],\"(author:Fabbio)\")=true");
+    docs = session.query(
+        "select * from Song where search_fields(['author'],\"(author:Fabbio)\")=true");
 
     assertThat(docs).hasSize(87);
     docs.close();
     docs =
-        db.query(
+        session.query(
             "select * from Song where search_fields(['title'],\"(title:mountain)\")=true  and"
                 + " search_fields(['author'],\"(author:Fabbio)\")=true");
 

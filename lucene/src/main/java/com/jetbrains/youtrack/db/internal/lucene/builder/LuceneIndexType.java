@@ -18,11 +18,11 @@ package com.jetbrains.youtrack.db.internal.lucene.builder;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.lucene.engine.LuceneIndexEngineAbstract;
 import com.jetbrains.youtrack.db.internal.lucene.exception.LuceneIndexException;
-import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -175,7 +175,8 @@ public class LuceneIndexType {
       var bytes = sha256.digest(keyString.getBytes(StandardCharsets.UTF_8));
       return Base64.getEncoder().encodeToString(bytes);
     } catch (NoSuchAlgorithmException e) {
-      throw BaseException.wrapException(new LuceneIndexException("fail to find sha algorithm"), e);
+      throw BaseException.wrapException(new LuceneIndexException("fail to find sha algorithm"), e,
+          (String) null);
     }
   }
 

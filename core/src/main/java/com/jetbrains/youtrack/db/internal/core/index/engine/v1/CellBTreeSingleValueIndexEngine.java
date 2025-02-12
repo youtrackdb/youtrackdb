@@ -64,15 +64,15 @@ public final class CellBTreeSingleValueIndexEngine
   }
 
   public void create(AtomicOperation atomicOperation, IndexEngineData data) throws IOException {
-
     BinarySerializer keySerializer = storage.resolveObjectSerializer(data.getKeySerializedId());
-
+    var serializerFactory = storage.getComponentsFactory().binarySerializerFactory;
     try {
       sbTree.create(
           atomicOperation, keySerializer, data.getKeyTypes(), data.getKeySize());
     } catch (IOException e) {
-      throw BaseException.wrapException(new IndexException("Error of creation of index " + name),
-          e);
+      throw BaseException.wrapException(
+          new IndexException(storage.getName(), "Error of creation of index " + name),
+          e, storage.getName());
     }
   }
 
@@ -83,7 +83,8 @@ public final class CellBTreeSingleValueIndexEngine
       sbTree.delete(atomicOperation);
     } catch (IOException e) {
       throw BaseException.wrapException(
-          new IndexException("Error during deletion of index " + name), e);
+          new IndexException(storage.getName(), "Error during deletion of index " + name), e,
+          storage.getName());
     }
   }
 
@@ -94,7 +95,9 @@ public final class CellBTreeSingleValueIndexEngine
             try {
               sbTree.remove(atomicOperation, key);
             } catch (IOException e) {
-              throw BaseException.wrapException(new IndexException("Can not clear index"), e);
+              throw BaseException.wrapException(
+                  new IndexException(storage.getName(), "Can not clear index"), e,
+                  storage.getName());
             }
           });
     }
@@ -106,6 +109,7 @@ public final class CellBTreeSingleValueIndexEngine
     var keySize = data.getKeySize();
     var keyTypes = data.getKeyTypes();
     BinarySerializer keySerializer = storage.resolveObjectSerializer(data.getKeySerializedId());
+    var serializerFactory = storage.getComponentsFactory().binarySerializerFactory;
     sbTree.load(name, keySize, keyTypes, keySerializer);
   }
 
@@ -115,7 +119,9 @@ public final class CellBTreeSingleValueIndexEngine
       return sbTree.remove(atomicOperation, key) != null;
     } catch (IOException e) {
       throw BaseException.wrapException(
-          new IndexException("Error during removal of key " + key + " from index " + name), e);
+          new IndexException(storage.getName(),
+              "Error during removal of key " + key + " from index " + name), e,
+          storage.getName());
     }
   }
 
@@ -124,8 +130,9 @@ public final class CellBTreeSingleValueIndexEngine
     try {
       doClearTree(atomicOperation);
     } catch (IOException e) {
-      throw BaseException.wrapException(new IndexException("Error during clear of index " + name),
-          e);
+      throw BaseException.wrapException(
+          new IndexException(storage.getName(), "Error during clear of index " + name),
+          e, storage.getName());
     }
   }
 
@@ -173,7 +180,9 @@ public final class CellBTreeSingleValueIndexEngine
       sbTree.put(atomicOperation, key, value);
     } catch (IOException e) {
       throw BaseException.wrapException(
-          new IndexException("Error during insertion of key " + key + " into index " + name), e);
+          new IndexException(storage.getName(),
+              "Error during insertion of key " + key + " into index " + name), e,
+          storage.getName());
     }
   }
 
@@ -187,7 +196,9 @@ public final class CellBTreeSingleValueIndexEngine
       return sbTree.validatedPut(atomicOperation, key, value, validator);
     } catch (IOException e) {
       throw BaseException.wrapException(
-          new IndexException("Error during insertion of key " + key + " into index " + name), e);
+          new IndexException(storage.getName(),
+              "Error during insertion of key " + key + " into index " + name), e,
+          storage.getName());
     }
   }
 

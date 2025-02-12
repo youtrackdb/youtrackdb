@@ -18,11 +18,9 @@
 
 package com.jetbrains.youtrack.db.internal.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -36,14 +34,14 @@ public class LuceneInheritanceQueryTest extends BaseLuceneTest {
 
   @Test
   public void testQuery() {
-    createSchema(db);
-    var doc = ((EntityImpl) db.newEntity("C2"));
+    createSchema(session);
+    var doc = ((EntityImpl) session.newEntity("C2"));
     doc.field("name", "abc");
-    db.begin();
-    db.save(doc);
-    db.commit();
+    session.begin();
+    session.save(doc);
+    session.commit();
 
-    var vertices = db.query("select from C1 where name lucene \"abc\" ");
+    var vertices = session.query("select from C1 where name lucene \"abc\" ");
 
     Assert.assertEquals(1, vertices.stream().count());
   }

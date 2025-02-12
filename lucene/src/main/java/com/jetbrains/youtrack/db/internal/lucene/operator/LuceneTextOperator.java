@@ -23,7 +23,6 @@ import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
@@ -43,9 +42,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Stream;
-import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.memory.MemoryIndex;
 
 public class LuceneTextOperator extends QueryTargetOperator {
@@ -58,10 +55,6 @@ public class LuceneTextOperator extends QueryTargetOperator {
 
   public LuceneTextOperator(String iKeyword, int iPrecedence, boolean iLogical) {
     super(iKeyword, iPrecedence, iLogical);
-  }
-
-  protected static DatabaseSessionInternal getDatabase() {
-    return DatabaseRecordThreadLocal.instance().get();
   }
 
   @Override
@@ -93,7 +86,7 @@ public class LuceneTextOperator extends QueryTargetOperator {
 
     return index
         .getInternal()
-        .getRids(iContext.getDatabase(),
+        .getRids(iContext.getDatabaseSession(),
             new LuceneKeyAndMetadata(
                 new LuceneCompositeKey(keyParams).setContext(iContext), Collections.emptyMap()))
         .map((rid) -> new RawPair<>(new LuceneCompositeKey(keyParams).setContext(iContext), rid));
@@ -124,9 +117,9 @@ public class LuceneTextOperator extends QueryTargetOperator {
       CommandContext iContext,
       final EntitySerializer serializer) {
 
-    var index = involvedIndex(iContext.getDatabase(), iRecord, iCurrentResult,
-        iCondition, iLeft,
-        iRight);
+    var index = involvedIndex(iContext.getDatabaseSession(), iRecord,
+        iCondition
+    );
     if (index == null) {
       return false;
     }
@@ -142,10 +135,10 @@ public class LuceneTextOperator extends QueryTargetOperator {
       // In case of collection field evaluate the query with every item until matched
 
       if (iLeft instanceof List && index.isCollectionIndex()) {
-        return matchCollectionIndex(iContext.getDatabase(), (List) iLeft, iRight, index,
+        return matchCollectionIndex(iContext.getDatabaseSession(), (List) iLeft, iRight, index,
             memoryIndex);
       } else {
-        return matchField(iContext.getDatabase(), iLeft, iRight, index, memoryIndex);
+        return matchField(iContext.getDatabaseSession(), iLeft, iRight, index, memoryIndex);
       }
 
     } catch (ParseException e) {
@@ -164,7 +157,7 @@ public class LuceneTextOperator extends QueryTargetOperator {
     for (var field : index.buildDocument(session, iLeft).getFields()) {
       memoryIndex.addField(field, index.indexAnalyzer());
     }
-    return memoryIndex.search(index.buildQuery(iRight)) > 0.0f;
+    return memoryIndex.search(index.buildQuery(iRight, session)) > 0.0f;
   }
 
   private boolean matchCollectionIndex(
@@ -228,33 +221,26 @@ public class LuceneTextOperator extends QueryTargetOperator {
   }
 
   protected LuceneFullTextIndex involvedIndex(
-      DatabaseSessionInternal db, Identifiable iRecord,
-      EntityImpl iCurrentResult,
-      SQLFilterCondition iCondition,
-      Object iLeft,
-      Object iRight) {
-
+      DatabaseSessionInternal session, Identifiable iRecord,
+      SQLFilterCondition iCondition) {
     try {
-      EntityImpl doc = iRecord.getRecord(db);
+      EntityImpl doc = iRecord.getRecord(session);
       if (doc.getClassName() != null) {
-        var cls = getDatabase().getMetadata().getSchemaInternal()
+        var cls = session.getMetadata().getSchemaInternal()
             .getClassInternal(doc.getClassName());
-
         if (isChained(iCondition.getLeft())) {
-
           var chained = (SQLFilterItemField) iCondition.getLeft();
-
           var fieldChain = chained.getFieldChain();
           var oClass = cls;
           for (var i = 0; i < fieldChain.getItemCount() - 1; i++) {
-            oClass = (SchemaClassInternal) oClass.getProperty(fieldChain.getItemName(i))
-                .getLinkedClass();
+            oClass = (SchemaClassInternal) oClass.getProperty(session, fieldChain.getItemName(i))
+                .getLinkedClass(session);
           }
           if (oClass != null) {
             cls = oClass;
           }
         }
-        var classInvolvedIndexes = cls.getInvolvedIndexesInternal(db,
+        var classInvolvedIndexes = cls.getInvolvedIndexesInternal(session,
             fields(iCondition));
         LuceneFullTextIndex idx = null;
         for (var classInvolvedIndex : classInvolvedIndexes) {

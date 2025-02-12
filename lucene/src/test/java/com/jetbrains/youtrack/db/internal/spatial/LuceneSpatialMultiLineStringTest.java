@@ -13,9 +13,7 @@
  */
 package com.jetbrains.youtrack.db.internal.spatial;
 
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
@@ -213,43 +211,43 @@ public class LuceneSpatialMultiLineStringTest extends BaseSpatialLuceneTest {
 
   @Before
   public void init() {
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var v = schema.getClass("V");
     var oClass = schema.createClass("Place");
-    oClass.setSuperClass(db, v);
-    oClass.createProperty(db, "location", PropertyType.EMBEDDED,
+    oClass.setSuperClass(session, v);
+    oClass.createProperty(session, "location", PropertyType.EMBEDDED,
         schema.getClass("OMultiLineString"));
-    oClass.createProperty(db, "name", PropertyType.STRING);
+    oClass.createProperty(session, "name", PropertyType.STRING);
 
-    db.command("CREATE INDEX Place.location ON Place(location) SPATIAL ENGINE LUCENE").close();
+    session.command("CREATE INDEX Place.location ON Place(location) SPATIAL ENGINE LUCENE").close();
   }
 
   @Test
   public void testWithoutIndex() {
     testWithIndex();
-    db.command("Drop INDEX Place.location").close();
+    session.command("Drop INDEX Place.location").close();
 
     testQueryMultiLineString();
   }
 
   @Test
   public void testWithIndex() {
-    db.begin();
-    db.command(
+    session.begin();
+    session.command(
             "insert into Place set name = 'TestInsert' , location = ST_GeomFromText('" + WKT + "')")
         .close();
 
-    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Place.location");
+    var index = session.getMetadata().getIndexManagerInternal().getIndex(session, "Place.location");
 
-    Assert.assertEquals(1, index.getInternal().size(db));
-    db.commit();
+    Assert.assertEquals(1, index.getInternal().size(session));
+    session.commit();
 
     testQueryMultiLineString();
   }
 
   protected void testQueryMultiLineString() {
     var query = "select * from Place where location && 'POINT(-157.9159477 21.3433168)' ";
-    List<EntityImpl> docs = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> docs = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(docs.size(), 1);
   }

@@ -14,7 +14,6 @@ import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import org.junit.Test;
 
 public class StringSerializerHelperTest extends DbTestBase {
@@ -91,13 +90,13 @@ public class StringSerializerHelperTest extends DbTestBase {
   @Test
   public void testGetMap() {
     var testText = "";
-    var map = StringSerializerHelper.getMap(db, testText);
+    var map = StringSerializerHelper.getMap(session, testText);
     assertNotNull(map);
     assertTrue(map.isEmpty());
 
     testText = "{ param1 :value1, param2 :value2}";
     // testText = "{\"param1\":\"value1\",\"param2\":\"value2\"}";
-    map = StringSerializerHelper.getMap(db, testText);
+    map = StringSerializerHelper.getMap(session, testText);
     assertNotNull(map);
     assertFalse(map.isEmpty());
     System.out.println(map);

@@ -26,7 +26,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.Nonnull;
 
 public class FrontendTransactionOptimisticServer extends FrontendTransactionOptimistic {
@@ -70,9 +69,10 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
               var record =
                   YouTrackDBEnginesManager.instance()
                       .getRecordFactoryManager()
-                      .newInstance(operation.getRecordType(), rid, getDatabase());
+                      .newInstance(operation.getRecordType(), rid, getDatabaseSession());
 
-              RecordSerializerNetworkV37.INSTANCE.fromStream(getDatabase(), operation.getRecord(),
+              RecordSerializerNetworkV37.INSTANCE.fromStream(getDatabaseSession(),
+                  operation.getRecord(),
                   record);
               entry = new RecordOperation(record, RecordOperation.CREATED);
               RecordInternal.setVersion(record, 0);
@@ -93,7 +93,7 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
             RecordAbstract updated;
             if (txEntry == null) {
               try {
-                updated = database.load(rid);
+                updated = session.load(rid);
               } catch (RecordNotFoundException e) {
                 throw new IllegalStateException(
                     "Record " + rid + " was not found in database.");
@@ -117,13 +117,13 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
               continue;
             }
 
-            RecordAbstract rec = rid.getRecord(database);
+            RecordAbstract rec = rid.getRecord(session);
             entry = new RecordOperation(rec, RecordOperation.DELETED);
             var deleteVersion = operation.getVersion();
             RecordInternal.setVersion(rec, deleteVersion);
             break;
           default:
-            throw new TransactionException("Unrecognized tx command: " + recordStatus);
+            throw new TransactionException(session, "Unrecognized tx command: " + recordStatus);
         }
 
         // PUT IN TEMPORARY LIST TO GET FETCHED AFTER ALL FOR CACHE
@@ -155,7 +155,7 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
         unmarshallRecord(record);
         if (record instanceof EntityImpl) {
           // Force conversion of value to class for trigger default values.
-          EntityInternalUtils.autoConvertValueToClass(getDatabase(), (EntityImpl) record);
+          EntityInternalUtils.autoConvertValueToClass(getDatabaseSession(), (EntityImpl) record);
         }
       }
       for (DBRecord record : updatedRecords.values()) {
@@ -164,9 +164,9 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
     } catch (Exception e) {
       rollback();
       throw BaseException.wrapException(
-          new SerializationException(
+          new SerializationException(session,
               "Cannot read transaction record from the network. Transaction aborted"),
-          e);
+          e, session);
     }
   }
 
@@ -178,10 +178,10 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
 
       if (recordType == DocumentSerializerDelta.DELTA_RECORD_TYPE) {
         var delta = DocumentSerializerDelta.instance();
-        delta.deserializeDelta(getDatabase(), operation.getRecord(), entity);
+        delta.deserializeDelta(getDatabaseSession(), operation.getRecord(), entity);
       } else {
         var phantom = (EntityImpl) RecordSerializerNetworkV37.INSTANCE.fromStream(
-            getDatabase(),
+            getDatabaseSession(),
             operation.getRecord(), null);
         entity.copyPropertiesFromOtherEntity(phantom);
       }
@@ -210,16 +210,16 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
     if (callHooks) {
       switch (iStatus) {
         case RecordOperation.CREATED: {
-          database.beforeCreateOperations(record, null);
+          session.beforeCreateOperations(record, null);
         }
         break;
         case RecordOperation.UPDATED: {
-          database.beforeUpdateOperations(record, null);
+          session.beforeUpdateOperations(record, null);
         }
         break;
 
         case RecordOperation.DELETED:
-          database.beforeDeleteOperations(record, null);
+          session.beforeDeleteOperations(record, null);
           break;
       }
     }
@@ -274,7 +274,7 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
       if (!rid.isPersistent() && !rid.isTemporary()) {
         var oldRid = rid.copy();
         if (rid.getClusterId() == RecordId.CLUSTER_ID_INVALID) {
-          database.assignAndCheckCluster(record, null);
+          session.assignAndCheckCluster(record, null);
           generatedOriginalRecordIdMap.put(rid, oldRid);
         }
       }
@@ -285,19 +285,20 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
       if (callHooks) {
         switch (iStatus) {
           case RecordOperation.CREATED:
-            database.callbackHooks(RecordHook.TYPE.CREATE_FAILED, record);
+            session.callbackHooks(RecordHook.TYPE.CREATE_FAILED, record);
             break;
           case RecordOperation.UPDATED:
-            database.callbackHooks(RecordHook.TYPE.UPDATE_FAILED, record);
+            session.callbackHooks(RecordHook.TYPE.UPDATE_FAILED, record);
             break;
           case RecordOperation.DELETED:
-            database.callbackHooks(RecordHook.TYPE.DELETE_FAILED, record);
+            session.callbackHooks(RecordHook.TYPE.DELETE_FAILED, record);
             break;
         }
       }
 
       throw BaseException.wrapException(
-          new DatabaseException("Error on saving record " + record.getIdentity()), e);
+          new DatabaseException(session, "Error on saving record " + record.getIdentity()), e,
+          session);
     }
   }
 
@@ -307,30 +308,30 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
       if (callHooks) {
         switch (iStatus) {
           case RecordOperation.CREATED:
-            database.afterCreateOperations(record);
+            session.afterCreateOperations(record);
             break;
           case RecordOperation.UPDATED:
-            database.afterUpdateOperations(record);
+            session.afterUpdateOperations(record);
             break;
           case RecordOperation.DELETED:
-            database.afterDeleteOperations(record);
+            session.afterDeleteOperations(record);
             break;
         }
       } else {
         switch (iStatus) {
           case RecordOperation.CREATED:
             if (record instanceof EntityImpl) {
-              ClassIndexManager.checkIndexesAfterCreate((EntityImpl) record, getDatabase());
+              ClassIndexManager.checkIndexesAfterCreate((EntityImpl) record, getDatabaseSession());
             }
             break;
           case RecordOperation.UPDATED:
             if (record instanceof EntityImpl) {
-              ClassIndexManager.checkIndexesAfterUpdate((EntityImpl) record, getDatabase());
+              ClassIndexManager.checkIndexesAfterUpdate((EntityImpl) record, getDatabaseSession());
             }
             break;
           case RecordOperation.DELETED:
             if (record instanceof EntityImpl) {
-              ClassIndexManager.checkIndexesAfterDelete((EntityImpl) record, getDatabase());
+              ClassIndexManager.checkIndexesAfterDelete((EntityImpl) record, getDatabaseSession());
             }
             break;
         }
@@ -344,19 +345,20 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
       if (callHooks) {
         switch (iStatus) {
           case RecordOperation.CREATED:
-            database.callbackHooks(RecordHook.TYPE.CREATE_FAILED, record);
+            session.callbackHooks(RecordHook.TYPE.CREATE_FAILED, record);
             break;
           case RecordOperation.UPDATED:
-            database.callbackHooks(RecordHook.TYPE.UPDATE_FAILED, record);
+            session.callbackHooks(RecordHook.TYPE.UPDATE_FAILED, record);
             break;
           case RecordOperation.DELETED:
-            database.callbackHooks(RecordHook.TYPE.DELETE_FAILED, record);
+            session.callbackHooks(RecordHook.TYPE.DELETE_FAILED, record);
             break;
         }
       }
 
       throw BaseException.wrapException(
-          new DatabaseException("Error on saving record " + record.getIdentity()), e);
+          new DatabaseException(session, "Error on saving record " + record.getIdentity()), e,
+          session);
     }
   }
 
@@ -365,13 +367,13 @@ public class FrontendTransactionOptimisticServer extends FrontendTransactionOpti
     if (callHooks) {
       switch (iStatus) {
         case RecordOperation.CREATED:
-          database.callbackHooks(RecordHook.TYPE.FINALIZE_CREATION, record);
+          session.callbackHooks(RecordHook.TYPE.FINALIZE_CREATION, record);
           break;
         case RecordOperation.UPDATED:
-          database.callbackHooks(RecordHook.TYPE.FINALIZE_UPDATE, record);
+          session.callbackHooks(RecordHook.TYPE.FINALIZE_UPDATE, record);
           break;
         case RecordOperation.DELETED:
-          database.callbackHooks(RecordHook.TYPE.FINALIZE_DELETION, record);
+          session.callbackHooks(RecordHook.TYPE.FINALIZE_DELETION, record);
           break;
       }
     }

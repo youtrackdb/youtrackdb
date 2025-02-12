@@ -13,7 +13,6 @@ import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.util.PairLongObject;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
@@ -166,13 +165,13 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
 
   @Override
   public ResultSet execute(
-      DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
+      DatabaseSessionInternal session, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
     var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
-    ctx.setDatabase(db);
+    ctx.setDatabaseSession(session);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
       for (var i = 0; i < args.length; i++) {
@@ -187,18 +186,18 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
       executionPlan = createExecutionPlanNoCache(ctx, false);
     }
 
-    return new LocalResultSet(executionPlan);
+    return new LocalResultSet(session, executionPlan);
   }
 
   @Override
   public ResultSet execute(
-      DatabaseSessionInternal db, Map<Object, Object> params, CommandContext parentCtx,
+      DatabaseSessionInternal session, Map<Object, Object> params, CommandContext parentCtx,
       boolean usePlanCache) {
     var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
-    ctx.setDatabase(db);
+    ctx.setDatabaseSession(session);
     ctx.setInputParameters(params);
     InternalExecutionPlan executionPlan;
     if (usePlanCache) {
@@ -207,7 +206,7 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
       executionPlan = createExecutionPlanNoCache(ctx, false);
     }
 
-    return new LocalResultSet(executionPlan);
+    return new LocalResultSet(session, executionPlan);
   }
 
   public InternalExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
@@ -509,7 +508,7 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
       SQLAsynchQuery<EntityImpl> request,
       MatchExecutionPlan executionPlan) {
 
-    var db = iCommandContext.getDatabase();
+    var db = iCommandContext.getDatabaseSession();
     var rootFound = false;
     // find starting nodes with few entries
     for (var entryPoint : estimatedRootEntries.entrySet()) {
@@ -626,7 +625,7 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
       CommandContext iCommandContext,
       SQLAsynchQuery<EntityImpl> request) {
 
-    var db = iCommandContext.getDatabase();
+    var db = iCommandContext.getDatabaseSession();
     iCommandContext.setVariable("$matched", matchContext.matched);
 
     if (pattern.getNumOfEdges() == matchContext.matchedEdges.size()
@@ -899,7 +898,7 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
         if (schemaClass == null) {
           return false;
         }
-        return schemaClass.isSubClassOf(oClass);
+        return schemaClass.isSubClassOf(db, oClass);
       }
       return false;
     } catch (RecordNotFoundException rnf) {
@@ -968,7 +967,7 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
       if (!matchContext.matched.containsKey(alias)) {
         var target = aliasClasses.get(alias);
         if (target == null) {
-          throw new CommandExecutionException(
+          throw new CommandExecutionException(iCommandContext.getDatabaseSession(),
               "Cannot execute MATCH statement on alias " + alias + ": class not defined");
         }
 
@@ -1010,7 +1009,7 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
   private boolean addResult(
       MatchContext matchContext, SQLAsynchQuery<EntityImpl> request, CommandContext ctx) {
 
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     EntityImpl entity = null;
     if (returnsElements()) {
       for (var entry : matchContext.matched.entrySet()) {
@@ -1104,7 +1103,7 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
   private boolean addSingleResult(
       SQLAsynchQuery<EntityImpl> request, BasicCommandContext ctx, DBRecord record) {
     if (((BasicCommandContext) context).addToUniqueResult(record)) {
-      request.getResultListener().result(ctx.getDatabase(), record);
+      request.getResultListener().result(ctx.getDatabaseSession(), record);
       var currentCount = ctx.getResultsProcessed().incrementAndGet();
       long limitValue = limitFromProtocol;
       if (limit != null) {
@@ -1164,7 +1163,7 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
     if (returnItems.size() == 1
         && (returnItems.get(0).value instanceof SQLJson)
         && returnAliases.get(0) == null) {
-      var db = ctx.getDatabase();
+      var db = ctx.getDatabaseSession();
       var result = new EntityImpl(null);
       result.setTrackingChanges(false);
       result.updateFromMap(
@@ -1180,17 +1179,12 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
 
   private Iterator<Identifiable> query(
       String className, SQLWhereClause oWhereClause, CommandContext ctx) {
-    final var database = ctx.getDatabase();
+    final var database = ctx.getDatabaseSession();
     var schemaClass = database.getMetadata().getSchema().getClass(className);
     database.checkSecurity(
         Rule.ResourceGeneric.CLASS,
         Role.PERMISSION_READ,
-        schemaClass.getName().toLowerCase(Locale.ENGLISH));
-
-    var baseIterable = fetchFromIndex(schemaClass, oWhereClause);
-
-    // SQLSelectStatement stm = buildSelectStatement(className, oWhereClause);
-    // return stm.execute(ctx);
+        schemaClass.getName(database).toLowerCase(Locale.ENGLISH));
 
     String text;
     if (oWhereClause == null) {
@@ -1286,7 +1280,7 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
     allAliases.addAll(aliasClasses.keySet());
     allAliases.addAll(aliasFilters.keySet());
 
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     var schema = db.getMetadata().getImmutableSchemaSnapshot();
 
     Map<String, Long> result = new LinkedHashMap<String, Long>();
@@ -1336,7 +1330,7 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
       Map<String, SQLWhereClause> aliasFilters,
       Map<String, String> aliasClasses,
       CommandContext context) {
-    var db = context.getDatabase();
+    var db = context.getDatabaseSession();
     var alias = matchFilter.getAlias();
     var filter = matchFilter.getFilter();
     if (alias != null) {
@@ -1376,22 +1370,24 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
     }
   }
 
-  private String getLowerSubclass(DatabaseSessionInternal db, String className1,
+  private String getLowerSubclass(DatabaseSessionInternal session, String className1,
       String className2) {
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var class1 = schema.getClass(className1);
     var class2 = schema.getClass(className2);
     if (class1 == null) {
-      throw new CommandExecutionException("Class " + className1 + " not found in the schema");
+      throw new CommandExecutionException(session,
+          "Class " + className1 + " not found in the schema");
     }
     if (class2 == null) {
-      throw new CommandExecutionException("Class " + className2 + " not found in the schema");
+      throw new CommandExecutionException(session,
+          "Class " + className2 + " not found in the schema");
     }
-    if (class1.isSubClassOf(class2)) {
-      return class1.getName();
+    if (class1.isSubClassOf(session, class2)) {
+      return class1.getName(session);
     }
-    if (class2.isSubClassOf(class1)) {
-      return class2.getName();
+    if (class2.isSubClassOf(session, class1)) {
+      return class2.getName(session);
     }
     return null;
   }
@@ -1514,16 +1510,16 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
   }
 
   @Override
-  public Iterator<Identifiable> iterator(DatabaseSessionInternal db,
+  public Iterator<Identifiable> iterator(DatabaseSessionInternal session,
       Map<Object, Object> iArgs) {
     if (context == null) {
       var context = new BasicCommandContext();
-      context.setDatabase(db);
+      context.setDatabaseSession(session);
 
       this.context = context;
     }
 
-    var result = execute(db, iArgs);
+    var result = execute(session, iArgs);
     return result.stream().map(x -> (Identifiable) x.getRecordId()).iterator();
   }
 

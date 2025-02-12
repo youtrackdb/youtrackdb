@@ -1,28 +1,27 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.ExecutionStep;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
-import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.ExecutionThreadLocal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.exception.CommandInterruptedException;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionMultiValue;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.MultipleExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStreamProducer;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.MultipleExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAndBlock;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBetweenCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCompareOperator;
@@ -114,13 +113,14 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
 
   private Result readResult(CommandContext ctx, RawPair<Object, RID> nextEntry) {
     if (ExecutionThreadLocal.isInterruptCurrentOperation()) {
-      throw new CommandInterruptedException("The command has been interrupted");
+      throw new CommandInterruptedException(ctx.getDatabaseSession(),
+          "The command has been interrupted");
     }
     count++;
     var key = nextEntry.first;
     Identifiable value = nextEntry.second;
 
-    var result = new ResultInternal(ctx.getDatabase());
+    var result = new ResultInternal(ctx.getDatabaseSession());
     result.setProperty("key", convertKey(key));
     result.setProperty("rid", value);
     ctx.setVariable("$current", result);
@@ -136,7 +136,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
 
   private void updateIndexStats() {
     // stats
-    var stats = QueryStats.get(ctx.getDatabase());
+    var stats = QueryStats.get(ctx.getDatabaseSession());
     var index = desc.getIndex();
     var condition = desc.getKeyCondition();
     var additionalRangeCondition = desc.getAdditionalRangeCondition();
@@ -179,9 +179,9 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       return Collections.emptyList();
     }
     if (condition == null) {
-      return processFlatIteration(ctx.getDatabase(), index, isOrderAsc);
+      return processFlatIteration(ctx.getDatabaseSession(), index, isOrderAsc);
     } else if (condition instanceof SQLBinaryCondition) {
-      return processBinaryCondition(ctx.getDatabase(), index, condition, isOrderAsc, ctx);
+      return processBinaryCondition(ctx.getDatabaseSession(), index, condition, isOrderAsc, ctx);
     } else if (condition instanceof SQLBetweenCondition) {
       return processBetweenCondition(index, condition, isOrderAsc, ctx);
     } else if (condition instanceof SQLAndBlock) {
@@ -190,7 +190,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       return processInCondition(index, condition, ctx, isOrderAsc);
     } else {
       // TODO process containsAny
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
           "search for index for " + condition + " is not supported yet");
     }
   }
@@ -205,7 +205,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
 
     var left = inCondition.getLeft();
     if (!left.toString().equalsIgnoreCase("key")) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
           "search for index for " + condition + " is not supported yet");
     }
     var rightValue = inCondition.evaluateRight((Result) null, ctx);
@@ -223,7 +223,8 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
         }
 
         var localCursor =
-            createCursor(ctx.getDatabase(), index, equals, definition, item, orderAsc, condition);
+            createCursor(ctx.getDatabaseSession(), index, equals, definition, item, orderAsc,
+                condition);
 
         if (acquiredStreams.add(localCursor)) {
           streams.add(localCursor);
@@ -232,7 +233,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     } else {
       var stream =
           createCursor(
-              ctx.getDatabase(), index, equals, definition, rightValue, orderAsc, condition);
+              ctx.getDatabaseSession(), index, equals, definition, rightValue, orderAsc, condition);
       if (acquiredStreams.add(stream)) {
         streams.add(stream);
       }
@@ -306,7 +307,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       boolean isOrderAsc,
       SQLBinaryCondition additionalRangeCondition,
       CommandContext ctx) {
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     List<Stream<RawPair<Object, RID>>> streams = new ArrayList<>();
     Set<Stream<RawPair<Object, RID>>> acquiredStreams =
         Collections.newSetFromMap(new IdentityHashMap<>());
@@ -419,14 +420,14 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
 
       } else if (additionalRangeCondition == null && allEqualities((SQLAndBlock) condition)) {
         stream =
-            index.streamEntries(db, toIndexKey(ctx.getDatabase(), indexDef, secondValue),
+            index.streamEntries(db, toIndexKey(ctx.getDatabaseSession(), indexDef, secondValue),
                 isOrderAsc);
         if (acquiredStreams.add(stream)) {
           streams.add(stream);
         }
       } else if (isFullTextIndex(index)) {
         stream =
-            index.streamEntries(db, toIndexKey(ctx.getDatabase(), indexDef, secondValue),
+            index.streamEntries(db, toIndexKey(ctx.getDatabaseSession(), indexDef, secondValue),
                 isOrderAsc);
         if (acquiredStreams.add(stream)) {
           streams.add(stream);
@@ -487,7 +488,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       return Collections.singletonList(head);
     }
 
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     var nextElementInKey = key.getExpressions().get(0);
     var value = nextElementInKey.execute(new ResultInternal(db), ctx);
     if (value instanceof Iterable && !(value instanceof Identifiable)) {
@@ -584,7 +585,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     var definition = index.getDefinition();
     var key = ((SQLBetweenCondition) condition).getFirst();
     if (!key.toString().equalsIgnoreCase("key")) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
           "search for index for " + condition + " is not supported yet");
     }
     var second = ((SQLBetweenCondition) condition).getSecond();
@@ -594,7 +595,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     secondValue = unboxOResult(secondValue);
     var thirdValue = third.execute((Result) null, ctx);
     thirdValue = unboxOResult(thirdValue);
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     var stream =
         index.streamEntriesBetween(db,
             toBetweenIndexKey(db, definition, secondValue),
@@ -619,7 +620,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     var operator = ((SQLBinaryCondition) condition).getOperator();
     var left = ((SQLBinaryCondition) condition).getLeft();
     if (!left.toString().equalsIgnoreCase("key")) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
           "search for index for " + condition + " is not supported yet");
     }
     var rightValue = ((SQLBinaryCondition) condition).getRight().execute((Result) null, ctx);
@@ -688,7 +689,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     } else if (operator instanceof SQLLtOperator) {
       return index.streamEntriesMinor(session, value, false, orderAsc);
     } else {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "search for index for " + condition + " is not supported yet");
     }
   }
@@ -831,24 +832,24 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   }
 
   @Override
-  public Result serialize(DatabaseSessionInternal db) {
-    var result = ExecutionStepInternal.basicSerialize(db, this);
+  public Result serialize(DatabaseSessionInternal session) {
+    var result = ExecutionStepInternal.basicSerialize(session, this);
     result.setProperty("indexName", desc.getIndex().getName());
     if (desc.getKeyCondition() != null) {
-      result.setProperty("condition", desc.getKeyCondition().serialize(db));
+      result.setProperty("condition", desc.getKeyCondition().serialize(session));
     }
     if (desc.getAdditionalRangeCondition() != null) {
       result.setProperty(
-          "additionalRangeCondition", desc.getAdditionalRangeCondition().serialize(db));
+          "additionalRangeCondition", desc.getAdditionalRangeCondition().serialize(session));
     }
     result.setProperty("orderAsc", orderAsc);
     return result;
   }
 
   @Override
-  public void deserialize(Result fromResult) {
+  public void deserialize(Result fromResult, DatabaseSessionInternal session) {
     try {
-      ExecutionStepInternal.basicDeserialize(fromResult, this);
+      ExecutionStepInternal.basicDeserialize(fromResult, this, session);
       String indexName = fromResult.getProperty("indexName");
       SQLBooleanExpression condition = null;
       if (fromResult.getProperty("condition") != null) {
@@ -860,12 +861,11 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
         additionalRangeCondition = new SQLBinaryCondition(-1);
         additionalRangeCondition.deserialize(fromResult.getProperty("additionalRangeCondition"));
       }
-      var db = DatabaseRecordThreadLocal.instance().get();
-      var index = db.getMetadata().getIndexManagerInternal().getIndex(db, indexName);
+      var index = session.getMetadata().getIndexManagerInternal().getIndex(session, indexName);
       desc = new IndexSearchDescriptor(index, condition, additionalRangeCondition, null);
       orderAsc = fromResult.getProperty("orderAsc");
     } catch (Exception e) {
-      throw BaseException.wrapException(new CommandExecutionException(""), e);
+      throw BaseException.wrapException(new CommandExecutionException(session, ""), e, session);
     }
   }
 

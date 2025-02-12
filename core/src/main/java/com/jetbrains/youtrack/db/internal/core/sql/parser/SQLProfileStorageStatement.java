@@ -28,7 +28,7 @@ public class SQLProfileStorageStatement extends SQLSimpleExecStatement {
   // new execution logic
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
-    var result = new ResultInternal(ctx.getDatabase());
+    var result = new ResultInternal(ctx.getDatabaseSession());
     result.setProperty("operation", "optimize database");
 
     return ExecutionStream.singleton(result);
@@ -44,7 +44,7 @@ public class SQLProfileStorageStatement extends SQLSimpleExecStatement {
       return getResult(request);
     } finally {
       if (request.getResultListener() != null) {
-        request.getResultListener().end();
+        request.getResultListener().end(context.getDatabaseSession());
       }
     }
   }

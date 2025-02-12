@@ -3,7 +3,6 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 import com.jetbrains.youtrack.db.api.query.ExecutionPlan;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 
 /**
@@ -36,7 +35,7 @@ public class DistributedExecutionStep extends AbstractExecutionStep {
 
   private ExecutionStream sendSerializedExecutionPlan(
       String nodeName, ExecutionPlan serializedExecutionPlan, CommandContext ctx) {
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     return ExecutionStream.resultIterator(
         db.queryOnNode(nodeName, serializedExecutionPlan, ctx.getInputParameters()).stream()
             .iterator());

@@ -1,8 +1,5 @@
 package com.jetbrains.youtrack.db.internal.server;
 
-import com.jetbrains.youtrack.db.internal.client.remote.message.BinaryPushRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.BinaryPushResponse;
-import com.jetbrains.youtrack.db.internal.client.remote.message.PushDistributedConfigurationRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushSchemaRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushSequencesRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushStorageConfigurationRequest;
@@ -16,8 +13,6 @@ import com.jetbrains.youtrack.db.internal.server.network.protocol.binary.Network
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -41,31 +36,6 @@ public class PushManager implements MetadataUpdateListener {
             "Push Requests", Thread.currentThread().getThreadGroup(), 5, 0);
   }
 
-  public synchronized void pushDistributedConfig(DatabaseSessionInternal database,
-      List<String> hosts) {
-    var iter = distributedConfigPush.iterator();
-    while (iter.hasNext()) {
-      var ref = iter.next();
-      var protocolBinary = ref.get();
-      if (protocolBinary != null) {
-        // TODO Filter by database, push just list of active server for a specific database
-        var request =
-            new PushDistributedConfigurationRequest(hosts);
-        try {
-          var response = protocolBinary.push(database, request);
-        } catch (IOException e) {
-          iter.remove();
-        }
-      } else {
-        iter.remove();
-      }
-    }
-  }
-
-  public synchronized void subscribeDistributeConfig(NetworkProtocolBinary channel) {
-    distributedConfigPush.add(new WeakReference<NetworkProtocolBinary>(channel));
-  }
-
   public synchronized void cleanPushSockets() {
     var iter = distributedConfigPush.iterator();
     while (iter.hasNext()) {
@@ -80,28 +50,17 @@ public class PushManager implements MetadataUpdateListener {
     sequences.cleanListeners();
   }
 
-  private void cleanListeners(Map<String, Set<WeakReference<NetworkProtocolBinary>>> toClean) {
-    for (var value : toClean.values()) {
-      var iter = value.iterator();
-      while (iter.hasNext()) {
-        if (iter.next().get() == null) {
-          iter.remove();
-        }
-      }
-    }
-  }
-
   public void shutdown() {
     executor.shutdownNow();
   }
 
   private void genericSubscribe(
       PushEventType context, DatabaseSessionInternal database, NetworkProtocolBinary protocol) {
-    if (!registerDatabase.contains(database.getName())) {
+    if (!registerDatabase.contains(database.getDatabaseName())) {
       database.getSharedContext().registerListener(this);
-      registerDatabase.add(database.getName());
+      registerDatabase.add(database.getDatabaseName());
     }
-    context.subscribe(database.getName(), protocol);
+    context.subscribe(database.getDatabaseName(), protocol);
   }
 
   public synchronized void subscribeStorageConfiguration(
@@ -132,9 +91,7 @@ public class PushManager implements MetadataUpdateListener {
   @Override
   public void onSchemaUpdate(DatabaseSessionInternal db, String database,
       SchemaShared schema) {
-    var entity = schema.toNetworkStream(db);
-    entity.setup(null);
-    var request = new PushSchemaRequest(entity);
+    var request = new PushSchemaRequest();
     this.schema.send(db, database, request, this);
   }
 

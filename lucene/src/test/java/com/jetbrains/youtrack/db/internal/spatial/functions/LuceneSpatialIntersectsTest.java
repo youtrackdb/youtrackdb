@@ -13,8 +13,6 @@
  */
 package com.jetbrains.youtrack.db.internal.spatial.functions;
 
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.spatial.BaseSpatialLuceneTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,13 +26,15 @@ public class LuceneSpatialIntersectsTest extends BaseSpatialLuceneTest {
   public void testIntersectsNoIndex() {
 
     var execute =
-        db.query("SELECT ST_Intersects('POINT(0 0)', 'LINESTRING ( 2 0, 0 2 )') as ST_Intersects");
+        session.query(
+            "SELECT ST_Intersects('POINT(0 0)', 'LINESTRING ( 2 0, 0 2 )') as ST_Intersects");
     var next = execute.next();
 
     Assert.assertEquals(next.getProperty("ST_Intersects"), false);
     execute.close();
     execute =
-        db.query("SELECT ST_Intersects('POINT(0 0)', 'LINESTRING ( 0 0, 0 2 )') as ST_Intersects");
+        session.query(
+            "SELECT ST_Intersects('POINT(0 0)', 'LINESTRING ( 0 0, 0 2 )') as ST_Intersects");
     next = execute.next();
 
     Assert.assertEquals(next.getProperty("ST_Intersects"), true);
@@ -44,19 +44,19 @@ public class LuceneSpatialIntersectsTest extends BaseSpatialLuceneTest {
   @Test
   public void testIntersectsIndex() {
 
-    db.command("create class Lines extends v").close();
-    db.command("create property Lines.geometry EMBEDDED OLINESTRING").close();
+    session.command("create class Lines extends v").close();
+    session.command("create property Lines.geometry EMBEDDED OLINESTRING").close();
 
-    db.begin();
-    db.command("insert into Lines set geometry = ST_GeomFromText('LINESTRING ( 2 0, 0 2 )')")
+    session.begin();
+    session.command("insert into Lines set geometry = ST_GeomFromText('LINESTRING ( 2 0, 0 2 )')")
         .close();
-    db.command("insert into Lines set geometry = ST_GeomFromText('LINESTRING ( 0 0, 0 2 )')")
+    session.command("insert into Lines set geometry = ST_GeomFromText('LINESTRING ( 0 0, 0 2 )')")
         .close();
-    db.commit();
+    session.commit();
 
-    db.command("create index L.g on Lines (geometry) SPATIAL engine lucene").close();
+    session.command("create index L.g on Lines (geometry) SPATIAL engine lucene").close();
     var execute =
-        db.query("SELECT from lines where ST_Intersects(geometry, 'POINT(0 0)') = true");
+        session.query("SELECT from lines where ST_Intersects(geometry, 'POINT(0 0)') = true");
 
     Assert.assertEquals(execute.stream().count(), 1);
   }

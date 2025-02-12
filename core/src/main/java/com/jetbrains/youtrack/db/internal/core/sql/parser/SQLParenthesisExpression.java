@@ -2,13 +2,13 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InsertExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +63,8 @@ public class SQLParenthesisExpression extends SQLMathExpression {
       if (execPlan instanceof InsertExecutionPlan) {
         ((InsertExecutionPlan) execPlan).executeInternal();
       }
-      var rs = new LocalResultSet(execPlan);
+      var session = ctx.getDatabaseSession();
+      var rs = new LocalResultSet(session, execPlan);
       List<Result> result = new ArrayList<>();
       while (rs.hasNext()) {
         result.add(rs.next());
@@ -136,7 +137,7 @@ public class SQLParenthesisExpression extends SQLMathExpression {
 
   public SimpleNode splitForAggregation(
       AggregateProjectionSplit aggregateProj, CommandContext ctx) {
-    if (isAggregate(ctx.getDatabase())) {
+    if (isAggregate(ctx.getDatabaseSession())) {
       var result = new SQLParenthesisExpression(-1);
       result.expression = expression.splitForAggregation(aggregateProj, ctx);
       return result;
@@ -221,7 +222,7 @@ public class SQLParenthesisExpression extends SQLMathExpression {
     if (expression != null) {
       expression.applyRemove(result, ctx);
     } else {
-      throw new CommandExecutionException("Cannot apply REMOVE " + this);
+      throw new CommandExecutionException(ctx.getDatabaseSession(), "Cannot apply REMOVE " + this);
     }
   }
 

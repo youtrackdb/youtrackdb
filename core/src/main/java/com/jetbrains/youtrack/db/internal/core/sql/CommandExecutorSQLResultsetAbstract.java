@@ -30,7 +30,6 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClass;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClassDescendentOrder;
@@ -47,7 +46,6 @@ import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemField;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLTarget;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionRuntime;
-import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperatorEquals;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperatorNotEquals;
 import com.jetbrains.youtrack.db.internal.core.sql.query.LegacyResultSet;
@@ -55,7 +53,6 @@ import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -82,7 +79,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @SuppressWarnings("unchecked")
 public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecutorSQLAbstract
-    implements CommandDistributedReplicateRequest, Iterable<Identifiable>,
+    implements CommandDistributedReplicateRequest,
     IterableRecordSource {
 
   protected static final String KEYWORD_FROM_2FIND = " " + KEYWORD_FROM + " ";
@@ -103,26 +100,25 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
 
     private final Iterator<RID> indexValuesIterator;
 
-    private IndexValuesIterator(String indexName, boolean ascOrder) {
-      final var database = getDatabase();
+    private IndexValuesIterator(DatabaseSessionInternal db, String indexName, boolean ascOrder) {
       if (ascOrder) {
         indexValuesIterator =
-            database
+            db
                 .getMetadata()
                 .getIndexManagerInternal()
-                .getIndex(database, indexName)
+                .getIndex(db, indexName)
                 .getInternal()
-                .stream(database)
+                .stream(db)
                 .map((pair) -> pair.second)
                 .iterator();
       } else {
         indexValuesIterator =
-            database
+            db
                 .getMetadata()
                 .getIndexManagerInternal()
-                .getIndex(database, indexName)
+                .getIndex(db, indexName)
                 .getInternal()
-                .descStream(database)
+                .descStream(db)
                 .map((pair) -> pair.second)
                 .iterator();
       }
@@ -147,11 +143,11 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
   /**
    * Compile the filter conditions only the first time.
    */
-  public CommandExecutorSQLResultsetAbstract parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLResultsetAbstract parse(DatabaseSessionInternal session,
       final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
-    init(textRequest);
+    init(session, textRequest);
 
     if (iRequest instanceof SQLSynchQuery) {
       request = (SQLSynchQuery<EntityImpl>) iRequest;
@@ -174,68 +170,49 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
     return true;
   }
 
-  public boolean isLazyIteration() {
-    return lazyIteration;
-  }
-
-  public void setLazyIteration(final boolean lazyIteration) {
-    this.lazyIteration = lazyIteration;
-  }
-
-  @Override
-  public CommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE
-  getDistributedExecutionMode() {
-    return DISTRIBUTED_EXECUTION_MODE.REPLICATE;
-  }
-
-  @Override
-  public DISTRIBUTED_RESULT_MGMT getDistributedResultManagement() {
-    return DISTRIBUTED_RESULT_MGMT.MERGE;
-  }
-
   /**
    * Assign the right TARGET if found.
    *
+   * @param session
    * @param iArgs Parameters to bind
    * @return true if the target has been recognized, otherwise false
    */
-  protected boolean assignTarget(final Map<Object, Object> iArgs) {
+  protected boolean assignTarget(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     parameters = iArgs;
     if (parsedTarget == null) {
       return true;
     }
 
-    if (iArgs != null && iArgs.size() > 0 && compiledFilter != null) {
+    if (iArgs != null && !iArgs.isEmpty() && compiledFilter != null) {
       compiledFilter.bindParameters(iArgs);
     }
 
-    var db = getDatabase();
     if (target == null) {
       if (parsedTarget.getTargetClasses() != null) {
-        searchInClasses();
+        searchInClasses(session);
       } else {
         if (parsedTarget.getTargetIndexValues() != null) {
           target =
-              new IndexValuesIterator(
+              new IndexValuesIterator(session,
                   parsedTarget.getTargetIndexValues(), parsedTarget.isTargetIndexValuesAsc());
         } else {
           if (parsedTarget.getTargetClusters() != null) {
-            searchInClusters();
+            searchInClusters(session);
           } else {
             if (parsedTarget.getTargetRecords() != null) {
               if (!lazyIteration && parsedTarget.getTargetQuery() != null) {
                 // EXECUTE THE QUERY TO ALLOW DISTRIB EXECUTION
                 target =
                     ((Iterable<? extends Identifiable>)
-                        db
+                        session
                             .command(new CommandSQL(parsedTarget.getTargetQuery()))
-                            .execute(db, iArgs))
+                            .execute(session, iArgs))
                         .iterator();
               } else {
                 if (parsedTarget.getTargetRecords() instanceof IterableRecordSource) {
                   target =
                       ((IterableRecordSource) parsedTarget.getTargetRecords()).iterator(
-                          getDatabase(), iArgs);
+                          session, iArgs);
                 } else {
                   target = parsedTarget.getTargetRecords().iterator();
                 }
@@ -277,7 +254,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
     return request.getResultListener().getResult();
   }
 
-  protected Object getResult(DatabaseSessionInternal db) {
+  protected Object getResult(DatabaseSessionInternal session) {
     try {
       if (tempResult != null) {
         var fetched = 0;
@@ -287,16 +264,16 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
             if (!(d instanceof Identifiable))
             // NON-DOCUMENT AS RESULT, COMES FROM EXPAND? CREATE A DOCUMENT AT THE FLY
             {
-              d = new EntityImpl(db).field("value", d);
+              d = new EntityImpl(session).field("value", d);
             } else {
-              d = ((Identifiable) d).getRecord(db);
+              d = ((Identifiable) d).getRecord(session);
             }
 
             if (limit > -1 && fetched >= limit) {
               break;
             }
 
-            if (!pushResult(db, d)) {
+            if (!pushResult(session, d)) {
               break;
             }
 
@@ -307,26 +284,28 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
 
       return getResultInstance();
     } finally {
-      request.getResultListener().end();
+      request.getResultListener().end(session);
     }
   }
 
-  protected boolean pushResult(DatabaseSessionInternal db, Object rec) {
+  protected boolean pushResult(DatabaseSessionInternal session, Object rec) {
     if (rec instanceof RecordAbstract record) {
-      if (db != null) {
-        var cached = db.getLocalCache().findRecord(record.getIdentity());
+      if (session != null) {
+        var cached = session.getLocalCache().findRecord(record.getIdentity());
         if (cached != record) {
           if (cached != null) {
-            record.copyTo(cached);
+            cached.fromStream(record.toStream());
+            cached.setVersion(record.getVersion());
+            cached.setIdentity(record.getIdentity());
             rec = cached;
           } else {
-            db.getLocalCache().updateRecord(record);
+            session.getLocalCache().updateRecord(record);
           }
         }
       }
     }
 
-    return request.getResultListener().result(db, rec);
+    return request.getResultListener().result(session, rec);
   }
 
   protected boolean handleResult(final Identifiable iRecord, final CommandContext iContext) {
@@ -338,7 +317,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
 
       // CALL THE LISTENER NOW
       if (identifiable != null && request.getResultListener() != null) {
-        final var result = pushResult(iContext.getDatabase(), identifiable);
+        final var result = pushResult(iContext.getDatabaseSession(), identifiable);
         if (!result) {
           return false;
         }
@@ -358,7 +337,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
       // PARSE THE KEY
       final var letName = parserNextWord(false);
 
-      parserOptionalKeyword("=");
+      parserOptionalKeyword(session.getDatabaseName(), "=");
 
       parserNextWord(false, " =><,\r\n", true);
 
@@ -402,14 +381,14 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
     try {
       limit = Integer.parseInt(word);
     } catch (NumberFormatException ignore) {
-      throwParsingException(
+      throwParsingException(null,
           "Invalid LIMIT value setted to '"
               + word
               + "' but it should be a valid integer. Example: LIMIT 10");
     }
 
     if (limit == 0) {
-      throwParsingException(
+      throwParsingException(null,
           "Invalid LIMIT value setted to ZERO. Use -1 to ignore the limit or use a positive number."
               + " Example: LIMIT 10");
     }
@@ -435,14 +414,14 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
       skip = Integer.parseInt(word);
 
     } catch (NumberFormatException ignore) {
-      throwParsingException(
+      throwParsingException(null,
           "Invalid SKIP value setted to '"
               + word
               + "' but it should be a valid positive integer. Example: SKIP 10");
     }
 
     if (skip < 0) {
-      throwParsingException(
+      throwParsingException(null,
           "Invalid SKIP value setted to the negative number '"
               + word
               + "'. Only positive numbers are valid. Example: SKIP 10");
@@ -456,13 +435,15 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
       // CHECK THE TARGET CLASS
       var targetClasses = parsedTarget.getTargetClasses();
       // check only classes that specified in query will go to result set
+      var db = iContext.getDatabaseSession();
       if ((targetClasses != null) && (!targetClasses.isEmpty())) {
         for (var targetClass : targetClasses.keySet()) {
-          if (!getDatabase()
+          if (!db
               .getMetadata()
               .getImmutableSchemaSnapshot()
               .getClass(targetClass)
-              .isSuperClassOf(EntityInternalUtils.getImmutableSchemaClass(recordSchemaAware))) {
+              .isSuperClassOf(db,
+                  EntityInternalUtils.getImmutableSchemaClass(recordSchemaAware))) {
             return false;
           }
         }
@@ -477,7 +458,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
     iContext.setVariable("current", iRecord);
     iContext.updateMetric("evaluated", +1);
 
-    assignLetClauses(iContext.getDatabase(), iRecord);
+    assignLetClauses(iContext.getDatabaseSession(), iRecord);
     if (compiledFilter == null) {
       return true;
     }
@@ -485,7 +466,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
     return evaluate != null && evaluate;
   }
 
-  protected void assignLetClauses(DatabaseSession session, final DBRecord iRecord) {
+  protected void assignLetClauses(DatabaseSessionInternal session, final DBRecord iRecord) {
     if (let != null && !let.isEmpty()) {
       // BIND CONTEXT VARIABLES
       for (var entry : let.entrySet()) {
@@ -504,7 +485,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
           subQuery.getContext().setParent(context);
           subQuery.getContext().setVariable("parentQuery", this);
           subQuery.getContext().setVariable("current", iRecord);
-          varValue = DatabaseRecordThreadLocal.instance().get().query(subQuery);
+          varValue = session.query(subQuery);
           if (varValue instanceof LegacyResultSet) {
             varValue = ((LegacyResultSet) varValue).copy();
           }
@@ -532,35 +513,33 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
     }
   }
 
-  protected void searchInClasses() {
-    searchInClasses(true);
+  protected void searchInClasses(DatabaseSessionInternal db) {
+    searchInClasses(true, db);
   }
 
-  protected void searchInClasses(final boolean iAscendentOrder) {
+  protected void searchInClasses(final boolean iAscendentOrder, DatabaseSessionInternal db) {
     final var cls = parsedTarget.getTargetClasses().keySet().iterator().next();
     target =
-        searchInClasses(
-            getDatabase().getMetadata().getImmutableSchemaSnapshot().getClass(cls),
-            true,
-            iAscendentOrder);
+        searchInClasses(db,
+            db.getMetadata().getImmutableSchemaSnapshot().getClass(cls),
+            true, iAscendentOrder);
   }
 
   protected Iterator<? extends Identifiable> searchInClasses(
-      final SchemaClass iCls, final boolean iPolymorphic, final boolean iAscendentOrder) {
-
-    final var database = getDatabase();
-    database.checkSecurity(
+      DatabaseSessionInternal db, final SchemaClass iCls, final boolean iPolymorphic,
+      final boolean iAscendentOrder) {
+    db.checkSecurity(
         Rule.ResourceGeneric.CLASS,
         Role.PERMISSION_READ,
-        iCls.getName().toLowerCase(Locale.ENGLISH));
+        iCls.getName(db).toLowerCase(Locale.ENGLISH));
 
-    final var range = getRange(database);
+    final var range = getRange(db);
     if (iAscendentOrder) {
-      return new RecordIteratorClass<DBRecord>(database, iCls.getName(), iPolymorphic, false)
+      return new RecordIteratorClass<>(db, iCls.getName(db), iPolymorphic, false)
           .setRange(range[0], range[1]);
     } else {
-      return new RecordIteratorClassDescendentOrder<DBRecord>(
-          database, database, iCls.getName(), iPolymorphic)
+      return new RecordIteratorClassDescendentOrder<>(
+          db, db, iCls.getName(db), iPolymorphic)
           .setRange(range[0], range[1]);
     }
   }
@@ -569,16 +548,15 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
     return request.isUseCache();
   }
 
-  protected void searchInClusters() {
-    final var database = getDatabase();
-
+  protected void searchInClusters(DatabaseSessionInternal session) {
     final var clusterIds = new IntOpenHashSet();
     for (var clusterName : parsedTarget.getTargetClusters().keySet()) {
       if (clusterName == null || clusterName.isEmpty()) {
-        throw new CommandExecutionException("No cluster or schema class selected in query");
+        throw new CommandExecutionException(session,
+            "No cluster or schema class selected in query");
       }
 
-      database.checkSecurity(
+      session.checkSecurity(
           Rule.ResourceGeneric.CLUSTER,
           Role.PERMISSION_READ,
           clusterName.toLowerCase(Locale.ENGLISH));
@@ -587,25 +565,25 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
         // GET THE CLUSTER NUMBER
         for (var clusterId : StringSerializerHelper.splitIntArray(clusterName)) {
           if (clusterId == -1) {
-            throw new CommandExecutionException("Cluster '" + clusterName + "' not found");
+            throw new CommandExecutionException(session, "Cluster '" + clusterName + "' not found");
           }
 
           clusterIds.add(clusterId);
         }
       } else {
         // GET THE CLUSTER NUMBER BY THE CLASS NAME
-        final var clusterId = database.getClusterIdByName(clusterName.toLowerCase(Locale.ENGLISH));
+        final var clusterId = session.getClusterIdByName(clusterName.toLowerCase(Locale.ENGLISH));
         if (clusterId == -1) {
-          throw new CommandExecutionException("Cluster '" + clusterName + "' not found");
+          throw new CommandExecutionException(session, "Cluster '" + clusterName + "' not found");
         }
 
         clusterIds.add(clusterId);
       }
     }
 
-    final var range = getRange(database);
+    final var range = getRange(session);
     target =
-        new RecordIteratorClusters<>(database, clusterIds.toIntArray())
+        new RecordIteratorClusters<>(session, clusterIds.toIntArray())
             .setRange(range[0], range[1]);
   }
 
@@ -804,45 +782,4 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
     return true;
   }
 
-  public Object mergeResults(Map<String, Object> results) throws Exception {
-
-    if (results.isEmpty()) {
-      return null;
-    }
-
-    // TODO: DELEGATE MERGE AT EVERY COMMAND
-    final var mergedResult = new ArrayList<Object>();
-
-    final var firstResult = results.values().iterator().next();
-
-    for (var entry : results.entrySet()) {
-      final var nodeName = entry.getKey();
-      final var nodeResult = entry.getValue();
-
-      if (nodeResult instanceof Collection) {
-        mergedResult.addAll((Collection<?>) nodeResult);
-      } else {
-        if (nodeResult instanceof Exception)
-        // RECEIVED EXCEPTION
-        {
-          throw (Exception) nodeResult;
-        } else {
-          mergedResult.add(nodeResult);
-        }
-      }
-    }
-
-    Object result = null;
-
-    if (firstResult instanceof LegacyResultSet) {
-      // REUSE THE SAME RESULTSET TO AVOID DUPLICATES
-      ((LegacyResultSet) firstResult).clear();
-      ((LegacyResultSet) firstResult).addAll(mergedResult);
-      result = firstResult;
-    } else {
-      result = new ArrayList<Object>(mergedResult);
-    }
-
-    return result;
-  }
 }

@@ -13,13 +13,12 @@
  */
 package com.jetbrains.youtrack.db.internal.jdbc;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Blob;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
@@ -28,7 +27,6 @@ import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.ParseException;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.YouTrackDBSql;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -54,7 +52,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -65,6 +62,7 @@ import java.util.stream.Collectors;
 public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
 
   private final YouTrackDbJdbcResultSetMetaData resultSetMetaData;
+  private final DatabaseSession session;
   private final List<String> fieldNames;
   private List<Result> records;
   private final YouTrackDbJdbcStatement statement;
@@ -78,8 +76,10 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
 
   private boolean lastReadWasNull = true;
 
+
   protected YouTrackDbJdbcResultSet(
       final YouTrackDbJdbcStatement statement,
+      DatabaseSession session,
       final ResultSet oResultSet,
       final int type,
       final int concurrency,
@@ -87,6 +87,7 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
       throws SQLException {
 
     this.statement = statement;
+    this.session = session;
     try {
       records = oResultSet.stream().collect(Collectors.toList());
     } catch (Exception e) {
@@ -100,7 +101,7 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
     if (!records.isEmpty()) {
       result = records.getFirst();
     } else {
-      result = new ResultInternal(statement.database);
+      result = new ResultInternal(statement.session);
     }
 
     fieldNames = extractFieldNames(statement);
@@ -145,7 +146,7 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
               + CLOSE_CURSORS_AT_COMMIT);
     }
 
-    resultSetMetaData = new YouTrackDbJdbcResultSetMetaData(this, fieldNames);
+    resultSetMetaData = new YouTrackDbJdbcResultSetMetaData(this, fieldNames, session);
   }
 
   private List<String> extractFieldNames(YouTrackDbJdbcStatement statement) {
@@ -158,7 +159,7 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
         try {
           db =
               (DatabaseSessionInternal)
-                  ((YouTrackDbJdbcConnection) statement.getConnection()).getDatabase();
+                  ((YouTrackDbJdbcConnection) statement.getConnection()).getDatabaseSession();
           if (db == null) {
             osql = new YouTrackDBSql(new ByteArrayInputStream(statement.sql.getBytes()));
           } else {
@@ -202,7 +203,7 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
   }
 
   private void activateDatabaseOnCurrentThread() {
-    statement.database.activateOnCurrentThread();
+    statement.session.activateOnCurrentThread();
   }
 
   public void close() throws SQLException {
@@ -415,7 +416,7 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
       var value = result.getProperty(columnLabel);
 
       if (value instanceof RID) {
-        value = ((RID) value).getRecord(statement.database);
+        value = ((RID) value).getRecord(statement.session);
       }
 
       if (value instanceof Blob) {
@@ -430,7 +431,7 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
           var listElement = iterator.next();
 
           try {
-            Blob ob = statement.database.load(listElement.getIdentity());
+            Blob ob = statement.session.load(listElement.getIdentity());
             binaryRecordList.add(ob);
           } catch (RecordNotFoundException rnf) {
             // ignore
@@ -751,7 +752,8 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
         throw new SQLException(
             "The current record is not an entity. Its class can not be retrieved");
       }
-      var r = result.asEntity().getSchemaType().map(SchemaClass::getName).orElse(null);
+      var r = result.asEntity().getSchemaType().map(schemaClass -> schemaClass.getName(session))
+          .orElse(null);
       lastReadWasNull = r == null;
       return r;
     }
@@ -865,7 +867,8 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
             "The current record is not an entity. Its class can not be retrieved");
       }
       lastReadWasNull = false;
-      return result.asEntity().getSchemaType().map(SchemaClass::getName).orElse("NOCLASS");
+      return result.asEntity().getSchemaType().map(schemaClass -> schemaClass.getName(session))
+          .orElse("NOCLASS");
     }
 
     try {

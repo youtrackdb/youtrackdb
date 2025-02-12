@@ -2,8 +2,6 @@ package com.jetbrains.youtrack.db.internal.core.db.tool;
 
 import com.jetbrains.youtrack.db.api.DatabaseType;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -42,16 +40,16 @@ public class TestSchemaImportExport extends DbTestBase {
         "admin",
         "admin",
         "admin");
-    try (var db1 =
+    try (var sessionOne =
         (DatabaseSessionInternal)
             context.open("imp_" + TestSchemaImportExport.class.getSimpleName(), "admin", "admin")) {
       var imp =
           new DatabaseImport(
-              db1, new ByteArrayInputStream(output.toByteArray()), new MockOutputListener());
+              sessionOne, new ByteArrayInputStream(output.toByteArray()), new MockOutputListener());
       imp.importDatabase();
-      var clas1 = db1.getMetadata().getSchema().getClass("Test");
+      var clas1 = sessionOne.getMetadata().getSchema().getClass("Test");
       Assert.assertNotNull(clas1);
-      Assert.assertEquals("test", clas1.getCustom("testcustom"));
+      Assert.assertEquals("test", clas1.getCustom(sessionOne, "testcustom"));
     } finally {
       context.drop("imp_" + TestSchemaImportExport.class.getSimpleName());
     }
@@ -84,19 +82,19 @@ public class TestSchemaImportExport extends DbTestBase {
         "admin",
         "admin",
         "admin");
-    try (var db1 =
+    try (var sessionOne =
         (DatabaseSessionInternal)
             context.open("imp_" + TestSchemaImportExport.class.getSimpleName(), "admin", "admin")) {
       var imp =
           new DatabaseImport(
-              db1, new ByteArrayInputStream(output.toByteArray()), new MockOutputListener());
+              sessionOne, new ByteArrayInputStream(output.toByteArray()), new MockOutputListener());
       imp.importDatabase();
 
-      var clas1 = db1.getMetadata().getSchema().getClass("Test");
+      var clas1 = sessionOne.getMetadata().getSchema().getClass("Test");
       Assert.assertNotNull(clas1);
-      var prop1 = clas1.getProperty("bla");
+      var prop1 = clas1.getProperty(sessionOne, "bla");
       Assert.assertNotNull(prop1);
-      Assert.assertEquals("something", prop1.getDefaultValue());
+      Assert.assertEquals("something", prop1.getDefaultValue(sessionOne));
     } finally {
       context.drop("imp_" + TestSchemaImportExport.class.getSimpleName());
     }
@@ -130,16 +128,17 @@ public class TestSchemaImportExport extends DbTestBase {
         "admin",
         "admin",
         "admin");
-    try (var db1 =
+    try (var sessionOne =
         (DatabaseSessionInternal)
-            context.open("imp_" + TestSchemaImportExport.class.getSimpleName(), "admin", "admin")) {
+            context.open("imp_" + TestSchemaImportExport.class.getSimpleName(),
+                "admin", "admin")) {
       var imp =
           new DatabaseImport(
-              db1, new ByteArrayInputStream(output.toByteArray()), new MockOutputListener());
+              sessionOne, new ByteArrayInputStream(output.toByteArray()), new MockOutputListener());
       imp.importDatabase();
-      var clas1 = db1.getMetadata().getSchema().getClass("Test");
-      Assert.assertTrue(clas1.isSubClassOf("OIdentity"));
-      Assert.assertTrue(clas1.isSubClassOf("ORestricted"));
+      var clas1 = sessionOne.getMetadata().getSchema().getClass("Test");
+      Assert.assertTrue(clas1.isSubClassOf(sessionOne, "OIdentity"));
+      Assert.assertTrue(clas1.isSubClassOf(sessionOne, "ORestricted"));
     } finally {
       context.drop("imp_" + TestSchemaImportExport.class.getSimpleName());
     }

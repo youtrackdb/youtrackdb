@@ -19,23 +19,23 @@
  */
 package com.jetbrains.youtrack.db.internal.client.binary;
 
+import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteNodeSession;
+import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
 import com.jetbrains.youtrack.db.internal.client.remote.message.Error37Response;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.LockException;
-import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.exception.SystemException;
 import com.jetbrains.youtrack.db.internal.common.io.YTIOException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.SocketFactory;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.SocketChannelBinary;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.NetworkProtocolException;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ResponseProcessingException;
-import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteNodeSession;
-import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.SocketChannelBinary;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -46,9 +46,7 @@ import java.io.ObjectInputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.net.SocketException;
-import java.util.Map;
 
 public class SocketChannelBinaryAsynchClient extends SocketChannelBinary {
 
@@ -150,7 +148,8 @@ public class SocketChannelBinaryAsynchClient extends SocketChannelBinary {
 
     } catch (Exception e) {
       // UNABLE TO REPRODUCE THE SAME SERVER-SIDE EXCEPTION: THROW AN SYSTEM EXCEPTION
-      rootException = BaseException.wrapException(new SystemException(iMessage), iPrevious);
+      rootException = BaseException.wrapException(new SystemException(iMessage), iPrevious,
+          (String) null);
     }
 
     if (c != null) {
@@ -163,10 +162,10 @@ public class SocketChannelBinaryAsynchClient extends SocketChannelBinary {
         }
 
         rootException =
-            BaseException.wrapException(new SystemException("Data processing exception"), cause);
-      } catch (InstantiationException ignored) {
-      } catch (IllegalAccessException ignored) {
-      } catch (InvocationTargetException ignored) {
+            BaseException.wrapException(new SystemException("Data processing exception"), cause,
+                (String) null);
+      } catch (InstantiationException | IllegalAccessException |
+               InvocationTargetException ignored) {
       }
     }
 

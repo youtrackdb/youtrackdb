@@ -19,7 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
@@ -67,27 +66,26 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
   private int batch = 100;
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorSQLDeleteVertex parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLDeleteVertex parse(DatabaseSessionInternal session,
       final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
-      database = getDatabase();
 
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
-      parserRequiredKeyword("DELETE");
-      parserRequiredKeyword("VERTEX");
+      parserRequiredKeyword(session.getDatabaseName(), "DELETE");
+      parserRequiredKeyword(session.getDatabaseName(), "VERTEX");
 
       SchemaClass clazz = null;
       String where = null;
 
       var limit = -1;
-      var word = parseOptionalWord(true);
+      var word = parseOptionalWord(session.getDatabaseName(), true);
       while (word != null) {
 
         if (word.startsWith("#")) {
@@ -116,16 +114,18 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
           query =
               database.command(
                   new SQLAsynchQuery<EntityImpl>(
-                      "select from `" + clazz.getName() + "`" + where, this));
+                      "select from `" + clazz.getName(session) + "`" + where, this));
           break;
 
         } else if (word.equals(KEYWORD_LIMIT)) {
-          word = parseOptionalWord(true);
+          word = parseOptionalWord(session.getDatabaseName(), true);
           try {
             limit = Integer.parseInt(word);
           } catch (Exception e) {
             throw BaseException.wrapException(
-                new CommandSQLParsingException("Invalid LIMIT: " + word), e);
+                new CommandSQLParsingException(session.getDatabaseName(), "Invalid LIMIT: " + word),
+                e,
+                session);
           }
         } else if (word.equals(KEYWORD_RETURN)) {
           returning = parseReturn();
@@ -140,11 +140,12 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
           // GET/CHECK CLASS NAME
           clazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(word);
           if (clazz == null) {
-            throw new CommandSQLParsingException("Class '" + word + "' was not found");
+            throw new CommandSQLParsingException(session.getDatabaseName(),
+                "Class '" + word + "' was not found");
           }
         }
 
-        word = parseOptionalWord(true);
+        word = parseOptionalWord(session.getDatabaseName(), true);
         if (parserIsEnded()) {
           break;
         }
@@ -162,7 +163,7 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
         if (clazz == null) {
           queryString.append("V");
         } else {
-          queryString.append(clazz.getName());
+          queryString.append(clazz.getName(session));
         }
         queryString.append("`");
 
@@ -182,9 +183,9 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
   /**
    * Execute the command and return the EntityImpl object created.
    */
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (rid == null && query == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -192,29 +193,29 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
       allDeletedRecords = new ArrayList<DBRecord>();
     }
 
-    txAlreadyBegun = getDatabase().getTransaction().isActive();
+    txAlreadyBegun = session.getTransaction().isActive();
 
     if (rid != null) {
       // REMOVE PUNCTUAL RID
-      db.begin();
-      final var v = toVertex(rid);
+      session.begin();
+      final var v = toVertex(session, rid);
       if (v != null) {
         v.delete();
         removed = 1;
       }
-      db.commit();
+      session.commit();
 
     } else if (query != null) {
       // TARGET IS A CLASS + OPTIONAL CONDITION
-      db.begin();
+      session.begin();
       // TARGET IS A CLASS + OPTIONAL CONDITION
 
       query.setContext(getContext());
-      query.execute(db, iArgs);
-      db.commit();
+      query.execute(session, iArgs);
+      session.commit();
 
     } else {
-      throw new CommandExecutionException("Invalid target");
+      throw new CommandExecutionException(session, "Invalid target");
     }
 
     if (returning.equalsIgnoreCase("COUNT"))
@@ -235,7 +236,7 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
     final var id = (Identifiable) iRecord;
     if (((RecordId) id.getIdentity()).isValid()) {
       final EntityImpl record = id.getRecord(db);
-      final var v = toVertex(record);
+      final var v = toVertex(db, record);
       if (v != null) {
         v.delete();
 
@@ -255,10 +256,6 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
     return true;
   }
 
-  @Override
-  public long getDistributedTimeout() {
-    return GlobalConfiguration.DISTRIBUTED_COMMAND_TASK_SYNCH_TIMEOUT.getValueAsLong();
-  }
 
   @Override
   public String getSyntax() {
@@ -267,8 +264,7 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
   }
 
   @Override
-  public void end() {
-    var db = getDatabase();
+  public void end(DatabaseSessionInternal db) {
     if (!txAlreadyBegun) {
       db.commit();
     }
@@ -286,7 +282,7 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
     final var returning = parserNextWord(true);
 
     if (!returning.equalsIgnoreCase("COUNT") && !returning.equalsIgnoreCase("BEFORE")) {
-      throwParsingException(
+      throwParsingException(null,
           "Invalid "
               + KEYWORD_RETURN
               + " value set to '"
@@ -300,20 +296,7 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
   }
 
   @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.WRITE;
-  }
-
-  public DISTRIBUTED_RESULT_MGMT getDistributedResultManagement() {
-    if (getDistributedExecutionMode() == DISTRIBUTED_EXECUTION_MODE.LOCAL) {
-      return DISTRIBUTED_RESULT_MGMT.CHECK_FOR_EQUALS;
-    } else {
-      return DISTRIBUTED_RESULT_MGMT.MERGE;
-    }
-  }
-
-  @Override
-  public Set<String> getInvolvedClusters() {
+  public Set<String> getInvolvedClusters(DatabaseSessionInternal session) {
     final var result = new HashSet<String>();
     if (rid != null) {
       result.add(database.getClusterNameById(rid.getClusterId()));
@@ -328,7 +311,7 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
       // COPY THE CONTEXT FROM THE REQUEST
       executor.setContext(context);
       executor.parse(database, query);
-      return executor.getInvolvedClusters();
+      return executor.getInvolvedClusters(session);
     }
     return result;
   }
@@ -336,14 +319,6 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
   @Override
   public Object getResult() {
     return null;
-  }
-
-  public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
-    if (query != null && !getDatabase().getTransaction().isActive()) {
-      return DISTRIBUTED_EXECUTION_MODE.REPLICATE;
-    } else {
-      return DISTRIBUTED_EXECUTION_MODE.LOCAL;
-    }
   }
 
   /**
@@ -354,12 +329,12 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
     return (RET) this;
   }
 
-  private static Vertex toVertex(Identifiable item) {
+  private static Vertex toVertex(DatabaseSessionInternal db, Identifiable item) {
     if (item instanceof Entity) {
       return ((Entity) item).asVertex().orElse(null);
     } else {
       try {
-        item = getDatabase().load(item.getIdentity());
+        item = db.load(item.getIdentity());
       } catch (RecordNotFoundException rnf) {
         return null;
       }

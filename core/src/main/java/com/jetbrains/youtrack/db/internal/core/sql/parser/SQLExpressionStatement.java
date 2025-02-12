@@ -23,7 +23,7 @@ public class SQLExpressionStatement extends SQLSimpleExecStatement {
 
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     var expResult = expression.execute(new ResultInternal(db), ctx);
     var item = new ResultInternal(db);
     item.setProperty("result", expResult);

@@ -58,7 +58,7 @@ public class DDLExecutionPlan implements InternalExecutionPlan {
   public ExecutionStream executeInternal(BasicCommandContext ctx)
       throws CommandExecutionException {
     if (executed) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
           "Trying to execute a result-set twice. Please use reset()");
     }
     executed = true;

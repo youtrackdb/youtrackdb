@@ -13,6 +13,7 @@
  */
 package com.jetbrains.youtrack.db.internal.security.auditing;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -20,7 +21,6 @@ import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseLifecycleListener;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.SystemDatabase;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
@@ -40,9 +40,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- *
- */
 public class DefaultAuditing
     implements AuditingService, DatabaseLifecycleListener {
 
@@ -125,20 +122,20 @@ public class DefaultAuditing
   }
 
   @Override
-  public void onCreate(final DatabaseSessionInternal iDatabase) {
+  public void onCreate(final DatabaseSessionInternal session) {
     // Don't audit system database events.
-    if (iDatabase.getName().equalsIgnoreCase(SystemDatabase.SYSTEM_DB_NAME)) {
+    if (session.getDatabaseName().equalsIgnoreCase(SystemDatabase.SYSTEM_DB_NAME)) {
       return;
     }
 
-    final var hook = defaultHook(iDatabase);
-    hooks.put(iDatabase.getName(), hook);
-    iDatabase.registerHook(hook);
-    iDatabase.registerListener(hook);
+    final var hook = defaultHook(session);
+    hooks.put(session.getDatabaseName(), hook);
+    session.registerHook(hook);
+    session.registerListener(hook);
   }
 
-  private AuditingHook defaultHook(final DatabaseSessionInternal db) {
-    final var auditingFileConfig = getConfigFile(db.getName());
+  private AuditingHook defaultHook(final DatabaseSessionInternal session) {
+    final var auditingFileConfig = getConfigFile(session.getDatabaseName());
     String content = null;
     if (auditingFileConfig != null && auditingFileConfig.exists()) {
       content = getContent(auditingFileConfig);
@@ -179,8 +176,12 @@ public class DefaultAuditing
         }
       }
     }
-    final var cfg = new EntityImpl(null).updateFromJSON(content, "noMap");
-    return new AuditingHook(cfg, security);
+    var objectMapper = new ObjectMapper();
+    var tyepRef = objectMapper.getTypeFactory()
+        .constructMapType(Map.class, String.class, Object.class);
+    Map<String, Object> cfg = objectMapper.convertValue(content, tyepRef);
+
+    return new AuditingHook(session, cfg, security);
   }
 
   private String getContent(File auditingFileConfig) {
@@ -224,48 +225,48 @@ public class DefaultAuditing
   }
 
   @Override
-  public void onOpen(DatabaseSessionInternal iDatabase) {
+  public void onOpen(DatabaseSessionInternal session) {
     // Don't audit system database events.
-    if (iDatabase.getName().equalsIgnoreCase(SystemDatabase.SYSTEM_DB_NAME)) {
+    if (session.getDatabaseName().equalsIgnoreCase(SystemDatabase.SYSTEM_DB_NAME)) {
       return;
     }
 
     // If the database has been opened by the auditing importer, do not hook it.
-    if (iDatabase.getProperty(IMPORTER_FLAG) != null) {
+    if (session.getProperty(IMPORTER_FLAG) != null) {
       return;
     }
 
-    var oAuditingHook = hooks.get(iDatabase.getName());
+    var oAuditingHook = hooks.get(session.getDatabaseName());
     if (oAuditingHook == null) {
-      oAuditingHook = defaultHook(iDatabase);
-      hooks.put(iDatabase.getName(), oAuditingHook);
+      oAuditingHook = defaultHook(session);
+      hooks.put(session.getDatabaseName(), oAuditingHook);
     }
-    iDatabase.registerHook(oAuditingHook);
-    iDatabase.registerListener(oAuditingHook);
+    session.registerHook(oAuditingHook);
+    session.registerListener(oAuditingHook);
   }
 
   @Override
-  public void onClose(DatabaseSessionInternal iDatabase) {
-    final var oAuditingHook = hooks.get(iDatabase.getName());
+  public void onClose(DatabaseSessionInternal session) {
+    final var oAuditingHook = hooks.get(session.getDatabaseName());
     if (oAuditingHook != null) {
-      iDatabase.unregisterHook(oAuditingHook);
-      iDatabase.unregisterListener(oAuditingHook);
+      session.unregisterHook(oAuditingHook);
+      session.unregisterListener(oAuditingHook);
     }
   }
 
   @Override
-  public void onDrop(DatabaseSessionInternal iDatabase) {
-    onClose(iDatabase);
+  public void onDrop(DatabaseSessionInternal session) {
+    onClose(session);
 
-    final var oAuditingHook = hooks.get(iDatabase.getName());
+    final var oAuditingHook = hooks.get(session.getDatabaseName());
     if (oAuditingHook != null) {
       oAuditingHook.shutdown(false);
     }
 
-    var f = getConfigFile(iDatabase.getName());
+    var f = getConfigFile(session.getDatabaseName());
     if (f != null && f.exists()) {
       LogManager.instance()
-          .info(this, "Removing Auditing config for db : %s", iDatabase.getName());
+          .info(this, "Removing Auditing config for db : %s", session.getDatabaseName());
       f.delete();
     }
   }
@@ -280,60 +281,33 @@ public class DefaultAuditing
   }
 
   @Override
-  public void onCreateClass(DatabaseSessionInternal iDatabase, SchemaClass iClass) {
-    final var oAuditingHook = hooks.get(iDatabase.getName());
+  public void onCreateClass(DatabaseSessionInternal session, SchemaClass iClass) {
+    final var oAuditingHook = hooks.get(session.getDatabaseName());
 
     if (oAuditingHook != null) {
-      oAuditingHook.onCreateClass(iClass);
+      oAuditingHook.onCreateClass(session, iClass);
     }
   }
 
   @Override
-  public void onDropClass(DatabaseSessionInternal iDatabase, SchemaClass iClass) {
-    final var oAuditingHook = hooks.get(iDatabase.getName());
+  public void onDropClass(DatabaseSessionInternal session, SchemaClass iClass) {
+    final var oAuditingHook = hooks.get(session.getDatabaseName());
 
     if (oAuditingHook != null) {
-      oAuditingHook.onDropClass(iClass);
+      oAuditingHook.onDropClass(session, iClass);
     }
   }
 
-  @Override
-  public void onLocalNodeConfigurationRequest(EntityImpl iConfiguration) {
-  }
-
-  protected void updateConfigOnDisk(final String iDatabaseName, final EntityImpl cfg)
+  protected void updateConfigOnDisk(final String iDatabaseName, final Map<String, Object> cfg)
       throws IOException {
     final var auditingFileConfig = getConfigFile(iDatabaseName);
-    if (auditingFileConfig != null) {
-      final var f = new FileOutputStream(auditingFileConfig);
-      try {
-        f.write(cfg.toJSON("prettyPrint=true").getBytes());
-        f.flush();
-      } finally {
-        f.close();
-      }
-    }
-  }
-
-  /// ///
-  // ODistributedLifecycleListener
-  public boolean onNodeJoining(String iNode) {
-    return true;
-  }
-
-  public void onNodeJoined(DatabaseSessionInternal session, String iNode) {
-    if (distribConfig != null && distribConfig.isEnabled(AuditingOperation.NODEJOINED)) {
-      log(session,
-          AuditingOperation.NODEJOINED,
-          distribConfig.formatMessage(AuditingOperation.NODEJOINED, iNode));
-    }
-  }
-
-  public void onNodeLeft(DatabaseSessionInternal session, String iNode) {
-    if (distribConfig != null && distribConfig.isEnabled(AuditingOperation.NODELEFT)) {
-      log(session,
-          AuditingOperation.NODELEFT,
-          distribConfig.formatMessage(AuditingOperation.NODELEFT, iNode));
+    try (var f = new FileOutputStream(auditingFileConfig)) {
+      var objectMapper = new ObjectMapper();
+      var tyepRef = objectMapper.getTypeFactory()
+          .constructMapType(Map.class, String.class, Object.class);
+      var jsonWriter = objectMapper.writerFor(tyepRef);
+      f.write(jsonWriter.writeValueAsBytes(cfg));
+      f.flush();
     }
   }
 
@@ -350,7 +324,7 @@ public class DefaultAuditing
   // AuditingService
   public void changeConfig(
       DatabaseSessionInternal session, final SecurityUser user, final String iDatabaseName,
-      final EntityImpl cfg)
+      final Map<String, Object> cfg)
       throws IOException {
 
     // This should never happen, but just in case...
@@ -359,7 +333,7 @@ public class DefaultAuditing
       return;
     }
 
-    hooks.put(iDatabaseName, new AuditingHook(cfg, security));
+    hooks.put(iDatabaseName, new AuditingHook(session, cfg, security));
 
     updateConfigOnDisk(iDatabaseName, cfg);
 
@@ -369,7 +343,7 @@ public class DefaultAuditing
             "The auditing configuration for the database '%s' has been changed", iDatabaseName));
   }
 
-  public EntityImpl getConfig(final String iDatabaseName) {
+  public Map<String, Object> getConfig(final String iDatabaseName) {
     return hooks.get(iDatabaseName).getConfiguration();
   }
 
@@ -429,39 +403,22 @@ public class DefaultAuditing
   }
 
   private void createClassIfNotExists() {
-    final var currentDB = DatabaseRecordThreadLocal.instance()
-        .getIfDefined();
-
-    DatabaseSessionInternal sysdb = null;
-
-    try {
-      sysdb = context.getSystemDatabase().openSystemDatabase();
-
-      Schema schema = sysdb.getMetadata().getSchema();
+    try (var session = context.getSystemDatabase().openSystemDatabaseSession()) {
+      Schema schema = session.getMetadata().getSchema();
       var cls = schema.getClass(AUDITING_LOG_CLASSNAME);
 
       if (cls == null) {
-        cls = sysdb.getMetadata().getSchema().createClass(AUDITING_LOG_CLASSNAME);
-        cls.createProperty(currentDB, "date", PropertyType.DATETIME);
-        cls.createProperty(currentDB, "user", PropertyType.STRING);
-        cls.createProperty(currentDB, "operation", PropertyType.BYTE);
-        cls.createProperty(currentDB, "record", PropertyType.LINK);
-        cls.createProperty(currentDB, "changes", PropertyType.EMBEDDED);
-        cls.createProperty(currentDB, "note", PropertyType.STRING);
-        cls.createProperty(currentDB, "database", PropertyType.STRING);
+        cls = session.getMetadata().getSchema().createClass(AUDITING_LOG_CLASSNAME);
+        cls.createProperty(session, "date", PropertyType.DATETIME);
+        cls.createProperty(session, "user", PropertyType.STRING);
+        cls.createProperty(session, "operation", PropertyType.BYTE);
+        cls.createProperty(session, "record", PropertyType.LINK);
+        cls.createProperty(session, "changes", PropertyType.EMBEDDED);
+        cls.createProperty(session, "note", PropertyType.STRING);
+        cls.createProperty(session, "database", PropertyType.STRING);
       }
     } catch (Exception e) {
       LogManager.instance().error(this, "Creating auditing class exception", e);
-    } finally {
-      if (sysdb != null) {
-        sysdb.close();
-      }
-
-      if (currentDB != null) {
-        DatabaseRecordThreadLocal.instance().set(currentDB);
-      } else {
-        DatabaseRecordThreadLocal.instance().remove();
-      }
     }
   }
 

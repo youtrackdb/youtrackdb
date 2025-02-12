@@ -66,7 +66,7 @@ public abstract class RecordsReturnHandler implements ReturnHandler {
       final EntityImpl wrappingDoc;
       context.setVariable("current", record);
 
-      var db = context.getDatabase();
+      var db = context.getDatabaseSession();
       itemResult =
           SQLHelper.getValue(returnExpression,
               ((Identifiable) record).getRecord(db), context);

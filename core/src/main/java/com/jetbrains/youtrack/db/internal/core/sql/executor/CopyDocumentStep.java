@@ -1,7 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -29,7 +28,7 @@ public class CopyDocumentStep extends AbstractExecutionStep {
   }
 
   private static Result mapResult(Result result, CommandContext ctx) {
-    var resultEntity = ctx.getDatabase().newEntity();
+    var resultEntity = ctx.getDatabaseSession().newEntity();
     if (result.isEntity()) {
       var docToCopy = (EntityImpl) result.asEntity();
 
@@ -42,7 +41,7 @@ public class CopyDocumentStep extends AbstractExecutionStep {
       }
     }
 
-    return new UpdatableResult(ctx.getDatabase(), resultEntity);
+    return new UpdatableResult(ctx.getDatabaseSession(), resultEntity);
   }
 
   @Override

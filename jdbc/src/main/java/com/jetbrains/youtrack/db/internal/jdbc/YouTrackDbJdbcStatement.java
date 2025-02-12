@@ -16,12 +16,11 @@ package com.jetbrains.youtrack.db.internal.jdbc;
 import static java.lang.Boolean.parseBoolean;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalResultSet;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLSyntaxErrorException;
@@ -29,7 +28,6 @@ import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Properties;
 
 /**
@@ -38,7 +36,7 @@ import java.util.Properties;
 public class YouTrackDbJdbcStatement implements Statement {
 
   protected final YouTrackDbJdbcConnection connection;
-  protected final DatabaseSessionInternal database;
+  protected final DatabaseSessionInternal session;
   protected final List<String> batches;
   protected final int resultSetType;
   protected final int resultSetConcurrency;
@@ -82,8 +80,8 @@ public class YouTrackDbJdbcStatement implements Statement {
       int resultSetConcurrency,
       int resultSetHoldability) {
     this.connection = iConnection;
-    this.database = (DatabaseSessionInternal) iConnection.getDatabase();
-    database.activateOnCurrentThread();
+    this.session = (DatabaseSessionInternal) iConnection.getDatabaseSession();
+    session.activateOnCurrentThread();
     batches = new ArrayList<>();
     this.resultSetType = resultSetType;
     this.resultSetConcurrency = resultSetConcurrency;
@@ -101,9 +99,9 @@ public class YouTrackDbJdbcStatement implements Statement {
     sql = mayCleanForSpark(sqlCommand);
 
     if (sql.equalsIgnoreCase("select 1")) {
-      var element = new ResultInternal(database);
+      var element = new ResultInternal(session);
       element.setProperty("1", 1);
-      var rs = new InternalResultSet();
+      var rs = new InternalResultSet(session);
       rs.add(element);
       oResultSet = rs;
     } else {
@@ -120,7 +118,7 @@ public class YouTrackDbJdbcStatement implements Statement {
 
     resultSet =
         new YouTrackDbJdbcResultSet(
-            this, oResultSet, resultSetType, resultSetConcurrency, resultSetHoldability);
+            this, session, oResultSet, resultSetType, resultSetConcurrency, resultSetHoldability);
     return true;
   }
 
@@ -161,7 +159,7 @@ public class YouTrackDbJdbcStatement implements Statement {
   protected ResultSet executeCommand(String query) throws SQLException {
 
     try {
-      return database.command(query);
+      return session.command(query);
     } catch (QueryParsingException e) {
       throw new SQLSyntaxErrorException("Error while parsing command", e);
     } catch (BaseException e) {
@@ -186,8 +184,8 @@ public class YouTrackDbJdbcStatement implements Statement {
   }
 
   public void close() throws SQLException {
-    if (connection.getAutoCommit() && database.getTransaction().isActive()) {
-      database.commit();
+    if (connection.getAutoCommit() && session.getTransaction().isActive()) {
+      session.commit();
     }
 
     closed = true;

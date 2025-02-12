@@ -8,85 +8,88 @@ public class SecuritySharedTest extends DbTestBase {
 
   @Test
   public void testCreateSecurityPolicy() {
-    var security = db.getSharedContext().getSecurity();
-    db.begin();
-    security.createSecurityPolicy(db, "testPolicy");
-    db.commit();
-    Assert.assertNotNull(security.getSecurityPolicy(db, "testPolicy"));
+    var security = session.getSharedContext().getSecurity();
+    session.begin();
+    security.createSecurityPolicy(session, "testPolicy");
+    session.commit();
+    Assert.assertNotNull(security.getSecurityPolicy(session, "testPolicy"));
   }
 
   @Test
   public void testDeleteSecurityPolicy() {
-    var security = db.getSharedContext().getSecurity();
-    db.begin();
-    security.createSecurityPolicy(db, "testPolicy");
-    db.commit();
+    var security = session.getSharedContext().getSecurity();
+    session.begin();
+    security.createSecurityPolicy(session, "testPolicy");
+    session.commit();
 
-    db.begin();
-    security.deleteSecurityPolicy(db, "testPolicy");
-    db.commit();
+    session.begin();
+    security.deleteSecurityPolicy(session, "testPolicy");
+    session.commit();
 
-    Assert.assertNull(security.getSecurityPolicy(db, "testPolicy"));
+    Assert.assertNull(security.getSecurityPolicy(session, "testPolicy"));
   }
 
   @Test
   public void testUpdateSecurityPolicy() {
-    var security = db.getSharedContext().getSecurity();
-    db.begin();
-    var policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(db, true);
-    policy.setReadRule(db, "name = 'foo'");
-    security.saveSecurityPolicy(db, policy);
-    db.commit();
+    var security = session.getSharedContext().getSecurity();
+    session.begin();
+    var policy = security.createSecurityPolicy(session, "testPolicy");
+    policy.setActive(session, true);
+    policy.setReadRule(session, "name = 'foo'");
+    security.saveSecurityPolicy(session, policy);
+    session.commit();
 
-    Assert.assertTrue(security.getSecurityPolicy(db, "testPolicy").isActive(db));
+    Assert.assertTrue(security.getSecurityPolicy(session, "testPolicy").isActive(session));
     Assert.assertEquals("name = 'foo'",
-        security.getSecurityPolicy(db, "testPolicy").getReadRule(db));
+        security.getSecurityPolicy(session, "testPolicy").getReadRule(session));
   }
 
   @Test
   public void testBindPolicyToRole() {
-    var security = db.getSharedContext().getSecurity();
+    var security = session.getSharedContext().getSecurity();
 
-    db.createClass("Person");
+    session.createClass("Person");
 
-    db.begin();
-    var policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(db, true);
-    policy.setReadRule(db, "name = 'foo'");
-    security.saveSecurityPolicy(db, policy);
-    security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
-    db.commit();
+    session.begin();
+    var policy = security.createSecurityPolicy(session, "testPolicy");
+    policy.setActive(session, true);
+    policy.setReadRule(session, "name = 'foo'");
+    security.saveSecurityPolicy(session, policy);
+    security.setSecurityPolicy(session, security.getRole(session, "reader"),
+        "database.class.Person", policy);
+    session.commit();
 
     Assert.assertEquals(
         "testPolicy",
         security
-            .getSecurityPolicies(db, security.getRole(db, "reader"))
+            .getSecurityPolicies(session, security.getRole(session, "reader"))
             .get("database.class.Person")
-            .getName(db));
+            .getName(session));
   }
 
   @Test
   public void testUnbindPolicyFromRole() {
-    var security = db.getSharedContext().getSecurity();
+    var security = session.getSharedContext().getSecurity();
 
-    db.createClass("Person");
+    session.createClass("Person");
 
-    db.begin();
-    var policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(db, true);
-    policy.setReadRule(db, "name = 'foo'");
-    security.saveSecurityPolicy(db, policy);
-    security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
-    db.commit();
+    session.begin();
+    var policy = security.createSecurityPolicy(session, "testPolicy");
+    policy.setActive(session, true);
+    policy.setReadRule(session, "name = 'foo'");
+    security.saveSecurityPolicy(session, policy);
+    security.setSecurityPolicy(session, security.getRole(session, "reader"),
+        "database.class.Person", policy);
+    session.commit();
 
-    db.begin();
-    security.removeSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person");
-    db.commit();
+    session.begin();
+    security.removeSecurityPolicy(session, security.getRole(session, "reader"),
+        "database.class.Person");
+    session.commit();
 
     Assert.assertNull(
         security
-            .getSecurityPolicies(db, security.getRole(db, "reader"))
+            .getSecurityPolicies(session, security.getRole(session, "reader"))
             .get("database.class.Person"));
   }
 }

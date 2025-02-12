@@ -2,8 +2,6 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -14,58 +12,59 @@ public class CommandExecutorSQLTruncateTest extends DbTestBase {
 
   @Test
   public void testTruncatePlain() {
-    var vcl = db.getMetadata().getSchema().createClass("A");
-    db.getMetadata().getSchema().createClass("ab", vcl);
+    var vcl = session.getMetadata().getSchema().createClass("A");
+    session.getMetadata().getSchema().createClass("ab", vcl);
 
-    db.begin();
-    var doc = (EntityImpl) db.newEntity("A");
-    db.save(doc);
-    db.commit();
+    session.begin();
+    var doc = (EntityImpl) session.newEntity("A");
+    session.save(doc);
+    session.commit();
 
-    db.begin();
-    doc = (EntityImpl) db.newEntity("ab");
-    db.save(doc);
-    db.commit();
+    session.begin();
+    doc = (EntityImpl) session.newEntity("ab");
+    session.save(doc);
+    session.commit();
 
-    var ret = db.command("truncate class A ");
+    var ret = session.command("truncate class A ");
     assertEquals(1L, (long) ret.next().getProperty("count"));
   }
 
   @Test
   public void testTruncateAPI() throws IOException {
-    db.getMetadata().getSchema().createClass("A");
+    session.getMetadata().getSchema().createClass("A");
 
-    db.begin();
-    var doc = (EntityImpl) db.newEntity("A");
-    db.save(doc);
-    db.commit();
+    session.begin();
+    var doc = (EntityImpl) session.newEntity("A");
+    session.save(doc);
+    session.commit();
 
-    db.getMetadata().getSchema().getClasses(db).stream()
-        .filter(oClass -> !oClass.getName().startsWith("OSecurity")) //
+    session.getMetadata().getSchema().getClasses().stream()
+        .filter(oClass -> !oClass.getName(session).startsWith("OSecurity")) //
         .forEach(
             oClass -> {
-              if (((SchemaClassInternal) oClass).count(db) > 0) {
-                db.command("truncate class " + oClass.getName() + " POLYMORPHIC UNSAFE").close();
+              if (((SchemaClassInternal) oClass).count(session) > 0) {
+                session.command("truncate class " + oClass.getName(session) + " POLYMORPHIC UNSAFE")
+                    .close();
               }
             });
   }
 
   @Test
   public void testTruncatePolimorphic() {
-    var vcl = db.getMetadata().getSchema().createClass("A");
-    db.getMetadata().getSchema().createClass("ab", vcl);
+    var vcl = session.getMetadata().getSchema().createClass("A");
+    session.getMetadata().getSchema().createClass("ab", vcl);
 
-    db.begin();
-    var doc = (EntityImpl) db.newEntity("A");
-    db.save(doc);
-    db.commit();
+    session.begin();
+    var doc = (EntityImpl) session.newEntity("A");
+    session.save(doc);
+    session.commit();
 
-    db.begin();
-    doc = (EntityImpl) db.newEntity("ab");
-    db.save(doc);
-    db.commit();
+    session.begin();
+    doc = (EntityImpl) session.newEntity("ab");
+    session.save(doc);
+    session.commit();
 
-    try (var res = db.command("truncate class A POLYMORPHIC")) {
+    try (var res = session.command("truncate class A POLYMORPHIC")) {
       assertEquals(1L, (long) res.next().getProperty("count"));
       assertEquals(1L, (long) res.next().getProperty("count"));
     }

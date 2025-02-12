@@ -12,7 +12,7 @@ import java.security.NoSuchAlgorithmException;
 /**
  *
  */
-public interface OTokenHandler {
+public interface TokenHandler {
 
   @Deprecated
   String TOKEN_HANDLER_NAME = "OTokenHandler";
@@ -41,7 +41,7 @@ public interface OTokenHandler {
   NetworkProtocolData getProtocolDataFromToken(ClientConnection clientConnection, Token token);
 
   // Return a byte array representing a signed token
-  byte[] getSignedWebToken(DatabaseSessionInternal db, SecurityUser user);
+  byte[] getSignedWebToken(DatabaseSessionInternal session, SecurityUser user);
 
   default byte[] getSignedWebTokenServerUser(SecurityUser user) {
     throw new UnsupportedOperationException();
@@ -52,7 +52,7 @@ public interface OTokenHandler {
   }
 
   byte[] getSignedBinaryToken(
-      DatabaseSessionInternal db, SecurityUser user, NetworkProtocolData data);
+      DatabaseSessionInternal session, SecurityUser user, NetworkProtocolData data);
 
   byte[] renewIfNeeded(Token token);
 

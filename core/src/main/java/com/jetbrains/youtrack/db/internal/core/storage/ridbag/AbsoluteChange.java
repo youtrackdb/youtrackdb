@@ -56,7 +56,7 @@ public class AbsoluteChange implements Change {
   @Override
   public int serialize(byte[] stream, int offset) {
     ByteSerializer.INSTANCE.serializeLiteral(TYPE, stream, offset);
-    IntegerSerializer.INSTANCE.serializeLiteral(value, stream, offset + ByteSerializer.BYTE_SIZE);
+    IntegerSerializer.serializeLiteral(value, stream, offset + ByteSerializer.BYTE_SIZE);
     return ByteSerializer.BYTE_SIZE + IntegerSerializer.INT_SIZE;
   }
 

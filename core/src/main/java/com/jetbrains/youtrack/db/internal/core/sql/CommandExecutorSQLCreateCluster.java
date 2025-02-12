@@ -19,7 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
@@ -44,43 +43,42 @@ public class CommandExecutorSQLCreateCluster extends CommandExecutorSQLAbstract
   private int requestedId = -1;
   private boolean blob = false;
 
-  public CommandExecutorSQLCreateCluster parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLCreateCluster parse(DatabaseSessionInternal session,
       final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
 
-      final var database = getDatabase();
+      init(session, (CommandRequestText) iRequest);
 
-      init((CommandRequestText) iRequest);
-
-      parserRequiredKeyword(KEYWORD_CREATE);
-      var nextWord = parserRequiredWord(true);
+      parserRequiredKeyword(session.getDatabaseName(), KEYWORD_CREATE);
+      var nextWord = parserRequiredWord(session.getDatabaseName(), true);
       if (nextWord.equals("BLOB")) {
-        parserRequiredKeyword(KEYWORD_CLUSTER);
+        parserRequiredKeyword(session.getDatabaseName(), KEYWORD_CLUSTER);
         blob = true;
       } else if (!nextWord.equals(KEYWORD_CLUSTER)) {
-        throw new CommandSQLParsingException("Invalid Syntax: " + queryText);
+        throw new CommandSQLParsingException(session.getDatabaseName(),
+            "Invalid Syntax: " + queryText);
       }
 
-      clusterName = parserRequiredWord(false);
+      clusterName = parserRequiredWord(session.getDatabaseName(), false);
       clusterName = decodeClassName(clusterName);
       if (!clusterName.isEmpty() && Character.isDigit(clusterName.charAt(0))) {
         throw new IllegalArgumentException("Cluster name cannot begin with a digit");
       }
 
-      var temp = parseOptionalWord(true);
+      var temp = parseOptionalWord(session.getDatabaseName(), true);
 
       while (temp != null) {
         if (temp.equals(KEYWORD_ID)) {
-          requestedId = Integer.parseInt(parserRequiredWord(false));
+          requestedId = Integer.parseInt(parserRequiredWord(session.getDatabaseName(), false));
         }
 
-        temp = parseOptionalWord(true);
+        temp = parseOptionalWord(session.getDatabaseName(), true);
         if (parserIsEnded()) {
           break;
         }
@@ -93,52 +91,35 @@ public class CommandExecutorSQLCreateCluster extends CommandExecutorSQLAbstract
     return this;
   }
 
-  @Override
-  public long getDistributedTimeout() {
-    return getDatabase()
-        .getConfiguration()
-        .getValueAsLong(GlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.ALL;
-  }
-
   /**
    * Execute the CREATE CLUSTER.
    */
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (clusterName == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session.getDatabaseName(),
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final var database = getDatabase();
-
-    final var clusterId = database.getClusterIdByName(clusterName);
+    final var clusterId = session.getClusterIdByName(clusterName);
     if (clusterId > -1) {
-      throw new CommandSQLParsingException("Cluster '" + clusterName + "' already exists");
+      throw new CommandSQLParsingException(session.getDatabaseName(),
+          "Cluster '" + clusterName + "' already exists");
     }
 
     if (blob) {
       if (requestedId == -1) {
-        return database.addBlobCluster(clusterName);
+        return session.addBlobCluster(clusterName);
       } else {
-        throw new CommandExecutionException("Request id not supported by blob cluster creation.");
+        throw new CommandExecutionException(session.getDatabaseName(),
+            "Request id not supported by blob cluster creation.");
       }
     } else {
       if (requestedId == -1) {
-        return database.addCluster(clusterName);
+        return session.addCluster(clusterName);
       } else {
-        return database.addCluster(clusterName, requestedId);
+        return session.addCluster(clusterName, requestedId);
       }
     }
-  }
-
-  @Override
-  public String getUndoCommand() {
-    return "drop cluster " + clusterName;
   }
 
   @Override

@@ -1,9 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.query.ExecutionStep;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.util.PairLongObject;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
@@ -20,7 +18,6 @@ import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLimit;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchFilter;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchPathItem;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMultiMatchPathItem;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLNestedProjection;
@@ -158,7 +155,7 @@ public class MatchExecutionPlanner {
         result.chain(new DistinctExecutionStep(context, enableProfiling));
       }
       if (groupBy != null) {
-        throw new CommandExecutionException(
+        throw new CommandExecutionException(context.getDatabaseSession(),
             "Cannot execute GROUP BY in MATCH query with RETURN $elements, $pathElements, $patterns"
                 + " or $paths");
       }
@@ -231,13 +228,13 @@ public class MatchExecutionPlanner {
       boolean enableProfiling) {
     for (var exp : notMatchExpressions) {
       if (pattern.aliasToNode.get(exp.getOrigin().getAlias()) == null) {
-        throw new CommandExecutionException(
+        throw new CommandExecutionException(context.getDatabaseSession(),
             "This kind of NOT expression is not supported (yet). "
                 + "The first alias in a NOT expression has to be present in the positive pattern");
       }
 
       if (exp.getOrigin().getFilter() != null) {
-        throw new CommandExecutionException(
+        throw new CommandExecutionException(context.getDatabaseSession(),
             "This kind of NOT expression is not supported (yet): "
                 + "WHERE condition on the initial alias");
         // TODO implement his
@@ -247,7 +244,7 @@ public class MatchExecutionPlanner {
       List<AbstractExecutionStep> steps = new ArrayList<>();
       for (var item : exp.getItems()) {
         if (item instanceof SQLMultiMatchPathItem) {
-          throw new CommandExecutionException(
+          throw new CommandExecutionException(context.getDatabaseSession(),
               "This kind of NOT expression is not supported (yet): " + item);
         }
         var edge = new PatternEdge();
@@ -296,7 +293,8 @@ public class MatchExecutionPlanner {
       Set<String> prefetchedAliases,
       boolean profilingEnabled) {
     var plan = new SelectExecutionPlan(context);
-    var sortedEdges = getTopologicalSortedSchedule(estimatedRootEntries, pattern);
+    var sortedEdges = getTopologicalSortedSchedule(estimatedRootEntries, pattern,
+        context.getDatabaseSession());
 
     var first = true;
     if (sortedEdges.size() > 0) {
@@ -338,7 +336,7 @@ public class MatchExecutionPlanner {
    * sort edges in the order they will be matched
    */
   private List<EdgeTraversal> getTopologicalSortedSchedule(
-      Map<String, Long> estimatedRootEntries, Pattern pattern) {
+      Map<String, Long> estimatedRootEntries, Pattern pattern, DatabaseSessionInternal session) {
     List<EdgeTraversal> resultingSchedule = new ArrayList<>();
     var remainingDependencies = getDependencies(pattern);
     Set<PatternNode> visitedNodes = new HashSet<>();
@@ -388,7 +386,7 @@ public class MatchExecutionPlanner {
         // This means there must be a cycle in our dependency graph, or all dependency-free nodes
         // are optional.
         // Therefore, the query is invalid.
-        throw new CommandExecutionException(
+        throw new CommandExecutionException(session,
             "This query contains MATCH conditions that cannot be evaluated, "
                 + "like an undefined alias or a circular dependency on a $matched condition.");
       }
@@ -760,9 +758,9 @@ public class MatchExecutionPlanner {
         if (previousClass == null) {
           aliasClasses.put(alias, clazz);
         } else {
-          var lower = getLowerSubclass(context.getDatabase(), clazz, previousClass);
+          var lower = getLowerSubclass(context.getDatabaseSession(), clazz, previousClass);
           if (lower == null) {
-            throw new CommandExecutionException(
+            throw new CommandExecutionException(context.getDatabaseSession(),
                 "classes defined for alias "
                     + alias
                     + " ("
@@ -781,7 +779,7 @@ public class MatchExecutionPlanner {
         if (previousCluster == null) {
           aliasClusters.put(alias, clusterName);
         } else if (!previousCluster.equalsIgnoreCase(clusterName)) {
-          throw new CommandExecutionException(
+          throw new CommandExecutionException(context.getDatabaseSession(),
               "Invalid expression for alias "
                   + alias
                   + " cannot be of both clusters "
@@ -797,7 +795,7 @@ public class MatchExecutionPlanner {
         if (previousRid == null) {
           aliasRids.put(alias, rid);
         } else if (!previousRid.equals(rid)) {
-          throw new CommandExecutionException(
+          throw new CommandExecutionException(context.getDatabaseSession(),
               "Invalid expression for alias "
                   + alias
                   + " cannot be of both RIDs "
@@ -814,11 +812,11 @@ public class MatchExecutionPlanner {
     Schema schema = db.getMetadata().getSchema();
     var class1 = schema.getClass(className1);
     var class2 = schema.getClass(className2);
-    if (class1.isSubClassOf(class2)) {
-      return class1.getName();
+    if (class1.isSubClassOf(db, class2)) {
+      return class1.getName(db);
     }
-    if (class2.isSubClassOf(class1)) {
-      return class2.getName();
+    if (class2.isSubClassOf(db, class1)) {
+      return class2.getName(db);
     }
     return null;
   }
@@ -858,7 +856,7 @@ public class MatchExecutionPlanner {
     allAliases.addAll(aliasClusters.keySet());
     allAliases.addAll(aliasRids.keySet());
 
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     var schema = db.getMetadata().getImmutableSchemaSnapshot();
 
     Map<String, Long> result = new LinkedHashMap<String, Long>();
@@ -878,7 +876,8 @@ public class MatchExecutionPlanner {
 
       if (className != null) {
         if (!schema.existsClass(className)) {
-          throw new CommandExecutionException("class not defined: " + className);
+          throw new CommandExecutionException(ctx.getDatabaseSession(),
+              "class not defined: " + className);
         }
         var oClass = schema.getClassInternal(className);
         long upperBound;
@@ -891,7 +890,8 @@ public class MatchExecutionPlanner {
         result.put(alias, upperBound);
       } else {
         if (!db.existsCluster(clusterName)) {
-          throw new CommandExecutionException("cluster not defined: " + clusterName);
+          throw new CommandExecutionException(ctx.getDatabaseSession(),
+              "cluster not defined: " + clusterName);
         }
         var clusterId = db.getClusterIdByName(clusterName);
         var oClass = (SchemaClassInternal) db.getMetadata().getSchema()

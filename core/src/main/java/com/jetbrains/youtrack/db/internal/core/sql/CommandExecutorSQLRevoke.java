@@ -36,18 +36,17 @@ public class CommandExecutorSQLRevoke extends CommandExecutorSQLPermissionAbstra
   private static final String KEYWORD_FROM = "FROM";
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorSQLRevoke parse(DatabaseSessionInternal db, final CommandRequest iRequest) {
+  public CommandExecutorSQLRevoke parse(DatabaseSessionInternal session,
+      final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
 
-      final var database = getDatabase();
-
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
       privilege = Role.PERMISSION_NONE;
       resource = null;
@@ -58,45 +57,46 @@ public class CommandExecutorSQLRevoke extends CommandExecutorSQLPermissionAbstra
       var oldPos = 0;
       var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_REVOKE)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_REVOKE + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
       if (pos == -1) {
-        throw new CommandSQLParsingException("Invalid privilege", parserText, oldPos);
+        throw new CommandSQLParsingException(session, "Invalid privilege", parserText, oldPos);
       }
 
       parsePrivilege(word, oldPos);
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_ON)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_ON + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserText, pos, word, true);
       if (pos == -1) {
-        throw new CommandSQLParsingException("Invalid resource", parserText, oldPos);
+        throw new CommandSQLParsingException(session, "Invalid resource", parserText, oldPos);
       }
 
       resource = word.toString();
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_FROM)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_FROM + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserText, pos, word, true);
       if (pos == -1) {
-        throw new CommandSQLParsingException("Invalid role", parserText, oldPos);
+        throw new CommandSQLParsingException(session, "Invalid role", parserText, oldPos);
       }
 
       final var roleName = word.toString();
-      role = database.getMetadata().getSecurity().getRole(roleName);
+      role = session.getMetadata().getSecurity().getRole(roleName);
       if (role == null) {
-        throw new CommandSQLParsingException("Invalid role: " + roleName);
+        throw new CommandSQLParsingException(session.getDatabaseName(),
+            "Invalid role: " + roleName);
       }
     } finally {
       textRequest.setText(originalQuery);
@@ -108,14 +108,14 @@ public class CommandExecutorSQLRevoke extends CommandExecutorSQLPermissionAbstra
   /**
    * Execute the command.
    */
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (role == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not yet been parsed");
     }
 
-    role.revoke(db, resource, privilege);
-    role.save(db);
+    role.revoke(session, resource, privilege);
+    role.save(session);
 
     return role;
   }

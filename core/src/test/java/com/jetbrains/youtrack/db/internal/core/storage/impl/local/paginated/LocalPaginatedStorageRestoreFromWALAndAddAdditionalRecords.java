@@ -4,15 +4,12 @@ import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseCompare;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -261,21 +258,19 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
         });
   }
 
-  private void createSchema(DatabaseSessionInternal databaseDocumentTx) {
-    DatabaseRecordThreadLocal.instance().set(databaseDocumentTx);
-
-    Schema schema = databaseDocumentTx.getMetadata().getSchema();
+  private void createSchema(DatabaseSessionInternal session) {
+    Schema schema = session.getMetadata().getSchema();
     var testOneClass = schema.createClass("TestOne");
 
-    testOneClass.createProperty(databaseDocumentTx, "intProp", PropertyType.INTEGER);
-    testOneClass.createProperty(databaseDocumentTx, "stringProp", PropertyType.STRING);
-    testOneClass.createProperty(databaseDocumentTx, "stringSet", PropertyType.EMBEDDEDSET,
+    testOneClass.createProperty(session, "intProp", PropertyType.INTEGER);
+    testOneClass.createProperty(session, "stringProp", PropertyType.STRING);
+    testOneClass.createProperty(session, "stringSet", PropertyType.EMBEDDEDSET,
         PropertyType.STRING);
-    testOneClass.createProperty(databaseDocumentTx, "linkMap", PropertyType.LINKMAP);
+    testOneClass.createProperty(session, "linkMap", PropertyType.LINKMAP);
 
     var testTwoClass = schema.createClass("TestTwo");
 
-    testTwoClass.createProperty(databaseDocumentTx, "stringList", PropertyType.EMBEDDEDLIST,
+    testTwoClass.createProperty(session, "stringList", PropertyType.EMBEDDEDLIST,
         PropertyType.STRING);
   }
 
@@ -301,9 +296,6 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
     public Void call() throws Exception {
 
       var random = new Random(seed);
-
-      DatabaseRecordThreadLocal.instance().set(baseDB);
-
       try {
         List<RID> testTwoList = new ArrayList<RID>();
         List<RID> firstDocs = new ArrayList<RID>();
@@ -379,31 +371,22 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
     }
 
     private void saveDoc(EntityImpl document) {
-      DatabaseRecordThreadLocal.instance().set(baseDB);
-
       var testDoc = ((EntityImpl) baseDB.newEntity());
-      document.copyTo(testDoc);
+      testDoc.copyPropertiesFromOtherEntity(document);
       document.save();
 
       if (testDB != null) {
-        DatabaseRecordThreadLocal.instance().set(testDB);
         testDoc.save();
-
         Assert.assertEquals(testDoc.getIdentity(), document.getIdentity());
-
-        DatabaseRecordThreadLocal.instance().set(baseDB);
       }
     }
 
     private void deleteDoc(RID rid) {
       baseDB.delete(rid);
-
       if (testDB != null) {
-        DatabaseRecordThreadLocal.instance().set(testDB);
         Assert.assertNotNull(testDB.load(rid));
         testDB.delete(rid);
         Assert.assertNull(testDB.load(rid));
-        DatabaseRecordThreadLocal.instance().set(baseDB);
       }
     }
   }

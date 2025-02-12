@@ -29,7 +29,7 @@ import java.util.Set;
 /**
  * Schema class
  */
-public interface SchemaClass extends Comparable<SchemaClass> {
+public interface SchemaClass {
   String EDGE_CLASS_NAME = "E";
   String VERTEX_CLASS_NAME = "V";
 
@@ -64,25 +64,25 @@ public interface SchemaClass extends Comparable<SchemaClass> {
     }
   }
 
-  boolean isAbstract();
+  boolean isAbstract(DatabaseSession db);
 
   SchemaClass setAbstract(DatabaseSession session, boolean iAbstract);
 
-  boolean isStrictMode();
+  boolean isStrictMode(DatabaseSession db);
 
   SchemaClass setStrictMode(DatabaseSession session, boolean iMode);
 
   @Deprecated
-  SchemaClass getSuperClass();
+  SchemaClass getSuperClass(DatabaseSession db);
 
   @Deprecated
   SchemaClass setSuperClass(DatabaseSession session, SchemaClass iSuperClass);
 
-  boolean hasSuperClasses();
+  boolean hasSuperClasses(DatabaseSession db);
 
-  List<String> getSuperClassesNames();
+  List<String> getSuperClassesNames(DatabaseSession db);
 
-  List<SchemaClass> getSuperClasses();
+  List<SchemaClass> getSuperClasses(DatabaseSession db);
 
   SchemaClass setSuperClasses(DatabaseSession session, List<? extends SchemaClass> classes);
 
@@ -90,17 +90,17 @@ public interface SchemaClass extends Comparable<SchemaClass> {
 
   void removeSuperClass(DatabaseSession session, SchemaClass superClass);
 
-  String getName();
+  String getName(DatabaseSession db);
 
   SchemaClass setName(DatabaseSession session, String iName);
 
-  String getDescription();
+  String getDescription(DatabaseSession db);
 
   SchemaClass setDescription(DatabaseSession session, String iDescription);
 
-  String getStreamableName();
+  String getStreamableName(DatabaseSession db);
 
-  Collection<SchemaProperty> declaredProperties();
+  Collection<SchemaProperty> declaredProperties(DatabaseSession db);
 
   Collection<SchemaProperty> properties(DatabaseSession session);
 
@@ -108,7 +108,7 @@ public interface SchemaClass extends Comparable<SchemaClass> {
 
   Collection<SchemaProperty> getIndexedProperties(DatabaseSession session);
 
-  SchemaProperty getProperty(String iPropertyName);
+  SchemaProperty getProperty(DatabaseSession db, String iPropertyName);
 
   SchemaProperty createProperty(DatabaseSession session, String iPropertyName, PropertyType iType);
 
@@ -141,31 +141,31 @@ public interface SchemaClass extends Comparable<SchemaClass> {
 
   void dropProperty(DatabaseSession session, String iPropertyName);
 
-  boolean existsProperty(String iPropertyName);
+  boolean existsProperty(DatabaseSession db, String iPropertyName);
 
-  int[] getClusterIds();
+  int[] getClusterIds(DatabaseSession db);
 
   SchemaClass addClusterId(DatabaseSession session, int iId);
 
   SchemaClass setClusterSelection(DatabaseSession session, String iStrategyName);
 
-  String getClusterSelectionStrategyName();
+  String getClusterSelectionStrategyName(DatabaseSession db);
 
   SchemaClass addCluster(DatabaseSession session, String iClusterName);
 
   SchemaClass removeClusterId(DatabaseSession session, int iId);
 
-  int[] getPolymorphicClusterIds();
+  int[] getPolymorphicClusterIds(DatabaseSession db);
 
   /**
    * @return all the subclasses (one level hierarchy only)
    */
-  Collection<SchemaClass> getSubclasses();
+  Collection<SchemaClass> getSubclasses(DatabaseSession db);
 
   /**
    * @return all the subclass hierarchy
    */
-  Collection<SchemaClass> getAllSubclasses();
+  Collection<SchemaClass> getAllSubclasses(DatabaseSession db);
 
   /**
    * @return all recursively collected super classes
@@ -175,31 +175,34 @@ public interface SchemaClass extends Comparable<SchemaClass> {
   /**
    * Tells if the current instance extends the passed schema class (iClass).
    *
+   * @param db
    * @param iClassName
    * @return true if the current instance extends the passed schema class (iClass).
-   * @see #isSuperClassOf(SchemaClass)
+   * @see #isSuperClassOf(DatabaseSession, SchemaClass)
    */
-  boolean isSubClassOf(String iClassName);
+  boolean isSubClassOf(DatabaseSession db, String iClassName);
 
   /**
    * Returns true if the current instance extends the passed schema class (iClass).
    *
+   * @param db
    * @param iClass
    * @return true if the current instance extends the passed schema class (iClass).
-   * @see #isSuperClassOf(SchemaClass)
+   * @see #isSuperClassOf(DatabaseSession, SchemaClass)
    */
-  boolean isSubClassOf(SchemaClass iClass);
+  boolean isSubClassOf(DatabaseSession db, SchemaClass iClass);
 
   /**
    * Returns true if the passed schema class (iClass) extends the current instance.
    *
+   * @param db
    * @param iClass
    * @return Returns true if the passed schema class extends the current instance.
-   * @see #isSubClassOf(SchemaClass)
+   * @see #isSubClassOf(DatabaseSession, SchemaClass)
    */
-  boolean isSuperClassOf(SchemaClass iClass);
+  boolean isSuperClassOf(DatabaseSession db, SchemaClass iClass);
 
-  String getShortName();
+  String getShortName(DatabaseSession db);
 
   SchemaClass setShortName(DatabaseSession session, String shortName);
 
@@ -285,14 +288,14 @@ public interface SchemaClass extends Comparable<SchemaClass> {
   /**
    * @return true if this class represents a subclass of an edge class (E)
    */
-  boolean isEdgeType();
+  boolean isEdgeType(DatabaseSession db);
 
   /**
    * @return true if this class represents a subclass of a vertex class (V)
    */
-  boolean isVertexType();
+  boolean isVertexType(DatabaseSession db);
 
-  String getCustom(String iName);
+  String getCustom(DatabaseSession db, String iName);
 
   SchemaClass setCustom(DatabaseSession session, String iName, String iValue);
 
@@ -300,7 +303,7 @@ public interface SchemaClass extends Comparable<SchemaClass> {
 
   void clearCustom(DatabaseSession session);
 
-  Set<String> getCustomKeys();
+  Set<String> getCustomKeys(DatabaseSession db);
 
   boolean hasClusterId(int clusterId);
 

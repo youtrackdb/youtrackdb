@@ -2,17 +2,12 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAndBlock;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBooleanExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCluster;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
-import java.util.List;
 
 /**
  *
@@ -44,28 +39,28 @@ public class UpsertStep extends AbstractExecutionStep {
 
   private Result createNewRecord(
       CommandContext ctx, SQLFromClause commandTarget, SQLWhereClause initialFilter) {
-    var db = ctx.getDatabase();
+    var session = ctx.getDatabaseSession();
     EntityImpl entity;
     if (commandTarget.getItem().getIdentifier() != null) {
-      entity = new EntityImpl(db, commandTarget.getItem().getIdentifier().getStringValue());
+      entity = new EntityImpl(session, commandTarget.getItem().getIdentifier().getStringValue());
     } else if (commandTarget.getItem().getCluster() != null) {
       var cluster = commandTarget.getItem().getCluster();
       var clusterId = cluster.getClusterNumber();
       if (clusterId == null) {
-        clusterId = ctx.getDatabase().getClusterIdByName(cluster.getClusterName());
+        clusterId = ctx.getDatabaseSession().getClusterIdByName(cluster.getClusterName());
       }
       var clazz =
-          ctx.getDatabase()
+          ctx.getDatabaseSession()
               .getMetadata()
               .getImmutableSchemaSnapshot()
               .getClassByClusterId(clusterId);
-      entity = new EntityImpl(db, clazz);
+      entity = new EntityImpl(session, clazz);
     } else {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute UPSERT on target '" + commandTarget + "'");
     }
 
-    var result = new UpdatableResult(ctx.getDatabase(), entity);
+    var result = new UpdatableResult(ctx.getDatabaseSession(), entity);
     if (initialFilter != null) {
       setContent(result, initialFilter);
     }
@@ -78,7 +73,8 @@ public class UpsertStep extends AbstractExecutionStep {
       return;
     }
     if (flattened.size() > 1) {
-      throw new CommandExecutionException("Cannot UPSERT on OR conditions");
+      throw new CommandExecutionException(res.getBoundedToSession(),
+          "Cannot UPSERT on OR conditions");
     }
     var andCond = flattened.get(0);
     for (var condition : andCond.getSubBlocks()) {

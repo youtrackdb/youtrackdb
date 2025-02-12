@@ -20,7 +20,6 @@
 package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.test.ConcurrentTestHelper;
 import com.jetbrains.youtrack.db.internal.test.TestFactory;
 import java.util.concurrent.Callable;
@@ -51,12 +50,12 @@ public class ConcurrentSchemaTest extends BaseDBTest {
         try {
           final var clsName = "ConcurrentClassTest-" + id + "-" + i;
 
-          var cls = ConcurrentSchemaTest.this.db.getMetadata().getSchema()
+          var cls = ConcurrentSchemaTest.this.session.getMetadata().getSchema()
               .createClass(clsName);
 
-          Assert.assertEquals(cls.getName(), clsName);
+          Assert.assertEquals(cls.getName(session), clsName);
           Assert.assertTrue(
-              ConcurrentSchemaTest.this.db.getMetadata().getSchema().existsClass(clsName));
+              ConcurrentSchemaTest.this.session.getMetadata().getSchema().existsClass(clsName));
 
           db.command("select from " + clsName).close();
 
@@ -85,10 +84,10 @@ public class ConcurrentSchemaTest extends BaseDBTest {
           final var clsName = "ConcurrentClassTest-" + id + "-" + i;
 
           Assert.assertTrue(
-              ConcurrentSchemaTest.this.db.getMetadata().getSchema().existsClass(clsName));
-          ConcurrentSchemaTest.this.db.getMetadata().getSchema().dropClass(clsName);
+              ConcurrentSchemaTest.this.session.getMetadata().getSchema().existsClass(clsName));
+          ConcurrentSchemaTest.this.session.getMetadata().getSchema().dropClass(clsName);
           Assert.assertFalse(
-              ConcurrentSchemaTest.this.db.getMetadata().getSchema().existsClass(clsName));
+              ConcurrentSchemaTest.this.session.getMetadata().getSchema().existsClass(clsName));
 
           counter.decrementAndGet();
         } finally {
@@ -120,7 +119,7 @@ public class ConcurrentSchemaTest extends BaseDBTest {
     for (var id = 0; id < THREADS; ++id) {
       for (var i = 0; i < CYCLES; ++i) {
         final var clsName = "ConcurrentClassTest-" + id + "-" + i;
-        Assert.assertTrue(db.getMetadata().getSchema().existsClass(clsName));
+        Assert.assertTrue(session.getMetadata().getSchema().existsClass(clsName));
       }
     }
 

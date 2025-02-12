@@ -47,20 +47,21 @@ public class CommandExecutorSQLFindReferences extends CommandExecutorSQLEarlyRes
   private String classList;
   private StringBuilder subQuery;
 
-  public CommandExecutorSQLFindReferences parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLFindReferences parse(DatabaseSessionInternal session,
       final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
 
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
-      parserRequiredKeyword(KEYWORD_FIND);
-      parserRequiredKeyword(KEYWORD_REFERENCES);
-      final var target = parserRequiredWord(true, "Expected <target>", " =><,\r\n");
+      parserRequiredKeyword(session.getDatabaseName(), KEYWORD_FIND);
+      parserRequiredKeyword(session.getDatabaseName(), KEYWORD_REFERENCES);
+      final var target = parserRequiredWord(true, "Expected <target>", " =><,\r\n",
+          session.getDatabaseName());
 
       if (target.charAt(0) == '(') {
         subQuery = new StringBuilder();
@@ -71,15 +72,16 @@ public class CommandExecutorSQLFindReferences extends CommandExecutorSQLEarlyRes
         try {
           final var rid = new RecordId(target);
           if (!rid.isValid()) {
-            throwParsingException("Record ID " + target + " is not valid");
+            throwParsingException(session.getDatabaseName(),
+                "Record ID " + target + " is not valid");
           }
           recordIds.add(rid);
 
         } catch (IllegalArgumentException iae) {
           throw BaseException.wrapException(
-              new CommandSQLParsingException(
+              new CommandSQLParsingException(session,
                   "Error reading record Id", parserText, parserGetPreviousPosition()),
-              iae);
+              iae, session);
         }
       }
 
@@ -89,7 +91,7 @@ public class CommandExecutorSQLFindReferences extends CommandExecutorSQLEarlyRes
         classList = parserTextUpperCase.substring(parserGetPreviousPosition());
 
         if (!classList.startsWith("[") || !classList.endsWith("]")) {
-          throwParsingException("Class list must be contained in []");
+          throwParsingException(session.getDatabaseName(), "Class list must be contained in []");
         }
         // GET THE CLUSTER LIST TO SEARCH, IF NULL WILL SEARCH ENTIRE DATABASE
         classList = classList.substring(1, classList.length() - 1);
@@ -104,30 +106,25 @@ public class CommandExecutorSQLFindReferences extends CommandExecutorSQLEarlyRes
   /**
    * Execute the FIND REFERENCES.
    */
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (recordIds.isEmpty() && subQuery == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not been parsed yet");
     }
 
     if (subQuery != null) {
       final List<Identifiable> result = new CommandSQL(subQuery.toString()).execute(
-          db);
+          session);
       for (var id : result) {
         recordIds.add(id.getIdentity());
       }
     }
 
-    return FindReferenceHelper.findReferences(recordIds, classList);
+    return FindReferenceHelper.findReferences(recordIds, classList, session);
   }
 
   @Override
   public String getSyntax() {
     return "FIND REFERENCES <rid|<sub-query>> [class-list]";
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.NONE;
   }
 }

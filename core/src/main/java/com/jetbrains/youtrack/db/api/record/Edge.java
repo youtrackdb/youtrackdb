@@ -22,9 +22,6 @@ package com.jetbrains.youtrack.db.api.record;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
 import javax.annotation.Nullable;
 
 /**
@@ -130,32 +127,7 @@ public interface Edge extends Entity {
    * @param labels the labels to check
    * @return true if the labels match, false otherwise
    */
-  default boolean isLabeled(String[] labels) {
-    if (labels == null) {
-      return true;
-    }
-    if (labels.length == 0) {
-      return true;
-    }
-    Set<String> types = new HashSet<>();
-
-    var typeClass = getSchemaType();
-    if (typeClass.isPresent()) {
-      types.add(typeClass.get().getName());
-      typeClass.get().getAllSuperClasses().stream().map(SchemaClass::getName).forEach(types::add);
-    } else {
-      types.add(CLASS_NAME);
-    }
-    for (var s : labels) {
-      for (var type : types) {
-        if (type.equalsIgnoreCase(s)) {
-          return true;
-        }
-      }
-    }
-
-    return false;
-  }
+  boolean isLabeled(String[] labels);
 
   /**
    * Returns the names of defined properties except of properties used to manage edges.

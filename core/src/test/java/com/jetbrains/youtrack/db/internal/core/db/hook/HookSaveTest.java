@@ -18,7 +18,7 @@ public class HookSaveTest extends DbTestBase {
 
   @Test
   public void testCreatedLinkedInHook() {
-    db.registerHook(
+    session.registerHook(
         new RecordHook() {
           @Override
           public void onUnregister() {
@@ -33,7 +33,7 @@ public class HookSaveTest extends DbTestBase {
             if (doc.containsField("test")) {
               return RESULT.RECORD_NOT_CHANGED;
             }
-            var doc1 = (EntityImpl) HookSaveTest.this.db.newEntity("test");
+            var doc1 = (EntityImpl) HookSaveTest.this.session.newEntity("test");
             doc1.field("test", "value");
             doc.field("testNewLinkedRecord", doc1);
             return RESULT.RECORD_CHANGED;
@@ -45,19 +45,19 @@ public class HookSaveTest extends DbTestBase {
           }
         });
 
-    db.getMetadata().getSchema().createClass("test");
-    db.begin();
-    EntityImpl doc = db.save(db.newEntity("test"));
-    db.commit();
+    session.getMetadata().getSchema().createClass("test");
+    session.begin();
+    EntityImpl doc = session.save(session.newEntity("test"));
+    session.commit();
 
-    EntityImpl newRef = db.bindToSession(doc).field("testNewLinkedRecord");
+    EntityImpl newRef = session.bindToSession(doc).field("testNewLinkedRecord");
     assertNotNull(newRef);
     assertFalse(newRef.getIdentity().isPersistent());
   }
 
   @Test
   public void testCreatedBackLinkedInHook() {
-    db.registerHook(
+    session.registerHook(
         new RecordHook() {
           @Override
           public void onUnregister() {
@@ -72,7 +72,7 @@ public class HookSaveTest extends DbTestBase {
             if (doc.containsField("test")) {
               return RESULT.RECORD_NOT_CHANGED;
             }
-            var doc1 = (EntityImpl) HookSaveTest.this.db.newEntity("test");
+            var doc1 = (EntityImpl) HookSaveTest.this.session.newEntity("test");
             doc1.field("test", "value");
             doc.field("testNewLinkedRecord", doc1);
             doc1.field("backLink", doc);
@@ -85,12 +85,12 @@ public class HookSaveTest extends DbTestBase {
           }
         });
 
-    db.getMetadata().getSchema().createClass("test");
-    db.begin();
-    EntityImpl doc = db.save(db.newEntity("test"));
-    db.commit();
+    session.getMetadata().getSchema().createClass("test");
+    session.begin();
+    EntityImpl doc = session.save(session.newEntity("test"));
+    session.commit();
 
-    EntityImpl newRef = db.bindToSession(doc).field("testNewLinkedRecord");
+    EntityImpl newRef = session.bindToSession(doc).field("testNewLinkedRecord");
     assertNotNull(newRef);
     assertTrue(newRef.getIdentity().isPersistent());
   }

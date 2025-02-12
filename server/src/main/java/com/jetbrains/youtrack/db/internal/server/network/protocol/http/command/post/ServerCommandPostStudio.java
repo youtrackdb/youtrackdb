@@ -50,7 +50,7 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
       final var urlParts =
           checkSyntax(iRequest.getUrl(), 3, "Syntax error: studio/<database>/<context>");
 
-      db = getProfiledDatabaseInstance(iRequest);
+      db = getProfiledDatabaseSessionInstance(iRequest);
 
       final var req = iRequest.getContent();
 
@@ -228,7 +228,7 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
             "Class '"
                 + rid
                 + "' created successfully with id="
-                + db.getMetadata().getSchema().getClasses(db).size(),
+                + db.getMetadata().getSchema().getClasses().size(),
             null);
 
       } catch (Exception e) {

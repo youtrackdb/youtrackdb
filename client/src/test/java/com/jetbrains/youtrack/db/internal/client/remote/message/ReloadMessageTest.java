@@ -3,8 +3,6 @@ package com.jetbrains.youtrack.db.internal.client.remote.message;
 import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.client.remote.message.push.StorageConfigurationPayload;
-import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import java.io.IOException;
 import org.junit.Test;
@@ -14,14 +12,14 @@ public class ReloadMessageTest extends DbTestBase {
   @Test
   public void testWriteReadResponse() throws IOException {
     var configuration =
-        db.getStorage().getConfiguration();
+        session.getStorage().getConfiguration();
     var responseWrite = new ReloadResponse37(configuration);
     var channel = new MockChannel();
-    responseWrite.write(db, channel,
+    responseWrite.write(session, channel,
         ChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION, null);
     channel.close();
     var responseRead = new ReloadResponse37();
-    responseRead.read(db, channel, null);
+    responseRead.read(session, channel, null);
     var payload = responseRead.getPayload();
     assertEquals(configuration.getProperties().size(), payload.getProperties().size());
     for (var i = 0; i < configuration.getProperties().size(); i++) {

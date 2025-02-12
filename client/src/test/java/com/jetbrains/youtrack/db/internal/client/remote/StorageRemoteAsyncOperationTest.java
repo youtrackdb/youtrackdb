@@ -85,7 +85,7 @@ public class StorageRemoteAsyncOperationTest {
           }
 
           @Override
-          public void write(DatabaseSessionInternal database, ChannelDataOutput network,
+          public void write(DatabaseSessionInternal databaseSession, ChannelDataOutput network,
               StorageRemoteSession session)
               throws IOException {
             assertNull(status.status);
@@ -94,7 +94,8 @@ public class StorageRemoteAsyncOperationTest {
 
           @Override
           public void read(
-              DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+              DatabaseSessionInternal databaseSession, ChannelDataInput channel,
+              int protocolVersion,
               RecordSerializerNetwork serializer)
               throws IOException {
           }
@@ -158,7 +159,7 @@ public class StorageRemoteAsyncOperationTest {
           }
 
           @Override
-          public void write(DatabaseSessionInternal database, ChannelDataOutput network,
+          public void write(DatabaseSessionInternal databaseSession, ChannelDataOutput network,
               StorageRemoteSession session)
               throws IOException {
             assertNull(status.status);
@@ -167,7 +168,8 @@ public class StorageRemoteAsyncOperationTest {
 
           @Override
           public void read(
-              DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+              DatabaseSessionInternal databaseSession, ChannelDataInput channel,
+              int protocolVersion,
               RecordSerializerNetwork serializer)
               throws IOException {
           }
@@ -235,7 +237,7 @@ public class StorageRemoteAsyncOperationTest {
           }
 
           @Override
-          public void write(DatabaseSessionInternal database, ChannelDataOutput network,
+          public void write(DatabaseSessionInternal databaseSession, ChannelDataOutput network,
               StorageRemoteSession session)
               throws IOException {
             assertNull(status.status);
@@ -244,7 +246,8 @@ public class StorageRemoteAsyncOperationTest {
 
           @Override
           public void read(
-              DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+              DatabaseSessionInternal databaseSession, ChannelDataInput channel,
+              int protocolVersion,
               RecordSerializerNetwork serializer)
               throws IOException {
           }

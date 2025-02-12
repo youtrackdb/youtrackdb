@@ -3,12 +3,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.DatabaseSession.ATTRIBUTES;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES_INTERNAL;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
@@ -37,7 +35,7 @@ public class SQLAlterDatabaseStatement extends DDLStatement {
   private static Result executeSimpleAlter(
       SQLIdentifier settingName, SQLExpression settingValue, CommandContext ctx) {
 
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     Object oldValue;
     Object finalValue;
     try {

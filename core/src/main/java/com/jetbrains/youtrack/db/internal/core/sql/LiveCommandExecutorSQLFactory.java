@@ -84,7 +84,7 @@ public class LiveCommandExecutorSQLFactory implements CommandExecutorSQLFactory 
                   + name
                   + "(). Probably there is not an empty constructor or the constructor generates"
                   + " errors"),
-          e);
+          e, (String) null);
     }
   }
 }

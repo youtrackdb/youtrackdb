@@ -3,12 +3,13 @@ package com.jetbrains.youtrack.db.internal.core.serialization.serializer.stream;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ShortSerializer;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALPageChangesPortion;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class StreamSerializerRIDTest {
@@ -16,18 +17,21 @@ public class StreamSerializerRIDTest {
   private static final int FIELD_SIZE = ShortSerializer.SHORT_SIZE + LongSerializer.LONG_SIZE;
   private static final int clusterId = 5;
   private static final long position = 100500L;
-  private RecordId OBJECT;
-  private StreamSerializerRID streamSerializerRID;
+  private static RecordId OBJECT;
+  private static StreamSerializerRID streamSerializerRID;
+  private static BinarySerializerFactory serializerFactory;
 
-  @Before
-  public void beforeClass() {
+  @BeforeClass
+  public static void beforeClass() {
     OBJECT = new RecordId(clusterId, position);
     streamSerializerRID = new StreamSerializerRID();
+    serializerFactory = BinarySerializerFactory.create(
+        BinarySerializerFactory.currentBinaryFormatVersion());
   }
 
   @Test
   public void testFieldSize() {
-    Assert.assertEquals(streamSerializerRID.getObjectSize(OBJECT), FIELD_SIZE);
+    Assert.assertEquals(FIELD_SIZE, streamSerializerRID.getObjectSize(serializerFactory, OBJECT));
   }
 
   @Test
@@ -37,18 +41,20 @@ public class StreamSerializerRIDTest {
     final var buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
 
     buffer.position(serializationOffset);
-    streamSerializerRID.serializeInByteBufferObject(OBJECT, buffer);
+    streamSerializerRID.serializeInByteBufferObject(serializerFactory, OBJECT, buffer);
 
     final var binarySize = buffer.position() - serializationOffset;
-    Assert.assertEquals(binarySize, FIELD_SIZE);
+    Assert.assertEquals(FIELD_SIZE, binarySize);
 
     buffer.position(serializationOffset);
-    Assert.assertEquals(streamSerializerRID.getObjectSizeInByteBuffer(buffer), FIELD_SIZE);
+    Assert.assertEquals(FIELD_SIZE,
+        streamSerializerRID.getObjectSizeInByteBuffer(serializerFactory, buffer));
 
     buffer.position(serializationOffset);
-    Assert.assertEquals(streamSerializerRID.deserializeFromByteBufferObject(buffer), OBJECT);
+    Assert.assertEquals(
+        streamSerializerRID.deserializeFromByteBufferObject(serializerFactory, buffer), OBJECT);
 
-    Assert.assertEquals(buffer.position() - serializationOffset, FIELD_SIZE);
+    Assert.assertEquals(FIELD_SIZE, buffer.position() - serializationOffset);
   }
 
   @Test
@@ -58,18 +64,21 @@ public class StreamSerializerRIDTest {
     final var buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
 
     buffer.position(serializationOffset);
-    streamSerializerRID.serializeInByteBufferObject(OBJECT, buffer);
+    streamSerializerRID.serializeInByteBufferObject(serializerFactory, OBJECT, buffer);
 
     final var binarySize = buffer.position() - serializationOffset;
-    Assert.assertEquals(binarySize, FIELD_SIZE);
+    Assert.assertEquals(FIELD_SIZE, binarySize);
 
     buffer.position(0);
     Assert.assertEquals(
-        streamSerializerRID.getObjectSizeInByteBuffer(serializationOffset, buffer), FIELD_SIZE);
+        FIELD_SIZE,
+        streamSerializerRID.getObjectSizeInByteBuffer(serializerFactory, serializationOffset,
+            buffer));
     Assert.assertEquals(0, buffer.position());
 
     Assert.assertEquals(
-        streamSerializerRID.deserializeFromByteBufferObject(serializationOffset, buffer), OBJECT);
+        streamSerializerRID.deserializeFromByteBufferObject(serializerFactory, serializationOffset,
+            buffer), OBJECT);
     Assert.assertEquals(0, buffer.position());
   }
 
@@ -82,16 +91,16 @@ public class StreamSerializerRIDTest {
                 FIELD_SIZE + serializationOffset + WALPageChangesPortion.PORTION_BYTES)
             .order(ByteOrder.nativeOrder());
     final var data = new byte[FIELD_SIZE];
-    streamSerializerRID.serializeNativeObject(OBJECT, data, 0);
+    streamSerializerRID.serializeNativeObject(OBJECT, serializerFactory, data, 0);
 
     final WALChanges walChanges = new WALPageChangesPortion();
     walChanges.setBinaryValue(buffer, data, serializationOffset);
 
     Assert.assertEquals(
-        streamSerializerRID.getObjectSizeInByteBuffer(buffer, walChanges, serializationOffset),
-        FIELD_SIZE);
+        FIELD_SIZE,
+        streamSerializerRID.getObjectSizeInByteBuffer(buffer, walChanges, serializationOffset));
     Assert.assertEquals(
-        streamSerializerRID.deserializeFromByteBufferObject(
+        streamSerializerRID.deserializeFromByteBufferObject(serializerFactory,
             buffer, walChanges, serializationOffset),
         OBJECT);
   }

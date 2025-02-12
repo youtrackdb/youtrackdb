@@ -88,29 +88,29 @@ public class LiveQueryRemoteTest {
     public List<Result> ops = new ArrayList<Result>();
 
     @Override
-    public void onCreate(DatabaseSessionInternal database, Result data) {
+    public void onCreate(DatabaseSessionInternal session, Result data) {
       ops.add(data);
       latch.countDown();
     }
 
     @Override
-    public void onUpdate(DatabaseSessionInternal database, Result before, Result after) {
+    public void onUpdate(DatabaseSessionInternal session, Result before, Result after) {
       ops.add(after);
       latch.countDown();
     }
 
     @Override
-    public void onDelete(DatabaseSessionInternal database, Result data) {
+    public void onDelete(DatabaseSessionInternal session, Result data) {
       ops.add(data);
       latch.countDown();
     }
 
     @Override
-    public void onError(DatabaseSession database, BaseException exception) {
+    public void onError(DatabaseSession session, BaseException exception) {
     }
 
     @Override
-    public void onEnd(DatabaseSession database) {
+    public void onEnd(DatabaseSession session) {
       ended.countDown();
     }
   }
@@ -201,30 +201,30 @@ public class LiveQueryRemoteTest {
                     new LiveQueryResultListener() {
 
                       @Override
-                      public void onCreate(DatabaseSessionInternal database, Result data) {
+                      public void onCreate(DatabaseSessionInternal session, Result data) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }
 
                       @Override
                       public void onUpdate(
-                          DatabaseSessionInternal database, Result before, Result after) {
+                          DatabaseSessionInternal session, Result before, Result after) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }
 
                       @Override
-                      public void onDelete(DatabaseSessionInternal database, Result data) {
+                      public void onDelete(DatabaseSessionInternal session, Result data) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }
 
                       @Override
-                      public void onError(DatabaseSession database, BaseException exception) {
+                      public void onError(DatabaseSession session, BaseException exception) {
                       }
 
                       @Override
-                      public void onEnd(DatabaseSession database) {
+                      public void onEnd(DatabaseSession session) {
                       }
                     });
 

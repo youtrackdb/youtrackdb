@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -32,7 +32,8 @@ public class SerializableWrapper implements SerializableStream {
       writer.close();
     } catch (IOException e) {
       throw BaseException.wrapException(
-          new DatabaseException("Error on serialization of Serializable"), e);
+          new DatabaseException("Error on serialization of Serializable"),
+          e, (String) null);
     }
     return output.toByteArray();
   }
@@ -46,7 +47,7 @@ public class SerializableWrapper implements SerializableStream {
       reader.close();
     } catch (Exception e) {
       throw BaseException.wrapException(
-          new DatabaseException("Error on deserialization of Serializable"), e);
+          new DatabaseException("Error on deserialization of Serializable"), e, (String) null);
     }
     return this;
   }

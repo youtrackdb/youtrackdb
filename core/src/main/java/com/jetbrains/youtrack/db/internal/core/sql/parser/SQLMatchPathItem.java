@@ -97,13 +97,13 @@ public class SQLMatchPathItem extends SimpleNode {
       whileCondition = this.filter.getWhileCondition();
       maxDepth = this.filter.getMaxDepth();
       var className = this.filter.getClassName(iCommandContext);
-      oClass = iCommandContext.getDatabase().getMetadata().getImmutableSchemaSnapshot()
+      oClass = iCommandContext.getDatabaseSession().getMetadata().getImmutableSchemaSnapshot()
           .getClass(className);
     }
 
     Set<Identifiable> result = new HashSet<Identifiable>();
 
-    var db = iCommandContext.getDatabase();
+    var db = iCommandContext.getDatabaseSession();
     if (whileCondition == null
         && maxDepth
         == null) { // in this case starting point is not returned and only one level depth is
@@ -168,7 +168,7 @@ public class SQLMatchPathItem extends SimpleNode {
       var record = identifiable.getRecord(db);
       if (record instanceof EntityImpl) {
         return EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) record))
-            .isSubClassOf(oClass);
+            .isSubClassOf(db, oClass);
       }
     } catch (RecordNotFoundException rnf) {
       return false;

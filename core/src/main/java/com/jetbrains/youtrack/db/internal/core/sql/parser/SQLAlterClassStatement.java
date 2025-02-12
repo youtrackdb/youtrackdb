@@ -8,7 +8,6 @@ import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
@@ -17,7 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class SQLAlterClassStatement extends DDLStatement {
@@ -279,17 +277,17 @@ public class SQLAlterClassStatement extends DDLStatement {
 
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
-    var database = ctx.getDatabase();
+    var database = ctx.getDatabaseSession();
     var oClass = database.getMetadata().getSchemaInternal()
         .getClassInternal(name.getStringValue());
     if (oClass == null) {
-      throw new CommandExecutionException("Class not found: " + name);
+      throw new CommandExecutionException(ctx.getDatabaseSession(), "Class not found: " + name);
     }
     if (property != null) {
       switch (property) {
         case NAME:
           if (!unsafe) {
-            checkNotEdge(oClass);
+            checkNotEdge(database, oClass);
             checkNotIndexed(database, oClass);
           }
           try {
@@ -297,7 +295,8 @@ public class SQLAlterClassStatement extends DDLStatement {
           } catch (Exception e) {
             var x =
                 BaseException.wrapException(
-                    new CommandExecutionException("Invalid class name: " + this), e);
+                    new CommandExecutionException(ctx.getDatabaseSession(),
+                        "Invalid class name: " + this), e, ctx.getDatabaseSession());
             throw x;
           }
           break;
@@ -308,11 +307,13 @@ public class SQLAlterClassStatement extends DDLStatement {
             } catch (Exception e) {
               var x =
                   BaseException.wrapException(
-                      new CommandExecutionException("Invalid class name: " + this), e);
+                      new CommandExecutionException(ctx.getDatabaseSession(),
+                          "Invalid class name: " + this), e, ctx.getDatabaseSession());
               throw x;
             }
           } else {
-            throw new CommandExecutionException("Invalid class name: " + this);
+            throw new CommandExecutionException(ctx.getDatabaseSession(),
+                "Invalid class name: " + this);
           }
           break;
         case ADD_CLUSTER:
@@ -321,20 +322,24 @@ public class SQLAlterClassStatement extends DDLStatement {
           } else if (numberValue != null) {
             oClass.addClusterId(database, numberValue.getValue().intValue());
           } else {
-            throw new CommandExecutionException("Invalid cluster value: " + this);
+            throw new CommandExecutionException(ctx.getDatabaseSession(),
+                "Invalid cluster value: " + this);
           }
           break;
         case REMOVE_CLUSTER:
           var clusterId = -1;
           if (identifierValue != null) {
-            clusterId = ctx.getDatabase().getClusterIdByName(identifierValue.getStringValue());
+            clusterId = ctx.getDatabaseSession()
+                .getClusterIdByName(identifierValue.getStringValue());
             if (clusterId < 0) {
-              throw new CommandExecutionException("Cluster not found: " + this);
+              throw new CommandExecutionException(ctx.getDatabaseSession(),
+                  "Cluster not found: " + this);
             }
           } else if (numberValue != null) {
             clusterId = numberValue.getValue().intValue();
           } else {
-            throw new CommandExecutionException("Invalid cluster value: " + this);
+            throw new CommandExecutionException(ctx.getDatabaseSession(),
+                "Invalid cluster value: " + this);
           }
           oClass.removeClusterId(database, clusterId);
           break;
@@ -342,7 +347,8 @@ public class SQLAlterClassStatement extends DDLStatement {
           if (identifierValue != null) {
             oClass.setDescription(database, identifierValue.getStringValue());
           } else {
-            throw new CommandExecutionException("Invalid class name: " + this);
+            throw new CommandExecutionException(ctx.getDatabaseSession(),
+                "Invalid class name: " + this);
           }
           break;
         case CLUSTER_SELECTION:
@@ -390,20 +396,20 @@ public class SQLAlterClassStatement extends DDLStatement {
     return ExecutionStream.singleton(result);
   }
 
-  private void checkNotIndexed(DatabaseSessionInternal session, SchemaClassInternal oClass) {
+  private static void checkNotIndexed(DatabaseSessionInternal session, SchemaClassInternal oClass) {
     var indexes = oClass.getIndexesInternal(session);
-    if (indexes != null && indexes.size() > 0) {
-      throw new CommandExecutionException(
+    if (indexes != null && !indexes.isEmpty()) {
+      throw new CommandExecutionException(session,
           "Cannot rename class '"
-              + oClass.getName()
+              + oClass.getName(session)
               + "' because it has indexes defined on it. Drop indexes before or use UNSAFE (at your"
               + " won risk)");
     }
   }
 
-  private void checkNotEdge(SchemaClass oClass) {
-    if (oClass.isSubClassOf("E")) {
-      throw new CommandExecutionException(
+  private static void checkNotEdge(DatabaseSessionInternal session, SchemaClass oClass) {
+    if (oClass.isSubClassOf(session, "E")) {
+      throw new CommandExecutionException(session,
           "Cannot alter class '"
               + oClass
               + "' because is an Edge class and could break vertices. Use UNSAFE if you want to"
@@ -414,13 +420,15 @@ public class SQLAlterClassStatement extends DDLStatement {
   private void doSetSuperclass(CommandContext ctx, SchemaClass oClass,
       SQLIdentifier superclassName) {
     if (superclassName == null) {
-      throw new CommandExecutionException("Invalid superclass name: " + this);
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
+          "Invalid superclass name: " + this);
     }
-    var database = ctx.getDatabase();
+    var database = ctx.getDatabaseSession();
     var superclass =
         database.getMetadata().getSchema().getClass(superclassName.getStringValue());
     if (superclass == null) {
-      throw new CommandExecutionException("superclass not found: " + this);
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
+          "superclass not found: " + this);
     }
     if (Boolean.TRUE.equals(add)) {
       oClass.addSuperClass(database, superclass);
@@ -433,16 +441,19 @@ public class SQLAlterClassStatement extends DDLStatement {
 
   private void doSetSuperclasses(
       CommandContext ctx, SchemaClass oClass, List<SQLIdentifier> superclassNames) {
-    var database = ctx.getDatabase();
+    var database = ctx.getDatabaseSession();
     if (superclassNames == null) {
-      throw new CommandExecutionException("Invalid superclass name: " + this);
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
+          "Invalid superclass name: " + this);
     }
     List<SchemaClass> superclasses = new ArrayList<>();
     for (var superclassName : superclassNames) {
       var superclass =
-          ctx.getDatabase().getMetadata().getSchema().getClass(superclassName.getStringValue());
+          ctx.getDatabaseSession().getMetadata().getSchema()
+              .getClass(superclassName.getStringValue());
       if (superclass == null) {
-        throw new CommandExecutionException("superclass not found: " + this);
+        throw new CommandExecutionException(ctx.getDatabaseSession(),
+            "superclass not found: " + this);
       }
       superclasses.add(superclass);
     }

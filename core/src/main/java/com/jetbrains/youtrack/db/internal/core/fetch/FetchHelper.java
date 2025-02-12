@@ -23,7 +23,6 @@ import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiCollectionIterator;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
@@ -34,15 +33,12 @@ import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJSON;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJSON.FormatSettings;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJackson.FormatSettings;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -412,7 +408,7 @@ public class FetchHelper {
       return;
     }
     final var settings =
-        new RecordSerializerJSON.FormatSettings(format);
+        new FormatSettings(format);
 
     // Pre-process to gather fieldTypes
     fetchContext.onBeforeFetch(record);
@@ -524,7 +520,7 @@ public class FetchHelper {
       final Set<String> toRemove,
       final String fieldName) {
     final var settings =
-        new RecordSerializerJSON.FormatSettings(format);
+        new FormatSettings(format);
 
     Object fieldValue;
     final var fieldPath =
@@ -735,7 +731,7 @@ public class FetchHelper {
       final FetchContext iContext,
       final FormatSettings settings) {
     final var linked = (Map<String, Object>) fieldValue;
-    iContext.onBeforeMap(iRootRecord, fieldName, iUserObject);
+    iContext.onBeforeMap(db, iRootRecord, fieldName, iUserObject);
 
     for (Object key : linked.keySet()) {
       final var o = linked.get(key.toString());
@@ -768,7 +764,7 @@ public class FetchHelper {
                   iFieldPathFromRoot,
                   iListener,
                   iContext, getTypesFormat(settings.keepTypes)); // ""
-              iContext.onAfterDocument(iRootRecord, d, key.toString(), iUserObject);
+              iContext.onAfterDocument(db, iRootRecord, d, key.toString(), iUserObject);
             } else {
               iListener.parseLinked(db, iRootRecord, d, iUserObject, key.toString(), iContext);
             }
@@ -785,7 +781,7 @@ public class FetchHelper {
             iRootRecord, o, key.toString(), iContext, iUserObject, "", null);
       }
     }
-    iContext.onAfterMap(iRootRecord, fieldName, iUserObject);
+    iContext.onAfterMap(db, iRootRecord, fieldName, iUserObject);
   }
 
   private static void fetchArray(
@@ -824,13 +820,13 @@ public class FetchHelper {
               iFieldPathFromRoot,
               iListener,
               context, getTypesFormat(settings.keepTypes)); // ""
-          context.onAfterDocument(rootRecord, entity, fieldName, iUserObject);
+          context.onAfterDocument(db, rootRecord, entity, fieldName, iUserObject);
         } else {
           iListener.parseLinkedCollectionValue(db,
               rootRecord, entity, iUserObject, fieldName, context);
         }
       }
-      context.onAfterArray(rootRecord, fieldName, iUserObject);
+      context.onAfterArray(db, rootRecord, fieldName, iUserObject);
     } else {
       iListener.processStandardField(db,
           rootRecord, fieldValue, fieldName, context, iUserObject, "", null);
@@ -862,7 +858,7 @@ public class FetchHelper {
       context.onBeforeCollection(db, iRootRecord, fieldName, iUserObject, linked);
     } else if (fieldValue instanceof Map<?, ?>) {
       linked = ((Map<?, ?>) fieldValue).values();
-      context.onBeforeMap(iRootRecord, fieldName, iUserObject);
+      context.onBeforeMap(db, iRootRecord, fieldName, iUserObject);
     } else {
       throw new IllegalStateException("Unrecognized type: " + fieldValue.getClass());
     }
@@ -904,7 +900,7 @@ public class FetchHelper {
                     iFieldPathFromRoot,
                     iListener,
                     context, getTypesFormat(settings.keepTypes)); // ""
-                context.onAfterDocument(
+                context.onAfterDocument(db,
                     iRootRecord, (EntityImpl) identifiable, fieldName, iUserObject);
               }
             } catch (RecordNotFoundException rnf) {
@@ -953,11 +949,11 @@ public class FetchHelper {
       }
     } finally {
       if (fieldValue instanceof Iterable<?>) {
-        context.onAfterCollection(iRootRecord, fieldName, iUserObject);
+        context.onAfterCollection(db, iRootRecord, fieldName, iUserObject);
       } else if (fieldValue.getClass().isArray()) {
-        context.onAfterCollection(iRootRecord, fieldName, iUserObject);
+        context.onAfterCollection(db, iRootRecord, fieldName, iUserObject);
       } else if (fieldValue instanceof Map<?, ?>) {
-        context.onAfterMap(iRootRecord, fieldName, iUserObject);
+        context.onAfterMap(db, iRootRecord, fieldName, iUserObject);
       }
     }
   }
@@ -1009,7 +1005,7 @@ public class FetchHelper {
           iFieldPathFromRoot,
           iListener,
           iContext, getTypesFormat(settings.keepTypes)); // ""
-      iContext.onAfterDocument(iRootRecord, linked, fieldName, iUserObject);
+      iContext.onAfterDocument(db, iRootRecord, linked, fieldName, iUserObject);
     } else {
       iContext.onBeforeStandardField(fieldValue, fieldName, iRootRecord, null);
       iListener.parseLinked(db, iRootRecord, fieldValue, iUserObject, fieldName, iContext);

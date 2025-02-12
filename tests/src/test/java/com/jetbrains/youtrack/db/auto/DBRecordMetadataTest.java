@@ -4,7 +4,6 @@ import static org.testng.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.RecordMetadata;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -27,20 +26,20 @@ public class DBRecordMetadataTest extends BaseDBTest {
 
   public void testGetRecordMetadata() {
 
-    var doc = ((EntityImpl) db.newEntity());
+    var doc = ((EntityImpl) session.newEntity());
     for (var i = 0; i < 5; i++) {
-      db.begin();
+      session.begin();
       if (!doc.getIdentity().isNew()) {
-        doc = db.bindToSession(doc);
+        doc = session.bindToSession(doc);
       }
 
       doc.field("field", i);
-      db.save(doc);
-      db.commit();
+      session.save(doc);
+      session.commit();
 
-      final var metadata = db.getRecordMetadata(doc.getIdentity());
+      final var metadata = session.getRecordMetadata(doc.getIdentity());
       assetORIDEquals(doc.getIdentity(), metadata.getRecordId());
-      assertEquals(db.bindToSession(doc).getVersion(), metadata.getVersion());
+      assertEquals(session.bindToSession(doc).getVersion(), metadata.getVersion());
     }
   }
 }

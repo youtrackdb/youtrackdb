@@ -2,7 +2,6 @@ package com.jetbrains.youtrack.db.internal.core.tx;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Assert;
@@ -13,27 +12,27 @@ public class LinksetInTransactionTest extends DbTestBase {
   @Test
   public void test() {
 
-    db.createClass("WithLinks").createProperty(db, "links", PropertyType.LINKSET);
-    db.createClass("Linked");
+    session.createClass("WithLinks").createProperty(session, "links", PropertyType.LINKSET);
+    session.createClass("Linked");
 
-    db.begin();
+    session.begin();
     /* A link must already be there */
-    var withLinks1 = db.newInstance("WithLinks");
-    var link1 = db.newInstance("Linked");
+    var withLinks1 = session.newInstance("WithLinks");
+    var link1 = session.newInstance("Linked");
     link1.save();
     Set set = new HashSet<>();
     set.add(link1);
     withLinks1.setProperty("links", set);
     withLinks1.save();
-    db.commit();
+    session.commit();
 
     /* Only in transaction - without transaction all OK */
-    db.begin();
-    withLinks1 = db.bindToSession(withLinks1);
-    link1 = db.bindToSession(link1);
+    session.begin();
+    withLinks1 = session.bindToSession(withLinks1);
+    link1 = session.bindToSession(link1);
 
     /* Add a new linked record */
-    var link2 = db.newInstance("Linked");
+    var link2 = session.newInstance("Linked");
     link2.save();
     Set links = withLinks1.getProperty("links");
     links.add(link2);
@@ -51,9 +50,9 @@ public class LinksetInTransactionTest extends DbTestBase {
     Assert.assertEquals(0, links.size());
     links = withLinks1.getProperty("links");
     Assert.assertEquals(0, links.size());
-    db.commit();
+    session.commit();
 
-    withLinks1 = db.bindToSession(withLinks1);
+    withLinks1 = session.bindToSession(withLinks1);
     links = withLinks1.getProperty("links");
     /* Initial record was removed */
     Assert.assertFalse(links.contains(link1));

@@ -21,7 +21,6 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.DatabaseSession.ATTRIBUTES;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
@@ -48,38 +47,38 @@ public class CommandExecutorSQLAlterDatabase extends CommandExecutorSQLAbstract
   private ATTRIBUTES attribute;
   private String value;
 
-  public CommandExecutorSQLAlterDatabase parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLAlterDatabase parse(DatabaseSessionInternal session,
       final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
 
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
       var word = new StringBuilder();
 
       var oldPos = 0;
       var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_ALTER)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session.getDatabaseName(),
             "Keyword " + KEYWORD_ALTER + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_DATABASE)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session.getDatabaseName(),
             "Keyword " + KEYWORD_DATABASE + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session.getDatabaseName(),
             "Missed the database's attribute to change. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -90,26 +89,24 @@ public class CommandExecutorSQLAlterDatabase extends CommandExecutorSQLAbstract
             DatabaseSession.ATTRIBUTES.valueOf(attributeAsString.toUpperCase(Locale.ENGLISH));
       } catch (IllegalArgumentException e) {
         throw BaseException.wrapException(
-            new CommandSQLParsingException(
+            new CommandSQLParsingException(session.getDatabaseName(),
                 "Unknown database's attribute '"
                     + attributeAsString
                     + "'. Supported attributes are: "
-                    + Arrays.toString(DatabaseSession.ATTRIBUTES.values()),
-                parserText,
-                oldPos),
-            e);
+                    + Arrays.toString(ATTRIBUTES.values()),
+                parserText, oldPos),
+            e, session.getDatabaseName());
       }
 
       value = parserText.substring(pos + 1).trim();
 
-      if (value.length() == 0) {
-        throw new CommandSQLParsingException(
+      if (value.isEmpty()) {
+        throw new CommandSQLParsingException(session.getDatabaseName(),
             "Missed the database's value to change for attribute '"
                 + attribute
                 + "'. Use "
                 + getSyntax(),
-            parserText,
-            oldPos);
+            parserText, oldPos);
       }
 
       if (value.equalsIgnoreCase("null")) {
@@ -122,32 +119,17 @@ public class CommandExecutorSQLAlterDatabase extends CommandExecutorSQLAbstract
     return this;
   }
 
-  @Override
-  public long getDistributedTimeout() {
-    return getDatabase()
-        .getConfiguration()
-        .getValueAsLong(GlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
-  }
-
   /**
    * Execute the ALTER DATABASE.
    */
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (attribute == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session.getDatabaseName(),
           "Cannot execute the command because it has not been parsed yet");
     }
-
-    final var database = getDatabase();
-    database.checkSecurity(Rule.ResourceGeneric.DATABASE, Role.PERMISSION_UPDATE);
-
-    database.setInternal(attribute, value);
+    session.checkSecurity(Rule.ResourceGeneric.DATABASE, Role.PERMISSION_UPDATE);
+    session.setInternal(attribute, value);
     return null;
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.ALL;
   }
 
   public String getSyntax() {

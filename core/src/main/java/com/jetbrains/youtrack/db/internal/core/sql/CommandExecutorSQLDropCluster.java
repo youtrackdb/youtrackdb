@@ -19,10 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
@@ -41,42 +39,42 @@ public class CommandExecutorSQLDropCluster extends CommandExecutorSQLAbstract
 
   private String clusterName;
 
-  public CommandExecutorSQLDropCluster parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLDropCluster parse(DatabaseSessionInternal session,
       final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
 
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
       final var word = new StringBuilder();
 
       var oldPos = 0;
       var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_DROP)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_DROP + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CLUSTER)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_CLUSTER + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, false);
       if (pos == -1) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Expected <cluster>. Use " + getSyntax(), parserText, pos);
       }
 
       clusterName = word.toString();
       if (clusterName == null) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Cluster is null. Use " + getSyntax(), parserText, pos);
       }
 
@@ -91,16 +89,16 @@ public class CommandExecutorSQLDropCluster extends CommandExecutorSQLAbstract
   /**
    * Execute the DROP CLUSTER.
    */
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (clusterName == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not been parsed yet");
     }
 
     // CHECK IF ANY CLASS IS USING IT
-    final var clusterId = db.getClusterIdByName(clusterName);
-    for (var iClass : db.getMetadata().getSchema().getClasses(db)) {
-      for (var i : iClass.getClusterIds()) {
+    final var clusterId = session.getClusterIdByName(clusterName);
+    for (var iClass : session.getMetadata().getSchema().getClasses()) {
+      for (var i : iClass.getClusterIds(session)) {
         if (i == clusterId)
         // IN USE
         {
@@ -109,24 +107,8 @@ public class CommandExecutorSQLDropCluster extends CommandExecutorSQLAbstract
       }
     }
 
-    db.dropCluster(clusterId);
+    session.dropCluster(clusterId);
     return true;
-  }
-
-  @Override
-  public long getDistributedTimeout() {
-    if (clusterName != null && getDatabase().existsCluster(clusterName)) {
-      return 10 * getDatabase().countClusterElements(clusterName);
-    }
-
-    return getDatabase()
-        .getConfiguration()
-        .getValueAsLong(GlobalConfiguration.DISTRIBUTED_COMMAND_LONG_TASK_SYNCH_TIMEOUT);
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.ALL;
   }
 
   @Override

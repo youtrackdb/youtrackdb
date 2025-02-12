@@ -16,12 +16,13 @@
 
 package com.jetbrains.youtrack.db.internal.common.serialization.types;
 
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALPageChangesPortion;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -32,28 +33,33 @@ public class ByteSerializerTest {
   private static final int FIELD_SIZE = 1;
   byte[] stream = new byte[FIELD_SIZE];
   private static final Byte OBJECT = 1;
-  private ByteSerializer byteSerializer;
+  private static ByteSerializer byteSerializer;
+  private static BinarySerializerFactory serializerFactory;
 
-  @Before
-  public void beforeClass() {
+
+  @BeforeClass
+  public static void beforeClass() {
     byteSerializer = new ByteSerializer();
+    serializerFactory = BinarySerializerFactory.create(
+        BinarySerializerFactory.currentBinaryFormatVersion());
   }
 
   @Test
   public void testFieldSize() {
-    Assert.assertEquals(byteSerializer.getObjectSize(null), FIELD_SIZE);
+    Assert.assertEquals(FIELD_SIZE, byteSerializer.getObjectSize(serializerFactory, null));
   }
 
   @Test
   public void testSerialize() {
-    byteSerializer.serialize(OBJECT, stream, 0);
-    Assert.assertEquals(byteSerializer.deserialize(stream, 0), OBJECT);
+    byteSerializer.serialize(OBJECT, serializerFactory, stream, 0);
+    Assert.assertEquals(OBJECT, byteSerializer.deserialize(serializerFactory, stream, 0));
   }
 
   @Test
   public void testSerializeNative() {
     byteSerializer.serializeNative(OBJECT, stream, 0);
-    Assert.assertEquals(byteSerializer.deserializeNativeObject(stream, 0), OBJECT);
+    Assert.assertEquals(OBJECT,
+        byteSerializer.deserializeNativeObject(serializerFactory, stream, 0));
   }
 
   @Test
@@ -66,7 +72,8 @@ public class ByteSerializerTest {
     buffer.put(stream);
     buffer.position(0);
 
-    Assert.assertEquals(byteSerializer.deserializeFromByteBufferObject(buffer), OBJECT);
+    Assert.assertEquals(OBJECT,
+        byteSerializer.deserializeFromByteBufferObject(serializerFactory, buffer));
   }
 
   @Test
@@ -75,18 +82,19 @@ public class ByteSerializerTest {
 
     final var buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
     buffer.position(serializationOffset);
-    byteSerializer.serializeInByteBufferObject(OBJECT, buffer);
+    byteSerializer.serializeInByteBufferObject(serializerFactory, OBJECT, buffer);
 
     final var binarySize = buffer.position() - serializationOffset;
-    Assert.assertEquals(binarySize, FIELD_SIZE);
+    Assert.assertEquals(FIELD_SIZE, binarySize);
 
     buffer.position(serializationOffset);
-    Assert.assertEquals(byteSerializer.getObjectSizeInByteBuffer(buffer), FIELD_SIZE);
+    Assert.assertEquals(FIELD_SIZE,
+        byteSerializer.getObjectSizeInByteBuffer(serializerFactory, buffer));
 
     buffer.position(serializationOffset);
-    final var result = byteSerializer.deserializeFromByteBufferObject(buffer);
+    final var result = byteSerializer.deserializeFromByteBufferObject(serializerFactory, buffer);
 
-    Assert.assertEquals(result, OBJECT);
+    Assert.assertEquals(OBJECT, result);
   }
 
   @Test
@@ -95,19 +103,22 @@ public class ByteSerializerTest {
 
     final var buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
     buffer.position(serializationOffset);
-    byteSerializer.serializeInByteBufferObject(OBJECT, buffer);
+    byteSerializer.serializeInByteBufferObject(serializerFactory, OBJECT, buffer);
 
     final var binarySize = buffer.position() - serializationOffset;
-    Assert.assertEquals(binarySize, FIELD_SIZE);
+    Assert.assertEquals(FIELD_SIZE, binarySize);
 
     buffer.position(0);
     Assert.assertEquals(
-        byteSerializer.getObjectSizeInByteBuffer(serializationOffset, buffer), FIELD_SIZE);
+        byteSerializer.getObjectSizeInByteBuffer(serializerFactory, serializationOffset, buffer),
+        FIELD_SIZE);
     Assert.assertEquals(0, buffer.position());
-    final var result = byteSerializer.deserializeFromByteBufferObject(serializationOffset, buffer);
+    final var result = byteSerializer.deserializeFromByteBufferObject(serializerFactory,
+        serializationOffset,
+        buffer);
 
     Assert.assertEquals(0, buffer.position());
-    Assert.assertEquals(result, OBJECT);
+    Assert.assertEquals(OBJECT, result);
   }
 
   @Test
@@ -124,11 +135,12 @@ public class ByteSerializerTest {
     walChanges.setBinaryValue(buffer, data, serializationOffset);
 
     Assert.assertEquals(
-        byteSerializer.getObjectSizeInByteBuffer(buffer, walChanges, serializationOffset),
-        FIELD_SIZE);
+        FIELD_SIZE,
+        byteSerializer.getObjectSizeInByteBuffer(buffer, walChanges, serializationOffset));
     Assert.assertEquals(
-        byteSerializer.deserializeFromByteBufferObject(buffer, walChanges, serializationOffset),
-        OBJECT);
+        OBJECT,
+        byteSerializer.deserializeFromByteBufferObject(serializerFactory, buffer, walChanges,
+            serializationOffset));
 
     Assert.assertEquals(0, buffer.position());
   }

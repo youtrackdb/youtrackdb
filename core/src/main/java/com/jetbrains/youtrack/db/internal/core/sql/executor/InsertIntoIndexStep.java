@@ -16,7 +16,6 @@ import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIndexIdentifier;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInsertBody;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInsertSetExpression;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -47,18 +46,18 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
   }
 
   private ResultInternal produce(CommandContext ctx) {
-    final var database = ctx.getDatabase();
+    final var session = ctx.getDatabaseSession();
     var index =
-        database
+        session
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(database, targetIndex.getIndexName());
+            .getIndex(session, targetIndex.getIndexName());
     if (index == null) {
-      throw new CommandExecutionException("Index not found: " + targetIndex);
+      throw new CommandExecutionException(session, "Index not found: " + targetIndex);
     }
     var setExps = body.getSetExpressions();
     if (body.getContent() != null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Invalid expression: INSERT INTO INDEX:... CONTENT ...");
     }
     long count;
@@ -68,7 +67,7 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
       count = handleKeyValues(body.getIdentifierList(), body.getValueExpressions(), index, ctx);
     }
 
-    var result = new ResultInternal(database);
+    var result = new ResultInternal(session);
     result.setProperty("count", count);
     return result;
   }
@@ -81,12 +80,12 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
     SQLExpression keyExp = null;
     SQLExpression valueExp = null;
     if (identifierList == null || setExpressions == null) {
-      throw new CommandExecutionException("Invalid insert expression");
+      throw new CommandExecutionException(ctx.getDatabaseSession(), "Invalid insert expression");
     }
     long count = 0;
     for (var valList : setExpressions) {
       if (identifierList.size() != valList.size()) {
-        throw new CommandExecutionException("Invalid insert expression");
+        throw new CommandExecutionException(ctx.getDatabaseSession(), "Invalid insert expression");
       }
       for (var i = 0; i < identifierList.size(); i++) {
         var key = identifierList.get(i);
@@ -102,7 +101,7 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
       count += doExecute(index, ctx, keyExp, valueExp);
     }
     if (keyExp == null) {
-      throw new CommandExecutionException("Invalid insert expression");
+      throw new CommandExecutionException(ctx.getDatabaseSession(), "Invalid insert expression");
     }
     return count;
   }
@@ -116,47 +115,49 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
       } else if (exp.getLeft().getStringValue().equalsIgnoreCase("rid")) {
         valueExp = exp.getRight();
       } else {
-        throw new CommandExecutionException("Cannot set " + exp + " on index");
+        throw new CommandExecutionException(ctx.getDatabaseSession(),
+            "Cannot set " + exp + " on index");
       }
     }
     if (keyExp == null || valueExp == null) {
-      throw new CommandExecutionException("Invalid insert expression");
+      throw new CommandExecutionException(ctx.getDatabaseSession(), "Invalid insert expression");
     }
     return doExecute(index, ctx, keyExp, valueExp);
   }
 
-  private long doExecute(
+  private static long doExecute(
       Index index, CommandContext ctx, SQLExpression keyExp, SQLExpression valueExp) {
     long count = 0;
     var key = keyExp.execute((Result) null, ctx);
     var value = valueExp.execute((Result) null, ctx);
     if (value instanceof Identifiable) {
-      insertIntoIndex(ctx.getDatabase(), index, key, (Identifiable) value);
+      insertIntoIndex(ctx.getDatabaseSession(), index, key, (Identifiable) value);
       count++;
     } else if (value instanceof Result result && result.isEntity()) {
-      insertIntoIndex(ctx.getDatabase(), index, key, result.asEntity());
+      insertIntoIndex(ctx.getDatabaseSession(), index, key, result.asEntity());
       count++;
     } else if (value instanceof ResultSet) {
-      ((ResultSet) value).entityStream().forEach(x -> index.put(ctx.getDatabase(), key, x));
+      ((ResultSet) value).entityStream().forEach(x -> index.put(ctx.getDatabaseSession(), key, x));
     } else if (MultiValue.isMultiValue(value)) {
       var iterator = MultiValue.getMultiValueIterator(value);
       while (iterator.hasNext()) {
         var item = iterator.next();
         if (item instanceof Identifiable) {
-          insertIntoIndex(ctx.getDatabase(), index, key, (Identifiable) item);
+          insertIntoIndex(ctx.getDatabaseSession(), index, key, (Identifiable) item);
           count++;
         } else if (item instanceof Result result && result.isEntity()) {
-          insertIntoIndex(ctx.getDatabase(), index, key, result.asEntity());
+          insertIntoIndex(ctx.getDatabaseSession(), index, key, result.asEntity());
           count++;
         } else {
-          throw new CommandExecutionException("Cannot insert into index " + item);
+          throw new CommandExecutionException(ctx.getDatabaseSession(),
+              "Cannot insert into index " + item);
         }
       }
     }
     return count;
   }
 
-  private void insertIntoIndex(DatabaseSessionInternal session, final Index index,
+  private static void insertIntoIndex(DatabaseSessionInternal session, final Index index,
       final Object key, final Identifiable value) {
     index.put(session, key, value);
   }

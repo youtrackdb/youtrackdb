@@ -28,7 +28,7 @@ public class GuaranteeEmptyCountStep extends AbstractExecutionStep {
     if (upstream.hasNext(ctx)) {
       return upstream.limit(1);
     } else {
-      var result = new ResultInternal(ctx.getDatabase());
+      var result = new ResultInternal(ctx.getDatabaseSession());
       result.setProperty(item.getProjectionAliasAsString(), 0L);
       return ExecutionStream.resultIterator(Collections.singleton((Result) result).iterator());
     }

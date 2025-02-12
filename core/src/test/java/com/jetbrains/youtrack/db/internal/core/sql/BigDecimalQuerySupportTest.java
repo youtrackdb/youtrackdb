@@ -10,14 +10,14 @@ public class BigDecimalQuerySupportTest extends DbTestBase {
 
   @Test
   public void testDecimalPrecision() {
-    db.command("CREATE Class Test").close();
-    db.command("CREATE Property Test.salary DECIMAL").close();
-    db.begin();
-    db.command(
+    session.command("CREATE Class Test").close();
+    session.command("CREATE Property Test.salary DECIMAL").close();
+    session.begin();
+    session.command(
             "INSERT INTO Test set salary = ?", new BigDecimal("179999999999.99999999999999999999"))
         .close();
-    db.commit();
-    try (var result = db.query("SELECT * FROM Test")) {
+    session.commit();
+    try (var result = session.query("SELECT * FROM Test")) {
       BigDecimal salary = result.next().getProperty("salary");
       assertEquals(new BigDecimal("179999999999.99999999999999999999"), salary);
     }

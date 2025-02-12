@@ -94,6 +94,12 @@ public final class VertexDelegate implements VertexInternal {
     return entity.getSchemaClass();
   }
 
+  @Nullable
+  @Override
+  public String getClassName() {
+    return entity.getClassName();
+  }
+
   @Nonnull
   @SuppressWarnings("unchecked")
   @Override
@@ -135,11 +141,6 @@ public final class VertexDelegate implements VertexInternal {
   @Override
   public void clear() {
     entity.clear();
-  }
-
-  @Override
-  public VertexDelegate copy() {
-    return new VertexDelegate(entity.copy());
   }
 
   @Override

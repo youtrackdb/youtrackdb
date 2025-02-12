@@ -25,18 +25,18 @@ public class ByteArrayKeyTest extends BaseDBTest {
     super.beforeClass();
 
     final var byteArrayKeyTest =
-        db.getMetadata().getSchema().createClass("ByteArrayKeyTest");
-    byteArrayKeyTest.createProperty(db, "byteArrayKey", PropertyType.BINARY);
+        session.getMetadata().getSchema().createClass("ByteArrayKeyTest");
+    byteArrayKeyTest.createProperty(session, "byteArrayKey", PropertyType.BINARY);
 
-    byteArrayKeyTest.createIndex(db, "byteArrayKeyIndex", SchemaClass.INDEX_TYPE.UNIQUE,
+    byteArrayKeyTest.createIndex(session, "byteArrayKeyIndex", SchemaClass.INDEX_TYPE.UNIQUE,
         "byteArrayKey");
 
     final var compositeByteArrayKeyTest =
-        db.getMetadata().getSchema().createClass("CompositeByteArrayKeyTest");
-    compositeByteArrayKeyTest.createProperty(db, "byteArrayKey", PropertyType.BINARY);
-    compositeByteArrayKeyTest.createProperty(db, "intKey", PropertyType.INTEGER);
+        session.getMetadata().getSchema().createClass("CompositeByteArrayKeyTest");
+    compositeByteArrayKeyTest.createProperty(session, "byteArrayKey", PropertyType.BINARY);
+    compositeByteArrayKeyTest.createProperty(session, "intKey", PropertyType.INTEGER);
 
-    compositeByteArrayKeyTest.createIndex(db,
+    compositeByteArrayKeyTest.createIndex(session,
         "compositeByteArrayKey", SchemaClass.INDEX_TYPE.UNIQUE, "byteArrayKey", "intKey");
   }
 
@@ -50,8 +50,8 @@ public class ByteArrayKeyTest extends BaseDBTest {
             0, 1
         };
 
-    db.begin();
-    var doc1 = ((EntityImpl) db.newEntity("ByteArrayKeyTest"));
+    session.begin();
+    var doc1 = ((EntityImpl) session.newEntity("ByteArrayKeyTest"));
     doc1.field("byteArrayKey", key1);
     doc1.save();
 
@@ -61,18 +61,18 @@ public class ByteArrayKeyTest extends BaseDBTest {
             9,
             0, 2
         };
-    var doc2 = ((EntityImpl) db.newEntity("ByteArrayKeyTest"));
+    var doc2 = ((EntityImpl) session.newEntity("ByteArrayKeyTest"));
     doc2.field("byteArrayKey", key2);
     doc2.save();
-    db.commit();
+    session.commit();
 
     var index =
-        db.getMetadata().getIndexManagerInternal().getIndex(db, "byteArrayKeyIndex");
-    try (var stream = index.getInternal().getRids(db, key1)) {
-      Assert.assertEquals(stream.findAny().map(rid -> rid.getRecord(db)).orElse(null), doc1);
+        session.getMetadata().getIndexManagerInternal().getIndex(session, "byteArrayKeyIndex");
+    try (var stream = index.getInternal().getRids(session, key1)) {
+      Assert.assertEquals(stream.findAny().map(rid -> rid.getRecord(session)).orElse(null), doc1);
     }
-    try (var stream = index.getInternal().getRids(db, key2)) {
-      Assert.assertEquals(stream.findAny().map(rid -> rid.getRecord(db)).orElse(null), doc2);
+    try (var stream = index.getInternal().getRids(session, key2)) {
+      Assert.assertEquals(stream.findAny().map(rid -> rid.getRecord(session)).orElse(null), doc2);
     }
   }
 
@@ -82,28 +82,28 @@ public class ByteArrayKeyTest extends BaseDBTest {
     var key1 = new byte[]{1, 2, 3};
     var key2 = new byte[]{4, 5, 6};
 
-    db.begin();
-    var doc1 = ((EntityImpl) db.newEntity("CompositeByteArrayKeyTest"));
+    session.begin();
+    var doc1 = ((EntityImpl) session.newEntity("CompositeByteArrayKeyTest"));
     doc1.field("byteArrayKey", key1);
     doc1.field("intKey", 1);
     doc1.save();
 
-    var doc2 = ((EntityImpl) db.newEntity("CompositeByteArrayKeyTest"));
+    var doc2 = ((EntityImpl) session.newEntity("CompositeByteArrayKeyTest"));
     doc2.field("byteArrayKey", key2);
     doc2.field("intKey", 2);
     doc2.save();
-    db.commit();
+    session.commit();
 
     var index =
-        db
+        session
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(db, "compositeByteArrayKey");
-    try (var stream = index.getInternal().getRids(db, new CompositeKey(key1, 1))) {
-      Assert.assertEquals(stream.findAny().map(rid -> rid.getRecord(db)).orElse(null), doc1);
+            .getIndex(session, "compositeByteArrayKey");
+    try (var stream = index.getInternal().getRids(session, new CompositeKey(key1, 1))) {
+      Assert.assertEquals(stream.findAny().map(rid -> rid.getRecord(session)).orElse(null), doc1);
     }
-    try (var stream = index.getInternal().getRids(db, new CompositeKey(key2, 2))) {
-      Assert.assertEquals(stream.findAny().map(rid -> rid.getRecord(db)).orElse(null), doc2);
+    try (var stream = index.getInternal().getRids(session, new CompositeKey(key2, 2))) {
+      Assert.assertEquals(stream.findAny().map(rid -> rid.getRecord(session)).orElse(null), doc2);
     }
   }
 
@@ -113,28 +113,28 @@ public class ByteArrayKeyTest extends BaseDBTest {
     var key1 = new byte[]{7, 8, 9};
     var key2 = new byte[]{10, 11, 12};
 
-    db.begin();
-    var doc1 = ((EntityImpl) db.newEntity("CompositeByteArrayKeyTest"));
+    session.begin();
+    var doc1 = ((EntityImpl) session.newEntity("CompositeByteArrayKeyTest"));
     doc1.field("byteArrayKey", key1);
     doc1.field("intKey", 1);
     doc1.save();
 
-    var doc2 = ((EntityImpl) db.newEntity("CompositeByteArrayKeyTest"));
+    var doc2 = ((EntityImpl) session.newEntity("CompositeByteArrayKeyTest"));
     doc2.field("byteArrayKey", key2);
     doc2.field("intKey", 2);
     doc2.save();
-    db.commit();
+    session.commit();
 
     var index =
-        db
+        session
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(db, "compositeByteArrayKey");
-    try (var stream = index.getInternal().getRids(db, new CompositeKey(key1, 1))) {
-      Assert.assertEquals(stream.findAny().map(rid -> rid.getRecord(db)).orElse(null), doc1);
+            .getIndex(session, "compositeByteArrayKey");
+    try (var stream = index.getInternal().getRids(session, new CompositeKey(key1, 1))) {
+      Assert.assertEquals(stream.findAny().map(rid -> rid.getRecord(session)).orElse(null), doc1);
     }
-    try (var stream = index.getInternal().getRids(db, new CompositeKey(key2, 2))) {
-      Assert.assertEquals(stream.findAny().map(rid -> rid.getRecord(db)).orElse(null), doc2);
+    try (var stream = index.getInternal().getRids(session, new CompositeKey(key2, 2))) {
+      Assert.assertEquals(stream.findAny().map(rid -> rid.getRecord(session)).orElse(null), doc2);
     }
   }
 
@@ -154,11 +154,11 @@ public class ByteArrayKeyTest extends BaseDBTest {
         };
 
     var autoIndex =
-        db.getMetadata().getIndexManagerInternal().getIndex(db, "byteArrayKeyIndex");
-    try (var stream = autoIndex.getInternal().getRids(db, key1)) {
+        session.getMetadata().getIndexManagerInternal().getIndex(session, "byteArrayKeyIndex");
+    try (var stream = autoIndex.getInternal().getRids(session, key1)) {
       Assert.assertTrue(stream.findFirst().isPresent());
     }
-    try (var stream = autoIndex.getInternal().getRids(db, key2)) {
+    try (var stream = autoIndex.getInternal().getRids(session, key2)) {
       Assert.assertTrue(stream.findFirst().isPresent());
     }
   }

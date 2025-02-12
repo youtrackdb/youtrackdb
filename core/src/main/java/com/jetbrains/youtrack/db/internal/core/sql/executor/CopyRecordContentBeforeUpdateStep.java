@@ -30,15 +30,16 @@ public class CopyRecordContentBeforeUpdateStep extends AbstractExecutionStep {
   }
 
   private static Result mapResult(Result result, CommandContext ctx) {
-    var db = ctx.getDatabase();
+    var session = ctx.getDatabaseSession();
     if (result instanceof UpdatableResult) {
-      var prevValue = new ResultInternal(db);
+      var prevValue = new ResultInternal(session);
       var rec = result.asEntity();
       prevValue.setProperty("@rid", rec.getIdentity());
       prevValue.setProperty("@version", rec.getVersion());
       if (rec instanceof EntityImpl) {
         prevValue.setProperty(
-            "@class", EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) rec)).getName());
+            "@class",
+            EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) rec)).getName(session));
       }
       if (!result.asEntity().getIdentity().isNew()) {
         for (var propName : result.getPropertyNames()) {
@@ -48,7 +49,7 @@ public class CopyRecordContentBeforeUpdateStep extends AbstractExecutionStep {
       }
       ((UpdatableResult) result).previousValue = prevValue;
     } else {
-      throw new CommandExecutionException("Cannot fetch previous value: " + result);
+      throw new CommandExecutionException(session, "Cannot fetch previous value: " + result);
     }
     return result;
   }

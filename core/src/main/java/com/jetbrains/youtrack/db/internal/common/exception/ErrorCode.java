@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.common.exception;
 
-import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.api.exception.BackupInProgressException;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.ConcurrentModificationException;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
 import java.lang.reflect.InvocationTargetException;
 
@@ -82,7 +82,8 @@ public enum ErrorCode {
     final var fullMessage = String.format("%1$06d_%2$06d - %3$s", category.code, code, message);
     try {
       return BaseException.wrapException(
-          exceptionClass.getConstructor(String.class).newInstance(fullMessage), parent);
+          exceptionClass.getConstructor(String.class).newInstance(fullMessage), parent,
+          (String) null);
     } catch (InstantiationException
              | IllegalAccessException
              | NoSuchMethodException

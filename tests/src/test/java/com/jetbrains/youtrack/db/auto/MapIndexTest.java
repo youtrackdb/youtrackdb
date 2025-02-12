@@ -4,11 +4,9 @@ import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -30,39 +28,39 @@ public class MapIndexTest extends BaseDBTest {
 
   @BeforeClass
   public void setupSchema() {
-    if (db.getMetadata().getSchema().existsClass("Mapper")) {
-      db.getMetadata().getSchema().dropClass("Mapper");
+    if (session.getMetadata().getSchema().existsClass("Mapper")) {
+      session.getMetadata().getSchema().dropClass("Mapper");
     }
 
-    final var mapper = db.getMetadata().getSchema().createClass("Mapper");
-    mapper.createProperty(db, "id", PropertyType.STRING);
-    mapper.createProperty(db, "intMap", PropertyType.EMBEDDEDMAP, PropertyType.INTEGER);
+    final var mapper = session.getMetadata().getSchema().createClass("Mapper");
+    mapper.createProperty(session, "id", PropertyType.STRING);
+    mapper.createProperty(session, "intMap", PropertyType.EMBEDDEDMAP, PropertyType.INTEGER);
 
-    mapper.createIndex(db, "mapIndexTestKey", SchemaClass.INDEX_TYPE.NOTUNIQUE, "intMap");
-    mapper.createIndex(db, "mapIndexTestValue", SchemaClass.INDEX_TYPE.NOTUNIQUE,
+    mapper.createIndex(session, "mapIndexTestKey", SchemaClass.INDEX_TYPE.NOTUNIQUE, "intMap");
+    mapper.createIndex(session, "mapIndexTestValue", SchemaClass.INDEX_TYPE.NOTUNIQUE,
         "intMap by value");
 
-    final var movie = db.getMetadata().getSchema().createClass("MapIndexTestMovie");
-    movie.createProperty(db, "title", PropertyType.STRING);
-    movie.createProperty(db, "thumbs", PropertyType.EMBEDDEDMAP, PropertyType.INTEGER);
+    final var movie = session.getMetadata().getSchema().createClass("MapIndexTestMovie");
+    movie.createProperty(session, "title", PropertyType.STRING);
+    movie.createProperty(session, "thumbs", PropertyType.EMBEDDEDMAP, PropertyType.INTEGER);
 
-    movie.createIndex(db, "indexForMap", SchemaClass.INDEX_TYPE.NOTUNIQUE, "thumbs by key");
+    movie.createIndex(session, "indexForMap", SchemaClass.INDEX_TYPE.NOTUNIQUE, "thumbs by key");
   }
 
   @AfterClass
   public void destroySchema() {
-    db = createSessionInstance();
-    db.getMetadata().getSchema().dropClass("Mapper");
-    db.getMetadata().getSchema().dropClass("MapIndexTestMovie");
-    db.close();
+    session = createSessionInstance();
+    session.getMetadata().getSchema().dropClass("Mapper");
+    session.getMetadata().getSchema().dropClass("MapIndexTestMovie");
+    session.close();
   }
 
   @AfterMethod
   public void afterMethod() throws Exception {
-    db.begin();
-    db.command("delete from Mapper").close();
-    db.command("delete from MapIndexTestMovie").close();
-    db.commit();
+    session.begin();
+    session.command("delete from Mapper").close();
+    session.command("delete from MapIndexTestMovie").close();
+    session.commit();
 
     super.afterMethod();
   }
@@ -70,18 +68,18 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMap() {
     checkEmbeddedDB();
 
-    final var mapper = db.newEntity("Mapper");
+    final var mapper = session.newEntity("Mapper");
     final Map<String, Integer> map = new HashMap<>();
     map.put("key1", 10);
     map.put("key2", 20);
 
     mapper.setProperty("intMap", map);
-    db.begin();
-    db.save(mapper);
-    db.commit();
+    session.begin();
+    session.save(mapper);
+    session.commit();
 
     final var keyIndex = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndex.getInternal().size(db), 2);
+    Assert.assertEquals(keyIndex.getInternal().size(session), 2);
     try (final var keyStream = keyIndex.getInternal().keyStream()) {
       final var keyIterator = keyStream.iterator();
       while (keyIterator.hasNext()) {
@@ -93,7 +91,7 @@ public class MapIndexTest extends BaseDBTest {
     }
 
     final var valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(db), 2);
+    Assert.assertEquals(valueIndex.getInternal().size(session), 2);
     try (final var valueStream = valueIndex.getInternal().keyStream()) {
       final var valuesIterator = valueStream.iterator();
       while (valuesIterator.hasNext()) {
@@ -109,24 +107,24 @@ public class MapIndexTest extends BaseDBTest {
     checkEmbeddedDB();
 
     try {
-      db.begin();
-      final var mapper = db.newEntity("Mapper");
+      session.begin();
+      final var mapper = session.newEntity("Mapper");
       Map<String, Integer> map = new HashMap<>();
 
       map.put("key1", 10);
       map.put("key2", 20);
 
       mapper.setProperty("intMap", map);
-      db.save(mapper);
-      db.commit();
+      session.save(mapper);
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     var keyIndex = getIndex("mapIndexTestKey");
 
-    Assert.assertEquals(keyIndex.getInternal().size(db), 2);
+    Assert.assertEquals(keyIndex.getInternal().size(session), 2);
     Iterator<Object> keysIterator;
     try (var keyStream = keyIndex.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
@@ -140,7 +138,7 @@ public class MapIndexTest extends BaseDBTest {
     }
 
     var valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(db), 2);
+    Assert.assertEquals(valueIndex.getInternal().size(session), 2);
 
     Iterator<Object> valuesIterator;
     try (var valueStream = valueIndex.getInternal().keyStream()) {
@@ -158,20 +156,20 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateOne() {
     checkEmbeddedDB();
 
-    var mapper = db.newEntity("Mapper");
+    var mapper = session.newEntity("Mapper");
     Map<String, Integer> mapOne = new HashMap<>();
 
     mapOne.put("key1", 10);
     mapOne.put("key2", 20);
 
     mapper.setProperty("intMap", mapOne);
-    db.begin();
-    mapper = db.save(mapper);
-    db.commit();
+    session.begin();
+    mapper = session.save(mapper);
+    session.commit();
 
-    db.begin();
+    session.begin();
 
-    mapper = db.bindToSession(mapper);
+    mapper = session.bindToSession(mapper);
     final Map<String, Integer> mapTwo = new HashMap<>();
 
     mapTwo.put("key3", 30);
@@ -179,12 +177,12 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", mapTwo);
 
-    db.save(mapper);
-    db.commit();
+    session.save(mapper);
+    session.commit();
 
     var keyIndex = getIndex("mapIndexTestKey");
 
-    Assert.assertEquals(keyIndex.getInternal().size(db), 2);
+    Assert.assertEquals(keyIndex.getInternal().size(session), 2);
 
     Iterator<Object> keysIterator;
     try (var keyStream = keyIndex.getInternal().keyStream()) {
@@ -199,7 +197,7 @@ public class MapIndexTest extends BaseDBTest {
     }
 
     var valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(db), 2);
+    Assert.assertEquals(valueIndex.getInternal().size(session), 2);
 
     Iterator<Object> valuesIterator;
     try (var valueStream = valueIndex.getInternal().keyStream()) {
@@ -217,36 +215,36 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateOneTx() {
     checkEmbeddedDB();
 
-    var mapper = db.newEntity("Mapper");
+    var mapper = session.newEntity("Mapper");
     Map<String, Integer> mapOne = new HashMap<>();
 
     mapOne.put("key1", 10);
     mapOne.put("key2", 20);
 
     mapper.setProperty("intMap", mapOne);
-    db.begin();
-    mapper = db.save(mapper);
-    db.commit();
+    session.begin();
+    mapper = session.save(mapper);
+    session.commit();
 
-    db.begin();
+    session.begin();
     try {
       final Map<String, Integer> mapTwo = new HashMap<>();
 
       mapTwo.put("key3", 30);
       mapTwo.put("key2", 20);
 
-      mapper = db.bindToSession(mapper);
+      mapper = session.bindToSession(mapper);
       mapper.setProperty("intMap", mapTwo);
-      db.save(mapper);
-      db.commit();
+      session.save(mapper);
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     var keyIndex = getIndex("mapIndexTestKey");
 
-    Assert.assertEquals(keyIndex.getInternal().size(db), 2);
+    Assert.assertEquals(keyIndex.getInternal().size(session), 2);
 
     Iterator<Object> keysIterator;
     try (var keyStream = keyIndex.getInternal().keyStream()) {
@@ -261,7 +259,7 @@ public class MapIndexTest extends BaseDBTest {
     }
 
     var valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(db), 2);
+    Assert.assertEquals(valueIndex.getInternal().size(session), 2);
 
     Iterator<Object> valuesIterator;
     try (var valueStream = valueIndex.getInternal().keyStream()) {
@@ -279,30 +277,30 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateOneTxRollback() {
     checkEmbeddedDB();
 
-    var mapper = db.newEntity("Mapper");
+    var mapper = session.newEntity("Mapper");
     Map<String, Integer> mapOne = new HashMap<>();
 
     mapOne.put("key1", 10);
     mapOne.put("key2", 20);
 
     mapper.setProperty("intMap", mapOne);
-    db.begin();
-    mapper = db.save(mapper);
-    db.commit();
+    session.begin();
+    mapper = session.save(mapper);
+    session.commit();
 
-    db.begin();
+    session.begin();
     final Map<String, Integer> mapTwo = new HashMap<>();
 
     mapTwo.put("key3", 30);
     mapTwo.put("key2", 20);
 
-    mapper = db.bindToSession(mapper);
+    mapper = session.bindToSession(mapper);
     mapper.setProperty("intMap", mapTwo);
-    db.save(mapper);
-    db.rollback();
+    session.save(mapper);
+    session.rollback();
 
     var keyIndex = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndex.getInternal().size(db), 2);
+    Assert.assertEquals(keyIndex.getInternal().size(session), 2);
 
     Iterator<Object> keysIterator;
     try (var keyStream = keyIndex.getInternal().keyStream()) {
@@ -317,7 +315,7 @@ public class MapIndexTest extends BaseDBTest {
     }
 
     var valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(db), 2);
+    Assert.assertEquals(valueIndex.getInternal().size(session), 2);
 
     Iterator<Object> valuesIterator;
     try (var valueStream = valueIndex.getInternal().keyStream()) {
@@ -335,8 +333,8 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapAddItem() {
     checkEmbeddedDB();
 
-    db.begin();
-    var mapper = db.newEntity("Mapper");
+    session.begin();
+    var mapper = session.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -344,15 +342,15 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", map);
 
-    mapper = db.save(mapper);
-    db.commit();
+    mapper = session.save(mapper);
+    session.commit();
 
-    db.begin();
-    db.command("UPDATE " + mapper.getIdentity() + " set intMap['key3'] = 30").close();
-    db.commit();
+    session.begin();
+    session.command("UPDATE " + mapper.getIdentity() + " set intMap['key3'] = 30").close();
+    session.commit();
 
     var keyIndex = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndex.getInternal().size(db), 3);
+    Assert.assertEquals(keyIndex.getInternal().size(session), 3);
 
     Iterator<Object> keysIterator;
     try (var keyStream = keyIndex.getInternal().keyStream()) {
@@ -367,7 +365,7 @@ public class MapIndexTest extends BaseDBTest {
     }
 
     var valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(db), 3);
+    Assert.assertEquals(valueIndex.getInternal().size(session), 3);
 
     Iterator<Object> valuesIterator;
     try (var valueStream = valueIndex.getInternal().keyStream()) {
@@ -385,31 +383,31 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapAddItemTx() {
     checkEmbeddedDB();
 
-    var mapper = db.newEntity("Mapper");
+    var mapper = session.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
     map.put("key2", 20);
 
     mapper.setProperty("intMap", map);
-    db.begin();
-    mapper = db.save(mapper);
-    db.commit();
+    session.begin();
+    mapper = session.save(mapper);
+    session.commit();
 
     try {
-      db.begin();
-      Entity loadedMapper = db.load(mapper.getIdentity());
+      session.begin();
+      Entity loadedMapper = session.load(mapper.getIdentity());
       loadedMapper.<Map<String, Integer>>getProperty("intMap").put("key3", 30);
-      db.save(loadedMapper);
+      session.save(loadedMapper);
 
-      db.commit();
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     var keyIndex = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndex.getInternal().size(db), 3);
+    Assert.assertEquals(keyIndex.getInternal().size(session), 3);
 
     Iterator<Object> keysIterator;
     try (var keyStream = keyIndex.getInternal().keyStream()) {
@@ -424,7 +422,7 @@ public class MapIndexTest extends BaseDBTest {
     }
 
     var valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(db), 3);
+    Assert.assertEquals(valueIndex.getInternal().size(session), 3);
 
     Iterator<Object> valuesIterator;
     try (var valueStream = valueIndex.getInternal().keyStream()) {
@@ -442,26 +440,26 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapAddItemTxRollback() {
     checkEmbeddedDB();
 
-    var mapper = db.newEntity("Mapper");
+    var mapper = session.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
     map.put("key2", 20);
 
     mapper.setProperty("intMap", map);
-    db.begin();
-    mapper = db.save(mapper);
-    db.commit();
+    session.begin();
+    mapper = session.save(mapper);
+    session.commit();
 
-    db.begin();
-    Entity loadedMapper = db.load(mapper.getIdentity());
+    session.begin();
+    Entity loadedMapper = session.load(mapper.getIdentity());
     loadedMapper.<Map<String, Integer>>getProperty("intMap").put("key3", 30);
-    db.save(loadedMapper);
-    db.rollback();
+    session.save(loadedMapper);
+    session.rollback();
 
     var keyIndex = getIndex("mapIndexTestKey");
 
-    Assert.assertEquals(keyIndex.getInternal().size(db), 2);
+    Assert.assertEquals(keyIndex.getInternal().size(session), 2);
 
     Iterator<Object> keysIterator;
     try (var keyStream = keyIndex.getInternal().keyStream()) {
@@ -476,7 +474,7 @@ public class MapIndexTest extends BaseDBTest {
     }
 
     var valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(db), 2);
+    Assert.assertEquals(valueIndex.getInternal().size(session), 2);
 
     Iterator<Object> valuesIterator;
     try (var valueStream = valueIndex.getInternal().keyStream()) {
@@ -494,23 +492,23 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateItem() {
     checkEmbeddedDB();
 
-    var mapper = db.newEntity("Mapper");
+    var mapper = session.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
     map.put("key2", 20);
 
     mapper.setProperty("intMap", map);
-    db.begin();
-    mapper = db.save(mapper);
-    db.commit();
+    session.begin();
+    mapper = session.save(mapper);
+    session.commit();
 
-    db.begin();
-    db.command("UPDATE " + mapper.getIdentity() + " set intMap['key2'] = 40").close();
-    db.commit();
+    session.begin();
+    session.command("UPDATE " + mapper.getIdentity() + " set intMap['key2'] = 40").close();
+    session.commit();
 
     var keyIndex = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndex.getInternal().size(db), 2);
+    Assert.assertEquals(keyIndex.getInternal().size(session), 2);
 
     Iterator<Object> keysIterator;
     try (var keyStream = keyIndex.getInternal().keyStream()) {
@@ -526,7 +524,7 @@ public class MapIndexTest extends BaseDBTest {
 
     var valueIndex = getIndex("mapIndexTestValue");
 
-    Assert.assertEquals(valueIndex.getInternal().size(db), 2);
+    Assert.assertEquals(valueIndex.getInternal().size(session), 2);
 
     Iterator<Object> valuesIterator;
     try (var valueStream = valueIndex.getInternal().keyStream()) {
@@ -544,30 +542,30 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateItemInTx() {
     checkEmbeddedDB();
 
-    var mapper = db.newEntity("Mapper");
+    var mapper = session.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
     map.put("key2", 20);
 
     mapper.setProperty("intMap", map);
-    db.begin();
-    mapper = db.save(mapper);
-    db.commit();
+    session.begin();
+    mapper = session.save(mapper);
+    session.commit();
 
     try {
-      db.begin();
-      Entity loadedMapper = db.load(mapper.getIdentity());
+      session.begin();
+      Entity loadedMapper = session.load(mapper.getIdentity());
       loadedMapper.<Map<String, Integer>>getProperty("intMap").put("key2", 40);
-      db.save(loadedMapper);
-      db.commit();
+      session.save(loadedMapper);
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     var keyIndex = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndex.getInternal().size(db), 2);
+    Assert.assertEquals(keyIndex.getInternal().size(session), 2);
 
     Iterator<Object> keysIterator;
     try (var keyStream = keyIndex.getInternal().keyStream()) {
@@ -582,7 +580,7 @@ public class MapIndexTest extends BaseDBTest {
     }
 
     var valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(db), 2);
+    Assert.assertEquals(valueIndex.getInternal().size(session), 2);
 
     Iterator<Object> valuesIterator;
     try (var valueStream = valueIndex.getInternal().keyStream()) {
@@ -600,7 +598,7 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateItemInTxRollback() {
     checkEmbeddedDB();
 
-    var mapper = db.newEntity("Mapper");
+    var mapper = session.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -608,18 +606,18 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", map);
 
-    db.begin();
-    mapper = db.save(mapper);
-    db.commit();
+    session.begin();
+    mapper = session.save(mapper);
+    session.commit();
 
-    db.begin();
-    Entity loadedMapper = db.load(new RecordId(mapper.getIdentity()));
+    session.begin();
+    Entity loadedMapper = session.load(new RecordId(mapper.getIdentity()));
     loadedMapper.<Map<String, Integer>>getProperty("intMap").put("key2", 40);
-    db.save(loadedMapper);
-    db.rollback();
+    session.save(loadedMapper);
+    session.rollback();
 
     var keyIndex = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndex.getInternal().size(db), 2);
+    Assert.assertEquals(keyIndex.getInternal().size(session), 2);
 
     Iterator<Object> keysIterator;
     try (var keyStream = keyIndex.getInternal().keyStream()) {
@@ -634,7 +632,7 @@ public class MapIndexTest extends BaseDBTest {
     }
 
     var valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(db), 2);
+    Assert.assertEquals(valueIndex.getInternal().size(session), 2);
 
     Iterator<Object> valuesIterator;
     try (var valueStream = valueIndex.getInternal().keyStream()) {
@@ -652,7 +650,7 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapRemoveItem() {
     checkEmbeddedDB();
 
-    var mapper = db.newEntity("Mapper");
+    var mapper = session.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -661,16 +659,16 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", map);
 
-    db.begin();
-    mapper = db.save(mapper);
-    db.commit();
+    session.begin();
+    mapper = session.save(mapper);
+    session.commit();
 
-    db.begin();
-    db.command("UPDATE " + mapper.getIdentity() + " remove intMap = 'key2'").close();
-    db.commit();
+    session.begin();
+    session.command("UPDATE " + mapper.getIdentity() + " remove intMap = 'key2'").close();
+    session.commit();
 
     var keyIndex = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndex.getInternal().size(db), 2);
+    Assert.assertEquals(keyIndex.getInternal().size(session), 2);
 
     Iterator<Object> keysIterator;
     try (var keyStream = keyIndex.getInternal().keyStream()) {
@@ -685,7 +683,7 @@ public class MapIndexTest extends BaseDBTest {
     }
 
     var valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(db), 2);
+    Assert.assertEquals(valueIndex.getInternal().size(session), 2);
 
     Iterator<Object> valuesIterator;
     try (var valueStream = valueIndex.getInternal().keyStream()) {
@@ -703,7 +701,7 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapRemoveItemInTx() {
     checkEmbeddedDB();
 
-    var mapper = db.newEntity("Mapper");
+    var mapper = session.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -711,23 +709,23 @@ public class MapIndexTest extends BaseDBTest {
     map.put("key3", 30);
 
     mapper.setProperty("intMap", map);
-    db.begin();
-    mapper = db.save(mapper);
-    db.commit();
+    session.begin();
+    mapper = session.save(mapper);
+    session.commit();
 
     try {
-      db.begin();
-      Entity loadedMapper = db.load(mapper.getIdentity());
+      session.begin();
+      Entity loadedMapper = session.load(mapper.getIdentity());
       loadedMapper.<Map<String, Integer>>getProperty("intMap").remove("key2");
-      db.save(loadedMapper);
-      db.commit();
+      session.save(loadedMapper);
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     var keyIndex = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndex.getInternal().size(db), 2);
+    Assert.assertEquals(keyIndex.getInternal().size(session), 2);
 
     Iterator<Object> keysIterator;
     try (var keyStream = keyIndex.getInternal().keyStream()) {
@@ -743,7 +741,7 @@ public class MapIndexTest extends BaseDBTest {
 
     var valueIndex = getIndex("mapIndexTestValue");
 
-    Assert.assertEquals(valueIndex.getInternal().size(db), 2);
+    Assert.assertEquals(valueIndex.getInternal().size(session), 2);
     Iterator<Object> valuesIterator;
     try (var valueStream = valueIndex.getInternal().keyStream()) {
       valuesIterator = valueStream.iterator();
@@ -760,7 +758,7 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapRemoveItemInTxRollback() {
     checkEmbeddedDB();
 
-    var mapper = db.newEntity("Mapper");
+    var mapper = session.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -769,19 +767,19 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", map);
 
-    db.begin();
-    mapper = db.save(mapper);
-    db.commit();
+    session.begin();
+    mapper = session.save(mapper);
+    session.commit();
 
-    db.begin();
-    Entity loadedMapper = db.load(mapper.getIdentity());
+    session.begin();
+    Entity loadedMapper = session.load(mapper.getIdentity());
     loadedMapper.<Map<String, Integer>>getProperty("intMap").remove("key2");
-    db.save(loadedMapper);
-    db.rollback();
+    session.save(loadedMapper);
+    session.rollback();
 
     var keyIndex = getIndex("mapIndexTestKey");
 
-    Assert.assertEquals(keyIndex.getInternal().size(db), 3);
+    Assert.assertEquals(keyIndex.getInternal().size(session), 3);
     Iterator<Object> keysIterator;
     try (var keyStream = keyIndex.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
@@ -796,7 +794,7 @@ public class MapIndexTest extends BaseDBTest {
 
     var valueIndex = getIndex("mapIndexTestValue");
 
-    Assert.assertEquals(valueIndex.getInternal().size(db), 3);
+    Assert.assertEquals(valueIndex.getInternal().size(session), 3);
     Iterator<Object> valuesIterator;
     try (var valueStream = valueIndex.getInternal().keyStream()) {
       valuesIterator = valueStream.iterator();
@@ -813,33 +811,33 @@ public class MapIndexTest extends BaseDBTest {
   public void testIndexMapRemove() {
     checkEmbeddedDB();
 
-    var mapper = db.newEntity("Mapper");
+    var mapper = session.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
     map.put("key2", 20);
 
     mapper.setProperty("intMap", map);
-    db.begin();
-    mapper = db.save(mapper);
-    db.commit();
+    session.begin();
+    mapper = session.save(mapper);
+    session.commit();
 
-    db.begin();
-    db.delete(db.bindToSession(mapper));
-    db.commit();
+    session.begin();
+    session.delete(session.bindToSession(mapper));
+    session.commit();
 
     var keyIndex = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndex.getInternal().size(db), 0);
+    Assert.assertEquals(keyIndex.getInternal().size(session), 0);
 
     var valueIndex = getIndex("mapIndexTestValue");
 
-    Assert.assertEquals(valueIndex.getInternal().size(db), 0);
+    Assert.assertEquals(valueIndex.getInternal().size(session), 0);
   }
 
   public void testIndexMapRemoveInTx() {
     checkEmbeddedDB();
 
-    var mapper = db.newEntity("Mapper");
+    var mapper = session.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -847,30 +845,30 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", map);
 
-    db.begin();
-    mapper = db.save(mapper);
-    db.commit();
+    session.begin();
+    mapper = session.save(mapper);
+    session.commit();
 
     try {
-      db.begin();
-      db.delete(db.bindToSession(mapper));
-      db.commit();
+      session.begin();
+      session.delete(session.bindToSession(mapper));
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     var keyIndex = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndex.getInternal().size(db), 0);
+    Assert.assertEquals(keyIndex.getInternal().size(session), 0);
 
     var valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(db), 0);
+    Assert.assertEquals(valueIndex.getInternal().size(session), 0);
   }
 
   public void testIndexMapRemoveInTxRollback() {
     checkEmbeddedDB();
 
-    var mapper = db.newEntity("Mapper");
+    var mapper = session.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -878,16 +876,16 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", map);
 
-    db.begin();
-    mapper = db.save(mapper);
-    db.commit();
+    session.begin();
+    mapper = session.save(mapper);
+    session.commit();
 
-    db.begin();
-    db.delete(db.bindToSession(mapper));
-    db.rollback();
+    session.begin();
+    session.delete(session.bindToSession(mapper));
+    session.rollback();
 
     var keyIndex = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndex.getInternal().size(db), 2);
+    Assert.assertEquals(keyIndex.getInternal().size(session), 2);
 
     Iterator<Object> keysIterator;
     try (var keyStream = keyIndex.getInternal().keyStream()) {
@@ -902,7 +900,7 @@ public class MapIndexTest extends BaseDBTest {
     }
 
     var valueIndex = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndex.getInternal().size(db), 2);
+    Assert.assertEquals(valueIndex.getInternal().size(session), 2);
 
     Iterator<Object> valuesIterator;
     try (var valueStream = valueIndex.getInternal().keyStream()) {
@@ -918,7 +916,7 @@ public class MapIndexTest extends BaseDBTest {
   }
 
   public void testIndexMapSQL() {
-    var mapper = db.newEntity("Mapper");
+    var mapper = session.newEntity("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -926,9 +924,9 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", map);
 
-    db.begin();
-    db.save(mapper);
-    db.commit();
+    session.begin();
+    session.save(mapper);
+    session.commit();
 
     var resultByKey =
         executeQuery("select * from Mapper where intMap containskey ?", "key1");

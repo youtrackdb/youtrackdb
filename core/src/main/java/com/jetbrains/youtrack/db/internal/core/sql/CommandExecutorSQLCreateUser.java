@@ -41,27 +41,28 @@ public class CommandExecutorSQLCreateUser extends CommandExecutorSQLAbstract
   private List<String> roles;
 
   @Override
-  public CommandExecutorSQLCreateUser parse(DatabaseSessionInternal db, CommandRequest iRequest) {
-    init((CommandRequestText) iRequest);
+  public CommandExecutorSQLCreateUser parse(DatabaseSessionInternal session,
+      CommandRequest iRequest) {
+    init(session, (CommandRequestText) iRequest);
 
-    parserRequiredKeyword(KEYWORD_CREATE);
-    parserRequiredKeyword(KEYWORD_USER);
-    this.userName = parserRequiredWord(false, "Expected <user-name>");
+    parserRequiredKeyword(session.getDatabaseName(), KEYWORD_CREATE);
+    parserRequiredKeyword(session.getDatabaseName(), KEYWORD_USER);
+    this.userName = parserRequiredWord(false, "Expected <user-name>", session.getDatabaseName());
 
-    parserRequiredKeyword(KEYWORD_IDENTIFIED);
-    parserRequiredKeyword(KEYWORD_BY);
-    this.pass = parserRequiredWord(false, "Expected <user-password>");
+    parserRequiredKeyword(session.getDatabaseName(), KEYWORD_IDENTIFIED);
+    parserRequiredKeyword(session.getDatabaseName(), KEYWORD_BY);
+    this.pass = parserRequiredWord(false, "Expected <user-password>", session.getDatabaseName());
 
     this.roles = new ArrayList<String>();
 
     String temp;
-    while ((temp = parseOptionalWord(true)) != null) {
+    while ((temp = parseOptionalWord(session.getDatabaseName(), true)) != null) {
       if (parserIsEnded()) {
         break;
       }
 
       if (temp.equals(KEYWORD_ROLE)) {
-        var role = parserRequiredWord(false, "Expected <role-name>");
+        var role = parserRequiredWord(false, "Expected <role-name>", session.getDatabaseName());
         var roleLen = (role != null) ? role.length() : 0;
         if (roleLen > 0) {
           if (role.charAt(0) == '[' && role.charAt(roleLen - 1) == ']') {
@@ -83,9 +84,9 @@ public class CommandExecutorSQLCreateUser extends CommandExecutorSQLAbstract
   }
 
   @Override
-  public Object execute(DatabaseSessionInternal db, Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, Map<Object, Object> iArgs) {
     if (this.userName == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session.getDatabaseName(),
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -145,16 +146,11 @@ public class CommandExecutorSQLCreateUser extends CommandExecutorSQLAbstract
       }
     }
     sb.append("])");
-    return db.command(new CommandSQL(sb.toString())).execute(db);
+    return session.command(new CommandSQL(sb.toString())).execute(session);
   }
 
   @Override
   public String getSyntax() {
     return SYNTAX;
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.ALL;
   }
 }

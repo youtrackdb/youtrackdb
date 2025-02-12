@@ -48,7 +48,8 @@ public class SQLFunctionDifference extends SQLFunctionMultiValueAbstract<Set<Obj
       CommandContext iContext) {
 
     if (Boolean.TRUE.equals(iContext.getVariable("aggregation"))) {
-      throw new CommandExecutionException("difference function cannot be used in aggregation mode");
+      throw new CommandExecutionException(iContext.getDatabaseSession(),
+          "difference function cannot be used in aggregation mode");
     }
 
     // if the first parameter is null, then the overall result is empty

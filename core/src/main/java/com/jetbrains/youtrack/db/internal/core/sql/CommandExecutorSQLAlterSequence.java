@@ -26,40 +26,41 @@ public class CommandExecutorSQLAlterSequence extends CommandExecutorSQLAbstract
   private DBSequence.CreateParams params;
 
   @Override
-  public CommandExecutorSQLAlterSequence parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLAlterSequence parse(DatabaseSessionInternal session,
       CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
 
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
-      final var database = getDatabase();
-      final var word = new StringBuilder();
-
-      parserRequiredKeyword(KEYWORD_ALTER);
-      parserRequiredKeyword(KEYWORD_SEQUENCE);
-      this.sequenceName = parserRequiredWord(false, "Expected <sequence name>");
+      parserRequiredKeyword(session.getDatabaseName(), KEYWORD_ALTER);
+      parserRequiredKeyword(session.getDatabaseName(), KEYWORD_SEQUENCE);
+      this.sequenceName = parserRequiredWord(false, "Expected <sequence name>",
+          session.getDatabaseName());
       this.params = new DBSequence.CreateParams();
 
       String temp;
-      while ((temp = parseOptionalWord(true)) != null) {
+      while ((temp = parseOptionalWord(session.getDatabaseName(), true)) != null) {
         if (parserIsEnded()) {
           break;
         }
 
         if (temp.equals(KEYWORD_START)) {
-          var startAsString = parserRequiredWord(true, "Expected <start value>");
+          var startAsString = parserRequiredWord(true, "Expected <start value>",
+              session.getDatabaseName());
           this.params.setStart(Long.parseLong(startAsString));
         } else if (temp.equals(KEYWORD_INCREMENT)) {
-          var incrementAsString = parserRequiredWord(true, "Expected <increment value>");
+          var incrementAsString = parserRequiredWord(true, "Expected <increment value>",
+              session.getDatabaseName());
           this.params.setIncrement(Integer.parseInt(incrementAsString));
         } else if (temp.equals(KEYWORD_CACHE)) {
-          var cacheAsString = parserRequiredWord(true, "Expected <cache value>");
+          var cacheAsString = parserRequiredWord(true, "Expected <cache value>",
+              session.getDatabaseName());
           this.params.setCacheSize(Integer.parseInt(cacheAsString));
         }
       }
@@ -70,24 +71,24 @@ public class CommandExecutorSQLAlterSequence extends CommandExecutorSQLAbstract
   }
 
   @Override
-  public Object execute(DatabaseSessionInternal db, Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, Map<Object, Object> iArgs) {
     if (this.sequenceName == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    var sequence = db.getMetadata().getSequenceLibrary()
+    var sequence = session.getMetadata().getSequenceLibrary()
         .getSequence(this.sequenceName);
 
     boolean result;
     try {
-      result = sequence.updateParams(db, this.params);
+      result = sequence.updateParams(session, this.params);
       // TODO check, but reset should not be here
       //      sequence.reset();
     } catch (DatabaseException exc) {
       var message = "Unable to execute command: " + exc.getMessage();
       LogManager.instance().error(this, message, exc, (Object) null);
-      throw new CommandExecutionException(message);
+      throw new CommandExecutionException(session, message);
     }
     return result;
   }
@@ -95,10 +96,5 @@ public class CommandExecutorSQLAlterSequence extends CommandExecutorSQLAbstract
   @Override
   public String getSyntax() {
     return "ALTER SEQUENCE <sequence> [START <value>] [INCREMENT <value>] [CACHE <value>]";
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.ALL;
   }
 }

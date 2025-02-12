@@ -54,7 +54,7 @@ public interface FrontendTransaction {
 
   void rollback(boolean force, int commitLevelDiff);
 
-  DatabaseSession getDatabase();
+  DatabaseSession getDatabaseSession();
 
   @Deprecated
   void clearRecordEntries();

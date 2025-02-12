@@ -46,22 +46,10 @@ public class RecordInternal {
     ((RecordAbstract) record).checkForBinding();
   }
 
-  public static RecordAbstract fill(
-      final DBRecord record,
-      final RID iRid,
-      final int iVersion,
-      final byte[] iBuffer,
-      final boolean iDirty,
-      DatabaseSessionInternal db) {
-    final var rec = (RecordAbstract) record;
-    rec.fill(iRid, iVersion, iBuffer, iDirty, db);
-    return rec;
-  }
-
   public static void fromStream(
-      final DBRecord record, final byte[] iBuffer, DatabaseSessionInternal db) {
+      final DBRecord record, final byte[] iBuffer) {
     final var rec = (RecordAbstract) record;
-    rec.fromStream(iBuffer, db);
+    rec.fromStream(iBuffer);
   }
 
   /**

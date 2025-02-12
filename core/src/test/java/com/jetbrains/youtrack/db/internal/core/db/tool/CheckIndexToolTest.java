@@ -13,65 +13,65 @@ public class CheckIndexToolTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void test() {
-    db.command("create class Foo").close();
-    db.command("create property Foo.name STRING").close();
-    db.command("create index Foo.name on Foo (name) NOTUNIQUE").close();
+    session.command("create class Foo").close();
+    session.command("create property Foo.name STRING").close();
+    session.command("create index Foo.name on Foo (name) NOTUNIQUE").close();
 
-    db.begin();
-    EntityImpl doc = db.newInstance("Foo");
+    session.begin();
+    EntityImpl doc = session.newInstance("Foo");
     doc.field("name", "a");
     doc.save();
-    db.commit();
+    session.commit();
 
     RID rid = doc.getIdentity();
 
     var N_RECORDS = 100000;
     for (var i = 0; i < N_RECORDS; i++) {
-      db.begin();
-      doc = db.newInstance("Foo");
+      session.begin();
+      doc = session.newInstance("Foo");
       doc.field("name", "x" + i);
       doc.save();
-      db.commit();
+      session.commit();
     }
 
-    db.begin();
-    var idx = db.getMetadata().getIndexManagerInternal().getIndex(db, "Foo.name");
-    var key = idx.getDefinition().createValue(db, "a");
-    idx.remove(db, key, rid);
-    db.commit();
+    session.begin();
+    var idx = session.getMetadata().getIndexManagerInternal().getIndex(session, "Foo.name");
+    var key = idx.getDefinition().createValue(session, "a");
+    idx.remove(session, key, rid);
+    session.commit();
 
-    db.begin();
-    var result = db.query("SELECT FROM Foo");
+    session.begin();
+    var result = session.query("SELECT FROM Foo");
     Assert.assertEquals(N_RECORDS + 1, result.stream().count());
 
     var tool = new CheckIndexTool();
-    tool.setDatabase(db);
+    tool.setDatabase(session);
     tool.setVerbose(true);
     tool.setOutputListener(System.out::println);
 
     tool.run();
-    db.commit();
+    session.commit();
 
     Assert.assertEquals(1, tool.getTotalErrors());
   }
 
   @Test
   public void testBugOnCollectionIndex() {
-    db.command("create class testclass");
-    db.command("create property testclass.name string");
-    db.command("create property testclass.tags linklist");
-    db.command("alter property testclass.tags default '[]'");
-    db.command("create index testclass_tags_idx on testclass (tags) NOTUNIQUE");
+    session.command("create class testclass");
+    session.command("create property testclass.name string");
+    session.command("create property testclass.tags linklist");
+    session.command("alter property testclass.tags default '[]'");
+    session.command("create index testclass_tags_idx on testclass (tags) NOTUNIQUE");
 
-    db.begin();
-    db.command("insert into testclass set name = 'a',tags = [#5:0] ");
-    db.command("insert into testclass set name = 'b'");
-    db.command("insert into testclass set name = 'c' ");
-    db.commit();
+    session.begin();
+    session.command("insert into testclass set name = 'a',tags = [#5:0] ");
+    session.command("insert into testclass set name = 'b'");
+    session.command("insert into testclass set name = 'c' ");
+    session.commit();
 
     final var tool = new CheckIndexTool();
 
-    tool.setDatabase(db);
+    tool.setDatabase(session);
     tool.setVerbose(true);
     tool.setOutputListener(System.out::println);
     tool.run();

@@ -18,12 +18,10 @@ package com.jetbrains.youtrack.db.auto;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.List;
-import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
@@ -39,21 +37,21 @@ public class GEOTest extends BaseDBTest {
 
   @Test
   public void geoSchema() {
-    final var mapPointClass = db.getMetadata().getSchema().createClass("MapPoint");
-    mapPointClass.createProperty(db, "x", PropertyType.DOUBLE)
-        .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
-    mapPointClass.createProperty(db, "y", PropertyType.DOUBLE)
-        .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+    final var mapPointClass = session.getMetadata().getSchema().createClass("MapPoint");
+    mapPointClass.createProperty(session, "x", PropertyType.DOUBLE)
+        .createIndex(session, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+    mapPointClass.createProperty(session, "y", PropertyType.DOUBLE)
+        .createIndex(session, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     if (!remoteDB) {
       final var xIndexes =
-          db.getMetadata().getSchema().getClassInternal("MapPoint")
-              .getInvolvedIndexesInternal(db, "x");
+          session.getMetadata().getSchema().getClassInternal("MapPoint")
+              .getInvolvedIndexesInternal(session, "x");
       Assert.assertEquals(xIndexes.size(), 1);
 
       final var yIndexes =
-          db.getMetadata().getSchema().getClassInternal("MapPoint")
-              .getInvolvedIndexesInternal(db, "y");
+          session.getMetadata().getSchema().getClassInternal("MapPoint")
+              .getInvolvedIndexesInternal(session, "y");
       Assert.assertEquals(yIndexes.size(), 1);
     }
   }
@@ -65,13 +63,13 @@ public class GEOTest extends BaseDBTest {
     }
 
     final var xIndexes =
-        db.getMetadata().getSchema().getClassInternal("MapPoint").
-            getInvolvedIndexesInternal(db, "x");
+        session.getMetadata().getSchema().getClassInternal("MapPoint").
+            getInvolvedIndexesInternal(session, "x");
     Assert.assertEquals(xIndexes.size(), 1);
 
     final var yIndexDefinitions =
-        db.getMetadata().getSchema().getClassInternal("MapPoint")
-            .getInvolvedIndexesInternal(db, "y");
+        session.getMetadata().getSchema().getClassInternal("MapPoint")
+            .getInvolvedIndexesInternal(session, "y");
     Assert.assertEquals(yIndexDefinitions.size(), 1);
   }
 
@@ -80,43 +78,43 @@ public class GEOTest extends BaseDBTest {
     EntityImpl point;
 
     for (var i = 0; i < 10000; ++i) {
-      point = ((EntityImpl) db.newEntity("MapPoint"));
+      point = ((EntityImpl) session.newEntity("MapPoint"));
 
       point.field("x", (52.20472d + i / 100d));
       point.field("y", (0.14056d + i / 100d));
 
-      db.begin();
+      session.begin();
       point.save();
-      db.commit();
+      session.commit();
     }
   }
 
   @Test(dependsOnMethods = "queryCreatePoints")
   public void queryDistance() {
-    Assert.assertEquals(db.countClass("MapPoint"), 10000);
+    Assert.assertEquals(session.countClass("MapPoint"), 10000);
 
     List<EntityImpl> result =
-        db
+        session
             .command(
                 new SQLSynchQuery<EntityImpl>(
                     "select from MapPoint where distance(x, y,52.20472, 0.14056 ) <= 30"))
-            .execute(db);
+            .execute(session);
 
     Assert.assertFalse(result.isEmpty());
 
     for (var d : result) {
       Assert.assertEquals(d.getClassName(), "MapPoint");
-      Assert.assertEquals(RecordInternal.getRecordType(db, d), EntityImpl.RECORD_TYPE);
+      Assert.assertEquals(RecordInternal.getRecordType(session, d), EntityImpl.RECORD_TYPE);
     }
   }
 
   @Test(dependsOnMethods = "queryCreatePoints")
   public void queryDistanceOrdered() {
-    Assert.assertEquals(db.countClass("MapPoint"), 10000);
+    Assert.assertEquals(session.countClass("MapPoint"), 10000);
 
     // MAKE THE FIRST RECORD DIRTY TO TEST IF DISTANCE JUMP IT
     var resultSet =
-        db.command("select from MapPoint limit 1").toList();
+        session.command("select from MapPoint limit 1").toList();
     try {
       resultSet.getFirst().asEntity().setProperty("x", "--wrong--");
       Assert.fail();

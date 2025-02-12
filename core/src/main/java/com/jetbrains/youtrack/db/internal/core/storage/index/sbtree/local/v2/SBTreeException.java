@@ -32,6 +32,6 @@ public class SBTreeException extends DurableComponentException {
   }
 
   public SBTreeException(String message, SBTreeV2 component) {
-    super(message, component);
+    super(null, message, component);
   }
 }

@@ -33,33 +33,23 @@ import com.jetbrains.youtrack.db.api.record.RecordHook.TYPE;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.cache.LocalRecordCache;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableIdentity;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.ClassIndexManager;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
-import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
-import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageProxy;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges.OPERATION;
-import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChangesPerKey.TransactionIndexEntry;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -68,14 +58,12 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class FrontendTransactionOptimistic extends FrontendTransactionAbstract implements
     TransactionInternal {
-
   private static final AtomicLong txSerial = new AtomicLong();
 
   // order of updates is critical during synchronization of remote transactions
@@ -113,13 +101,13 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
 
   public int begin() {
     if (txStartCounter < 0) {
-      throw new TransactionException("Invalid value of TX counter: " + txStartCounter);
+      throw new TransactionException(session, "Invalid value of TX counter: " + txStartCounter);
     }
 
     if (txStartCounter == 0) {
       status = TXSTATUS.BEGUN;
 
-      var localCache = database.getLocalCache();
+      var localCache = session.getLocalCache();
       localCache.unloadNotModifiedRecords();
       localCache.clear();
     } else {
@@ -147,7 +135,8 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
   public void commit(final boolean force) {
     checkTransactionValid();
     if (txStartCounter < 0) {
-      throw new StorageException("Invalid value of tx counter: " + txStartCounter);
+      throw new TransactionException(session.getDatabaseName(),
+          "Invalid value of tx counter: " + txStartCounter);
     }
     if (force) {
       preProcessRecordsAndExecuteCallCallbacks();
@@ -163,7 +152,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
       doCommit();
     } else {
       if (txStartCounter < 0) {
-        throw new TransactionException(
+        throw new TransactionException(session,
             "Transaction was committed more times than it was started.");
       }
     }
@@ -175,7 +164,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
       if (e.type == RecordOperation.DELETED) {
         return FrontendTransactionAbstract.DELETED_RECORD;
       } else {
-        assert e.record.getSession() == database;
+        assert e.record.getSession() == session;
         return e.record;
       }
     }
@@ -204,12 +193,12 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
           if (entry.record != null) {
             if (entry.record instanceof EntityImpl) {
               if (iPolymorphic) {
-                if (iClass.isSuperClassOf(
+                if (iClass.isSuperClassOf(session,
                     EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) entry.record)))) {
                   result.add(entry);
                 }
               } else {
-                if (iClass.getName().equals(((EntityImpl) entry.record).getClassName())) {
+                if (iClass.getName(session).equals(((EntityImpl) entry.record).getClassName())) {
                   result.add(entry);
                 }
               }
@@ -276,7 +265,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
   }
 
   public FrontendTransactionIndexChanges getIndexChangesInternal(final String indexName) {
-    if (getDatabase().isRemote()) {
+    if (getDatabaseSession().isRemote()) {
       return null;
     }
     return getIndexChanges(indexName);
@@ -290,7 +279,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
       final Object key,
       final Identifiable iValue) {
     // index changes are tracked on server in case of client-server deployment
-    assert database.getStorage() instanceof AbstractPaginatedStorage;
+    assert session.getStorage() instanceof AbstractPaginatedStorage;
 
     changed = true;
     try {
@@ -366,7 +355,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
       rec.unload();
     }
 
-    var localCache = database.getLocalCache();
+    var localCache = session.getLocalCache();
     localCache.unloadRecords();
     localCache.clear();
   }
@@ -374,7 +363,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
   @Override
   public void rollback(boolean force, int commitLevelDiff) {
     if (txStartCounter < 0) {
-      throw new StorageException("Invalid value of TX counter");
+      throw new TransactionException(session, "Invalid value of TX counter");
     }
     checkTransactionValid();
 
@@ -385,8 +374,8 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
       return;
     }
 
-    if (database.isRemote()) {
-      final var storage = database.getStorage();
+    if (session.isRemote()) {
+      final var storage = session.getStorage();
       ((StorageProxy) storage).rollback(FrontendTransactionOptimistic.this);
     }
 
@@ -406,7 +395,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
       return true;
     }
 
-    return database.executeExists(rid);
+    return session.executeExists(rid);
   }
 
   @Override
@@ -417,7 +406,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
     final var txRecord = getRecord(rid);
     if (txRecord == FrontendTransactionAbstract.DELETED_RECORD) {
       // DELETED IN TX
-      throw new RecordNotFoundException(rid);
+      throw new RecordNotFoundException(session, rid);
     }
 
     if (txRecord != null) {
@@ -425,11 +414,11 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
     }
 
     if (rid.isTemporary()) {
-      throw new RecordNotFoundException(rid);
+      throw new RecordNotFoundException(session, rid);
     }
 
     // DELEGATE TO THE STORAGE, NO TOMBSTONES SUPPORT IN TX MODE
-    return database.executeReadRecord((RecordId) rid);
+    return session.executeReadRecord((RecordId) rid);
   }
 
   public void deleteRecord(final RecordAbstract iRecord) {
@@ -447,7 +436,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
         return null;
       }
       if (passedRecord.isUnloaded()) {
-        throw new DatabaseException(
+        throw new DatabaseException(session,
             "Record "
                 + passedRecord
                 + " is not bound to session, please call "
@@ -456,7 +445,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
       }
 
       // fetch primary record if the record is a proxy record.
-      passedRecord = passedRecord.getRecord(database);
+      passedRecord = passedRecord.getRecord(session);
       final var operation =
           passedRecord.getIdentity().isValid()
               ? RecordOperation.UPDATED
@@ -493,11 +482,11 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
       var rid = record.getIdentity();
 
       if (clusterName == null) {
-        clusterName = database.getClusterNameById(record.getIdentity().getClusterId());
+        clusterName = session.getClusterNameById(record.getIdentity().getClusterId());
       }
 
       if (!rid.isValid()) {
-        database.assignAndCheckCluster(record, clusterName);
+        session.assignAndCheckCluster(record, clusterName);
         rid.setClusterPosition(newRecordsPositionsGenerator--);
       }
 
@@ -514,7 +503,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
           changed = true;
         } else {
           if (txEntry.record != record) {
-            throw new TransactionException(
+            throw new TransactionException(session,
                 "Found record in transaction with the same RID but different instance");
           }
 
@@ -550,9 +539,9 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
           case RecordOperation.CREATED: {
             if (record instanceof EntityImpl entity) {
               final var clazz =
-                  EntityInternalUtils.getImmutableSchemaClass(database, entity);
+                  EntityInternalUtils.getImmutableSchemaClass(session, entity);
               if (clazz != null) {
-                ClassIndexManager.checkIndexesAfterCreate(entity, database);
+                ClassIndexManager.checkIndexesAfterCreate(entity, session);
                 txEntry.indexTrackingDirtyCounter = record.getDirtyCounter();
               }
             }
@@ -561,9 +550,9 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
           case RecordOperation.UPDATED: {
             if (record instanceof EntityImpl entity) {
               final var clazz =
-                  EntityInternalUtils.getImmutableSchemaClass(database, entity);
+                  EntityInternalUtils.getImmutableSchemaClass(session, entity);
               if (clazz != null && record.getDirtyCounter() != txEntry.indexTrackingDirtyCounter) {
-                ClassIndexManager.checkIndexesAfterUpdate(entity, database);
+                ClassIndexManager.checkIndexesAfterUpdate(entity, session);
                 txEntry.indexTrackingDirtyCounter = record.getDirtyCounter();
               }
             }
@@ -572,9 +561,9 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
           case RecordOperation.DELETED: {
             if (record instanceof EntityImpl entity) {
               final var clazz =
-                  EntityInternalUtils.getImmutableSchemaClass(database, entity);
+                  EntityInternalUtils.getImmutableSchemaClass(session, entity);
               if (clazz != null) {
-                ClassIndexManager.checkIndexesAfterDelete(entity, database);
+                ClassIndexManager.checkIndexesAfterDelete(entity, session);
               }
             }
           }
@@ -589,8 +578,8 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
         }
       } catch (final Exception e) {
         throw BaseException.wrapException(
-            new DatabaseException(
-                "Error on execution of operation on record " + record.getIdentity()), e);
+            new DatabaseException(session,
+                "Error on execution of operation on record " + record.getIdentity()), e, session);
       }
     } catch (Exception e) {
       rollback(true, 0);
@@ -600,7 +589,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
 
   private void validateState(RecordAbstract record) {
     if (record.isUnloaded()) {
-      throw new DatabaseException(
+      throw new DatabaseException(session,
           "Record "
               + record
               + " is not bound to session, please call "
@@ -614,7 +603,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
     var identity = record.getIdentity();
 
     if (generatedOriginalRecordIdMap.containsKey(identity)) {
-      throw new TransactionException(
+      throw new TransactionException(session,
           "Cannot delete record operation for record with identity " + identity
               + " because it was updated during transaction");
     }
@@ -635,9 +624,9 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
     try {
       status = TXSTATUS.COMMITTING;
       if (sentToServer || !recordOperations.isEmpty() || !indexEntries.isEmpty()) {
-        database.internalCommit(this);
+        session.internalCommit(this);
         try {
-          database.afterCommitOperations();
+          session.afterCommitOperations();
         } catch (Exception e) {
           LogManager.instance().error(this,
               "Error during after commit callback invocation", e);
@@ -654,7 +643,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
   }
 
   private void preProcessRecordsAndExecuteCallCallbacks() {
-    var serializer = database.getSerializer();
+    var serializer = session.getSerializer();
     List<RecordAbstract> changedRecords = null;
 
     for (var recordOperation : recordOperations.values()) {
@@ -662,7 +651,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
       if (recordOperation.type == RecordOperation.CREATED
           || recordOperation.type == RecordOperation.UPDATED) {
         if (recordOperation.record instanceof EntityImpl entity) {
-          EntityInternalUtils.checkClass(entity, database);
+          EntityInternalUtils.checkClass(entity, session);
           try {
             entity.autoConvertValues();
           } catch (ValidationException e) {
@@ -675,13 +664,13 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
           var className = entity.getClassName();
           if (!entity.getIdentity().isValid()) {
             if (className != null) {
-              database.checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_CREATE,
+              session.checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_CREATE,
                   className);
             }
           } else {
             // UPDATE: CHECK ACCESS ON SCHEMA CLASS NAME (IF ANY)
             if (className != null) {
-              database.checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_UPDATE,
+              session.checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_UPDATE,
                   className);
             }
           }
@@ -690,7 +679,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
 
           if (entity.getDirtyCounter() != recordOperation.indexTrackingDirtyCounter) {
             if (className != null) {
-              ClassIndexManager.checkIndexesAfterUpdate(entity, database);
+              ClassIndexManager.checkIndexesAfterUpdate(entity, session);
               recordOperation.indexTrackingDirtyCounter = record.getDirtyCounter();
             }
           }
@@ -730,7 +719,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
           recordOperation.indexTrackingDirtyCounter = record.getDirtyCounter();
 
           if (record instanceof EntityImpl entity && entity.getClassName() != null) {
-            ClassIndexManager.checkIndexesAfterUpdate(entity, database);
+            ClassIndexManager.checkIndexesAfterUpdate(entity, session);
             recordOperation.indexTrackingDirtyCounter = record.getDirtyCounter();
           }
 
@@ -746,39 +735,39 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
   }
 
   private void processRecordDeletion(RecordOperation recordOperation, RecordAbstract record) {
-    var clusterName = database.getClusterNameById(record.getIdentity().getClusterId());
+    var clusterName = session.getClusterNameById(record.getIdentity().getClusterId());
 
-    database.beforeDeleteOperations(record, clusterName);
+    session.beforeDeleteOperations(record, clusterName);
     try {
-      database.afterDeleteOperations(record);
+      session.afterDeleteOperations(record);
       if (record instanceof EntityImpl && ((EntityImpl) record).isTrackingChanges()) {
         EntityInternalUtils.clearTrackData(((EntityImpl) record));
       }
     } catch (Exception e) {
-      database.callbackHooks(TYPE.DELETE_FAILED, record);
+      session.callbackHooks(TYPE.DELETE_FAILED, record);
       throw e;
     } finally {
-      database.callbackHooks(TYPE.FINALIZE_DELETION, record);
+      session.callbackHooks(TYPE.FINALIZE_DELETION, record);
     }
     recordOperation.recordCallBackDirtyCounter = record.getDirtyCounter();
   }
 
   private boolean processRecordUpdate(RecordOperation recordOperation, RecordAbstract record) {
     var dirtyCounter = record.getDirtyCounter();
-    var clusterName = database.getClusterNameById(record.getIdentity().getClusterId());
+    var clusterName = session.getClusterNameById(record.getIdentity().getClusterId());
     if (recordOperation.recordCallBackDirtyCounter != record.getDirtyCounter()) {
       recordOperation.recordCallBackDirtyCounter = dirtyCounter;
-      database.beforeUpdateOperations(record, clusterName);
+      session.beforeUpdateOperations(record, clusterName);
       try {
-        database.afterUpdateOperations(record);
+        session.afterUpdateOperations(record);
         if (record instanceof EntityImpl && ((EntityImpl) record).isTrackingChanges()) {
           EntityInternalUtils.clearTrackData(((EntityImpl) record));
         }
       } catch (Exception e) {
-        database.callbackHooks(TYPE.UPDATE_FAILED, record);
+        session.callbackHooks(TYPE.UPDATE_FAILED, record);
         throw e;
       } finally {
-        database.callbackHooks(TYPE.FINALIZE_UPDATE, record);
+        session.callbackHooks(TYPE.FINALIZE_UPDATE, record);
       }
 
       return record.getDirtyCounter() != recordOperation.recordCallBackDirtyCounter;
@@ -788,21 +777,21 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
   }
 
   private boolean processRecordCreation(RecordOperation recordOperation, RecordAbstract record) {
-    database.assignAndCheckCluster(recordOperation.record, null);
-    var clusterName = database.getClusterNameById(record.getIdentity().getClusterId());
+    session.assignAndCheckCluster(recordOperation.record, null);
+    var clusterName = session.getClusterNameById(record.getIdentity().getClusterId());
 
     recordOperation.recordCallBackDirtyCounter = record.getDirtyCounter();
-    database.beforeCreateOperations(record, clusterName);
+    session.beforeCreateOperations(record, clusterName);
     try {
-      database.afterCreateOperations(record);
+      session.afterCreateOperations(record);
       if (record instanceof EntityImpl && ((EntityImpl) record).isTrackingChanges()) {
         EntityInternalUtils.clearTrackData(((EntityImpl) record));
       }
     } catch (Exception e) {
-      database.callbackHooks(TYPE.CREATE_FAILED, record);
+      session.callbackHooks(TYPE.CREATE_FAILED, record);
       throw e;
     } finally {
-      database.callbackHooks(TYPE.FINALIZE_CREATION, record);
+      session.callbackHooks(TYPE.FINALIZE_CREATION, record);
     }
 
     return recordOperation.recordCallBackDirtyCounter != record.getDirtyCounter();
@@ -815,7 +804,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
 
   @Override
   public void close() {
-    final var dbCache = database.getLocalCache();
+    final var dbCache = session.getLocalCache();
     for (var txEntry : recordOperations.values()) {
       var record = txEntry.record;
 
@@ -844,7 +833,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
 
     newRecordsPositionsGenerator = -2;
 
-    database.setDefaultTransactionMode();
+    session.setDefaultTransactionMode();
     userData.clear();
   }
 
@@ -860,13 +849,13 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
     // the FrontendTransactionIndexChanges.changesPerKey in a consistent state.
 
     final List<KeyChangesUpdateRecord> keyRecordsToReinsert = new ArrayList<>();
-    final var database = getDatabase();
+    final var database = getDatabaseSession();
     if (!database.isRemote()) {
       final var indexManager = database.getMetadata().getIndexManagerInternal();
       for (var entry : indexEntries.entrySet()) {
         final var index = indexManager.getIndex(database, entry.getKey());
         if (index == null) {
-          throw new TransactionException(
+          throw new TransactionException(session,
               "Cannot find index '" + entry.getValue() + "' while committing transaction");
         }
 
@@ -1056,7 +1045,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
 
   protected void checkTransactionValid() {
     if (status == TXSTATUS.INVALID) {
-      throw new TransactionException(
+      throw new TransactionException(session,
           "Invalid state of the transaction. The transaction must be begun.");
     }
   }
@@ -1136,36 +1125,11 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
     this.metadata = metadata;
   }
 
-  @Override
-  public void prepareSerializedOperations() throws IOException {
-    List<byte[]> operations = new ArrayList<>();
-    for (var value : recordOperations.values()) {
-      var change = new FrontendTransactionDataChange(database, value);
-      var out = new ByteArrayOutputStream();
-      change.serialize(new DataOutputStream(out));
-      operations.add(out.toByteArray());
-    }
-    this.serializedOperations = operations;
-  }
-
   public Iterator<byte[]> getSerializedOperations() {
     if (serializedOperations != null) {
       return serializedOperations.iterator();
     } else {
       return Collections.emptyIterator();
-    }
-  }
-
-  @Override
-  public void resetAllocatedIds() {
-    for (var op : recordOperations.entrySet()) {
-      if (op.getValue().type == RecordOperation.CREATED) {
-        var lastCreateId = op.getValue().getRecordId().copy();
-        var oldNew =
-            new RecordId(lastCreateId.getClusterId(), op.getKey().getClusterPosition());
-        updateIdentityAfterCommit(lastCreateId, oldNew);
-        generatedOriginalRecordIdMap.put(oldNew, op.getKey());
-      }
     }
   }
 

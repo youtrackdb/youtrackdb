@@ -46,7 +46,6 @@ import javax.annotation.Nonnull;
  * @since 12/3/13
  */
 public class AtomicOperationsManager {
-
   private final ThreadLocal<AtomicOperation> currentOperation = new ThreadLocal<>();
 
   private final AbstractPaginatedStorage storage;
@@ -80,7 +79,7 @@ public class AtomicOperationsManager {
   public AtomicOperation startAtomicOperation(final byte[] metadata) throws IOException {
     var operation = currentOperation.get();
     if (operation != null) {
-      throw new StorageException("Atomic operation already started");
+      throw new StorageException(storage.getName(), "Atomic operation already started");
     }
 
     atomicOperationsFreezer.startOperation();
@@ -118,10 +117,10 @@ public class AtomicOperationsManager {
     } catch (Exception e) {
       error = e;
       throw BaseException.wrapException(
-          new StorageException(
+          new StorageException(storage.getName(),
               "Exception during execution of atomic operation inside of storage "
                   + storage.getName()),
-          e);
+          e, storage.getName());
     } finally {
       endAtomicOperation(error);
     }
@@ -136,10 +135,10 @@ public class AtomicOperationsManager {
     } catch (Exception e) {
       error = e;
       throw BaseException.wrapException(
-          new StorageException(
+          new StorageException(storage.getName(),
               "Exception during execution of atomic operation inside of storage "
                   + storage.getName()),
-          e);
+          e, storage.getName());
     } finally {
       endAtomicOperation(error);
     }
@@ -170,7 +169,7 @@ public class AtomicOperationsManager {
                   + lockName
                   + " in storage "
                   + storage.getName(), lockName, storage.getName()),
-          e);
+          e, storage.getName());
     } finally {
       endComponentOperation(atomicOperation);
     }
@@ -196,7 +195,7 @@ public class AtomicOperationsManager {
                   + lockName
                   + " in storage "
                   + storage.getName(), lockName, storage.getName()),
-          e);
+          e, storage.getName());
     } finally {
       endComponentOperation(atomicOperation);
     }
@@ -245,7 +244,7 @@ public class AtomicOperationsManager {
 
     if (operation == null) {
       LogManager.instance().error(this, "There is no atomic operation active", null);
-      throw new DatabaseException("There is no atomic operation active");
+      throw new DatabaseException(storage.getName(), "There is no atomic operation active");
     }
 
     try {

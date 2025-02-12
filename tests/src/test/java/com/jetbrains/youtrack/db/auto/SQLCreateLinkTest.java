@@ -30,34 +30,34 @@ public class SQLCreateLinkTest extends BaseDBTest {
 
   @Test
   public void createLinktest() {
-    db.command("CREATE CLASS POST").close();
-    db.command("CREATE PROPERTY POST.comments LINKSET").close();
+    session.command("CREATE CLASS POST").close();
+    session.command("CREATE PROPERTY POST.comments LINKSET").close();
 
-    db.begin();
-    db.command("INSERT INTO POST (id, title) VALUES ( 10, 'NoSQL movement' )").close();
-    db.command("INSERT INTO POST (id, title) VALUES ( 20, 'New YouTrackDB' )").close();
+    session.begin();
+    session.command("INSERT INTO POST (id, title) VALUES ( 10, 'NoSQL movement' )").close();
+    session.command("INSERT INTO POST (id, title) VALUES ( 20, 'New YouTrackDB' )").close();
 
-    db.command("INSERT INTO POST (id, title) VALUES ( 30, '(')").close();
+    session.command("INSERT INTO POST (id, title) VALUES ( 30, '(')").close();
 
-    db.command("INSERT INTO POST (id, title) VALUES ( 40, ')')").close();
-    db.commit();
+    session.command("INSERT INTO POST (id, title) VALUES ( 40, ')')").close();
+    session.commit();
 
-    db.command("CREATE CLASS COMMENT").close();
+    session.command("CREATE CLASS COMMENT").close();
 
-    db.begin();
-    db.command("INSERT INTO COMMENT (id, postId, text) VALUES ( 0, 10, 'First' )").close();
-    db.command("INSERT INTO COMMENT (id, postId, text) VALUES ( 1, 10, 'Second' )").close();
-    db.command("INSERT INTO COMMENT (id, postId, text) VALUES ( 21, 10, 'Another' )").close();
-    db
+    session.begin();
+    session.command("INSERT INTO COMMENT (id, postId, text) VALUES ( 0, 10, 'First' )").close();
+    session.command("INSERT INTO COMMENT (id, postId, text) VALUES ( 1, 10, 'Second' )").close();
+    session.command("INSERT INTO COMMENT (id, postId, text) VALUES ( 21, 10, 'Another' )").close();
+    session
         .command("INSERT INTO COMMENT (id, postId, text) VALUES ( 41, 20, 'First again' )")
         .close();
-    db
+    session
         .command("INSERT INTO COMMENT (id, postId, text) VALUES ( 82, 20, 'Second Again' )")
         .close();
 
     Assert.assertEquals(
         ((Number)
-            db
+            session
                 .command(
                     "CREATE LINK comments TYPE LINKSET FROM comment.postId TO post.id"
                         + " INVERSE")
@@ -65,84 +65,84 @@ public class SQLCreateLinkTest extends BaseDBTest {
                 .getProperty("count"))
             .intValue(),
         5);
-    db.commit();
+    session.commit();
 
-    db.begin();
+    session.begin();
     Assert.assertEquals(
-        ((Number) db.command("UPDATE comment REMOVE postId").next().getProperty("count"))
+        ((Number) session.command("UPDATE comment REMOVE postId").next().getProperty("count"))
             .intValue(),
         5);
-    db.commit();
+    session.commit();
   }
 
   @Test
   public void createRIDLinktest() {
 
-    db.command("CREATE CLASS POST2").close();
-    db.command("CREATE PROPERTY POST2.comments LINKSET").close();
+    session.command("CREATE CLASS POST2").close();
+    session.command("CREATE PROPERTY POST2.comments LINKSET").close();
 
-    db.begin();
+    session.begin();
     Object p1 =
-        db
+        session
             .command("INSERT INTO POST2 (id, title) VALUES ( 10, 'NoSQL movement' )")
             .next()
             .asEntity();
     Assert.assertTrue(p1 instanceof EntityImpl);
     Object p2 =
-        db
+        session
             .command("INSERT INTO POST2 (id, title) VALUES ( 20, 'New YouTrackDB' )")
             .next()
             .asEntity();
     Assert.assertTrue(p2 instanceof EntityImpl);
 
     Object p3 =
-        db.command("INSERT INTO POST2 (id, title) VALUES ( 30, '(')").next().asEntity();
+        session.command("INSERT INTO POST2 (id, title) VALUES ( 30, '(')").next().asEntity();
     Assert.assertTrue(p3 instanceof EntityImpl);
 
     Object p4 =
-        db.command("INSERT INTO POST2 (id, title) VALUES ( 40, ')')").next().asEntity();
+        session.command("INSERT INTO POST2 (id, title) VALUES ( 40, ')')").next().asEntity();
     Assert.assertTrue(p4 instanceof EntityImpl);
-    db.commit();
+    session.commit();
 
-    db.command("CREATE CLASS COMMENT2");
+    session.command("CREATE CLASS COMMENT2");
 
-    db.begin();
-    db
+    session.begin();
+    session
         .command(
             "INSERT INTO COMMENT2 (id, postId, text) VALUES ( 0, '"
-                + ((EntityImpl) p1).getIdentity().toString()
+                + ((EntityImpl) p1).getIdentity()
                 + "', 'First' )")
         .close();
-    db
+    session
         .command(
             "INSERT INTO COMMENT2 (id, postId, text) VALUES ( 1, '"
-                + ((EntityImpl) p1).getIdentity().toString()
+                + ((EntityImpl) p1).getIdentity()
                 + "', 'Second' )")
         .close();
-    db
+    session
         .command(
             "INSERT INTO COMMENT2 (id, postId, text) VALUES ( 21, '"
-                + ((EntityImpl) p1).getIdentity().toString()
+                + ((EntityImpl) p1).getIdentity()
                 + "', 'Another' )")
         .close();
-    db
+    session
         .command(
             "INSERT INTO COMMENT2 (id, postId, text) VALUES ( 41, '"
-                + ((EntityImpl) p2).getIdentity().toString()
+                + ((EntityImpl) p2).getIdentity()
                 + "', 'First again' )")
         .close();
-    db
+    session
         .command(
             "INSERT INTO COMMENT2 (id, postId, text) VALUES ( 82, '"
-                + ((EntityImpl) p2).getIdentity().toString()
+                + ((EntityImpl) p2).getIdentity()
                 + "', 'Second Again' )")
         .close();
-    db.commit();
+    session.commit();
 
-    db.begin();
+    session.begin();
     Assert.assertEquals(
         ((Number)
-            db
+            session
                 .command(
                     "CREATE LINK comments TYPE LINKSET FROM comment2.postId TO post2.id"
                         + " INVERSE")
@@ -150,13 +150,13 @@ public class SQLCreateLinkTest extends BaseDBTest {
                 .getProperty("count"))
             .intValue(),
         5);
-    db.commit();
+    session.commit();
 
-    db.begin();
+    session.begin();
     Assert.assertEquals(
-        ((Number) db.command("UPDATE comment2 REMOVE postId").next().getProperty("count"))
+        ((Number) session.command("UPDATE comment2 REMOVE postId").next().getProperty("count"))
             .intValue(),
         5);
-    db.commit();
+    session.commit();
   }
 }

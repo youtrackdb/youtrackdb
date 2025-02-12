@@ -6,10 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.BeginTransactionRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.BeginTransactionResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.Commit37Request;
@@ -72,8 +69,8 @@ public class ConnectionExecutorTransactionTest {
                 ConnectionExecutorTransactionTest.class.getSimpleName(), "admin", "admin");
     db.createClass("test");
     var protocolData = new NetworkProtocolData();
-    protocolData.setSerializer(RecordSerializerNetworkFactory.INSTANCE.current());
-    Mockito.when(connection.getDatabase()).thenReturn(db);
+    protocolData.setSerializer(RecordSerializerNetworkFactory.current());
+    Mockito.when(connection.getDatabaseSession()).thenReturn(db);
     Mockito.when(connection.getData()).thenReturn(protocolData);
   }
 
@@ -255,7 +252,7 @@ public class ConnectionExecutorTransactionTest {
             "update test set name='bla'",
             new HashMap<>(),
             QueryRequest.COMMAND,
-            RecordSerializerNetworkFactory.INSTANCE.current(), 20);
+            RecordSerializerNetworkFactory.current(), 20);
     var queryResponse = (QueryResponse) query.execute(executor);
 
     assertTrue(queryResponse.isTxChanges());
@@ -287,7 +284,7 @@ public class ConnectionExecutorTransactionTest {
             "update test set name='bla'",
             new HashMap<>(),
             QueryRequest.COMMAND,
-            RecordSerializerNetworkFactory.INSTANCE.current(), 20);
+            RecordSerializerNetworkFactory.current(), 20);
     var queryResponse = (QueryResponse) query.execute(executor);
 
     assertTrue(queryResponse.isTxChanges());

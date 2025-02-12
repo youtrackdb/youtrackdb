@@ -22,24 +22,24 @@ public class CommandExecutorSQLCreateEdgeTest extends DbTestBase {
   public void beforeTest() throws Exception {
     super.beforeTest();
 
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     schema.createClass("Owner", schema.getClass("V"));
     schema.createClass("link", schema.getClass("E"));
 
-    db.begin();
-    owner1 = (EntityImpl) db.newEntity("Owner");
+    session.begin();
+    owner1 = (EntityImpl) session.newEntity("Owner");
     owner1.field("id", 1);
     owner1.save();
-    owner2 = (EntityImpl) db.newEntity("Owner");
+    owner2 = (EntityImpl) session.newEntity("Owner");
     owner2.field("id", 2);
     owner2.save();
-    db.commit();
+    session.commit();
   }
 
   @Test
   public void testParametersBinding() {
-    db.begin();
-    db.command(
+    session.begin();
+    session.command(
             "CREATE EDGE link from "
                 + owner1.getIdentity()
                 + " TO "
@@ -47,9 +47,9 @@ public class CommandExecutorSQLCreateEdgeTest extends DbTestBase {
                 + " SET foo = ?",
             "123")
         .close();
-    db.commit();
+    session.commit();
 
-    var list = db.query("SELECT FROM link");
+    var list = session.query("SELECT FROM link");
 
     var res = list.next();
     Assert.assertEquals(res.getProperty("foo"), "123");
@@ -63,15 +63,15 @@ public class CommandExecutorSQLCreateEdgeTest extends DbTestBase {
     params.put("fromId", 1);
     params.put("toId", 2);
 
-    db.begin();
-    db.command(
+    session.begin();
+    session.command(
             "CREATE EDGE link from (select from Owner where id = :fromId) TO (select from Owner"
                 + " where id = :toId) SET foo = :foo",
             params)
         .close();
-    db.commit();
+    session.commit();
 
-    var list = db.query("SELECT FROM link");
+    var list = session.query("SELECT FROM link");
 
     var edge = list.next();
     Assert.assertEquals(edge.getProperty("foo"), "bar");
@@ -83,22 +83,22 @@ public class CommandExecutorSQLCreateEdgeTest extends DbTestBase {
   @Test
   public void testBatch() throws Exception {
     for (var i = 0; i < 20; ++i) {
-      db.begin();
-      db.command("CREATE VERTEX Owner SET testbatch = true, id = ?", i).close();
-      db.commit();
+      session.begin();
+      session.command("CREATE VERTEX Owner SET testbatch = true, id = ?", i).close();
+      session.commit();
     }
 
-    db.begin();
+    session.begin();
     var edges =
-        db.command(
+        session.command(
             "CREATE EDGE link from (select from owner where testbatch = true and id > 0) TO (select"
                 + " from owner where testbatch = true and id = 0) batch 10",
             "456");
-    db.commit();
+    session.commit();
 
     Assert.assertEquals(edges.stream().count(), 19);
 
-    var list = db.query("select from owner where testbatch = true and id = 0");
+    var list = session.query("select from owner where testbatch = true and id = 0");
 
     var res = list.next();
     Assert.assertEquals(((RidBag) res.getProperty("in_link")).size(), 19);
@@ -107,7 +107,7 @@ public class CommandExecutorSQLCreateEdgeTest extends DbTestBase {
 
   @Test
   public void testEdgeConstraints() {
-    db.execute(
+    session.execute(
             "sql",
             "create class E2 extends E;"
                 + "create property E2.x LONG;"
@@ -127,7 +127,7 @@ public class CommandExecutorSQLCreateEdgeTest extends DbTestBase {
                 + "alter property FooType.name MANDATORY true;")
         .close();
 
-    db.execute(
+    session.execute(
             "sql",
             "begin;"
                 + "let $v1 = create vertex FooType content {'name':'foo1'};"

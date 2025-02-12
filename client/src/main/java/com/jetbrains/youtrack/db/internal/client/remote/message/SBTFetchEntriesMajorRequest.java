@@ -60,7 +60,7 @@ public class SBTFetchEntriesMajorRequest<K, V>
   }
 
   @Override
-  public void write(DatabaseSessionInternal database, ChannelDataOutput network,
+  public void write(DatabaseSessionInternal databaseSession, ChannelDataOutput network,
       StorageRemoteSession session) throws IOException {
     CollectionNetworkSerializer.INSTANCE.writeCollectionPointer(network, pointer);
     network.writeBytes(keyStream);
@@ -68,7 +68,8 @@ public class SBTFetchEntriesMajorRequest<K, V>
     network.writeInt(128);
   }
 
-  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+  public void read(DatabaseSessionInternal databaseSession, ChannelDataInput channel,
+      int protocolVersion,
       RecordSerializerNetwork serializer)
       throws IOException {
     this.pointer = CollectionNetworkSerializer.INSTANCE.readCollectionPointer(channel);

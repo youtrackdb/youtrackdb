@@ -3,9 +3,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
@@ -25,7 +24,7 @@ public class SQLHaSyncDatabaseStatement extends SQLSimpleExecStatement {
 
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
-    final var database = ctx.getDatabase();
+    final var database = ctx.getDatabaseSession();
 
     try {
       var result = database.sync(force, !full);
@@ -34,7 +33,8 @@ public class SQLHaSyncDatabaseStatement extends SQLSimpleExecStatement {
       return ExecutionStream.singleton(r);
     } catch (Exception e) {
       throw BaseException.wrapException(
-          new CommandExecutionException("Cannot execute HA SYNC DATABASE"), e);
+          new CommandExecutionException(ctx.getDatabaseSession(),
+              "Cannot execute HA SYNC DATABASE"), e, ctx.getDatabaseSession());
     }
   }
 

@@ -21,6 +21,7 @@
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary;
 
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 
 /**
  * Compares types at binary level: super fast, using of literals as much as it can.
@@ -30,20 +31,22 @@ public interface BinaryComparator {
   /**
    * Compares if two binary values are the same.
    *
+   * @param db
    * @param iFirstValue  First value to compare
    * @param iSecondValue Second value to compare
    * @return true if they match, otherwise false
    */
-  boolean isEqual(BinaryField iFirstValue, BinaryField iSecondValue);
+  boolean isEqual(DatabaseSessionInternal db, BinaryField iFirstValue, BinaryField iSecondValue);
 
   /**
    * Compares two binary values executing also conversion between types.
    *
+   * @param db
    * @param iValue1 First value to compare
    * @param iValue2 Second value to compare
    * @return 0 if they matches, >0 if first value is major than second, <0 in case is minor
    */
-  int compare(BinaryField iValue1, BinaryField iValue2);
+  int compare(DatabaseSessionInternal db, BinaryField iValue1, BinaryField iValue2);
 
   /**
    * Returns true if the type is binary comparable

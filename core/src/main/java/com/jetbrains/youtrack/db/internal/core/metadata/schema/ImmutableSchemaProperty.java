@@ -76,34 +76,34 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
 
   public ImmutableSchemaProperty(DatabaseSessionInternal session, SchemaPropertyInternal property,
       SchemaImmutableClass owner) {
-    name = property.getName();
-    fullName = property.getFullName();
-    type = property.getType();
-    description = property.getDescription();
+    name = property.getName(session);
+    fullName = property.getFullName(session);
+    type = property.getType(session);
+    description = property.getDescription(session);
 
-    if (property.getLinkedClass() != null) {
-      linkedClassName = property.getLinkedClass().getName();
+    if (property.getLinkedClass(session) != null) {
+      linkedClassName = property.getLinkedClass(session).getName(session);
     } else {
       linkedClassName = null;
     }
 
-    linkedType = property.getLinkedType();
-    notNull = property.isNotNull();
-    collate = property.getCollate();
-    mandatory = property.isMandatory();
-    min = property.getMin();
-    max = property.getMax();
-    defaultValue = property.getDefaultValue();
-    regexp = property.getRegexp();
+    linkedType = property.getLinkedType(session);
+    notNull = property.isNotNull(session);
+    collate = property.getCollate(session);
+    mandatory = property.isMandatory(session);
+    min = property.getMin(session);
+    max = property.getMax(session);
+    defaultValue = property.getDefaultValue(session);
+    regexp = property.getRegexp(session);
     customProperties = new HashMap<String, String>();
 
-    for (var key : property.getCustomKeys()) {
-      customProperties.put(key, property.getCustom(key));
+    for (var key : property.getCustomKeys(session)) {
+      customProperties.put(key, property.getCustom(session, key));
     }
 
     this.owner = owner;
     id = property.getId();
-    readOnly = property.isReadonly();
+    readOnly = property.isReadonly(session);
     Comparable<Object> minComparable = null;
     if (min != null) {
       if (type.equals(PropertyType.STRING)) {
@@ -231,12 +231,12 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
   }
 
   @Override
-  public String getName() {
+  public String getName(DatabaseSession session) {
     return name;
   }
 
   @Override
-  public String getFullName() {
+  public String getFullName(DatabaseSession session) {
     return fullName;
   }
 
@@ -246,7 +246,7 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
   }
 
   @Override
-  public String getDescription() {
+  public String getDescription(DatabaseSession session) {
     return description;
   }
 
@@ -261,12 +261,12 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
   }
 
   @Override
-  public PropertyType getType() {
+  public PropertyType getType(DatabaseSession db) {
     return type;
   }
 
   @Override
-  public SchemaClass getLinkedClass() {
+  public SchemaClass getLinkedClass(DatabaseSession session) {
     if (linkedClassName == null) {
       return null;
     }
@@ -287,7 +287,7 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
   }
 
   @Override
-  public PropertyType getLinkedType() {
+  public PropertyType getLinkedType(DatabaseSession session) {
     return linkedType;
   }
 
@@ -297,7 +297,7 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
   }
 
   @Override
-  public boolean isNotNull() {
+  public boolean isNotNull(DatabaseSession session) {
     return notNull;
   }
 
@@ -307,7 +307,7 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
   }
 
   @Override
-  public Collate getCollate() {
+  public Collate getCollate(DatabaseSession session) {
     return collate;
   }
 
@@ -322,7 +322,7 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
   }
 
   @Override
-  public boolean isMandatory() {
+  public boolean isMandatory(DatabaseSession session) {
     return mandatory;
   }
 
@@ -332,7 +332,7 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
   }
 
   @Override
-  public boolean isReadonly() {
+  public boolean isReadonly(DatabaseSession session) {
     return readOnly;
   }
 
@@ -342,7 +342,7 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
   }
 
   @Override
-  public String getMin() {
+  public String getMin(DatabaseSession session) {
     return min;
   }
 
@@ -352,7 +352,7 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
   }
 
   @Override
-  public String getMax() {
+  public String getMax(DatabaseSession session) {
     return max;
   }
 
@@ -362,7 +362,7 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
   }
 
   @Override
-  public String getDefaultValue() {
+  public String getDefaultValue(DatabaseSession session) {
     return defaultValue;
   }
 
@@ -402,7 +402,7 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
 
 
   @Override
-  public String getRegexp() {
+  public String getRegexp(DatabaseSession session) {
     return regexp;
   }
 
@@ -417,7 +417,7 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
   }
 
   @Override
-  public String getCustom(String iName) {
+  public String getCustom(DatabaseSession db, String iName) {
     return customProperties.get(iName);
   }
 
@@ -437,7 +437,7 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
   }
 
   @Override
-  public Set<String> getCustomKeys() {
+  public Set<String> getCustomKeys(DatabaseSession db) {
     return Collections.unmodifiableSet(customProperties.keySet());
   }
 
@@ -447,13 +447,13 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
   }
 
   @Override
-  public Object get(ATTRIBUTES attribute) {
+  public Object get(DatabaseSession db, ATTRIBUTES attribute) {
     if (attribute == null) {
       throw new IllegalArgumentException("attribute is null");
     }
 
     return switch (attribute) {
-      case LINKEDCLASS -> getLinkedClass();
+      case LINKEDCLASS -> getLinkedClass(db);
       case LINKEDTYPE -> linkedType;
       case MIN -> min;
       case MANDATORY -> mandatory;
@@ -474,38 +474,6 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
   @Override
   public Integer getId() {
     return id;
-  }
-
-  @Override
-  public int compareTo(SchemaProperty other) {
-    return name.compareTo(other.getName());
-  }
-
-  @Override
-  public int hashCode() {
-    final var prime = 31;
-    var result = super.hashCode();
-    result = prime * result + ((owner == null) ? 0 : owner.hashCode());
-    return result;
-  }
-
-  @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (!super.equals(obj)) {
-      return false;
-    }
-    if (!SchemaProperty.class.isAssignableFrom(obj.getClass())) {
-      return false;
-    }
-    var other = (SchemaProperty) obj;
-    if (owner == null) {
-      return other.getOwnerClass() == null;
-    } else {
-      return owner.equals(other.getOwnerClass());
-    }
   }
 
   @Override

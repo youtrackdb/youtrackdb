@@ -4,25 +4,33 @@ import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
 import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator.Intention;
-import com.jetbrains.youtrack.db.internal.common.directmemory.Pointer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.LinkSerializer;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntryImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CachePointer;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.TreeSet;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
  * @since 09.08.13
  */
 public class SBTreeLeafBucketV1Test {
+
+  private static BinarySerializerFactory serializerFactory;
+
+  @BeforeClass
+  public static void beforeClass() {
+    serializerFactory = BinarySerializerFactory.create(
+        BinarySerializerFactory.currentBinaryFormatVersion());
+  }
 
   @Test
   public void testInitialization() {
@@ -80,8 +88,9 @@ public class SBTreeLeafBucketV1Test {
     for (var key : keys) {
       if (!treeBucket.addLeafEntry(
           index,
-          LongSerializer.INSTANCE.serializeNativeAsWhole(key),
-          LinkSerializer.INSTANCE.serializeNativeAsWhole(new RecordId(index, index)))) {
+          LongSerializer.INSTANCE.serializeNativeAsWhole(serializerFactory, key),
+          LinkSerializer.INSTANCE.serializeNativeAsWhole(serializerFactory,
+              new RecordId(index, index)))) {
         break;
       }
       keyIndexMap.put(key, index);
@@ -91,7 +100,8 @@ public class SBTreeLeafBucketV1Test {
     Assert.assertEquals(treeBucket.size(), keyIndexMap.size());
 
     for (var keyIndexEntry : keyIndexMap.entrySet()) {
-      var bucketIndex = treeBucket.find(keyIndexEntry.getKey(), LongSerializer.INSTANCE);
+      var bucketIndex = treeBucket.find(keyIndexEntry.getKey(), LongSerializer.INSTANCE,
+          serializerFactory);
       Assert.assertEquals(bucketIndex, (int) keyIndexEntry.getValue());
     }
 
@@ -129,8 +139,9 @@ public class SBTreeLeafBucketV1Test {
       if (index >= 1
           || !treeBucket.addLeafEntry(
           index,
-          LongSerializer.INSTANCE.serializeNativeAsWhole(key),
-          LinkSerializer.INSTANCE.serializeNativeAsWhole(new RecordId(index, index)))) {
+          LongSerializer.INSTANCE.serializeNativeAsWhole(serializerFactory, key),
+          LinkSerializer.INSTANCE.serializeNativeAsWhole(serializerFactory,
+              new RecordId(index, index)))) {
         break;
       }
       keyIndexMap.put(key, index);
@@ -142,14 +153,16 @@ public class SBTreeLeafBucketV1Test {
     for (var i = 0; i < treeBucket.size(); i++) {
       final var rawValue = new byte[LinkSerializer.RID_SIZE];
 
-      LinkSerializer.INSTANCE.serializeNativeObject(new RecordId(i + 5, i + 5), rawValue, 0);
+      LinkSerializer.INSTANCE.serializeNativeObject(new RecordId(i + 5, i + 5), serializerFactory,
+          rawValue, 0);
       treeBucket.updateValue(i, rawValue, LongSerializer.LONG_SIZE);
     }
 
     for (var keyIndexEntry : keyIndexMap.entrySet()) {
       var entry =
           treeBucket.getEntry(
-              keyIndexEntry.getValue(), LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
+              keyIndexEntry.getValue(), LongSerializer.INSTANCE, LinkSerializer.INSTANCE,
+              serializerFactory);
 
       Assert.assertEquals(
           entry,
@@ -163,7 +176,7 @@ public class SBTreeLeafBucketV1Test {
                   new RecordId(keyIndexEntry.getValue() + 5, keyIndexEntry.getValue() + 5))));
       Assert.assertEquals(
           keyIndexEntry.getKey(),
-          treeBucket.getKey(keyIndexEntry.getValue(), LongSerializer.INSTANCE));
+          treeBucket.getKey(keyIndexEntry.getValue(), LongSerializer.INSTANCE, serializerFactory));
     }
 
     cacheEntry.releaseExclusiveLock();
@@ -198,8 +211,9 @@ public class SBTreeLeafBucketV1Test {
     for (var key : keys) {
       if (!treeBucket.addLeafEntry(
           index,
-          LongSerializer.INSTANCE.serializeNativeAsWhole(key),
-          LinkSerializer.INSTANCE.serializeNativeAsWhole(new RecordId(index, index)))) {
+          LongSerializer.INSTANCE.serializeNativeAsWhole(serializerFactory, key),
+          LinkSerializer.INSTANCE.serializeNativeAsWhole(serializerFactory,
+              new RecordId(index, index)))) {
         break;
       }
 
@@ -209,7 +223,7 @@ public class SBTreeLeafBucketV1Test {
     var originalSize = treeBucket.size();
 
     treeBucket.shrink(
-        treeBucket.size() / 2, LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
+        treeBucket.size() / 2, LongSerializer.INSTANCE, LinkSerializer.INSTANCE, serializerFactory);
     Assert.assertEquals(treeBucket.size(), index / 2);
 
     index = 0;
@@ -223,7 +237,8 @@ public class SBTreeLeafBucketV1Test {
     }
 
     for (var keyIndexEntry : keyIndexMap.entrySet()) {
-      var bucketIndex = treeBucket.find(keyIndexEntry.getKey(), LongSerializer.INSTANCE);
+      var bucketIndex = treeBucket.find(keyIndexEntry.getKey(), LongSerializer.INSTANCE,
+          serializerFactory);
       Assert.assertEquals(bucketIndex, (int) keyIndexEntry.getValue());
     }
 
@@ -234,8 +249,9 @@ public class SBTreeLeafBucketV1Test {
 
       if (!treeBucket.addLeafEntry(
           index,
-          LongSerializer.INSTANCE.serializeNativeAsWhole(key),
-          LinkSerializer.INSTANCE.serializeNativeAsWhole(new RecordId(index, index)))) {
+          LongSerializer.INSTANCE.serializeNativeAsWhole(serializerFactory, key),
+          LinkSerializer.INSTANCE.serializeNativeAsWhole(serializerFactory,
+              new RecordId(index, index)))) {
         break;
       }
 
@@ -247,7 +263,8 @@ public class SBTreeLeafBucketV1Test {
     for (var keyIndexEntry : keyIndexMap.entrySet()) {
       var entry =
           treeBucket.getEntry(
-              keyIndexEntry.getValue(), LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
+              keyIndexEntry.getValue(), LongSerializer.INSTANCE, LinkSerializer.INSTANCE,
+              serializerFactory);
       Assert.assertEquals(
           entry,
           new SBTreeBucketV1.SBTreeEntry<>(
@@ -293,8 +310,9 @@ public class SBTreeLeafBucketV1Test {
     for (var key : keys) {
       if (!treeBucket.addLeafEntry(
           index,
-          LongSerializer.INSTANCE.serializeNativeAsWhole(key),
-          LinkSerializer.INSTANCE.serializeNativeAsWhole(new RecordId(index, index)))) {
+          LongSerializer.INSTANCE.serializeNativeAsWhole(serializerFactory, key),
+          LinkSerializer.INSTANCE.serializeNativeAsWhole(serializerFactory,
+              new RecordId(index, index)))) {
         break;
       }
 
@@ -305,9 +323,10 @@ public class SBTreeLeafBucketV1Test {
 
     var itemsToDelete = originalSize / 2;
     for (var i = 0; i < itemsToDelete; i++) {
-      final var rawKey = treeBucket.getRawKey(i, false, LongSerializer.INSTANCE);
+      final var rawKey = treeBucket.getRawKey(i, false, LongSerializer.INSTANCE, serializerFactory);
       final var rawValue =
-          treeBucket.getRawValue(i, LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
+          treeBucket.getRawValue(i, LongSerializer.INSTANCE, LinkSerializer.INSTANCE,
+              serializerFactory);
 
       treeBucket.removeLeafEntry(treeBucket.size() - 1, rawKey, rawValue);
     }
@@ -325,7 +344,8 @@ public class SBTreeLeafBucketV1Test {
     }
 
     for (var keyIndexEntry : keyIndexMap.entrySet()) {
-      var bucketIndex = treeBucket.find(keyIndexEntry.getKey(), LongSerializer.INSTANCE);
+      var bucketIndex = treeBucket.find(keyIndexEntry.getKey(), LongSerializer.INSTANCE,
+          serializerFactory);
       Assert.assertEquals(bucketIndex, (int) keyIndexEntry.getValue());
     }
 
@@ -336,8 +356,9 @@ public class SBTreeLeafBucketV1Test {
 
       if (!treeBucket.addLeafEntry(
           index,
-          LongSerializer.INSTANCE.serializeNativeAsWhole(key),
-          LinkSerializer.INSTANCE.serializeNativeAsWhole(new RecordId(index, index)))) {
+          LongSerializer.INSTANCE.serializeNativeAsWhole(serializerFactory, key),
+          LinkSerializer.INSTANCE.serializeNativeAsWhole(serializerFactory,
+              new RecordId(index, index)))) {
         break;
       }
 
@@ -349,7 +370,8 @@ public class SBTreeLeafBucketV1Test {
     for (var keyIndexEntry : keyIndexMap.entrySet()) {
       final var entry =
           treeBucket.getEntry(
-              keyIndexEntry.getValue(), LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
+              keyIndexEntry.getValue(), LongSerializer.INSTANCE, LinkSerializer.INSTANCE,
+              serializerFactory);
       Assert.assertEquals(
           entry,
           new SBTreeBucketV1.SBTreeEntry<>(

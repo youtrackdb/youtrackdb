@@ -9,12 +9,9 @@ import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.Collate;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaPropertyInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.AggregationContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -223,7 +220,7 @@ public class SQLBaseIdentifier extends SimpleNode {
 
   public SimpleNode splitForAggregation(
       AggregateProjectionSplit aggregateProj, CommandContext ctx) {
-    if (isAggregate(ctx.getDatabase())) {
+    if (isAggregate(ctx.getDatabaseSession())) {
       var result = new SQLBaseIdentifier(-1);
       if (levelZero != null) {
         var splitResult = levelZero.splitForAggregation(aggregateProj, ctx);
@@ -244,16 +241,17 @@ public class SQLBaseIdentifier extends SimpleNode {
   }
 
   public AggregationContext getAggregationContext(CommandContext ctx) {
-    if (isAggregate(ctx.getDatabase())) {
+    if (isAggregate(ctx.getDatabaseSession())) {
       if (levelZero != null) {
         return levelZero.getAggregationContext(ctx);
       } else if (suffix != null) {
         return suffix.getAggregationContext(ctx);
       } else {
-        throw new CommandExecutionException("cannot aggregate on " + this);
+        throw new CommandExecutionException(ctx.getDatabaseSession(),
+            "cannot aggregate on " + this);
       }
     } else {
-      throw new CommandExecutionException("cannot aggregate on " + this);
+      throw new CommandExecutionException(ctx.getDatabaseSession(), "cannot aggregate on " + this);
     }
   }
 
@@ -312,7 +310,7 @@ public class SQLBaseIdentifier extends SimpleNode {
     if (suffix != null) {
       suffix.applyRemove(result, ctx);
     } else {
-      throw new CommandExecutionException("cannot apply REMOVE " + this);
+      throw new CommandExecutionException(ctx.getDatabaseSession(), "cannot apply REMOVE " + this);
     }
   }
 
@@ -381,13 +379,15 @@ public class SQLBaseIdentifier extends SimpleNode {
   }
 
   public boolean isIndexChain(CommandContext ctx, SchemaClassInternal clazz) {
+    var db = ctx.getDatabaseSession();
     if (suffix != null && suffix.isBaseIdentifier()) {
-      var prop = clazz.getPropertyInternal(
+      var prop = clazz.getPropertyInternal(db,
           suffix.getIdentifier().getStringValue());
       if (prop == null) {
         return false;
       }
-      var allIndexes = prop.getAllIndexesInternal(ctx.getDatabase());
+
+      var allIndexes = prop.getAllIndexesInternal(db);
 
       return allIndexes != null
           && allIndexes.stream().anyMatch(idx -> idx.getDefinition().getFields().size() == 1);

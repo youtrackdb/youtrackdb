@@ -31,7 +31,6 @@ public interface StorageCluster {
   enum ATTRIBUTES {
     NAME,
     CONFLICTSTRATEGY,
-    STATUS
   }
 
   void configure(int iId, String iClusterName) throws IOException;

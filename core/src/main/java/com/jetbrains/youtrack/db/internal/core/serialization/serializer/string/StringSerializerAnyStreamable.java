@@ -38,7 +38,7 @@ public class StringSerializerAnyStreamable implements StringSerializer {
    * Re-Create any object if the class has a public constructor that accepts a String as unique
    * parameter.
    */
-  public Object fromStream(DatabaseSessionInternal db, final String iStream) {
+  public Object fromStream(DatabaseSessionInternal session, final String iStream) {
     if (iStream == null || iStream.length() == 0)
     // NULL VALUE
     {
@@ -50,7 +50,7 @@ public class StringSerializerAnyStreamable implements StringSerializer {
     var propertyPos = iStream.indexOf(':');
     var pos = iStream.indexOf(StringSerializerEmbedded.SEPARATOR);
     if (pos < 0 || propertyPos > -1 && pos > propertyPos) {
-      instance = new EntityImpl(db);
+      instance = new EntityImpl(session);
       pos = -1;
     } else {
       final var className = iStream.substring(0, pos);
@@ -60,7 +60,7 @@ public class StringSerializerAnyStreamable implements StringSerializer {
       } catch (Exception e) {
         final var message = "Error on unmarshalling content. Class: " + className;
         LogManager.instance().error(this, message, e);
-        throw BaseException.wrapException(new SerializationException(message), e);
+        throw BaseException.wrapException(new SerializationException(session, message), e, session);
       }
     }
 
@@ -71,14 +71,14 @@ public class StringSerializerAnyStreamable implements StringSerializer {
   /**
    * Serialize the class name size + class name + object content
    *
-   * @param db
+   * @param session
    * @param iValue
    */
-  public StringWriter toStream(DatabaseSessionInternal db, final StringWriter iOutput,
+  public StringWriter toStream(DatabaseSessionInternal session, final StringWriter iOutput,
       Object iValue) {
     if (iValue != null) {
       if (!(iValue instanceof SerializableStream stream)) {
-        throw new SerializationException(
+        throw new SerializationException(session,
             "Cannot serialize the object since it's not implements the SerializableStream"
                 + " interface");
       }

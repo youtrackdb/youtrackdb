@@ -55,7 +55,7 @@ public class PushMessageUnitTest {
     }
 
     @Override
-    public void read(DatabaseSessionInternal db, ChannelDataInput network) throws IOException {
+    public void read(DatabaseSessionInternal session, ChannelDataInput network) throws IOException {
     }
 
     @Override
@@ -85,7 +85,7 @@ public class PushMessageUnitTest {
     }
 
     @Override
-    public void read(DatabaseSessionInternal db, ChannelDataInput network) throws IOException {
+    public void read(DatabaseSessionInternal session, ChannelDataInput network) throws IOException {
     }
 
     @Override

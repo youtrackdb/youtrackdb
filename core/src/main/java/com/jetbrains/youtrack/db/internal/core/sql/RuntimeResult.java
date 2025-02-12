@@ -19,14 +19,13 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionRuntime;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * Handles runtime results.
@@ -46,7 +45,7 @@ public class RuntimeResult {
     fieldValue = iFieldValue;
     projections = iProjections;
     context = iContext;
-    value = new ResultInternal(iContext.getDatabase());
+    value = new ResultInternal(iContext.getDatabaseSession());
   }
 
 

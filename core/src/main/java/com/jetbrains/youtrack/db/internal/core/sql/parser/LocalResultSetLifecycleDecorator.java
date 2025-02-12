@@ -29,8 +29,8 @@ public class LocalResultSetLifecycleDecorator implements ResultSet {
     queryId = System.currentTimeMillis() + "_" + counter.incrementAndGet();
   }
 
-  public void addLifecycleListener(QueryLifecycleListener db) {
-    this.lifecycleListeners.add(db);
+  public void addLifecycleListener(QueryLifecycleListener queryLifecycleListener) {
+    this.lifecycleListeners.add(queryLifecycleListener);
   }
 
   @Override

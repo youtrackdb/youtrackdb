@@ -27,7 +27,6 @@ import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiCollectionIterator;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
@@ -39,12 +38,10 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSe
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -58,16 +55,6 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
   @Override
   public String toString() {
     return NAME;
-  }
-
-  @Override
-  public int getCurrentVersion() {
-    return 0;
-  }
-
-  @Override
-  public int getMinSupportedVersion() {
-    return 0;
   }
 
   public String getClassName(String content) {
@@ -89,7 +76,7 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
 
   @Override
   public RecordAbstract fromString(
-      DatabaseSessionInternal db, String iContent, final RecordAbstract iRecord,
+      DatabaseSessionInternal session, String iContent, final RecordAbstract iRecord,
       final String[] iFields) {
     iContent = iContent.trim();
 
@@ -101,11 +88,10 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
     final var record = (EntityImpl) iRecord;
 
     int pos;
-    final var database = DatabaseRecordThreadLocal.instance().getIfDefined();
     final var posFirstValue = iContent.indexOf(StringSerializerHelper.ENTRY_SEPARATOR);
     pos = iContent.indexOf(StringSerializerHelper.CLASS_SEPARATOR);
     if (pos > -1 && (pos < posFirstValue || posFirstValue == -1)) {
-      if ((record.getIdentity().getClusterId() < 0 || database == null)) {
+      if ((record.getIdentity().getClusterId() < 0 || session == null)) {
         EntityInternalUtils.fillClassNameIfNeeded(((EntityImpl) iRecord),
             iContent.substring(0, pos));
       }
@@ -169,15 +155,16 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
 
           // SEARCH FOR A CONFIGURED PROPERTY
           if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
-            prop = EntityInternalUtils.getImmutableSchemaClass(record).getProperty(fieldName);
+            prop = EntityInternalUtils.getImmutableSchemaClass(record)
+                .getProperty(session, fieldName);
           } else {
             prop = null;
           }
-          if (prop != null && prop.getType() != PropertyType.ANY) {
+          if (prop != null && prop.getType(session) != PropertyType.ANY) {
             // RECOGNIZED PROPERTY
-            type = prop.getType();
-            linkedClass = prop.getLinkedClass();
-            linkedType = prop.getLinkedType();
+            type = prop.getType(session);
+            linkedClass = prop.getLinkedClass(session);
+            linkedType = prop.getLinkedType(session);
 
           } else {
             // SCHEMA PROPERTY NOT FOUND FOR THIS FIELD: TRY TO AUTODETERMINE THE BEST TYPE
@@ -279,7 +266,8 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
             }
           }
           final var value =
-              fieldFromStream(db, iRecord, type, linkedClass, linkedType, fieldName, fieldValue);
+              fieldFromStream(session, iRecord, type, linkedClass, linkedType, fieldName,
+                  fieldValue);
           if ("@class".equals(fieldName)) {
             EntityInternalUtils.fillClassNameIfNeeded(((EntityImpl) iRecord), value.toString());
           } else {
@@ -292,14 +280,14 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
         }
       } catch (Exception e) {
         throw BaseException.wrapException(
-            new SerializationException(
+            new SerializationException(session,
                 "Error on unmarshalling field '"
                     + fieldName
                     + "' in record "
                     + iRecord.getIdentity()
                     + " with value: "
                     + fieldEntry),
-            e);
+            e, session);
       }
     }
 
@@ -307,8 +295,8 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
   }
 
   @Override
-  public byte[] toStream(DatabaseSessionInternal db, RecordAbstract iRecord) {
-    final var result = super.toStream(db, iRecord);
+  public byte[] toStream(DatabaseSessionInternal session, RecordAbstract iRecord) {
+    final var result = super.toStream(session, iRecord);
     if (result == null || result.length > 0) {
       return result;
     }
@@ -323,33 +311,24 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
     return result;
   }
 
-  public byte[] writeClassOnly(DBRecord iSource) {
-    final var record = (EntityImpl) iSource;
-    var iOutput = new StringBuilder();
-    if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
-      iOutput.append(EntityInternalUtils.getImmutableSchemaClass(record).getStreamableName());
-      iOutput.append(StringSerializerHelper.CLASS_SEPARATOR);
-    }
-    return iOutput.toString().getBytes(StandardCharsets.UTF_8);
-  }
-
   @Override
   protected StringWriter toString(
-      DatabaseSessionInternal db, DBRecord iRecord,
+      DatabaseSessionInternal session, DBRecord iRecord,
       final StringWriter iOutput,
       final String iFormat,
       final boolean autoDetectCollectionType) {
     if (iRecord == null) {
-      throw new SerializationException("Expected a record but was null");
+      throw new SerializationException(session, "Expected a record but was null");
     }
 
     if (!(iRecord instanceof EntityImpl record)) {
-      throw new SerializationException(
+      throw new SerializationException(session,
           "Cannot marshall a record of type " + iRecord.getClass().getSimpleName());
     }
 
     if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
-      iOutput.append(EntityInternalUtils.getImmutableSchemaClass(record).getStreamableName());
+      iOutput.append(
+          EntityInternalUtils.getImmutableSchemaClass(record).getStreamableName(session));
       iOutput.append(StringSerializerHelper.CLASS_SEPARATOR);
     }
 
@@ -371,7 +350,7 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
 
       // SEARCH FOR A CONFIGURED PROPERTY
       if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
-        prop = EntityInternalUtils.getImmutableSchemaClass(record).getProperty(fieldName);
+        prop = EntityInternalUtils.getImmutableSchemaClass(record).getProperty(session, fieldName);
       } else {
         prop = null;
       }
@@ -385,30 +364,25 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
       linkedClass = null;
       linkedType = null;
 
-      if (prop != null && prop.getType() != PropertyType.ANY) {
+      if (prop != null && prop.getType(session) != PropertyType.ANY) {
         // RECOGNIZED PROPERTY
-        type = prop.getType();
-        linkedClass = prop.getLinkedClass();
-        linkedType = prop.getLinkedType();
+        type = prop.getType(session);
+        linkedClass = prop.getLinkedClass(session);
+        linkedType = prop.getLinkedType(session);
 
       } else if (fieldValue != null) {
         // NOT FOUND: TRY TO DETERMINE THE TYPE FROM ITS CONTENT
         if (type == null) {
           if (fieldValue.getClass() == byte[].class) {
             type = PropertyType.BINARY;
-          } else if (DatabaseRecordThreadLocal.instance().isDefined()
-              && fieldValue instanceof DBRecord) {
-            if (type == null)
-            // DETERMINE THE FIELD TYPE
-            {
-              if (fieldValue instanceof EntityImpl && ((EntityImpl) fieldValue).hasOwners()) {
-                type = PropertyType.EMBEDDED;
-              } else {
-                type = PropertyType.LINK;
-              }
+          } else if (fieldValue instanceof DBRecord) {
+            if (fieldValue instanceof EntityImpl && ((EntityImpl) fieldValue).hasOwners()) {
+              type = PropertyType.EMBEDDED;
+            } else {
+              type = PropertyType.LINK;
             }
 
-            linkedClass = getLinkInfo(DatabaseRecordThreadLocal.instance().get(), fieldClassName);
+            linkedClass = getLinkInfo(session, fieldClassName);
           } else if (fieldValue instanceof RID)
           // DETERMINE THE FIELD TYPE
           {
@@ -460,13 +434,12 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
                     } else {
                       type = PropertyType.LINKLIST;
                     }
-                  } else if (DatabaseRecordThreadLocal.instance().isDefined()
-                      && (firstValue instanceof EntityImpl
+                  } else if ((firstValue instanceof EntityImpl
                       && !((EntityImpl) firstValue).isEmbedded())
                       && (firstValue instanceof DBRecord)) {
                     linkedClass =
                         getLinkInfo(
-                            DatabaseRecordThreadLocal.instance().get(), getClassName(firstValue));
+                            session, getClassName(firstValue));
                     if (type == null) {
                       // LINK: GET THE CLASS
                       linkedType = PropertyType.LINK;
@@ -521,13 +494,11 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
               final var firstValue = MultiValue.getFirstValue(fieldValue);
 
               if (firstValue != null) {
-                if (DatabaseRecordThreadLocal.instance().isDefined()
-                    && (firstValue instanceof EntityImpl
+                if ((firstValue instanceof EntityImpl
                     && !((EntityImpl) firstValue).isEmbedded())
                     && (firstValue instanceof DBRecord)) {
                   linkedClass =
-                      getLinkInfo(
-                          DatabaseRecordThreadLocal.instance().get(), getClassName(firstValue));
+                      getLinkInfo(session, getClassName(firstValue));
                   // LINK: GET THE CLASS
                   linkedType = PropertyType.LINK;
                   type = PropertyType.LINKMAP;
@@ -554,7 +525,7 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
 
       iOutput.append(fieldName);
       iOutput.append(FIELD_VALUE_SEPARATOR);
-      fieldToStream(db, record, iOutput, type, linkedClass, linkedType, fieldName, fieldValue);
+      fieldToStream(session, record, iOutput, type, linkedClass, linkedType, fieldName, fieldValue);
 
       i++;
     }
@@ -580,10 +551,5 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
         iDatabase.getMetadata().getImmutableSchemaSnapshot().getClass(iFieldClassName);
 
     return linkedClass;
-  }
-
-  @Override
-  public String getName() {
-    return NAME;
   }
 }

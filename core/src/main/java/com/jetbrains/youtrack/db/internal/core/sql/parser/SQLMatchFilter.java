@@ -108,7 +108,7 @@ public class SQLMatchFilter extends SimpleNode {
         return item.clusterName.getStringValue();
       } else if (item.clusterId != null) {
         var cid = item.clusterId.value.intValue();
-        var clusterName = context.getDatabase().getClusterNameById(cid);
+        var clusterName = context.getDatabaseSession().getClusterNameById(cid);
         if (clusterName != null) {
           return clusterName;
         }

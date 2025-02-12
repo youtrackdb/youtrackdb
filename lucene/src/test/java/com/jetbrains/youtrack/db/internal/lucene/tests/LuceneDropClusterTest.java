@@ -19,8 +19,6 @@
 package com.jetbrains.youtrack.db.internal.lucene.tests;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
-import java.io.InputStream;
 import java.util.logging.Level;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.assertj.core.api.Assertions;
@@ -36,30 +34,32 @@ public class LuceneDropClusterTest extends LuceneBaseTest {
     LogManager.instance().setConsoleLevel(Level.FINE.getName());
     var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
 
-    db.execute("sql", getScriptFromStream(stream));
+    session.execute("sql", getScriptFromStream(stream));
 
-    db.command(
+    session.command(
         "create index Song.title on Song (title) FULLTEXT ENGINE LUCENE METADATA {\"default\":\""
             + StandardAnalyzer.class.getName()
             + "\"}");
-    db.command(
+    session.command(
         "create index Song.author on Song (author) FULLTEXT ENGINE LUCENE METADATA {\"default\":\""
             + StandardAnalyzer.class.getName()
             + "\"}");
 
-    var metadata = db.getMetadata();
+    var metadata = session.getMetadata();
 
-    db.begin();
+    session.begin();
     var initialIndexSize =
-        metadata.getIndexManagerInternal().getIndex(db, "Song.title").getInternal().size(db);
-    db.commit();
+        metadata.getIndexManagerInternal().getIndex(session, "Song.title").getInternal().size(
+            session);
+    session.commit();
 
-    var clusterIds = metadata.getSchema().getClass("Song").getClusterIds();
+    var clusterIds = metadata.getSchema().getClass("Song").getClusterIds(session);
 
-    db.dropCluster(clusterIds[1]);
+    session.dropCluster(clusterIds[1]);
 
     var afterDropIndexSize =
-        metadata.getIndexManagerInternal().getIndex(db, "Song.title").getInternal().size(db);
+        metadata.getIndexManagerInternal().getIndex(session, "Song.title").getInternal().size(
+            session);
 
     Assertions.assertThat(afterDropIndexSize).isLessThan(initialIndexSize);
   }

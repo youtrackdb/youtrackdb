@@ -33,26 +33,26 @@ public class RemoteLiveQueryPushTest {
     public boolean end;
 
     @Override
-    public void onCreate(DatabaseSessionInternal database, Result data) {
+    public void onCreate(DatabaseSessionInternal session, Result data) {
       countCreate++;
     }
 
     @Override
-    public void onUpdate(DatabaseSessionInternal database, Result before, Result after) {
+    public void onUpdate(DatabaseSessionInternal session, Result before, Result after) {
       countUpdate++;
     }
 
     @Override
-    public void onDelete(DatabaseSessionInternal database, Result data) {
+    public void onDelete(DatabaseSessionInternal session, Result data) {
       countDelete++;
     }
 
     @Override
-    public void onError(DatabaseSession database, BaseException exception) {
+    public void onError(DatabaseSession session, BaseException exception) {
     }
 
     @Override
-    public void onEnd(DatabaseSession database) {
+    public void onEnd(DatabaseSession session) {
       assertFalse(end);
       end = true;
     }

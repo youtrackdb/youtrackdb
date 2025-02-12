@@ -15,8 +15,6 @@
  */
 package com.jetbrains.youtrack.db.auto;
 
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
@@ -27,10 +25,8 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -48,35 +44,35 @@ public class TruncateClassTest extends BaseDBTest {
   public void testTruncateClass() {
     checkEmbeddedDB();
 
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var testClass = getOrCreateClass(schema);
 
     final var index = getOrCreateIndex(testClass);
 
-    db.command("truncate class test_class").close();
+    session.command("truncate class test_class").close();
 
-    db.begin();
-    db.save(
-        ((EntityImpl) db.newEntity(testClass)).field("name", "x")
+    session.begin();
+    session.save(
+        ((EntityImpl) session.newEntity(testClass)).field("name", "x")
             .field("data", Arrays.asList(1, 2)));
-    db.save(
-        ((EntityImpl) db.newEntity(testClass)).field("name", "y")
+    session.save(
+        ((EntityImpl) session.newEntity(testClass)).field("name", "y")
             .field("data", Arrays.asList(3, 0)));
-    db.commit();
+    session.commit();
 
-    db.command("truncate class test_class").close();
+    session.command("truncate class test_class").close();
 
-    db.begin();
-    db.save(
-        ((EntityImpl) db.newEntity(testClass)).field("name", "x")
+    session.begin();
+    session.save(
+        ((EntityImpl) session.newEntity(testClass)).field("name", "x")
             .field("data", Arrays.asList(5, 6, 7)));
-    db.save(
-        ((EntityImpl) db.newEntity(testClass)).field("name", "y")
+    session.save(
+        ((EntityImpl) session.newEntity(testClass)).field("name", "y")
             .field("data", Arrays.asList(8, 9, -1)));
-    db.commit();
+    session.commit();
 
     var result =
-        db.query("select from test_class").stream().collect(Collectors.toList());
+        session.query("select from test_class").stream().collect(Collectors.toList());
     Assert.assertEquals(result.size(), 2);
     Set<Integer> set = new HashSet<Integer>();
     for (var document : result) {
@@ -84,10 +80,10 @@ public class TruncateClassTest extends BaseDBTest {
     }
     Assert.assertTrue(set.containsAll(Arrays.asList(5, 6, 7, 8, 9, -1)));
 
-    Assert.assertEquals(index.getInternal().size(db), 6);
+    Assert.assertEquals(index.getInternal().size(session), 6);
 
     Iterator<RawPair<Object, RID>> indexIterator;
-    try (var stream = index.getInternal().stream(db)) {
+    try (var stream = index.getInternal().stream(session)) {
       indexIterator = stream.iterator();
 
       while (indexIterator.hasNext()) {
@@ -101,48 +97,48 @@ public class TruncateClassTest extends BaseDBTest {
 
   @Test
   public void testTruncateVertexClass() {
-    db.command("create class TestTruncateVertexClass extends V").close();
-    db.begin();
-    db.command("create vertex TestTruncateVertexClass set name = 'foo'").close();
-    db.commit();
+    session.command("create class TestTruncateVertexClass extends V").close();
+    session.begin();
+    session.command("create vertex TestTruncateVertexClass set name = 'foo'").close();
+    session.commit();
 
     try {
-      db.command("truncate class TestTruncateVertexClass ").close();
+      session.command("truncate class TestTruncateVertexClass ").close();
       Assert.fail();
     } catch (Exception e) {
     }
-    var result = db.query("select from TestTruncateVertexClass");
+    var result = session.query("select from TestTruncateVertexClass");
     Assert.assertEquals(result.stream().count(), 1);
 
-    db.command("truncate class TestTruncateVertexClass unsafe").close();
-    result = db.query("select from TestTruncateVertexClass");
+    session.command("truncate class TestTruncateVertexClass unsafe").close();
+    result = session.query("select from TestTruncateVertexClass");
     Assert.assertEquals(result.stream().count(), 0);
   }
 
   @Test
   public void testTruncateVertexClassSubclasses() {
 
-    db.command("create class TestTruncateVertexClassSuperclass").close();
-    db
+    session.command("create class TestTruncateVertexClassSuperclass").close();
+    session
         .command(
             "create class TestTruncateVertexClassSubclass extends"
                 + " TestTruncateVertexClassSuperclass")
         .close();
 
-    db.begin();
-    db.command("insert into TestTruncateVertexClassSuperclass set name = 'foo'").close();
-    db.command("insert into TestTruncateVertexClassSubclass set name = 'bar'").close();
-    db.commit();
+    session.begin();
+    session.command("insert into TestTruncateVertexClassSuperclass set name = 'foo'").close();
+    session.command("insert into TestTruncateVertexClassSubclass set name = 'bar'").close();
+    session.commit();
 
-    var result = db.query("select from TestTruncateVertexClassSuperclass");
+    var result = session.query("select from TestTruncateVertexClassSuperclass");
     Assert.assertEquals(result.stream().count(), 2);
 
-    db.command("truncate class TestTruncateVertexClassSuperclass ").close();
-    result = db.query("select from TestTruncateVertexClassSubclass");
+    session.command("truncate class TestTruncateVertexClassSuperclass ").close();
+    result = session.query("select from TestTruncateVertexClassSubclass");
     Assert.assertEquals(result.stream().count(), 1);
 
-    db.command("truncate class TestTruncateVertexClassSuperclass polymorphic").close();
-    result = db.query("select from TestTruncateVertexClassSubclass");
+    session.command("truncate class TestTruncateVertexClassSuperclass polymorphic").close();
+    result = session.query("select from TestTruncateVertexClassSubclass");
     Assert.assertEquals(result.stream().count(), 0);
   }
 
@@ -150,53 +146,53 @@ public class TruncateClassTest extends BaseDBTest {
   public void testTruncateVertexClassSubclassesWithIndex() {
     checkEmbeddedDB();
 
-    db.command("create class TestTruncateVertexClassSuperclassWithIndex").close();
-    db
+    session.command("create class TestTruncateVertexClassSuperclassWithIndex").close();
+    session
         .command("create property TestTruncateVertexClassSuperclassWithIndex.name STRING")
         .close();
-    db
+    session
         .command(
             "create index TestTruncateVertexClassSuperclassWithIndex_index on"
                 + " TestTruncateVertexClassSuperclassWithIndex (name) NOTUNIQUE")
         .close();
 
-    db
+    session
         .command(
             "create class TestTruncateVertexClassSubclassWithIndex extends"
                 + " TestTruncateVertexClassSuperclassWithIndex")
         .close();
 
-    db.begin();
-    db
+    session.begin();
+    session
         .command("insert into TestTruncateVertexClassSuperclassWithIndex set name = 'foo'")
         .close();
-    db
+    session
         .command("insert into TestTruncateVertexClassSubclassWithIndex set name = 'bar'")
         .close();
-    db.commit();
+    session.commit();
 
     final var index = getIndex("TestTruncateVertexClassSuperclassWithIndex_index");
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(index.getInternal().size(session), 2);
 
-    db.command("truncate class TestTruncateVertexClassSubclassWithIndex").close();
-    Assert.assertEquals(index.getInternal().size(db), 1);
+    session.command("truncate class TestTruncateVertexClassSubclassWithIndex").close();
+    Assert.assertEquals(index.getInternal().size(session), 1);
 
-    db
+    session
         .command("truncate class TestTruncateVertexClassSuperclassWithIndex polymorphic")
         .close();
-    Assert.assertEquals(index.getInternal().size(db), 0);
+    Assert.assertEquals(index.getInternal().size(session), 0);
   }
 
   private Index getOrCreateIndex(SchemaClass testClass) {
     var index =
-        db.getMetadata().getIndexManagerInternal().getIndex(db, "test_class_by_data");
+        session.getMetadata().getIndexManagerInternal().getIndex(session, "test_class_by_data");
     if (index == null) {
-      testClass.createProperty(db, "data", PropertyType.EMBEDDEDLIST, PropertyType.INTEGER);
-      testClass.createIndex(db, "test_class_by_data", SchemaClass.INDEX_TYPE.UNIQUE,
+      testClass.createProperty(session, "data", PropertyType.EMBEDDEDLIST, PropertyType.INTEGER);
+      testClass.createIndex(session, "test_class_by_data", SchemaClass.INDEX_TYPE.UNIQUE,
           "data");
     }
-    return db.getMetadata().getIndexManagerInternal()
-        .getIndex(db, "test_class_by_data");
+    return session.getMetadata().getIndexManagerInternal()
+        .getIndex(session, "test_class_by_data");
   }
 
   private SchemaClass getOrCreateClass(Schema schema) {
@@ -213,26 +209,26 @@ public class TruncateClassTest extends BaseDBTest {
   @Test
   public void testTruncateClassWithCommandCache() {
 
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var testClass = getOrCreateClass(schema);
 
-    db.command("truncate class test_class").close();
+    session.command("truncate class test_class").close();
 
-    db.begin();
-    db.save(
-        ((EntityImpl) db.newEntity(testClass)).field("name", "x")
+    session.begin();
+    session.save(
+        ((EntityImpl) session.newEntity(testClass)).field("name", "x")
             .field("data", Arrays.asList(1, 2)));
-    db.save(
-        ((EntityImpl) db.newEntity(testClass)).field("name", "y")
+    session.save(
+        ((EntityImpl) session.newEntity(testClass)).field("name", "y")
             .field("data", Arrays.asList(3, 0)));
-    db.commit();
+    session.commit();
 
-    var result = db.query("select from test_class");
+    var result = session.query("select from test_class");
     Assert.assertEquals(result.stream().count(), 2);
 
-    db.command("truncate class test_class").close();
+    session.command("truncate class test_class").close();
 
-    result = db.query("select from test_class");
+    result = session.query("select from test_class");
     Assert.assertEquals(result.stream().count(), 0);
 
     schema.dropClass("test_class");

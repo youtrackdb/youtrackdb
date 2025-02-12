@@ -14,18 +14,18 @@ public class RestricetedUserCleanUpTest extends DbTestBase {
 
   @Test
   public void testAutoCleanUserAfterDelete() {
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     schema.createClass("TestRecord", schema.getClass(SecurityShared.RESTRICTED_CLASSNAME));
 
     System.gc();
     DirectMemoryAllocator.instance().checkTrackedPointerLeaks();
 
-    var security = db.getMetadata().getSecurity();
+    var security = session.getMetadata().getSecurity();
 
-    db.begin();
+    session.begin();
     var auser = security.createUser("auser", "wherever", new String[]{});
     var reader = security.getUser("admin");
-    var doc = (EntityImpl) db.newEntity("TestRecord");
+    var doc = (EntityImpl) session.newEntity("TestRecord");
     Set<Identifiable> users = new HashSet<Identifiable>();
     users.add(auser.getIdentity());
     users.add(reader.getIdentity());
@@ -34,17 +34,17 @@ public class RestricetedUserCleanUpTest extends DbTestBase {
     doc.field(SecurityShared.ALLOW_UPDATE_FIELD, users);
     doc.field(SecurityShared.ALLOW_DELETE_FIELD, users);
     doc.field(SecurityShared.ALLOW_ALL_FIELD, users);
-    EntityImpl rid = db.save(doc);
-    db.commit();
+    EntityImpl rid = session.save(doc);
+    session.commit();
 
     System.gc();
     DirectMemoryAllocator.instance().checkTrackedPointerLeaks();
-    db.begin();
+    session.begin();
     security.dropUser("auser");
-    db.commit();
+    session.commit();
 
-    db.begin();
-    doc = db.load(rid.getIdentity());
+    session.begin();
+    doc = session.load(rid.getIdentity());
     Assert.assertEquals(2, ((Set<?>) doc.field(SecurityShared.ALLOW_ALL_FIELD)).size());
     Assert.assertEquals(2, ((Set<?>) doc.field(SecurityShared.ALLOW_UPDATE_FIELD)).size());
     Assert.assertEquals(2, ((Set<?>) doc.field(SecurityShared.ALLOW_DELETE_FIELD)).size());
@@ -52,7 +52,7 @@ public class RestricetedUserCleanUpTest extends DbTestBase {
 
     doc.field("abc", "abc");
     doc.save();
-    db.commit();
+    session.commit();
 
     System.gc();
     DirectMemoryAllocator.instance().checkTrackedPointerLeaks();

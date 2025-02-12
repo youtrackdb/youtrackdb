@@ -6,9 +6,9 @@ import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.LocalResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.LocalResultSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,7 +34,7 @@ public class GlobalLetQueryStep extends AbstractExecutionStep {
     if (scriptVars != null) {
       scriptVars.forEach(subCtx::declareScriptVariable);
     }
-    subCtx.setDatabase(ctx.getDatabase());
+    subCtx.setDatabaseSession(ctx.getDatabaseSession());
     subCtx.setParent(ctx);
     if (query.toString().contains("?")) {
       // with positional parameters, you cannot know if a parameter has the same ordinal as the one
@@ -56,7 +56,8 @@ public class GlobalLetQueryStep extends AbstractExecutionStep {
   }
 
   private void calculate(CommandContext ctx) {
-    ctx.setVariable(varName.getStringValue(), toList(new LocalResultSet(subExecutionPlan)));
+    ctx.setVariable(varName.getStringValue(),
+        toList(new LocalResultSet(ctx.getDatabaseSession(), subExecutionPlan)));
   }
 
   private List<Result> toList(LocalResultSet oLocalResultSet) {

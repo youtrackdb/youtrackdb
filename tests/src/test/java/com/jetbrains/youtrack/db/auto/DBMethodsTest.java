@@ -27,9 +27,9 @@ public class DBMethodsTest extends BaseDBTest {
   }
 
   public void testAddCluster() {
-    db.addCluster("addClusterTest");
+    session.addCluster("addClusterTest");
 
-    Assert.assertTrue(db.existsCluster("addClusterTest"));
-    Assert.assertTrue(db.existsCluster("addclUstertESt"));
+    Assert.assertTrue(session.existsCluster("addClusterTest"));
+    Assert.assertTrue(session.existsCluster("addclUstertESt"));
   }
 }

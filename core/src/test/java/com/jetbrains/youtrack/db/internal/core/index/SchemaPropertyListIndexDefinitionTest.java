@@ -30,7 +30,7 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
   @Test
   public void testCreateValueSingleParameter() {
     final var result =
-        propertyIndex.createValue(db, Collections.singletonList(Arrays.asList("12", "23")));
+        propertyIndex.createValue(session, Collections.singletonList(Arrays.asList("12", "23")));
 
     Assert.assertTrue(result instanceof Collection);
 
@@ -44,7 +44,7 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
   @Test
   public void testCreateValueTwoParameters() {
     final var result =
-        propertyIndex.createValue(db, Arrays.asList(Arrays.asList("12", "23"), "25"));
+        propertyIndex.createValue(session, Arrays.asList(Arrays.asList("12", "23"), "25"));
 
     Assert.assertTrue(result instanceof Collection);
 
@@ -58,7 +58,7 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
   @Test
   public void testCreateValueWrongParameter() {
     try {
-      propertyIndex.createValue(db, Collections.singletonList("tt"));
+      propertyIndex.createValue(session, Collections.singletonList("tt"));
       Assert.fail();
     } catch (IndexException x) {
 
@@ -67,7 +67,7 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateValueSingleParameterArrayParams() {
-    final var result = propertyIndex.createValue(db, (Object) Arrays.asList("12", "23"));
+    final var result = propertyIndex.createValue(session, (Object) Arrays.asList("12", "23"));
 
     Assert.assertTrue(result instanceof Collection);
 
@@ -80,7 +80,7 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateValueTwoParametersArrayParams() {
-    final var result = propertyIndex.createValue(db, Arrays.asList("12", "23"), "25");
+    final var result = propertyIndex.createValue(session, Arrays.asList("12", "23"), "25");
 
     Assert.assertTrue(result instanceof Collection);
 
@@ -93,17 +93,17 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateValueWrongParameterArrayParams() {
-    Assert.assertNull(propertyIndex.createValue(db, "tt"));
+    Assert.assertNull(propertyIndex.createValue(session, "tt"));
   }
 
   @Test
   public void testGetDocumentValueToIndex() {
-    final var document = (EntityImpl) db.newEntity();
+    final var document = (EntityImpl) session.newEntity();
 
     document.field("fOne", Arrays.asList("12", "23"));
     document.field("fTwo", 10);
 
-    final var result = propertyIndex.getDocumentValueToIndex(db, document);
+    final var result = propertyIndex.getDocumentValueToIndex(session, document);
     Assert.assertTrue(result instanceof Collection);
 
     final var collectionResult = (Collection<?>) result;
@@ -115,13 +115,13 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateSingleValue() {
-    final var result = propertyIndex.createSingleValue(db, "12");
+    final var result = propertyIndex.createSingleValue(session, "12");
     Assert.assertEquals(result, 12);
   }
 
   @Test(expected = IndexException.class)
   public void testCreateSingleValueWrongParameter() {
-    propertyIndex.createSingleValue(db, "tt");
+    propertyIndex.createSingleValue(session, "tt");
   }
 
   @Test
@@ -133,7 +133,7 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
     final var multiValueChangeEvent =
         new MultiValueChangeEvent<Integer, Integer>(ChangeType.ADD, 0, 42);
-    propertyIndex.processChangeEvent(db, multiValueChangeEvent, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEvent, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(42, 1);
@@ -155,7 +155,7 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
     final var multiValueChangeEvent =
         new MultiValueChangeEvent<Integer, String>(
             ChangeType.ADD, 0, "42");
-    propertyIndex.processChangeEvent(db, multiValueChangeEvent, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEvent, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(42, 1);
@@ -179,8 +179,8 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
     final var multiValueChangeEventTwo =
         new MultiValueChangeEvent<Integer, Integer>(ChangeType.ADD, 1, 42);
 
-    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEventTwo, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(42, 2);
@@ -204,8 +204,8 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
     final var multiValueChangeEventTwo =
         new MultiValueChangeEvent<Integer, Integer>(ChangeType.ADD, 1, 43);
 
-    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEventTwo, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(42, 1);
@@ -229,7 +229,7 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
         new MultiValueChangeEvent<Integer, Integer>(
             ChangeType.REMOVE, 0, null, 42);
 
-    propertyIndex.processChangeEvent(db, multiValueChangeEvent, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEvent, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
 
@@ -252,7 +252,7 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
         new MultiValueChangeEvent<Integer, String>(
             ChangeType.REMOVE, 0, null, "42");
 
-    propertyIndex.processChangeEvent(db, multiValueChangeEvent, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEvent, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
 
@@ -278,8 +278,8 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
         new MultiValueChangeEvent<Integer, Integer>(
             ChangeType.REMOVE, 1, null, 42);
 
-    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEventTwo, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
 
@@ -304,8 +304,8 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
         new MultiValueChangeEvent<Integer, Integer>(
             ChangeType.ADD, 1, 555);
 
-    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEventTwo, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(42, 1);
@@ -331,8 +331,8 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
         new MultiValueChangeEvent<Integer, Integer>(
             ChangeType.REMOVE, 0, null, 42);
 
-    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEventTwo, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     final Map<Object, Integer> removedKeys = new HashMap<Object, Integer>();
@@ -355,8 +355,8 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
         new MultiValueChangeEvent<Integer, Integer>(
             ChangeType.REMOVE, 0, null, 55);
 
-    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEventTwo, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(42, 1);
@@ -383,9 +383,9 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
         new MultiValueChangeEvent<Integer, Integer>(
             ChangeType.REMOVE, 0, null, 42);
 
-    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(db, multiValueChangeEventThree, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEventThree, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(42, 1);
@@ -413,9 +413,9 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
         new MultiValueChangeEvent<Integer, Integer>(
             ChangeType.REMOVE, 0, null, 42);
 
-    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(db, multiValueChangeEventThree, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEventThree, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
 
@@ -443,9 +443,9 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
     final var multiValueChangeEventThree =
         new MultiValueChangeEvent<Integer, Integer>(ChangeType.ADD, 1, 42);
 
-    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(db, multiValueChangeEventThree, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEventThree, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
 
@@ -468,7 +468,7 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
         new MultiValueChangeEvent<Integer, Integer>(
             ChangeType.UPDATE, 0, 41, 42);
 
-    propertyIndex.processChangeEvent(db, multiValueChangeEvent, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEvent, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(41, 1);
@@ -492,7 +492,7 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
         new MultiValueChangeEvent<Integer, String>(
             ChangeType.UPDATE, 0, "41", "42");
 
-    propertyIndex.processChangeEvent(db, multiValueChangeEvent, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(session, multiValueChangeEvent, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(41, 1);

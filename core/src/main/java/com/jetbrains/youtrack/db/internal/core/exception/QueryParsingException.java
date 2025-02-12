@@ -61,8 +61,13 @@ public class QueryParsingException extends CommandSQLParsingException {
     super(iMessage);
   }
 
-  public QueryParsingException(final String iMessage, final String iText, final int iPosition) {
-    super(makeMessage(iPosition, iText, iMessage));
+  public QueryParsingException(String dbName, final String iMessage) {
+    super(dbName, iMessage);
+  }
+
+  public QueryParsingException(String dbName, final String iMessage, final String iText,
+      final int iPosition) {
+    super(dbName, makeMessage(iPosition, iText, iMessage));
 
     text = iText;
     position = iPosition;

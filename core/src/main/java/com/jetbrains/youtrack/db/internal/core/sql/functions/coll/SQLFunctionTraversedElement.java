@@ -29,7 +29,6 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionConfigurableAbstract;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -88,13 +87,14 @@ public class SQLFunctionTraversedElement extends SQLFunctionConfigurableAbstract
       stack = (Collection) ((Result) iThis).getMetadata("$stack");
     }
     if (stack == null) {
-      throw new CommandExecutionException(
-          "Cannot invoke " + getName(iContext.getDatabase()) + "() against non traverse command");
+      throw new CommandExecutionException(iContext.getDatabaseSession(),
+          "Cannot invoke " + getName(iContext.getDatabaseSession())
+              + "() against non traverse command");
     }
 
     final List<Identifiable> result = items > 1 ? new ArrayList<Identifiable>(items) : null;
 
-    var db = iContext.getDatabase();
+    var db = iContext.getDatabaseSession();
     if (beginIndex < 0) {
       var i = -1;
       for (var it = stack.iterator(); it.hasNext(); ) {
@@ -104,7 +104,7 @@ public class SQLFunctionTraversedElement extends SQLFunctionConfigurableAbstract
 
           if (iClassName == null
               || EntityInternalUtils.getImmutableSchemaClass(record.getRecord(db))
-              .isSubClassOf(iClassName)) {
+              .isSubClassOf(db, iClassName)) {
             if (i <= beginIndex) {
               if (items == 1) {
                 return record;
@@ -121,7 +121,7 @@ public class SQLFunctionTraversedElement extends SQLFunctionConfigurableAbstract
 
           if (iClassName == null
               || EntityInternalUtils.getImmutableSchemaClass(record.getRecord(db))
-              .isSubClassOf(iClassName)) {
+              .isSubClassOf(db, iClassName)) {
             if (i <= beginIndex) {
               if (items == 1) {
                 return record;
@@ -146,7 +146,7 @@ public class SQLFunctionTraversedElement extends SQLFunctionConfigurableAbstract
 
           if (iClassName == null
               || EntityInternalUtils.getImmutableSchemaClass(record.getRecord(db))
-              .isSubClassOf(iClassName)) {
+              .isSubClassOf(db, iClassName)) {
             if (i >= beginIndex) {
               if (items == 1) {
                 return record;
@@ -163,7 +163,7 @@ public class SQLFunctionTraversedElement extends SQLFunctionConfigurableAbstract
 
           if (iClassName == null
               || EntityInternalUtils.getImmutableSchemaClass(record.getRecord(db))
-              .isSubClassOf(iClassName)) {
+              .isSubClassOf(db, iClassName)) {
             if (i >= beginIndex) {
               if (items == 1) {
                 return record;
@@ -186,7 +186,7 @@ public class SQLFunctionTraversedElement extends SQLFunctionConfigurableAbstract
     return null;
   }
 
-  private List stackToList(Collection stack) {
+  private static List stackToList(Collection stack) {
     if (stack instanceof List) {
       return (List) stack;
     }

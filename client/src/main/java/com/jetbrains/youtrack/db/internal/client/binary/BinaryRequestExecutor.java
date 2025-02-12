@@ -49,7 +49,6 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.RollbackTransact
 import com.jetbrains.youtrack.db.internal.client.remote.message.SBTCreateTreeRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SBTFetchEntriesMajorRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SBTFirstKeyRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.SBTGetRealBagSizeRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SBTGetRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SendTransactionStateRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.ServerInfoRequest;
@@ -137,8 +136,6 @@ public interface BinaryRequestExecutor {
 
   BinaryResponse executeSBTFetchEntriesMajor(
       @SuppressWarnings("rawtypes") SBTFetchEntriesMajorRequest request);
-
-  BinaryResponse executeSBTGetRealSize(SBTGetRealBagSizeRequest request);
 
   BinaryResponse executeIncrementalBackup(IncrementalBackupRequest request);
 

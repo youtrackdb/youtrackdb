@@ -19,23 +19,27 @@
  */
 package com.jetbrains.youtrack.db.api.exception;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.exception.CoreException;
 
 /**
  * Generic Security exception. Used in cryptography.
  */
-@SuppressWarnings("serial")
 public class SecurityException extends CoreException implements HighLevelException {
 
   public SecurityException(SecurityException exception) {
     super(exception);
   }
 
-  public SecurityException(final String message) {
-    super(message);
+  public SecurityException(String dbName, final String message) {
+    super(dbName, message);
   }
 
-  public SecurityException(String message, String dbName) {
-    super(message, null, dbName);
+  public SecurityException(DatabaseSession session, final String message) {
+    super(session != null ? session.getDatabaseName() : null, message);
+  }
+
+  public SecurityException(final String message) {
+    super(message);
   }
 }

@@ -43,23 +43,25 @@ public class CheckClassTypeStep extends AbstractExecutionStep {
     if (this.targetClass.equals(this.parentClass)) {
       return ExecutionStream.empty();
     }
-    var db = context.getDatabase();
+    var session = context.getDatabaseSession();
 
-    Schema schema = db.getMetadata().getImmutableSchemaSnapshot();
+    Schema schema = session.getMetadata().getImmutableSchemaSnapshot();
     var parentClazz = schema.getClass(this.parentClass);
     if (parentClazz == null) {
-      throw new CommandExecutionException("Class not found: " + this.parentClass);
+      throw new CommandExecutionException(context.getDatabaseSession(),
+          "Class not found: " + this.parentClass);
     }
     var targetClazz = schema.getClass(this.targetClass);
     if (targetClazz == null) {
-      throw new CommandExecutionException("Class not found: " + this.targetClass);
+      throw new CommandExecutionException(context.getDatabaseSession(),
+          "Class not found: " + this.targetClass);
     }
 
     var found = false;
     if (parentClazz.equals(targetClazz)) {
       found = true;
     } else {
-      for (var sublcass : parentClazz.getAllSubclasses()) {
+      for (var sublcass : parentClazz.getAllSubclasses(session)) {
         if (sublcass.equals(targetClazz)) {
           found = true;
           break;
@@ -67,7 +69,7 @@ public class CheckClassTypeStep extends AbstractExecutionStep {
       }
     }
     if (!found) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(context.getDatabaseSession(),
           "Class  " + this.targetClass + " is not a subclass of " + this.parentClass);
     }
     return ExecutionStream.empty();

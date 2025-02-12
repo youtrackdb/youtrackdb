@@ -38,7 +38,7 @@ public class FrontendTransactionOptimisticClient extends FrontendTransactionOpti
     Map<RecordId, RecordOperation> oldEntries = this.recordOperations;
     this.recordOperations = new LinkedHashMap<>();
     var createCount = -2; // Start from -2 because temporary rids start from -2
-    var db = getDatabase();
+    var db = getDatabaseSession();
     for (var operation : operations) {
       if (!operation.getOldId().equals(operation.getId())) {
         generatedOriginalRecordIdMap.put(operation.getId().copy(), operation.getOldId());
@@ -60,14 +60,13 @@ public class FrontendTransactionOptimisticClient extends FrontendTransactionOpti
         record =
             YouTrackDBEnginesManager.instance()
                 .getRecordFactoryManager()
-                .newInstance(operation.getRecordType(), operation.getOldId(), database);
+                .newInstance(operation.getRecordType(), operation.getOldId(), session);
         RecordInternal.unsetDirty(record);
       }
       if (operation.getType() == RecordOperation.UPDATED
           && operation.getRecordType() == EntityImpl.RECORD_TYPE) {
         record.incrementLoading();
         try {
-          record.setup(db);
           // keep rid instance to support links consistency
           record.fromStream(operation.getOriginal());
           var deltaSerializer = DocumentSerializerDelta.instance();
@@ -77,7 +76,6 @@ public class FrontendTransactionOptimisticClient extends FrontendTransactionOpti
           record.decrementLoading();
         }
       } else {
-        record.setup(db);
         record.fromStream(operation.getRecord());
       }
 
@@ -118,16 +116,16 @@ public class FrontendTransactionOptimisticClient extends FrontendTransactionOpti
       if (callHook) {
         switch (iStatus) {
           case RecordOperation.CREATED: {
-            database.beforeCreateOperations(iRecord, iClusterName);
+            session.beforeCreateOperations(iRecord, iClusterName);
           }
           break;
           case RecordOperation.UPDATED: {
-            database.beforeUpdateOperations(iRecord, iClusterName);
+            session.beforeUpdateOperations(iRecord, iClusterName);
           }
           break;
 
           case RecordOperation.DELETED:
-            database.beforeDeleteOperations(iRecord, iClusterName);
+            session.beforeDeleteOperations(iRecord, iClusterName);
             break;
         }
       }
@@ -166,13 +164,13 @@ public class FrontendTransactionOptimisticClient extends FrontendTransactionOpti
         if (callHook) {
           switch (iStatus) {
             case RecordOperation.CREATED:
-              database.callbackHooks(RecordHook.TYPE.AFTER_CREATE, iRecord);
+              session.callbackHooks(RecordHook.TYPE.AFTER_CREATE, iRecord);
               break;
             case RecordOperation.UPDATED:
-              database.callbackHooks(RecordHook.TYPE.AFTER_UPDATE, iRecord);
+              session.callbackHooks(RecordHook.TYPE.AFTER_UPDATE, iRecord);
               break;
             case RecordOperation.DELETED:
-              database.callbackHooks(RecordHook.TYPE.AFTER_DELETE, iRecord);
+              session.callbackHooks(RecordHook.TYPE.AFTER_DELETE, iRecord);
               break;
           }
         }
@@ -180,31 +178,32 @@ public class FrontendTransactionOptimisticClient extends FrontendTransactionOpti
         if (callHook) {
           switch (iStatus) {
             case RecordOperation.CREATED:
-              database.callbackHooks(RecordHook.TYPE.CREATE_FAILED, iRecord);
+              session.callbackHooks(RecordHook.TYPE.CREATE_FAILED, iRecord);
               break;
             case RecordOperation.UPDATED:
-              database.callbackHooks(RecordHook.TYPE.UPDATE_FAILED, iRecord);
+              session.callbackHooks(RecordHook.TYPE.UPDATE_FAILED, iRecord);
               break;
             case RecordOperation.DELETED:
-              database.callbackHooks(RecordHook.TYPE.DELETE_FAILED, iRecord);
+              session.callbackHooks(RecordHook.TYPE.DELETE_FAILED, iRecord);
               break;
           }
         }
 
         throw BaseException.wrapException(
-            new DatabaseException("Error on saving record " + iRecord.getIdentity()), e);
+            new DatabaseException(session, "Error on saving record " + iRecord.getIdentity()), e,
+            session);
       }
     } finally {
       if (callHook) {
         switch (iStatus) {
           case RecordOperation.CREATED:
-            database.callbackHooks(RecordHook.TYPE.FINALIZE_CREATION, iRecord);
+            session.callbackHooks(RecordHook.TYPE.FINALIZE_CREATION, iRecord);
             break;
           case RecordOperation.UPDATED:
-            database.callbackHooks(RecordHook.TYPE.FINALIZE_UPDATE, iRecord);
+            session.callbackHooks(RecordHook.TYPE.FINALIZE_UPDATE, iRecord);
             break;
           case RecordOperation.DELETED:
-            database.callbackHooks(RecordHook.TYPE.FINALIZE_DELETION, iRecord);
+            session.callbackHooks(RecordHook.TYPE.FINALIZE_DELETION, iRecord);
             break;
         }
       }

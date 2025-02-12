@@ -23,9 +23,9 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
   @Test
   public void testTrackingNestedSet() {
 
-    db.begin();
+    session.begin();
     RID orid;
-    var entity = (EntityImpl) db.newEntity();
+    var entity = (EntityImpl) session.newEntity();
     Set objects = new HashSet();
 
     entity.field("objects", objects);
@@ -36,22 +36,22 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
     objects.add(subObjects);
 
     entity.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
+    session.begin();
 
-    entity = db.bindToSession(entity);
+    entity = session.bindToSession(entity);
     orid = entity.getIdentity();
     objects = entity.field("objects");
     subObjects = (Set) objects.iterator().next();
 
-    var nestedDoc = (EntityImpl) db.newEntity();
+    var nestedDoc = (EntityImpl) session.newEntity();
     subObjects.add(nestedDoc);
 
     entity.save();
-    db.commit();
+    session.commit();
 
-    entity = db.load(orid);
+    entity = session.load(orid);
     objects = entity.field("objects");
     subObjects = (Set) objects.iterator().next();
 
@@ -61,22 +61,22 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
   @Test
   public void testChangesValuesNestedTrackingSet() {
 
-    db.begin();
-    var document = (EntityImpl) db.newEntity();
+    session.begin();
+    var document = (EntityImpl) session.newEntity();
     Set objects = new HashSet();
 
     document.field("objects", objects);
     Set subObjects = new HashSet();
     objects.add(subObjects);
 
-    var nestedDoc = (EntityImpl) db.newEntity();
+    var nestedDoc = (EntityImpl) session.newEntity();
     subObjects.add(nestedDoc);
 
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
+    session.begin();
+    document = session.bindToSession(document);
     objects = document.field("objects");
     subObjects = (Set) objects.iterator().next();
     subObjects.add("one");
@@ -88,32 +88,32 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
     var multiValueChangeEvents =
         nestedTimiline.getMultiValueChangeEvents();
     assertEquals("one", multiValueChangeEvents.get(0).getValue());
-    db.commit();
+    session.commit();
   }
 
   @Test
   public void testChangesValuesNestedTrackingList() {
 
-    db.begin();
-    var document = (EntityImpl) db.newEntity();
+    session.begin();
+    var document = (EntityImpl) session.newEntity();
     List objects = new ArrayList();
 
     document.field("objects", objects);
     List subObjects = new ArrayList();
     objects.add(subObjects);
 
-    var nestedDoc = (EntityImpl) db.newEntity();
+    var nestedDoc = (EntityImpl) session.newEntity();
     subObjects.add(nestedDoc);
 
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
+    session.begin();
+    document = session.bindToSession(document);
     objects = document.field("objects");
     subObjects = (List) objects.iterator().next();
     subObjects.add("one");
-    subObjects.add(db.newEntity());
+    subObjects.add(session.newEntity());
 
     assertTrue(document.isDirty());
     var multiValueChangeEvents =
@@ -122,31 +122,31 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
     assertEquals("one", multiValueChangeEvents.get(0).getValue());
     assertEquals(2, multiValueChangeEvents.get(1).getKey());
     assertTrue(multiValueChangeEvents.get(1).getValue() instanceof EntityImpl);
-    db.commit();
+    session.commit();
   }
 
   @Test
   public void testChangesValuesNestedTrackingMap() {
-    db.begin();
-    var document = (EntityImpl) db.newEntity();
+    session.begin();
+    var document = (EntityImpl) session.newEntity();
     Map objects = new HashMap();
 
     document.field("objects", objects);
     Map subObjects = new HashMap();
     objects.put("first", subObjects);
 
-    var nestedDoc = (EntityImpl) db.newEntity();
+    var nestedDoc = (EntityImpl) session.newEntity();
     subObjects.put("one", nestedDoc);
 
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
+    session.begin();
+    document = session.bindToSession(document);
     objects = document.field("objects");
     subObjects = (Map) objects.values().iterator().next();
     subObjects.put("one", "String");
-    subObjects.put("two", db.newEntity());
+    subObjects.put("two", session.newEntity());
 
     assertTrue(document.isDirty());
     var multiValueChangeEvents =
@@ -155,6 +155,6 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
     assertEquals("String", multiValueChangeEvents.get(0).getValue());
     assertEquals("two", multiValueChangeEvents.get(1).getKey());
     assertTrue(multiValueChangeEvents.get(1).getValue() instanceof EntityImpl);
-    db.commit();
+    session.commit();
   }
 }

@@ -19,8 +19,8 @@ public class CheckDBRecordTypeStepTest extends TestUtilsFixture {
   @Test
   public void shouldCheckRecordsOfOneType() {
     CommandContext context = new BasicCommandContext();
-    context.setDatabase(db);
-    var className = createClassInstance().getName();
+    context.setDatabaseSession(session);
+    var className = createClassInstance().getName(session);
     var step = new CheckRecordTypeStep(context, className, false);
     var previous =
         new AbstractExecutionStep(context, false) {
@@ -31,7 +31,8 @@ public class CheckDBRecordTypeStepTest extends TestUtilsFixture {
             List<Result> result = new ArrayList<>();
             if (!done) {
               for (var i = 0; i < 10; i++) {
-                result.add(new ResultInternal(ctx.getDatabase(), db.newEntity(className)));
+                result.add(
+                    new ResultInternal(ctx.getDatabaseSession(), session.newEntity(className)));
               }
               done = true;
             }
@@ -48,10 +49,10 @@ public class CheckDBRecordTypeStepTest extends TestUtilsFixture {
   @Test
   public void shouldCheckRecordsOfSubclasses() {
     CommandContext context = new BasicCommandContext();
-    context.setDatabase(db);
+    context.setDatabaseSession(session);
     var parentClass = createClassInstance();
     var childClass = createChildClassInstance(parentClass);
-    var step = new CheckRecordTypeStep(context, parentClass.getName(), false);
+    var step = new CheckRecordTypeStep(context, parentClass.getName(session), false);
     var previous =
         new AbstractExecutionStep(context, false) {
           boolean done = false;
@@ -62,8 +63,8 @@ public class CheckDBRecordTypeStepTest extends TestUtilsFixture {
             if (!done) {
               for (var i = 0; i < 10; i++) {
                 result.add(
-                    new ResultInternal(ctx.getDatabase(),
-                        db.newEntity(i % 2 == 0 ? parentClass : childClass)));
+                    new ResultInternal(ctx.getDatabaseSession(),
+                        session.newEntity(i % 2 == 0 ? parentClass : childClass)));
               }
               done = true;
             }
@@ -80,9 +81,9 @@ public class CheckDBRecordTypeStepTest extends TestUtilsFixture {
   @Test(expected = CommandExecutionException.class)
   public void shouldThrowExceptionWhenTypeIsDifferent() {
     CommandContext context = new BasicCommandContext();
-    context.setDatabase(db);
-    var firstClassName = createClassInstance().getName();
-    var secondClassName = createClassInstance().getName();
+    context.setDatabaseSession(session);
+    var firstClassName = createClassInstance().getName(session);
+    var secondClassName = createClassInstance().getName(session);
     var step = new CheckRecordTypeStep(context, firstClassName, false);
     var previous =
         new AbstractExecutionStep(context, false) {
@@ -94,8 +95,8 @@ public class CheckDBRecordTypeStepTest extends TestUtilsFixture {
             if (!done) {
               for (var i = 0; i < 10; i++) {
                 result.add(
-                    new ResultInternal(ctx.getDatabase(),
-                        db.newEntity(i % 2 == 0 ? firstClassName : secondClassName)));
+                    new ResultInternal(ctx.getDatabaseSession(),
+                        session.newEntity(i % 2 == 0 ? firstClassName : secondClassName)));
               }
               done = true;
             }

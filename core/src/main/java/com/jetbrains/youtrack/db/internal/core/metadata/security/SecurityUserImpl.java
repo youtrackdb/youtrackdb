@@ -30,7 +30,6 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule.ResourceGeneric;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityManager;
-import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
 import com.jetbrains.youtrack.db.internal.core.type.IdentityWrapper;
 import java.util.Collections;
 import java.util.Set;
@@ -112,13 +111,14 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
       DatabaseSessionInternal session, final EntityImpl entity) {
     final String name = entity.field(NAME_PROPERTY);
     if (name == null) {
-      throw new SecurityException("User name not found");
+      throw new SecurityException(session.getDatabaseName(), "User name not found");
     }
 
     final String password = entity.field("password");
 
     if (password == null) {
-      throw new SecurityException("User '" + entity.field(NAME_PROPERTY) + "' has no password");
+      throw new SecurityException(session.getDatabaseName(),
+          "User '" + entity.field(NAME_PROPERTY) + "' has no password");
     }
     var security = session.getSharedContext().getYouTrackDB().getSecuritySystem();
     security.validatePassword(name, password);
@@ -146,14 +146,14 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
     var roles = getRoles();
     if (roles == null || roles.isEmpty()) {
       throw new SecurityAccessException(
-          session.getName(),
+          session.getDatabaseName(),
           "User '" + name + "' has no role defined");
     }
 
     final var role = checkIfAllowed(session, resourceGeneric, resourceSpecific, operation);
     if (role == null) {
       throw new SecurityAccessException(
-          session.getName(),
+          session.getDatabaseName(),
           "User '"
               + name
               + "' does not have permission to execute the operation '"

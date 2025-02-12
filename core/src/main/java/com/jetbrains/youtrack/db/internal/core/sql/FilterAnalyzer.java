@@ -28,7 +28,6 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassIntern
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemField;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.IndexReuseType;
-import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperatorBetween;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperatorContains;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperatorIn;
@@ -38,7 +37,6 @@ import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperatorMinor;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperatorMinorEquals;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  *
@@ -114,7 +112,8 @@ public class FilterAnalyzer {
 
     final List<IndexSearchResult> indexSearchResults = new ArrayList<IndexSearchResult>();
     var lastCondition =
-        analyzeFilterBranch(context.getDatabase(), schemaClass, condition, indexSearchResults,
+        analyzeFilterBranch(context.getDatabaseSession(), schemaClass, condition,
+            indexSearchResults,
             context);
 
     if (indexSearchResults.isEmpty() && lastCondition != null) {
@@ -208,7 +207,7 @@ public class FilterAnalyzer {
     if (leftResult != null && rightResult != null) {
       if (leftResult.canBeMerged(rightResult)) {
         final var mergeResult = leftResult.merge(rightResult);
-        if (iSchemaClass.areIndexed(iContext.getDatabase(), mergeResult.fields())) {
+        if (iSchemaClass.areIndexed(iContext.getDatabaseSession(), mergeResult.fields())) {
           iIndexSearchResults.add(mergeResult);
         }
 
@@ -295,15 +294,16 @@ public class FilterAnalyzer {
       SchemaClassInternal iSchemaClass,
       IndexSearchResult result) {
     final var fieldCount = result.lastField.getItemCount();
-    var cls = (SchemaClassInternal) iSchemaClass.getProperty(
-        result.lastField.getItemName(0)).getLinkedClass();
+    var cls = (SchemaClassInternal) iSchemaClass.getProperty(session,
+        result.lastField.getItemName(0)).getLinkedClass(session);
 
     for (var i = 1; i < fieldCount; i++) {
       if (cls == null || !cls.areIndexed(session, result.lastField.getItemName(i))) {
         return false;
       }
 
-      cls = (SchemaClassInternal) cls.getProperty(result.lastField.getItemName(i)).getLinkedClass();
+      cls = (SchemaClassInternal) cls.getProperty(session, result.lastField.getItemName(i))
+          .getLinkedClass(session);
     }
     return true;
   }

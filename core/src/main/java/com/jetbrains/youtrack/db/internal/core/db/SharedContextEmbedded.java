@@ -4,7 +4,6 @@ import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.index.IndexException;
-import com.jetbrains.youtrack.db.internal.core.index.IndexFactory;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerShared;
 import com.jetbrains.youtrack.db.internal.core.index.Indexes;
@@ -20,15 +19,11 @@ import com.jetbrains.youtrack.db.internal.core.sql.parser.ExecutionPlanCache;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.StatementCache;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  *
  */
 public class SharedContextEmbedded extends SharedContext {
-
-  protected Map<String, DistributedQueryContext> activeDistributedQueries;
   protected IndexManagerAbstract indexManager;
 
   public SharedContextEmbedded(Storage storage, YouTrackDBEmbedded youtrackDB) {
@@ -68,14 +63,6 @@ public class SharedContextEmbedded extends SharedContext {
     this.registerListener(executionPlanCache);
 
     queryStats = new QueryStats();
-    activeDistributedQueries = new HashMap<>();
-    ((AbstractPaginatedStorage) storage)
-        .setStorageConfigurationUpdateListener(
-            update -> {
-              for (var listener : browseListeners()) {
-                listener.onStorageConfigurationUpdate(storage.getName(), update);
-              }
-            });
   }
 
   public synchronized void load(DatabaseSessionInternal database) {
@@ -97,7 +84,7 @@ public class SharedContextEmbedded extends SharedContext {
       }
     } finally {
       PROFILER.stopChrono(
-          PROFILER.getDatabaseMetric(database.getName(), "metadata.load"),
+          PROFILER.getDatabaseMetric(database.getDatabaseName(), "metadata.load"),
           "Loading of database metadata",
           timer,
           "db.*.metadata.load");
@@ -117,7 +104,6 @@ public class SharedContextEmbedded extends SharedContext {
     executionPlanCache.invalidate();
     liveQueryOps.close();
     liveQueryOpsV2.close();
-    activeDistributedQueries.values().forEach(DistributedQueryContext::close);
     loaded = false;
   }
 
@@ -164,10 +150,6 @@ public class SharedContextEmbedded extends SharedContext {
 
   public IndexManagerAbstract getIndexManager() {
     return indexManager;
-  }
-
-  public Map<String, DistributedQueryContext> getActiveDistributedQueries() {
-    return activeDistributedQueries;
   }
 
   public synchronized void reInit(

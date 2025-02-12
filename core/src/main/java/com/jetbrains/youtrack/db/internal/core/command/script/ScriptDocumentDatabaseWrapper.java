@@ -23,7 +23,6 @@ import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.DatabaseSession.ATTRIBUTES;
 import com.jetbrains.youtrack.db.api.DatabaseSession.STATUS;
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
@@ -142,7 +141,7 @@ public class ScriptDocumentDatabaseWrapper {
   }
 
   public String getName() {
-    return database.getName();
+    return database.getDatabaseName();
   }
 
   public String getURL() {
@@ -247,11 +246,6 @@ public class ScriptDocumentDatabaseWrapper {
 
   public <RET extends DBRecord> RET load(RID iRecordId) {
     return database.load(iRecordId);
-  }
-
-
-  public int getDefaultClusterId() {
-    return database.getDefaultClusterId();
   }
 
   public <RET extends DBRecord> RET load(final String iRidAsString) {

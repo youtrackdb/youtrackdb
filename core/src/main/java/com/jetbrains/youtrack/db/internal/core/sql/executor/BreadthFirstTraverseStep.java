@@ -37,7 +37,7 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
       Set<RID> traversed) {
     // Doing max batch of 100 entry points for now
     while (nextN.hasNext(ctx) && entryPoints.size() < 100) {
-      var item = toTraverseResult(ctx.getDatabase(), nextN.next(ctx));
+      var item = toTraverseResult(ctx.getDatabaseSession(), nextN.next(ctx));
       if (item != null) {
         List<RID> stack = new ArrayList<>();
         item.getIdentity().ifPresent(stack::add);
@@ -144,7 +144,7 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
     if (traversed.contains(nextStep.getIdentity())) {
       return;
     }
-    var res = new TraverseResult(ctx.getDatabase(), nextStep);
+    var res = new TraverseResult(ctx.getDatabaseSession(), nextStep);
     res.depth = depth;
     res.setMetadata("$depth", depth);
 
@@ -194,7 +194,7 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
 
       tryAddEntryPoint(nextStep, ctx, entryPoints, traversed);
     } else {
-      var res = new TraverseResult(ctx.getDatabase(), nextStep.getEntity().get());
+      var res = new TraverseResult(ctx.getDatabaseSession(), nextStep.getEntity().get());
       res.depth = depth;
       res.setMetadata("$depth", depth);
 

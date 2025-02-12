@@ -10,15 +10,12 @@ import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.DatabaseType;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.session.SessionPool;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
 import java.io.File;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -40,8 +37,6 @@ public class YouTrackDBRemoteTest {
 
   @Before
   public void before() throws Exception {
-    DatabaseRecordThreadLocal.instance().remove();
-
     GlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY.setValue(false);
     server = new YouTrackDBServer(false);
     server.setServerRootDirectory(SERVER_DIRECTORY);
@@ -277,7 +272,5 @@ public class YouTrackDBRemoteTest {
     YouTrackDBEnginesManager.instance().shutdown();
     FileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
     YouTrackDBEnginesManager.instance().startup();
-
-    DatabaseRecordThreadLocal.instance().remove();
   }
 }

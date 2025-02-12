@@ -20,7 +20,6 @@ import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
-import com.jetbrains.youtrack.db.internal.core.util.DatabaseURLConnection;
 import com.jetbrains.youtrack.db.internal.core.util.URLHelper;
 import java.sql.Array;
 import java.sql.Blob;
@@ -228,7 +227,7 @@ public class YouTrackDbJdbcConnection implements Connection {
   }
 
   public String getCatalog() throws SQLException {
-    return database.getName();
+    return database.getDatabaseName();
   }
 
   public void setCatalog(String catalog) throws SQLException {
@@ -333,7 +332,7 @@ public class YouTrackDbJdbcConnection implements Connection {
     return null;
   }
 
-  public DatabaseSession getDatabase() {
+  public DatabaseSession getDatabaseSession() {
     return database;
   }
 

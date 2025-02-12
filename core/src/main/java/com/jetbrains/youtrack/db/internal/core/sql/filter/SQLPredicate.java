@@ -68,16 +68,16 @@ public class SQLPredicate extends BaseParser implements CommandPredicate {
   public SQLPredicate(@Nonnull CommandContext context, final String iText) {
     this.context = context;
 
-    text(context.getDatabase(), iText);
+    text(context.getDatabaseSession(), iText);
   }
 
-  protected void throwSyntaxErrorException(final String iText) {
+  protected void throwSyntaxErrorException(String dbName, final String iText) {
     final var syntax = getSyntax();
     if (syntax.equals("?")) {
-      throw new CommandSQLParsingException(iText, parserText, parserGetPreviousPosition());
+      throw new CommandSQLParsingException(dbName, iText, parserText, parserGetPreviousPosition());
     }
 
-    throw new CommandSQLParsingException(
+    throw new CommandSQLParsingException(dbName,
         iText + ". Use " + syntax, parserText, parserGetPreviousPosition());
   }
 
@@ -96,7 +96,7 @@ public class SQLPredicate extends BaseParser implements CommandPredicate {
 
   public SQLPredicate text(DatabaseSessionInternal session, final String iText) {
     if (iText == null) {
-      throw new CommandSQLParsingException("Query text is null");
+      throw new CommandSQLParsingException(session.getDatabaseName(), "Query text is null");
     }
 
     try {
@@ -113,17 +113,17 @@ public class SQLPredicate extends BaseParser implements CommandPredicate {
       // QUERY EXCEPTION BUT WITHOUT TEXT: NEST IT
       {
         throw BaseException.wrapException(
-            new QueryParsingException(
+            new QueryParsingException(session.getDatabaseName(),
                 "Error on parsing query", parserText, parserGetCurrentPosition()),
-            e);
+            e, session);
       }
 
       throw e;
     } catch (Exception t) {
       throw BaseException.wrapException(
-          new QueryParsingException(
+          new QueryParsingException(session.getDatabaseName(),
               "Error on parsing query", parserText, parserGetCurrentPosition()),
-          t);
+          t, session);
     }
     return this;
   }
@@ -271,7 +271,7 @@ public class SQLPredicate extends BaseParser implements CommandPredicate {
       candidateOperators[i] = operators[i].keyword;
     }
 
-    final var operatorPos = parserNextChars(true, false, candidateOperators);
+    final var operatorPos = parserNextChars(null, true, false, candidateOperators);
 
     if (operatorPos == -1) {
       parserGoBack();
@@ -294,7 +294,7 @@ public class SQLPredicate extends BaseParser implements CommandPredicate {
         parserSetCurrentPosition(
             StringSerializerHelper.getParameters(parserText, paramBeginPos, -1, params));
       } else if (!word.equals(op.keyword)) {
-        throw new QueryParsingException(
+        throw new QueryParsingException(null,
             "Malformed usage of operator '" + op + "'. Parsed operator is: " + word);
       }
 
@@ -303,9 +303,9 @@ public class SQLPredicate extends BaseParser implements CommandPredicate {
         return op.configure(params);
       } catch (Exception e) {
         throw BaseException.wrapException(
-            new QueryParsingException(
+            new QueryParsingException(null,
                 "Syntax error using the operator '" + op + "'. Syntax is: " + op.getSyntax()),
-            e);
+            e, (String) null);
       }
     } else {
       parserMoveCurrentPosition(+1);
@@ -458,7 +458,7 @@ public class SQLPredicate extends BaseParser implements CommandPredicate {
 
       // CHECK THE PARAMETER NAME IS CORRECT
       if (!StringSerializerHelper.isAlphanumeric(name)) {
-        throw new QueryParsingException(
+        throw new QueryParsingException(null,
             "Parameter name '" + name + "' is invalid, only alphanumeric characters are allowed");
       }
     } else {

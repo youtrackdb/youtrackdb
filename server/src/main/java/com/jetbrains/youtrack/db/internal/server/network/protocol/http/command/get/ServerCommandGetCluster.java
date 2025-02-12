@@ -19,7 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.get;
 
-import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
@@ -48,7 +47,7 @@ public class ServerCommandGetCluster extends ServerCommandAuthenticatedDbAbstrac
     DatabaseSessionInternal db = null;
 
     try {
-      db = getProfiledDatabaseInstance(iRequest);
+      db = getProfiledDatabaseSessionInstance(iRequest);
 
       if (db.getClusterIdByName(urlParts[2]) > -1) {
         final var limit = urlParts.length > 3 ? Integer.parseInt(urlParts[3]) : 20;

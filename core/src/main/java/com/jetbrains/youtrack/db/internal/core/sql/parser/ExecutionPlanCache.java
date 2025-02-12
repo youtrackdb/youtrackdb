@@ -109,7 +109,7 @@ public class ExecutionPlanCache implements MetadataUpdateListener {
     synchronized (map) {
       var internal = (InternalExecutionPlan) plan;
       var ctx = new BasicCommandContext();
-      ctx.setDatabase(db);
+      ctx.setDatabaseSession(db);
       internal = internal.copy(ctx);
       // this copy is never used, so it has to be closed to free resources
       internal.close();

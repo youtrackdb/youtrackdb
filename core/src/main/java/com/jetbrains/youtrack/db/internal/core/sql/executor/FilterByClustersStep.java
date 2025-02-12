@@ -1,11 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
-import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.util.Set;
@@ -23,10 +23,10 @@ public class FilterByClustersStep extends AbstractExecutionStep {
     this.clusters = filterClusters;
   }
 
-  private IntOpenHashSet init(DatabaseSessionInternal db) {
+  private IntOpenHashSet init(DatabaseSessionInternal session) {
     var clusterIds = new IntOpenHashSet();
     for (var clusterName : clusters) {
-      var clusterId = db.getClusterIdByName(clusterName);
+      var clusterId = session.getClusterIdByName(clusterName);
       clusterIds.add(clusterId);
     }
     return clusterIds;
@@ -34,7 +34,7 @@ public class FilterByClustersStep extends AbstractExecutionStep {
 
   @Override
   public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
-    var ids = init(ctx.getDatabase());
+    var ids = init(ctx.getDatabaseSession());
     if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
     }
@@ -69,8 +69,8 @@ public class FilterByClustersStep extends AbstractExecutionStep {
   }
 
   @Override
-  public Result serialize(DatabaseSessionInternal db) {
-    var result = ExecutionStepInternal.basicSerialize(db, this);
+  public Result serialize(DatabaseSessionInternal session) {
+    var result = ExecutionStepInternal.basicSerialize(session, this);
     if (clusters != null) {
       result.setProperty("clusters", clusters);
     }
@@ -79,12 +79,12 @@ public class FilterByClustersStep extends AbstractExecutionStep {
   }
 
   @Override
-  public void deserialize(Result fromResult) {
+  public void deserialize(Result fromResult, DatabaseSessionInternal session) {
     try {
-      ExecutionStepInternal.basicDeserialize(fromResult, this);
+      ExecutionStepInternal.basicDeserialize(fromResult, this, session);
       clusters = fromResult.getProperty("clusters");
     } catch (Exception e) {
-      throw BaseException.wrapException(new CommandExecutionException(""), e);
+      throw BaseException.wrapException(new CommandExecutionException(session, ""), e, session);
     }
   }
 }

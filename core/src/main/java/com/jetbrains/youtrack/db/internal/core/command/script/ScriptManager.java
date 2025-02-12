@@ -45,11 +45,9 @@ import com.jetbrains.youtrack.db.internal.core.sql.SQLScriptEngineFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -175,12 +173,12 @@ public class ScriptManager {
   /**
    * Formats the library of functions for a language.
    *
-   * @param db        Current database instance
+   * @param session        Current database instance
    * @param iLanguage Language as filter
    * @return String containing all the functions
    */
-  public String getLibrary(final DatabaseSessionInternal db, final String iLanguage) {
-    if (db == null)
+  public String getLibrary(final DatabaseSessionInternal session, final String iLanguage) {
+    if (session == null)
     // NO DB = NO LIBRARY
     {
       return null;
@@ -188,16 +186,17 @@ public class ScriptManager {
 
     final var code = new StringBuilder();
 
-    final var functions = db.getMetadata().getFunctionLibrary().getFunctionNames();
+    final var functions = session.getMetadata().getFunctionLibrary().getFunctionNames();
     for (var fName : functions) {
-      final var f = db.getMetadata().getFunctionLibrary().getFunction(fName);
+      final var f = session.getMetadata().getFunctionLibrary().getFunction(session, fName);
 
       if (f.getLanguage() == null) {
-        throw new ConfigurationException("Database function '" + fName + "' has no language");
+        throw new ConfigurationException(session.getDatabaseName(),
+            "Database function '" + fName + "' has no language");
       }
 
       if (f.getLanguage().equalsIgnoreCase(iLanguage)) {
-        final var def = getFunctionDefinition(db, f);
+        final var def = getFunctionDefinition(session, f);
         if (def != null) {
           code.append(def);
           code.append("\n");
@@ -217,16 +216,16 @@ public class ScriptManager {
     return engines.containsKey(iLanguage);
   }
 
-  public ScriptEngine getEngine(final String iLanguage) {
+  public ScriptEngine getEngine(String dbName, final String iLanguage) {
     if (iLanguage == null) {
-      throw new CommandScriptException("No language was specified");
+      throw new CommandScriptException(dbName, "No language was specified");
     }
 
     final var lang = iLanguage.toLowerCase(Locale.ENGLISH);
 
     final var scriptEngineFactory = engines.get(lang);
     if (scriptEngineFactory == null) {
-      throw new CommandScriptException(
+      throw new CommandScriptException(dbName,
           "Unsupported language: "
               + iLanguage
               + ". Supported languages are: "
@@ -240,17 +239,18 @@ public class ScriptManager {
    * Acquires a database engine from the pool. Once finished using it, the instance MUST be returned
    * in the pool by calling the method #releaseDatabaseEngine(String, ScriptEngine).
    *
-   * @param databaseName Database name
-   * @param language     Script language
+   * @param db       Database instance
+   * @param language Script language
    * @return ScriptEngine instance with the function library already parsed
    * @see #releaseDatabaseEngine(String, String, ScriptEngine)
    */
-  public ScriptEngine acquireDatabaseEngine(final String databaseName, final String language) {
-    var dbManager = dbManagers.get(databaseName);
+  public ScriptEngine acquireDatabaseEngine(final DatabaseSessionInternal db,
+      final String language) {
+    var dbManager = dbManagers.get(db.getDatabaseName());
     if (dbManager == null) {
       // CREATE A NEW DATABASE SCRIPT MANAGER
-      dbManager = new DatabaseScriptManager(this, databaseName);
-      final var prev = dbManagers.putIfAbsent(databaseName, dbManager);
+      dbManager = new DatabaseScriptManager(this, db.getDatabaseName());
+      final var prev = dbManagers.putIfAbsent(db.getDatabaseName(), dbManager);
       if (prev != null) {
         dbManager.close();
         // GET PREVIOUS ONE
@@ -258,7 +258,7 @@ public class ScriptManager {
       }
     }
 
-    return dbManager.acquireEngine(language);
+    return dbManager.acquireEngine(db, language);
   }
 
   /**
@@ -268,7 +268,7 @@ public class ScriptManager {
    * @param iLanguage     Script language
    * @param iDatabaseName Database name
    * @param poolEntry     Pool entry to free
-   * @see #acquireDatabaseEngine(String, String)
+   * @see #acquireDatabaseEngine(DatabaseSessionInternal, String)
    */
   public void releaseDatabaseEngine(
       final String iLanguage, final String iDatabaseName, final ScriptEngine poolEntry) {
@@ -368,7 +368,7 @@ public class ScriptManager {
     }
   }
 
-  public String throwErrorMessage(final ScriptException e, final String lib) {
+  public String throwErrorMessage(String dbName, final ScriptException e, final String lib) {
     var errorLineNumber = e.getLineNumber();
 
     if (errorLineNumber <= 0) {
@@ -383,7 +383,7 @@ public class ScriptManager {
     }
 
     if (errorLineNumber <= 0) {
-      throw new CommandScriptException(
+      throw new CommandScriptException(dbName,
           "Error on evaluation of the script library. Error: "
               + e.getMessage()
               + "\nScript library was:\n"
@@ -430,14 +430,12 @@ public class ScriptManager {
         scanner.close();
       }
 
-      throw new CommandScriptException(code.toString());
+      throw new CommandScriptException(dbName, code.toString());
     }
   }
 
   /**
    * Unbinds variables
-   *
-   * @param binding
    */
   public void unbind(
       ScriptEngine scriptEngine,
@@ -561,8 +559,8 @@ public class ScriptManager {
   }
 
   /**
-   * Closes the pool for a database. This is called at YouTrackDB shutdown and in case a function has
-   * been updated.
+   * Closes the pool for a database. This is called at YouTrackDB shutdown and in case a function
+   * has been updated.
    *
    * @param iDatabaseName
    */

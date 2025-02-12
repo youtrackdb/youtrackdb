@@ -13,11 +13,11 @@ public class BatchUniqueProjectionRid extends DbTestBase {
   @Test
   public void testBatchUniqueRid() {
     List<List<EntityImpl>> res =
-        db.command(
+        session.command(
                 new CommandScript(
                     "begin;let $a = select \"a\" as a ; let $b = select \"a\" as b; return"
                         + " [$a,$b] "))
-            .execute(db);
+            .execute(session);
 
     assertNotEquals(
         res.get(0).get(0).getIdentity().getClusterPosition(),

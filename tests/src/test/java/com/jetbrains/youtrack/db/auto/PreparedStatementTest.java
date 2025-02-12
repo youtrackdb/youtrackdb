@@ -15,8 +15,6 @@
  */
 package com.jetbrains.youtrack.db.auto;
 
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.HashMap;
@@ -40,18 +38,18 @@ public class PreparedStatementTest extends BaseDBTest {
   @Override
   public void beforeClass() throws Exception {
     super.beforeClass();
-    db.command("CREATE CLASS PreparedStatementTest1");
-    db.command("insert into PreparedStatementTest1 (name, surname) values ('foo1', 'bar1')");
-    db.command(
+    session.command("CREATE CLASS PreparedStatementTest1");
+    session.command("insert into PreparedStatementTest1 (name, surname) values ('foo1', 'bar1')");
+    session.command(
         "insert into PreparedStatementTest1 (name, listElem) values ('foo2', ['bar2'])");
   }
 
   @Test
   public void testUnnamedParamTarget() {
     Iterable<EntityImpl> result =
-        db
+        session
             .command(new SQLSynchQuery<EntityImpl>("select from ?"))
-            .execute(db, "PreparedStatementTest1");
+            .execute(session, "PreparedStatementTest1");
 
     Set<String> expected = new HashSet<String>();
     expected.add("foo1");
@@ -69,8 +67,8 @@ public class PreparedStatementTest extends BaseDBTest {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("className", "PreparedStatementTest1");
     Iterable<EntityImpl> result =
-        db.command(new SQLSynchQuery<EntityImpl>("select from :className"))
-            .execute(db, params);
+        session.command(new SQLSynchQuery<EntityImpl>("select from :className"))
+            .execute(session, params);
 
     Set<String> expected = new HashSet<String>();
     expected.add("foo1");
@@ -87,17 +85,17 @@ public class PreparedStatementTest extends BaseDBTest {
   public void testNamedParamTargetRid() {
 
     Iterable<EntityImpl> result =
-        db
+        session
             .command(new SQLSynchQuery<EntityImpl>("select from PreparedStatementTest1 limit 1"))
-            .execute(db);
+            .execute(session);
 
     var record = result.iterator().next();
 
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("inputRid", record.getIdentity());
     result =
-        db.command(new SQLSynchQuery<EntityImpl>("select from :inputRid"))
-            .execute(db, params);
+        session.command(new SQLSynchQuery<EntityImpl>("select from :inputRid"))
+            .execute(session, params);
 
     var found = false;
     for (var doc : result) {
@@ -112,15 +110,15 @@ public class PreparedStatementTest extends BaseDBTest {
   public void testUnnamedParamTargetRid() {
 
     Iterable<EntityImpl> result =
-        db
+        session
             .command(new SQLSynchQuery<EntityImpl>("select from PreparedStatementTest1 limit 1"))
-            .execute(db);
+            .execute(session);
 
     var record = result.iterator().next();
     result =
-        db
+        session
             .command(new SQLSynchQuery<EntityImpl>("select from ?"))
-            .execute(db, record.getIdentity());
+            .execute(session, record.getIdentity());
 
     var found = false;
     for (var doc : result) {
@@ -135,17 +133,17 @@ public class PreparedStatementTest extends BaseDBTest {
   public void testNamedParamTargetDocument() {
 
     Iterable<EntityImpl> result =
-        db
+        session
             .command(new SQLSynchQuery<EntityImpl>("select from PreparedStatementTest1 limit 1"))
-            .execute(db);
+            .execute(session);
 
     var record = result.iterator().next();
 
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("inputRid", record);
     result =
-        db.command(new SQLSynchQuery<EntityImpl>("select from :inputRid"))
-            .execute(db, params);
+        session.command(new SQLSynchQuery<EntityImpl>("select from :inputRid"))
+            .execute(session, params);
 
     var found = false;
     for (var doc : result) {
@@ -160,13 +158,13 @@ public class PreparedStatementTest extends BaseDBTest {
   public void testUnnamedParamTargetDocument() {
 
     Iterable<EntityImpl> result =
-        db
+        session
             .command(new SQLSynchQuery<EntityImpl>("select from PreparedStatementTest1 limit 1"))
-            .execute(db);
+            .execute(session);
 
     var record = result.iterator().next();
-    result = db.command(new SQLSynchQuery<EntityImpl>("select from ?"))
-        .execute(db, record);
+    result = session.command(new SQLSynchQuery<EntityImpl>("select from ?"))
+        .execute(session, record);
 
     var found = false;
     for (var doc : result) {
@@ -179,7 +177,7 @@ public class PreparedStatementTest extends BaseDBTest {
 
   @Test
   public void testUnnamedParamFlat() {
-    var result = db.query("select from PreparedStatementTest1 where name = ?",
+    var result = session.query("select from PreparedStatementTest1 where name = ?",
         "foo1");
 
     var found = false;
@@ -196,7 +194,7 @@ public class PreparedStatementTest extends BaseDBTest {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("name", "foo1");
     var result =
-        db.query("select from PreparedStatementTest1 where name = :name", params);
+        session.query("select from PreparedStatementTest1 where name = :name", params);
 
     var found = false;
     while (result.hasNext()) {
@@ -210,11 +208,11 @@ public class PreparedStatementTest extends BaseDBTest {
   @Test
   public void testUnnamedParamInArray() {
     Iterable<EntityImpl> result =
-        db
+        session
             .command(
                 new SQLSynchQuery<EntityImpl>(
                     "select from PreparedStatementTest1 where name in [?]"))
-            .execute(db, "foo1");
+            .execute(session, "foo1");
 
     var found = false;
     for (var doc : result) {
@@ -229,11 +227,11 @@ public class PreparedStatementTest extends BaseDBTest {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("name", "foo1");
     Iterable<EntityImpl> result =
-        db
+        session
             .command(
                 new SQLSynchQuery<EntityImpl>(
                     "select from PreparedStatementTest1 where name in [:name]"))
-            .execute(db, params);
+            .execute(session, params);
 
     var found = false;
     for (var doc : result) {
@@ -246,11 +244,11 @@ public class PreparedStatementTest extends BaseDBTest {
   @Test
   public void testUnnamedParamInArray2() {
     Iterable<EntityImpl> result =
-        db
+        session
             .command(
                 new SQLSynchQuery<EntityImpl>(
                     "select from PreparedStatementTest1 where name in [?, 'antani']"))
-            .execute(db, "foo1");
+            .execute(session, "foo1");
 
     var found = false;
     for (var doc : result) {
@@ -265,11 +263,11 @@ public class PreparedStatementTest extends BaseDBTest {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("name", "foo1");
     Iterable<EntityImpl> result =
-        db
+        session
             .command(
                 new SQLSynchQuery<EntityImpl>(
                     "select from PreparedStatementTest1 where name in [:name, 'antani']"))
-            .execute(db, params);
+            .execute(session, params);
 
     var found = false;
     for (var doc : result) {
@@ -282,7 +280,7 @@ public class PreparedStatementTest extends BaseDBTest {
   @Test
   public void testSubqueryUnnamedParamFlat() {
     var result =
-        db.query(
+        session.query(
             "select from (select from PreparedStatementTest1 where name = ?) where name = ?",
             "foo1",
             "foo1");
@@ -301,7 +299,7 @@ public class PreparedStatementTest extends BaseDBTest {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("name", "foo1");
     var result =
-        db.query(
+        session.query(
             "select from (select from PreparedStatementTest1 where name = :name) where name ="
                 + " :name",
             params);
@@ -320,7 +318,7 @@ public class PreparedStatementTest extends BaseDBTest {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("one", 1);
     params.put("three", 3);
-    var result = db.query("select max(:one, :three) as maximo", params);
+    var result = session.query("select max(:one, :three) as maximo", params);
 
     var found = false;
     while (result.hasNext()) {
@@ -336,9 +334,9 @@ public class PreparedStatementTest extends BaseDBTest {
 
     try {
       Iterable<EntityImpl> result =
-          db
+          session
               .command(new SQLSynchQuery<EntityImpl>("select from ?"))
-              .execute(db, "PreparedStatementTest1 where name = 'foo'");
+              .execute(session, "PreparedStatementTest1 where name = 'foo'");
       Assert.fail();
     } catch (Exception e) {
 

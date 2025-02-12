@@ -43,9 +43,6 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.spatial.SpatialStrategy;
 
-/**
- *
- */
 public class LuceneSpatialIndexEngineDelegator
     implements LuceneIndexEngine, LuceneSpatialIndexContainer {
 
@@ -131,27 +128,30 @@ public class LuceneSpatialIndexEngineDelegator
   }
 
   @Override
-  public void put(DatabaseSessionInternal db, AtomicOperation atomicOperation, Object key,
+  public void put(DatabaseSessionInternal session, AtomicOperation atomicOperation, Object key,
       Object value) {
 
     try {
-      delegate.put(db, atomicOperation, key, value);
+      delegate.put(session, atomicOperation, key, value);
     } catch (IOException e) {
       throw BaseException.wrapException(
-          new IndexException("Error during insertion of key " + key + " in index " + indexName),
-          e);
+          new IndexException(session,
+              "Error during insertion of key " + key + " in index " + indexName),
+          e, session);
     }
   }
 
   @Override
   public void update(
-      DatabaseSessionInternal db, AtomicOperation atomicOperation, Object key,
+      DatabaseSessionInternal session, AtomicOperation atomicOperation, Object key,
       IndexKeyUpdater<Object> updater) {
     try {
-      delegate.update(db, atomicOperation, key, updater);
+      delegate.update(session, atomicOperation, key, updater);
     } catch (IOException e) {
       throw BaseException.wrapException(
-          new IndexException("Error during update of key " + key + " in index " + indexName), e);
+          new IndexException(session,
+              "Error during update of key " + key + " in index " + indexName),
+          e, session);
     }
   }
 
@@ -166,7 +166,7 @@ public class LuceneSpatialIndexEngineDelegator
     } catch (IOException e) {
       throw BaseException.wrapException(
           new IndexException("Error during insertion of key " + key + " in index " + indexName),
-          e);
+          e, (String) null);
     }
   }
 
@@ -246,14 +246,14 @@ public class LuceneSpatialIndexEngineDelegator
   }
 
   @Override
-  public Document buildDocument(DatabaseSessionInternal db, Object key,
+  public Document buildDocument(DatabaseSessionInternal session, Object key,
       Identifiable value) {
-    return delegate.buildDocument(db, key, value);
+    return delegate.buildDocument(session, key, value);
   }
 
   @Override
-  public Query buildQuery(Object query) {
-    return delegate.buildQuery(query);
+  public Query buildQuery(Object query, DatabaseSessionInternal session) {
+    return delegate.buildQuery(query, session);
   }
 
   @Override
@@ -297,9 +297,9 @@ public class LuceneSpatialIndexEngineDelegator
   }
 
   @Override
-  public Set<Identifiable> getInTx(DatabaseSessionInternal db, Object key,
+  public Set<Identifiable> getInTx(DatabaseSessionInternal session, Object key,
       LuceneTxChanges changes) {
-    return delegate.getInTx(db, key, changes);
+    return delegate.getInTx(session, key, changes);
   }
 
   @Override

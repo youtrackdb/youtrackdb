@@ -22,7 +22,7 @@ public class SQLSleepStatement extends SQLSimpleExecStatement {
 
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
-    var item = new ResultInternal(ctx.getDatabase());
+    var item = new ResultInternal(ctx.getDatabaseSession());
     item.setProperty("operation", "sleep");
     try {
       Thread.sleep(millis.getValue().intValue());

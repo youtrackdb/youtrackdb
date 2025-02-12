@@ -34,7 +34,7 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
 
   private static Result mapResult(Result result, CommandContext ctx) {
     if (result instanceof ResultInternal resultInternal && resultInternal.isEntity()) {
-      var db = ctx.getDatabase();
+      var db = ctx.getDatabaseSession();
       handleUpdateEdge(result.asEntity().getRecord(db), db);
     }
 
@@ -83,14 +83,14 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
         prevOutIdentifiable, currentOutIdentifiable);
   }
 
-  private static void validateOutInForEdge(DatabaseSessionInternal db,
+  private static void validateOutInForEdge(DatabaseSessionInternal session,
       Object currentOut, Object currentIn) {
-    if (recordIsNotInstanceOfVertex(db, currentOut)) {
-      throw new CommandExecutionException(
+    if (recordIsNotInstanceOfVertex(session, currentOut)) {
+      throw new CommandExecutionException(session,
           "Error updating edge: 'out' is not a vertex - " + currentOut);
     }
-    if (recordIsNotInstanceOfVertex(db, currentIn)) {
-      throw new CommandExecutionException(
+    if (recordIsNotInstanceOfVertex(session, currentIn)) {
+      throw new CommandExecutionException(session,
           "Error updating edge: 'in' is not a vertex - " + currentIn);
     }
   }
@@ -111,7 +111,7 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
     try {
       EntityImpl record = ((Identifiable) iRecord).getRecord(db);
       return (!EntityInternalUtils.getImmutableSchemaClass(record)
-          .isSubClassOf(SchemaClass.VERTEX_CLASS_NAME));
+          .isSubClassOf(db, SchemaClass.VERTEX_CLASS_NAME));
     } catch (RecordNotFoundException rnf) {
       return true;
     }

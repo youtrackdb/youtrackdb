@@ -22,7 +22,7 @@ import com.jetbrains.youtrack.db.internal.core.security.ParsedToken;
 import com.jetbrains.youtrack.db.internal.core.security.TokenSign;
 import com.jetbrains.youtrack.db.internal.core.security.TokenSignImpl;
 import com.jetbrains.youtrack.db.internal.server.ClientConnection;
-import com.jetbrains.youtrack.db.internal.server.OTokenHandler;
+import com.jetbrains.youtrack.db.internal.server.TokenHandler;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.NetworkProtocolData;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -36,7 +36,7 @@ import java.util.UUID;
 /**
  *
  */
-public class TokenHandlerImpl implements OTokenHandler {
+public class TokenHandlerImpl implements TokenHandler {
 
   protected static final int JWT_DELIMITER = '.';
   private BinaryTokenSerializer binarySerializer;
@@ -141,7 +141,7 @@ public class TokenHandlerImpl implements OTokenHandler {
       return false;
     }
     final var curTime = System.currentTimeMillis();
-    if (token.getDatabase().equalsIgnoreCase(database)
+    if (token.getDatabaseName().equalsIgnoreCase(database)
         && token.getExpiry() > curTime
         && (token.getExpiry() - (sessionInMills + 1)) < curTime) {
       valid = true;
@@ -177,13 +177,13 @@ public class TokenHandlerImpl implements OTokenHandler {
     return valid;
   }
 
-  public byte[] getSignedWebToken(final DatabaseSessionInternal db, final SecurityUser user) {
+  public byte[] getSignedWebToken(final DatabaseSessionInternal session, final SecurityUser user) {
     final var tokenByteOS = new ByteArrayOutputStream(1024);
     final var header = new YouTrackDBJwtHeader();
     header.setAlgorithm("HS256");
     header.setKeyId("");
 
-    final var payload = createPayload(db, user);
+    final var payload = createPayload(session, user);
     header.setType(getPayloadType(payload));
     try {
       var bytes = serializeWebHeader(header);
@@ -200,7 +200,7 @@ public class TokenHandlerImpl implements OTokenHandler {
       tokenByteOS.write(
           Base64.getUrlEncoder().encode(ByteBuffer.wrap(bytes, 0, bytes.length)).array());
     } catch (Exception ex) {
-      throw BaseException.wrapException(new SystemException("Error on token parsing"), ex);
+      throw BaseException.wrapException(new SystemException("Error on token parsing"), ex, session);
     }
 
     return tokenByteOS.toByteArray();
@@ -229,7 +229,8 @@ public class TokenHandlerImpl implements OTokenHandler {
       tokenByteOS.write(
           Base64.getUrlEncoder().encode(ByteBuffer.wrap(bytes, 0, bytes.length)).array());
     } catch (Exception ex) {
-      throw BaseException.wrapException(new SystemException("Error on token parsing"), ex);
+      throw BaseException.wrapException(new SystemException("Error on token parsing"), ex,
+          (String) null);
     }
 
     return tokenByteOS.toByteArray();
@@ -250,7 +251,7 @@ public class TokenHandlerImpl implements OTokenHandler {
   }
 
   public byte[] getSignedBinaryToken(
-      final DatabaseSessionInternal db,
+      final DatabaseSessionInternal session,
       final SecurityUser user,
       final NetworkProtocolData data) {
     try {
@@ -265,9 +266,9 @@ public class TokenHandlerImpl implements OTokenHandler {
       header.setType("YouTrackDB");
       token.setHeader(header);
       var payload = new BinaryTokenPayloadImpl();
-      if (db != null) {
-        payload.setDatabase(db.getName());
-        payload.setDatabaseType(db.getStorage().getType());
+      if (session != null) {
+        payload.setDatabase(session.getDatabaseName());
+        payload.setDatabaseType(session.getStorage().getType());
       }
       if (data.serverUser) {
         payload.setServerUser(true);
@@ -287,7 +288,7 @@ public class TokenHandlerImpl implements OTokenHandler {
     } catch (RuntimeException e) {
       throw e;
     } catch (Exception e) {
-      throw BaseException.wrapException(new SystemException("Error on token parsing"), e);
+      throw BaseException.wrapException(new SystemException("Error on token parsing"), e, session);
     }
   }
 
@@ -339,7 +340,8 @@ public class TokenHandlerImpl implements OTokenHandler {
       System.arraycopy(binaryToken, 0, onlyTokenBytes, 0, end);
       return new ParsedToken(token, onlyTokenBytes, decodedSignature);
     } catch (Exception e) {
-      throw BaseException.wrapException(new SystemException("Error on token parsing"), e);
+      throw BaseException.wrapException(new SystemException("Error on token parsing"), e,
+          (String) null);
     }
   }
 
@@ -368,7 +370,8 @@ public class TokenHandlerImpl implements OTokenHandler {
           throw new TokenException("renew of web token not supported");
         }
       } catch (IOException e) {
-        throw BaseException.wrapException(new SystemException("Error on token parsing"), e);
+        throw BaseException.wrapException(new SystemException("Error on token parsing"), e,
+            (String) null);
       }
     }
     return CommonConst.EMPTY_BYTE_ARRAY;
@@ -475,7 +478,7 @@ public class TokenHandlerImpl implements OTokenHandler {
 
     final var payload = new YouTrackDBJwtPayload();
     payload.setAudience("YouTrackDB");
-    payload.setDatabase(db.getName());
+    payload.setDatabase(db.getDatabaseName());
     payload.setUserRid(user.getIdentity().getIdentity());
 
     final var expiryMinutes = sessionInMills;
@@ -496,7 +499,8 @@ public class TokenHandlerImpl implements OTokenHandler {
     try {
       return binarySerializer.deserialize(bais);
     } catch (Exception e) {
-      throw BaseException.wrapException(new SystemException("Cannot deserialize binary token"), e);
+      throw BaseException.wrapException(new SystemException("Cannot deserialize binary token"),
+          e, (String) null);
     }
   }
 

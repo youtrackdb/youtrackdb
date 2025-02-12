@@ -70,11 +70,11 @@ public class ScheduledEvent extends IdentityWrapper {
   /**
    * Creates a scheduled event object from a configuration.
    */
-  public ScheduledEvent(final EntityImpl entity, DatabaseSessionInternal db) {
+  public ScheduledEvent(final EntityImpl entity, DatabaseSessionInternal session) {
     super(entity);
 
     var functionEntity = entity.getEntityProperty(PROP_FUNC);
-    function = db.getMetadata().getFunctionLibrary().getFunction(
+    function = session.getMetadata().getFunctionLibrary().getFunction(session,
         functionEntity.getProperty(Function.NAME_PROPERTY));
     rule = entity.getProperty(PROP_RULE);
     name = entity.getProperty(PROP_NAME);
@@ -313,7 +313,7 @@ public class ScheduledEvent extends IdentityWrapper {
       Object result = null;
       try {
         var context = new BasicCommandContext();
-        context.setDatabase(session);
+        context.setDatabaseSession(session);
 
         result = session.computeInTx(
             () -> event.getFunction().executeInContext(context, event.getArguments()));

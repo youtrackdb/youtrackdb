@@ -26,6 +26,7 @@ import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBShutdownListener;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBStartupListener;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
@@ -79,7 +80,7 @@ public class BTreeCollectionManagerRemote
   }
 
   @Override
-  public UUID listenForChanges(RidBag collection) {
+  public UUID listenForChanges(RidBag collection, DatabaseSessionInternal session) {
     var id = collection.getTemporaryId();
     if (id == null) {
       id = UUID.randomUUID();
@@ -91,7 +92,8 @@ public class BTreeCollectionManagerRemote
   }
 
   @Override
-  public void updateCollectionPointer(UUID uuid, BonsaiCollectionPointer pointer) {
+  public void updateCollectionPointer(UUID uuid, BonsaiCollectionPointer pointer,
+      DatabaseSessionInternal session) {
     final var reference = pendingCollections.get().get(uuid);
     if (reference == null) {
       LogManager.instance()
@@ -102,7 +104,7 @@ public class BTreeCollectionManagerRemote
     final var collection = reference.get();
 
     if (collection != null) {
-      collection.notifySaved(pointer);
+      collection.notifySaved(pointer, session);
     }
   }
 
@@ -112,12 +114,12 @@ public class BTreeCollectionManagerRemote
   }
 
   @Override
-  public Map<UUID, BonsaiCollectionPointer> changedIds() {
+  public Map<UUID, BonsaiCollectionPointer> changedIds(DatabaseSessionInternal session) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void clearChangedIds() {
+  public void clearChangedIds(DatabaseSessionInternal session) {
     throw new UnsupportedOperationException();
   }
 
@@ -131,14 +133,9 @@ public class BTreeCollectionManagerRemote
   }
 
   @Override
-  public EdgeBTree<RID, Integer> createAndLoadTree(
-      AtomicOperation atomicOperation, int clusterId) throws IOException {
-    return loadSBTree(createSBTree(clusterId, atomicOperation, null));
-  }
-
-  @Override
   public BonsaiCollectionPointer createSBTree(
-      int clusterId, AtomicOperation atomicOperation, UUID ownerUUID) throws IOException {
+      int clusterId, AtomicOperation atomicOperation, UUID ownerUUID,
+      DatabaseSessionInternal session) throws IOException {
     var tree = createEdgeTree(atomicOperation, clusterId);
     return tree.getCollectionPointer();
   }

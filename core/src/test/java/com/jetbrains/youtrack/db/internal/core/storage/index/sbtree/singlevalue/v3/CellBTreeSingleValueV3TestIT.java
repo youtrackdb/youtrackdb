@@ -60,7 +60,8 @@ public class CellBTreeSingleValueV3TestIT {
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
         atomicOperation ->
-            singleValueTree.create(atomicOperation, UTF8Serializer.INSTANCE, null, 1));
+            singleValueTree.create(atomicOperation, UTF8Serializer.INSTANCE, null, 1
+            ));
   }
 
   @After
@@ -87,8 +88,7 @@ public class CellBTreeSingleValueV3TestIT {
                   final var key = Integer.toString(iterationCounter * rollbackInterval + j);
                   singleValueTree.put(
                       atomicOperation,
-                      key,
-                      new RecordId(
+                      key, new RecordId(
                           (iterationCounter * rollbackInterval + j) % 32000,
                           iterationCounter * rollbackInterval + j));
 

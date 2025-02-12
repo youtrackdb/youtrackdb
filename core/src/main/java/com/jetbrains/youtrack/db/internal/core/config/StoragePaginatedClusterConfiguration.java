@@ -36,7 +36,6 @@ public class StoragePaginatedClusterConfiguration implements StorageClusterConfi
   public String location;
   public boolean useWal = true;
   public String conflictStrategy;
-  private STATUS status = STATUS.ONLINE;
   private final int binaryVersion;
 
   public StoragePaginatedClusterConfiguration(
@@ -50,7 +49,6 @@ public class StoragePaginatedClusterConfiguration implements StorageClusterConfi
       final String iEncryption,
       final String iEncryptionKey,
       final String conflictStrategy,
-      final STATUS iStatus,
       int binaryVersion) {
     this.id = id;
     this.name = name;
@@ -62,7 +60,6 @@ public class StoragePaginatedClusterConfiguration implements StorageClusterConfi
     this.encryption = iEncryption;
     this.encryptionKey = iEncryptionKey;
     this.conflictStrategy = conflictStrategy;
-    this.status = iStatus;
     this.binaryVersion = binaryVersion;
   }
 
@@ -84,16 +81,6 @@ public class StoragePaginatedClusterConfiguration implements StorageClusterConfi
   @Override
   public int getDataSegmentId() {
     return -1;
-  }
-
-  @Override
-  public STATUS getStatus() {
-    return status;
-  }
-
-  @Override
-  public void setStatus(final STATUS iStatus) {
-    status = iStatus;
   }
 
   public int getBinaryVersion() {

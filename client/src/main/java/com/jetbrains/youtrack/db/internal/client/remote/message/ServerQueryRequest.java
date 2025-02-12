@@ -94,7 +94,7 @@ public final class ServerQueryRequest implements BinaryRequest<ServerQueryRespon
   }
 
   @Override
-  public void write(DatabaseSessionInternal database, ChannelDataOutput network,
+  public void write(DatabaseSessionInternal databaseSession, ChannelDataOutput network,
       StorageRemoteSession session) throws IOException {
     network.writeString(language);
     network.writeString(statement);
@@ -108,7 +108,8 @@ public final class ServerQueryRequest implements BinaryRequest<ServerQueryRespon
     network.writeBoolean(namedParams);
   }
 
-  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+  public void read(DatabaseSessionInternal databaseSession, ChannelDataInput channel,
+      int protocolVersion,
       RecordSerializerNetwork serializer)
       throws IOException {
     this.language = channel.readString();

@@ -20,7 +20,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.functions.graph;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
 import com.jetbrains.youtrack.db.api.record.Direction;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.math.SQLFunctionMathAbstract;
@@ -161,7 +160,8 @@ public abstract class SQLFunctionHeuristicPathFinderAbstract extends SQLFunction
 
     var heuristic = 0.0;
 
-    var func = ctx.getDatabase().getMetadata().getFunctionLibrary().getFunction(functionName);
+    var session = ctx.getDatabaseSession();
+    var func = session.getMetadata().getFunctionLibrary().getFunction(session, functionName);
     var fValue =
         func.executeInContext(
             context, vertextAxisNames, start, goal, current, parent, depth, dFactor);

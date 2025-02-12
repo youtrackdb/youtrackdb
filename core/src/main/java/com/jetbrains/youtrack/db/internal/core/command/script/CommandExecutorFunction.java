@@ -46,12 +46,13 @@ public class CommandExecutorFunction extends CommandExecutorAbstract {
   }
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorFunction parse(DatabaseSessionInternal db, final CommandRequest iRequest) {
+  public CommandExecutorFunction parse(DatabaseSessionInternal session,
+      final CommandRequest iRequest) {
     request = (CommandFunction) iRequest;
     return this;
   }
 
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     return executeInContext(null, iArgs);
   }
 
@@ -59,15 +60,15 @@ public class CommandExecutorFunction extends CommandExecutorAbstract {
 
     parserText = request.getText();
 
-    var db = iContext.getDatabase();
-    final var f = db.getMetadata().getFunctionLibrary().getFunction(parserText);
+    var db = iContext.getDatabaseSession();
+    final var f = db.getMetadata().getFunctionLibrary().getFunction(db, parserText);
 
     db.checkSecurity(Rule.ResourceGeneric.FUNCTION, Role.PERMISSION_READ, f.getName());
 
     final var scriptManager = db.getSharedContext().getYouTrackDB().getScriptManager();
 
     final var scriptEngine =
-        scriptManager.acquireDatabaseEngine(db.getName(), f.getLanguage());
+        scriptManager.acquireDatabaseEngine(db, f.getLanguage());
     try {
       final var binding =
           scriptManager.bindContextVariables(
@@ -104,13 +105,14 @@ public class CommandExecutorFunction extends CommandExecutorAbstract {
 
       } catch (ScriptException e) {
         throw BaseException.wrapException(
-            new CommandScriptException(
+            new CommandScriptException(db.getDatabaseName(),
                 "Error on execution of the script", request.getText(), e.getColumnNumber()),
-            e);
+            e, db.getDatabaseName());
       } catch (NoSuchMethodException e) {
         throw BaseException.wrapException(
-            new CommandScriptException("Error on execution of the script", request.getText(), 0),
-            e);
+            new CommandScriptException(db.getDatabaseName(), "Error on execution of the script",
+                request.getText(), 0),
+            e, db.getDatabaseName());
       } catch (CommandScriptException e) {
         // PASS THROUGH
         throw e;
@@ -119,7 +121,7 @@ public class CommandExecutorFunction extends CommandExecutorAbstract {
         scriptManager.unbind(scriptEngine, binding, iContext, iArgs);
       }
     } finally {
-      scriptManager.releaseDatabaseEngine(f.getLanguage(), db.getName(), scriptEngine);
+      scriptManager.releaseDatabaseEngine(f.getLanguage(), db.getDatabaseName(), scriptEngine);
     }
   }
 
@@ -128,8 +130,8 @@ public class CommandExecutorFunction extends CommandExecutorAbstract {
   }
 
   @Override
-  protected void throwSyntaxErrorException(String iText) {
-    throw new CommandScriptException(
+  protected void throwSyntaxErrorException(String dbName, String iText) {
+    throw new CommandScriptException(dbName,
         "Error on execution of the script: " + iText, request.getText(), 0);
   }
 }

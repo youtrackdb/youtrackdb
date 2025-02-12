@@ -52,7 +52,7 @@ public class StreamSerializerAnyStreamable {
    * Re-Create any object if the class has a public constructor that accepts a String as unique
    * parameter.
    */
-  public CommandRequestText fromStream(DatabaseSessionInternal db, final byte[] iStream,
+  public CommandRequestText fromStream(DatabaseSessionInternal session, final byte[] iStream,
       RecordSerializerNetwork serializer)
       throws IOException {
     if (iStream == null || iStream.length == 0)
@@ -68,7 +68,7 @@ public class StreamSerializerAnyStreamable {
           "Class signature not found in ANY entity: " + Arrays.toString(iStream);
       LogManager.instance().error(this, message, null);
 
-      throw new SerializationException(message);
+      throw new SerializationException(session, message);
     }
 
     final var className = new String(iStream, 4, classNameSize, StandardCharsets.UTF_8);
@@ -94,13 +94,13 @@ public class StreamSerializerAnyStreamable {
         stream = (CommandRequestText) Class.forName(className).newInstance();
       }
 
-      return stream.fromStream(db,
+      return stream.fromStream(session,
           ArrayUtils.copyOfRange(iStream, 4 + classNameSize, iStream.length), serializer);
 
     } catch (Exception e) {
       final var message = "Error on unmarshalling content. Class: " + className;
       LogManager.instance().error(this, message, e);
-      throw BaseException.wrapException(new SerializationException(message), e);
+      throw BaseException.wrapException(new SerializationException(session, message), e, session);
     }
   }
 

@@ -12,10 +12,10 @@ import java.io.IOException;
  */
 public interface BinaryRequest<T extends BinaryResponse> {
 
-  void write(DatabaseSessionInternal database, final ChannelDataOutput network,
+  void write(DatabaseSessionInternal databaseSession, final ChannelDataOutput network,
       StorageRemoteSession session) throws IOException;
 
-  void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+  void read(DatabaseSessionInternal databaseSession, ChannelDataInput channel, int protocolVersion,
       RecordSerializerNetwork serializer)
       throws IOException;
 

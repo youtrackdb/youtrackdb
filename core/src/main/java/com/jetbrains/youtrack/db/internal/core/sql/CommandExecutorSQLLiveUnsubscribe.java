@@ -19,7 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
@@ -44,10 +43,10 @@ public class CommandExecutorSQLLiveUnsubscribe extends CommandExecutorSQLAbstrac
   public CommandExecutorSQLLiveUnsubscribe() {
   }
 
-  private Object executeUnsubscribe() {
+  private Object executeUnsubscribe(DatabaseSessionInternal db) {
     try {
 
-      LiveQueryHook.unsubscribe(Integer.parseInt(unsubscribeToken), getDatabase());
+      LiveQueryHook.unsubscribe(Integer.parseInt(unsubscribeToken), db);
       var result = new EntityImpl(null);
       result.field("unsubscribed", unsubscribeToken);
       result.field("unsubscribe", true);
@@ -73,16 +72,10 @@ public class CommandExecutorSQLLiveUnsubscribe extends CommandExecutorSQLAbstrac
     }
   }
 
-  @Override
-  public long getDistributedTimeout() {
-    return getDatabase()
-        .getConfiguration()
-        .getValueAsLong(GlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
-  }
 
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (this.unsubscribeToken != null) {
-      return executeUnsubscribe();
+      return executeUnsubscribe(session);
     }
     var result = new EntityImpl(null);
     result.field("error-unsubscribe", "no token");
@@ -90,7 +83,7 @@ public class CommandExecutorSQLLiveUnsubscribe extends CommandExecutorSQLAbstrac
   }
 
   @Override
-  public CommandExecutorSQLLiveUnsubscribe parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLLiveUnsubscribe parse(DatabaseSessionInternal session,
       CommandRequest iRequest) {
     var requestText = (CommandRequestText) iRequest;
     var originalText = requestText.getText();
@@ -100,7 +93,7 @@ public class CommandExecutorSQLLiveUnsubscribe extends CommandExecutorSQLAbstrac
       if (remainingText.toLowerCase(Locale.ENGLISH).startsWith("unsubscribe")) {
         remainingText = remainingText.substring("unsubscribe".length()).trim();
         if (remainingText.contains(" ")) {
-          throw new QueryParsingException(
+          throw new QueryParsingException(session.getDatabaseName(),
               "invalid unsubscribe token for live query: " + remainingText);
         }
         this.unsubscribeToken = remainingText;
@@ -109,10 +102,5 @@ public class CommandExecutorSQLLiveUnsubscribe extends CommandExecutorSQLAbstrac
       requestText.setText(originalText);
     }
     return this;
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.NONE;
   }
 }

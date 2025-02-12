@@ -1,10 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.api.query.ExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
@@ -12,24 +10,27 @@ import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionS
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.Nullable;
 
-/**
- *
- */
 public class LocalResultSet implements ResultSet {
 
   private ExecutionStream stream = null;
   private final InternalExecutionPlan executionPlan;
+  @Nullable
+  private final DatabaseSessionInternal session;
 
   long totalExecutionTime = 0;
   long startTime = 0;
 
-  public LocalResultSet(InternalExecutionPlan executionPlan) {
+  public LocalResultSet(@Nullable DatabaseSessionInternal session,
+      InternalExecutionPlan executionPlan) {
     this.executionPlan = executionPlan;
+    this.session = session;
     start();
   }
 
-  private boolean start() {
+  private void start() {
+    assert session == null || session.assertIfNotActive();
     var begin = System.currentTimeMillis();
     try {
       if (stream == null) {
@@ -38,9 +39,7 @@ public class LocalResultSet implements ResultSet {
       stream = executionPlan.start();
       if (!stream.hasNext(executionPlan.getContext())) {
         logProfiling();
-        return false;
       }
-      return true;
     } finally {
       totalExecutionTime += (System.currentTimeMillis() - begin);
     }
@@ -57,6 +56,7 @@ public class LocalResultSet implements ResultSet {
 
   @Override
   public Result next() {
+    assert session == null || session.assertIfNotActive();
     if (!hasNext()) {
       throw new IllegalStateException();
     }
@@ -66,15 +66,14 @@ public class LocalResultSet implements ResultSet {
   private void logProfiling() {
     if (executionPlan.getStatement() != null && YouTrackDBEnginesManager.instance().getProfiler()
         .isRecording()) {
-      final var db = DatabaseRecordThreadLocal.instance().getIfDefined();
-      if (db != null) {
-        final var user = db.geCurrentUser();
+      if (session != null) {
+        final var user = session.geCurrentUser();
         final var userString = user != null ? user.toString() : null;
         YouTrackDBEnginesManager.instance()
             .getProfiler()
             .stopChrono(
                 "db."
-                    + DatabaseRecordThreadLocal.instance().get().getName()
+                    + session.getDatabaseName()
                     + ".command.sql."
                     + executionPlan.getStatement(),
                 "Command executed against the database",

@@ -22,7 +22,6 @@ import com.jetbrains.youtrack.db.api.exception.TransactionException;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.session.SessionListener;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
@@ -81,20 +80,20 @@ public class TransactionAtomicTest extends BaseDBTest {
   @Test
   public void testMVCC() throws IOException {
 
-    var doc = ((EntityImpl) db.newEntity("Account"));
-    db.begin();
+    var doc = ((EntityImpl) session.newEntity("Account"));
+    session.begin();
     doc.field("version", 0);
     doc.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    doc = db.bindToSession(doc);
+    session.begin();
+    doc = session.bindToSession(doc);
     doc.setDirty();
     doc.field("testmvcc", true);
     RecordInternal.setVersion(doc, doc.getVersion() + 1);
     try {
       doc.save();
-      db.commit();
+      session.commit();
       Assert.fail();
     } catch (ConcurrentModificationException e) {
       Assert.assertTrue(true);
@@ -103,13 +102,13 @@ public class TransactionAtomicTest extends BaseDBTest {
 
   @Test
   public void testTransactionPreListenerRollback() throws IOException {
-    db.begin();
-    var record1 = ((EntityImpl) db.newEntity());
+    session.begin();
+    var record1 = ((EntityImpl) session.newEntity());
 
     record1
         .field("value", "This is the first version")
         .save();
-    db.commit();
+    session.commit();
 
     final var listener =
         new SessionListener() {
@@ -140,49 +139,49 @@ public class TransactionAtomicTest extends BaseDBTest {
           }
         };
 
-    db.registerListener(listener);
-    db.begin();
+    session.registerListener(listener);
+    session.begin();
 
     try {
-      db.commit();
+      session.commit();
       Assert.fail();
     } catch (TransactionException e) {
       Assert.assertTrue(true);
     } finally {
-      db.unregisterListener(listener);
+      session.unregisterListener(listener);
     }
   }
 
   @Test
   public void testTransactionWithDuplicateUniqueIndexValues() {
-    var fruitClass = db.getMetadata().getSchema().getClass("Fruit");
+    var fruitClass = session.getMetadata().getSchema().getClass("Fruit");
 
     if (fruitClass == null) {
-      fruitClass = db.getMetadata().getSchema().createClass("Fruit");
+      fruitClass = session.getMetadata().getSchema().createClass("Fruit");
 
-      fruitClass.createProperty(db, "name", PropertyType.STRING);
-      fruitClass.createProperty(db, "color", PropertyType.STRING);
+      fruitClass.createProperty(session, "name", PropertyType.STRING);
+      fruitClass.createProperty(session, "color", PropertyType.STRING);
 
-      db
+      session
           .getMetadata()
           .getSchema()
           .getClass("Fruit")
-          .getProperty("color")
-          .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
+          .getProperty(session, "color")
+          .createIndex(session, SchemaClass.INDEX_TYPE.UNIQUE);
     }
 
-    Assert.assertEquals(db.countClusterElements("Fruit"), 0);
+    Assert.assertEquals(session.countClusterElements("Fruit"), 0);
 
     try {
-      db.begin();
+      session.begin();
 
-      var apple = ((EntityImpl) db.newEntity("Fruit")).field("name", "Apple")
+      var apple = ((EntityImpl) session.newEntity("Fruit")).field("name", "Apple")
           .field("color", "Red");
-      var orange = ((EntityImpl) db.newEntity("Fruit")).field("name", "Orange")
+      var orange = ((EntityImpl) session.newEntity("Fruit")).field("name", "Orange")
           .field("color", "Orange");
-      var banana = ((EntityImpl) db.newEntity("Fruit")).field("name", "Banana")
+      var banana = ((EntityImpl) session.newEntity("Fruit")).field("name", "Banana")
           .field("color", "Yellow");
-      var kumquat = ((EntityImpl) db.newEntity("Fruit")).field("name", "Kumquat")
+      var kumquat = ((EntityImpl) session.newEntity("Fruit")).field("name", "Kumquat")
           .field("color", "Orange");
 
       apple.save();
@@ -190,54 +189,57 @@ public class TransactionAtomicTest extends BaseDBTest {
       banana.save();
       kumquat.save();
 
-      db.commit();
+      session.commit();
 
-      Assert.assertEquals(apple.getIdentity().getClusterId(), fruitClass.getClusterIds()[0]);
-      Assert.assertEquals(orange.getIdentity().getClusterId(), fruitClass.getClusterIds()[0]);
-      Assert.assertEquals(banana.getIdentity().getClusterId(), fruitClass.getClusterIds()[0]);
-      Assert.assertEquals(kumquat.getIdentity().getClusterId(), fruitClass.getClusterIds()[0]);
+      Assert.assertEquals(apple.getIdentity().getClusterId(), fruitClass.getClusterIds(session)[0]);
+      Assert.assertEquals(orange.getIdentity().getClusterId(),
+          fruitClass.getClusterIds(session)[0]);
+      Assert.assertEquals(banana.getIdentity().getClusterId(),
+          fruitClass.getClusterIds(session)[0]);
+      Assert.assertEquals(kumquat.getIdentity().getClusterId(),
+          fruitClass.getClusterIds(session)[0]);
 
       Assert.fail();
 
     } catch (RecordDuplicatedException e) {
       Assert.assertTrue(true);
-      db.rollback();
+      session.rollback();
     }
 
-    Assert.assertEquals(db.countClusterElements("Fruit"), 0);
+    Assert.assertEquals(session.countClusterElements("Fruit"), 0);
   }
 
   @Test
   public void testTransactionalSQL() {
-    var prev = db.countClass("Account");
+    var prev = session.countClass("Account");
 
-    db.begin();
-    db
+    session.begin();
+    session
         .command(new CommandSQL("transactional insert into Account set name = 'txTest1'"))
-        .execute(db);
-    db.commit();
+        .execute(session);
+    session.commit();
 
-    Assert.assertEquals(db.countClass("Account"), prev + 1);
+    Assert.assertEquals(session.countClass("Account"), prev + 1);
   }
 
   @Test
   public void testTransactionalSQLJoinTx() {
-    var prev = db.countClass("Account");
+    var prev = session.countClass("Account");
 
-    db.begin();
-    db
+    session.begin();
+    session
         .command(new CommandSQL("transactional insert into Account set name = 'txTest2'"))
-        .execute(db);
+        .execute(session);
 
-    Assert.assertTrue(db.getTransaction().isActive());
+    Assert.assertTrue(session.getTransaction().isActive());
 
     if (!remoteDB) {
-      Assert.assertEquals(db.countClass("Account"), prev + 1);
+      Assert.assertEquals(session.countClass("Account"), prev + 1);
     }
 
-    db.commit();
+    session.commit();
 
-    Assert.assertFalse(db.getTransaction().isActive());
-    Assert.assertEquals(db.countClass("Account"), prev + 1);
+    Assert.assertFalse(session.getTransaction().isActive());
+    Assert.assertEquals(session.countClass("Account"), prev + 1);
   }
 }

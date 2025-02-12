@@ -24,10 +24,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.server.ServerMain;
-import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -35,8 +33,6 @@ import java.io.RandomAccessFile;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.ArrayDeque;
-import java.util.Deque;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -98,30 +94,15 @@ public class JournaledTxStreamingTest {
     Assert.assertFalse(buildDir.exists());
   }
 
-  //  @Test
-  public void testStreaming() throws IOException {
-    Deque<Long> txs = new ArrayDeque<>();
-
-    for (var i = 0; i < ITERATIONS; ++i) {
-      db.begin();
-      txs.addLast(db.getTransaction().getClientTransactionId());
-      var rec = db.newInstance();
-      db.save(rec, db.getClusterNameById(db.getDefaultClusterId()));
-      db.commit();
-    }
-
-    for (var i = 0; i < ITERATIONS; ++i) {
-      assertThat(stream.readInt()).isEqualTo(txs.removeFirst());
-    }
-  }
-
   public static final class RemoteDBRunner {
 
     public static void main(String[] args) throws Exception {
       var server = ServerMain.create(false);
       server.startup(
           RemoteDBRunner.class.getResourceAsStream(
-              "/com/jetbrains/youtrack/db/internal/core/db/journaled-tx-streaming-test-server-config.xml"));
+              "/com/jetbrains/youtrack/db/internal/core/db/journaled-tx-streaming-test-server-config.xml"
+          )
+      );
       server.activate();
 
       final var mutexFile = System.getProperty("mutexFile");

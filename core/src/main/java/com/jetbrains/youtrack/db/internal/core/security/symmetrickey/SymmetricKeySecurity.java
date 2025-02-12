@@ -76,7 +76,7 @@ public class SymmetricKeySecurity implements SecurityInternal {
           "OSymmetricKeySecurity.authenticate() Database is null for username: " + username);
     }
 
-    final var dbName = session.getName();
+    final var dbName = session.getDatabaseName();
 
     var user = delegate.getUser(session, username);
 
@@ -113,7 +113,7 @@ public class SymmetricKeySecurity implements SecurityInternal {
                   + username
                   + " "
                   + ex.getMessage()),
-          ex);
+          ex, session.getDatabaseName());
     }
 
     throw new SecurityAccessException(

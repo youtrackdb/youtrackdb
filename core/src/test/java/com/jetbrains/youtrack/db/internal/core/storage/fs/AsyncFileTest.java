@@ -39,7 +39,8 @@ public class AsyncFileTest {
   @Test
   public void testWrite() throws Exception {
     final var file =
-        new AsyncFile(buildDirectoryPath, 1, false, Executors.newCachedThreadPool());
+        new AsyncFile(buildDirectoryPath, 1, false,
+            Executors.newCachedThreadPool(), "test");
     file.create();
 
     file.allocateSpace(128);
@@ -64,7 +65,8 @@ public class AsyncFileTest {
 
   @Test
   public void testOpenWrite() throws Exception {
-    var file = new AsyncFile(buildDirectoryPath, 1, false, Executors.newCachedThreadPool());
+    var file = new AsyncFile(buildDirectoryPath, 1, false,
+        Executors.newCachedThreadPool(), "test");
     file.create();
 
     file.allocateSpace(128);
@@ -92,7 +94,7 @@ public class AsyncFileTest {
 
   @Test
   public void testWriteSeveralChunks() throws Exception {
-    var file = new AsyncFile(buildDirectoryPath, 1, false, Executors.newCachedThreadPool());
+    var file = new AsyncFile(buildDirectoryPath, 1, false, Executors.newCachedThreadPool(), "test");
     file.create();
 
     final var position1 = file.allocateSpace(128);
@@ -139,7 +141,7 @@ public class AsyncFileTest {
 
   @Test
   public void testOpenWriteSeveralChunks() throws Exception {
-    var file = new AsyncFile(buildDirectoryPath, 1, false, Executors.newCachedThreadPool());
+    var file = new AsyncFile(buildDirectoryPath, 1, false, Executors.newCachedThreadPool(), "test");
     file.create();
 
     final var position1 = file.allocateSpace(128);
@@ -184,7 +186,7 @@ public class AsyncFileTest {
 
   @Test
   public void testOpenWriteSeveralChunksTwo() throws Exception {
-    var file = new AsyncFile(buildDirectoryPath, 1, false, Executors.newCachedThreadPool());
+    var file = new AsyncFile(buildDirectoryPath, 1, false, Executors.newCachedThreadPool(), "test");
     file.create();
 
     final var position1 = file.allocateSpace(128);
@@ -228,7 +230,7 @@ public class AsyncFileTest {
 
   @Test
   public void testOpenWriteSeveralChunksThree() throws Exception {
-    var file = new AsyncFile(buildDirectoryPath, 1, false, Executors.newCachedThreadPool());
+    var file = new AsyncFile(buildDirectoryPath, 1, false, Executors.newCachedThreadPool(), "test");
     file.create();
 
     final var position1 = file.allocateSpace(128 * 1024);
@@ -277,7 +279,7 @@ public class AsyncFileTest {
 
   @Test
   public void testOpenClose() throws Exception {
-    var file = new AsyncFile(buildDirectoryPath, 1, false, Executors.newCachedThreadPool());
+    var file = new AsyncFile(buildDirectoryPath, 1, false, Executors.newCachedThreadPool(), "test");
     Assert.assertFalse(file.isOpen());
 
     file.create();

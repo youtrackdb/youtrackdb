@@ -16,10 +16,10 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.conversion;
 
-import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.method.misc.AbstractSQLMethod;
 import java.util.Locale;
 
@@ -52,7 +52,7 @@ public class SQLMethodConvert extends AbstractSQLMethod {
 
     final var destType = iParams[0].toString();
 
-    var db = iContext.getDatabase();
+    var db = iContext.getDatabaseSession();
     if (destType.contains(".")) {
       try {
         return PropertyType.convert(db, iThis, Class.forName(destType));

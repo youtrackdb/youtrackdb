@@ -29,26 +29,26 @@ public class SQLAlterClusterCommandTest extends BaseDBTest {
 
   @Test
   public void testCreateCluster() {
-    var expectedClusters = db.getClusters();
+    var expectedClusters = session.getClusters();
     try {
-      db.command("create cluster europe");
-      Assert.assertEquals(db.getClusters(), expectedClusters + 1);
+      session.command("create cluster europe");
+      Assert.assertEquals(session.getClusters(), expectedClusters + 1);
     } finally {
-      db.command("drop cluster europe");
+      session.command("drop cluster europe");
     }
-    Assert.assertEquals(db.getClusters(), expectedClusters);
+    Assert.assertEquals(session.getClusters(), expectedClusters);
   }
 
   @Test
   public void testAlterClusterName() {
     try {
-      db.command("create cluster europe");
-      db.command("ALTER CLUSTER europe NAME \"my_orient\"");
+      session.command("create cluster europe");
+      session.command("ALTER CLUSTER europe NAME \"my_orient\"");
 
-      var clusterId = db.getClusterIdByName("my_orient");
+      var clusterId = session.getClusterIdByName("my_orient");
       Assert.assertEquals(clusterId, 18);
     } finally {
-      db.command("drop cluster my_orient");
+      session.command("drop cluster my_orient");
     }
   }
 }

@@ -116,7 +116,7 @@ public class AutomaticBackupTest {
 
     new File(tempDirectory + "/config/automatic-backup.json").delete();
 
-    server.dropDatabase(db.getName());
+    server.dropDatabase(db.getDatabaseName());
     server.shutdown();
   }
 

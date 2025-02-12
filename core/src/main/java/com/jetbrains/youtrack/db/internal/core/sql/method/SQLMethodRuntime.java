@@ -42,7 +42,6 @@ import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemField;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemVariable;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionRuntime;
-import java.util.List;
 
 /**
  * Wraps function managing the binding of parameters.
@@ -120,7 +119,7 @@ public class SQLMethodRuntime extends SQLFilterItemAbstract
             try {
               runtimeParameters[i] =
                   ((CommandSQL) configuredParameters[i]).setContext(iContext)
-                      .execute(iContext.getDatabase());
+                      .execute(iContext.getDatabaseSession());
             } catch (CommandExecutorNotFoundException ignore) {
               // TRY WITH SIMPLE CONDITION
               final var text = ((CommandSQL) configuredParameters[i]).getText();
@@ -137,7 +136,7 @@ public class SQLMethodRuntime extends SQLFilterItemAbstract
             runtimeParameters[i] =
                 ((SQLPredicate) configuredParameters[i])
                     .evaluate(
-                        iCurrentRecord.getRecord(iContext.getDatabase()),
+                        iCurrentRecord.getRecord(iContext.getDatabaseSession()),
                         (iCurrentRecord instanceof EntityImpl ? (EntityImpl) iCurrentResult
                             : null),
                         iContext);
@@ -150,18 +149,18 @@ public class SQLMethodRuntime extends SQLFilterItemAbstract
         }
       }
 
-      var db = iContext.getDatabase();
-      if (method.getMaxParams(db) == -1 || method.getMaxParams(db) > 0) {
+      var session = iContext.getDatabaseSession();
+      if (method.getMaxParams(session) == -1 || method.getMaxParams(session) > 0) {
         if (runtimeParameters.length < method.getMinParams()
-            || (method.getMaxParams(db) > -1 && runtimeParameters.length > method.getMaxParams(
-            db))) {
+            || (method.getMaxParams(session) > -1 && runtimeParameters.length > method.getMaxParams(
+            session))) {
           String params;
-          if (method.getMinParams() == method.getMaxParams(db)) {
+          if (method.getMinParams() == method.getMaxParams(session)) {
             params = "" + method.getMinParams();
           } else {
-            params = method.getMinParams() + "-" + method.getMaxParams(db);
+            params = method.getMinParams() + "-" + method.getMaxParams(session);
           }
-          throw new CommandExecutionException(
+          throw new CommandExecutionException(session,
               "Syntax error: function '"
                   + method.getName()
                   + "' needs "
@@ -183,7 +182,7 @@ public class SQLMethodRuntime extends SQLFilterItemAbstract
       final Identifiable iRecord, Object iCurrentResult, CommandContext iContext) {
     try {
       final var current =
-          iRecord != null ? (EntityImpl) iRecord.getRecord(iContext.getDatabase()) : null;
+          iRecord != null ? (EntityImpl) iRecord.getRecord(iContext.getDatabaseSession()) : null;
       return execute(current, current, null, iContext);
     } catch (RecordNotFoundException rnf) {
       return null;
@@ -207,7 +206,8 @@ public class SQLMethodRuntime extends SQLFilterItemAbstract
 
     method = SQLEngine.getMethod(funcName);
     if (method == null) {
-      throw new CommandSQLParsingException("Unknown method " + funcName + "()");
+      throw new CommandSQLParsingException(session.getDatabaseName(),
+          "Unknown method " + funcName + "()");
     }
 
     // PARSE PARAMETERS
@@ -223,7 +223,7 @@ public class SQLMethodRuntime extends SQLFilterItemAbstract
       final Object[] iParameters, final boolean iEvaluate) {
     if (iParameters != null) {
       var context = new BasicCommandContext();
-      context.setDatabase(session);
+      context.setDatabaseSession(session);
 
       this.configuredParameters = new Object[iParameters.length];
       for (var i = 0; i < iParameters.length; ++i) {

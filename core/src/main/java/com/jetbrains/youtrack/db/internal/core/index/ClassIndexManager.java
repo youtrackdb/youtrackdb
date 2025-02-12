@@ -77,7 +77,7 @@ public class ClassIndexManager {
 
     final Collection<Index> indexes = cls.getRawIndexes();
     if (!indexes.isEmpty()) {
-      final Set<String> dirtyFields = new HashSet<>(Arrays.asList(entity.getDirtyFields()));
+      final Set<String> dirtyFields = new HashSet<>(Arrays.asList(entity.getDirtyProperties()));
       if (!dirtyFields.isEmpty()) {
         for (final var index : indexes) {
           processIndexUpdate(database, entity, dirtyFields, index);
@@ -382,8 +382,9 @@ public class ClassIndexManager {
         return session.load(iRecord.getIdentity());
       } catch (final RecordNotFoundException e) {
         throw BaseException.wrapException(
-            new IndexException("Error during loading of record with id " + iRecord.getIdentity()),
-            e);
+            new IndexException(session.getDatabaseName(),
+                "Error during loading of record with id " + iRecord.getIdentity()),
+            e, session.getDatabaseName());
       }
     }
     return iRecord;
@@ -436,7 +437,7 @@ public class ClassIndexManager {
     final Collection<Index> indexes = new ArrayList<>(cls.getRawIndexes());
 
     if (!indexes.isEmpty()) {
-      final Set<String> dirtyFields = new HashSet<>(Arrays.asList(entity.getDirtyFields()));
+      final Set<String> dirtyFields = new HashSet<>(Arrays.asList(entity.getDirtyProperties()));
 
       if (!dirtyFields.isEmpty()) {
         // REMOVE INDEX OF ENTRIES FOR THE OLD VALUES

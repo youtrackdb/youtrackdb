@@ -313,7 +313,9 @@ public abstract class DBSequence {
 
   protected static long getValue(EntityImpl entity) {
     if (!entity.hasProperty(FIELD_VALUE)) {
-      throw new SequenceException("Value property not found in entity");
+      var boundedSession = entity.getBoundedToSession();
+      throw new SequenceException(boundedSession != null ? boundedSession.getDatabaseName() : null,
+          "Value property not found in entity");
     }
     return entity.getProperty(FIELD_VALUE);
   }
@@ -393,7 +395,9 @@ public abstract class DBSequence {
       return SEQUENCE_TYPE.valueOf(sequenceTypeStr);
     }
 
-    throw new SequenceException("Sequence type not found in entity");
+    var boundedSession = entity.getBoundedToSession();
+    throw new SequenceException(boundedSession != null ? boundedSession.getDatabaseName() : null,
+        "Sequence type not found in entity");
   }
 
   public static void initClass(DatabaseSession session, SchemaClassImpl sequenceClass) {
@@ -492,25 +496,25 @@ public abstract class DBSequence {
                   } catch (StorageException e) {
                     if (!(e.getCause() instanceof ConcurrentModificationException)) {
                       throw BaseException.wrapException(
-                          new SequenceException(
+                          new SequenceException(db.getDatabaseName(),
                               "Error in transactional processing of "
                                   + getName(dbCopy)
                                   + "."
                                   + method
                                   + "()"),
-                          e);
+                          e, db.getDatabaseName());
                     }
                   } catch (Exception e) {
                     dbCopy.executeInTx(
                         () -> {
                           throw BaseException.wrapException(
-                              new SequenceException(
+                              new SequenceException(db.getDatabaseName(),
                                   "Error in transactional processing of "
                                       + getName(dbCopy)
                                       + "."
                                       + method
                                       + "()"),
-                              e);
+                              e, db.getDatabaseName());
                         });
                   } finally {
                     updateLock.unlock();
@@ -527,13 +531,13 @@ public abstract class DBSequence {
                       });
                 } catch (Exception e) {
                   throw BaseException.wrapException(
-                      new SequenceException(
+                      new SequenceException(db.getDatabaseName(),
                           "Error in transactional processing of "
                               + getName(dbCopy)
                               + "."
                               + method
                               + "()"),
-                      e);
+                      e, db.getDatabaseName());
                 } finally {
                   updateLock.unlock();
                 }
@@ -543,16 +547,17 @@ public abstract class DBSequence {
       return future.get();
     } catch (InterruptedException e) {
       throw BaseException.wrapException(
-          new DatabaseException("Sequence operation was interrupted"), e);
+          new DatabaseException(db.getDatabaseName(), "Sequence operation was interrupted"), e,
+          db.getDatabaseName());
     } catch (ExecutionException e) {
       var cause = e.getCause();
       if (cause == null) {
         cause = e;
       }
       throw BaseException.wrapException(
-          new SequenceException(
+          new SequenceException(db.getDatabaseName(),
               "Error in transactional processing of " + getName(db) + "." + method + "()"),
-          cause);
+          cause, db.getDatabaseName());
     }
   }
 

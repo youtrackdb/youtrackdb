@@ -30,7 +30,7 @@ public class ConvertToResultInternalStep extends AbstractExecutionStep {
     if (result instanceof UpdatableResult) {
       if (result.isEntity()) {
         var entity = result.asEntity();
-        return new ResultInternal(ctx.getDatabase(), entity);
+        return new ResultInternal(ctx.getDatabaseSession(), entity);
       }
       return result;
     }

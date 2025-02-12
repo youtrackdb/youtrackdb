@@ -150,7 +150,7 @@ public class DefaultSQLMethodFactory implements SQLMethodFactory {
         method = (SQLMethod) ((Class<?>) m).newInstance();
       } catch (Exception e) {
         throw BaseException.wrapException(
-            new CommandExecutionException("Cannot create SQL method: " + m), e);
+            new CommandExecutionException("Cannot create SQL method: " + m), e, (String) null);
       }
     } else {
       method = (SQLMethod) m;

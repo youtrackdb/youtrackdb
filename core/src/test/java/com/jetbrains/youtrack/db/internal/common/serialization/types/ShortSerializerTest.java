@@ -16,12 +16,13 @@
 
 package com.jetbrains.youtrack.db.internal.common.serialization.types;
 
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALPageChangesPortion;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -32,28 +33,32 @@ public class ShortSerializerTest {
   private static final int FIELD_SIZE = 2;
   byte[] stream = new byte[FIELD_SIZE];
   private static final Short OBJECT = 1;
-  private ShortSerializer shortSerializer;
+  private static ShortSerializer shortSerializer;
+  private static BinarySerializerFactory serializerFactory;
 
-  @Before
-  public void beforeClass() {
+  @BeforeClass
+  public static void beforeClass() {
     shortSerializer = new ShortSerializer();
+    serializerFactory = BinarySerializerFactory.create(
+        BinarySerializerFactory.currentBinaryFormatVersion());
   }
 
   @Test
   public void testFieldSize() {
-    Assert.assertEquals(shortSerializer.getObjectSize(null), FIELD_SIZE);
+    Assert.assertEquals(FIELD_SIZE, shortSerializer.getObjectSize(serializerFactory, null));
   }
 
   @Test
   public void testSerialize() {
-    shortSerializer.serialize(OBJECT, stream, 0);
-    Assert.assertEquals(shortSerializer.deserialize(stream, 0), OBJECT);
+    shortSerializer.serialize(OBJECT, serializerFactory, stream, 0);
+    Assert.assertEquals(OBJECT, shortSerializer.deserialize(serializerFactory, stream, 0));
   }
 
   @Test
   public void testSerializeNative() {
     shortSerializer.serializeNative(OBJECT, stream, 0);
-    Assert.assertEquals(shortSerializer.deserializeNativeObject(stream, 0), OBJECT);
+    Assert.assertEquals(OBJECT,
+        shortSerializer.deserializeNativeObject(serializerFactory, stream, 0));
   }
 
   @Test
@@ -64,7 +69,8 @@ public class ShortSerializerTest {
     buffer.put(stream);
     buffer.position(0);
 
-    Assert.assertEquals(shortSerializer.deserializeFromByteBufferObject(buffer), OBJECT);
+    Assert.assertEquals(OBJECT,
+        shortSerializer.deserializeFromByteBufferObject(serializerFactory, buffer));
   }
 
   @Test
@@ -74,18 +80,20 @@ public class ShortSerializerTest {
     final var buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
     buffer.position(serializationOffset);
 
-    shortSerializer.serializeInByteBufferObject(OBJECT, buffer);
+    shortSerializer.serializeInByteBufferObject(serializerFactory, OBJECT, buffer);
 
     final var binarySize = buffer.position() - serializationOffset;
-    Assert.assertEquals(binarySize, FIELD_SIZE);
+    Assert.assertEquals(FIELD_SIZE, binarySize);
 
     buffer.position(serializationOffset);
-    Assert.assertEquals(shortSerializer.getObjectSizeInByteBuffer(buffer), FIELD_SIZE);
+    Assert.assertEquals(FIELD_SIZE,
+        shortSerializer.getObjectSizeInByteBuffer(serializerFactory, buffer));
 
     buffer.position(serializationOffset);
-    Assert.assertEquals(shortSerializer.deserializeFromByteBufferObject(buffer), OBJECT);
+    Assert.assertEquals(OBJECT,
+        shortSerializer.deserializeFromByteBufferObject(serializerFactory, buffer));
 
-    Assert.assertEquals(buffer.position() - serializationOffset, FIELD_SIZE);
+    Assert.assertEquals(FIELD_SIZE, buffer.position() - serializationOffset);
   }
 
   @Test
@@ -103,10 +111,11 @@ public class ShortSerializerTest {
     walChanges.setBinaryValue(buffer, data, serializationOffset);
 
     Assert.assertEquals(
-        shortSerializer.getObjectSizeInByteBuffer(buffer, walChanges, serializationOffset),
-        FIELD_SIZE);
+        FIELD_SIZE,
+        shortSerializer.getObjectSizeInByteBuffer(buffer, walChanges, serializationOffset));
     Assert.assertEquals(
-        shortSerializer.deserializeFromByteBufferObject(buffer, walChanges, serializationOffset),
-        OBJECT);
+        OBJECT,
+        shortSerializer.deserializeFromByteBufferObject(serializerFactory, buffer, walChanges,
+            serializationOffset));
   }
 }

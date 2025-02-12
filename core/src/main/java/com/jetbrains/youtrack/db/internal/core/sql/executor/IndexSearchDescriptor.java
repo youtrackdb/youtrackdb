@@ -3,9 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAndBlock;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCompareOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBooleanExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLEqualsCompareOperator;
@@ -49,7 +47,7 @@ public class IndexSearchDescriptor {
   }
 
   public int cost(CommandContext ctx) {
-    var stats = QueryStats.get(ctx.getDatabase());
+    var stats = QueryStats.get(ctx.getDatabaseSession());
 
     var indexName = index.getName();
     var size = getSubBlocks().size();
@@ -62,7 +60,7 @@ public class IndexSearchDescriptor {
 
     var val =
         stats.getIndexStats(
-            indexName, size, range, additionalRangeCondition != null, ctx.getDatabase());
+            indexName, size, range, additionalRangeCondition != null, ctx.getDatabaseSession());
     if (val == -1) {
       // TODO query the index!
     }

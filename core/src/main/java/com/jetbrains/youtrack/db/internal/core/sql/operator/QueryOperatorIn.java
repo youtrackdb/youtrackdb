@@ -27,9 +27,7 @@ import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionMultiValue;
-import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLHelper;
@@ -108,9 +106,10 @@ public class QueryOperatorIn extends QueryOperatorEqualityNotNulls {
         if (indexDefinition instanceof IndexDefinitionMultiValue) {
           key =
               ((IndexDefinitionMultiValue) indexDefinition)
-                  .createSingleValue(iContext.getDatabase(), SQLHelper.getValue(keyValue));
+                  .createSingleValue(iContext.getDatabaseSession(), SQLHelper.getValue(keyValue));
         } else {
-          key = indexDefinition.createValue(iContext.getDatabase(), SQLHelper.getValue(keyValue));
+          key = indexDefinition.createValue(iContext.getDatabaseSession(),
+              SQLHelper.getValue(keyValue));
         }
 
         if (key == null) {
@@ -124,7 +123,8 @@ public class QueryOperatorIn extends QueryOperatorEqualityNotNulls {
         return null;
       }
 
-      stream = index.getInternal().streamEntries(iContext.getDatabase(), inKeys, ascSortOrder);
+      stream = index.getInternal()
+          .streamEntries(iContext.getDatabaseSession(), inKeys, ascSortOrder);
     } else {
       final List<Object> partialKey = new ArrayList<Object>();
       partialKey.addAll(keyParams);
@@ -153,7 +153,7 @@ public class QueryOperatorIn extends QueryOperatorEqualityNotNulls {
         fullKey.addAll(partialKey);
         fullKey.add(keyValue);
         final Object key =
-            compositeIndexDefinition.createSingleValue(iContext.getDatabase(), fullKey);
+            compositeIndexDefinition.createSingleValue(iContext.getDatabaseSession(), fullKey);
         if (key == null) {
           containsNotCompatibleKey = true;
           break;
@@ -166,7 +166,8 @@ public class QueryOperatorIn extends QueryOperatorEqualityNotNulls {
       }
 
       if (indexDefinition.getParamCount() == keyParams.size()) {
-        stream = index.getInternal().streamEntries(iContext.getDatabase(), inKeys, ascSortOrder);
+        stream = index.getInternal()
+            .streamEntries(iContext.getDatabaseSession(), inKeys, ascSortOrder);
       } else {
         return null;
       }
@@ -241,7 +242,7 @@ public class QueryOperatorIn extends QueryOperatorEqualityNotNulls {
       final Object iLeft,
       final Object iRight,
       CommandContext iContext) {
-    var database = iContext.getDatabase();
+    var database = iContext.getDatabaseSession();
     if (MultiValue.isMultiValue(iLeft)) {
       if (iRight instanceof Collection<?>) {
         // AGAINST COLLECTION OF ITEMS

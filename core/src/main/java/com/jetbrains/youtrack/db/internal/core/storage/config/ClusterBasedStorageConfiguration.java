@@ -397,9 +397,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
           if (iNetworkVersion > 24) {
             write(buffer, paginatedClusterConfiguration.conflictStrategy);
           }
-          if (iNetworkVersion > 25) {
-            write(buffer, paginatedClusterConfiguration.getStatus().name());
-          }
+
 
           if (iNetworkVersion >= Integer.MAX_VALUE) {
             write(buffer, paginatedClusterConfiguration.getBinaryVersion());
@@ -538,7 +536,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
   }
 
   private static void write(final StringBuilder buffer, final Object value) {
-    if (buffer.length() > 0) {
+    if (!buffer.isEmpty()) {
       buffer.append('|');
     }
 
@@ -888,7 +886,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
     totalSize += contextSize.length;
     entries.add(contextSize);
 
-    IntegerSerializer.INSTANCE.serializeNative(configuration.getContextSize(), contextSize, 0);
+    IntegerSerializer.serializeNative(configuration.getContextSize(), contextSize, 0);
 
     for (final var k : configuration.getContextKeys()) {
       final var cfg = GlobalConfiguration.findByKey(k);
@@ -927,7 +925,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
     final var property = pair.first;
 
     var pos = 0;
-    final var size = IntegerSerializer.INSTANCE.deserializeNative(property, pos);
+    final var size = IntegerSerializer.deserializeNative(property, pos);
     pos += IntegerSerializer.INT_SIZE;
 
     for (var i = 0; i < size; i++) {
@@ -1116,7 +1114,8 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
                           deserializeStringValue(buffer.buffer, 0));
                     } catch (IOException e) {
                       throw BaseException.wrapException(
-                          new StorageException("Can not preload configuration properties"), e);
+                          new StorageException(storage.getName(),
+                              "Can not preload configuration properties"), e, storage.getName());
                     }
                   })
               .collect(Collectors.toMap((pair) -> pair.first, (pair) -> pair.second));
@@ -1271,12 +1270,12 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
                       name, buffer.buffer, Integer.MIN_VALUE, entry.second.getClusterId());
                 } catch (IOException e) {
                   throw BaseException.wrapException(
-                      new StorageException(
+                      new StorageException(storage.getName(),
                           "Can not load data for index "
                               + name
                               + " for storage "
                               + storage.getName()),
-                      e);
+                      e, storage.getName());
                 }
               })
           .collect(Collectors.toList());
@@ -1327,37 +1326,6 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
     }
   }
 
-  public void setClusterStatus(
-      final AtomicOperation atomicOperation,
-      final int clusterId,
-      final StorageClusterConfiguration.STATUS status) {
-    lock.writeLock().lock();
-    try {
-      @SuppressWarnings("unchecked") final var clusters =
-          (List<StorageClusterConfiguration>) cache.get(CLUSTERS);
-
-      if (clusterId < clusters.size()) {
-        final var config = clusters.get(clusterId);
-        config.setStatus(status);
-      }
-
-      var pair = readProperty(CLUSTERS_PREFIX_PROPERTY + clusterId);
-      if (pair == null) {
-        return;
-      }
-
-      final var property = pair.first;
-      if (property != null) {
-        final var clusterCfg =
-            deserializeStorageClusterConfig(clusterId, property);
-        clusterCfg.setStatus(status);
-        updateCluster(atomicOperation, clusterCfg);
-      }
-    } finally {
-      lock.writeLock().unlock();
-    }
-  }
-
   @Override
   public List<StorageClusterConfiguration> getClusters() {
     lock.readLock().lock();
@@ -1399,12 +1367,12 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
                   }
                 } catch (final IOException e) {
                   throw BaseException.wrapException(
-                      new StorageException(
+                      new StorageException(storage.getName(),
                           "Can not load data for cluster with id="
                               + id
                               + " for storage "
                               + storage.getName()),
-                      e);
+                      e, storage.getName());
                 }
               });
     }
@@ -1447,10 +1415,10 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
     entries.add(numericProperties);
     {
       var pos = 0;
-      IntegerSerializer.INSTANCE.serializeNative(
+      IntegerSerializer.serializeNative(
           indexEngineData.getVersion(), numericProperties, pos);
       pos += IntegerSerializer.INT_SIZE;
-      IntegerSerializer.INSTANCE.serializeNative(
+      IntegerSerializer.serializeNative(
           indexEngineData.getApiVersion(), numericProperties, pos);
       pos += IntegerSerializer.INT_SIZE;
 
@@ -1465,11 +1433,11 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
       numericProperties[pos] = indexEngineData.isMultivalue() ? (byte) 1 : 0;
       pos++;
 
-      IntegerSerializer.INSTANCE.serializeNative(
+      IntegerSerializer.serializeNative(
           indexEngineData.getKeySize(), numericProperties, pos);
       pos += IntegerSerializer.INT_SIZE;
 
-      IntegerSerializer.INSTANCE.serializeNative(
+      IntegerSerializer.serializeNative(
           indexEngineData.getIndexId(), numericProperties, pos);
     }
 
@@ -1489,7 +1457,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
 
     final var keyTypesValue = indexEngineData.getKeyTypes();
     final var keyTypesSize = new byte[4];
-    IntegerSerializer.INSTANCE.serializeNative(keyTypesValue.length, keyTypesSize, 0);
+    IntegerSerializer.serializeNative(keyTypesValue.length, keyTypesSize, 0);
     totalSize += keyTypesSize.length;
     entries.add(keyTypesSize);
 
@@ -1505,7 +1473,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
     entries.add(enginePropertiesSize);
 
     if (engineProperties != null) {
-      IntegerSerializer.INSTANCE.serializeNative(engineProperties.size(), enginePropertiesSize, 0);
+      IntegerSerializer.serializeNative(engineProperties.size(), enginePropertiesSize, 0);
 
       for (final var engineProperty : engineProperties.entrySet()) {
         final var key = serializeStringValue(engineProperty.getKey());
@@ -1525,10 +1493,10 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
       final String name, final byte[] property, final int defaultIndexId, final int binaryVersion) {
     var pos = 0;
 
-    final var version = IntegerSerializer.INSTANCE.deserializeNative(property, pos);
+    final var version = IntegerSerializer.deserializeNative(property, pos);
     pos += IntegerSerializer.INT_SIZE;
 
-    final var apiVersion = IntegerSerializer.INSTANCE.deserializeNative(property, pos);
+    final var apiVersion = IntegerSerializer.deserializeNative(property, pos);
     pos += IntegerSerializer.INT_SIZE;
 
     final var valueSerializerId = property[pos];
@@ -1546,12 +1514,12 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
     final var isMultiValue = property[pos] == 1;
     pos++;
 
-    final var keySize = IntegerSerializer.INSTANCE.deserializeNative(property, pos);
+    final var keySize = IntegerSerializer.deserializeNative(property, pos);
     pos += IntegerSerializer.INT_SIZE;
 
     final int indexId;
     if (getVersion() >= 23 || binaryVersion >= 1) {
-      final var iid = IntegerSerializer.INSTANCE.deserializeNative(property, pos);
+      final var iid = IntegerSerializer.deserializeNative(property, pos);
       if (iid == Integer.MIN_VALUE) {
         indexId = defaultIndexId;
       } else {
@@ -1572,7 +1540,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
     final var encryption = deserializeStringValue(property, pos);
     pos += getSerializedStringSize(property, pos);
 
-    final var keyTypesSize = IntegerSerializer.INSTANCE.deserializeNative(property, pos);
+    final var keyTypesSize = IntegerSerializer.deserializeNative(property, pos);
     pos += IntegerSerializer.INT_SIZE;
 
     final var keyTypes = new PropertyType[keyTypesSize];
@@ -1584,7 +1552,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
     }
 
     final Map<String, String> engineProperties = new HashMap<>(8);
-    final var enginePropertiesSize = IntegerSerializer.INSTANCE.deserializeNative(property, pos);
+    final var enginePropertiesSize = IntegerSerializer.deserializeNative(property, pos);
     pos += IntegerSerializer.INT_SIZE;
 
     for (var i = 0; i < enginePropertiesSize; i++) {
@@ -1645,7 +1613,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
 
     numericData[0] = paginatedClusterConfiguration.useWal ? (byte) 1 : 0;
 
-    IntegerSerializer.INSTANCE.serializeNative(
+    IntegerSerializer.serializeNative(
         paginatedClusterConfiguration.getBinaryVersion(), numericData, 1);
 
     final var encryption = serializeStringValue(paginatedClusterConfiguration.encryption);
@@ -1656,10 +1624,6 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
         serializeStringValue(paginatedClusterConfiguration.conflictStrategy);
     totalSize += conflictStrategy.length;
     entries.add(conflictStrategy);
-
-    final var status = serializeStringValue(paginatedClusterConfiguration.getStatus().name());
-    totalSize += status.length;
-    entries.add(status);
 
     final var compression = serializeStringValue(paginatedClusterConfiguration.compression);
     entries.add(compression);
@@ -1678,16 +1642,13 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
     final var useWal = (property[pos] == 1);
     pos++;
 
-    final var binaryVersion = IntegerSerializer.INSTANCE.deserializeNative(property, pos);
+    final var binaryVersion = IntegerSerializer.deserializeNative(property, pos);
     pos += IntegerSerializer.INT_SIZE;
 
     final var encryption = deserializeStringValue(property, pos);
     pos += getSerializedStringSize(property, pos);
 
     final var conflictStrategy = deserializeStringValue(property, pos);
-    pos += getSerializedStringSize(property, pos);
-
-    final var status = deserializeStringValue(property, pos);
     pos += getSerializedStringSize(property, pos);
 
     final var compression = deserializeStringValue(property, pos);
@@ -1703,7 +1664,6 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
         encryption,
         configuration.getValueAsString(GlobalConfiguration.STORAGE_ENCRYPTION_KEY),
         conflictStrategy,
-        StorageClusterConfiguration.STATUS.valueOf(status),
         binaryVersion);
   }
 
@@ -1748,7 +1708,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
       property = new byte[rawString.length + 1 + IntegerSerializer.INT_SIZE];
       property[0] = 1;
 
-      IntegerSerializer.INSTANCE.serializeNative(rawString.length, property, 1);
+      IntegerSerializer.serializeNative(rawString.length, property, 1);
 
       System.arraycopy(rawString, 0, property, 5, rawString.length);
     }
@@ -1761,7 +1721,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
       return null;
     }
 
-    final var stringSize = IntegerSerializer.INSTANCE.deserializeNative(raw, start + 1);
+    final var stringSize = IntegerSerializer.deserializeNative(raw, start + 1);
     return new String(raw, start + 5, stringSize, StandardCharsets.UTF_16);
   }
 
@@ -1770,7 +1730,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
       return 1;
     }
 
-    return IntegerSerializer.INSTANCE.deserializeNative(raw, start + 1) + 5;
+    return IntegerSerializer.deserializeNative(raw, start + 1) + 5;
   }
 
   private void updateIntProperty(
@@ -1778,7 +1738,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
     cache.put(name, value);
 
     final var property = new byte[IntegerSerializer.INT_SIZE];
-    IntegerSerializer.INSTANCE.serializeNative(value, property, 0);
+    IntegerSerializer.serializeNative(value, property, 0);
 
     storeProperty(atomicOperation, name, property, 0);
   }
@@ -1821,7 +1781,8 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
       return new RawPairObjectInteger<>(buffer.buffer, rid.getClusterId());
     } catch (final IOException e) {
       throw BaseException.wrapException(
-          new StorageException("Error during read of configuration property " + name), e);
+          new StorageException(storage.getName(),
+              "Error during read of configuration property " + name), e, storage.getName());
     }
   }
 
@@ -1851,7 +1812,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
           "Invalid length of property " + name + " len = " + property.length);
     }
 
-    return IntegerSerializer.INSTANCE.deserializeNative(property, 0);
+    return IntegerSerializer.deserializeNative(property, 0);
   }
 
   private void preloadIntProperties() {
@@ -1859,7 +1820,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
       final var pair = readProperty(name);
 
       if (pair != null) {
-        cache.put(name, IntegerSerializer.INSTANCE.deserializeNative(pair.first, 0));
+        cache.put(name, IntegerSerializer.deserializeNative(pair.first, 0));
       }
     }
   }

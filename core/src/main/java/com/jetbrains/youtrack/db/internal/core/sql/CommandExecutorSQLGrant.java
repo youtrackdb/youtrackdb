@@ -36,16 +36,17 @@ public class CommandExecutorSQLGrant extends CommandExecutorSQLPermissionAbstrac
   private static final String KEYWORD_TO = "TO";
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorSQLGrant parse(DatabaseSessionInternal db, final CommandRequest iRequest) {
+  public CommandExecutorSQLGrant parse(DatabaseSessionInternal session,
+      final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
 
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
       privilege = Role.PERMISSION_NONE;
       resource = null;
@@ -56,45 +57,46 @@ public class CommandExecutorSQLGrant extends CommandExecutorSQLPermissionAbstrac
       var oldPos = 0;
       var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_GRANT)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_GRANT + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
       if (pos == -1) {
-        throw new CommandSQLParsingException("Invalid privilege", parserText, oldPos);
+        throw new CommandSQLParsingException(session, "Invalid privilege", parserText, oldPos);
       }
 
       parsePrivilege(word, oldPos);
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_ON)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_ON + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserText, pos, word, true);
       if (pos == -1) {
-        throw new CommandSQLParsingException("Invalid resource", parserText, oldPos);
+        throw new CommandSQLParsingException(session, "Invalid resource", parserText, oldPos);
       }
 
       resource = word.toString();
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_TO)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_TO + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserText, pos, word, true);
       if (pos == -1) {
-        throw new CommandSQLParsingException("Invalid role", parserText, oldPos);
+        throw new CommandSQLParsingException(session, "Invalid role", parserText, oldPos);
       }
 
       final var roleName = word.toString();
-      role = getDatabase().getMetadata().getSecurity().getRole(roleName);
+      role = session.getMetadata().getSecurity().getRole(roleName);
       if (role == null) {
-        throw new CommandSQLParsingException("Invalid role: " + roleName);
+        throw new CommandSQLParsingException(session.getDatabaseName(),
+            "Invalid role: " + roleName);
       }
 
     } finally {
@@ -107,14 +109,14 @@ public class CommandExecutorSQLGrant extends CommandExecutorSQLPermissionAbstrac
   /**
    * Execute the GRANT.
    */
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (role == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    role.grant(db, resource, privilege);
-    role.save(db);
+    role.grant(session, resource, privilege);
+    role.save(session);
 
     return role;
   }

@@ -35,13 +35,13 @@ public class SimpleKeyIndexDefinitionTest extends DbTestBase {
   public void testCreateValueSimpleKey() {
     final var keyIndexDefinition =
         new SimpleKeyIndexDefinition(PropertyType.INTEGER);
-    final var result = keyIndexDefinition.createValue(db, "2");
+    final var result = keyIndexDefinition.createValue(session, "2");
     Assert.assertEquals(2, result);
   }
 
   @Test
   public void testCreateValueCompositeKeyListParam() {
-    final var result = simpleKeyIndexDefinition.createValue(db, Arrays.asList("2", "3"));
+    final var result = simpleKeyIndexDefinition.createValue(session, Arrays.asList("2", "3"));
 
     final var compositeKey = new CompositeKey(Arrays.asList(2, "3"));
     Assert.assertEquals(result, compositeKey);
@@ -50,26 +50,26 @@ public class SimpleKeyIndexDefinitionTest extends DbTestBase {
   @Test
   public void testCreateValueCompositeKeyNullListParam() {
     final var result =
-        simpleKeyIndexDefinition.createValue(db, Collections.singletonList(null));
+        simpleKeyIndexDefinition.createValue(session, Collections.singletonList(null));
 
     Assert.assertNull(result);
   }
 
   @Test
   public void testNullParamListItem() {
-    final var result = simpleKeyIndexDefinition.createValue(db, Arrays.asList("2", null));
+    final var result = simpleKeyIndexDefinition.createValue(session, Arrays.asList("2", null));
 
     Assert.assertNull(result);
   }
 
   @Test(expected = DatabaseException.class)
   public void testWrongParamTypeListItem() {
-    simpleKeyIndexDefinition.createValue(db, Arrays.asList("a", "3"));
+    simpleKeyIndexDefinition.createValue(session, Arrays.asList("a", "3"));
   }
 
   @Test
   public void testCreateValueCompositeKey() {
-    final var result = simpleKeyIndexDefinition.createValue(db, "2", "3");
+    final var result = simpleKeyIndexDefinition.createValue(session, "2", "3");
 
     final var compositeKey = new CompositeKey(Arrays.asList(2, "3"));
     Assert.assertEquals(result, compositeKey);
@@ -77,35 +77,35 @@ public class SimpleKeyIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testCreateValueCompositeKeyNullParamList() {
-    final var result = simpleKeyIndexDefinition.createValue(db, (List<?>) null);
+    final var result = simpleKeyIndexDefinition.createValue(session, (List<?>) null);
 
     Assert.assertNull(result);
   }
 
   @Test
   public void testCreateValueCompositeKeyNullParam() {
-    final var result = simpleKeyIndexDefinition.createValue(db, (Object) null);
+    final var result = simpleKeyIndexDefinition.createValue(session, (Object) null);
 
     Assert.assertNull(result);
   }
 
   @Test
   public void testCreateValueCompositeKeyEmptyList() {
-    final var result = simpleKeyIndexDefinition.createValue(db, Collections.emptyList());
+    final var result = simpleKeyIndexDefinition.createValue(session, Collections.emptyList());
 
     Assert.assertNull(result);
   }
 
   @Test
   public void testNullParamItem() {
-    final var result = simpleKeyIndexDefinition.createValue(db, "2", null);
+    final var result = simpleKeyIndexDefinition.createValue(session, "2", null);
 
     Assert.assertNull(result);
   }
 
   @Test(expected = DatabaseException.class)
   public void testWrongParamType() {
-    simpleKeyIndexDefinition.createValue(db, "a", "3");
+    simpleKeyIndexDefinition.createValue(session, "a", "3");
   }
 
   @Test
@@ -138,21 +138,15 @@ public class SimpleKeyIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testReload() {
-    db.begin();
-    final var storeDocument = simpleKeyIndexDefinition.toStream(db,
-        (EntityImpl) db.newEntity());
-    storeDocument.save();
-    db.commit();
-
-    final EntityImpl loadDocument = db.load(storeDocument.getIdentity());
+    final var map = simpleKeyIndexDefinition.toMap();
     final var loadedKeyIndexDefinition = new SimpleKeyIndexDefinition();
-    loadedKeyIndexDefinition.fromStream(loadDocument);
 
+    loadedKeyIndexDefinition.fromMap(map);
     Assert.assertEquals(loadedKeyIndexDefinition, simpleKeyIndexDefinition);
   }
 
   @Test(expected = IndexException.class)
   public void testGetDocumentValueToIndex() {
-    simpleKeyIndexDefinition.getDocumentValueToIndex(db, (EntityImpl) db.newEntity());
+    simpleKeyIndexDefinition.getDocumentValueToIndex(session, (EntityImpl) session.newEntity());
   }
 }

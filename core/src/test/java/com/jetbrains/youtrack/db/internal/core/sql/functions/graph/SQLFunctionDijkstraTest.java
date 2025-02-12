@@ -8,7 +8,6 @@ import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import java.util.List;
 import org.junit.After;
@@ -85,7 +84,7 @@ public class SQLFunctionDijkstraTest {
     v4 = graph.bindToSession(v4);
 
     var context = new BasicCommandContext();
-    context.setDatabase((DatabaseSessionInternal) graph);
+    context.setDatabaseSession((DatabaseSessionInternal) graph);
 
     final List<Vertex> result =
         functionDijkstra.execute(

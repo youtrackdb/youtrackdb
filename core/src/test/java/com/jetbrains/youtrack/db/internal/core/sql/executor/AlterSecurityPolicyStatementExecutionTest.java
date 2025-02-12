@@ -12,28 +12,28 @@ public class AlterSecurityPolicyStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testPlain() {
-    db.begin();
-    db.command("CREATE SECURITY POLICY foo").close();
-    db.command("ALTER SECURITY POLICY foo SET READ = (name = 'foo')").close();
-    db.commit();
+    session.begin();
+    session.command("CREATE SECURITY POLICY foo").close();
+    session.command("ALTER SECURITY POLICY foo SET READ = (name = 'foo')").close();
+    session.commit();
 
-    var security = db.getSharedContext().getSecurity();
-    SecurityPolicy policy = security.getSecurityPolicy(db, "foo");
+    var security = session.getSharedContext().getSecurity();
+    SecurityPolicy policy = security.getSecurityPolicy(session, "foo");
     Assert.assertNotNull(policy);
-    Assert.assertNotNull("foo", policy.getName(db));
-    Assert.assertEquals("name = 'foo'", policy.getReadRule(db));
-    Assert.assertNull(policy.getCreateRule(db));
-    Assert.assertNull(policy.getBeforeUpdateRule(db));
-    Assert.assertNull(policy.getAfterUpdateRule(db));
-    Assert.assertNull(policy.getDeleteRule(db));
-    Assert.assertNull(policy.getExecuteRule(db));
+    Assert.assertNotNull("foo", policy.getName(session));
+    Assert.assertEquals("name = 'foo'", policy.getReadRule(session));
+    Assert.assertNull(policy.getCreateRule(session));
+    Assert.assertNull(policy.getBeforeUpdateRule(session));
+    Assert.assertNull(policy.getAfterUpdateRule(session));
+    Assert.assertNull(policy.getDeleteRule(session));
+    Assert.assertNull(policy.getExecuteRule(session));
 
-    db.begin();
-    db.command("ALTER SECURITY POLICY foo REMOVE READ").close();
-    db.commit();
+    session.begin();
+    session.command("ALTER SECURITY POLICY foo REMOVE READ").close();
+    session.commit();
 
-    policy = security.getSecurityPolicy(db, "foo");
+    policy = security.getSecurityPolicy(session, "foo");
     Assert.assertNotNull(policy);
-    Assert.assertNull(policy.getReadRule(db));
+    Assert.assertNull(policy.getReadRule(session));
   }
 }

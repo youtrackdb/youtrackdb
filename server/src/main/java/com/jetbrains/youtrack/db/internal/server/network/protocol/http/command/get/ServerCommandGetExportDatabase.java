@@ -20,11 +20,10 @@
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.get;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseExport;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedDbAbstract;
 import java.io.IOException;
 import java.net.SocketException;
@@ -51,12 +50,12 @@ public class ServerCommandGetExportDatabase extends ServerCommandAuthenticatedDb
   protected void exportStandard(final HttpRequest iRequest, final HttpResponse iResponse)
       throws InterruptedException, IOException {
     iRequest.getData().commandInfo = "Database export";
-    final var database = getProfiledDatabaseInstance(iRequest);
+    final var database = getProfiledDatabaseSessionInstance(iRequest);
     try {
       iResponse.writeStatus(HttpUtils.STATUS_OK_CODE, HttpUtils.STATUS_OK_DESCRIPTION);
       iResponse.writeHeaders(HttpUtils.CONTENT_GZIP);
       iResponse.writeLine(
-          "Content-Disposition: attachment; filename=" + database.getName() + ".gz");
+          "Content-Disposition: attachment; filename=" + database.getDatabaseName() + ".gz");
       iResponse.writeLine("Date: " + new Date());
       iResponse.writeLine(null);
       final var export =

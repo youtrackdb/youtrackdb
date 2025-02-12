@@ -20,11 +20,11 @@
 
 package com.jetbrains.youtrack.db.internal.core.sql;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.command.script.CommandScript;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.sql.query.BasicLegacyResultSet;
@@ -74,16 +74,20 @@ public class SQLScriptEngine implements ScriptEngine {
 
   @Override
   public Object eval(String script, Bindings n) throws ScriptException {
-    var db = DatabaseRecordThreadLocal.instance().getIfDefined();
-    if (db == null) {
-      throw new CommandExecutionException("No database available in threadlocal");
+    DatabaseSession session = null;
+    if (n != null) {
+      session = (DatabaseSession) n.get("db");
+    }
+
+    if (session == null) {
+      throw new CommandExecutionException("No database available in bindings");
     }
     var params = convertToParameters(n);
     ResultSet queryResult;
     if (params.keySet().stream().anyMatch(x -> !(x instanceof String))) {
-      queryResult = db.execute("sql", script, params);
+      queryResult = session.execute("sql", script, params);
     } else {
-      queryResult = db.execute("sql", script, (Map) params);
+      queryResult = session.execute("sql", script, (Map) params);
     }
     try (var res = queryResult) {
       LegacyResultSet finalResult = new BasicLegacyResultSet();
@@ -125,7 +129,14 @@ public class SQLScriptEngine implements ScriptEngine {
 
   @Override
   public Object eval(Reader reader, Bindings n) throws ScriptException {
-    var db = DatabaseRecordThreadLocal.instance().getIfDefined();
+    DatabaseSessionInternal session = null;
+    if (n != null) {
+      session = (DatabaseSessionInternal) n.get("db");
+    }
+    if (session == null) {
+      throw new CommandExecutionException("No database available in bindings");
+    }
+
     final var buffer = new StringBuilder();
     try {
       while (reader.ready()) {
@@ -135,7 +146,7 @@ public class SQLScriptEngine implements ScriptEngine {
       throw new ScriptException(e);
     }
 
-    return new CommandScript(buffer.toString()).execute(db, n);
+    return new CommandScript(buffer.toString()).execute(session, n);
   }
 
   @Override

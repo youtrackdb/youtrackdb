@@ -16,13 +16,14 @@
 
 package com.jetbrains.youtrack.db.internal.common.serialization.types;
 
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALPageChangesPortion;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Random;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -30,13 +31,14 @@ import org.junit.Test;
  */
 public class StringSerializerTest {
 
-  byte[] stream;
-  private int FIELD_SIZE;
-  private String OBJECT;
-  private StringSerializer stringSerializer;
+  static byte[] stream;
+  private static int FIELD_SIZE;
+  private static String OBJECT;
+  private static StringSerializer stringSerializer;
+  private static BinarySerializerFactory serializerFactory;
 
-  @Before
-  public void beforeClass() {
+  @BeforeClass
+  public static void beforeClass() {
     stringSerializer = new StringSerializer();
     var random = new Random();
     var sb = new StringBuilder();
@@ -46,34 +48,38 @@ public class StringSerializerTest {
     OBJECT = sb.toString();
     FIELD_SIZE = OBJECT.length() * 2 + 4 + 7;
     stream = new byte[FIELD_SIZE];
+    serializerFactory = BinarySerializerFactory.create(
+        BinarySerializerFactory.currentBinaryFormatVersion());
   }
 
   @Test
   public void testFieldSize() {
-    Assert.assertEquals(stringSerializer.getObjectSize(OBJECT), FIELD_SIZE - 7);
+    Assert.assertEquals(stringSerializer.getObjectSize(serializerFactory, OBJECT), FIELD_SIZE - 7);
   }
 
   @Test
   public void testSerialize() {
-    stringSerializer.serialize(OBJECT, stream, 7);
-    Assert.assertEquals(stringSerializer.deserialize(stream, 7), OBJECT);
+    stringSerializer.serialize(OBJECT, serializerFactory, stream, 7);
+    Assert.assertEquals(stringSerializer.deserialize(serializerFactory, stream, 7), OBJECT);
   }
 
   @Test
   public void testSerializeNative() {
-    stringSerializer.serializeNativeObject(OBJECT, stream, 7);
-    Assert.assertEquals(stringSerializer.deserializeNativeObject(stream, 7), OBJECT);
+    stringSerializer.serializeNativeObject(OBJECT, serializerFactory, stream, 7);
+    Assert.assertEquals(stringSerializer.deserializeNativeObject(serializerFactory, stream, 7),
+        OBJECT);
   }
 
   @Test
   public void testNativeDirectMemoryCompatibility() {
-    stringSerializer.serializeNativeObject(OBJECT, stream, 7);
+    stringSerializer.serializeNativeObject(OBJECT, serializerFactory, stream, 7);
 
     var buffer = ByteBuffer.allocateDirect(stream.length).order(ByteOrder.nativeOrder());
     buffer.put(stream);
     buffer.position(7);
 
-    Assert.assertEquals(stringSerializer.deserializeFromByteBufferObject(buffer), OBJECT);
+    Assert.assertEquals(stringSerializer.deserializeFromByteBufferObject(serializerFactory, buffer),
+        OBJECT);
   }
 
   @Test
@@ -82,16 +88,18 @@ public class StringSerializerTest {
     final var buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
 
     buffer.position(serializationOffset);
-    stringSerializer.serializeInByteBufferObject(OBJECT, buffer);
+    stringSerializer.serializeInByteBufferObject(serializerFactory, OBJECT, buffer);
 
     final var binarySize = buffer.position() - serializationOffset;
     Assert.assertEquals(binarySize, FIELD_SIZE - 7);
 
     buffer.position(serializationOffset);
-    Assert.assertEquals(stringSerializer.getObjectSizeInByteBuffer(buffer), FIELD_SIZE - 7);
+    Assert.assertEquals(stringSerializer.getObjectSizeInByteBuffer(serializerFactory, buffer),
+        FIELD_SIZE - 7);
 
     buffer.position(serializationOffset);
-    Assert.assertEquals(stringSerializer.deserializeFromByteBufferObject(buffer), OBJECT);
+    Assert.assertEquals(stringSerializer.deserializeFromByteBufferObject(serializerFactory, buffer),
+        OBJECT);
 
     Assert.assertEquals(buffer.position() - serializationOffset, FIELD_SIZE - 7);
   }
@@ -102,18 +110,20 @@ public class StringSerializerTest {
     final var buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
 
     buffer.position(serializationOffset);
-    stringSerializer.serializeInByteBufferObject(OBJECT, buffer);
+    stringSerializer.serializeInByteBufferObject(serializerFactory, OBJECT, buffer);
 
     final var binarySize = buffer.position() - serializationOffset;
     Assert.assertEquals(binarySize, FIELD_SIZE - 7);
 
     buffer.position(0);
     Assert.assertEquals(
-        stringSerializer.getObjectSizeInByteBuffer(serializationOffset, buffer), FIELD_SIZE - 7);
+        stringSerializer.getObjectSizeInByteBuffer(serializerFactory, serializationOffset, buffer),
+        FIELD_SIZE - 7);
     Assert.assertEquals(0, buffer.position());
 
     Assert.assertEquals(
-        stringSerializer.deserializeFromByteBufferObject(serializationOffset, buffer), OBJECT);
+        stringSerializer.deserializeFromByteBufferObject(serializerFactory, serializationOffset,
+            buffer), OBJECT);
     Assert.assertEquals(0, buffer.position());
   }
 
@@ -126,7 +136,7 @@ public class StringSerializerTest {
             .order(ByteOrder.nativeOrder());
 
     final var data = new byte[FIELD_SIZE - 7];
-    stringSerializer.serializeNativeObject(OBJECT, data, 0);
+    stringSerializer.serializeNativeObject(OBJECT, serializerFactory, data, 0);
 
     WALChanges walChanges = new WALPageChangesPortion();
     walChanges.setBinaryValue(buffer, data, serializationOffset);
@@ -135,7 +145,8 @@ public class StringSerializerTest {
         stringSerializer.getObjectSizeInByteBuffer(buffer, walChanges, serializationOffset),
         FIELD_SIZE - 7);
     Assert.assertEquals(
-        stringSerializer.deserializeFromByteBufferObject(buffer, walChanges, serializationOffset),
+        stringSerializer.deserializeFromByteBufferObject(serializerFactory, buffer, walChanges,
+            serializationOffset),
         OBJECT);
     Assert.assertEquals(0, buffer.position());
   }

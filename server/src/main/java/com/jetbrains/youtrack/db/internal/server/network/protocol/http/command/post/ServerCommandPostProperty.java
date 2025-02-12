@@ -21,7 +21,6 @@ package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.
 
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
@@ -40,7 +39,7 @@ public class ServerCommandPostProperty extends ServerCommandAuthenticatedDbAbstr
 
   @Override
   public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
-    try (var db = getProfiledDatabaseInstance(iRequest)) {
+    try (var db = getProfiledDatabaseSessionInstance(iRequest)) {
       if (iRequest.getContent() == null || iRequest.getContent().length() <= 0) {
         return addSingleProperty(iRequest, iResponse, db);
       } else {

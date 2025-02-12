@@ -38,7 +38,7 @@ public interface CommandResultListener {
   /**
    * Called at the end of processing. This is useful to clean-up local attributes.
    */
-  void end();
+  void end(DatabaseSessionInternal db);
 
   Object getResult();
 }

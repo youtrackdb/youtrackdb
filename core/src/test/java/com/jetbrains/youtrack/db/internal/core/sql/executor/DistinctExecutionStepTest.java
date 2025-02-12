@@ -19,7 +19,7 @@ public class DistinctExecutionStepTest extends DbTestBase {
   @Test
   public void test() {
     var ctx = new BasicCommandContext();
-    ctx.setDatabase(db);
+    ctx.setDatabaseSession(session);
 
     var step = new DistinctExecutionStep(ctx, false);
 
@@ -32,7 +32,7 @@ public class DistinctExecutionStepTest extends DbTestBase {
             List<Result> result = new ArrayList<>();
             if (!done) {
               for (var i = 0; i < 10; i++) {
-                var item = new ResultInternal(ctx.getDatabase());
+                var item = new ResultInternal(ctx.getDatabaseSession());
                 item.setProperty("name", i % 2 == 0 ? "foo" : "bar");
                 result.add(item);
               }

@@ -15,8 +15,8 @@ public class TrackedMapTest extends DbTestBase {
 
   @Test
   public void testPutOne() {
-    db.begin();
-    final var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    final var doc = (EntityImpl) session.newEntity();
 
     final var map = new TrackedMap<String>(doc);
     RecordInternal.unsetDirty(doc);
@@ -31,13 +31,13 @@ public class TrackedMapTest extends DbTestBase {
     Assert.assertEquals(event, map.getTimeLine().getMultiValueChangeEvents().getFirst());
     Assert.assertTrue(map.isModified());
     Assert.assertTrue(doc.isDirty());
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testPutTwo() {
-    db.begin();
-    final var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    final var doc = (EntityImpl) session.newEntity();
 
     final var map = new TrackedMap<String>(doc);
     RecordInternal.unsetDirty(doc);
@@ -57,13 +57,13 @@ public class TrackedMapTest extends DbTestBase {
     Assert.assertEquals(event, map.getTimeLine().getMultiValueChangeEvents().getFirst());
     Assert.assertTrue(map.isModified());
     Assert.assertTrue(doc.isDirty());
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testPutThree() {
-    db.begin();
-    final var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    final var doc = (EntityImpl) session.newEntity();
 
     final var map = new TrackedMap<String>(doc);
     RecordInternal.unsetDirty(doc);
@@ -79,13 +79,13 @@ public class TrackedMapTest extends DbTestBase {
 
     Assert.assertFalse(map.isModified());
     Assert.assertFalse(doc.isDirty());
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testPutFour() {
-    db.begin();
-    final var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    final var doc = (EntityImpl) session.newEntity();
 
     final var map = new TrackedMap<String>(doc);
     RecordInternal.unsetDirty(doc);
@@ -102,13 +102,13 @@ public class TrackedMapTest extends DbTestBase {
 
     Assert.assertFalse(map.isModified());
     Assert.assertFalse(doc.isDirty());
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testPutFive() {
-    db.begin();
-    final var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    final var doc = (EntityImpl) session.newEntity();
 
     final var map = new TrackedMap<String>(doc);
 
@@ -120,13 +120,13 @@ public class TrackedMapTest extends DbTestBase {
 
     Assert.assertFalse(map.isModified());
     Assert.assertFalse(doc.isDirty());
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testRemoveOne() {
-    db.begin();
-    final var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    final var doc = (EntityImpl) session.newEntity();
 
     final var map = new TrackedMap<String>(doc);
 
@@ -144,13 +144,13 @@ public class TrackedMapTest extends DbTestBase {
     Assert.assertEquals(event, map.getTimeLine().getMultiValueChangeEvents().getFirst());
     Assert.assertTrue(map.isModified());
     Assert.assertTrue(doc.isDirty());
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testRemoveTwo() {
-    db.begin();
-    final var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    final var doc = (EntityImpl) session.newEntity();
 
     final var map = new TrackedMap<String>(doc);
 
@@ -165,13 +165,13 @@ public class TrackedMapTest extends DbTestBase {
 
     Assert.assertFalse(map.isModified());
     Assert.assertFalse(doc.isDirty());
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testClearOne() {
-    db.begin();
-    final var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    final var doc = (EntityImpl) session.newEntity();
 
     final var trackedMap = new TrackedMap<String>(doc);
 
@@ -199,13 +199,13 @@ public class TrackedMapTest extends DbTestBase {
     Assert.assertEquals(trackedMap.getTimeLine().getMultiValueChangeEvents(), firedEvents);
     Assert.assertTrue(trackedMap.isModified());
     Assert.assertTrue(doc.isDirty());
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testClearThree() {
-    db.begin();
-    final var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    final var doc = (EntityImpl) session.newEntity();
 
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     final var trackedMap = new TrackedMap<String>(doc);
@@ -220,13 +220,13 @@ public class TrackedMapTest extends DbTestBase {
     trackedMap.clear();
 
     Assert.assertTrue(doc.isDirty());
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testReturnOriginalStateOne() {
-    db.begin();
-    final var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    final var doc = (EntityImpl) session.newEntity();
 
     final var trackedMap = new TrackedMap<String>(doc);
     trackedMap.put("key1", "value1");
@@ -251,16 +251,16 @@ public class TrackedMapTest extends DbTestBase {
 
     //noinspection unchecked,rawtypes
     Assert.assertEquals(
-        trackedMap.returnOriginalState(db,
+        trackedMap.returnOriginalState(session,
             (List) trackedMap.getTimeLine().getMultiValueChangeEvents()),
         original);
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testReturnOriginalStateTwo() {
-    db.begin();
-    final var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    final var doc = (EntityImpl) session.newEntity();
 
     final var trackedMap = new TrackedMap<String>(doc);
     trackedMap.put("key1", "value1");
@@ -286,9 +286,9 @@ public class TrackedMapTest extends DbTestBase {
 
     //noinspection unchecked,rawtypes
     Assert.assertEquals(
-        trackedMap.returnOriginalState(db,
+        trackedMap.returnOriginalState(session,
             (List) trackedMap.getTimeLine().getMultiValueChangeEvents()),
         original);
-    db.rollback();
+    session.rollback();
   }
 }

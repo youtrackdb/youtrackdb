@@ -53,7 +53,7 @@ public class SQLMethodField extends AbstractSQLMethod {
       return null;
     }
 
-    var db = iContext.getDatabase();
+    var db = iContext.getDatabaseSession();
     final var paramAsString = iParams[0].toString();
 
     if (ioResult != null) {

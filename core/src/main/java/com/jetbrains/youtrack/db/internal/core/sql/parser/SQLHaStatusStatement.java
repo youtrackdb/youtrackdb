@@ -3,10 +3,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
@@ -90,7 +89,7 @@ public class SQLHaStatusStatement extends SQLSimpleExecStatement {
     if (outputText) {
       LogManager.instance().info(this, "HA STATUS with text output is deprecated");
     }
-    final var database = ctx.getDatabase();
+    final var database = ctx.getDatabaseSession();
 
     try {
       var res = database.getHaStatus(servers, this.db, latency, messages);
@@ -102,8 +101,9 @@ public class SQLHaStatusStatement extends SQLSimpleExecStatement {
         return ExecutionStream.empty();
       }
     } catch (Exception x) {
-      throw BaseException.wrapException(new CommandExecutionException("Cannot execute HA STATUS"),
-          x);
+      throw BaseException.wrapException(
+          new CommandExecutionException(ctx.getDatabaseSession(), "Cannot execute HA STATUS"),
+          x, ctx.getDatabaseSession());
     }
   }
 }

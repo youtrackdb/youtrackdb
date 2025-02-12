@@ -55,7 +55,7 @@ public class ConfigurableStatefulFactory<K, V> {
                     "Error on creating new instance of class '%s' registered in factory with key"
                         + " '%s'",
                     cls, iKey));
-        throw BaseException.wrapException(exception, e);
+        throw BaseException.wrapException(exception, e, (String) null);
       }
     }
 
@@ -71,7 +71,7 @@ public class ConfigurableStatefulFactory<K, V> {
             new SystemException(
                 String.format(
                     "Error on creating new instance of default class '%s'", defaultClass)),
-            e);
+            e, (String) null);
       }
     }
     return null;

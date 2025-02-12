@@ -23,9 +23,7 @@ import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
@@ -38,7 +36,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -47,36 +44,34 @@ import java.util.Set;
 public class FindReferenceHelper {
 
   public static List<EntityImpl> findReferences(final Set<RID> iRecordIds,
-      final String classList) {
-    final var db = DatabaseRecordThreadLocal.instance().get();
-
+      final String classList, DatabaseSessionInternal session) {
     final Map<RID, Set<RID>> map = new HashMap<RID, Set<RID>>();
     for (var rid : iRecordIds) {
       map.put(rid, new HashSet<>());
     }
 
     if (classList == null || classList.isEmpty()) {
-      for (var clusterName : db.getClusterNames()) {
-        browseCluster(db, iRecordIds, map, clusterName);
+      for (var clusterName : session.getClusterNames()) {
+        browseCluster(session, iRecordIds, map, clusterName);
       }
     } else {
       final var classes = StringSerializerHelper.smartSplit(classList, ',');
       for (var clazz : classes) {
         if (clazz.startsWith("CLUSTER:")) {
           browseCluster(
-              db,
+              session,
               iRecordIds,
               map,
               clazz.substring(clazz.indexOf("CLUSTER:") + "CLUSTER:".length()));
         } else {
-          browseClass(db, iRecordIds, map, clazz);
+          browseClass(session, iRecordIds, map, clazz);
         }
       }
     }
 
     final List<EntityImpl> result = new ArrayList<EntityImpl>();
     for (var entry : map.entrySet()) {
-      final var entity = new EntityImpl(db);
+      final var entity = new EntityImpl(session);
       result.add(entity);
 
       entity.field("rid", entry.getKey());
@@ -107,18 +102,18 @@ public class FindReferenceHelper {
   }
 
   private static void browseClass(
-      final DatabaseSessionInternal db,
+      final DatabaseSessionInternal session,
       Set<RID> iSourceRIDs,
       final Map<RID, Set<RID>> map,
       final String iClassName) {
-    final var clazz = db.getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
+    final var clazz = session.getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
 
     if (clazz == null) {
-      throw new CommandExecutionException("Class '" + iClassName + "' was not found");
+      throw new CommandExecutionException(session, "Class '" + iClassName + "' was not found");
     }
 
-    for (var i : clazz.getClusterIds()) {
-      browseCluster(db, iSourceRIDs, map, db.getClusterNameById(i));
+    for (var i : clazz.getClusterIds(session)) {
+      browseCluster(session, iSourceRIDs, map, session.getClusterNameById(i));
     }
   }
 

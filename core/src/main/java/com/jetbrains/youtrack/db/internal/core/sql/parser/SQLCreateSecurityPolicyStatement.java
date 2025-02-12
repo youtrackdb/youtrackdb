@@ -4,8 +4,6 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityPolicyImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
@@ -32,12 +30,12 @@ public class SQLCreateSecurityPolicyStatement extends SQLSimpleExecStatement {
 
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     var security = db.getSharedContext().getSecurity();
     var policy = security.createSecurityPolicy(db, name.getStringValue());
-    policy.setActive(ctx.getDatabase(), true);
+    policy.setActive(ctx.getDatabaseSession(), true);
     if (create != null) {
-      policy.setCreateRule(ctx.getDatabase(), create.toString());
+      policy.setCreateRule(ctx.getDatabaseSession(), create.toString());
     }
     if (read != null) {
       policy.setReadRule(db, read.toString());

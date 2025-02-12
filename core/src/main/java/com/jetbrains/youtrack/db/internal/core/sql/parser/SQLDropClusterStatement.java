@@ -3,7 +3,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
@@ -26,47 +25,48 @@ public class SQLDropClusterStatement extends DDLStatement {
 
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
-    var database = ctx.getDatabase();
+    var session = ctx.getDatabaseSession();
     // CHECK IF ANY CLASS IS USING IT
     final int clusterId;
     if (id != null) {
       clusterId = id.getValue().intValue();
     } else {
-      clusterId = database.getStorage().getClusterIdByName(name.getStringValue());
+      clusterId = session.getStorage().getClusterIdByName(name.getStringValue());
       if (clusterId < 0) {
         if (ifExists) {
           return ExecutionStream.empty();
         } else {
-          throw new CommandExecutionException("Cluster not found: " + name);
+          throw new CommandExecutionException(ctx.getDatabaseSession(),
+              "Cluster not found: " + name);
         }
       }
     }
-    for (var iClass : database.getMetadata().getSchema().getClasses(database)) {
-      for (var i : iClass.getClusterIds()) {
+    for (var iClass : session.getMetadata().getSchema().getClasses()) {
+      for (var i : iClass.getClusterIds(session)) {
         if (i == clusterId) {
           // IN USE
-          throw new CommandExecutionException(
+          throw new CommandExecutionException(session,
               "Cannot drop cluster "
                   + clusterId
                   + " because it's used by class "
-                  + iClass.getName());
+                  + iClass.getName(session));
         }
       }
     }
 
     // REMOVE CACHE OF COMMAND RESULTS IF ACTIVE
-    var clusterName = database.getClusterNameById(clusterId);
+    var clusterName = session.getClusterNameById(clusterId);
     if (clusterName == null) {
       if (ifExists) {
         return ExecutionStream.empty();
       } else {
-        throw new CommandExecutionException("Cluster not found: " + clusterId);
+        throw new CommandExecutionException(session, "Cluster not found: " + clusterId);
       }
     }
 
-    database.dropCluster(clusterId);
+    session.dropCluster(clusterId);
 
-    var result = new ResultInternal(database);
+    var result = new ResultInternal(session);
     result.setProperty("operation", "drop cluster");
     result.setProperty("clusterName", name == null ? null : name.getStringValue());
     result.setProperty("clusterId", id == null ? null : id.getValue());

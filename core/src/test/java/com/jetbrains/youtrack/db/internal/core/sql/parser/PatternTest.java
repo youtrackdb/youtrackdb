@@ -3,7 +3,6 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
@@ -97,7 +96,7 @@ public class PatternTest extends ParserTestAbstract {
 
   private CommandContext getContext() {
     var ctx = new BasicCommandContext();
-    ctx.setDatabase(db);
+    ctx.setDatabaseSession(session);
 
     return ctx;
   }

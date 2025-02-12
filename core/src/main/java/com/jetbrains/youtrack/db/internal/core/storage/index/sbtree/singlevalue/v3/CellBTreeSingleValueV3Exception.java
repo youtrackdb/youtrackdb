@@ -33,6 +33,11 @@ public final class CellBTreeSingleValueV3Exception extends DurableComponentExcep
   }
 
   CellBTreeSingleValueV3Exception(final String message, final CellBTreeSingleValueV3 component) {
-    super(message, component);
+    super(null, message, component);
+  }
+
+  CellBTreeSingleValueV3Exception(String dbName, final String message,
+      final CellBTreeSingleValueV3 component) {
+    super(dbName, message, component);
   }
 }

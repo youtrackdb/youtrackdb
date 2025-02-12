@@ -7,12 +7,9 @@ import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
-import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.ArrayUtils;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import java.util.ArrayList;
@@ -41,16 +38,16 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
       final SchemaClass linkedClass,
       final boolean unsafe) {
     if (type == null) {
-      throw new SchemaException("Property type not defined.");
+      throw new SchemaException(session.getDatabaseName(), "Property type not defined.");
     }
 
     if (propertyName == null || propertyName.isEmpty()) {
-      throw new SchemaException("Property name is null or empty");
+      throw new SchemaException(session.getDatabaseName(), "Property name is null or empty");
     }
 
     validatePropertyName(propertyName);
     if (session.getTransaction().isActive()) {
-      throw new SchemaException(
+      throw new SchemaException(session.getDatabaseName(),
           "Cannot create property '" + propertyName + "' inside a transaction");
     }
 
@@ -99,7 +96,7 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
 
     acquireSchemaWriteLock(session);
     try {
-      checkEmbedded();
+      checkEmbedded(session);
 
       this.clusterSelection = owner.getClusterSelectionFactory().newInstance(clusterSelection);
     } finally {
@@ -135,7 +132,7 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
   protected void clearCustomInternal(DatabaseSessionInternal session) {
     acquireSchemaWriteLock(session);
     try {
-      checkEmbedded();
+      checkEmbedded(session);
 
       customFields = null;
     } finally {
@@ -146,37 +143,36 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
   @Override
   public SchemaClass setSuperClasses(DatabaseSession session,
       final List<? extends SchemaClass> classes) {
-    final var database = (DatabaseSessionInternal) session;
-    database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
+    final var sessionInternal = (DatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
     if (classes != null) {
       List<SchemaClass> toCheck = new ArrayList<SchemaClass>(classes);
       toCheck.add(this);
-      checkParametersConflict(toCheck);
+      checkParametersConflict(sessionInternal, toCheck);
     }
-    acquireSchemaWriteLock(database);
+    acquireSchemaWriteLock(sessionInternal);
     try {
-      setSuperClassesInternal(database, classes);
+      setSuperClassesInternal(sessionInternal, classes);
     } finally {
-      releaseSchemaWriteLock(database);
+      releaseSchemaWriteLock(sessionInternal);
     }
     return this;
   }
 
-  public SchemaClass removeBaseClassInternal(DatabaseSessionInternal session,
+  public void removeBaseClassInternal(DatabaseSessionInternal session,
       final SchemaClass baseClass) {
     acquireSchemaWriteLock(session);
     try {
-      checkEmbedded();
+      checkEmbedded(session);
 
       if (subclasses == null) {
-        return this;
+        return;
       }
 
       if (subclasses.remove(baseClass)) {
         removePolymorphicClusterIds(session, (SchemaClassImpl) baseClass);
       }
 
-      return this;
     } finally {
       releaseSchemaWriteLock(session);
     }
@@ -208,15 +204,16 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
         // CHECK THE USER HAS UPDATE PRIVILEGE AGAINST EXTENDING CLASS
         final var user = database.geCurrentUser();
         if (user != null) {
-          user.allow(database, Rule.ResourceGeneric.CLASS, cls.getName(), Role.PERMISSION_UPDATE);
+          user.allow(database, Rule.ResourceGeneric.CLASS, cls.getName(database),
+              Role.PERMISSION_UPDATE);
         }
 
         if (superClasses.contains(superClass)) {
-          throw new SchemaException(
+          throw new SchemaException(database.getDatabaseName(),
               "Class: '"
-                  + this.getName()
+                  + this.getName(database)
                   + "' already has the class '"
-                  + superClass.getName()
+                  + superClass.getName(database)
                   + "' as superclass");
         }
 
@@ -267,7 +264,8 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
     for (var superClass : classes) {
       cls = (SchemaClassImpl) superClass;
       if (newSuperClasses.contains(cls)) {
-        throw new SchemaException("Duplicated superclass '" + cls.getName() + "'");
+        throw new SchemaException(session.getDatabaseName(),
+            "Duplicated superclass '" + cls.getName(session) + "'");
       }
 
       newSuperClasses.add(cls);
@@ -289,7 +287,7 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
   }
 
   public SchemaClass setName(DatabaseSession session, final String name) {
-    if (getName().equals(name)) {
+    if (getName(session).equals(name)) {
       return this;
     }
     final var database = (DatabaseSessionInternal) session;
@@ -300,11 +298,11 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
       var error =
           String.format(
               "Cannot rename class %s to %s. A Class with name %s exists", this.name, name, name);
-      throw new SchemaException(error);
+      throw new SchemaException(session.getDatabaseName(), error);
     }
     //noinspection ConstantValue
     if (wrongCharacter != null) {
-      throw new SchemaException(
+      throw new SchemaException(session.getDatabaseName(),
           "Invalid class name found. Character '"
               + wrongCharacter
               + "' cannot be used in class name '"
@@ -321,28 +319,17 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
     return this;
   }
 
-  protected void setNameInternal(DatabaseSessionInternal database, final String name) {
-    database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
-    acquireSchemaWriteLock(database);
+  protected void setNameInternal(DatabaseSessionInternal session, final String name) {
+    session.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
+    acquireSchemaWriteLock(session);
     try {
-      checkEmbedded();
+      checkEmbedded(session);
       final var oldName = this.name;
-      owner.changeClassName(database, this.name, name, this);
+      owner.changeClassName(session, this.name, name, this);
       this.name = name;
-      renameCluster(database, oldName, this.name);
+      renameCluster(session, oldName, this.name);
     } finally {
-      releaseSchemaWriteLock(database);
-    }
-  }
-
-  public void setDefaultClusterId(DatabaseSession session, final int defaultClusterId) {
-    var sessionInternal = (DatabaseSessionInternal) session;
-    acquireSchemaWriteLock(sessionInternal);
-    try {
-      checkEmbedded();
-      this.defaultClusterId = defaultClusterId;
-    } finally {
-      releaseSchemaWriteLock(sessionInternal);
+      releaseSchemaWriteLock(session);
     }
   }
 
@@ -366,12 +353,12 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
     return this;
   }
 
-  protected void setShortNameInternal(DatabaseSessionInternal database, final String iShortName) {
-    database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
+  protected void setShortNameInternal(DatabaseSessionInternal session, final String iShortName) {
+    session.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock(database);
+    acquireSchemaWriteLock(session);
     try {
-      checkEmbedded();
+      checkEmbedded(session);
 
       String oldName = null;
 
@@ -379,11 +366,11 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
         oldName = this.shortName;
       }
 
-      owner.changeClassName(database, oldName, iShortName, this);
+      owner.changeClassName(session, oldName, iShortName, this);
 
       this.shortName = iShortName;
     } finally {
-      releaseSchemaWriteLock(database);
+      releaseSchemaWriteLock(session);
     }
   }
 
@@ -398,7 +385,7 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
       final SchemaClass linkedClass,
       final boolean unsafe) {
     if (name == null || name.isEmpty()) {
-      throw new SchemaException("Found property name null");
+      throw new SchemaException(session.getDatabaseName(), "Found property name null");
     }
 
     if (!unsafe) {
@@ -418,10 +405,10 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
 
     acquireSchemaWriteLock(session);
     try {
-      checkEmbedded();
+      checkEmbedded(session);
 
       if (properties.containsKey(name)) {
-        throw new SchemaException(
+        throw new SchemaException(session.getDatabaseName(),
             "Class '" + this.name + "' already has property '" + name + "'");
       }
 
@@ -482,7 +469,7 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
 
     acquireSchemaWriteLock(session);
     try {
-      checkEmbedded();
+      checkEmbedded(session);
 
       this.strictMode = iStrict;
     } finally {
@@ -514,7 +501,7 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
       final String iDescription) {
     acquireSchemaWriteLock(session);
     try {
-      checkEmbedded();
+      checkEmbedded(session);
       this.description = iDescription;
     } finally {
       releaseSchemaWriteLock(session);
@@ -525,8 +512,9 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
     final var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
-    if (isAbstract()) {
-      throw new SchemaException("Impossible to associate a cluster to an abstract class class");
+    if (isAbstract(session)) {
+      throw new SchemaException(session.getDatabaseName(),
+          "Impossible to associate a cluster to an abstract class class");
     }
 
     acquireSchemaWriteLock(database);
@@ -547,9 +535,9 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
     session.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
     if (!force && clusterIds.length == 1 && clusterId == clusterIds[0]) {
-      throw new DatabaseException(
+      throw new DatabaseException(session.getDatabaseName(),
           " Impossible to remove the last cluster of class '"
-              + getName()
+              + getName(session)
               + "' drop the class instead");
     }
 
@@ -564,10 +552,10 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
   }
 
   protected void removeClusterIdInternal(
-      DatabaseSessionInternal database, final int clusterToRemove) {
-    acquireSchemaWriteLock(database);
+      DatabaseSessionInternal session, final int clusterToRemove) {
+    acquireSchemaWriteLock(session);
     try {
-      checkEmbedded();
+      checkEmbedded(session);
 
       var found = false;
       for (var clusterId : clusterIds) {
@@ -591,7 +579,7 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
         }
         clusterIds = newClusterIds;
 
-        removePolymorphicClusterId(database, clusterToRemove);
+        removePolymorphicClusterId(session, clusterToRemove);
       }
 
       if (defaultClusterId == clusterToRemove) {
@@ -602,9 +590,9 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
         }
       }
 
-      ((SchemaEmbedded) owner).removeClusterForClass(database, clusterToRemove);
+      ((SchemaEmbedded) owner).removeClusterForClass(session, clusterToRemove);
     } finally {
-      releaseSchemaWriteLock(database);
+      releaseSchemaWriteLock(session);
     }
 
   }
@@ -620,7 +608,7 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
     acquireSchemaWriteLock(database);
     try {
       if (!properties.containsKey(propertyName)) {
-        throw new SchemaException(
+        throw new SchemaException(session.getDatabaseName(),
             "Property '" + propertyName + "' not found in class " + name + "'");
       }
       dropPropertyInternal(database, propertyName);
@@ -630,24 +618,24 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
   }
 
   protected void dropPropertyInternal(
-      DatabaseSessionInternal database, final String iPropertyName) {
-    if (database.getTransaction().isActive()) {
+      DatabaseSessionInternal session, final String iPropertyName) {
+    if (session.getTransaction().isActive()) {
       throw new IllegalStateException("Cannot drop a property inside a transaction");
     }
-    database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_DELETE);
+    session.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_DELETE);
 
-    acquireSchemaWriteLock(database);
+    acquireSchemaWriteLock(session);
     try {
-      checkEmbedded();
+      checkEmbedded(session);
 
       final SchemaProperty prop = properties.remove(iPropertyName);
 
       if (prop == null) {
-        throw new SchemaException(
+        throw new SchemaException(session.getDatabaseName(),
             "Property '" + iPropertyName + "' not found in class " + name + "'");
       }
     } finally {
-      releaseSchemaWriteLock(database);
+      releaseSchemaWriteLock(session);
     }
   }
 
@@ -656,8 +644,9 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
     final var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
-    if (isAbstract()) {
-      throw new SchemaException("Impossible to associate a cluster to an abstract class class");
+    if (isAbstract(session)) {
+      throw new SchemaException(session.getDatabaseName(),
+          "Impossible to associate a cluster to an abstract class class");
     }
 
     acquireSchemaWriteLock(database);
@@ -684,15 +673,15 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
     return this;
   }
 
-  protected void setOverSizeInternal(DatabaseSessionInternal database, final float overSize) {
-    database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
-    acquireSchemaWriteLock(database);
+  protected void setOverSizeInternal(DatabaseSessionInternal session, final float overSize) {
+    session.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
+    acquireSchemaWriteLock(session);
     try {
-      checkEmbedded();
+      checkEmbedded(session);
 
       this.overSize = overSize;
     } finally {
-      releaseSchemaWriteLock(database);
+      releaseSchemaWriteLock(session);
     }
   }
 
@@ -714,7 +703,7 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
       final String value) {
     acquireSchemaWriteLock(session);
     try {
-      checkEmbedded();
+      checkEmbedded(session);
 
       if (customFields == null) {
         customFields = new HashMap<String, String>();
@@ -744,7 +733,7 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
           }
 
           tryDropCluster(database, defaultClusterId);
-          for (var clusterId : getClusterIds()) {
+          for (var clusterId : getClusterIds(database)) {
             tryDropCluster(database, clusterId);
             removePolymorphicClusterId(database, clusterId);
             ((SchemaEmbedded) owner).removeClusterForClass(database, clusterId);
@@ -767,7 +756,7 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
         this.defaultClusterId = clusterId;
         this.clusterIds[0] = this.defaultClusterId;
         this.polymorphicClusterIds = Arrays.copyOf(clusterIds, clusterIds.length);
-        for (var clazz : getAllSubclasses()) {
+        for (var clazz : getAllSubclasses(database)) {
           if (clazz instanceof SchemaClassImpl) {
             addPolymorphicClusterIds(database, (SchemaClassImpl) clazz);
           } else {
@@ -792,12 +781,12 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
     }
   }
 
-  protected void addClusterIdInternal(DatabaseSessionInternal database, final int clusterId) {
-    acquireSchemaWriteLock(database);
+  protected void addClusterIdInternal(DatabaseSessionInternal session, final int clusterId) {
+    acquireSchemaWriteLock(session);
     try {
-      checkEmbedded();
+      checkEmbedded(session);
 
-      owner.checkClusterCanBeAdded(clusterId, this);
+      owner.checkClusterCanBeAdded(session, clusterId, this);
 
       for (var currId : clusterIds) {
         if (currId == clusterId)
@@ -811,15 +800,15 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
       clusterIds[clusterIds.length - 1] = clusterId;
       Arrays.sort(clusterIds);
 
-      addPolymorphicClusterId(database, clusterId);
+      addPolymorphicClusterId(session, clusterId);
 
       if (defaultClusterId == NOT_EXISTENT_CLUSTER_ID) {
         defaultClusterId = clusterId;
       }
 
-      ((SchemaEmbedded) owner).addClusterForClass(database, clusterId, this);
+      ((SchemaEmbedded) owner).addClusterForClass(session, clusterId, this);
     } finally {
-      releaseSchemaWriteLock(database);
+      releaseSchemaWriteLock(session);
     }
   }
 

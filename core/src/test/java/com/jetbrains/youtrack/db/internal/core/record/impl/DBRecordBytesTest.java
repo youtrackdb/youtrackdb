@@ -70,7 +70,7 @@ public class DBRecordBytesTest extends DbTestBase {
   public void setUp() throws Exception {
     inputStream = new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5});
     emptyStream = new ByteArrayInputStream(new byte[]{});
-    testedInstance = db.newBlob();
+    testedInstance = session.newBlob();
   }
 
   @Test

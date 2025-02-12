@@ -24,7 +24,7 @@ import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBShutdownListener;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBStartupListener;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.LinkSerializer;
@@ -80,12 +80,6 @@ public final class BTreeCollectionManagerShared
         }
       }
     }
-  }
-
-  @Override
-  public EdgeBTree<RID, Integer> createAndLoadTree(
-      final AtomicOperation atomicOperation, final int clusterId) {
-    return doCreateRidBag(atomicOperation, clusterId);
   }
 
   public static boolean isComponentPresent(final AtomicOperation operation, final int clusterId) {
@@ -169,13 +163,14 @@ public final class BTreeCollectionManagerShared
 
   @Override
   public BonsaiCollectionPointer createSBTree(
-      int clusterId, AtomicOperation atomicOperation, UUID ownerUUID) {
+      int clusterId, AtomicOperation atomicOperation, UUID ownerUUID,
+      DatabaseSessionInternal session) {
     final var bonsaiGlobal = doCreateRidBag(atomicOperation, clusterId);
     final var pointer = bonsaiGlobal.getCollectionPointer();
 
     if (ownerUUID != null) {
       var changedPointers =
-          DatabaseRecordThreadLocal.instance().get().getCollectionsChanges();
+          session.getCollectionsChanges();
       if (pointer != null && pointer.isValid()) {
         changedPointers.put(ownerUUID, pointer);
       }
@@ -188,11 +183,10 @@ public final class BTreeCollectionManagerShared
    * Change UUID to null to prevent its serialization to disk.
    */
   @Override
-  public UUID listenForChanges(RidBag collection) {
+  public UUID listenForChanges(RidBag collection, DatabaseSessionInternal session) {
     var ownerUUID = collection.getTemporaryId();
     if (ownerUUID != null) {
       final var pointer = collection.getPointer();
-      var session = DatabaseRecordThreadLocal.instance().get();
       var changedPointers = session.getCollectionsChanges();
       if (pointer != null && pointer.isValid()) {
         changedPointers.put(ownerUUID, pointer);
@@ -203,7 +197,8 @@ public final class BTreeCollectionManagerShared
   }
 
   @Override
-  public void updateCollectionPointer(UUID uuid, BonsaiCollectionPointer pointer) {
+  public void updateCollectionPointer(UUID uuid, BonsaiCollectionPointer pointer,
+      DatabaseSessionInternal session) {
   }
 
   @Override
@@ -211,13 +206,13 @@ public final class BTreeCollectionManagerShared
   }
 
   @Override
-  public Map<UUID, BonsaiCollectionPointer> changedIds() {
-    return DatabaseRecordThreadLocal.instance().get().getCollectionsChanges();
+  public Map<UUID, BonsaiCollectionPointer> changedIds(DatabaseSessionInternal session) {
+    return session.getCollectionsChanges();
   }
 
   @Override
-  public void clearChangedIds() {
-    DatabaseRecordThreadLocal.instance().get().getCollectionsChanges().clear();
+  public void clearChangedIds(DatabaseSessionInternal session) {
+    session.getCollectionsChanges().clear();
   }
 
   @Override
@@ -233,11 +228,12 @@ public final class BTreeCollectionManagerShared
   }
 
   public boolean delete(
-      AtomicOperation atomicOperation, BonsaiCollectionPointer collectionPointer) {
+      AtomicOperation atomicOperation, BonsaiCollectionPointer collectionPointer,
+      String storageName) {
     final var fileId = (int) collectionPointer.getFileId();
     final var bTree = fileIdBTreeMap.get(fileId);
     if (bTree == null) {
-      throw new StorageException(
+      throw new StorageException(storageName,
           "RidBug for with collection pointer " + collectionPointer + " does not exist");
     }
 

@@ -1,9 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,61 +12,62 @@ public class CompositeIndexSQLInsertTest extends DbTestBase {
 
   public void beforeTest() throws Exception {
     super.beforeTest();
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var book = schema.createClass("Book");
-    book.createProperty(db, "author", PropertyType.STRING);
-    book.createProperty(db, "title", PropertyType.STRING);
-    book.createProperty(db, "publicationYears", PropertyType.EMBEDDEDLIST, PropertyType.INTEGER);
-    book.createIndex(db, "books", "unique", "author", "title", "publicationYears");
+    book.createProperty(session, "author", PropertyType.STRING);
+    book.createProperty(session, "title", PropertyType.STRING);
+    book.createProperty(session, "publicationYears", PropertyType.EMBEDDEDLIST,
+        PropertyType.INTEGER);
+    book.createIndex(session, "books", "unique", "author", "title", "publicationYears");
 
-    book.createProperty(db, "nullKey1", PropertyType.STRING);
+    book.createProperty(session, "nullKey1", PropertyType.STRING);
     Map<String, Boolean> indexOptions = new HashMap<>();
     indexOptions.put("ignoreNullValues", true);
-    book.createIndex(db,
+    book.createIndex(session,
         "indexignoresnulls", "NOTUNIQUE", null, indexOptions, new String[]{"nullKey1"});
   }
 
   @Test
   public void testCompositeIndexWithRangeAndContains() {
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     var clazz = schema.createClass("CompositeIndexWithRangeAndConditions");
-    clazz.createProperty(db, "id", PropertyType.INTEGER);
-    clazz.createProperty(db, "bar", PropertyType.INTEGER);
-    clazz.createProperty(db, "tags", PropertyType.EMBEDDEDLIST, PropertyType.STRING);
-    clazz.createProperty(db, "name", PropertyType.STRING);
+    clazz.createProperty(session, "id", PropertyType.INTEGER);
+    clazz.createProperty(session, "bar", PropertyType.INTEGER);
+    clazz.createProperty(session, "tags", PropertyType.EMBEDDEDLIST, PropertyType.STRING);
+    clazz.createProperty(session, "name", PropertyType.STRING);
 
-    db.command(
+    session.command(
             "create index CompositeIndexWithRangeAndConditions_id_tags_name on"
                 + " CompositeIndexWithRangeAndConditions (id, tags, name) NOTUNIQUE")
         .close();
 
-    db.begin();
-    db.command(
+    session.begin();
+    session.command(
             "insert into CompositeIndexWithRangeAndConditions set id = 1, tags ="
                 + " [\"green\",\"yellow\"] , name = \"Foo\", bar = 1")
         .close();
-    db.command(
+    session.command(
             "insert into CompositeIndexWithRangeAndConditions set id = 1, tags ="
                 + " [\"blue\",\"black\"] , name = \"Foo\", bar = 14")
         .close();
-    db.command(
+    session.command(
             "insert into CompositeIndexWithRangeAndConditions set id = 1, tags = [\"white\"] , name"
                 + " = \"Foo\"")
         .close();
-    db.command(
+    session.command(
             "insert into CompositeIndexWithRangeAndConditions set id = 1, tags ="
                 + " [\"green\",\"yellow\"], name = \"Foo1\", bar = 14")
         .close();
-    db.commit();
+    session.commit();
 
     var res =
-        db.query("select from CompositeIndexWithRangeAndConditions where id > 0 and bar = 1");
+        session.query("select from CompositeIndexWithRangeAndConditions where id > 0 and bar = 1");
 
     var count = res.stream().count();
     Assert.assertEquals(1, count);
 
     var count1 =
-        db
+        session
             .query(
                 "select from CompositeIndexWithRangeAndConditions where id = 1 and tags CONTAINS"
                     + " \"white\"")
@@ -77,7 +76,7 @@ public class CompositeIndexSQLInsertTest extends DbTestBase {
     Assert.assertEquals(1, count1);
 
     var count2 =
-        db
+        session
             .query(
                 "select from CompositeIndexWithRangeAndConditions where id > 0 and tags CONTAINS"
                     + " \"white\"")
@@ -86,7 +85,7 @@ public class CompositeIndexSQLInsertTest extends DbTestBase {
     Assert.assertEquals(1, count2);
 
     var count3 =
-        db
+        session
             .query("select from CompositeIndexWithRangeAndConditions where id > 0 and bar = 1")
             .stream()
             .count();
@@ -94,7 +93,7 @@ public class CompositeIndexSQLInsertTest extends DbTestBase {
     Assert.assertEquals(1, count3);
 
     var count4 =
-        db
+        session
             .query(
                 "select from CompositeIndexWithRangeAndConditions where tags CONTAINS \"white\" and"
                     + " id > 0")

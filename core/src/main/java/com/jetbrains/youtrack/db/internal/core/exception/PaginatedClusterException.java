@@ -11,7 +11,7 @@ public class PaginatedClusterException extends DurableComponentException {
     super(exception);
   }
 
-  public PaginatedClusterException(String message, PaginatedCluster component) {
-    super(message, component);
+  public PaginatedClusterException(String dbName, String message, PaginatedCluster component) {
+    super(dbName, message, component);
   }
 }

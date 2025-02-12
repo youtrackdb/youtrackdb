@@ -45,7 +45,7 @@ public class SQLMethodAsMapTest extends DbTestBase {
   public void testODocument() {
     // The expected behavior is to return a map that has the field names mapped
     // to the field values of the EntityImpl.
-    var doc = ((EntityImpl) db.newEntity());
+    var doc = ((EntityImpl) session.newEntity());
     doc.field("f1", 1);
     doc.field("f2", 2);
 

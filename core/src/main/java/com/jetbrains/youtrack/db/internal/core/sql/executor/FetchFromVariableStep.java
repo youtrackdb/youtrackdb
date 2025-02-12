@@ -1,13 +1,13 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
-import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Collections;
 
@@ -42,13 +42,14 @@ public class FetchFromVariableStep extends AbstractExecutionStep {
       source =
           ExecutionStream.resultIterator(
               Collections.singleton(
-                  (Result) new ResultInternal(ctx.getDatabase(), (Entity) src)).iterator());
+                  (Result) new ResultInternal(ctx.getDatabaseSession(), (Entity) src)).iterator());
     } else if (src instanceof Result) {
       source = ExecutionStream.resultIterator(Collections.singleton((Result) src).iterator());
     } else if (src instanceof Iterable) {
       source = ExecutionStream.iterator(((Iterable<?>) src).iterator());
     } else {
-      throw new CommandExecutionException("Cannot use variable as query target: " + variableName);
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
+          "Cannot use variable as query target: " + variableName);
     }
     return source;
   }
@@ -63,22 +64,22 @@ public class FetchFromVariableStep extends AbstractExecutionStep {
   }
 
   @Override
-  public Result serialize(DatabaseSessionInternal db) {
-    var result = ExecutionStepInternal.basicSerialize(db, this);
+  public Result serialize(DatabaseSessionInternal session) {
+    var result = ExecutionStepInternal.basicSerialize(session, this);
     result.setProperty("variableName", variableName);
     return result;
   }
 
   @Override
-  public void deserialize(Result fromResult) {
+  public void deserialize(Result fromResult, DatabaseSessionInternal session) {
     try {
-      ExecutionStepInternal.basicDeserialize(fromResult, this);
+      ExecutionStepInternal.basicDeserialize(fromResult, this, session);
       if (fromResult.getProperty("variableName") != null) {
         this.variableName = fromResult.getProperty(variableName);
       }
       reset();
     } catch (Exception e) {
-      throw BaseException.wrapException(new CommandExecutionException(""), e);
+      throw BaseException.wrapException(new CommandExecutionException(session, ""), e, session);
     }
   }
 }

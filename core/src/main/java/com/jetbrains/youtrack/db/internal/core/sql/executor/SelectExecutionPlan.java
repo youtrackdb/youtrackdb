@@ -123,19 +123,20 @@ public class SelectExecutionPlan implements InternalExecutionPlan {
     return result;
   }
 
-  public void deserialize(Result serializedExecutionPlan) {
+  public void deserialize(Result serializedExecutionPlan, DatabaseSessionInternal session) {
     List<Result> serializedSteps = serializedExecutionPlan.getProperty("steps");
     for (var serializedStep : serializedSteps) {
       try {
         String className = serializedStep.getProperty(JAVA_TYPE);
         var step =
             (ExecutionStepInternal) Class.forName(className).newInstance();
-        step.deserialize(serializedStep);
+        step.deserialize(serializedStep, session);
         chain(step);
       } catch (Exception e) {
         throw BaseException.wrapException(
-            new CommandExecutionException("Cannot deserialize execution step:" + serializedStep),
-            e);
+            new CommandExecutionException(session,
+                "Cannot deserialize execution step:" + serializedStep),
+            e, session);
       }
     }
   }

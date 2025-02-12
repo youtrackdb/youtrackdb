@@ -23,7 +23,6 @@ import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -162,10 +161,10 @@ public class YouTrackDbJdbcDatabaseMetaDataTest extends YouTrackDbJdbcDbPerClass
     var rs = metaData.getTables(null, null, null, null);
     var tableCount = sizeOf(rs);
 
-    var database = (DatabaseSessionInternal) conn.getDatabase();
+    var database = (DatabaseSessionInternal) conn.getDatabaseSession();
     assertThat(tableCount)
         .isEqualTo(
-            database.getMetadata().getSchema().getClasses(database)
+            database.getMetadata().getSchema().getClasses()
                 .size());
   }
 
@@ -188,11 +187,11 @@ public class YouTrackDbJdbcDatabaseMetaDataTest extends YouTrackDbJdbcDbPerClass
     }
     rs = metaData.getTables(null, null, null, tableTypes.toArray(new String[2]));
     var tableCount = sizeOf(rs);
-    var database = (DatabaseSessionInternal) conn.getDatabase();
+    var database = (DatabaseSessionInternal) conn.getDatabaseSession();
 
     assertThat(tableCount)
         .isEqualTo(
-            database.getMetadata().getSchema().getClasses(database)
+            database.getMetadata().getSchema().getClasses()
                 .size());
   }
 

@@ -8,7 +8,6 @@ import com.jetbrains.youtrack.db.internal.core.config.StorageEntryConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ProduceExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,12 +32,11 @@ public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
   }
 
   private Result produce(CommandContext ctx) {
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     var result = new ResultInternal(db);
 
     var storage = db.getStorage();
     result.setProperty("clusters", toResult(db, storage.getClusterInstances()));
-    result.setProperty("defaultClusterId", storage.getDefaultClusterId());
     result.setProperty("totalClusters", storage.getClusters());
     result.setProperty("configuration", toResult(db, storage.getConfiguration()));
     result.setProperty(
@@ -47,7 +45,7 @@ public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
             ? null
             : storage.getRecordConflictStrategy().getName());
     result.setProperty("name", storage.getName());
-    result.setProperty("size", storage.getSize(ctx.getDatabase()));
+    result.setProperty("size", storage.getSize(ctx.getDatabaseSession()));
     result.setProperty("type", storage.getType());
     result.setProperty("version", storage.getVersion());
     result.setProperty("createdAtVersion", storage.getCreatedAtVersion());

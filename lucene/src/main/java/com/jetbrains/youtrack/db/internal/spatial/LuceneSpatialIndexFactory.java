@@ -16,20 +16,16 @@ package com.jetbrains.youtrack.db.internal.spatial;
 import static com.jetbrains.youtrack.db.internal.lucene.LuceneIndexFactory.LUCENE_ALGORITHM;
 
 import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.config.IndexEngineData;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseLifecycleListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexFactory;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
 import com.jetbrains.youtrack.db.internal.core.index.IndexMetadata;
 import com.jetbrains.youtrack.db.internal.core.index.engine.BaseIndexEngine;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.spatial.engine.LuceneSpatialIndexEngineDelegator;
 import com.jetbrains.youtrack.db.internal.spatial.index.LuceneSpatialIndex;
@@ -93,19 +89,6 @@ public class LuceneSpatialIndexFactory implements IndexFactory, DatabaseLifecycl
     final var indexType = im.getType();
     final var algorithm = im.getAlgorithm();
 
-    var objectSerializer =
-        storage
-            .getComponentsFactory()
-            .binarySerializerFactory
-            .getObjectSerializer(LuceneMockSpatialSerializer.INSTANCE.getId());
-
-    if (objectSerializer == null) {
-      storage
-          .getComponentsFactory()
-          .binarySerializerFactory
-          .registerSerializer(LuceneMockSpatialSerializer.INSTANCE, PropertyType.EMBEDDED);
-    }
-
     if (metadata == null || !metadata.containsKey("analyzer")) {
       HashMap<String, Object> met;
       if (metadata != null) {
@@ -121,7 +104,8 @@ public class LuceneSpatialIndexFactory implements IndexFactory, DatabaseLifecycl
     if (SchemaClass.INDEX_TYPE.SPATIAL.toString().equals(indexType)) {
       return new LuceneSpatialIndex(im, storage);
     }
-    throw new ConfigurationException("Unsupported type : " + algorithm);
+
+    throw new ConfigurationException(storage.getName(), "Unsupported type : " + algorithm);
   }
 
   @Override
@@ -136,27 +120,27 @@ public class LuceneSpatialIndexFactory implements IndexFactory, DatabaseLifecycl
   }
 
   @Override
-  public void onCreate(DatabaseSessionInternal iDatabase) {
-    spatialManager.init(iDatabase);
+  public void onCreate(DatabaseSessionInternal session) {
+    spatialManager.init(session);
   }
 
   @Override
-  public void onOpen(DatabaseSessionInternal iDatabase) {
+  public void onOpen(DatabaseSessionInternal session) {
   }
 
   @Override
-  public void onClose(DatabaseSessionInternal iDatabase) {
+  public void onClose(DatabaseSessionInternal session) {
   }
 
   @Override
-  public void onDrop(final DatabaseSessionInternal db) {
+  public void onDrop(final DatabaseSessionInternal session) {
     try {
-      if (db.isClosed()) {
+      if (session.isClosed()) {
         return;
       }
 
       LogManager.instance().debug(this, "Dropping spatial indexes...");
-      final var internalDb = db;
+      final var internalDb = session;
       for (var idx : internalDb.getMetadata().getIndexManagerInternal().getIndexes(internalDb)) {
 
         if (idx.getInternal() instanceof LuceneSpatialIndex) {
@@ -170,14 +154,11 @@ public class LuceneSpatialIndexFactory implements IndexFactory, DatabaseLifecycl
   }
 
   @Override
-  public void onCreateClass(DatabaseSessionInternal iDatabase, SchemaClass iClass) {
+  public void onCreateClass(DatabaseSessionInternal session, SchemaClass iClass) {
   }
 
   @Override
-  public void onDropClass(DatabaseSessionInternal iDatabase, SchemaClass iClass) {
+  public void onDropClass(DatabaseSessionInternal session, SchemaClass iClass) {
   }
 
-  @Override
-  public void onLocalNodeConfigurationRequest(EntityImpl iConfiguration) {
-  }
 }

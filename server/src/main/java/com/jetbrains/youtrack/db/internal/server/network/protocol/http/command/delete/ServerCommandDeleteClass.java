@@ -19,10 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.delete;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedDbAbstract;
 
 public class ServerCommandDeleteClass extends ServerCommandAuthenticatedDbAbstract {
@@ -37,7 +36,7 @@ public class ServerCommandDeleteClass extends ServerCommandAuthenticatedDbAbstra
     iRequest.getData().commandInfo = "Delete class";
     iRequest.getData().commandDetail = urlParts[2];
 
-    try (var db = getProfiledDatabaseInstance(iRequest)) {
+    try (var db = getProfiledDatabaseSessionInstance(iRequest)) {
 
       if (db.getMetadata().getSchema().getClass(urlParts[2]) == null) {
         throw new IllegalArgumentException("Invalid class '" + urlParts[2] + "'");

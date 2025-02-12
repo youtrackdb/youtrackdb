@@ -20,17 +20,14 @@ package com.jetbrains.youtrack.db.internal.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -43,89 +40,90 @@ public class LuceneListIndexingTest extends LuceneBaseTest {
   @Before
   public void init() {
 
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
 
     var person = schema.createClass("Person");
-    person.createProperty(db, "name", PropertyType.STRING);
-    person.createProperty(db, "tags", PropertyType.EMBEDDEDLIST, PropertyType.STRING);
+    person.createProperty(session, "name", PropertyType.STRING);
+    person.createProperty(session, "tags", PropertyType.EMBEDDEDLIST, PropertyType.STRING);
     //noinspection EmptyTryBlock
     try (var command =
-        db.command("create index Person.name_tags on Person (name,tags) FULLTEXT ENGINE LUCENE")) {
+        session.command(
+            "create index Person.name_tags on Person (name,tags) FULLTEXT ENGINE LUCENE")) {
     }
 
     var city = schema.createClass("City");
-    city.createProperty(db, "name", PropertyType.STRING);
-    city.createProperty(db, "tags", PropertyType.EMBEDDEDLIST, PropertyType.STRING);
+    city.createProperty(session, "name", PropertyType.STRING);
+    city.createProperty(session, "tags", PropertyType.EMBEDDEDLIST, PropertyType.STRING);
     //noinspection EmptyTryBlock
     try (var command =
-        db.command("create index City.tags on City (tags) FULLTEXT ENGINE LUCENE")) {
+        session.command("create index City.tags on City (tags) FULLTEXT ENGINE LUCENE")) {
     }
   }
 
   @Test
   public void testIndexingList() {
-    var schema = db.getMetadata().getSchema();
+    var schema = session.getMetadata().getSchema();
 
     // Rome
-    var doc = ((EntityImpl) db.newEntity("City"));
+    var doc = ((EntityImpl) session.newEntity("City"));
     doc.field("name", "Rome");
     doc.field("tags", Arrays.asList("Beautiful", "Touristic", "Sunny"));
 
-    db.begin();
-    db.save(doc);
-    db.commit();
+    session.begin();
+    session.save(doc);
+    session.commit();
 
-    var tagsIndex = schema.getClassInternal("City").getClassIndex(db, "City.tags");
+    var tagsIndex = schema.getClassInternal("City").getClassIndex(session, "City.tags");
     Collection<?> coll;
-    try (var stream = tagsIndex.getInternal().getRids(db, "Sunny")) {
+    try (var stream = tagsIndex.getInternal().getRids(session, "Sunny")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(1);
 
-    doc = db.load((RID) coll.iterator().next());
+    doc = session.load((RID) coll.iterator().next());
 
     assertThat(doc.<String>field("name")).isEqualTo("Rome");
 
     // London
-    doc = ((EntityImpl) db.newEntity("City"));
+    doc = ((EntityImpl) session.newEntity("City"));
     doc.field("name", "London");
     doc.field("tags", Arrays.asList("Beautiful", "Touristic", "Sunny"));
 
-    db.begin();
-    db.save(doc);
-    db.commit();
+    session.begin();
+    session.save(doc);
+    session.commit();
 
-    db.begin();
-    try (var stream = tagsIndex.getInternal().getRids(db, "Sunny")) {
+    session.begin();
+    try (var stream = tagsIndex.getInternal().getRids(session, "Sunny")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(2);
 
-    doc = db.bindToSession(doc);
+    doc = session.bindToSession(doc);
     // modify london: it is rainy
     List<String> tags = doc.field("tags");
     tags.remove("Sunny");
     tags.add("Rainy");
 
-    db.save(doc);
-    db.commit();
+    session.save(doc);
+    session.commit();
 
-    try (var stream = tagsIndex.getInternal().getRids(db, "Rainy")) {
+    try (var stream = tagsIndex.getInternal().getRids(session, "Rainy")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(1);
 
-    try (var stream = tagsIndex.getInternal().getRids(db, "Beautiful")) {
+    try (var stream = tagsIndex.getInternal().getRids(session, "Beautiful")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(2);
 
-    try (var stream = tagsIndex.getInternal().getRids(db, "Sunny")) {
+    try (var stream = tagsIndex.getInternal().getRids(session, "Sunny")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(1);
 
-    try (var query = db.query("select from City where search_class('Beautiful') =true ")) {
+    try (var query = session.query("select from City where search_class('Beautiful') =true ")) {
 
       assertThat(query).hasSize(2);
     }
@@ -134,34 +132,34 @@ public class LuceneListIndexingTest extends LuceneBaseTest {
   @Test
   @Ignore
   public void testCompositeIndexList() {
-    db.begin();
-    var schema = db.getMetadata().getSchema();
+    session.begin();
+    var schema = session.getMetadata().getSchema();
 
-    var doc = ((EntityImpl) db.newEntity("Person"));
+    var doc = ((EntityImpl) session.newEntity("Person"));
     doc.field("name", "Enrico");
     doc.field("tags", Arrays.asList("Funny", "Tall", "Geek"));
 
-    db.save(doc);
-    db.commit();
+    session.save(doc);
+    session.commit();
 
-    db.begin();
-    var idx = schema.getClassInternal("Person").getClassIndex(db, "Person.name_tags");
+    session.begin();
+    var idx = schema.getClassInternal("Person").getClassIndex(session, "Person.name_tags");
     Collection<?> coll;
-    try (var stream = idx.getInternal().getRids(db, "Enrico")) {
+    try (var stream = idx.getInternal().getRids(session, "Enrico")) {
       coll = stream.collect(Collectors.toList());
     }
 
     assertThat(coll).hasSize(3);
 
-    doc = ((EntityImpl) db.newEntity("Person"));
+    doc = ((EntityImpl) session.newEntity("Person"));
     doc.field("name", "Jared");
     doc.field("tags", Arrays.asList("Funny", "Tall"));
 
-    db.save(doc);
-    db.commit();
+    session.save(doc);
+    session.commit();
 
-    db.begin();
-    try (var stream = idx.getInternal().getRids(db, "Jared")) {
+    session.begin();
+    try (var stream = idx.getInternal().getRids(session, "Jared")) {
       coll = stream.collect(Collectors.toList());
     }
 
@@ -172,40 +170,40 @@ public class LuceneListIndexingTest extends LuceneBaseTest {
     tags.remove("Funny");
     tags.add("Geek");
 
-    db.save(doc);
-    db.commit();
+    session.save(doc);
+    session.commit();
 
-    try (var stream = idx.getInternal().getRids(db, "Funny")) {
+    try (var stream = idx.getInternal().getRids(session, "Funny")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(1);
 
-    try (var stream = idx.getInternal().getRids(db, "Geek")) {
+    try (var stream = idx.getInternal().getRids(session, "Geek")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(2);
 
     try (var query =
-        db.query("select from Person where search_class('name:Enrico') =true ")) {
+        session.query("select from Person where search_class('name:Enrico') =true ")) {
       assertThat(query).hasSize(1);
       try (var queryTwo =
-          db.query("select from (select from Person search_class('name:Enrico')=true)")) {
+          session.query("select from (select from Person search_class('name:Enrico')=true)")) {
 
         assertThat(queryTwo).hasSize(1);
         try (var queryThree =
-            db.query("select from Person where search_class('Jared')=true")) {
+            session.query("select from Person where search_class('Jared')=true")) {
 
           assertThat(queryThree).hasSize(1);
           try (var queryFour =
-              db.query("select from Person where search_class('Funny') =true")) {
+              session.query("select from Person where search_class('Funny') =true")) {
 
             assertThat(queryFour).hasSize(1);
             try (var queryFive =
-                db.query("select from Person where search_class('Geek')=true")) {
+                session.query("select from Person where search_class('Geek')=true")) {
 
               assertThat(queryFive).hasSize(2);
               try (var querySix =
-                  db.query(
+                  session.query(
                       "select from Person where search_class('(name:Enrico AND tags:Geek)"
                           + " ')=true")) {
                 assertThat(querySix).hasSize(1);

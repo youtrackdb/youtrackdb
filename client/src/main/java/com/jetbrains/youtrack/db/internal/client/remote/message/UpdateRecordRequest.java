@@ -76,7 +76,8 @@ public class UpdateRecordRequest implements BinaryAsyncRequest<UpdateRecordRespo
     return "Update Record";
   }
 
-  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+  public void read(DatabaseSessionInternal databaseSession, ChannelDataInput channel,
+      int protocolVersion,
       RecordSerializerNetwork serializer)
       throws IOException {
     rid = channel.readRID();
@@ -91,12 +92,12 @@ public class UpdateRecordRequest implements BinaryAsyncRequest<UpdateRecordRespo
     content =
         YouTrackDBEnginesManager.instance()
             .getRecordFactoryManager()
-            .newInstance(recordType, rid, db);
-    serializer.fromStream(db, bts, content, null);
+            .newInstance(recordType, rid, databaseSession);
+    serializer.fromStream(databaseSession, bts, content, null);
   }
 
   @Override
-  public void write(DatabaseSessionInternal database, final ChannelDataOutput network,
+  public void write(DatabaseSessionInternal databaseSession, final ChannelDataOutput network,
       final StorageRemoteSession session)
       throws IOException {
     network.writeRID(rid);

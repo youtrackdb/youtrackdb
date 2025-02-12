@@ -164,18 +164,16 @@ import static com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginat
 import static com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALRecordTypes.TX_METADATA;
 import static com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALRecordTypes.UPDATE_PAGE_RECORD;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ShortSerializer;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.common.EmptyWALRecord;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.common.WriteableWALRecord;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import net.jpountz.lz4.LZ4Compressor;
 import net.jpountz.lz4.LZ4Factory;
-import net.jpountz.lz4.LZ4FastDecompressor;
 
 /**
  * @since 25.04.13
@@ -252,7 +250,7 @@ public final class WALRecordsFactory {
 
     if (recordId < 0) {
       final var originalLen =
-          IntegerSerializer.INSTANCE.deserializeNative(content, ORIGINAL_CONTENT_SIZE_OFFSET);
+          IntegerSerializer.deserializeNative(content, ORIGINAL_CONTENT_SIZE_OFFSET);
       final var restored = new byte[originalLen];
 
       final var decompressor = factory.fastDecompressor();

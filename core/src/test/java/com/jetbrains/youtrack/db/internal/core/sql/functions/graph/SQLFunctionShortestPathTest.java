@@ -3,14 +3,12 @@ package com.jetbrains.youtrack.db.internal.core.sql.functions.graph;
 import static java.util.Arrays.asList;
 
 import com.jetbrains.youtrack.db.api.YouTrackDB;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.junit.After;
 import org.junit.Assert;
@@ -91,7 +89,7 @@ public class SQLFunctionShortestPathTest {
     bindVertices();
 
     var context = new BasicCommandContext();
-    context.setDatabase(db);
+    context.setDatabaseSession(db);
 
     final var result =
         function.execute(
@@ -112,7 +110,7 @@ public class SQLFunctionShortestPathTest {
     bindVertices();
 
     var context = new BasicCommandContext();
-    context.setDatabase(db);
+    context.setDatabaseSession(db);
 
     final var result =
         function.execute(
@@ -134,7 +132,7 @@ public class SQLFunctionShortestPathTest {
     bindVertices();
 
     var context = new BasicCommandContext();
-    context.setDatabase(db);
+    context.setDatabaseSession(db);
 
     final var result =
         function.execute(
@@ -156,7 +154,7 @@ public class SQLFunctionShortestPathTest {
     bindVertices();
 
     var context = new BasicCommandContext();
-    context.setDatabase(db);
+    context.setDatabaseSession(db);
 
     final var result =
         function.execute(
@@ -177,7 +175,7 @@ public class SQLFunctionShortestPathTest {
     bindVertices();
 
     var context = new BasicCommandContext();
-    context.setDatabase(db);
+    context.setDatabaseSession(db);
 
     final var result =
         function.execute(
@@ -201,7 +199,7 @@ public class SQLFunctionShortestPathTest {
     bindVertices();
 
     var context = new BasicCommandContext();
-    context.setDatabase(db);
+    context.setDatabaseSession(db);
 
     Map<String, Object> additionalParams = new HashMap<String, Object>();
     additionalParams.put(SQLFunctionShortestPath.PARAM_MAX_DEPTH, 11);
@@ -221,7 +219,7 @@ public class SQLFunctionShortestPathTest {
     bindVertices();
 
     var context = new BasicCommandContext();
-    context.setDatabase(db);
+    context.setDatabaseSession(db);
 
     Map<String, Object> additionalParams = new HashMap<String, Object>();
     additionalParams.put(SQLFunctionShortestPath.PARAM_MAX_DEPTH, 12);
@@ -241,7 +239,7 @@ public class SQLFunctionShortestPathTest {
     bindVertices();
 
     var context = new BasicCommandContext();
-    context.setDatabase(db);
+    context.setDatabaseSession(db);
 
     Map<String, Object> additionalParams = new HashMap<String, Object>();
     additionalParams.put(SQLFunctionShortestPath.PARAM_MAX_DEPTH, 10);
@@ -261,7 +259,7 @@ public class SQLFunctionShortestPathTest {
     bindVertices();
 
     var context = new BasicCommandContext();
-    context.setDatabase(db);
+    context.setDatabaseSession(db);
 
     Map<String, Object> additionalParams = new HashMap<String, Object>();
     additionalParams.put(SQLFunctionShortestPath.PARAM_MAX_DEPTH, 3);

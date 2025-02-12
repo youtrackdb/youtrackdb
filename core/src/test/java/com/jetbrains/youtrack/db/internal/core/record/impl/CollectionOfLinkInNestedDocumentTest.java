@@ -17,24 +17,24 @@ public class CollectionOfLinkInNestedDocumentTest extends DbTestBase {
 
   @Test
   public void nestedLinkSet() {
-    var doc1 = (EntityImpl) db.newEntity();
+    var doc1 = (EntityImpl) session.newEntity();
     doc1.field("value", "item 1");
-    var doc2 = (EntityImpl) db.newEntity();
+    var doc2 = (EntityImpl) session.newEntity();
     doc2.field("value", "item 2");
-    var nested = (EntityImpl) db.newEntity();
+    var nested = (EntityImpl) session.newEntity();
     var set = new LinkSet(nested);
     set.add(doc1);
     set.add(doc2);
 
     nested.field("set", set);
 
-    db.begin();
-    var base = (EntityImpl) db.newEntity();
+    session.begin();
+    var base = (EntityImpl) session.newEntity();
     base.field("nested", nested, PropertyType.EMBEDDED);
-    Identifiable id = db.save(base);
-    db.commit();
+    Identifiable id = session.save(base);
+    session.commit();
 
-    EntityImpl base1 = db.load(id.getIdentity());
+    EntityImpl base1 = session.load(id.getIdentity());
     EntityImpl nest1 = base1.field("nested");
     assertNotNull(nest1);
 
@@ -44,24 +44,24 @@ public class CollectionOfLinkInNestedDocumentTest extends DbTestBase {
 
   @Test
   public void nestedLinkList() {
-    var doc1 = (EntityImpl) db.newEntity();
+    var doc1 = (EntityImpl) session.newEntity();
     doc1.field("value", "item 1");
-    var doc2 = (EntityImpl) db.newEntity();
+    var doc2 = (EntityImpl) session.newEntity();
     doc2.field("value", "item 2");
-    var nested = (EntityImpl) db.newEntity();
+    var nested = (EntityImpl) session.newEntity();
     var list = new LinkList(nested);
     list.add(doc1);
     list.add(doc2);
 
     nested.field("list", list);
 
-    db.begin();
-    var base = (EntityImpl) db.newEntity();
+    session.begin();
+    var base = (EntityImpl) session.newEntity();
     base.field("nested", nested, PropertyType.EMBEDDED);
-    Identifiable id = db.save(base);
-    db.commit();
+    Identifiable id = session.save(base);
+    session.commit();
 
-    EntityImpl base1 = db.load(id.getIdentity());
+    EntityImpl base1 = session.load(id.getIdentity());
     EntityImpl nest1 = base1.field("nested");
     assertNotNull(nest1);
     assertEquals(list, nest1.field("list"));
@@ -69,24 +69,24 @@ public class CollectionOfLinkInNestedDocumentTest extends DbTestBase {
 
   @Test
   public void nestedLinkMap() {
-    var doc1 = (EntityImpl) db.newEntity();
+    var doc1 = (EntityImpl) session.newEntity();
     doc1.field("value", "item 1");
-    var doc2 = (EntityImpl) db.newEntity();
+    var doc2 = (EntityImpl) session.newEntity();
     doc2.field("value", "item 2");
-    var nested = (EntityImpl) db.newEntity();
+    var nested = (EntityImpl) session.newEntity();
     var map = new LinkMap(nested);
     map.put("record1", doc1);
     map.put("record2", doc2);
 
     nested.field("map", map);
 
-    db.begin();
-    var base = (EntityImpl) db.newEntity();
+    session.begin();
+    var base = (EntityImpl) session.newEntity();
     base.field("nested", nested, PropertyType.EMBEDDED);
-    Identifiable id = db.save(base);
-    db.commit();
+    Identifiable id = session.save(base);
+    session.commit();
 
-    EntityImpl base1 = db.load(id.getIdentity());
+    EntityImpl base1 = session.load(id.getIdentity());
     EntityImpl nest1 = base1.field("nested");
     assertNotNull(nest1);
     assertEquals(map, nest1.field("map"));

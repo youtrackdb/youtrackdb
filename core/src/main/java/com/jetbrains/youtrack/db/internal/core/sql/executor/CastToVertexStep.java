@@ -27,7 +27,7 @@ public class CastToVertexStep extends AbstractExecutionStep {
     if (result.getEntity().orElse(null) instanceof Vertex) {
       return result;
     }
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     if (result.isVertex()) {
       if (result instanceof ResultInternal) {
         ((ResultInternal) result).setIdentifiable(result.asEntity().toVertex());
@@ -35,7 +35,8 @@ public class CastToVertexStep extends AbstractExecutionStep {
         result = new ResultInternal(db, result.asEntity().toVertex());
       }
     } else {
-      throw new CommandExecutionException("Current entity is not a vertex: " + result);
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
+          "Current entity is not a vertex: " + result);
     }
     return result;
   }

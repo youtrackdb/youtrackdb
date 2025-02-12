@@ -6,7 +6,6 @@ import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
@@ -37,28 +36,29 @@ public class SQLAlterPropertyStatement extends DDLStatement {
 
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
-    var db = ctx.getDatabase();
-    var clazz = db.getMetadata().getSchema().getClass(className.getStringValue());
+    var session = ctx.getDatabaseSession();
+    var clazz = session.getMetadata().getSchema().getClass(className.getStringValue());
 
     if (clazz == null) {
-      throw new CommandExecutionException("Invalid class name or class not found: " + clazz);
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
+          "Invalid class name or class not found: " + clazz);
     }
 
-    var property = clazz.getProperty(propertyName.getStringValue());
+    var property = clazz.getProperty(session, propertyName.getStringValue());
     if (property == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
           "Property " + propertyName.getStringValue() + " not found on class " + clazz);
     }
 
-    var result = new ResultInternal(db);
+    var result = new ResultInternal(session);
     result.setProperty("class", className.getStringValue());
     result.setProperty("property", propertyName.getStringValue());
 
     if (customPropertyName != null) {
       var customName = customPropertyName.getStringValue();
-      Object oldValue = property.getCustom(customName);
+      Object oldValue = property.getCustom(ctx.getDatabaseSession(), customName);
       var finalValue = customPropertyValue.execute((Identifiable) null, ctx);
-      property.setCustom(db, customName, finalValue == null ? null : "" + finalValue);
+      property.setCustom(session, customName, finalValue == null ? null : "" + finalValue);
 
       result.setProperty("operation", "alter property custom");
       result.setProperty("customAttribute", customPropertyName.getStringValue());
@@ -75,8 +75,8 @@ public class SQLAlterPropertyStatement extends DDLStatement {
           || isCollate)) {
         finalValue = settingValue.toString();
         var stringFinalValue = (String) finalValue;
-        if (stringFinalValue.startsWith("`")
-            && stringFinalValue.endsWith("`")
+        if (!stringFinalValue.isEmpty() && stringFinalValue.charAt(0) == '`'
+            && stringFinalValue.charAt(stringFinalValue.length() - 1) == '`'
             && stringFinalValue.length() > 2) {
           stringFinalValue = stringFinalValue.substring(1, stringFinalValue.length() - 1);
           finalValue = stringFinalValue;
@@ -87,16 +87,16 @@ public class SQLAlterPropertyStatement extends DDLStatement {
         attribute = SchemaProperty.ATTRIBUTES.valueOf(setting.toUpperCase(Locale.ENGLISH));
       } catch (IllegalArgumentException e) {
         throw BaseException.wrapException(
-            new CommandExecutionException(
+            new CommandExecutionException(ctx.getDatabaseSession(),
                 "Unknown property attribute '"
                     + setting
                     + "'. Supported attributes are: "
                     + Arrays.toString(SchemaProperty.ATTRIBUTES.values())),
-            e);
+            e, ctx.getDatabaseSession());
       }
-      var oldValue = property.get(attribute);
-      property.set(db, attribute, finalValue);
-      finalValue = property.get(attribute); // it makes some conversions...
+      var oldValue = property.get(session, attribute);
+      property.set(session, attribute, finalValue);
+      finalValue = property.get(session, attribute); // it makes some conversions...
 
       result.setProperty("operation", "alter property");
       result.setProperty("attribute", setting);

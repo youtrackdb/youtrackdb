@@ -51,13 +51,13 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
 
   @AfterClass
   public void afterClass() throws Exception {
-    if (db.isClosed()) {
-      db = createSessionInstance();
+    if (session.isClosed()) {
+      session = createSessionInstance();
     }
 
-    db.command("drop class lpirtStudent").close();
-    db.command("drop class lpirtGroup").close();
-    db.command("drop class lpirtCurator").close();
+    session.command("drop class lpirtStudent").close();
+    session.command("drop class lpirtGroup").close();
+    session.command("drop class lpirtCurator").close();
 
     super.afterClass();
   }
@@ -68,7 +68,7 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
     var oldIndexUsage = indexUsages();
 
     List<EntityImpl> result =
-        db.query(
+        session.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from lpirtStudent where group.curator.name = 'Someone'"));
     assertEquals(result.size(), 1);
@@ -83,7 +83,7 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
     var oldIndexUsage = indexUsages();
 
     List<EntityImpl> result =
-        db.query(
+        session.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from lpirtStudent where group.curator.salary = 600"));
     assertEquals(result.size(), 3);
@@ -100,7 +100,7 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
     var oldIndexUsage = indexUsages();
 
     List<EntityImpl> result =
-        db.query(
+        session.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from lpirtStudent where group.curator.name = 'Someone else' limit 1"));
     assertEquals(result.size(), 1);
@@ -117,7 +117,7 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
     var oldIndexUsage = indexUsages();
 
     List<EntityImpl> result =
-        db.query(
+        session.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from lpirtStudent where group.curator.salary < 1000"));
     assertEquals(result.size(), 4);
@@ -135,7 +135,7 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
     var oldIndexUsage = indexUsages();
 
     List<EntityImpl> result =
-        db.query(
+        session.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from lpirtStudent where group.curator.salary < 1000 limit 2"));
     assertEquals(result.size(), 2);
@@ -156,7 +156,7 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
     var oldIndexUsage = indexUsages();
 
     List<EntityImpl> result =
-        db.query(
+        session.query(
             new SQLSynchQuery<EntityImpl>("select from lpirtStudent where diploma.GPA <= 4"));
     assertEquals(result.size(), 3);
     assertEquals(containsDocumentWithFieldValue(result, "name", "John Smith"), 1);
@@ -172,7 +172,7 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
     var oldIndexUsage = indexUsages();
 
     List<EntityImpl> result =
-        db.query(
+        session.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from lpirtStudent where diploma.GPA <= 4 limit 1"));
     assertEquals(result.size(), 1);
@@ -189,7 +189,7 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
     var oldIndexUsage = indexUsages();
 
     List<EntityImpl> result =
-        db.query(
+        session.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from lpirtStudent where group.curator.salary > 1000"));
     assertEquals(result.size(), 1);
@@ -204,7 +204,7 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
     var oldIndexUsage = indexUsages();
 
     List<EntityImpl> result =
-        db.query(
+        session.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from lpirtStudent where group.curator.salary > 550 limit 1"));
     assertEquals(result.size(), 1);
@@ -223,7 +223,7 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
     var oldIndexUsage = indexUsages();
 
     List<EntityImpl> result =
-        db.query(
+        session.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from lpirtGroup where curator.salary between 500 and 1000"));
     assertEquals(result.size(), 2);
@@ -239,7 +239,7 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
     var oldIndexUsage = indexUsages();
 
     List<EntityImpl> result =
-        db.query(
+        session.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from lpirtGroup where curator.salary between 500 and 1000 limit 1"));
     assertEquals(result.size(), 1);
@@ -258,7 +258,7 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
     var oldIndexUsage = indexUsages();
 
     List<EntityImpl> result =
-        db.query(
+        session.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from lpirtGroup where curator.salary in [500, 600]"));
     assertEquals(result.size(), 2);
@@ -274,7 +274,7 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
     var oldIndexUsage = indexUsages();
 
     List<EntityImpl> result =
-        db.query(
+        session.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from lpirtGroup where curator.salary in [500, 600] limit 1"));
     assertEquals(result.size(), 1);
@@ -296,7 +296,7 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
     var oldIndexUsage = indexUsages();
 
     List<EntityImpl> result =
-        db.query(
+        session.query(
             new SQLSynchQuery<EntityImpl>(
                 "select from lpirtStudent where diploma.name = 'diploma3'"));
 
@@ -314,7 +314,7 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
     var oldIndexUsage = indexUsages();
 
     List<EntityImpl> result =
-        db.query(
+        session.query(
             new SQLSynchQuery<EntityImpl>("select from lpirtStudent where transcript.id = '1'"));
 
     assertEquals(result.size(), 1);
@@ -327,7 +327,7 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
     var oldIndexUsage = indexUsages();
 
     List<EntityImpl> result =
-        db.query(
+        session.query(
             new SQLSynchQuery<EntityImpl>("select from lpirtStudent where skill.name = 'math'"));
 
     assertEquals(result.size(), 1);
@@ -344,17 +344,17 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
    * William James and James Bell work together on the same diploma.
    */
   private void fillDataSet() {
-    db.begin();
-    EntityImpl curator1 = db.newInstance("lpirtCurator");
+    session.begin();
+    EntityImpl curator1 = session.newInstance("lpirtCurator");
     curator1.field("name", "Someone");
     curator1.field("salary", 2000);
 
-    final EntityImpl group1 = db.newInstance("lpirtGroup");
+    final EntityImpl group1 = session.newInstance("lpirtGroup");
     group1.field("name", "PZ-08-1");
     group1.field("curator", curator1);
     group1.save();
 
-    final EntityImpl diploma1 = db.newInstance("lpirtDiploma");
+    final EntityImpl diploma1 = session.newInstance("lpirtDiploma");
     diploma1.field("GPA", 3.);
     diploma1.field("name", "diploma1");
     diploma1.field(
@@ -363,13 +363,13 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
             + " because you student be able to experience the campus, meet the professors, and"
             + " truly understand the traditions of the university.");
 
-    final EntityImpl transcript = db.newInstance("lpirtTranscript");
+    final EntityImpl transcript = session.newInstance("lpirtTranscript");
     transcript.field("id", "1");
 
-    final EntityImpl skill = db.newInstance("lpirtSkill");
+    final EntityImpl skill = session.newInstance("lpirtSkill");
     skill.field("name", "math");
 
-    final EntityImpl student1 = db.newInstance("lpirtStudent");
+    final EntityImpl student1 = session.newInstance("lpirtStudent");
     student1.field("name", "John Smith");
     student1.field("group", group1);
     student1.field("diploma", diploma1);
@@ -377,16 +377,16 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
     student1.field("skill", skill);
     student1.save();
 
-    EntityImpl curator2 = db.newInstance("lpirtCurator");
+    EntityImpl curator2 = session.newInstance("lpirtCurator");
     curator2.field("name", "Someone else");
     curator2.field("salary", 500);
 
-    final EntityImpl group2 = db.newInstance("lpirtGroup");
+    final EntityImpl group2 = session.newInstance("lpirtGroup");
     group2.field("name", "PZ-08-2");
     group2.field("curator", curator2);
     group2.save();
 
-    final EntityImpl diploma2 = db.newInstance("lpirtDiploma");
+    final EntityImpl diploma2 = session.newInstance("lpirtDiploma");
     diploma2.field("GPA", 5.);
     diploma2.field("name", "diploma2");
     diploma2.field(
@@ -395,22 +395,22 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
             + " oppression, Northerners focused on the oppression of slaves while Southerners"
             + " defended their own right to self-government.");
 
-    final EntityImpl student2 = db.newInstance("lpirtStudent");
+    final EntityImpl student2 = session.newInstance("lpirtStudent");
     student2.field("name", "Jane Smith");
     student2.field("group", group2);
     student2.field("diploma", diploma2);
     student2.save();
 
-    EntityImpl curator3 = db.newInstance("lpirtCurator");
+    EntityImpl curator3 = session.newInstance("lpirtCurator");
     curator3.field("name", "Someone else");
     curator3.field("salary", 600);
 
-    final EntityImpl group3 = db.newInstance("lpirtGroup");
+    final EntityImpl group3 = session.newInstance("lpirtGroup");
     group3.field("name", "PZ-08-3");
     group3.field("curator", curator3);
     group3.save();
 
-    final EntityImpl diploma3 = db.newInstance("lpirtDiploma");
+    final EntityImpl diploma3 = session.newInstance("lpirtDiploma");
     diploma3.field("GPA", 4.);
     diploma3.field("name", "diploma3");
     diploma3.field(
@@ -418,36 +418,36 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
         "College student shouldn't have to take a required core curriculum, and many core "
             + "courses are graded too stiffly.");
 
-    final EntityImpl student3 = db.newInstance("lpirtStudent");
+    final EntityImpl student3 = session.newInstance("lpirtStudent");
     student3.field("name", "James Bell");
     student3.field("group", group3);
     student3.field("diploma", diploma3);
     student3.save();
 
-    final EntityImpl student4 = db.newInstance("lpirtStudent");
+    final EntityImpl student4 = session.newInstance("lpirtStudent");
     student4.field("name", "Roger Connor");
     student4.field("group", group3);
     student4.save();
 
-    final EntityImpl student5 = db.newInstance("lpirtStudent");
+    final EntityImpl student5 = session.newInstance("lpirtStudent");
     student5.field("name", "William James");
     student5.field("group", group3);
     student5.field("diploma", diploma3);
     student5.save();
-    db.commit();
+    session.commit();
   }
 
   private void createSchemaForTest() {
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     if (!schema.existsClass("lpirtStudent")) {
       final var curatorClass = schema.createClass("lpirtCurator");
-      curatorClass.createProperty(db, "name", PropertyType.STRING)
-          .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+      curatorClass.createProperty(session, "name", PropertyType.STRING)
+          .createIndex(session, SchemaClass.INDEX_TYPE.NOTUNIQUE);
       curatorClass
-          .createProperty(db, "salary", PropertyType.INTEGER)
-          .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE,
+          .createProperty(session, "salary", PropertyType.INTEGER)
+          .createIndex(session, SchemaClass.INDEX_TYPE.UNIQUE,
               Map.of("ignoreNullValues", true));
-      curatorClass.createIndex(db,
+      curatorClass.createIndex(session,
           "curotorCompositeIndex",
           SchemaClass.INDEX_TYPE.UNIQUE.name(),
           null,
@@ -455,23 +455,23 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
 
       final var groupClass = schema.createClass("lpirtGroup");
       groupClass
-          .createProperty(db, "name", PropertyType.STRING)
-          .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE,
+          .createProperty(session, "name", PropertyType.STRING)
+          .createIndex(session, SchemaClass.INDEX_TYPE.UNIQUE,
               Map.of("ignoreNullValues", true));
       groupClass
-          .createProperty(db, "curator", PropertyType.LINK, curatorClass)
-          .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE,
+          .createProperty(session, "curator", PropertyType.LINK, curatorClass)
+          .createIndex(session, SchemaClass.INDEX_TYPE.UNIQUE,
               Map.of("ignoreNullValues", true));
 
       final var diplomaClass = schema.createClass("lpirtDiploma");
-      diplomaClass.createProperty(db, "GPA", PropertyType.DOUBLE)
-          .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
-      diplomaClass.createProperty(db, "thesis", PropertyType.STRING);
+      diplomaClass.createProperty(session, "GPA", PropertyType.DOUBLE)
+          .createIndex(session, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+      diplomaClass.createProperty(session, "thesis", PropertyType.STRING);
       diplomaClass
-          .createProperty(db, "name", PropertyType.STRING)
-          .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE,
+          .createProperty(session, "name", PropertyType.STRING)
+          .createIndex(session, SchemaClass.INDEX_TYPE.UNIQUE,
               Map.of("ignoreNullValues", true));
-      diplomaClass.createIndex(db,
+      diplomaClass.createIndex(session,
           "diplomaThesisUnique",
           SchemaClass.INDEX_TYPE.UNIQUE.name(),
           null,
@@ -479,40 +479,40 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
 
       final var transcriptClass = schema.createClass("lpirtTranscript");
       transcriptClass
-          .createProperty(db, "id", PropertyType.STRING)
-          .createIndex(db,
+          .createProperty(session, "id", PropertyType.STRING)
+          .createIndex(session,
               SchemaClass.INDEX_TYPE.UNIQUE,
               Map.of("ignoreNullValues", true));
 
       final var skillClass = schema.createClass("lpirtSkill");
       skillClass
-          .createProperty(db, "name", PropertyType.STRING)
-          .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE,
+          .createProperty(session, "name", PropertyType.STRING)
+          .createIndex(session, SchemaClass.INDEX_TYPE.UNIQUE,
               Map.of("ignoreNullValues", true));
 
       final var studentClass = schema.createClass("lpirtStudent");
       studentClass
-          .createProperty(db, "name", PropertyType.STRING)
-          .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE,
+          .createProperty(session, "name", PropertyType.STRING)
+          .createIndex(session, SchemaClass.INDEX_TYPE.UNIQUE,
               Map.of("ignoreNullValues", true));
       studentClass
-          .createProperty(db, "group", PropertyType.LINK, groupClass)
-          .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
-      studentClass.createProperty(db, "diploma", PropertyType.LINK, diplomaClass);
+          .createProperty(session, "group", PropertyType.LINK, groupClass)
+          .createIndex(session, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+      studentClass.createProperty(session, "diploma", PropertyType.LINK, diplomaClass);
       studentClass
-          .createProperty(db, "transcript", PropertyType.LINK, transcriptClass)
-          .createIndex(db,
+          .createProperty(session, "transcript", PropertyType.LINK, transcriptClass)
+          .createIndex(session,
               SchemaClass.INDEX_TYPE.UNIQUE,
               Map.of("ignoreNullValues", true));
-      studentClass.createProperty(db, "skill", PropertyType.LINK, skillClass);
+      studentClass.createProperty(session, "skill", PropertyType.LINK, skillClass);
 
       var metadata = Map.of("ignoreNullValues", false);
-      studentClass.createIndex(db,
+      studentClass.createIndex(session,
           "studentDiplomaAndNameIndex",
           SchemaClass.INDEX_TYPE.UNIQUE.toString(),
           null,
           new HashMap<>(metadata), new String[]{"diploma", "name"});
-      studentClass.createIndex(db,
+      studentClass.createIndex(session,
           "studentSkillAndGroupIndex",
           SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
           null,

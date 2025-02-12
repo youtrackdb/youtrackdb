@@ -19,9 +19,6 @@ import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.exception.SecurityException;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
@@ -60,178 +57,178 @@ public class RestrictedTest extends BaseDBTest {
 
   @Test
   public void testCreateRestrictedClass() {
-    db = createSessionInstance();
-    db
+    session = createSessionInstance();
+    session
         .getMetadata()
         .getSchema()
-        .createClass("CMSDocument", db.getMetadata().getSchema().getClass("ORestricted"));
+        .createClass("CMSDocument", session.getMetadata().getSchema().getClass("ORestricted"));
 
-    db.begin();
-    var adminRecord = ((EntityImpl) db.newEntity("CMSDocument")).field("user", "admin");
+    session.begin();
+    var adminRecord = ((EntityImpl) session.newEntity("CMSDocument")).field("user", "admin");
     adminRecord.save();
     this.adminRecordId = adminRecord.getIdentity();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    readerRole = db.getMetadata().getSecurity().getRole("reader");
-    db.commit();
+    session.begin();
+    readerRole = session.getMetadata().getSecurity().getRole("reader");
+    session.commit();
 
     Assert.assertTrue(adminRecord.isUnloaded());
   }
 
   @Test(dependsOnMethods = "testCreateRestrictedClass")
   public void testFilteredQuery() throws IOException {
-    db = createSessionInstance("writer", "writer");
-    db.begin();
-    var result = db.query("select from CMSDocument");
+    session = createSessionInstance("writer", "writer");
+    session.begin();
+    var result = session.query("select from CMSDocument");
     Assert.assertEquals(result.stream().count(), 0);
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testFilteredQuery")
   public void testCreateAsWriter() throws IOException {
-    db = createSessionInstance("writer", "writer");
-    db.begin();
-    var writerRecord = ((EntityImpl) db.newEntity("CMSDocument")).field("user", "writer");
+    session = createSessionInstance("writer", "writer");
+    session.begin();
+    var writerRecord = ((EntityImpl) session.newEntity("CMSDocument")).field("user", "writer");
     writerRecord.save();
     this.writerRecordId = writerRecord.getIdentity();
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testCreateAsWriter")
   public void testFilteredQueryAsReader() throws IOException {
-    db = createSessionInstance("reader", "reader");
+    session = createSessionInstance("reader", "reader");
 
-    db.begin();
-    var result = db.query("select from CMSDocument");
+    session.begin();
+    var result = session.query("select from CMSDocument");
     Assert.assertEquals(result.stream().count(), 0);
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testFilteredQueryAsReader")
   public void testFilteredQueryAsAdmin() throws IOException {
-    db = createSessionInstance();
+    session = createSessionInstance();
 
-    db.begin();
-    var result = db.query("select from CMSDocument where user = 'writer'");
+    session.begin();
+    var result = session.query("select from CMSDocument where user = 'writer'");
     Assert.assertEquals(result.stream().count(), 1);
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testFilteredQueryAsAdmin")
   public void testFilteredQueryAsWriter() throws IOException {
-    db = createSessionInstance("writer", "writer");
+    session = createSessionInstance("writer", "writer");
 
-    db.begin();
-    var result = db.query("select from CMSDocument");
+    session.begin();
+    var result = session.query("select from CMSDocument");
     Assert.assertEquals(result.stream().count(), 1);
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testFilteredQueryAsWriter")
   public void testFilteredDirectReadAsWriter() throws IOException {
-    db = createSessionInstance("writer", "writer");
-    db.begin();
+    session = createSessionInstance("writer", "writer");
+    session.begin();
     try {
-      db.load(adminRecordId.getIdentity());
+      session.load(adminRecordId.getIdentity());
       Assert.fail();
     } catch (RecordNotFoundException e) {
       // ignore
     }
 
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testFilteredDirectReadAsWriter")
   public void testFilteredDirectUpdateAsWriter() throws IOException {
-    db = createSessionInstance("writer", "writer");
-    db.begin();
+    session = createSessionInstance("writer", "writer");
+    session.begin();
     try {
-      var adminRecord = db.loadEntity(this.adminRecordId);
+      var adminRecord = session.loadEntity(this.adminRecordId);
       adminRecord.setProperty("user", "writer-hacker");
       adminRecord.save();
-      db.commit();
+      session.commit();
     } catch (SecurityException | RecordNotFoundException e) {
       // OK AS EXCEPTION
     }
-    db.close();
+    session.close();
 
-    db = createSessionInstance();
-    db.begin();
-    var adminRecord = db.<EntityImpl>load(this.adminRecordId);
+    session = createSessionInstance();
+    session.begin();
+    var adminRecord = session.<EntityImpl>load(this.adminRecordId);
     Assert.assertEquals(adminRecord.field("user"), "admin");
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testFilteredDirectUpdateAsWriter")
   public void testFilteredDirectDeleteAsWriter() throws IOException {
-    db = createSessionInstance("writer", "writer");
+    session = createSessionInstance("writer", "writer");
     try {
-      db.begin();
-      db.delete(adminRecordId);
-      db.commit();
+      session.begin();
+      session.delete(adminRecordId);
+      session.commit();
     } catch (SecurityException | RecordNotFoundException e) {
       // OK AS EXCEPTION
     }
-    db.close();
+    session.close();
 
-    db = createSessionInstance();
-    db.begin();
-    var adminRecord = db.<EntityImpl>load(this.adminRecordId);
+    session = createSessionInstance();
+    session.begin();
+    var adminRecord = session.<EntityImpl>load(this.adminRecordId);
     Assert.assertEquals(adminRecord.field("user"), "admin");
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testFilteredDirectDeleteAsWriter")
   public void testFilteredHackingAllowFieldAsWriter() throws IOException {
-    db = createSessionInstance("writer", "writer");
+    session = createSessionInstance("writer", "writer");
     try {
-      db.begin();
+      session.begin();
       // FORCE LOADING
-      EntityImpl adminRecord = db.load(this.adminRecordId);
+      EntityImpl adminRecord = session.load(this.adminRecordId);
       Set<Identifiable> allows = adminRecord.field(SecurityShared.ALLOW_ALL_FIELD);
       allows.add(
-          db.getMetadata().getSecurity().getUser(db.geCurrentUser().getName(db))
+          session.getMetadata().getSecurity().getUser(session.geCurrentUser().getName(session))
               .getIdentity());
       adminRecord.save();
-      db.commit();
+      session.commit();
     } catch (SecurityException | RecordNotFoundException e) {
       // OK AS EXCEPTION
     }
-    db.close();
+    session.close();
 
-    db = createSessionInstance();
+    session = createSessionInstance();
   }
 
   @Test(dependsOnMethods = "testFilteredHackingAllowFieldAsWriter")
   public void testAddReaderAsRole() throws IOException {
-    db = createSessionInstance("writer", "writer");
-    db.begin();
-    var writerRecord = db.<EntityImpl>load(this.writerRecordId);
+    session = createSessionInstance("writer", "writer");
+    session.begin();
+    var writerRecord = session.<EntityImpl>load(this.writerRecordId);
     Set<Identifiable> allows = writerRecord.field(SecurityShared.ALLOW_ALL_FIELD);
     allows.add(readerRole.getIdentity());
 
     writerRecord.save();
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testAddReaderAsRole")
   public void testReaderCanSeeWriterDocumentAfterPermission() throws IOException {
-    db = createSessionInstance("reader", "reader");
-    db.begin();
-    Assert.assertNotNull(db.load(writerRecordId.getIdentity()));
-    db.commit();
+    session = createSessionInstance("reader", "reader");
+    session.begin();
+    Assert.assertNotNull(session.load(writerRecordId.getIdentity()));
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testReaderCanSeeWriterDocumentAfterPermission")
   public void testWriterRoleCanRemoveReader() throws IOException {
-    db = createSessionInstance("writer", "writer");
-    db.begin();
-    EntityImpl writerRecord = db.load(this.writerRecordId);
+    session = createSessionInstance("writer", "writer");
+    session.begin();
+    EntityImpl writerRecord = session.load(this.writerRecordId);
     Assert.assertEquals(
         ((Collection<?>) writerRecord.field(RestrictedOperation.ALLOW_ALL.getFieldName())).size(),
         2);
-    db
+    session
         .getMetadata()
         .getSecurity()
         .denyRole(writerRecord, RestrictedOperation.ALLOW_ALL, "reader");
@@ -239,41 +236,41 @@ public class RestrictedTest extends BaseDBTest {
         ((Collection<?>) writerRecord.field(RestrictedOperation.ALLOW_ALL.getFieldName())).size(),
         1);
     writerRecord.save();
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testWriterRoleCanRemoveReader")
   public void testReaderCannotSeeWriterDocument() throws IOException {
-    db = createSessionInstance("reader", "reader");
-    db.begin();
+    session = createSessionInstance("reader", "reader");
+    session.begin();
     try {
-      db.load(writerRecordId.getIdentity());
+      session.load(writerRecordId.getIdentity());
       Assert.fail();
     } catch (RecordNotFoundException e) {
       // ignore
     }
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testReaderCannotSeeWriterDocument")
   public void testWriterAddReaderUserOnlyForRead() throws IOException {
-    db = createSessionInstance("writer", "writer");
-    db.begin();
-    EntityImpl writerRecord = db.load(this.writerRecordId);
-    db
+    session = createSessionInstance("writer", "writer");
+    session.begin();
+    EntityImpl writerRecord = session.load(this.writerRecordId);
+    session
         .getMetadata()
         .getSecurity()
         .allowUser(writerRecord, RestrictedOperation.ALLOW_READ, "reader");
     writerRecord.save();
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testWriterAddReaderUserOnlyForRead")
   public void testReaderCanSeeWriterDocument() throws IOException {
-    db = createSessionInstance("reader", "reader");
-    db.begin();
-    Assert.assertNotNull(db.load(writerRecordId.getIdentity()));
-    db.commit();
+    session = createSessionInstance("reader", "reader");
+    session.begin();
+    Assert.assertNotNull(session.load(writerRecordId.getIdentity()));
+    session.commit();
   }
 
   /**
@@ -281,71 +278,71 @@ public class RestrictedTest extends BaseDBTest {
    */
   @Test(dependsOnMethods = "testReaderCanSeeWriterDocument")
   public void testWriterRemoveReaderUserOnlyForRead() throws IOException {
-    db = createSessionInstance("writer", "writer");
-    db.begin();
-    EntityImpl writerRecord = db.load(this.writerRecordId);
-    db
+    session = createSessionInstance("writer", "writer");
+    session.begin();
+    EntityImpl writerRecord = session.load(this.writerRecordId);
+    session
         .getMetadata()
         .getSecurity()
         .denyUser(writerRecord, RestrictedOperation.ALLOW_READ, "reader");
     writerRecord.save();
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testWriterRemoveReaderUserOnlyForRead")
   public void testReaderCannotSeeWriterDocumentAgain() throws IOException {
-    db = createSessionInstance("reader", "reader");
-    db.begin();
+    session = createSessionInstance("reader", "reader");
+    session.begin();
     try {
-      db.load(writerRecordId.getIdentity());
+      session.load(writerRecordId.getIdentity());
       Assert.fail();
     } catch (RecordNotFoundException e) {
       // ignore
     }
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testReaderCannotSeeWriterDocumentAgain")
   public void testReaderRoleInheritsFromWriterRole() throws IOException {
-    db = createSessionInstance();
-    db.begin();
-    var reader = db.getMetadata().getSecurity().getRole("reader");
-    reader.setParentRole(db, db.getMetadata().getSecurity().getRole("writer"));
+    session = createSessionInstance();
+    session.begin();
+    var reader = session.getMetadata().getSecurity().getRole("reader");
+    reader.setParentRole(session, session.getMetadata().getSecurity().getRole("writer"));
 
-    reader.save(db);
-    db.commit();
+    reader.save(session);
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testReaderRoleInheritsFromWriterRole")
   public void testWriterRoleCanSeeWriterDocument() throws IOException {
-    db = createSessionInstance("writer", "writer");
-    db.begin();
-    EntityImpl writerRecord = db.load(this.writerRecordId);
-    db
+    session = createSessionInstance("writer", "writer");
+    session.begin();
+    EntityImpl writerRecord = session.load(this.writerRecordId);
+    session
         .getMetadata()
         .getSecurity()
         .allowRole(writerRecord, RestrictedOperation.ALLOW_READ, "writer");
     writerRecord.save();
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testWriterRoleCanSeeWriterDocument")
   public void testReaderRoleCanSeeInheritedDocument() {
-    db = createSessionInstance("reader", "reader");
+    session = createSessionInstance("reader", "reader");
 
-    db.begin();
-    Assert.assertNotNull(db.load(writerRecordId.getIdentity()));
-    db.commit();
+    session.begin();
+    Assert.assertNotNull(session.load(writerRecordId.getIdentity()));
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testReaderRoleCanSeeInheritedDocument")
   public void testReaderRoleDesntInheritsFromWriterRole() throws IOException {
-    db = createSessionInstance();
-    db.begin();
-    var reader = db.getMetadata().getSecurity().getRole("reader");
-    reader.setParentRole(db, null);
-    reader.save(db);
-    db.commit();
+    session = createSessionInstance();
+    session.begin();
+    var reader = session.getMetadata().getSecurity().getRole("reader");
+    reader.setParentRole(session, null);
+    reader.save(session);
+    session.commit();
   }
 
   /**
@@ -353,9 +350,9 @@ public class RestrictedTest extends BaseDBTest {
    */
   @Test(dependsOnMethods = "testReaderRoleDesntInheritsFromWriterRole")
   public void testTruncateClass() {
-    db = createSessionInstance();
+    session = createSessionInstance();
     try {
-      db.command("truncate class CMSDocument").close();
+      session.command("truncate class CMSDocument").close();
       Assert.fail();
     } catch (SecurityException e) {
       Assert.assertTrue(true);
@@ -364,9 +361,9 @@ public class RestrictedTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "testTruncateClass")
   public void testTruncateUnderlyingCluster() {
-    db = createSessionInstance();
+    session = createSessionInstance();
     try {
-      db.command("truncate cluster CMSDocument").close();
+      session.command("truncate cluster CMSDocument").close();
     } catch (SecurityException e) {
 
     }
@@ -374,37 +371,38 @@ public class RestrictedTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "testTruncateUnderlyingCluster")
   public void testUpdateRestricted() {
-    db = createSessionInstance();
-    db
+    session = createSessionInstance();
+    session
         .getMetadata()
         .getSchema()
         .createClass(
-            "TestUpdateRestricted", db.getMetadata().getSchema().getClass("ORestricted"));
+            "TestUpdateRestricted", session.getMetadata().getSchema().getClass("ORestricted"));
 
-    db.begin();
-    var adminRecord = ((EntityImpl) db.newEntity("TestUpdateRestricted")).field("user", "admin");
+    session.begin();
+    var adminRecord = ((EntityImpl) session.newEntity("TestUpdateRestricted")).field("user",
+        "admin");
     adminRecord.save();
     this.adminRecordId = adminRecord.getIdentity();
-    db.commit();
+    session.commit();
 
-    db.close();
+    session.close();
 
-    db = createSessionInstance("writer", "writer");
-    db.begin();
-    var result = db.query("select from TestUpdateRestricted");
+    session = createSessionInstance("writer", "writer");
+    session.begin();
+    var result = session.query("select from TestUpdateRestricted");
     Assert.assertEquals(result.stream().count(), 0);
-    db.commit();
+    session.commit();
 
-    db.close();
+    session.close();
 
-    db = createSessionInstance();
-    db.begin();
-    db
+    session = createSessionInstance();
+    session.begin();
+    session
         .command("update TestUpdateRestricted content {\"data\":\"My Test\"}").close();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    result = db.query("select from TestUpdateRestricted");
+    session.begin();
+    result = session.query("select from TestUpdateRestricted");
     var res = result.next();
     Assert.assertFalse(result.hasNext());
 
@@ -412,20 +410,20 @@ public class RestrictedTest extends BaseDBTest {
     Assert.assertEquals(doc.getProperty("data"), "My Test");
     doc.setProperty("user", "admin");
 
-    db.save(doc);
-    db.commit();
+    session.save(doc);
+    session.commit();
 
-    db.close();
+    session.close();
 
-    db = createSessionInstance("writer", "writer");
-    db.begin();
-    result = db.query("select from TestUpdateRestricted");
+    session = createSessionInstance("writer", "writer");
+    session.begin();
+    result = session.query("select from TestUpdateRestricted");
     Assert.assertEquals(result.stream().count(), 0);
-    db.commit();
+    session.commit();
   }
 
   @BeforeMethod
   protected void closeDb() {
-    db.close();
+    session.close();
   }
 }

@@ -20,9 +20,9 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.ArrayList;
@@ -92,9 +92,9 @@ public class PropertyListIndexDefinition extends PropertyIndexDefinition
       return PropertyType.convert(session, value, keyType.getDefaultJavaType());
     } catch (Exception e) {
       throw BaseException.wrapException(
-          new IndexException(
+          new IndexException(session.getDatabaseName(),
               "Invalid key for index: " + param[0] + " cannot be converted to " + keyType),
-          e);
+          e, session.getDatabaseName());
     }
   }
 

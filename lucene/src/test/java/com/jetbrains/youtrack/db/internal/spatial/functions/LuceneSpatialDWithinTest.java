@@ -13,8 +13,6 @@
  */
 package com.jetbrains.youtrack.db.internal.spatial.functions;
 
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.spatial.BaseSpatialLuceneTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,7 +26,7 @@ public class LuceneSpatialDWithinTest extends BaseSpatialLuceneTest {
   public void testDWithinNoIndex() {
 
     var execute =
-        db.query(
+        session.query(
             "SELECT ST_DWithin(ST_GeomFromText('POLYGON((0 0, 10 0, 10 5, 0 5, 0 0))'),"
                 + " ST_GeomFromText('POLYGON((12 0, 14 0, 14 6, 12 6, 12 0))'), 2.0d) as distance");
 
@@ -43,27 +41,27 @@ public class LuceneSpatialDWithinTest extends BaseSpatialLuceneTest {
   @Test
   public void testWithinIndex() {
 
-    db.command("create class Polygon extends v").close();
-    db.command("create property Polygon.geometry EMBEDDED OPolygon").close();
+    session.command("create class Polygon extends v").close();
+    session.command("create property Polygon.geometry EMBEDDED OPolygon").close();
 
-    db.begin();
-    db.command(
+    session.begin();
+    session.command(
             "insert into Polygon set geometry = ST_GeomFromText('POLYGON((0 0, 10 0, 10 5, 0 5, 0"
                 + " 0))')")
         .close();
-    db.commit();
+    session.commit();
 
-    db.command("create index Polygon.g on Polygon (geometry) SPATIAL engine lucene").close();
+    session.command("create index Polygon.g on Polygon (geometry) SPATIAL engine lucene").close();
 
     var execute =
-        db.query(
+        session.query(
             "SELECT from Polygon where ST_DWithin(geometry, ST_GeomFromText('POLYGON((12 0, 14 0,"
                 + " 14 6, 12 6, 12 0))'), 2.0) = true");
 
     Assert.assertEquals(1, execute.stream().count());
 
     var resultSet =
-        db.query(
+        session.query(
             "SELECT from Polygon where ST_DWithin(geometry, ST_GeomFromText('POLYGON((12 0, 14 0,"
                 + " 14 6, 12 6, 12 0))'), 2.0) = true");
 

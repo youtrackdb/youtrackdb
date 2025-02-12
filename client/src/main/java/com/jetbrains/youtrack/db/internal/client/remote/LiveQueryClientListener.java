@@ -4,7 +4,6 @@ import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.query.LiveQueryResultListener;
 import com.jetbrains.youtrack.db.internal.client.remote.message.LiveQueryPushRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.live.LiveQueryResult;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 
 /**
@@ -28,56 +27,41 @@ public class LiveQueryClientListener {
    * @return
    */
   public boolean onEvent(LiveQueryPushRequest pushRequest) {
-    var old = DatabaseRecordThreadLocal.instance().getIfDefined();
-    try {
-      database.activateOnCurrentThread();
-      if (pushRequest.getStatus() == LiveQueryPushRequest.ERROR) {
-        onError(pushRequest.getErrorCode().newException(pushRequest.getErrorMessage(), null));
-        return true;
-      } else {
-        for (var result : pushRequest.getEvents()) {
-          switch (result.getEventType()) {
-            case LiveQueryResult.CREATE_EVENT:
-              listener.onCreate(database, result.getCurrentValue());
-              break;
-            case LiveQueryResult.UPDATE_EVENT:
-              listener.onUpdate(database, result.getOldValue(), result.getCurrentValue());
-              break;
-            case LiveQueryResult.DELETE_EVENT:
-              listener.onDelete(database, result.getCurrentValue());
-              break;
-          }
-        }
-        if (pushRequest.getStatus() == LiveQueryPushRequest.END) {
-          onEnd();
-          return true;
+    database.activateOnCurrentThread();
+    if (pushRequest.getStatus() == LiveQueryPushRequest.ERROR) {
+      onError(pushRequest.getErrorCode().newException(pushRequest.getErrorMessage(), null));
+      return true;
+    } else {
+      for (var result : pushRequest.getEvents()) {
+        switch (result.getEventType()) {
+          case LiveQueryResult.CREATE_EVENT:
+            listener.onCreate(database, result.getCurrentValue());
+            break;
+          case LiveQueryResult.UPDATE_EVENT:
+            listener.onUpdate(database, result.getOldValue(), result.getCurrentValue());
+            break;
+          case LiveQueryResult.DELETE_EVENT:
+            listener.onDelete(database, result.getCurrentValue());
+            break;
         }
       }
-      return false;
-    } finally {
-      DatabaseRecordThreadLocal.instance().set(old);
+      if (pushRequest.getStatus() == LiveQueryPushRequest.END) {
+        onEnd();
+        return true;
+      }
     }
+    return false;
   }
 
   public void onError(BaseException e) {
-    var old = DatabaseRecordThreadLocal.instance().getIfDefined();
-    try {
-      database.activateOnCurrentThread();
-      listener.onError(database, e);
-      database.close();
-    } finally {
-      DatabaseRecordThreadLocal.instance().set(old);
-    }
+    database.activateOnCurrentThread();
+    listener.onError(database, e);
+    database.close();
   }
 
   public void onEnd() {
-    var old = DatabaseRecordThreadLocal.instance().getIfDefined();
-    try {
-      database.activateOnCurrentThread();
-      listener.onEnd(database);
-      database.close();
-    } finally {
-      DatabaseRecordThreadLocal.instance().set(old);
-    }
+    database.activateOnCurrentThread();
+    listener.onEnd(database);
+    database.close();
   }
 }

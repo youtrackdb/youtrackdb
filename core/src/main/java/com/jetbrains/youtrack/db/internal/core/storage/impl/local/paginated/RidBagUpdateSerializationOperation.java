@@ -22,7 +22,7 @@ package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
@@ -30,7 +30,6 @@ import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPo
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.Change;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.EdgeBTree;
 import java.io.IOException;
-import java.util.Map;
 import java.util.NavigableMap;
 
 /**
@@ -46,11 +45,10 @@ public class RidBagUpdateSerializationOperation implements RecordSerializationOp
 
   public RidBagUpdateSerializationOperation(
       final NavigableMap<RID, Change> changedValues,
-      BonsaiCollectionPointer collectionPointer) {
+      BonsaiCollectionPointer collectionPointer, DatabaseSessionInternal session) {
     this.changedValues = changedValues;
     this.collectionPointer = collectionPointer;
-
-    collectionManager = DatabaseRecordThreadLocal.instance().get().getSbTreeCollectionManager();
+    collectionManager = session.getSbTreeCollectionManager();
   }
 
   @Override
@@ -73,7 +71,9 @@ public class RidBagUpdateSerializationOperation implements RecordSerializationOp
         }
       }
     } catch (IOException e) {
-      throw BaseException.wrapException(new DatabaseException("Error during ridbag update"), e);
+      throw BaseException.wrapException(
+          new DatabaseException(paginatedStorage.getName(), "Error during ridbag update"), e,
+          paginatedStorage.getName());
     } finally {
       releaseTree();
     }

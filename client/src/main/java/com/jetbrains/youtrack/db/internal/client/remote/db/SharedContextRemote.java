@@ -46,7 +46,7 @@ public class SharedContextRemote extends SharedContext {
       }
     } finally {
       PROFILER.stopChrono(
-          PROFILER.getDatabaseMetric(database.getName(), "metadata.load"),
+          PROFILER.getDatabaseMetric(database.getDatabaseName(), "metadata.load"),
           "Loading of database metadata",
           timer,
           "db.*.metadata.load");

@@ -92,7 +92,7 @@ public class DbCreationTest {
   @Test(dependsOnMethods = {"testDbExists"})
   public void testDbOpen() {
     var database = youTrackDB.open(DB_NAME, "admin", "admin");
-    Assert.assertNotNull(database.getName());
+    Assert.assertNotNull(database.getDatabaseName());
     database.close();
   }
 

@@ -43,7 +43,7 @@ public class AlterDatabaseTest extends BaseDBTest {
   }
 
   public void alterDateFormatOk() throws IOException {
-    db.command("alter database dateformat 'yyyy-MM-dd';").close();
-    db.command("alter database dateformat 'yyyy-MM-dd'").close();
+    session.command("alter database dateformat 'yyyy-MM-dd';").close();
+    session.command("alter database dateformat 'yyyy-MM-dd'").close();
   }
 }

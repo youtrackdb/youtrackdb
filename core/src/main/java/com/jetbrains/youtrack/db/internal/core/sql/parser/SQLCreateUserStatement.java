@@ -4,8 +4,6 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.Security;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -90,12 +88,12 @@ public class SQLCreateUserStatement extends SQLSimpleExecStatement {
     sb.append(" WHERE ");
     sb.append(ROLE_FIELD_NAME);
     sb.append(" IN [");
-    var security = ctx.getDatabase().getMetadata().getSecurity();
+    var security = ctx.getDatabaseSession().getMetadata().getSecurity();
     for (var i = 0; i < this.roles.size(); ++i) {
       var roleName = this.roles.get(i).getStringValue();
       var role = security.getRole(roleName);
       if (role == null) {
-        throw new CommandExecutionException(
+        throw new CommandExecutionException(ctx.getDatabaseSession(),
             "Cannot create user " + this.name + ": role " + roleName + " does not exist");
       }
       if (i > 0) {
@@ -112,7 +110,7 @@ public class SQLCreateUserStatement extends SQLSimpleExecStatement {
     }
     sb.append("])");
     return ExecutionStream.resultIterator(
-        ctx.getDatabase().command(sb.toString(), params.toArray()).stream().iterator());
+        ctx.getDatabaseSession().command(sb.toString(), params.toArray()).stream().iterator());
   }
 
   @Override

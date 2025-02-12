@@ -2,10 +2,9 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.api.query.ExecutionStep;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.stream.Collectors;
@@ -58,7 +57,7 @@ public class GetValueFromIndexEntryStep extends AbstractExecutionStep {
       }
     }
     if (finalVal instanceof Identifiable) {
-      return new ResultInternal(ctx.getDatabase(), (Identifiable) finalVal);
+      return new ResultInternal(ctx.getDatabaseSession(), (Identifiable) finalVal);
 
     } else if (finalVal instanceof Result) {
       return (Result) finalVal;

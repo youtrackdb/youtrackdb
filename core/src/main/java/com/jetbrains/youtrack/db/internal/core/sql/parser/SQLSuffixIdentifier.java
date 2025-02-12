@@ -71,7 +71,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
       return iCurrentRecord;
     }
 
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     if (identifier != null) {
       var varName = identifier.getStringValue();
       if (varName.equalsIgnoreCase("$parent")) {
@@ -80,7 +80,6 @@ public class SQLSuffixIdentifier extends SimpleNode {
       if (varName.startsWith("$") && ctx.getVariable(varName) != null) {
         return ctx.getVariable(varName);
       }
-
 
       if (iCurrentRecord != null) {
         if (iCurrentRecord instanceof ContextualRecordId) {
@@ -92,7 +91,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
         try {
           Entity rec = iCurrentRecord.getRecord(db);
           if (rec.isUnloaded()) {
-            rec = ctx.getDatabase().bindToSession(rec);
+            rec = ctx.getDatabaseSession().bindToSession(rec);
           }
 
           var result = rec.getProperty(varName);
@@ -161,7 +160,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
 
   public Object execute(Map iCurrentRecord, CommandContext ctx) {
     if (star) {
-      var result = new ResultInternal(ctx.getDatabase());
+      var result = new ResultInternal(ctx.getDatabaseSession());
       if (iCurrentRecord != null) {
         for (var x : ((Map<Object, Object>) iCurrentRecord).entrySet()) {
           result.setProperty("" + x.getKey(), x.getValue());
@@ -367,21 +366,21 @@ public class SQLSuffixIdentifier extends SimpleNode {
       entity = (Entity) target;
     } else {
       try {
-        var rec = target.getRecord(ctx.getDatabase());
+        var rec = target.getRecord(ctx.getDatabaseSession());
         if (rec instanceof Entity) {
           entity = (Entity) rec;
         }
       } catch (RecordNotFoundException rnf) {
         throw BaseException.wrapException(
-            new CommandExecutionException(
+            new CommandExecutionException(ctx.getDatabaseSession(),
                 "Cannot set record attribute " + recordAttribute + " on existing entity"),
-            rnf);
+            rnf, ctx.getDatabaseSession());
       }
     }
     if (entity != null) {
       entity.setProperty(identifier.getStringValue(), value);
     } else {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
           "Cannot set record attribute " + recordAttribute + " on existing entity");
     }
   }
@@ -408,7 +407,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
         intTarget.setProperty(recordAttribute.getName(), value);
       }
     } else {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
           "Cannot set property on unmodifiable target: " + target);
     }
   }
@@ -467,12 +466,13 @@ public class SQLSuffixIdentifier extends SimpleNode {
 
   public Collate getCollate(Result currentRecord, CommandContext ctx) {
     if (identifier != null && currentRecord != null) {
+      var session = ctx.getDatabaseSession();
       return currentRecord
           .getRecord()
           .map(x -> (Entity) x)
-          .flatMap(elem -> elem.getSchemaType())
-          .map(clazz -> clazz.getProperty(identifier.getStringValue()))
-          .map(prop -> prop.getCollate())
+          .flatMap(Entity::getSchemaType)
+          .map(clazz -> clazz.getProperty(session, identifier.getStringValue()))
+          .map(schemaProperty -> schemaProperty.getCollate(session))
           .orElse(null);
     }
     return null;

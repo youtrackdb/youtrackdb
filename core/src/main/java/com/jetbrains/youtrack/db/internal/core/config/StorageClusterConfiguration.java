@@ -20,12 +20,6 @@
 package com.jetbrains.youtrack.db.internal.core.config;
 
 public interface StorageClusterConfiguration {
-
-  enum STATUS {
-    ONLINE,
-    OFFLINE
-  }
-
   int getId();
 
   String getName();
@@ -33,10 +27,6 @@ public interface StorageClusterConfiguration {
   String getLocation();
 
   int getDataSegmentId();
-
-  STATUS getStatus();
-
-  void setStatus(STATUS iStatus);
 
   int getBinaryVersion();
 }

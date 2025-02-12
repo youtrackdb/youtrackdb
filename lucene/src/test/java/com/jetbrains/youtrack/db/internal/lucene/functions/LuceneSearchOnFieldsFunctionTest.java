@@ -3,11 +3,8 @@ package com.jetbrains.youtrack.db.internal.lucene.functions;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.lucene.test.BaseLuceneTest;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,10 +19,10 @@ public class LuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
   @Before
   public void setUp() throws Exception {
     final var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
-    db.execute("sql", getScriptFromStream(stream));
-    db.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE ");
-    db.command("create index Song.author on Song (author) FULLTEXT ENGINE LUCENE ");
-    db.command(
+    session.execute("sql", getScriptFromStream(stream));
+    session.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE ");
+    session.command("create index Song.author on Song (author) FULLTEXT ENGINE LUCENE ");
+    session.command(
         "create index Song.lyrics_description on Song (lyrics,description) FULLTEXT ENGINE LUCENE"
             + " ");
   }
@@ -33,7 +30,7 @@ public class LuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
   @Test
   public void shouldSearchOnSingleField() throws Exception {
     final var resultSet =
-        db.query("SELECT from Song where SEARCH_FIELDS(['title'], 'BELIEVE') = true");
+        session.query("SELECT from Song where SEARCH_FIELDS(['title'], 'BELIEVE') = true");
     assertThat(resultSet).hasSize(2);
     resultSet.close();
   }
@@ -42,7 +39,7 @@ public class LuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
   public void shouldSearchOnSingleFieldWithLeadingWildcard() throws Exception {
     // TODO: metadata still not used
     final var resultSet =
-        db.query(
+        session.query(
             "SELECT from Song where SEARCH_FIELDS(['title'], '*EVE*', {'allowLeadingWildcard':"
                 + " true}) = true");
     assertThat(resultSet).hasSize(14);
@@ -52,7 +49,7 @@ public class LuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
   @Test
   public void shouldSearhOnTwoFieldsInOR() throws Exception {
     final var resultSet =
-        db.query(
+        session.query(
             "SELECT from Song where SEARCH_FIELDS(['title'], 'BELIEVE') = true OR"
                 + " SEARCH_FIELDS(['author'], 'Bob') = true ");
     assertThat(resultSet).hasSize(41);
@@ -62,7 +59,7 @@ public class LuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
   @Test
   public void shouldSearchOnTwoFieldsInAND() throws Exception {
     final var resultSet =
-        db.query(
+        session.query(
             "SELECT from Song where SEARCH_FIELDS(['title'], 'tambourine') = true AND"
                 + " SEARCH_FIELDS(['author'], 'Bob') = true ");
     assertThat(resultSet).hasSize(1);
@@ -72,7 +69,7 @@ public class LuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
   @Test
   public void shouldSearhOnTwoFieldsWithLeadingWildcardInAND() throws Exception {
     final var resultSet =
-        db.query(
+        session.query(
             "SELECT from Song where SEARCH_FIELDS(['title'], 'tambourine') = true AND"
                 + " SEARCH_FIELDS(['author'], 'Bob', {'allowLeadingWildcard': true}) = true ");
     assertThat(resultSet).hasSize(1);
@@ -82,14 +79,14 @@ public class LuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
   @Test
   public void shouldSearchOnMultiFieldIndex() throws Exception {
     var resultSet =
-        db.query(
+        session.query(
             "SELECT from Song where SEARCH_FIELDS(['lyrics','description'],"
                 + " '(description:happiness) (lyrics:sad)  ') = true ");
     assertThat(resultSet).hasSize(2);
     resultSet.close();
 
     resultSet =
-        db.query(
+        session.query(
             "SELECT from Song where SEARCH_FIELDS(['description','lyrics'],"
                 + " '(description:happiness) (lyrics:sad)  ') = true ");
 
@@ -97,7 +94,7 @@ public class LuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
     resultSet.close();
 
     resultSet =
-        db.query(
+        session.query(
             "SELECT from Song where SEARCH_FIELDS(['description'], '(description:happiness)"
                 + " (lyrics:sad)  ') = true ");
     assertThat(resultSet).hasSize(2);
@@ -106,21 +103,22 @@ public class LuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
 
   @Test(expected = CommandExecutionException.class)
   public void shouldFailWithWrongFieldName() throws Exception {
-    db.query(
+    session.query(
         "SELECT from Song where SEARCH_FIELDS(['wrongName'], '(description:happiness) (lyrics:sad) "
             + " ') = true ");
   }
 
   @Test
   public void shouldSearchWithHesitance() throws Exception {
-    db.command("create class RockSong extends Song");
+    session.command("create class RockSong extends Song");
 
-    db.begin();
-    db.command("create vertex RockSong set title=\"This is only rock\", author=\"A cool rocker\"");
-    db.commit();
+    session.begin();
+    session.command(
+        "create vertex RockSong set title=\"This is only rock\", author=\"A cool rocker\"");
+    session.commit();
 
     final var resultSet =
-        db.query("SELECT from RockSong where SEARCH_FIELDS(['title'], '+only +rock') = true ");
+        session.query("SELECT from RockSong where SEARCH_FIELDS(['title'], '+only +rock') = true ");
     assertThat(resultSet).hasSize(1);
     resultSet.close();
   }
@@ -130,21 +128,21 @@ public class LuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
     final var className = "testSquareBrackets";
     final var classNameE = "testSquareBracketsE";
 
-    db.command("create class " + className + " extends V;");
-    db.command("create property " + className + ".id Integer;");
-    db.command("create property " + className + ".name String;");
-    db.command(
+    session.command("create class " + className + " extends V;");
+    session.command("create property " + className + ".id Integer;");
+    session.command("create property " + className + ".name String;");
+    session.command(
         "CREATE INDEX " + className + ".name ON " + className + "(name) FULLTEXT ENGINE LUCENE;");
 
-    db.command("CREATE CLASS " + classNameE + " EXTENDS E");
+    session.command("CREATE CLASS " + classNameE + " EXTENDS E");
 
-    db.begin();
-    db.command("insert into " + className + " set id = 1, name = 'A';");
-    db.command("insert into " + className + " set id = 2, name = 'AB';");
-    db.command("insert into " + className + " set id = 3, name = 'ABC';");
-    db.command("insert into " + className + " set id = 4, name = 'ABCD';");
+    session.begin();
+    session.command("insert into " + className + " set id = 1, name = 'A';");
+    session.command("insert into " + className + " set id = 2, name = 'AB';");
+    session.command("insert into " + className + " set id = 3, name = 'ABC';");
+    session.command("insert into " + className + " set id = 4, name = 'ABCD';");
 
-    db.command(
+    session.command(
         "CREATE EDGE "
             + classNameE
             + " FROM (SELECT FROM "
@@ -153,11 +151,11 @@ public class LuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
             + className
             + " WHERE id IN [2, 3, 4]);");
 
-    db.commit();
+    session.commit();
 
-    db.begin();
+    session.begin();
     final var result =
-        db.query(
+        session.query(
             "SELECT out('"
                 + classNameE
                 + "')[SEARCH_FIELDS(['name'], 'A*') = true] as theList FROM "
@@ -168,18 +166,18 @@ public class LuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
     assertThat((Object) item.getProperty("theList")).isInstanceOf(List.class);
     assertThat((List) item.getProperty("theList")).hasSize(3);
     result.close();
-    db.commit();
+    session.commit();
   }
 
   @Test
   public void shouldSupportParameterizedMetadata() throws Exception {
     final var query = "SELECT from Song where SEARCH_FIELDS(['title'], '*EVE*', ?) = true";
 
-    db.query(query, "{'allowLeadingWildcard': true}").close();
-    db.query(query, new EntityImpl(db, "allowLeadingWildcard", Boolean.TRUE)).close();
+    session.query(query, "{'allowLeadingWildcard': true}").close();
+    session.query(query, new EntityImpl(session, "allowLeadingWildcard", Boolean.TRUE)).close();
 
     Map<String, Object> mdMap = new HashMap();
     mdMap.put("allowLeadingWildcard", true);
-    db.query(query, new Object[]{mdMap}).close();
+    session.query(query, new Object[]{mdMap}).close();
   }
 }

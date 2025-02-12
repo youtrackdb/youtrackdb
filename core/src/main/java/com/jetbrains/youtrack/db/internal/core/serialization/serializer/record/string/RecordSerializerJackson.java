@@ -41,13 +41,13 @@ import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EmbeddedEntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJSON.FormatSettings;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;
@@ -62,48 +62,40 @@ import javax.annotation.Nullable;
 
 public class RecordSerializerJackson extends RecordSerializerStringAbstract {
 
+  public static final char[] PARAMETER_SEPARATOR = new char[]{':', ','};
   private static final JsonFactory JSON_FACTORY = new JsonFactory();
   public static final String NAME = "jackson";
   public static final RecordSerializerJackson INSTANCE = new RecordSerializerJackson();
 
   @Override
-  public int getCurrentVersion() {
-    return 0;
-  }
-
-  @Override
-  public int getMinSupportedVersion() {
-    return 0;
-  }
-
-  @Override
-  public <T extends DBRecord> T fromString(DatabaseSessionInternal db, String source,
-      RecordAbstract record, final String[] fields) {
+  public <T extends DBRecord> T fromString(@Nonnull DatabaseSessionInternal session,
+      @Nonnull String source,
+      @Nullable RecordAbstract record, @Nullable final String[] fields) {
     try (var jsonParser = JSON_FACTORY.createParser(source)) {
       //noinspection unchecked
-      return (T) recordFromJson(db, record, jsonParser);
+      return (T) recordFromJson(session, record, jsonParser);
     } catch (Exception e) {
       if (record != null && record.getIdentity().isValid()) {
         throw BaseException.wrapException(
-            new SerializationException(
+            new SerializationException(session,
                 "Error on unmarshalling JSON content for record " + record.getIdentity()),
-            e);
+            e, session);
       } else {
         throw BaseException.wrapException(
-            new SerializationException(
+            new SerializationException(session,
                 "Error on unmarshalling JSON content for record: " + source),
-            e);
+            e, session);
       }
     }
   }
 
   private static RecordAbstract recordFromJson(
-      @Nonnull DatabaseSessionInternal db,
+      @Nonnull DatabaseSessionInternal session,
       @Nullable RecordAbstract record,
       @Nonnull JsonParser jsonParser) throws IOException {
     var token = jsonParser.nextToken();
     if (token != JsonToken.START_OBJECT) {
-      throw new SerializationException("Start of the object is expected");
+      throw new SerializationException(session, "Start of the object is expected");
     }
 
     String defaultClassName;
@@ -111,45 +103,48 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
     var defaultRecordType = record != null ? record.getRecordType() : EntityImpl.RECORD_TYPE;
     if (record instanceof EntityImpl entity) {
       defaultClassName = entity.getClassName();
-    } else if (defaultRecordType == EntityImpl.RECORD_TYPE) {
-      defaultClassName = Entity.DEFAULT_CLASS_NAME;
     } else {
       defaultClassName = null;
     }
 
-    var recordMetaData = parseRecordMetadata(jsonParser, defaultClassName, defaultRecordType);
+    var recordMetaData = parseRecordMetadata(session, jsonParser, defaultClassName,
+        defaultRecordType);
     if (recordMetaData == null) {
       recordMetaData = new RecordMetaData(defaultRecordType,
           record != null ? record.getIdentity() : null,
-          defaultClassName, Collections.emptyMap());
+          defaultClassName, Collections.emptyMap(), false);
     }
 
-    var result = createRecordFromJsonAfterMetadata(db, record, recordMetaData, jsonParser);
+    var result = createRecordFromJsonAfterMetadata(session, record, recordMetaData, jsonParser);
     if (jsonParser.nextToken() != null) {
-      throw new SerializationException("End of the JSON object is expected");
+      throw new SerializationException(session, "End of the JSON object is expected");
     }
 
     return result;
   }
 
-  private static RecordAbstract createRecordFromJsonAfterMetadata(DatabaseSessionInternal db,
+  private static RecordAbstract createRecordFromJsonAfterMetadata(DatabaseSessionInternal session,
       RecordAbstract record,
       RecordMetaData recordMetaData, JsonParser jsonParser) throws IOException {
     //initialize record first and then validate the rest of the found metadata
     if (record == null) {
       if (recordMetaData.recordId != null) {
-        record = db.load(recordMetaData.recordId);
+        record = session.load(recordMetaData.recordId);
       } else {
         if (recordMetaData.recordType == EntityImpl.RECORD_TYPE) {
           if (recordMetaData.className == null) {
-            record = db.newInstance();
+            if (!recordMetaData.internalRecord) {
+              record = session.newInstance();
+            } else {
+              record = session.newInternalInstance();
+            }
           } else {
-            record = db.newInstance(recordMetaData.className);
+            record = session.newInstance(recordMetaData.className);
           }
         } else if (recordMetaData.recordType == Blob.RECORD_TYPE) {
-          record = (RecordAbstract) db.newBlob();
+          record = (RecordAbstract) session.newBlob();
         } else {
-          throw new SerializationException(
+          throw new SerializationException(session,
               "Unsupported record type: " + recordMetaData.recordType);
         }
       }
@@ -158,25 +153,25 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
     }
 
     if (record.getRecordType() != recordMetaData.recordType) {
-      throw new SerializationException(
+      throw new SerializationException(session,
           "Record type mismatch: " + record.getRecordType() + " != " + recordMetaData.recordType);
     }
     if (record instanceof EntityImpl entity && !Objects.equals(entity.getClassName(),
         recordMetaData.className)) {
-      throw new SerializationException(
+      throw new SerializationException(session,
           "Record class name mismatch: " + entity.getClassName() + " != "
               + recordMetaData.className);
     }
     if (recordMetaData.recordId != null && !record.getIdentity().equals(recordMetaData.recordId)) {
-      throw new SerializationException(
+      throw new SerializationException(session,
           "Record id mismatch: " + record.getIdentity() + " != " + recordMetaData.recordId);
     }
 
-    parseProperties(db, record, recordMetaData, jsonParser);
+    parseProperties(session, record, recordMetaData, jsonParser);
     return record;
   }
 
-  private static void parseProperties(DatabaseSessionInternal db, RecordAbstract record,
+  private static void parseProperties(DatabaseSessionInternal session, RecordAbstract record,
       RecordMetaData recordMetaData, JsonParser jsonParser) throws IOException {
     JsonToken token;
     token = jsonParser.currentToken();
@@ -185,26 +180,29 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
       if (token == JsonToken.FIELD_NAME) {
         var fieldName = jsonParser.currentName();
         if (!fieldName.isEmpty() && fieldName.charAt(0) == '@') {
-          throw new SerializationException("Invalid property name: " + fieldName);
+          throw new SerializationException(session, "Invalid property name: " + fieldName);
         }
 
         jsonParser.nextToken();//jump to value
-        parseProperty(db, recordMetaData.fieldTypes, record, jsonParser, fieldName);
+        parseProperty(session, recordMetaData.fieldTypes, record, jsonParser, fieldName);
       } else {
-        throw new SerializationException("Expected field name");
+        throw new SerializationException(session, "Expected field name");
       }
       token = jsonParser.nextToken();
     }
   }
 
   @Nullable
-  private static RecordMetaData parseRecordMetadata(@Nullable JsonParser jsonParser,
+  private static RecordMetaData parseRecordMetadata(@Nonnull DatabaseSessionInternal session,
+      @Nullable JsonParser jsonParser,
       @Nullable String defaultClassName, byte defaultRecordType) throws IOException {
+
     var token = jsonParser.nextToken();
     RecordId recordId = null;
     var recordType = defaultRecordType;
     var className = defaultClassName;
     Map<String, String> fieldTypes = new HashMap<>();
+    var internalRecord = false;
 
     var fieldsCount = 0;
     while (token != JsonToken.END_OBJECT) {
@@ -223,12 +221,12 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
           case EntityHelper.ATTRIBUTE_TYPE -> {
             token = jsonParser.nextToken();
             if (token != JsonToken.VALUE_STRING) {
-              throw new SerializationException(
+              throw new SerializationException(session,
                   "Expected field value as string.");
             }
             var fieldValueAsString = jsonParser.getText();
             if (fieldValueAsString.length() != 1) {
-              throw new SerializationException(
+              throw new SerializationException(session,
                   "Invalid record type: " + fieldValueAsString);
             }
             recordType = (byte) fieldValueAsString.charAt(0);
@@ -237,7 +235,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
           case EntityHelper.ATTRIBUTE_RID -> {
             token = jsonParser.nextToken();
             if (token != JsonToken.VALUE_STRING) {
-              throw new SerializationException(
+              throw new SerializationException(session,
                   "Expected field value as string");
             }
             var fieldValueAsString = jsonParser.getText();
@@ -249,23 +247,42 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
           case EntityHelper.ATTRIBUTE_CLASS -> {
             token = jsonParser.nextToken();
             if (token != JsonToken.VALUE_STRING) {
-              throw new SerializationException(
+              throw new SerializationException(session,
                   "Expected field value as string");
             }
             var fieldValueAsString = jsonParser.getText();
             className = "null".equals(fieldValueAsString) ? null : fieldValueAsString;
             token = jsonParser.nextToken();
           }
+          case EntityHelper.ATTRIBUTE_INTERNAL -> {
+            token = jsonParser.nextToken();
+            if (token != JsonToken.VALUE_TRUE && token != JsonToken.VALUE_FALSE) {
+              throw new SerializationException(session,
+                  "Expected field value as boolean");
+            }
+            internalRecord = jsonParser.getBooleanValue();
+            token = jsonParser.nextToken();
+          }
         }
       } else {
-        throw new SerializationException("Expected field name");
+        throw new SerializationException(session, "Expected field name");
       }
     }
 
     if (fieldsCount == 0) {
       return null;
     }
-    return new RecordMetaData(recordType, recordId, className, fieldTypes);
+
+    if (className == null && defaultClassName == null && recordId != null) {
+      var schema = session.getMetadata().getSchema();
+      var schemaClass = schema.getClassByClusterId(recordId.getClusterId());
+
+      if (schemaClass != null) {
+        className = schemaClass.getName(session);
+      }
+    }
+
+    return new RecordMetaData(recordType, recordId, className, fieldTypes, internalRecord);
   }
 
   private static Map<String, String> parseFieldTypes(JsonParser jsonParser) throws IOException {
@@ -290,7 +307,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
   }
 
   private static void parseProperty(
-      DatabaseSessionInternal db,
+      DatabaseSessionInternal session,
       Map<String, String> fieldTypes,
       RecordAbstract record,
       JsonParser jsonParser,
@@ -298,10 +315,10 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
     // RECORD ATTRIBUTES
     if (!(record instanceof EntityImpl entity)) {
       if (fieldName.equals("value")) {
-        var nextToken = jsonParser.nextToken();
+        var nextToken = jsonParser.currentToken();
         if (nextToken == JsonToken.VALUE_STRING) {
-          var fieldValue = nextToken.asString();
-          if ("null".equals(fieldValue)) {
+          var fieldValue = jsonParser.getText();
+          if (fieldValue == null || "null".equals(fieldValue)) {
             record.fromStream(CommonConst.EMPTY_BYTE_ARRAY);
           } else if (record instanceof Blob) {
             // BYTES
@@ -310,23 +327,23 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
                 record,
                 record.getIdentity(),
                 record.getVersion(),
-                Base64.getDecoder().decode(fieldValue),
+                jsonParser.getBinaryValue(),
                 true);
           } else {
-            throw new SerializationException(
+            throw new SerializationException(session,
                 "Unsupported type of record : " + record.getClass().getName());
           }
         } else {
-          throw new SerializationException(
+          throw new SerializationException(session,
               "Expected JSON token is a string token, but found " + nextToken);
         }
       } else {
-        throw new SerializationException(
+        throw new SerializationException(session,
             "Expected field -> 'value'. JSON content");
       }
     } else {
-      var type = determineType(entity, fieldName, fieldTypes.get(fieldName));
-      var v = parseValue(db, entity, jsonParser, type);
+      var type = determineType(session, entity, fieldName, fieldTypes.get(fieldName));
+      var v = parseValue(session, entity, jsonParser, type);
 
       if (type != null) {
         entity.setPropertyInternal(fieldName, v, type);
@@ -338,49 +355,53 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
 
   @Override
   public StringWriter toString(
-      DatabaseSessionInternal db, final DBRecord record,
+      DatabaseSessionInternal session, final DBRecord record,
       final StringWriter output,
       final String format,
       boolean autoDetectCollectionType) {
     try (var jsonGenerator = JSON_FACTORY.createGenerator(output)) {
       final var settings = new FormatSettings(format);
-      recordToJson(record, jsonGenerator, settings);
+      recordToJson(session, record, jsonGenerator, settings);
       return output;
     } catch (final IOException e) {
       throw BaseException.wrapException(
-          new SerializationException("Error on marshalling of record to JSON"), e);
+          new SerializationException(session, "Error on marshalling of record to JSON"), e,
+          session);
     }
   }
 
-  public static void recordToJson(DBRecord record, JsonGenerator jsonGenerator,
+  public static void recordToJson(DatabaseSessionInternal session, DBRecord record,
+      JsonGenerator jsonGenerator,
       @Nullable String format) {
     try {
       final var settings = new FormatSettings(format);
-      recordToJson(record, jsonGenerator, settings);
+      recordToJson(session, record, jsonGenerator, settings);
     } catch (final IOException e) {
       throw BaseException.wrapException(
-          new SerializationException("Error on marshalling of record to JSON"), e);
+          new SerializationException(session, "Error on marshalling of record to JSON"), e,
+          session);
     }
   }
 
-  private static void recordToJson(DBRecord record, JsonGenerator jsonGenerator,
+  private static void recordToJson(DatabaseSessionInternal session, DBRecord record,
+      JsonGenerator jsonGenerator,
       FormatSettings formatSettings) throws IOException {
     jsonGenerator.writeStartObject();
-    writeMetadata(jsonGenerator, (RecordAbstract) record, formatSettings);
+    writeMetadata(session, jsonGenerator, (RecordAbstract) record, formatSettings);
 
     if (record instanceof EntityImpl entity) {
       for (var propertyName : entity.getPropertyNamesInternal()) {
         jsonGenerator.writeFieldName(propertyName);
         var propertyValue = entity.getPropertyInternal(propertyName);
 
-        serializeValue(jsonGenerator, propertyValue, formatSettings);
+        serializeValue(session, jsonGenerator, propertyValue, formatSettings);
       }
     } else if (record instanceof Blob recordBlob) {
       // BYTES
       jsonGenerator.writeFieldName("value");
       jsonGenerator.writeBinary(((RecordAbstract) recordBlob).toStream());
     } else {
-      throw new SerializationException(
+      throw new SerializationException(session,
           "Error on marshalling record of type '"
               + record.getClass()
               + "' to JSON. The record type cannot be exported to JSON");
@@ -398,7 +419,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
     jsonGenerator.writeString(rid.toString());
   }
 
-  private static void writeMetadata(JsonGenerator jsonGenerator,
+  private static void writeMetadata(DatabaseSessionInternal db, JsonGenerator jsonGenerator,
       RecordAbstract record, FormatSettings formatSettings)
       throws IOException {
     if (record instanceof EntityImpl entity) {
@@ -415,16 +436,26 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
       }
 
       var schemaClass = entity.getSchemaClass();
-      if (schemaClass != null && formatSettings.includeClazz) {
-        jsonGenerator.writeFieldName(EntityHelper.ATTRIBUTE_CLASS);
-        jsonGenerator.writeString(schemaClass.getName());
+      if (schemaClass != null) {
+        if (formatSettings.includeClazz) {
+          jsonGenerator.writeFieldName(EntityHelper.ATTRIBUTE_CLASS);
+          jsonGenerator.writeString(schemaClass.getName(db));
+        }
+      } else if (formatSettings.internalRecords && !entity.isEmbedded()) {
+        var session = record.getSession();
+        var clusterName = session.getClusterName(record);
+
+        if (clusterName.equals(MetadataDefault.CLUSTER_INTERNAL_NAME)) {
+          jsonGenerator.writeFieldName(EntityHelper.ATTRIBUTE_INTERNAL);
+          jsonGenerator.writeBoolean(true);
+        }
       }
 
       if (formatSettings.keepTypes) {
         var fieldTypes = new HashMap<String, String>();
         for (var propertyName : entity.getPropertyNames()) {
-          var type = fetchPropertyType(entity, propertyName,
-              schemaClass);
+          var type = fetchPropertyType(db, entity,
+              propertyName, schemaClass);
 
           if (type != null) {
             var charType = charType(type);
@@ -446,7 +477,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
     } else {
       if (formatSettings.includeType) {
         jsonGenerator.writeFieldName(EntityHelper.ATTRIBUTE_TYPE);
-        jsonGenerator.writeString(String.valueOf(record.getRecordType()));
+        jsonGenerator.writeString(String.valueOf((char) record.getRecordType()));
       }
 
       if (formatSettings.includeId) {
@@ -456,14 +487,15 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
     }
   }
 
-  private static PropertyType fetchPropertyType(EntityImpl entity, String propertyName,
+  private static PropertyType fetchPropertyType(DatabaseSessionInternal session, EntityImpl entity,
+      String propertyName,
       SchemaClass schemaClass) {
     PropertyType type = null;
     if (schemaClass != null) {
-      var property = schemaClass.getProperty(propertyName);
+      var property = schemaClass.getProperty(session, propertyName);
 
       if (property != null) {
-        type = property.getType();
+        type = property.getType(session);
       }
     }
 
@@ -507,15 +539,16 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
   }
 
   @Nullable
-  private static PropertyType determineType(EntityImpl entity, String fieldName,
+  private static PropertyType determineType(DatabaseSessionInternal session, EntityImpl entity,
+      String fieldName,
       String charType) {
     PropertyType type = null;
 
     final SchemaClass cls = EntityInternalUtils.getImmutableSchemaClass(entity);
     if (cls != null) {
-      final var prop = cls.getProperty(fieldName);
+      final var prop = cls.getProperty(session, fieldName);
       if (prop != null) {
-        type = prop.getType();
+        type = prop.getType(session);
       }
     }
 
@@ -552,7 +585,8 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
     return entity.getPropertyType(fieldName);
   }
 
-  private static void serializeValue(JsonGenerator jsonGenerator, Object propertyValue,
+  private static void serializeValue(DatabaseSessionInternal session, JsonGenerator jsonGenerator,
+      Object propertyValue,
       FormatSettings formatSettings)
       throws IOException {
     if (propertyValue != null) {
@@ -572,7 +606,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
         case byte[] byteArray -> jsonGenerator.writeBinary(byteArray);
         case Entity entityValue -> {
           if (entityValue.isEmbedded()) {
-            recordToJson(entityValue, jsonGenerator, formatSettings);
+            recordToJson(session, entityValue, jsonGenerator, formatSettings);
           } else {
             serializeLink(jsonGenerator, entityValue.getIdentity());
           }
@@ -612,23 +646,23 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
         case TrackedList<?> trackedList -> {
           jsonGenerator.writeStartArray();
           for (var value : trackedList) {
-            serializeValue(jsonGenerator, value, formatSettings);
+            serializeValue(session, jsonGenerator, value, formatSettings);
           }
           jsonGenerator.writeEndArray();
         }
         case TrackedSet<?> trackedSet -> {
           jsonGenerator.writeStartArray();
           for (var value : trackedSet) {
-            serializeValue(jsonGenerator, value, formatSettings);
+            serializeValue(session, jsonGenerator, value, formatSettings);
           }
           jsonGenerator.writeEndArray();
         }
         case TrackedMap<?> trackedMap -> {
-          serializeEmbeddedMap(jsonGenerator, formatSettings, trackedMap);
+          serializeEmbeddedMap(session, jsonGenerator, formatSettings, trackedMap);
         }
 
         case Date date -> jsonGenerator.writeNumber(date.getTime());
-        default -> throw new SerializationException(
+        default -> throw new SerializationException(session,
             "Error on marshalling of record to JSON. Unsupported value: " + propertyValue);
       }
     } else {
@@ -636,31 +670,33 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
     }
   }
 
-  public static void serializeEmbeddedMap(JsonGenerator jsonGenerator,
+  public static void serializeEmbeddedMap(DatabaseSessionInternal session,
+      JsonGenerator jsonGenerator,
       Map<String, ?> trackedMap, String format) {
     try {
       final var settings = new FormatSettings(format);
-      serializeEmbeddedMap(jsonGenerator, settings, trackedMap);
+      serializeEmbeddedMap(session, jsonGenerator, settings, trackedMap);
     } catch (final IOException e) {
       throw BaseException.wrapException(
-          new SerializationException("Error on marshalling of record to JSON"), e);
+          new SerializationException(session, "Error on marshalling of record to JSON"), e,
+          session);
     }
   }
 
-  private static void serializeEmbeddedMap(JsonGenerator jsonGenerator,
+  private static void serializeEmbeddedMap(DatabaseSessionInternal db, JsonGenerator jsonGenerator,
       FormatSettings formatSettings,
       Map<String, ?> trackedMap) throws IOException {
     jsonGenerator.writeStartObject();
     for (var entry : trackedMap.entrySet()) {
       jsonGenerator.writeFieldName(entry.getKey());
-      serializeValue(jsonGenerator, entry.getValue(), formatSettings);
+      serializeValue(db, jsonGenerator, entry.getValue(), formatSettings);
     }
     jsonGenerator.writeEndObject();
   }
 
   @Nullable
   private static Object parseValue(
-      @Nonnull DatabaseSessionInternal db,
+      @Nonnull DatabaseSessionInternal session,
       @Nullable final EntityImpl entity,
       @Nonnull JsonParser jsonParser,
       @Nullable PropertyType type) throws IOException {
@@ -673,7 +709,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
           case BINARY -> {
             var text = jsonParser.getText();
             if (!text.isEmpty() && text.length() <= 3) {
-              yield PropertyType.convert(db, text, Byte.class);
+              yield PropertyType.convert(session, text, Byte.class);
             }
 
             yield Base64.getDecoder().decode(text);
@@ -690,7 +726,7 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
               yield text;
             }
           }
-          default -> PropertyType.convert(db, jsonParser.getText(), type.getDefaultJavaType());
+          default -> PropertyType.convert(session, jsonParser.getText(), type.getDefaultJavaType());
         };
       }
 
@@ -699,36 +735,36 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
       case VALUE_TRUE -> true;
 
       case START_ARRAY -> switch (type) {
-        case EMBEDDEDLIST -> parseEmbeddedList(db, entity, jsonParser);
-        case EMBEDDEDSET -> parseEmbeddedSet(db, entity, jsonParser);
+        case EMBEDDEDLIST -> parseEmbeddedList(session, entity, jsonParser);
+        case EMBEDDEDSET -> parseEmbeddedSet(session, entity, jsonParser);
 
         case LINKLIST -> parseLinkList(entity, jsonParser);
         case LINKSET -> parseLinkSet(entity, jsonParser);
         case LINKBAG -> parseLinkBag(entity, jsonParser);
 
-        case null -> parseEmbeddedList(db, entity, jsonParser);
+        case null -> parseEmbeddedList(session, entity, jsonParser);
 
-        default -> throw new SerializationException("Unexpected value type: " + type);
+        default -> throw new SerializationException(session, "Unexpected value type: " + type);
       };
 
       case START_OBJECT -> switch (type) {
-        case EMBEDDED -> parseEmbeddedEntity(db, jsonParser, null);
-        case EMBEDDEDMAP -> parseEmbeddedMap(db, entity, jsonParser, null);
+        case EMBEDDED -> parseEmbeddedEntity(session, jsonParser, null);
+        case EMBEDDEDMAP -> parseEmbeddedMap(session, entity, jsonParser, null);
         case LINKMAP -> parseLinkMap(entity, jsonParser);
-        case LINK -> recordFromJson(db, null, jsonParser);
+        case LINK -> recordFromJson(session, null, jsonParser);
 
         case null -> {
-          var recordMetaData = parseRecordMetadata(jsonParser, null,
+          var recordMetaData = parseRecordMetadata(session, jsonParser, null,
               EntityImpl.RECORD_TYPE);
 
           if (recordMetaData != null) {
             if (recordMetaData.recordId == null) {
               if (recordMetaData.className == null) {
-                yield parseEmbeddedEntity(db, jsonParser, recordMetaData);
+                yield parseEmbeddedEntity(session, jsonParser, recordMetaData);
               }
             }
 
-            yield createRecordFromJsonAfterMetadata(db, null, recordMetaData, jsonParser);
+            yield createRecordFromJsonAfterMetadata(session, null, recordMetaData, jsonParser);
           }
 
           //we have read the filed name already, so we need to read the value
@@ -740,16 +776,16 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
           var fieldName = jsonParser.currentName();
           jsonParser.nextToken();
 
-          var value = parseValue(db, null, jsonParser, null);
+          var value = parseValue(session, null, jsonParser, null);
           map.put(fieldName, value);
 
-          yield parseEmbeddedMap(db, entity, jsonParser, map);
+          yield parseEmbeddedMap(session, entity, jsonParser, map);
         }
 
-        default -> throw new SerializationException("Unexpected value type: " + type);
+        default -> throw new SerializationException(session, "Unexpected value type: " + type);
       };
 
-      default -> throw new SerializationException("Unexpected token: " + token);
+      default -> throw new SerializationException(session, "Unexpected token: " + token);
     };
   }
 
@@ -769,11 +805,11 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
       @Nonnull JsonParser jsonParser, @Nullable RecordMetaData metadata) throws IOException {
     var embedded = (EmbeddedEntityImpl) db.newEmbededEntity();
     if (metadata == null) {
-      metadata = parseRecordMetadata(jsonParser, null, EntityImpl.RECORD_TYPE);
+      metadata = parseRecordMetadata(db, jsonParser, null, EntityImpl.RECORD_TYPE);
 
       if (metadata == null) {
         metadata = new RecordMetaData(EntityImpl.RECORD_TYPE, null,
-            null, Collections.emptyMap());
+            null, Collections.emptyMap(), false);
       }
     }
 
@@ -858,13 +894,107 @@ public class RecordSerializerJackson extends RecordSerializerStringAbstract {
     return list;
   }
 
-  @Override
-  public String getName() {
-    return NAME;
+  private record RecordMetaData(byte recordType, RecordId recordId, String className,
+                                Map<String, String> fieldTypes, boolean internalRecord) {
+
   }
 
-  private record RecordMetaData(byte recordType, RecordId recordId, String className,
-                                Map<String, String> fieldTypes) {
+  public static class FormatSettings {
 
+    public boolean internalRecords;
+    public boolean includeVer;
+    public boolean includeType;
+    public boolean includeId;
+    public boolean includeClazz;
+    public boolean attribSameRow;
+    public boolean alwaysFetchEmbeddedDocuments;
+    public int indentLevel;
+    public String fetchPlan = null;
+    public boolean keepTypes = true;
+    public boolean dateAsLong = false;
+    public boolean prettyPrint = false;
+
+    public FormatSettings(final String stringFormat) {
+      if (stringFormat == null) {
+        includeType = true;
+        includeVer = true;
+        includeId = true;
+        includeClazz = true;
+        attribSameRow = true;
+        indentLevel = 0;
+        fetchPlan = "";
+        alwaysFetchEmbeddedDocuments = true;
+        internalRecords = false;
+      } else {
+        includeType = false;
+        includeVer = false;
+        includeId = false;
+        includeClazz = false;
+        attribSameRow = false;
+        alwaysFetchEmbeddedDocuments = false;
+        indentLevel = 0;
+        keepTypes = false;
+
+        if (!stringFormat.isEmpty()) {
+          final var format = stringFormat.split(",");
+          for (var f : format) {
+            if (f.equals("type")) {
+              includeType = true;
+            } else {
+              if (f.equals("rid")) {
+                includeId = true;
+              } else {
+                if (f.equals("version")) {
+                  includeVer = true;
+                } else {
+                  if (f.equals("class")) {
+                    includeClazz = true;
+                  } else {
+                    if (f.equals("attribSameRow")) {
+                      attribSameRow = true;
+                    } else {
+                      if (f.startsWith("indent")) {
+                        indentLevel = Integer.parseInt(f.substring(f.indexOf(':') + 1));
+                      } else {
+                        if (f.startsWith("fetchPlan")) {
+                          fetchPlan = f.substring(f.indexOf(':') + 1);
+                        } else {
+                          if (f.startsWith("keepTypes")) {
+                            keepTypes = true;
+                          } else {
+                            if (f.startsWith("alwaysFetchEmbedded")) {
+                              alwaysFetchEmbeddedDocuments = true;
+                            } else {
+                              if (f.startsWith("dateAsLong")) {
+                                dateAsLong = true;
+                              } else {
+                                if (f.startsWith("prettyPrint")) {
+                                  prettyPrint = true;
+                                }
+                                if (f.startsWith("internal")) {
+                                  internalRecords = true;
+                                } else {
+                                  if (f.startsWith("graph") || f.startsWith("shallow"))
+                                    // SUPPORTED IN OTHER PARTS
+                                    ;
+                                  else {
+                                    throw new IllegalArgumentException(
+                                        "Unrecognized JSON formatting option: " + f);
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }

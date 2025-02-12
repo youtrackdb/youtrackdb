@@ -15,8 +15,8 @@ public class TrackedSetTest extends DbTestBase {
 
   @Test
   public void testAddOne() {
-    db.begin();
-    final var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    final var doc = (EntityImpl) session.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -29,13 +29,13 @@ public class TrackedSetTest extends DbTestBase {
     Assert.assertEquals(event, trackedSet.getTimeLine().getMultiValueChangeEvents().get(0));
     Assert.assertTrue(trackedSet.isModified());
     Assert.assertTrue(doc.isDirty());
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testAddTwo() {
-    db.begin();
-    final var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    final var doc = (EntityImpl) session.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -43,13 +43,13 @@ public class TrackedSetTest extends DbTestBase {
     doc.setPropertyInternal("tracked", trackedSet);
     trackedSet.add("value1");
     Assert.assertTrue(doc.isDirty());
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testAddThree() {
-    db.begin();
-    final var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    final var doc = (EntityImpl) session.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -59,13 +59,13 @@ public class TrackedSetTest extends DbTestBase {
 
     Assert.assertFalse(trackedSet.isModified());
     Assert.assertFalse(doc.isDirty());
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testAddFour() {
-    db.begin();
-    final var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    final var doc = (EntityImpl) session.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -82,13 +82,13 @@ public class TrackedSetTest extends DbTestBase {
     trackedSet.add("value1");
     Assert.assertFalse(trackedSet.isModified());
     Assert.assertFalse(doc.isDirty());
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testRemoveNotificationOne() {
-    db.begin();
-    final var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    final var doc = (EntityImpl) session.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -108,13 +108,13 @@ public class TrackedSetTest extends DbTestBase {
     Assert.assertEquals(trackedSet.getTimeLine().getMultiValueChangeEvents().get(0), event);
     Assert.assertTrue(trackedSet.isModified());
     Assert.assertTrue(doc.isDirty());
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testRemoveNotificationTwo() {
-    db.begin();
-    final var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    final var doc = (EntityImpl) session.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -129,13 +129,13 @@ public class TrackedSetTest extends DbTestBase {
 
     trackedSet.remove("value2");
     Assert.assertTrue(doc.isDirty());
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testRemoveNotificationFour() {
-    db.begin();
-    final var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    final var doc = (EntityImpl) session.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -151,13 +151,13 @@ public class TrackedSetTest extends DbTestBase {
     trackedSet.remove("value5");
     Assert.assertFalse(trackedSet.isModified());
     Assert.assertFalse(doc.isDirty());
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testClearOne() {
-    db.begin();
-    final var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    final var doc = (EntityImpl) session.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -186,13 +186,13 @@ public class TrackedSetTest extends DbTestBase {
     Assert.assertEquals(firedEvents, trackedSet.getTimeLine().getMultiValueChangeEvents());
     Assert.assertTrue(trackedSet.isModified());
     Assert.assertTrue(doc.isDirty());
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testClearThree() {
-    db.begin();
-    final var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    final var doc = (EntityImpl) session.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -207,13 +207,13 @@ public class TrackedSetTest extends DbTestBase {
     trackedSet.clear();
 
     Assert.assertTrue(doc.isDirty());
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testReturnOriginalState() {
-    db.begin();
-    final var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    final var doc = (EntityImpl) session.newEntity();
 
     final var trackedSet = new TrackedSet<String>(doc);
     trackedSet.add("value1");
@@ -235,17 +235,17 @@ public class TrackedSetTest extends DbTestBase {
 
     Assert.assertEquals(
         original,
-        trackedSet.returnOriginalState(db,
+        trackedSet.returnOriginalState(session,
             (List) trackedSet.getTimeLine().getMultiValueChangeEvents()));
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testStackOverflowOnRecursion() {
-    db.begin();
-    final var doc = (EntityImpl) db.newEntity();
+    session.begin();
+    final var doc = (EntityImpl) session.newEntity();
     final var trackedSet = new TrackedSet<EntityImpl>(doc);
     trackedSet.add(doc);
-    db.rollback();
+    session.rollback();
   }
 }

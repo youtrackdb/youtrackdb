@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor.resultset;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.Iterator;
 
@@ -27,7 +27,7 @@ public class IteratorExecutionStream implements ExecutionStream {
     }
 
     ResultInternal result;
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     if (val instanceof Identifiable) {
       result = new ResultInternal(db, (Identifiable) val);
     } else {

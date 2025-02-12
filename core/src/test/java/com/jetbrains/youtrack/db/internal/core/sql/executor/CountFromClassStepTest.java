@@ -2,7 +2,6 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import org.junit.Assert;
 import org.junit.Test;
@@ -16,18 +15,18 @@ public class CountFromClassStepTest extends TestUtilsFixture {
 
   @Test
   public void shouldCountRecordsOfClass() {
-    var className = createClassInstance().getName();
+    var className = createClassInstance().getName(session);
     for (var i = 0; i < 20; i++) {
-      db.begin();
-      var document = (EntityImpl) db.newEntity(className);
+      session.begin();
+      var document = (EntityImpl) session.newEntity(className);
       document.save();
-      db.commit();
+      session.commit();
     }
 
     var classIdentifier = new SQLIdentifier(className);
 
     var context = new BasicCommandContext();
-    context.setDatabase(db);
+    context.setDatabaseSession(session);
     var step = new CountFromClassStep(classIdentifier, ALIAS, context, false);
 
     var result = step.start(context);

@@ -23,7 +23,6 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.b
 import com.jetbrains.youtrack.db.internal.core.sql.IndexSearchResult;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
-import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunction;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.IndexReuseType;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryTargetOperator;
 import com.jetbrains.youtrack.db.internal.lucene.operator.LuceneOperatorUtil;
@@ -64,7 +63,7 @@ public abstract class LuceneSpatialOperator extends QueryTargetOperator {
       CommandContext iContext,
       final EntitySerializer serializer) {
 
-    var function = SQLEngine.getInstance().getFunction(iContext.getDatabase(), keyword);
+    var function = SQLEngine.getInstance().getFunction(iContext.getDatabaseSession(), keyword);
     return function.execute(
         this, iRecord, iCurrentResult, new Object[]{iLeft, iCondition.getRight()}, iContext);
   }

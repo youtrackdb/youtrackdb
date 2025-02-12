@@ -4,18 +4,14 @@ import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.Direction;
-import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.metadata.Metadata;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
@@ -113,17 +109,17 @@ public class GraphRepair {
       final CommandOutputListener outputListener,
       final Map<String, List<String>> options,
       final boolean checkOnly) {
-    final var db = (DatabaseSessionInternal) graph;
-    db.executeInTx(
+    final var session = (DatabaseSessionInternal) graph;
+    session.executeInTx(
         () -> {
-          final Metadata metadata = db.getMetadata();
+          final Metadata metadata = session.getMetadata();
           final Schema schema = metadata.getSchema();
 
           final var useVertexFieldsForEdgeLabels = true; // db.isUseVertexFieldsForEdgeLabels();
 
           final var edgeClass = schema.getClass(SchemaClass.EDGE_CLASS_NAME);
           if (edgeClass != null) {
-            final var countEdges = db.countClass(edgeClass.getName());
+            final var countEdges = session.countClass(edgeClass.getName(session));
 
             var skipEdges = 0L;
             if (options != null && options.get("-skipEdges") != null) {
@@ -137,7 +133,7 @@ public class GraphRepair {
             var parsedEdges = 0L;
             final var beginTime = System.currentTimeMillis();
 
-            for (var edge : db.browseClass(edgeClass.getName())) {
+            for (var edge : session.browseClass(edgeClass.getName(session))) {
               if (!edge.isEdge()) {
                 continue;
               }
@@ -183,7 +179,7 @@ public class GraphRepair {
               } else {
                 EntityImpl outVertex;
                 try {
-                  outVertex = out.getRecord(db);
+                  outVertex = out.getRecord(session);
                 } catch (RecordNotFoundException e) {
                   outVertex = null;
                 }
@@ -227,7 +223,7 @@ public class GraphRepair {
 
                 EntityImpl inVertex;
                 try {
-                  inVertex = in.getRecord(db);
+                  inVertex = in.getRecord(session);
                 } catch (RecordNotFoundException e) {
                   inVertex = null;
                 }
@@ -297,19 +293,19 @@ public class GraphRepair {
   }
 
   protected void repairVertices(
-      final DatabaseSession graph,
+      final DatabaseSession session,
       final RepairStats stats,
       final CommandOutputListener outputListener,
       final Map<String, List<String>> options,
       final boolean checkOnly) {
-    final var db = (DatabaseSessionInternal) graph;
+    final var db = (DatabaseSessionInternal) session;
     final Metadata metadata = db.getMetadata();
     final Schema schema = metadata.getSchema();
 
     final var vertexClass = schema.getClass(SchemaClass.VERTEX_CLASS_NAME);
     if (vertexClass != null) {
-      final var countVertices = db.countClass(vertexClass.getName());
-      graph.executeInTx(
+      final var countVertices = db.countClass(vertexClass.getName(session));
+      session.executeInTx(
           () -> {
             var skipVertices = 0L;
             if (options != null && options.get("-skipVertices") != null) {
@@ -321,7 +317,7 @@ public class GraphRepair {
             var parsedVertices = new long[]{0L};
             final var beginTime = System.currentTimeMillis();
 
-            for (var vertex : db.browseClass(vertexClass.getName())) {
+            for (var vertex : db.browseClass(vertexClass.getName(session))) {
               parsedVertices[0]++;
               if (skipVertices > 0 && parsedVertices[0] <= skipVertices) {
                 continue;
@@ -360,7 +356,7 @@ public class GraphRepair {
 
               for (var fieldName : vertex.fieldNames()) {
                 final var connection =
-                    VertexInternal.getConnection(
+                    VertexInternal.getConnection(db,
                         db.getMetadata().getSchema(), Direction.BOTH, fieldName);
                 if (connection == null) {
                   continue;
@@ -497,7 +493,7 @@ public class GraphRepair {
   }
 
   private boolean isEdgeBroken(
-      DatabaseSessionInternal db, final Identifiable vertex,
+      DatabaseSessionInternal session, final Identifiable vertex,
       final String fieldName,
       final Direction direction,
       final Identifiable edgeRID,
@@ -514,7 +510,7 @@ public class GraphRepair {
     } else {
       EntityImpl record = null;
       try {
-        record = edgeRID.getIdentity().getRecord(db);
+        record = edgeRID.getIdentity().getRecord(session);
       } catch (RecordNotFoundException e) {
         broken = true;
       }
@@ -527,12 +523,12 @@ public class GraphRepair {
         final var immutableClass = EntityInternalUtils.getImmutableSchemaClass(
             record);
         if (immutableClass == null
-            || (!immutableClass.isVertexType() && !immutableClass.isEdgeType()))
+            || (!immutableClass.isVertexType(session) && !immutableClass.isEdgeType(session)))
         // INVALID RECORD TYPE: NULL OR NOT GRAPH TYPE
         {
           broken = true;
         } else {
-          if (immutableClass.isVertexType()) {
+          if (immutableClass.isVertexType(session)) {
             // VERTEX -> LIGHTWEIGHT EDGE
             final var inverseFieldName =
                 getInverseConnectionFieldName(fieldName, useVertexFieldsForEdgeLabels);

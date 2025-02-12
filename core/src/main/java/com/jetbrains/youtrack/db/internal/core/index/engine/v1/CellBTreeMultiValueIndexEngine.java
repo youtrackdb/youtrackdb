@@ -102,6 +102,7 @@ public final class CellBTreeMultiValueIndexEngine
   public void create(AtomicOperation atomicOperation, IndexEngineData data) throws IOException {
 
     BinarySerializer keySerializer = storage.resolveObjectSerializer(data.getKeySerializedId());
+    var serializerFactory = storage.getComponentsFactory().binarySerializerFactory;
 
     try {
       if (mvTree != null) {
@@ -124,7 +125,8 @@ public final class CellBTreeMultiValueIndexEngine
       }
     } catch (IOException e) {
       throw BaseException.wrapException(
-          new IndexException("Error during creation of index " + name), e);
+          new IndexException(storage.getName(), "Error during creation of index " + name), e,
+          storage.getName());
     }
   }
 
@@ -144,7 +146,8 @@ public final class CellBTreeMultiValueIndexEngine
       }
     } catch (IOException e) {
       throw BaseException.wrapException(
-          new IndexException("Error during deletion of index " + name), e);
+          new IndexException(storage.getName(), "Error during deletion of index " + name), e,
+          storage.getName());
     }
   }
 
@@ -162,7 +165,9 @@ public final class CellBTreeMultiValueIndexEngine
               mvTree.remove(atomicOperation, pair.first, pair.second);
             } catch (IOException e) {
               throw BaseException.wrapException(
-                  new IndexException("Error during cleaning of index " + name), e);
+                  new IndexException(storage.getName(), "Error during cleaning of index " + name),
+                  e,
+                  storage.getName());
             }
           });
     }
@@ -174,7 +179,8 @@ public final class CellBTreeMultiValueIndexEngine
               mvTree.remove(atomicOperation, null, rid);
             } catch (final IOException e) {
               throw BaseException.wrapException(
-                  new StorageException("Error during cleaning of index " + name), e);
+                  new StorageException(null, "Error during cleaning of index " + name), e,
+                  storage.getName());
             }
           });
     }
@@ -196,7 +202,8 @@ public final class CellBTreeMultiValueIndexEngine
                 svTree.remove(atomicOperation, pair.first);
               } catch (IOException e) {
                 throw BaseException.wrapException(
-                    new IndexException("Error during index cleaning"), e);
+                    new IndexException(storage.getName(), "Error during index cleaning"), e,
+                    storage.getName());
               }
             });
       }
@@ -215,7 +222,8 @@ public final class CellBTreeMultiValueIndexEngine
                   nullTree.remove(atomicOperation, pair.first);
                 } catch (IOException e) {
                   throw BaseException.wrapException(
-                      new IndexException("Error during index cleaning"), e);
+                      new IndexException(storage.getName(), "Error during index cleaning"), e,
+                      storage.getName());
                 }
               });
         }
@@ -230,6 +238,7 @@ public final class CellBTreeMultiValueIndexEngine
     var keySize = data.getKeySize();
     var keyTypes = data.getKeyTypes();
     BinarySerializer keySerializer = storage.resolveObjectSerializer(data.getKeySerializedId());
+    var serializerFactory = storage.getComponentsFactory().binarySerializerFactory;
 
     if (mvTree != null) {
       //noinspection unchecked
@@ -268,9 +277,9 @@ public final class CellBTreeMultiValueIndexEngine
                     removed[0] = result || removed[0];
                   } catch (final IOException e) {
                     throw BaseException.wrapException(
-                        new IndexException(
+                        new IndexException(storage.getName(),
                             "Error during remove of entry (" + key + ", " + value + ")"),
-                        e);
+                        e, storage.getName());
                   }
                 });
           }
@@ -283,14 +292,14 @@ public final class CellBTreeMultiValueIndexEngine
       }
     } catch (IOException e) {
       throw BaseException.wrapException(
-          new IndexException(
+          new IndexException(storage.getName(),
               "Error during removal of entry with key "
                   + key
                   + "and RID "
                   + value
                   + " from index "
                   + name),
-          e);
+          e, storage.getName());
     }
   }
 
@@ -410,9 +419,9 @@ public final class CellBTreeMultiValueIndexEngine
         mvTree.put(atomicOperation, key, value);
       } catch (IOException e) {
         throw BaseException.wrapException(
-            new IndexException(
+            new IndexException(storage.getName(),
                 "Error during insertion of key " + key + " and RID " + value + " to index " + name),
-            e);
+            e, storage.getName());
       }
     } else if (key != null) {
       assert svTree != null;
@@ -420,9 +429,9 @@ public final class CellBTreeMultiValueIndexEngine
         svTree.put(atomicOperation, createCompositeKey(key, value), value);
       } catch (IOException e) {
         throw BaseException.wrapException(
-            new IndexException(
+            new IndexException(storage.getName(),
                 "Error during insertion of key " + key + " and RID " + value + " to index " + name),
-            e);
+            e, storage.getName());
       }
     } else {
       assert nullTree != null;
@@ -430,9 +439,9 @@ public final class CellBTreeMultiValueIndexEngine
         nullTree.put(atomicOperation, value, value);
       } catch (IOException e) {
         throw BaseException.wrapException(
-            new IndexException(
+            new IndexException(storage.getName(),
                 "Error during insertion of null key and RID " + value + " to index " + name),
-            e);
+            e, storage.getName());
       }
     }
   }
@@ -616,7 +625,7 @@ public final class CellBTreeMultiValueIndexEngine
 
     final Object key;
     if (keys.size() == 2) {
-      key = keys.get(0);
+      key = keys.getFirst();
     } else {
       key = new CompositeKey(keys.subList(0, keys.size() - 1));
     }

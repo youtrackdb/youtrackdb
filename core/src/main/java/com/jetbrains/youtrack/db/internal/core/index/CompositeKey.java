@@ -36,7 +36,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
@@ -242,7 +241,8 @@ public class CompositeKey
     out.writeInt(l);
     for (var key : keys) {
       if (key instanceof CompositeKey) {
-        throw new SerializationException("Cannot serialize unflattened nested composite key.");
+        throw new SerializationException(db.getDatabaseName(),
+            "Cannot serialize unflattened nested composite key.");
       }
       if (key == null) {
         out.writeByte((byte) -1);

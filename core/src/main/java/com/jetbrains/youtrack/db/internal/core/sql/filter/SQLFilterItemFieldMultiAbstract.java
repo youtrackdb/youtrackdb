@@ -49,7 +49,7 @@ public abstract class SQLFilterItemFieldMultiAbstract extends SQLFilterItemAbstr
     clazz = iClass;
 
     for (var n : iNames) {
-      collates.add(getCollateForField(iClass, n));
+      collates.add(getCollateForField(session, iClass, n));
     }
   }
 
@@ -60,16 +60,18 @@ public abstract class SQLFilterItemFieldMultiAbstract extends SQLFilterItemAbstr
     if (names.size() == 1) {
       return transformValue(
           iRecord, iContext,
-          EntityHelper.getIdentifiableValue(iContext.getDatabase(), iRecord, names.getFirst()));
+          EntityHelper.getIdentifiableValue(iContext.getDatabaseSession(), iRecord,
+              names.getFirst()));
     }
 
     final var fieldNames = entity.fieldNames();
     final var values = new Object[fieldNames.length];
 
     collates.clear();
+    var db = iContext.getDatabaseSession();
     for (var i = 0; i < values.length; ++i) {
       values[i] = entity.field(fieldNames[i]);
-      collates.add(getCollateForField(clazz, fieldNames[i]));
+      collates.add(getCollateForField(db, clazz, fieldNames[i]));
     }
 
     if (hasChainOperators()) {

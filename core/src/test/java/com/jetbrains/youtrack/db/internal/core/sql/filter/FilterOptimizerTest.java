@@ -14,7 +14,7 @@ public class FilterOptimizerTest extends DbTestBase {
   @Test
   public void testOptimizeFullOptimization() {
     var context = new BasicCommandContext();
-    context.setDatabase(db);
+    context.setDatabaseSession(session);
 
     final var filter = SQLEngine.parseCondition("a = 3", context,
         "WHERE");
@@ -35,7 +35,7 @@ public class FilterOptimizerTest extends DbTestBase {
   @Test
   public void testOptimizeFullOptimizationComplex() {
     var context = new BasicCommandContext();
-    context.setDatabase(db);
+    context.setDatabaseSession(session);
 
     final var filter =
         SQLEngine.parseCondition("a = 3 and b = 4", context, "WHERE");
@@ -69,7 +69,7 @@ public class FilterOptimizerTest extends DbTestBase {
   @Test
   public void testOptimizePartialOptimization() {
     var context = new BasicCommandContext();
-    context.setDatabase(db);
+    context.setDatabaseSession(session);
 
     final var filter =
         SQLEngine.parseCondition("a = 3 and b > 5", context, "WHERE");
@@ -91,7 +91,7 @@ public class FilterOptimizerTest extends DbTestBase {
   @Test
   public void testOptimizePartialOptimizationMethod() {
     var context = new BasicCommandContext();
-    context.setDatabase(db);
+    context.setDatabaseSession(session);
 
     final var filter =
         SQLEngine.parseCondition("a = 3 and b.asFloat() > 3.14", context,

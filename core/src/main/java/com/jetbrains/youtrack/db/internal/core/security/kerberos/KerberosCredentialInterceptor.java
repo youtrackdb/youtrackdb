@@ -26,7 +26,6 @@ import com.jetbrains.youtrack.db.api.exception.SecurityException;
 import com.jetbrains.youtrack.db.internal.core.security.CredentialInterceptor;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.Principal;
 import java.security.PrivilegedAction;
 import java.util.Base64;
 import javax.security.auth.Subject;
@@ -97,9 +96,9 @@ public class KerberosCredentialInterceptor implements CredentialInterceptor {
         actualSPN = "YouTrackDB/" + host;
       } catch (URISyntaxException ex) {
         throw BaseException.wrapException(
-            new SecurityException(
+            new SecurityException(url,
                 "KerberosCredentialInterceptor Could not create SPN from URL: " + url),
-            ex);
+            ex, url);
       }
     }
 
@@ -125,10 +124,10 @@ public class KerberosCredentialInterceptor implements CredentialInterceptor {
     }
 
     if (config == null) {
-      throw new SecurityException("KerberosCredentialInterceptor KRB5 Config cannot be null!");
+      throw new SecurityException(url, "KerberosCredentialInterceptor KRB5 Config cannot be null!");
     }
     if (ccname == null && ktname == null) {
-      throw new SecurityException(
+      throw new SecurityException(url,
           "KerberosCredentialInterceptor KRB5 Credential Cache and KeyTab cannot both be null!");
     }
 
@@ -146,8 +145,8 @@ public class KerberosCredentialInterceptor implements CredentialInterceptor {
       LogManager.instance().debug(this, "intercept() LoginException", lie);
 
       throw BaseException.wrapException(
-          new SecurityException("KerberosCredentialInterceptor Client Validation Exception!"),
-          lie);
+          new SecurityException(url, "KerberosCredentialInterceptor Client Validation Exception!"),
+          lie, url);
     }
 
     var subject = lc.getSubject();
@@ -167,20 +166,9 @@ public class KerberosCredentialInterceptor implements CredentialInterceptor {
     }
 
     if (this.serviceTicket == null) {
-      throw new SecurityException(
+      throw new SecurityException(url,
           "KerberosCredentialInterceptor Cannot obtain the service ticket!");
     }
-  }
-
-  private String getFirstPrincipal(Subject subject) {
-    if (subject != null) {
-      final var principals = subject.getPrincipals().toArray();
-      final var p = (Principal) principals[0];
-
-      return p.getName();
-    }
-
-    return null;
   }
 
   private String getServiceTicket(

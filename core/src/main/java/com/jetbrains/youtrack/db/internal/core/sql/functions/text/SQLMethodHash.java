@@ -16,9 +16,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.functions.text;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityManager;
 import com.jetbrains.youtrack.db.internal.core.sql.method.misc.AbstractSQLMethod;
 import java.io.UnsupportedEncodingException;
@@ -58,11 +58,13 @@ public class SQLMethodHash extends AbstractSQLMethod {
 
     } catch (NoSuchAlgorithmException e) {
       throw BaseException.wrapException(
-          new CommandExecutionException("hash(): algorithm '" + algorithm + "' is not supported"),
-          e);
+          new CommandExecutionException(iContext.getDatabaseSession(),
+              "hash(): algorithm '" + algorithm + "' is not supported"),
+          e, iContext.getDatabaseSession());
     } catch (UnsupportedEncodingException e) {
       throw BaseException.wrapException(
-          new CommandExecutionException("hash(): encoding 'UTF-8' is not supported"), e);
+          new CommandExecutionException(iContext.getDatabaseSession(),
+              "hash(): encoding 'UTF-8' is not supported"), e, iContext.getDatabaseSession());
     }
   }
 }

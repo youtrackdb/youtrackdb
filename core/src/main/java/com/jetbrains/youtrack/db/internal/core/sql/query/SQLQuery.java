@@ -25,9 +25,7 @@ import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.query.QueryAbstract;
 import com.jetbrains.youtrack.db.internal.core.serialization.MemoryStream;
@@ -38,7 +36,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -61,16 +58,11 @@ public abstract class SQLQuery<T> extends QueryAbstract<T> implements CommandReq
    * Delegates to the OQueryExecutor the query execution.
    */
   @SuppressWarnings("unchecked")
-  public List<T> run(final Object... iArgs) {
-    final var database = DatabaseRecordThreadLocal.instance().get();
-    if (database == null) {
-      throw new QueryParsingException("No database configured");
-    }
-
-    database.getMetadata().makeThreadLocalSchemaSnapshot();
+  public List<T> run(DatabaseSessionInternal session, final Object... iArgs) {
+    session.getMetadata().makeThreadLocalSchemaSnapshot();
     try {
       setParameters(iArgs);
-      var o = database.getStorage().command(database, this);
+      var o = session.getStorage().command(session, this);
       if (o instanceof List) {
         return (List<T>) o;
       } else {
@@ -78,7 +70,7 @@ public abstract class SQLQuery<T> extends QueryAbstract<T> implements CommandReq
       }
 
     } finally {
-      database.getMetadata().clearThreadLocalSchemaSnapshot();
+      session.getMetadata().clearThreadLocalSchemaSnapshot();
     }
   }
 

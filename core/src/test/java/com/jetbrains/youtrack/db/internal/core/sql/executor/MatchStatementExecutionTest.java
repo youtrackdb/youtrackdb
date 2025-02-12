@@ -33,22 +33,22 @@ public class MatchStatementExecutionTest extends DbTestBase {
     super.beforeTest();
     getProfilerInstance().startRecording();
 
-    db.command("CREATE class Person extends V").close();
-    db.command("CREATE class Friend extends E").close();
+    session.command("CREATE class Person extends V").close();
+    session.command("CREATE class Friend extends E").close();
 
-    db.begin();
-    db.command("CREATE VERTEX Person set name = 'n1'").close();
-    db.command("CREATE VERTEX Person set name = 'n2'").close();
-    db.command("CREATE VERTEX Person set name = 'n3'").close();
-    db.command("CREATE VERTEX Person set name = 'n4'").close();
-    db.command("CREATE VERTEX Person set name = 'n5'").close();
-    db.command("CREATE VERTEX Person set name = 'n6'").close();
+    session.begin();
+    session.command("CREATE VERTEX Person set name = 'n1'").close();
+    session.command("CREATE VERTEX Person set name = 'n2'").close();
+    session.command("CREATE VERTEX Person set name = 'n3'").close();
+    session.command("CREATE VERTEX Person set name = 'n4'").close();
+    session.command("CREATE VERTEX Person set name = 'n5'").close();
+    session.command("CREATE VERTEX Person set name = 'n6'").close();
 
     var friendList =
         new String[][]{{"n1", "n2"}, {"n1", "n3"}, {"n2", "n4"}, {"n4", "n5"}, {"n4", "n6"}};
 
     for (var pair : friendList) {
-      db.command(
+      session.command(
               "CREATE EDGE Friend from (select from Person where name = ?) to (select from Person"
                   + " where name = ?)",
               pair[0],
@@ -56,14 +56,14 @@ public class MatchStatementExecutionTest extends DbTestBase {
           .close();
     }
 
-    db.commit();
+    session.commit();
 
-    db.command("CREATE class MathOp extends V").close();
+    session.command("CREATE class MathOp extends V").close();
 
-    db.begin();
-    db.command("CREATE VERTEX MathOp set a = 1, b = 3, c = 2").close();
-    db.command("CREATE VERTEX MathOp set a = 5, b = 3, c = 2").close();
-    db.commit();
+    session.begin();
+    session.command("CREATE VERTEX MathOp set a = 1, b = 3, c = 2").close();
+    session.command("CREATE VERTEX MathOp set a = 5, b = 3, c = 2").close();
+    session.commit();
 
     initOrgChart();
 
@@ -75,27 +75,27 @@ public class MatchStatementExecutionTest extends DbTestBase {
   }
 
   private void initEdgeIndexTest() {
-    db.command("CREATE class IndexedVertex extends V").close();
-    db.command("CREATE property IndexedVertex.uid INTEGER").close();
-    db.command("CREATE index IndexedVertex_uid on IndexedVertex (uid) NOTUNIQUE").close();
+    session.command("CREATE class IndexedVertex extends V").close();
+    session.command("CREATE property IndexedVertex.uid INTEGER").close();
+    session.command("CREATE index IndexedVertex_uid on IndexedVertex (uid) NOTUNIQUE").close();
 
-    db.command("CREATE class IndexedEdge extends E").close();
-    db.command("CREATE property IndexedEdge.out LINK").close();
-    db.command("CREATE property IndexedEdge.in LINK").close();
-    db.command("CREATE index IndexedEdge_out_in on IndexedEdge (out, in) NOTUNIQUE").close();
+    session.command("CREATE class IndexedEdge extends E").close();
+    session.command("CREATE property IndexedEdge.out LINK").close();
+    session.command("CREATE property IndexedEdge.in LINK").close();
+    session.command("CREATE index IndexedEdge_out_in on IndexedEdge (out, in) NOTUNIQUE").close();
 
     var nodes = 1000;
     for (var i = 0; i < nodes; i++) {
-      db.begin();
-      var doc = db.newEntity("IndexedVertex");
+      session.begin();
+      var doc = session.newEntity("IndexedVertex");
       doc.setProperty("uid", i);
       doc.save();
-      db.commit();
+      session.commit();
     }
 
-    db.begin();
+    session.begin();
     for (var i = 0; i < 100; i++) {
-      db.command(
+      session.command(
               "CREATE EDGE IndexedEDGE FROM (SELECT FROM IndexedVertex WHERE uid = 0) TO (SELECT"
                   + " FROM IndexedVertex WHERE uid > "
                   + (i * nodes / 100)
@@ -106,7 +106,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     }
 
     for (var i = 0; i < 100; i++) {
-      db.command(
+      session.command(
               "CREATE EDGE IndexedEDGE FROM (SELECT FROM IndexedVertex WHERE uid > "
                   + ((i * nodes / 100) + 1)
                   + " and uid < "
@@ -114,7 +114,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
                   + ") TO (SELECT FROM IndexedVertex WHERE uid = 1)")
           .close();
     }
-    db.commit();
+    session.commit();
   }
 
   private void initOrgChart() {
@@ -146,11 +146,11 @@ public class MatchStatementExecutionTest extends DbTestBase {
     // p12 works at department 9, this department has no direct manager, so p12's manager is c (the
     // upper manager)
 
-    db.command("CREATE class Employee extends V").close();
-    db.command("CREATE class Department extends V").close();
-    db.command("CREATE class ParentDepartment extends E").close();
-    db.command("CREATE class WorksAt extends E").close();
-    db.command("CREATE class ManagerOf extends E").close();
+    session.command("CREATE class Employee extends V").close();
+    session.command("CREATE class Department extends V").close();
+    session.command("CREATE class ParentDepartment extends E").close();
+    session.command("CREATE class WorksAt extends E").close();
+    session.command("CREATE class ManagerOf extends E").close();
 
     var deptHierarchy = new int[10][];
     deptHierarchy[0] = new int[]{1, 2};
@@ -178,15 +178,15 @@ public class MatchStatementExecutionTest extends DbTestBase {
     employees[8] = new String[]{"p11"};
     employees[9] = new String[]{"p12", "p13"};
 
-    db.begin();
+    session.begin();
     for (var i = 0; i < deptHierarchy.length; i++) {
-      db.command("CREATE VERTEX Department set name = 'department" + i + "' ").close();
+      session.command("CREATE VERTEX Department set name = 'department" + i + "' ").close();
     }
 
     for (var parent = 0; parent < deptHierarchy.length; parent++) {
       var children = deptHierarchy[parent];
       for (var child : children) {
-        db.command(
+        session.command(
                 "CREATE EDGE ParentDepartment from (select from Department where name = 'department"
                     + child
                     + "') to (select from Department where name = 'department"
@@ -199,9 +199,9 @@ public class MatchStatementExecutionTest extends DbTestBase {
     for (var dept = 0; dept < deptManagers.length; dept++) {
       var manager = deptManagers[dept];
       if (manager != null) {
-        db.command("CREATE Vertex Employee set name = '" + manager + "' ").close();
+        session.command("CREATE Vertex Employee set name = '" + manager + "' ").close();
 
-        db.command(
+        session.command(
                 "CREATE EDGE ManagerOf from (select from Employee where name = '"
                     + manager
                     + "') to (select from Department where name = 'department"
@@ -214,9 +214,9 @@ public class MatchStatementExecutionTest extends DbTestBase {
     for (var dept = 0; dept < employees.length; dept++) {
       var employeesForDept = employees[dept];
       for (var employee : employeesForDept) {
-        db.command("CREATE Vertex Employee set name = '" + employee + "' ").close();
+        session.command("CREATE Vertex Employee set name = '" + employee + "' ").close();
 
-        db.command(
+        session.command(
                 "CREATE EDGE WorksAt from (select from Employee where name = '"
                     + employee
                     + "') to (select from Department where name = 'department"
@@ -225,63 +225,63 @@ public class MatchStatementExecutionTest extends DbTestBase {
             .close();
       }
     }
-    db.commit();
+    session.commit();
   }
 
   private void initTriangleTest() {
-    db.command("CREATE class TriangleV extends V").close();
-    db.command("CREATE property TriangleV.uid INTEGER").close();
-    db.command("CREATE index TriangleV_uid on TriangleV (uid) UNIQUE").close();
-    db.command("CREATE class TriangleE extends E").close();
+    session.command("CREATE class TriangleV extends V").close();
+    session.command("CREATE property TriangleV.uid INTEGER").close();
+    session.command("CREATE index TriangleV_uid on TriangleV (uid) UNIQUE").close();
+    session.command("CREATE class TriangleE extends E").close();
 
-    db.begin();
+    session.begin();
     for (var i = 0; i < 10; i++) {
-      db.command("CREATE VERTEX TriangleV set uid = ?", i).close();
+      session.command("CREATE VERTEX TriangleV set uid = ?", i).close();
     }
     var edges = new int[][]{
         {0, 1}, {0, 2}, {1, 2}, {1, 3}, {2, 4}, {3, 4}, {3, 5}, {4, 0}, {4, 7}, {6, 7}, {7, 8},
         {7, 9}, {8, 9}, {9, 1}, {8, 3}, {8, 4}
     };
     for (var edge : edges) {
-      db.command(
+      session.command(
               "CREATE EDGE TriangleE from (select from TriangleV where uid = ?) to (select from"
                   + " TriangleV where uid = ?)",
               edge[0],
               edge[1])
           .close();
     }
-    db.commit();
+    session.commit();
   }
 
   private void initDiamondTest() {
-    db.command("CREATE class DiamondV extends V").close();
-    db.command("CREATE class DiamondE extends E").close();
+    session.command("CREATE class DiamondV extends V").close();
+    session.command("CREATE class DiamondE extends E").close();
 
-    db.begin();
+    session.begin();
     for (var i = 0; i < 4; i++) {
-      db.command("CREATE VERTEX DiamondV set uid = ?", i).close();
+      session.command("CREATE VERTEX DiamondV set uid = ?", i).close();
     }
     var edges = new int[][]{{0, 1}, {0, 2}, {1, 3}, {2, 3}};
     for (var edge : edges) {
-      db.command(
+      session.command(
               "CREATE EDGE DiamondE from (select from DiamondV where uid = ?) to (select from"
                   + " DiamondV where uid = ?)",
               edge[0],
               edge[1])
           .close();
     }
-    db.commit();
+    session.commit();
   }
 
   @Test
   public void testSimple() throws Exception {
     var qResult = collect(
-        db.command("match {class:Person, as: person} return person"));
+        session.command("match {class:Person, as: person} return person"));
     assertEquals(6, qResult.size());
     for (var doc : qResult) {
       assertEquals(1, doc.getPropertyNames().size());
       Identifiable personId = doc.getProperty("person");
-      EntityImpl person = personId.getRecord(db);
+      EntityImpl person = personId.getRecord(session);
       String name = person.getProperty("name");
       assertTrue(!name.isEmpty() && name.charAt(0) == 'n');
     }
@@ -291,7 +291,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testSimpleWhere() throws Exception {
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "match {class:Person, as: person, where: (name = 'n1' or name = 'n2')} return"
                     + " person"));
 
@@ -299,7 +299,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     for (var doc : qResult) {
       assertEquals(1, doc.getPropertyNames().size());
       Identifiable personId = doc.getProperty("person");
-      EntityImpl person = personId.getRecord(db);
+      EntityImpl person = personId.getRecord(session);
       String name = person.getProperty("name");
       assertTrue(name.equals("n1") || name.equals("n2"));
     }
@@ -309,7 +309,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testSimpleLimit() throws Exception {
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "match {class:Person, as: person, where: (name = 'n1' or name = 'n2')} return"
                     + " person limit 1"));
 
@@ -320,7 +320,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testSimpleLimit2() throws Exception {
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "match {class:Person, as: person, where: (name = 'n1' or name = 'n2')} return"
                     + " person limit -1"));
 
@@ -331,7 +331,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testSimpleLimit3() throws Exception {
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "match {class:Person, as: person, where: (name = 'n1' or name = 'n2')} return"
                     + " person limit 3"));
 
@@ -342,7 +342,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testSimpleUnnamedParams() throws Exception {
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "match {class:Person, as: person, where: (name = ? or name = ?)} return person",
                 "n1",
                 "n2"));
@@ -351,7 +351,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     for (var doc : qResult) {
       assertEquals(1, doc.getPropertyNames().size());
       Identifiable personId = doc.getProperty("person");
-      EntityImpl person = personId.getRecord(db);
+      EntityImpl person = personId.getRecord(session);
       String name = person.getProperty("name");
       assertTrue(name.equals("n1") || name.equals("n2"));
     }
@@ -361,7 +361,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testCommonFriends() {
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name"
                     + " = 'n4')} return $matches)"));
@@ -373,7 +373,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testCommonFriendsArrows() {
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}-Friend-{as:friend}-Friend-{class: Person, where:(name = 'n4')}"
                     + " return $matches)"));
@@ -386,7 +386,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "match {class:Person, where:(name ="
                     + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name"
                     + " = 'n4')} return friend.name as name"));
@@ -398,7 +398,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testCommonFriends2Arrows() {
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "match {class:Person, where:(name = 'n1')}-Friend-{as:friend}-Friend-{class:"
                     + " Person, where:(name = 'n4')} return friend.name as name"));
     assertEquals(1, qResult.size());
@@ -409,7 +409,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testReturnMethod() {
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "match {class:Person, where:(name ="
                     + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name"
                     + " = 'n4')} return friend.name.toUpperCase(Locale.ENGLISH) as name"));
@@ -421,7 +421,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testReturnMethodArrows() {
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "match {class:Person, where:(name = 'n1')}-Friend-{as:friend}-Friend-{class:"
                     + " Person, where:(name = 'n4')} return friend.name.toUpperCase(Locale.ENGLISH)"
                     + " as name"));
@@ -433,7 +433,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testReturnExpression() {
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "match {class:Person, where:(name ="
                     + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name"
                     + " = 'n4')} return friend.name + ' ' +friend.name as name"));
@@ -445,7 +445,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testReturnExpressionArrows() {
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "match {class:Person, where:(name = 'n1')}-Friend-{as:friend}-Friend-{class:"
                     + " Person, where:(name = 'n4')} return friend.name + ' ' +friend.name as"
                     + " name"));
@@ -457,7 +457,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testReturnDefaultAlias() throws Exception {
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "match {class:Person, where:(name ="
                     + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name"
                     + " = 'n4')} return friend.name"));
@@ -469,7 +469,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testReturnDefaultAliasArrows() throws Exception {
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "match {class:Person, where:(name = 'n1')}-Friend-{as:friend}-Friend-{class:"
                     + " Person, where:(name = 'n4')} return friend.name"));
     assertEquals(1, qResult.size());
@@ -481,7 +481,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}.out('Friend').out('Friend'){as:friend} return $matches)"));
     assertEquals(1, qResult.size());
@@ -493,7 +493,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}-Friend->{}-Friend->{as:friend} return $matches)"));
     assertEquals(1, qResult.size());
@@ -505,7 +505,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name = 'n1'), as:"
                     + " me}.both('Friend').both('Friend'){as:friend, where: ($matched.me !="
                     + " $currentMatch)} return $matches)"));
@@ -520,7 +520,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name = 'n1'), as:"
                     + " me}-Friend-{}-Friend-{as:friend, where: ($matched.me != $currentMatch)}"
                     + " return $matches)"));
@@ -535,7 +535,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name = 'n1' and 1 + 1"
                     + " = 2)}.out('Friend'){as:friend, where:(name = 'n2' and 1 + 1 = 2)} return"
                     + " friend)"));
@@ -548,7 +548,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name = 'n1' and 1 + 1"
                     + " = 2)}-Friend->{as:friend, where:(name = 'n2' and 1 + 1 = 2)} return"
                     + " friend)"));
@@ -561,14 +561,14 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}.out('Friend'){as:friend, while: ($depth < 1)} return friend)"));
     assertEquals(3, qResult.size());
 
     qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}.out('Friend'){as:friend, while: ($depth < 2), where: ($depth=1) }"
                     + " return friend)"));
@@ -576,7 +576,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}.out('Friend'){as:friend, while: ($depth < 4), where: ($depth=1) }"
                     + " return friend)"));
@@ -584,21 +584,21 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}.out('Friend'){as:friend, while: (true) } return friend)"));
     assertEquals(6, qResult.size());
 
     qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}.out('Friend'){as:friend, while: (true) } return friend limit 3)"));
     assertEquals(3, qResult.size());
 
     qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}.out('Friend'){as:friend, while: (true) } return friend) limit 3"));
     assertEquals(3, qResult.size());
@@ -609,14 +609,14 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}-Friend->{as:friend, while: ($depth < 1)} return friend)"));
     assertEquals(3, qResult.size());
 
     qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}-Friend->{as:friend, while: ($depth < 2), where: ($depth=1) } return"
                     + " friend)"));
@@ -624,7 +624,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}-Friend->{as:friend, while: ($depth < 4), where: ($depth=1) } return"
                     + " friend)"));
@@ -632,7 +632,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}-Friend->{as:friend, while: (true) } return friend)"));
     assertEquals(6, qResult.size());
@@ -642,7 +642,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testMaxDepth() throws Exception {
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}.out('Friend'){as:friend, maxDepth: 1, where: ($depth=1) } return"
                     + " friend)"));
@@ -650,21 +650,21 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}.out('Friend'){as:friend, maxDepth: 1 } return friend)"));
     assertEquals(3, qResult.size());
 
     qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}.out('Friend'){as:friend, maxDepth: 0 } return friend)"));
     assertEquals(1, qResult.size());
 
     qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}.out('Friend'){as:friend, maxDepth: 1, where: ($depth > 0) } return"
                     + " friend)"));
@@ -675,7 +675,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testMaxDepthArrow() throws Exception {
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}-Friend->{as:friend, maxDepth: 1, where: ($depth=1) } return"
                     + " friend)"));
@@ -683,21 +683,21 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}-Friend->{as:friend, maxDepth: 1 } return friend)"));
     assertEquals(3, qResult.size());
 
     qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}-Friend->{as:friend, maxDepth: 0 } return friend)"));
     assertEquals(1, qResult.size());
 
     qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
                     + " 'n1')}-Friend->{as:friend, maxDepth: 1, where: ($depth > 0) } return"
                     + " friend)"));
@@ -734,9 +734,9 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  return manager"
             + ")";
 
-    var qResult = collectIdentifiable(db.command(query));
+    var qResult = collectIdentifiable(session.command(query));
     assertEquals(1, qResult.size());
-    return qResult.getFirst().getRecord(db);
+    return qResult.getFirst().getRecord(session);
   }
 
   private EntityImpl getManagerArrows(String personName) {
@@ -752,9 +752,9 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  return manager"
             + ")";
 
-    var qResult = collectIdentifiable(db.command(query));
+    var qResult = collectIdentifiable(session.command(query));
     assertEquals(1, qResult.size());
-    return qResult.getFirst().getRecord(db);
+    return qResult.getFirst().getRecord(session);
   }
 
   @Test
@@ -788,9 +788,9 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  return manager"
             + ")";
 
-    var qResult = collectIdentifiable(db.command(query));
+    var qResult = collectIdentifiable(session.command(query));
     assertEquals(1, qResult.size());
-    return qResult.getFirst().getRecord(db);
+    return qResult.getFirst().getRecord(session);
   }
 
   private EntityImpl getManager2Arrows(String personName) {
@@ -807,9 +807,9 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  return manager"
             + ")";
 
-    var qResult = collectIdentifiable(db.command(query));
+    var qResult = collectIdentifiable(session.command(query));
     assertEquals(1, qResult.size());
-    return qResult.getFirst().getRecord(db);
+    return qResult.getFirst().getRecord(session);
   }
 
   @Test
@@ -818,7 +818,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     // sub-departments without a manager
     var managedByA = getManagedBy("a");
     assertEquals(1, managedByA.size());
-    assertEquals("p1", ((EntityImpl) managedByA.getFirst().getRecord(db)).getProperty("name"));
+    assertEquals("p1", ((EntityImpl) managedByA.getFirst().getRecord(session)).getProperty("name"));
 
     var managedByB = getManagedBy("b");
     assertEquals(5, managedByB.size());
@@ -830,7 +830,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
     for (var id : managedByB) {
-      EntityImpl doc = id.getRecord(db);
+      EntityImpl doc = id.getRecord(session);
       String name = doc.getProperty("name");
       names.add(name);
     }
@@ -852,7 +852,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  return managed"
             + ")";
 
-    return collectIdentifiable(db.command(query));
+    return collectIdentifiable(session.command(query));
   }
 
   @Test
@@ -861,7 +861,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     // sub-departments without a manager
     var managedByA = getManagedByArrows("a");
     assertEquals(1, managedByA.size());
-    assertEquals("p1", ((EntityImpl) managedByA.getFirst().getRecord(db)).getProperty("name"));
+    assertEquals("p1", ((EntityImpl) managedByA.getFirst().getRecord(session)).getProperty("name"));
 
     var managedByB = getManagedByArrows("b");
     assertEquals(5, managedByB.size());
@@ -873,7 +873,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
     for (var id : managedByB) {
-      EntityImpl doc = id.getRecord(db);
+      EntityImpl doc = id.getRecord(session);
       String name = doc.getProperty("name");
       names.add(name);
     }
@@ -893,7 +893,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  return managed"
             + ")";
 
-    return collectIdentifiable(db.command(query));
+    return collectIdentifiable(session.command(query));
   }
 
   @Test
@@ -902,7 +902,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     // sub-departments without a manager
     var managedByA = getManagedBy2("a");
     assertEquals(1, managedByA.size());
-    assertEquals("p1", ((EntityImpl) managedByA.getFirst().getRecord(db)).getProperty("name"));
+    assertEquals("p1", ((EntityImpl) managedByA.getFirst().getRecord(session)).getProperty("name"));
 
     var managedByB = getManagedBy2("b");
     assertEquals(5, managedByB.size());
@@ -914,7 +914,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
     for (var id : managedByB) {
-      EntityImpl doc = id.getRecord(db);
+      EntityImpl doc = id.getRecord(session);
       String name = doc.getProperty("name");
       names.add(name);
     }
@@ -936,7 +936,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  return managed"
             + ")";
 
-    return collectIdentifiable(db.command(query));
+    return collectIdentifiable(session.command(query));
   }
 
   @Test
@@ -945,7 +945,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     // sub-departments without a manager
     var managedByA = getManagedBy2Arrows("a");
     assertEquals(1, managedByA.size());
-    assertEquals("p1", ((EntityImpl) managedByA.getFirst().getRecord(db)).getProperty("name"));
+    assertEquals("p1", ((EntityImpl) managedByA.getFirst().getRecord(session)).getProperty("name"));
 
     var managedByB = getManagedBy2Arrows("b");
     assertEquals(5, managedByB.size());
@@ -957,7 +957,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
     for (var id : managedByB) {
-      EntityImpl doc = id.getRecord(db);
+      EntityImpl doc = id.getRecord(session);
       String name = doc.getProperty("name");
       names.add(name);
     }
@@ -978,7 +978,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  return managed"
             + ")";
 
-    return collectIdentifiable(db.command(query));
+    return collectIdentifiable(session.command(query));
   }
 
   @Test
@@ -992,7 +992,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  .out('TriangleE'){as: friend3}"
             + "return $matches";
 
-    List<?> result = collect(db.command(query));
+    List<?> result = collect(session.command(query));
     assertEquals(1, result.size());
   }
 
@@ -1003,7 +1003,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + " -TriangleE-> {as: friend3},{class:TriangleV, as: friend1} -TriangleE-> {as:"
             + " friend3}return $matches";
 
-    List<?> result = collect(db.command(query));
+    List<?> result = collect(session.command(query));
     assertEquals(1, result.size());
   }
 
@@ -1018,12 +1018,12 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  .out('TriangleE'){as: friend3}"
             + "return $matches";
 
-    var result = collect(db.command(query));
+    var result = collect(session.command(query));
     assertEquals(1, result.size());
     var doc = result.getFirst();
-    EntityImpl friend1 = ((Identifiable) doc.getProperty("friend1")).getRecord(db);
-    EntityImpl friend2 = ((Identifiable) doc.getProperty("friend2")).getRecord(db);
-    EntityImpl friend3 = ((Identifiable) doc.getProperty("friend3")).getRecord(db);
+    EntityImpl friend1 = ((Identifiable) doc.getProperty("friend1")).getRecord(session);
+    EntityImpl friend2 = ((Identifiable) doc.getProperty("friend2")).getRecord(session);
+    EntityImpl friend3 = ((Identifiable) doc.getProperty("friend3")).getRecord(session);
     assertEquals(0, friend1.<Object>field("uid"));
     assertEquals(1, friend2.<Object>field("uid"));
     assertEquals(2, friend3.<Object>field("uid"));
@@ -1040,12 +1040,12 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  .out('TriangleE'){as: friend3}"
             + "return $patterns";
 
-    var result = collect(db.command(query));
+    var result = collect(session.command(query));
     assertEquals(1, result.size());
     var doc = result.getFirst();
-    EntityImpl friend1 = ((Identifiable) doc.getProperty("friend1")).getRecord(db);
-    EntityImpl friend2 = ((Identifiable) doc.getProperty("friend2")).getRecord(db);
-    EntityImpl friend3 = ((Identifiable) doc.getProperty("friend3")).getRecord(db);
+    EntityImpl friend1 = ((Identifiable) doc.getProperty("friend1")).getRecord(session);
+    EntityImpl friend2 = ((Identifiable) doc.getProperty("friend2")).getRecord(session);
+    EntityImpl friend3 = ((Identifiable) doc.getProperty("friend3")).getRecord(session);
     assertEquals(0, friend1.<Object>field("uid"));
     assertEquals(1, friend2.<Object>field("uid"));
     assertEquals(2, friend3.<Object>field("uid"));
@@ -1062,12 +1062,12 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  -TriangleE->{as: friend3}"
             + "return $matches";
 
-    var result = collect(db.command(query));
+    var result = collect(session.command(query));
     assertEquals(1, result.size());
     var doc = result.getFirst();
-    EntityImpl friend1 = ((Identifiable) doc.getProperty("friend1")).getRecord(db);
-    EntityImpl friend2 = ((Identifiable) doc.getProperty("friend2")).getRecord(db);
-    EntityImpl friend3 = ((Identifiable) doc.getProperty("friend3")).getRecord(db);
+    EntityImpl friend1 = ((Identifiable) doc.getProperty("friend1")).getRecord(session);
+    EntityImpl friend2 = ((Identifiable) doc.getProperty("friend2")).getRecord(session);
+    EntityImpl friend3 = ((Identifiable) doc.getProperty("friend3")).getRecord(session);
     assertEquals(0, friend1.<Object>field("uid"));
     assertEquals(1, friend2.<Object>field("uid"));
     assertEquals(2, friend3.<Object>field("uid"));
@@ -1084,7 +1084,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  -TriangleE->{as: friend3}"
             + "return $matches";
 
-    var result = collect(db.command(query));
+    var result = collect(session.command(query));
     assertEquals(1, result.size());
   }
 
@@ -1099,7 +1099,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  .out('TriangleE'){as: friend3}"
             + "return $matches";
 
-    List<?> result = collect(db.command(query));
+    List<?> result = collect(session.command(query));
     assertEquals(1, result.size());
   }
 
@@ -1114,7 +1114,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  -TriangleE->{as: friend3}"
             + "return $matches";
 
-    List<?> result = collect(db.command(query));
+    List<?> result = collect(session.command(query));
     assertEquals(1, result.size());
   }
 
@@ -1129,7 +1129,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  .outE('TriangleE').inV(){as: friend3}"
             + "return $matches";
 
-    List<?> result = collect(db.command(query));
+    List<?> result = collect(session.command(query));
     assertEquals(1, result.size());
   }
 
@@ -1141,12 +1141,12 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "{class:TriangleV, as: friend2, where:(uid = 2 or uid = 3)}"
             + "return $matches";
 
-    var result = collectIdentifiable(db.command(query));
+    var result = collectIdentifiable(session.command(query));
     assertEquals(2, result.size());
     for (var d : result) {
       assertEquals(
           1,
-          ((EntityImpl) ((EntityImpl) d.getRecord(db)).getProperty("friend1")).<Object>field(
+          ((EntityImpl) ((EntityImpl) d.getRecord(session)).getProperty("friend1")).<Object>field(
               "uid"));
     }
   }
@@ -1159,12 +1159,12 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "{class:TriangleV, as: friend2, where:(uid = 2 or uid = 3)}"
             + "return $matches LIMIT 1";
 
-    var result = collectIdentifiable(db.command(query));
+    var result = collectIdentifiable(session.command(query));
     assertEquals(1, result.size());
     for (var d : result) {
       assertEquals(
           1,
-          ((EntityImpl) ((EntityImpl) d.getRecord(db)).getProperty("friend1")).<Object>field(
+          ((EntityImpl) ((EntityImpl) d.getRecord(session)).getProperty("friend1")).<Object>field(
               "uid"));
     }
   }
@@ -1176,7 +1176,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[0] as foo";
 
-    var result = collect(db.command(query));
+    var result = collect(session.command(query));
     assertEquals(1, result.size());
     var doc = result.getFirst();
     var foo = doc.getProperty("foo");
@@ -1191,7 +1191,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[0,1] as foo";
 
-    var result = collect(db.command(query));
+    var result = collect(session.command(query));
     assertEquals(1, result.size());
     var doc = result.getFirst();
     var foo = doc.getProperty("foo");
@@ -1207,7 +1207,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[0..1] as foo";
 
-    var result = collect(db.command(query));
+    var result = collect(session.command(query));
     assertEquals(1, result.size());
     var doc = result.getFirst();
     var foo = doc.getProperty("foo");
@@ -1223,7 +1223,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[0..2] as foo";
 
-    var result = collect(db.command(query));
+    var result = collect(session.command(query));
     assertEquals(1, result.size());
     var doc = result.getFirst();
     var foo = doc.getProperty("foo");
@@ -1239,7 +1239,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[0..3] as foo";
 
-    var result = collect(db.command(query));
+    var result = collect(session.command(query));
     assertEquals(1, result.size());
     var doc = result.getFirst();
     var foo = doc.getProperty("foo");
@@ -1255,7 +1255,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[uid = 2] as foo";
 
-    var result = collect(db.command(query));
+    var result = collect(session.command(query));
     assertEquals(1, result.size());
     var doc = result.getFirst();
     var foo = doc.getProperty("foo");
@@ -1274,7 +1274,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + ".out('IndexedEdge'){class:IndexedVertex, as: two, where: (uid = 1)}"
             + "return one, two";
 
-    List<?> result = collect(db.command(query));
+    List<?> result = collect(session.command(query));
     assertEquals(1, result.size());
   }
 
@@ -1286,7 +1286,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "-IndexedEdge->{class:IndexedVertex, as: two, where: (uid = 1)}"
             + "return one, two";
 
-    List<?> result = collect(db.command(query));
+    List<?> result = collect(session.command(query));
     assertEquals(1, result.size());
   }
 
@@ -1297,7 +1297,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "{class:IndexedVertex, as: one, where: (uid = 0)} "
             + "return {'name':'foo', 'uuid':one.uid}";
 
-    var result = collect(db.command(query));
+    var result = collect(session.command(query));
     assertEquals(1, result.size());
     //    var doc = result.get(0);
     //    assertEquals("foo", doc.getProperty("name"));
@@ -1311,7 +1311,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "{class:IndexedVertex, as: one, where: (uid = 0)} "
             + "return {'name':'foo', 'sub': {'uuid':one.uid}}";
 
-    var result = collect(db.command(query));
+    var result = collect(session.command(query));
     assertEquals(1, result.size());
     //    var doc = result.get(0);
     //    assertEquals("foo", doc.getProperty("name"));
@@ -1325,7 +1325,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "{class:IndexedVertex, as: one, where: (uid = 0)} "
             + "return {'name':'foo', 'sub': [{'uuid':one.uid}]}";
 
-    var result = collect(db.command(query));
+    var result = collect(session.command(query));
     assertEquals(1, result.size());
     //    var doc = result.get(0);
     //    assertEquals("foo", doc.getProperty("name"));
@@ -1341,7 +1341,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
         "{class:DiamondV, as: one, where: (uid = 0)}.out('DiamondE').out('DiamondE'){as: two} ");
     query.append("return one, two");
 
-    var result = db.query(query.toString()).toEntityList();
+    var result = session.query(query.toString()).toEntityList();
     assertEquals(1, result.size());
 
     query = new StringBuilder();
@@ -1350,7 +1350,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
         "{class:DiamondV, as: one, where: (uid = 0)}.out('DiamondE').out('DiamondE'){as: two} ");
     query.append("return one.uid, two.uid");
 
-    result = db.query(query.toString()).toEntityList();
+    result = session.query(query.toString()).toEntityList();
     assertEquals(1, result.size());
     //    var doc = result.get(0);
     //    assertEquals("foo", doc.getProperty("name"));
@@ -1371,7 +1371,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
     for (var id : managedByB) {
-      EntityImpl doc = id.getRecord(db);
+      EntityImpl doc = id.getRecord(session);
       String name = doc.getProperty("name");
       names.add(name);
     }
@@ -1389,7 +1389,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  }<-WorksAt-{as: managed}"
             + "  return $elements";
 
-    return db.query(query).stream().map(Result::getRecordId).toList();
+    return session.query(query).stream().map(Result::getRecordId).toList();
   }
 
   @Test
@@ -1410,7 +1410,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
     for (var id : managedByB) {
-      EntityImpl doc = id.getRecord(db);
+      EntityImpl doc = id.getRecord(session);
       String name = doc.getProperty("name");
       names.add(name);
     }
@@ -1421,14 +1421,14 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testOptional() throws Exception {
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "match {class:Person, as: person} -NonExistingEdge-> {as:b, optional:true} return"
                     + " person, b.name"));
     assertEquals(6, qResult.size());
     for (var doc : qResult) {
       assertEquals(2, doc.getPropertyNames().size());
       Identifiable personId = doc.getProperty("person");
-      EntityImpl person = personId.getRecord(db);
+      EntityImpl person = personId.getRecord(session);
       String name = person.getProperty("name");
       assertTrue(!name.isEmpty() && name.charAt(0) == 'n');
     }
@@ -1438,14 +1438,14 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testOptional2() throws Exception {
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "match {class:Person, as: person} --> {as:b, optional:true, where:(nonExisting ="
                     + " 12)} return person, b.name"));
     assertEquals(6, qResult.size());
     for (var doc : qResult) {
       assertEquals(2, doc.getPropertyNames().size());
       Identifiable personId = doc.getProperty("person");
-      EntityImpl person = personId.getRecord(db);
+      EntityImpl person = personId.getRecord(session);
       String name = person.getProperty("name");
       assertTrue(!name.isEmpty() && name.charAt(0) == 'n');
     }
@@ -1455,7 +1455,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testOptional3() throws Exception {
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "select friend.name as name from (match {class:Person, as:a, where:(name = 'n1' and"
                     + " 1 + 1 = 2)}.out('Friend'){as:friend, where:(name = 'n2' and 1 + 1 ="
                     + " 2)},{as:a}.out(){as:b, where:(nonExisting = 12),"
@@ -1468,7 +1468,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testAliasesWithSubquery() throws Exception {
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "select from ( match {class:Person, as:A} return A.name as namexx ) limit 1"));
     assertEquals(1, qResult.size());
     assertNotNull(qResult.getFirst().getProperty("namexx"));
@@ -1479,17 +1479,17 @@ public class MatchStatementExecutionTest extends DbTestBase {
   @Test
   public void testEvalInReturn() {
     // issue #6606
-    db.command("CREATE CLASS testEvalInReturn EXTENDS V").close();
-    db.command("CREATE PROPERTY testEvalInReturn.name String").close();
+    session.command("CREATE CLASS testEvalInReturn EXTENDS V").close();
+    session.command("CREATE PROPERTY testEvalInReturn.name String").close();
 
-    db.begin();
-    db.command("CREATE VERTEX testEvalInReturn SET name = 'foo'").close();
-    db.command("CREATE VERTEX testEvalInReturn SET name = 'bar'").close();
-    db.commit();
+    session.begin();
+    session.command("CREATE VERTEX testEvalInReturn SET name = 'foo'").close();
+    session.command("CREATE VERTEX testEvalInReturn SET name = 'bar'").close();
+    session.commit();
 
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "MATCH {class: testEvalInReturn, as: p} RETURN if(eval(\"p.name = 'foo'\"), 1, 2)"
                     + " AS b"));
 
@@ -1502,7 +1502,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     qResult =
         collect(
-            db.command(
+            session.command(
                 "MATCH {class: testEvalInReturn, as: p} RETURN if(eval(\"p.name = 'foo'\"), 'foo',"
                     + " 'foo') AS b"));
 
@@ -1512,29 +1512,29 @@ public class MatchStatementExecutionTest extends DbTestBase {
   @Test
   public void testCheckClassAsCondition() {
 
-    db.command("CREATE CLASS testCheckClassAsCondition EXTENDS V").close();
-    db.command("CREATE CLASS testCheckClassAsCondition1 EXTENDS V").close();
-    db.command("CREATE CLASS testCheckClassAsCondition2 EXTENDS V").close();
+    session.command("CREATE CLASS testCheckClassAsCondition EXTENDS V").close();
+    session.command("CREATE CLASS testCheckClassAsCondition1 EXTENDS V").close();
+    session.command("CREATE CLASS testCheckClassAsCondition2 EXTENDS V").close();
 
-    db.begin();
-    db.command("CREATE VERTEX testCheckClassAsCondition SET name = 'foo'").close();
-    db.command("CREATE VERTEX testCheckClassAsCondition1 SET name = 'bar'").close();
+    session.begin();
+    session.command("CREATE VERTEX testCheckClassAsCondition SET name = 'foo'").close();
+    session.command("CREATE VERTEX testCheckClassAsCondition1 SET name = 'bar'").close();
     for (var i = 0; i < 5; i++) {
-      db.command("CREATE VERTEX testCheckClassAsCondition2 SET name = 'baz'").close();
+      session.command("CREATE VERTEX testCheckClassAsCondition2 SET name = 'baz'").close();
     }
-    db.command(
+    session.command(
             "CREATE EDGE E FROM (select from testCheckClassAsCondition where name = 'foo') to"
                 + " (select from testCheckClassAsCondition1)")
         .close();
-    db.command(
+    session.command(
             "CREATE EDGE E FROM (select from testCheckClassAsCondition where name = 'foo') to"
                 + " (select from testCheckClassAsCondition2)")
         .close();
-    db.commit();
+    session.commit();
 
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "MATCH {class: testCheckClassAsCondition, as: p} -E- {class:"
                     + " testCheckClassAsCondition1, as: q} RETURN $elements"));
 
@@ -1546,35 +1546,35 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "MATCH {class: Person, as: p, where: ($currentMatch instanceof 'Person')} return"
                     + " $elements limit 1"));
     assertEquals(1, qResult.size());
 
     qResult =
         collect(
-            db.command(
+            session.command(
                 "MATCH {class: Person, as: p, where: ($currentMatch instanceof 'V')} return"
                     + " $elements limit 1"));
     assertEquals(1, qResult.size());
 
     qResult =
         collect(
-            db.command(
+            session.command(
                 "MATCH {class: Person, as: p, where: (not ($currentMatch instanceof 'Person'))}"
                     + " return $elements limit 1"));
     assertEquals(0, qResult.size());
 
     qResult =
         collect(
-            db.command(
+            session.command(
                 "MATCH {class: Person, where: (name = 'n1')}.out(){as:p, where: ($currentMatch"
                     + " instanceof 'Person')} return $elements limit 1"));
     assertEquals(1, qResult.size());
 
     qResult =
         collect(
-            db.command(
+            session.command(
                 "MATCH {class: Person, where: (name = 'n1')}.out(){as:p, where: ($currentMatch"
                     + " instanceof 'Person' and '$currentMatch' <> '@this')} return $elements limit"
                     + " 1"));
@@ -1582,7 +1582,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
     qResult =
         collect(
-            db.command(
+            session.command(
                 "MATCH {class: Person, where: (name = 'n1')}.out(){as:p, where: ( not"
                     + " ($currentMatch instanceof 'Person'))} return $elements limit 1"));
     assertEquals(0, qResult.size());
@@ -1592,27 +1592,27 @@ public class MatchStatementExecutionTest extends DbTestBase {
   public void testBigEntryPoint() {
     // issue #6890
 
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     schema.createClass("testBigEntryPoint1");
     schema.createClass("testBigEntryPoint2");
 
     for (var i = 0; i < 1000; i++) {
-      db.begin();
-      var doc = db.newInstance("testBigEntryPoint1");
+      session.begin();
+      var doc = session.newInstance("testBigEntryPoint1");
       doc.setProperty("a", i);
       doc.save();
-      db.commit();
+      session.commit();
     }
 
-    db.begin();
-    var doc = db.newInstance("testBigEntryPoint2");
+    session.begin();
+    var doc = session.newInstance("testBigEntryPoint2");
     doc.setProperty("b", "b");
     doc.save();
-    db.commit();
+    session.commit();
 
     var qResult =
         collect(
-            db.command(
+            session.command(
                 "MATCH {class: testBigEntryPoint1, as: a}, {class: testBigEntryPoint2, as: b}"
                     + " return $elements limit 1"));
     assertEquals(1, qResult.size());
@@ -1621,36 +1621,36 @@ public class MatchStatementExecutionTest extends DbTestBase {
   @Test
   public void testMatched1() {
     // issue #6931
-    db.command("CREATE CLASS testMatched1_Foo EXTENDS V").close();
-    db.command("CREATE CLASS testMatched1_Bar EXTENDS V").close();
-    db.command("CREATE CLASS testMatched1_Baz EXTENDS V").close();
-    db.command("CREATE CLASS testMatched1_Far EXTENDS V").close();
-    db.command("CREATE CLASS testMatched1_Foo_Bar EXTENDS E").close();
-    db.command("CREATE CLASS testMatched1_Bar_Baz EXTENDS E").close();
-    db.command("CREATE CLASS testMatched1_Foo_Far EXTENDS E").close();
+    session.command("CREATE CLASS testMatched1_Foo EXTENDS V").close();
+    session.command("CREATE CLASS testMatched1_Bar EXTENDS V").close();
+    session.command("CREATE CLASS testMatched1_Baz EXTENDS V").close();
+    session.command("CREATE CLASS testMatched1_Far EXTENDS V").close();
+    session.command("CREATE CLASS testMatched1_Foo_Bar EXTENDS E").close();
+    session.command("CREATE CLASS testMatched1_Bar_Baz EXTENDS E").close();
+    session.command("CREATE CLASS testMatched1_Foo_Far EXTENDS E").close();
 
-    db.begin();
-    db.command("CREATE VERTEX testMatched1_Foo SET name = 'foo'").close();
-    db.command("CREATE VERTEX testMatched1_Bar SET name = 'bar'").close();
-    db.command("CREATE VERTEX testMatched1_Baz SET name = 'baz'").close();
-    db.command("CREATE VERTEX testMatched1_Far SET name = 'far'").close();
+    session.begin();
+    session.command("CREATE VERTEX testMatched1_Foo SET name = 'foo'").close();
+    session.command("CREATE VERTEX testMatched1_Bar SET name = 'bar'").close();
+    session.command("CREATE VERTEX testMatched1_Baz SET name = 'baz'").close();
+    session.command("CREATE VERTEX testMatched1_Far SET name = 'far'").close();
 
-    db.command(
+    session.command(
             "CREATE EDGE testMatched1_Foo_Bar FROM (SELECT FROM testMatched1_Foo) TO (SELECT FROM"
                 + " testMatched1_Bar)")
         .close();
-    db.command(
+    session.command(
             "CREATE EDGE testMatched1_Bar_Baz FROM (SELECT FROM testMatched1_Bar) TO (SELECT FROM"
                 + " testMatched1_Baz)")
         .close();
-    db.command(
+    session.command(
             "CREATE EDGE testMatched1_Foo_Far FROM (SELECT FROM testMatched1_Foo) TO (SELECT FROM"
                 + " testMatched1_Far)")
         .close();
-    db.commit();
+    session.commit();
 
     var result =
-        db.query(
+        session.query(
             """
                 MATCH\s
                 {class: testMatched1_Foo, as: foo}.out('testMatched1_Foo_Bar') {as: bar},\s
@@ -1661,7 +1661,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
     assertFalse(result.hasNext());
 
     result =
-        db.query(
+        session.query(
             """
                 MATCH\s
                 {class: testMatched1_Foo, as: foo}.out('testMatched1_Foo_Bar') {as: bar},\s
@@ -1676,40 +1676,40 @@ public class MatchStatementExecutionTest extends DbTestBase {
   @Ignore
   public void testDependencyOrdering1() {
     // issue #6931
-    db.command("CREATE CLASS testDependencyOrdering1_Foo EXTENDS V").close();
-    db.command("CREATE CLASS testDependencyOrdering1_Bar EXTENDS V").close();
-    db.command("CREATE CLASS testDependencyOrdering1_Baz EXTENDS V").close();
-    db.command("CREATE CLASS testDependencyOrdering1_Far EXTENDS V").close();
-    db.command("CREATE CLASS testDependencyOrdering1_Foo_Bar EXTENDS E").close();
-    db.command("CREATE CLASS testDependencyOrdering1_Bar_Baz EXTENDS E").close();
-    db.command("CREATE CLASS testDependencyOrdering1_Foo_Far EXTENDS E").close();
+    session.command("CREATE CLASS testDependencyOrdering1_Foo EXTENDS V").close();
+    session.command("CREATE CLASS testDependencyOrdering1_Bar EXTENDS V").close();
+    session.command("CREATE CLASS testDependencyOrdering1_Baz EXTENDS V").close();
+    session.command("CREATE CLASS testDependencyOrdering1_Far EXTENDS V").close();
+    session.command("CREATE CLASS testDependencyOrdering1_Foo_Bar EXTENDS E").close();
+    session.command("CREATE CLASS testDependencyOrdering1_Bar_Baz EXTENDS E").close();
+    session.command("CREATE CLASS testDependencyOrdering1_Foo_Far EXTENDS E").close();
 
-    db.begin();
-    db.command("CREATE VERTEX testDependencyOrdering1_Foo SET name = 'foo'").close();
-    db.command("CREATE VERTEX testDependencyOrdering1_Bar SET name = 'bar'").close();
-    db.command("CREATE VERTEX testDependencyOrdering1_Baz SET name = 'baz'").close();
-    db.command("CREATE VERTEX testDependencyOrdering1_Far SET name = 'far'").close();
+    session.begin();
+    session.command("CREATE VERTEX testDependencyOrdering1_Foo SET name = 'foo'").close();
+    session.command("CREATE VERTEX testDependencyOrdering1_Bar SET name = 'bar'").close();
+    session.command("CREATE VERTEX testDependencyOrdering1_Baz SET name = 'baz'").close();
+    session.command("CREATE VERTEX testDependencyOrdering1_Far SET name = 'far'").close();
 
-    db.command(
+    session.command(
             "CREATE EDGE testDependencyOrdering1_Foo_Bar FROM (SELECT FROM"
                 + " testDependencyOrdering1_Foo) TO (SELECT FROM testDependencyOrdering1_Bar)")
         .close();
-    db.command(
+    session.command(
             "CREATE EDGE testDependencyOrdering1_Bar_Baz FROM (SELECT FROM"
                 + " testDependencyOrdering1_Bar) TO (SELECT FROM testDependencyOrdering1_Baz)")
         .close();
-    db.command(
+    session.command(
             "CREATE EDGE testDependencyOrdering1_Foo_Far FROM (SELECT FROM"
                 + " testDependencyOrdering1_Foo) TO (SELECT FROM testDependencyOrdering1_Far)")
         .close();
-    db.commit();
+    session.commit();
 
     // The correct but non-obvious execution order here is:
     // foo, bar, far, baz
     // This is a test to ensure that the query scheduler resolves dependencies correctly,
     // even if they are unusual or contrived.
     List result =
-        db.query(
+        session.query(
 
             """
                 MATCH {
@@ -1734,33 +1734,33 @@ public class MatchStatementExecutionTest extends DbTestBase {
   @Test
   public void testCircularDependency() {
     // issue #6931
-    db.command("CREATE CLASS testCircularDependency_Foo EXTENDS V").close();
-    db.command("CREATE CLASS testCircularDependency_Bar EXTENDS V").close();
-    db.command("CREATE CLASS testCircularDependency_Baz EXTENDS V").close();
-    db.command("CREATE CLASS testCircularDependency_Far EXTENDS V").close();
-    db.command("CREATE CLASS testCircularDependency_Foo_Bar EXTENDS E").close();
-    db.command("CREATE CLASS testCircularDependency_Bar_Baz EXTENDS E").close();
-    db.command("CREATE CLASS testCircularDependency_Foo_Far EXTENDS E").close();
+    session.command("CREATE CLASS testCircularDependency_Foo EXTENDS V").close();
+    session.command("CREATE CLASS testCircularDependency_Bar EXTENDS V").close();
+    session.command("CREATE CLASS testCircularDependency_Baz EXTENDS V").close();
+    session.command("CREATE CLASS testCircularDependency_Far EXTENDS V").close();
+    session.command("CREATE CLASS testCircularDependency_Foo_Bar EXTENDS E").close();
+    session.command("CREATE CLASS testCircularDependency_Bar_Baz EXTENDS E").close();
+    session.command("CREATE CLASS testCircularDependency_Foo_Far EXTENDS E").close();
 
-    db.begin();
-    db.command("CREATE VERTEX testCircularDependency_Foo SET name = 'foo'").close();
-    db.command("CREATE VERTEX testCircularDependency_Bar SET name = 'bar'").close();
-    db.command("CREATE VERTEX testCircularDependency_Baz SET name = 'baz'").close();
-    db.command("CREATE VERTEX testCircularDependency_Far SET name = 'far'").close();
+    session.begin();
+    session.command("CREATE VERTEX testCircularDependency_Foo SET name = 'foo'").close();
+    session.command("CREATE VERTEX testCircularDependency_Bar SET name = 'bar'").close();
+    session.command("CREATE VERTEX testCircularDependency_Baz SET name = 'baz'").close();
+    session.command("CREATE VERTEX testCircularDependency_Far SET name = 'far'").close();
 
-    db.command(
+    session.command(
             "CREATE EDGE testCircularDependency_Foo_Bar FROM (SELECT FROM"
                 + " testCircularDependency_Foo) TO (SELECT FROM testCircularDependency_Bar)")
         .close();
-    db.command(
+    session.command(
             "CREATE EDGE testCircularDependency_Bar_Baz FROM (SELECT FROM"
                 + " testCircularDependency_Bar) TO (SELECT FROM testCircularDependency_Baz)")
         .close();
-    db.command(
+    session.command(
             "CREATE EDGE testCircularDependency_Foo_Far FROM (SELECT FROM"
                 + " testCircularDependency_Foo) TO (SELECT FROM testCircularDependency_Far)")
         .close();
-    db.commit();
+    session.commit();
 
     // The circular dependency here is:
     // - far depends on baz
@@ -1786,7 +1786,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
                 } RETURN $matches""");
 
     try {
-      db.query(query);
+      session.query(query);
       fail();
     } catch (CommandExecutionException x) {
       // passed the test
@@ -1796,20 +1796,20 @@ public class MatchStatementExecutionTest extends DbTestBase {
   @Test
   public void testUndefinedAliasDependency() {
     // issue #6931
-    db.command("CREATE CLASS testUndefinedAliasDependency_Foo EXTENDS V").close();
-    db.command("CREATE CLASS testUndefinedAliasDependency_Bar EXTENDS V").close();
-    db.command("CREATE CLASS testUndefinedAliasDependency_Foo_Bar EXTENDS E").close();
+    session.command("CREATE CLASS testUndefinedAliasDependency_Foo EXTENDS V").close();
+    session.command("CREATE CLASS testUndefinedAliasDependency_Bar EXTENDS V").close();
+    session.command("CREATE CLASS testUndefinedAliasDependency_Foo_Bar EXTENDS E").close();
 
-    db.begin();
-    db.command("CREATE VERTEX testUndefinedAliasDependency_Foo SET name = 'foo'").close();
-    db.command("CREATE VERTEX testUndefinedAliasDependency_Bar SET name = 'bar'").close();
+    session.begin();
+    session.command("CREATE VERTEX testUndefinedAliasDependency_Foo SET name = 'foo'").close();
+    session.command("CREATE VERTEX testUndefinedAliasDependency_Bar SET name = 'bar'").close();
 
-    db.command(
+    session.command(
             "CREATE EDGE testUndefinedAliasDependency_Foo_Bar FROM (SELECT FROM"
                 + " testUndefinedAliasDependency_Foo) TO (SELECT FROM"
                 + " testUndefinedAliasDependency_Bar)")
         .close();
-    db.commit();
+    session.commit();
 
     // "bar" in the following query declares a dependency on the alias "baz", which doesn't exist.
     var query =
@@ -1824,7 +1824,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
                 } RETURN $matches""");
 
     try {
-      db.query(query);
+      session.query(query);
       fail();
     } catch (CommandExecutionException x) {
       // passed the test
@@ -1833,37 +1833,37 @@ public class MatchStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testCyclicDeepTraversal() {
-    db.command("CREATE CLASS testCyclicDeepTraversalV EXTENDS V").close();
-    db.command("CREATE CLASS testCyclicDeepTraversalE EXTENDS E").close();
+    session.command("CREATE CLASS testCyclicDeepTraversalV EXTENDS V").close();
+    session.command("CREATE CLASS testCyclicDeepTraversalE EXTENDS E").close();
 
-    db.begin();
-    db.command("CREATE VERTEX testCyclicDeepTraversalV SET name = 'a'").close();
-    db.command("CREATE VERTEX testCyclicDeepTraversalV SET name = 'b'").close();
-    db.command("CREATE VERTEX testCyclicDeepTraversalV SET name = 'c'").close();
-    db.command("CREATE VERTEX testCyclicDeepTraversalV SET name = 'z'").close();
+    session.begin();
+    session.command("CREATE VERTEX testCyclicDeepTraversalV SET name = 'a'").close();
+    session.command("CREATE VERTEX testCyclicDeepTraversalV SET name = 'b'").close();
+    session.command("CREATE VERTEX testCyclicDeepTraversalV SET name = 'c'").close();
+    session.command("CREATE VERTEX testCyclicDeepTraversalV SET name = 'z'").close();
 
     // a -> b -> z
     // z -> c -> a
-    db.command(
+    session.command(
             "CREATE EDGE testCyclicDeepTraversalE from(select from testCyclicDeepTraversalV where"
                 + " name = 'a') to (select from testCyclicDeepTraversalV where name = 'b')")
         .close();
 
-    db.command(
+    session.command(
             "CREATE EDGE testCyclicDeepTraversalE from(select from testCyclicDeepTraversalV where"
                 + " name = 'b') to (select from testCyclicDeepTraversalV where name = 'z')")
         .close();
 
-    db.command(
+    session.command(
             "CREATE EDGE testCyclicDeepTraversalE from(select from testCyclicDeepTraversalV where"
                 + " name = 'z') to (select from testCyclicDeepTraversalV where name = 'c')")
         .close();
 
-    db.command(
+    session.command(
             "CREATE EDGE testCyclicDeepTraversalE from(select from testCyclicDeepTraversalV where"
                 + " name = 'c') to (select from testCyclicDeepTraversalV where name = 'a')")
         .close();
-    db.commit();
+    session.commit();
 
     var query =
         """
@@ -1882,7 +1882,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
                 as: foo
             } RETURN $patterns""";
 
-    var result = db.query(query);
+    var result = session.query(query);
     assertEquals(1, result.stream().count());
   }
 
@@ -1897,7 +1897,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  }<-WorksAt-{as: managed}"
             + "  return $pathElements";
 
-    return db.command(query).stream().map(Result::getRecordId).toList();
+    return session.command(query).stream().map(Result::getRecordId).toList();
   }
 
   private static List<Result> collect(ResultSet set) {

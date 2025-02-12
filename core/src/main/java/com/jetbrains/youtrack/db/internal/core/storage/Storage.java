@@ -52,9 +52,6 @@ import javax.annotation.Nullable;
  * @see DirectMemoryStorage
  */
 public interface Storage extends Backupable, StorageInfo {
-
-  String CLUSTER_DEFAULT_NAME = "default";
-
   enum STATUS {
     CLOSED,
     OPEN,
@@ -108,7 +105,6 @@ public interface Storage extends Backupable, StorageInfo {
   /**
    * Add a new cluster into the storage.
    *
-   * @param database
    * @param iClusterName name of the cluster
    */
   int addCluster(DatabaseSessionInternal database, String iClusterName, Object... iParameters);
@@ -170,8 +166,6 @@ public interface Storage extends Backupable, StorageInfo {
    * Returns the total number of records.
    */
   long countRecords(DatabaseSessionInternal session);
-
-  void setDefaultClusterId(final int defaultClusterId);
 
   int getClusterIdByName(String iClusterName);
 

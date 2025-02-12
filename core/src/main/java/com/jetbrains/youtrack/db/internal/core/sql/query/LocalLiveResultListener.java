@@ -22,7 +22,7 @@ public class LocalLiveResultListener implements LiveResultListener, CommandResul
   }
 
   @Override
-  public void end() {
+  public void end(DatabaseSessionInternal db) {
   }
 
   @Override

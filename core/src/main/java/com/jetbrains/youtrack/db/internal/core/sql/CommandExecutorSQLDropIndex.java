@@ -19,14 +19,12 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import java.util.Map;
 
 /**
@@ -41,38 +39,38 @@ public class CommandExecutorSQLDropIndex extends CommandExecutorSQLAbstract
 
   private String name;
 
-  public CommandExecutorSQLDropIndex parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLDropIndex parse(DatabaseSessionInternal session,
       final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
 
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
       final var word = new StringBuilder();
 
       var oldPos = 0;
       var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_DROP)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_DROP + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_INDEX)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_INDEX + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
       if (pos == -1) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Expected index name. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -87,43 +85,30 @@ public class CommandExecutorSQLDropIndex extends CommandExecutorSQLAbstract
   /**
    * Execute the REMOVE INDEX.
    */
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (name == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final var database = getDatabase();
     if (name.equals("*")) {
       long totalIndexed = 0;
-      for (var idx : database.getMetadata().getIndexManagerInternal().getIndexes(database)) {
-        database.getMetadata().getIndexManagerInternal().dropIndex(database, idx.getName());
+      for (var idx : session.getMetadata().getIndexManagerInternal().getIndexes(session)) {
+        session.getMetadata().getIndexManagerInternal().dropIndex(session, idx.getName());
         totalIndexed++;
       }
 
       return totalIndexed;
 
     } else {
-      database.getMetadata().getIndexManagerInternal().dropIndex(database, name);
+      session.getMetadata().getIndexManagerInternal().dropIndex(session, name);
     }
 
     return 1;
   }
 
   @Override
-  public long getDistributedTimeout() {
-    return getDatabase()
-        .getConfiguration()
-        .getValueAsLong(GlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
-  }
-
-  @Override
   public String getSyntax() {
     return "DROP INDEX <index-name>|<class>.<property>|*";
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.ALL;
   }
 }

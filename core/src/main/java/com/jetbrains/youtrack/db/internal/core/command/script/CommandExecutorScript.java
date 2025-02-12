@@ -38,7 +38,6 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandExecutorAbstract;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
@@ -78,25 +77,19 @@ public class CommandExecutorScript extends CommandExecutorAbstract
 
   private static final int MAX_DELAY = 100;
   protected CommandScript request;
-  protected DISTRIBUTED_EXECUTION_MODE executionMode = DISTRIBUTED_EXECUTION_MODE.LOCAL;
   protected AtomicInteger serialTempRID = new AtomicInteger(0);
 
   public CommandExecutorScript() {
   }
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorScript parse(DatabaseSessionInternal db, final CommandRequest iRequest) {
+  public CommandExecutorScript parse(DatabaseSessionInternal session,
+      final CommandRequest iRequest) {
     request = (CommandScript) iRequest;
-    executionMode = ((CommandScript) iRequest).getExecutionMode();
     return this;
   }
 
-  public CommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE
-  getDistributedExecutionMode() {
-    return executionMode;
-  }
-
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (context == null) {
       context = new BasicCommandContext();
     }
@@ -108,45 +101,41 @@ public class CommandExecutorScript extends CommandExecutorAbstract
     parserText = request.getText();
     parameters = iArgs;
 
-    parameters = iArgs;
     if (language.equalsIgnoreCase("SQL")) {
       // SPECIAL CASE: EXECUTE THE COMMANDS IN SEQUENCE
       try {
-        parserText = preParse(parserText, iArgs);
+        parserText = preParse(iContext.getDatabaseSession(), parserText, iArgs);
       } catch (ParseException e) {
         throw BaseException.wrapException(
-            new CommandExecutionException("Invalid script:" + e.getMessage()), e);
+            new CommandExecutionException(iContext.getDatabaseSession().getDatabaseName(),
+                "Invalid script:" + e.getMessage()), e,
+            iContext.getDatabaseSession().getDatabaseName());
       }
-      return executeSQL();
+      return executeSQL(iContext.getDatabaseSession());
     } else {
       return executeJsr223Script(language, iContext, iArgs);
     }
   }
 
-  private String preParse(String parserText, final Map<Object, Object> iArgs)
+  private String preParse(DatabaseSessionInternal db, String parserText,
+      final Map<Object, Object> iArgs)
       throws ParseException {
-    final var strict = getDatabase().getStorageInfo().getConfiguration().isStrictSql();
+    final var strict = db.getStorageInfo().getConfiguration().isStrictSql();
     if (strict) {
       parserText = addSemicolons(parserText);
 
-      var db = getDatabase();
-
       byte[] bytes;
       try {
-        if (db == null) {
-          bytes = parserText.getBytes();
-        } else {
-          bytes =
-              parserText.getBytes(getDatabase().getStorageInfo().getConfiguration().getCharset());
-        }
+        bytes =
+            parserText.getBytes(db.getStorageInfo().getConfiguration().getCharset());
       } catch (UnsupportedEncodingException e) {
         LogManager.instance()
             .warn(
                 this,
                 "Invalid charset for database "
-                    + getDatabase()
+                    + db
                     + " "
-                    + getDatabase().getStorageInfo().getConfiguration().getCharset());
+                    + db.getStorageInfo().getConfiguration().getCharset());
 
         bytes = parserText.getBytes();
       }
@@ -166,9 +155,9 @@ public class CommandExecutorScript extends CommandExecutorAbstract
             .warn(
                 this,
                 "Invalid charset for database "
-                    + getDatabase()
+                    + db
                     + " "
-                    + getDatabase().getStorageInfo().getConfiguration().getCharset());
+                    + db.getStorageInfo().getConfiguration().getCharset());
         osql = new YouTrackDBSql(is);
       }
       var statements = osql.parseScript();
@@ -206,24 +195,25 @@ public class CommandExecutorScript extends CommandExecutorAbstract
 
   protected Object executeJsr223Script(
       final String language, final CommandContext iContext, final Map<Object, Object> iArgs) {
-    var db = iContext.getDatabase();
+    var db = iContext.getDatabaseSession();
 
     final var scriptManager = db.getSharedContext().getYouTrackDB().getScriptManager();
     var compiledScript = request.getCompiledScript();
 
-    final var scriptEngine = scriptManager.acquireDatabaseEngine(db.getName(), language);
+    final var scriptEngine = scriptManager.acquireDatabaseEngine(db, language);
     try {
 
       if (compiledScript == null) {
         if (!(scriptEngine instanceof Compilable c)) {
-          throw new CommandExecutionException(
+          throw new CommandExecutionException(db.getDatabaseName(),
               "Language '" + language + "' does not support compilation");
         }
 
         try {
           compiledScript = c.compile(parserText);
         } catch (ScriptException e) {
-          scriptManager.throwErrorMessage(e, parserText);
+          scriptManager.throwErrorMessage(iContext.getDatabaseSession().getDatabaseName(), e,
+              parserText);
         }
 
         request.setCompiledScript(compiledScript);
@@ -243,34 +233,34 @@ public class CommandExecutorScript extends CommandExecutorAbstract
         return CommandExecutorUtility.transformResult(ob);
       } catch (ScriptException e) {
         throw BaseException.wrapException(
-            new CommandScriptException(
+            new CommandScriptException(db.getDatabaseName(),
                 "Error on execution of the script", request.getText(), e.getColumnNumber()),
-            e);
+            e, db.getDatabaseName());
 
       } finally {
         scriptManager.unbind(scriptEngine, binding, iContext, iArgs);
       }
     } finally {
-      scriptManager.releaseDatabaseEngine(language, db.getName(), scriptEngine);
+      scriptManager.releaseDatabaseEngine(language, db.getDatabaseName(), scriptEngine);
     }
   }
 
   // TODO: CREATE A REGULAR JSR223 SCRIPT IMPL
-  protected Object executeSQL() {
-    var db = DatabaseRecordThreadLocal.instance().getIfDefined();
+  protected Object executeSQL(DatabaseSessionInternal db) {
     try {
-
       return executeSQLScript(parserText, db);
 
     } catch (IOException e) {
       throw BaseException.wrapException(
-          new CommandExecutionException("Error on executing command: " + parserText), e);
+          new CommandExecutionException(db.getDatabaseName(),
+              "Error on executing command: " + parserText),
+          e, db.getDatabaseName());
     }
   }
 
   @Override
-  protected void throwSyntaxErrorException(String iText) {
-    throw new CommandScriptException(
+  protected void throwSyntaxErrorException(String dbName, String iText) {
+    throw new CommandScriptException(dbName,
         "Error on execution of the script: " + iText, request.getText(), 0);
   }
 
@@ -332,7 +322,7 @@ public class CommandExecutorScript extends CommandExecutorAbstract
                 if (skippingScriptsAtNestedLevel >= 0) {
                   continue; // I'm in an (outer) IF that did not match the condition
                 }
-                var ifResult = evaluateIfCondition(lastCommand);
+                var ifResult = evaluateIfCondition(db.getDatabaseName(), lastCommand);
                 if (!ifResult) {
                   // if does not match the condition, skip all the inner statements
                   skippingScriptsAtNestedLevel = nestedLevel;
@@ -352,7 +342,8 @@ public class CommandExecutorScript extends CommandExecutorAbstract
               } else if (StringSerializerHelper.startsWithIgnoreCase(lastCommand, "begin")) {
 
                 if (txBegun) {
-                  throw new CommandSQLParsingException("Transaction already begun");
+                  throw new CommandSQLParsingException(db.getDatabaseName(),
+                      "Transaction already begun");
                 }
 
                 if (db.getTransaction().isActive())
@@ -369,7 +360,8 @@ public class CommandExecutorScript extends CommandExecutorAbstract
               } else if ("rollback".equalsIgnoreCase(lastCommand)) {
 
                 if (!txBegun) {
-                  throw new CommandSQLParsingException("Transaction not begun");
+                  throw new CommandSQLParsingException(db.getDatabaseName(),
+                      "Transaction not begun");
                 }
 
                 db.rollback();
@@ -380,7 +372,8 @@ public class CommandExecutorScript extends CommandExecutorAbstract
 
               } else if (StringSerializerHelper.startsWithIgnoreCase(lastCommand, "commit")) {
                 if (txBegunAtLine < 0) {
-                  throw new CommandSQLParsingException("Transaction not begun");
+                  throw new CommandSQLParsingException(db.getDatabaseName(),
+                      "Transaction not begun");
                 }
 
                 if (retry == 1 && lastCommand.length() > "commit ".length()) {
@@ -509,7 +502,7 @@ public class CommandExecutorScript extends CommandExecutorAbstract
     return result;
   }
 
-  private boolean evaluateIfCondition(String lastCommand) {
+  private boolean evaluateIfCondition(String dbName, String lastCommand) {
     var cmd = lastCommand;
     cmd = cmd.trim().substring(2); // remove IF
     cmd = cmd.trim().substring(0, cmd.trim().length() - 1); // remove {
@@ -519,9 +512,9 @@ public class CommandExecutorScript extends CommandExecutorAbstract
       result = condition.evaluate(null, null, getContext());
     } catch (Exception e) {
       throw BaseException.wrapException(
-          new CommandExecutionException(
+          new CommandExecutionException(dbName,
               "Could not evaluate IF condition: " + cmd + " - " + e.getMessage()),
-          e);
+          e, dbName);
     }
 
     return Boolean.TRUE.equals(result);
@@ -699,12 +692,15 @@ public class CommandExecutorScript extends CommandExecutorAbstract
     Object lastResult = null;
 
     if (cmd.equalsIgnoreCase("NULL")
-        || cmd.startsWith("$")
-        || (cmd.startsWith("[") && cmd.endsWith("]"))
-        || (cmd.startsWith("{") && cmd.endsWith("}"))
-        || (cmd.startsWith("\"") && cmd.endsWith("\"") || cmd.startsWith("'") && cmd.endsWith("'"))
-        || (cmd.startsWith("(") && cmd.endsWith(")"))
-        || cmd.startsWith("#")) {
+        || !cmd.isEmpty() && cmd.charAt(0) == '$'
+        || (!cmd.isEmpty() && cmd.charAt(0) == '['
+        && cmd.charAt(cmd.length() - 1) == ']')
+        || (!cmd.isEmpty() && cmd.charAt(0) == '{' && cmd.charAt(cmd.length() - 1) == '}')
+        || (!cmd.isEmpty() && cmd.charAt(0) == '\"' && cmd.charAt(cmd.length() - 1) == '\"'
+        || !cmd.isEmpty()
+        && cmd.charAt(0) == '\'' && cmd.charAt(cmd.length() - 1) == '\'')
+        || (!cmd.isEmpty() && cmd.charAt(0) == '(' && cmd.charAt(cmd.length() - 1) == ')')
+        || !cmd.isEmpty() && cmd.charAt(0) == '#') {
       lastResult = getValue(cmd, db);
     } else {
       lastResult = executeCommand(cmd, db);
@@ -713,11 +709,6 @@ public class CommandExecutorScript extends CommandExecutorAbstract
     // PUT THE RESULT INTO THE CONTEXT
     getContext().setVariable(variable, lastResult);
     return lastResult;
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.WRITE;
   }
 
   @Override

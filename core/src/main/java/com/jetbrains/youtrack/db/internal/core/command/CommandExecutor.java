@@ -34,22 +34,22 @@ public interface CommandExecutor {
    * Parse the request. Once parsed the command can be executed multiple times by using the
    * execute() method.
    *
-   * @param db
+   * @param session
    * @param iRequest Command request implementation.
    * @return
    * @see #execute(DatabaseSessionInternal, Map) <Object, Object>...)
    */
-  <RET extends CommandExecutor> RET parse(DatabaseSessionInternal db, CommandRequest iRequest);
+  <RET extends CommandExecutor> RET parse(DatabaseSessionInternal session, CommandRequest iRequest);
 
   /**
    * Execute the requested command parsed previously.
    *
-   * @param db
+   * @param session
    * @param iArgs Optional variable arguments to pass to the command.
    * @return
    * @see #parse(DatabaseSessionInternal, CommandRequest)
    */
-  Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs);
+  Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs);
 
   /**
    * Set the listener invoked while the command is executing.
@@ -77,7 +77,7 @@ public interface CommandExecutor {
   /**
    * Returns the involved clusters.
    */
-  Set<String> getInvolvedClusters();
+  Set<String> getInvolvedClusters(DatabaseSessionInternal session);
 
   /**
    * Returns the security operation type use to check about security.
@@ -87,21 +87,10 @@ public interface CommandExecutor {
    */
   int getSecurityOperationType();
 
-  boolean involveSchema();
-
   String getSyntax();
-
-  /**
-   * Returns true if the command must be executed on local node on distributed configuration.
-   */
-  boolean isLocalExecution();
 
   /**
    * Returns true if the command results can be cached.
    */
   boolean isCacheable();
-
-  long getDistributedTimeout();
-
-  Object mergeResults(Map<String, Object> results) throws Exception;
 }

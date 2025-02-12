@@ -40,7 +40,6 @@ import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionAbstract;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.NavigableMap;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -340,8 +339,9 @@ public class EmbeddedRidBag implements RidBagDelegate {
   }
 
   @Override
-  public int serialize(DatabaseSessionInternal db, byte[] stream, int offset, UUID ownerUuid) {
-    IntegerSerializer.INSTANCE.serializeLiteral(size, stream, offset);
+  public int serialize(@Nonnull DatabaseSessionInternal session, byte[] stream, int offset,
+      UUID ownerUuid) {
+    IntegerSerializer.serializeLiteral(size, stream, offset);
     offset += IntegerSerializer.INT_SIZE;
 
     final var totEntries = entries.length;
@@ -349,9 +349,9 @@ public class EmbeddedRidBag implements RidBagDelegate {
       final var entry = entries[i];
       if (entry instanceof RID link) {
         final var rid = link.getIdentity();
-        if (db != null && !db.isClosed() && db.getTransaction().isActive()) {
+        if (!session.isClosed() && session.getTransaction().isActive()) {
           if (!link.getIdentity().isPersistent()) {
-            var record = db.getTransaction().getRecord(link.getIdentity());
+            var record = session.getTransaction().getRecord(link.getIdentity());
             if (record == FrontendTransactionAbstract.DELETED_RECORD) {
               link = null;
             } else {
@@ -361,11 +361,12 @@ public class EmbeddedRidBag implements RidBagDelegate {
         }
 
         if (link == null) {
-          throw new SerializationException("Found null entry in ridbag with rid=" + rid);
+          throw new SerializationException(
+              session.getDatabaseName(), "Found null entry in ridbag with rid=" + rid);
         }
 
         entries[i] = link;
-        LinkSerializer.INSTANCE.serialize(link, stream, offset);
+        LinkSerializer.staticSerialize(link, stream, offset);
         offset += LinkSerializer.RID_SIZE;
       }
     }
@@ -374,19 +375,20 @@ public class EmbeddedRidBag implements RidBagDelegate {
   }
 
   @Override
-  public int deserialize(DatabaseSessionInternal db, final byte[] stream, int offset) {
-    this.size = IntegerSerializer.INSTANCE.deserializeLiteral(stream, offset);
-    var entriesSize = IntegerSerializer.INSTANCE.deserializeLiteral(stream, offset);
+  public int deserialize(@Nonnull DatabaseSessionInternal session, final byte[] stream,
+      int offset) {
+    this.size = IntegerSerializer.deserializeLiteral(stream, offset);
+    var entriesSize = IntegerSerializer.deserializeLiteral(stream, offset);
     offset += IntegerSerializer.INT_SIZE;
 
     for (var i = 0; i < entriesSize; i++) {
-      RID rid = LinkSerializer.INSTANCE.deserialize(stream, offset);
+      RID rid = LinkSerializer.staticDeserialize(stream, offset);
       offset += LinkSerializer.RID_SIZE;
 
       RID identifiable;
       if (rid.isTemporary()) {
         try {
-          identifiable = rid.getRecord(db);
+          identifiable = rid.getRecord(session);
         } catch (RecordNotFoundException rnf) {
           LogManager.instance()
               .warn(this, "Found null reference during ridbag deserialization (rid=%s)", rid);
@@ -512,6 +514,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
     }
     this.dirty = true;
     this.transactionDirty = true;
+    //noinspection unchecked
     return (RET) this;
   }
 

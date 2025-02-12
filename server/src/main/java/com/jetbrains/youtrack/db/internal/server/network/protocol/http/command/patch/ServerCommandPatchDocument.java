@@ -41,7 +41,7 @@ public class ServerCommandPatchDocument extends ServerCommandDocumentAbstract {
         checkSyntax(iRequest.getUrl(), 2, "Syntax error: document/<database>[/<record-id>]");
 
     iRequest.getData().commandInfo = "Edit Document";
-    try (var db = getProfiledDatabaseInstance(iRequest)) {
+    try (var db = getProfiledDatabaseSessionInstance(iRequest)) {
       RawPair<Boolean, RID> result =
           db.computeInTx(
               () -> {

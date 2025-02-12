@@ -1,17 +1,14 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchFilter;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchPathItem;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchPathItemFirst;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMethodCall;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMultiMatchPathItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -49,7 +46,7 @@ public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
     List<Object> nextStep = new ArrayList<>();
     nextStep.add(startingPoint);
 
-    var db = iCommandContext.getDatabase();
+    var db = iCommandContext.getDatabaseSession();
     var oldCurrent = iCommandContext.getVariable("$current");
     for (var sub : item.getItems()) {
       List<Result> rightSide = new ArrayList<>();
@@ -133,13 +130,13 @@ public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
     return where.matchesFilters(x, ctx);
   }
 
-  private static ResultInternal toOResultInternal(DatabaseSessionInternal db, Object x) {
+  private static ResultInternal toOResultInternal(DatabaseSessionInternal session, Object x) {
     if (x instanceof ResultInternal) {
       return (ResultInternal) x;
     }
     if (x instanceof Identifiable) {
-      return new ResultInternal(db, (Identifiable) x);
+      return new ResultInternal(session, (Identifiable) x);
     }
-    throw new CommandExecutionException("Cannot execute traversal on " + x);
+    throw new CommandExecutionException(session, "Cannot execute traversal on " + x);
   }
 }

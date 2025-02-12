@@ -35,36 +35,34 @@ public class CommandExecutorSQLTransactional extends CommandExecutorSQLDelegate 
 
   @SuppressWarnings("unchecked")
   @Override
-  public CommandExecutorSQLTransactional parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLTransactional parse(DatabaseSessionInternal session,
       CommandRequest iCommand) {
     var cmd = ((CommandSQL) iCommand).getText();
-    super.parse(db, new CommandSQL(cmd.substring(KEYWORD_TRANSACTIONAL.length())));
+    super.parse(session, new CommandSQL(cmd.substring(KEYWORD_TRANSACTIONAL.length())));
     return this;
   }
 
   @Override
-  public Object execute(DatabaseSessionInternal db, Map<Object, Object> iArgs) {
-    var database = getDatabase();
-    var txbegun = database.getTransaction() == null || !database.getTransaction().isActive();
-
+  public Object execute(DatabaseSessionInternal session, Map<Object, Object> iArgs) {
+    var txbegun = session.getTransaction() == null || !session.getTransaction().isActive();
     if (txbegun) {
-      database.begin();
+      session.begin();
     }
 
     try {
-      final var result = super.execute(db, iArgs);
+      final var result = super.execute(session, iArgs);
 
       if (txbegun) {
-        database.commit();
+        session.commit();
       }
 
       return result;
     } catch (Exception e) {
       if (txbegun) {
-        database.rollback();
+        session.rollback();
       }
       throw BaseException.wrapException(
-          new CommandExecutionException("Transactional command failed"), e);
+          new CommandExecutionException(session, "Transactional command failed"), e, session);
     }
   }
 }

@@ -18,13 +18,13 @@ public class DBRecordLazySetPersistentTest extends DbTestBase {
     RID orid1;
     RID orid2;
 
-    db.activateOnCurrentThread();
-    db.begin();
+    session.activateOnCurrentThread();
+    session.begin();
     {
-      var doc1 = (EntityImpl) db.newEntity();
+      var doc1 = (EntityImpl) session.newEntity();
       doc1.field("linkset", new HashSet<EntityImpl>());
       Set<EntityImpl> linkset = doc1.field("linkset");
-      var doc2 = (EntityImpl) db.newEntity();
+      var doc2 = (EntityImpl) session.newEntity();
       doc2.save();
       orid2 = doc2.getIdentity();
       linkset.add(doc2);
@@ -32,17 +32,17 @@ public class DBRecordLazySetPersistentTest extends DbTestBase {
       orid1 = doc1.getIdentity();
       assertNotNull(orid1);
     }
-    db.commit();
+    session.commit();
 
-    db.begin();
+    session.begin();
     {
-      EntityImpl doc1 = db.load(orid1);
+      EntityImpl doc1 = session.load(orid1);
       assertNotNull(doc1);
       Set<Identifiable> linkset = doc1.field("linkset");
       assertNotNull(linkset);
       assertEquals(1, linkset.size());
 
-      EntityImpl doc2 = db.load(orid2);
+      EntityImpl doc2 = session.load(orid2);
       assertNotNull(doc2);
 
       assertEquals(orid2, linkset.iterator().next().getIdentity());
@@ -51,7 +51,7 @@ public class DBRecordLazySetPersistentTest extends DbTestBase {
       linkset.remove(doc2);
       assertEquals(0, linkset.size()); // AssertionError: expected:<0> but was:<1>
     }
-    db.commit();
+    session.commit();
   }
 
   @Test
@@ -59,13 +59,13 @@ public class DBRecordLazySetPersistentTest extends DbTestBase {
     RID orid1;
     RID orid2;
 
-    db.activateOnCurrentThread();
-    db.begin();
+    session.activateOnCurrentThread();
+    session.begin();
     {
-      var doc1 = (EntityImpl) db.newEntity();
+      var doc1 = (EntityImpl) session.newEntity();
       doc1.field("linkset", new HashSet<Identifiable>());
       Set<Identifiable> linkset = doc1.field("linkset");
-      var doc2 = (EntityImpl) db.newEntity();
+      var doc2 = (EntityImpl) session.newEntity();
       doc2.save();
       orid2 = doc2.getIdentity();
       linkset.add(doc2);
@@ -73,18 +73,18 @@ public class DBRecordLazySetPersistentTest extends DbTestBase {
       orid1 = doc1.getIdentity();
       assertNotNull(orid1);
     }
-    db.commit();
+    session.commit();
 
-    db.begin();
+    session.begin();
     {
-      EntityImpl doc1 = db.load(orid1);
+      EntityImpl doc1 = session.load(orid1);
       assertNotNull(doc1);
       Set<Identifiable> linkset = doc1.field("linkset");
 
       assertNotNull(linkset);
       assertEquals(1, linkset.size());
 
-      EntityImpl doc2 = db.load(orid2);
+      EntityImpl doc2 = session.load(orid2);
       assertNotNull(doc2);
 
       assertEquals(orid2, linkset.iterator().next().getIdentity());
@@ -93,6 +93,6 @@ public class DBRecordLazySetPersistentTest extends DbTestBase {
       linkset.remove(doc2);
       assertEquals(0, linkset.size()); // AssertionError: expected:<0> but was:<1>
     }
-    db.commit();
+    session.commit();
   }
 }

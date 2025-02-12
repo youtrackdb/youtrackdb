@@ -1,5 +1,6 @@
 package com.jetbrains.youtrack.db.api.query;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Edge;
@@ -140,4 +141,11 @@ public interface Result {
   String toJSON();
 
   boolean hasProperty(String varName);
+
+  /**
+   * @return Returns session to which given record is bound or <code>null</code> if record is
+   * unloaded.
+   */
+  @Nullable
+  DatabaseSession getBoundedToSession();
 }

@@ -31,28 +31,28 @@ public class CommandExecutorSQLGrantRevokeTest extends DbTestBase {
 
   @Test
   public void grantServerRemove() {
-    db.begin();
+    session.begin();
     var testRole =
-        db.getMetadata()
+        session.getMetadata()
             .getSecurity()
             .createRole("testRole");
 
     assertFalse(testRole.allow(Rule.ResourceGeneric.SERVER, "server", Role.PERMISSION_EXECUTE));
-    db.commit();
+    session.commit();
 
-    db.begin();
-    db.command("GRANT execute on server.remove to testRole").close();
-    db.commit();
+    session.begin();
+    session.command("GRANT execute on server.remove to testRole").close();
+    session.commit();
 
-    testRole = db.getMetadata().getSecurity().getRole("testRole");
+    testRole = session.getMetadata().getSecurity().getRole("testRole");
 
     assertTrue(testRole.allow(Rule.ResourceGeneric.SERVER, "remove", Role.PERMISSION_EXECUTE));
 
-    db.begin();
-    db.command("REVOKE execute on server.remove from testRole").close();
-    db.commit();
+    session.begin();
+    session.command("REVOKE execute on server.remove from testRole").close();
+    session.commit();
 
-    testRole = db.getMetadata().getSecurity().getRole("testRole");
+    testRole = session.getMetadata().getSecurity().getRole("testRole");
 
     assertFalse(testRole.allow(Rule.ResourceGeneric.SERVER, "remove", Role.PERMISSION_EXECUTE));
   }

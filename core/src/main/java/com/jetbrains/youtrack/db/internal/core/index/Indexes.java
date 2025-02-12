@@ -139,7 +139,6 @@ public final class Indexes {
 
   /**
    * @param storage   TODO
-   * @param indexType index type
    * @return IndexInternal
    * @throws ConfigurationException if index creation failed
    * @throws IndexException         if index type does not exist
@@ -162,6 +161,7 @@ public final class Indexes {
         return factory;
       }
     }
+
     throw new IndexException(
         "Index type "
             + indexType

@@ -17,7 +17,6 @@ package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.api.query.LiveQueryMonitor;
 import com.jetbrains.youtrack.db.api.query.LiveQueryResultListener;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.RID;
@@ -48,29 +47,29 @@ public class LiveQuery30Test extends BaseDBTest implements CommandOutputListener
     public int unsubscribe;
 
     @Override
-    public void onCreate(DatabaseSessionInternal database, Result data) {
+    public void onCreate(DatabaseSessionInternal session, Result data) {
       ops.add(new Pair<>("create", data));
       latch.countDown();
     }
 
     @Override
-    public void onUpdate(DatabaseSessionInternal database, Result before, Result after) {
+    public void onUpdate(DatabaseSessionInternal session, Result before, Result after) {
       ops.add(new Pair<>("update", after));
       latch.countDown();
     }
 
     @Override
-    public void onDelete(DatabaseSessionInternal database, Result data) {
+    public void onDelete(DatabaseSessionInternal session, Result data) {
       ops.add(new Pair<>("delete", data));
       latch.countDown();
     }
 
     @Override
-    public void onError(DatabaseSession database, BaseException exception) {
+    public void onError(DatabaseSession session, BaseException exception) {
     }
 
     @Override
-    public void onEnd(DatabaseSession database) {
+    public void onEnd(DatabaseSession session) {
       unsubscribe = 1;
       unLatch.countDown();
     }
@@ -85,21 +84,21 @@ public class LiveQuery30Test extends BaseDBTest implements CommandOutputListener
   public void checkLiveQuery1() throws IOException, InterruptedException {
     final var className1 = "LiveQuery30Test_checkLiveQuery1_1";
     final var className2 = "LiveQuery30Test_checkLiveQuery1_2";
-    db.getMetadata().getSchema().createClass(className1);
-    db.getMetadata().getSchema().createClass(className2);
+    session.getMetadata().getSchema().createClass(className1);
+    session.getMetadata().getSchema().createClass(className2);
 
     var listener = new MyLiveQueryListener();
 
-    var monitor = db.live("live select from " + className1, listener);
+    var monitor = session.live("live select from " + className1, listener);
     Assert.assertNotNull(monitor);
 
-    db.command("insert into " + className1 + " set name = 'foo', surname = 'bar'");
-    db.command("insert into  " + className1 + " set name = 'foo', surname = 'baz'");
-    db.command("insert into " + className2 + " set name = 'foo'");
+    session.command("insert into " + className1 + " set name = 'foo', surname = 'bar'");
+    session.command("insert into  " + className1 + " set name = 'foo', surname = 'baz'");
+    session.command("insert into " + className2 + " set name = 'foo'");
     latch.await(1, TimeUnit.MINUTES);
 
     monitor.unSubscribe();
-    db.command("insert into " + className1 + " set name = 'foo', surname = 'bax'");
+    session.command("insert into " + className1 + " set name = 'foo', surname = 'bax'");
     Assert.assertEquals(listener.ops.size(), 2);
     for (Pair doc : listener.ops) {
       Assert.assertEquals(doc.getKey(), "create");

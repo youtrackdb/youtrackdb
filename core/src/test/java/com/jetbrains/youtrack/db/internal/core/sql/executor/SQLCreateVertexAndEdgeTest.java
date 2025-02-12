@@ -17,11 +17,8 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -33,105 +30,106 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
 
   @Test
   public void testCreateEdgeDefaultClass() {
-    var vclusterId = db.addCluster("vdefault");
-    var eclusterId = db.addCluster("edefault");
+    var vclusterId = session.addCluster("vdefault");
+    var eclusterId = session.addCluster("edefault");
 
-    db.command("create class V1 extends V").close();
-    db.command("alter class V1 add_cluster vdefault").close();
+    session.command("create class V1 extends V").close();
+    session.command("alter class V1 add_cluster vdefault").close();
 
-    db.command("create class E1 extends E").close();
-    db.command("alter class E1 add_cluster edefault").close();
+    session.command("create class E1 extends E").close();
+    session.command("alter class E1 add_cluster edefault").close();
 
     // VERTEXES
-    db.begin();
-    var v1 = db.command("create vertex").next().getVertex().get();
-    db.commit();
+    session.begin();
+    var v1 = session.command("create vertex").next().getVertex().get();
+    session.commit();
 
-    v1 = db.bindToSession(v1);
-    Assert.assertEquals("V", v1.getSchemaType().get().getName());
+    v1 = session.bindToSession(v1);
+    Assert.assertEquals("V", v1.getSchemaType().get().getName(session));
 
-    db.begin();
-    var v2 = db.command("create vertex V1").next().getVertex().get();
-    db.commit();
+    session.begin();
+    var v2 = session.command("create vertex V1").next().getVertex().get();
+    session.commit();
 
-    v2 = db.bindToSession(v2);
-    Assert.assertEquals("V1", v2.getSchemaType().get().getName());
+    v2 = session.bindToSession(v2);
+    Assert.assertEquals("V1", v2.getSchemaType().get().getName(session));
 
-    db.begin();
-    var v3 = db.command("create vertex set brand = 'fiat'").next().getVertex().get();
-    db.commit();
+    session.begin();
+    var v3 = session.command("create vertex set brand = 'fiat'").next().getVertex().get();
+    session.commit();
 
-    v3 = db.bindToSession(v3);
-    Assert.assertEquals("V", v3.getSchemaType().get().getName());
+    v3 = session.bindToSession(v3);
+    Assert.assertEquals("V", v3.getSchemaType().get().getName(session));
     Assert.assertEquals("fiat", v3.getProperty("brand"));
 
-    db.begin();
+    session.begin();
     var v4 =
-        db.command("create vertex V1 set brand = 'fiat',name = 'wow'").next().getVertex().get();
-    db.commit();
+        session.command("create vertex V1 set brand = 'fiat',name = 'wow'").next().getVertex()
+            .get();
+    session.commit();
 
-    v4 = db.bindToSession(v4);
-    Assert.assertEquals("V1", v4.getSchemaType().get().getName());
+    v4 = session.bindToSession(v4);
+    Assert.assertEquals("V1", v4.getSchemaType().get().getName(session));
     Assert.assertEquals("fiat", v4.getProperty("brand"));
     Assert.assertEquals("wow", v4.getProperty("name"));
 
-    db.begin();
-    var v5 = db.command("create vertex V1 cluster vdefault").next().getVertex().get();
-    db.commit();
+    session.begin();
+    var v5 = session.command("create vertex V1 cluster vdefault").next().getVertex().get();
+    session.commit();
 
-    v5 = db.bindToSession(v5);
-    Assert.assertEquals("V1", v5.getSchemaType().get().getName());
+    v5 = session.bindToSession(v5);
+    Assert.assertEquals("V1", v5.getSchemaType().get().getName(session));
     Assert.assertEquals(v5.getIdentity().getClusterId(), vclusterId);
 
     // EDGES
-    db.begin();
+    session.begin();
     var edges =
-        db.command("create edge from " + v1.getIdentity() + " to " + v2.getIdentity());
-    db.commit();
+        session.command("create edge from " + v1.getIdentity() + " to " + v2.getIdentity());
+    session.commit();
     assertEquals(1, edges.stream().count());
 
-    db.begin();
-    edges = db.command("create edge E1 from " + v1.getIdentity() + " to " + v3.getIdentity());
-    db.commit();
+    session.begin();
+    edges = session.command("create edge E1 from " + v1.getIdentity() + " to " + v3.getIdentity());
+    session.commit();
     assertEquals(1, edges.stream().count());
 
-    db.begin();
+    session.begin();
     edges =
-        db.command(
+        session.command(
             "create edge from " + v1.getIdentity() + " to " + v4.getIdentity() + " set weight = 3");
-    db.commit();
+    session.commit();
 
-    EntityImpl e3 = edges.next().getIdentity().get().getRecord(db);
+    EntityImpl e3 = edges.next().getIdentity().get().getRecord(session);
     Assert.assertEquals("E", e3.getClassName());
     Assert.assertEquals(e3.field("out"), v1);
     Assert.assertEquals(e3.field("in"), v4);
     Assert.assertEquals(3, e3.<Object>field("weight"));
 
-    db.begin();
+    session.begin();
     edges =
-        db.command(
+        session.command(
             "create edge E1 from "
                 + v2.getIdentity()
                 + " to "
                 + v3.getIdentity()
                 + " set weight = 10");
-    db.commit();
-    EntityImpl e4 = edges.next().getIdentity().get().getRecord(db);
+    session.commit();
+    EntityImpl e4 = edges.next().getIdentity().get().getRecord(session);
     Assert.assertEquals("E1", e4.getClassName());
     Assert.assertEquals(e4.field("out"), v2);
     Assert.assertEquals(e4.field("in"), v3);
     Assert.assertEquals(10, e4.<Object>field("weight"));
 
-    db.begin();
+    session.begin();
     edges =
-        db.command(
+        session.command(
             "create edge e1 cluster edefault from "
                 + v3.getIdentity()
                 + " to "
                 + v5.getIdentity()
                 + " set weight = 17");
-    db.commit();
-    EntityImpl e5 = edges.next().getIdentity().get().getRecord(db);
+    session.commit();
+    EntityImpl e5 = edges.next().getIdentity().get().getRecord(session);
     Assert.assertEquals("E1", e5.getClassName());
     Assert.assertEquals(e5.getIdentity().getClusterId(), eclusterId);
   }
@@ -151,13 +149,13 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
       cmd += "commit retry 100\n";
       cmd += "return $e";
 
-      var result = db.query("select from V");
+      var result = session.query("select from V");
 
       var before = result.stream().count();
 
-      db.execute("sql", cmd).close();
+      session.execute("sql", cmd).close();
 
-      result = db.query("select from V");
+      result = session.query("select from V");
 
       Assert.assertEquals(result.stream().count(), before + 1);
     } catch (Exception ex) {
@@ -170,39 +168,39 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
 
   @Test
   public void testNewParser() {
-    db.begin();
-    var v1 = db.command("create vertex").next().getVertex().get();
-    db.commit();
+    session.begin();
+    var v1 = session.command("create vertex").next().getVertex().get();
+    session.commit();
 
-    v1 = db.bindToSession(v1);
-    Assert.assertEquals("V", v1.getSchemaType().get().getName());
+    v1 = session.bindToSession(v1);
+    Assert.assertEquals("V", v1.getSchemaType().get().getName(session));
 
     var vid = v1.getIdentity();
 
-    db.begin();
-    db.command("create edge from " + vid + " to " + vid).close();
+    session.begin();
+    session.command("create edge from " + vid + " to " + vid).close();
 
-    db.command("create edge E from " + vid + " to " + vid).close();
+    session.command("create edge E from " + vid + " to " + vid).close();
 
-    db.command("create edge from " + vid + " to " + vid + " set foo = 'bar'").close();
+    session.command("create edge from " + vid + " to " + vid + " set foo = 'bar'").close();
 
-    db.command("create edge E from " + vid + " to " + vid + " set bar = 'foo'").close();
-    db.commit();
+    session.command("create edge E from " + vid + " to " + vid + " set bar = 'foo'").close();
+    session.commit();
   }
 
   @Test
   public void testCannotAlterEClassname() {
-    db.command("create class ETest extends E").close();
+    session.command("create class ETest extends E").close();
 
     try {
-      db.command("alter class ETest name ETest2").close();
+      session.command("alter class ETest name ETest2").close();
       Assert.fail();
     } catch (CommandExecutionException e) {
       Assert.assertTrue(true);
     }
 
     try {
-      db.command("alter class ETest name ETest2 unsafe").close();
+      session.command("alter class ETest name ETest2 unsafe").close();
       Assert.assertTrue(true);
     } catch (CommandExecutionException e) {
       Assert.fail();
@@ -212,9 +210,9 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
   public void testSqlScriptThatDeletesEdge() {
     var start = System.currentTimeMillis();
 
-    db.command("create vertex V set name = 'testSqlScriptThatDeletesEdge1'").close();
-    db.command("create vertex V set name = 'testSqlScriptThatDeletesEdge2'").close();
-    db.command(
+    session.command("create vertex V set name = 'testSqlScriptThatDeletesEdge1'").close();
+    session.command("create vertex V set name = 'testSqlScriptThatDeletesEdge2'").close();
+    session.command(
             "create edge E from (select from V where name = 'testSqlScriptThatDeletesEdge1') to"
                 + " (select from V where name = 'testSqlScriptThatDeletesEdge2') set name ="
                 + " 'testSqlScriptThatDeletesEdge'")
@@ -227,9 +225,9 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
       cmd += "COMMIT\n";
       cmd += "RETURN $groupVertices\n";
 
-      db.execute("sql", cmd);
+      session.execute("sql", cmd);
 
-      var edges = db.query("select from E where name = 'testSqlScriptThatDeletesEdge'");
+      var edges = session.query("select from E where name = 'testSqlScriptThatDeletesEdge'");
 
       Assert.assertEquals(0, edges.stream().count());
     } catch (Exception ex) {

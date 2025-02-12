@@ -23,7 +23,6 @@ import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -62,7 +61,7 @@ public interface TransactionInternal extends FrontendTransaction {
    *
    * @return
    */
-  DatabaseSessionInternal getDatabase();
+  DatabaseSessionInternal getDatabaseSession();
 
   /**
    * Notify the transaction for the rid change, the changed will be tracked inside the transaction
@@ -81,7 +80,7 @@ public interface TransactionInternal extends FrontendTransaction {
    */
   RecordOperation getRecordEntry(RID currentRid);
 
-  void setDatabase(DatabaseSessionInternal database);
+  void setSession(DatabaseSessionInternal session);
 
   @Nullable
   default byte[] getMetadata() {
@@ -93,9 +92,5 @@ public interface TransactionInternal extends FrontendTransaction {
   default void storageBegun() {
   }
 
-  void prepareSerializedOperations() throws IOException;
-
   Iterator<byte[]> getSerializedOperations();
-
-  void resetAllocatedIds();
 }

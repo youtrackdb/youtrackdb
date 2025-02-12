@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.util.Map;
 import org.junit.Test;
 
@@ -15,31 +14,31 @@ public class SQLUpdateMapTest extends DbTestBase {
 
     EntityImpl ret;
     EntityImpl ret1;
-    db.command("create class vRecord").close();
-    db.command("create property vRecord.attrs EMBEDDEDMAP ").close();
+    session.command("create class vRecord").close();
+    session.command("create property vRecord.attrs EMBEDDEDMAP ").close();
 
-    db.begin();
-    try (var rs = db.command("insert into vRecord (title) values('first record')")) {
+    session.begin();
+    try (var rs = session.command("insert into vRecord (title) values('first record')")) {
       ret = (EntityImpl) rs.next().getRecord().get();
     }
 
-    try (var rs = db.command("insert into vRecord (title) values('second record')")) {
+    try (var rs = session.command("insert into vRecord (title) values('second record')")) {
       ret1 = (EntityImpl) rs.next().getRecord().get();
     }
-    db.commit();
+    session.commit();
 
-    db.begin();
-    db.command(
+    session.begin();
+    session.command(
             "update " + ret.getIdentity() + " set attrs =  {'test1':" + ret1.getIdentity() + " }")
         .close();
-    db.commit();
+    session.commit();
     reOpen("admin", "adminpwd");
 
-    db.begin();
-    db.command("update " + ret.getIdentity() + " set attrs['test'] = 'test value' ").close();
-    db.commit();
+    session.begin();
+    session.command("update " + ret.getIdentity() + " set attrs['test'] = 'test value' ").close();
+    session.commit();
 
-    ret = db.bindToSession(ret);
+    ret = session.bindToSession(ret);
     assertEquals(2, ((Map) ret.field("attrs")).size());
     assertEquals("test value", ((Map) ret.field("attrs")).get("test"));
     assertEquals(ret1.getIdentity(), ((Map) ret.field("attrs")).get("test1"));

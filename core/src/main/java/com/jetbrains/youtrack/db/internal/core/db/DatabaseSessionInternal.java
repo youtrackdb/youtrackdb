@@ -66,8 +66,6 @@ import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionNoTx;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
 import com.jetbrains.youtrack.db.internal.enterprise.EnterpriseEndpoint;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -93,9 +91,11 @@ public interface DatabaseSessionInternal extends DatabaseSession {
    *
    * @return The new instance.
    */
-  <RET extends Entity> RET newInstance(String className);
+  EntityImpl newInstance(String className);
 
-  <RET extends Entity> RET newInstance();
+  EntityImpl newInstance();
+
+  EntityImpl newInternalInstance();
 
   Entity newEmbededEntity(String className);
 
@@ -159,7 +159,6 @@ public interface DatabaseSessionInternal extends DatabaseSession {
   DatabaseSessionInternal copy();
 
   void recycle(DBRecord record);
-
 
   boolean assertIfNotActive();
 
@@ -273,12 +272,10 @@ public interface DatabaseSessionInternal extends DatabaseSession {
   boolean dropClusterInternal(int clusterId);
 
   default String getStorageId() {
-    return getName();
+    return getDatabaseName();
   }
 
   long[] getClusterDataRange(int currentClusterId);
-
-  void setDefaultClusterId(int addCluster);
 
   long getLastClusterPosition(int clusterId);
 
@@ -558,43 +555,6 @@ public interface DatabaseSessionInternal extends DatabaseSession {
   SharedContext getSharedContext();
 
   /**
-   * returns the cluster map for current deploy. The keys of the map are node names, the values
-   * contain names of clusters (data files) available on the single node.
-   *
-   * @return the cluster map for current deploy
-   */
-  default String getLocalNodeName() {
-    return "local";
-  }
-
-  /**
-   * returns the cluster map for current deploy. The keys of the map are node names, the values
-   * contain names of clusters (data files) available on the single node.
-   *
-   * @return the cluster map for current deploy
-   */
-  default Map<String, Set<String>> getActiveClusterMap() {
-    Map<String, Set<String>> result = new HashMap<>();
-    result.put(getLocalNodeName(), getStorage().getClusterNames());
-    return result;
-  }
-
-  /**
-   * returns the data center map for current deploy. The keys are data center names, the values are
-   * node names per data center
-   *
-   * @return data center map for current deploy
-   */
-  default Map<String, Set<String>> getActiveDataCenterMap() {
-    Map<String, Set<String>> result = new HashMap<>();
-    Set<String> val = new HashSet<>();
-    val.add(getLocalNodeName());
-    result.put("local", val);
-    return result;
-  }
-
-
-  /**
    * @return an endpoint for Enterprise features. Null in Community Edition
    */
   default EnterpriseEndpoint getEnterpriseEndpoint() {
@@ -856,14 +816,6 @@ public interface DatabaseSessionInternal extends DatabaseSession {
    * Returns the total size of the records in the database.
    */
   long getSize();
-
-  /**
-   * Returns the default cluster id. If not specified all the new entities will be stored in the
-   * default cluster.
-   *
-   * @return The default cluster id
-   */
-  int getDefaultClusterId();
 
   /**
    * Returns the number of clusters.

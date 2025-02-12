@@ -27,10 +27,10 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 public abstract class ProxedResource<T> {
 
   protected final T delegate;
-  protected final DatabaseSessionInternal database;
+  protected final DatabaseSessionInternal session;
 
   protected ProxedResource(final T iDelegate, final DatabaseSessionInternal iDatabase) {
     this.delegate = iDelegate;
-    this.database = iDatabase;
+    this.session = iDatabase;
   }
 }

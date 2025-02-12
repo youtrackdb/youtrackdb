@@ -20,7 +20,6 @@
 
 package com.jetbrains.youtrack.db.internal.core.db.record.ridbag;
 
-import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
@@ -30,7 +29,6 @@ import com.jetbrains.youtrack.db.internal.common.collection.DataContainer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.UUIDSerializer;
 import com.jetbrains.youtrack.db.internal.common.util.Sizeable;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeTimeLine;
@@ -43,7 +41,6 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BytesContainer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.string.StringWriterSerializable;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeBasedRidBag;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.Change;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.RemoteTreeRidBag;
@@ -95,13 +92,15 @@ public class RidBag
     RecordElement {
 
   private RidBagDelegate delegate;
+
   private RecordId ownerRecord;
   private String fieldName;
 
   private int topThreshold;
   private int bottomThreshold;
-
   private UUID uuid;
+
+  private DatabaseSessionInternal database;
 
   public RidBag(DatabaseSessionInternal session, final RidBag ridBag) {
     initThresholds(session);
@@ -109,6 +108,7 @@ public class RidBag
     for (var identifiable : ridBag) {
       add(identifiable);
     }
+    this.database = session;
   }
 
   public RidBag(DatabaseSessionInternal session) {
@@ -125,7 +125,7 @@ public class RidBag
   public RidBag(DatabaseSessionInternal session, BonsaiCollectionPointer pointer,
       Map<RID, Change> changes, UUID uuid) {
     initThresholds(session);
-    delegate = new BTreeBasedRidBag(pointer, changes);
+    delegate = new BTreeBasedRidBag(pointer, changes, session);
     this.uuid = uuid;
   }
 
@@ -222,15 +222,15 @@ public class RidBag
     return pointer == null || pointer == BonsaiCollectionPointer.INVALID;
   }
 
-  public int toStream(DatabaseSessionInternal db, BytesContainer bytesContainer)
+  public int toStream(DatabaseSessionInternal session, BytesContainer bytesContainer)
       throws SerializationException {
 
     checkAndConvert();
 
     final var oldUuid = uuid;
-    final var bTreeCollectionManager = db.getSbTreeCollectionManager();
+    final var bTreeCollectionManager = session.getSbTreeCollectionManager();
     if (bTreeCollectionManager != null) {
-      uuid = bTreeCollectionManager.listenForChanges(this);
+      uuid = bTreeCollectionManager.listenForChanges(this, session);
     } else {
       uuid = null;
     }
@@ -257,19 +257,18 @@ public class RidBag
     stream[offset++] = configByte;
 
     if (hasUuid) {
-      UUIDSerializer.INSTANCE.serialize(uuid, stream, offset);
+      UUIDSerializer.staticSerialize(uuid, stream, offset);
       offset += UUIDSerializer.UUID_SIZE;
     }
 
-    delegate.serialize(db, stream, offset, oldUuid);
+    delegate.serialize(session, stream, offset, oldUuid);
     return pointer;
   }
 
   public void checkAndConvert() {
-    var database = DatabaseRecordThreadLocal.instance().getIfDefined();
     if (database != null && !database.isRemote()) {
       if (isEmbedded()
-          && DatabaseRecordThreadLocal.instance().get().getSbTreeCollectionManager() != null
+          && database.getSbTreeCollectionManager() != null
           && delegate.size() >= topThreshold) {
         convertToTree();
       } else if (bottomThreshold >= 0 && !isEmbedded() && delegate.size() <= bottomThreshold) {
@@ -304,7 +303,7 @@ public class RidBag
   private void convertToTree() {
     var oldDelegate = delegate;
     var isTransactionModified = oldDelegate.isTransactionModified();
-    delegate = new BTreeBasedRidBag();
+    delegate = new BTreeBasedRidBag(database);
 
     final var owner = oldDelegate.getOwner();
     delegate.disableTracking(owner);
@@ -358,11 +357,11 @@ public class RidBag
     if ((first & 1) == 1) {
       delegate = new EmbeddedRidBag();
     } else {
-      delegate = new BTreeBasedRidBag();
+      delegate = new BTreeBasedRidBag(database);
     }
 
     if ((first & 2) == 2) {
-      uuid = UUIDSerializer.INSTANCE.deserialize(stream.bytes, stream.offset);
+      uuid = UUIDSerializer.staticDeserialize(stream.bytes, stream.offset);
       stream.skip(UUIDSerializer.UUID_SIZE);
     }
 
@@ -385,7 +384,8 @@ public class RidBag
   public void setOwner(RecordElement owner) {
     if ((!(owner instanceof EntityImpl) && owner != null)
         || (owner != null && ((EntityImpl) owner).isEmbedded())) {
-      throw new DatabaseException("RidBag are supported only at entity root");
+      throw new DatabaseException(database.getDatabaseName(),
+          "RidBag are supported only at entity root");
     }
     delegate.setOwner(owner);
   }
@@ -413,10 +413,10 @@ public class RidBag
    *
    * @param newPointer new collection pointer
    */
-  public void notifySaved(BonsaiCollectionPointer newPointer) {
+  public void notifySaved(BonsaiCollectionPointer newPointer, DatabaseSessionInternal session) {
     if (newPointer.isValid()) {
       if (isEmbedded()) {
-        replaceWithSBTree(newPointer);
+        replaceWithSBTree(newPointer, session);
       } else if (delegate instanceof BTreeBasedRidBag) {
         ((BTreeBasedRidBag) delegate).setCollectionPointer(newPointer);
         ((BTreeBasedRidBag) delegate).clearChanges();
@@ -483,9 +483,8 @@ public class RidBag
 
   protected void init() {
     if (topThreshold < 0) {
-      if (DatabaseRecordThreadLocal.instance().isDefined()
-          && !DatabaseRecordThreadLocal.instance().get().isRemote()) {
-        delegate = new BTreeBasedRidBag();
+      if (database.isRemote()) {
+        delegate = new BTreeBasedRidBag(database);
       } else {
         delegate = new EmbeddedRidBag();
       }
@@ -499,9 +498,9 @@ public class RidBag
    *
    * @param pointer new collection pointer
    */
-  private void replaceWithSBTree(BonsaiCollectionPointer pointer) {
+  private void replaceWithSBTree(BonsaiCollectionPointer pointer, DatabaseSessionInternal session) {
     delegate.requestDelete();
-    final var treeBag = new RemoteTreeRidBag(pointer);
+    final var treeBag = new RemoteTreeRidBag(pointer, session);
     treeBag.setRecordAndField(ownerRecord, fieldName);
     treeBag.setOwner(delegate.getOwner());
     treeBag.setTracker(delegate.getTracker());

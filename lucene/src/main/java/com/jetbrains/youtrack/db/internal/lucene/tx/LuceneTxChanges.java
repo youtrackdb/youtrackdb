@@ -18,8 +18,8 @@
 
 package com.jetbrains.youtrack.db.internal.lucene.tx;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.util.Collections;
 import java.util.Set;
@@ -34,7 +34,7 @@ public interface LuceneTxChanges {
 
   void put(Object key, Identifiable value, Document doc);
 
-  void remove(DatabaseSessionInternal db, Object key, Identifiable value);
+  void remove(DatabaseSessionInternal session, Object key, Identifiable value);
 
   IndexSearcher searcher();
 

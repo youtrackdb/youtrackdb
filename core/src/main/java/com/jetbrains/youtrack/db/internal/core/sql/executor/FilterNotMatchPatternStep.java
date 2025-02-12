@@ -45,7 +45,7 @@ public class FilterNotMatchPatternStep extends AbstractExecutionStep {
 
   private SelectExecutionPlan createExecutionPlan(Result nextItem, CommandContext ctx) {
     var plan = new SelectExecutionPlan(ctx);
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     plan.chain(
         new AbstractExecutionStep(ctx, profilingEnabled) {
 

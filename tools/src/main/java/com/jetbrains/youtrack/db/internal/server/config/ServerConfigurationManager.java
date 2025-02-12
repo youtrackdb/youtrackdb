@@ -181,7 +181,7 @@ public class ServerConfigurationManager {
           configuration = configurationLoader.load();
         } catch (IOException e) {
           throw BaseException.wrapException(
-              new ConfigurationException("Cannot load server configuration"), e);
+              new ConfigurationException("Cannot load server configuration"), e, (String) null);
         }
       }
     }

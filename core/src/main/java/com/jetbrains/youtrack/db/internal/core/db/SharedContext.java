@@ -119,7 +119,9 @@ public abstract class SharedContext extends ListenerManger<MetadataUpdateListene
         resource = factory.call();
       } catch (Exception e) {
         throw BaseException.wrapException(
-            new DatabaseException(String.format("instance creation for '%s' failed", name)), e);
+            new DatabaseException((String) null,
+                String.format("instance creation for '%s' failed", name)),
+            e, (String) null);
       }
       resources.put(name, resource);
     }

@@ -1,15 +1,14 @@
 package com.jetbrains.youtrack.db.internal.core.sql.functions;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.misc.SQLStaticReflectiveFunction;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -66,21 +65,21 @@ public class CustomSQLFunctionFactory implements SQLFunctionFactory {
   }
 
   @Override
-  public Set<String> getFunctionNames() {
+  public Set<String> getFunctionNames(DatabaseSessionInternal session) {
     return FUNCTIONS.keySet();
   }
 
   @Override
-  public boolean hasFunction(final String name) {
+  public boolean hasFunction(final String name, DatabaseSessionInternal session) {
     return FUNCTIONS.containsKey(name);
   }
 
   @Override
-  public SQLFunction createFunction(final String name) {
+  public SQLFunction createFunction(final String name, DatabaseSessionInternal session) {
     final var obj = FUNCTIONS.get(name);
 
     if (obj == null) {
-      throw new CommandExecutionException("Unknown function name :" + name);
+      throw new CommandExecutionException(session, "Unknown function name :" + name);
     }
 
     if (obj instanceof SQLFunction) {
@@ -92,12 +91,12 @@ public class CustomSQLFunctionFactory implements SQLFunctionFactory {
         return (SQLFunction) clazz.newInstance();
       } catch (Exception e) {
         throw BaseException.wrapException(
-            new CommandExecutionException(
+            new CommandExecutionException(session,
                 "Error in creation of function "
                     + name
                     + "(). Probably there is not an empty constructor or the constructor generates"
                     + " errors"),
-            e);
+            e, session);
       }
     }
   }

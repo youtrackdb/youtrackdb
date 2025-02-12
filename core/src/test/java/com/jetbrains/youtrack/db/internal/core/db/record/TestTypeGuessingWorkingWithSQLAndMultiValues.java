@@ -1,7 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
@@ -18,7 +17,7 @@ public class TestTypeGuessingWorkingWithSQLAndMultiValues extends DbTestBase {
   public void beforeTest() throws Exception {
     super.beforeTest();
 
-    db.execute(
+    session.execute(
             "sql",
             """
                 create class Address;
@@ -35,7 +34,7 @@ public class TestTypeGuessingWorkingWithSQLAndMultiValues extends DbTestBase {
   public void testLinkedValue() {
 
     try (var result =
-        db.execute(
+        session.execute(
             "sql",
             "begin; let res = insert into client set name = 'James Bond', phones = ['1234',"
                 + " '34567'], addresses = [{'@class':'Address','city':'Shanghai', 'zip':'3999'},"
@@ -53,9 +52,9 @@ public class TestTypeGuessingWorkingWithSQLAndMultiValues extends DbTestBase {
       }
     }
 
-    db.begin();
+    session.begin();
     try (var resultSet =
-        db.command(
+        session.command(
             "update client set addresses = addresses || [{'city':'London', 'zip':'67373'}] return"
                 + " after")) {
       Assert.assertTrue(resultSet.hasNext());
@@ -69,6 +68,6 @@ public class TestTypeGuessingWorkingWithSQLAndMultiValues extends DbTestBase {
         Assert.assertEquals("Address", a.getProperty("@class"));
       }
     }
-    db.commit();
+    session.commit();
   }
 }

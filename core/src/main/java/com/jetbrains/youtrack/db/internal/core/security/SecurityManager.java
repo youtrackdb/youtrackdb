@@ -19,12 +19,12 @@
  */
 package com.jetbrains.youtrack.db.internal.core.security;
 
-import com.jetbrains.youtrack.db.internal.common.collection.LRUCache;
-import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.api.exception.SecurityException;
+import com.jetbrains.youtrack.db.internal.common.collection.LRUCache;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -176,7 +176,7 @@ public class SecurityManager {
           "The requested encoding is not supported: cannot execute security checks";
       LogManager.instance().error(SecuritySystem.class, message, e);
 
-      throw BaseException.wrapException(new ConfigurationException(message), e);
+      throw BaseException.wrapException(new ConfigurationException(message), e, (String) null);
     }
   }
 
@@ -268,7 +268,8 @@ public class SecurityManager {
       return encoded;
     } catch (Exception e) {
       throw BaseException.wrapException(
-          new SecurityException("Cannot create a key with '" + algorithm + "' algorithm"), e);
+          new SecurityException("Cannot create a key with '" + algorithm + "' algorithm"), e,
+          (String) null);
     }
   }
 

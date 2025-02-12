@@ -17,9 +17,7 @@ package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.IOException;
@@ -46,10 +44,10 @@ public class DbCopyTest extends BaseDBTest implements CommandOutputListener {
   @Test
   public void checkCopy() throws IOException {
     final var className = "DbCopyTest";
-    db.getMetadata().getSchema().createClass(className);
+    session.getMetadata().getSchema().createClass(className);
 
-    final var otherDB = db.copy();
-    db.activateOnCurrentThread();
+    final var otherDB = session.copy();
+    session.activateOnCurrentThread();
     var thread =
         new Thread(() -> {
           try {
@@ -76,11 +74,11 @@ public class DbCopyTest extends BaseDBTest implements CommandOutputListener {
     thread.start();
 
     for (var i = 0; i < 20; i++) {
-      db.begin();
-      EntityImpl doc = db.newInstance(className);
+      session.begin();
+      EntityImpl doc = session.newInstance(className);
       doc.field("num", i);
       doc.save();
-      db.commit();
+      session.commit();
       try {
         Thread.sleep(10);
       } catch (InterruptedException e) {
@@ -94,10 +92,10 @@ public class DbCopyTest extends BaseDBTest implements CommandOutputListener {
       Assert.fail();
     }
 
-    db.begin();
-    var result = db.query("SELECT FROM " + className);
+    session.begin();
+    var result = session.query("SELECT FROM " + className);
     Assert.assertEquals(result.stream().count(), 25);
-    db.commit();
+    session.commit();
   }
 
   @Override

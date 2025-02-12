@@ -20,7 +20,6 @@ package com.jetbrains.youtrack.db.internal.lucene.test;
 
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.List;
 import org.junit.Assert;
@@ -35,48 +34,48 @@ public class LuceneFacetTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var oClass = schema.createClass("Item");
 
-    oClass.createProperty(db, "name", PropertyType.STRING);
-    oClass.createProperty(db, "category", PropertyType.STRING);
+    oClass.createProperty(session, "name", PropertyType.STRING);
+    oClass.createProperty(session, "category", PropertyType.STRING);
 
-    db.command(
+    session.command(
             "create index Item.name_category on Item (name,category) FULLTEXT ENGINE LUCENE"
                 + " METADATA { 'facetFields' : ['category']}")
         .close();
 
-    var doc = ((EntityImpl) db.newEntity("Item"));
+    var doc = ((EntityImpl) session.newEntity("Item"));
     doc.field("name", "Pioneer");
     doc.field("category", "Electronic/HiFi");
 
-    db.begin();
-    db.save(doc);
-    db.commit();
+    session.begin();
+    session.save(doc);
+    session.commit();
 
-    doc = ((EntityImpl) db.newEntity("Item"));
+    doc = ((EntityImpl) session.newEntity("Item"));
     doc.field("name", "Hitachi");
     doc.field("category", "Electronic/HiFi");
 
-    db.begin();
-    db.save(doc);
-    db.commit();
+    session.begin();
+    session.save(doc);
+    session.commit();
 
-    doc = ((EntityImpl) db.newEntity("Item"));
+    doc = ((EntityImpl) session.newEntity("Item"));
     doc.field("name", "Philips");
     doc.field("category", "Electronic/HiFi");
 
-    db.begin();
-    db.save(doc);
-    db.commit();
+    session.begin();
+    session.save(doc);
+    session.commit();
 
-    doc = ((EntityImpl) db.newEntity("Item"));
+    doc = ((EntityImpl) session.newEntity("Item"));
     doc.field("name", "HP");
     doc.field("category", "Electronic/Computer");
 
-    db.begin();
-    db.save(doc);
-    db.commit();
+    session.begin();
+    session.save(doc);
+    session.commit();
   }
 
   @Test
@@ -84,7 +83,8 @@ public class LuceneFacetTest extends BaseLuceneTest {
   public void baseFacetTest() {
 
     var resultSet =
-        db.command("select *,$facet from Item where name lucene '(name:P*)' limit 1 ").toList();
+        session.command("select *,$facet from Item where name lucene '(name:P*)' limit 1 ")
+            .toList();
 
     Assert.assertEquals(1, resultSet.size());
 
@@ -107,7 +107,7 @@ public class LuceneFacetTest extends BaseLuceneTest {
     Assert.assertEquals("Electronic", labelValues.field("label"));
 
     resultSet =
-        db
+        session
             .command(
                 "select *,$facet from Item where name lucene { 'q' : 'H*', 'drillDown' :"
                     + " 'category:Electronic' }  limit 1 ").toList();

@@ -5,8 +5,6 @@ import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
 import com.jetbrains.youtrack.db.api.record.RecordHookAbstract;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -17,10 +15,7 @@ import java.util.Set;
 
 public class BrokenMapHook extends RecordHookAbstract implements RecordHook {
 
-  private final DatabaseSessionInternal database;
-
   public BrokenMapHook() {
-    this.database = DatabaseRecordThreadLocal.instance().get();
   }
 
   @Override
@@ -48,7 +43,8 @@ public class BrokenMapHook extends RecordHookAbstract implements RecordHook {
   public RESULT onRecordBeforeUpdate(DBRecord newRecord) {
     var newElement = (Entity) newRecord;
     try {
-      Entity oldElement = database.load(newElement.getIdentity());
+      var session = newElement.getBoundedToSession();
+      Entity oldElement = session.load(newElement.getIdentity());
 
       var newPropertyNames = newElement.getPropertyNames();
       var oldPropertyNames = oldElement.getPropertyNames();
@@ -60,7 +56,7 @@ public class BrokenMapHook extends RecordHookAbstract implements RecordHook {
         var newDate =
             LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-        Set<String> newKeys = new HashSet(newFieldValue.keySet());
+        Set<String> newKeys = new HashSet<>(newFieldValue.keySet());
 
         newKeys.forEach(
             k -> {

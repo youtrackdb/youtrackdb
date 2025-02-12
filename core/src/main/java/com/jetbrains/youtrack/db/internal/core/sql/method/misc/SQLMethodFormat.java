@@ -23,7 +23,6 @@ import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -46,9 +45,9 @@ public class SQLMethodFormat extends AbstractSQLMethod {
       Object ioResult,
       final Object[] iParams) {
 
-    var db = iContext.getDatabase();
+    var session = iContext.getDatabaseSession();
     // TRY TO RESOLVE AS DYNAMIC VALUE
-    var v = getParameterValue(db, iRecord, iParams[0].toString());
+    var v = getParameterValue(session, iRecord, iParams[0].toString());
     if (v == null)
     // USE STATIC ONE
     {
@@ -63,7 +62,7 @@ public class SQLMethodFormat extends AbstractSQLMethod {
         if (iParams.length > 1) {
           format.setTimeZone(TimeZone.getTimeZone(iParams[1].toString()));
         } else {
-          format.setTimeZone(DateHelper.getDatabaseTimeZone());
+          format.setTimeZone(DateHelper.getDatabaseTimeZone(session));
         }
         while (iterator.hasNext()) {
           result.add(format.format(iterator.next()));
@@ -74,7 +73,7 @@ public class SQLMethodFormat extends AbstractSQLMethod {
         if (iParams.length > 1) {
           format.setTimeZone(TimeZone.getTimeZone(iParams[1].toString()));
         } else {
-          format.setTimeZone(DateHelper.getDatabaseTimeZone());
+          format.setTimeZone(DateHelper.getDatabaseTimeZone(session));
         }
         ioResult = format.format(ioResult);
       } else {

@@ -172,10 +172,13 @@ public class ClientConnectionManager {
     try {
       parsedToken = server.getTokenHandler().parseOnlyBinary(tokenBytes);
     } catch (Exception e) {
-      throw BaseException.wrapException(new TokenSecurityException("Error on token parsing"), e);
+      throw BaseException.wrapException(
+          new TokenSecurityException(connection.getDatabaseSession(), "Error on token parsing"), e,
+          connection.getDatabaseSession());
     }
     if (!server.getTokenHandler().validateBinaryToken(parsedToken)) {
-      throw new TokenSecurityException("The token provided is expired");
+      throw new TokenSecurityException(connection.getDatabaseSession(),
+          "The token provided is expired");
     }
     ClientSessions session;
     synchronized (sessions) {
@@ -197,10 +200,13 @@ public class ClientConnectionManager {
     try {
       parsedToken = server.getTokenHandler().parseOnlyBinary(tokenBytes);
     } catch (Exception e) {
-      throw BaseException.wrapException(new TokenSecurityException("Error on token parsing"), e);
+      throw BaseException.wrapException(
+          new TokenSecurityException(connection.getDatabaseSession(), "Error on token parsing"),
+          e, connection.getDatabaseSession());
     }
     if (!server.getTokenHandler().validateBinaryToken(parsedToken)) {
-      throw new TokenSecurityException("The token provided is expired");
+      throw new TokenSecurityException(connection.getDatabaseSession(),
+          "The token provided is expired");
     }
 
     var key = new HashToken(tokenBytes);

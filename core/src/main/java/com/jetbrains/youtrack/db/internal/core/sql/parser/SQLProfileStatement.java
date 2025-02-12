@@ -8,7 +8,6 @@ import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseStats;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.UpdateExecutionPlan;
 import java.util.HashMap;
@@ -41,14 +40,14 @@ public class SQLProfileStatement extends SQLStatement {
 
   @Override
   public ResultSet execute(
-      DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
+      DatabaseSessionInternal session, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
-    db.resetRecordLoadStats();
+    session.resetRecordLoadStats();
     var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
-    ctx.setDatabase(db);
+    ctx.setDatabaseSession(session);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
       for (var i = 0; i < args.length; i++) {
@@ -68,17 +67,18 @@ public class SQLProfileStatement extends SQLStatement {
       ((UpdateExecutionPlan) executionPlan).executeInternal();
     }
 
-    var rs = new LocalResultSet((InternalExecutionPlan) executionPlan);
+    var rs = new LocalResultSet(session, (InternalExecutionPlan) executionPlan);
 
     while (rs.hasNext()) {
       rs.next();
     }
-    var dbStats = db.getStats();
+    var dbStats = session.getStats();
     var result =
-        new ExplainResultSet(db,
+        new ExplainResultSet(session,
             rs.getExecutionPlan()
                 .orElseThrow(
-                    () -> new CommandExecutionException("Cannot profile command: " + statement)),
+                    () -> new CommandExecutionException(session,
+                        "Cannot profile command: " + statement)),
             dbStats);
     rs.close();
     return result;
@@ -86,14 +86,14 @@ public class SQLProfileStatement extends SQLStatement {
 
   @Override
   public ResultSet execute(
-      DatabaseSessionInternal db, Map<Object, Object> args, CommandContext parentCtx,
+      DatabaseSessionInternal session, Map<Object, Object> args, CommandContext parentCtx,
       boolean usePlanCache) {
-    db.resetRecordLoadStats();
+    session.resetRecordLoadStats();
     var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
-    ctx.setDatabase(db);
+    ctx.setDatabaseSession(session);
     ctx.setInputParameters(args);
 
     ExecutionPlan executionPlan;
@@ -103,17 +103,18 @@ public class SQLProfileStatement extends SQLStatement {
       executionPlan = statement.createExecutionPlanNoCache(ctx, true);
     }
 
-    var rs = new LocalResultSet((InternalExecutionPlan) executionPlan);
+    var rs = new LocalResultSet(session, (InternalExecutionPlan) executionPlan);
 
     while (rs.hasNext()) {
       rs.next();
     }
-    var dbStats = db.getStats();
+    var dbStats = session.getStats();
     var result =
-        new ExplainResultSet(db,
+        new ExplainResultSet(session,
             rs.getExecutionPlan()
                 .orElseThrow(
-                    () -> new CommandExecutionException("Cannot profile command: " + statement)),
+                    () -> new CommandExecutionException(session,
+                        "Cannot profile command: " + statement)),
             dbStats);
     rs.close();
     return result;

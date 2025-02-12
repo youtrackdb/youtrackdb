@@ -1,10 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -16,17 +13,17 @@ public class CreateClusterStatementExecutionTest extends DbTestBase {
   @Test
   public void testPlain() {
     var clusterName = "testPlain";
-    var result = db.command("create cluster " + clusterName);
-    Assert.assertTrue(db.getClusterIdByName(clusterName) > 0);
+    var result = session.command("create cluster " + clusterName);
+    Assert.assertTrue(session.getClusterIdByName(clusterName) > 0);
     result.close();
   }
 
   @Test
   public void testExisting() {
-    var clazz = db.getMetadata().getSchema().createClass("testExisting");
-    var clusterName = db.getClusterNameById(clazz.getClusterIds()[0]);
+    var clazz = session.getMetadata().getSchema().createClass("testExisting");
+    var clusterName = session.getClusterNameById(clazz.getClusterIds(session)[0]);
     try {
-      db.command("create cluster " + clusterName);
+      session.command("create cluster " + clusterName);
       Assert.fail();
     } catch (CommandExecutionException ex) {
 
@@ -38,9 +35,9 @@ public class CreateClusterStatementExecutionTest extends DbTestBase {
   @Test
   public void testWithNumber() {
     var clusterName = "testWithNumber";
-    var result = db.command("create cluster " + clusterName + " id 1000");
-    Assert.assertTrue(db.getClusterIdByName(clusterName) > 0);
-    Assert.assertNotNull(db.getClusterNameById(1000));
+    var result = session.command("create cluster " + clusterName + " id 1000");
+    Assert.assertTrue(session.getClusterIdByName(clusterName) > 0);
+    Assert.assertNotNull(session.getClusterNameById(1000));
 
     Assert.assertTrue(result.hasNext());
     var next = result.next();
@@ -53,9 +50,9 @@ public class CreateClusterStatementExecutionTest extends DbTestBase {
   @Test
   public void testBlob() {
     var clusterName = "testBlob";
-    var result = db.command("create blob cluster " + clusterName);
-    Assert.assertTrue(db.getClusterIdByName(clusterName) > 0);
-    Assert.assertTrue(db.getStorage().getClusterIdByName(clusterName) >= 0);
+    var result = session.command("create blob cluster " + clusterName);
+    Assert.assertTrue(session.getClusterIdByName(clusterName) > 0);
+    Assert.assertTrue(session.getStorage().getClusterIdByName(clusterName) >= 0);
     // TODO test that it's a blob cluster
     result.close();
   }
@@ -63,9 +60,9 @@ public class CreateClusterStatementExecutionTest extends DbTestBase {
   @Test
   public void testIfNotExists() {
     var clusterName = "testIfNotExists";
-    var result = db.command("create cluster " + clusterName + " IF NOT EXISTS id 2000");
-    Assert.assertTrue(db.getClusterIdByName(clusterName) > 0);
-    Assert.assertNotNull(db.getClusterNameById(2000));
+    var result = session.command("create cluster " + clusterName + " IF NOT EXISTS id 2000");
+    Assert.assertTrue(session.getClusterIdByName(clusterName) > 0);
+    Assert.assertNotNull(session.getClusterNameById(2000));
 
     Assert.assertTrue(result.hasNext());
     var next = result.next();
@@ -74,7 +71,7 @@ public class CreateClusterStatementExecutionTest extends DbTestBase {
     Assert.assertEquals((Object) 2000, next.getProperty("requestedId"));
     result.close();
 
-    result = db.command("create cluster " + clusterName + " IF NOT EXISTS id 1000");
+    result = session.command("create cluster " + clusterName + " IF NOT EXISTS id 1000");
     Assert.assertFalse(result.hasNext());
     result.close();
   }

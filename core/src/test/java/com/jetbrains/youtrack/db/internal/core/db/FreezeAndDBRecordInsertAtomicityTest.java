@@ -24,11 +24,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.api.DatabaseType;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.HashSet;
 import java.util.Random;
@@ -39,7 +37,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,11 +65,11 @@ public class FreezeAndDBRecordInsertAtomicityTest extends DbTestBase {
         FreezeAndDBRecordInsertAtomicityTest.class.getSimpleName() + " seed: " + seed);
     random = new Random(seed);
 
-    db.getMetadata()
+    session.getMetadata()
         .getSchema()
         .createClass("Person")
-        .createProperty(db, "name", PropertyType.STRING)
-        .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
+        .createProperty(session, "name", PropertyType.STRING)
+        .createIndex(session, SchemaClass.INDEX_TYPE.UNIQUE);
 
     executorService = Executors.newFixedThreadPool(THREADS);
     countDownLatch = new CountDownLatch(THREADS);
@@ -103,7 +100,7 @@ public class FreezeAndDBRecordInsertAtomicityTest extends DbTestBase {
                         var val = i1;
                         db.executeInTx(
                             () ->
-                                db.<EntityImpl>newInstance("Person")
+                                db.newInstance("Person")
                                     .field("name", "name-" + thread + "-" + val)
                                     .save());
                         break;

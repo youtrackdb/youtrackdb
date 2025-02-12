@@ -47,8 +47,8 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
   @BeforeClass
   public void init() {
 
-    db.getMetadata().getSchema().getOrCreateClass("LiveClass");
-    db.getMetadata().getSchema().getOrCreateClass("LiveClassTx");
+    session.getMetadata().getSchema().getOrCreateClass("LiveClass");
+    session.getMetadata().getSchema().getOrCreateClass("LiveClassTx");
   }
 
   @Test
@@ -58,7 +58,7 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
     final var latch = new CountDownLatch(TOTAL_OPS);
     final List<RecordOperation> ops = Collections.synchronizedList(new ArrayList());
     LegacyResultSet<EntityImpl> tokens =
-        db.query(
+        session.query(
             new LiveQuery<Object>(
                 "live select from LiveClassTx",
                 new LiveResultListener() {
@@ -84,15 +84,15 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
     Integer token = tokenDoc.field("token");
     Assert.assertNotNull(token);
 
-    db.begin();
-    db.command("insert into LiveClassTx set name = 'foo', surname = 'bar'").close();
-    db.command("insert into LiveClassTx set name = 'foo', surname = 'baz'").close();
-    db.command("insert into LiveClassTx set name = 'foo'").close();
-    db.commit();
+    session.begin();
+    session.command("insert into LiveClassTx set name = 'foo', surname = 'bar'").close();
+    session.command("insert into LiveClassTx set name = 'foo', surname = 'baz'").close();
+    session.command("insert into LiveClassTx set name = 'foo'").close();
+    session.commit();
 
-    db.begin();
-    db.command("update LiveClassTx set name = 'updated'").close();
-    db.commit();
+    session.begin();
+    session.command("update LiveClassTx set name = 'updated'").close();
+    session.commit();
 
     latch.await();
 
@@ -114,7 +114,7 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
     final var latch = new CountDownLatch(6);
     final List<RecordOperation> ops = Collections.synchronizedList(new ArrayList());
     LegacyResultSet<EntityImpl> tokens =
-        db.query(
+        session.query(
             new LiveQuery<Object>(
                 "live select from LiveClass",
                 new LiveResultListener() {
@@ -140,11 +140,11 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
     Integer token = tokenDoc.field("token");
     Assert.assertNotNull(token);
 
-    db.command("insert into liveclass set name = 'foo', surname = 'bar'").close();
-    db.command("insert into liveclass set name = 'foo', surname = 'baz'").close();
-    db.command("insert into liveclass set name = 'foo'").close();
+    session.command("insert into liveclass set name = 'foo', surname = 'bar'").close();
+    session.command("insert into liveclass set name = 'foo', surname = 'baz'").close();
+    session.command("insert into liveclass set name = 'foo'").close();
 
-    db.command("update liveclass set name = 'updated'").close();
+    session.command("update liveclass set name = 'updated'").close();
 
     latch.await();
 

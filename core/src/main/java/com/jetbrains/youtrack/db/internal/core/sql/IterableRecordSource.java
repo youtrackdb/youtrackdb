@@ -30,6 +30,6 @@ import java.util.Map;
  */
 public interface IterableRecordSource {
 
-  Iterator<Identifiable> iterator(DatabaseSessionInternal db,
+  Iterator<Identifiable> iterator(DatabaseSessionInternal session,
       final Map<Object, Object> iArgs);
 }

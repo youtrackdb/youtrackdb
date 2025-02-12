@@ -6,7 +6,6 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.lucene.test.BaseLuceneTest;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import org.apache.lucene.search.SortField;
 import org.junit.Test;
 
@@ -18,7 +17,7 @@ public class LuceneIndexEngineUtilsTest extends BaseLuceneTest {
     metadata.put(
         "sort",
         Collections.singletonList(
-            ((EntityImpl) db.newEntity())
+            ((EntityImpl) session.newEntity())
                 .field("field", "score")
                 .field("reverse", false)
                 .field("type", "INT")
@@ -38,7 +37,7 @@ public class LuceneIndexEngineUtilsTest extends BaseLuceneTest {
   public void buildIntSortField() throws Exception {
 
     final var sortConf =
-        ((EntityImpl) db.newEntity()).field("field", "score").field("reverse", true)
+        ((EntityImpl) session.newEntity()).field("field", "score").field("reverse", true)
             .field("type", "INT");
 
     final var sortField = LuceneIndexEngineUtils.buildSortField(sortConf);
@@ -51,7 +50,7 @@ public class LuceneIndexEngineUtilsTest extends BaseLuceneTest {
   @Test
   public void buildDocSortField() throws Exception {
 
-    final var sortConf = ((EntityImpl) db.newEntity()).field("type", "DOC");
+    final var sortConf = ((EntityImpl) session.newEntity()).field("type", "DOC");
 
     final var sortField = LuceneIndexEngineUtils.buildSortField(sortConf);
 

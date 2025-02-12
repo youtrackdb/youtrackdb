@@ -1,17 +1,12 @@
 package com.jetbrains.youtrack.db.internal.client.remote;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.client.remote.db.DatabaseSessionRemote;
 import com.jetbrains.youtrack.db.internal.core.db.DatabasePoolInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
 
-/**
- *
- */
 public class DatabaseSessionRemotePooled extends DatabaseSessionRemote {
-
   private final DatabasePoolInternal pool;
 
   public DatabaseSessionRemotePooled(
@@ -41,16 +36,7 @@ public class DatabaseSessionRemotePooled extends DatabaseSessionRemote {
   }
 
   public void realClose() {
-    var old = DatabaseRecordThreadLocal.instance().getIfDefined();
-    try {
       activateOnCurrentThread();
       super.close();
-    } finally {
-      if (old == null) {
-        DatabaseRecordThreadLocal.instance().remove();
-      } else {
-        DatabaseRecordThreadLocal.instance().set(old);
-      }
-    }
   }
 }

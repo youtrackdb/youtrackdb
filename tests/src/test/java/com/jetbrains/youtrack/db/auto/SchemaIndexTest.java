@@ -23,56 +23,56 @@ public class SchemaIndexTest extends BaseDBTest {
   public void beforeMethod() throws Exception {
     super.beforeMethod();
 
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     final var superTest = schema.createClass("SchemaSharedIndexSuperTest");
     final var test = schema.createClass("SchemaIndexTest", superTest);
-    test.createProperty(db, "prop1", PropertyType.DOUBLE);
-    test.createProperty(db, "prop2", PropertyType.DOUBLE);
+    test.createProperty(session, "prop1", PropertyType.DOUBLE);
+    test.createProperty(session, "prop2", PropertyType.DOUBLE);
   }
 
   @AfterMethod
   public void tearDown() throws Exception {
-    if (db.getMetadata().getSchema().existsClass("SchemaIndexTest")) {
-      db.command("drop class SchemaIndexTest").close();
+    if (session.getMetadata().getSchema().existsClass("SchemaIndexTest")) {
+      session.command("drop class SchemaIndexTest").close();
     }
-    db.command("drop class SchemaSharedIndexSuperTest").close();
+    session.command("drop class SchemaSharedIndexSuperTest").close();
   }
 
   @Test
   public void testDropClass() throws Exception {
-    db
+    session
         .command(
             "CREATE INDEX SchemaSharedIndexCompositeIndex ON SchemaIndexTest (prop1, prop2) UNIQUE")
         .close();
-    db.getMetadata().getIndexManagerInternal().reload(db);
+    session.getMetadata().getIndexManagerInternal().reload(session);
     Assert.assertNotNull(
-        db
+        session
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(db, "SchemaSharedIndexCompositeIndex"));
+            .getIndex(session, "SchemaSharedIndexCompositeIndex"));
 
-    db.getMetadata().getSchema().dropClass("SchemaIndexTest");
-    db.getMetadata().getIndexManagerInternal().reload(db);
+    session.getMetadata().getSchema().dropClass("SchemaIndexTest");
+    session.getMetadata().getIndexManagerInternal().reload(session);
 
-    Assert.assertNull(db.getMetadata().getSchema().getClass("SchemaIndexTest"));
-    Assert.assertNotNull(db.getMetadata().getSchema().getClass("SchemaSharedIndexSuperTest"));
+    Assert.assertNull(session.getMetadata().getSchema().getClass("SchemaIndexTest"));
+    Assert.assertNotNull(session.getMetadata().getSchema().getClass("SchemaSharedIndexSuperTest"));
 
     Assert.assertNull(
-        db
+        session
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(db, "SchemaSharedIndexCompositeIndex"));
+            .getIndex(session, "SchemaSharedIndexCompositeIndex"));
   }
 
   @Test
   public void testDropSuperClass() throws Exception {
-    db
+    session
         .command(
             "CREATE INDEX SchemaSharedIndexCompositeIndex ON SchemaIndexTest (prop1, prop2) UNIQUE")
         .close();
 
     try {
-      db.getMetadata().getSchema().dropClass("SchemaSharedIndexSuperTest");
+      session.getMetadata().getSchema().dropClass("SchemaSharedIndexSuperTest");
       Assert.fail();
     } catch (SchemaException e) {
       Assert.assertTrue(
@@ -82,27 +82,27 @@ public class SchemaIndexTest extends BaseDBTest {
                       + " classes"));
     }
 
-    Assert.assertNotNull(db.getMetadata().getSchema().getClass("SchemaIndexTest"));
-    Assert.assertNotNull(db.getMetadata().getSchema().getClass("SchemaSharedIndexSuperTest"));
+    Assert.assertNotNull(session.getMetadata().getSchema().getClass("SchemaIndexTest"));
+    Assert.assertNotNull(session.getMetadata().getSchema().getClass("SchemaSharedIndexSuperTest"));
 
     Assert.assertNotNull(
-        db
+        session
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(db, "SchemaSharedIndexCompositeIndex"));
+            .getIndex(session, "SchemaSharedIndexCompositeIndex"));
   }
 
 
   @Test
   public void testIndexWithNumberProperties() {
-    var oclass = db.getMetadata().getSchema()
+    var oclass = session.getMetadata().getSchema()
         .createClass("SchemaIndexTest_numberclass");
-    oclass.createProperty(db, "1", PropertyType.STRING).setMandatory(db, false);
-    oclass.createProperty(db, "2", PropertyType.STRING).setMandatory(db, false);
-    oclass.createIndex(db, "SchemaIndexTest_numberclass_1_2", SchemaClass.INDEX_TYPE.UNIQUE,
+    oclass.createProperty(session, "1", PropertyType.STRING).setMandatory(session, false);
+    oclass.createProperty(session, "2", PropertyType.STRING).setMandatory(session, false);
+    oclass.createIndex(session, "SchemaIndexTest_numberclass_1_2", SchemaClass.INDEX_TYPE.UNIQUE,
         "1",
         "2");
 
-    db.getMetadata().getSchema().dropClass(oclass.getName());
+    session.getMetadata().getSchema().dropClass(oclass.getName(session));
   }
 }

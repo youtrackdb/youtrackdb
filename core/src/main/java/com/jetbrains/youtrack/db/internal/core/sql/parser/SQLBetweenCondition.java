@@ -2,12 +2,11 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -41,7 +40,7 @@ public class SQLBetweenCondition extends SQLBooleanExpression {
       return false;
     }
 
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     secondValue = PropertyType.convert(db, secondValue, firstValue.getClass());
 
     var thirdValue = third.execute(currentRecord, ctx);
@@ -59,7 +58,7 @@ public class SQLBetweenCondition extends SQLBooleanExpression {
   @Override
   public boolean evaluate(Result currentRecord, CommandContext ctx) {
 
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     if (first.isFunctionAny()) {
       return evaluateAny(db, currentRecord, ctx);
     }
@@ -75,7 +74,8 @@ public class SQLBetweenCondition extends SQLBooleanExpression {
     return evaluate(db, firstValue, secondValue, thirdValue);
   }
 
-  private static boolean evaluate(DatabaseSession session, Object firstValue, Object secondValue,
+  private static boolean evaluate(DatabaseSessionInternal session, Object firstValue,
+      Object secondValue,
       Object thirdValue) {
     if (firstValue == null) {
       return false;
@@ -98,7 +98,7 @@ public class SQLBetweenCondition extends SQLBooleanExpression {
     return leftResult >= 0 && rightResult <= 0;
   }
 
-  private boolean evaluateAny(DatabaseSession session, Result currentRecord,
+  private boolean evaluateAny(DatabaseSessionInternal session, Result currentRecord,
       CommandContext ctx) {
     var secondValue = second.execute(currentRecord, ctx);
     var thirdValue = third.execute(currentRecord, ctx);
@@ -116,7 +116,7 @@ public class SQLBetweenCondition extends SQLBooleanExpression {
     var secondValue = second.execute(currentRecord, ctx);
     var thirdValue = third.execute(currentRecord, ctx);
 
-    var database = ctx.getDatabase();
+    var database = ctx.getDatabaseSession();
     for (var s : currentRecord.getPropertyNames()) {
       var firstValue = currentRecord.getProperty(s);
       if (!evaluate(database, firstValue, secondValue, thirdValue)) {

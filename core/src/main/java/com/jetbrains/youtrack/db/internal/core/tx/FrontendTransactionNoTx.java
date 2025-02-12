@@ -99,17 +99,17 @@ public class FrontendTransactionNoTx extends FrontendTransactionAbstract {
   public @Nonnull DBRecord loadRecord(final RID rid) {
     checkNonTXReads();
     if (rid.isNew()) {
-      throw new RecordNotFoundException(rid);
+      throw new RecordNotFoundException(session, rid);
     }
 
-    return database.executeReadRecord((RecordId) rid);
+    return session.executeReadRecord((RecordId) rid);
   }
 
   private void checkNonTXReads() {
     if (nonTxReadMode == NonTxReadMode.WARN) {
       LogManager.instance().warn(this, NON_TX_WARNING_READ_MESSAGE);
     } else if (nonTxReadMode == NonTxReadMode.EXCEPTION) {
-      throw new NoTxRecordReadException(NON_TX_EXCEPTION_READ_MESSAGE);
+      throw new NoTxRecordReadException(session.getDatabaseName(), NON_TX_EXCEPTION_READ_MESSAGE);
     }
   }
 
@@ -120,18 +120,18 @@ public class FrontendTransactionNoTx extends FrontendTransactionAbstract {
       return false;
     }
 
-    return database.executeExists(rid);
+    return session.executeExists(rid);
   }
 
   public DBRecord saveRecord(final RecordAbstract iRecord, final String iClusterName) {
-    throw new DatabaseException("Cannot save record in no tx mode");
+    throw new DatabaseException(session, "Cannot save record in no tx mode");
   }
 
   /**
    * Deletes the record.
    */
   public void deleteRecord(final RecordAbstract iRecord) {
-    throw new DatabaseException("Cannot delete record in no tx mode");
+    throw new DatabaseException(session, "Cannot delete record in no tx mode");
   }
 
   public Collection<RecordOperation> getCurrentRecordEntries() {

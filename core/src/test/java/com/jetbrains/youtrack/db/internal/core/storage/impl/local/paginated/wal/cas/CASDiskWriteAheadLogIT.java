@@ -4848,7 +4848,7 @@ public class CASDiskWriteAheadLogIT {
 
     @Override
     public int toStream(byte[] content, int offset) {
-      IntegerSerializer.INSTANCE.serializeNative(data.length, content, offset);
+      IntegerSerializer.serializeNative(data.length, content, offset);
       offset += IntegerSerializer.INT_SIZE;
 
       System.arraycopy(data, 0, content, offset, data.length);
@@ -4865,7 +4865,7 @@ public class CASDiskWriteAheadLogIT {
 
     @Override
     public int fromStream(byte[] content, int offset) {
-      var len = IntegerSerializer.INSTANCE.deserializeNative(content, offset);
+      var len = IntegerSerializer.deserializeNative(content, offset);
       offset += IntegerSerializer.INT_SIZE;
 
       data = new byte[len];

@@ -3,8 +3,6 @@ package com.jetbrains.youtrack.db.internal.core.ridbag;
 import static org.junit.Assert.fail;
 
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
-import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.embedded.EmbeddedRidBag;
@@ -26,83 +24,83 @@ public class RidBagBasicTest extends DbTestBase {
   @Test
   public void allowOnlyAtRoot() {
     try {
-      var record = db.newVertex();
+      var record = session.newVertex();
       List<Object> valueList = new ArrayList<>();
-      valueList.add(new RidBag(db));
+      valueList.add(new RidBag(session));
       record.setProperty("emb", valueList);
-      db.save(record);
+      session.save(record);
       fail("Should not be possible to save a ridbag in a list");
     } catch (DatabaseException ex) {
       // this is expected
     }
 
     try {
-      var record = db.newVertex();
+      var record = session.newVertex();
       Set<Object> valueSet = new HashSet<>();
-      valueSet.add(new RidBag(db));
+      valueSet.add(new RidBag(session));
       record.setProperty("emb", valueSet);
-      db.save(record);
+      session.save(record);
       fail("Should not be possible to save a ridbag in a set");
     } catch (DatabaseException ex) {
       // this is expected
     }
 
     try {
-      var record = db.newVertex();
+      var record = session.newVertex();
       Map<String, Object> valueSet = new HashMap<>();
-      valueSet.put("key", new RidBag(db));
+      valueSet.put("key", new RidBag(session));
       record.setProperty("emb", valueSet);
-      db.save(record);
+      session.save(record);
       fail("Should not be possible to save a ridbag in a set");
     } catch (DatabaseException ex) {
       // this is expected
     }
 
     try {
-      var record = db.newVertex();
+      var record = session.newVertex();
       Map<String, Object> valueSet = new HashMap<>();
-      var nested = db.newEntity();
-      nested.setProperty("bag", new RidBag(db));
+      var nested = session.newEntity();
+      nested.setProperty("bag", new RidBag(session));
       valueSet.put("key", nested);
       record.setProperty("emb", valueSet);
-      db.save(record);
+      session.save(record);
       fail("Should not be possible to save a ridbag in a set");
     } catch (DatabaseException ex) {
       // this is expected
     }
 
     try {
-      var record = db.newVertex();
+      var record = session.newVertex();
       List<Object> valueList = new ArrayList<>();
-      var nested = db.newEntity();
-      nested.setProperty("bag", new RidBag(db));
+      var nested = session.newEntity();
+      nested.setProperty("bag", new RidBag(session));
       valueList.add(nested);
       record.setProperty("emb", valueList);
-      db.save(record);
+      session.save(record);
       fail("Should not be possible to save a ridbag in a list");
     } catch (DatabaseException ex) {
       // this is expected
     }
 
     try {
-      var record = db.newVertex();
+      var record = session.newVertex();
       Set<Object> valueSet = new HashSet<>();
-      var nested = db.newEntity();
-      nested.setProperty("bag", new RidBag(db));
+      var nested = session.newEntity();
+      nested.setProperty("bag", new RidBag(session));
       valueSet.add(nested);
       record.setProperty("emb", valueSet);
-      db.save(record);
+      session.save(record);
       fail("Should not be possible to save a ridbag in a set");
     } catch (DatabaseException ex) {
       // this is expected
     }
 
     try {
-      var record = db.newVertex();
-      var nested = db.newEntity();
-      nested.setProperty("bag", new RidBag(db));
+      var record = session.newVertex();
+      var nested = session.newEntity();
+      nested.setProperty("bag", new RidBag(session));
       record.setProperty("emb", nested);
-      db.save(record);
+      session.save(record);
       fail("Should not be possible to save a ridbag in a set");
     } catch (DatabaseException ex) {
       // this is expected

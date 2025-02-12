@@ -37,7 +37,7 @@ public class ServerCommandDeleteDocument extends ServerCommandDocumentAbstract {
   @Override
   public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
 
-    try (DatabaseSession db = getProfiledDatabaseInstance(iRequest)) {
+    try (DatabaseSession session = getProfiledDatabaseSessionInstance(iRequest)) {
       final var urlParts =
           checkSyntax(iRequest.getUrl(), 3, "Syntax error: document/<database>/<record-id>");
 
@@ -52,9 +52,9 @@ public class ServerCommandDeleteDocument extends ServerCommandDocumentAbstract {
         throw new IllegalArgumentException("Invalid Record ID in request: " + urlParts[2]);
       }
 
-      db.executeInTx(
+      session.executeInTx(
           () -> {
-            final EntityImpl entity = recordId.getRecord(db);
+            final EntityImpl entity = recordId.getRecord(session);
 
             // UNMARSHALL DOCUMENT WITH REQUEST CONTENT
             if (iRequest.getContent() != null)
@@ -75,14 +75,14 @@ public class ServerCommandDeleteDocument extends ServerCommandDocumentAbstract {
 
             final SchemaClass cls = EntityInternalUtils.getImmutableSchemaClass(entity);
             if (cls != null) {
-              if (cls.isSubClassOf("V"))
+              if (cls.isSubClassOf(session, "V"))
               // DELETE IT AS VERTEX
               {
-                db.command("DELETE VERTEX ?", recordId).close();
-              } else if (cls.isSubClassOf("E"))
+                session.command("DELETE VERTEX ?", recordId).close();
+              } else if (cls.isSubClassOf(session, "E"))
               // DELETE IT AS EDGE
               {
-                db.command("DELETE EDGE ?", recordId).close();
+                session.command("DELETE EDGE ?", recordId).close();
               } else {
                 entity.delete();
               }

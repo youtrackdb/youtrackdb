@@ -35,6 +35,7 @@ import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.comparator.AlwaysGreaterKey;
 import com.jetbrains.youtrack.db.internal.core.index.comparator.AlwaysLessKey;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValidator;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
@@ -107,6 +108,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
   private long nullBucketFileId = -1;
   private int keySize;
   private BinarySerializer<K> keySerializer;
+  private final BinarySerializerFactory serializerFactory;
   private PropertyType[] keyTypes;
 
   public CellBTreeSingleValueV1(
@@ -118,6 +120,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     acquireExclusiveLock();
     try {
       this.nullFileExtension = nullFileExtension;
+      this.serializerFactory = storage.getComponentsFactory().binarySerializerFactory;
     } finally {
       releaseExclusiveLock();
     }
@@ -144,7 +147,6 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
             }
 
             this.keySerializer = keySerializer;
-
             fileId = addFile(atomicOperation, getFullName());
             nullBucketFileId = addFile(atomicOperation, getName() + nullFileExtension);
 
@@ -180,7 +182,8 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
       try {
         final var atomicOperation = atomicOperationsManager.getCurrentOperation();
         if (key != null) {
-          key = keySerializer.preprocess(key, (Object[]) keyTypes);
+          key = keySerializer.preprocess(storage.getComponentsFactory().binarySerializerFactory,
+              key, (Object[]) keyTypes);
 
           final var bucketSearchResult = findBucket(key, atomicOperation);
           if (bucketSearchResult.itemIndex < 0) {
@@ -193,7 +196,8 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
               loadPageForRead(atomicOperation, fileId, pageIndex)) {
             final var keyBucket =
                 new CellBTreeBucketSingleValueV1<K>(keyBucketCacheEntry);
-            return keyBucket.getValue(bucketSearchResult.itemIndex, keySerializer);
+            return keyBucket.getValue(bucketSearchResult.itemIndex, keySerializer,
+                serializerFactory);
           }
         } else {
           try (final var nullBucketCacheEntry =
@@ -210,7 +214,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
       throw BaseException.wrapException(
           new CellBTreeSingleValueV1Exception(
               "Error during retrieving  of sbtree with name " + getName(), this),
-          e);
+          e, storage.getName());
     } finally {
       atomicOperationsManager.releaseReadLock(this);
     }
@@ -244,15 +248,15 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
             var value = rid;
             if (key != null) {
 
-              key = keySerializer.preprocess(key, (Object[]) keyTypes);
+              key = keySerializer.preprocess(serializerFactory,
+                  key, (Object[]) keyTypes);
 
               if (keySize > MAX_KEY_SIZE) {
-                throw new TooBigIndexKeyException(
+                throw new TooBigIndexKeyException(storage.getName(),
                     "Key size is more than allowed, operation was canceled. Current key size "
                         + keySize
                         + ", allowed  "
-                        + MAX_KEY_SIZE,
-                    getName());
+                        + MAX_KEY_SIZE, getName());
               }
 
               var bucketSearchResult =
@@ -267,7 +271,8 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
               final byte[] oldRawValue;
               if (bucketSearchResult.itemIndex > -1) {
                 oldRawValue =
-                    keyBucket.getRawValue(bucketSearchResult.itemIndex, keySerializer);
+                    keyBucket.getRawValue(bucketSearchResult.itemIndex, keySerializer,
+                        serializerFactory);
               } else {
                 oldRawValue = null;
               }
@@ -441,7 +446,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     } catch (final IOException e) {
       throw BaseException.wrapException(
           new CellBTreeSingleValueV1Exception("Exception during loading of sbtree " + name, this),
-          e);
+          e, storage.getName());
     } finally {
       releaseExclusiveLock();
     }
@@ -468,7 +473,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
       throw BaseException.wrapException(
           new CellBTreeSingleValueV1Exception(
               "Error during retrieving of size of index " + getName(), this),
-          e);
+          e, storage.getName());
     } finally {
       atomicOperationsManager.releaseReadLock(this);
     }
@@ -485,7 +490,8 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
 
             var key = k;
             if (key != null) {
-              key = keySerializer.preprocess(key, (Object[]) keyTypes);
+              key = keySerializer.preprocess(storage.getComponentsFactory().binarySerializerFactory,
+                  key, (Object[]) keyTypes);
 
               final var bucketSearchResult = findBucket(key, atomicOperation);
               if (bucketSearchResult.itemIndex < 0) {
@@ -499,7 +505,8 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
                 final var keyBucket =
                     new CellBTreeBucketSingleValueV1<K>(keyBucketCacheEntry);
                 final var rawRemovedValue =
-                    keyBucket.getRawValue(bucketSearchResult.itemIndex, keySerializer);
+                    keyBucket.getRawValue(bucketSearchResult.itemIndex, keySerializer,
+                        serializerFactory);
 
                 final int clusterId =
                     ShortSerializer.INSTANCE.deserializeNative(rawRemovedValue, 0);
@@ -603,7 +610,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
             loadPageForRead(atomicOperation, fileId, searchResult.pageIndex)) {
           final var bucket =
               new CellBTreeBucketSingleValueV1<K>(cacheEntry);
-          return bucket.getKey(searchResult.itemIndex, keySerializer);
+          return bucket.getKey(searchResult.itemIndex, keySerializer, serializerFactory);
         }
       } finally {
         releaseSharedLock();
@@ -612,7 +619,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
       throw BaseException.wrapException(
           new CellBTreeSingleValueV1Exception(
               "Error during finding first key in sbtree [" + getName() + "]", this),
-          e);
+          e, storage.getName());
     } finally {
       atomicOperationsManager.releaseReadLock(this);
     }
@@ -635,7 +642,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
             loadPageForRead(atomicOperation, fileId, searchResult.pageIndex)) {
           final var bucket =
               new CellBTreeBucketSingleValueV1<K>(cacheEntry);
-          return bucket.getKey(searchResult.itemIndex, keySerializer);
+          return bucket.getKey(searchResult.itemIndex, keySerializer, serializerFactory);
         }
       } finally {
         releaseSharedLock();
@@ -644,7 +651,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
       throw BaseException.wrapException(
           new CellBTreeSingleValueV1Exception(
               "Error during finding last key in sbtree [" + getName() + "]", this),
-          e);
+          e, storage.getName());
     } finally {
       atomicOperationsManager.releaseReadLock(this);
     }
@@ -672,7 +679,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
       throw BaseException.wrapException(
           new CellBTreeSingleValueV1Exception(
               "Error during finding first key in sbtree [" + getName() + "]", this),
-          e);
+          e, storage.getName());
     } finally {
       atomicOperationsManager.releaseReadLock(this);
     }
@@ -739,14 +746,14 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
   }
 
   private Spliterator<RawPair<K, RID>> iterateEntriesMinorDesc(K key, final boolean inclusive) {
-    key = keySerializer.preprocess(key, (Object[]) keyTypes);
+    key = keySerializer.preprocess(serializerFactory, key, (Object[]) keyTypes);
     key = enhanceCompositeKeyMinorDesc(key, inclusive);
 
     return new CellBTreeSpliteratorBackward(null, key, false, inclusive);
   }
 
   private Spliterator<RawPair<K, RID>> iterateEntriesMinorAsc(K key, final boolean inclusive) {
-    key = keySerializer.preprocess(key, (Object[]) keyTypes);
+    key = keySerializer.preprocess(serializerFactory, key, (Object[]) keyTypes);
     key = enhanceCompositeKeyMinorAsc(key, inclusive);
 
     return new CellBTreeSpliteratorForward(null, key, false, inclusive);
@@ -777,7 +784,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
   }
 
   private Spliterator<RawPair<K, RID>> iterateEntriesMajorAsc(K key, final boolean inclusive) {
-    key = keySerializer.preprocess(key, (Object[]) keyTypes);
+    key = keySerializer.preprocess(serializerFactory, key, (Object[]) keyTypes);
     key = enhanceCompositeKeyMajorAsc(key, inclusive);
 
     return new CellBTreeSpliteratorForward(key, null, inclusive, false);
@@ -786,7 +793,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
   private Spliterator<RawPair<K, RID>> iterateEntriesMajorDesc(K key, final boolean inclusive) {
     acquireSharedLock();
     try {
-      key = keySerializer.preprocess(key, (Object[]) keyTypes);
+      key = keySerializer.preprocess(serializerFactory, key, (Object[]) keyTypes);
       key = enhanceCompositeKeyMajorDesc(key, inclusive);
 
       return new CellBTreeSpliteratorBackward(key, null, inclusive, false);
@@ -945,8 +952,8 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
 
   private Spliterator<RawPair<K, RID>> iterateEntriesBetweenAscOrder(
       K keyFrom, final boolean fromInclusive, K keyTo, final boolean toInclusive) {
-    keyFrom = keySerializer.preprocess(keyFrom, (Object[]) keyTypes);
-    keyTo = keySerializer.preprocess(keyTo, (Object[]) keyTypes);
+    keyFrom = keySerializer.preprocess(serializerFactory, keyFrom, (Object[]) keyTypes);
+    keyTo = keySerializer.preprocess(serializerFactory, keyTo, (Object[]) keyTypes);
 
     keyFrom = enhanceFromCompositeKeyBetweenAsc(keyFrom, fromInclusive);
     keyTo = enhanceToCompositeKeyBetweenAsc(keyTo, toInclusive);
@@ -956,8 +963,8 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
 
   private Spliterator<RawPair<K, RID>> iterateEntriesBetweenDescOrder(
       K keyFrom, final boolean fromInclusive, K keyTo, final boolean toInclusive) {
-    keyFrom = keySerializer.preprocess(keyFrom, (Object[]) keyTypes);
-    keyTo = keySerializer.preprocess(keyTo, (Object[]) keyTypes);
+    keyFrom = keySerializer.preprocess(serializerFactory, keyFrom, (Object[]) keyTypes);
+    keyTo = keySerializer.preprocess(serializerFactory, keyTo, (Object[]) keyTypes);
 
     keyFrom = enhanceFromCompositeKeyBetweenDesc(keyFrom, fromInclusive);
     keyTo = enhanceToCompositeKeyBetweenDesc(keyTo, toInclusive);
@@ -1025,13 +1032,13 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     final var bucketSize = bucketToSplit.size();
 
     final var indexToSplit = bucketSize >>> 1;
-    final var separationKey = bucketToSplit.getKey(indexToSplit, keySerializer);
+    final var separationKey = bucketToSplit.getKey(indexToSplit, keySerializer, serializerFactory);
     final List<byte[]> rightEntries = new ArrayList<>(indexToSplit);
 
     final var startRightIndex = splitLeaf ? indexToSplit : indexToSplit + 1;
 
     for (var i = startRightIndex; i < bucketSize; i++) {
-      rightEntries.add(bucketToSplit.getRawEntry(i, keySerializer));
+      rightEntries.add(bucketToSplit.getRawEntry(i, keySerializer, serializerFactory));
     }
 
     if (entryToSplit.getPageIndex() != ROOT_INDEX) {
@@ -1098,7 +1105,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
 
       newRightBucket.addAll(rightEntries);
 
-      bucketToSplit.shrink(indexToSplit, keySerializer);
+      bucketToSplit.shrink(indexToSplit, keySerializer, serializerFactory);
 
       if (splitLeaf) {
         final var rightSiblingPageIndex = bucketToSplit.getRightSibling();
@@ -1188,7 +1195,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
 
   private byte[] serializeKey(K separationKey) {
     return
-        keySerializer.serializeNativeAsWhole(separationKey, (Object[]) keyTypes);
+        keySerializer.serializeNativeAsWhole(serializerFactory, separationKey, (Object[]) keyTypes);
   }
 
   private UpdateBucketSearchResult splitRootBucket(
@@ -1204,7 +1211,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     final List<byte[]> leftEntries = new ArrayList<>(indexToSplit);
 
     for (var i = 0; i < indexToSplit; i++) {
-      leftEntries.add(bucketToSplit.getRawEntry(i, keySerializer));
+      leftEntries.add(bucketToSplit.getRawEntry(i, keySerializer, serializerFactory));
     }
 
     final CacheEntry leftBucketEntry;
@@ -1269,7 +1276,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     }
 
     bucketToSplit = new CellBTreeBucketSingleValueV1<>(bucketEntry);
-    bucketToSplit.shrink(0, keySerializer);
+    bucketToSplit.shrink(0, keySerializer, serializerFactory);
     if (splitLeaf) {
       bucketToSplit.switchBucketType();
     }
@@ -1323,7 +1330,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
       try (final var bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
         @SuppressWarnings("ObjectAllocationInLoop") final var keyBucket =
             new CellBTreeBucketSingleValueV1<K>(bucketEntry);
-        final var index = keyBucket.find(key, keySerializer);
+        final var index = keyBucket.find(key, keySerializer, serializerFactory);
 
         if (keyBucket.isLeaf()) {
           return new BucketSearchResult(index, pageIndex);
@@ -1362,7 +1369,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
       try (final var bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
         @SuppressWarnings("ObjectAllocationInLoop") final var keyBucket =
             new CellBTreeBucketSingleValueV1<K>(bucketEntry);
-        final var index = keyBucket.find(key, keySerializer);
+        final var index = keyBucket.find(key, keySerializer, serializerFactory);
 
         if (keyBucket.isLeaf()) {
           itemIndexes.add(index);
@@ -1578,7 +1585,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
 
               while (itemIndex < bucketSize && dataCache.size() < prefetchSize) {
                 @SuppressWarnings("ObjectAllocationInLoop") final var entry =
-                    convertToMapEntry(bucket.getEntry(itemIndex, keySerializer));
+                    convertToMapEntry(bucket.getEntry(itemIndex, keySerializer, serializerFactory));
                 itemIndex++;
 
                 if (fromKey != null) {
@@ -1612,7 +1619,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
         throw BaseException.wrapException(
             new CellBTreeSingleValueV1Exception(
                 "Error during entity iteration", CellBTreeSingleValueV1.this),
-            e);
+            e, storage.getName());
       } finally {
         atomicOperationsManager.releaseReadLock(CellBTreeSingleValueV1.this);
       }
@@ -1750,7 +1757,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
 
               while (itemIndex >= 0 && dataCache.size() < prefetchSize) {
                 @SuppressWarnings("ObjectAllocationInLoop") final var entry =
-                    convertToMapEntry(bucket.getEntry(itemIndex, keySerializer));
+                    convertToMapEntry(bucket.getEntry(itemIndex, keySerializer, serializerFactory));
                 itemIndex--;
 
                 if (toKey != null) {
@@ -1784,7 +1791,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
         throw BaseException.wrapException(
             new CellBTreeSingleValueV1Exception(
                 "Error during entity iteration", CellBTreeSingleValueV1.this),
-            e);
+            e, storage.getName());
       } finally {
         atomicOperationsManager.releaseReadLock(CellBTreeSingleValueV1.this);
       }

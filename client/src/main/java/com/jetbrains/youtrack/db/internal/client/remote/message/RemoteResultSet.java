@@ -11,13 +11,12 @@ import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionAbstract;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.Nullable;
 
-/**
- *
- */
 public class RemoteResultSet implements ResultSet {
 
-  private final DatabaseSessionRemote db;
+  @Nullable
+  private final DatabaseSessionRemote session;
   private final String queryId;
   private List<Result> currentPage;
   private Optional<ExecutionPlan> executionPlan;
@@ -25,23 +24,23 @@ public class RemoteResultSet implements ResultSet {
   private boolean hasNextPage;
 
   public RemoteResultSet(
-      DatabaseSessionRemote db,
+      @Nullable DatabaseSessionRemote session,
       String queryId,
       List<Result> currentPage,
       Optional<ExecutionPlan> executionPlan,
       Map<String, Long> queryStats,
       boolean hasNextPage) {
-    this.db = db;
+    this.session = session;
     this.queryId = queryId;
     this.currentPage = currentPage;
     this.executionPlan = executionPlan;
     this.queryStats = queryStats;
     this.hasNextPage = hasNextPage;
-    if (db != null) {
-      db.queryStarted(queryId, new QueryDatabaseState(this));
+    if (session != null) {
+      session.queryStarted(queryId, new QueryDatabaseState(this));
       for (var result : currentPage) {
         if (result instanceof ResultInternal) {
-          ((ResultInternal) result).bindToCache(db);
+          ((ResultInternal) result).bindToCache(session);
         }
       }
     }
@@ -49,6 +48,7 @@ public class RemoteResultSet implements ResultSet {
 
   @Override
   public boolean hasNext() {
+    assert session == null || session.assertIfNotActive();
     if (!currentPage.isEmpty()) {
       return true;
     }
@@ -60,13 +60,15 @@ public class RemoteResultSet implements ResultSet {
   }
 
   private void fetchNextPage() {
-    if (db != null) {
-      db.fetchNextPage(this);
+    assert session == null || session.assertIfNotActive();
+    if (session != null) {
+      session.fetchNextPage(this);
     }
   }
 
   @Override
   public Result next() {
+    assert session == null || session.assertIfNotActive();
     if (currentPage.isEmpty()) {
       if (!hasNextPage()) {
         throw new IllegalStateException();
@@ -76,12 +78,12 @@ public class RemoteResultSet implements ResultSet {
     if (currentPage.isEmpty()) {
       throw new IllegalStateException();
     }
-    var internal = currentPage.remove(0);
+    var internal = currentPage.removeFirst();
 
-    if (internal.isRecord() && db != null && db.getTransaction().isActive()) {
-      DBRecord record = db.getTransaction().getRecord(internal.getIdentity().orElseThrow());
+    if (internal.isRecord() && session != null && session.getTransaction().isActive()) {
+      DBRecord record = session.getTransaction().getRecord(internal.getIdentity().orElseThrow());
       if (record != null && record != FrontendTransactionAbstract.DELETED_RECORD) {
-        internal = new ResultInternal(db, record);
+        internal = new ResultInternal(session, record);
       }
     }
     return internal;
@@ -89,32 +91,38 @@ public class RemoteResultSet implements ResultSet {
 
   @Override
   public void close() {
-    if (hasNextPage && db != null) {
+    assert session == null || session.assertIfNotActive();
+    if (hasNextPage && session != null) {
       // CLOSES THE QUERY SERVER SIDE ONLY IF THERE IS ANOTHER PAGE. THE SERVER ALREADY
       // AUTOMATICALLY CLOSES THE QUERY AFTER SENDING THE LAST PAGE
-      db.closeQuery(queryId);
+      session.closeQuery(queryId);
     }
   }
 
   @Override
   public Optional<ExecutionPlan> getExecutionPlan() {
+    assert session == null || session.assertIfNotActive();
     return executionPlan;
   }
 
   @Override
   public Map<String, Long> getQueryStats() {
+    assert session == null || session.assertIfNotActive();
     return queryStats;
   }
 
   public void add(ResultInternal item) {
+    assert session == null || session.assertIfNotActive();
     currentPage.add(item);
   }
 
   public boolean hasNextPage() {
+    assert session == null || session.assertIfNotActive();
     return hasNextPage;
   }
 
   public String getQueryId() {
+    assert session == null || session.assertIfNotActive();
     return queryId;
   }
 
@@ -123,6 +131,7 @@ public class RemoteResultSet implements ResultSet {
       boolean hasNextPage,
       Optional<ExecutionPlan> executionPlan,
       Map<String, Long> queryStats) {
+    assert session == null || session.assertIfNotActive();
     this.currentPage = result;
     this.hasNextPage = hasNextPage;
 

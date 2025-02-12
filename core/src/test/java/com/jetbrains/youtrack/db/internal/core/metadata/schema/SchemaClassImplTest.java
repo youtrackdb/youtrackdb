@@ -6,12 +6,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.api.exception.SchemaException;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.math.BigDecimal;
@@ -22,9 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import org.junit.Test;
 
 public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
@@ -37,173 +32,171 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
    */
   @Test
   public void testSetAbstractClusterNotChanged() throws Exception {
-    final Schema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = session.getMetadata().getSchema();
 
     var oClass = oSchema.createClass("Test1");
-    final var oldClusterId = oClass.getClusterIds()[0];
+    final var oldClusterId = oClass.getClusterIds(session)[0];
 
-    oClass.setAbstract(db, false);
+    oClass.setAbstract(session, false);
 
-    assertEquals(oClass.getClusterIds()[0], oldClusterId);
+    assertEquals(oClass.getClusterIds(session)[0], oldClusterId);
   }
 
   /**
    * If class was abstract and we call {@code setAbstract(false)} a new non default cluster should
    * be created.
-   *
-   * @throws Exception
    */
   @Test
-  public void testSetAbstractShouldCreateNewClusters() throws Exception {
-    final Schema oSchema = db.getMetadata().getSchema();
+  public void testSetAbstractShouldCreateNewClusters() {
+    final Schema oSchema = session.getMetadata().getSchema();
 
     var oClass = oSchema.createAbstractClass("Test2");
 
-    oClass.setAbstract(db, false);
+    oClass.setAbstract(session, false);
 
-    assertNotEquals(-1, oClass.getClusterIds()[0]);
-    assertNotEquals(oClass.getClusterIds()[0], db.getDefaultClusterId());
+    assertNotEquals(-1, oClass.getClusterIds(session)[0]);
+    assertNotEquals(oClass.getClusterIds(session)[0], session.getClusterIdByName("Test2"));
   }
 
   @Test
   public void testCreateNoLinkedClass() {
-    final Schema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = session.getMetadata().getSchema();
 
     var oClass = (SchemaClassInternal) oSchema.createClass("Test21");
-    oClass.createProperty(db, "some", PropertyType.LINKLIST, (SchemaClass) null);
-    oClass.createProperty(db, "some2", PropertyType.LINKLIST, (SchemaClass) null, true);
+    oClass.createProperty(session, "some", PropertyType.LINKLIST, (SchemaClass) null);
+    oClass.createProperty(session, "some2", PropertyType.LINKLIST, (SchemaClass) null, true);
 
-    assertNotNull(oClass.getProperty("some"));
-    assertNotNull(oClass.getProperty("some2"));
+    assertNotNull(oClass.getProperty(session, "some"));
+    assertNotNull(oClass.getProperty(session, "some2"));
   }
 
   @Test(expected = SchemaException.class)
   public void testCreatePropertyFailOnExistingData() {
-    final Schema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = session.getMetadata().getSchema();
     var oClass = oSchema.createClass("Test3");
 
-    db.executeInTx(
+    session.executeInTx(
         () -> {
-          var document = (EntityImpl) db.newEntity("Test3");
+          var document = (EntityImpl) session.newEntity("Test3");
           document.field("some", "String");
-          db.save(document);
+          session.save(document);
         });
 
-    oClass.createProperty(db, "some", PropertyType.INTEGER);
+    oClass.createProperty(session, "some", PropertyType.INTEGER);
   }
 
   @Test(expected = SchemaException.class)
   public void testCreatePropertyFailOnExistingDataLinkList() {
-    final Schema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = session.getMetadata().getSchema();
     var oClass = oSchema.createClass("Test4");
 
-    db.executeInTx(
+    session.executeInTx(
         () -> {
-          var document = (EntityImpl) db.newEntity("Test4");
+          var document = (EntityImpl) session.newEntity("Test4");
           var list = new ArrayList<EntityImpl>();
-          list.add((EntityImpl) db.newEntity("Test4"));
+          list.add((EntityImpl) session.newEntity("Test4"));
           document.field("some", list);
-          db.save(document);
+          session.save(document);
         });
 
-    oClass.createProperty(db, "some", PropertyType.EMBEDDEDLIST);
+    oClass.createProperty(session, "some", PropertyType.EMBEDDEDLIST);
   }
 
   @Test(expected = SchemaException.class)
   public void testCreatePropertyFailOnExistingDataLinkSet() {
-    final Schema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = session.getMetadata().getSchema();
     var oClass = oSchema.createClass("Test5");
 
-    db.executeInTx(
+    session.executeInTx(
         () -> {
-          var document = (EntityImpl) db.newEntity("Test5");
+          var document = (EntityImpl) session.newEntity("Test5");
           Set<EntityImpl> set = new HashSet<EntityImpl>();
-          set.add((EntityImpl) db.newEntity("Test5"));
+          set.add((EntityImpl) session.newEntity("Test5"));
           document.field("somelinkset", set);
-          db.save(document);
+          session.save(document);
         });
 
-    oClass.createProperty(db, "somelinkset", PropertyType.EMBEDDEDSET);
+    oClass.createProperty(session, "somelinkset", PropertyType.EMBEDDEDSET);
   }
 
   @Test(expected = SchemaException.class)
   public void testCreatePropertyFailOnExistingDataEmbeddetSet() {
-    final Schema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = session.getMetadata().getSchema();
     var oClass = oSchema.createClass("Test6");
 
-    db.executeInTx(
+    session.executeInTx(
         () -> {
-          var document = (EntityImpl) db.newEntity("Test6");
+          var document = (EntityImpl) session.newEntity("Test6");
           Set<EntityImpl> list = new HashSet<EntityImpl>();
-          list.add((EntityImpl) db.newEntity("Test6"));
+          list.add((EntityImpl) session.newEntity("Test6"));
           document.field("someembededset", list, PropertyType.EMBEDDEDSET);
-          db.save(document);
+          session.save(document);
         });
 
-    oClass.createProperty(db, "someembededset", PropertyType.LINKSET);
+    oClass.createProperty(session, "someembededset", PropertyType.LINKSET);
   }
 
   @Test(expected = SchemaException.class)
   public void testCreatePropertyFailOnExistingDataEmbeddedList() {
-    final Schema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = session.getMetadata().getSchema();
     var oClass = oSchema.createClass("Test7");
 
-    db.executeInTx(
+    session.executeInTx(
         () -> {
-          var document = (EntityImpl) db.newEntity("Test7");
+          var document = (EntityImpl) session.newEntity("Test7");
           List<EntityImpl> list = new ArrayList<EntityImpl>();
-          list.add((EntityImpl) db.newEntity("Test7"));
+          list.add((EntityImpl) session.newEntity("Test7"));
           document.field("someembeddedlist", list, PropertyType.EMBEDDEDLIST);
-          db.save(document);
+          session.save(document);
         });
 
-    oClass.createProperty(db, "someembeddedlist", PropertyType.LINKLIST);
+    oClass.createProperty(session, "someembeddedlist", PropertyType.LINKLIST);
   }
 
   @Test(expected = SchemaException.class)
   public void testCreatePropertyFailOnExistingDataEmbeddedMap() {
-    final Schema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = session.getMetadata().getSchema();
     var oClass = oSchema.createClass("Test8");
 
-    db.executeInTx(
+    session.executeInTx(
         () -> {
-          var document = (EntityImpl) db.newEntity("Test8");
+          var document = (EntityImpl) session.newEntity("Test8");
           Map<String, EntityImpl> map = new HashMap<>();
-          map.put("test", (EntityImpl) db.newEntity("Test8"));
+          map.put("test", (EntityImpl) session.newEntity("Test8"));
           document.field("someembededmap", map, PropertyType.EMBEDDEDMAP);
-          db.save(document);
+          session.save(document);
         });
 
-    oClass.createProperty(db, "someembededmap", PropertyType.LINKMAP);
+    oClass.createProperty(session, "someembededmap", PropertyType.LINKMAP);
   }
 
   @Test(expected = SchemaException.class)
   public void testCreatePropertyFailOnExistingDataLinkMap() {
-    final Schema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = session.getMetadata().getSchema();
     var oClass = oSchema.createClass("Test9");
     oSchema.createClass("Test8");
 
-    db.executeInTx(
+    session.executeInTx(
         () -> {
-          var document = (EntityImpl) db.newEntity("Test9");
+          var document = (EntityImpl) session.newEntity("Test9");
           Map<String, EntityImpl> map = new HashMap<String, EntityImpl>();
-          map.put("test", (EntityImpl) db.newEntity("Test8"));
+          map.put("test", (EntityImpl) session.newEntity("Test8"));
           document.field("somelinkmap", map, PropertyType.LINKMAP);
-          db.save(document);
+          session.save(document);
         });
 
-    oClass.createProperty(db, "somelinkmap", PropertyType.EMBEDDEDMAP);
+    oClass.createProperty(session, "somelinkmap", PropertyType.EMBEDDEDMAP);
   }
 
   @Test
   public void testCreatePropertyCastable() {
-    final Schema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = session.getMetadata().getSchema();
     var oClass = oSchema.createClass("Test10");
 
     var rid =
-        db.computeInTx(
+        session.computeInTx(
             () -> {
-              var document = (EntityImpl) db.newEntity("Test10");
+              var document = (EntityImpl) session.newEntity("Test10");
               // TODO add boolan and byte
               document.field("test1", (short) 1);
               document.field("test2", 1);
@@ -211,137 +204,137 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
               document.field("test4", 3.0f);
               document.field("test5", 3.0D);
               document.field("test6", 4);
-              db.save(document);
+              session.save(document);
               return document.getIdentity();
             });
 
-    oClass.createProperty(db, "test1", PropertyType.INTEGER);
-    oClass.createProperty(db, "test2", PropertyType.LONG);
-    oClass.createProperty(db, "test3", PropertyType.DOUBLE);
-    oClass.createProperty(db, "test4", PropertyType.DOUBLE);
-    oClass.createProperty(db, "test5", PropertyType.DECIMAL);
-    oClass.createProperty(db, "test6", PropertyType.FLOAT);
+    oClass.createProperty(session, "test1", PropertyType.INTEGER);
+    oClass.createProperty(session, "test2", PropertyType.LONG);
+    oClass.createProperty(session, "test3", PropertyType.DOUBLE);
+    oClass.createProperty(session, "test4", PropertyType.DOUBLE);
+    oClass.createProperty(session, "test5", PropertyType.DECIMAL);
+    oClass.createProperty(session, "test6", PropertyType.FLOAT);
 
-    EntityImpl doc1 = db.load(rid);
-    assertEquals(doc1.getPropertyType("test1"), PropertyType.INTEGER);
+    EntityImpl doc1 = session.load(rid);
+    assertEquals(PropertyType.INTEGER, doc1.getPropertyType("test1"));
     assertTrue(doc1.field("test1") instanceof Integer);
-    assertEquals(doc1.getPropertyType("test2"), PropertyType.LONG);
+    assertEquals(PropertyType.LONG, doc1.getPropertyType("test2"));
     assertTrue(doc1.field("test2") instanceof Long);
-    assertEquals(doc1.getPropertyType("test3"), PropertyType.DOUBLE);
+    assertEquals(PropertyType.DOUBLE, doc1.getPropertyType("test3"));
     assertTrue(doc1.field("test3") instanceof Double);
-    assertEquals(doc1.getPropertyType("test4"), PropertyType.DOUBLE);
+    assertEquals(PropertyType.DOUBLE, doc1.getPropertyType("test4"));
     assertTrue(doc1.field("test4") instanceof Double);
-    assertEquals(doc1.getPropertyType("test5"), PropertyType.DECIMAL);
+    assertEquals(PropertyType.DECIMAL, doc1.getPropertyType("test5"));
     assertTrue(doc1.field("test5") instanceof BigDecimal);
-    assertEquals(doc1.getPropertyType("test6"), PropertyType.FLOAT);
+    assertEquals(PropertyType.FLOAT, doc1.getPropertyType("test6"));
     assertTrue(doc1.field("test6") instanceof Float);
   }
 
   @Test
   public void testCreatePropertyCastableColection() {
-    final Schema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = session.getMetadata().getSchema();
     var oClass = oSchema.createClass("Test11");
 
     var rid =
-        db.computeInTx(
+        session.computeInTx(
             () -> {
-              var document = (EntityImpl) db.newEntity("Test11");
+              var document = (EntityImpl) session.newEntity("Test11");
               document.field("test1", new ArrayList<EntityImpl>(), PropertyType.EMBEDDEDLIST);
               document.field("test2", new ArrayList<EntityImpl>(), PropertyType.LINKLIST);
               document.field("test3", new HashSet<EntityImpl>(), PropertyType.EMBEDDEDSET);
               document.field("test4", new HashSet<EntityImpl>(), PropertyType.LINKSET);
               document.field("test5", new HashMap<String, EntityImpl>(), PropertyType.EMBEDDEDMAP);
               document.field("test6", new HashMap<String, EntityImpl>(), PropertyType.LINKMAP);
-              db.save(document);
+              session.save(document);
               return document.getIdentity();
             });
 
-    oClass.createProperty(db, "test1", PropertyType.LINKLIST);
-    oClass.createProperty(db, "test2", PropertyType.EMBEDDEDLIST);
-    oClass.createProperty(db, "test3", PropertyType.LINKSET);
-    oClass.createProperty(db, "test4", PropertyType.EMBEDDEDSET);
-    oClass.createProperty(db, "test5", PropertyType.LINKMAP);
-    oClass.createProperty(db, "test6", PropertyType.EMBEDDEDMAP);
+    oClass.createProperty(session, "test1", PropertyType.LINKLIST);
+    oClass.createProperty(session, "test2", PropertyType.EMBEDDEDLIST);
+    oClass.createProperty(session, "test3", PropertyType.LINKSET);
+    oClass.createProperty(session, "test4", PropertyType.EMBEDDEDSET);
+    oClass.createProperty(session, "test5", PropertyType.LINKMAP);
+    oClass.createProperty(session, "test6", PropertyType.EMBEDDEDMAP);
 
-    EntityImpl doc1 = db.load(rid);
-    assertEquals(doc1.getPropertyType("test1"), PropertyType.LINKLIST);
-    assertEquals(doc1.getPropertyType("test2"), PropertyType.EMBEDDEDLIST);
-    assertEquals(doc1.getPropertyType("test3"), PropertyType.LINKSET);
-    assertEquals(doc1.getPropertyType("test4"), PropertyType.EMBEDDEDSET);
-    assertEquals(doc1.getPropertyType("test5"), PropertyType.LINKMAP);
-    assertEquals(doc1.getPropertyType("test6"), PropertyType.EMBEDDEDMAP);
+    EntityImpl doc1 = session.load(rid);
+    assertEquals(PropertyType.LINKLIST, doc1.getPropertyType("test1"));
+    assertEquals(PropertyType.EMBEDDEDLIST, doc1.getPropertyType("test2"));
+    assertEquals(PropertyType.LINKSET, doc1.getPropertyType("test3"));
+    assertEquals(PropertyType.EMBEDDEDSET, doc1.getPropertyType("test4"));
+    assertEquals(PropertyType.LINKMAP, doc1.getPropertyType("test5"));
+    assertEquals(PropertyType.EMBEDDEDMAP, doc1.getPropertyType("test6"));
   }
 
   @Test
   public void testCreatePropertyIdKeep() {
-    final Schema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = session.getMetadata().getSchema();
     var oClass = oSchema.createClass("Test12");
-    var prop = oClass.createProperty(db, "test2", PropertyType.STRING);
+    var prop = oClass.createProperty(session, "test2", PropertyType.STRING);
     var id = prop.getId();
-    oClass.dropProperty(db, "test2");
-    prop = oClass.createProperty(db, "test2", PropertyType.STRING);
+    oClass.dropProperty(session, "test2");
+    prop = oClass.createProperty(session, "test2", PropertyType.STRING);
     assertEquals(id, prop.getId());
   }
 
   @Test
   public void testRenameProperty() {
-    final Schema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = session.getMetadata().getSchema();
     var oClass = oSchema.createClass("Test13");
-    var prop = oClass.createProperty(db, "test1", PropertyType.STRING);
+    var prop = oClass.createProperty(session, "test1", PropertyType.STRING);
     var id = prop.getId();
-    prop.setName(db, "test2");
+    prop.setName(session, "test2");
     assertNotEquals(id, prop.getId());
   }
 
   @Test
   public void testChangeTypeProperty() {
-    final Schema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = session.getMetadata().getSchema();
     var oClass = oSchema.createClass("Test14");
-    var prop = oClass.createProperty(db, "test1", PropertyType.SHORT);
+    var prop = oClass.createProperty(session, "test1", PropertyType.SHORT);
     var id = prop.getId();
-    prop.setType(db, PropertyType.INTEGER);
+    prop.setType(session, PropertyType.INTEGER);
     assertNotEquals(id, prop.getId());
   }
 
   @Test
   public void testRenameBackProperty() {
-    final Schema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = session.getMetadata().getSchema();
     var oClass = oSchema.createClass("Test15");
-    var prop = oClass.createProperty(db, "test1", PropertyType.STRING);
+    var prop = oClass.createProperty(session, "test1", PropertyType.STRING);
     var id = prop.getId();
-    prop.setName(db, "test2");
+    prop.setName(session, "test2");
     assertNotEquals(id, prop.getId());
-    prop.setName(db, "test1");
+    prop.setName(session, "test1");
     assertEquals(id, prop.getId());
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testSetUncastableType() {
-    final Schema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = session.getMetadata().getSchema();
     var oClass = oSchema.createClass("Test16");
-    var prop = oClass.createProperty(db, "test1", PropertyType.STRING);
-    prop.setType(db, PropertyType.INTEGER);
+    var prop = oClass.createProperty(session, "test1", PropertyType.STRING);
+    prop.setType(session, PropertyType.INTEGER);
   }
 
   @Test
   public void testFindById() {
-    final Schema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = session.getMetadata().getSchema();
     var oClass = oSchema.createClass("Test17");
-    var prop = oClass.createProperty(db, "testaaa", PropertyType.STRING);
+    var prop = oClass.createProperty(session, "testaaa", PropertyType.STRING);
     var global = oSchema.getGlobalPropertyById(prop.getId());
 
     assertEquals(prop.getId(), global.getId());
-    assertEquals(prop.getName(), global.getName());
-    assertEquals(prop.getType(), global.getType());
+    assertEquals(prop.getName(session), global.getName());
+    assertEquals(prop.getType(session), global.getType());
   }
 
   @Test
   public void testFindByIdDrop() {
-    final Schema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = session.getMetadata().getSchema();
     var oClass = oSchema.createClass("Test18");
-    var prop = oClass.createProperty(db, "testaaa", PropertyType.STRING);
+    var prop = oClass.createProperty(session, "testaaa", PropertyType.STRING);
     var id = prop.getId();
-    oClass.dropProperty(db, "testaaa");
+    oClass.dropProperty(session, "testaaa");
     var global = oSchema.getGlobalPropertyById(id);
 
     assertEquals(id, global.getId());
@@ -351,20 +344,20 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testChangePropertyTypeCastable() {
-    final Schema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = session.getMetadata().getSchema();
     var oClass = oSchema.createClass("Test19");
 
-    oClass.createProperty(db, "test1", PropertyType.SHORT);
-    oClass.createProperty(db, "test2", PropertyType.INTEGER);
-    oClass.createProperty(db, "test3", PropertyType.LONG);
-    oClass.createProperty(db, "test4", PropertyType.FLOAT);
-    oClass.createProperty(db, "test5", PropertyType.DOUBLE);
-    oClass.createProperty(db, "test6", PropertyType.INTEGER);
+    oClass.createProperty(session, "test1", PropertyType.SHORT);
+    oClass.createProperty(session, "test2", PropertyType.INTEGER);
+    oClass.createProperty(session, "test3", PropertyType.LONG);
+    oClass.createProperty(session, "test4", PropertyType.FLOAT);
+    oClass.createProperty(session, "test5", PropertyType.DOUBLE);
+    oClass.createProperty(session, "test6", PropertyType.INTEGER);
 
     var rid =
-        db.computeInTx(
+        session.computeInTx(
             () -> {
-              var document = (EntityImpl) db.newEntity("Test19");
+              var document = (EntityImpl) session.newEntity("Test19");
               // TODO add boolean and byte
               document.field("test1", (short) 1);
               document.field("test2", 1);
@@ -372,48 +365,48 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
               document.field("test4", 3.0f);
               document.field("test5", 3.0D);
               document.field("test6", 4);
-              db.save(document);
+              session.save(document);
               return document.getIdentity();
             });
 
-    oClass.getProperty("test1").setType(db, PropertyType.INTEGER);
-    oClass.getProperty("test2").setType(db, PropertyType.LONG);
-    oClass.getProperty("test3").setType(db, PropertyType.DOUBLE);
-    oClass.getProperty("test4").setType(db, PropertyType.DOUBLE);
-    oClass.getProperty("test5").setType(db, PropertyType.DECIMAL);
-    oClass.getProperty("test6").setType(db, PropertyType.FLOAT);
+    oClass.getProperty(session, "test1").setType(session, PropertyType.INTEGER);
+    oClass.getProperty(session, "test2").setType(session, PropertyType.LONG);
+    oClass.getProperty(session, "test3").setType(session, PropertyType.DOUBLE);
+    oClass.getProperty(session, "test4").setType(session, PropertyType.DOUBLE);
+    oClass.getProperty(session, "test5").setType(session, PropertyType.DECIMAL);
+    oClass.getProperty(session, "test6").setType(session, PropertyType.FLOAT);
 
-    EntityImpl doc1 = db.load(rid);
-    assertEquals(doc1.getPropertyType("test1"), PropertyType.INTEGER);
+    EntityImpl doc1 = session.load(rid);
+    assertEquals(PropertyType.INTEGER, doc1.getPropertyType("test1"));
     assertTrue(doc1.field("test1") instanceof Integer);
-    assertEquals(doc1.getPropertyType("test2"), PropertyType.LONG);
+    assertEquals(PropertyType.LONG, doc1.getPropertyType("test2"));
     assertTrue(doc1.field("test2") instanceof Long);
-    assertEquals(doc1.getPropertyType("test3"), PropertyType.DOUBLE);
+    assertEquals(PropertyType.DOUBLE, doc1.getPropertyType("test3"));
     assertTrue(doc1.field("test3") instanceof Double);
-    assertEquals(doc1.getPropertyType("test4"), PropertyType.DOUBLE);
+    assertEquals(PropertyType.DOUBLE, doc1.getPropertyType("test4"));
     assertTrue(doc1.field("test4") instanceof Double);
-    assertEquals(doc1.getPropertyType("test5"), PropertyType.DECIMAL);
+    assertEquals(PropertyType.DECIMAL, doc1.getPropertyType("test5"));
     assertTrue(doc1.field("test5") instanceof BigDecimal);
-    assertEquals(doc1.getPropertyType("test6"), PropertyType.FLOAT);
+    assertEquals(PropertyType.FLOAT, doc1.getPropertyType("test6"));
     assertTrue(doc1.field("test6") instanceof Float);
   }
 
   @Test
   public void testChangePropertyName() {
-    final Schema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = session.getMetadata().getSchema();
     var oClass = oSchema.createClass("Test20");
 
-    oClass.createProperty(db, "test1", PropertyType.SHORT);
-    oClass.createProperty(db, "test2", PropertyType.INTEGER);
-    oClass.createProperty(db, "test3", PropertyType.LONG);
-    oClass.createProperty(db, "test4", PropertyType.FLOAT);
-    oClass.createProperty(db, "test5", PropertyType.DOUBLE);
-    oClass.createProperty(db, "test6", PropertyType.INTEGER);
+    oClass.createProperty(session, "test1", PropertyType.SHORT);
+    oClass.createProperty(session, "test2", PropertyType.INTEGER);
+    oClass.createProperty(session, "test3", PropertyType.LONG);
+    oClass.createProperty(session, "test4", PropertyType.FLOAT);
+    oClass.createProperty(session, "test5", PropertyType.DOUBLE);
+    oClass.createProperty(session, "test6", PropertyType.INTEGER);
 
     var rid =
-        db.computeInTx(
+        session.computeInTx(
             () -> {
-              var document = (EntityImpl) db.newEntity("Test20");
+              var document = (EntityImpl) session.newEntity("Test20");
               // TODO add boolan and byte
               document.field("test1", (short) 1);
               document.field("test2", 1);
@@ -421,41 +414,41 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
               document.field("test4", 3.0f);
               document.field("test5", 3.0D);
               document.field("test6", 4);
-              db.save(document);
+              session.save(document);
               return document.getIdentity();
             });
 
-    oClass.getProperty("test1").setName(db, "test1a");
-    oClass.getProperty("test2").setName(db, "test2a");
-    oClass.getProperty("test3").setName(db, "test3a");
-    oClass.getProperty("test4").setName(db, "test4a");
-    oClass.getProperty("test5").setName(db, "test5a");
-    oClass.getProperty("test6").setName(db, "test6a");
+    oClass.getProperty(session, "test1").setName(session, "test1a");
+    oClass.getProperty(session, "test2").setName(session, "test2a");
+    oClass.getProperty(session, "test3").setName(session, "test3a");
+    oClass.getProperty(session, "test4").setName(session, "test4a");
+    oClass.getProperty(session, "test5").setName(session, "test5a");
+    oClass.getProperty(session, "test6").setName(session, "test6a");
 
-    EntityImpl doc1 = db.load(rid);
-    assertEquals(doc1.getPropertyType("test1a"), PropertyType.SHORT);
+    EntityImpl doc1 = session.load(rid);
+    assertEquals(PropertyType.SHORT, doc1.getPropertyType("test1a"));
     assertTrue(doc1.field("test1a") instanceof Short);
-    assertEquals(doc1.getPropertyType("test2a"), PropertyType.INTEGER);
+    assertEquals(PropertyType.INTEGER, doc1.getPropertyType("test2a"));
     assertTrue(doc1.field("test2a") instanceof Integer);
-    assertEquals(doc1.getPropertyType("test3a"), PropertyType.LONG);
+    assertEquals(PropertyType.LONG, doc1.getPropertyType("test3a"));
     assertTrue(doc1.field("test3a") instanceof Long);
-    assertEquals(doc1.getPropertyType("test4a"), PropertyType.FLOAT);
+    assertEquals(PropertyType.FLOAT, doc1.getPropertyType("test4a"));
     assertTrue(doc1.field("test4a") instanceof Float);
-    assertEquals(doc1.getPropertyType("test5a"), PropertyType.DOUBLE);
+    assertEquals(PropertyType.DOUBLE, doc1.getPropertyType("test5a"));
     assertTrue(doc1.field("test5") instanceof Double);
-    assertEquals(doc1.getPropertyType("test6a"), PropertyType.INTEGER);
+    assertEquals(PropertyType.INTEGER, doc1.getPropertyType("test6a"));
     assertTrue(doc1.field("test6a") instanceof Integer);
   }
 
   @Test
   public void testCreatePropertyCastableColectionNoCache() {
-    final Schema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = session.getMetadata().getSchema();
     var oClass = oSchema.createClass("Test11bis");
 
     var rid =
-        db.computeInTx(
+        session.computeInTx(
             () -> {
-              final var document = (EntityImpl) db.newEntity("Test11bis");
+              final var document = (EntityImpl) session.newEntity("Test11bis");
               document.field("test1", new ArrayList<EntityImpl>(), PropertyType.EMBEDDEDLIST);
               document.field("test2", new ArrayList<EntityImpl>(), PropertyType.LINKLIST);
 
@@ -463,29 +456,29 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
               document.field("test4", new HashSet<EntityImpl>(), PropertyType.LINKSET);
               document.field("test5", new HashMap<String, EntityImpl>(), PropertyType.EMBEDDEDMAP);
               document.field("test6", new HashMap<String, EntityImpl>(), PropertyType.LINKMAP);
-              db.save(document);
+              session.save(document);
 
               return document.getIdentity();
             });
-    oClass.createProperty(db, "test1", PropertyType.LINKLIST);
-    oClass.createProperty(db, "test2", PropertyType.EMBEDDEDLIST);
-    oClass.createProperty(db, "test3", PropertyType.LINKSET);
-    oClass.createProperty(db, "test4", PropertyType.EMBEDDEDSET);
-    oClass.createProperty(db, "test5", PropertyType.LINKMAP);
-    oClass.createProperty(db, "test6", PropertyType.EMBEDDEDMAP);
+    oClass.createProperty(session, "test1", PropertyType.LINKLIST);
+    oClass.createProperty(session, "test2", PropertyType.EMBEDDEDLIST);
+    oClass.createProperty(session, "test3", PropertyType.LINKSET);
+    oClass.createProperty(session, "test4", PropertyType.EMBEDDEDSET);
+    oClass.createProperty(session, "test5", PropertyType.LINKMAP);
+    oClass.createProperty(session, "test6", PropertyType.EMBEDDEDMAP);
 
     var executor = Executors.newSingleThreadExecutor();
 
     var future =
         executor.submit(
             () -> {
-              EntityImpl doc1 = db.copy().load(rid);
-              assertEquals(doc1.getPropertyType("test1"), PropertyType.LINKLIST);
-              assertEquals(doc1.getPropertyType("test2"), PropertyType.EMBEDDEDLIST);
-              assertEquals(doc1.getPropertyType("test3"), PropertyType.LINKSET);
-              assertEquals(doc1.getPropertyType("test4"), PropertyType.EMBEDDEDSET);
-              assertEquals(doc1.getPropertyType("test5"), PropertyType.LINKMAP);
-              assertEquals(doc1.getPropertyType("test6"), PropertyType.EMBEDDEDMAP);
+              EntityImpl doc1 = session.copy().load(rid);
+              assertEquals(PropertyType.LINKLIST, doc1.getPropertyType("test1"));
+              assertEquals(PropertyType.EMBEDDEDLIST, doc1.getPropertyType("test2"));
+              assertEquals(PropertyType.LINKSET, doc1.getPropertyType("test3"));
+              assertEquals(PropertyType.EMBEDDEDSET, doc1.getPropertyType("test4"));
+              assertEquals(PropertyType.LINKMAP, doc1.getPropertyType("test5"));
+              assertEquals(PropertyType.EMBEDDEDMAP, doc1.getPropertyType("test6"));
               return doc1;
             });
 
@@ -505,7 +498,7 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   @Test
   public void testClassNameSyntax() {
 
-    final Schema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = session.getMetadata().getSchema();
     assertNotNull(oSchema.createClass("OClassImplTesttestClassNameSyntax"));
     assertNotNull(oSchema.createClass("_OClassImplTesttestClassNameSyntax"));
     assertNotNull(oSchema.createClass("_OClassImplTesttestClassNameSyntax_"));
@@ -536,33 +529,33 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
   @Test
   public void testTypeAny() {
     var className = "testTypeAny";
-    final Schema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = session.getMetadata().getSchema();
 
     var oClass = oSchema.createClass(className);
 
-    db.executeInTx(
+    session.executeInTx(
         () -> {
-          EntityImpl record = db.newInstance(className);
+          EntityImpl record = session.newInstance(className);
           record.field("name", "foo");
           record.save();
         });
 
-    oClass.createProperty(db, "name", PropertyType.ANY);
+    oClass.createProperty(session, "name", PropertyType.ANY);
 
-    try (var result = db.query("select from " + className + " where name = 'foo'")) {
-      assertEquals(result.stream().count(), 1);
+    try (var result = session.query("select from " + className + " where name = 'foo'")) {
+      assertEquals(1, result.stream().count());
     }
   }
 
   @Test
   public void testAlterCustomAttributeInClass() {
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var oClass = schema.createClass("TestCreateCustomAttributeClass");
 
-    oClass.setCustom(db, "customAttribute", "value1");
-    assertEquals("value1", oClass.getCustom("customAttribute"));
+    oClass.setCustom(session, "customAttribute", "value1");
+    assertEquals("value1", oClass.getCustom(session, "customAttribute"));
 
-    oClass.setCustom(db, "custom.attribute", "value2");
-    assertEquals("value2", oClass.getCustom("custom.attribute"));
+    oClass.setCustom(session, "custom.attribute", "value2");
+    assertEquals("value2", oClass.getCustom(session, "custom.attribute"));
   }
 }

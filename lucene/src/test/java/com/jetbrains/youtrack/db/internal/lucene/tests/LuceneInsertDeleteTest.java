@@ -20,19 +20,13 @@ package com.jetbrains.youtrack.db.internal.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import java.io.InputStream;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,49 +38,49 @@ public class LuceneInsertDeleteTest extends LuceneBaseTest {
   @Before
   public void init() {
 
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var oClass = schema.createClass("City");
 
-    oClass.createProperty(db, "name", PropertyType.STRING);
+    oClass.createProperty(session, "name", PropertyType.STRING);
     //noinspection EmptyTryBlock
     try (var resultSet =
-        db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE")) {
+        session.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE")) {
     }
   }
 
   @Test
   public void testInsertUpdateWithIndex() {
-    db.getMetadata().reload();
-    var schema = db.getMetadata().getSchema();
+    session.getMetadata().reload();
+    var schema = session.getMetadata().getSchema();
 
-    var doc = ((EntityImpl) db.newEntity("City"));
+    var doc = ((EntityImpl) session.newEntity("City"));
     doc.field("name", "Rome");
 
-    db.begin();
-    db.save(doc);
-    db.commit();
+    session.begin();
+    session.save(doc);
+    session.commit();
 
-    var idx = schema.getClassInternal("City").getClassIndex(db, "City.name");
+    var idx = schema.getClassInternal("City").getClassIndex(session, "City.name");
     Collection<?> coll;
-    try (var stream = idx.getInternal().getRids(db, "Rome")) {
+    try (var stream = idx.getInternal().getRids(session, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
 
-    db.begin();
+    session.begin();
     assertThat(coll).hasSize(1);
-    assertThat(idx.getInternal().size(db)).isEqualTo(1);
+    assertThat(idx.getInternal().size(session)).isEqualTo(1);
 
     var next = (Identifiable) coll.iterator().next();
-    doc = db.load(next.getIdentity());
+    doc = session.load(next.getIdentity());
 
-    db.delete(doc);
-    db.commit();
+    session.delete(doc);
+    session.commit();
 
-    try (var stream = idx.getInternal().getRids(db, "Rome")) {
+    try (var stream = idx.getInternal().getRids(session, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(0);
-    assertThat(idx.getInternal().size(db)).isEqualTo(0);
+    assertThat(idx.getInternal().size(session)).isEqualTo(0);
   }
 
   @Test
@@ -94,31 +88,31 @@ public class LuceneInsertDeleteTest extends LuceneBaseTest {
 
     try (var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql")) {
       //noinspection EmptyTryBlock
-      try (var resultSet = db.execute("sql", getScriptFromStream(stream))) {
+      try (var resultSet = session.execute("sql", getScriptFromStream(stream))) {
       }
     }
 
     //noinspection EmptyTryBlock
     try (var resultSet =
-        db.command(
+        session.command(
             "create index Song.title on Song (title) FULLTEXT ENGINE LUCENE metadata"
                 + " {'closeAfterInterval':1000 , 'firstFlushAfter':1000 }")) {
     }
 
-    try (var docs = db.query("select from Song where title lucene 'mountain'")) {
+    try (var docs = session.query("select from Song where title lucene 'mountain'")) {
 
       assertThat(docs).hasSize(4);
       TimeUnit.SECONDS.sleep(5);
       docs.close();
 
-      db.begin();
+      session.begin();
       //noinspection EmptyTryBlock
       try (var command =
-          db.command("delete vertex from Song where title lucene 'mountain'")) {
+          session.command("delete vertex from Song where title lucene 'mountain'")) {
       }
-      db.commit();
+      session.commit();
 
-      try (var resultSet = db.query("select from Song where  title lucene 'mountain'")) {
+      try (var resultSet = session.query("select from Song where  title lucene 'mountain'")) {
         assertThat(resultSet).hasSize(0);
       }
     }

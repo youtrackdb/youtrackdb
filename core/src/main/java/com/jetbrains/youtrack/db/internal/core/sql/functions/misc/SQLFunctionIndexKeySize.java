@@ -19,15 +19,10 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.misc;
 
-import com.jetbrains.youtrack.db.internal.common.util.RawPair;
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionAbstract;
-import java.util.stream.Stream;
 
 /**
  * returns the number of keys for an index
@@ -49,14 +44,14 @@ public class SQLFunctionIndexKeySize extends SQLFunctionAbstract {
     final var value = iParams[0];
 
     var indexName = String.valueOf(value);
-    final var database = context.getDatabase();
+    final var database = context.getDatabaseSession();
     var index = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
     if (index == null) {
       return null;
     }
     try (var stream = index.getInternal()
-        .stream(context.getDatabase())) {
-      try (var rids = index.getInternal().getRids(context.getDatabase(), null)) {
+        .stream(context.getDatabaseSession())) {
+      try (var rids = index.getInternal().getRids(context.getDatabaseSession(), null)) {
         return stream.map((pair) -> pair.first).distinct().count() + rids.count();
       }
     }

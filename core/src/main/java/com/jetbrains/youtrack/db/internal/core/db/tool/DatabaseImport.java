@@ -19,6 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db.tool;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jetbrains.youtrack.db.api.DatabaseSession.STATUS;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
@@ -35,7 +37,6 @@ import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.ArrayUtils;
-import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.EntityFieldWalker;
@@ -46,7 +47,6 @@ import com.jetbrains.youtrack.db.internal.core.db.tool.importer.LinksRewriter;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.index.SimpleKeyIndexDefinition;
@@ -68,11 +68,9 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONReader;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJSON;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJackson;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.RidSet;
 import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
-import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
@@ -87,14 +85,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
@@ -128,6 +124,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
   private final Int2IntOpenHashMap clusterToClusterMapping = new Int2IntOpenHashMap();
 
   private int maxRidbagStringSizeBeforeLazyImport = 100_000_000;
+  private final ObjectMapper objectMapper;
 
   public DatabaseImport(
       final DatabaseSessionInternal database,
@@ -139,6 +136,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       throw new DatabaseImportException(
           "Database import is not supported for remote databases");
     }
+    objectMapper = new ObjectMapper();
 
     clusterToClusterMapping.defaultReturnValue(-2);
     // TODO: check unclosed stream?
@@ -161,6 +159,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       final CommandOutputListener outputListener)
       throws IOException {
     super(database, "streaming", outputListener);
+    objectMapper = new ObjectMapper();
     clusterToClusterMapping.defaultReturnValue(-2);
     createJsonReaderDefaultListenerAndDeclareIntent(database, outputListener, inputStream);
   }
@@ -299,10 +298,12 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
         writer.close();
       } catch (final IOException e1) {
         throw new DatabaseExportException(
-            "Error on importing database '" + database.getName() + "' from file: " + fileName, e1);
+            "Error on importing database '" + database.getDatabaseName() + "' from file: "
+                + fileName, e1);
       }
       throw new DatabaseExportException(
-          "Error on importing database '" + database.getName() + "' from file: " + fileName, e);
+          "Error on importing database '" + database.getDatabaseName() + "' from file: " + fileName,
+          e);
     } finally {
       database.setValidationEnabled(preValidation);
       close();
@@ -431,16 +432,6 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       schema.dropClass(ClassTrigger.CLASSNAME);
     }
 
-    database.dropCluster(Storage.CLUSTER_DEFAULT_NAME);
-
-    database.setDefaultClusterId(database.addCluster(Storage.CLUSTER_DEFAULT_NAME));
-
-    // Starting from v4 schema has been moved to internal cluster.
-    // Create a stub at #2:0 to prevent cluster position shifting.
-    database.begin();
-    new EntityImpl(database).save(Storage.CLUSTER_DEFAULT_NAME);
-    database.commit();
-
     database.getSharedContext().getSecurity().create(database);
   }
 
@@ -484,7 +475,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
         "\nNon merge mode (-merge=false): removing all default non security classes");
 
     final Schema schema = database.getMetadata().getSchema();
-    final var classes = schema.getClasses(database);
+    final var classes = schema.getClasses();
     final var role = schema.getClass(Role.CLASS_NAME);
     final var user = schema.getClass(SecurityUserImpl.CLASS_NAME);
     final var identity = schema.getClass(Identity.CLASS_NAME);
@@ -492,10 +483,11 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     final Map<String, SchemaClass> classesToDrop = new HashMap<>();
     final Set<String> indexNames = new HashSet<>();
     for (final var dbClass : classes) {
-      final var className = dbClass.getName();
-      if (!dbClass.isSuperClassOf(role)
-          && !dbClass.isSuperClassOf(user)
-          && !dbClass.isSuperClassOf(identity) /*&& !dbClass.isSuperClassOf(oSecurityPolicy)*/) {
+      final var className = dbClass.getName(database);
+      if (!dbClass.isSuperClassOf(database, role)
+          && !dbClass.isSuperClassOf(database, user)
+          && !dbClass.isSuperClassOf(database,
+          identity) /*&& !dbClass.isSuperClassOf(oSecurityPolicy)*/) {
         classesToDrop.put(className, dbClass);
         indexNames.addAll(((SchemaClassInternal) dbClass).getIndexes(database));
       }
@@ -512,10 +504,10 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       for (final var className : classesToDrop.keySet()) {
         var isSuperClass = false;
         for (var dbClass : classesToDrop.values()) {
-          final var parentClasses = dbClass.getSuperClasses();
+          final var parentClasses = dbClass.getSuperClasses(database);
           if (parentClasses != null) {
             for (var parentClass : parentClasses) {
-              if (className.equalsIgnoreCase(parentClass.getName())) {
+              if (className.equalsIgnoreCase(parentClass.getName(database))) {
                 isSuperClass = true;
                 break;
               }
@@ -669,7 +661,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
                 cls.setAbstract(database, jsonReader.readBoolean(JSONReader.NEXT_IN_OBJECT));
             case "\"short-name\"" -> {
               final var shortName = jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
-              if (!cls.getName().equalsIgnoreCase(shortName)) {
+              if (!cls.getName(database).equalsIgnoreCase(shortName)) {
                 cls.setShortName(database, shortName);
               }
             }
@@ -750,7 +742,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       for (final var superClassName : entry.getValue()) {
         final var superClass = database.getMetadata().getSchema().getClass(superClassName);
 
-        if (!entry.getKey().getSuperClasses().contains(superClass)) {
+        if (!entry.getKey().getSuperClasses(database).contains(superClass)) {
           entry.getKey().addSuperClass(database, superClass);
         }
       }
@@ -852,7 +844,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       }
     }
 
-    var prop = (SchemaPropertyImpl) iClass.getProperty(propName);
+    var prop = (SchemaPropertyImpl) iClass.getProperty(database, propName);
     if (prop == null) {
       // CREATE IT
       prop = (SchemaPropertyImpl) iClass.createProperty(database, propName, type,
@@ -920,8 +912,6 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       removeDefaultClusters();
       recreateManualIndex = true;
     }
-
-    final Set<String> indexesToRebuild = new HashSet<>();
 
     @SuppressWarnings("unused")
     RecordId rid = null;
@@ -1011,17 +1001,17 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
             createdClusterId = database.addCluster(name);
           } else {
             throw new ConfigurationException(
-                "Imported cluster '"
-                    + name
-                    + "' has id="
-                    + createdClusterId
-                    + " different from the original: "
-                    + clusterIdFromJson
-                    + ". To continue the import drop the cluster '"
-                    + database.getClusterNameById(createdClusterId - 1)
-                    + "' that has "
-                    + database.countClusterElements(createdClusterId - 1)
-                    + " records");
+                database.getDatabaseName(), "Imported cluster '"
+                + name
+                + "' has id="
+                + createdClusterId
+                + " different from the original: "
+                + clusterIdFromJson
+                + ". To continue the import drop the cluster '"
+                + database.getClusterNameById(createdClusterId - 1)
+                + "' that has "
+                + database.countClusterElements(createdClusterId - 1)
+                + " records");
           }
         } else {
 
@@ -1114,237 +1104,245 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
   private RID importRecord(HashSet<RID> recordsBeforeImport,
       Schema beforeImportSchemaSnapshot)
       throws Exception {
-    var recordParse =
-        jsonReader.readRecordString(this.maxRidbagStringSizeBeforeLazyImport);
-    var value = recordParse.getKey().trim();
-
-    if (value.isEmpty()) {
-      return null;
-    }
-
-    // JUMP EMPTY RECORDS
-    while (!value.isEmpty() && value.charAt(0) != '{') {
-      value = value.substring(1);
-    }
-
-    RecordAbstract record = null;
-
-    // big ridbags (ie. supernodes) sometimes send the system OOM, so they have to be discarded at
-    // this stage
-    // and processed later. The following collects the positions ("value" inside the string) of
-    // skipped fields.
-    var skippedPartsIndexes = new IntOpenHashSet();
-
+    database.begin();
+    var ok = false;
     try {
+      var recordParse =
+          jsonReader.readRecordString(this.maxRidbagStringSizeBeforeLazyImport);
+      var value = recordParse.getKey().trim();
+
+      if (value.isEmpty()) {
+        return null;
+      }
+
+      // JUMP EMPTY RECORDS
+      while (!value.isEmpty() && value.charAt(0) != '{') {
+        value = value.substring(1);
+      }
+
+      RecordAbstract record = null;
+
+      // big ridbags (ie. supernodes) sometimes send the system OOM, so they have to be discarded at
+      // this stage
+      // and processed later. The following collects the positions ("value" inside the string) of
+      // skipped fields.
+      var skippedPartsIndexes = new IntOpenHashSet();
+
       try {
-        record =
-            RecordSerializerJackson.INSTANCE.fromString(database,
-                value,
-                null,
-                null);
-      } catch (final SerializationException e) {
-        if (e.getCause() instanceof SchemaException) {
-          // EXTRACT CLASS NAME If ANY
-          final var pos = value.indexOf("\"@class\":\"");
-          if (pos > -1) {
-            final var end = value.indexOf('"', pos + "\"@class\":\"".length() + 1);
-            final var value1 = value.substring(0, pos + "\"@class\":\"".length());
-            final var clsName = value.substring(pos + "\"@class\":\"".length(), end);
-            final var value2 = value.substring(end);
+        try {
+          record =
+              RecordSerializerJackson.INSTANCE.fromString(database,
+                  value,
+                  null,
+                  null);
+        } catch (final SerializationException e) {
+          if (e.getCause() instanceof SchemaException) {
+            // EXTRACT CLASS NAME If ANY
+            final var pos = value.indexOf("\"@class\":\"");
+            if (pos > -1) {
+              final var end = value.indexOf('"', pos + "\"@class\":\"".length() + 1);
+              final var value1 = value.substring(0, pos + "\"@class\":\"".length());
+              final var clsName = value.substring(pos + "\"@class\":\"".length(), end);
+              final var value2 = value.substring(end);
 
-            final var newClassName = convertedClassNames.get(clsName);
+              final var newClassName = convertedClassNames.get(clsName);
 
-            value = value1 + newClassName + value2;
-            // OVERWRITE CLASS NAME WITH NEW NAME
-            record =
-                RecordSerializerJackson.INSTANCE.fromString(database,
-                    value,
-                    record,
-                    null);
+              value = value1 + newClassName + value2;
+              // OVERWRITE CLASS NAME WITH NEW NAME
+              record =
+                  RecordSerializerJackson.INSTANCE.fromString(database,
+                      value,
+                      record,
+                      null);
+            }
+          } else {
+            throw BaseException.wrapException(
+                new DatabaseImportException("Error on importing record"), e,
+                database.getDatabaseName());
           }
-        } else {
-          throw BaseException.wrapException(
-              new DatabaseImportException("Error on importing record"), e);
         }
-      }
 
-      // Incorrect record format, skip this record
-      if (record == null || record.getIdentity() == null) {
-        LogManager.instance().warn(this, "Broken record was detected and will be skipped");
-        return null;
-      }
-
-      if (schemaImported && record.getIdentity().equals(schemaRecordId)) {
-        recordsBeforeImport.remove(record.getIdentity());
-        // JUMP THE SCHEMA
-        return null;
-      }
-
-      // CHECK IF THE CLUSTER IS INCLUDED
-
-      if (record.getIdentity().getClusterId() == 0
-          && record.getIdentity().getClusterPosition() == 1) {
-        recordsBeforeImport.remove(record.getIdentity());
-        // JUMP INTERNAL RECORDS
-        return null;
-      }
-
-      if (exporterVersion >= 3) {
-        var oridsId = database.getClusterIdByName("ORIDs");
-        var indexId = database.getClusterIdByName(MetadataDefault.CLUSTER_INDEX_NAME);
-
-        if (record.getIdentity().getClusterId() == indexId
-            || record.getIdentity().getClusterId() == oridsId) {
-          recordsBeforeImport.remove(record.getIdentity());
-          // JUMP INDEX RECORDS
+        // Incorrect record format, skip this record
+        if (record == null) {
+          LogManager.instance().warn(this, "Broken record was detected and will be skipped");
           return null;
         }
-      }
 
-      final var manualIndexCluster =
-          database.getClusterIdByName(MetadataDefault.CLUSTER_MANUAL_INDEX_NAME);
-      final var internalCluster =
-          database.getClusterIdByName(MetadataDefault.CLUSTER_INTERNAL_NAME);
-      final var indexCluster = database.getClusterIdByName(MetadataDefault.CLUSTER_INDEX_NAME);
+        if (schemaImported && record.getIdentity().equals(schemaRecordId)) {
+          recordsBeforeImport.remove(record.getIdentity());
+          // JUMP THE SCHEMA
+          return null;
+        }
 
-      if (exporterVersion >= 4) {
-        if (record.getIdentity().getClusterId() == manualIndexCluster) {
-          // JUMP INDEX RECORDS
+        // CHECK IF THE CLUSTER IS INCLUDED
+
+        if (record.getIdentity().getClusterId() == 0
+            && record.getIdentity().getClusterPosition() == 1) {
+          recordsBeforeImport.remove(record.getIdentity());
+          // JUMP INTERNAL RECORDS
+          return null;
+        }
+
+        if (exporterVersion >= 3) {
+          var oridsId = database.getClusterIdByName("ORIDs");
+          var indexId = database.getClusterIdByName(MetadataDefault.CLUSTER_INDEX_NAME);
+
+          if (record.getIdentity().getClusterId() == indexId
+              || record.getIdentity().getClusterId() == oridsId) {
+            recordsBeforeImport.remove(record.getIdentity());
+            // JUMP INDEX RECORDS
+            return null;
+          }
+        }
+
+        final var manualIndexCluster =
+            database.getClusterIdByName(MetadataDefault.CLUSTER_MANUAL_INDEX_NAME);
+        final var internalCluster =
+            database.getClusterIdByName(MetadataDefault.CLUSTER_INTERNAL_NAME);
+        final var indexCluster = database.getClusterIdByName(MetadataDefault.CLUSTER_INDEX_NAME);
+
+        if (exporterVersion >= 4) {
+          if (record.getIdentity().getClusterId() == manualIndexCluster) {
+            // JUMP INDEX RECORDS
+            recordsBeforeImport.remove(record.getIdentity());
+            return null;
+          }
+        }
+
+        if (record.getIdentity().equals(indexMgrRecordId)) {
           recordsBeforeImport.remove(record.getIdentity());
           return null;
         }
-      }
 
-      if (record.getIdentity().equals(indexMgrRecordId)) {
-        recordsBeforeImport.remove(record.getIdentity());
-        return null;
-      }
+        final RID rid = record.getIdentity().copy();
+        final var clusterId = rid.getClusterId();
 
-      final RID rid = record.getIdentity().copy();
-      final var clusterId = rid.getClusterId();
+        Entity systemRecord = null;
+        var cls = beforeImportSchemaSnapshot.getClassByClusterId(clusterId);
+        if (cls != null) {
+          assert record instanceof EntityImpl;
 
-      Entity systemRecord = null;
-      var cls = beforeImportSchemaSnapshot.getClassByClusterId(clusterId);
-      if (cls != null) {
-        assert record instanceof EntityImpl;
-
-        if (cls.getName().equals(SecurityUserImpl.CLASS_NAME)) {
-          try (var resultSet =
-              database.query(
-                  "select from " + SecurityUserImpl.CLASS_NAME + " where name = ?",
-                  ((EntityImpl) record).<String>getProperty("name"))) {
-            if (resultSet.hasNext()) {
-              systemRecord = resultSet.next().asEntity();
+          if (cls.getName(database).equals(SecurityUserImpl.CLASS_NAME)) {
+            try (var resultSet =
+                database.query(
+                    "select from " + SecurityUserImpl.CLASS_NAME + " where name = ?",
+                    ((EntityImpl) record).<String>getProperty("name"))) {
+              if (resultSet.hasNext()) {
+                systemRecord = resultSet.next().asEntity();
+              }
             }
-          }
-        } else if (cls.getName().equals(Role.CLASS_NAME)) {
-          try (var resultSet =
-              database.query(
-                  "select from " + Role.CLASS_NAME + " where name = ?",
-                  ((EntityImpl) record).<String>getProperty("name"))) {
-            if (resultSet.hasNext()) {
-              systemRecord = resultSet.next().asEntity();
+          } else if (cls.getName(database).equals(Role.CLASS_NAME)) {
+            try (var resultSet =
+                database.query(
+                    "select from " + Role.CLASS_NAME + " where name = ?",
+                    ((EntityImpl) record).<String>getProperty("name"))) {
+              if (resultSet.hasNext()) {
+                systemRecord = resultSet.next().asEntity();
+              }
             }
-          }
-        } else if (cls.getName().equals(SecurityPolicy.class.getSimpleName())) {
-          try (var resultSet =
-              database.query(
-                  "select from " + SecurityPolicy.class.getSimpleName() + " where name = ?",
-                  ((EntityImpl) record).<String>getProperty("name"))) {
-            if (resultSet.hasNext()) {
-              systemRecord = resultSet.next().asEntity();
+          } else if (cls.getName(database).equals(SecurityPolicy.class.getSimpleName())) {
+            try (var resultSet =
+                database.query(
+                    "select from " + SecurityPolicy.class.getSimpleName() + " where name = ?",
+                    ((EntityImpl) record).<String>getProperty("name"))) {
+              if (resultSet.hasNext()) {
+                systemRecord = resultSet.next().asEntity();
+              }
             }
-          }
-        } else if (cls.getName().equals("V") || cls.getName().equals("E")) {
-          // skip it
-        } else {
-          throw new IllegalStateException("Class " + cls.getName() + " is not supported.");
-        }
-      }
-
-      if ((clusterId != manualIndexCluster
-          && clusterId != internalCluster
-          && clusterId != indexCluster)) {
-        if (systemRecord != null) {
-          if (!record.getClass().isAssignableFrom(systemRecord.getClass())) {
+          } else if (cls.getName(database).equals("V") || cls.getName(database).equals("E")) {
+            // skip it
+          } else {
             throw new IllegalStateException(
-                "Imported record and record stored in database under id "
-                    + rid
-                    + " have different types. "
-                    + "Stored record class is : "
-                    + record.getClass()
-                    + " and imported "
-                    + systemRecord.getClass()
-                    + " .");
+                "Class " + cls.getName(database) + " is not supported.");
           }
+        }
 
-          RecordInternal.setVersion(record, systemRecord.getVersion());
-          RecordInternal.setIdentity(record, (RecordId) systemRecord.getIdentity());
-          recordsBeforeImport.remove(systemRecord.getIdentity());
+        if ((clusterId != manualIndexCluster
+            && clusterId != internalCluster
+            && clusterId != indexCluster)) {
+          if (systemRecord != null) {
+            if (!record.getClass().isAssignableFrom(systemRecord.getClass())) {
+              throw new IllegalStateException(
+                  "Imported record and record stored in database under id "
+                      + rid
+                      + " have different types. "
+                      + "Stored record class is : "
+                      + record.getClass()
+                      + " and imported "
+                      + systemRecord.getClass()
+                      + " .");
+            }
+
+            RecordInternal.setVersion(record, systemRecord.getVersion());
+            RecordInternal.setIdentity(record, (RecordId) systemRecord.getIdentity());
+            recordsBeforeImport.remove(systemRecord.getIdentity());
+          } else {
+            RecordInternal.setVersion(record, 0);
+            RecordInternal.setIdentity(record, new ChangeableRecordId());
+          }
+          record.setDirty();
+
+          if (!rid.equals(record.getIdentity())) {
+            // SAVE IT ONLY IF DIFFERENT
+            var recordRid = record.getIdentity();
+            var entity = database.newEntity(EXPORT_IMPORT_CLASS_NAME);
+
+            entity.setProperty("key", rid.toString());
+            entity.setProperty("value", recordRid.toString());
+          }
+        }
+
+        // import skipped records (too big to be imported before)
+        if (!skippedPartsIndexes.isEmpty()) {
+          for (var skippedPartsIndex : skippedPartsIndexes) {
+            importSkippedRidbag(record, value, skippedPartsIndex);
+          }
+        }
+
+        if (!recordParse.value.isEmpty()) {
+          importSkippedRidbag(record, recordParse.getValue());
+        }
+
+      } catch (Exception t) {
+        if (record != null) {
+          LogManager.instance()
+              .error(
+                  this,
+                  "Error importing record "
+                      + record.getIdentity()
+                      + ". Source line "
+                      + jsonReader.getLineNumber()
+                      + ", column "
+                      + jsonReader.getColumnNumber(),
+                  t);
         } else {
-          RecordInternal.setVersion(record, 0);
-          RecordInternal.setIdentity(record, new ChangeableRecordId());
+          LogManager.instance()
+              .error(
+                  this,
+                  "Error importing record. Source line "
+                      + jsonReader.getLineNumber()
+                      + ", column "
+                      + jsonReader.getColumnNumber(),
+                  t);
         }
-        record.setDirty();
 
-        var recordToSave = record;
-        database.executeInTx(
-            () -> recordToSave.save(database.getClusterNameById(clusterId)));
-        if (!rid.equals(record.getIdentity())) {
-          // SAVE IT ONLY IF DIFFERENT
-          var recordRid = record.getIdentity();
-          database.executeInTx(
-              () ->
-                  new EntityImpl(database, EXPORT_IMPORT_CLASS_NAME)
-                      .field("key", rid.toString())
-                      .field("value", recordRid.toString())
-                      .save());
+        if (!(t instanceof DatabaseException)) {
+          throw t;
         }
       }
 
-      // import skipped records (too big to be imported before)
-      if (!skippedPartsIndexes.isEmpty()) {
-        for (var skippedPartsIndex : skippedPartsIndexes) {
-          importSkippedRidbag(record, value, skippedPartsIndex);
-        }
-      }
-
-      if (!recordParse.value.isEmpty()) {
-        importSkippedRidbag(record, recordParse.getValue());
-      }
-
-    } catch (Exception t) {
-      if (record != null) {
-        LogManager.instance()
-            .error(
-                this,
-                "Error importing record "
-                    + record.getIdentity()
-                    + ". Source line "
-                    + jsonReader.getLineNumber()
-                    + ", column "
-                    + jsonReader.getColumnNumber(),
-                t);
+      ok = true;
+      return record.getIdentity();
+    } finally {
+      if (ok) {
+        database.commit();
       } else {
-        LogManager.instance()
-            .error(
-                this,
-                "Error importing record. Source line "
-                    + jsonReader.getLineNumber()
-                    + ", column "
-                    + jsonReader.getColumnNumber(),
-                t);
-      }
-
-      if (!(t instanceof DatabaseException)) {
-        throw t;
+        database.rollback();
       }
     }
-
-    return record.getIdentity();
   }
 
-  private long importRecords(Schema beforeImportSchemaSnapshot) throws Exception {
+  private void importRecords(Schema beforeImportSchemaSnapshot) throws Exception {
     long total = 0;
 
     final Schema schema = database.getMetadata().getSchema();
@@ -1439,7 +1437,6 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
     jsonReader.readNext(JSONReader.COMMA_SEPARATOR);
 
-    return total;
   }
 
   private void importSkippedRidbag(final DBRecord record, final Map<String, RidSet> bags) {
@@ -1458,7 +1455,8 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
         });
   }
 
-  private void importSkippedRidbag(DBRecord record, String value, Integer skippedPartsIndex) {
+  private static void importSkippedRidbag(DBRecord record, String value,
+      Integer skippedPartsIndex) {
     var entity = (EntityInternal) record;
 
     var builder = new StringBuilder();
@@ -1469,7 +1467,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
             builder,
             skippedPartsIndex,
             -1,
-            RecordSerializerJSON.PARAMETER_SEPARATOR,
+            RecordSerializerJackson.PARAMETER_SEPARATOR,
             true,
             true,
             false,
@@ -1655,11 +1653,6 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
               metadata,
               indexAlgorithm);
       GlobalConfiguration.INDEX_IGNORE_NULL_VALUES_DEFAULT.setValue(oldValue);
-      if (blueprintsIndexClass != null) {
-        var configuration = index.getConfiguration(database);
-        configuration.field("blueprintsIndexClass", blueprintsIndexClass);
-        indexManager.save(database);
-      }
       numberOfCreatedIndexes++;
       listener.onMessage("OK");
     }
@@ -1689,14 +1682,14 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     jsonReader.readNext(JSONReader.FIELD_ASSIGNMENT);
 
     final var value = jsonReader.readString(JSONReader.END_OBJECT, true);
-
     final IndexDefinition indexDefinition;
-    final EntityImpl indexDefinitionEntity =
-        RecordSerializerJackson.INSTANCE.fromString(database, value, null, null);
+    TypeReference<HashMap<String, Object>> typeRef = new TypeReference<>() {
+    };
+    var indexDefinitionMap = objectMapper.readValue(value, typeRef);
     try {
       final var indexDefClass = Class.forName(className);
       indexDefinition = (IndexDefinition) indexDefClass.getDeclaredConstructor().newInstance();
-      indexDefinition.fromStream(indexDefinitionEntity);
+      indexDefinition.fromMap(indexDefinitionMap);
     } catch (final ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
                    InstantiationException | IllegalAccessException e) {
       throw new IOException("Error during deserialization of index definition", e);

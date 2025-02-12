@@ -92,13 +92,14 @@ public class SQLEngine {
     return parseScript(is, db);
   }
 
-  public static List<SQLStatement> parseScript(InputStream script, DatabaseSessionInternal db) {
+  public static List<SQLStatement> parseScript(InputStream script,
+      DatabaseSessionInternal session) {
     try {
       final var osql = new YouTrackDBSql(script);
       var result = osql.parseScript();
       return result;
     } catch (ParseException e) {
-      throw new CommandSQLParsingException(e, "");
+      throw new CommandSQLParsingException(session.getDatabaseName(), e, "");
     }
   }
 
@@ -109,7 +110,7 @@ public class SQLEngine {
       var result = osql.OrBlock();
       return result;
     } catch (ParseException e) {
-      throw new CommandSQLParsingException(e, "");
+      throw new CommandSQLParsingException(null, e, "");
     }
   }
 
@@ -120,7 +121,7 @@ public class SQLEngine {
       var result = osql.SecurityResourceSegment();
       return result;
     } catch (ParseException e) {
-      throw new CommandSQLParsingException(e, "");
+      throw new CommandSQLParsingException(null, e, "");
     }
   }
 
@@ -300,7 +301,7 @@ public class SQLEngine {
     final Set<String> types = new HashSet<String>();
     final var ite = getFunctionFactories(session);
     while (ite.hasNext()) {
-      types.addAll(ite.next().getFunctionNames());
+      types.addAll(ite.next().getFunctionNames(session));
     }
     return types;
   }
@@ -514,12 +515,12 @@ public class SQLEngine {
     final var ite = getFunctionFactories(session);
     while (ite.hasNext()) {
       final var factory = ite.next();
-      if (factory.hasFunction(iFunctionName)) {
-        return factory.createFunction(iFunctionName);
+      if (factory.hasFunction(iFunctionName, session)) {
+        return factory.createFunction(iFunctionName, session);
       }
     }
 
-    throw new CommandSQLParsingException(
+    throw new CommandSQLParsingException(session.getDatabaseName(),
         "No function with name '"
             + iFunctionName
             + "', available names are : "

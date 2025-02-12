@@ -56,7 +56,7 @@ public class SchedulerImpl {
 
   public void scheduleEvent(DatabaseSession session, final ScheduledEvent event) {
     if (events.putIfAbsent(event.getName(), event) == null) {
-      var database = session.getName();
+      var database = session.getDatabaseName();
       event.schedule(database, "admin", youtrackDB);
     }
   }
@@ -177,10 +177,11 @@ public class SchedulerImpl {
 
       if (event != null) {
         // UPDATED EVENT
-        final Set<String> dirtyFields = new HashSet<>(Arrays.asList(entity.getDirtyFields()));
+        final Set<String> dirtyFields = new HashSet<>(Arrays.asList(entity.getDirtyProperties()));
 
         if (dirtyFields.contains(ScheduledEvent.PROP_NAME)) {
-          throw new ValidationException("Scheduled event cannot change name");
+          throw new ValidationException(session.getDatabaseName(),
+              "Scheduled event cannot change name");
         }
 
         if (dirtyFields.contains(ScheduledEvent.PROP_RULE)) {

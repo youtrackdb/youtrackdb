@@ -19,9 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.get;
 
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedDbAbstract;
@@ -53,7 +50,7 @@ public class ServerCommandGetQuery extends ServerCommandAuthenticatedDbAbstract 
     iRequest.getData().commandInfo = "Query";
     iRequest.getData().commandDetail = text;
 
-    try (var db = getProfiledDatabaseInstance(iRequest)) {
+    try (var db = getProfiledDatabaseSessionInstance(iRequest)) {
       var stm = ServerCommandPostCommand.parseStatement("SQL", text, db);
       var result = db.query(text);
       limit = ServerCommandPostCommand.getLimitFromStatement(stm, limit);

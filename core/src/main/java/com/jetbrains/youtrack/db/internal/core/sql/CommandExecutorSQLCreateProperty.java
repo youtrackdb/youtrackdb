@@ -19,7 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
@@ -71,7 +70,7 @@ public class CommandExecutorSQLCreateProperty extends CommandExecutorSQLAbstract
 
   private boolean unsafe = false;
 
-  public CommandExecutorSQLCreateProperty parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLCreateProperty parse(DatabaseSessionInternal session,
       final CommandRequest iRequest) {
 
     final var textRequest = (CommandRequestText) iRequest;
@@ -79,67 +78,69 @@ public class CommandExecutorSQLCreateProperty extends CommandExecutorSQLAbstract
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
 
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
       final var word = new StringBuilder();
 
       var oldPos = 0;
       var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CREATE)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_CREATE + " not found", parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_PROPERTY)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_PROPERTY + " not found", parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
       if (pos == -1) {
-        throw new CommandSQLParsingException("Expected <class>.<property>", parserText, oldPos);
+        throw new CommandSQLParsingException(session, "Expected <class>.<property>", parserText,
+            oldPos);
       }
 
       var parts = split(word);
       if (parts.length != 2) {
-        throw new CommandSQLParsingException("Expected <class>.<property>", parserText, oldPos);
+        throw new CommandSQLParsingException(session, "Expected <class>.<property>", parserText,
+            oldPos);
       }
 
       className = decodeClassName(parts[0]);
       if (className == null) {
-        throw new CommandSQLParsingException("Class not found", parserText, oldPos);
+        throw new CommandSQLParsingException(session, "Class not found", parserText, oldPos);
       }
       fieldName = decodeClassName(parts[1]);
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1) {
-        throw new CommandSQLParsingException("Missed property type", parserText, oldPos);
+        throw new CommandSQLParsingException(session, "Missed property type", parserText, oldPos);
       }
       if ("IF".equalsIgnoreCase(word.toString())) {
         oldPos = pos;
         pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
         if (pos == -1) {
-          throw new CommandSQLParsingException("Missed property type", parserText, oldPos);
+          throw new CommandSQLParsingException(session, "Missed property type", parserText, oldPos);
         }
         if (!"NOT".equalsIgnoreCase(word.toString())) {
-          throw new CommandSQLParsingException("Expected NOT EXISTS after IF", parserText,
-              oldPos);
+          throw new CommandSQLParsingException(session, "Expected NOT EXISTS after IF",
+              parserText, oldPos);
         }
         oldPos = pos;
         pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
         if (pos == -1) {
-          throw new CommandSQLParsingException("Missed property type", parserText, oldPos);
+          throw new CommandSQLParsingException(session, "Missed property type", parserText, oldPos);
         }
         if (!"EXISTS".equalsIgnoreCase(word.toString())) {
-          throw new CommandSQLParsingException("Expected EXISTS after IF NOT", parserText,
-              oldPos);
+          throw new CommandSQLParsingException(session, "Expected EXISTS after IF NOT",
+              parserText, oldPos);
         }
         this.ifNotExists = true;
 
@@ -279,36 +280,28 @@ public class CommandExecutorSQLCreateProperty extends CommandExecutorSQLAbstract
     return result.toArray(new String[]{});
   }
 
-  @Override
-  public long getDistributedTimeout() {
-    return getDatabase()
-        .getConfiguration()
-        .getValueAsLong(GlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
-  }
-
   /**
    * Execute the CREATE PROPERTY.
    */
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (type == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final var database = getDatabase();
     final var sourceClass =
-        (SchemaClassEmbedded) database.getMetadata().getSchema().getClass(className);
+        (SchemaClassEmbedded) session.getMetadata().getSchema().getClass(className);
     if (sourceClass == null) {
-      throw new CommandExecutionException("Source class '" + className + "' not found");
+      throw new CommandExecutionException(session, "Source class '" + className + "' not found");
     }
 
-    var prop = (SchemaPropertyImpl) sourceClass.getProperty(fieldName);
+    var prop = (SchemaPropertyImpl) sourceClass.getProperty(session, fieldName);
 
     if (prop != null) {
       if (ifNotExists) {
-        return sourceClass.properties(database).size();
+        return sourceClass.properties(session).size();
       }
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Property '"
               + className
               + "."
@@ -321,7 +314,7 @@ public class CommandExecutorSQLCreateProperty extends CommandExecutorSQLAbstract
     PropertyType linkedType = null;
     if (linked != null) {
       // FIRST SEARCH BETWEEN CLASSES
-      linkedClass = database.getMetadata().getSchema().getClass(linked);
+      linkedClass = session.getMetadata().getSchema().getClass(linked);
 
       if (linkedClass == null)
       // NOT FOUND: SEARCH BETWEEN TYPES
@@ -332,42 +325,32 @@ public class CommandExecutorSQLCreateProperty extends CommandExecutorSQLAbstract
 
     // CREATE IT LOCALLY
     var internalProp =
-        sourceClass.addProperty(database, fieldName, type, linkedType, linkedClass, unsafe);
+        sourceClass.addProperty(session, fieldName, type, linkedType, linkedClass, unsafe);
     if (readonly) {
-      internalProp.setReadonly(database, true);
+      internalProp.setReadonly(session, true);
     }
 
     if (mandatory) {
-      internalProp.setMandatory(database, true);
+      internalProp.setMandatory(session, true);
     }
 
     if (notnull) {
-      internalProp.setNotNull(database, true);
+      internalProp.setNotNull(session, true);
     }
 
     if (max != null) {
-      internalProp.setMax(database, max);
+      internalProp.setMax(session, max);
     }
 
     if (min != null) {
-      internalProp.setMin(database, min);
+      internalProp.setMin(session, min);
     }
 
     if (defaultValue != null) {
-      internalProp.setDefaultValue(database, defaultValue);
+      internalProp.setDefaultValue(session, defaultValue);
     }
 
-    return sourceClass.properties(database).size();
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.ALL;
-  }
-
-  @Override
-  public String getUndoCommand() {
-    return "drop property " + className + "." + fieldName;
+    return sourceClass.properties(session).size();
   }
 
   @Override

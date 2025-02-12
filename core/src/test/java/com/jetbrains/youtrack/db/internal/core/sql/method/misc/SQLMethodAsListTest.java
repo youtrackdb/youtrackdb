@@ -88,7 +88,7 @@ public class SQLMethodAsListTest extends DbTestBase {
   public void testODocument() {
     // The expected behavior is to return a list with only the single
     // EntityImpl in it.
-    var doc = ((EntityImpl) db.newEntity());
+    var doc = ((EntityImpl) session.newEntity());
     doc.field("f1", 1);
     doc.field("f2", 2);
 

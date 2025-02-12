@@ -23,7 +23,6 @@ import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext.TIMEOUT_STRATEGY;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandExecutorAbstract;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestAbstract;
@@ -73,40 +72,31 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
   protected TIMEOUT_STRATEGY timeoutStrategy = TIMEOUT_STRATEGY.EXCEPTION;
   protected SQLStatement preParsedStatement;
 
-  /**
-   * The command is replicated
-   *
-   * @return
-   */
-  public CommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE
-  getDistributedExecutionMode() {
-    return CommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE.REPLICATE;
-  }
-
   public boolean isIdempotent() {
     return false;
   }
 
-  protected void throwSyntaxErrorException(final String iText) {
-    throw new CommandSQLParsingException(
+  protected void throwSyntaxErrorException(String dbName, final String iText) {
+    throw new CommandSQLParsingException(dbName,
         iText + ". Use " + getSyntax(), parserText, parserGetPreviousPosition());
   }
 
-  protected void throwParsingException(final String iText) {
-    throw new CommandSQLParsingException(iText, parserText, parserGetPreviousPosition());
+  protected void throwParsingException(String dbName, final String iText) {
+    throw new CommandSQLParsingException(dbName, iText, parserText, parserGetPreviousPosition());
   }
 
-  protected void throwParsingException(final String iText, Exception e) {
+  protected void throwParsingException(String dbName, final String iText, Exception e) {
     throw BaseException.wrapException(
-        new CommandSQLParsingException(iText, parserText, parserGetPreviousPosition()), e);
+        new CommandSQLParsingException(dbName, iText, parserText, parserGetPreviousPosition()), e,
+        dbName);
   }
 
   /**
    * Parses the timeout keyword if found.
    */
-  protected boolean parseTimeout(final String w) throws CommandSQLParsingException {
+  protected void parseTimeout(final String w) throws CommandSQLParsingException {
     if (!w.equals(KEYWORD_TIMEOUT)) {
-      return false;
+      return;
     }
 
     var word = parserNextWord(true);
@@ -114,7 +104,7 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
     try {
       timeoutMs = Long.parseLong(word);
     } catch (NumberFormatException ignore) {
-      throwParsingException(
+      throwParsingException(null,
           "Invalid "
               + KEYWORD_TIMEOUT
               + " value set to '"
@@ -125,7 +115,7 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
     }
 
     if (timeoutMs < 0) {
-      throwParsingException(
+      throwParsingException(null,
           "Invalid "
               + KEYWORD_TIMEOUT
               + ": value set minor than ZERO. Example: "
@@ -145,18 +135,16 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
       }
     }
 
-    return true;
   }
 
-  protected Set<String> getInvolvedClustersOfClasses(final Collection<String> iClassNames) {
-    final var db = getDatabase();
-
+  protected Set<String> getInvolvedClustersOfClasses(final Collection<String> iClassNames,
+      DatabaseSessionInternal db) {
     final Set<String> clusters = new HashSet<String>();
 
     for (var clazz : iClassNames) {
       final var cls = db.getMetadata().getImmutableSchemaSnapshot().getClass(clazz);
       if (cls != null) {
-        for (var clId : cls.getPolymorphicClusterIds()) {
+        for (var clId : cls.getPolymorphicClusterIds(db)) {
           // FILTER THE CLUSTER WHERE THE USER HAS THE RIGHT ACCESS
           if (clId > -1 && checkClusterAccess(db, db.getClusterNameById(clId))) {
             clusters.add(db.getClusterNameById(clId).toLowerCase(Locale.ENGLISH));
@@ -168,9 +156,8 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
     return clusters;
   }
 
-  protected Set<String> getInvolvedClustersOfClusters(final Collection<String> iClusterNames) {
-    var db = getDatabase();
-
+  protected Set<String> getInvolvedClustersOfClusters(DatabaseSessionInternal db,
+      final Collection<String> iClusterNames) {
     final Set<String> clusters = new HashSet<String>();
 
     for (var cluster : iClusterNames) {
@@ -184,9 +171,8 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
     return clusters;
   }
 
-  protected Set<String> getInvolvedClustersOfIndex(final String iIndexName) {
-    final var db = getDatabase();
-
+  protected static Set<String> getInvolvedClustersOfIndex(DatabaseSessionInternal db,
+      final String iIndexName) {
     final Set<String> clusters = new HashSet<String>();
 
     final var metadata = db.getMetadata();
@@ -197,7 +183,7 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
       if (clazz != null) {
         final var cls = metadata.getImmutableSchemaSnapshot().getClass(clazz);
         if (cls != null) {
-          for (var clId : cls.getClusterIds()) {
+          for (var clId : cls.getClusterIds(db)) {
             final var clName = db.getClusterNameById(clId);
             if (clName != null) {
               clusters.add(clName.toLowerCase(Locale.ENGLISH));
@@ -219,21 +205,22 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
         != null;
   }
 
-  protected void bindDefaultContextVariables() {
+  protected void bindDefaultContextVariables(DatabaseSessionInternal db) {
     if (context != null) {
-      if (getDatabase() != null && getDatabase().geCurrentUser() != null) {
+      if (db != null && db.geCurrentUser() != null) {
         context.setVariable(DEFAULT_PARAM_USER,
-            getDatabase().geCurrentUser().getIdentity());
+            db.geCurrentUser().getIdentity());
       }
     }
   }
 
-  protected String preParse(final String queryText, final CommandRequest iRequest) {
-    final var strict = getDatabase().getStorageInfo().getConfiguration().isStrictSql();
+  protected String preParse(DatabaseSessionInternal session, final String queryText,
+      final CommandRequest iRequest) {
+    final var strict = session.getStorageInfo().getConfiguration().isStrictSql();
 
     if (strict) {
       try {
-        final var result = StatementCache.get(queryText, getDatabase());
+        final var result = StatementCache.get(queryText, session);
         preParsedStatement = result;
 
         if (iRequest instanceof CommandRequestAbstract) {
@@ -246,13 +233,14 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
       } catch (CommandSQLParsingException sqlx) {
         throw sqlx;
       } catch (Exception e) {
-        throwParsingException("Error parsing query: \n" + queryText + "\n" + e.getMessage(), e);
+        throwParsingException(session.getDatabaseName(),
+            "Error parsing query: \n" + queryText + "\n" + e.getMessage(), e);
       }
     }
     return queryText;
   }
 
-  protected String decodeClassName(String s) {
+  protected static String decodeClassName(String s) {
     return SchemaClassImpl.decodeClassName(s);
   }
 }

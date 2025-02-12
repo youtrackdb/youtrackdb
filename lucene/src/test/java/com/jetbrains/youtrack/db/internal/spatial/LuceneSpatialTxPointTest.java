@@ -17,12 +17,9 @@
 
 package com.jetbrains.youtrack.db.internal.spatial;
 
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,34 +33,34 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
   @Before
   public void init() {
 
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var v = schema.getClass("V");
     var oClass = schema.createClass("City");
-    oClass.setSuperClass(db, v);
-    oClass.createProperty(db, "location", PropertyType.EMBEDDED, schema.getClass("OPoint"));
-    oClass.createProperty(db, "name", PropertyType.STRING);
+    oClass.setSuperClass(session, v);
+    oClass.createProperty(session, "location", PropertyType.EMBEDDED, schema.getClass("OPoint"));
+    oClass.createProperty(session, "name", PropertyType.STRING);
 
     var place = schema.createClass("Place");
-    place.setSuperClass(db, v);
-    place.createProperty(db, "latitude", PropertyType.DOUBLE);
-    place.createProperty(db, "longitude", PropertyType.DOUBLE);
-    place.createProperty(db, "name", PropertyType.STRING);
+    place.setSuperClass(session, v);
+    place.createProperty(session, "latitude", PropertyType.DOUBLE);
+    place.createProperty(session, "longitude", PropertyType.DOUBLE);
+    place.createProperty(session, "name", PropertyType.STRING);
 
-    db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
+    session.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
   }
 
   protected EntityImpl newCity(String name, final Double longitude, final Double latitude) {
 
     var location = newPoint(longitude, latitude);
 
-    var city = ((EntityImpl) db.newEntity("City"));
+    var city = ((EntityImpl) session.newEntity("City"));
     city.field("name", name);
     city.field("location", location);
     return city;
   }
 
   private EntityImpl newPoint(final Double longitude, final Double latitude) {
-    var location = ((EntityImpl) db.newEntity("OPoint"));
+    var location = ((EntityImpl) session.newEntity("OPoint"));
     location.field(
         "coordinates",
         new ArrayList<Double>() {
@@ -80,23 +77,23 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
 
     var rome = newCity("Rome", 12.5, 41.9);
 
-    db.begin();
+    session.begin();
 
-    db.save(rome);
+    session.save(rome);
 
     var query =
         "select * from City where  ST_WITHIN(location,{ 'shape' : { 'type' : 'ORectangle' ,"
             + " 'coordinates' : [12.314015,41.8262816,12.6605063,41.963125]} }) = true";
-    var docs = db.query(query);
+    var docs = session.query(query);
 
     Assert.assertEquals(1, docs.stream().count());
 
-    db.rollback();
+    session.rollback();
 
     query =
         "select * from City where  ST_WITHIN(location,{ 'shape' : { 'type' : 'ORectangle' ,"
             + " 'coordinates' : [12.314015,41.8262816,12.6605063,41.963125]} }) = true";
-    docs = db.query(query);
+    docs = session.query(query);
 
     Assert.assertEquals(0, docs.stream().count());
   }
@@ -106,31 +103,31 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
 
     var rome = newCity("Rome", -0.1275, 51.507222);
 
-    db.begin();
-    rome = db.save(rome);
-    db.commit();
+    session.begin();
+    rome = session.save(rome);
+    session.commit();
 
-    db.begin();
+    session.begin();
 
-    rome = db.bindToSession(rome);
+    rome = session.bindToSession(rome);
     rome.field("location", newPoint(12.5, 41.9));
 
-    db.save(rome);
+    session.save(rome);
 
-    db.commit();
+    session.commit();
 
     var query =
         "select * from City where  ST_WITHIN(location,{ 'shape' : { 'type' : 'ORectangle' ,"
             + " 'coordinates' : [12.314015,41.8262816,12.6605063,41.963125]} }) = true";
-    var docs = db.query(query);
+    var docs = session.query(query);
 
     Assert.assertEquals(1, docs.stream().count());
 
-    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
+    var index = session.getMetadata().getIndexManagerInternal().getIndex(session, "City.location");
 
-    db.begin();
-    Assert.assertEquals(1, index.getInternal().size(db));
-    db.commit();
+    session.begin();
+    Assert.assertEquals(1, index.getInternal().size(session));
+    session.commit();
   }
 
   @Test
@@ -139,30 +136,30 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
     var rome = newCity("Rome", 12.5, 41.9);
     var london = newCity("London", -0.1275, 51.507222);
 
-    db.begin();
-    rome = db.save(rome);
-    london = db.save(london);
-    db.commit();
+    session.begin();
+    rome = session.save(rome);
+    london = session.save(london);
+    session.commit();
 
-    db.begin();
+    session.begin();
 
-    rome = db.bindToSession(rome);
-    london = db.bindToSession(london);
+    rome = session.bindToSession(rome);
+    london = session.bindToSession(london);
 
     rome.field("location", newPoint(12.5, 41.9));
     london.field("location", newPoint(-0.1275, 51.507222));
     london.field("location", newPoint(-0.1275, 51.507222));
     london.field("location", newPoint(12.5, 41.9));
 
-    db.save(rome);
-    db.save(london);
+    session.save(rome);
+    session.save(london);
 
-    db.commit();
+    session.commit();
 
-    db.begin();
-    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
+    session.begin();
+    var index = session.getMetadata().getIndexManagerInternal().getIndex(session, "City.location");
 
-    Assert.assertEquals(2, index.getInternal().size(db));
-    db.commit();
+    Assert.assertEquals(2, index.getInternal().size(session));
+    session.commit();
   }
 }

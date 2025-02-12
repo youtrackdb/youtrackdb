@@ -2,17 +2,14 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster;
-import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -90,12 +87,13 @@ public class SQLAlterClusterStatement extends DDLStatement {
                             + "'. Supported attributes are: "
                             + noDeprecatedValues(StorageCluster.ATTRIBUTES.values())));
 
-    final var storage = ctx.getDatabase().getStorage();
+    final var storage = ctx.getDatabaseSession().getStorage();
     for (final int clusterId : clustersToUpdate) {
       storage.setClusterAttribute(clusterId, attribute, finalValue);
 
-      var resultItem = new ResultInternal(ctx.getDatabase());
-      resultItem.setProperty("cluster", storage.getClusterName(ctx.getDatabase(), clusterId));
+      var resultItem = new ResultInternal(ctx.getDatabaseSession());
+      resultItem.setProperty("cluster",
+          storage.getClusterName(ctx.getDatabaseSession(), clusterId));
       result.add(resultItem);
     }
 
@@ -122,19 +120,19 @@ public class SQLAlterClusterStatement extends DDLStatement {
   }
 
   private IntArrayList getClusters(CommandContext ctx) {
-    var database = ctx.getDatabase();
+    var session = ctx.getDatabaseSession();
     if (starred) {
       var result = new IntArrayList();
-      for (var clusterName : database.getClusterNames()) {
+      for (var clusterName : session.getClusterNames()) {
         if (clusterName.startsWith(name.getStringValue())) {
-          result.add(database.getClusterIdByName(clusterName));
+          result.add(session.getClusterIdByName(clusterName));
         }
       }
       return result;
     } else {
-      final var clusterId = database.getClusterIdByName(name.getStringValue());
+      final var clusterId = session.getClusterIdByName(name.getStringValue());
       if (clusterId <= 0) {
-        throw new CommandExecutionException("Cannot find cluster " + name);
+        throw new CommandExecutionException(session, "Cannot find cluster " + name);
       }
 
       return IntArrayList.of(clusterId);

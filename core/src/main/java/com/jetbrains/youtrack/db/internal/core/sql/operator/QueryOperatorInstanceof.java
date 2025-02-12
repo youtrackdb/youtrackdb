@@ -26,7 +26,6 @@ import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
@@ -47,21 +46,20 @@ public class QueryOperatorInstanceof extends QueryOperatorEqualityNotNulls {
       final Object iLeft,
       final Object iRight,
       CommandContext iContext) {
-
-    final Schema schema =
-        DatabaseRecordThreadLocal.instance().get().getMetadata().getImmutableSchemaSnapshot();
+    var session = iContext.getDatabaseSession();
+    final Schema schema = session.getMetadata().getImmutableSchemaSnapshot();
 
     final var baseClassName = iRight.toString();
     final var baseClass = schema.getClass(baseClassName);
     if (baseClass == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Class '" + baseClassName + "' is not defined in database schema");
     }
 
     SchemaClass cls = null;
     if (iLeft instanceof Identifiable) {
       // GET THE RECORD'S CLASS
-      var record = ((Identifiable) iLeft).getRecord(iContext.getDatabase());
+      var record = ((Identifiable) iLeft).getRecord(iContext.getDatabaseSession());
       if (record instanceof EntityImpl) {
         cls = EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) record));
       }
@@ -71,7 +69,7 @@ public class QueryOperatorInstanceof extends QueryOperatorEqualityNotNulls {
       cls = schema.getClass((String) iLeft);
     }
 
-    return cls != null && cls.isSubClassOf(baseClass);
+    return cls != null && cls.isSubClassOf(session, baseClass);
   }
 
   @Override

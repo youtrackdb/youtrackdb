@@ -13,42 +13,42 @@ public class AlterClassClusterTest extends DbTestBase {
 
   @Test
   public void testRemoveClusterDefaultCluster() {
-    var clazz = db.getMetadata().getSchema().createClass("Test", 1, null);
-    clazz.addCluster(db, "TestOneMore");
+    var clazz = session.getMetadata().getSchema().createClass("Test", 1, null);
+    clazz.addCluster(session, "TestOneMore");
 
-    clazz.removeClusterId(db, db.getClusterIdByName("Test"));
-    clazz = db.getMetadata().getSchema().getClass("Test");
-    assertEquals(clazz.getClusterIds()[0], db.getClusterIdByName("TestOneMore"));
+    clazz.removeClusterId(session, session.getClusterIdByName("Test"));
+    clazz = session.getMetadata().getSchema().getClass("Test");
+    assertEquals(clazz.getClusterIds(session)[0], session.getClusterIdByName("TestOneMore"));
   }
 
   @Test(expected = DatabaseException.class)
   public void testRemoveLastClassCluster() {
-    var clazz = db.getMetadata().getSchema().createClass("Test", 1, null);
-    clazz.removeClusterId(db, db.getClusterIdByName("Test"));
+    var clazz = session.getMetadata().getSchema().createClass("Test", 1, null);
+    clazz.removeClusterId(session, session.getClusterIdByName("Test"));
   }
 
   @Test(expected = SchemaException.class)
   public void testAddClusterToAbstracClass() {
-    var clazz = db.getMetadata().getSchema().createAbstractClass("Test");
-    clazz.addCluster(db, "TestOneMore");
+    var clazz = session.getMetadata().getSchema().createAbstractClass("Test");
+    clazz.addCluster(session, "TestOneMore");
   }
 
   @Test(expected = SchemaException.class)
   public void testAddClusterIdToAbstracClass() {
-    var clazz = db.getMetadata().getSchema().createAbstractClass("Test");
-    var id = db.addCluster("TestOneMore");
-    clazz.addClusterId(db, id);
+    var clazz = session.getMetadata().getSchema().createAbstractClass("Test");
+    var id = session.addCluster("TestOneMore");
+    clazz.addClusterId(session, id);
   }
 
   @Test
   public void testSetAbstractRestrictedClass() {
-    Schema oSchema = db.getMetadata().getSchema();
+    Schema oSchema = session.getMetadata().getSchema();
     var oRestricted = oSchema.getClass("ORestricted");
     var v = oSchema.getClass("V");
-    v.addSuperClass(db, oRestricted);
+    v.addSuperClass(session, oRestricted);
 
     var ovt = oSchema.createClass("Some", v);
-    ovt.setAbstract(db, true);
-    assertTrue(ovt.isAbstract());
+    ovt.setAbstract(session, true);
+    assertTrue(ovt.isAbstract(session));
   }
 }

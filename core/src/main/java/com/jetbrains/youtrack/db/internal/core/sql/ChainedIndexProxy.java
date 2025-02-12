@@ -35,7 +35,6 @@ import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
 import com.jetbrains.youtrack.db.internal.core.index.IndexKeyCursor;
 import com.jetbrains.youtrack.db.internal.core.index.IndexMetadata;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemField;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemField.FieldChain;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
@@ -135,7 +134,8 @@ public class ChainedIndexProxy<T> implements IndexInternal {
     final Collection<Index> result = new ArrayList<>();
 
     for (var i = 0; i < fieldChain.getItemCount() - 1; i++) {
-      oClass = (SchemaClassInternal) oClass.getProperty(fieldChain.getItemName(i)).getLinkedClass();
+      oClass = (SchemaClassInternal) oClass.getProperty(session, fieldChain.getItemName(i))
+          .getLinkedClass(session);
       if (oClass == null) {
         return result;
       }
@@ -174,7 +174,8 @@ public class ChainedIndexProxy<T> implements IndexInternal {
       }
 
       result.add(bestIndex);
-      oClass = (SchemaClassInternal) oClass.getProperty(fieldChain.getItemName(i)).getLinkedClass();
+      oClass = (SchemaClassInternal) oClass.getProperty(session, fieldChain.getItemName(i))
+          .getLinkedClass(session);
     }
     return result;
   }
@@ -312,9 +313,9 @@ public class ChainedIndexProxy<T> implements IndexInternal {
   }
 
   @Override
-  public Stream<RID> getRidsIgnoreTx(DatabaseSessionInternal db, Object key) {
+  public Stream<RID> getRidsIgnoreTx(DatabaseSessionInternal session, Object key) {
     final List<RID> lastIndexResult;
-    try (var stream = lastIndex.getInternal().getRids(db, key)) {
+    try (var stream = lastIndex.getInternal().getRids(session, key)) {
       lastIndexResult = stream.collect(Collectors.toList());
     }
 
@@ -324,9 +325,9 @@ public class ChainedIndexProxy<T> implements IndexInternal {
   }
 
   @Override
-  public Stream<RID> getRids(DatabaseSessionInternal db, Object key) {
+  public Stream<RID> getRids(DatabaseSessionInternal session, Object key) {
     final List<RID> lastIndexResult;
-    try (var stream = lastIndex.getInternal().getRids(db, key)) {
+    try (var stream = lastIndex.getInternal().getRids(session, key)) {
       lastIndexResult = stream.collect(Collectors.toList());
     }
 
@@ -567,12 +568,12 @@ public class ChainedIndexProxy<T> implements IndexInternal {
   }
 
   @Override
-  public boolean loadFromConfiguration(DatabaseSessionInternal session, EntityImpl iConfig) {
+  public boolean loadFromConfiguration(DatabaseSessionInternal session, Map<String, ?> config) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public EntityImpl updateConfiguration(DatabaseSessionInternal session) {
+  public Map<String, ?> updateConfiguration(DatabaseSessionInternal session) {
     throw new UnsupportedOperationException();
   }
 
@@ -597,7 +598,7 @@ public class ChainedIndexProxy<T> implements IndexInternal {
   }
 
   @Override
-  public IndexMetadata loadMetadata(EntityImpl iConfig) {
+  public IndexMetadata loadMetadata(DatabaseSessionInternal session, Map<String, ?> config) {
     throw new UnsupportedOperationException();
   }
 
@@ -640,7 +641,7 @@ public class ChainedIndexProxy<T> implements IndexInternal {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 
-  public EntityImpl getConfiguration(DatabaseSessionInternal session) {
+  public Map<String, ?> getConfiguration(DatabaseSessionInternal session) {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 
@@ -713,19 +714,19 @@ public class ChainedIndexProxy<T> implements IndexInternal {
   }
 
   @Override
-  public Stream<RawPair<Object, RID>> streamEntries(DatabaseSessionInternal db,
+  public Stream<RawPair<Object, RID>> streamEntries(DatabaseSessionInternal session,
       Collection<?> keys, boolean ascSortOrder) {
-    return applyTailIndexes(lastIndex.getInternal().streamEntries(db, keys, ascSortOrder));
+    return applyTailIndexes(lastIndex.getInternal().streamEntries(session, keys, ascSortOrder));
   }
 
   @Override
   public Stream<RawPair<Object, RID>> streamEntriesBetween(
-      DatabaseSessionInternal db, Object fromKey, boolean fromInclusive, Object toKey,
+      DatabaseSessionInternal session, Object fromKey, boolean fromInclusive, Object toKey,
       boolean toInclusive, boolean ascOrder) {
     return applyTailIndexes(
         lastIndex
             .getInternal()
-            .streamEntriesBetween(db, fromKey, fromInclusive, toKey, toInclusive, ascOrder));
+            .streamEntriesBetween(session, fromKey, fromInclusive, toKey, toInclusive, ascOrder));
   }
 
   @Override
@@ -754,7 +755,7 @@ public class ChainedIndexProxy<T> implements IndexInternal {
   }
 
   @Override
-  public void doPut(DatabaseSessionInternal db, AbstractPaginatedStorage storage,
+  public void doPut(DatabaseSessionInternal session, AbstractPaginatedStorage storage,
       Object key,
       RID rid) {
     throw new UnsupportedOperationException("Not allowed operation");

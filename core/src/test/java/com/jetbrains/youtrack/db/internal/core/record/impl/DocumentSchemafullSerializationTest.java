@@ -8,7 +8,6 @@ import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionAbstract;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
@@ -71,52 +70,52 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
     DatabaseSessionAbstract.setDefaultSerializer(serializer);
     super.beforeTest();
     // databaseDocument.getMetadata().
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     address = schema.createClass("Address");
-    address.createProperty(db, NAME, PropertyType.STRING);
-    address.createProperty(db, NUMBER, PropertyType.INTEGER);
-    address.createProperty(db, CITY, PropertyType.STRING);
+    address.createProperty(session, NAME, PropertyType.STRING);
+    address.createProperty(session, NUMBER, PropertyType.INTEGER);
+    address.createProperty(session, CITY, PropertyType.STRING);
 
     simple = schema.createClass("Simple");
-    simple.createProperty(db, STRING_FIELD, PropertyType.STRING);
-    simple.createProperty(db, INT_FIELD, PropertyType.INTEGER);
-    simple.createProperty(db, SHORT_FIELD, PropertyType.SHORT);
-    simple.createProperty(db, LONG_FIELD, PropertyType.LONG);
-    simple.createProperty(db, FLOAT_NUMBER, PropertyType.FLOAT);
-    simple.createProperty(db, DOUBLE_NUMBER, PropertyType.DOUBLE);
-    simple.createProperty(db, BYTE_FIELD, PropertyType.BYTE);
-    simple.createProperty(db, BOOLEAN_FIELD, PropertyType.BOOLEAN);
-    simple.createProperty(db, DATE_FIELD, PropertyType.DATETIME);
-    simple.createProperty(db, RECORDID_FIELD, PropertyType.LINK);
-    simple.createProperty(db, EMBEDDED_FIELD, PropertyType.EMBEDDED, address);
-    simple.createProperty(db, ANY_FIELD, PropertyType.ANY);
+    simple.createProperty(session, STRING_FIELD, PropertyType.STRING);
+    simple.createProperty(session, INT_FIELD, PropertyType.INTEGER);
+    simple.createProperty(session, SHORT_FIELD, PropertyType.SHORT);
+    simple.createProperty(session, LONG_FIELD, PropertyType.LONG);
+    simple.createProperty(session, FLOAT_NUMBER, PropertyType.FLOAT);
+    simple.createProperty(session, DOUBLE_NUMBER, PropertyType.DOUBLE);
+    simple.createProperty(session, BYTE_FIELD, PropertyType.BYTE);
+    simple.createProperty(session, BOOLEAN_FIELD, PropertyType.BOOLEAN);
+    simple.createProperty(session, DATE_FIELD, PropertyType.DATETIME);
+    simple.createProperty(session, RECORDID_FIELD, PropertyType.LINK);
+    simple.createProperty(session, EMBEDDED_FIELD, PropertyType.EMBEDDED, address);
+    simple.createProperty(session, ANY_FIELD, PropertyType.ANY);
 
     embSimp = schema.createClass("EmbeddedCollectionSimple");
-    embSimp.createProperty(db, LIST_BOOLEANS, PropertyType.EMBEDDEDLIST);
-    embSimp.createProperty(db, LIST_BYTES, PropertyType.EMBEDDEDLIST);
-    embSimp.createProperty(db, LIST_DATES, PropertyType.EMBEDDEDLIST);
-    embSimp.createProperty(db, LIST_DOUBLES, PropertyType.EMBEDDEDLIST);
-    embSimp.createProperty(db, LIST_FLOATS, PropertyType.EMBEDDEDLIST);
-    embSimp.createProperty(db, LIST_INTEGERS, PropertyType.EMBEDDEDLIST);
-    embSimp.createProperty(db, LIST_LONGS, PropertyType.EMBEDDEDLIST);
-    embSimp.createProperty(db, LIST_SHORTS, PropertyType.EMBEDDEDLIST);
-    embSimp.createProperty(db, LIST_STRINGS, PropertyType.EMBEDDEDLIST);
-    embSimp.createProperty(db, LIST_MIXED, PropertyType.EMBEDDEDLIST);
+    embSimp.createProperty(session, LIST_BOOLEANS, PropertyType.EMBEDDEDLIST);
+    embSimp.createProperty(session, LIST_BYTES, PropertyType.EMBEDDEDLIST);
+    embSimp.createProperty(session, LIST_DATES, PropertyType.EMBEDDEDLIST);
+    embSimp.createProperty(session, LIST_DOUBLES, PropertyType.EMBEDDEDLIST);
+    embSimp.createProperty(session, LIST_FLOATS, PropertyType.EMBEDDEDLIST);
+    embSimp.createProperty(session, LIST_INTEGERS, PropertyType.EMBEDDEDLIST);
+    embSimp.createProperty(session, LIST_LONGS, PropertyType.EMBEDDEDLIST);
+    embSimp.createProperty(session, LIST_SHORTS, PropertyType.EMBEDDEDLIST);
+    embSimp.createProperty(session, LIST_STRINGS, PropertyType.EMBEDDEDLIST);
+    embSimp.createProperty(session, LIST_MIXED, PropertyType.EMBEDDEDLIST);
 
     embMapSimple = schema.createClass("EmbeddedMapSimple");
-    embMapSimple.createProperty(db, MAP_BYTES, PropertyType.EMBEDDEDMAP);
-    embMapSimple.createProperty(db, MAP_DATE, PropertyType.EMBEDDEDMAP);
-    embMapSimple.createProperty(db, MAP_DOUBLE, PropertyType.EMBEDDEDMAP);
-    embMapSimple.createProperty(db, MAP_FLOAT, PropertyType.EMBEDDEDMAP);
-    embMapSimple.createProperty(db, MAP_INT, PropertyType.EMBEDDEDMAP);
-    embMapSimple.createProperty(db, MAP_LONG, PropertyType.EMBEDDEDMAP);
-    embMapSimple.createProperty(db, MAP_SHORT, PropertyType.EMBEDDEDMAP);
-    embMapSimple.createProperty(db, MAP_STRING, PropertyType.EMBEDDEDMAP);
+    embMapSimple.createProperty(session, MAP_BYTES, PropertyType.EMBEDDEDMAP);
+    embMapSimple.createProperty(session, MAP_DATE, PropertyType.EMBEDDEDMAP);
+    embMapSimple.createProperty(session, MAP_DOUBLE, PropertyType.EMBEDDEDMAP);
+    embMapSimple.createProperty(session, MAP_FLOAT, PropertyType.EMBEDDEDMAP);
+    embMapSimple.createProperty(session, MAP_INT, PropertyType.EMBEDDEDMAP);
+    embMapSimple.createProperty(session, MAP_LONG, PropertyType.EMBEDDEDMAP);
+    embMapSimple.createProperty(session, MAP_SHORT, PropertyType.EMBEDDEDMAP);
+    embMapSimple.createProperty(session, MAP_STRING, PropertyType.EMBEDDEDMAP);
 
     var clazzEmbComp = schema.createClass("EmbeddedComplex");
-    clazzEmbComp.createProperty(db, "addresses", PropertyType.EMBEDDEDLIST, address);
-    clazzEmbComp.createProperty(db, "uniqueAddresses", PropertyType.EMBEDDEDSET, address);
-    clazzEmbComp.createProperty(db, "addressByStreet", PropertyType.EMBEDDEDMAP, address);
+    clazzEmbComp.createProperty(session, "addresses", PropertyType.EMBEDDEDLIST, address);
+    clazzEmbComp.createProperty(session, "uniqueAddresses", PropertyType.EMBEDDEDSET, address);
+    clazzEmbComp.createProperty(session, "addressByStreet", PropertyType.EMBEDDEDMAP, address);
   }
 
   public void afterTest() {
@@ -128,8 +127,7 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
 
   @Test
   public void testSimpleSerialization() {
-    DatabaseRecordThreadLocal.instance().set(db);
-    var document = (EntityImpl) db.newEntity(simple);
+    var document = (EntityImpl) session.newEntity(simple);
 
     document.field(STRING_FIELD, NAME);
     document.field(INT_FIELD, 20);
@@ -142,8 +140,8 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
     document.field(DATE_FIELD, new Date());
     document.field(RECORDID_FIELD, new RecordId(10, 0));
 
-    var res = serializer.toStream(db, document);
-    var extr = (EntityImpl) serializer.fromStream(db, res, (EntityImpl) db.newEntity(),
+    var res = serializer.toStream(session, document);
+    var extr = (EntityImpl) serializer.fromStream(session, res, (EntityImpl) session.newEntity(),
         new String[]{});
 
     assertEquals(extr.fields(), document.fields());
@@ -162,8 +160,7 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void testSimpleLiteralList() {
-    DatabaseRecordThreadLocal.instance().set(db);
-    var document = (EntityImpl) db.newEntity(embSimp);
+    var document = (EntityImpl) session.newEntity(embSimp);
     List<String> strings = new ArrayList<String>();
     strings.add("a");
     strings.add("b");
@@ -237,8 +234,8 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
     listMixed.add((byte) 10);
     document.field(LIST_MIXED, listMixed);
 
-    var res = serializer.toStream(db, document);
-    var extr = (EntityImpl) serializer.fromStream(db, res, (EntityImpl) db.newEntity(),
+    var res = serializer.toStream(session, document);
+    var extr = (EntityImpl) serializer.fromStream(session, res, (EntityImpl) session.newEntity(),
         new String[]{});
 
     assertEquals(extr.fields(), document.fields());
@@ -253,8 +250,7 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
 
   @Test
   public void testSimpleMapStringLiteral() {
-    DatabaseRecordThreadLocal.instance().set(db);
-    var document = (EntityImpl) db.newEntity(embMapSimple);
+    var document = (EntityImpl) session.newEntity(embMapSimple);
 
     Map<String, String> mapString = new HashMap<String, String>();
     mapString.put("key", "value");
@@ -296,8 +292,8 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
     bytesMap.put("key1", (byte) 11);
     document.field(MAP_BYTES, bytesMap);
 
-    var res = serializer.toStream(db, document);
-    var extr = (EntityImpl) serializer.fromStream(db, res, (EntityImpl) db.newEntity(),
+    var res = serializer.toStream(session, document);
+    var extr = (EntityImpl) serializer.fromStream(session, res, (EntityImpl) session.newEntity(),
         new String[]{});
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field(MAP_STRING), document.field(MAP_STRING));
@@ -310,16 +306,15 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
 
   @Test
   public void testSimpleEmbeddedDoc() {
-    DatabaseRecordThreadLocal.instance().set(db);
-    var document = (EntityImpl) db.newEntity(simple);
-    var embedded = (EntityImpl) db.newEntity(address);
+    var document = (EntityImpl) session.newEntity(simple);
+    var embedded = (EntityImpl) session.newEntity(address);
     embedded.field(NAME, "test");
     embedded.field(NUMBER, 1);
     embedded.field(CITY, "aaa");
     document.field(EMBEDDED_FIELD, embedded);
 
-    var res = serializer.toStream(db, document);
-    var extr = (EntityImpl) serializer.fromStream(db, res, (EntityImpl) db.newEntity(),
+    var res = serializer.toStream(session, document);
+    var extr = (EntityImpl) serializer.fromStream(session, res, (EntityImpl) session.newEntity(),
         new String[]{});
     assertEquals(document.fields(), extr.fields());
     EntityImpl emb = extr.field(EMBEDDED_FIELD);
@@ -331,20 +326,19 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
 
   @Test
   public void testUpdateBooleanWithPropertyTypeAny() {
-    DatabaseRecordThreadLocal.instance().set(db);
-    var document = (EntityImpl) db.newEntity(simple);
+    var document = (EntityImpl) session.newEntity(simple);
     document.field(ANY_FIELD, false);
 
-    var res = serializer.toStream(db, document);
-    var extr = (EntityImpl) serializer.fromStream(db, res, (EntityImpl) db.newEntity(),
+    var res = serializer.toStream(session, document);
+    var extr = (EntityImpl) serializer.fromStream(session, res, (EntityImpl) session.newEntity(),
         new String[]{});
     assertEquals(document.fields(), extr.fields());
     assertEquals(extr.field(ANY_FIELD), false);
 
     extr.field(ANY_FIELD, false);
 
-    res = serializer.toStream(db, extr);
-    var extr2 = (EntityImpl) serializer.fromStream(db, res, (EntityImpl) db.newEntity(),
+    res = serializer.toStream(session, extr);
+    var extr2 = (EntityImpl) serializer.fromStream(session, res, (EntityImpl) session.newEntity(),
         new String[]{});
     assertEquals(extr.fields(), extr2.fields());
     assertEquals(extr2.field(ANY_FIELD), false);
@@ -352,12 +346,11 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
 
   @Test
   public void simpleTypeKeepingTest() {
-    DatabaseRecordThreadLocal.instance().set(db);
-    var document = (EntityImpl) db.newEntity();
+    var document = (EntityImpl) session.newEntity();
     document.field("name", "test");
 
-    var res = serializer.toStream(db, document);
-    var extr = (EntityImpl) db.newEntity();
+    var res = serializer.toStream(session, document);
+    var extr = (EntityImpl) session.newEntity();
     RecordInternal.unsetDirty(extr);
     extr.fromStream(res);
     assertEquals(PropertyType.STRING, extr.getPropertyType("name"));

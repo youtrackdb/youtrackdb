@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchPathItem;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLRid;
@@ -51,7 +51,7 @@ public class MatchReverseEdgeTraverser extends MatchEdgeTraverser {
     }
     if (qR instanceof Identifiable) {
       return ExecutionStream.singleton(
-          new ResultInternal(iCommandContext.getDatabase(), (Identifiable) qR));
+          new ResultInternal(iCommandContext.getDatabaseSession(), (Identifiable) qR));
     }
     if (qR instanceof Iterable iterable) {
       return ExecutionStream.iterator(iterable.iterator());

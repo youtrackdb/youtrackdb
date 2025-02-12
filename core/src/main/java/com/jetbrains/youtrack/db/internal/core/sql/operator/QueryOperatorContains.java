@@ -23,19 +23,15 @@ import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionMultiValue;
-import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemField;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -57,7 +53,7 @@ public class QueryOperatorContains extends QueryOperatorEqualityNotNulls {
       final Object iLeft,
       final Object iRight,
       CommandContext iContext) {
-    var database = iContext.getDatabase();
+    var session = iContext.getDatabaseSession();
     final SQLFilterCondition condition;
     if (iCondition.getLeft() instanceof SQLFilterCondition) {
       condition = (SQLFilterCondition) iCondition.getLeft();
@@ -67,7 +63,6 @@ public class QueryOperatorContains extends QueryOperatorEqualityNotNulls {
       condition = null;
     }
 
-    var db = iContext.getDatabase();
     if (iLeft instanceof Iterable<?>) {
 
       final var iterable = (Iterable<Object>) iLeft;
@@ -86,7 +81,7 @@ public class QueryOperatorContains extends QueryOperatorEqualityNotNulls {
             } else
             // TRANSFORM THE ENTIRE MAP IN A DOCUMENT. PROBABLY HAS BEEN IMPORTED FROM JSON
             {
-              id = new EntityImpl(db, (Map) o);
+              id = new EntityImpl(session, (Map) o);
             }
 
           } else if (o instanceof Iterable<?>) {
@@ -110,19 +105,19 @@ public class QueryOperatorContains extends QueryOperatorEqualityNotNulls {
           var fieldName =
               ((SQLFilterItemField) iCondition.getLeft()).getFieldChain().getItemName(0);
           if (fieldName != null) {
-            Object record = iRecord.getRecord(db);
+            Object record = iRecord.getRecord(session);
             if (record instanceof EntityImpl) {
               var property =
                   EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) record))
-                      .getProperty(fieldName);
-              if (property != null && property.getType().isMultiValue()) {
-                type = property.getLinkedType();
+                      .getProperty(session, fieldName);
+              if (property != null && property.getType(session).isMultiValue()) {
+                type = property.getLinkedType(session);
               }
             }
           }
         }
         for (final var o : iterable) {
-          if (QueryOperatorEquals.equals(database, iRight, o, type)) {
+          if (QueryOperatorEquals.equals(session, iRight, o, type)) {
             return true;
           }
         }
@@ -141,7 +136,7 @@ public class QueryOperatorContains extends QueryOperatorEqualityNotNulls {
       } else {
         // CHECK AGAINST A SINGLE VALUE
         for (final Object o : iterable) {
-          if (QueryOperatorEquals.equals(database, iLeft, o)) {
+          if (QueryOperatorEquals.equals(session, iLeft, o)) {
             return true;
           }
         }
@@ -162,7 +157,7 @@ public class QueryOperatorContains extends QueryOperatorEqualityNotNulls {
   @Override
   public Stream<RawPair<Object, RID>> executeIndexQuery(
       CommandContext iContext, Index index, List<Object> keyParams, boolean ascSortOrder) {
-    var database = iContext.getDatabase();
+    var database = iContext.getDatabaseSession();
     final var indexDefinition = index.getDefinition();
 
     Stream<RawPair<Object, RID>> stream;

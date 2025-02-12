@@ -18,8 +18,6 @@
 
 package com.jetbrains.youtrack.db.internal.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.lucene.index.LuceneIndexNotUnique;
@@ -34,20 +32,21 @@ public class LuceneGetSearcherTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var v = schema.getClass("V");
     var song = schema.createClass("Person");
-    song.setSuperClass(db, v);
-    song.createProperty(db, "isDeleted", PropertyType.BOOLEAN);
+    song.setSuperClass(session, v);
+    song.createProperty(session, "isDeleted", PropertyType.BOOLEAN);
 
-    db.command("create index Person.isDeleted on Person (isDeleted) FULLTEXT ENGINE LUCENE")
+    session.command("create index Person.isDeleted on Person (isDeleted) FULLTEXT ENGINE LUCENE")
         .close();
   }
 
   @Test
   public void testSearcherInstance() {
 
-    var index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.isDeleted");
+    var index = session.getMetadata().getIndexManagerInternal()
+        .getIndex(session, "Person.isDeleted");
 
     Assert.assertTrue(index.getInternal() instanceof LuceneIndexNotUnique);
 

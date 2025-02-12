@@ -23,19 +23,15 @@ import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.Collate;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.parser.BaseParser;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
-import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunction;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.coll.SQLMethodMultiValue;
-import com.jetbrains.youtrack.db.internal.core.sql.method.SQLMethod;
 import com.jetbrains.youtrack.db.internal.core.sql.method.SQLMethodRuntime;
 import com.jetbrains.youtrack.db.internal.core.sql.method.misc.SQLMethodField;
 import com.jetbrains.youtrack.db.internal.core.sql.method.misc.SQLMethodFunctionDelegate;
@@ -102,15 +98,14 @@ public abstract class SQLFilterItemAbstract implements SQLFilterItem {
                 } else {
                   params = method.getMinParams() + "-" + method.getMaxParams(session);
                 }
-                throw new QueryParsingException(
+                throw new QueryParsingException(session.getDatabaseName(),
                     iQueryToParse.parserText,
                     "Syntax error: field operator '"
                         + method.getName()
                         + "' needs "
                         + params
                         + " argument(s) while has been received "
-                        + arguments.length,
-                    0);
+                        + arguments.length, 0);
               }
             } else {
               arguments = null;
@@ -123,12 +118,11 @@ public abstract class SQLFilterItemAbstract implements SQLFilterItem {
             if (f == null)
             // ERROR: METHOD/FUNCTION NOT FOUND OR MISPELLED
             {
-              throw new QueryParsingException(
+              throw new QueryParsingException(session.getDatabaseName(),
                   iQueryToParse.parserText,
                   "Syntax error: function or field operator not recognized between the supported"
                       + " ones: "
-                      + SQLEngine.getMethodNames(),
-                  0);
+                      + SQLEngine.getMethodNames(), 0);
             }
 
             if (f.getMaxParams(session) == -1 || f.getMaxParams(session) > 0) {
@@ -142,15 +136,14 @@ public abstract class SQLFilterItemAbstract implements SQLFilterItem {
                 } else {
                   params = f.getMinParams() + "-" + f.getMaxParams(session);
                 }
-                throw new QueryParsingException(
+                throw new QueryParsingException(session.getDatabaseName(),
                     iQueryToParse.parserText,
                     "Syntax error: function '"
                         + f.getName(session)
                         + "' needs "
                         + params
                         + " argument(s) while has been received "
-                        + arguments.length,
-                    0);
+                        + arguments.length, 0);
               }
             } else {
               arguments = null;
@@ -186,7 +179,7 @@ public abstract class SQLFilterItemAbstract implements SQLFilterItem {
         method = op.getKey();
 
         // DON'T PASS THE CURRENT RECORD TO FORCE EVALUATING TEMPORARY RESULT
-        method.setParameters(iContext.getDatabase(), op.getValue(), true);
+        method.setParameters(iContext.getDatabaseSession(), op.getValue(), true);
 
         ioResult = method.execute(ioResult, iRecord, ioResult, iContext);
       }
@@ -207,47 +200,16 @@ public abstract class SQLFilterItemAbstract implements SQLFilterItem {
     return null;
   }
 
-  @Override
-  public String toString() {
-    var db = DatabaseRecordThreadLocal.instance().getIfDefined();
-    if (db != null) {
-      final var buffer = new StringBuilder(128);
-      final var root = getRoot(db);
-      if (root != null) {
-        buffer.append(root);
-      }
-      if (operationsChain != null) {
-        for (var op : operationsChain) {
-          buffer.append('.');
-          buffer.append(op.getKey());
-          if (op.getValue() != null) {
-            final var values = op.getValue();
-            buffer.append('(');
-            var i = 0;
-            for (var v : values) {
-              if (i++ > 0) {
-                buffer.append(',');
-              }
-              buffer.append(v);
-            }
-            buffer.append(')');
-          }
-        }
-      }
-      return buffer.toString();
-    }
-
-    return super.toString();
-  }
-
   protected abstract void setRoot(DatabaseSessionInternal session, BaseParser iQueryToParse,
       final String iRoot);
 
-  protected Collate getCollateForField(final SchemaClass iClass, final String iFieldName) {
+  protected static Collate getCollateForField(DatabaseSessionInternal session,
+      final SchemaClass iClass,
+      final String iFieldName) {
     if (iClass != null) {
-      final var p = iClass.getProperty(iFieldName);
+      final var p = iClass.getProperty(session, iFieldName);
       if (p != null) {
-        return p.getCollate();
+        return p.getCollate(session);
       }
     }
     return null;

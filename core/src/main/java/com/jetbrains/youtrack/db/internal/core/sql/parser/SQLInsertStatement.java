@@ -133,13 +133,13 @@ public class SQLInsertStatement extends SQLStatement {
 
   @Override
   public ResultSet execute(
-      DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
+      DatabaseSessionInternal session, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
     var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
-    ctx.setDatabase(db);
+    ctx.setDatabaseSession(session);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
       for (var i = 0; i < args.length; i++) {
@@ -154,18 +154,18 @@ public class SQLInsertStatement extends SQLStatement {
       executionPlan = (InsertExecutionPlan) createExecutionPlanNoCache(ctx, false);
     }
     executionPlan.executeInternal();
-    return new LocalResultSet(executionPlan);
+    return new LocalResultSet(session, executionPlan);
   }
 
   @Override
   public ResultSet execute(
-      DatabaseSessionInternal db, Map<Object, Object> params, CommandContext parentCtx,
+      DatabaseSessionInternal session, Map<Object, Object> params, CommandContext parentCtx,
       boolean usePlanCache) {
     var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
-    ctx.setDatabase(db);
+    ctx.setDatabaseSession(session);
     ctx.setInputParameters(params);
     InsertExecutionPlan executionPlan;
     if (usePlanCache) {
@@ -174,7 +174,7 @@ public class SQLInsertStatement extends SQLStatement {
       executionPlan = (InsertExecutionPlan) createExecutionPlanNoCache(ctx, false);
     }
     executionPlan.executeInternal();
-    return new LocalResultSet(executionPlan);
+    return new LocalResultSet(session, executionPlan);
   }
 
   public InsertExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {

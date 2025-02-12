@@ -38,8 +38,9 @@ public class SQLInstanceofCondition extends SQLBooleanExpression {
       return false;
     }
     DBRecord record;
+    var db = ctx.getDatabaseSession();
     try {
-      record = currentRecord.getRecord(ctx.getDatabase());
+      record = currentRecord.getRecord(db);
     } catch (RecordNotFoundException rnf) {
       return false;
     }
@@ -52,9 +53,9 @@ public class SQLInstanceofCondition extends SQLBooleanExpression {
       return false;
     }
     if (right != null) {
-      return clazz.isSubClassOf(right.getStringValue());
+      return clazz.isSubClassOf(db, right.getStringValue());
     } else if (rightString != null) {
-      return clazz.isSubClassOf(decode(rightString));
+      return clazz.isSubClassOf(db, decode(rightString));
     }
     return false;
   }
@@ -68,7 +69,8 @@ public class SQLInstanceofCondition extends SQLBooleanExpression {
       return false;
     }
 
-    var record = currentRecord.getEntity().get().getRecord(ctx.getDatabase());
+    var db = ctx.getDatabaseSession();
+    var record = currentRecord.getEntity().get().getRecord(db);
     if (!(record instanceof EntityImpl entity)) {
       return false;
     }
@@ -77,9 +79,9 @@ public class SQLInstanceofCondition extends SQLBooleanExpression {
       return false;
     }
     if (right != null) {
-      return clazz.isSubClassOf(right.getStringValue());
+      return clazz.isSubClassOf(db, right.getStringValue());
     } else if (rightString != null) {
-      return clazz.isSubClassOf(decode(rightString));
+      return clazz.isSubClassOf(db, decode(rightString));
     }
     return false;
   }

@@ -4,7 +4,6 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -132,8 +131,8 @@ public class SQLProjection extends SimpleNode {
       return iRecord;
     }
 
-    var db = iContext.getDatabase();
-    var result = new ResultInternal(db);
+    var session = iContext.getDatabaseSession();
+    var result = new ResultInternal(session);
     for (var item : items) {
       if (item.exclude) {
         continue;
@@ -143,7 +142,7 @@ public class SQLProjection extends SimpleNode {
             .getEntity()
             .ifPresent(
                 (e) -> {
-                  var record = e.getRecord(db);
+                  var record = e.getRecord(session);
                   if (record instanceof EntityImpl entity) {
                     entity.deserializeFields();
                   }
@@ -168,7 +167,7 @@ public class SQLProjection extends SimpleNode {
           }
           if (!this.excludes.contains("@class")) {
             result.setProperty(
-                "@class", x.getSchemaType().map(clazz -> clazz.getName()).orElse(null));
+                "@class", x.getSchemaType().map(clazz -> clazz.getName(session)).orElse(null));
           }
         }
       } else {

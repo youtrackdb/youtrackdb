@@ -1,13 +1,8 @@
 package com.jetbrains.youtrack.db.auto;
 
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.AfterMethod;
@@ -32,244 +27,244 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    var cls = db.getMetadata().getSchema().createClass(CLASS_NAME);
-    cls.createProperty(db, PROPERTY_NAME, PropertyType.INTEGER);
-    cls.createIndex(db, INDEX, SchemaClass.INDEX_TYPE.UNIQUE, PROPERTY_NAME);
+    var cls = session.getMetadata().getSchema().createClass(CLASS_NAME);
+    cls.createProperty(session, PROPERTY_NAME, PropertyType.INTEGER);
+    cls.createIndex(session, INDEX, SchemaClass.INDEX_TYPE.UNIQUE, PROPERTY_NAME);
   }
 
   @AfterMethod
   public void afterMethod() throws Exception {
-    db.getMetadata().getSchema().getClassInternal(CLASS_NAME).truncate(db);
+    session.getMetadata().getSchema().getClassInternal(CLASS_NAME).truncate(session);
 
     super.afterMethod();
   }
 
   @Test
   public void testPut() {
-    if (db.getStorage().isRemote()) {
+    if (session.getStorage().isRemote()) {
       throw new SkipException("Test is enabled only for embedded database");
     }
 
-    db.begin();
-    final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
+    session.begin();
+    final var index = session.getMetadata().getIndexManagerInternal().getIndex(session, INDEX);
 
-    ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1).save();
-    ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2).save();
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1).save();
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2).save();
 
-    db.commit();
+    session.commit();
 
-    Assert.assertNull(db.getTransaction().getIndexChanges(INDEX));
-    try (var stream = index.getInternal().getRids(db, 1)) {
+    Assert.assertNull(session.getTransaction().getIndexChanges(INDEX));
+    try (var stream = index.getInternal().getRids(session, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (var stream = index.getInternal().getRids(db, 2)) {
-      Assert.assertTrue(stream.findAny().isPresent());
-    }
-
-    db.begin();
-
-    ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 3).save();
-
-    Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX));
-    try (var stream = index.getInternal().getRids(db, 3)) {
+    try (var stream = index.getInternal().getRids(session, 2)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
-    db.rollback();
+    session.begin();
 
-    Assert.assertNull(db.getTransaction().getIndexChanges(INDEX));
-    try (var stream = index.getInternal().getRids(db, 1)) {
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 3).save();
+
+    Assert.assertNotNull(session.getTransaction().getIndexChanges(INDEX));
+    try (var stream = index.getInternal().getRids(session, 3)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (var stream = index.getInternal().getRids(db, 2)) {
+
+    session.rollback();
+
+    Assert.assertNull(session.getTransaction().getIndexChanges(INDEX));
+    try (var stream = index.getInternal().getRids(session, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (var stream = index.getInternal().getRids(db, 3)) {
+    try (var stream = index.getInternal().getRids(session, 2)) {
+      Assert.assertTrue(stream.findAny().isPresent());
+    }
+    try (var stream = index.getInternal().getRids(session, 3)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
   }
 
   @Test
   public void testRemove() {
-    if (db.getStorage().isRemote()) {
+    if (session.getStorage().isRemote()) {
       throw new SkipException("Test is enabled only for embedded database");
     }
 
-    db.begin();
-    final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
+    session.begin();
+    final var index = session.getMetadata().getIndexManagerInternal().getIndex(session, INDEX);
 
-    var document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
+    var document = ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
     document.save();
-    ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2).save();
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2).save();
 
-    db.commit();
+    session.commit();
 
-    Assert.assertNull(db.getTransaction().getIndexChanges(INDEX));
-    try (var stream = index.getInternal().getRids(db, 1)) {
+    Assert.assertNull(session.getTransaction().getIndexChanges(INDEX));
+    try (var stream = index.getInternal().getRids(session, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (var stream = index.getInternal().getRids(db, 2)) {
+    try (var stream = index.getInternal().getRids(session, 2)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
-    db.begin();
+    session.begin();
 
-    document = db.bindToSession(document);
+    document = session.bindToSession(document);
     document.delete();
 
-    Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX));
-    try (var stream = index.getInternal().getRids(db, 1)) {
+    Assert.assertNotNull(session.getTransaction().getIndexChanges(INDEX));
+    try (var stream = index.getInternal().getRids(session, 1)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
-    try (var stream = index.getInternal().getRids(db, 2)) {
+    try (var stream = index.getInternal().getRids(session, 2)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
-    db.rollback();
+    session.rollback();
 
-    Assert.assertNull(db.getTransaction().getIndexChanges(INDEX));
-    try (var stream = index.getInternal().getRids(db, 1)) {
+    Assert.assertNull(session.getTransaction().getIndexChanges(INDEX));
+    try (var stream = index.getInternal().getRids(session, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (var stream = index.getInternal().getRids(db, 2)) {
+    try (var stream = index.getInternal().getRids(session, 2)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
 
   @Test
   public void testRemoveAndPut() {
-    if (db.getStorage().isRemote()) {
+    if (session.getStorage().isRemote()) {
       throw new SkipException("Test is enabled only for embedded database");
     }
 
-    db.begin();
-    final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
+    session.begin();
+    final var index = session.getMetadata().getIndexManagerInternal().getIndex(session, INDEX);
 
-    var document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
+    var document = ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
     document.save();
-    ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2).save();
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2).save();
 
-    db.commit();
+    session.commit();
 
-    Assert.assertNull(db.getTransaction().getIndexChanges(INDEX));
-    try (var stream = index.getInternal().getRids(db, 1)) {
+    Assert.assertNull(session.getTransaction().getIndexChanges(INDEX));
+    try (var stream = index.getInternal().getRids(session, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (var stream = index.getInternal().getRids(db, 2)) {
+    try (var stream = index.getInternal().getRids(session, 2)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
-    db.begin();
+    session.begin();
 
-    document = db.bindToSession(document);
+    document = session.bindToSession(document);
     document.removeField(PROPERTY_NAME);
     document.save();
 
     document.field(PROPERTY_NAME, 1);
     document.save();
 
-    Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX));
-    try (var stream = index.getInternal().getRids(db, 1)) {
+    Assert.assertNotNull(session.getTransaction().getIndexChanges(INDEX));
+    try (var stream = index.getInternal().getRids(session, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (var stream = index.getInternal().getRids(db, 2)) {
+    try (var stream = index.getInternal().getRids(session, 2)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testMultiPut() {
-    if (db.getStorage().isRemote()) {
+    if (session.getStorage().isRemote()) {
       throw new SkipException("Test is enabled only for embedded database");
     }
 
-    db.begin();
+    session.begin();
 
-    final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
+    final var index = session.getMetadata().getIndexManagerInternal().getIndex(session, INDEX);
 
-    var document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
+    var document = ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
     document.save();
     document.field(PROPERTY_NAME, 0);
     document.field(PROPERTY_NAME, 1);
     document.save();
 
-    Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX));
-    try (var stream = index.getInternal().getRids(db, 1)) {
+    Assert.assertNotNull(session.getTransaction().getIndexChanges(INDEX));
+    try (var stream = index.getInternal().getRids(session, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    db.commit();
+    session.commit();
 
-    try (var stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(session, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
 
   @Test
   public void testPutAfterTransaction() {
-    if (db.getStorage().isRemote()) {
+    if (session.getStorage().isRemote()) {
       throw new SkipException("Test is enabled only for embedded database");
     }
 
-    db.begin();
+    session.begin();
 
-    final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
+    final var index = session.getMetadata().getIndexManagerInternal().getIndex(session, INDEX);
 
-    ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1).save();
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1).save();
 
-    Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX));
-    try (var stream = index.getInternal().getRids(db, 1)) {
+    Assert.assertNotNull(session.getTransaction().getIndexChanges(INDEX));
+    try (var stream = index.getInternal().getRids(session, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    db.commit();
+    session.commit();
 
-    db.begin();
-    ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2).save();
-    db.commit();
+    session.begin();
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2).save();
+    session.commit();
 
-    try (var stream = index.getInternal().getRids(db, 2)) {
+    try (var stream = index.getInternal().getRids(session, 2)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
 
   @Test
   public void testRemoveOneWithinTransaction() {
-    if (db.getStorage().isRemote()) {
+    if (session.getStorage().isRemote()) {
       throw new SkipException("Test is enabled only for embedded database");
     }
 
-    db.begin();
+    session.begin();
 
-    final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
+    final var index = session.getMetadata().getIndexManagerInternal().getIndex(session, INDEX);
 
-    var document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
+    var document = ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
     document.save();
     document.delete();
 
-    Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX));
-    try (var stream = index.getInternal().getRids(db, 1)) {
+    Assert.assertNotNull(session.getTransaction().getIndexChanges(INDEX));
+    try (var stream = index.getInternal().getRids(session, 1)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
 
-    db.commit();
+    session.commit();
 
-    try (var stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(session, 1)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
   }
 
   @Test
   public void testPutAfterRemove() {
-    if (db.getStorage().isRemote()) {
+    if (session.getStorage().isRemote()) {
       throw new SkipException("Test is enabled only for embedded database");
     }
 
-    db.begin();
+    session.begin();
 
-    final var index = db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX);
+    final var index = session.getMetadata().getIndexManagerInternal().getIndex(session, INDEX);
 
-    var document = ((EntityImpl) db.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
+    var document = ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
     document.save();
 
     document.removeField(PROPERTY_NAME);
@@ -277,25 +272,25 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
 
     document.field(PROPERTY_NAME, 1).save();
 
-    Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX));
-    try (var stream = index.getInternal().getRids(db, 1)) {
+    Assert.assertNotNull(session.getTransaction().getIndexChanges(INDEX));
+    try (var stream = index.getInternal().getRids(session, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
-    db.commit();
+    session.commit();
 
-    try (var stream = index.getInternal().getRids(db, 1)) {
+    try (var stream = index.getInternal().getRids(session, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
 
   public void testInsertionDeletionInsideTx() {
     final var className = "_" + IndexTxAwareOneValueGetTest.class.getSimpleName();
-    db.command("create class " + className + " extends V").close();
-    db.command("create property " + className + ".name STRING").close();
-    db.command("CREATE INDEX " + className + ".name UNIQUE").close();
+    session.command("create class " + className + " extends V").close();
+    session.command("create property " + className + ".name STRING").close();
+    session.command("CREATE INDEX " + className + ".name UNIQUE").close();
 
-    db
+    session
         .execute(
             "SQL",
             "begin;\n"
@@ -310,7 +305,7 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
                 + "return $top")
         .close();
 
-    try (final var resultSet = db.query("select * from " + className)) {
+    try (final var resultSet = session.query("select * from " + className)) {
       try (var stream = resultSet.stream()) {
         Assert.assertEquals(stream.count(), 0);
       }

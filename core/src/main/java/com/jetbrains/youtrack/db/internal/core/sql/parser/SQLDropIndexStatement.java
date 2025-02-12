@@ -3,10 +3,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
@@ -32,7 +29,7 @@ public class SQLDropIndexStatement extends DDLStatement {
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
     List<Result> rs = new ArrayList<>();
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     var idxMgr = db.getMetadata().getIndexManagerInternal();
     if (all) {
       for (var idx : idxMgr.getIndexes(db)) {
@@ -45,7 +42,8 @@ public class SQLDropIndexStatement extends DDLStatement {
 
     } else {
       if (!idxMgr.existsIndex(name.getValue()) && !ifExists) {
-        throw new CommandExecutionException("Index not found: " + name.getValue());
+        throw new CommandExecutionException(ctx.getDatabaseSession(),
+            "Index not found: " + name.getValue());
       }
       idxMgr.dropIndex(db, name.getValue());
       var result = new ResultInternal(db);

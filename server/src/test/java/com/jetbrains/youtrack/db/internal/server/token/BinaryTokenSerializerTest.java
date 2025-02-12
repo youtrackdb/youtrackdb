@@ -46,7 +46,7 @@ public class BinaryTokenSerializerTest {
     var input = new ByteArrayInputStream(bas.toByteArray());
     var tok = ser.deserialize(input);
 
-    assertEquals("test", token.getDatabase());
+    assertEquals("test", token.getDatabaseName());
     assertEquals("plocal", token.getDatabaseType());
     var id = token.getUserId();
     assertEquals(43, id.getClusterId());
@@ -87,7 +87,7 @@ public class BinaryTokenSerializerTest {
     var input = new ByteArrayInputStream(bas.toByteArray());
     var tok = ser.deserialize(input);
 
-    assertEquals("test", token.getDatabase());
+    assertEquals("test", token.getDatabaseName());
     assertEquals("plocal", token.getDatabaseType());
     var id = token.getUserId();
     assertEquals(43, id.getClusterId());
@@ -130,7 +130,7 @@ public class BinaryTokenSerializerTest {
     var input = new ByteArrayInputStream(bas.toByteArray());
     var tok = ser.deserialize(input);
 
-    assertNull(token.getDatabase());
+    assertNull(token.getDatabaseName());
     assertNull(token.getDatabaseType());
     var id = token.getUserId();
     assertNull(id);

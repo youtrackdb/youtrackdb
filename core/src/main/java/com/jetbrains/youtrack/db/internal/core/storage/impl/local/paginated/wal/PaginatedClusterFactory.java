@@ -36,7 +36,7 @@ public final class PaginatedClusterFactory {
       final int binaryVersion,
       final AbstractPaginatedStorage storage) {
     if (configurationVersion >= 0 && configurationVersion < 6) {
-      throw new StorageException(
+      throw new StorageException(storage.getName(),
           "You use deprecated version of storage cluster, this version is not supported in current"
               + " implementation. Please do export/import or recreate database.");
     }

@@ -1,9 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.command;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.junit.Assert;
@@ -24,7 +22,7 @@ public class SqlScriptExecutorTest extends DbTestBase {
     script += "commit;\n";
     script += "select from v;";
 
-    var result = db.execute("sql", script);
+    var result = session.execute("sql", script);
     var list =
         result.stream().map(x -> x.getProperty("name")).collect(Collectors.toList());
     result.close();
@@ -46,7 +44,7 @@ public class SqlScriptExecutorTest extends DbTestBase {
     script += "commit;\n";
     script += "select from v where name = ?;";
 
-    var result = db.execute("sql", script, "a");
+    var result = session.execute("sql", script, "a");
     var list =
         result.stream().map(x -> x.getProperty("name")).collect(Collectors.toList());
     result.close();
@@ -69,7 +67,7 @@ public class SqlScriptExecutorTest extends DbTestBase {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("name", "a");
 
-    var result = db.execute("sql", script, params);
+    var result = session.execute("sql", script, params);
     var list =
         result.stream().map(x -> x.getProperty("name")).collect(Collectors.toList());
     result.close();
@@ -89,10 +87,10 @@ public class SqlScriptExecutorTest extends DbTestBase {
     script += "create edge from $v1 to $v3;";
     script += "commit;";
 
-    var result = db.execute("sql", script);
+    var result = session.execute("sql", script);
     result.close();
 
-    result = db.query("SELECT expand(out()) FROM V WHERE name ='Foo'");
+    result = session.query("SELECT expand(out()) FROM V WHERE name ='Foo'");
     Assert.assertEquals(2, result.stream().count());
     result.close();
   }

@@ -19,7 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
@@ -43,25 +42,25 @@ public class CommandExecutorSQLCreateFunction extends CommandExecutorSQLAbstract
   private List<String> parameters = null;
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorSQLCreateFunction parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLCreateFunction parse(DatabaseSessionInternal session,
       final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
 
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
-      parserRequiredKeyword("CREATE");
-      parserRequiredKeyword("FUNCTION");
+      parserRequiredKeyword(session.getDatabaseName(), "CREATE");
+      parserRequiredKeyword(session.getDatabaseName(), "FUNCTION");
 
       name = parserNextWord(false);
       code = IOUtils.getStringContent(parserNextWord(false));
 
-      var temp = parseOptionalWord(true);
+      var temp = parseOptionalWord(session.getDatabaseName(), true);
       while (temp != null) {
         if (temp.equals("IDEMPOTENT")) {
           parserNextWord(false);
@@ -74,7 +73,7 @@ public class CommandExecutorSQLCreateFunction extends CommandExecutorSQLAbstract
           parameters = new ArrayList<String>();
           StringSerializerHelper.getCollection(parserGetLastWord(), 0, parameters);
           if (parameters.size() == 0) {
-            throw new CommandExecutionException(
+            throw new CommandExecutionException(session,
                 "Syntax Error. Missing function parameter(s): " + getSyntax());
           }
         }
@@ -91,32 +90,24 @@ public class CommandExecutorSQLCreateFunction extends CommandExecutorSQLAbstract
     return this;
   }
 
-  @Override
-  public long getDistributedTimeout() {
-    return getDatabase()
-        .getConfiguration()
-        .getValueAsLong(GlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
-  }
-
   /**
    * Execute the command and return the EntityImpl object created.
    */
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (name == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not been parsed yet");
     }
     if (name.isEmpty()) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Syntax Error. You must specify a function name: " + getSyntax());
     }
     if (code == null || code.isEmpty()) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Syntax Error. You must specify the function code: " + getSyntax());
     }
 
-    var database = getDatabase();
-    final var f = database.getMetadata().getFunctionLibrary().createFunction(name);
+    final var f = session.getMetadata().getFunctionLibrary().createFunction(name);
     f.setCode(code);
     f.setIdempotent(idempotent);
     if (parameters != null) {
@@ -126,7 +117,7 @@ public class CommandExecutorSQLCreateFunction extends CommandExecutorSQLAbstract
       f.setLanguage(language);
     }
 
-    f.save(database);
+    f.save(session);
     return f.getIdentity();
   }
 

@@ -43,7 +43,6 @@ public class SortedMultiIterator<T extends Identifiable> implements Iterator<T> 
   private final DatabaseSessionInternal db;
 
   public SortedMultiIterator(@Nonnull DatabaseSessionInternal db, SQLOrderBy orderBy) {
-    assert db.assertIfNotActive();
     this.db = db;
     this.orderBy = orderBy;
   }

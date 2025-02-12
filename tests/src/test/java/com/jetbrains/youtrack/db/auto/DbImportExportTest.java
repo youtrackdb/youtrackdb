@@ -21,10 +21,8 @@ import com.jetbrains.youtrack.db.api.YourTracks;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.RecordHook;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
@@ -70,10 +68,10 @@ public class DbImportExportTest extends BaseDBTest implements CommandOutputListe
     }
 
     // ADD A CUSTOM TO THE CLASS
-    db.command("alter class V custom onBeforeCreate=onBeforeCreateItem").close();
+    session.command("alter class V custom onBeforeCreate=onBeforeCreateItem").close();
 
     final var export =
-        new DatabaseExport(db, testPath + "/" + exportFilePath, this);
+        new DatabaseExport(session, testPath + "/" + exportFilePath, this);
     export.exportDatabase();
     export.close();
   }
@@ -104,7 +102,7 @@ public class DbImportExportTest extends BaseDBTest implements CommandOutputListe
                 (DatabaseSessionInternal) importDB, testPath + "/" + exportFilePath, this);
         // UNREGISTER ALL THE HOOKS
         for (final var hook : new ArrayList<>(importDB.getHooks().keySet())) {
-          db.unregisterHook(hook);
+          session.unregisterHook(hook);
         }
         dbImport.setDeleteRIDMapping(false);
         dbImport.importDatabase();
@@ -123,7 +121,7 @@ public class DbImportExportTest extends BaseDBTest implements CommandOutputListe
             testPath + File.separator + IMPORT_DB_PATH, YouTrackDBConfig.defaultConfig())) {
       try (var importDB = youTrackDBImport.open(IMPORT_DB_NAME, "admin", "admin")) {
         final var databaseCompare =
-            new DatabaseCompare(db, (DatabaseSessionInternal) importDB, this);
+            new DatabaseCompare(session, (DatabaseSessionInternal) importDB, this);
         databaseCompare.setCompareEntriesForAutomaticIndexes(true);
         databaseCompare.setCompareIndexMetadata(true);
         Assert.assertTrue(databaseCompare.compare());

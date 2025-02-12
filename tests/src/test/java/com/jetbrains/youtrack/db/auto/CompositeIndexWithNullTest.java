@@ -23,23 +23,23 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
   }
 
   public void testPointQuery() {
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     var clazz = (SchemaClassInternal) schema.createClass(
         "compositeIndexNullPointQueryClass");
-    clazz.createProperty(db, "prop1", PropertyType.INTEGER);
-    clazz.createProperty(db, "prop2", PropertyType.INTEGER);
-    clazz.createProperty(db, "prop3", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop1", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop2", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop3", PropertyType.INTEGER);
 
     var metadata = Map.of("ignoreNullValues", false);
 
-    clazz.createIndex(db,
+    clazz.createIndex(session,
         "compositeIndexNullPointQueryIndex",
         SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
         metadata, new String[]{"prop1", "prop2", "prop3"});
 
     for (var i = 0; i < 20; i++) {
-      var document = ((EntityImpl) db.newEntity("compositeIndexNullPointQueryClass"));
+      var document = ((EntityImpl) session.newEntity("compositeIndexNullPointQueryClass"));
       document.field("prop1", i / 10);
       document.field("prop2", i / 5);
 
@@ -47,13 +47,13 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
         document.field("prop3", i);
       }
 
-      db.begin();
+      session.begin();
       document.save();
-      db.commit();
+      session.commit();
     }
 
     var query = "select from compositeIndexNullPointQueryClass where prop1 = 1 and prop2 = 2";
-    var resultSet = db.query(query).toList();
+    var resultSet = session.query(query).toList();
     Assert.assertEquals(resultSet.size(), 5);
     for (var k = 0; k < 5; k++) {
       var result = resultSet.get(k);
@@ -61,7 +61,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       Assert.assertEquals(result.<Object>getProperty("prop2"), 2);
     }
 
-    EntityImpl explain = db.command(new CommandSQL("explain " + query)).execute(db);
+    EntityImpl explain = session.command(new CommandSQL("explain " + query)).execute(session);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -70,14 +70,14 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
     query =
         "select from compositeIndexNullPointQueryClass where prop1 = 1 and prop2 = 2 and prop3 is"
             + " null";
-    resultSet = db.query(query).toList();
+    resultSet = session.query(query).toList();
 
     Assert.assertEquals(resultSet.size(), 2);
     for (var result : resultSet) {
       Assert.assertNull(result.getProperty("prop3"));
     }
 
-    explain = db.command(new CommandSQL("explain " + query)).execute(db);
+    explain = session.command(new CommandSQL("explain " + query)).execute(session);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -85,23 +85,23 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
   }
 
   public void testPointQueryInTx() {
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     var clazz = schema.createClass("compositeIndexNullPointQueryInTxClass");
-    clazz.createProperty(db, "prop1", PropertyType.INTEGER);
-    clazz.createProperty(db, "prop2", PropertyType.INTEGER);
-    clazz.createProperty(db, "prop3", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop1", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop2", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop3", PropertyType.INTEGER);
 
     var metadata = Map.of("ignoreNullValues", false);
-    clazz.createIndex(db,
+    clazz.createIndex(session,
         "compositeIndexNullPointQueryInTxIndex",
         SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
         metadata, new String[]{"prop1", "prop2", "prop3"});
 
-    db.begin();
+    session.begin();
 
     for (var i = 0; i < 20; i++) {
-      var document = ((EntityImpl) db.newEntity("compositeIndexNullPointQueryInTxClass"));
+      var document = ((EntityImpl) session.newEntity("compositeIndexNullPointQueryInTxClass"));
       document.field("prop1", i / 10);
       document.field("prop2", i / 5);
 
@@ -112,11 +112,11 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       document.save();
     }
 
-    db.commit();
+    session.commit();
 
     var query =
         "select from compositeIndexNullPointQueryInTxClass where prop1 = 1 and prop2 = 2";
-    var resultSet = db.query(query).toList();
+    var resultSet = session.query(query).toList();
     Assert.assertEquals(resultSet.size(), 5);
     for (var k = 0; k < 5; k++) {
       var result = resultSet.get(k);
@@ -124,7 +124,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       Assert.assertEquals(result.<Object>getProperty("prop2"), 2);
     }
 
-    EntityImpl explain = db.command(new CommandSQL("explain " + query)).execute(db);
+    EntityImpl explain = session.command(new CommandSQL("explain " + query)).execute(session);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -133,14 +133,14 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
     query =
         "select from compositeIndexNullPointQueryInTxClass where prop1 = 1 and prop2 = 2 and prop3"
             + " is null";
-    resultSet = db.query(query).toList();
+    resultSet = session.query(query).toList();
 
     Assert.assertEquals(resultSet.size(), 2);
     for (var result : resultSet) {
       Assert.assertNull(result.getProperty("prop3"));
     }
 
-    explain = db.command(new CommandSQL("explain " + query)).execute(db);
+    explain = session.command(new CommandSQL("explain " + query)).execute(session);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -152,24 +152,24 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       return;
     }
 
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     var clazz = schema.createClass("compositeIndexNullPointQueryInMiddleTxClass");
-    clazz.createProperty(db, "prop1", PropertyType.INTEGER);
-    clazz.createProperty(db, "prop2", PropertyType.INTEGER);
-    clazz.createProperty(db, "prop3", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop1", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop2", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop3", PropertyType.INTEGER);
 
     var metadata = Map.of("ignoreNullValues", false);
 
-    clazz.createIndex(db,
+    clazz.createIndex(session,
         "compositeIndexNullPointQueryInMiddleTxIndex",
         SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
         metadata, new String[]{"prop1", "prop2", "prop3"});
 
-    db.begin();
+    session.begin();
 
     for (var i = 0; i < 20; i++) {
-      var document = ((EntityImpl) db.newEntity(
+      var document = ((EntityImpl) session.newEntity(
           "compositeIndexNullPointQueryInMiddleTxClass"));
       document.field("prop1", i / 10);
       document.field("prop2", i / 5);
@@ -183,7 +183,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
 
     var query =
         "select from compositeIndexNullPointQueryInMiddleTxClass where prop1 = 1 and prop2 = 2";
-    var resultSet = db.query(query).toList();
+    var resultSet = session.query(query).toList();
     Assert.assertEquals(resultSet.size(), 5);
 
     for (var k = 0; k < 5; k++) {
@@ -192,7 +192,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       Assert.assertEquals(result.<Object>getProperty("prop2"), 2);
     }
 
-    EntityImpl explain = db.command(new CommandSQL("explain " + query)).execute(db);
+    EntityImpl explain = session.command(new CommandSQL("explain " + query)).execute(session);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -201,32 +201,32 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
     query =
         "select from compositeIndexNullPointQueryInMiddleTxClass where prop1 = 1 and prop2 = 2 and"
             + " prop3 is null";
-    resultSet = db.query(query).toList();
+    resultSet = session.query(query).toList();
 
     Assert.assertEquals(resultSet.size(), 2);
     for (var result : resultSet) {
       Assert.assertNull(result.getProperty("prop3"));
     }
 
-    explain = db.command(new CommandSQL("explain " + query)).execute(db);
+    explain = session.command(new CommandSQL("explain " + query)).execute(session);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
             .contains("compositeIndexNullPointQueryInMiddleTxIndex"));
 
-    db.commit();
+    session.commit();
   }
 
   public void testRangeQuery() {
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     var clazz = schema.createClass("compositeIndexNullRangeQueryClass");
-    clazz.createProperty(db, "prop1", PropertyType.INTEGER);
-    clazz.createProperty(db, "prop2", PropertyType.INTEGER);
-    clazz.createProperty(db, "prop3", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop1", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop2", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop3", PropertyType.INTEGER);
 
     var metadata = Map.of("ignoreNullValues", false);
 
-    clazz.createIndex(db,
+    clazz.createIndex(session,
         "compositeIndexNullRangeQueryIndex",
         SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
@@ -234,7 +234,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
         null, new String[]{"prop1", "prop2", "prop3"});
 
     for (var i = 0; i < 20; i++) {
-      var document = ((EntityImpl) db.newEntity("compositeIndexNullRangeQueryClass"));
+      var document = ((EntityImpl) session.newEntity("compositeIndexNullRangeQueryClass"));
       document.field("prop1", i / 10);
       document.field("prop2", i / 5);
 
@@ -242,13 +242,13 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
         document.field("prop3", i);
       }
 
-      db.begin();
+      session.begin();
       document.save();
-      db.commit();
+      session.commit();
     }
 
     var query = "select from compositeIndexNullRangeQueryClass where prop1 = 1 and prop2 > 2";
-    var resultSet = db.query(query).toList();
+    var resultSet = session.query(query).toList();
 
     Assert.assertEquals(resultSet.size(), 5);
     for (var k = 0; k < 5; k++) {
@@ -257,14 +257,14 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       Assert.assertTrue(result.<Integer>getProperty("prop2") > 2);
     }
 
-    EntityImpl explain = db.command(new CommandSQL("explain " + query)).execute(db);
+    EntityImpl explain = session.command(new CommandSQL("explain " + query)).execute(session);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
             .contains("compositeIndexNullRangeQueryIndex"));
 
     query = "select from compositeIndexNullRangeQueryClass where prop1 > 0";
-    resultSet = db.query(query).toList();
+    resultSet = session.query(query).toList();
 
     Assert.assertEquals(resultSet.size(), 10);
     for (var k = 0; k < 10; k++) {
@@ -278,24 +278,24 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       return;
     }
 
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     var clazz = schema.createClass("compositeIndexNullRangeQueryInMiddleTxClass");
-    clazz.createProperty(db, "prop1", PropertyType.INTEGER);
-    clazz.createProperty(db, "prop2", PropertyType.INTEGER);
-    clazz.createProperty(db, "prop3", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop1", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop2", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop3", PropertyType.INTEGER);
 
     var metadata = Map.of("ignoreNullValues", false);
 
-    clazz.createIndex(db,
+    clazz.createIndex(session,
         "compositeIndexNullRangeQueryInMiddleTxIndex",
         SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
         metadata,
         null, new String[]{"prop1", "prop2", "prop3"});
 
-    db.begin();
+    session.begin();
     for (var i = 0; i < 20; i++) {
-      var document = ((EntityImpl) db.newEntity(
+      var document = ((EntityImpl) session.newEntity(
           "compositeIndexNullRangeQueryInMiddleTxClass"));
       document.field("prop1", i / 10);
       document.field("prop2", i / 5);
@@ -309,7 +309,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
 
     var query =
         "select from compositeIndexNullRangeQueryInMiddleTxClass where prop1 = 1 and prop2 > 2";
-    var resultSet = db.query(query).toList();
+    var resultSet = session.query(query).toList();
 
     Assert.assertEquals(resultSet.size(), 5);
     for (var k = 0; k < 5; k++) {
@@ -318,14 +318,14 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       Assert.assertTrue(result.<Integer>getProperty("prop2") > 2);
     }
 
-    EntityImpl explain = db.command(new CommandSQL("explain " + query)).execute(db);
+    EntityImpl explain = session.command(new CommandSQL("explain " + query)).execute(session);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
             .contains("compositeIndexNullRangeQueryInMiddleTxIndex"));
 
     query = "select from compositeIndexNullRangeQueryInMiddleTxClass where prop1 > 0";
-    resultSet = db.query(query).toList();
+    resultSet = session.query(query).toList();
 
     Assert.assertEquals(resultSet.size(), 10);
     for (var k = 0; k < 10; k++) {
@@ -333,19 +333,19 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       Assert.assertTrue(result.<Integer>getProperty("prop1") > 0);
     }
 
-    db.commit();
+    session.commit();
   }
 
   public void testPointQueryNullInTheMiddle() {
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     var clazz = schema.createClass("compositeIndexNullPointQueryNullInTheMiddleClass");
-    clazz.createProperty(db, "prop1", PropertyType.INTEGER);
-    clazz.createProperty(db, "prop2", PropertyType.INTEGER);
-    clazz.createProperty(db, "prop3", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop1", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop2", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop3", PropertyType.INTEGER);
 
     var metadata = Map.of("ignoreNullValues", false);
 
-    clazz.createIndex(db,
+    clazz.createIndex(session,
         "compositeIndexNullPointQueryNullInTheMiddleIndex",
         SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
@@ -353,7 +353,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
         null, new String[]{"prop1", "prop2", "prop3"});
 
     for (var i = 0; i < 20; i++) {
-      var document = ((EntityImpl) db.newEntity(
+      var document = ((EntityImpl) session.newEntity(
           "compositeIndexNullPointQueryNullInTheMiddleClass"));
       document.field("prop1", i / 10);
 
@@ -363,20 +363,20 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
 
       document.field("prop3", i);
 
-      db.begin();
+      session.begin();
       document.save();
-      db.commit();
+      session.commit();
     }
 
     var query = "select from compositeIndexNullPointQueryNullInTheMiddleClass where prop1 = 1";
-    var resultSet = db.query(query).toList();
+    var resultSet = session.query(query).toList();
     Assert.assertEquals(resultSet.size(), 10);
     for (var k = 0; k < 10; k++) {
       var result = resultSet.get(k);
       Assert.assertEquals(result.<Object>getProperty("prop1"), 1);
     }
 
-    EntityImpl explain = db.command(new CommandSQL("explain " + query)).execute(db);
+    EntityImpl explain = session.command(new CommandSQL("explain " + query)).execute(session);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -385,7 +385,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
     query =
         "select from compositeIndexNullPointQueryNullInTheMiddleClass where prop1 = 1 and prop2 is"
             + " null";
-    resultSet = db.query(query).toList();
+    resultSet = session.query(query).toList();
 
     Assert.assertEquals(resultSet.size(), 5);
     for (var result : resultSet) {
@@ -393,7 +393,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       Assert.assertNull(result.getProperty("prop2"));
     }
 
-    explain = db.command(new CommandSQL("explain " + query)).execute(db);
+    explain = session.command(new CommandSQL("explain " + query)).execute(session);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -402,10 +402,10 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
     query =
         "select from compositeIndexNullPointQueryNullInTheMiddleClass where prop1 = 1 and prop2 is"
             + " null and prop3 = 13";
-    resultSet = db.query(query).toList();
+    resultSet = session.query(query).toList();
     Assert.assertEquals(resultSet.size(), 1);
 
-    explain = db.command(new CommandSQL("explain " + query)).execute(db);
+    explain = session.command(new CommandSQL("explain " + query)).execute(session);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -417,26 +417,27 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       return;
     }
 
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     var clazz = schema.createClass(
         "compositeIndexNullPointQueryNullInTheMiddleInMiddleTxClass");
-    clazz.createProperty(db, "prop1", PropertyType.INTEGER);
-    clazz.createProperty(db, "prop2", PropertyType.INTEGER);
-    clazz.createProperty(db, "prop3", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop1", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop2", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop3", PropertyType.INTEGER);
 
     var metadata = Map.of("ignoreNullValues", false);
-    clazz.createIndex(db,
+    clazz.createIndex(session,
         "compositeIndexNullPointQueryNullInTheMiddleInMiddleTxIndex",
         SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
         metadata,
         null, new String[]{"prop1", "prop2", "prop3"});
 
-    db.begin();
+    session.begin();
 
     for (var i = 0; i < 20; i++) {
       var document =
-          ((EntityImpl) db.newEntity("compositeIndexNullPointQueryNullInTheMiddleInMiddleTxClass"));
+          ((EntityImpl) session.newEntity(
+              "compositeIndexNullPointQueryNullInTheMiddleInMiddleTxClass"));
       document.field("prop1", i / 10);
 
       if (i % 2 == 0) {
@@ -450,14 +451,14 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
 
     var query =
         "select from compositeIndexNullPointQueryNullInTheMiddleInMiddleTxClass where prop1 = 1";
-    var resultSet = db.query(query).toList();
+    var resultSet = session.query(query).toList();
     Assert.assertEquals(resultSet.size(), 10);
     for (var k = 0; k < 10; k++) {
       var result = resultSet.get(k);
       Assert.assertEquals(result.<Object>getProperty("prop1"), 1);
     }
 
-    EntityImpl explain = db.command(new CommandSQL("explain " + query)).execute(db);
+    EntityImpl explain = session.command(new CommandSQL("explain " + query)).execute(session);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -466,7 +467,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
     query =
         "select from compositeIndexNullPointQueryNullInTheMiddleInMiddleTxClass where prop1 = 1 and"
             + " prop2 is null";
-    resultSet = db.query(query).toList();
+    resultSet = session.query(query).toList();
 
     Assert.assertEquals(resultSet.size(), 5);
     for (var result : resultSet) {
@@ -474,7 +475,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       Assert.assertNull(result.getProperty("prop2"));
     }
 
-    explain = db.command(new CommandSQL("explain " + query)).execute(db);
+    explain = session.command(new CommandSQL("explain " + query)).execute(session);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -483,36 +484,36 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
     query =
         "select from compositeIndexNullPointQueryNullInTheMiddleInMiddleTxClass where prop1 = 1 and"
             + " prop2 is null and prop3 = 13";
-    resultSet = db.query(query).toList();
+    resultSet = session.query(query).toList();
 
     Assert.assertEquals(resultSet.size(), 1);
 
-    explain = db.command(new CommandSQL("explain " + query)).execute(db);
+    explain = session.command(new CommandSQL("explain " + query)).execute(session);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
             .contains("compositeIndexNullPointQueryNullInTheMiddleInMiddleTxIndex"));
 
-    db.commit();
+    session.commit();
   }
 
   public void testRangeQueryNullInTheMiddle() {
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     var clazz = schema.createClass("compositeIndexNullRangeQueryNullInTheMiddleClass");
-    clazz.createProperty(db, "prop1", PropertyType.INTEGER);
-    clazz.createProperty(db, "prop2", PropertyType.INTEGER);
-    clazz.createProperty(db, "prop3", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop1", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop2", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop3", PropertyType.INTEGER);
 
     var metadata = Map.of("ignoreNullValues", false);
 
-    clazz.createIndex(db,
+    clazz.createIndex(session,
         "compositeIndexNullRangeQueryNullInTheMiddleIndex",
         SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
         metadata, new String[]{"prop1", "prop2", "prop3"});
 
     for (var i = 0; i < 20; i++) {
-      var document = ((EntityImpl) db.newEntity(
+      var document = ((EntityImpl) session.newEntity(
           "compositeIndexNullRangeQueryNullInTheMiddleClass"));
       document.field("prop1", i / 10);
 
@@ -522,21 +523,21 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
 
       document.field("prop3", i);
 
-      db.begin();
+      session.begin();
       document.save();
-      db.commit();
+      session.commit();
     }
 
     final var query =
         "select from compositeIndexNullRangeQueryNullInTheMiddleClass where prop1 > 0";
-    var resultSet = db.query(query).toList();
+    var resultSet = session.query(query).toList();
     Assert.assertEquals(resultSet.size(), 10);
     for (var k = 0; k < 10; k++) {
       var result = resultSet.get(k);
       Assert.assertEquals(result.<Object>getProperty("prop1"), 1);
     }
 
-    EntityImpl explain = db.command(new CommandSQL("explain " + query)).execute(db);
+    EntityImpl explain = session.command(new CommandSQL("explain " + query)).execute(session);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -548,15 +549,15 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       return;
     }
 
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     var clazz = schema.createClass(
         "compositeIndexNullRangeQueryNullInTheMiddleInMiddleTxClass");
-    clazz.createProperty(db, "prop1", PropertyType.INTEGER);
-    clazz.createProperty(db, "prop2", PropertyType.INTEGER);
-    clazz.createProperty(db, "prop3", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop1", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop2", PropertyType.INTEGER);
+    clazz.createProperty(session, "prop3", PropertyType.INTEGER);
 
     var metadata = Map.of("ignoreNullValues", false);
-    clazz.createIndex(db,
+    clazz.createIndex(session,
         "compositeIndexNullRangeQueryNullInTheMiddleInMiddleTxIndex",
         SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
@@ -564,7 +565,8 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
 
     for (var i = 0; i < 20; i++) {
       var document =
-          ((EntityImpl) db.newEntity("compositeIndexNullRangeQueryNullInTheMiddleInMiddleTxClass"));
+          ((EntityImpl) session.newEntity(
+              "compositeIndexNullRangeQueryNullInTheMiddleInMiddleTxClass"));
       document.field("prop1", i / 10);
 
       if (i % 2 == 0) {
@@ -573,21 +575,21 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
 
       document.field("prop3", i);
 
-      db.begin();
+      session.begin();
       document.save();
-      db.commit();
+      session.commit();
     }
 
     final var query =
         "select from compositeIndexNullRangeQueryNullInTheMiddleInMiddleTxClass where prop1 > 0";
-    var resultSet = db.query(query).toList();
+    var resultSet = session.query(query).toList();
     Assert.assertEquals(resultSet.size(), 10);
     for (var k = 0; k < 10; k++) {
       var result = resultSet.get(k);
       Assert.assertEquals(result.<Object>getProperty("prop1"), 1);
     }
 
-    EntityImpl explain = db.command(new CommandSQL("explain " + query)).execute(db);
+    EntityImpl explain = session.command(new CommandSQL("explain " + query)).execute(session);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")

@@ -4,7 +4,6 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
@@ -27,8 +26,8 @@ public class SQLDropClassStatement extends DDLStatement {
 
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
-    var db = ctx.getDatabase();
-    var schema = db.getMetadata().getSchemaInternal();
+    var session = ctx.getDatabaseSession();
+    var schema = session.getMetadata().getSchemaInternal();
     String className;
     if (name != null) {
       className = name.getStringValue();
@@ -40,20 +39,20 @@ public class SQLDropClassStatement extends DDLStatement {
       if (ifExists) {
         return ExecutionStream.empty();
       }
-      throw new CommandExecutionException("Class " + className + " does not exist");
+      throw new CommandExecutionException(session, "Class " + className + " does not exist");
     }
 
-    if (!unsafe && clazz.count(db) > 0) {
+    if (!unsafe && clazz.count(session) > 0) {
       // check vertex or edge
-      if (clazz.isVertexType()) {
-        throw new CommandExecutionException(
+      if (clazz.isVertexType(session)) {
+        throw new CommandExecutionException(session,
             "'DROP CLASS' command cannot drop class '"
                 + className
                 + "' because it contains Vertices. Use 'DELETE VERTEX' command first to avoid"
                 + " broken edges in a database, or apply the 'UNSAFE' keyword to force it");
-      } else if (clazz.isEdgeType()) {
+      } else if (clazz.isEdgeType(session)) {
         // FOUND EDGE CLASS
-        throw new CommandExecutionException(
+        throw new CommandExecutionException(session,
             "'DROP CLASS' command cannot drop class '"
                 + className
                 + "' because it contains Edges. Use 'DELETE EDGE' command first to avoid broken"
@@ -63,7 +62,7 @@ public class SQLDropClassStatement extends DDLStatement {
 
     schema.dropClass(className);
 
-    var result = new ResultInternal(db);
+    var result = new ResultInternal(session);
     result.setProperty("operation", "drop class");
     result.setProperty("className", className);
     return ExecutionStream.singleton(result);

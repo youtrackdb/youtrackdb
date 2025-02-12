@@ -16,7 +16,7 @@ public class BinaryProtocolHelper {
               "Backward compatibility support available from to version %d your version is %d",
               OLDEST_SUPPORTED_PROTOCOL_VERSION, protocolVersion);
       LogManager.instance().error(caller, message, null);
-      throw new DatabaseException(message);
+      throw new DatabaseException((String) null, message);
     }
 
     if (NETWORK_BINARY_MIN_PROTOCOL_VERSION.getValueAsInteger() > protocolVersion) {
@@ -28,7 +28,7 @@ public class BinaryProtocolHelper {
               protocolVersion,
               NETWORK_BINARY_MIN_PROTOCOL_VERSION.getKey());
       LogManager.instance().error(caller, message, null);
-      throw new DatabaseException(message);
+      throw new DatabaseException((String) null, message);
     }
   }
 }

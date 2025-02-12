@@ -41,7 +41,6 @@ import com.jetbrains.youtrack.db.internal.common.exception.InvalidBinaryChunkExc
 import com.jetbrains.youtrack.db.internal.common.io.YTIOException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.CoreException;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
@@ -54,7 +53,6 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.R
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.SerializationThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkFactory;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerSchemaAware2CSV;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.NetworkProtocolException;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.SocketChannelBinary;
@@ -299,7 +297,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
             protocolVersion = connection.getData().protocolVersion;
             serializer = connection.getData().getSerializer();
 
-            request.read(connection.getDatabase(), channel, protocolVersion, serializer);
+            request.read(connection.getDatabaseSession(), channel, protocolVersion, serializer);
           } else {
             request.read(null, channel, protocolVersion, serializer);
           }
@@ -323,24 +321,25 @@ public class NetworkProtocolBinary extends NetworkProtocol {
         BinaryResponse response = null;
         if (exception == null) {
           try {
-
+            var session = connection.getDatabaseSession();
             if (request.requireServerUser()) {
-              checkServerAccess(connection.getDatabase(), request.requiredServerRole(), connection);
+              checkServerAccess(session, request.requiredServerRole(), connection);
             }
 
             if (request.requireDatabaseSession()) {
-              if (connection.getDatabase() == null) {
+              if (session == null) {
                 throw new DatabaseException("Required database session");
               }
             }
             response = request.execute(connection.getExecutor());
           } catch (RuntimeException t) {
             // This should be moved in the execution of the command that manipulate data
-            if (connection.getDatabase() != null) {
+            var session = connection.getDatabaseSession();
+            if (session != null) {
               final var collectionManager =
-                  connection.getDatabase().getSbTreeCollectionManager();
+                  connection.getDatabaseSession().getSbTreeCollectionManager();
               if (collectionManager != null) {
-                collectionManager.clearChangedIds();
+                collectionManager.clearChangedIds(session);
               }
             }
             exception = t;
@@ -369,7 +368,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
               beginResponse();
               try {
                 sendOk(connection, clientTxId);
-                response.write(connection.getDatabase(),
+                response.write(connection.getDatabaseSession(),
                     channel,
                     connection.getData().protocolVersion, connection.getData().getSerializer());
               } finally {
@@ -446,14 +445,13 @@ public class NetworkProtocolBinary extends NetworkProtocol {
         if (connection.getData().serverUser) {
           connection.setServerUser(
               server.getSecurity()
-                  .getUser(connection.getData().serverUsername, connection.getDatabase()));
+                  .getUser(connection.getData().serverUsername, connection.getDatabaseSession()));
         }
       }
     } catch (RuntimeException e) {
       if (connection != null) {
         server.getClientConnectionManager().disconnect(connection);
       }
-      DatabaseRecordThreadLocal.instance().remove();
       throw e;
     }
 
@@ -473,7 +471,8 @@ public class NetworkProtocolBinary extends NetworkProtocol {
 
       if (handshakeInfo != null) {
         if (connection == null) {
-          throw new TokenSecurityException("missing session and token");
+          throw new TokenSecurityException(connection.getDatabaseSession(),
+              "missing session and token");
         }
         connection.acquire();
         connection.validateSession(tokenBytes, server.getTokenHandler(), this);
@@ -481,7 +480,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
         if (connection.getData().serverUser) {
           connection.setServerUser(
               server.getSecurity()
-                  .getUser(connection.getData().serverUsername, connection.getDatabase()));
+                  .getUser(connection.getData().serverUsername, connection.getDatabaseSession()));
         }
       } else {
         if (connection != null && !Boolean.TRUE.equals(connection.getTokenBased())) {
@@ -500,7 +499,8 @@ public class NetworkProtocolBinary extends NetworkProtocol {
             connection.setDisconnectOnAfter(true);
           }
           if (connection == null) {
-            throw new TokenSecurityException("missing session and token");
+            throw new TokenSecurityException(connection.getDatabaseSession(),
+                "missing session and token");
           }
           connection.acquire();
           connection.validateSession(tokenBytes, server.getTokenHandler(), this);
@@ -508,7 +508,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
           if (connection.getData().serverUser) {
             connection.setServerUser(
                 server.getSecurity()
-                    .getUser(connection.getData().serverUsername, connection.getDatabase()));
+                    .getUser(connection.getData().serverUsername, connection.getDatabaseSession()));
           }
         }
       }
@@ -521,7 +521,6 @@ public class NetworkProtocolBinary extends NetworkProtocol {
         connection.endOperation();
         server.getClientConnectionManager().disconnect(connection);
       }
-      DatabaseRecordThreadLocal.instance().remove();
       throw e;
     }
     return connection;
@@ -669,7 +668,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
       if (connection != null) {
         protocolVersion = connection.getData().protocolVersion;
         serializationImpl = connection.getData().getSerializer();
-        error.write(connection.getDatabase(), channel, protocolVersion, serializationImpl);
+        error.write(connection.getDatabaseSession(), channel, protocolVersion, serializationImpl);
       } else {
         error.write(null, channel, protocolVersion, serializationImpl);
       }
@@ -797,7 +796,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
       channel.writeShort(ChannelBinaryProtocol.RECORD_RID);
       channel.writeRID((RID) o);
     } else {
-      writeRecord(channel, connection, o.getRecord(connection.getDatabase()));
+      writeRecord(channel, connection, o.getRecord(connection.getDatabaseSession()));
     }
   }
 
@@ -820,16 +819,16 @@ public class NetworkProtocolBinary extends NetworkProtocol {
       final RecordAbstract iRecord) {
     final byte[] stream;
 
-    var db = connection.getDatabase();
-    assert db.assertIfNotActive();
+    var session = connection.getDatabaseSession();
+    assert session.assertIfNotActive();
 
-    var dbSerializerName = db.getSerializer().toString();
+    var dbSerializerName = session.getSerializer().toString();
     var name = connection.getData().getSerializationImpl();
-    if (RecordInternal.getRecordType(db, iRecord) == EntityImpl.RECORD_TYPE
+    if (RecordInternal.getRecordType(session, iRecord) == EntityImpl.RECORD_TYPE
         && (dbSerializerName == null || !dbSerializerName.equals(name))) {
       ((EntityImpl) iRecord).deserializeFields();
       var ser = RecordSerializerFactory.instance().getFormat(name);
-      stream = ser.toStream(connection.getDatabase(), iRecord);
+      stream = ser.toStream(connection.getDatabaseSession(), iRecord);
     } else {
       stream = iRecord.toStream();
     }
@@ -840,8 +839,9 @@ public class NetworkProtocolBinary extends NetworkProtocol {
   private static void writeRecord(
       SocketChannelBinary channel, ClientConnection connection, final RecordAbstract iRecord)
       throws IOException {
+    var session = connection.getDatabaseSession();
     channel.writeShort((short) 0);
-    channel.writeByte(RecordInternal.getRecordType(connection.getDatabase(), iRecord));
+    channel.writeByte(RecordInternal.getRecordType(session, iRecord));
     channel.writeRID(iRecord.getIdentity());
     channel.writeVersion(iRecord.getVersion());
     try {
@@ -855,16 +855,16 @@ public class NetworkProtocolBinary extends NetworkProtocol {
     } catch (Exception e) {
       channel.writeBytes(null);
       final var message =
-          "Error on unmarshalling record " + iRecord.getIdentity().toString() + " (" + e + ")";
+          "Error on unmarshalling record " + iRecord.getIdentity() + " (" + e + ")";
 
-      throw BaseException.wrapException(new SerializationException(message), e);
+      throw BaseException.wrapException(new SerializationException(session, message), e, session);
     }
   }
 
   protected static int trimCsvSerializedContent(ClientConnection connection, final byte[] stream) {
     var realLength = stream.length;
-    final var db = DatabaseRecordThreadLocal.instance().getIfDefined();
-    if (db != null) {
+    var session = connection.getDatabaseSession();
+    if (session != null) {
       if (RecordSerializerSchemaAware2CSV.NAME.equals(
           connection.getData().getSerializationImpl())) {
         // TRIM TAILING SPACES (DUE TO OVERSIZE)

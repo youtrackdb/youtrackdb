@@ -57,43 +57,45 @@ public class StreamableHelper {
   }
 
   public static void toStream(final DataOutput out, final Object object) throws IOException {
-    if (object == null) {
-      out.writeByte(NULL);
-    } else if (object instanceof Streamable) {
-      out.writeByte(STREAMABLE);
-      out.writeUTF(object.getClass().getName());
-      ((Streamable) object).toStream(out);
-    } else if (object instanceof String) {
-      out.writeByte(STRING);
-      out.writeUTF((String) object);
-    } else if (object instanceof Integer) {
-      out.writeByte(INTEGER);
-      out.writeInt((Integer) object);
-    } else if (object instanceof Short) {
-      out.writeByte(SHORT);
-      out.writeShort((Short) object);
-    } else if (object instanceof Long) {
-      out.writeByte(LONG);
-      out.writeLong((Long) object);
-    } else if (object instanceof Boolean) {
-      out.writeByte(BOOLEAN);
-      out.writeBoolean((Boolean) object);
-    } else if (object instanceof Serializable) {
-      out.writeByte(SERIALIZABLE);
-      final var mem = new ByteArrayOutputStream();
-      final var oos = new ObjectOutputStream(mem);
-      try {
-        oos.writeObject(object);
-        oos.flush();
-        final var buffer = mem.toByteArray();
-        out.writeInt(buffer.length);
-        out.write(buffer);
-      } finally {
-        oos.close();
-        mem.close();
+    switch (object) {
+      case null -> out.writeByte(NULL);
+      case Streamable streamable -> {
+        out.writeByte(STREAMABLE);
+        out.writeUTF(object.getClass().getName());
+        streamable.toStream(out);
       }
-    } else {
-      throw new SerializationException("Object not supported: " + object);
+      case String s -> {
+        out.writeByte(STRING);
+        out.writeUTF(s);
+      }
+      case Integer i -> {
+        out.writeByte(INTEGER);
+        out.writeInt(i);
+      }
+      case Short i -> {
+        out.writeByte(SHORT);
+        out.writeShort(i);
+      }
+      case Long l -> {
+        out.writeByte(LONG);
+        out.writeLong(l);
+      }
+      case Boolean b -> {
+        out.writeByte(BOOLEAN);
+        out.writeBoolean(b);
+      }
+      case Serializable serializable -> {
+        out.writeByte(SERIALIZABLE);
+        final var mem = new ByteArrayOutputStream();
+        try (mem; var oos = new ObjectOutputStream(mem)) {
+          oos.writeObject(object);
+          oos.flush();
+          final var buffer = mem.toByteArray();
+          out.writeInt(buffer.length);
+          out.write(buffer);
+        }
+      }
+      default -> throw new SerializationException("Object not supported: " + object);
     }
   }
 
@@ -114,8 +116,9 @@ public class StreamableHelper {
           }
           ((Streamable) object).fromStream(in);
         } catch (Exception e) {
-          BaseException.wrapException(
-              new SerializationException("Cannot unmarshall object from distributed request"), e);
+          throw BaseException.wrapException(
+              new SerializationException("Cannot unmarshall object from distributed request"), e,
+              (String) null);
         }
         break;
       case SERIALIZABLE:
@@ -139,9 +142,9 @@ public class StreamableHelper {
           try {
             object = ois.readObject();
           } catch (ClassNotFoundException e) {
-            BaseException.wrapException(
+            throw BaseException.wrapException(
                 new SerializationException("Cannot unmarshall object from distributed request"),
-                e);
+                e, (String) null);
           }
         } finally {
           ois.close();

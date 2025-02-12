@@ -19,18 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
-import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLTruncateClusterStatement;
 import java.util.Map;
 
@@ -45,38 +41,38 @@ public class CommandExecutorSQLTruncateCluster extends CommandExecutorSQLAbstrac
   private String clusterName;
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorSQLTruncateCluster parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLTruncateCluster parse(DatabaseSessionInternal session,
       final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
 
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
       var word = new StringBuilder();
 
       var oldPos = 0;
       var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_TRUNCATE)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_TRUNCATE + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CLUSTER)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_CLUSTER + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserText, oldPos, word, true);
       if (pos == -1) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Expected cluster name. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -90,9 +86,8 @@ public class CommandExecutorSQLTruncateCluster extends CommandExecutorSQLAbstrac
         }
       }
 
-      final var database = getDatabase();
-      if (database.getClusterIdByName(clusterName) == -1) {
-        throw new CommandSQLParsingException(
+      if (session.getClusterIdByName(clusterName) == -1) {
+        throw new CommandSQLParsingException(session,
             "Cluster '" + clusterName + "' not found", parserText, oldPos);
       }
     } finally {
@@ -101,59 +96,46 @@ public class CommandExecutorSQLTruncateCluster extends CommandExecutorSQLAbstrac
     return this;
   }
 
-  private String decodeClusterName(String s) {
+  private static String decodeClusterName(String s) {
     return decodeClassName(s);
   }
 
   /**
    * Execute the command.
    */
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (clusterName == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final var database = getDatabase();
-
-    final var clusterId = database.getClusterIdByName(clusterName);
+    final var clusterId = session.getClusterIdByName(clusterName);
     if (clusterId < 0) {
-      throw new DatabaseException("Cluster with name " + clusterName + " does not exist");
+      throw new DatabaseException(session, "Cluster with name " + clusterName + " does not exist");
     }
 
-    var schema = database.getMetadata().getSchemaInternal();
+    var schema = session.getMetadata().getSchemaInternal();
     var clazz = (SchemaClassInternal) schema.getClassByClusterId(clusterId);
     if (clazz == null) {
-      database.checkForClusterPermissions(clusterName);
+      session.checkForClusterPermissions(clusterName);
 
-      final var iteratorCluster = database.browseCluster(clusterName);
+      final var iteratorCluster = session.browseCluster(clusterName);
       if (iteratorCluster == null) {
-        throw new DatabaseException("Cluster with name " + clusterName + " does not exist");
+        throw new DatabaseException(session,
+            "Cluster with name " + clusterName + " does not exist");
       }
       while (iteratorCluster.hasNext()) {
         final var record = iteratorCluster.next();
         record.delete();
       }
     } else {
-      clazz.truncateCluster(database, clusterName);
+      clazz.truncateCluster(session, clusterName);
     }
     return true;
   }
 
   @Override
-  public long getDistributedTimeout() {
-    return getDatabase()
-        .getConfiguration()
-        .getValueAsLong(GlobalConfiguration.DISTRIBUTED_COMMAND_TASK_SYNCH_TIMEOUT);
-  }
-
-  @Override
   public String getSyntax() {
     return "TRUNCATE CLUSTER <cluster-name>";
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.WRITE;
   }
 }

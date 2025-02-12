@@ -1,11 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.security;
 
+import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.exception.SystemException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.KeyProvider;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.TokenHeader;
 import java.security.MessageDigest;
@@ -75,7 +74,8 @@ public class TokenSignImpl implements TokenSign {
       mac.init(keyProvider.getKey(header));
       return mac.doFinal(unsignedToken);
     } catch (Exception ex) {
-      throw BaseException.wrapException(new SystemException("Error on token parsing"), ex);
+      throw BaseException.wrapException(new SystemException("Error on token parsing"), ex,
+          (String) null);
     } finally {
       mac.reset();
     }
@@ -106,7 +106,7 @@ public class TokenSignImpl implements TokenSign {
       throw e;
     } catch (Exception e) {
       throw BaseException.wrapException(new SystemException("Token signature cannot be verified"),
-          e);
+          e, (String) null);
     } finally {
       mac.reset();
     }

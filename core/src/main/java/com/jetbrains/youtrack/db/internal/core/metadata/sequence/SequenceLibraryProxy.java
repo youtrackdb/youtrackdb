@@ -42,17 +42,17 @@ public class SequenceLibraryProxy extends SequenceLibraryAbstract {
 
   @Override
   public Set<String> getSequenceNames() {
-    return delegate.getSequenceNames(database);
+    return delegate.getSequenceNames(session);
   }
 
   @Override
   public int getSequenceCount() {
-    return delegate.getSequenceCount(database);
+    return delegate.getSequenceCount(session);
   }
 
   @Override
   public DBSequence getSequence(String iName) {
-    return delegate.getSequence(database, iName);
+    return delegate.getSequence(session, iName);
   }
 
   @Override
@@ -60,7 +60,7 @@ public class SequenceLibraryProxy extends SequenceLibraryAbstract {
       String iName, SEQUENCE_TYPE sequenceType, DBSequence.CreateParams params)
       throws DatabaseException {
     var shouldGoOverDistributted =
-        database.isDistributed() && (replicationProtocolVersion == 2);
+        session.isDistributed() && (replicationProtocolVersion == 2);
     return createSequence(iName, sequenceType, params, shouldGoOverDistributted);
   }
 
@@ -75,14 +75,14 @@ public class SequenceLibraryProxy extends SequenceLibraryAbstract {
       var action =
           new SequenceAction(SequenceAction.CREATE, iName, params, sequenceType);
       try {
-        String sequenceName = database.sendSequenceAction(action);
-        return delegate.getSequence(database, sequenceName);
+        String sequenceName = session.sendSequenceAction(action);
+        return delegate.getSequence(session, sequenceName);
       } catch (InterruptedException | ExecutionException exc) {
         LogManager.instance().error(this, exc.getMessage(), exc, (Object[]) null);
-        throw new DatabaseException(exc.getMessage());
+        throw new DatabaseException(session.getDatabaseName(), exc.getMessage());
       }
     } else {
-      return delegate.createSequence(database, iName, sequenceType, params);
+      return delegate.createSequence(session, iName, sequenceType, params);
     }
   }
 
@@ -90,7 +90,7 @@ public class SequenceLibraryProxy extends SequenceLibraryAbstract {
   @Deprecated
   public void dropSequence(String iName) throws DatabaseException {
     var shouldGoOverDistributted =
-        database.isDistributed() && (replicationProtocolVersion == 2);
+        session.isDistributed() && (replicationProtocolVersion == 2);
     dropSequence(iName, shouldGoOverDistributted);
   }
 
@@ -99,24 +99,24 @@ public class SequenceLibraryProxy extends SequenceLibraryAbstract {
     if (executeViaDistributed) {
       var action = new SequenceAction(SequenceAction.REMOVE, iName, null, null);
       try {
-        database.sendSequenceAction(action);
+        session.sendSequenceAction(action);
       } catch (InterruptedException | ExecutionException exc) {
         LogManager.instance().error(this, exc.getMessage(), exc, (Object[]) null);
-        throw new DatabaseException(exc.getMessage());
+        throw new DatabaseException(session.getDatabaseName(), exc.getMessage());
       }
     } else {
-      delegate.dropSequence(database, iName);
+      delegate.dropSequence(session, iName);
     }
   }
 
   @Override
   public void create() {
-    SequenceLibraryImpl.create(database);
+    SequenceLibraryImpl.create(session);
   }
 
   @Override
   public void load() {
-    delegate.load(database);
+    delegate.load(session);
   }
 
   @Override

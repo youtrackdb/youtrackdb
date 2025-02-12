@@ -44,7 +44,7 @@ public final class CountRequest implements BinaryRequest<CountResponse> {
   }
 
   @Override
-  public void write(DatabaseSessionInternal database, ChannelDataOutput network,
+  public void write(DatabaseSessionInternal databaseSession, ChannelDataOutput network,
       StorageRemoteSession session) throws IOException {
     network.writeShort((short) clusterIds.length);
     for (var iClusterId : clusterIds) {
@@ -54,7 +54,8 @@ public final class CountRequest implements BinaryRequest<CountResponse> {
     network.writeByte(countTombstones ? (byte) 1 : (byte) 0);
   }
 
-  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+  public void read(DatabaseSessionInternal databaseSession, ChannelDataInput channel,
+      int protocolVersion,
       RecordSerializerNetwork serializer)
       throws IOException {
     int nclusters = channel.readShort();

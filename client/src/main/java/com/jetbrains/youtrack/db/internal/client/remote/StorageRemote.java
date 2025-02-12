@@ -29,72 +29,47 @@ import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.client.NotSendRequestException;
 import com.jetbrains.youtrack.db.internal.client.binary.SocketChannelBinaryAsynchClient;
 import com.jetbrains.youtrack.db.internal.client.remote.db.DatabaseSessionRemote;
-import com.jetbrains.youtrack.db.internal.client.remote.db.FrontendTransactionOptimisticClient;
 import com.jetbrains.youtrack.db.internal.client.remote.db.YTLiveQueryMonitorRemote;
 import com.jetbrains.youtrack.db.internal.client.remote.message.AddClusterRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.AddClusterResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.BeginTransaction38Request;
-import com.jetbrains.youtrack.db.internal.client.remote.message.BeginTransactionResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.BinaryPushRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.BinaryPushResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.CeilingPhysicalPositionsRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.CeilingPhysicalPositionsResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.CleanOutRecordRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.CleanOutRecordResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.CloseQueryRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.CommandRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.CommandResponse;
-import com.jetbrains.youtrack.db.internal.client.remote.message.Commit37Response;
 import com.jetbrains.youtrack.db.internal.client.remote.message.Commit38Request;
 import com.jetbrains.youtrack.db.internal.client.remote.message.CountRecordsRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.CountRecordsResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.CountRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.CountResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.DropClusterRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.DropClusterResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.FetchTransaction38Request;
-import com.jetbrains.youtrack.db.internal.client.remote.message.FetchTransaction38Response;
 import com.jetbrains.youtrack.db.internal.client.remote.message.FloorPhysicalPositionsRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.FloorPhysicalPositionsResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.GetClusterDataRangeRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.GetClusterDataRangeResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.GetRecordMetadataRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.GetRecordMetadataResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.GetSizeRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.GetSizeResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.HigherPhysicalPositionsRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.HigherPhysicalPositionsResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.ImportRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.ImportResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.IncrementalBackupRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.IncrementalBackupResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.LiveQueryPushRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.LowerPhysicalPositionsRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.LowerPhysicalPositionsResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.Open37Request;
-import com.jetbrains.youtrack.db.internal.client.remote.message.Open37Response;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushDistributedConfigurationRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushSchemaRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushSequencesRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushStorageConfigurationRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.QueryNextPageRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.QueryRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.QueryResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.ReadRecordRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.ReadRecordResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.RecordExistsRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.ReloadRequest37;
-import com.jetbrains.youtrack.db.internal.client.remote.message.ReloadResponse37;
 import com.jetbrains.youtrack.db.internal.client.remote.message.RemoteResultSet;
 import com.jetbrains.youtrack.db.internal.client.remote.message.ReopenRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.ReopenResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.RollbackTransactionRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SendTransactionStateRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.SendTransactionStateResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeFunctionsRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeIndexManagerRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeLiveQueryRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeLiveQueryResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeSchemaRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeSequencesRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeStorageConfigurationRequest;
@@ -110,11 +85,8 @@ import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestAsynch;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.config.StorageClusterConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategy;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTxInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigImpl;
@@ -126,8 +98,6 @@ import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.TokenException;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordVersionHelper;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.security.CredentialInterceptor;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityManager;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
@@ -160,7 +130,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -202,7 +171,6 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   private final int connectionRetry;
   private final int connectionRetryDelay;
   private StorageCluster[] clusters = CommonConst.EMPTY_CLUSTER_ARRAY;
-  private int defaultClusterId;
   public RemoteConnectionManager connectionManager;
   private final Set<StorageRemoteSession> sessions =
       Collections.newSetFromMap(new ConcurrentHashMap<StorageRemoteSession, Boolean>());
@@ -460,7 +428,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
       final String errorMessage, int retry) {
     var session = getCurrentSession(remoteSession);
     if (session.commandExecuting) {
-      throw new DatabaseException(
+      throw new DatabaseException(name,
           "Cannot execute the request because an asynchronous operation is in progress. Please use"
               + " a different connection");
     }
@@ -532,7 +500,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
         if (session.isStickToSession()) {
           retry--;
           if (retry <= 0) {
-            throw BaseException.wrapException(new StorageException(errorMessage), e);
+            throw BaseException.wrapException(new StorageException(name, errorMessage), e, name);
           } else {
             LogManager.instance()
                 .warn(
@@ -550,7 +518,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
               LogManager.instance()
                   .error(this, "Exception was suppressed, original exception is ", e);
               throw BaseException.wrapException(new ThreadInterruptedException(e1.getMessage()),
-                  e1);
+                  e1, name);
             }
           }
         }
@@ -575,14 +543,15 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
         LogManager.instance().debug(this, "I/O error stack: ", e);
         connectionManager.remove(network);
         if (--retry <= 0) {
-          throw BaseException.wrapException(new YTIOException(e.getMessage()), e);
+          throw BaseException.wrapException(new YTIOException(e.getMessage()), e, name);
         } else {
           try {
             Thread.sleep(connectionRetryDelay);
           } catch (java.lang.InterruptedException e1) {
             LogManager.instance()
                 .error(this, "Exception was suppressed, original exception is ", e);
-            throw BaseException.wrapException(new ThreadInterruptedException(e1.getMessage()), e1);
+            throw BaseException.wrapException(new ThreadInterruptedException(e1.getMessage()),
+                e1, name);
           }
         }
         serverUrl = null;
@@ -591,7 +560,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
         throw e;
       } catch (Exception e) {
         connectionManager.release(network);
-        throw BaseException.wrapException(new StorageException(errorMessage), e);
+        throw BaseException.wrapException(new StorageException(name, errorMessage), e, name);
       } finally {
         session.commandExecuting = false;
       }
@@ -662,7 +631,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
         throw (RuntimeException) e;
       } else {
         throw BaseException.wrapException(
-            new StorageException("Cannot open the remote storage: " + name), e);
+            new StorageException(name, "Cannot open the remote storage: " + name), e, name);
       }
     }
   }
@@ -813,12 +782,12 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
     }
   }
 
-  private void updateCollectionsFromChanges(
+  private static void updateCollectionsFromChanges(
       final BTreeCollectionManager collectionManager,
-      final Map<UUID, BonsaiCollectionPointer> changes) {
+      final Map<UUID, BonsaiCollectionPointer> changes, DatabaseSessionInternal session) {
     if (collectionManager != null) {
       for (var coll : changes.entrySet()) {
-        collectionManager.updateCollectionPointer(coll.getKey(), coll.getValue());
+        collectionManager.updateCollectionPointer(coll.getKey(), coll.getValue(), session);
       }
       if (RecordSerializationContext.getDepth() <= 1) {
         collectionManager.clearPendingCollections();
@@ -1326,26 +1295,27 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
     }
   }
 
-  public List<RecordOperation> commit(final FrontendTransactionOptimistic iTx) {
-    var remoteSession = (DatabaseSessionRemote) iTx.getDatabase();
+  public List<RecordOperation> commit(final FrontendTransactionOptimistic tx) {
+    var remoteSession = (DatabaseSessionRemote) tx.getDatabaseSession();
     unstickToSession(remoteSession);
 
     final var request =
-        new Commit38Request(iTx.getDatabase(),
-            iTx.getId(), true, true, iTx.getRecordOperations(), Collections.emptyMap());
+        new Commit38Request(tx.getDatabaseSession(),
+            tx.getId(), true, true, tx.getRecordOperations(), Collections.emptyMap());
 
     final var response = networkOperationNoRetry(remoteSession, request,
         "Error on commit");
 
     // two pass iteration, we update cluster ids, and then update positions
     for (var updatedPair : response.getUpdatedRids()) {
-      iTx.updateIdentityAfterCommit(updatedPair.first(), updatedPair.second());
+      tx.updateIdentityAfterCommit(updatedPair.first(), updatedPair.second());
     }
 
     updateCollectionsFromChanges(
-        iTx.getDatabase().getSbTreeCollectionManager(), response.getCollectionChanges());
+        tx.getDatabaseSession().getSbTreeCollectionManager(), response.getCollectionChanges(),
+        tx.getDatabaseSession());
     // SET ALL THE RECORDS AS UNDIRTY
-    for (var txEntry : iTx.getRecordOperations()) {
+    for (var txEntry : tx.getRecordOperations()) {
       RecordInternal.unsetDirty(txEntry.record);
     }
 
@@ -1353,7 +1323,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   }
 
   public void rollback(TransactionInternal iTx) {
-    var remoteSession = (DatabaseSessionRemote) iTx.getDatabase();
+    var remoteSession = (DatabaseSessionRemote) iTx.getDatabaseSession();
     try {
       if (((FrontendTransactionOptimistic) iTx).isStartedOnServer()
           && !getCurrentSession(remoteSession).getAllServerSessions().isEmpty()) {
@@ -1389,14 +1359,6 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
     }
   }
 
-  public int getDefaultClusterId() {
-    return defaultClusterId;
-  }
-
-  public void setDefaultClusterId(int defaultClusterId) {
-    this.defaultClusterId = defaultClusterId;
-  }
-
   public int addCluster(DatabaseSessionInternal database, final String iClusterName,
       final Object... iArguments) {
     return addCluster(database, iClusterName, -1);
@@ -1416,7 +1378,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
     stateLock.readLock().lock();
     try {
       if (clusterId < 0 || clusterId >= clusters.length) {
-        throw new StorageException("Cluster with id " + clusterId + " does not exist");
+        throw new StorageException(name, "Cluster with id " + clusterId + " does not exist");
       }
 
       final var cluster = clusters[clusterId];
@@ -1470,10 +1432,9 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   public String getClusterName(DatabaseSessionInternal database, int clusterId) {
     stateLock.readLock().lock();
     try {
-      if (clusterId == RID.CLUSTER_ID_INVALID)
-      // GET THE DEFAULT CLUSTER
-      {
-        clusterId = defaultClusterId;
+      if (clusterId == RID.CLUSTER_ID_INVALID) {
+        // GET THE DEFAULT CLUSTER
+        throw new StorageException(name, "Cluster " + clusterId + " is absent in storage.");
       }
 
       if (clusterId >= clusters.length) {
@@ -1489,7 +1450,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
       stateLock.readLock().unlock();
     }
 
-    throw new StorageException("Cluster " + clusterId + " is absent in storage.");
+    throw new StorageException(name, "Cluster " + clusterId + " is absent in storage.");
   }
 
   public boolean setClusterAttribute(int id, StorageCluster.ATTRIBUTES attribute, Object value) {
@@ -1718,7 +1679,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
     // REFILL ORIGINAL SERVER LIST
     serverURLs.reloadOriginalURLs();
 
-    throw new StorageException(
+    throw new StorageException(name,
         "Cannot create a connection to remote server address(es): " + serverURLs.getUrls());
   }
 
@@ -1865,7 +1826,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
             // REMOVE THE NETWORK CONNECTION IF ANY
             connectionManager.remove(network);
           }
-          throw BaseException.wrapException(new StorageException(e.getMessage()), e);
+          throw BaseException.wrapException(new StorageException(name, e.getMessage()), e, name);
         }
       } while (connectionManager.getReusableConnections(currentURL) > 0);
 
@@ -1878,7 +1839,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
     // REFILL ORIGINAL SERVER LIST
     serverURLs.reloadOriginalURLs();
 
-    throw new StorageException(
+    throw new StorageException(name,
         "Cannot create a connection to remote server address(es): " + serverURLs.getUrls());
   }
 
@@ -1954,8 +1915,8 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
         throw cause;
       } catch (Exception cause) {
         throw BaseException.wrapException(
-            new StorageException("Cannot open a connection to remote server: " + iCurrentURL),
-            cause);
+            new StorageException(null, "Cannot open a connection to remote server: " + iCurrentURL),
+            cause, (String) null);
       }
       if (!network.tryLock()) {
         // CANNOT LOCK IT, MAYBE HASN'T BE CORRECTLY UNLOCKED BY PREVIOUS USER?
@@ -2035,14 +1996,10 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
 
       this.clusters = clusters;
       clusterMap.clear();
-      for (var i = 0; i < clusters.length; ++i) {
-        if (clusters[i] != null) {
-          clusterMap.put(clusters[i].getName(), clusters[i]);
+      for (var cluster : clusters) {
+        if (cluster != null) {
+          clusterMap.put(cluster.getName(), cluster);
         }
-      }
-      final var defaultCluster = clusterMap.get(Storage.CLUSTER_DEFAULT_NAME);
-      if (defaultCluster != null) {
-        defaultClusterId = clusterMap.get(Storage.CLUSTER_DEFAULT_NAME).getId();
       }
     } finally {
       stateLock.writeLock().unlock();
@@ -2079,12 +2036,6 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   public StorageRemote copy(
       final DatabaseSessionRemote source, final DatabaseSessionRemote dest) {
     final var session = source.getSessionMetadata();
-    DatabaseSessionInternal origin = null;
-    if (DatabaseRecordThreadLocal.instance() != null) {
-      origin = DatabaseRecordThreadLocal.instance().getIfDefined();
-    }
-
-    origin = DatabaseDocumentTxInternal.getInternal(origin);
     if (session != null) {
       // TODO:may run a session reopen
       final var newSession =
@@ -2098,9 +2049,8 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
       openRemoteDatabase(dest);
     } catch (IOException e) {
       LogManager.instance().error(this, "Error during database open", e);
-    } finally {
-      DatabaseRecordThreadLocal.instance().set(origin);
     }
+
     return this;
   }
 
@@ -2144,7 +2094,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   }
 
   public void beginTransaction(FrontendTransactionOptimistic transaction) {
-    var database = (DatabaseSessionRemote) transaction.getDatabase();
+    var database = (DatabaseSessionRemote) transaction.getDatabaseSession();
     var request =
         new BeginTransaction38Request(database,
             transaction.getId(),
@@ -2161,7 +2111,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   }
 
   public void sendTransactionState(FrontendTransactionOptimistic transaction) {
-    var database = (DatabaseSessionRemote) transaction.getDatabase();
+    var database = (DatabaseSessionRemote) transaction.getDatabaseSession();
     var request =
         new SendTransactionStateRequest(database, transaction.getId(),
             transaction.getRecordOperations());
@@ -2222,9 +2172,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
   }
 
   public BinaryPushResponse executeUpdateSchema(PushSchemaRequest request) {
-    var schema = request.getSchema();
-    RecordInternal.setIdentity(schema, new RecordId(configuration.getSchemaRecordId()));
-    DatabaseSessionRemote.updateSchema(this, schema);
+    DatabaseSessionRemote.updateSchema(this);
     return null;
   }
 
@@ -2239,7 +2187,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
     var response = pushThread.subscribe(request,
         getCurrentSession(database));
     if (response == null) {
-      throw new DatabaseException(
+      throw new DatabaseException(name,
           "Impossible to start the live query, check server log for additional information");
     }
     registerLiveListener(response.getMonitorId(), listener);
@@ -2256,7 +2204,7 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
     var response = pushThread.subscribe(request,
         getCurrentSession(database));
     if (response == null) {
-      throw new DatabaseException(
+      throw new DatabaseException(name,
           "Impossible to start the live query, check server log for additional information");
     }
     registerLiveListener(response.getMonitorId(), listener);
@@ -2338,7 +2286,8 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
           liveListener.onError((BaseException) e);
         } else {
           liveListener.onError(
-              BaseException.wrapException(new DatabaseException("Live query disconnection "), e));
+              BaseException.wrapException(new DatabaseException(name, "Live query disconnection "),
+                  e, name));
         }
       }
     }

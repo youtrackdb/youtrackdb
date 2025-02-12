@@ -19,16 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.operator;
 
-import com.jetbrains.youtrack.db.internal.common.util.RawPair;
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.common.util.RawPair;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionMultiValue;
-import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
 import com.jetbrains.youtrack.db.internal.core.index.PropertyMapIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
 import java.util.List;
@@ -90,13 +88,13 @@ public class QueryOperatorContainsKey extends QueryOperatorEqualityNotNulls {
 
       final var key =
           ((IndexDefinitionMultiValue) indexDefinition)
-              .createSingleValue(iContext.getDatabase(), keyParams.get(0));
+              .createSingleValue(iContext.getDatabaseSession(), keyParams.get(0));
 
       if (key == null) {
         return null;
       }
 
-      stream = index.getInternal().getRids(iContext.getDatabase(), key)
+      stream = index.getInternal().getRids(iContext.getDatabaseSession(), key)
           .map((rid) -> new RawPair<>(key, rid));
     } else {
       // in case of composite keys several items can be returned in case of we perform search
@@ -114,7 +112,7 @@ public class QueryOperatorContainsKey extends QueryOperatorEqualityNotNulls {
       }
 
       final Object keyOne =
-          compositeIndexDefinition.createSingleValue(iContext.getDatabase(), keyParams);
+          compositeIndexDefinition.createSingleValue(iContext.getDatabaseSession(), keyParams);
 
       if (keyOne == null) {
         return null;
@@ -122,13 +120,13 @@ public class QueryOperatorContainsKey extends QueryOperatorEqualityNotNulls {
 
       if (internalIndex.hasRangeQuerySupport()) {
         final Object keyTwo =
-            compositeIndexDefinition.createSingleValue(iContext.getDatabase(), keyParams);
+            compositeIndexDefinition.createSingleValue(iContext.getDatabaseSession(), keyParams);
         stream = index.getInternal()
-            .streamEntriesBetween(iContext.getDatabase(), keyOne, true, keyTwo, true,
+            .streamEntriesBetween(iContext.getDatabaseSession(), keyOne, true, keyTwo, true,
                 ascSortOrder);
       } else {
         if (indexDefinition.getParamCount() == keyParams.size()) {
-          stream = index.getInternal().getRids(iContext.getDatabase(), keyOne)
+          stream = index.getInternal().getRids(iContext.getDatabaseSession(), keyOne)
               .map((rid) -> new RawPair<>(keyOne, rid));
         } else {
           return null;

@@ -27,6 +27,7 @@ import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import java.util.HashSet;
@@ -36,28 +37,29 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-/**
- *
- */
 public class EdgeDelegate implements EdgeInternal {
-
   protected Vertex vOut;
   protected Vertex vIn;
   protected SchemaImmutableClass lightweightEdgeType;
   protected String lightwightEdgeLabel;
 
   protected EntityImpl entity;
+  protected final DatabaseSessionInternal session;
 
-  public EdgeDelegate(
-      Vertex out, Vertex in, SchemaImmutableClass lightweightEdgeType, String edgeLabel) {
+  public EdgeDelegate(DatabaseSessionInternal session,
+      Vertex out, Vertex in,
+      SchemaImmutableClass lightweightEdgeType,
+      String edgeLabel) {
     vOut = out;
     vIn = in;
     this.lightweightEdgeType = lightweightEdgeType;
     this.lightwightEdgeLabel = edgeLabel;
+    this.session = session;
   }
 
   public EdgeDelegate(EntityImpl elem) {
     this.entity = elem;
+    this.session = elem.getSession();
   }
 
   @Override
@@ -97,10 +99,9 @@ public class EdgeDelegate implements EdgeInternal {
     assert result != null;
 
     var id = result.getIdentity();
-    var db = entity.getSession();
-    var schema = db.getMetadata().getSchema();
+    var schema = session.getMetadata().getSchema();
 
-    if (schema.getClassByClusterId(id.getClusterId()).isVertexType()) {
+    if (schema.getClassByClusterId(id.getClusterId()).isVertexType(session)) {
       return id;
     }
 
@@ -153,7 +154,7 @@ public class EdgeDelegate implements EdgeInternal {
     var id = result.getIdentity();
     var schema = entity.getSession().getMetadata().getSchema();
 
-    if (schema.getClassByClusterId(id.getClusterId()).isVertexType()) {
+    if (schema.getClassByClusterId(id.getClusterId()).isVertexType(session)) {
       return id;
     }
 
@@ -169,7 +170,7 @@ public class EdgeDelegate implements EdgeInternal {
     if (entity != null) {
       entity.delete();
     } else {
-      EdgeEntityImpl.deleteLinks(this);
+      EdgeEntityImpl.deleteLinks(session, this);
     }
   }
 
@@ -228,6 +229,16 @@ public class EdgeDelegate implements EdgeInternal {
     return entity.getSchemaClass();
   }
 
+  @Nullable
+  @Override
+  public String getClassName() {
+    if (entity == null) {
+      return lightweightEdgeType.getName(session);
+    }
+
+    return entity.getClassName();
+  }
+
   public boolean isLabeled(String[] labels) {
     if (labels == null) {
       return true;
@@ -239,10 +250,10 @@ public class EdgeDelegate implements EdgeInternal {
 
     var typeClass = getSchemaType();
     if (typeClass.isPresent()) {
-      types.add(typeClass.get().getName());
+      types.add(typeClass.get().getName(session));
       typeClass.get().getAllSuperClasses().stream()
-          .map(x -> x.getName())
-          .forEach(name -> types.add(name));
+          .map(x -> x.getName(session))
+          .forEach(types::add);
     } else {
       if (lightwightEdgeLabel != null) {
         types.add(lightwightEdgeLabel);
@@ -369,7 +380,7 @@ public class EdgeDelegate implements EdgeInternal {
           + "\", \"in\":\""
           + vIn.getIdentity()
           + "\", \"@class\":\""
-          + StringSerializerHelper.encode(lightweightEdgeType.getName())
+          + StringSerializerHelper.encode(lightweightEdgeType.getName(session))
           + "\"}";
     }
   }
@@ -384,7 +395,7 @@ public class EdgeDelegate implements EdgeInternal {
           + "\", \"in\":\""
           + vIn.getIdentity()
           + "\", \"@class\":\""
-          + StringSerializerHelper.encode(lightweightEdgeType.getName())
+          + StringSerializerHelper.encode(lightweightEdgeType.getName(session))
           + "\"}";
     }
   }
@@ -422,47 +433,12 @@ public class EdgeDelegate implements EdgeInternal {
       return entity.isNotBound(session);
     }
 
-    return false;
-  }
-
-  @Override
-  public String toString() {
-    if (entity != null) {
-      return entity.toString();
-    } else {
-      var result = new StringBuilder();
-      var first = true;
-      result.append("{");
-      if (lightweightEdgeType != null) {
-        result.append("class: " + lightweightEdgeType.getName());
-        first = false;
-      }
-      if (vOut != null) {
-        if (!first) {
-          result.append(", ");
-        }
-        result.append("out: " + vOut.getIdentity());
-        first = false;
-      }
-      if (vIn != null) {
-        if (!first) {
-          result.append(", ");
-        }
-        result.append("in: " + vIn.getIdentity());
-        first = false;
-      }
-      result.append("} (lightweight)");
-      return result.toString();
-    }
+    return this.session != session;
   }
 
   @Nullable
   @Override
   public DatabaseSession getBoundedToSession() {
-    if (entity != null) {
-      return entity.getBoundedToSession();
-    }
-
-    return null;
+    return session;
   }
 }

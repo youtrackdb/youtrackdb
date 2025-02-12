@@ -18,7 +18,6 @@ package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.util.PatternConst;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
@@ -61,10 +60,10 @@ public class ServerCommandGetFileDownload extends ServerCommandAuthenticatedDbAb
     iRequest.getData().commandDetail = rid;
 
     final RecordAbstract response;
-    var db = getProfiledDatabaseInstance(iRequest);
+    var session = getProfiledDatabaseSessionInstance(iRequest);
     try {
       try {
-        response = db.load(new RecordId(rid));
+        response = session.load(new RecordId(rid));
         if (response instanceof Blob) {
           sendORecordBinaryFileContent(
               iResponse,
@@ -75,15 +74,16 @@ public class ServerCommandGetFileDownload extends ServerCommandAuthenticatedDbAb
               fileName);
         } else if (response instanceof EntityImpl) {
           for (var prop :
-              EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) response)).properties(db)) {
-            if (prop.getType().equals(PropertyType.BINARY)) {
+              EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) response))
+                  .properties(session)) {
+            if (prop.getType(session).equals(PropertyType.BINARY)) {
               sendBinaryFieldFileContent(
                   iRequest,
                   iResponse,
                   HttpUtils.STATUS_OK_CODE,
                   HttpUtils.STATUS_OK_DESCRIPTION,
                   fileType,
-                  ((EntityImpl) response).field(prop.getName()),
+                  ((EntityImpl) response).field(prop.getName(session)),
                   fileName);
             }
           }
@@ -104,8 +104,8 @@ public class ServerCommandGetFileDownload extends ServerCommandAuthenticatedDbAb
           e.getMessage(),
           null);
     } finally {
-      if (db != null) {
-        db.close();
+      if (session != null) {
+        session.close();
       }
     }
 

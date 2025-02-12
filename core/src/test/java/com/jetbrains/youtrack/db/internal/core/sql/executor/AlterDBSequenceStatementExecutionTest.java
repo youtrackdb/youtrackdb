@@ -24,10 +24,10 @@ public class AlterDBSequenceStatementExecutionTest extends DbTestBase {
   @Test
   public void testSetIncrement() {
     var sequenceName = "testSetStart";
-    db.executeInTx(
+    session.executeInTx(
         () -> {
           try {
-            db.getMetadata()
+            session.getMetadata()
                 .getSequenceLibrary()
                 .createSequence(
                     sequenceName, DBSequence.SEQUENCE_TYPE.ORDERED, new DBSequence.CreateParams());
@@ -36,22 +36,22 @@ public class AlterDBSequenceStatementExecutionTest extends DbTestBase {
           }
         });
 
-    db.begin();
-    var result = db.command("alter sequence " + sequenceName + " increment 20");
+    session.begin();
+    var result = session.command("alter sequence " + sequenceName + " increment 20");
     Assert.assertNotNull(result);
     Assert.assertTrue(result.hasNext());
     var next = result.next();
     Assert.assertNotNull(next);
     Assert.assertEquals((Object) 20, next.getProperty("increment"));
     result.close();
-    db.commit();
+    session.commit();
 
-    db.executeInTx(
+    session.executeInTx(
         () -> {
-          var seq = db.getMetadata().getSequenceLibrary().getSequence(sequenceName);
+          var seq = session.getMetadata().getSequenceLibrary().getSequence(sequenceName);
           Assert.assertNotNull(seq);
           try {
-            Assert.assertEquals(20, seq.next(db));
+            Assert.assertEquals(20, seq.next(session));
           } catch (DatabaseException exc) {
             Assert.fail("Failed to call next");
           }

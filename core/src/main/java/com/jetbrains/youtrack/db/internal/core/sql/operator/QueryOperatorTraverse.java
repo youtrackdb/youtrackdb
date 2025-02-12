@@ -104,14 +104,14 @@ public class QueryOperatorTraverse extends QueryOperatorEqualityNotNulls {
       }
 
       // TRANSFORM THE RID IN ODOCUMENT
-      iTarget = ((Identifiable) iTarget).getRecord(iContext.getDatabase());
+      iTarget = ((Identifiable) iTarget).getRecord(iContext.getDatabaseSession());
     }
 
     if (iTarget instanceof EntityImpl target) {
 
       iEvaluatedRecords.add(target.getIdentity());
 
-      var db = iContext.getDatabase();
+      var db = iContext.getDatabaseSession();
       if (target.isNotBound(db)) {
         try {
           target = db.bindToSession(target);

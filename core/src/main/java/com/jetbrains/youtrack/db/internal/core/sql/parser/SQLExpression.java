@@ -426,7 +426,7 @@ public class SQLExpression extends SimpleNode {
 
   public SQLExpression splitForAggregation(
       AggregateProjectionSplit aggregateSplit, CommandContext ctx) {
-    var database = ctx.getDatabase();
+    var database = ctx.getDatabaseSession();
     if (isAggregate(database)) {
       var result = new SQLExpression(-1);
       if (mathExpression != null) {
@@ -467,7 +467,7 @@ public class SQLExpression extends SimpleNode {
     } else if (arrayConcatExpression != null) {
       return arrayConcatExpression.getAggregationContext(ctx);
     } else {
-      throw new CommandExecutionException("Cannot aggregate on " + this);
+      throw new CommandExecutionException(ctx.getDatabaseSession(), "Cannot aggregate on " + this);
     }
   }
 
@@ -606,7 +606,7 @@ public class SQLExpression extends SimpleNode {
     if (mathExpression != null) {
       mathExpression.applyRemove(result, ctx);
     } else {
-      throw new CommandExecutionException("Cannot apply REMOVE " + this);
+      throw new CommandExecutionException(ctx.getDatabaseSession(), "Cannot apply REMOVE " + this);
     }
   }
 

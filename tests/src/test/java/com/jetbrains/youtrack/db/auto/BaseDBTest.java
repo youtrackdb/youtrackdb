@@ -79,35 +79,35 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
   }
 
   protected List<Result> executeQuery(String sql, Object... args) {
-    return db.query(sql, args).stream()
+    return session.query(sql, args).stream()
         .toList();
   }
 
   protected List<Result> executeQuery(String sql, Map<?, ?> args) {
-    return db.query(sql, args).stream()
+    return session.query(sql, args).stream()
         .toList();
   }
 
   protected List<Result> executeQuery(String sql) {
-    return db.query(sql).stream()
+    return session.query(sql).stream()
         .toList();
   }
 
   protected void addBarackObamaAndFollowers() {
     createProfileClass();
 
-    db.begin();
-    if (db.query("select from Profile where name = 'Barack' and surname = 'Obama'").stream()
+    session.begin();
+    if (session.query("select from Profile where name = 'Barack' and surname = 'Obama'").stream()
         .findAny()
         .isEmpty()) {
 
-      var bObama = db.newEntity("Profile");
+      var bObama = session.newEntity("Profile");
       bObama.setProperty("nick", "ThePresident");
       bObama.setProperty("name", "Barack");
       bObama.setProperty("surname", "Obama");
       bObama.getOrCreateLinkSet("followings");
 
-      var follower1 = db.newEntity("Profile");
+      var follower1 = session.newEntity("Profile");
       follower1.setProperty("nick", "PresidentSon1");
       follower1.setProperty("name", "Malia Ann");
       follower1.setProperty("surname", "Obama");
@@ -115,7 +115,7 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
       follower1.getOrCreateLinkSet("followings").add(bObama);
       follower1.getOrCreateLinkSet("followers");
 
-      var follower2 = db.newEntity("Profile");
+      var follower2 = session.newEntity("Profile");
       follower2.setProperty("nick", "PresidentSon2");
       follower2.setProperty("name", "Natasha");
       follower2.setProperty("surname", "Obama");
@@ -130,7 +130,7 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
       bObama.save();
     }
 
-    db.commit();
+    session.commit();
   }
 
   protected void fillInAccountData() {
@@ -143,19 +143,19 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
     createAccountClass();
 
     final Set<Integer> accountClusterIds =
-        Arrays.stream(db.getMetadata().getSchema().getClass("Account").getClusterIds())
+        Arrays.stream(session.getMetadata().getSchema().getClass("Account").getClusterIds(session))
             .asLongStream()
             .mapToObj(i -> (int) i)
             .collect(HashSet::new, HashSet::add, HashSet::addAll);
 
-    if (db.query("select count(*) as count from Account").stream()
+    if (session.query("select count(*) as count from Account").stream()
         .findFirst()
         .orElseThrow()
         .<Long>getProperty("count")
         == 0) {
       for (var id : ids) {
-        db.begin();
-        var element = db.newEntity("Account");
+        session.begin();
+        var element = session.newEntity("Account");
         element.setProperty("id", id);
         element.setProperty("name", "Gipsy");
         element.setProperty("location", "Italy");
@@ -173,7 +173,7 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
         if (!remoteDB) {
           Assert.assertTrue(accountClusterIds.contains(element.getIdentity().getClusterId()));
         }
-        db.commit();
+        session.commit();
       }
     }
   }
@@ -183,20 +183,20 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
     createCountryClass();
     createCityClass();
 
-    db.executeInTx(
+    session.executeInTx(
         () -> {
           addGaribaldiAndBonaparte();
           addBarackObamaAndFollowers();
 
           var count =
-              db.query("select count(*) as count from Profile").stream()
+              session.query("select count(*) as count from Profile").stream()
                   .findFirst()
                   .orElseThrow()
                   .<Long>getProperty("count");
 
           if (count < 1_000) {
             for (var i = 0; i < 1_000 - count; i++) {
-              var profile = db.newEntity("Profile");
+              var profile = session.newEntity("Profile");
               profile.setProperty("nick", "generatedNick" + i);
               profile.setProperty("name", "generatedName" + i);
               profile.setProperty("surname", "generatedSurname" + i);
@@ -207,33 +207,33 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
   }
 
   protected void addGaribaldiAndBonaparte() {
-    db.executeInTx(
+    session.executeInTx(
         () -> {
-          if (db.query("select from Profile where nick = 'NBonaparte'").stream()
+          if (session.query("select from Profile where nick = 'NBonaparte'").stream()
               .findAny()
               .isPresent()) {
             return;
           }
 
           var rome = addRome();
-          var garibaldi = db.newInstance("Profile");
+          var garibaldi = session.newInstance("Profile");
           garibaldi.setProperty("nick", "GGaribaldi");
           garibaldi.setProperty("name", "Giuseppe");
           garibaldi.setProperty("surname", "Garibaldi");
 
-          var gAddress = db.newInstance("Address");
+          var gAddress = session.newInstance("Address");
           gAddress.setProperty("type", "Residence");
           gAddress.setProperty("street", "Piazza Navona, 1");
           gAddress.setProperty("city", rome);
           garibaldi.setProperty("location", gAddress);
 
-          var bonaparte = db.newInstance("Profile");
+          var bonaparte = session.newInstance("Profile");
           bonaparte.setProperty("nick", "NBonaparte");
           bonaparte.setProperty("name", "Napoleone");
           bonaparte.setProperty("surname", "Bonaparte");
           bonaparte.setProperty("invitedBy", garibaldi);
 
-          var bnAddress = db.newInstance("Address");
+          var bnAddress = session.newInstance("Address");
           bnAddress.setProperty("type", "Residence");
           bnAddress.setProperty("street", "Piazza di Spagna, 111");
           bnAddress.setProperty("city", rome);
@@ -244,10 +244,10 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
   }
 
   private Entity addRome() {
-    return db.computeInTx(
+    return session.computeInTx(
         () -> {
           var italy = addItaly();
-          var city = db.newInstance("City");
+          var city = session.newInstance("City");
           city.setProperty("name", "Rome");
           city.setProperty("country", italy);
           city.save();
@@ -257,9 +257,9 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
   }
 
   private Entity addItaly() {
-    return db.computeInTx(
+    return session.computeInTx(
         () -> {
-          var italy = db.newEntity("Country");
+          var italy = session.newEntity("Country");
           italy.setProperty("name", "Italy");
           italy.save();
 
@@ -271,7 +271,7 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
     fillInAccountData();
     createCompanyClass();
 
-    if (db.query("select count(*) as count from Company").stream()
+    if (session.query("select count(*) as count from Company").stream()
         .findFirst()
         .orElseThrow()
         .<Long>getProperty("count")
@@ -282,171 +282,171 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
     var address = createRedmondAddress();
 
     for (var i = 0; i < TOT_COMPANY_RECORDS; ++i) {
-      db.begin();
-      var company = db.newInstance("Company");
+      session.begin();
+      var company = session.newInstance("Company");
       company.setProperty("id", i);
       company.setProperty("name", "Microsoft" + i);
       company.setProperty("employees", 100000 + i);
       company.setProperty("salary", 1000000000.0f + i);
 
       var addresses = new ArrayList<Entity>();
-      addresses.add(db.bindToSession(address));
+      addresses.add(session.bindToSession(address));
       company.setProperty("addresses", addresses);
-      db.commit();
+      session.commit();
     }
   }
 
   protected Entity createRedmondAddress() {
-    db.begin();
-    var washington = db.newInstance("Country");
+    session.begin();
+    var washington = session.newInstance("Country");
     washington.setProperty("name", "Washington");
     washington.save();
 
-    var redmond = db.newInstance("City");
+    var redmond = session.newInstance("City");
     redmond.setProperty("name", "Redmond");
     redmond.setProperty("country", washington);
     redmond.save();
 
-    var address = db.newInstance("Address");
+    var address = session.newInstance("Address");
     address.setProperty("type", "Headquarter");
     address.setProperty("city", redmond);
     address.setProperty("street", "WA 98073-9717");
     address.save();
 
-    db.commit();
+    session.commit();
     return address;
   }
 
   protected SchemaClass createCountryClass() {
-    if (db.getClass("Country") != null) {
-      return db.getClass("Country");
+    if (session.getClass("Country") != null) {
+      return session.getClass("Country");
     }
 
-    var cls = db.createClass("Country");
-    cls.createProperty(db, "name", PropertyType.STRING);
+    var cls = session.createClass("Country");
+    cls.createProperty(session, "name", PropertyType.STRING);
     return cls;
   }
 
   protected SchemaClass createCityClass() {
     var countryCls = createCountryClass();
 
-    if (db.getClass("City") != null) {
-      return db.getClass("City");
+    if (session.getClass("City") != null) {
+      return session.getClass("City");
     }
 
-    var cls = db.createClass("City");
-    cls.createProperty(db, "name", PropertyType.STRING);
-    cls.createProperty(db, "country", PropertyType.LINK, countryCls);
+    var cls = session.createClass("City");
+    cls.createProperty(session, "name", PropertyType.STRING);
+    cls.createProperty(session, "country", PropertyType.LINK, countryCls);
 
     return cls;
   }
 
   protected SchemaClass createAddressClass() {
-    if (db.getClass("Address") != null) {
-      return db.getClass("Address");
+    if (session.getClass("Address") != null) {
+      return session.getClass("Address");
     }
 
     var cityCls = createCityClass();
-    var cls = db.createClass("Address");
-    cls.createProperty(db, "type", PropertyType.STRING);
-    cls.createProperty(db, "street", PropertyType.STRING);
-    cls.createProperty(db, "city", PropertyType.LINK, cityCls);
+    var cls = session.createClass("Address");
+    cls.createProperty(session, "type", PropertyType.STRING);
+    cls.createProperty(session, "street", PropertyType.STRING);
+    cls.createProperty(session, "city", PropertyType.LINK, cityCls);
 
     return cls;
   }
 
   protected SchemaClass createAccountClass() {
-    if (db.getClass("Account") != null) {
-      return db.getClass("Account");
+    if (session.getClass("Account") != null) {
+      return session.getClass("Account");
     }
 
     var addressCls = createAddressClass();
-    var cls = db.createClass("Account");
-    cls.createProperty(db, "id", PropertyType.INTEGER);
-    cls.createProperty(db, "name", PropertyType.STRING);
-    cls.createProperty(db, "surname", PropertyType.STRING);
-    cls.createProperty(db, "birthDate", PropertyType.DATE);
-    cls.createProperty(db, "salary", PropertyType.FLOAT);
-    cls.createProperty(db, "addresses", PropertyType.LINKLIST, addressCls);
-    cls.createProperty(db, "thumbnail", PropertyType.BINARY);
-    cls.createProperty(db, "photo", PropertyType.BINARY);
+    var cls = session.createClass("Account");
+    cls.createProperty(session, "id", PropertyType.INTEGER);
+    cls.createProperty(session, "name", PropertyType.STRING);
+    cls.createProperty(session, "surname", PropertyType.STRING);
+    cls.createProperty(session, "birthDate", PropertyType.DATE);
+    cls.createProperty(session, "salary", PropertyType.FLOAT);
+    cls.createProperty(session, "addresses", PropertyType.LINKLIST, addressCls);
+    cls.createProperty(session, "thumbnail", PropertyType.BINARY);
+    cls.createProperty(session, "photo", PropertyType.BINARY);
 
     return cls;
   }
 
   protected void createCompanyClass() {
-    if (db.getClass("Company") != null) {
+    if (session.getClass("Company") != null) {
       return;
     }
 
     createAccountClass();
-    var cls = db.createClassIfNotExist("Company", "Account");
-    cls.createProperty(db, "employees", PropertyType.INTEGER);
+    var cls = session.createClassIfNotExist("Company", "Account");
+    cls.createProperty(session, "employees", PropertyType.INTEGER);
   }
 
   protected void createProfileClass() {
-    if (db.getClass("Profile") != null) {
+    if (session.getClass("Profile") != null) {
       return;
     }
 
     var addressCls = createAddressClass();
-    var cls = db.createClass("Profile");
-    cls.createProperty(db, "nick", PropertyType.STRING)
-        .setMin(db, "3")
-        .setMax(db, "30")
-        .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE,
+    var cls = session.createClass("Profile");
+    cls.createProperty(session, "nick", PropertyType.STRING)
+        .setMin(session, "3")
+        .setMax(session, "30")
+        .createIndex(session, SchemaClass.INDEX_TYPE.UNIQUE,
             Map.of("ignoreNullValues", true));
-    cls.createProperty(db, "followings", PropertyType.LINKSET, cls);
-    cls.createProperty(db, "followers", PropertyType.LINKSET, cls);
-    cls.createProperty(db, "name", PropertyType.STRING)
-        .setMin(db, "3")
-        .setMax(db, "30")
-        .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+    cls.createProperty(session, "followings", PropertyType.LINKSET, cls);
+    cls.createProperty(session, "followers", PropertyType.LINKSET, cls);
+    cls.createProperty(session, "name", PropertyType.STRING)
+        .setMin(session, "3")
+        .setMax(session, "30")
+        .createIndex(session, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
-    cls.createProperty(db, "surname", PropertyType.STRING).setMin(db, "3")
-        .setMax(db, "30");
-    cls.createProperty(db, "location", PropertyType.LINK, addressCls);
-    cls.createProperty(db, "hash", PropertyType.LONG);
-    cls.createProperty(db, "invitedBy", PropertyType.LINK, cls);
-    cls.createProperty(db, "value", PropertyType.INTEGER);
+    cls.createProperty(session, "surname", PropertyType.STRING).setMin(session, "3")
+        .setMax(session, "30");
+    cls.createProperty(session, "location", PropertyType.LINK, addressCls);
+    cls.createProperty(session, "hash", PropertyType.LONG);
+    cls.createProperty(session, "invitedBy", PropertyType.LINK, cls);
+    cls.createProperty(session, "value", PropertyType.INTEGER);
 
-    cls.createProperty(db, "registeredOn", PropertyType.DATETIME)
-        .setMin(db, "2010-01-01 00:00:00");
-    cls.createProperty(db, "lastAccessOn", PropertyType.DATETIME)
-        .setMin(db, "2010-01-01 00:00:00");
-    cls.createProperty(db, "photo", PropertyType.TRANSIENT);
+    cls.createProperty(session, "registeredOn", PropertyType.DATETIME)
+        .setMin(session, "2010-01-01 00:00:00");
+    cls.createProperty(session, "lastAccessOn", PropertyType.DATETIME)
+        .setMin(session, "2010-01-01 00:00:00");
+    cls.createProperty(session, "photo", PropertyType.TRANSIENT);
   }
 
   protected SchemaClass createInheritanceTestAbstractClass() {
-    if (db.getClass("InheritanceTestAbstractClass") != null) {
-      return db.getClass("InheritanceTestAbstractClass");
+    if (session.getClass("InheritanceTestAbstractClass") != null) {
+      return session.getClass("InheritanceTestAbstractClass");
     }
 
-    var cls = db.createClass("InheritanceTestAbstractClass");
-    cls.createProperty(db, "cField", PropertyType.INTEGER);
+    var cls = session.createClass("InheritanceTestAbstractClass");
+    cls.createProperty(session, "cField", PropertyType.INTEGER);
     return cls;
   }
 
   protected SchemaClass createInheritanceTestBaseClass() {
-    if (db.getClass("InheritanceTestBaseClass") != null) {
-      return db.getClass("InheritanceTestBaseClass");
+    if (session.getClass("InheritanceTestBaseClass") != null) {
+      return session.getClass("InheritanceTestBaseClass");
     }
 
     var abstractCls = createInheritanceTestAbstractClass();
-    var cls = db.createClass("InheritanceTestBaseClass", abstractCls.getName());
-    cls.createProperty(db, "aField", PropertyType.STRING);
+    var cls = session.createClass("InheritanceTestBaseClass", abstractCls.getName(session));
+    cls.createProperty(session, "aField", PropertyType.STRING);
 
     return cls;
   }
 
   protected void createInheritanceTestClass() {
-    if (db.getClass("InheritanceTestClass") != null) {
+    if (session.getClass("InheritanceTestClass") != null) {
       return;
     }
 
     var baseCls = createInheritanceTestBaseClass();
-    var cls = db.createClass("InheritanceTestClass", baseCls.getName());
-    cls.createProperty(db, "bField", PropertyType.STRING);
+    var cls = session.createClass("InheritanceTestClass", baseCls.getName(session));
+    cls.createProperty(session, "bField", PropertyType.STRING);
   }
 
   protected void createBasicTestSchema() {
@@ -460,165 +460,167 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
     createAnimalRaceClass();
     createWhizClass();
 
-    if (db.getClusterIdByName("csv") == -1) {
-      db.addCluster("csv");
+    if (session.getClusterIdByName("csv") == -1) {
+      session.addCluster("csv");
     }
 
-    if (db.getClusterIdByName("flat") == -1) {
-      db.addCluster("flat");
+    if (session.getClusterIdByName("flat") == -1) {
+      session.addCluster("flat");
     }
 
-    if (db.getClusterIdByName("binary") == -1) {
-      db.addCluster("binary");
+    if (session.getClusterIdByName("binary") == -1) {
+      session.addCluster("binary");
     }
   }
 
   private void createWhizClass() {
     var account = createAccountClass();
-    if (db.getMetadata().getSchema().existsClass("Whiz")) {
+    if (session.getMetadata().getSchema().existsClass("Whiz")) {
       return;
     }
 
-    var whiz = db.getMetadata().getSchema()
+    var whiz = session.getMetadata().getSchema()
         .createClass("Whiz", 1, (SchemaClass[]) null);
-    whiz.createProperty(db, "id", PropertyType.INTEGER);
-    whiz.createProperty(db, "account", PropertyType.LINK, account);
-    whiz.createProperty(db, "date", PropertyType.DATE).setMin(db, "2010-01-01");
-    whiz.createProperty(db, "text", PropertyType.STRING).setMandatory(db, true)
-        .setMin(db, "1")
-        .setMax(db, "140");
-    whiz.createProperty(db, "replyTo", PropertyType.LINK, account);
+    whiz.createProperty(session, "id", PropertyType.INTEGER);
+    whiz.createProperty(session, "account", PropertyType.LINK, account);
+    whiz.createProperty(session, "date", PropertyType.DATE).setMin(session, "2010-01-01");
+    whiz.createProperty(session, "text", PropertyType.STRING).setMandatory(session, true)
+        .setMin(session, "1")
+        .setMax(session, "140");
+    whiz.createProperty(session, "replyTo", PropertyType.LINK, account);
   }
 
   private void createAnimalRaceClass() {
-    if (db.getMetadata().getSchema().existsClass("AnimalRace")) {
+    if (session.getMetadata().getSchema().existsClass("AnimalRace")) {
       return;
     }
 
     var animalRace =
-        db.getMetadata().getSchema().createClass("AnimalRace", 1, (SchemaClass[]) null);
-    animalRace.createProperty(db, "name", PropertyType.STRING);
-    var animal = db.getMetadata().getSchema()
+        session.getMetadata().getSchema().createClass("AnimalRace", 1, (SchemaClass[]) null);
+    animalRace.createProperty(session, "name", PropertyType.STRING);
+    var animal = session.getMetadata().getSchema()
         .createClass("Animal", 1, (SchemaClass[]) null);
-    animal.createProperty(db, "races", PropertyType.LINKSET, animalRace);
-    animal.createProperty(db, "name", PropertyType.STRING);
+    animal.createProperty(session, "races", PropertyType.LINKSET, animalRace);
+    animal.createProperty(session, "name", PropertyType.STRING);
   }
 
   private void createStrictTestClass() {
-    if (db.getMetadata().getSchema().existsClass("StrictTest")) {
+    if (session.getMetadata().getSchema().existsClass("StrictTest")) {
       return;
     }
 
     var strictTest =
-        db.getMetadata().getSchema().createClass("StrictTest", 1, (SchemaClass[]) null);
-    strictTest.setStrictMode(db, true);
-    strictTest.createProperty(db, "id", PropertyType.INTEGER).isMandatory();
-    strictTest.createProperty(db, "name", PropertyType.STRING);
+        session.getMetadata().getSchema().createClass("StrictTest", 1, (SchemaClass[]) null);
+    strictTest.setStrictMode(session, true);
+    strictTest.createProperty(session, "id", PropertyType.INTEGER).isMandatory(session);
+    strictTest.createProperty(session, "name", PropertyType.STRING);
   }
 
   protected void createComplexTestClass() {
-    if (db.getSchema().existsClass("JavaComplexTestClass")) {
-      db.getSchema().dropClass("JavaComplexTestClass");
+    if (session.getSchema().existsClass("JavaComplexTestClass")) {
+      session.getSchema().dropClass("JavaComplexTestClass");
     }
-    if (db.getSchema().existsClass("Child")) {
-      db.getSchema().dropClass("Child");
+    if (session.getSchema().existsClass("Child")) {
+      session.getSchema().dropClass("Child");
     }
 
-    var childCls = db.createClass("Child");
-    childCls.createProperty(db, "name", PropertyType.STRING);
+    var childCls = session.createClass("Child");
+    childCls.createProperty(session, "name", PropertyType.STRING);
 
-    var cls = db.createClass("JavaComplexTestClass");
+    var cls = session.createClass("JavaComplexTestClass");
 
-    cls.createProperty(db, "embeddedDocument", PropertyType.EMBEDDED);
-    cls.createProperty(db, "document", PropertyType.LINK);
-    cls.createProperty(db, "byteArray", PropertyType.LINK);
-    cls.createProperty(db, "name", PropertyType.STRING);
-    cls.createProperty(db, "child", PropertyType.LINK, childCls);
-    cls.createProperty(db, "stringMap", PropertyType.EMBEDDEDMAP);
-    cls.createProperty(db, "stringListMap", PropertyType.EMBEDDEDMAP);
-    cls.createProperty(db, "list", PropertyType.LINKLIST, childCls);
-    cls.createProperty(db, "set", PropertyType.LINKSET, childCls);
-    cls.createProperty(db, "duplicationTestSet", PropertyType.LINKSET, childCls);
-    cls.createProperty(db, "children", PropertyType.LINKMAP, childCls);
-    cls.createProperty(db, "stringSet", PropertyType.EMBEDDEDSET);
-    cls.createProperty(db, "embeddedList", PropertyType.EMBEDDEDLIST);
-    cls.createProperty(db, "embeddedSet", PropertyType.EMBEDDEDSET);
-    cls.createProperty(db, "embeddedChildren", PropertyType.EMBEDDEDMAP);
-    cls.createProperty(db, "mapObject", PropertyType.EMBEDDEDMAP);
+    cls.createProperty(session, "embeddedDocument", PropertyType.EMBEDDED);
+    cls.createProperty(session, "document", PropertyType.LINK);
+    cls.createProperty(session, "byteArray", PropertyType.LINK);
+    cls.createProperty(session, "name", PropertyType.STRING);
+    cls.createProperty(session, "child", PropertyType.LINK, childCls);
+    cls.createProperty(session, "stringMap", PropertyType.EMBEDDEDMAP);
+    cls.createProperty(session, "stringListMap", PropertyType.EMBEDDEDMAP);
+    cls.createProperty(session, "list", PropertyType.LINKLIST, childCls);
+    cls.createProperty(session, "set", PropertyType.LINKSET, childCls);
+    cls.createProperty(session, "duplicationTestSet", PropertyType.LINKSET, childCls);
+    cls.createProperty(session, "children", PropertyType.LINKMAP, childCls);
+    cls.createProperty(session, "stringSet", PropertyType.EMBEDDEDSET);
+    cls.createProperty(session, "embeddedList", PropertyType.EMBEDDEDLIST);
+    cls.createProperty(session, "embeddedSet", PropertyType.EMBEDDEDSET);
+    cls.createProperty(session, "embeddedChildren", PropertyType.EMBEDDEDMAP);
+    cls.createProperty(session, "mapObject", PropertyType.EMBEDDEDMAP);
   }
 
   protected void createSimpleTestClass() {
-    if (db.getSchema().existsClass("JavaSimpleTestClass")) {
-      db.getSchema().dropClass("JavaSimpleTestClass");
+    if (session.getSchema().existsClass("JavaSimpleTestClass")) {
+      session.getSchema().dropClass("JavaSimpleTestClass");
     }
 
-    var cls = db.createClass("JavaSimpleTestClass");
-    cls.createProperty(db, "text", PropertyType.STRING).setDefaultValue(db, "initTest");
-    cls.createProperty(db, "numberSimple", PropertyType.INTEGER)
-        .setDefaultValue(db, "0");
-    cls.createProperty(db, "longSimple", PropertyType.LONG).setDefaultValue(db, "0");
-    cls.createProperty(db, "doubleSimple", PropertyType.DOUBLE)
-        .setDefaultValue(db, "0");
-    cls.createProperty(db, "floatSimple", PropertyType.FLOAT).setDefaultValue(db, "0");
-    cls.createProperty(db, "byteSimple", PropertyType.BYTE).setDefaultValue(db, "0");
-    cls.createProperty(db, "shortSimple", PropertyType.SHORT).setDefaultValue(db, "0");
-    cls.createProperty(db, "dateField", PropertyType.DATETIME);
+    var cls = session.createClass("JavaSimpleTestClass");
+    cls.createProperty(session, "text", PropertyType.STRING).setDefaultValue(session, "initTest");
+    cls.createProperty(session, "numberSimple", PropertyType.INTEGER)
+        .setDefaultValue(session, "0");
+    cls.createProperty(session, "longSimple", PropertyType.LONG).setDefaultValue(session, "0");
+    cls.createProperty(session, "doubleSimple", PropertyType.DOUBLE)
+        .setDefaultValue(session, "0");
+    cls.createProperty(session, "floatSimple", PropertyType.FLOAT).setDefaultValue(session, "0");
+    cls.createProperty(session, "byteSimple", PropertyType.BYTE).setDefaultValue(session, "0");
+    cls.createProperty(session, "shortSimple", PropertyType.SHORT).setDefaultValue(session, "0");
+    cls.createProperty(session, "dateField", PropertyType.DATETIME);
   }
 
   protected void generateGraphData() {
-    if (db.getSchema().existsClass("GraphVehicle")) {
+    if (session.getSchema().existsClass("GraphVehicle")) {
       return;
     }
 
-    var vehicleClass = db.createVertexClass("GraphVehicle");
-    db.createClass("GraphCar", vehicleClass.getName());
-    db.createClass("GraphMotocycle", "GraphVehicle");
+    var vehicleClass = session.createVertexClass("GraphVehicle");
+    session.createClass("GraphCar", vehicleClass.getName(session));
+    session.createClass("GraphMotocycle", "GraphVehicle");
 
-    db.begin();
-    var carNode = db.newVertex("GraphCar");
+    session.begin();
+    var carNode = session.newVertex("GraphCar");
     carNode.setProperty("brand", "Hyundai");
     carNode.setProperty("model", "Coupe");
     carNode.setProperty("year", 2003);
     carNode.save();
 
-    var motoNode = db.newVertex("GraphMotocycle");
+    var motoNode = session.newVertex("GraphMotocycle");
     motoNode.setProperty("brand", "Yamaha");
     motoNode.setProperty("model", "X-City 250");
     motoNode.setProperty("year", 2009);
     motoNode.save();
 
-    db.commit();
+    session.commit();
 
-    db.begin();
-    carNode = db.bindToSession(carNode);
-    motoNode = db.bindToSession(motoNode);
-    db.newRegularEdge(carNode, motoNode).save();
+    session.begin();
+    carNode = session.bindToSession(carNode);
+    motoNode = session.bindToSession(motoNode);
+    session.newRegularEdge(carNode, motoNode).save();
 
     var result =
-        db.query("select from GraphVehicle").stream().collect(Collectors.toList());
+        session.query("select from GraphVehicle").stream().collect(Collectors.toList());
     Assert.assertEquals(result.size(), 2);
     for (var v : result) {
-      Assert.assertTrue(v.getEntity().get().getSchemaType().get().isSubClassOf(vehicleClass));
+      Assert.assertTrue(
+          v.getEntity().flatMap(Entity::getSchemaType).get().isSubClassOf(session, vehicleClass));
     }
 
-    db.commit();
-    result = db.query("select from GraphVehicle").stream().toList();
+    session.commit();
+    result = session.query("select from GraphVehicle").stream().toList();
     Assert.assertEquals(result.size(), 2);
 
     Edge edge1 = null;
     Edge edge2 = null;
 
     for (var v : result) {
-      Assert.assertTrue(v.getEntity().get().getSchemaType().get().isSubClassOf("GraphVehicle"));
+      Assert.assertTrue(
+          v.getEntity().get().getSchemaType().get().isSubClassOf(session, "GraphVehicle"));
 
       if (v.getEntity().get().getSchemaType().isPresent()
-          && v.getEntity().get().getSchemaType().get().getName().equals("GraphCar")) {
+          && v.getEntity().get().getSchemaType().get().getName(session).equals("GraphCar")) {
         Assert.assertEquals(
             CollectionUtils.size(
-                db.<Vertex>load(v.getIdentity().get()).getEdges(Direction.OUT)),
+                session.<Vertex>load(v.getIdentity().get()).getEdges(Direction.OUT)),
             1);
         edge1 =
-            db
+            session
                 .<Vertex>load(v.getIdentity().get())
                 .getEdges(Direction.OUT)
                 .iterator()
@@ -626,10 +628,10 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
       } else {
         Assert.assertEquals(
             CollectionUtils.size(
-                db.<Vertex>load(v.getIdentity().get()).getEdges(Direction.IN)),
+                session.<Vertex>load(v.getIdentity().get()).getEdges(Direction.IN)),
             1);
         edge2 =
-            db.<Vertex>load(v.getIdentity().get()).getEdges(Direction.IN).iterator()
+            session.<Vertex>load(v.getIdentity().get()).getEdges(Direction.IN).iterator()
                 .next();
       }
     }

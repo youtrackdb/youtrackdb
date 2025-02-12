@@ -21,7 +21,6 @@ package com.jetbrains.youtrack.db.internal.core.sql.functions.misc;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
@@ -72,12 +71,13 @@ public class SQLFunctionDate extends SQLFunctionAbstract {
       return new Date(((Number) iParams[0]).longValue());
     }
 
+    var session = iContext.getDatabaseSession();
     if (format == null) {
       if (iParams.length > 1) {
         format = new SimpleDateFormat((String) iParams[1]);
-        format.setTimeZone(DateHelper.getDatabaseTimeZone());
+        format.setTimeZone(DateHelper.getDatabaseTimeZone(session));
       } else {
-        format = DateHelper.getDateTimeFormatInstance(DatabaseRecordThreadLocal.instance().get());
+        format = DateHelper.getDateTimeFormatInstance(session);
       }
 
       if (iParams.length == 3) {
@@ -89,16 +89,16 @@ public class SQLFunctionDate extends SQLFunctionAbstract {
       return format.parse((String) iParams[0]);
     } catch (ParseException e) {
       throw BaseException.wrapException(
-          new QueryParsingException(
+          new QueryParsingException(session.getDatabaseName(),
               "Error on formatting date '"
                   + iParams[0]
                   + "' using the format: "
                   + ((SimpleDateFormat) format).toPattern()),
-          e);
+          e, session);
     }
   }
 
-  public boolean aggregateResults(final Object[] configuredParameters) {
+  public static boolean aggregateResults(final Object[] configuredParameters) {
     return false;
   }
 

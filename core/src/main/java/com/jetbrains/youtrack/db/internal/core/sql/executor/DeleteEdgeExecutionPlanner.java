@@ -1,10 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.api.query.ExecutionPlan;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.ExecutionPlanCache;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBatch;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLDeleteEdgeStatement;
@@ -79,7 +77,7 @@ public class DeleteEdgeExecutionPlanner {
 
   public InternalExecutionPlan createExecutionPlan(
       CommandContext ctx, boolean enableProfiling, boolean useCache) {
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     if (useCache && !enableProfiling && statement.executinPlanCanBeCached(db)) {
       var plan = ExecutionPlanCache.get(statement.getOriginalStatement(), ctx, db);
       if (plan != null) {
@@ -143,7 +141,8 @@ public class DeleteEdgeExecutionPlanner {
         && this.statement.executinPlanCanBeCached(db)
         && result.canBeCached()
         && ExecutionPlanCache.getLastInvalidation(db) < planningStart) {
-      ExecutionPlanCache.put(this.statement.getOriginalStatement(), result, ctx.getDatabase());
+      ExecutionPlanCache.put(this.statement.getOriginalStatement(), result,
+          ctx.getDatabaseSession());
     }
 
     return result;
@@ -198,9 +197,9 @@ public class DeleteEdgeExecutionPlanner {
       boolean profilingEnabled) {
     if (targetClusterName != null) {
       var name = targetClusterName.getStringValue();
-      var clusterId = ctx.getDatabase().getClusterIdByName(name);
+      var clusterId = ctx.getDatabaseSession().getClusterIdByName(name);
       if (clusterId < 0) {
-        throw new CommandExecutionException("Cluster not found: " + name);
+        throw new CommandExecutionException(ctx.getDatabaseSession(), "Cluster not found: " + name);
       }
       result.chain(new FetchFromClusterExecutionStep(clusterId, ctx, profilingEnabled));
     }
@@ -227,7 +226,8 @@ public class DeleteEdgeExecutionPlanner {
     if (indexIdentifier == null) {
       return false;
     }
-    throw new CommandExecutionException("DELETE VERTEX FROM INDEX is not supported");
+    throw new CommandExecutionException(ctx.getDatabaseSession(),
+        "DELETE VERTEX FROM INDEX is not supported");
   }
 
   private void handleDelete(

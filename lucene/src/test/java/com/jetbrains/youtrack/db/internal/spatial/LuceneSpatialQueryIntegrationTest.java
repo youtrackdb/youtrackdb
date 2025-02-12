@@ -16,7 +16,6 @@ package com.jetbrains.youtrack.db.internal.spatial;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.lucene.test.BaseLuceneTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,29 +28,29 @@ public class LuceneSpatialQueryIntegrationTest extends BaseLuceneTest {
   @Test
   public void testIssueGH9105() {
 
-    db.command("create class Country extends V").close();
-    db.command("create property Country.name STRING").close();
-    db.command("create property Country.geometry EMBEDDED OMultiPolygon").close();
-    db.command("create class POI extends V").close();
-    db.command("create property POI.name STRING").close();
-    db.command("create property POI.location EMBEDDED OPoint").close();
+    session.command("create class Country extends V").close();
+    session.command("create property Country.name STRING").close();
+    session.command("create property Country.geometry EMBEDDED OMultiPolygon").close();
+    session.command("create class POI extends V").close();
+    session.command("create property POI.name STRING").close();
+    session.command("create property POI.location EMBEDDED OPoint").close();
 
-    db.begin();
-    db.command(
+    session.begin();
+    session.command(
             "insert into POI(name, location) values(\"zeropoint\", St_GeomFromText(\"Point(0"
                 + " 0)\"))")
         .close();
-    db.command(
+    session.command(
             "insert into Country(name, geometry) values(\"zeroland\","
                 + " St_GeomFromText(\"MultiPolygon(((1 1, 1 -1, -1 -1, -1 1, 1 1)))\"))")
         .close();
-    db.commit();
+    session.commit();
 
-    db.command("CREATE INDEX POI.location ON POI(location) SPATIAL ENGINE LUCENE");
-    db.command("CREATE INDEX Country.geometry ON Country(geometry) SPATIAL ENGINE LUCENE;");
+    session.command("CREATE INDEX POI.location ON POI(location) SPATIAL ENGINE LUCENE");
+    session.command("CREATE INDEX Country.geometry ON Country(geometry) SPATIAL ENGINE LUCENE;");
 
     try (var resultSet =
-        db.query(
+        session.query(
             "select name from Country let locations = (select from Poi) where ST_Contains(geometry,"
                 + " $locations[0].location) = true")) {
 
@@ -59,7 +58,7 @@ public class LuceneSpatialQueryIntegrationTest extends BaseLuceneTest {
     }
 
     try (var resultSet =
-        db.query(
+        session.query(
             "select name from Country where ST_Contains(geometry, (select location from POI)) ="
                 + " true;")) {
 
@@ -67,22 +66,22 @@ public class LuceneSpatialQueryIntegrationTest extends BaseLuceneTest {
     }
 
     try (var resultSet =
-        db.query(
+        session.query(
             "select name from Country where ST_Contains(geometry, (select name,location from POI))"
                 + " = true;")) {
 
       assertThat(resultSet.stream().count()).isEqualTo(0);
     }
 
-    db.begin();
-    db.command(
+    session.begin();
+    session.command(
             "insert into POI(name, location) values(\"zeropoint\", St_GeomFromText(\"Point(0"
                 + " 0)\"))")
         .close();
-    db.commit();
+    session.commit();
 
     try (var resultSet =
-        db.query(
+        session.query(
             "select name from Country where ST_Contains(geometry, (select location from POI)) ="
                 + " true;")) {
 
@@ -91,12 +90,12 @@ public class LuceneSpatialQueryIntegrationTest extends BaseLuceneTest {
       Assert.assertTrue(e instanceof CommandExecutionException);
     }
 
-    db.begin();
-    db.command("delete vertex Poi").close();
-    db.commit();
+    session.begin();
+    session.command("delete vertex Poi").close();
+    session.commit();
 
     try (var resultSet =
-        db.query(
+        session.query(
             "select name from Country where ST_Contains(geometry, (select location from POI)) ="
                 + " true;")) {
 

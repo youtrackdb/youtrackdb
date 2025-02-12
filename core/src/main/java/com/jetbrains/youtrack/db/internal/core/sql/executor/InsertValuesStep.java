@@ -43,14 +43,14 @@ public class InsertValuesStep extends AbstractExecutionStep {
           public Result map(Result result, CommandContext ctx) {
             if (!(result instanceof ResultInternal)) {
               if (!result.isEntity()) {
-                throw new CommandExecutionException(
+                throw new CommandExecutionException(ctx.getDatabaseSession(),
                     "Error executing INSERT, cannot modify entity: " + result);
               }
-              result = new UpdatableResult(ctx.getDatabase(), result.asEntity());
+              result = new UpdatableResult(ctx.getDatabaseSession(), result.asEntity());
             }
             var currentValues = values.get(nextValueSet++);
             if (currentValues.size() != identifiers.size()) {
-              throw new CommandExecutionException(
+              throw new CommandExecutionException(ctx.getDatabaseSession(),
                   "Cannot execute INSERT, the number of fields is different from the number of"
                       + " expressions: "
                       + identifiers

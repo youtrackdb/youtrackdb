@@ -20,9 +20,6 @@ package com.jetbrains.youtrack.db.internal.lucene.test;
 
 import static org.junit.Assert.assertFalse;
 
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import java.io.InputStream;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,17 +33,17 @@ public class LuceneContextTest extends BaseLuceneTest {
   public void init() {
     var stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
 
-    db.execute("sql", getScriptFromStream(stream)).close();
+    session.execute("sql", getScriptFromStream(stream)).close();
 
-    db.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE").close();
-    db.command("create index Song.author on Song (author) FULLTEXT ENGINE LUCENE").close();
+    session.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE").close();
+    session.command("create index Song.author on Song (author) FULLTEXT ENGINE LUCENE").close();
   }
 
   @Test
   public void testContext() {
 
     var docs =
-        db.query(
+        session.query(
             "select *,$score from Song where [title] LUCENE \"(title:man)\" order by $score desc");
 
     Float latestScore = 100f;
@@ -62,7 +59,7 @@ public class LuceneContextTest extends BaseLuceneTest {
     Assert.assertEquals(count, 14);
 
     docs =
-        db.query(
+        session.query(
             "select *,$totalHits,$Song_title_totalHits from Song where [title] LUCENE"
                 + " \"(title:man)\" limit 1");
 

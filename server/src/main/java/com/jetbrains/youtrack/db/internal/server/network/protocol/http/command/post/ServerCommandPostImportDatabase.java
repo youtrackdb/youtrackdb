@@ -20,9 +20,9 @@ import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseImport;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.multipart.HttpMultipartContentBaseParser;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.multipart.HttpMultipartDatabaseImportContentParser;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.multipart.HttpMultipartRequestCommand;
@@ -31,7 +31,6 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  *
@@ -47,7 +46,7 @@ public class ServerCommandPostImportDatabase
   @Override
   public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
     if (!iRequest.isMultipart()) {
-      database = getProfiledDatabaseInstance(iRequest);
+      database = getProfiledDatabaseSessionInstance(iRequest);
       try {
         var importer =
             new DatabaseImport(
@@ -92,7 +91,7 @@ public class ServerCommandPostImportDatabase
           "Content stream is null or empty",
           null);
     } else {
-      database = getProfiledDatabaseInstance(iRequest);
+      database = getProfiledDatabaseSessionInstance(iRequest);
       try {
         parse(
             iRequest,

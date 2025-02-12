@@ -23,18 +23,15 @@ import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.DecimalSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.UUIDSerializer;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
-import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeTimeLine;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
@@ -50,7 +47,6 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.EntitySerializable;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.Change;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ChangeSerializationHelper;
@@ -64,10 +60,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.NavigableMap;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
+import javax.annotation.Nonnull;
 
 public class DocumentSerializerDelta {
 
@@ -98,11 +93,12 @@ public class DocumentSerializerDelta {
     return bytes.fitBytes();
   }
 
-  protected void serializeClass(final EntityImpl entity, final BytesContainer bytes) {
+  protected void serializeClass(DatabaseSessionInternal db, final EntityImpl entity,
+      final BytesContainer bytes) {
     final SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
     String name = null;
     if (clazz != null) {
-      name = clazz.getName();
+      name = clazz.getName(db);
     }
     if (name == null) {
       name = entity.getClassName();
@@ -119,9 +115,9 @@ public class DocumentSerializerDelta {
     return VarIntSerializer.write(bytes, 0);
   }
 
-  private void serialize(DatabaseSessionInternal db, final EntityImpl entity,
+  private void serialize(DatabaseSessionInternal session, final EntityImpl entity,
       final BytesContainer bytes) {
-    serializeClass(entity, bytes);
+    serializeClass(session, entity, bytes);
     SchemaClass oClass = EntityInternalUtils.getImmutableSchemaClass(entity);
     final var fields = EntityInternalUtils.rawEntries(entity);
     VarIntSerializer.write(bytes, entity.fields());
@@ -133,15 +129,16 @@ public class DocumentSerializerDelta {
       writeString(bytes, entry.getKey());
       final var value = entry.getValue().value;
       if (value != null) {
-        final var type = getFieldType(entry.getValue());
+        final var type = getFieldType(session, entry.getValue());
         if (type == null) {
-          throw new SerializationException(
+          throw new SerializationException(session.getDatabaseName(),
               "Impossible serialize value of type "
                   + value.getClass()
                   + " with the Result binary serializer");
         }
         writeNullableType(bytes, type);
-        serializeValue(db, bytes, value, type, getLinkedType(oClass, type, entry.getKey()));
+        serializeValue(session, bytes, value, type,
+            getLinkedType(session, oClass, type, entry.getKey()));
       } else {
         writeNullableType(bytes, null);
       }
@@ -221,35 +218,36 @@ public class DocumentSerializerDelta {
     deserializeDeltaValue(session, bytes, type, toUpdate);
   }
 
-  private void deserializeDeltaValue(DatabaseSessionInternal db, BytesContainer bytes,
+  private void deserializeDeltaValue(DatabaseSessionInternal session, BytesContainer bytes,
       PropertyType type, Object toUpdate) {
     switch (type) {
       case EMBEDDEDLIST:
-        deserializeDeltaEmbeddedList(db, bytes, (TrackedList) toUpdate);
+        deserializeDeltaEmbeddedList(session, bytes, (TrackedList) toUpdate);
         break;
       case EMBEDDEDSET:
-        deserializeDeltaEmbeddedSet(db, bytes, (TrackedSet) toUpdate);
+        deserializeDeltaEmbeddedSet(session, bytes, (TrackedSet) toUpdate);
         break;
       case EMBEDDEDMAP:
-        deserializeDeltaEmbeddedMap(db, bytes, (TrackedMap) toUpdate);
+        deserializeDeltaEmbeddedMap(session, bytes, (TrackedMap) toUpdate);
         break;
       case EMBEDDED:
-        deserializeDelta(db, bytes, ((DBRecord) toUpdate).getRecord(db));
+        deserializeDelta(session, bytes, ((DBRecord) toUpdate).getRecord(session));
         break;
       case LINKLIST:
-        deserializeDeltaLinkList(db, bytes, (LinkList) toUpdate);
+        deserializeDeltaLinkList(session, bytes, (LinkList) toUpdate);
         break;
       case LINKSET:
-        deserializeDeltaLinkSet(db, bytes, (LinkSet) toUpdate);
+        deserializeDeltaLinkSet(session, bytes, (LinkSet) toUpdate);
         break;
       case LINKMAP:
-        deserializeDeltaLinkMap(db, bytes, (LinkMap) toUpdate);
+        deserializeDeltaLinkMap(session, bytes, (LinkMap) toUpdate);
         break;
       case LINKBAG:
-        deserializeDeltaLinkBag(db, bytes, (RidBag) toUpdate);
+        deserializeDeltaLinkBag(session, bytes, (RidBag) toUpdate);
         break;
       default:
-        throw new SerializationException("delta not supported for type:" + type);
+        throw new SerializationException(session.getDatabaseName(),
+            "delta not supported for type:" + type);
     }
   }
 
@@ -286,9 +284,10 @@ public class DocumentSerializerDelta {
     }
   }
 
-  protected void deserializeDeltaLinkBag(DatabaseSessionInternal db, BytesContainer bytes,
+  protected void deserializeDeltaLinkBag(DatabaseSessionInternal session, BytesContainer bytes,
       RidBag toUpdate) {
-    var uuid = UUIDSerializer.INSTANCE.deserialize(bytes.bytes, bytes.offset);
+    var uuid = UUIDSerializer.INSTANCE.deserialize(session.getSerializerFactory(), bytes.bytes,
+        bytes.offset);
     bytes.skip(UUIDSerializer.UUID_SIZE);
     if (toUpdate != null) {
       toUpdate.setTemporaryId(uuid);
@@ -298,7 +297,7 @@ public class DocumentSerializerDelta {
       var change = deserializeByte(bytes);
       switch (change) {
         case CREATED: {
-          var link = readOptimizedLink(db, bytes);
+          var link = readOptimizedLink(session, bytes);
           if (toUpdate != null) {
             toUpdate.add(link);
           }
@@ -308,7 +307,7 @@ public class DocumentSerializerDelta {
           break;
         }
         case REMOVED: {
-          var link = readOptimizedLink(db, bytes);
+          var link = readOptimizedLink(session, bytes);
           if (toUpdate != null) {
             toUpdate.remove(link);
           }
@@ -565,7 +564,7 @@ public class DocumentSerializerDelta {
   }
 
   public void serializeDelta(DatabaseSessionInternal db, BytesContainer bytes, EntityImpl entity) {
-    serializeClass(entity, bytes);
+    serializeClass(db, entity, bytes);
     SchemaClass oClass = EntityInternalUtils.getImmutableSchemaClass(entity);
     var count =
         EntityInternalUtils.rawEntries(entity).stream()
@@ -603,69 +602,67 @@ public class DocumentSerializerDelta {
   }
 
   private void serializeDeltaEntry(
-      DatabaseSessionInternal db, BytesContainer bytes, SchemaClass oClass, String name,
+      DatabaseSessionInternal session, BytesContainer bytes, SchemaClass oClass, String name,
       EntityEntry entry) {
     final var value = entry.value;
     assert value != null;
-    final var type = getFieldType(entry);
+    final var type = getFieldType(session, entry);
     if (type == null) {
-      throw new SerializationException(
+      throw new SerializationException(session.getDatabaseName(),
           "Impossible serialize value of type " + value.getClass() + " with the delta serializer");
     }
     writeString(bytes, name);
     writeNullableType(bytes, type);
-    serializeDeltaValue(db, bytes, value, type, getLinkedType(oClass, type, name));
+    serializeDeltaValue(session, bytes, value, type, getLinkedType(session, oClass, type, name));
   }
 
   private void serializeDeltaValue(
-      DatabaseSessionInternal db, BytesContainer bytes, Object value, PropertyType type,
+      DatabaseSessionInternal session, BytesContainer bytes, Object value, PropertyType type,
       PropertyType linkedType) {
     switch (type) {
       case EMBEDDEDLIST:
-        serializeDeltaEmbeddedList(db, bytes, (TrackedList) value);
+        serializeDeltaEmbeddedList(session, bytes, (TrackedList) value);
         break;
       case EMBEDDEDSET:
-        serializeDeltaEmbeddedSet(db, bytes, (TrackedSet) value);
+        serializeDeltaEmbeddedSet(session, bytes, (TrackedSet) value);
         break;
       case EMBEDDEDMAP:
-        serializeDeltaEmbeddedMap(db, bytes, (TrackedMap) value);
+        serializeDeltaEmbeddedMap(session, bytes, (TrackedMap) value);
         break;
       case EMBEDDED:
-        serializeDelta(db, bytes, ((DBRecord) value).getRecord(db));
+        serializeDelta(session, bytes, ((DBRecord) value).getRecord(session));
         break;
       case LINKLIST:
-        serializeDeltaLinkList(db, bytes, (LinkList) value);
+        serializeDeltaLinkList(session, bytes, (LinkList) value);
         break;
       case LINKSET:
-        serializeDeltaLinkSet(db, bytes, (LinkSet) value);
+        serializeDeltaLinkSet(session, bytes, (LinkSet) value);
         break;
       case LINKMAP:
-        serializeDeltaLinkMap(db, bytes, (LinkMap) value);
+        serializeDeltaLinkMap(session, bytes, (LinkMap) value);
         break;
       case LINKBAG:
-        serializeDeltaLinkBag(db, bytes, (RidBag) value);
+        serializeDeltaLinkBag(session, bytes, (RidBag) value);
         break;
       default:
-        throw new SerializationException("delta not supported for type:" + type);
+        throw new SerializationException(session.getDatabaseName(),
+            "delta not supported for type:" + type);
     }
   }
 
-  protected void serializeDeltaLinkBag(DatabaseSessionInternal db, BytesContainer bytes,
+  protected void serializeDeltaLinkBag(DatabaseSessionInternal session, BytesContainer bytes,
       RidBag value) {
     UUID uuid = null;
-    var instance = DatabaseRecordThreadLocal.instance().getIfDefined();
-    if (instance != null) {
-      final var bTreeCollectionManager =
-          instance.getSbTreeCollectionManager();
-      if (bTreeCollectionManager != null) {
-        uuid = bTreeCollectionManager.listenForChanges(value);
-      }
+    final var bTreeCollectionManager = session.getSbTreeCollectionManager();
+    if (bTreeCollectionManager != null) {
+      uuid = bTreeCollectionManager.listenForChanges(value, session);
     }
+
     if (uuid == null) {
       uuid = new UUID(-1, -1);
     }
     var uuidPos = bytes.alloc(UUIDSerializer.UUID_SIZE);
-    UUIDSerializer.INSTANCE.serialize(uuid, bytes.bytes, uuidPos);
+    UUIDSerializer.INSTANCE.serialize(uuid, session.getSerializerFactory(), bytes.bytes, uuidPos);
 
     final var timeline =
         value.getTransactionTimeLine();
@@ -676,14 +673,14 @@ public class DocumentSerializerDelta {
       switch (event.getChangeType()) {
         case ADD:
           serializeByte(bytes, CREATED);
-          writeOptimizedLink(db, bytes, event.getValue());
+          writeOptimizedLink(session, bytes, event.getValue());
           break;
         case UPDATE:
           throw new UnsupportedOperationException(
               "update do not happen in sets, it will be like and add");
         case REMOVE:
           serializeByte(bytes, REMOVED);
-          writeOptimizedLink(db, bytes, event.getOldValue());
+          writeOptimizedLink(session, bytes, event.getOldValue());
           break;
       }
     }
@@ -981,12 +978,12 @@ public class DocumentSerializerDelta {
     }
   }
 
-  protected PropertyType getFieldType(final EntityEntry entry) {
+  protected PropertyType getFieldType(DatabaseSessionInternal session, final EntityEntry entry) {
     var type = entry.type;
     if (type == null) {
       final var prop = entry.property;
       if (prop != null) {
-        type = prop.getType();
+        type = prop.getType(session);
       }
     }
     if (type == null || PropertyType.ANY == type) {
@@ -996,20 +993,21 @@ public class DocumentSerializerDelta {
   }
 
   private void serializeFullEntry(
-      DatabaseSessionInternal db, BytesContainer bytes, SchemaClass oClass, String name,
+      @Nonnull DatabaseSessionInternal session, BytesContainer bytes, SchemaClass oClass,
+      String name,
       EntityEntry entry) {
     final var value = entry.value;
     if (value != null) {
-      final var type = getFieldType(entry);
+      final var type = getFieldType(session, entry);
       if (type == null) {
-        throw new SerializationException(
+        throw new SerializationException(session.getDatabaseName(),
             "Impossible serialize value of type "
                 + value.getClass()
                 + " with the delta serializer");
       }
       writeString(bytes, name);
       writeNullableType(bytes, type);
-      serializeValue(db, bytes, value, type, getLinkedType(oClass, type, name));
+      serializeValue(session, bytes, value, type, getLinkedType(session, oClass, type, name));
     } else {
       writeString(bytes, name);
       writeNullableType(bytes, null);
@@ -1028,7 +1026,8 @@ public class DocumentSerializerDelta {
   }
 
   public void serializeValue(
-      DatabaseSessionInternal db, final BytesContainer bytes, Object value, final PropertyType type,
+      DatabaseSessionInternal session, final BytesContainer bytes, Object value,
+      final PropertyType type,
       final PropertyType linkedType) {
     var pointer = 0;
     switch (type) {
@@ -1043,12 +1042,12 @@ public class DocumentSerializerDelta {
       case DOUBLE:
         var dg = Double.doubleToLongBits((Double) value);
         pointer = bytes.alloc(LongSerializer.LONG_SIZE);
-        LongSerializer.INSTANCE.serializeLiteral(dg, bytes.bytes, pointer);
+        LongSerializer.serializeLiteral(dg, bytes.bytes, pointer);
         break;
       case FLOAT:
         var fg = Float.floatToIntBits((Float) value);
         pointer = bytes.alloc(IntegerSerializer.INT_SIZE);
-        IntegerSerializer.INSTANCE.serializeLiteral(fg, bytes.bytes, pointer);
+        IntegerSerializer.serializeLiteral(fg, bytes.bytes, pointer);
         break;
       case BYTE:
         pointer = bytes.alloc(1);
@@ -1074,30 +1073,33 @@ public class DocumentSerializerDelta {
         }
         dateValue =
             convertDayToTimezone(
-                DateHelper.getDatabaseTimeZone(), TimeZone.getTimeZone("GMT"), dateValue);
+                DateHelper.getDatabaseTimeZone(session), TimeZone.getTimeZone("GMT"), dateValue);
         VarIntSerializer.write(bytes, dateValue / MILLISEC_PER_DAY);
         break;
       case EMBEDDED:
         if (value instanceof EntitySerializable) {
-          var cur = ((EntitySerializable) value).toEntity(db);
+          var cur = ((EntitySerializable) value).toEntity(session);
           cur.field(EntitySerializable.CLASS_NAME, value.getClass().getName());
-          serialize(db, cur, bytes);
+          serialize(session, cur, bytes);
         } else {
-          serialize(db, ((DBRecord) value).getRecord(db), bytes);
+          serialize(session, ((DBRecord) value).getRecord(session), bytes);
         }
         break;
       case EMBEDDEDSET:
       case EMBEDDEDLIST:
         if (value.getClass().isArray()) {
-          writeEmbeddedCollection(db, bytes, Arrays.asList(MultiValue.array(value)), linkedType);
+          writeEmbeddedCollection(session, bytes, Arrays.asList(MultiValue.array(value)),
+              linkedType);
         } else {
-          writeEmbeddedCollection(db, bytes, (Collection<?>) value, linkedType);
+          writeEmbeddedCollection(session, bytes, (Collection<?>) value, linkedType);
         }
         break;
       case DECIMAL:
         var decimalValue = (BigDecimal) value;
-        pointer = bytes.alloc(DecimalSerializer.INSTANCE.getObjectSize(decimalValue));
-        DecimalSerializer.INSTANCE.serialize(decimalValue, bytes.bytes, pointer);
+        pointer = bytes.alloc(
+            DecimalSerializer.INSTANCE.getObjectSize(session.getSerializerFactory(), decimalValue));
+        DecimalSerializer.INSTANCE.serialize(decimalValue, session.getSerializerFactory(),
+            bytes.bytes, pointer);
         break;
       case BINARY:
         pointer = writeBinary(bytes, (byte[]) (value));
@@ -1105,23 +1107,24 @@ public class DocumentSerializerDelta {
       case LINKSET:
       case LINKLIST:
         var ridCollection = (Collection<Identifiable>) value;
-        writeLinkCollection(db, bytes, ridCollection);
+        writeLinkCollection(session, bytes, ridCollection);
         break;
       case LINK:
         if (!(value instanceof Identifiable)) {
-          throw new ValidationException("Value '" + value + "' is not a Identifiable");
+          throw new ValidationException(session.getDatabaseName(),
+              "Value '" + value + "' is not a Identifiable");
         }
 
-        writeOptimizedLink(db, bytes, (Identifiable) value);
+        writeOptimizedLink(session, bytes, (Identifiable) value);
         break;
       case LINKMAP:
-        writeLinkMap(db, bytes, (Map<Object, Identifiable>) value);
+        writeLinkMap(session, bytes, (Map<Object, Identifiable>) value);
         break;
       case EMBEDDEDMAP:
-        writeEmbeddedMap(db, bytes, (Map<Object, Object>) value);
+        writeEmbeddedMap(session, bytes, (Map<Object, Object>) value);
         break;
       case LINKBAG:
-        writeRidBag(db, bytes, (RidBag) value);
+        writeRidBag(session, bytes, (RidBag) value);
         break;
       case CUSTOM:
         if (!(value instanceof SerializableStream)) {
@@ -1173,7 +1176,7 @@ public class DocumentSerializerDelta {
   }
 
   private void writeEmbeddedCollection(
-      DatabaseSessionInternal db, final BytesContainer bytes, final Collection<?> value,
+      DatabaseSessionInternal session, final BytesContainer bytes, final Collection<?> value,
       final PropertyType linkedType) {
     VarIntSerializer.write(bytes, value.size());
     // TODO manage embedded type from schema and auto-determined.
@@ -1191,9 +1194,9 @@ public class DocumentSerializerDelta {
       }
       if (type != null) {
         writeNullableType(bytes, type);
-        serializeValue(db, bytes, itemValue, type, null);
+        serializeValue(session, bytes, itemValue, type, null);
       } else {
-        throw new SerializationException(
+        throw new SerializationException(session.getDatabaseName(),
             "Impossible serialize value of type "
                 + value.getClass()
                 + " with the EntityImpl binary serializer");
@@ -1201,7 +1204,7 @@ public class DocumentSerializerDelta {
     }
   }
 
-  private void writeEmbeddedMap(DatabaseSessionInternal db, BytesContainer bytes,
+  private void writeEmbeddedMap(DatabaseSessionInternal session, BytesContainer bytes,
       Map<Object, Object> map) {
     VarIntSerializer.write(bytes, map.size());
     for (var entry : map.entrySet()) {
@@ -1210,20 +1213,20 @@ public class DocumentSerializerDelta {
       if (value != null) {
         final var type = getTypeFromValueEmbedded(value);
         if (type == null) {
-          throw new SerializationException(
+          throw new SerializationException(session.getDatabaseName(),
               "Impossible serialize value of type "
                   + value.getClass()
                   + " with the Result binary serializer");
         }
         writeNullableType(bytes, type);
-        serializeValue(db, bytes, value, type, null);
+        serializeValue(session, bytes, value, type, null);
       } else {
         writeNullableType(bytes, null);
       }
     }
   }
 
-  public Object deserializeValue(DatabaseSessionInternal db, BytesContainer bytes,
+  public Object deserializeValue(DatabaseSessionInternal session, BytesContainer bytes,
       PropertyType type,
       RecordElement owner) {
     Object value = null;
@@ -1259,12 +1262,12 @@ public class DocumentSerializerDelta {
         var savedTime = VarIntSerializer.readAsLong(bytes) * MILLISEC_PER_DAY;
         savedTime =
             convertDayToTimezone(
-                TimeZone.getTimeZone("GMT"), DateHelper.getDatabaseTimeZone(), savedTime);
+                TimeZone.getTimeZone("GMT"), DateHelper.getDatabaseTimeZone(session), savedTime);
         value = new Date(savedTime);
         break;
       case EMBEDDED:
-        value = new EmbeddedEntityImpl(db);
-        deserialize(db, (EntityImpl) value, bytes);
+        value = new EmbeddedEntityImpl(session);
+        deserialize(session, (EntityImpl) value, bytes);
         if (((EntityImpl) value).containsField(EntitySerializable.CLASS_NAME)) {
           String className = ((EntityImpl) value).field(EntitySerializable.CLASS_NAME);
           try {
@@ -1281,35 +1284,38 @@ public class DocumentSerializerDelta {
 
         break;
       case EMBEDDEDSET:
-        value = readEmbeddedSet(db, bytes, owner);
+        value = readEmbeddedSet(session, bytes, owner);
         break;
       case EMBEDDEDLIST:
-        value = readEmbeddedList(db, bytes, owner);
+        value = readEmbeddedList(session, bytes, owner);
         break;
       case LINKSET:
-        value = readLinkSet(db, bytes, owner);
+        value = readLinkSet(session, bytes, owner);
         break;
       case LINKLIST:
-        value = readLinkList(db, bytes, owner);
+        value = readLinkList(session, bytes, owner);
         break;
       case BINARY:
         value = readBinary(bytes);
         break;
       case LINK:
-        value = readOptimizedLink(db, bytes);
+        value = readOptimizedLink(session, bytes);
         break;
       case LINKMAP:
-        value = readLinkMap(db, bytes, owner);
+        value = readLinkMap(session, bytes, owner);
         break;
       case EMBEDDEDMAP:
-        value = readEmbeddedMap(db, bytes, owner);
+        value = readEmbeddedMap(session, bytes, owner);
         break;
       case DECIMAL:
-        value = DecimalSerializer.INSTANCE.deserialize(bytes.bytes, bytes.offset);
-        bytes.skip(DecimalSerializer.INSTANCE.getObjectSize(bytes.bytes, bytes.offset));
+        value = DecimalSerializer.INSTANCE.deserialize(session.getSerializerFactory(), bytes.bytes,
+            bytes.offset);
+        bytes.skip(
+            DecimalSerializer.INSTANCE.getObjectSize(session.getSerializerFactory(), bytes.bytes,
+                bytes.offset));
         break;
       case LINKBAG:
-        var bag = readRidBag(db, bytes);
+        var bag = readRidBag(session, bytes);
         bag.setOwner(owner);
         value = bag;
         break;
@@ -1432,8 +1438,9 @@ public class DocumentSerializerDelta {
     return result;
   }
 
-  private RidBag readRidBag(DatabaseSessionInternal db, BytesContainer bytes) {
-    var uuid = UUIDSerializer.INSTANCE.deserialize(bytes.bytes, bytes.offset);
+  private RidBag readRidBag(DatabaseSessionInternal session, BytesContainer bytes) {
+    var uuid = UUIDSerializer.INSTANCE.deserialize(session.getSerializerFactory(), bytes.bytes,
+        bytes.offset);
     bytes.skip(UUIDSerializer.UUID_SIZE);
     if (uuid.getMostSignificantBits() == -1 && uuid.getLeastSignificantBits() == -1) {
       uuid = null;
@@ -1441,10 +1448,10 @@ public class DocumentSerializerDelta {
     var b = bytes.bytes[bytes.offset];
     bytes.skip(1);
     if (b == 1) {
-      var bag = new RidBag(db, uuid);
+      var bag = new RidBag(session, uuid);
       var size = VarIntSerializer.readAsInteger(bytes);
       for (var i = 0; i < size; i++) {
-        var id = readOptimizedLink(db, bytes);
+        var id = readOptimizedLink(session, bytes);
         if (id.equals(NULL_RECORD_ID)) {
           bag.add(null);
         } else {
@@ -1461,7 +1468,7 @@ public class DocumentSerializerDelta {
       Map<RID, Change> changes = new HashMap<>();
       var size = VarIntSerializer.readAsInteger(bytes);
       while (size-- > 0) {
-        RID link = readOptimizedLink(db, bytes);
+        RID link = readOptimizedLink(session, bytes);
         var type = bytes.bytes[bytes.offset];
         bytes.skip(1);
         var change = VarIntSerializer.readAsInteger(bytes);
@@ -1473,22 +1480,22 @@ public class DocumentSerializerDelta {
         pointer =
             new BonsaiCollectionPointer(fileId, new RidBagBucketPointer(pageIndex, pageOffset));
       }
-      return new RidBag(db, pointer, changes, uuid);
+      return new RidBag(session, pointer, changes, uuid);
     }
   }
 
-  private static void writeRidBag(DatabaseSessionInternal db, BytesContainer bytes, RidBag bag) {
-    final var bTreeCollectionManager =
-        DatabaseRecordThreadLocal.instance().get().getSbTreeCollectionManager();
+  private static void writeRidBag(DatabaseSessionInternal session, BytesContainer bytes,
+      RidBag bag) {
+    final var bTreeCollectionManager = session.getSbTreeCollectionManager();
     UUID uuid = null;
     if (bTreeCollectionManager != null) {
-      uuid = bTreeCollectionManager.listenForChanges(bag);
+      uuid = bTreeCollectionManager.listenForChanges(bag, session);
     }
     if (uuid == null) {
       uuid = new UUID(-1, -1);
     }
     var uuidPos = bytes.alloc(UUIDSerializer.UUID_SIZE);
-    UUIDSerializer.INSTANCE.serialize(uuid, bytes.bytes, uuidPos);
+    UUIDSerializer.INSTANCE.serialize(uuid, session.getSerializerFactory(), bytes.bytes, uuidPos);
     if (bag.isToSerializeEmbedded()) {
       var pos = bytes.alloc(1);
       bytes.bytes[pos] = 1;
@@ -1497,7 +1504,7 @@ public class DocumentSerializerDelta {
         if (itemValue == null) {
           writeNullLink(bytes);
         } else {
-          writeOptimizedLink(db, bytes, itemValue);
+          writeOptimizedLink(session, bytes, itemValue);
         }
       }
     } else {
@@ -1515,7 +1522,7 @@ public class DocumentSerializerDelta {
       if (changes != null) {
         VarIntSerializer.write(bytes, changes.size());
         for (var change : changes.entrySet()) {
-          writeOptimizedLink(db, bytes, change.getKey());
+          writeOptimizedLink(session, bytes, change.getKey());
           var posAll = bytes.alloc(1);
           bytes.bytes[posAll] = change.getValue().getType();
           VarIntSerializer.write(bytes, change.getValue().getValue());

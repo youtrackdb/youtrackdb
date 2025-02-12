@@ -20,15 +20,15 @@
 package com.jetbrains.youtrack.db.internal.core.db;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.AdaptiveLock;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.LockException;
-import com.jetbrains.youtrack.db.internal.common.concur.resource.ResourcePoolListener;
 import com.jetbrains.youtrack.db.internal.common.concur.resource.ReentrantResourcePool;
+import com.jetbrains.youtrack.db.internal.common.concur.resource.ResourcePoolListener;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBListener;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBListener;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
@@ -87,7 +87,8 @@ public abstract class DatabasePoolAbstract extends AdaptiveLock
                   pools.get(pool.getKey());
               if (oResourcePool != null) {
                 LogManager.instance()
-                    .debug(this, "Closing idle pooled database '%s'...", db.getKey().getName());
+                    .debug(this, "Closing idle pooled database '%s'...",
+                        db.getKey().getDatabaseName());
                 ((DatabasePooled) db.getKey()).forceClose();
                 oResourcePool.remove(db.getKey());
                 iterator.remove();
@@ -259,7 +260,7 @@ public abstract class DatabasePoolAbstract extends AdaptiveLock
     }
     if (pool == null) {
       throw new LockException(
-          "Cannot release a database URL not acquired before. URL: " + iDatabase.getName());
+          "Cannot release a database URL not acquired before. URL: " + iDatabase.getDatabaseName());
     }
 
     if (pool.returnResource(iDatabase)) {
@@ -294,9 +295,10 @@ public abstract class DatabasePoolAbstract extends AdaptiveLock
         for (var db : pool.getValue().getResources()) {
           pool.getValue().close();
           try {
-            LogManager.instance().debug(this, "Closing pooled database '%s'...", db.getName());
+            LogManager.instance()
+                .debug(this, "Closing pooled database '%s'...", db.getDatabaseName());
             ((DatabasePooled) db).forceClose();
-            LogManager.instance().debug(this, "OK", db.getName());
+            LogManager.instance().debug(this, "OK", db.getDatabaseName());
           } catch (Exception e) {
             LogManager.instance().debug(this, "Error: %d", e.toString());
           }
@@ -323,10 +325,11 @@ public abstract class DatabasePoolAbstract extends AdaptiveLock
           final var stg = ((DatabaseSessionInternal) db).getStorage();
           if (stg != null && stg.getStatus() == Storage.STATUS.OPEN) {
             try {
-              LogManager.instance().debug(this, "Closing pooled database '%s'...", db.getName());
+              LogManager.instance()
+                  .debug(this, "Closing pooled database '%s'...", db.getDatabaseName());
               db.activateOnCurrentThread();
               ((DatabasePooled) db).forceClose();
-              LogManager.instance().debug(this, "OK", db.getName());
+              LogManager.instance().debug(this, "OK", db.getDatabaseName());
             } catch (Exception e) {
               LogManager.instance().debug(this, "Error: %d", e.toString());
             }

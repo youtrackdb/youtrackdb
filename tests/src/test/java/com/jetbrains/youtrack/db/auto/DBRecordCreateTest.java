@@ -14,96 +14,96 @@ public class DBRecordCreateTest extends BaseDBTest {
 
   @Test
   public void testNewRecordNoTx() {
-    var element = db.newEntity();
+    var element = session.newEntity();
     Assert.assertFalse(element.exists());
   }
 
   @Test
   public void testNewRecordTx() {
-    db.begin();
+    session.begin();
     try {
-      var element = db.newEntity();
+      var element = session.newEntity();
       Assert.assertFalse(element.exists());
     } finally {
-      db.rollback();
+      session.rollback();
     }
   }
 
   @Test
   public void testSavedRecordTx() {
-    db.begin();
+    session.begin();
     try {
-      var element = db.newEntity();
+      var element = session.newEntity();
       element.save();
       Assert.assertTrue(element.exists());
     } finally {
-      db.rollback();
+      session.rollback();
     }
   }
 
   @Test
   public void testDeletedRecordTx() {
-    db.begin();
+    session.begin();
     try {
-      var element = db.newEntity();
+      var element = session.newEntity();
       element.save();
       element.delete();
       Assert.assertFalse(element.exists());
     } finally {
-      db.rollback();
+      session.rollback();
     }
   }
 
   @Test
   public void testSaveDeletedRecordTx() {
-    db.begin();
+    session.begin();
     try {
-      var element = db.newEntity();
+      var element = session.newEntity();
       element.save();
       Assert.assertTrue(element.exists());
       element.delete();
       Assert.assertFalse(element.exists());
     } finally {
-      db.rollback();
+      session.rollback();
     }
   }
 
   @Test
   public void testLoadedRecordNoTx() {
-    var element = db.newEntity();
-    db.begin();
+    var element = session.newEntity();
+    session.begin();
     element.save();
-    db.commit();
+    session.commit();
 
-    var loadedElement = db.load(element.getIdentity());
+    var loadedElement = session.load(element.getIdentity());
     Assert.assertTrue(loadedElement.exists());
   }
 
   @Test
   public void testLoadedRecordTx() {
-    db.begin();
+    session.begin();
     try {
-      var element = db.newEntity();
+      var element = session.newEntity();
       element.save();
-      var loadedElement = db.load(element.getIdentity());
+      var loadedElement = session.load(element.getIdentity());
       Assert.assertTrue(loadedElement.exists());
     } finally {
-      db.rollback();
+      session.rollback();
     }
   }
 
   @Test
   public void testLoadedDeletedRecordTx() {
-    db.begin();
+    session.begin();
     try {
-      var element = db.newEntity();
+      var element = session.newEntity();
       element.save();
-      var loadedElement = db.load(element.getIdentity());
+      var loadedElement = session.load(element.getIdentity());
       Assert.assertTrue(loadedElement.exists());
       element.delete();
       Assert.assertFalse(loadedElement.exists());
     } finally {
-      db.rollback();
+      session.rollback();
     }
   }
 }

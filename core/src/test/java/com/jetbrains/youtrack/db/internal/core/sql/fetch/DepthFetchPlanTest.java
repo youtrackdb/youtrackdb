@@ -15,34 +15,34 @@ public class DepthFetchPlanTest extends DbTestBase {
 
   @Test
   public void testFetchPlanDepth() {
-    db.getMetadata().getSchema().createClass("Test");
+    session.getMetadata().getSchema().createClass("Test");
 
-    db.begin();
-    var doc = ((EntityImpl) db.newEntity("Test"));
-    var doc1 = ((EntityImpl) db.newEntity("Test"));
-    var doc2 = ((EntityImpl) db.newEntity("Test"));
+    session.begin();
+    var doc = ((EntityImpl) session.newEntity("Test"));
+    var doc1 = ((EntityImpl) session.newEntity("Test"));
+    var doc2 = ((EntityImpl) session.newEntity("Test"));
     doc.field("name", "name");
-    db.save(doc);
-    db.commit();
+    session.save(doc);
+    session.commit();
 
-    db.begin();
-    doc = db.bindToSession(doc);
+    session.begin();
+    doc = session.bindToSession(doc);
     doc1.field("name", "name1");
     doc1.field("ref", doc);
-    db.save(doc1);
-    db.commit();
+    session.save(doc1);
+    session.commit();
 
-    db.begin();
-    doc1 = db.bindToSession(doc1);
+    session.begin();
+    doc1 = session.bindToSession(doc1);
     doc2.field("name", "name2");
     doc2.field("ref", doc1);
-    db.save(doc2);
-    db.commit();
+    session.save(doc2);
+    session.commit();
 
-    doc2 = db.bindToSession(doc2);
+    doc2 = session.bindToSession(doc2);
     FetchContext context = new RemoteFetchContext();
     var listener = new CountFetchListener();
-    FetchHelper.fetch(db,
+    FetchHelper.fetch(session,
         doc2, doc2, FetchHelper.buildFetchPlan("ref:1 *:-2"), listener, context, "");
 
     assertEquals(1, listener.count);
@@ -50,44 +50,45 @@ public class DepthFetchPlanTest extends DbTestBase {
 
   @Test
   public void testFullDepthFetchPlan() {
-    db.getMetadata().getSchema().createClass("Test");
+    session.getMetadata().getSchema().createClass("Test");
 
-    db.begin();
-    var doc = ((EntityImpl) db.newEntity("Test"));
-    var doc1 = ((EntityImpl) db.newEntity("Test"));
-    var doc2 = ((EntityImpl) db.newEntity("Test"));
-    var doc3 = ((EntityImpl) db.newEntity("Test"));
+    session.begin();
+    var doc = ((EntityImpl) session.newEntity("Test"));
+    var doc1 = ((EntityImpl) session.newEntity("Test"));
+    var doc2 = ((EntityImpl) session.newEntity("Test"));
+    var doc3 = ((EntityImpl) session.newEntity("Test"));
     doc.field("name", "name");
-    db.save(doc);
-    db.commit();
+    session.save(doc);
+    session.commit();
 
-    db.begin();
-    doc = db.bindToSession(doc);
+    session.begin();
+    doc = session.bindToSession(doc);
     doc1.field("name", "name1");
     doc1.field("ref", doc);
-    db.save(doc1);
-    db.commit();
+    session.save(doc1);
+    session.commit();
 
-    db.begin();
-    doc1 = db.bindToSession(doc1);
+    session.begin();
+    doc1 = session.bindToSession(doc1);
 
     doc2.field("name", "name2");
     doc2.field("ref", doc1);
-    db.save(doc2);
-    db.commit();
+    session.save(doc2);
+    session.commit();
 
-    db.begin();
-    doc2 = db.bindToSession(doc2);
+    session.begin();
+    doc2 = session.bindToSession(doc2);
 
     doc3.field("name", "name2");
     doc3.field("ref", doc2);
-    db.save(doc3);
-    db.commit();
+    session.save(doc3);
+    session.commit();
 
-    doc3 = db.bindToSession(doc3);
+    doc3 = session.bindToSession(doc3);
     FetchContext context = new RemoteFetchContext();
     var listener = new CountFetchListener();
-    FetchHelper.fetch(db, doc3, doc3, FetchHelper.buildFetchPlan("[*]ref:-1"), listener, context,
+    FetchHelper.fetch(session, doc3, doc3, FetchHelper.buildFetchPlan("[*]ref:-1"), listener,
+        context,
         "");
     assertEquals(3, listener.count);
   }

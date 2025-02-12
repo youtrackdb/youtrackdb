@@ -19,7 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.post;
 
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
@@ -32,7 +31,6 @@ import java.io.BufferedReader;
 import java.io.StringReader;
 import java.text.NumberFormat;
 import java.util.InputMismatchException;
-import java.util.List;
 import java.util.Locale;
 
 public class ServerCommandPostImportRecords extends ServerCommandDocumentAbstract {
@@ -55,8 +53,8 @@ public class ServerCommandPostImportRecords extends ServerCommandDocumentAbstrac
 
     iRequest.getData().commandInfo = "Import records";
 
-    try (var db = getProfiledDatabaseInstance(iRequest)) {
-      final var cls = db.getMetadata().getSchema().getClass(urlParts[3]);
+    try (var session = getProfiledDatabaseSessionInstance(iRequest)) {
+      final var cls = session.getMetadata().getSchema().getClass(urlParts[3]);
       if (cls == null) {
         throw new IllegalArgumentException("Class '" + urlParts[3] + " is not defined");
       }
@@ -98,7 +96,7 @@ public class ServerCommandPostImportRecords extends ServerCommandDocumentAbstrac
               break;
             }
 
-            final var entity = new EntityImpl(db, cls);
+            final var entity = new EntityImpl(session, cls);
             final var row = parsedRow.trim();
             final var cells = StringSerializerHelper.smartSplit(row, CSV_SEPARATOR);
 
@@ -121,7 +119,7 @@ public class ServerCommandPostImportRecords extends ServerCommandDocumentAbstrac
                 try {
                   value = numberFormat.parse(cellValue);
                 } catch (Exception e) {
-                  value = RecordSerializerCSVAbstract.getTypeValue(db, cellValue);
+                  value = RecordSerializerCSVAbstract.getTypeValue(session, cellValue);
                 }
               }
 
@@ -149,7 +147,7 @@ public class ServerCommandPostImportRecords extends ServerCommandDocumentAbstrac
                      imported: %d, error: %d
                     Detailed messages:
                     %s""",
-                cls.getName(), elapsed, line, imported, errors, output);
+                cls.getName(session), elapsed, line, imported, errors, output);
 
         iResponse.send(
             HttpUtils.STATUS_CREATED_CODE,

@@ -3,17 +3,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.ServerCommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.SystemDatabase;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.Security;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 public class SQLCreateSystemUserStatement extends SQLSimpleExecServerStatement {
 
@@ -48,7 +43,7 @@ public class SQLCreateSystemUserStatement extends SQLSimpleExecServerStatement {
     var systemDb = ctx.getServer().getSystemDatabase();
 
     return systemDb.executeWithDB(
-        (db) -> {
+        (session) -> {
           List<Object> params = new ArrayList<>();
           // INSERT INTO OUser SET
           var sb = new StringBuilder();
@@ -93,12 +88,12 @@ public class SQLCreateSystemUserStatement extends SQLSimpleExecServerStatement {
           sb.append(" WHERE ");
           sb.append(ROLE_FIELD_NAME);
           sb.append(" IN [");
-          var security = db.getMetadata().getSecurity();
+          var security = session.getMetadata().getSecurity();
           for (var i = 0; i < this.roles.size(); ++i) {
             var roleName = this.roles.get(i).getStringValue();
             var role = security.getRole(roleName);
             if (role == null) {
-              throw new CommandExecutionException(
+              throw new CommandExecutionException(session,
                   "Cannot create user " + this.name + ": role " + roleName + " does not exist");
             }
             if (i > 0) {
@@ -115,7 +110,7 @@ public class SQLCreateSystemUserStatement extends SQLSimpleExecServerStatement {
           }
           sb.append("])");
           var stream =
-              db.computeInTx(() -> db.command(sb.toString(), params.toArray()).stream());
+              session.computeInTx(() -> session.command(sb.toString(), params.toArray()).stream());
           return ExecutionStream.resultIterator(stream.iterator())
               .onClose((context) -> stream.close());
         });

@@ -6,7 +6,6 @@ import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -50,7 +49,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
 
   @Override
   public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     var rids = fetchRidsToFind(ctx);
     var clustersIterators = initClusterIterators(ctx);
     Stream<Result> stream =
@@ -83,41 +82,44 @@ public class FindReferencesStep extends AbstractExecutionStep {
   }
 
   private List<RecordIteratorCluster<DBRecord>> initClusterIterators(CommandContext ctx) {
-    var db = ctx.getDatabase();
+    var session = ctx.getDatabaseSession();
     Collection<String> targetClusterNames = new HashSet<>();
 
     if ((this.classes == null || this.classes.isEmpty())
         && (this.clusters == null || this.clusters.isEmpty())) {
-      targetClusterNames.addAll(ctx.getDatabase().getClusterNames());
+      targetClusterNames.addAll(ctx.getDatabaseSession().getClusterNames());
     } else {
       if (this.clusters != null) {
         for (var c : this.clusters) {
           if (c.getClusterName() != null) {
             targetClusterNames.add(c.getClusterName());
           } else {
-            var clusterName = db.getClusterNameById(c.getClusterNumber());
+            var clusterName = session.getClusterNameById(c.getClusterNumber());
             if (clusterName == null) {
-              throw new CommandExecutionException("Cluster not found: " + c.getClusterNumber());
+              throw new CommandExecutionException(ctx.getDatabaseSession(),
+                  "Cluster not found: " + c.getClusterNumber());
             }
             targetClusterNames.add(clusterName);
           }
         }
-        Schema schema = db.getMetadata().getImmutableSchemaSnapshot();
+        Schema schema = session.getMetadata().getImmutableSchemaSnapshot();
         assert this.classes != null;
         for (var className : this.classes) {
           var clazz = schema.getClass(className.getStringValue());
           if (clazz == null) {
-            throw new CommandExecutionException("Class not found: " + className);
+            throw new CommandExecutionException(ctx.getDatabaseSession(),
+                "Class not found: " + className);
           }
-          for (var clusterId : clazz.getPolymorphicClusterIds()) {
-            targetClusterNames.add(db.getClusterNameById(clusterId));
+          for (var clusterId : clazz.getPolymorphicClusterIds(session)) {
+            targetClusterNames.add(session.getClusterNameById(clusterId));
           }
         }
       }
     }
 
     return targetClusterNames.stream()
-        .map(clusterName -> new RecordIteratorCluster<>(db, db.getClusterIdByName(clusterName)))
+        .map(clusterName -> new RecordIteratorCluster<>(session,
+            session.getClusterIdByName(clusterName)))
         .collect(Collectors.toList());
   }
 

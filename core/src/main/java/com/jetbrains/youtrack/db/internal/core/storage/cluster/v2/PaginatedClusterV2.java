@@ -37,7 +37,6 @@ import com.jetbrains.youtrack.db.internal.core.storage.cluster.ClusterPage;
 import com.jetbrains.youtrack.db.internal.core.storage.cluster.ClusterPositionMap;
 import com.jetbrains.youtrack.db.internal.core.storage.cluster.ClusterPositionMapBucket;
 import com.jetbrains.youtrack.db.internal.core.storage.cluster.PaginatedCluster;
-import com.jetbrains.youtrack.db.internal.core.storage.cluster.v2.ClusterPositionMapV2.ClusterPositionEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.ClusterBrowseEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.ClusterBrowsePage;
@@ -49,7 +48,6 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Optional;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
@@ -152,7 +150,6 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
           Optional.ofNullable(recordConflictStrategy)
               .map(RecordConflictStrategy::getName)
               .orElse(null),
-          StorageClusterConfiguration.STATUS.ONLINE,
           BINARY_VERSION);
 
     } finally {
@@ -354,7 +351,8 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
                         cacheEntry.close();
                       } catch (final IOException e) {
                         throw BaseException.wrapException(
-                            new PaginatedClusterException("Can not store the record", this), e);
+                            new PaginatedClusterException(storageName, "Can not store the record",
+                                this), e, storageName);
                       }
                     });
 
@@ -404,7 +402,8 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
       }
     } catch (final IOException e) {
       throw BaseException.wrapException(
-          new PaginatedClusterException("Can not store the record", this), e);
+          new PaginatedClusterException(storageName, "Can not store the record", this), e,
+          storageName);
     }
 
     return page;
@@ -522,7 +521,7 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
         // record size and record type can be written at once
         if (spaceLeft == IntegerSerializer.INT_SIZE + ByteSerializer.BYTE_SIZE) {
           chunk[0] = recordType;
-          IntegerSerializer.INSTANCE.serializeNative(
+          IntegerSerializer.serializeNative(
               recordContent.length, chunk, ByteSerializer.BYTE_SIZE);
           chunk[firstRecordOffset] = 1;
 
@@ -533,7 +532,7 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
 
           if (recordSizePart == IntegerSerializer.INT_SIZE
               && spaceLeft == IntegerSerializer.INT_SIZE) {
-            IntegerSerializer.INSTANCE.serializeNative(recordContent.length, chunk, 0);
+            IntegerSerializer.serializeNative(recordContent.length, chunk, 0);
             written += IntegerSerializer.INT_SIZE;
           } else {
             final var byteOrder = ByteOrder.nativeOrder();
@@ -629,7 +628,7 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
         final var positionEntry =
             clusterPositionMap.get(clusterPosition, atomicOperation);
         if (positionEntry == null) {
-          throw new RecordNotFoundException(new RecordId(id, clusterPosition));
+          throw new RecordNotFoundException(storageName, new RecordId(id, clusterPosition));
         }
         return internalReadRecord(
             clusterPosition,
@@ -668,9 +667,9 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
 
         if (localPage.isDeleted(recordPosition)) {
           if (recordChunks.isEmpty()) {
-            throw new RecordNotFoundException(new RecordId(id, clusterPosition));
+            throw new RecordNotFoundException(storageName, new RecordId(id, clusterPosition));
           } else {
-            throw new PaginatedClusterException(
+            throw new PaginatedClusterException(storageName,
                 "Content of record " + new RecordId(id, clusterPosition) + " was broken", this);
           }
         }
@@ -683,7 +682,7 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
         if (firstEntry
             && content[content.length - LongSerializer.LONG_SIZE - ByteSerializer.BYTE_SIZE]
             == 0) {
-          throw new RecordNotFoundException(new RecordId(id, clusterPosition));
+          throw new RecordNotFoundException(storageName, new RecordId(id, clusterPosition));
         }
 
         recordChunks.add(content);
@@ -702,7 +701,7 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
     var fullContent = convertRecordChunksToSingleChunk(recordChunks, contentSize);
 
     if (fullContent == null) {
-      throw new RecordNotFoundException(new RecordId(id, clusterPosition));
+      throw new RecordNotFoundException(storageName, new RecordId(id, clusterPosition));
     }
 
     var fullContentPosition = 0;
@@ -711,7 +710,7 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
     fullContentPosition++;
 
     final var readContentSize =
-        IntegerSerializer.INSTANCE.deserializeNative(fullContent, fullContentPosition);
+        IntegerSerializer.deserializeNative(fullContent, fullContentPosition);
     fullContentPosition += IntegerSerializer.INT_SIZE;
 
     var recordContent =
@@ -753,7 +752,7 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
                     cacheEntry.close();
                     return false;
                   } else {
-                    throw new PaginatedClusterException(
+                    throw new PaginatedClusterException(storageName,
                         "Content of record " + new RecordId(id, clusterPosition) + " was broken",
                         this);
                   }
@@ -864,11 +863,10 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
                         cacheEntry.close();
                       } catch (final IOException e) {
                         throw BaseException.wrapException(
-                            new PaginatedClusterException(
+                            new PaginatedClusterException(storageName,
                                 "Can not update record with rid "
-                                    + new RecordId(id, clusterPosition),
-                                this),
-                            e);
+                                    + new RecordId(id, clusterPosition), this),
+                            e, storageName);
                       }
                     });
 
@@ -896,11 +894,10 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
                           cacheEntry.close();
                         } catch (final IOException e) {
                           throw BaseException.wrapException(
-                              new PaginatedClusterException(
+                              new PaginatedClusterException(storageName,
                                   "Can not update record with rid "
-                                      + new RecordId(id, clusterPosition),
-                                  this),
-                              e);
+                                      + new RecordId(id, clusterPosition), this),
+                              e, storageName);
                         }
                       });
 
@@ -1022,9 +1019,9 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
       }
     } catch (final IOException ioe) {
       throw BaseException.wrapException(
-          new PaginatedClusterException(
+          new PaginatedClusterException(storageName,
               "Error during retrieval of size of '" + getName() + "' cluster", this),
-          ioe);
+          ioe, storageName);
     } finally {
       atomicOperationsManager.releaseReadLock(this);
     }
@@ -1270,7 +1267,8 @@ public final class PaginatedClusterV2 extends PaginatedCluster {
       setName(newName);
     } catch (IOException e) {
       throw BaseException.wrapException(
-          new PaginatedClusterException("Error during renaming of cluster", this), e);
+          new PaginatedClusterException(storageName, "Error during renaming of cluster", this),
+          e, storageName);
     } finally {
       releaseExclusiveLock();
     }

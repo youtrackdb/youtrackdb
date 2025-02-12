@@ -19,9 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.operator;
 
-import com.jetbrains.youtrack.db.api.schema.Collate;
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.query.QueryRuntimeValueMulti;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BinaryField;
@@ -68,9 +67,9 @@ public abstract class QueryOperatorEquality extends QueryOperator {
       final BinaryField iSecondField,
       final CommandContext iContext,
       final EntitySerializer serializer) {
-    final var left = serializer.deserializeValue(iContext.getDatabase(), iFirstField.bytes,
+    final var left = serializer.deserializeValue(iContext.getDatabaseSession(), iFirstField.bytes,
         iFirstField.type, null);
-    final var right = serializer.deserializeValue(iContext.getDatabase(), iSecondField.bytes,
+    final var right = serializer.deserializeValue(iContext.getDatabaseSession(), iSecondField.bytes,
         iFirstField.type, null);
 
     return evaluateExpression(null, null, left, right, iContext);
@@ -97,7 +96,7 @@ public abstract class QueryOperatorEquality extends QueryOperator {
         return false;
       }
 
-      if (left.getDefinition().getRoot(iContext.getDatabase())
+      if (left.getDefinition().getRoot(iContext.getDatabaseSession())
           .startsWith(SQLFilterItemFieldAll.NAME)) {
         // ALL VALUES
         for (var i = 0; i < left.getValues().length; ++i) {
@@ -141,7 +140,7 @@ public abstract class QueryOperatorEquality extends QueryOperator {
         return false;
       }
 
-      if (right.getDefinition().getRoot(iContext.getDatabase())
+      if (right.getDefinition().getRoot(iContext.getDatabaseSession())
           .startsWith(SQLFilterItemFieldAll.NAME)) {
         // ALL VALUES
         for (var i = 0; i < right.getValues().length; ++i) {

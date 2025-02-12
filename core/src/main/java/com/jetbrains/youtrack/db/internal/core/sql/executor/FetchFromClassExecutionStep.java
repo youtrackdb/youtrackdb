@@ -1,16 +1,16 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.ExecutionStep;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
-import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.MultipleExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStreamProducer;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.MultipleExecutionStream;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,12 +66,13 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
     } else if (Boolean.FALSE.equals(ridOrder)) {
       orderByRidDesc = true;
     }
+    var session = ctx.getDatabaseSession();
     var clazz = loadClassFromSchema(className, ctx);
-    var classClusters = clazz.getPolymorphicClusterIds();
+    var classClusters = clazz.getPolymorphicClusterIds(session);
     var filteredClassClusters = new IntArrayList();
 
     for (var clusterId : classClusters) {
-      var clusterName = ctx.getDatabase().getClusterNameById(clusterId);
+      var clusterName = ctx.getDatabaseSession().getClusterNameById(clusterId);
       if (clusters == null || clusters.contains(clusterName)) {
         filteredClassClusters.add(clusterId);
       }
@@ -107,11 +108,12 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
     }
   }
 
-  protected SchemaClass loadClassFromSchema(String className, CommandContext ctx) {
-    var clazz = ctx.getDatabase().getMetadata().getImmutableSchemaSnapshot()
+  protected static SchemaClass loadClassFromSchema(String className, CommandContext ctx) {
+    var clazz = ctx.getDatabaseSession().getMetadata().getImmutableSchemaSnapshot()
         .getClass(className);
     if (clazz == null) {
-      throw new CommandExecutionException("Class " + className + " not found");
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
+          "Class " + className + " not found");
     }
     return clazz;
   }
@@ -207,8 +209,8 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public Result serialize(DatabaseSessionInternal db) {
-    var result = ExecutionStepInternal.basicSerialize(db, this);
+  public Result serialize(DatabaseSessionInternal session) {
+    var result = ExecutionStepInternal.basicSerialize(session, this);
     result.setProperty("className", className);
     result.setProperty("orderByRidAsc", orderByRidAsc);
     result.setProperty("orderByRidDesc", orderByRidDesc);
@@ -216,14 +218,14 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public void deserialize(Result fromResult) {
+  public void deserialize(Result fromResult, DatabaseSessionInternal session) {
     try {
-      ExecutionStepInternal.basicDeserialize(fromResult, this);
+      ExecutionStepInternal.basicDeserialize(fromResult, this, session);
       this.className = fromResult.getProperty("className");
       this.orderByRidAsc = fromResult.getProperty("orderByRidAsc");
       this.orderByRidDesc = fromResult.getProperty("orderByRidDesc");
     } catch (Exception e) {
-      throw BaseException.wrapException(new CommandExecutionException(""), e);
+      throw BaseException.wrapException(new CommandExecutionException(session, ""), e, session);
     }
   }
 

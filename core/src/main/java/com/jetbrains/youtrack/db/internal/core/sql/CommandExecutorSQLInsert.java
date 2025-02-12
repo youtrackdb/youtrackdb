@@ -33,7 +33,6 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -73,18 +72,17 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
   private boolean unsafe = false;
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorSQLInsert parse(DatabaseSessionInternal db, final CommandRequest iRequest) {
+  public CommandExecutorSQLInsert parse(DatabaseSessionInternal session,
+      final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
 
-      final var database = getDatabase();
-
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
       className = null;
       newRecords = null;
@@ -98,11 +96,12 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
                 0, parserTextUpperCase.length() - KEYWORD_UNSAFE.length() - 1);
       }
 
-      parserRequiredKeyword("INSERT");
-      parserRequiredKeyword("INTO");
+      parserRequiredKeyword(session.getDatabaseName(), "INSERT");
+      parserRequiredKeyword(session.getDatabaseName(), "INTO");
 
       var subjectName =
-          parserRequiredWord(false, "Invalid subject name. Expected cluster, class or index");
+          parserRequiredWord(false, "Invalid subject name. Expected cluster, class or index",
+              session.getDatabaseName());
       var subjectNameUpper = subjectName.toUpperCase(Locale.ENGLISH);
       if (subjectNameUpper.startsWith(CommandExecutorSQLAbstract.CLUSTER_PREFIX))
       // CLUSTER
@@ -119,49 +118,51 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
         }
 
         final var cls =
-            database.getMetadata().getImmutableSchemaSnapshot().getClass(subjectName);
+            session.getMetadata().getImmutableSchemaSnapshot().getClass(subjectName);
         if (cls == null) {
-          throwParsingException("Class " + subjectName + " not found in database");
+          throwParsingException(session.getDatabaseName(),
+              "Class " + subjectName + " not found in database");
         }
 
-        if (!unsafe && cls.isSubClassOf("E"))
+        if (!unsafe && cls.isSubClassOf(session, "E"))
         // FOUND EDGE
         {
-          throw new CommandExecutionException(
+          throw new CommandExecutionException(session.getDatabaseName(),
               "'INSERT' command cannot create Edges. Use 'CREATE EDGE' command instead, or apply"
                   + " the 'UNSAFE' keyword to force it");
         }
 
-        className = cls.getName();
-        clazz = database.getMetadata().getSchema().getClass(className);
+        className = cls.getName(session);
+        clazz = session.getMetadata().getSchema().getClass(className);
         if (clazz == null) {
-          throw new QueryParsingException("Class '" + className + "' was not found");
+          throw new QueryParsingException(session.getDatabaseName(),
+              "Class '" + className + "' was not found");
         }
       }
 
       if (clusterName != null && className == null) {
-        final var clusterId = db.getClusterIdByName(clusterName);
+        final var clusterId = session.getClusterIdByName(clusterName);
         if (clusterId >= 0) {
-          clazz = db.getMetadata().getSchema().getClassByClusterId(clusterId);
+          clazz = session.getMetadata().getSchema().getClassByClusterId(clusterId);
           if (clazz != null) {
-            className = clazz.getName();
+            className = clazz.getName(session);
           }
         }
       }
 
       parserSkipWhiteSpaces();
       if (parserIsEnded()) {
-        throwSyntaxErrorException(
+        throwSyntaxErrorException(session.getDatabaseName(),
             "Set of fields is missed. Example: (name, surname) or SET name = 'Bill'");
       }
 
-      final var temp = parseOptionalWord(true);
+      final var temp = parseOptionalWord(session.getDatabaseName(), true);
       if (parserGetLastWord().equalsIgnoreCase("cluster")) {
-        clusterName = parserRequiredWord(false);
+        clusterName = parserRequiredWord(session.getDatabaseName(), false);
 
         parserSkipWhiteSpaces();
         if (parserIsEnded()) {
-          throwSyntaxErrorException(
+          throwSyntaxErrorException(session.getDatabaseName(),
               "Set of fields is missed. Example: (name, surname) or SET name = 'Bill'");
         }
       } else {
@@ -179,11 +180,11 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
 
         if (parserGetLastWord().equals(KEYWORD_CONTENT)) {
           newRecords = null;
-          parseContent(db);
+          parseContent(session);
           sourceClauseProcessed = true;
         } else if (parserGetLastWord().equals(KEYWORD_SET)) {
           final List<Pair<String, Object>> fields = new ArrayList<Pair<String, Object>>();
-          parseSetFields(db, clazz, fields);
+          parseSetFields(session, clazz, fields);
 
           newRecords.add(Pair.convertToMap(fields));
 
@@ -218,48 +219,47 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
   /**
    * Execute the INSERT and return the EntityImpl object created.
    */
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
-    final var database = getDatabase();
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (newRecords == null && content == null && subQuery == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not been parsed yet");
     }
 
     final var commandParameters = new CommandParameters(iArgs);
     if (indexName != null) {
       if (newRecords == null) {
-        throw new CommandExecutionException("No key/value found");
+        throw new CommandExecutionException(session, "No key/value found");
       }
 
-      IndexAbstract.manualIndexesWarning();
+      IndexAbstract.manualIndexesWarning(session.getDatabaseName());
 
       final var index =
-          database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
+          session.getMetadata().getIndexManagerInternal().getIndex(session, indexName);
       if (index == null) {
-        throw new CommandExecutionException("Target index '" + indexName + "' not found");
+        throw new CommandExecutionException(session, "Target index '" + indexName + "' not found");
       }
 
       // BIND VALUES
       Map<String, Object> result = new HashMap<String, Object>();
 
       for (var candidate : newRecords) {
-        var indexKey = getIndexKeyValue(database, commandParameters, candidate);
-        var indexValue = getIndexValue(database, commandParameters, candidate);
-        index.put(database, indexKey, indexValue);
+        var indexKey = getIndexKeyValue(session, commandParameters, candidate);
+        var indexValue = getIndexValue(session, commandParameters, candidate);
+        index.put(session, indexKey, indexValue);
 
         result.put(KEYWORD_KEY, indexKey);
         result.put(KEYWORD_RID, indexValue);
       }
 
       // RETURN LAST ENTRY
-      return prepareReturnItem(db, new EntityImpl(db, result));
+      return prepareReturnItem(session, new EntityImpl(session, result));
     } else {
       // CREATE NEW DOCUMENTS
       final List<EntityImpl> docs = new ArrayList<EntityImpl>();
       if (newRecords != null) {
         for (var candidate : newRecords) {
           final var entity =
-              className != null ? new EntityImpl(db, className) : new EntityImpl(db);
+              className != null ? new EntityImpl(session, className) : new EntityImpl(session);
           SQLHelper.bindParameters(entity, candidate, commandParameters, context);
 
           saveRecord(entity);
@@ -267,20 +267,20 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
         }
 
         if (docs.size() == 1) {
-          return prepareReturnItem(db, docs.get(0));
+          return prepareReturnItem(session, docs.get(0));
         } else {
-          return prepareReturnResult(db, docs);
+          return prepareReturnResult(session, docs);
         }
       } else if (content != null) {
         final var entity =
-            className != null ? new EntityImpl(db, className) : new EntityImpl(db);
+            className != null ? new EntityImpl(session, className) : new EntityImpl(session);
         entity.merge(content, true, false);
         saveRecord(entity);
-        return prepareReturnItem(db, entity);
+        return prepareReturnItem(session, entity);
       } else if (subQuery != null) {
-        subQuery.execute(db);
+        subQuery.execute(session);
         if (queryResult != null) {
-          return prepareReturnResult(db, queryResult);
+          return prepareReturnResult(session, queryResult);
         }
 
         return saved.longValue();
@@ -290,25 +290,18 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
   }
 
   @Override
-  public CommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE
-  getDistributedExecutionMode() {
-    return indexName != null
-        ? DISTRIBUTED_EXECUTION_MODE.REPLICATE
-        : DISTRIBUTED_EXECUTION_MODE.LOCAL;
-  }
-
-  @Override
-  public Set<String> getInvolvedClusters() {
+  public Set<String> getInvolvedClusters(DatabaseSessionInternal session) {
     if (className != null) {
       var clazz =
-          getDatabase().getMetadata().getImmutableSchemaSnapshot().getClassInternal(className);
+          session.getMetadata().getImmutableSchemaSnapshot().getClassInternal(className);
       return Collections.singleton(
-          getDatabase().getClusterNameById(clazz.getClusterSelection().getCluster(clazz, null)));
+          session.getClusterNameById(
+              clazz.getClusterSelection(session).getCluster(session, clazz, null)));
     } else if (clusterName != null) {
-      return getInvolvedClustersOfClusters(Collections.singleton(clusterName));
+      return getInvolvedClustersOfClusters(session, Collections.singleton(clusterName));
     }
 
-    return Collections.EMPTY_SET;
+    return Collections.emptySet();
   }
 
   @Override
@@ -321,17 +314,9 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
   @Override
   public boolean result(DatabaseSessionInternal db, final Object iRecord) {
     SchemaClass oldClass = null;
-    RecordAbstract oldRecord = ((Identifiable) iRecord).getRecord(db);
+    RecordAbstract rec = ((Identifiable) iRecord).getRecord(db);
 
-    if (oldRecord instanceof EntityImpl) {
-      oldClass = EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) oldRecord));
-    }
-    final var rec = oldRecord.copy();
-
-    // RESET THE IDENTITY TO AVOID UPDATE
-    rec.getIdentity().reset();
-
-    if (rec instanceof EntityImpl entity) {
+    if (rec instanceof EntityImpl) {
       if (className != null) {
         throw new UnsupportedOperationException("Cannot insert a record with a specific class");
       }
@@ -340,7 +325,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
     if (rec instanceof Entity) {
       var entity = (EntityInternal) rec;
 
-      if (oldClass != null && oldClass.isSubClassOf("V")) {
+      if (oldClass != null && oldClass.isSubClassOf(db, "V")) {
         LogManager.instance()
             .warn(
                 this,
@@ -354,7 +339,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
             if (edges instanceof Identifiable) {
               EntityImpl edgeRec = ((Identifiable) edges).getRecord(db);
               SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass(edgeRec);
-              if (clazz != null && clazz.isSubClassOf("E")) {
+              if (clazz != null && clazz.isSubClassOf(db, "E")) {
                 entity.removeProperty(field);
               }
             } else if (edges instanceof Iterable) {
@@ -362,7 +347,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
                 if (edge instanceof Identifiable) {
                   Entity edgeRec = ((Identifiable) edge).getRecord(db);
                   if (edgeRec.getSchemaType().isPresent()
-                      && edgeRec.getSchemaType().get().isSubClassOf("E")) {
+                      && edgeRec.getSchemaType().get().isSubClassOf(db, "E")) {
                     entity.removeProperty(field);
                     break;
                   }
@@ -377,7 +362,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
     synchronized (this) {
       saveRecord(rec);
       if (queryResult != null) {
-        queryResult.add(((EntityImpl) rec));
+        queryResult.add((EntityImpl) rec);
       }
     }
 
@@ -385,7 +370,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
   }
 
   @Override
-  public void end() {
+  public void end(DatabaseSessionInternal db) {
   }
 
   protected Object prepareReturnResult(DatabaseSessionInternal db, List<EntityImpl> res) {
@@ -431,7 +416,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
 
     final var endFields = parserText.indexOf(')', beginFields + 1);
     if (endFields == -1) {
-      throwSyntaxErrorException("Missed closed brace");
+      throwSyntaxErrorException(null, "Missed closed brace");
     }
 
     final var fieldNamesQuoted = new ArrayList<String>();
@@ -444,7 +429,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
     }
 
     if (fieldNames.size() == 0) {
-      throwSyntaxErrorException("Set of fields is empty. Example: (name, surname)");
+      throwSyntaxErrorException(null, "Set of fields is empty. Example: (name, surname)");
     }
 
     // REMOVE QUOTATION MARKS IF ANY
@@ -452,10 +437,10 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
       fieldNames.set(i, StringSerializerHelper.removeQuotationMarks(fieldNames.get(i)));
     }
 
-    parserRequiredKeyword(KEYWORD_VALUES);
+    parserRequiredKeyword(null, KEYWORD_VALUES);
     parserSkipWhiteSpaces();
     if (parserIsEnded() || parserText.charAt(parserGetCurrentPosition()) != '(') {
-      throwParsingException("Set of values is missed. Example: ('Bill', 'Stuart', 300)");
+      throwParsingException(null, "Set of values is missed. Example: ('Bill', 'Stuart', 300)");
     }
 
     var blockStart = parserGetCurrentPosition();
@@ -477,8 +462,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
       if (values.isEmpty()) {
         throw new CommandSQLParsingException(
             "Set of values is empty. Example: ('Bill', 'Stuart', 300). Use " + getSyntax(),
-            parserText,
-            blockStart);
+            parserText, blockStart);
       }
 
       if (values.size() != fieldNames.size()) {
@@ -515,7 +499,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
               ? SQLHelper.parseValue(this, returning, this.getContext())
               : null;
     } else {
-      throwSyntaxErrorException(
+      throwSyntaxErrorException(null,
           "record attribute (@attributes) or functions with $current variable expected");
     }
   }
@@ -554,11 +538,6 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
       }
     }
     return (Identifiable) parsedRid;
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.WRITE;
   }
 
   @Override

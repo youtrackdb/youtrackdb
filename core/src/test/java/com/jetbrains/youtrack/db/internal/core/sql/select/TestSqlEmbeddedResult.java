@@ -11,21 +11,21 @@ public class TestSqlEmbeddedResult extends DbTestBase {
 
   @Test
   public void testEmbeddedRusultTypeNotLink() {
-    db.getMetadata().getSchema().createClass("Test");
+    session.getMetadata().getSchema().createClass("Test");
 
-    db.begin();
-    var doc = ((EntityImpl) db.newEntity("Test"));
-    var doc1 = ((EntityImpl) db.newEntity());
+    session.begin();
+    var doc = ((EntityImpl) session.newEntity("Test"));
+    var doc1 = ((EntityImpl) session.newEntity());
     doc1.setProperty("format", 1);
     Set<EntityImpl> docs = new HashSet<EntityImpl>();
     docs.add(doc1);
     doc.setProperty("rel", docs);
     // doc
-    db.save(doc);
-    db.commit();
+    session.save(doc);
+    session.commit();
 
     var res =
-        db
+        session
             .query(
                 "select $current as el " + " from (select expand(rel.include('format')) from Test)")
             .toList();
@@ -34,7 +34,7 @@ public class TestSqlEmbeddedResult extends DbTestBase {
     Assert.assertTrue(ele.getProperty("el") instanceof EntityImpl);
 
     res =
-        db.query("select rel as el " + " from (select rel from Test)").stream()
+        session.query("select rel as el " + " from (select rel from Test)").stream()
             .toList();
 
     Assert.assertEquals(1, res.size());

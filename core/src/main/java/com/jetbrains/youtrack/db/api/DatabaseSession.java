@@ -317,7 +317,7 @@ public interface DatabaseSession extends AutoCloseable {
       return element;
     }
 
-    throw new DatabaseException(
+    throw new DatabaseException(getDatabaseName(),
         "Record with id " + id + " is not an entity, but a " + record.getClass().getSimpleName());
   }
 
@@ -336,7 +336,7 @@ public interface DatabaseSession extends AutoCloseable {
       return vertex;
     }
 
-    throw new DatabaseException(
+    throw new DatabaseException(getDatabaseName(),
         "Record with id " + id + " is not a vertex, but a " + record.getClass().getSimpleName());
   }
 
@@ -355,7 +355,7 @@ public interface DatabaseSession extends AutoCloseable {
       return edge;
     }
 
-    throw new DatabaseException(
+    throw new DatabaseException(getDatabaseName(),
         "Record with id " + id + " is not an edge, but a " + record.getClass().getSimpleName());
   }
 
@@ -374,7 +374,7 @@ public interface DatabaseSession extends AutoCloseable {
       return blob;
     }
 
-    throw new DatabaseException(
+    throw new DatabaseException(getDatabaseName(),
         "Record with id " + id + " is not a blob, but a " + record.getClass().getSimpleName());
   }
 
@@ -581,7 +581,7 @@ public interface DatabaseSession extends AutoCloseable {
    *
    * @return Name of the database
    */
-  String getName();
+  String getDatabaseName();
 
   /**
    * Returns the database URL.
@@ -700,14 +700,14 @@ public interface DatabaseSession extends AutoCloseable {
         var superclass = superclasses[i];
         var superclazz = schema.getClass(superclass);
         if (superclazz == null) {
-          throw new SchemaException("Class " + superclass + " does not exist");
+          throw new SchemaException(getDatabaseName(), "Class " + superclass + " does not exist");
         }
         superclassInstances[i] = superclazz;
       }
     }
     var result = schema.getClass(className);
     if (result != null) {
-      throw new SchemaException("Class " + className + " already exists");
+      throw new SchemaException(getDatabaseName(), "Class " + className + " already exists");
     }
     if (superclassInstances == null) {
       return schema.createClass(className);
@@ -735,14 +735,14 @@ public interface DatabaseSession extends AutoCloseable {
         var superclass = superclasses[i];
         var superclazz = schema.getClass(superclass);
         if (superclazz == null) {
-          throw new SchemaException("Class " + superclass + " does not exist");
+          throw new SchemaException(getDatabaseName(), "Class " + superclass + " does not exist");
         }
         superclassInstances[i] = superclazz;
       }
     }
     var result = schema.getClass(className);
     if (result != null) {
-      throw new SchemaException("Class " + className + " already exists");
+      throw new SchemaException(getDatabaseName(), "Class " + className + " already exists");
     }
     if (superclassInstances == null) {
       return schema.createAbstractClass(className);

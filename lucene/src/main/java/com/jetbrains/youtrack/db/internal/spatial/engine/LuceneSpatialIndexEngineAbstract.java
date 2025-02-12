@@ -14,10 +14,10 @@
  */
 package com.jetbrains.youtrack.db.internal.spatial.engine;
 
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexMetadata;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValuesTransformer;
@@ -163,13 +163,13 @@ public abstract class LuceneSpatialIndexEngineAbstract extends LuceneIndexEngine
   }
 
   @Override
-  public Document buildDocument(DatabaseSessionInternal db, Object key,
+  public Document buildDocument(DatabaseSessionInternal session, Object key,
       Identifiable value) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public Query buildQuery(Object query) {
+  public Query buildQuery(Object query, DatabaseSessionInternal session) {
     throw new UnsupportedOperationException();
   }
 

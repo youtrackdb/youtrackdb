@@ -35,7 +35,7 @@ public class CreateRecordStep extends AbstractExecutionStep {
   }
 
   private Result produce(CommandContext ctx) {
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     final Entity entity;
     if (targetClass != null) {
       entity = db.newEntity(targetClass);

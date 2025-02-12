@@ -25,7 +25,6 @@ import static com.jetbrains.youtrack.db.api.config.GlobalConfiguration.FILE_DELE
 import static com.jetbrains.youtrack.db.api.config.GlobalConfiguration.WARNING_DEFAULT_USERS;
 
 import com.jetbrains.youtrack.db.api.DatabaseType;
-import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
@@ -46,7 +45,6 @@ import com.jetbrains.youtrack.db.internal.core.security.DefaultSecuritySystem;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.LocalResultSetLifecycleDecorator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLServerStatement;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.config.ClusterBasedStorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
@@ -55,7 +53,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -63,7 +60,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -155,7 +151,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
         maxWALSegmentSize = calculateInitialMaxWALSegSize();
 
         if (maxWALSegmentSize <= 0) {
-          throw new DatabaseException(
+          throw new DatabaseException(directoryPath,
               "Invalid configuration settings. Can not set maximum size of WAL segment");
         }
 
@@ -164,7 +160,8 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
                 this, "WAL maximum segment size is set to %,d MB", maxWALSegmentSize / 1024 / 1024);
       } catch (IOException e) {
         throw BaseException.wrapException(
-            new DatabaseException("Cannot initialize YouTrackDB engine"), e);
+            new DatabaseException(directoryPath, "Cannot initialize YouTrackDB engine"), e,
+            directoryPath);
       }
     }
 
@@ -345,7 +342,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     if (maxSegSize <= 0) {
       var sizePercent = getIntConfig(GlobalConfiguration.WAL_MAX_SEGMENT_SIZE_PERCENT);
       if (sizePercent <= 0) {
-        throw new DatabaseException(
+        throw new DatabaseException(basePath,
             "Invalid configuration settings. Can not set maximum size of WAL segment");
       }
 
@@ -404,7 +401,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
           getIntConfig(GlobalConfiguration.STORAGE_DOUBLE_WRITE_LOG_MAX_SEG_SIZE_PERCENT);
 
       if (sizePercent <= 0) {
-        throw new DatabaseException(
+        throw new DatabaseException(basePath,
             "Invalid configuration settings. Can not set maximum size of WAL segment");
       }
 
@@ -441,7 +438,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       return embedded;
     } catch (Exception e) {
       throw BaseException.wrapException(
-          new DatabaseException("Cannot open database '" + name + "'"), e);
+          new DatabaseException(basePath, "Cannot open database '" + name + "'"), e, basePath);
     }
   }
 
@@ -474,7 +471,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       return embedded;
     } catch (Exception e) {
       throw BaseException.wrapException(
-          new DatabaseException("Cannot open database '" + name + "'"), e);
+          new DatabaseException(basePath, "Cannot open database '" + name + "'"), e, basePath);
     }
   }
 
@@ -499,7 +496,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       return embedded;
     } catch (Exception e) {
       throw BaseException.wrapException(
-          new DatabaseException("Cannot open database '" + name + "'"), e);
+          new DatabaseException(basePath, "Cannot open database '" + name + "'"), e, basePath);
     }
   }
 
@@ -526,9 +523,9 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       return embedded;
     } catch (Exception e) {
       throw BaseException.wrapException(
-          new DatabaseException(
+          new DatabaseException(basePath,
               "Cannot open database '" + authenticationInfo.getDatabase() + "'"),
-          e);
+          e, basePath);
     }
   }
 
@@ -601,7 +598,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     var storage = storages.get(name);
     if (storage == null) {
       if (basePath == null) {
-        throw new DatabaseException(
+        throw new DatabaseException(basePath,
             "Cannot open database '" + name + "' because it does not exists");
       }
       var storagePath = Paths.get(buildName(name));
@@ -642,7 +639,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
   protected String buildName(String name) {
     if (basePath == null) {
-      throw new DatabaseException(
+      throw new DatabaseException(basePath,
           "YouTrackDB instanced created without physical path, only memory databases are allowed");
     }
     return basePath + "/" + name;
@@ -699,15 +696,15 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
           }
         } catch (Exception e) {
           throw BaseException.wrapException(
-              new DatabaseException("Cannot create database '" + name + "'"), e);
+              new DatabaseException(basePath, "Cannot create database '" + name + "'"), e,
+              basePath);
         }
       } else {
-        throw new DatabaseException(
+        throw new DatabaseException(basePath,
             "Cannot create new database '" + name + "' because it already exists");
       }
     }
     embedded.callOnCreateListeners();
-    DatabaseRecordThreadLocal.instance().remove();
   }
 
   @Override
@@ -749,7 +746,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
           configs.getValueAsInteger(FILE_DELETE_DELAY),
           buildName(name));
       throw BaseException.wrapException(
-          new DatabaseException("Cannot create database '" + name + "'"), e);
+          new DatabaseException(basePath, "Cannot create database '" + name + "'"), e, basePath);
     }
   }
 
@@ -779,17 +776,17 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
           storages.put(name, storage);
         } catch (Exception e) {
           throw BaseException.wrapException(
-              new DatabaseException("Cannot restore database '" + name + "'"), e);
+              new DatabaseException(basePath, "Cannot restore database '" + name + "'"), e,
+              basePath);
         }
       } else {
-        throw new DatabaseException(
+        throw new DatabaseException(basePath,
             "Cannot create new storage '" + name + "' because it already exists");
       }
     }
     storage.restoreFromIncrementalBackup(null, path);
     embedded.callOnCreateListeners();
     embedded.getSharedContext().reInit(storage, embedded);
-    DatabaseRecordThreadLocal.instance().remove();
   }
 
   public void restore(
@@ -821,7 +818,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
           configs.getValueAsInteger(FILE_DELETE_DELAY),
           buildName(name));
       throw BaseException.wrapException(
-          new DatabaseException("Cannot create database '" + name + "'"), e);
+          new DatabaseException(basePath, "Cannot create database '" + name + "'"), e, basePath);
     }
   }
 
@@ -870,7 +867,6 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       checkOpen();
     }
     checkDatabaseName(name);
-    var current = DatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       DatabaseSessionInternal db = openNoAuthenticate(name, user);
       for (var it = youTrack.getDbLifecycleListeners();
@@ -879,7 +875,6 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       }
       db.close();
     } finally {
-      DatabaseRecordThreadLocal.instance().set(current);
       synchronized (this) {
         if (exists(name, user, password)) {
           var storage = getOrInitStorage(name);
@@ -1032,7 +1027,8 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
     if (storageException != null) {
       throw BaseException.wrapException(
-          new StorageException("Error during closing the storages"), storageException);
+          new StorageException(basePath, "Error during closing the storages"), storageException,
+          basePath);
     }
   }
 
@@ -1083,7 +1079,6 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     }
     if (embedded != null) {
       embedded.callOnCreateListeners();
-      DatabaseRecordThreadLocal.instance().remove();
     }
   }
 
@@ -1106,7 +1101,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
   protected void checkOpen() {
     if (!open) {
-      throw new DatabaseException("YouTrackDB Instance is closed");
+      throw new DatabaseException(basePath, "YouTrackDB Instance is closed");
     }
   }
 
@@ -1166,7 +1161,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   @Override
   public <X> X executeNoAuthorizationSync(
       DatabaseSessionInternal database, DatabaseTask<X> task) {
-    var dbName = database.getName();
+    var dbName = database.getDatabaseName();
     if (open) {
       try (var session = openNoAuthorization(dbName)) {
         return task.call(session);
@@ -1174,7 +1169,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
         database.activateOnCurrentThread();
       }
     } else {
-      throw new DatabaseException("YouTrackDB instance is closed");
+      throw new DatabaseException(basePath, "YouTrackDB instance is closed");
     }
   }
 
@@ -1194,7 +1189,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     //    if (!statement.isIdempotent()) {
     // fetch all, close and detach
     // TODO pagination!
-    var prefetched = new InternalResultSet();
+    var prefetched = new InternalResultSet(null);
     original.forEachRemaining(x -> prefetched.add(x));
     original.close();
     result = new LocalResultSetLifecycleDecorator(prefetched);
@@ -1215,7 +1210,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     //    if (!statement.isIdempotent()) {
     // fetch all, close and detach
     // TODO pagination!
-    var prefetched = new InternalResultSet();
+    var prefetched = new InternalResultSet(null);
     original.forEachRemaining(x -> prefetched.add(x));
     original.close();
     result = new LocalResultSetLifecycleDecorator(prefetched);
@@ -1251,14 +1246,14 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       throw new NullArgumentException("database");
     }
     if (name.contains("/") || name.contains(":")) {
-      throw new DatabaseException(String.format("Invalid database name:'%s'", name));
+      throw new DatabaseException(basePath, String.format("Invalid database name:'%s'", name));
     }
   }
 
   public Set<String> listLodadedDatabases() {
     Set<String> dbs;
     synchronized (this) {
-      dbs = new HashSet<String>(storages.keySet());
+      dbs = new HashSet<>(storages.keySet());
     }
     dbs.remove(SystemDatabase.SYSTEM_DB_NAME);
     return dbs;

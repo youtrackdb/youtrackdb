@@ -18,10 +18,8 @@ package com.jetbrains.youtrack.db.auto;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
-import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
@@ -45,7 +43,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import org.testng.Assert;
@@ -93,61 +90,61 @@ public class CRUDTest extends BaseDBTest {
 
   @Test
   public void create() {
-    startRecordNumber = db.countClass("Account");
+    startRecordNumber = session.countClass("Account");
 
     Entity address;
 
-    db.begin();
-    var country = db.newEntity("Country");
+    session.begin();
+    var country = session.newEntity("Country");
     country.setProperty("name", "Italy");
     country.save();
 
-    rome = db.newEntity("City");
+    rome = session.newEntity("City");
     rome.setProperty("name", "Rome");
     rome.setProperty("country", country);
-    db.save(rome);
+    session.save(rome);
 
-    address = db.newEntity("Address");
+    address = session.newEntity("Address");
     address.setProperty("type", "Residence");
     address.setProperty("street", "Piazza Navona, 1");
     address.setProperty("city", rome);
-    db.save(address);
+    session.save(address);
 
     for (var i = startRecordNumber; i < startRecordNumber + TOT_RECORDS_ACCOUNT; ++i) {
-      var account = db.newEntity("Account");
+      var account = session.newEntity("Account");
       account.setProperty("id", i);
       account.setProperty("name", "Bill");
       account.setProperty("surname", "Gates");
       account.setProperty("birthDate", new Date());
       account.setProperty("salary", (i + 300.10f));
       account.setProperty("addresses", Collections.singletonList(address));
-      db.save(account);
+      session.save(account);
     }
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "create")
   public void testCreate() {
-    Assert.assertEquals(db.countClass("Account") - startRecordNumber, TOT_RECORDS_ACCOUNT);
+    Assert.assertEquals(session.countClass("Account") - startRecordNumber, TOT_RECORDS_ACCOUNT);
   }
 
   @Test(dependsOnMethods = "testCreate")
   public void testCreateClass() {
-    var schema = db.getMetadata().getSchema();
+    var schema = session.getMetadata().getSchema();
     Assert.assertNull(schema.getClass("Dummy"));
     var dummyClass = schema.createClass("Dummy");
-    dummyClass.createProperty(db, "name", PropertyType.STRING);
+    dummyClass.createProperty(session, "name", PropertyType.STRING);
 
-    Assert.assertEquals(db.countClass("Dummy"), 0);
+    Assert.assertEquals(session.countClass("Dummy"), 0);
     Assert.assertNotNull(schema.getClass("Dummy"));
   }
 
   @Test
   public void testSimpleTypes() {
-    var element = db.newEntity("JavaSimpleTestClass");
+    var element = session.newEntity("JavaSimpleTestClass");
     Assert.assertEquals(element.getProperty("text"), "initTest");
 
-    db.begin();
+    session.begin();
     var date = new Date();
     element.setProperty("text", "test");
     element.setProperty("numberSimple", 12345);
@@ -158,15 +155,15 @@ public class CRUDTest extends BaseDBTest {
     element.setProperty("flagSimple", true);
     element.setProperty("dateField", date);
 
-    db.save(element);
-    db.commit();
+    session.save(element);
+    session.commit();
 
     var id = element.getIdentity();
-    db.close();
+    session.close();
 
-    db = createSessionInstance();
-    db.begin();
-    EntityImpl loadedRecord = db.load(id);
+    session = createSessionInstance();
+    session.begin();
+    EntityImpl loadedRecord = session.load(id);
     Assert.assertEquals(loadedRecord.getProperty("text"), "test");
     Assert.assertEquals(loadedRecord.<Integer>getProperty("numberSimple"), 12345);
     Assert.assertEquals(loadedRecord.<Double>getProperty("doubleSimple"), 12.34d);
@@ -175,12 +172,12 @@ public class CRUDTest extends BaseDBTest {
     Assert.assertEquals(loadedRecord.<Byte>getProperty("byteSimple"), (byte) 1);
     Assert.assertEquals(loadedRecord.<Boolean>getProperty("flagSimple"), true);
     Assert.assertEquals(loadedRecord.getProperty("dateField"), date);
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testSimpleTypes")
   public void testSimpleArrayTypes() {
-    var element = db.newInstance("JavaSimpleArraysTestClass");
+    var element = session.newInstance("JavaSimpleArraysTestClass");
     var textArray = new String[10];
     var intArray = new int[10];
     var longArray = new long[10];
@@ -222,15 +219,15 @@ public class CRUDTest extends BaseDBTest {
     Assert.assertNotNull(element.getProperty("flagSimple"));
     Assert.assertNotNull(element.getProperty("dateField"));
 
-    db.begin();
-    db.save(element);
-    db.commit();
+    session.begin();
+    session.save(element);
+    session.commit();
     var id = element.getIdentity();
-    db.close();
+    session.close();
 
-    db = createSessionInstance();
-    db.begin();
-    Entity loadedElement = db.load(id);
+    session = createSessionInstance();
+    session.begin();
+    Entity loadedElement = session.load(id);
     Assert.assertNotNull(loadedElement.getProperty("text"));
     Assert.assertNotNull(loadedElement.getProperty("numberSimple"));
     Assert.assertNotNull(loadedElement.getProperty("longSimple"));
@@ -278,13 +275,13 @@ public class CRUDTest extends BaseDBTest {
     loadedElement.setProperty("longSimple", longArray);
     loadedElement.setProperty("numberSimple", intArray);
 
-    db.save(loadedElement);
-    db.commit();
-    db.close();
+    session.save(loadedElement);
+    session.commit();
+    session.close();
 
-    db = createSessionInstance();
-    db.begin();
-    loadedElement = db.load(id);
+    session = createSessionInstance();
+    session.begin();
+    loadedElement = session.load(id);
     Assert.assertNotNull(loadedElement.getProperty("text"));
     Assert.assertNotNull(loadedElement.getProperty("numberSimple"));
     Assert.assertNotNull(loadedElement.getProperty("longSimple"));
@@ -315,13 +312,13 @@ public class CRUDTest extends BaseDBTest {
       Assert.assertEquals(loadedElement.<List<Date>>getProperty("dateField").get(i), cal.getTime());
     }
 
-    db.commit();
-    db.close();
+    session.commit();
+    session.close();
 
-    db = createSessionInstance();
+    session = createSessionInstance();
 
-    db.begin();
-    loadedElement = db.load(id);
+    session.begin();
+    loadedElement = session.load(id);
 
     Assert.assertTrue(
         ((Collection<?>) loadedElement.getProperty("text")).iterator().next() instanceof String);
@@ -343,13 +340,13 @@ public class CRUDTest extends BaseDBTest {
     Assert.assertTrue(
         ((Collection<?>) loadedElement.getProperty("dateField")).iterator().next() instanceof Date);
 
-    db.delete(id);
-    db.commit();
+    session.delete(id);
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testSimpleTypes")
   public void testBinaryDataType() {
-    var element = db.newInstance("JavaBinaryDataTestClass");
+    var element = session.newInstance("JavaBinaryDataTestClass");
     var bytes = new byte[10];
     for (var i = 0; i < 10; i++) {
       bytes[i] = (byte) i;
@@ -360,16 +357,16 @@ public class CRUDTest extends BaseDBTest {
     var fieldName = "binaryData";
     Assert.assertNotNull(element.getProperty(fieldName));
 
-    db.begin();
-    db.save(element);
-    db.commit();
+    session.begin();
+    session.save(element);
+    session.commit();
 
     var id = element.getIdentity();
-    db.close();
+    session.close();
 
-    db = createSessionInstance();
-    db.begin();
-    Entity loadedElement = db.load(id);
+    session = createSessionInstance();
+    session.begin();
+    Entity loadedElement = session.load(id);
     Assert.assertNotNull(loadedElement.getProperty(fieldName));
 
     Assert.assertEquals(loadedElement.<byte[]>getProperty("binaryData").length, 10);
@@ -381,145 +378,145 @@ public class CRUDTest extends BaseDBTest {
     }
     loadedElement.setProperty("binaryData", bytes);
 
-    db.save(loadedElement);
-    db.commit();
-    db.close();
+    session.save(loadedElement);
+    session.commit();
+    session.close();
 
-    db = createSessionInstance();
-    db.begin();
-    loadedElement = db.load(id);
+    session = createSessionInstance();
+    session.begin();
+    loadedElement = session.load(id);
     Assert.assertNotNull(loadedElement.getProperty(fieldName));
 
     Assert.assertEquals(loadedElement.<byte[]>getProperty("binaryData").length, 10);
     Assert.assertEquals(loadedElement.getProperty("binaryData"), bytes);
 
-    db.commit();
-    db.close();
+    session.commit();
+    session.close();
 
-    db = createSessionInstance();
+    session = createSessionInstance();
 
-    db.begin();
-    db.delete(id);
-    db.commit();
+    session.begin();
+    session.delete(id);
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testSimpleArrayTypes")
   public void collectionsDocumentTypeTestPhaseOne() {
-    db.begin();
-    var a = db.newInstance("JavaComplexTestClass");
+    session.begin();
+    var a = session.newInstance("JavaComplexTestClass");
 
     for (var i = 0; i < 3; i++) {
-      var child1 = db.newEntity("Child");
-      var child2 = db.newEntity("Child");
-      var child3 = db.newEntity("Child");
+      var child1 = session.newEntity("Child");
+      var child2 = session.newEntity("Child");
+      var child3 = session.newEntity("Child");
 
       a.setProperty("list", Collections.singletonList(child1));
       a.setProperty("set", Collections.singleton(child2));
       a.setProperty("children", Collections.singletonMap("" + i, child3));
     }
 
-    a = db.save(a);
-    db.commit();
+    a = session.save(a);
+    session.commit();
 
     var rid = a.getIdentity();
-    db.close();
+    session.close();
 
-    db = createSessionInstance();
-    db.begin();
+    session = createSessionInstance();
+    session.begin();
     var agendas = executeQuery("SELECT FROM " + rid);
     var testLoadedEntity = (EntityImpl) agendas.getFirst().asEntity();
 
     checkCollectionImplementations(testLoadedEntity);
 
-    db.save(testLoadedEntity);
-    db.commit();
+    session.save(testLoadedEntity);
+    session.commit();
 
-    db.freeze(false);
-    db.release();
+    session.freeze(false);
+    session.release();
 
-    db.begin();
+    session.begin();
 
-    testLoadedEntity = db.load(rid);
+    testLoadedEntity = session.load(rid);
 
     checkCollectionImplementations(testLoadedEntity);
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "collectionsDocumentTypeTestPhaseOne")
   public void collectionsDocumentTypeTestPhaseTwo() {
-    db.begin();
-    var a = db.newInstance("JavaComplexTestClass");
+    session.begin();
+    var a = session.newInstance("JavaComplexTestClass");
 
     for (var i = 0; i < 10; i++) {
-      var child1 = db.newEntity("Child");
-      var child2 = db.newEntity("Child");
-      var child3 = db.newEntity("Child");
+      var child1 = session.newEntity("Child");
+      var child2 = session.newEntity("Child");
+      var child3 = session.newEntity("Child");
 
       a.setProperty("list", Collections.singletonList(child1));
       a.setProperty("set", Collections.singleton(child2));
       a.setProperty("children", Collections.singletonMap("" + i, child3));
     }
 
-    a = db.save(a);
-    db.commit();
+    a = session.save(a);
+    session.commit();
 
     var rid = a.getIdentity();
 
-    db.close();
+    session.close();
 
-    db = createSessionInstance();
-    db.begin();
+    session = createSessionInstance();
+    session.begin();
     var agendas = executeQuery("SELECT FROM " + rid);
     var testLoadedEntity = (EntityImpl) agendas.getFirst().asEntity();
 
     checkCollectionImplementations(testLoadedEntity);
 
-    testLoadedEntity = db.save(testLoadedEntity);
-    db.commit();
+    testLoadedEntity = session.save(testLoadedEntity);
+    session.commit();
 
-    db.freeze(false);
-    db.release();
+    session.freeze(false);
+    session.release();
 
-    db.begin();
-    checkCollectionImplementations(db.bindToSession(testLoadedEntity));
-    db.commit();
+    session.begin();
+    checkCollectionImplementations(session.bindToSession(testLoadedEntity));
+    session.commit();
   }
 
   @Test(dependsOnMethods = "collectionsDocumentTypeTestPhaseTwo")
   public void collectionsDocumentTypeTestPhaseThree() {
-    var a = db.newInstance("JavaComplexTestClass");
+    var a = session.newInstance("JavaComplexTestClass");
 
-    db.begin();
+    session.begin();
     for (var i = 0; i < 100; i++) {
-      var child1 = db.newEntity("Child");
-      var child2 = db.newEntity("Child");
-      var child3 = db.newEntity("Child");
+      var child1 = session.newEntity("Child");
+      var child2 = session.newEntity("Child");
+      var child3 = session.newEntity("Child");
 
       a.setProperty("list", Collections.singletonList(child1));
       a.setProperty("set", Collections.singleton(child2));
       a.setProperty("children", Collections.singletonMap("" + i, child3));
     }
-    a = db.save(a);
-    db.commit();
+    a = session.save(a);
+    session.commit();
 
     var rid = a.getIdentity();
-    db.close();
+    session.close();
 
-    db = createSessionInstance();
-    db.begin();
+    session = createSessionInstance();
+    session.begin();
     var agendas = executeQuery("SELECT FROM " + rid);
     var testLoadedEntity = (EntityImpl) agendas.getFirst();
     checkCollectionImplementations(testLoadedEntity);
 
-    testLoadedEntity = db.save(testLoadedEntity);
-    db.commit();
+    testLoadedEntity = session.save(testLoadedEntity);
+    session.commit();
 
-    db.freeze(false);
-    db.release();
+    session.freeze(false);
+    session.release();
 
-    db.begin();
-    checkCollectionImplementations(db.bindToSession(testLoadedEntity));
-    db.rollback();
+    session.begin();
+    checkCollectionImplementations(session.bindToSession(testLoadedEntity));
+    session.rollback();
   }
 
   protected static void checkCollectionImplementations(EntityImpl doc) {
@@ -553,29 +550,29 @@ public class CRUDTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "testSimpleTypes")
   public void testDateInTransaction() {
-    var element = db.newEntity("JavaSimpleTestClass");
+    var element = session.newEntity("JavaSimpleTestClass");
     var date = new Date();
     element.setProperty("dateField", date);
-    db.begin();
+    session.begin();
     element.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    element = db.bindToSession(element);
+    session.begin();
+    element = session.bindToSession(element);
     Assert.assertEquals(element.<List<Date>>getProperty("dateField"), date);
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testCreateClass")
   public void readAndBrowseDescendingAndCheckHoleUtilization() {
-    db.begin();
-    rome = db.bindToSession(rome);
+    session.begin();
+    rome = session.bindToSession(rome);
     Set<Integer> ids = new HashSet<>(TOT_RECORDS_ACCOUNT);
     for (var i = 0; i < TOT_RECORDS_ACCOUNT; i++) {
       ids.add(i);
     }
 
-    for (Entity a : db.browseClass("Account")) {
+    for (Entity a : session.browseClass("Account")) {
       int id = a.<Integer>getProperty("id");
       Assert.assertTrue(ids.remove(id));
 
@@ -587,30 +584,30 @@ public class CRUDTest extends BaseDBTest {
       Assert.assertEquals(
           a.<List<Identifiable>>getProperty("addresses")
               .getFirst()
-              .<Entity>getRecord(db)
+              .<Entity>getRecord(session)
               .getEntityProperty("city")
               .getProperty("name"),
           rome.<String>getProperty("name"));
       Assert.assertEquals(
           a.<List<Identifiable>>getProperty("addresses")
               .getFirst()
-              .<Entity>getRecord(db)
+              .<Entity>getRecord(session)
               .getEntityProperty("city")
               .getEntityProperty("country")
               .getProperty("name"),
-          rome.<Entity>getRecord(db)
+          rome.<Entity>getRecord(session)
               .<Identifiable>getProperty("country")
-              .<Entity>getRecord(db)
+              .<Entity>getRecord(session)
               .<String>getProperty("name"));
     }
 
     Assert.assertTrue(ids.isEmpty());
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "readAndBrowseDescendingAndCheckHoleUtilization")
   public void mapEnumAndInternalObjects() {
-    db.executeInTxBatches((Iterator<EntityImpl>) db.browseClass("OUser"),
+    session.executeInTxBatches((Iterator<EntityImpl>) session.browseClass("OUser"),
         ((session, document) -> {
           document.save();
         }));
@@ -619,22 +616,22 @@ public class CRUDTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "mapEnumAndInternalObjects")
   public void mapObjectsLinkTest() {
-    var p = db.newInstance("JavaComplexTestClass");
+    var p = session.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Silvester");
 
-    var c = db.newInstance("Child");
+    var c = session.newInstance("Child");
     c.setProperty("name", "John");
 
-    var c1 = db.newInstance("Child");
+    var c1 = session.newInstance("Child");
     c1.setProperty("name", "Jack");
 
-    var c2 = db.newInstance("Child");
+    var c2 = session.newInstance("Child");
     c2.setProperty("name", "Bob");
 
-    var c3 = db.newInstance("Child");
+    var c3 = session.newInstance("Child");
     c3.setProperty("name", "Sam");
 
-    var c4 = db.newInstance("Child");
+    var c4 = session.newInstance("Child");
     c4.setProperty("name", "Dean");
 
     var list = new ArrayList<Identifiable>();
@@ -649,106 +646,110 @@ public class CRUDTest extends BaseDBTest {
     children.put("first", c);
     p.setProperty("children", children);
 
-    db.begin();
-    db.save(p);
-    db.commit();
+    session.begin();
+    session.save(p);
+    session.commit();
 
-    db.begin();
+    session.begin();
     var cresult = executeQuery("select * from Child");
     Assert.assertFalse(cresult.isEmpty());
 
     var rid = p.getIdentity();
-    db.commit();
+    session.commit();
 
-    db.close();
+    session.close();
 
-    db = createSessionInstance();
-    db.begin();
-    var loaded = db.<Entity>load(rid);
+    session = createSessionInstance();
+    session.begin();
+    var loaded = session.<Entity>load(rid);
 
     list = loaded.getProperty("list");
     Assert.assertEquals(list.size(), 4);
     Assert.assertEquals(
-        Objects.requireNonNull(list.get(0).<Entity>getRecord(db).getSchemaClass()).getName(),
+        Objects.requireNonNull(list.get(0).<Entity>getRecord(session).getSchemaClass()).getName(
+            session),
         "Child");
     Assert.assertEquals(
-        Objects.requireNonNull(list.get(1).<Entity>getRecord(db).getSchemaClass()).getName(),
+        Objects.requireNonNull(list.get(1).<Entity>getRecord(session).getSchemaClass()).getName(
+            session),
         "Child");
     Assert.assertEquals(
-        Objects.requireNonNull(list.get(2).<Entity>getRecord(db).getSchemaClass()).getName(),
+        Objects.requireNonNull(list.get(2).<Entity>getRecord(session).getSchemaClass()).getName(
+            session),
         "Child");
     Assert.assertEquals(
-        Objects.requireNonNull(list.get(3).<Entity>getRecord(db).getSchemaClass()).getName(),
+        Objects.requireNonNull(list.get(3).<Entity>getRecord(session).getSchemaClass()).getName(
+            session),
         "Child");
-    Assert.assertEquals(list.get(0).<Entity>getRecord(db).getProperty("name"), "Jack");
-    Assert.assertEquals(list.get(1).<Entity>getRecord(db).getProperty("name"), "Bob");
-    Assert.assertEquals(list.get(2).<Entity>getRecord(db).getProperty("name"), "Sam");
-    Assert.assertEquals(list.get(3).<Entity>getRecord(db).getProperty("name"), "Dean");
-    db.commit();
+    Assert.assertEquals(list.get(0).<Entity>getRecord(session).getProperty("name"), "Jack");
+    Assert.assertEquals(list.get(1).<Entity>getRecord(session).getProperty("name"), "Bob");
+    Assert.assertEquals(list.get(2).<Entity>getRecord(session).getProperty("name"), "Sam");
+    Assert.assertEquals(list.get(3).<Entity>getRecord(session).getProperty("name"), "Dean");
+    session.commit();
   }
 
   @Test(dependsOnMethods = "mapObjectsLinkTest")
   public void listObjectsLinkTest() {
-    db.begin();
-    var hanSolo = db.newInstance("PersonTest");
+    session.begin();
+    var hanSolo = session.newInstance("PersonTest");
     hanSolo.setProperty("firstName", "Han");
-    hanSolo = db.save(hanSolo);
-    db.commit();
+    hanSolo = session.save(hanSolo);
+    session.commit();
 
-    db.begin();
-    var obiWan = db.newInstance("PersonTest");
+    session.begin();
+    var obiWan = session.newInstance("PersonTest");
     obiWan.setProperty("firstName", "Obi-Wan");
-    obiWan = db.save(obiWan);
+    obiWan = session.save(obiWan);
 
-    var luke = db.newInstance("PersonTest");
+    var luke = session.newInstance("PersonTest");
     luke.setProperty("firstName", "Luke");
-    luke = db.save(luke);
-    db.commit();
+    luke = session.save(luke);
+    session.commit();
 
     // ============================== step 1
     // add new information to luke
-    db.begin();
-    luke = db.bindToSession(luke);
+    session.begin();
+    luke = session.bindToSession(luke);
     var friends = new HashSet<Identifiable>();
-    friends.add(db.bindToSession(hanSolo));
+    friends.add(session.bindToSession(hanSolo));
 
     luke.setProperty("friends", friends);
-    db.save(luke);
-    db.commit();
+    session.save(luke);
+    session.commit();
 
-    db.begin();
-    luke = db.bindToSession(luke);
+    session.begin();
+    luke = session.bindToSession(luke);
     Assert.assertEquals(luke.<Set<Identifiable>>getProperty("friends").size(), 1);
     friends = new HashSet<>();
-    friends.add(db.bindToSession(obiWan));
+    friends.add(session.bindToSession(obiWan));
     luke.setProperty("friends", friends);
 
-    db.save(db.bindToSession(luke));
-    db.commit();
+    session.save(session.bindToSession(luke));
+    session.commit();
 
-    db.begin();
-    luke = db.bindToSession(luke);
+    session.begin();
+    luke = session.bindToSession(luke);
     Assert.assertEquals(luke.<Set<Identifiable>>getProperty("friends").size(), 1);
-    db.commit();
+    session.commit();
     // ============================== end 2
   }
 
   @Test(dependsOnMethods = "listObjectsLinkTest")
   public void listObjectsIterationTest() {
-    var a = db.newInstance("Agenda");
+    var a = session.newInstance("Agenda");
 
     for (var i = 0; i < 10; i++) {
-      a.setProperty("events", Collections.singletonList(db.newInstance("Event")));
+      a.setProperty("events", Collections.singletonList(session.newInstance("Event")));
     }
-    db.begin();
-    a = db.save(a);
-    db.commit();
+    session.begin();
+    a = session.save(a);
+    session.commit();
     var rid = a.getIdentity();
 
-    db.close();
+    session.close();
 
-    db = createSessionInstance();
-    db.begin();
+    session = createSessionInstance();
+    session.begin();
     var agendas = executeQuery("SELECT FROM " + rid);
     var agenda = agendas.getFirst().asEntity();
     //noinspection unused,StatementWithEmptyBody
@@ -756,14 +757,14 @@ public class CRUDTest extends BaseDBTest {
       // NO NEED TO DO ANYTHING, JUST NEED TO ITERATE THE LIST
     }
 
-    agenda = db.save(agenda);
-    db.commit();
+    agenda = session.save(agenda);
+    session.commit();
 
-    db.freeze(false);
-    db.release();
+    session.freeze(false);
+    session.release();
 
-    db.begin();
-    agenda = db.bindToSession(agenda);
+    session.begin();
+    agenda = session.bindToSession(agenda);
     try {
       for (var i = 0; i < agenda.<List<Entity>>getProperty("events").size(); i++) {
         @SuppressWarnings("unused")
@@ -774,34 +775,34 @@ public class CRUDTest extends BaseDBTest {
       Assert.fail("Error iterating Object list", cme);
     }
 
-    if (db.getTransaction().isActive()) {
-      db.rollback();
+    if (session.getTransaction().isActive()) {
+      session.rollback();
     }
   }
 
   @Test(dependsOnMethods = "listObjectsIterationTest")
   public void mapObjectsListEmbeddedTest() {
-    db.begin();
+    session.begin();
     var cresult = executeQuery("select * from Child");
 
     var childSize = cresult.size();
 
-    var p = db.newInstance("JavaComplexTestClass");
+    var p = session.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Silvester");
 
-    var c = db.newInstance("Child");
+    var c = session.newInstance("Child");
     c.setProperty("name", "John");
 
-    var c1 = db.newInstance("Child");
+    var c1 = session.newInstance("Child");
     c1.setProperty("name", "Jack");
 
-    var c2 = db.newInstance("Child");
+    var c2 = session.newInstance("Child");
     c2.setProperty("name", "Bob");
 
-    var c3 = db.newInstance("Child");
+    var c3 = session.newInstance("Child");
     c3.setProperty("name", "Sam");
 
-    var c4 = db.newInstance("Child");
+    var c4 = session.newInstance("Child");
     c4.setProperty("name", "Dean");
 
     var list = new ArrayList<Identifiable>();
@@ -812,21 +813,21 @@ public class CRUDTest extends BaseDBTest {
 
     p.setProperty("embeddedList", list);
 
-    db.save(p);
-    db.commit();
+    session.save(p);
+    session.commit();
 
-    db.begin();
+    session.begin();
     cresult = executeQuery("select * from Child");
 
     Assert.assertEquals(childSize, cresult.size());
 
     var rid = p.getIdentity();
-    db.commit();
-    db.close();
+    session.commit();
+    session.close();
 
-    db = createSessionInstance();
-    db.begin();
-    Entity loaded = db.load(rid);
+    session = createSessionInstance();
+    session.begin();
+    Entity loaded = session.load(rid);
 
     Assert.assertEquals(loaded.<List<Entity>>getProperty("embeddedList").size(), 4);
     Assert.assertTrue(loaded.<List<Entity>>getProperty("embeddedList").get(0).isEmbedded());
@@ -838,36 +839,36 @@ public class CRUDTest extends BaseDBTest {
                 loaded
                     .<List<Entity>>getProperty("embeddedList")
                     .get(0)
-                    .<Entity>getRecord(db)
+                    .<Entity>getRecord(session)
                     .getSchemaClass())
-            .getName(),
+            .getName(session),
         "Child");
     Assert.assertEquals(
         Objects.requireNonNull(
                 loaded
                     .<List<Entity>>getProperty("embeddedList")
                     .get(1)
-                    .<Entity>getRecord(db)
+                    .<Entity>getRecord(session)
                     .getSchemaClass())
-            .getName(),
+            .getName(session),
         "Child");
     Assert.assertEquals(
         Objects.requireNonNull(
                 loaded
                     .<List<Entity>>getProperty("embeddedList")
                     .get(2)
-                    .getEntity(db)
+                    .getEntity(session)
                     .getSchemaClass())
-            .getName(),
+            .getName(session),
         "Child");
     Assert.assertEquals(
         Objects.requireNonNull(
                 loaded
                     .<List<Entity>>getProperty("embeddedList")
                     .get(3)
-                    .getEntity(db)
+                    .getEntity(session)
                     .getSchemaClass())
-            .getName(),
+            .getName(session),
         "Child");
     Assert.assertEquals(
         loaded.<List<Entity>>getProperty("embeddedList").get(0).getProperty("name"), "Jack");
@@ -877,31 +878,31 @@ public class CRUDTest extends BaseDBTest {
         loaded.<List<Entity>>getProperty("embeddedList").get(2).getProperty("name"), "Sam");
     Assert.assertEquals(
         loaded.<List<Entity>>getProperty("embeddedList").get(3).getProperty("name"), "Dean");
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "mapObjectsListEmbeddedTest")
   public void mapObjectsSetEmbeddedTest() {
-    db.begin();
+    session.begin();
     var cresult = executeQuery("select * from Child");
     var childSize = cresult.size();
 
-    var p = db.newInstance("JavaComplexTestClass");
+    var p = session.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Silvester");
 
-    var c = db.newInstance("Child");
+    var c = session.newInstance("Child");
     c.setProperty("name", "John");
 
-    var c1 = db.newInstance("Child");
+    var c1 = session.newInstance("Child");
     c1.setProperty("name", "Jack");
 
-    var c2 = db.newInstance("Child");
+    var c2 = session.newInstance("Child");
     c2.setProperty("name", "Bob");
 
-    var c3 = db.newInstance("Child");
+    var c3 = session.newInstance("Child");
     c3.setProperty("name", "Sam");
 
-    var c4 = db.newInstance("Child");
+    var c4 = session.newInstance("Child");
     c4.setProperty("name", "Dean");
 
     var embeddedSet = new HashSet<Entity>();
@@ -913,22 +914,22 @@ public class CRUDTest extends BaseDBTest {
 
     p.setProperty("embeddedSet", embeddedSet);
 
-    db.save(p);
-    db.commit();
+    session.save(p);
+    session.commit();
 
-    db.begin();
+    session.begin();
     cresult = executeQuery("select * from Child");
 
     Assert.assertEquals(childSize, cresult.size());
 
     var rid = p.getIdentity();
-    db.commit();
+    session.commit();
 
-    db.close();
+    session.close();
 
-    db = createSessionInstance();
-    db.begin();
-    Entity loaded = db.load(rid);
+    session = createSessionInstance();
+    session.begin();
+    Entity loaded = session.load(rid);
 
     Assert.assertEquals(loaded.<Set<Entity>>getProperty("embeddedSet").size(), 5);
     for (var loadedC : loaded.<Set<Entity>>getProperty("embeddedSet")) {
@@ -941,31 +942,31 @@ public class CRUDTest extends BaseDBTest {
               || loadedC.<String>getProperty("name").equals("Sam")
               || loadedC.<String>getProperty("name").equals("Dean"));
     }
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "mapObjectsSetEmbeddedTest")
   public void mapObjectsMapEmbeddedTest() {
-    db.begin();
+    session.begin();
     var cresult = executeQuery("select * from Child");
 
     var childSize = cresult.size();
-    var p = db.newInstance("JavaComplexTestClass");
+    var p = session.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Silvester");
 
-    var c = db.newInstance("Child");
+    var c = session.newInstance("Child");
     c.setProperty("name", "John");
 
-    var c1 = db.newInstance("Child");
+    var c1 = session.newInstance("Child");
     c1.setProperty("name", "Jack");
 
-    var c2 = db.newInstance("Child");
+    var c2 = session.newInstance("Child");
     c2.setProperty("name", "Bob");
 
-    var c3 = db.newInstance("Child");
+    var c3 = session.newInstance("Child");
     c3.setProperty("name", "Sam");
 
-    var c4 = db.newInstance("Child");
+    var c4 = session.newInstance("Child");
     c4.setProperty("name", "Dean");
 
     var embeddedChildren = new HashMap<String, Entity>();
@@ -977,22 +978,22 @@ public class CRUDTest extends BaseDBTest {
 
     p.setProperty("embeddedChildren", embeddedChildren);
 
-    db.save(p);
-    db.commit();
+    session.save(p);
+    session.commit();
 
-    db.begin();
+    session.begin();
     cresult = executeQuery("select * from Child");
 
     Assert.assertEquals(childSize, cresult.size());
 
     var rid = p.getIdentity();
-    db.commit();
+    session.commit();
 
-    db.close();
+    session.close();
 
-    db = createSessionInstance();
-    db.begin();
-    Entity loaded = db.load(rid);
+    session = createSessionInstance();
+    session.begin();
+    Entity loaded = session.load(rid);
 
     Assert.assertEquals(loaded.<Map<String, Entity>>getProperty("embeddedChildren").size(), 5);
     for (var key : loaded.<Map<String, Entity>>getProperty("embeddedChildren").keySet()) {
@@ -1006,21 +1007,21 @@ public class CRUDTest extends BaseDBTest {
               || loadedC.<String>getProperty("name").equals("Sam")
               || loadedC.<String>getProperty("name").equals("Dean"));
     }
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "mapObjectsLinkTest")
   public void mapObjectsNonExistingKeyTest() {
-    var p = db.newInstance("JavaComplexTestClass");
+    var p = session.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Silvester");
 
-    db.begin();
-    p = db.save(p);
+    session.begin();
+    p = session.save(p);
 
-    var c1 = db.newInstance("Child");
+    var c1 = session.newInstance("Child");
     c1.setProperty("name", "John");
 
-    var c2 = db.newInstance("Child");
+    var c2 = session.newInstance("Child");
     c2.setProperty("name", "Jack");
 
     var children = new HashMap<String, Entity>();
@@ -1029,84 +1030,84 @@ public class CRUDTest extends BaseDBTest {
 
     p.setProperty("children", children);
 
-    db.save(p);
-    db.commit();
+    session.save(p);
+    session.commit();
 
-    db.begin();
-    var c3 = db.newInstance("Child");
+    session.begin();
+    var c3 = session.newInstance("Child");
     c3.setProperty("name", "Olivia");
-    var c4 = db.newInstance("Child");
+    var c4 = session.newInstance("Child");
     c4.setProperty("name", "Peter");
 
-    p = db.bindToSession(p);
+    p = session.bindToSession(p);
     p.<Map<String, Identifiable>>getProperty("children").put("third", c3);
     p.<Map<String, Identifiable>>getProperty("children").put("fourth", c4);
 
-    db.save(p);
-    db.commit();
+    session.save(p);
+    session.commit();
 
-    db.begin();
+    session.begin();
     var cresult = executeQuery("select * from Child");
     Assert.assertFalse(cresult.isEmpty());
 
     var rid = p.getIdentity();
-    db.commit();
+    session.commit();
 
-    db.close();
+    session.close();
 
-    db = createSessionInstance();
-    db.begin();
-    c1 = db.bindToSession(c1);
-    c2 = db.bindToSession(c2);
-    c3 = db.bindToSession(c3);
-    c4 = db.bindToSession(c4);
+    session = createSessionInstance();
+    session.begin();
+    c1 = session.bindToSession(c1);
+    c2 = session.bindToSession(c2);
+    c3 = session.bindToSession(c3);
+    c4 = session.bindToSession(c4);
 
-    Entity loaded = db.load(rid);
+    Entity loaded = session.load(rid);
 
     Assert.assertEquals(
         loaded
             .<Map<String, Identifiable>>getProperty("children")
             .get("first")
-            .getEntity(db)
+            .getEntity(session)
             .getProperty("name"),
         c1.<String>getProperty("name"));
     Assert.assertEquals(
         loaded
             .<Map<String, Identifiable>>getProperty("children")
             .get("second")
-            .getEntity(db)
+            .getEntity(session)
             .getProperty("name"),
         c2.<String>getProperty("name"));
     Assert.assertEquals(
         loaded
             .<Map<String, Identifiable>>getProperty("children")
             .get("third")
-            .getEntity(db)
+            .getEntity(session)
             .getProperty("name"),
         c3.<String>getProperty("name"));
     Assert.assertEquals(
         loaded
             .<Map<String, Identifiable>>getProperty("children")
             .get("fourth")
-            .getEntity(db)
+            .getEntity(session)
             .getProperty("name"),
         c4.<String>getProperty("name"));
     Assert.assertNull(loaded.<Map<String, Identifiable>>getProperty("children").get("fifth"));
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "mapObjectsLinkTest")
   public void mapObjectsLinkTwoSaveTest() {
-    var p = db.newInstance("JavaComplexTestClass");
+    var p = session.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Silvester");
 
-    db.begin();
-    p = db.save(p);
+    session.begin();
+    p = session.save(p);
 
-    var c1 = db.newInstance("Child");
+    var c1 = session.newInstance("Child");
     c1.setProperty("name", "John");
 
-    var c2 = db.newInstance("Child");
+    var c2 = session.newInstance("Child");
     c2.setProperty("name", "Jack");
 
     var children = new HashMap<String, Identifiable>();
@@ -1115,81 +1116,81 @@ public class CRUDTest extends BaseDBTest {
 
     p.setProperty("children", children);
 
-    db.save(p);
+    session.save(p);
 
-    var c3 = db.newInstance("Child");
+    var c3 = session.newInstance("Child");
     c3.setProperty("name", "Olivia");
-    var c4 = db.newInstance("Child");
+    var c4 = session.newInstance("Child");
     c4.setProperty("name", "Peter");
 
     p.<Map<String, Identifiable>>getProperty("children").put("third", c3);
     p.<Map<String, Identifiable>>getProperty("children").put("fourth", c4);
 
-    db.save(p);
-    db.commit();
+    session.save(p);
+    session.commit();
 
-    db.begin();
+    session.begin();
     var cresult = executeQuery("select * from Child");
     Assert.assertFalse(cresult.isEmpty());
 
     var rid = p.getIdentity();
-    db.commit();
+    session.commit();
 
-    db.close();
+    session.close();
 
-    db = createSessionInstance();
-    db.begin();
-    Entity loaded = db.load(rid);
+    session = createSessionInstance();
+    session.begin();
+    Entity loaded = session.load(rid);
 
-    c1 = db.bindToSession(c1);
-    c2 = db.bindToSession(c2);
-    c3 = db.bindToSession(c3);
-    c4 = db.bindToSession(c4);
+    c1 = session.bindToSession(c1);
+    c2 = session.bindToSession(c2);
+    c3 = session.bindToSession(c3);
+    c4 = session.bindToSession(c4);
 
     Assert.assertEquals(
         loaded
             .<Map<String, Identifiable>>getProperty("children")
             .get("first")
-            .getEntity(db)
+            .getEntity(session)
             .getProperty("name"),
         c1.<String>getProperty("name"));
     Assert.assertEquals(
         loaded
             .<Map<String, Identifiable>>getProperty("children")
             .get("second")
-            .getEntity(db)
+            .getEntity(session)
             .getProperty("name"),
         c2.<String>getProperty("name"));
     Assert.assertEquals(
         loaded
             .<Map<String, Identifiable>>getProperty("children")
             .get("third")
-            .getEntity(db)
+            .getEntity(session)
             .getProperty("name"),
         c3.<String>getProperty("name"));
     Assert.assertEquals(
         loaded
             .<Map<String, Identifiable>>getProperty("children")
             .get("fourth")
-            .getEntity(db)
+            .getEntity(session)
             .getProperty("name"),
         c4.<String>getProperty("name"));
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "mapObjectsLinkTest")
   public void mapObjectsLinkUpdateDatabaseNewInstanceTest() {
     // TEST WITH NEW INSTANCE
-    var p = db.newInstance("JavaComplexTestClass");
+    var p = session.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Fringe");
 
-    var c = db.newInstance("Child");
+    var c = session.newInstance("Child");
     c.setProperty("name", "Peter");
-    var c1 = db.newInstance("Child");
+    var c1 = session.newInstance("Child");
     c1.setProperty("name", "Walter");
-    var c2 = db.newInstance("Child");
+    var c2 = session.newInstance("Child");
     c2.setProperty("name", "Olivia");
-    var c3 = db.newInstance("Child");
+    var c3 = session.newInstance("Child");
     c3.setProperty("name", "Astrid");
 
     Map<String, Identifiable> children = new HashMap<>();
@@ -1200,17 +1201,17 @@ public class CRUDTest extends BaseDBTest {
 
     p.setProperty("children", children);
 
-    db.begin();
-    db.save(p);
-    db.commit();
+    session.begin();
+    session.save(p);
+    session.commit();
 
     var rid = p.getIdentity();
 
-    db.close();
+    session.close();
 
-    db = createSessionInstance();
-    db.begin();
-    Entity loaded = db.load(rid);
+    session = createSessionInstance();
+    session.begin();
+    Entity loaded = session.load(rid);
 
     for (var key : loaded.<Map<String, Identifiable>>getProperty("children").keySet()) {
       Assert.assertTrue(
@@ -1222,7 +1223,7 @@ public class CRUDTest extends BaseDBTest {
           loaded
               .<Map<String, Identifiable>>getProperty("children")
               .get(key)
-              .getEntity(db)
+              .getEntity(session)
               .getClassName(),
           "Child");
       Assert.assertEquals(
@@ -1230,45 +1231,45 @@ public class CRUDTest extends BaseDBTest {
           loaded
               .<Map<String, Identifiable>>getProperty("children")
               .get(key)
-              .getEntity(db)
+              .getEntity(session)
               .getProperty("name"));
       switch (key) {
         case "Peter" -> Assert.assertEquals(
             loaded
                 .<Map<String, Identifiable>>getProperty("children")
                 .get(key)
-                .getEntity(db)
+                .getEntity(session)
                 .getProperty("name"),
             "Peter");
         case "Walter" -> Assert.assertEquals(
             loaded
                 .<Map<String, Identifiable>>getProperty("children")
                 .get(key)
-                .getEntity(db)
+                .getEntity(session)
                 .getProperty("name"),
             "Walter");
         case "Olivia" -> Assert.assertEquals(
             loaded
                 .<Map<String, Identifiable>>getProperty("children")
                 .get(key)
-                .getEntity(db)
+                .getEntity(session)
                 .getProperty("name"),
             "Olivia");
         case "Astrid" -> Assert.assertEquals(
             loaded
                 .<Map<String, Identifiable>>getProperty("children")
                 .get(key)
-                .getEntity(db)
+                .getEntity(session)
                 .getProperty("name"),
             "Astrid");
       }
     }
-    db.commit();
+    session.commit();
 
-    db.begin();
-    for (Entity reloaded : db.browseClass("JavaComplexTestClass")) {
-      reloaded = db.bindToSession(reloaded);
-      var c4 = db.newInstance("Child");
+    session.begin();
+    for (Entity reloaded : session.browseClass("JavaComplexTestClass")) {
+      reloaded = session.bindToSession(reloaded);
+      var c4 = session.newInstance("Child");
       c4.setProperty("name", "The Observer");
 
       children = reloaded.getProperty("children");
@@ -1279,14 +1280,14 @@ public class CRUDTest extends BaseDBTest {
 
       children.put(c4.getProperty("name"), c4);
 
-      db.save(reloaded);
+      session.save(reloaded);
     }
-    db.commit();
+    session.commit();
 
-    db.close();
-    db = createSessionInstance();
-    db.begin();
-    for (Entity reloaded : db.browseClass("JavaComplexTestClass")) {
+    session.close();
+    session = createSessionInstance();
+    session.begin();
+    for (Entity reloaded : session.browseClass("JavaComplexTestClass")) {
       Assert.assertTrue(
           reloaded.<Map<String, Identifiable>>getProperty("children")
               .containsKey("The Observer"));
@@ -1296,7 +1297,7 @@ public class CRUDTest extends BaseDBTest {
           reloaded
               .<Map<String, Identifiable>>getProperty("children")
               .get("The Observer")
-              .getEntity(db)
+              .getEntity(session)
               .getProperty("name"),
           "The Observer");
       Assert.assertTrue(
@@ -1311,23 +1312,23 @@ public class CRUDTest extends BaseDBTest {
               .getIdentity())
               .isValid());
     }
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "mapObjectsLinkUpdateDatabaseNewInstanceTest")
   public void mapObjectsLinkUpdateJavaNewInstanceTest() {
     // TEST WITH NEW INSTANCE
-    db.begin();
-    var p = db.newInstance("JavaComplexTestClass");
+    session.begin();
+    var p = session.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Fringe");
 
-    var c = db.newInstance("Child");
+    var c = session.newInstance("Child");
     c.setProperty("name", "Peter");
-    var c1 = db.newInstance("Child");
+    var c1 = session.newInstance("Child");
     c1.setProperty("name", "Walter");
-    var c2 = db.newInstance("Child");
+    var c2 = session.newInstance("Child");
     c2.setProperty("name", "Olivia");
-    var c3 = db.newInstance("Child");
+    var c3 = session.newInstance("Child");
     c3.setProperty("name", "Astrid");
 
     var children = new HashMap<String, Identifiable>();
@@ -1338,16 +1339,16 @@ public class CRUDTest extends BaseDBTest {
 
     p.setProperty("children", children);
 
-    p = db.save(p);
-    db.commit();
+    p = session.save(p);
+    session.commit();
 
     var rid = p.getIdentity();
 
-    db.close();
+    session.close();
 
-    db = createSessionInstance();
-    db.begin();
-    Entity loaded = db.load(rid);
+    session = createSessionInstance();
+    session.begin();
+    Entity loaded = session.load(rid);
 
     for (var key : loaded.<Map<String, Identifiable>>getProperty("children").keySet()) {
       Assert.assertTrue(
@@ -1359,7 +1360,7 @@ public class CRUDTest extends BaseDBTest {
           loaded
               .<Map<String, Identifiable>>getProperty("children")
               .get(key)
-              .getEntity(db)
+              .getEntity(session)
               .getClassName(),
           "Child");
       Assert.assertEquals(
@@ -1367,54 +1368,54 @@ public class CRUDTest extends BaseDBTest {
           loaded
               .<Map<String, Identifiable>>getProperty("children")
               .get(key)
-              .getEntity(db)
+              .getEntity(session)
               .getProperty("name"));
       switch (key) {
         case "Peter" -> Assert.assertEquals(
             loaded
                 .<Map<String, Identifiable>>getProperty("children")
                 .get(key)
-                .getEntity(db)
+                .getEntity(session)
                 .getProperty("name"),
             "Peter");
         case "Walter" -> Assert.assertEquals(
             loaded
                 .<Map<String, Identifiable>>getProperty("children")
                 .get(key)
-                .getEntity(db)
+                .getEntity(session)
                 .getProperty("name"),
             "Walter");
         case "Olivia" -> Assert.assertEquals(
             loaded
                 .<Map<String, Identifiable>>getProperty("children")
                 .get(key)
-                .getEntity(db)
+                .getEntity(session)
                 .getProperty("name"),
             "Olivia");
         case "Astrid" -> Assert.assertEquals(
             loaded
                 .<Map<String, Identifiable>>getProperty("children")
                 .get(key)
-                .getEntity(db)
+                .getEntity(session)
                 .getProperty("name"),
             "Astrid");
       }
     }
 
-    for (Entity reloaded : db.browseClass("JavaComplexTestClass")) {
-      var c4 = db.newInstance("Child");
+    for (Entity reloaded : session.browseClass("JavaComplexTestClass")) {
+      var c4 = session.newInstance("Child");
       c4.setProperty("name", "The Observer");
 
       reloaded.<Map<String, Identifiable>>getProperty("children").put(c4.getProperty("name"), c4);
 
-      db.save(reloaded);
+      session.save(reloaded);
     }
-    db.commit();
+    session.commit();
 
-    db.close();
-    db = createSessionInstance();
-    db.begin();
-    for (Entity reloaded : db.browseClass("JavaComplexTestClass")) {
+    session.close();
+    session = createSessionInstance();
+    session.begin();
+    for (Entity reloaded : session.browseClass("JavaComplexTestClass")) {
       Assert.assertTrue(
           reloaded.<Map<String, Identifiable>>getProperty("children")
               .containsKey("The Observer"));
@@ -1424,7 +1425,7 @@ public class CRUDTest extends BaseDBTest {
           reloaded
               .<Map<String, Identifiable>>getProperty("children")
               .get("The Observer")
-              .getEntity(db)
+              .getEntity(session)
               .getProperty("name"),
           "The Observer");
       Assert.assertTrue(
@@ -1439,7 +1440,7 @@ public class CRUDTest extends BaseDBTest {
               .getIdentity())
               .isValid());
     }
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "mapObjectsLinkUpdateJavaNewInstanceTest")
@@ -1449,7 +1450,7 @@ public class CRUDTest extends BaseDBTest {
     relatives.put("mother", "Julia");
 
     // TEST WITH OBJECT DATABASE NEW INSTANCE AND HANDLER MANAGEMENT
-    var p = db.newInstance("JavaComplexTestClass");
+    var p = session.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Chuck");
 
     var stringMap = new HashMap<String, String>();
@@ -1463,15 +1464,15 @@ public class CRUDTest extends BaseDBTest {
           entry.getValue(), p.<Map<String, String>>getProperty("stringMap").get(entry.getKey()));
     }
 
-    db.begin();
-    db.save(p);
-    db.commit();
+    session.begin();
+    session.save(p);
+    session.commit();
 
     var rid = p.getIdentity();
-    db.close();
-    db = createSessionInstance();
-    db.begin();
-    Entity loaded = db.load(rid);
+    session.close();
+    session = createSessionInstance();
+    session.begin();
+    Entity loaded = session.load(rid);
     Assert.assertNotNull(loaded.<Map<String, String>>getProperty("stringMap"));
     for (var entry : relatives.entrySet()) {
       Assert.assertEquals(
@@ -1481,21 +1482,21 @@ public class CRUDTest extends BaseDBTest {
     loaded.<Map<String, String>>getProperty("stringMap").put("brother", "Nike");
     relatives.put("brother", "Nike");
 
-    db.save(loaded);
-    db.commit();
+    session.save(loaded);
+    session.commit();
 
-    db.begin();
-    loaded = db.bindToSession(loaded);
+    session.begin();
+    loaded = session.bindToSession(loaded);
     for (var entry : relatives.entrySet()) {
       Assert.assertEquals(
           entry.getValue(),
           loaded.<Map<String, String>>getProperty("stringMap").get(entry.getKey()));
     }
-    db.commit();
-    db.close();
-    db = createSessionInstance();
-    db.begin();
-    loaded = db.load(rid);
+    session.commit();
+    session.close();
+    session = createSessionInstance();
+    session.begin();
+    loaded = session.load(rid);
     Assert.assertNotNull(loaded.<Map<String, String>>getProperty("stringMap"));
     for (var entry : relatives.entrySet()) {
       Assert.assertEquals(
@@ -1503,12 +1504,12 @@ public class CRUDTest extends BaseDBTest {
           loaded.<Map<String, String>>getProperty("stringMap").get(entry.getKey()));
     }
 
-    db.delete(db.bindToSession(loaded));
-    db.commit();
+    session.delete(session.bindToSession(loaded));
+    session.commit();
 
-    db.begin();
+    session.begin();
     // TEST WITH OBJECT DATABASE NEW INSTANCE AND MAP DIRECT SET
-    p = db.newInstance("JavaComplexTestClass");
+    p = session.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Chuck");
     p.setProperty("stringMap", relatives);
 
@@ -1517,15 +1518,15 @@ public class CRUDTest extends BaseDBTest {
           entry.getValue(), p.<Map<String, String>>getProperty("stringMap").get(entry.getKey()));
     }
 
-    db.save(p);
-    db.commit();
+    session.save(p);
+    session.commit();
 
     rid = p.getIdentity();
-    db.close();
-    db = createSessionInstance();
+    session.close();
+    session = createSessionInstance();
 
-    db.begin();
-    loaded = db.load(rid);
+    session.begin();
+    loaded = session.load(rid);
     Assert.assertNotNull(loaded.<Map<String, String>>getProperty("stringMap"));
     for (var entry : relatives.entrySet()) {
       Assert.assertEquals(
@@ -1535,22 +1536,22 @@ public class CRUDTest extends BaseDBTest {
     loaded.<Map<String, String>>getProperty("stringMap").put("brother", "Nike");
     relatives.put("brother", "Nike");
 
-    db.save(loaded);
-    db.commit();
+    session.save(loaded);
+    session.commit();
 
-    db.begin();
+    session.begin();
     for (var entry : relatives.entrySet()) {
-      loaded = db.bindToSession(loaded);
+      loaded = session.bindToSession(loaded);
       Assert.assertEquals(
           entry.getValue(),
           loaded.<Map<String, String>>getProperty("stringMap").get(entry.getKey()));
     }
-    db.commit();
-    db.close();
-    db = createSessionInstance();
+    session.commit();
+    session.close();
+    session = createSessionInstance();
 
-    db.begin();
-    loaded = db.load(rid);
+    session.begin();
+    loaded = session.load(rid);
     Assert.assertNotNull(loaded.<Map<String, String>>getProperty("stringMap"));
     for (var entry : relatives.entrySet()) {
       Assert.assertEquals(
@@ -1558,12 +1559,12 @@ public class CRUDTest extends BaseDBTest {
           loaded.<Map<String, String>>getProperty("stringMap").get(entry.getKey()));
     }
 
-    db.delete(db.bindToSession(loaded));
-    db.commit();
+    session.delete(session.bindToSession(loaded));
+    session.commit();
 
-    db.begin();
+    session.begin();
     // TEST WITH JAVA CONSTRUCTOR
-    p = db.newInstance("JavaComplexTestClass");
+    p = session.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Chuck");
     p.setProperty("stringMap", relatives);
 
@@ -1572,15 +1573,15 @@ public class CRUDTest extends BaseDBTest {
           entry.getValue(), p.<Map<String, String>>getProperty("stringMap").get(entry.getKey()));
     }
 
-    p = db.save(p);
-    db.commit();
+    p = session.save(p);
+    session.commit();
 
     rid = p.getIdentity();
-    db.close();
-    db = createSessionInstance();
+    session.close();
+    session = createSessionInstance();
 
-    db.begin();
-    loaded = db.load(rid);
+    session.begin();
+    loaded = session.load(rid);
     Assert.assertNotNull(loaded.<Map<String, String>>getProperty("stringMap"));
     for (var entry : relatives.entrySet()) {
       Assert.assertEquals(
@@ -1590,71 +1591,71 @@ public class CRUDTest extends BaseDBTest {
     loaded.<Map<String, String>>getProperty("stringMap").put("brother", "Nike");
     relatives.put("brother", "Nike");
 
-    db.save(loaded);
-    db.commit();
+    session.save(loaded);
+    session.commit();
 
-    db.begin();
+    session.begin();
     for (var entry : relatives.entrySet()) {
-      loaded = db.bindToSession(loaded);
+      loaded = session.bindToSession(loaded);
       Assert.assertEquals(
           entry.getValue(),
           loaded.<Map<String, String>>getProperty("stringMap").get(entry.getKey()));
     }
-    db.commit();
-    db.close();
-    db = createSessionInstance();
+    session.commit();
+    session.close();
+    session = createSessionInstance();
 
-    db.begin();
-    loaded = db.load(rid);
+    session.begin();
+    loaded = session.load(rid);
     Assert.assertNotNull(loaded.<Map<String, String>>getProperty("stringMap"));
     for (var entry : relatives.entrySet()) {
       Assert.assertEquals(
           entry.getValue(),
           loaded.<Map<String, String>>getProperty("stringMap").get(entry.getKey()));
     }
-    db.delete(db.bindToSession(loaded));
-    db.commit();
+    session.delete(session.bindToSession(loaded));
+    session.commit();
   }
 
   @Test(dependsOnMethods = "mapStringTest")
   public void setStringTest() {
-    db.begin();
-    var testClass = db.newInstance("JavaComplexTestClass");
+    session.begin();
+    var testClass = session.newInstance("JavaComplexTestClass");
     Set<String> roles = new HashSet<>();
 
     roles.add("manager");
     roles.add("developer");
     testClass.setProperty("stringSet", roles);
 
-    Entity testClassProxy = db.save(testClass);
-    db.commit();
+    Entity testClassProxy = session.save(testClass);
+    session.commit();
 
-    db.begin();
-    testClassProxy = db.bindToSession(testClassProxy);
+    session.begin();
+    testClassProxy = session.bindToSession(testClassProxy);
     Assert.assertEquals(roles.size(), testClassProxy.<Set<String>>getProperty("stringSet").size());
     for (var referenceRole : roles) {
-      testClassProxy = db.bindToSession(testClassProxy);
+      testClassProxy = session.bindToSession(testClassProxy);
       Assert.assertTrue(
           testClassProxy.<Set<String>>getProperty("stringSet").contains(referenceRole));
     }
 
     var orid = testClassProxy.getIdentity();
-    db.commit();
-    db.close();
-    db = createSessionInstance();
+    session.commit();
+    session.close();
+    session = createSessionInstance();
 
-    db.begin();
-    Entity loadedProxy = db.load(orid);
+    session.begin();
+    Entity loadedProxy = session.load(orid);
     Assert.assertEquals(roles.size(), loadedProxy.<Set<String>>getProperty("stringSet").size());
     for (var referenceRole : roles) {
       Assert.assertTrue(loadedProxy.<Set<String>>getProperty("stringSet").contains(referenceRole));
     }
 
-    db.save(db.bindToSession(loadedProxy));
-    db.commit();
+    session.save(session.bindToSession(loadedProxy));
+    session.commit();
 
-    db.begin();
-    loadedProxy = db.bindToSession(loadedProxy);
+    session.begin();
+    loadedProxy = session.bindToSession(loadedProxy);
     Assert.assertEquals(roles.size(), loadedProxy.<Set<String>>getProperty("stringSet").size());
     for (var referenceRole : roles) {
       Assert.assertTrue(loadedProxy.<Set<String>>getProperty("stringSet").contains(referenceRole));
@@ -1662,26 +1663,26 @@ public class CRUDTest extends BaseDBTest {
 
     loadedProxy.<Set<String>>getProperty("stringSet").remove("developer");
     roles.remove("developer");
-    db.save(loadedProxy);
-    db.commit();
+    session.save(loadedProxy);
+    session.commit();
 
-    db.begin();
-    loadedProxy = db.bindToSession(loadedProxy);
+    session.begin();
+    loadedProxy = session.bindToSession(loadedProxy);
     Assert.assertEquals(roles.size(), loadedProxy.<Set<String>>getProperty("stringSet").size());
     for (var referenceRole : roles) {
       Assert.assertTrue(loadedProxy.<Set<String>>getProperty("stringSet").contains(referenceRole));
     }
-    db.commit();
-    db.close();
-    db = createSessionInstance();
+    session.commit();
+    session.close();
+    session = createSessionInstance();
 
-    db.begin();
-    loadedProxy = db.bindToSession(loadedProxy);
+    session.begin();
+    loadedProxy = session.bindToSession(loadedProxy);
     Assert.assertEquals(roles.size(), loadedProxy.<Set<String>>getProperty("stringSet").size());
     for (var referenceRole : roles) {
       Assert.assertTrue(loadedProxy.<Set<String>>getProperty("stringSet").contains(referenceRole));
     }
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "setStringTest")
@@ -1701,7 +1702,7 @@ public class CRUDTest extends BaseDBTest {
     songAndMovies.put("songs", songs);
 
     // TEST WITH OBJECT DATABASE NEW INSTANCE AND HANDLER MANAGEMENT
-    var p = db.newInstance("JavaComplexTestClass");
+    var p = session.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Chuck");
 
     p.setProperty("stringListMap", songAndMovies);
@@ -1712,16 +1713,16 @@ public class CRUDTest extends BaseDBTest {
           p.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
-    db.begin();
-    db.save(p);
-    db.commit();
+    session.begin();
+    session.save(p);
+    session.commit();
 
     var rid = p.getIdentity();
-    db.close();
-    db = createSessionInstance();
+    session.close();
+    session = createSessionInstance();
 
-    db.begin();
-    Entity loaded = db.load(rid);
+    session.begin();
+    Entity loaded = session.load(rid);
     Assert.assertNotNull(loaded.<Map<String, List<String>>>getProperty("stringListMap"));
     for (var entry : songAndMovies.entrySet()) {
       Assert.assertEquals(
@@ -1729,12 +1730,12 @@ public class CRUDTest extends BaseDBTest {
           loaded.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
-    db.delete(db.bindToSession(loaded));
-    db.commit();
+    session.delete(session.bindToSession(loaded));
+    session.commit();
 
     // TEST WITH OBJECT DATABASE NEW INSTANCE AND MAP DIRECT SET
-    p = db.newInstance("JavaComplexTestClass");
-    db.begin();
+    p = session.newInstance("JavaComplexTestClass");
+    session.begin();
     p.setProperty("name", "Chuck");
     p.setProperty("stringListMap", songAndMovies);
 
@@ -1744,14 +1745,14 @@ public class CRUDTest extends BaseDBTest {
           p.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
-    db.save(p);
-    db.commit();
+    session.save(p);
+    session.commit();
 
     rid = p.getIdentity();
-    db.close();
-    db = createSessionInstance();
-    db.begin();
-    loaded = db.load(rid);
+    session.close();
+    session = createSessionInstance();
+    session.begin();
+    loaded = session.load(rid);
     Assert.assertNotNull(loaded.<Map<String, List<String>>>getProperty("stringListMap"));
     for (var entry : songAndMovies.entrySet()) {
       Assert.assertEquals(
@@ -1759,12 +1760,12 @@ public class CRUDTest extends BaseDBTest {
           loaded.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
-    db.delete(db.bindToSession(loaded));
-    db.commit();
+    session.delete(session.bindToSession(loaded));
+    session.commit();
 
-    db.begin();
+    session.begin();
     // TEST WITH OBJECT DATABASE NEW INSTANCE LIST DIRECT ADD
-    p = db.newInstance("JavaComplexTestClass");
+    p = session.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Chuck");
 
     var stringListMap = new HashMap<String, List<String>>();
@@ -1787,15 +1788,15 @@ public class CRUDTest extends BaseDBTest {
           p.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
-    db.save(p);
-    db.commit();
+    session.save(p);
+    session.commit();
 
     rid = p.getIdentity();
-    db.close();
-    db = createSessionInstance();
+    session.close();
+    session = createSessionInstance();
 
-    db.begin();
-    loaded = db.load(rid);
+    session.begin();
+    loaded = session.load(rid);
     Assert.assertNotNull(loaded.<Map<String, List<String>>>getProperty("stringListMap"));
     for (var entry : songAndMovies.entrySet()) {
       Assert.assertEquals(
@@ -1803,12 +1804,12 @@ public class CRUDTest extends BaseDBTest {
           loaded.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
-    db.delete(db.bindToSession(loaded));
-    db.commit();
+    session.delete(session.bindToSession(loaded));
+    session.commit();
 
     // TEST WITH JAVA CONSTRUCTOR
-    db.begin();
-    p = db.newInstance("JavaComplexTestClass");
+    session.begin();
+    p = session.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Chuck");
     p.setProperty("stringListMap", songAndMovies);
 
@@ -1818,14 +1819,14 @@ public class CRUDTest extends BaseDBTest {
           p.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
-    p = db.save(p);
-    db.commit();
+    p = session.save(p);
+    session.commit();
 
     rid = p.getIdentity();
-    db.close();
-    db = createSessionInstance();
-    db.begin();
-    loaded = db.load(rid);
+    session.close();
+    session = createSessionInstance();
+    session.begin();
+    loaded = session.load(rid);
     Assert.assertNotNull(loaded.<Map<String, List<String>>>getProperty("stringListMap"));
     for (var entry : songAndMovies.entrySet()) {
       Assert.assertEquals(
@@ -1833,8 +1834,8 @@ public class CRUDTest extends BaseDBTest {
           loaded.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
-    db.delete(db.bindToSession(loaded));
-    db.commit();
+    session.delete(session.bindToSession(loaded));
+    session.commit();
   }
 
   @Test
@@ -1851,7 +1852,7 @@ public class CRUDTest extends BaseDBTest {
     relatives.put("date", cal.getTime());
 
     // TEST WITH OBJECT DATABASE NEW INSTANCE AND HANDLER MANAGEMENT
-    var p = db.newInstance("JavaComplexTestClass");
+    var p = session.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Chuck");
 
     var mapObject = new HashMap<String, Object>();
@@ -1867,15 +1868,15 @@ public class CRUDTest extends BaseDBTest {
           entry.getValue(), p.<Map<String, Object>>getProperty("mapObject").get(entry.getKey()));
     }
 
-    db.begin();
-    db.save(p);
-    db.commit();
+    session.begin();
+    session.save(p);
+    session.commit();
 
     var rid = p.getIdentity();
-    db.close();
-    db = createSessionInstance();
-    db.begin();
-    Entity loaded = db.load(rid);
+    session.close();
+    session = createSessionInstance();
+    session.begin();
+    Entity loaded = session.load(rid);
     Assert.assertNotNull(loaded.<Map<String, Object>>getProperty("mapObject"));
     for (var entry : relatives.entrySet()) {
       Assert.assertEquals(
@@ -1885,22 +1886,22 @@ public class CRUDTest extends BaseDBTest {
     loaded.<Map<String, Object>>getProperty("mapObject").put("brother", "Nike");
     relatives.put("brother", "Nike");
 
-    db.save(loaded);
-    db.commit();
+    session.save(loaded);
+    session.commit();
 
-    db.begin();
+    session.begin();
     for (var entry : relatives.entrySet()) {
-      loaded = db.bindToSession(loaded);
+      loaded = session.bindToSession(loaded);
       Assert.assertEquals(
           entry.getValue(),
           loaded.<Map<String, Object>>getProperty("mapObject").get(entry.getKey()));
     }
-    db.commit();
+    session.commit();
 
-    db.close();
-    db = createSessionInstance();
-    db.begin();
-    loaded = db.load(rid);
+    session.close();
+    session = createSessionInstance();
+    session.begin();
+    loaded = session.load(rid);
     Assert.assertNotNull(loaded.<Map<String, Object>>getProperty("mapObject"));
     for (var entry : relatives.entrySet()) {
       Assert.assertEquals(
@@ -1908,12 +1909,12 @@ public class CRUDTest extends BaseDBTest {
           loaded.<Map<String, Object>>getProperty("mapObject").get(entry.getKey()));
     }
 
-    db.delete(db.bindToSession(loaded));
-    db.commit();
+    session.delete(session.bindToSession(loaded));
+    session.commit();
 
     // TEST WITH OBJECT DATABASE NEW INSTANCE AND MAP DIRECT SET
-    db.begin();
-    p = db.newInstance("JavaComplexTestClass");
+    session.begin();
+    p = session.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Chuck");
     p.setProperty("mapObject", relatives);
 
@@ -1922,15 +1923,15 @@ public class CRUDTest extends BaseDBTest {
           entry.getValue(), p.<Map<String, Object>>getProperty("mapObject").get(entry.getKey()));
     }
 
-    db.save(p);
-    db.commit();
+    session.save(p);
+    session.commit();
 
     rid = p.getIdentity();
-    db.close();
-    db = createSessionInstance();
+    session.close();
+    session = createSessionInstance();
 
-    db.begin();
-    loaded = db.load(rid);
+    session.begin();
+    loaded = session.load(rid);
     Assert.assertNotNull(loaded.<Map<String, Object>>getProperty("mapObject"));
     for (var entry : relatives.entrySet()) {
       Assert.assertEquals(
@@ -1941,22 +1942,22 @@ public class CRUDTest extends BaseDBTest {
     loaded.<Map<String, Object>>getProperty("mapObject").put("brother", "Nike");
     relatives.put("brother", "Nike");
 
-    db.save(loaded);
-    db.commit();
+    session.save(loaded);
+    session.commit();
 
-    db.begin();
+    session.begin();
     for (var entry : relatives.entrySet()) {
-      loaded = db.bindToSession(loaded);
+      loaded = session.bindToSession(loaded);
       Assert.assertEquals(
           entry.getValue(),
           loaded.<Map<String, Object>>getProperty("mapObject").get(entry.getKey()));
     }
-    db.commit();
+    session.commit();
 
-    db.close();
-    db = createSessionInstance();
-    db.begin();
-    loaded = db.load(rid);
+    session.close();
+    session = createSessionInstance();
+    session.begin();
+    loaded = session.load(rid);
     Assert.assertNotNull(loaded.<Map<String, Object>>getProperty("mapObject"));
     for (var entry : relatives.entrySet()) {
       Assert.assertEquals(
@@ -1964,11 +1965,11 @@ public class CRUDTest extends BaseDBTest {
           loaded.<Map<String, Object>>getProperty("mapObject").get(entry.getKey()));
     }
 
-    db.delete(db.bindToSession(loaded));
-    db.commit();
-    db.begin();
+    session.delete(session.bindToSession(loaded));
+    session.commit();
+    session.begin();
 
-    p = db.newInstance("JavaComplexTestClass");
+    p = session.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Chuck");
     p.setProperty("mapObject", relatives);
 
@@ -1977,14 +1978,14 @@ public class CRUDTest extends BaseDBTest {
           entry.getValue(), p.<Map<String, Object>>getProperty("mapObject").get(entry.getKey()));
     }
 
-    p = db.save(p);
-    db.commit();
+    p = session.save(p);
+    session.commit();
 
     rid = p.getIdentity();
-    db.close();
-    db = createSessionInstance();
-    db.begin();
-    loaded = db.load(rid);
+    session.close();
+    session = createSessionInstance();
+    session.begin();
+    loaded = session.load(rid);
     Assert.assertNotNull(loaded.<Map<String, Object>>getProperty("mapObject"));
     for (var entry : relatives.entrySet()) {
       Assert.assertEquals(
@@ -1994,21 +1995,21 @@ public class CRUDTest extends BaseDBTest {
     loaded.<Map<String, Object>>getProperty("mapObject").put("brother", "Nike");
 
     relatives.put("brother", "Nike");
-    db.save(loaded);
-    db.commit();
+    session.save(loaded);
+    session.commit();
 
-    db.begin();
+    session.begin();
     for (var entry : relatives.entrySet()) {
-      loaded = db.bindToSession(loaded);
+      loaded = session.bindToSession(loaded);
       Assert.assertEquals(
           entry.getValue(),
           loaded.<Map<String, Object>>getProperty("mapObject").get(entry.getKey()));
     }
-    db.commit();
-    db.close();
-    db = createSessionInstance();
-    db.begin();
-    loaded = db.load(rid);
+    session.commit();
+    session.close();
+    session = createSessionInstance();
+    session.begin();
+    loaded = session.load(rid);
 
     Assert.assertNotNull(loaded.<Map<String, Object>>getProperty("mapObject"));
     for (var entry : relatives.entrySet()) {
@@ -2017,21 +2018,21 @@ public class CRUDTest extends BaseDBTest {
           loaded.<Map<String, Object>>getProperty("mapObject").get(entry.getKey()));
     }
 
-    db.delete(db.bindToSession(loaded));
-    db.commit();
+    session.delete(session.bindToSession(loaded));
+    session.commit();
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Test(dependsOnMethods = "embeddedMapObjectTest")
   public void testNoGenericCollections() {
-    var p = db.newInstance("JavaNoGenericCollectionsTestClass");
-    var c1 = db.newInstance("Child");
+    var p = session.newInstance("JavaNoGenericCollectionsTestClass");
+    var c1 = session.newInstance("Child");
     c1.setProperty("name", "1");
-    var c2 = db.newInstance("Child");
+    var c2 = session.newInstance("Child");
     c2.setProperty("name", "2");
-    var c3 = db.newInstance("Child");
+    var c3 = session.newInstance("Child");
     c3.setProperty("name", "3");
-    var c4 = db.newInstance("Child");
+    var c4 = session.newInstance("Child");
     c4.setProperty("name", "4");
 
     var list = new ArrayList();
@@ -2057,15 +2058,15 @@ public class CRUDTest extends BaseDBTest {
     p.setProperty("set", set);
     p.setProperty("map", map);
 
-    db.begin();
-    p = db.save(p);
-    db.commit();
+    session.begin();
+    p = session.save(p);
+    session.commit();
 
     var rid = p.getIdentity();
-    db.close();
-    db = createSessionInstance();
-    db.begin();
-    p = db.load(rid);
+    session.close();
+    session = createSessionInstance();
+    session.begin();
+    p = session.load(rid);
 
     Assert.assertEquals(p.<List>getProperty("list").size(), 4);
     Assert.assertEquals(p.<Set>getProperty("set").size(), 4);
@@ -2084,18 +2085,18 @@ public class CRUDTest extends BaseDBTest {
       Assert.assertTrue(nameToInt > 0 && nameToInt < 5);
     }
 
-    var other = db.newEntity("JavaSimpleTestClass");
+    var other = session.newEntity("JavaSimpleTestClass");
     p.<List>getProperty("list").add(other);
     p.<Set>getProperty("set").add(other);
     p.<Map>getProperty("map").put("5", other);
 
-    db.save(p);
-    db.commit();
+    session.save(p);
+    session.commit();
 
-    db.close();
-    db = createSessionInstance();
-    db.begin();
-    p = db.load(rid);
+    session.close();
+    session = createSessionInstance();
+    session.begin();
+    p = session.load(rid);
     Assert.assertEquals(p.<List>getProperty("list").size(), 5);
     var o = p.<List>getProperty("list").get(4);
     Assert.assertTrue(o instanceof Entity);
@@ -2106,46 +2107,46 @@ public class CRUDTest extends BaseDBTest {
       hasOther = hasOther || (obj instanceof Entity);
     }
     Assert.assertTrue(hasOther);
-    db.commit();
+    session.commit();
   }
 
   public void oidentifableFieldsTest() {
-    var p = db.newInstance("JavaComplexTestClass");
+    var p = session.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Dean Winchester");
 
-    var testEmbeddedDocument = ((EntityImpl) db.newEntity());
+    var testEmbeddedDocument = ((EntityImpl) session.newEntity());
     testEmbeddedDocument.field("testEmbeddedField", "testEmbeddedValue");
 
     p.setProperty("embeddedDocument", testEmbeddedDocument);
 
-    db.begin();
-    var testDocument = ((EntityImpl) db.newEntity());
+    session.begin();
+    var testDocument = ((EntityImpl) session.newEntity());
     testDocument.field("testField", "testValue");
 
     testDocument.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    testDocument = db.bindToSession(testDocument);
+    session.begin();
+    testDocument = session.bindToSession(testDocument);
     p.setProperty("document", testDocument);
 
     var testRecordBytes =
-        db.newBlob(
+        session.newBlob(
             "this is a bytearray test. if you read this Object database has stored it correctly"
                 .getBytes());
 
     p.setProperty("byteArray", testRecordBytes);
 
-    db.save(p);
-    db.commit();
+    session.save(p);
+    session.commit();
 
     var rid = p.getIdentity();
 
-    db.close();
+    session.close();
 
-    db = createSessionInstance();
-    db.begin();
-    Entity loaded = db.load(rid);
+    session = createSessionInstance();
+    session.begin();
+    Entity loaded = session.load(rid);
 
     Assert.assertNotNull(loaded.getBlobProperty("byteArray"));
     try {
@@ -2175,25 +2176,25 @@ public class CRUDTest extends BaseDBTest {
     Assert.assertFalse(
         ((RecordId) loaded.getEntityProperty("embeddedDocument").getIdentity()).isValid());
 
-    db.commit();
-    db.close();
-    db = createSessionInstance();
+    session.commit();
+    session.close();
+    session = createSessionInstance();
 
-    db.begin();
-    p = db.newInstance("JavaComplexTestClass");
+    session.begin();
+    p = session.newInstance("JavaComplexTestClass");
     var thumbnailImageBytes =
         "this is a bytearray test. if you read this Object database has stored it correctlyVERSION2"
             .getBytes();
-    var oRecordBytes = db.newBlob(thumbnailImageBytes);
+    var oRecordBytes = session.newBlob(thumbnailImageBytes);
 
     oRecordBytes.save();
     p.setProperty("byteArray", oRecordBytes);
 
-    p = db.save(p);
-    db.commit();
+    p = session.save(p);
+    session.commit();
 
-    db.begin();
-    p = db.bindToSession(p);
+    session.begin();
+    p = session.bindToSession(p);
     Assert.assertNotNull(p.getBlobProperty("byteArray"));
     try {
       try (var out = new ByteArrayOutputStream()) {
@@ -2213,12 +2214,12 @@ public class CRUDTest extends BaseDBTest {
     }
     rid = p.getIdentity();
 
-    db.commit();
-    db.close();
+    session.commit();
+    session.close();
 
-    db = createSessionInstance();
-    db.begin();
-    loaded = db.load(rid);
+    session = createSessionInstance();
+    session.begin();
+    loaded = session.load(rid);
 
     Assert.assertNotNull(loaded.getBlobProperty("byteArray"));
     try {
@@ -2238,25 +2239,25 @@ public class CRUDTest extends BaseDBTest {
       LogManager.instance().error(this, "Error reading byte[]", ioe);
       throw new RuntimeException(ioe);
     }
-    db.commit();
-    db.close();
-    db = createSessionInstance();
+    session.commit();
+    session.close();
+    session = createSessionInstance();
 
-    db.begin();
-    p = db.newInstance("JavaComplexTestClass");
+    session.begin();
+    p = session.newInstance("JavaComplexTestClass");
     thumbnailImageBytes =
         "this is a bytearray test. if you read this Object database has stored it correctlyVERSION2"
             .getBytes();
 
-    oRecordBytes = db.newBlob(thumbnailImageBytes);
+    oRecordBytes = session.newBlob(thumbnailImageBytes);
     oRecordBytes.save();
     p.setProperty("byteArray", oRecordBytes);
 
-    p = db.save(p);
-    db.commit();
+    p = session.save(p);
+    session.commit();
 
-    db.begin();
-    p = db.bindToSession(p);
+    session.begin();
+    p = session.bindToSession(p);
     Assert.assertNotNull(p.getBlobProperty("byteArray"));
     try {
       try (var out = new ByteArrayOutputStream()) {
@@ -2275,12 +2276,12 @@ public class CRUDTest extends BaseDBTest {
     }
     rid = p.getIdentity();
 
-    db.commit();
-    db.close();
+    session.commit();
+    session.close();
 
-    db = createSessionInstance();
-    db.begin();
-    loaded = db.load(rid);
+    session = createSessionInstance();
+    session.begin();
+    loaded = session.load(rid);
 
     loaded.getBlobProperty("byteArray");
     try {
@@ -2299,46 +2300,46 @@ public class CRUDTest extends BaseDBTest {
       Assert.fail();
       LogManager.instance().error(this, "Error reading byte[]", ioe);
     }
-    db.commit();
+    session.commit();
   }
 
   @Test
   public void testObjectDelete() {
-    var media = db.newEntity("Media");
-    var testRecord = db.newBlob("This is a test".getBytes());
+    var media = session.newEntity("Media");
+    var testRecord = session.newBlob("This is a test".getBytes());
 
     media.setProperty("content", testRecord);
 
-    db.begin();
-    media = db.save(media);
-    db.commit();
+    session.begin();
+    media = session.save(media);
+    session.commit();
 
-    db.begin();
-    media = db.bindToSession(media);
+    session.begin();
+    media = session.bindToSession(media);
     Assert.assertEquals(new String(media.getBlobProperty("content").toStream()), "This is a test");
 
     // try to delete
-    db.delete(db.bindToSession(media));
-    db.commit();
+    session.delete(session.bindToSession(media));
+    session.commit();
   }
 
   @Test(dependsOnMethods = "mapEnumAndInternalObjects")
   public void update() {
     var i = new int[]{0};
 
-    db.executeInTxBatches((Iterator<EntityImpl>) db.browseClass("Account"),
+    session.executeInTxBatches((Iterator<EntityImpl>) session.browseClass("Account"),
         (session, a) -> {
           if (i[0] % 2 == 0) {
             var addresses = a.<List<Identifiable>>getProperty("addresses");
-            var newAddress = db.newEntity("Address");
+            var newAddress = this.session.newEntity("Address");
 
             newAddress.setProperty("street", "Plaza central");
             newAddress.setProperty("type", "work");
 
-            var city = db.newEntity("City");
+            var city = this.session.newEntity("City");
             city.setProperty("name", "Madrid");
 
-            var country = db.newEntity("Country");
+            var country = this.session.newEntity("Country");
             country.setProperty("name", "Spain");
 
             city.setProperty("country", country);
@@ -2359,33 +2360,33 @@ public class CRUDTest extends BaseDBTest {
   @Test(dependsOnMethods = "update")
   public void testUpdate() {
     var i = 0;
-    db.begin();
+    session.begin();
     Entity a;
-    for (var iterator = db.query("select from Account"); iterator.hasNext(); ) {
+    for (var iterator = session.query("select from Account"); iterator.hasNext(); ) {
       a = iterator.next().asEntity();
 
       if (i % 2 == 0) {
         Assert.assertEquals(
             a.<List<Identifiable>>getProperty("addresses")
                 .getFirst()
-                .<Entity>getRecord(db)
+                .<Entity>getRecord(session)
                 .<Identifiable>getProperty("city")
-                .<Entity>getRecord(db)
-                .<Entity>getRecord(db)
+                .<Entity>getRecord(session)
+                .<Entity>getRecord(session)
                 .<Identifiable>getProperty("country")
-                .<Entity>getRecord(db)
+                .<Entity>getRecord(session)
                 .getProperty("name"),
             "Spain");
       } else {
         Assert.assertEquals(
             a.<List<Identifiable>>getProperty("addresses")
                 .getFirst()
-                .<Entity>getRecord(db)
+                .<Entity>getRecord(session)
                 .<Identifiable>getProperty("city")
-                .<Entity>getRecord(db)
-                .<Entity>getRecord(db)
+                .<Entity>getRecord(session)
+                .<Entity>getRecord(session)
                 .<Identifiable>getProperty("country")
-                .<Entity>getRecord(db)
+                .<Entity>getRecord(session)
                 .getProperty("name"),
             "Italy");
       }
@@ -2394,35 +2395,35 @@ public class CRUDTest extends BaseDBTest {
 
       i++;
     }
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testUpdate")
   public void checkLazyLoadingOff() {
-    var profiles = db.countClass("Profile");
+    var profiles = session.countClass("Profile");
 
-    db.begin();
-    var neo = db.newEntity("Profile");
+    session.begin();
+    var neo = session.newEntity("Profile");
     neo.setProperty("nick", "Neo");
     neo.setProperty("value", 1);
 
-    var address = db.newEntity("Address");
+    var address = session.newEntity("Address");
     address.setProperty("street", "Rio de Castilla");
     address.setProperty("type", "residence");
 
-    var city = db.newEntity("City");
+    var city = session.newEntity("City");
     city.setProperty("name", "Madrid");
 
-    var country = db.newEntity("Country");
+    var country = session.newEntity("Country");
     country.setProperty("name", "Spain");
 
     city.setProperty("country", country);
     address.setProperty("city", city);
 
-    var morpheus = db.newEntity("Profile");
+    var morpheus = session.newEntity("Profile");
     morpheus.setProperty("nick", "Morpheus");
 
-    var trinity = db.newEntity("Profile");
+    var trinity = session.newEntity("Profile");
     trinity.setProperty("nick", "Trinity");
 
     var followers = new HashSet<>();
@@ -2432,13 +2433,13 @@ public class CRUDTest extends BaseDBTest {
     neo.setProperty("followers", followers);
     neo.setProperty("location", address);
 
-    db.save(neo);
-    db.commit();
+    session.save(neo);
+    session.commit();
 
-    db.begin();
-    Assert.assertEquals(db.countClass("Profile"), profiles + 3);
+    session.begin();
+    Assert.assertEquals(session.countClass("Profile"), profiles + 3);
 
-    for (Entity obj : db.browseClass("Profile")) {
+    for (Entity obj : session.browseClass("Profile")) {
       var followersList = obj.<Set<Identifiable>>getProperty("followers");
       Assert.assertTrue(followersList == null || followersList instanceof LinkSet);
       if (obj.<String>getProperty("nick").equals("Neo")) {
@@ -2447,7 +2448,7 @@ public class CRUDTest extends BaseDBTest {
             obj.<Set<Identifiable>>getProperty("followers")
                 .iterator()
                 .next()
-                .getEntity(db)
+                .getEntity(session)
                 .getClassName(),
             "Profile");
       } else if (obj.<String>getProperty("nick").equals("Morpheus")
@@ -2455,12 +2456,12 @@ public class CRUDTest extends BaseDBTest {
         Assert.assertNull(obj.<Set<Identifiable>>getProperty("followers"));
       }
     }
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "checkLazyLoadingOff")
   public void queryPerFloat() {
-    db.begin();
+    session.begin();
     var resultSet = executeQuery("select * from Account where salary = 500.10");
 
     Assert.assertFalse(resultSet.isEmpty());
@@ -2470,12 +2471,12 @@ public class CRUDTest extends BaseDBTest {
       account = entries.asEntity();
       Assert.assertEquals(account.<Float>getProperty("salary"), 500.10f);
     }
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "checkLazyLoadingOff")
   public void queryCross3Levels() {
-    db.begin();
+    session.begin();
     var resultSet =
         executeQuery("select from Profile where location.city.country.name = 'Spain'");
 
@@ -2487,72 +2488,72 @@ public class CRUDTest extends BaseDBTest {
       Assert.assertEquals(
           profile
               .getEntityProperty("location")
-              .<Entity>getRecord(db)
+              .<Entity>getRecord(session)
               .<Identifiable>getProperty("city")
-              .<Entity>getRecord(db)
-              .<Entity>getRecord(db)
+              .<Entity>getRecord(session)
+              .<Entity>getRecord(session)
               .<Identifiable>getProperty("country")
-              .<Entity>getRecord(db)
+              .<Entity>getRecord(session)
               .getProperty("name"),
           "Spain");
     }
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "queryCross3Levels")
   public void deleteFirst() {
-    startRecordNumber = db.countClass("Account");
+    startRecordNumber = session.countClass("Account");
 
     // DELETE ALL THE RECORD IN THE CLASS
-    db.forEachInTx((Iterator<EntityImpl>) db.browseClass("Account"),
+    session.forEachInTx((Iterator<EntityImpl>) session.browseClass("Account"),
         ((session, document) -> {
           session.delete(document);
           return false;
         }));
 
-    Assert.assertEquals(db.countClass("Account"), startRecordNumber - 1);
+    Assert.assertEquals(session.countClass("Account"), startRecordNumber - 1);
   }
 
   @Test
   public void commandWithPositionalParameters() {
-    db.begin();
+    session.begin();
     var resultSet =
         executeQuery("select from Profile where name = ? and surname = ?", "Barack", "Obama");
 
     Assert.assertFalse(resultSet.isEmpty());
-    db.commit();
+    session.commit();
   }
 
   @Test
   public void queryWithPositionalParameters() {
-    db.begin();
+    session.begin();
     var resultSet =
         executeQuery("select from Profile where name = ? and surname = ?", "Barack", "Obama");
 
     Assert.assertFalse(resultSet.isEmpty());
-    db.commit();
+    session.commit();
   }
 
   @Test
   public void queryWithRidAsParameters() {
-    db.begin();
-    Entity profile = db.browseClass("Profile").next();
+    session.begin();
+    Entity profile = session.browseClass("Profile").next();
     var resultSet =
         executeQuery("select from Profile where @rid = ?", profile.getIdentity());
 
     Assert.assertEquals(resultSet.size(), 1);
-    db.commit();
+    session.commit();
   }
 
   @Test
   public void queryWithRidStringAsParameters() {
-    db.begin();
-    Entity profile = db.browseClass("Profile").next();
+    session.begin();
+    Entity profile = session.browseClass("Profile").next();
     var resultSet =
         executeQuery("select from Profile where @rid = ?", profile.getIdentity());
 
     Assert.assertEquals(resultSet.size(), 1);
-    db.commit();
+    session.commit();
   }
 
   @Test
@@ -2563,11 +2564,11 @@ public class CRUDTest extends BaseDBTest {
     params.put("name", "Barack");
     params.put("surname", "Obama");
 
-    db.begin();
+    session.begin();
     var resultSet =
         executeQuery("select from Profile where name = :name and surname = :surname", params);
     Assert.assertFalse(resultSet.isEmpty());
-    db.commit();
+    session.commit();
   }
 
   @Test
@@ -2586,11 +2587,11 @@ public class CRUDTest extends BaseDBTest {
 
   @Test
   public void queryConcatAttrib() {
-    db.begin();
+    session.begin();
     Assert.assertFalse(executeQuery("select from City where country.@class = 'Country'").isEmpty());
     Assert.assertEquals(
         executeQuery("select from City where country.@class = 'Country22'").size(), 0);
-    db.commit();
+    session.commit();
   }
 
   @Test
@@ -2619,62 +2620,62 @@ public class CRUDTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "oidentifableFieldsTest")
   public void testEmbeddedDeletion() {
-    db.begin();
-    var parent = db.newInstance("Parent");
+    session.begin();
+    var parent = session.newInstance("Parent");
     parent.setProperty("name", "Big Parent");
 
-    var embedded = db.newInstance("EmbeddedChild");
+    var embedded = session.newInstance("EmbeddedChild");
     embedded.setProperty("name", "Little Child");
 
     parent.setProperty("embeddedChild", embedded);
 
-    parent = db.save(parent);
+    parent = session.save(parent);
 
     var presult = executeQuery("select from Parent");
     var cresult = executeQuery("select from EmbeddedChild");
     Assert.assertEquals(presult.size(), 1);
     Assert.assertEquals(cresult.size(), 0);
 
-    var child = db.newInstance("EmbeddedChild");
+    var child = session.newInstance("EmbeddedChild");
     child.setProperty("name", "Little Child");
     parent.setProperty("child", child);
 
-    parent = db.save(parent);
-    db.commit();
+    parent = session.save(parent);
+    session.commit();
 
-    db.begin();
+    session.begin();
     presult = executeQuery("select from Parent");
     cresult = executeQuery("select from EmbeddedChild");
     Assert.assertEquals(presult.size(), 1);
     Assert.assertEquals(cresult.size(), 0);
 
-    db.delete(db.bindToSession(parent));
-    db.commit();
+    session.delete(session.bindToSession(parent));
+    session.commit();
 
-    db.begin();
+    session.begin();
     presult = executeQuery("select * from Parent");
     cresult = executeQuery("select * from EmbeddedChild");
 
     Assert.assertEquals(presult.size(), 0);
     Assert.assertEquals(cresult.size(), 0);
-    db.commit();
+    session.commit();
   }
 
   @Test(enabled = false, dependsOnMethods = "testCreate")
   public void testEmbeddedBinary() {
-    var a = db.newEntity("Account");
+    var a = session.newEntity("Account");
     a.setProperty("name", "Chris");
     a.setProperty("surname", "Martin");
     a.setProperty("id", 0);
     a.setProperty("thumbnail", new byte[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
 
-    a = db.save(a);
-    db.commit();
+    a = session.save(a);
+    session.commit();
 
-    db.close();
+    session.close();
 
-    db = createSessionInstance();
-    Entity aa = db.load(a.getIdentity());
+    session = createSessionInstance();
+    Entity aa = session.load(a.getIdentity());
     Assert.assertNotNull(a.getProperty("thumbnail"));
     Assert.assertNotNull(aa.getProperty("thumbnail"));
     byte[] b = aa.getProperty("thumbnail");
@@ -2685,22 +2686,22 @@ public class CRUDTest extends BaseDBTest {
 
   @Test
   public void queryById() {
-    db.begin();
+    session.begin();
     var result1 = executeQuery("select from Profile limit 1");
     var result2 =
         executeQuery("select from Profile where @rid = ?", result1.getFirst().getIdentity());
 
     Assert.assertFalse(result2.isEmpty());
-    db.commit();
+    session.commit();
   }
 
   @Test
   public void queryByIdNewApi() {
-    db.begin();
-    db.command("insert into Profile set nick = 'foo', name='foo'").close();
-    db.commit();
+    session.begin();
+    session.command("insert into Profile set nick = 'foo', name='foo'").close();
+    session.commit();
 
-    db.begin();
+    session.begin();
     var result1 = executeQuery("select from Profile where nick = 'foo'");
 
     Assert.assertEquals(result1.size(), 1);
@@ -2708,27 +2709,27 @@ public class CRUDTest extends BaseDBTest {
     var profile = result1.getFirst().asEntity();
 
     Assert.assertEquals(profile.getProperty("nick"), "foo");
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "testUpdate")
   public void testSaveMultiCircular() {
-    db = createSessionInstance();
+    session = createSessionInstance();
     try {
-      startRecordNumber = db.countClusterElements("Profile");
-      db.begin();
-      var bObama = db.newInstance("Profile");
+      startRecordNumber = session.countClusterElements("Profile");
+      session.begin();
+      var bObama = session.newInstance("Profile");
       bObama.setProperty("nick", "TheUSPresident");
       bObama.setProperty("name", "Barack");
       bObama.setProperty("surname", "Obama");
 
-      var address = db.newInstance("Address");
+      var address = session.newInstance("Address");
       address.setProperty("type", "Residence");
 
-      var city = db.newInstance("City");
+      var city = session.newInstance("City");
       city.setProperty("name", "Washington");
 
-      var country = db.newInstance("Country");
+      var country = session.newInstance("Country");
       country.setProperty("name", "USA");
 
       city.setProperty("country", country);
@@ -2736,13 +2737,13 @@ public class CRUDTest extends BaseDBTest {
 
       bObama.setProperty("location", address);
 
-      var presidentSon1 = db.newInstance("Profile");
+      var presidentSon1 = session.newInstance("Profile");
       presidentSon1.setProperty("nick", "PresidentSon10");
       presidentSon1.setProperty("name", "Malia Ann");
       presidentSon1.setProperty("surname", "Obama");
       presidentSon1.setProperty("invitedBy", bObama);
 
-      var presidentSon2 = db.newInstance("Profile");
+      var presidentSon2 = session.newInstance("Profile");
       presidentSon2.setProperty("nick", "PresidentSon20");
       presidentSon2.setProperty("name", "Natasha");
       presidentSon2.setProperty("surname", "Obama");
@@ -2754,94 +2755,94 @@ public class CRUDTest extends BaseDBTest {
 
       bObama.setProperty("followers", followers);
 
-      db.save(bObama);
-      db.commit();
+      session.save(bObama);
+      session.commit();
     } finally {
-      db.close();
+      session.close();
     }
   }
 
   private void createSimpleArrayTestClass() {
-    if (db.getSchema().existsClass("JavaSimpleArrayTestClass")) {
-      db.getSchema().dropClass("JavaSimpleSimpleArrayTestClass");
+    if (session.getSchema().existsClass("JavaSimpleArrayTestClass")) {
+      session.getSchema().dropClass("JavaSimpleSimpleArrayTestClass");
     }
 
-    var cls = db.createClass("JavaSimpleArrayTestClass");
-    cls.createProperty(db, "text", PropertyType.EMBEDDEDLIST);
-    cls.createProperty(db, "numberSimple", PropertyType.EMBEDDEDLIST);
-    cls.createProperty(db, "longSimple", PropertyType.EMBEDDEDLIST);
-    cls.createProperty(db, "doubleSimple", PropertyType.EMBEDDEDLIST);
-    cls.createProperty(db, "floatSimple", PropertyType.EMBEDDEDLIST);
-    cls.createProperty(db, "byteSimple", PropertyType.EMBEDDEDLIST);
-    cls.createProperty(db, "flagSimple", PropertyType.EMBEDDEDLIST);
-    cls.createProperty(db, "dateField", PropertyType.EMBEDDEDLIST);
+    var cls = session.createClass("JavaSimpleArrayTestClass");
+    cls.createProperty(session, "text", PropertyType.EMBEDDEDLIST);
+    cls.createProperty(session, "numberSimple", PropertyType.EMBEDDEDLIST);
+    cls.createProperty(session, "longSimple", PropertyType.EMBEDDEDLIST);
+    cls.createProperty(session, "doubleSimple", PropertyType.EMBEDDEDLIST);
+    cls.createProperty(session, "floatSimple", PropertyType.EMBEDDEDLIST);
+    cls.createProperty(session, "byteSimple", PropertyType.EMBEDDEDLIST);
+    cls.createProperty(session, "flagSimple", PropertyType.EMBEDDEDLIST);
+    cls.createProperty(session, "dateField", PropertyType.EMBEDDEDLIST);
   }
 
   private void createBinaryTestClass() {
-    if (db.getSchema().existsClass("JavaBinaryTestClass")) {
-      db.getSchema().dropClass("JavaBinaryTestClass");
+    if (session.getSchema().existsClass("JavaBinaryTestClass")) {
+      session.getSchema().dropClass("JavaBinaryTestClass");
     }
 
-    var cls = db.createClass("JavaBinaryTestClass");
-    cls.createProperty(db, "binaryData", PropertyType.BINARY);
+    var cls = session.createClass("JavaBinaryTestClass");
+    cls.createProperty(session, "binaryData", PropertyType.BINARY);
   }
 
   private void createPersonClass() {
-    if (db.getClass("PersonTest") == null) {
-      var cls = db.createClass("PersonTest");
-      cls.createProperty(db, "firstname", PropertyType.STRING);
-      cls.createProperty(db, "friends", PropertyType.LINKSET);
+    if (session.getClass("PersonTest") == null) {
+      var cls = session.createClass("PersonTest");
+      cls.createProperty(session, "firstname", PropertyType.STRING);
+      cls.createProperty(session, "friends", PropertyType.LINKSET);
     }
   }
 
   private void createEventClass() {
-    if (db.getClass("Event") == null) {
-      var cls = db.createClass("Event");
-      cls.createProperty(db, "name", PropertyType.STRING);
-      cls.createProperty(db, "date", PropertyType.DATE);
+    if (session.getClass("Event") == null) {
+      var cls = session.createClass("Event");
+      cls.createProperty(session, "name", PropertyType.STRING);
+      cls.createProperty(session, "date", PropertyType.DATE);
     }
   }
 
   private void createAgendaClass() {
-    if (db.getClass("Agenda") == null) {
-      var cls = db.createClass("Agenda");
-      cls.createProperty(db, "events", PropertyType.EMBEDDEDLIST);
+    if (session.getClass("Agenda") == null) {
+      var cls = session.createClass("Agenda");
+      cls.createProperty(session, "events", PropertyType.EMBEDDEDLIST);
     }
   }
 
   private void createNonGenericClass() {
-    if (db.getClass("JavaNoGenericCollectionsTestClass") == null) {
-      var cls = db.createClass("JavaNoGenericCollectionsTestClass");
-      cls.createProperty(db, "list", PropertyType.EMBEDDEDLIST);
-      cls.createProperty(db, "set", PropertyType.EMBEDDEDSET);
-      cls.createProperty(db, "map", PropertyType.EMBEDDEDMAP);
+    if (session.getClass("JavaNoGenericCollectionsTestClass") == null) {
+      var cls = session.createClass("JavaNoGenericCollectionsTestClass");
+      cls.createProperty(session, "list", PropertyType.EMBEDDEDLIST);
+      cls.createProperty(session, "set", PropertyType.EMBEDDEDSET);
+      cls.createProperty(session, "map", PropertyType.EMBEDDEDMAP);
     }
   }
 
   private void createMediaClass() {
-    if (db.getClass("Media") == null) {
-      var cls = db.createClass("Media");
-      cls.createProperty(db, "content", PropertyType.LINK);
-      cls.createProperty(db, "name", PropertyType.STRING);
+    if (session.getClass("Media") == null) {
+      var cls = session.createClass("Media");
+      cls.createProperty(session, "content", PropertyType.LINK);
+      cls.createProperty(session, "name", PropertyType.STRING);
     }
   }
 
   private void createParentChildClasses() {
-    if (db.getSchema().existsClass("Parent")) {
-      db.getSchema().dropClass("Parent");
+    if (session.getSchema().existsClass("Parent")) {
+      session.getSchema().dropClass("Parent");
     }
-    if (db.getSchema().existsClass("EmbeddedChild")) {
-      db.getSchema().dropClass("EmbeddedChild");
+    if (session.getSchema().existsClass("EmbeddedChild")) {
+      session.getSchema().dropClass("EmbeddedChild");
     }
 
-    var parentCls = db.createClass("Parent");
-    parentCls.createProperty(db, "name", PropertyType.STRING);
-    parentCls.createProperty(db, "child", PropertyType.EMBEDDED,
-        db.getClass("EmbeddedChild"));
-    parentCls.createProperty(db, "embeddedChild", PropertyType.EMBEDDED,
-        db.getClass("EmbeddedChild"));
+    var parentCls = session.createClass("Parent");
+    parentCls.createProperty(session, "name", PropertyType.STRING);
+    parentCls.createProperty(session, "child", PropertyType.EMBEDDED,
+        session.getClass("EmbeddedChild"));
+    parentCls.createProperty(session, "embeddedChild", PropertyType.EMBEDDED,
+        session.getClass("EmbeddedChild"));
 
-    var childCls = db.createClass("EmbeddedChild");
-    childCls.createProperty(db, "name", PropertyType.STRING);
+    var childCls = session.createClass("EmbeddedChild");
+    childCls.createProperty(session, "name", PropertyType.STRING);
   }
 }

@@ -17,13 +17,11 @@ package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,13 +64,13 @@ public class SQLUpdateTest extends BaseDBTest {
 
     var positions = getAddressValidPositions();
 
-    db.begin();
+    session.begin();
     var records =
-        db.command(
+        session.command(
             "update Profile set salary = 120.30, location = "
                 + positions.get(2)
                 + ", salary_cloned = salary where surname = 'Obama'");
-    db.commit();
+    session.commit();
 
     Assert.assertEquals(((Number) records.next().getProperty("count")).intValue(), 3);
   }
@@ -81,17 +79,17 @@ public class SQLUpdateTest extends BaseDBTest {
   public void updateWithWhereRid() {
 
     var result =
-        db.command("select @rid as rid from Profile where surname = 'Obama'").stream()
+        session.command("select @rid as rid from Profile where surname = 'Obama'").stream()
             .toList();
 
     Assert.assertEquals(result.size(), 3);
 
-    db.begin();
+    session.begin();
     var records =
-        db.command(
+        session.command(
             "update Profile set salary = 133.00 where @rid = ?",
             result.get(0).<Object>getProperty("rid"));
-    db.commit();
+    session.commit();
 
     Assert.assertEquals(((Number) records.next().getProperty("count")).intValue(), 1);
   }
@@ -99,47 +97,47 @@ public class SQLUpdateTest extends BaseDBTest {
   @Test
   public void updateUpsertOperator() {
 
-    db.begin();
+    session.begin();
     var result =
-        db.command(
+        session.command(
             "UPDATE Profile SET surname='Merkel' RETURN AFTER where surname = 'Merkel'");
-    db.commit();
+    session.commit();
     Assert.assertEquals(result.stream().count(), 0);
 
-    db.begin();
+    session.begin();
     result =
-        db.command(
+        session.command(
             "UPDATE Profile SET surname='Merkel' UPSERT RETURN AFTER  where surname = 'Merkel'");
-    db.commit();
+    session.commit();
 
     Assert.assertEquals(result.stream().count(), 1);
 
-    result = db.command("SELECT FROM Profile  where surname = 'Merkel'");
+    result = session.command("SELECT FROM Profile  where surname = 'Merkel'");
     Assert.assertEquals(result.stream().count(), 1);
   }
 
   @Test(dependsOnMethods = "updateWithWhereOperator")
   public void updateCollectionsAddWithWhereOperator() {
-    db.begin();
+    session.begin();
     var positions = getAddressValidPositions();
     updatedRecords =
-        db
+        session
             .command("update Account set addresses = addresses || " + positions.get(0))
             .next()
             .getProperty("count");
-    db.commit();
+    session.commit();
   }
 
   @Test(dependsOnMethods = "updateCollectionsAddWithWhereOperator")
   public void updateCollectionsRemoveWithWhereOperator() {
     var positions = getAddressValidPositions();
-    db.begin();
+    session.begin();
     final long records =
-        db
+        session
             .command("update Account remove addresses = " + positions.get(0))
             .next()
             .getProperty("count");
-    db.commit();
+    session.commit();
 
     Assert.assertEquals(records, updatedRecords);
   }
@@ -147,15 +145,15 @@ public class SQLUpdateTest extends BaseDBTest {
   @Test(dependsOnMethods = "updateCollectionsRemoveWithWhereOperator")
   public void updateCollectionsWithSetOperator() {
 
-    var docs = db.query("select from Account").stream().toList();
+    var docs = session.query("select from Account").stream().toList();
 
     var positions = getAddressValidPositions();
 
     for (var doc : docs) {
 
-      db.begin();
+      session.begin();
       final long records =
-          db
+          session
               .command(
                   "update Account set addresses = ["
                       + positions.get(0)
@@ -167,29 +165,29 @@ public class SQLUpdateTest extends BaseDBTest {
                       + doc.getRecordId())
               .next()
               .getProperty("count");
-      db.commit();
+      session.commit();
 
-      db.begin();
+      session.begin();
       Assert.assertEquals(records, 1);
 
-      EntityImpl loadedDoc = db.load(doc.getRecordId());
+      EntityImpl loadedDoc = session.load(doc.getRecordId());
       Assert.assertEquals(((List<?>) loadedDoc.field("addresses")).size(), 3);
       Assert.assertEquals(
           ((Identifiable) ((List<?>) loadedDoc.field("addresses")).get(0)).getIdentity(),
           positions.get(0));
       loadedDoc.field("addresses", doc.<Object>getProperty("addresses"));
 
-      db.save(db.bindToSession(loadedDoc));
-      db.commit();
+      session.save(session.bindToSession(loadedDoc));
+      session.commit();
     }
   }
 
   @Test(dependsOnMethods = "updateCollectionsRemoveWithWhereOperator")
   public void updateMapsWithSetOperator() {
 
-    db.begin();
+    session.begin();
     var element =
-        db
+        session
             .command(
                 "insert into O (equaledges, name, properties) values ('no',"
                     + " 'circleUpdate', {'round':'eeee', 'blaaa':'zigzag'} )")
@@ -199,7 +197,7 @@ public class SQLUpdateTest extends BaseDBTest {
     Assert.assertNotNull(element);
 
     long records =
-        db
+        session
             .command(
                 "update "
                     + element.getIdentity()
@@ -207,11 +205,11 @@ public class SQLUpdateTest extends BaseDBTest {
                     + " 'bla':'zagzig','testTestTEST':'okOkOK'}")
             .next()
             .getProperty("count");
-    db.commit();
+    session.commit();
 
     Assert.assertEquals(records, 1);
 
-    Entity loadedElement = db.load(element.getIdentity());
+    Entity loadedElement = session.load(element.getIdentity());
 
     Assert.assertTrue(loadedElement.getProperty("properties") instanceof Map);
 
@@ -229,11 +227,11 @@ public class SQLUpdateTest extends BaseDBTest {
   @Test(dependsOnMethods = "updateCollectionsRemoveWithWhereOperator")
   public void updateAllOperator() {
 
-    var total = db.countClass("Profile");
+    var total = session.countClass("Profile");
 
-    db.begin();
-    Long records = db.command("update Profile set sex = 'male'").next().getProperty("count");
-    db.commit();
+    session.begin();
+    Long records = session.command("update Profile set sex = 'male'").next().getProperty("count");
+    session.commit();
 
     Assert.assertEquals(records.intValue(), (int) total);
   }
@@ -241,13 +239,13 @@ public class SQLUpdateTest extends BaseDBTest {
   @Test(dependsOnMethods = "updateAllOperator")
   public void updateWithWildcards() {
 
-    db.begin();
+    session.begin();
     long updated =
-        db
+        session
             .command("update Profile set sex = ? where sex = 'male' limit 1", "male")
             .next()
             .getProperty("count");
-    db.commit();
+    session.commit();
 
     Assert.assertEquals(updated, 1);
   }
@@ -255,73 +253,73 @@ public class SQLUpdateTest extends BaseDBTest {
   @Test
   public void updateWithWildcardsOnSetAndWhere() {
 
-    db.createClass("Person");
-    db.begin();
-    var doc = ((EntityImpl) db.newEntity("Person"));
+    session.createClass("Person");
+    session.begin();
+    var doc = ((EntityImpl) session.newEntity("Person"));
     doc.field("name", "Raf");
     doc.field("city", "Torino");
     doc.field("gender", "fmale");
     doc.save();
-    db.commit();
+    session.commit();
 
-    checkUpdatedDoc(db, "Torino", "fmale");
+    checkUpdatedDoc(session, "Torino", "fmale");
 
     /* THESE COMMANDS ARE OK */
-    db.begin();
-    db.command("update Person set gender = 'female' where name = 'Raf'", "Raf");
-    db.commit();
+    session.begin();
+    session.command("update Person set gender = 'female' where name = 'Raf'", "Raf");
+    session.commit();
 
-    checkUpdatedDoc(db, "Torino", "female");
+    checkUpdatedDoc(session, "Torino", "female");
 
-    db.begin();
-    db.command("update Person set city = 'Turin' where name = ?", "Raf");
-    db.commit();
+    session.begin();
+    session.command("update Person set city = 'Turin' where name = ?", "Raf");
+    session.commit();
 
-    checkUpdatedDoc(db, "Turin", "female");
+    checkUpdatedDoc(session, "Turin", "female");
 
-    db.begin();
-    db.command("update Person set gender = ? where name = 'Raf'", "F");
-    db.commit();
+    session.begin();
+    session.command("update Person set gender = ? where name = 'Raf'", "F");
+    session.commit();
 
-    checkUpdatedDoc(db, "Turin", "F");
+    checkUpdatedDoc(session, "Turin", "F");
 
-    db.begin();
-    db.command(
+    session.begin();
+    session.command(
         "update Person set gender = ?, city = ? where name = 'Raf'", "FEMALE", "TORINO");
-    db.commit();
+    session.commit();
 
-    checkUpdatedDoc(db, "TORINO", "FEMALE");
+    checkUpdatedDoc(session, "TORINO", "FEMALE");
 
-    db.begin();
-    db.command("update Person set gender = ? where name = ?", "f", "Raf");
-    db.commit();
+    session.begin();
+    session.command("update Person set gender = ? where name = ?", "f", "Raf");
+    session.commit();
 
-    checkUpdatedDoc(db, "TORINO", "f");
+    checkUpdatedDoc(session, "TORINO", "f");
   }
 
   public void updateWithReturn() {
-    var doc = ((EntityImpl) db.newEntity("Data"));
-    db.begin();
+    var doc = ((EntityImpl) session.newEntity("Data"));
+    session.begin();
     doc.field("name", "Pawel");
     doc.field("city", "Wroclaw");
     doc.field("really_big_field", "BIIIIIIIIIIIIIIIGGGGGGG!!!");
     doc.save();
-    db.commit();
+    session.commit();
 
     // check AFTER
-    var sqlString = "UPDATE " + doc.getIdentity().toString() + " SET gender='male' RETURN AFTER";
-    db.begin();
-    var result1 = db.command(sqlString).stream().toList();
-    db.commit();
+    var sqlString = "UPDATE " + doc.getIdentity() + " SET gender='male' RETURN AFTER";
+    session.begin();
+    var result1 = session.command(sqlString).stream().toList();
+    session.commit();
     Assert.assertEquals(result1.size(), 1);
     Assert.assertEquals(result1.get(0).getRecordId(), doc.getIdentity());
     Assert.assertEquals(result1.get(0).getProperty("gender"), "male");
 
     sqlString =
-        "UPDATE " + doc.getIdentity().toString() + " set Age = 101 RETURN AFTER $current.Age";
-    db.begin();
-    result1 = db.command(sqlString).stream().toList();
-    db.commit();
+        "UPDATE " + doc.getIdentity() + " set Age = 101 RETURN AFTER $current.Age";
+    session.begin();
+    result1 = session.command(sqlString).stream().toList();
+    session.commit();
 
     Assert.assertEquals(result1.size(), 1);
     Assert.assertTrue(result1.get(0).hasProperty("$current.Age"));
@@ -329,12 +327,12 @@ public class SQLUpdateTest extends BaseDBTest {
     // check exclude + WHERE + LIMIT
     sqlString =
         "UPDATE "
-            + doc.getIdentity().toString()
+            + doc.getIdentity()
             + " set Age = Age + 100 RETURN AFTER $current.Exclude('really_big_field') as res WHERE"
             + " Age=101 LIMIT 1";
-    db.begin();
-    result1 = db.command(sqlString).stream().toList();
-    db.commit();
+    session.begin();
+    result1 = session.command(sqlString).stream().toList();
+    session.commit();
 
     Assert.assertEquals(result1.size(), 1);
     var element = result1.get(0).<Result>getProperty("res");
@@ -345,14 +343,14 @@ public class SQLUpdateTest extends BaseDBTest {
 
   @Test
   public void updateWithNamedParameters() {
-    var doc = ((EntityImpl) db.newEntity("Data"));
+    var doc = ((EntityImpl) session.newEntity("Data"));
 
-    db.begin();
+    session.begin();
     doc.field("name", "Raf");
     doc.field("city", "Torino");
     doc.field("gender", "fmale");
     doc.save();
-    db.commit();
+    session.commit();
 
     var updatecommand = "update Data set gender = :gender , city = :city where name = :name";
     Map<String, Object> params = new HashMap<String, Object>();
@@ -360,11 +358,11 @@ public class SQLUpdateTest extends BaseDBTest {
     params.put("city", "TOR");
     params.put("name", "Raf");
 
-    db.begin();
-    db.command(updatecommand, params);
-    db.commit();
+    session.begin();
+    session.command(updatecommand, params);
+    session.commit();
 
-    var result = db.query("select * from Data");
+    var result = session.query("select * from Data");
     var oDoc = result.next();
     Assert.assertEquals("Raf", oDoc.getProperty("name"));
     Assert.assertEquals("TOR", oDoc.getProperty("city"));
@@ -375,21 +373,21 @@ public class SQLUpdateTest extends BaseDBTest {
   public void updateIncrement() {
 
     var result1 =
-        db.query("select salary from Account where salary is defined").stream().toList();
+        session.query("select salary from Account where salary is defined").stream().toList();
     Assert.assertFalse(result1.isEmpty());
 
-    db.begin();
+    session.begin();
     updatedRecords =
-        db
+        session
             .command("update Account set salary += 10 where salary is defined")
             .next()
             .getProperty("count");
-    db.commit();
+    session.commit();
 
     Assert.assertTrue(updatedRecords > 0);
 
     var result2 =
-        db.query("select salary from Account where salary is defined").stream().toList();
+        session.query("select salary from Account where salary is defined").stream().toList();
     Assert.assertFalse(result2.isEmpty());
     Assert.assertEquals(result2.size(), result1.size());
 
@@ -399,18 +397,18 @@ public class SQLUpdateTest extends BaseDBTest {
       Assert.assertEquals(salary2, salary1 + 10);
     }
 
-    db.begin();
+    session.begin();
     updatedRecords =
-        db
+        session
             .command("update Account set salary -= 10 where salary is defined")
             .next()
             .getProperty("count");
-    db.commit();
+    session.commit();
 
     Assert.assertTrue(updatedRecords > 0);
 
     var result3 =
-        db.command("select salary from Account where salary is defined").stream().toList();
+        session.command("select salary from Account where salary is defined").stream().toList();
     Assert.assertFalse(result3.isEmpty());
     Assert.assertEquals(result3.size(), result1.size());
 
@@ -424,22 +422,22 @@ public class SQLUpdateTest extends BaseDBTest {
   public void updateSetMultipleFields() {
 
     var result1 =
-        db.query("select salary from Account where salary is defined").stream().toList();
+        session.query("select salary from Account where salary is defined").stream().toList();
     Assert.assertFalse(result1.isEmpty());
 
-    db.begin();
+    session.begin();
     updatedRecords =
-        db
+        session
             .command(
                 "update Account set salary2 = salary, checkpoint = true where salary is defined")
             .next()
             .getProperty("count");
-    db.commit();
+    session.commit();
 
     Assert.assertTrue(updatedRecords > 0);
 
     var result2 =
-        db.query("select from Account where salary is defined").stream().toList();
+        session.query("select from Account where salary is defined").stream().toList();
     Assert.assertFalse(result2.isEmpty());
     Assert.assertEquals(result2.size(), result1.size());
 
@@ -453,18 +451,18 @@ public class SQLUpdateTest extends BaseDBTest {
 
   public void updateAddMultipleFields() {
 
-    db.begin();
+    session.begin();
     updatedRecords =
-        db
+        session
             .command("update Account set myCollection = myCollection || [1,2] limit 1")
             .next()
             .getProperty("count");
-    db.commit();
+    session.commit();
 
     Assert.assertTrue(updatedRecords > 0);
 
     var result2 =
-        db.command("select from Account where myCollection is defined").stream().toList();
+        session.command("select from Account where myCollection is defined").stream().toList();
     Assert.assertEquals(result2.size(), 1);
 
     Collection<Object> myCollection = result2.iterator().next().getProperty("myCollection");
@@ -474,110 +472,110 @@ public class SQLUpdateTest extends BaseDBTest {
 
   @Test(enabled = false)
   public void testEscaping() {
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     schema.createClass("FormatEscapingTest");
 
-    db.begin();
-    var document = ((EntityImpl) db.newEntity("FormatEscapingTest"));
+    session.begin();
+    var document = ((EntityImpl) session.newEntity("FormatEscapingTest"));
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    db
+    session.begin();
+    session
         .command(
             "UPDATE FormatEscapingTest SET test = format('aaa \\' bbb') WHERE @rid = "
                 + document.getIdentity())
         .close();
-    db.commit();
+    session.commit();
 
-    document = db.bindToSession(document);
+    document = session.bindToSession(document);
     Assert.assertEquals(document.field("test"), "aaa ' bbb");
 
-    db.begin();
-    db
+    session.begin();
+    session
         .command(
             "UPDATE FormatEscapingTest SET test = 'ccc \\' eee', test2 = format('aaa \\' bbb')"
                 + " WHERE @rid = "
                 + document.getIdentity())
         .close();
-    db.commit();
+    session.commit();
 
-    document = db.bindToSession(document);
+    document = session.bindToSession(document);
     Assert.assertEquals(document.field("test"), "ccc ' eee");
     Assert.assertEquals(document.field("test2"), "aaa ' bbb");
 
-    db.begin();
-    db
+    session.begin();
+    session
         .command(
             "UPDATE FormatEscapingTest SET test = 'aaa \\n bbb' WHERE @rid = "
                 + document.getIdentity())
         .close();
-    db.commit();
+    session.commit();
 
-    document = db.bindToSession(document);
+    document = session.bindToSession(document);
     Assert.assertEquals(document.field("test"), "aaa \n bbb");
 
-    db.begin();
-    db
+    session.begin();
+    session
         .command(
             "UPDATE FormatEscapingTest SET test = 'aaa \\r bbb' WHERE @rid = "
                 + document.getIdentity())
         .close();
-    db.commit();
+    session.commit();
 
-    document = db.bindToSession(document);
+    document = session.bindToSession(document);
     Assert.assertEquals(document.field("test"), "aaa \r bbb");
 
-    db.begin();
-    db
+    session.begin();
+    session
         .command(
             "UPDATE FormatEscapingTest SET test = 'aaa \\b bbb' WHERE @rid = "
                 + document.getIdentity())
         .close();
-    db.commit();
+    session.commit();
 
-    document = db.bindToSession(document);
+    document = session.bindToSession(document);
     Assert.assertEquals(document.field("test"), "aaa \b bbb");
 
-    db.begin();
-    db
+    session.begin();
+    session
         .command(
             "UPDATE FormatEscapingTest SET test = 'aaa \\t bbb' WHERE @rid = "
                 + document.getIdentity())
         .close();
-    db.commit();
+    session.commit();
 
-    document = db.bindToSession(document);
+    document = session.bindToSession(document);
     Assert.assertEquals(document.field("test"), "aaa \t bbb");
 
-    db.begin();
-    db
+    session.begin();
+    session
         .command(
             "UPDATE FormatEscapingTest SET test = 'aaa \\f bbb' WHERE @rid = "
                 + document.getIdentity())
         .close();
-    db.commit();
+    session.commit();
 
-    document = db.bindToSession(document);
+    document = session.bindToSession(document);
     Assert.assertEquals(document.field("test"), "aaa \f bbb");
   }
 
   public void testUpdateVertexContent() {
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     var vertex = schema.getClass("V");
     schema.createClass("UpdateVertexContent", vertex);
 
-    db.begin();
-    final var vOneId = db.command("create vertex UpdateVertexContent").next().getRecordId();
-    final var vTwoId = db.command("create vertex UpdateVertexContent").next().getRecordId();
+    session.begin();
+    final var vOneId = session.command("create vertex UpdateVertexContent").next().getRecordId();
+    final var vTwoId = session.command("create vertex UpdateVertexContent").next().getRecordId();
 
-    db.command("create edge from " + vOneId + " to " + vTwoId).close();
-    db.command("create edge from " + vOneId + " to " + vTwoId).close();
-    db.command("create edge from " + vOneId + " to " + vTwoId).close();
-    db.commit();
+    session.command("create edge from " + vOneId + " to " + vTwoId).close();
+    session.command("create edge from " + vOneId + " to " + vTwoId).close();
+    session.command("create edge from " + vOneId + " to " + vTwoId).close();
+    session.commit();
 
     var result =
-        db
+        session
             .query("select sum(outE().size(), inE().size()) as sum from UpdateVertexContent")
             .stream()
             .collect(Collectors.toList());
@@ -588,17 +586,17 @@ public class SQLUpdateTest extends BaseDBTest {
       Assert.assertEquals(doc.<Object>getProperty("sum"), 3);
     }
 
-    db.begin();
-    db
+    session.begin();
+    session
         .command("update UpdateVertexContent content {value : 'val'} where @rid = " + vOneId)
         .close();
-    db
+    session
         .command("update UpdateVertexContent content {value : 'val'} where @rid =  " + vTwoId)
         .close();
-    db.commit();
+    session.commit();
 
     result =
-        db
+        session
             .query("select sum(outE().size(), inE().size()) as sum from UpdateVertexContent")
             .stream()
             .collect(Collectors.toList());
@@ -610,7 +608,7 @@ public class SQLUpdateTest extends BaseDBTest {
     }
 
     result =
-        db.query("select from UpdateVertexContent").stream().collect(Collectors.toList());
+        session.query("select from UpdateVertexContent").stream().collect(Collectors.toList());
     Assert.assertEquals(result.size(), 2);
     for (var doc : result) {
       Assert.assertEquals(doc.getProperty("value"), "val");
@@ -618,24 +616,24 @@ public class SQLUpdateTest extends BaseDBTest {
   }
 
   public void testUpdateEdgeContent() {
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     var vertex = schema.getClass("V");
     var edge = schema.getClass("E");
 
     schema.createClass("UpdateEdgeContentV", vertex);
     schema.createClass("UpdateEdgeContentE", edge);
 
-    db.begin();
-    final var vOneId = db.command("create vertex UpdateEdgeContentV").next().getRecordId();
-    final var vTwoId = db.command("create vertex UpdateEdgeContentV").next().getRecordId();
+    session.begin();
+    final var vOneId = session.command("create vertex UpdateEdgeContentV").next().getRecordId();
+    final var vTwoId = session.command("create vertex UpdateEdgeContentV").next().getRecordId();
 
-    db.command("create edge UpdateEdgeContentE from " + vOneId + " to " + vTwoId).close();
-    db.command("create edge UpdateEdgeContentE from " + vOneId + " to " + vTwoId).close();
-    db.command("create edge UpdateEdgeContentE from " + vOneId + " to " + vTwoId).close();
-    db.commit();
+    session.command("create edge UpdateEdgeContentE from " + vOneId + " to " + vTwoId).close();
+    session.command("create edge UpdateEdgeContentE from " + vOneId + " to " + vTwoId).close();
+    session.command("create edge UpdateEdgeContentE from " + vOneId + " to " + vTwoId).close();
+    session.commit();
 
     var result =
-        db.query("select outV() as outV, inV() as inV from UpdateEdgeContentE").stream()
+        session.query("select outV() as outV, inV() as inV from UpdateEdgeContentE").stream()
             .collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 3);
@@ -645,12 +643,12 @@ public class SQLUpdateTest extends BaseDBTest {
       Assert.assertEquals(doc.getProperty("inV"), vTwoId);
     }
 
-    db.begin();
-    db.command("update UpdateEdgeContentE content {value : 'val'}").close();
-    db.commit();
+    session.begin();
+    session.command("update UpdateEdgeContentE content {value : 'val'}").close();
+    session.commit();
 
     result =
-        db.query("select outV() as outV, inV() as inV from UpdateEdgeContentE").stream()
+        session.query("select outV() as outV, inV() as inV from UpdateEdgeContentE").stream()
             .collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 3);
@@ -660,7 +658,7 @@ public class SQLUpdateTest extends BaseDBTest {
       Assert.assertEquals(doc.getProperty("inV"), vTwoId);
     }
 
-    result = db.query("select from UpdateEdgeContentE").stream().collect(Collectors.toList());
+    result = session.query("select from UpdateEdgeContentE").stream().collect(Collectors.toList());
     Assert.assertEquals(result.size(), 3);
     for (var doc : result) {
       Assert.assertEquals(doc.getProperty("value"), "val");
@@ -679,7 +677,7 @@ public class SQLUpdateTest extends BaseDBTest {
   private List<RID> getAddressValidPositions() {
     final List<RID> positions = new ArrayList<>();
 
-    final var iteratorClass = db.browseClass("Address");
+    final var iteratorClass = session.browseClass("Address");
 
     for (var i = 0; i < 7; i++) {
       if (!iteratorClass.hasNext()) {
@@ -692,74 +690,74 @@ public class SQLUpdateTest extends BaseDBTest {
   }
 
   public void testMultiplePut() {
-    db.begin();
-    EntityImpl v = db.newInstance("V");
+    session.begin();
+    EntityImpl v = session.newInstance("V");
     v.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
+    session.begin();
     Long records =
-        db
+        session
             .command(
                 "UPDATE"
                     + v.getIdentity()
                     + " SET embmap[\"test\"] = \"Luca\" ,embmap[\"test2\"]=\"Alex\"")
             .next()
             .getProperty("count");
-    db.commit();
+    session.commit();
 
     Assert.assertEquals(records.intValue(), 1);
 
-    db.begin();
-    v = db.bindToSession(v);
+    session.begin();
+    v = session.bindToSession(v);
     Assert.assertTrue(v.field("embmap") instanceof Map);
     Assert.assertEquals(((Map) v.field("embmap")).size(), 2);
-    db.rollback();
+    session.rollback();
   }
 
   public void testAutoConversionOfEmbeddededListWithLinkedClass() {
-    var c = db.getMetadata().getSchema().getOrCreateClass("TestConvert");
-    if (!c.existsProperty("embeddedListWithLinkedClass")) {
-      c.createProperty(db,
+    var c = session.getMetadata().getSchema().getOrCreateClass("TestConvert");
+    if (!c.existsProperty(session, "embeddedListWithLinkedClass")) {
+      c.createProperty(session,
           "embeddedListWithLinkedClass",
           PropertyType.EMBEDDEDLIST,
-          db.getMetadata().getSchema().getOrCreateClass("TestConvertLinkedClass"));
+          session.getMetadata().getSchema().getOrCreateClass("TestConvertLinkedClass"));
     }
 
-    db.begin();
+    session.begin();
     var id =
-        db
+        session
             .command(
                 "INSERT INTO TestConvert SET name = 'embeddedListWithLinkedClass',"
                     + " embeddedListWithLinkedClass = [{'line1':'123 Fake Street'}]")
             .next()
             .getRecordId();
 
-    db
+    session
         .command(
             "UPDATE "
                 + id
                 + " set embeddedListWithLinkedClass = embeddedListWithLinkedClass || [{'line1':'123"
                 + " Fake Street'}]")
         .close();
-    db.commit();
+    session.commit();
 
-    Entity doc = db.load(id);
+    Entity doc = session.load(id);
 
     Assert.assertTrue(doc.getProperty("embeddedListWithLinkedClass") instanceof List);
     Assert.assertEquals(((Collection) doc.getProperty("embeddedListWithLinkedClass")).size(), 2);
 
-    db.begin();
-    db
+    session.begin();
+    session
         .command(
             "UPDATE "
                 + doc.getIdentity()
                 + " set embeddedListWithLinkedClass =  embeddedListWithLinkedClass ||"
                 + " [{'line1':'123 Fake Street'}]")
         .close();
-    db.commit();
+    session.commit();
 
-    doc = db.bindToSession(doc);
+    doc = session.bindToSession(doc);
     Assert.assertTrue(doc.getProperty("embeddedListWithLinkedClass") instanceof List);
     Assert.assertEquals(((Collection) doc.getProperty("embeddedListWithLinkedClass")).size(), 3);
 
@@ -772,17 +770,17 @@ public class SQLUpdateTest extends BaseDBTest {
 
   public void testPutListOfMaps() {
     var className = "testPutListOfMaps";
-    db.getMetadata().getSchema().createClass(className);
+    session.getMetadata().getSchema().createClass(className);
 
-    db.begin();
-    db
+    session.begin();
+    session
         .command("insert into " + className + " set list = [{\"xxx\":1},{\"zzz\":3},{\"yyy\":2}]")
         .close();
-    db.command("UPDATE " + className + " set list = list || [{\"kkk\":4}]").close();
-    db.commit();
+    session.command("UPDATE " + className + " set list = list || [{\"kkk\":4}]").close();
+    session.commit();
 
     var result =
-        db.query("select from " + className).stream().collect(Collectors.toList());
+        session.query("select from " + className).stream().collect(Collectors.toList());
     Assert.assertEquals(result.size(), 1);
     var doc = result.get(0);
     List list = doc.getProperty("list");

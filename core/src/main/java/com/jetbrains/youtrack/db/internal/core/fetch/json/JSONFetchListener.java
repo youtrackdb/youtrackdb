@@ -54,9 +54,9 @@ public class JSONFetchListener implements FetchListener {
               iFormat, filedType);
     } catch (IOException e) {
       throw BaseException.wrapException(
-          new FetchException(
+          new FetchException(db.getDatabaseName(),
               "Error processing field '" + iFieldValue + " of record " + iRecord.getIdentity()),
-          e);
+          e, db.getDatabaseName());
     }
   }
 
@@ -92,14 +92,14 @@ public class JSONFetchListener implements FetchListener {
       ((JSONFetchContext) iContext).writeLinkedAttribute(db, iLinked, iFieldName);
     } catch (IOException e) {
       throw BaseException.wrapException(
-          new FetchException(
+          new FetchException(db.getDatabaseName(),
               "Error writing linked field "
                   + iFieldName
                   + " (record:"
                   + iLinked.getIdentity()
                   + ") of record "
                   + iRootRecord.getIdentity()),
-          e);
+          e, db.getDatabaseName());
     }
   }
 
@@ -118,14 +118,14 @@ public class JSONFetchListener implements FetchListener {
       }
     } catch (IOException e) {
       throw BaseException.wrapException(
-          new FetchException(
+          new FetchException(db.getDatabaseName(),
               "Error writing linked field "
                   + iFieldName
                   + " (record:"
                   + iLinked.getIdentity()
                   + ") of record "
                   + iRootRecord.getIdentity()),
-          e);
+          e, db.getDatabaseName());
     }
   }
 

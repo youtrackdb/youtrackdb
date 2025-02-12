@@ -1,8 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -13,7 +11,7 @@ public class EntityTest extends DbTestBase {
 
   @Test
   public void testGetSetProperty() {
-    var elem = db.newEntity();
+    var elem = session.newEntity();
     elem.setProperty("foo", "foo1");
     elem.setProperty("foo.bar", "foobar");
     elem.setProperty("  ", "spaces");
@@ -26,14 +24,14 @@ public class EntityTest extends DbTestBase {
 
   @Test
   public void testLoadAndSave() {
-    db.createClassIfNotExist("TestLoadAndSave");
-    db.begin();
-    var elem = db.newEntity("TestLoadAndSave");
+    session.createClassIfNotExist("TestLoadAndSave");
+    session.begin();
+    var elem = session.newEntity("TestLoadAndSave");
     elem.setProperty("name", "foo");
-    db.save(elem);
-    db.commit();
+    session.save(elem);
+    session.commit();
 
-    var result = db.query("select from TestLoadAndSave where name = 'foo'");
+    var result = session.query("select from TestLoadAndSave where name = 'foo'");
     Assert.assertTrue(result.hasNext());
     Assert.assertEquals("foo", result.next().getProperty("name"));
     result.close();

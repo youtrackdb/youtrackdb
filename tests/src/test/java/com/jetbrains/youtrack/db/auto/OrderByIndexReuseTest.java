@@ -29,25 +29,25 @@ public class OrderByIndexReuseTest extends BaseDBTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
 
     final var orderByIndexReuse = schema.createClass("OrderByIndexReuse", 1, null);
 
-    orderByIndexReuse.createProperty(db, "firstProp", PropertyType.INTEGER);
-    orderByIndexReuse.createProperty(db, "secondProp", PropertyType.INTEGER);
-    orderByIndexReuse.createProperty(db, "thirdProp", PropertyType.STRING);
-    orderByIndexReuse.createProperty(db, "prop4", PropertyType.STRING);
+    orderByIndexReuse.createProperty(session, "firstProp", PropertyType.INTEGER);
+    orderByIndexReuse.createProperty(session, "secondProp", PropertyType.INTEGER);
+    orderByIndexReuse.createProperty(session, "thirdProp", PropertyType.STRING);
+    orderByIndexReuse.createProperty(session, "prop4", PropertyType.STRING);
 
-    orderByIndexReuse.createIndex(db,
+    orderByIndexReuse.createIndex(session,
         "OrderByIndexReuseIndexSecondThirdProp",
         SchemaClass.INDEX_TYPE.UNIQUE,
         "secondProp", "thirdProp");
-    orderByIndexReuse.createIndex(db,
+    orderByIndexReuse.createIndex(session,
         "OrderByIndexReuseIndexFirstPropNotUnique", SchemaClass.INDEX_TYPE.NOTUNIQUE, "firstProp");
 
     for (var i = 0; i < 100; i++) {
-      db.begin();
-      var document = ((EntityImpl) db.newEntity("OrderByIndexReuse"));
+      session.begin();
+      var document = ((EntityImpl) session.newEntity("OrderByIndexReuse"));
       document.field("firstProp", (101 - i) / 2);
       document.field("secondProp", (101 - i) / 2);
 
@@ -55,13 +55,13 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       document.field("prop4", "prop" + (101 - i));
 
       document.save();
-      db.commit();
+      session.commit();
     }
   }
 
   public void testGreaterThanOrderByAscFirstProperty() {
     var query = "select from OrderByIndexReuse where firstProp > 5 order by firstProp limit 5";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (var i = 0; i < 5; i++) {
@@ -69,8 +69,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), i / 2 + 6);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -83,7 +83,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     var query =
         "select from OrderByIndexReuse where secondProp > 5 order by secondProp asc, thirdProp asc"
             + " limit 5";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (var i = 0; i < 5; i++) {
@@ -92,8 +92,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + (i + 12));
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -106,7 +106,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     var query =
         "select from OrderByIndexReuse where secondProp > 5 order by secondProp desc, thirdProp"
             + " desc limit 5";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (var i = 0; i < 5; i++) {
@@ -115,8 +115,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + (101 - i));
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -129,7 +129,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     var query =
         "select from OrderByIndexReuse where secondProp > 5 order by secondProp asc, thirdProp desc"
             + " limit 5";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (var i = 0; i < 5; i++) {
@@ -145,8 +145,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertFalse(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -155,7 +155,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
   public void testGreaterThanOrderByDescFirstProperty() {
     final var query =
         "select from OrderByIndexReuse where firstProp > 5 order by firstProp desc limit 5";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (var i = 0; i < 5; i++) {
@@ -163,8 +163,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), 50 - i / 2);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -176,7 +176,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
   public void testGTEOrderByAscFirstProperty() {
     final var query =
         "select from OrderByIndexReuse where firstProp >= 5 order by firstProp limit 5";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (var i = 0; i < 5; i++) {
@@ -184,8 +184,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), i / 2 + 5);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -198,7 +198,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where secondProp >= 5 order by secondProp asc, thirdProp asc"
             + " limit 5";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (var i = 0; i < 5; i++) {
@@ -214,8 +214,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -228,7 +228,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where secondProp >= 5 order by secondProp desc, thirdProp"
             + " desc limit 5";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (var i = 0; i < 5; i++) {
@@ -244,8 +244,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -258,7 +258,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where secondProp >= 5 order by secondProp asc, thirdProp"
             + " desc limit 5";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (var i = 0; i < 5; i++) {
@@ -274,8 +274,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertFalse(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -284,7 +284,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
   public void testGTEOrderByDescFirstProperty() {
     final var query =
         "select from OrderByIndexReuse where firstProp >= 5 order by firstProp desc limit 5";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (var i = 0; i < 5; i++) {
@@ -292,8 +292,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), 50 - i / 2);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -305,7 +305,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
   public void testLTOrderByAscFirstProperty() {
     final var query =
         "select from OrderByIndexReuse where firstProp < 5 order by firstProp limit 3";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (var i = 0; i < 3; i++) {
@@ -313,8 +313,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), i / 2 + 1);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -327,7 +327,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where secondProp < 5 order by secondProp asc, thirdProp asc"
             + " limit 3";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (var i = 0; i < 3; i++) {
@@ -344,8 +344,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -358,7 +358,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where secondProp < 5 order by secondProp desc, thirdProp"
             + " desc limit 3";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (var i = 0; i < 3; i++) {
@@ -375,8 +375,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -389,7 +389,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where secondProp < 5 order by secondProp asc, thirdProp desc"
             + " limit 3";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (var i = 0; i < 3; i++) {
@@ -406,8 +406,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertFalse(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -416,7 +416,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
   public void testLTOrderByDescFirstProperty() {
     final var query =
         "select from OrderByIndexReuse where firstProp < 5 order by firstProp desc limit 3";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (var i = 0; i < 3; i++) {
@@ -424,8 +424,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), 4 - i / 2);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -437,7 +437,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
   public void testLTEOrderByAscFirstProperty() {
     final var query =
         "select from OrderByIndexReuse where firstProp <= 5 order by firstProp limit 3";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (var i = 0; i < 3; i++) {
@@ -445,8 +445,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), i / 2 + 1);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -459,7 +459,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where secondProp <= 5 order by secondProp asc, thirdProp asc"
             + " limit 3";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (var i = 0; i < 3; i++) {
@@ -476,8 +476,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -490,7 +490,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where secondProp <= 5 order by secondProp desc, thirdProp"
             + " desc limit 3";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (var i = 0; i < 3; i++) {
@@ -507,8 +507,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -521,7 +521,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where secondProp <= 5 order by secondProp asc, thirdProp"
             + " desc limit 3";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (var i = 0; i < 3; i++) {
@@ -538,8 +538,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertFalse(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -548,7 +548,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
   public void testLTEOrderByDescFirstProperty() {
     final var query =
         "select from OrderByIndexReuse where firstProp <= 5 order by firstProp desc limit 3";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (var i = 0; i < 3; i++) {
@@ -556,8 +556,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), 5 - i / 2);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -569,7 +569,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
   public void testBetweenOrderByAscFirstProperty() {
     final var query =
         "select from OrderByIndexReuse where firstProp between 5 and 15 order by firstProp limit 5";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (var i = 0; i < 5; i++) {
@@ -577,8 +577,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), i / 2 + 5);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -591,7 +591,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where secondProp between 5 and 15 order by secondProp asc,"
             + " thirdProp asc limit 5";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (var i = 0; i < 5; i++) {
@@ -608,8 +608,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -622,7 +622,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where secondProp between 5 and 15 order by secondProp desc,"
             + " thirdProp desc limit 5";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (var i = 0; i < 5; i++) {
@@ -639,8 +639,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -653,7 +653,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where secondProp between 5 and 15 order by secondProp asc,"
             + " thirdProp desc limit 5";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (var i = 0; i < 5; i++) {
@@ -670,8 +670,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertFalse(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -681,7 +681,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where firstProp between 5 and 15 order by firstProp desc"
             + " limit 5";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (var i = 0; i < 5; i++) {
@@ -689,8 +689,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), 15 - i / 2);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -703,7 +703,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where firstProp in [10, 2, 43, 21, 45, 47, 11, 12] order by"
             + " firstProp limit 3";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
 
@@ -716,8 +716,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     document = result.get(2);
     Assert.assertEquals((int) document.<Integer>field("firstProp"), 10);
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -730,7 +730,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where firstProp in [10, 2, 43, 21, 45, 47, 11, 12] order by"
             + " firstProp desc limit 3";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
 
@@ -743,8 +743,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     document = result.get(2);
     Assert.assertEquals((int) document.<Integer>field("firstProp"), 45);
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -757,7 +757,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     var query =
         "select from OrderByIndexReuse where firstProp > 5 order by firstProp asc, prop4 asc limit"
             + " 5";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (var i = 0; i < 5; i++) {
@@ -766,8 +766,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("prop4"), "prop" + (i + 12));
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -780,7 +780,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where firstProp > 5 order by firstProp desc, prop4 asc limit"
             + " 5";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (var i = 0; i < 5; i++) {
@@ -796,8 +796,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -810,7 +810,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where firstProp >= 5 order by firstProp asc, prop4 asc limit"
             + " 5";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (var i = 0; i < 5; i++) {
@@ -827,8 +827,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -841,7 +841,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where firstProp >= 5 order by firstProp desc, prop4 asc"
             + " limit 5";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (var i = 0; i < 5; i++) {
@@ -858,8 +858,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -872,7 +872,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where firstProp < 5 order by firstProp asc, prop4 asc limit"
             + " 3";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (var i = 0; i < 3; i++) {
@@ -889,8 +889,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -903,7 +903,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where firstProp < 5 order by firstProp desc, prop4 asc limit"
             + " 3";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (var i = 0; i < 3; i++) {
@@ -920,8 +920,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -934,7 +934,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where firstProp <= 5 order by firstProp asc, prop4 asc limit"
             + " 3";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (var i = 0; i < 3; i++) {
@@ -951,8 +951,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -965,7 +965,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where firstProp <= 5 order by firstProp desc, prop4 asc"
             + " limit 3";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (var i = 0; i < 3; i++) {
@@ -982,8 +982,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -996,7 +996,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where firstProp between 5 and 15 order by firstProp asc,"
             + " prop4 asc limit 5";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (var i = 0; i < 5; i++) {
@@ -1013,8 +1013,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -1027,7 +1027,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where firstProp between 5 and 15 order by firstProp desc,"
             + " prop4 asc limit 5";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (var i = 0; i < 5; i++) {
@@ -1044,8 +1044,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -1058,7 +1058,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where firstProp in [10, 2, 43, 21, 45, 47, 11, 12] order by"
             + " firstProp asc, prop4 asc limit 3";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
 
@@ -1074,8 +1074,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     Assert.assertEquals((int) document.<Integer>field("firstProp"), 10);
     Assert.assertEquals(document.field("prop4"), "prop20");
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -1088,7 +1088,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse where firstProp in [10, 2, 43, 21, 45, 47, 11, 12] order by"
             + " firstProp desc, prop4 asc limit 3";
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
 
@@ -1104,8 +1104,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     Assert.assertEquals((int) document.<Integer>field("firstProp"), 45);
     Assert.assertEquals(document.field("prop4"), "prop90");
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -1117,7 +1117,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
   public void testOrderByFirstPropWithLimitAsc() {
     final var query = "select from OrderByIndexReuse order by firstProp offset 10 limit 4";
 
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 4);
 
@@ -1127,8 +1127,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.<Object>field("firstProp"), 6 + i / 2);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
     Assert.assertEquals(
@@ -1139,7 +1139,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
   public void testOrderByFirstPropWithLimitDesc() {
     final var query = "select from OrderByIndexReuse order by firstProp desc offset 10 limit 4";
 
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 4);
 
@@ -1149,8 +1149,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.<Object>field("firstProp"), 45 - i / 2);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
     Assert.assertEquals(
@@ -1162,7 +1162,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse order by secondProp asc, thirdProp asc offset 10 limit 4";
 
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 4);
 
@@ -1181,8 +1181,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
     Assert.assertEquals(
@@ -1194,7 +1194,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse order by secondProp desc, thirdProp desc offset 10 limit 4";
 
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 4);
 
@@ -1213,8 +1213,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
     Assert.assertEquals(
@@ -1226,7 +1226,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse order by secondProp asc, thirdProp desc offset 10 limit 4";
 
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 4);
 
@@ -1245,8 +1245,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertFalse(explain.<Boolean>field("indexIsUsedInOrderBy"));
   }
@@ -1255,7 +1255,7 @@ public class OrderByIndexReuseTest extends BaseDBTest {
     final var query =
         "select from OrderByIndexReuse order by secondProp desc, thirdProp asc offset 10 limit 4";
 
-    List<EntityImpl> result = db.query(new SQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> result = session.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 4);
 
@@ -1274,8 +1274,8 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = db.command(new CommandSQL("explain " + query))
-        .execute(db);
+    final EntityImpl explain = session.command(new CommandSQL("explain " + query))
+        .execute(session);
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertFalse(explain.<Boolean>field("indexIsUsedInOrderBy"));
   }

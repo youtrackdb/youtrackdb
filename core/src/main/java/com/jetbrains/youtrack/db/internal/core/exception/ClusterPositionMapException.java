@@ -12,7 +12,7 @@ public class ClusterPositionMapException extends DurableComponentException {
     super(exception);
   }
 
-  public ClusterPositionMapException(String message, ClusterPositionMap component) {
-    super(message, component);
+  public ClusterPositionMapException(String dbName, String message, ClusterPositionMap component) {
+    super(dbName, message, component);
   }
 }

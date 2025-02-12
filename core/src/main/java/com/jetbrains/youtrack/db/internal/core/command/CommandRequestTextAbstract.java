@@ -33,7 +33,6 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.s
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import javax.annotation.Nonnull;
 
 /**
@@ -70,7 +69,7 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
       context = new BasicCommandContext();
     }
 
-    context.setDatabase(querySession);
+    context.setDatabaseSession(querySession);
     return (RET) querySession.getStorage()
         .command(querySession, this);
   }
@@ -141,7 +140,7 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
     return buffer.toByteArray();
   }
 
-  protected void fromStream(DatabaseSessionInternal db, final MemoryStream buffer,
+  protected void fromStream(DatabaseSessionInternal session, final MemoryStream buffer,
       RecordSerializer serializer) {
     text = buffer.getAsString();
 
@@ -152,7 +151,7 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
       final var paramBuffer = buffer.getAsByteArray();
       final var param = new EntityImpl(null);
       if (serializer != null) {
-        serializer.fromStream(db, paramBuffer, param, null);
+        serializer.fromStream(session, paramBuffer, param, null);
       } else {
         param.fromStream(paramBuffer);
       }
@@ -163,7 +162,7 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
         for (var p : params.entrySet()) {
           final Object value;
           if (p.getValue() instanceof String) {
-            value = RecordSerializerStringAbstract.getTypeValue(db, (String) p.getValue());
+            value = RecordSerializerStringAbstract.getTypeValue(session, (String) p.getValue());
           } else {
             value = p.getValue();
           }
@@ -191,7 +190,7 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
       final var paramBuffer = buffer.getAsByteArray();
       final var param = new EntityImpl(null);
       if (serializer != null) {
-        serializer.fromStream(db, paramBuffer, param, null);
+        serializer.fromStream(session, paramBuffer, param, null);
       } else {
         param.fromStream(paramBuffer);
       }
@@ -213,7 +212,7 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
 
         } else {
           final Object value =
-              CompositeKeySerializer.INSTANCE.deserialize(
+              CompositeKeySerializer.INSTANCE.deserialize(session.getSerializerFactory(),
                   StringSerializerHelper.getBinaryContent(p.getValue()), 0);
 
           if (p.getKey() instanceof String && Character.isDigit(((String) p.getKey()).charAt(0))) {

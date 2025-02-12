@@ -14,8 +14,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.schema.clusterselection;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.ClusterSelectionStrategy;
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.ClusterSelectionStrategy;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -27,11 +28,13 @@ public class RoundRobinClusterSelectionStrategy implements ClusterSelectionStrat
   public static final String NAME = "round-robin";
   private final AtomicLong pointer = new AtomicLong(0);
 
-  public int getCluster(final SchemaClass iClass, final EntityImpl entity) {
-    return getCluster(iClass, iClass.getClusterIds(), entity);
+  public int getCluster(DatabaseSession session, final SchemaClass iClass,
+      final EntityImpl entity) {
+    return getCluster(session, iClass, iClass.getClusterIds(session), entity);
   }
 
-  public int getCluster(final SchemaClass clazz, final int[] clusters, final EntityImpl entity) {
+  public int getCluster(DatabaseSession session, final SchemaClass clazz, final int[] clusters,
+      final EntityImpl entity) {
     if (clusters.length == 1)
     // ONLY ONE: RETURN THE FIRST ONE
     {

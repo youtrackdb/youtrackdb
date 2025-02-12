@@ -1,18 +1,17 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.api.schema.Collate;
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Direction;
 import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.api.schema.Collate;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.text.Collator;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -125,7 +124,7 @@ public class SQLOrderByItem {
       bVal = modifier.execute(b, bVal, ctx);
     }
     if (collate != null && collateStrategy == null) {
-      var collateVal = collate.execute(new ResultInternal(ctx.getDatabase()), ctx);
+      var collateVal = collate.execute(new ResultInternal(ctx.getDatabaseSession()), ctx);
       if (collateVal == null) {
         collateVal = collate.toString();
         if (collateVal.equals("null")) {
@@ -143,7 +142,8 @@ public class SQLOrderByItem {
               SQLEngine.getCollate(String.valueOf(collateVal).toLowerCase(Locale.ENGLISH));
         }
         if (collateStrategy == null) {
-          throw new CommandExecutionException("Invalid collate for ORDER BY: " + collateVal);
+          throw new CommandExecutionException(ctx.getDatabaseSession(),
+              "Invalid collate for ORDER BY: " + collateVal);
         }
       }
     }
@@ -161,7 +161,7 @@ public class SQLOrderByItem {
         result = 1;
       } else if (aVal instanceof String && bVal instanceof String) {
 
-        var internal = ctx.getDatabase();
+        var internal = ctx.getDatabaseSession();
         if (stringCollator == null) {
           var language = (String) internal.get(DatabaseSession.ATTRIBUTES.LOCALE_LANGUAGE);
           var country = (String) internal.get(DatabaseSession.ATTRIBUTES.LOCALE_COUNTRY);

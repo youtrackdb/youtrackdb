@@ -9,13 +9,13 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
  */
 public interface LiveQueryResultListener {
 
-  void onCreate(DatabaseSessionInternal database, Result data);
+  void onCreate(DatabaseSessionInternal session, Result data);
 
-  void onUpdate(DatabaseSessionInternal database, Result before, Result after);
+  void onUpdate(DatabaseSessionInternal session, Result before, Result after);
 
-  void onDelete(DatabaseSessionInternal database, Result data);
+  void onDelete(DatabaseSessionInternal session, Result data);
 
-  void onError(DatabaseSession database, BaseException exception);
+  void onError(DatabaseSession session, BaseException exception);
 
-  void onEnd(DatabaseSession database);
+  void onEnd(DatabaseSession session);
 }

@@ -20,10 +20,7 @@ package com.jetbrains.youtrack.db.internal.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.record.Vertex;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,48 +31,48 @@ public class LuceneGraphTxTest extends LuceneBaseTest {
 
   @Before
   public void init() {
-    var type = db.createVertexClass("City");
-    type.createProperty(db, "name", PropertyType.STRING);
+    var type = session.createVertexClass("City");
+    type.createProperty(session, "name", PropertyType.STRING);
 
-    db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE");
+    session.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE");
   }
 
   @Test
   public void graphTxTest() throws Exception {
 
-    var v = db.newVertex("City");
+    var v = session.newVertex("City");
     v.setProperty("name", "London");
 
     // save london
-    db.begin();
-    db.save(v);
-    db.commit();
+    session.begin();
+    session.save(v);
+    session.commit();
 
-    db.begin();
-    var resultSet = db.command("select from City where search_class('London') =true ");
+    session.begin();
+    var resultSet = session.command("select from City where search_class('London') =true ");
 
     assertThat(resultSet).hasSize(1);
 
-    v = db.bindToSession(v);
+    v = session.bindToSession(v);
     // modifiy vertex
     v.setProperty("name", "Berlin");
 
     // re-save
 
-    db.save(v);
-    db.commit();
+    session.save(v);
+    session.commit();
 
     // only berlin
-    resultSet = db.command("select from City where search_class('Berlin') =true ");
+    resultSet = session.command("select from City where search_class('Berlin') =true ");
     assertThat(resultSet).hasSize(1);
 
-    resultSet = db.command("select from City where search_class('London') =true ");
+    resultSet = session.command("select from City where search_class('London') =true ");
     assertThat(resultSet).hasSize(0);
 
-    resultSet = db.command("select from City where search_class('Berlin') =true ");
+    resultSet = session.command("select from City where search_class('Berlin') =true ");
     assertThat(resultSet).hasSize(1);
 
-    resultSet = db.command("select from City where search_class('London') =true ");
+    resultSet = session.command("select from City where search_class('London') =true ");
     assertThat(resultSet).hasSize(0);
   }
 }

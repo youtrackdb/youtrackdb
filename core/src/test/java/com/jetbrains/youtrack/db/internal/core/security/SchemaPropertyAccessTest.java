@@ -15,7 +15,6 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
 
@@ -23,7 +22,7 @@ public class SchemaPropertyAccessTest extends DbTestBase {
 
   @Test
   public void testNotAccessible() {
-    var doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) session.newEntity();
     doc.setProperty("name", "one value");
     assertEquals("one value", doc.getProperty("name"));
     assertEquals("one value", doc.field("name"));
@@ -41,9 +40,9 @@ public class SchemaPropertyAccessTest extends DbTestBase {
 
   @Test
   public void testNotAccessibleAfterConvert() {
-    var doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) session.newEntity();
     doc.setProperty("name", "one value");
-    var doc1 = (EntityImpl) db.newEntity();
+    var doc1 = (EntityImpl) session.newEntity();
     RecordInternal.unsetDirty(doc1);
     doc1.fromStream(doc.toStream());
     assertEquals("one value", doc1.getProperty("name"));
@@ -62,7 +61,7 @@ public class SchemaPropertyAccessTest extends DbTestBase {
 
   @Test
   public void testNotAccessiblePropertyListing() {
-    var doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) session.newEntity();
     doc.setProperty("name", "one value");
     assertArrayEquals(new String[]{"name"}, doc.getPropertyNames().toArray());
     assertArrayEquals(
@@ -86,7 +85,7 @@ public class SchemaPropertyAccessTest extends DbTestBase {
 
   @Test
   public void testNotAccessiblePropertyListingSer() {
-    var docPre = (EntityImpl) db.newEntity();
+    var docPre = (EntityImpl) session.newEntity();
     docPre.setProperty("name", "one value");
     assertArrayEquals(new String[]{"name"}, docPre.getPropertyNames().toArray());
     assertArrayEquals(
@@ -99,7 +98,7 @@ public class SchemaPropertyAccessTest extends DbTestBase {
 
     Set<String> toHide = new HashSet<>();
     toHide.add("name");
-    var doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) session.newEntity();
     RecordInternal.unsetDirty(doc);
     doc.fromStream(docPre.toStream());
     EntityInternalUtils.setPropertyAccess(doc, new PropertyAccess(toHide));
@@ -114,7 +113,7 @@ public class SchemaPropertyAccessTest extends DbTestBase {
 
   @Test
   public void testJsonSerialization() {
-    var doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) session.newEntity();
     doc.setProperty("name", "one value");
     assertTrue(doc.toJSON().contains("name"));
 
@@ -126,7 +125,7 @@ public class SchemaPropertyAccessTest extends DbTestBase {
 
   @Test
   public void testToMap() {
-    var doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) session.newEntity();
     doc.setProperty("name", "one value");
     assertTrue(doc.toMap().containsKey("name"));
 
@@ -138,7 +137,7 @@ public class SchemaPropertyAccessTest extends DbTestBase {
 
   @Test
   public void testStringSerialization() {
-    var doc = (EntityImpl) db.newEntity();
+    var doc = (EntityImpl) session.newEntity();
     doc.setProperty("name", "one value");
     assertTrue(doc.toString().contains("name"));
 

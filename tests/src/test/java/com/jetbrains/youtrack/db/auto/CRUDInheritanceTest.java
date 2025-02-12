@@ -18,6 +18,7 @@ package com.jetbrains.youtrack.db.auto;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Optional;
@@ -42,14 +43,14 @@ public class CRUDInheritanceTest extends BaseDBTest {
 
   @Test
   public void create() {
-    db.command("delete from Company").close();
+    session.command("delete from Company").close();
 
     generateCompanyData();
   }
 
   @Test(dependsOnMethods = "create")
   public void testCreate() {
-    Assert.assertEquals(db.countClass("Company"), TOT_COMPANY_RECORDS);
+    Assert.assertEquals(session.countClass("Company"), TOT_COMPANY_RECORDS);
   }
 
   @Test(dependsOnMethods = "testCreate")
@@ -90,46 +91,46 @@ public class CRUDInheritanceTest extends BaseDBTest {
   @Test(dependsOnMethods = {"queryPerSuperType", "testCreate"})
   public void deleteFirst() {
     // DELETE ALL THE RECORD IN THE CLUSTER
-    db.begin();
-    var companyClusterIterator = db.browseClass("Company");
+    session.begin();
+    var companyClusterIterator = session.browseClass("Company");
     for (Entity obj : companyClusterIterator) {
       if (obj.<Integer>getProperty("id") == 1) {
-        db.delete(obj);
+        session.delete(obj);
         break;
       }
     }
-    db.commit();
+    session.commit();
 
-    Assert.assertEquals(db.countClass("Company"), TOT_COMPANY_RECORDS - 1);
+    Assert.assertEquals(session.countClass("Company"), TOT_COMPANY_RECORDS - 1);
   }
 
   @Test(dependsOnMethods = "deleteFirst")
   public void testSuperclassInheritanceCreation() {
-    db.close();
-    db = createSessionInstance();
+    session.close();
+    session = createSessionInstance();
 
     createInheritanceTestClass();
 
     var abstractClass =
-        db.getMetadata().getSchema().getClass("InheritanceTestAbstractClass");
-    var baseClass = db.getMetadata().getSchema().getClass("InheritanceTestBaseClass");
-    var testClass = db.getMetadata().getSchema().getClass("InheritanceTestClass");
+        session.getMetadata().getSchema().getClass("InheritanceTestAbstractClass");
+    var baseClass = session.getMetadata().getSchema().getClass("InheritanceTestBaseClass");
+    var testClass = session.getMetadata().getSchema().getClass("InheritanceTestClass");
 
-    Assert.assertTrue(baseClass.getSuperClasses().contains(abstractClass));
-    Assert.assertTrue(testClass.getSuperClasses().contains(baseClass));
+    Assert.assertTrue(baseClass.getSuperClasses(session).contains(abstractClass));
+    Assert.assertTrue(testClass.getSuperClasses(session).contains(baseClass));
   }
 
   @Test
   public void testIdFieldInheritanceFirstSubClass() {
     createInheritanceTestClass();
 
-    var a = db.newInstance("InheritanceTestBaseClass");
-    var b = db.newInstance("InheritanceTestClass");
+    var a = session.newInstance("InheritanceTestBaseClass");
+    var b = session.newInstance("InheritanceTestClass");
 
-    db.begin();
-    db.save(a);
-    db.save(b);
-    db.commit();
+    session.begin();
+    session.save(a);
+    session.save(b);
+    session.commit();
 
     var resultSet = executeQuery("select from InheritanceTestBaseClass");
     Assert.assertEquals(resultSet.size(), 2);
@@ -137,103 +138,111 @@ public class CRUDInheritanceTest extends BaseDBTest {
 
   @Test
   public void testKeywordClass() {
-    var klass = db.getMetadata().getSchema().createClass("Not");
+    var klass = session.getMetadata().getSchema().createClass("Not");
 
-    var klass1 = db.getMetadata().getSchema().createClass("Extends_Not", klass);
-    Assert.assertEquals(klass1.getSuperClasses().size(), 1, 1);
-    Assert.assertEquals(klass1.getSuperClasses().getFirst().getName(), "Not");
+    var klass1 = session.getMetadata().getSchema().createClass("Extends_Not", klass);
+    Assert.assertEquals(klass1.getSuperClasses(session).size(), 1, 1);
+    Assert.assertEquals(klass1.getSuperClasses(session).getFirst().getName(session), "Not");
   }
 
   @Test
   public void testSchemaGeneration() {
-    var schema = db.getMetadata().getSchema();
+    var schema = session.getMetadata().getSchema();
     var testSchemaClass = schema.createClass("JavaTestSchemaGeneration");
     var childClass = schema.createClass("TestSchemaGenerationChild");
 
-    testSchemaClass.createProperty(db, "text", PropertyType.STRING);
-    testSchemaClass.createProperty(db, "enumeration", PropertyType.STRING);
-    testSchemaClass.createProperty(db, "numberSimple", PropertyType.INTEGER);
-    testSchemaClass.createProperty(db, "longSimple", PropertyType.LONG);
-    testSchemaClass.createProperty(db, "doubleSimple", PropertyType.DOUBLE);
-    testSchemaClass.createProperty(db, "floatSimple", PropertyType.FLOAT);
-    testSchemaClass.createProperty(db, "byteSimple", PropertyType.BYTE);
-    testSchemaClass.createProperty(db, "flagSimple", PropertyType.BOOLEAN);
-    testSchemaClass.createProperty(db, "dateField", PropertyType.DATETIME);
+    testSchemaClass.createProperty(session, "text", PropertyType.STRING);
+    testSchemaClass.createProperty(session, "enumeration", PropertyType.STRING);
+    testSchemaClass.createProperty(session, "numberSimple", PropertyType.INTEGER);
+    testSchemaClass.createProperty(session, "longSimple", PropertyType.LONG);
+    testSchemaClass.createProperty(session, "doubleSimple", PropertyType.DOUBLE);
+    testSchemaClass.createProperty(session, "floatSimple", PropertyType.FLOAT);
+    testSchemaClass.createProperty(session, "byteSimple", PropertyType.BYTE);
+    testSchemaClass.createProperty(session, "flagSimple", PropertyType.BOOLEAN);
+    testSchemaClass.createProperty(session, "dateField", PropertyType.DATETIME);
 
-    testSchemaClass.createProperty(db, "stringListMap", PropertyType.EMBEDDEDMAP,
+    testSchemaClass.createProperty(session, "stringListMap", PropertyType.EMBEDDEDMAP,
         PropertyType.EMBEDDEDLIST);
-    testSchemaClass.createProperty(db, "enumList", PropertyType.EMBEDDEDLIST,
+    testSchemaClass.createProperty(session, "enumList", PropertyType.EMBEDDEDLIST,
         PropertyType.STRING);
-    testSchemaClass.createProperty(db, "enumSet", PropertyType.EMBEDDEDSET,
+    testSchemaClass.createProperty(session, "enumSet", PropertyType.EMBEDDEDSET,
         PropertyType.STRING);
-    testSchemaClass.createProperty(db, "stringSet", PropertyType.EMBEDDEDSET,
+    testSchemaClass.createProperty(session, "stringSet", PropertyType.EMBEDDEDSET,
         PropertyType.STRING);
-    testSchemaClass.createProperty(db, "stringMap", PropertyType.EMBEDDEDMAP,
+    testSchemaClass.createProperty(session, "stringMap", PropertyType.EMBEDDEDMAP,
         PropertyType.STRING);
 
-    testSchemaClass.createProperty(db, "list", PropertyType.LINKLIST, childClass);
-    testSchemaClass.createProperty(db, "set", PropertyType.LINKSET, childClass);
-    testSchemaClass.createProperty(db, "children", PropertyType.LINKMAP, childClass);
-    testSchemaClass.createProperty(db, "child", PropertyType.LINK, childClass);
+    testSchemaClass.createProperty(session, "list", PropertyType.LINKLIST, childClass);
+    testSchemaClass.createProperty(session, "set", PropertyType.LINKSET, childClass);
+    testSchemaClass.createProperty(session, "children", PropertyType.LINKMAP, childClass);
+    testSchemaClass.createProperty(session, "child", PropertyType.LINK, childClass);
 
-    testSchemaClass.createProperty(db, "embeddedSet", PropertyType.EMBEDDEDSET, childClass);
-    testSchemaClass.createProperty(db, "embeddedChildren", PropertyType.EMBEDDEDMAP,
+    testSchemaClass.createProperty(session, "embeddedSet", PropertyType.EMBEDDEDSET, childClass);
+    testSchemaClass.createProperty(session, "embeddedChildren", PropertyType.EMBEDDEDMAP,
         childClass);
-    testSchemaClass.createProperty(db, "embeddedChild", PropertyType.EMBEDDED, childClass);
-    testSchemaClass.createProperty(db, "embeddedList", PropertyType.EMBEDDEDLIST, childClass);
+    testSchemaClass.createProperty(session, "embeddedChild", PropertyType.EMBEDDED, childClass);
+    testSchemaClass.createProperty(session, "embeddedList", PropertyType.EMBEDDEDLIST, childClass);
 
     // Test simple types
-    checkProperty(testSchemaClass, "text", PropertyType.STRING);
-    checkProperty(testSchemaClass, "enumeration", PropertyType.STRING);
-    checkProperty(testSchemaClass, "numberSimple", PropertyType.INTEGER);
-    checkProperty(testSchemaClass, "longSimple", PropertyType.LONG);
-    checkProperty(testSchemaClass, "doubleSimple", PropertyType.DOUBLE);
-    checkProperty(testSchemaClass, "floatSimple", PropertyType.FLOAT);
-    checkProperty(testSchemaClass, "byteSimple", PropertyType.BYTE);
-    checkProperty(testSchemaClass, "flagSimple", PropertyType.BOOLEAN);
-    checkProperty(testSchemaClass, "dateField", PropertyType.DATETIME);
+    checkProperty(session, testSchemaClass, "text", PropertyType.STRING);
+    checkProperty(session, testSchemaClass, "enumeration", PropertyType.STRING);
+    checkProperty(session, testSchemaClass, "numberSimple", PropertyType.INTEGER);
+    checkProperty(session, testSchemaClass, "longSimple", PropertyType.LONG);
+    checkProperty(session, testSchemaClass, "doubleSimple", PropertyType.DOUBLE);
+    checkProperty(session, testSchemaClass, "floatSimple", PropertyType.FLOAT);
+    checkProperty(session, testSchemaClass, "byteSimple", PropertyType.BYTE);
+    checkProperty(session, testSchemaClass, "flagSimple", PropertyType.BOOLEAN);
+    checkProperty(session, testSchemaClass, "dateField", PropertyType.DATETIME);
 
     // Test complex types
-    checkProperty(testSchemaClass, "stringListMap", PropertyType.EMBEDDEDMAP,
-        PropertyType.EMBEDDEDLIST);
-    checkProperty(testSchemaClass, "enumList", PropertyType.EMBEDDEDLIST, PropertyType.STRING);
-    checkProperty(testSchemaClass, "enumSet", PropertyType.EMBEDDEDSET, PropertyType.STRING);
-    checkProperty(testSchemaClass, "stringSet", PropertyType.EMBEDDEDSET, PropertyType.STRING);
-    checkProperty(testSchemaClass, "stringMap", PropertyType.EMBEDDEDMAP, PropertyType.STRING);
+    checkProperty(session, testSchemaClass, "stringListMap",
+        PropertyType.EMBEDDEDMAP, PropertyType.EMBEDDEDLIST);
+    checkProperty(session, testSchemaClass, "enumList", PropertyType.EMBEDDEDLIST,
+        PropertyType.STRING);
+    checkProperty(session, testSchemaClass, "enumSet", PropertyType.EMBEDDEDSET,
+        PropertyType.STRING);
+    checkProperty(session, testSchemaClass, "stringSet", PropertyType.EMBEDDEDSET,
+        PropertyType.STRING);
+    checkProperty(session, testSchemaClass, "stringMap", PropertyType.EMBEDDEDMAP,
+        PropertyType.STRING);
 
     // Test linked types
-    checkProperty(testSchemaClass, "list", PropertyType.LINKLIST, childClass);
-    checkProperty(testSchemaClass, "set", PropertyType.LINKSET, childClass);
-    checkProperty(testSchemaClass, "children", PropertyType.LINKMAP, childClass);
-    checkProperty(testSchemaClass, "child", PropertyType.LINK, childClass);
+    checkProperty(session, testSchemaClass, "list", PropertyType.LINKLIST, childClass);
+    checkProperty(session, testSchemaClass, "set", PropertyType.LINKSET, childClass);
+    checkProperty(session, testSchemaClass, "children", PropertyType.LINKMAP, childClass);
+    checkProperty(session, testSchemaClass, "child", PropertyType.LINK, childClass);
 
     // Test embedded types
-    checkProperty(testSchemaClass, "embeddedSet", PropertyType.EMBEDDEDSET, childClass);
-    checkProperty(testSchemaClass, "embeddedChildren", PropertyType.EMBEDDEDMAP, childClass);
-    checkProperty(testSchemaClass, "embeddedChild", PropertyType.EMBEDDED, childClass);
-    checkProperty(testSchemaClass, "embeddedList", PropertyType.EMBEDDEDLIST, childClass);
+    checkProperty(session, testSchemaClass, "embeddedSet", PropertyType.EMBEDDEDSET, childClass);
+    checkProperty(session, testSchemaClass, "embeddedChildren", PropertyType.EMBEDDEDMAP,
+        childClass);
+    checkProperty(session, testSchemaClass, "embeddedChild", PropertyType.EMBEDDED, childClass);
+    checkProperty(session, testSchemaClass, "embeddedList", PropertyType.EMBEDDEDLIST, childClass);
   }
 
-  protected static void checkProperty(SchemaClass iClass, String iPropertyName,
+  protected static void checkProperty(DatabaseSessionInternal session, SchemaClass iClass,
+      String iPropertyName,
       PropertyType iType) {
-    var prop = iClass.getProperty(iPropertyName);
+    var prop = iClass.getProperty(session, iPropertyName);
     Assert.assertNotNull(prop);
-    Assert.assertEquals(prop.getType(), iType);
+    Assert.assertEquals(prop.getType(session), iType);
   }
 
   protected static void checkProperty(
-      SchemaClass iClass, String iPropertyName, PropertyType iType, SchemaClass iLinkedClass) {
-    var prop = iClass.getProperty(iPropertyName);
+      DatabaseSessionInternal session, SchemaClass iClass, String iPropertyName, PropertyType iType,
+      SchemaClass iLinkedClass) {
+    var prop = iClass.getProperty(session, iPropertyName);
     Assert.assertNotNull(prop);
-    Assert.assertEquals(prop.getType(), iType);
-    Assert.assertEquals(prop.getLinkedClass(), iLinkedClass);
+    Assert.assertEquals(prop.getType(session), iType);
+    Assert.assertEquals(prop.getLinkedClass(session), iLinkedClass);
   }
 
   protected static void checkProperty(
-      SchemaClass iClass, String iPropertyName, PropertyType iType, PropertyType iLinkedType) {
-    var prop = iClass.getProperty(iPropertyName);
+      DatabaseSessionInternal session, SchemaClass iClass, String iPropertyName, PropertyType iType,
+      PropertyType iLinkedType) {
+    var prop = iClass.getProperty(session, iPropertyName);
     Assert.assertNotNull(prop);
-    Assert.assertEquals(prop.getType(), iType);
-    Assert.assertEquals(prop.getLinkedType(), iLinkedType);
+    Assert.assertEquals(prop.getType(session), iType);
+    Assert.assertEquals(prop.getLinkedType(session), iLinkedType);
   }
 }

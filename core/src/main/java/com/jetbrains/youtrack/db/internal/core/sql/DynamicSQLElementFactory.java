@@ -16,8 +16,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunction;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionFactory;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperator;
@@ -47,19 +47,20 @@ public class DynamicSQLElementFactory
     // DO NOTHING
   }
 
-  public Set<String> getFunctionNames() {
+  public Set<String> getFunctionNames(DatabaseSessionInternal session) {
     return FUNCTIONS.keySet();
   }
 
-  public boolean hasFunction(final String name) {
+  public boolean hasFunction(final String name, DatabaseSessionInternal session) {
     return FUNCTIONS.containsKey(name);
   }
 
-  public SQLFunction createFunction(final String name) throws CommandExecutionException {
+  public SQLFunction createFunction(final String name, DatabaseSessionInternal session)
+      throws CommandExecutionException {
     final var obj = FUNCTIONS.get(name);
 
     if (obj == null) {
-      throw new CommandExecutionException("Unknown function name :" + name);
+      throw new CommandExecutionException(session, "Unknown function name :" + name);
     }
 
     if (obj instanceof SQLFunction) {
@@ -71,12 +72,12 @@ public class DynamicSQLElementFactory
         return (SQLFunction) clazz.newInstance();
       } catch (Exception e) {
         throw BaseException.wrapException(
-            new CommandExecutionException(
+            new CommandExecutionException(session,
                 "Error in creation of function "
                     + name
                     + "(). Probably there is not an empty constructor or the constructor generates"
                     + " errors"),
-            e);
+            e, session);
       }
     }
   }
@@ -102,7 +103,7 @@ public class DynamicSQLElementFactory
                   + name
                   + "(). Probably there is not an empty constructor or the constructor generates"
                   + " errors"),
-          e);
+          e, (String) null);
     }
   }
 

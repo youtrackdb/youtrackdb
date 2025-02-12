@@ -58,7 +58,7 @@ public class CartesianProductStep extends AbstractExecutionStep {
       }
     }
     assert stream != null;
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     var finalStream = stream.map(path -> produceResult(db, path));
     return ExecutionStream.resultIterator(finalStream.iterator())
         .onClose((context) -> finalStream.close());

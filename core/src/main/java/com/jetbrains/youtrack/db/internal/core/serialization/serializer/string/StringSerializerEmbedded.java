@@ -19,7 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.string;
 
-import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
@@ -42,15 +41,15 @@ public class StringSerializerEmbedded implements StringSerializer {
    * Re-Create any object if the class has a public constructor that accepts a String as unique
    * parameter.
    */
-  public Object fromStream(DatabaseSessionInternal db, final String iStream) {
+  public Object fromStream(DatabaseSessionInternal session, final String iStream) {
     if (iStream == null || iStream.isEmpty())
     // NULL VALUE
     {
       return null;
     }
 
-    final EntityImpl instance = new EmbeddedEntityImpl(db);
-    RecordSerializerSchemaAware2CSV.INSTANCE.fromStream(db,
+    final EntityImpl instance = new EmbeddedEntityImpl(session);
+    RecordSerializerSchemaAware2CSV.INSTANCE.fromStream(session,
         iStream.getBytes(StandardCharsets.UTF_8), instance, null);
 
     final String className = instance.field(EntitySerializable.CLASS_NAME);
@@ -73,37 +72,21 @@ public class StringSerializerEmbedded implements StringSerializer {
       return instance;
     }
 
-    if (EntitySerializable.class.isAssignableFrom(clazz)) {
-      try {
-        final var entitySerializable =
-            (EntitySerializable) clazz.newInstance();
-        final EntityImpl docClone = new EmbeddedEntityImpl(db);
-        instance.copyTo(docClone);
-        docClone.removeField(EntitySerializable.CLASS_NAME);
-        entitySerializable.fromDocument(docClone);
-
-        return entitySerializable;
-      } catch (InstantiationException | IllegalAccessException e) {
-        throw BaseException.wrapException(
-            new SerializationException("Cannot serialize the object"), e);
-      }
-    }
-
     return instance;
   }
 
   /**
    * Serialize the class name size + class name + object content
    */
-  public StringWriter toStream(DatabaseSessionInternal db, final StringWriter iOutput,
+  public StringWriter toStream(DatabaseSessionInternal session, final StringWriter iOutput,
       Object iValue) {
     if (iValue != null) {
       if (iValue instanceof EntitySerializable) {
-        iValue = ((EntitySerializable) iValue).toEntity(db);
+        iValue = ((EntitySerializable) iValue).toEntity(session);
       }
 
       if (!(iValue instanceof SerializableStream stream)) {
-        throw new SerializationException(
+        throw new SerializationException(session,
             "Cannot serialize the object since it's not implements the SerializableStream"
                 + " interface");
       }

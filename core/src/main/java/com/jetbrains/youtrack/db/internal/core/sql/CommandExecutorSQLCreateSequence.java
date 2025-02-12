@@ -33,50 +33,55 @@ public class CommandExecutorSQLCreateSequence extends CommandExecutorSQLAbstract
   private DBSequence.CreateParams params;
 
   @Override
-  public CommandExecutorSQLCreateSequence parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLCreateSequence parse(DatabaseSessionInternal session,
       CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
 
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
-      parserRequiredKeyword(KEYWORD_CREATE);
-      parserRequiredKeyword(KEYWORD_SEQUENCE);
-      this.sequenceName = parserRequiredWord(false, "Expected <sequence name>");
+      parserRequiredKeyword(session.getDatabaseName(), KEYWORD_CREATE);
+      parserRequiredKeyword(session.getDatabaseName(), KEYWORD_SEQUENCE);
+      this.sequenceName = parserRequiredWord(false, "Expected <sequence name>",
+          session.getDatabaseName());
       this.params = new DBSequence.CreateParams().setDefaults();
 
       String temp;
-      while ((temp = parseOptionalWord(true)) != null) {
+      while ((temp = parseOptionalWord(session.getDatabaseName(), true)) != null) {
         if (parserIsEnded()) {
           break;
         }
 
         if (temp.equals(KEYWORD_TYPE)) {
-          var typeAsString = parserRequiredWord(true, "Expected <sequence type>");
+          var typeAsString = parserRequiredWord(true, "Expected <sequence type>",
+              session.getDatabaseName());
           try {
             this.sequenceType = SequenceHelper.getSequenceTyeFromString(typeAsString);
           } catch (IllegalArgumentException e) {
             throw BaseException.wrapException(
-                new CommandSQLParsingException(
+                new CommandSQLParsingException(session.getDatabaseName(),
                     "Unknown sequence type '"
                         + typeAsString
                         + "'. Supported attributes are: "
                         + Arrays.toString(SEQUENCE_TYPE.values())),
-                e);
+                e, session);
           }
         } else if (temp.equals(KEYWORD_START)) {
-          var startAsString = parserRequiredWord(true, "Expected <start value>");
+          var startAsString = parserRequiredWord(true, "Expected <start value>",
+              session.getDatabaseName());
           this.params.setStart(Long.parseLong(startAsString));
         } else if (temp.equals(KEYWORD_INCREMENT)) {
-          var incrementAsString = parserRequiredWord(true, "Expected <increment value>");
+          var incrementAsString = parserRequiredWord(true, "Expected <increment value>",
+              session.getDatabaseName());
           this.params.setIncrement(Integer.parseInt(incrementAsString));
         } else if (temp.equals(KEYWORD_CACHE)) {
-          var cacheAsString = parserRequiredWord(true, "Expected <cache value>");
+          var cacheAsString = parserRequiredWord(true, "Expected <cache value>",
+              session.getDatabaseName());
           this.params.setCacheSize(Integer.parseInt(cacheAsString));
         }
       }
@@ -91,36 +96,29 @@ public class CommandExecutorSQLCreateSequence extends CommandExecutorSQLAbstract
   }
 
   @Override
-  public Object execute(DatabaseSessionInternal db, Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, Map<Object, Object> iArgs) {
     if (this.sequenceName == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final var database = getDatabase();
-
     try {
-      database
+      session
           .getMetadata()
           .getSequenceLibrary()
           .createSequence(this.sequenceName, this.sequenceType, this.params);
     } catch (DatabaseException exc) {
       var message = "Unable to execute command: " + exc.getMessage();
       LogManager.instance().error(this, message, exc, (Object) null);
-      throw new CommandExecutionException(message);
+      throw new CommandExecutionException(session, message);
     }
 
-    return database.getMetadata().getSequenceLibrary().getSequenceCount();
+    return session.getMetadata().getSequenceLibrary().getSequenceCount();
   }
 
   @Override
   public String getSyntax() {
     return "CREATE SEQUENCE <sequence> [TYPE <CACHED|ORDERED>] [START <value>] [INCREMENT <value>]"
         + " [CACHE <value>]";
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.ALL;
   }
 }

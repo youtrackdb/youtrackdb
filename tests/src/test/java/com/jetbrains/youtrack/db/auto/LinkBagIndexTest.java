@@ -1,18 +1,14 @@
 package com.jetbrains.youtrack.db.auto;
 
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -35,63 +31,63 @@ public class LinkBagIndexTest extends BaseDBTest {
   @BeforeClass
   public void setupSchema() {
     final var ridBagIndexTestClass =
-        db.getMetadata().getSchema().createClass("RidBagIndexTestClass");
+        session.getMetadata().getSchema().createClass("RidBagIndexTestClass");
 
-    ridBagIndexTestClass.createProperty(db, "ridBag", PropertyType.LINKBAG);
+    ridBagIndexTestClass.createProperty(session, "ridBag", PropertyType.LINKBAG);
 
-    ridBagIndexTestClass.createIndex(db, "ridBagIndex", SchemaClass.INDEX_TYPE.NOTUNIQUE,
+    ridBagIndexTestClass.createIndex(session, "ridBagIndex", SchemaClass.INDEX_TYPE.NOTUNIQUE,
         "ridBag");
 
-    db.close();
+    session.close();
   }
 
   @AfterClass
   public void destroySchema() {
-    if (db.isClosed()) {
-      db = acquireSession();
+    if (session.isClosed()) {
+      session = acquireSession();
     }
 
-    db.getMetadata().getSchema().dropClass("RidBagIndexTestClass");
-    db.close();
+    session.getMetadata().getSchema().dropClass("RidBagIndexTestClass");
+    session.close();
   }
 
   @AfterMethod
   public void afterMethod() {
-    db.begin();
-    db.command("DELETE FROM RidBagIndexTestClass").close();
-    db.commit();
+    session.begin();
+    session.command("DELETE FROM RidBagIndexTestClass").close();
+    session.commit();
 
-    var result = db.query("select from RidBagIndexTestClass");
+    var result = session.query("select from RidBagIndexTestClass");
     Assert.assertEquals(result.stream().count(), 0);
 
-    if (!db.getStorage().isRemote()) {
+    if (!session.getStorage().isRemote()) {
       final var index = getIndex("ridBagIndex");
-      Assert.assertEquals(index.getInternal().size(db), 0);
+      Assert.assertEquals(index.getInternal().size(session), 0);
     }
   }
 
   public void testIndexRidBag() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
-    final var ridBag = new RidBag(db);
+    final var document = ((EntityImpl) session.newEntity("RidBagIndexTestClass"));
+    final var ridBag = new RidBag(session);
     ridBag.add(docOne.getIdentity());
     ridBag.add(docTwo.getIdentity());
 
     document.field("ridBag", ridBag);
 
     document.save();
-    db.commit();
+    session.commit();
 
     final var index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(index.getInternal().size(session), 2);
 
     final Iterator<Object> keyIterator;
     try (var keyStream = index.getInternal().keyStream()) {
@@ -110,28 +106,28 @@ public class LinkBagIndexTest extends BaseDBTest {
   public void testIndexRidBagInTx() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
     try {
-      final var document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
-      final var ridBag = new RidBag(db);
+      final var document = ((EntityImpl) session.newEntity("RidBagIndexTestClass"));
+      final var ridBag = new RidBag(session);
       ridBag.add(docOne.getIdentity());
       ridBag.add(docTwo.getIdentity());
 
       document.field("ridBag", ridBag);
       document.save();
-      db.commit();
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     final var index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(index.getInternal().size(session), 2);
 
     final Iterator<Object> keyIterator;
     try (var keyStream = index.getInternal().keyStream()) {
@@ -150,39 +146,39 @@ public class LinkBagIndexTest extends BaseDBTest {
   public void testIndexRidBagUpdate() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) session.newEntity());
     docThree.save();
 
-    var document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
-    final var ridBagOne = new RidBag(db);
+    var document = ((EntityImpl) session.newEntity("RidBagIndexTestClass"));
+    final var ridBagOne = new RidBag(session);
     ridBagOne.add(docOne.getIdentity());
     ridBagOne.add(docTwo.getIdentity());
 
     document.field("ridBag", ridBagOne);
 
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    final var ridBagTwo = new RidBag(db);
+    session.begin();
+    final var ridBagTwo = new RidBag(session);
     ridBagTwo.add(docOne.getIdentity());
     ridBagTwo.add(docThree.getIdentity());
 
-    document = db.bindToSession(document);
+    document = session.bindToSession(document);
     document.field("ridBag", ridBagTwo);
 
-    db.bindToSession(document).save();
-    db.commit();
+    session.bindToSession(document).save();
+    session.commit();
 
     final var index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(index.getInternal().size(session), 2);
 
     final Iterator<Object> keyIterator;
     try (var keyStream = index.getInternal().keyStream()) {
@@ -201,44 +197,44 @@ public class LinkBagIndexTest extends BaseDBTest {
   public void testIndexRidBagUpdateInTx() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) session.newEntity());
     docThree.save();
 
-    var document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
-    final var ridBagOne = new RidBag(db);
+    var document = ((EntityImpl) session.newEntity("RidBagIndexTestClass"));
+    final var ridBagOne = new RidBag(session);
     ridBagOne.add(docOne.getIdentity());
     ridBagOne.add(docTwo.getIdentity());
 
     document.field("ridBag", ridBagOne);
 
     document.save();
-    db.commit();
+    session.commit();
 
     try {
-      db.begin();
+      session.begin();
 
-      document = db.bindToSession(document);
-      final var ridBagTwo = new RidBag(db);
+      document = session.bindToSession(document);
+      final var ridBagTwo = new RidBag(session);
       ridBagTwo.add(docOne.getIdentity());
       ridBagTwo.add(docThree.getIdentity());
 
       document.field("ridBag", ridBagTwo);
       document.save();
-      db.commit();
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     final var index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(index.getInternal().size(session), 2);
 
     final Iterator<Object> keyIterator;
     try (var keyStream = index.getInternal().keyStream()) {
@@ -257,37 +253,37 @@ public class LinkBagIndexTest extends BaseDBTest {
   public void testIndexRidBagUpdateInTxRollback() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) session.newEntity());
     docThree.save();
 
-    final var ridBagOne = new RidBag(db);
+    final var ridBagOne = new RidBag(session);
     ridBagOne.add(docOne.getIdentity());
     ridBagOne.add(docTwo.getIdentity());
 
-    var document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
+    var document = ((EntityImpl) session.newEntity("RidBagIndexTestClass"));
     document.field("ridBag", ridBagOne);
     document.save();
-    Assert.assertTrue(db.commit());
+    Assert.assertTrue(session.commit());
 
-    db.begin();
-    document = db.bindToSession(document);
-    final var ridBagTwo = new RidBag(db);
+    session.begin();
+    document = session.bindToSession(document);
+    final var ridBagTwo = new RidBag(session);
     ridBagTwo.add(docOne.getIdentity());
     ridBagTwo.add(docThree.getIdentity());
 
     document.field("ridBag", ridBagTwo);
     document.save();
-    db.rollback();
+    session.rollback();
 
     final var index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(index.getInternal().size(session), 2);
 
     final Iterator<Object> keyIterator;
     try (var keyStream = index.getInternal().keyStream()) {
@@ -306,37 +302,37 @@ public class LinkBagIndexTest extends BaseDBTest {
   public void testIndexRidBagUpdateAddItem() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) session.newEntity());
     docThree.save();
 
-    final var document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
-    final var ridBag = new RidBag(db);
+    final var document = ((EntityImpl) session.newEntity("RidBagIndexTestClass"));
+    final var ridBag = new RidBag(session);
     ridBag.add(docOne.getIdentity());
     ridBag.add(docTwo.getIdentity());
     document.field("ridBag", ridBag);
 
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    db
+    session.begin();
+    session
         .command(
             "UPDATE "
                 + document.getIdentity()
                 + " set ridBag = ridBag || "
                 + docThree.getIdentity())
         .close();
-    db.commit();
+    session.commit();
 
     final var index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(db), 3);
+    Assert.assertEquals(index.getInternal().size(session), 3);
 
     final Iterator<Object> keyIterator;
     try (var keyStream = index.getInternal().keyStream()) {
@@ -356,40 +352,40 @@ public class LinkBagIndexTest extends BaseDBTest {
   public void testIndexRidBagUpdateAddItemInTx() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    var docThree = ((EntityImpl) db.newEntity());
+    var docThree = ((EntityImpl) session.newEntity());
     docThree.save();
 
-    final var document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
-    final var ridBag = new RidBag(db);
+    final var document = ((EntityImpl) session.newEntity("RidBagIndexTestClass"));
+    final var ridBag = new RidBag(session);
     ridBag.add(docOne.getIdentity());
     ridBag.add(docTwo.getIdentity());
 
     document.field("ridBag", ridBag);
 
     document.save();
-    db.commit();
+    session.commit();
 
     try {
-      db.begin();
-      docThree = db.bindToSession(docThree);
-      EntityImpl loadedDocument = db.load(document.getIdentity());
+      session.begin();
+      docThree = session.bindToSession(docThree);
+      EntityImpl loadedDocument = session.load(document.getIdentity());
       loadedDocument.<RidBag>field("ridBag").add(docThree.getIdentity());
       loadedDocument.save();
-      db.commit();
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     final var index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(db), 3);
+    Assert.assertEquals(index.getInternal().size(session), 3);
 
     final Iterator<Object> keyIterator;
     try (var keyStream = index.getInternal().keyStream()) {
@@ -409,36 +405,36 @@ public class LinkBagIndexTest extends BaseDBTest {
   public void testIndexRidBagUpdateAddItemInTxRollback() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    var docThree = ((EntityImpl) db.newEntity());
+    var docThree = ((EntityImpl) session.newEntity());
     docThree.save();
 
-    final var document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
-    final var ridBag = new RidBag(db);
+    final var document = ((EntityImpl) session.newEntity("RidBagIndexTestClass"));
+    final var ridBag = new RidBag(session);
     ridBag.add(docOne.getIdentity());
     ridBag.add(docTwo.getIdentity());
 
     document.field("ridBag", ridBag);
 
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    docThree = db.bindToSession(docThree);
-    EntityImpl loadedDocument = db.load(document.getIdentity());
+    session.begin();
+    docThree = session.bindToSession(docThree);
+    EntityImpl loadedDocument = session.load(document.getIdentity());
     loadedDocument.<RidBag>field("ridBag").add(docThree.getIdentity());
     loadedDocument.save();
-    db.rollback();
+    session.rollback();
 
     final var index = getIndex("ridBagIndex");
 
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(index.getInternal().size(session), 2);
     final Iterator<Object> keyIterator;
     try (var keyStream = index.getInternal().keyStream()) {
       keyIterator = keyStream.iterator();
@@ -456,36 +452,36 @@ public class LinkBagIndexTest extends BaseDBTest {
   public void testIndexRidBagUpdateRemoveItemInTx() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
-    final var ridBag = new RidBag(db);
+    final var document = ((EntityImpl) session.newEntity("RidBagIndexTestClass"));
+    final var ridBag = new RidBag(session);
     ridBag.add(docOne.getIdentity());
     ridBag.add(docTwo.getIdentity());
     document.field("ridBag", ridBag);
 
     document.save();
-    db.commit();
+    session.commit();
 
     try {
-      db.begin();
-      EntityImpl loadedDocument = db.load(document.getIdentity());
+      session.begin();
+      EntityImpl loadedDocument = session.load(document.getIdentity());
       loadedDocument.<RidBag>field("ridBag").remove(docTwo.getIdentity());
       loadedDocument.save();
-      db.commit();
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     final var index = getIndex("ridBagIndex");
 
-    Assert.assertEquals(index.getInternal().size(db), 1);
+    Assert.assertEquals(index.getInternal().size(session), 1);
     final Iterator<Object> keyIterator;
     try (var keyStream = index.getInternal().keyStream()) {
       keyIterator = keyStream.iterator();
@@ -502,29 +498,29 @@ public class LinkBagIndexTest extends BaseDBTest {
   public void testIndexRidBagUpdateRemoveItemInTxRollback() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
-    final var ridBag = new RidBag(db);
+    final var document = ((EntityImpl) session.newEntity("RidBagIndexTestClass"));
+    final var ridBag = new RidBag(session);
     ridBag.add(docOne.getIdentity());
     ridBag.add(docTwo.getIdentity());
     document.field("ridBag", ridBag);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    EntityImpl loadedDocument = db.load(document.getIdentity());
+    session.begin();
+    EntityImpl loadedDocument = session.load(document.getIdentity());
     loadedDocument.<RidBag>field("ridBag").remove(docTwo.getIdentity());
     loadedDocument.save();
-    db.rollback();
+    session.rollback();
 
     final var index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(index.getInternal().size(session), 2);
 
     final Iterator<Object> keyIterator;
     try (var keyStream = index.getInternal().keyStream()) {
@@ -543,31 +539,31 @@ public class LinkBagIndexTest extends BaseDBTest {
   public void testIndexRidBagUpdateRemoveItem() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
-    final var ridBag = new RidBag(db);
+    final var document = ((EntityImpl) session.newEntity("RidBagIndexTestClass"));
+    final var ridBag = new RidBag(session);
     ridBag.add(docOne.getIdentity());
     ridBag.add(docTwo.getIdentity());
 
     document.field("ridBag", ridBag);
     document.save();
-    db.commit();
+    session.commit();
 
     //noinspection deprecation
-    db.begin();
-    db
+    session.begin();
+    session
         .command("UPDATE " + document.getIdentity() + " remove ridBag = " + docTwo.getIdentity())
         .close();
-    db.commit();
+    session.commit();
 
     final var index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(db), 1);
+    Assert.assertEquals(index.getInternal().size(session), 1);
 
     final Iterator<Object> keyIterator;
     try (var keyStream = index.getInternal().keyStream()) {
@@ -585,86 +581,86 @@ public class LinkBagIndexTest extends BaseDBTest {
   public void testIndexRidBagRemove() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("RidBagIndexTestClass"));
 
-    final var ridBag = new RidBag(db);
+    final var ridBag = new RidBag(session);
     ridBag.add(docOne.getIdentity());
     ridBag.add(docTwo.getIdentity());
 
     document.field("ridBag", ridBag);
     document.save();
     document.delete();
-    db.commit();
+    session.commit();
 
     final var index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(db), 0);
+    Assert.assertEquals(index.getInternal().size(session), 0);
   }
 
   public void testIndexRidBagRemoveInTx() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("RidBagIndexTestClass"));
 
-    final var ridBag = new RidBag(db);
+    final var ridBag = new RidBag(session);
     ridBag.add(docOne.getIdentity());
     ridBag.add(docTwo.getIdentity());
 
     document.field("ridBag", ridBag);
     document.save();
-    db.commit();
+    session.commit();
 
     try {
-      db.begin();
-      db.bindToSession(document).delete();
-      db.commit();
+      session.begin();
+      session.bindToSession(document).delete();
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     final var index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(db), 0);
+    Assert.assertEquals(index.getInternal().size(session), 0);
   }
 
   public void testIndexRidBagRemoveInTxRollback() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
-    final var ridBag = new RidBag(db);
+    final var document = ((EntityImpl) session.newEntity("RidBagIndexTestClass"));
+    final var ridBag = new RidBag(session);
     ridBag.add(docOne.getIdentity());
     ridBag.add(docTwo.getIdentity());
 
     document.field("ridBag", ridBag);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    db.bindToSession(document).delete();
-    db.rollback();
+    session.begin();
+    session.bindToSession(document).delete();
+    session.rollback();
 
     final var index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(db), 2);
+    Assert.assertEquals(index.getInternal().size(session), 2);
 
     final Iterator<Object> keyIterator;
     try (var keyStream = index.getInternal().keyStream()) {
@@ -682,35 +678,35 @@ public class LinkBagIndexTest extends BaseDBTest {
   }
 
   public void testIndexRidBagSQL() {
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) session.newEntity());
     docThree.save();
 
-    var document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
-    final var ridBagOne = new RidBag(db);
+    var document = ((EntityImpl) session.newEntity("RidBagIndexTestClass"));
+    final var ridBagOne = new RidBag(session);
     ridBagOne.add(docOne.getIdentity());
     ridBagOne.add(docTwo.getIdentity());
 
     document.field("ridBag", ridBagOne);
     document.save();
 
-    document = ((EntityImpl) db.newEntity("RidBagIndexTestClass"));
-    var ridBag = new RidBag(db);
+    document = ((EntityImpl) session.newEntity("RidBagIndexTestClass"));
+    var ridBag = new RidBag(session);
     ridBag.add(docThree.getIdentity());
     ridBag.add(docTwo.getIdentity());
 
     document.field("ridBag", ridBag);
     document.save();
-    db.commit();
+    session.commit();
 
     var result =
-        db.query(
+        session.query(
             "select * from RidBagIndexTestClass where ridBag contains ?", docOne.getIdentity());
     var res = result.next();
 

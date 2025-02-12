@@ -13,7 +13,6 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.PropertyIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
@@ -29,7 +28,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class SQLWhereClause extends SimpleNode {
 
@@ -80,8 +78,8 @@ public class SQLWhereClause extends SimpleNode {
    * if and only if sure that no records are returned
    */
   public long estimate(SchemaClassInternal oClass, long threshold, CommandContext ctx) {
-    var database = ctx.getDatabase();
-    var count = oClass.count(database);
+    var session = ctx.getDatabaseSession();
+    var count = oClass.count(session);
     if (count > 1) {
       count = count / 2;
     }
@@ -91,11 +89,11 @@ public class SQLWhereClause extends SimpleNode {
 
     var indexesCount = 0L;
     var flattenedConditions = flatten();
-    var indexes = oClass.getIndexesInternal(database);
+    var indexes = oClass.getIndexesInternal(session);
     for (var condition : flattenedConditions) {
 
       var indexedFunctConditions =
-          condition.getIndexedFunctionConditions(oClass, ctx.getDatabase());
+          condition.getIndexedFunctionConditions(oClass, ctx.getDatabaseSession());
 
       var conditionEstimation = Long.MAX_VALUE;
 
@@ -103,7 +101,7 @@ public class SQLWhereClause extends SimpleNode {
         for (var cond : indexedFunctConditions) {
           var from = new SQLFromClause(-1);
           from.item = new SQLFromItem(-1);
-          from.item.setIdentifier(new SQLIdentifier(oClass.getName()));
+          from.item.setIdentifier(new SQLIdentifier(oClass.getName(session)));
           var newCount = cond.estimateIndexed(from, ctx);
           if (newCount < conditionEstimation) {
             conditionEstimation = newCount;
@@ -123,7 +121,7 @@ public class SQLWhereClause extends SimpleNode {
             }
           }
           if (nMatchingKeys > 0) {
-            var newCount = estimateFromIndex(database, index, conditions, nMatchingKeys);
+            var newCount = estimateFromIndex(session, index, conditions, nMatchingKeys);
             if (newCount < conditionEstimation) {
               conditionEstimation = newCount;
             }

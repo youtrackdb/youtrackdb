@@ -282,7 +282,7 @@ public final class ClusterPage extends DurablePage {
       var entryPointer = getPointerAt(entryIndexPosition);
       // 2.1 requested position already occupied by other record, should not really happen
       if ((entryPointer & MARKED_AS_DELETED_FLAG) == 0) {
-        throw new StorageException(
+        throw new StorageException(null,
             "Can not insert record inside of already occupied slot, record position = "
                 + requestedPosition);
       }
@@ -310,7 +310,7 @@ public final class ClusterPage extends DurablePage {
           prevFreeListItem = currentFreeListItem;
           currentFreeListItem = nextEntryPosition - 1;
         } else {
-          throw new StorageException(
+          throw new StorageException(null,
               "Record position "
                   + requestedPosition
                   + " marked as deleted but can not be found in the list of deleted records");
@@ -324,7 +324,7 @@ public final class ClusterPage extends DurablePage {
       setVersionAt(entryIndexPosition, recordVersion);
       allocatedFromFreeList = true;
     } else {
-      throw new StorageException(
+      throw new StorageException(null,
           "Can not insert record out side of list of already inserted records, record position = "
               + requestedPosition);
     }

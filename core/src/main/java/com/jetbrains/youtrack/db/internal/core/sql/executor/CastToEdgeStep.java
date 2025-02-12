@@ -28,7 +28,7 @@ public class CastToEdgeStep extends AbstractExecutionStep {
     if (result.getEntity().orElse(null) instanceof Edge) {
       return result;
     }
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     if (result.isEdge()) {
       if (result instanceof ResultInternal) {
         ((ResultInternal) result).setIdentifiable(result.asEntity().toEdge());
@@ -36,7 +36,8 @@ public class CastToEdgeStep extends AbstractExecutionStep {
         result = new ResultInternal(db, result.asEntity().toEdge());
       }
     } else {
-      throw new CommandExecutionException("Current entity is not a vertex: " + result);
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
+          "Current entity is not a vertex: " + result);
     }
     return result;
   }

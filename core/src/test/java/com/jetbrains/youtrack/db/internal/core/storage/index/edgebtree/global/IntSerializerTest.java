@@ -1,15 +1,25 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.edgebtree.global;
 
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALPageChangesPortion;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.IntSerializer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class IntSerializerTest {
+
+  private static BinarySerializerFactory serializerFactory;
+
+  @BeforeClass
+  public static void beforeClass() {
+    serializerFactory = BinarySerializerFactory.create(
+        BinarySerializerFactory.currentBinaryFormatVersion());
+  }
 
   @Test
   public void serializeOneByteTest() {
@@ -42,15 +52,15 @@ public class IntSerializerTest {
   private void serializationTest(int value) {
     final var serializer = new IntSerializer();
 
-    final var size = serializer.getObjectSize(value);
+    final var size = serializer.getObjectSize(serializerFactory, value);
     final var stream = new byte[size + 3];
 
-    serializer.serialize(value, stream, 3, (Object[]) null);
+    serializer.serialize(value, serializerFactory, stream, 3, (Object[]) null);
 
-    final var serializedSize = serializer.getObjectSize(stream, 3);
+    final var serializedSize = serializer.getObjectSize(serializerFactory, stream, 3);
     Assert.assertEquals(size, serializedSize);
 
-    final int deserialized = serializer.deserialize(stream, 3);
+    final int deserialized = serializer.deserialize(serializerFactory, stream, 3);
 
     Assert.assertEquals(value, deserialized);
   }
@@ -86,16 +96,16 @@ public class IntSerializerTest {
   private void primitiveSerializationTest(int value) {
     final var serializer = new IntSerializer();
 
-    final var size = serializer.getObjectSize(value);
+    final var size = serializer.getObjectSize(serializerFactory, value);
     final var stream = new byte[size + 3];
 
     final var position = serializer.serializePrimitive(stream, 3, value);
     Assert.assertEquals(size + 3, position);
 
-    final var serializedSize = serializer.getObjectSize(stream, 3);
+    final var serializedSize = serializer.getObjectSize(serializerFactory, stream, 3);
     Assert.assertEquals(size, serializedSize);
 
-    final int deserialized = serializer.deserialize(stream, 3);
+    final int deserialized = serializer.deserialize(serializerFactory, stream, 3);
 
     Assert.assertEquals(value, deserialized);
   }
@@ -131,15 +141,15 @@ public class IntSerializerTest {
   private void nativeSerializationTest(int value) {
     final var serializer = new IntSerializer();
 
-    final var size = serializer.getObjectSize(value);
+    final var size = serializer.getObjectSize(serializerFactory, value);
     final var stream = new byte[size + 3];
 
-    serializer.serializeNativeObject(value, stream, 3, (Object[]) null);
+    serializer.serializeNativeObject(value, serializerFactory, stream, 3, (Object[]) null);
 
-    final var serializedSize = serializer.getObjectSize(stream, 3);
+    final var serializedSize = serializer.getObjectSize(serializerFactory, stream, 3);
     Assert.assertEquals(size, serializedSize);
 
-    final int deserialized = serializer.deserializeNativeObject(stream, 3);
+    final int deserialized = serializer.deserializeNativeObject(serializerFactory, stream, 3);
 
     Assert.assertEquals(value, deserialized);
   }
@@ -203,20 +213,21 @@ public class IntSerializerTest {
   private void byteBufferSerializationTest(int value) {
     final var serializer = new IntSerializer();
 
-    final var size = serializer.getObjectSize(value);
+    final var size = serializer.getObjectSize(serializerFactory, value);
     final var byteBuffer = ByteBuffer.allocate(size + 3);
 
     byteBuffer.position(3);
 
-    serializer.serializeInByteBufferObject(value, byteBuffer, (Object[]) null);
+    serializer.serializeInByteBufferObject(serializerFactory, value, byteBuffer, (Object[]) null);
     Assert.assertEquals(size + 3, byteBuffer.position());
 
     byteBuffer.position(3);
-    final var serializedSize = serializer.getObjectSizeInByteBuffer(byteBuffer);
+    final var serializedSize = serializer.getObjectSizeInByteBuffer(serializerFactory, byteBuffer);
     Assert.assertEquals(size, serializedSize);
 
     byteBuffer.position(3);
-    final int deserialized = serializer.deserializeFromByteBufferObject(byteBuffer);
+    final int deserialized = serializer.deserializeFromByteBufferObject(serializerFactory,
+        byteBuffer);
 
     Assert.assertEquals(value, deserialized);
   }
@@ -224,20 +235,22 @@ public class IntSerializerTest {
   private void byteBufferImmutablePositionSerializationTest(int value) {
     final var serializer = new IntSerializer();
 
-    final var size = serializer.getObjectSize(value);
+    final var size = serializer.getObjectSize(serializerFactory, value);
     final var byteBuffer = ByteBuffer.allocate(size + 3);
 
     byteBuffer.position(3);
 
-    serializer.serializeInByteBufferObject(value, byteBuffer, (Object[]) null);
+    serializer.serializeInByteBufferObject(serializerFactory, value, byteBuffer, (Object[]) null);
     Assert.assertEquals(size + 3, byteBuffer.position());
 
     byteBuffer.position(0);
-    final var serializedSize = serializer.getObjectSizeInByteBuffer(3, byteBuffer);
+    final var serializedSize = serializer.getObjectSizeInByteBuffer(serializerFactory, 3,
+        byteBuffer);
     Assert.assertEquals(size, serializedSize);
     Assert.assertEquals(0, byteBuffer.position());
 
-    final int deserialized = serializer.deserializeFromByteBufferObject(3, byteBuffer);
+    final int deserialized = serializer.deserializeFromByteBufferObject(serializerFactory, 3,
+        byteBuffer);
     Assert.assertEquals(0, byteBuffer.position());
 
     Assert.assertEquals(value, deserialized);
@@ -275,18 +288,20 @@ public class IntSerializerTest {
     final var serializer = new IntSerializer();
     final WALChanges walChanges = new WALPageChangesPortion();
 
-    final var size = serializer.getObjectSize(value);
+    final var size = serializer.getObjectSize(serializerFactory, value);
     final var byteBuffer =
         ByteBuffer.allocate(GlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024)
             .order(ByteOrder.nativeOrder());
     final var serializedValue = new byte[size];
-    serializer.serializeNativeObject(value, serializedValue, 0);
+    serializer.serializeNativeObject(value, serializerFactory, serializedValue, 0);
     walChanges.setBinaryValue(byteBuffer, serializedValue, 3);
 
     final var serializedSize = serializer.getObjectSizeInByteBuffer(byteBuffer, walChanges, 3);
     Assert.assertEquals(size, serializedSize);
 
-    final int deserialized = serializer.deserializeFromByteBufferObject(byteBuffer, walChanges, 3);
+    final int deserialized = serializer.deserializeFromByteBufferObject(serializerFactory,
+        byteBuffer, walChanges,
+        3);
 
     Assert.assertEquals(value, deserialized);
 

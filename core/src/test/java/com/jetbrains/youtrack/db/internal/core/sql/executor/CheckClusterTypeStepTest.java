@@ -15,11 +15,11 @@ public class CheckClusterTypeStepTest extends TestUtilsFixture {
 
   @Test
   public void shouldCheckClusterType() {
-    var clazz = createClassInstance().addCluster(db, CLASS_CLUSTER_NAME);
+    var clazz = createClassInstance().addCluster(session, CLASS_CLUSTER_NAME);
     var context = new BasicCommandContext();
-    context.setDatabase(db);
+    context.setDatabaseSession(session);
     var step =
-        new CheckClusterTypeStep(CLASS_CLUSTER_NAME, clazz.getName(), context, false);
+        new CheckClusterTypeStep(CLASS_CLUSTER_NAME, clazz.getName(session), context, false);
 
     var result = step.start(context);
     Assert.assertEquals(0, result.stream(context).count());
@@ -27,11 +27,12 @@ public class CheckClusterTypeStepTest extends TestUtilsFixture {
 
   @Test(expected = CommandExecutionException.class)
   public void shouldThrowExceptionWhenClusterIsWrong() {
-    db.addCluster(CLUSTER_NAME);
+    session.addCluster(CLUSTER_NAME);
     var context = new BasicCommandContext();
-    context.setDatabase(db);
+    context.setDatabaseSession(session);
     var step =
-        new CheckClusterTypeStep(CLUSTER_NAME, createClassInstance().getName(), context, false);
+        new CheckClusterTypeStep(CLUSTER_NAME, createClassInstance().getName(session), context,
+            false);
 
     step.start(context);
   }

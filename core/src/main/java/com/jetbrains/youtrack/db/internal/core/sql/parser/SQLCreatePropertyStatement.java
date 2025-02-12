@@ -45,7 +45,7 @@ public class SQLCreatePropertyStatement extends DDLStatement {
 
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
-    var result = new ResultInternal(ctx.getDatabase());
+    var result = new ResultInternal(ctx.getDatabaseSession());
     result.setProperty("operation", "create property");
     result.setProperty("className", className.getStringValue());
     result.setProperty("propertyName", propertyName.getStringValue());
@@ -54,17 +54,18 @@ public class SQLCreatePropertyStatement extends DDLStatement {
   }
 
   private void executeInternal(CommandContext ctx, ResultInternal result) {
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     var clazz =
         (SchemaClassEmbedded) db.getMetadata().getSchema().getClass(className.getStringValue());
     if (clazz == null) {
-      throw new CommandExecutionException("Class not found: " + className.getStringValue());
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
+          "Class not found: " + className.getStringValue());
     }
-    if (clazz.getProperty(propertyName.getStringValue()) != null) {
+    if (clazz.getProperty(db, propertyName.getStringValue()) != null) {
       if (ifNotExists) {
         return;
       }
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
           "Property "
               + className.getStringValue()
               + "."
@@ -74,7 +75,7 @@ public class SQLCreatePropertyStatement extends DDLStatement {
     var type = PropertyType.valueOf(
         propertyType.getStringValue().toUpperCase(Locale.ENGLISH));
     if (type == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
           "Invalid property type: " + propertyType.getStringValue());
     }
     SchemaClass linkedClass = null;
@@ -92,7 +93,8 @@ public class SQLCreatePropertyStatement extends DDLStatement {
     // CREATE IT LOCALLY
     var internalProp =
         (SchemaPropertyImpl)
-            clazz.addProperty(ctx.getDatabase(), propertyName.getStringValue(), type, linkedType,
+            clazz.addProperty(ctx.getDatabaseSession(), propertyName.getStringValue(), type,
+                linkedType,
                 linkedClass,
                 unsafe);
     for (var attr : attributes) {

@@ -21,19 +21,15 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.api.exception.SecurityException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.RestrictedAccessHook;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.RestrictedOperation;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHook;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryListener;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -53,20 +49,21 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
   private int token;
   private static final Random random = new Random();
 
-  public CommandExecutorSQLLiveSelect() {
+  public CommandExecutorSQLLiveSelect(DatabaseSessionInternal session) {
+    super(session);
   }
 
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     try {
       execInSeparateDatabase(
-          iArgument -> execDb = db.copy());
+          iArgument -> execDb = session.copy());
 
       synchronized (random) {
         token = random.nextInt(); // TODO do something better ;-)!
       }
 
-      subscribeToLiveQuery(token, db);
-      bindDefaultContextVariables();
+      subscribeToLiveQuery(token, session);
+      bindDefaultContextVariables(session);
 
       if (iArgs != null)
       // BIND ARGUMENTS INTO CONTEXT TO ACCESS FROM ANY POINT (EVEN FUNCTIONS)
@@ -80,14 +77,14 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
         getContext().beginExecution(timeoutMs, timeoutStrategy);
       }
 
-      var result = new EntityImpl(db);
+      var result = new EntityImpl(session);
       result.field("token", token); // TODO change this name...?
 
-      ((LegacyResultSet) getResult(db)).add(result);
-      return getResult(db);
+      ((LegacyResultSet) getResult(session)).add(result);
+      return getResult(session);
     } finally {
       if (request != null && request.getResultListener() != null) {
-        request.getResultListener().end();
+        request.getResultListener().end(session);
       }
     }
   }
@@ -97,54 +94,30 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
   }
 
   public void onLiveResult(final RecordOperation iOp) {
+    final Identifiable value = iOp.record;
 
-    var oldThreadLocal = DatabaseRecordThreadLocal.instance().getIfDefined();
-    execDb.activateOnCurrentThread();
-
-    try {
-      final Identifiable value = iOp.record;
-
-      if (!matchesTarget(value)) {
-        return;
-      }
-      if (!matchesFilters(value)) {
-        return;
-      }
-      if (!checkSecurity(value)) {
-        return;
-      }
-    } finally {
-      if (oldThreadLocal == null) {
-        DatabaseRecordThreadLocal.instance().remove();
-      } else {
-        DatabaseRecordThreadLocal.instance().set(oldThreadLocal);
-      }
+    if (!matchesTarget(value)) {
+      return;
+    }
+    if (!matchesFilters(value)) {
+      return;
+    }
+    if (!checkSecurity(value)) {
+      return;
     }
     final var listener = request.getResultListener();
     if (listener instanceof LiveResultListener) {
       execInSeparateDatabase(
-          new CallableFunction() {
-            @Override
-            public Object call(Object iArgument) {
-              execDb.activateOnCurrentThread();
-              ((LiveResultListener) listener).onLiveResult(execDb, token, iOp);
-              return null;
-            }
+          iArgument -> {
+            execDb.activateOnCurrentThread();
+            ((LiveResultListener) listener).onLiveResult(execDb, token, iOp);
+            return null;
           });
     }
   }
 
   protected static void execInSeparateDatabase(final CallableFunction iCallback) {
-    final var prevDb = DatabaseRecordThreadLocal.instance().getIfDefined();
-    try {
-      iCallback.call(null);
-    } finally {
-      if (prevDb != null) {
-        DatabaseRecordThreadLocal.instance().set(prevDb);
-      } else {
-        DatabaseRecordThreadLocal.instance().remove();
-      }
-    }
+    iCallback.call(null);
   }
 
   private boolean checkSecurity(Identifiable value) {
@@ -190,7 +163,7 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
 
     if (this.parsedTarget.getTargetClasses() != null) {
       for (var clazz : parsedTarget.getTargetClasses().keySet()) {
-        if (docClass.isSubClassOf(clazz)) {
+        if (docClass.isSubClassOf(execDb, clazz)) {
           return true;
         }
       }
@@ -221,32 +194,21 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
     }
 
     if (execDb != null) {
-      var oldThreadDB = DatabaseRecordThreadLocal.instance().getIfDefined();
-      execDb.activateOnCurrentThread();
       execDb.close();
-      if (oldThreadDB == null) {
-        DatabaseRecordThreadLocal.instance().remove();
-      } else {
-        DatabaseRecordThreadLocal.instance().set(oldThreadDB);
-      }
     }
   }
 
   @Override
-  public CommandExecutorSQLSelect parse(DatabaseSessionInternal db, final CommandRequest iRequest) {
+  public CommandExecutorSQLSelect parse(DatabaseSessionInternal session,
+      final CommandRequest iRequest) {
     final var requestText = (CommandRequestText) iRequest;
     final var originalText = requestText.getText();
     final var remainingText = requestText.getText().trim().substring(5).trim();
     requestText.setText(remainingText);
     try {
-      return super.parse(db, iRequest);
+      return super.parse(session, iRequest);
     } finally {
       requestText.setText(originalText);
     }
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.NONE;
   }
 }

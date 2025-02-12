@@ -4,7 +4,6 @@ import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
@@ -58,67 +57,69 @@ public class UpdateContentStep extends AbstractExecutionStep {
     // REPLACE ALL THE CONTENT
     EntityImpl fieldsToPreserve = null;
 
-    var db = ctx.getDatabase();
+    var session = ctx.getDatabaseSession();
     var clazz = record.getSchemaType().orElse(null);
     if (clazz != null && ((SchemaImmutableClass) clazz).isRestricted()) {
-      fieldsToPreserve = new EntityImpl(db);
+      fieldsToPreserve = new EntityImpl(session);
 
       final var restricted =
-          ctx.getDatabase()
+          session
               .getMetadata()
               .getImmutableSchemaSnapshot()
               .getClass(Security.RESTRICTED_CLASSNAME);
-      for (var prop : restricted.properties(ctx.getDatabase())) {
-        fieldsToPreserve.field(prop.getName(), record.<Object>getProperty(prop.getName()));
+      for (var prop : restricted.properties(session)) {
+        fieldsToPreserve.field(prop.getName(session),
+            record.<Object>getProperty(prop.getName(session)));
       }
     }
     Map<String, Object> preDefaultValues = null;
     if (clazz != null) {
-      for (var prop : clazz.properties(ctx.getDatabase())) {
-        if (prop.getDefaultValue() != null) {
+      for (var prop : clazz.properties(session)) {
+        if (prop.getDefaultValue(session) != null) {
           if (preDefaultValues == null) {
             preDefaultValues = new HashMap<>();
           }
-          preDefaultValues.put(prop.getName(), record.getPropertyInternal(prop.getName()));
+          preDefaultValues.put(prop.getName(session),
+              record.getPropertyInternal(prop.getName(session)));
         }
       }
     }
 
     SchemaClass recordClass =
-        EntityInternalUtils.getImmutableSchemaClass(ctx.getDatabase(), record.getRecord(db));
-    if (recordClass != null && recordClass.isSubClassOf("V")) {
+        EntityInternalUtils.getImmutableSchemaClass(session, record.getRecord(session));
+    if (recordClass != null && recordClass.isSubClassOf(session, "V")) {
       for (var fieldName : record.getPropertyNamesInternal()) {
         if (fieldName.startsWith("in_") || fieldName.startsWith("out_")) {
           if (fieldsToPreserve == null) {
-            fieldsToPreserve = new EntityImpl(db);
+            fieldsToPreserve = new EntityImpl(session);
           }
           fieldsToPreserve.field(fieldName, record.<Object>getPropertyInternal(fieldName));
         }
       }
-    } else if (recordClass != null && recordClass.isSubClassOf("E")) {
+    } else if (recordClass != null && recordClass.isSubClassOf(session, "E")) {
       for (var fieldName : record.getPropertyNamesInternal()) {
         if (fieldName.equals("in") || fieldName.equals("out")) {
           if (fieldsToPreserve == null) {
-            fieldsToPreserve = new EntityImpl(db);
+            fieldsToPreserve = new EntityImpl(session);
           }
           fieldsToPreserve.field(fieldName, record.<Object>getPropertyInternal(fieldName));
         }
       }
     }
-    EntityImpl entity = record.getRecord(db);
+    EntityImpl entity = record.getRecord(session);
     if (json != null) {
       entity.merge(json.toEntity(record, ctx), false, false);
     } else if (inputParameter != null) {
       var val = inputParameter.getValue(ctx.getInputParameters());
       if (val instanceof Entity) {
-        entity.merge(((Entity) val).getRecord(db), false, false);
+        entity.merge(((Entity) val).getRecord(session), false, false);
       } else if (val instanceof Map<?, ?> map) {
-        var mapDoc = new EntityImpl(db);
+        var mapDoc = new EntityImpl(session);
         //noinspection unchecked
         mapDoc.updateFromMap((Map<String, ?>) map);
         entity.merge(mapDoc, false, false);
       } else {
-        throw new CommandExecutionException("Invalid value for UPDATE CONTENT: " + val);
+        throw new CommandExecutionException(session, "Invalid value for UPDATE CONTENT: " + val);
       }
     }
     if (fieldsToPreserve != null) {

@@ -4,7 +4,6 @@ import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.query.LiveQueryResultListener;
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.server.BaseServerMemoryDatabase;
 import java.util.HashMap;
@@ -45,24 +44,24 @@ public class RemoteGraphLiveQueryTest extends BaseServerMemoryDatabase {
         new LiveQueryResultListener() {
 
           @Override
-          public void onUpdate(DatabaseSessionInternal database, Result before, Result after) {
+          public void onUpdate(DatabaseSessionInternal session, Result before, Result after) {
             l.incrementAndGet();
           }
 
           @Override
-          public void onError(DatabaseSession database, BaseException exception) {
+          public void onError(DatabaseSession session, BaseException exception) {
           }
 
           @Override
-          public void onEnd(DatabaseSession database) {
+          public void onEnd(DatabaseSession session) {
           }
 
           @Override
-          public void onDelete(DatabaseSessionInternal database, Result data) {
+          public void onDelete(DatabaseSessionInternal session, Result data) {
           }
 
           @Override
-          public void onCreate(DatabaseSessionInternal database, Result data) {
+          public void onCreate(DatabaseSessionInternal session, Result data) {
           }
         },
         new HashMap<String, String>());

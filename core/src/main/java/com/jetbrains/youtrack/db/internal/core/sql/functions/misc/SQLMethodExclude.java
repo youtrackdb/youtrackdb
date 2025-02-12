@@ -91,7 +91,7 @@ public class SQLMethodExclude extends AbstractSQLMethod {
       CommandContext iContext,
       Object ioResult,
       Object[] iParams) {
-    var db = iContext.getDatabase();
+    var db = iContext.getDatabaseSession();
     if (iThis != null) {
       if (iThis instanceof RecordId) {
         try {

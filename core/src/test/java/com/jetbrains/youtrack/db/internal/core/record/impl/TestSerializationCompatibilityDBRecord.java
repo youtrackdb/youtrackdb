@@ -16,27 +16,27 @@ public class TestSerializationCompatibilityDBRecord extends DbTestBase {
   @Test
   public void testDataNotMatchSchema() {
     var klass =
-        (SchemaClassInternal) db.getMetadata()
+        (SchemaClassInternal) session.getMetadata()
             .getSchema()
-            .createClass("Test", db.getMetadata().getSchema().getClass("V"));
-    db.begin();
-    var doc = (EntityImpl) db.newEntity("Test");
+            .createClass("Test", session.getMetadata().getSchema().getClass("V"));
+    session.begin();
+    var doc = (EntityImpl) session.newEntity("Test");
     Map<String, RID> map = new HashMap<String, RID>();
     map.put("some", new RecordId(10, 20));
     doc.field("map", map, PropertyType.LINKMAP);
-    var id = db.save(doc).getIdentity();
-    db.commit();
-    klass.createProperty(db, "map", PropertyType.EMBEDDEDMAP,
+    var id = session.save(doc).getIdentity();
+    session.commit();
+    klass.createProperty(session, "map", PropertyType.EMBEDDEDMAP,
         (PropertyType) null, true);
 
-    db.begin();
-    EntityImpl record = db.load(id);
+    session.begin();
+    EntityImpl record = session.load(id);
     // Force deserialize + serialize;
     record.setProperty("some", "aa");
-    db.save(record);
-    db.commit();
+    session.save(record);
+    session.commit();
 
-    EntityImpl record1 = db.load(id);
+    EntityImpl record1 = session.load(id);
     assertEquals(PropertyType.LINKMAP, record1.getPropertyType("map"));
   }
 }

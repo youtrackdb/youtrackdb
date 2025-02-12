@@ -16,11 +16,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -45,17 +43,18 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
   protected EntityImpl content = null;
   protected int parameterCounter = 0;
 
-  protected void parseContent(DatabaseSessionInternal db) {
+  protected void parseContent(DatabaseSessionInternal session) {
     if (!parserIsEnded() && !parserGetLastWord().equals(KEYWORD_WHERE)) {
-      content = parseJSON(db);
+      content = parseJSON(session);
     }
 
     if (content == null) {
-      throwSyntaxErrorException("Content not provided. Example: CONTENT { \"name\": \"Jay\" }");
+      throwSyntaxErrorException(session.getDatabaseName(),
+          "Content not provided. Example: CONTENT { \"name\": \"Jay\" }");
     }
   }
 
-  protected void parseSetFields(DatabaseSessionInternal db, final SchemaClass iClass,
+  protected void parseSetFields(DatabaseSessionInternal session, final SchemaClass iClass,
       final List<Pair<String, Object>> fields) {
     String fieldName;
     String fieldValue;
@@ -64,17 +63,18 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
         && (fields.isEmpty()
         || parserGetLastSeparator() == ','
         || parserGetCurrentChar() == ',')) {
-      fieldName = parserRequiredWord(false, "Field name expected");
+      fieldName = parserRequiredWord(false, "Field name expected", session.getDatabaseName());
       if (fieldName.equalsIgnoreCase(KEYWORD_WHERE)) {
         parserGoBack();
         break;
       }
 
-      parserNextChars(false, true, "=");
-      fieldValue = parserRequiredWord(false, "Value expected", " =><,\r\n");
+      parserNextChars(session.getDatabaseName(), false, true, "=");
+      fieldValue = parserRequiredWord(false, "Value expected", " =><,\r\n",
+          session.getDatabaseName());
 
       // INSERT TRANSFORMED FIELD VALUE
-      final var v = convertValue(db, iClass, fieldName,
+      final var v = convertValue(session, iClass, fieldName,
           getFieldValueCountingParameters(fieldValue));
 
       fields.add(new Pair(fieldName, v));
@@ -82,12 +82,12 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
     }
 
     if (fields.size() == 0) {
-      throwParsingException(
+      throwParsingException(session.getDatabaseName(),
           "Entries to set <field> = <value> are missed. Example: name = 'Bill', salary = 300.2");
     }
   }
 
-  protected SchemaClass extractClassFromTarget(String iTarget) {
+  protected SchemaClass extractClassFromTarget(DatabaseSessionInternal db, String iTarget) {
     // CLASS
     if (!iTarget.toUpperCase(Locale.ENGLISH).startsWith(CommandExecutorSQLAbstract.CLUSTER_PREFIX)
         && !iTarget.startsWith(CommandExecutorSQLAbstract.INDEX_PREFIX)) {
@@ -99,13 +99,13 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
       }
 
       if (iTarget.charAt(0) == RID.PREFIX) {
-        return getDatabase()
+        return db
             .getMetadata()
             .getImmutableSchemaSnapshot()
             .getClassByClusterId(new RecordId(iTarget).getClusterId());
       }
 
-      return getDatabase().getMetadata().getImmutableSchemaSnapshot().getClass(iTarget);
+      return db.getMetadata().getImmutableSchemaSnapshot().getClass(iTarget);
     }
     // CLUSTER
     if (iTarget
@@ -113,7 +113,6 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
         .startsWith(CommandExecutorSQLAbstract.CLUSTER_PREFIX)) {
       var clusterName =
           iTarget.substring(CommandExecutorSQLAbstract.CLUSTER_PREFIX.length()).trim();
-      var db = getDatabase();
       if (clusterName.startsWith("[") && clusterName.endsWith("]")) {
         var clusterNames = clusterName.substring(1, clusterName.length() - 1).split(",");
         SchemaClass candidateClass = null;
@@ -129,9 +128,9 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
           }
           if (candidateClass == null
               || candidateClass.equals(aClass)
-              || candidateClass.isSubClassOf(aClass)) {
+              || candidateClass.isSubClassOf(db, aClass)) {
             candidateClass = aClass;
-          } else if (!candidateClass.isSuperClassOf(aClass)) {
+          } else if (!candidateClass.isSuperClassOf(db, aClass)) {
             return null;
           }
         }
@@ -146,36 +145,36 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
     return null;
   }
 
-  protected static Object convertValue(DatabaseSessionInternal db, SchemaClass iClass,
+  protected static Object convertValue(DatabaseSessionInternal session, SchemaClass iClass,
       String fieldName, Object v) {
     if (iClass != null) {
       // CHECK TYPE AND CONVERT IF NEEDED
-      final var p = iClass.getProperty(fieldName);
+      final var p = iClass.getProperty(session, fieldName);
       if (p != null) {
-        final var embeddedType = p.getLinkedClass();
+        final var embeddedType = p.getLinkedClass(session);
 
-        switch (p.getType()) {
+        switch (p.getType(session)) {
           case EMBEDDED:
             // CONVERT MAP IN DOCUMENTS ASSIGNING THE CLASS TAKEN FROM SCHEMA
             if (v instanceof Map) {
-              v = createEntityFromMap(db, embeddedType, (Map<String, Object>) v);
+              v = createEntityFromMap(session, embeddedType, (Map<String, Object>) v);
             }
             break;
 
           case EMBEDDEDSET:
             // CONVERT MAPS IN DOCUMENTS ASSIGNING THE CLASS TAKEN FROM SCHEMA
             if (v instanceof Map) {
-              return createEntityFromMap(db, embeddedType, (Map<String, Object>) v);
+              return createEntityFromMap(session, embeddedType, (Map<String, Object>) v);
             } else if (MultiValue.isMultiValue(v)) {
               final Set set = new HashSet();
 
               for (var o : MultiValue.getMultiValueIterable(v)) {
                 if (o instanceof Map) {
                   final var entity =
-                      createEntityFromMap(db, embeddedType, (Map<String, Object>) o);
+                      createEntityFromMap(session, embeddedType, (Map<String, Object>) o);
                   set.add(entity);
                 } else if (o instanceof Identifiable) {
-                  set.add(((Identifiable) o).getRecord(db));
+                  set.add(((Identifiable) o).getRecord(session));
                 } else {
                   set.add(o);
                 }
@@ -188,17 +187,17 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
           case EMBEDDEDLIST:
             // CONVERT MAPS IN DOCUMENTS ASSIGNING THE CLASS TAKEN FROM SCHEMA
             if (v instanceof Map) {
-              return createEntityFromMap(db, embeddedType, (Map<String, Object>) v);
+              return createEntityFromMap(session, embeddedType, (Map<String, Object>) v);
             } else if (MultiValue.isMultiValue(v)) {
               final List set = new ArrayList();
 
               for (var o : MultiValue.getMultiValueIterable(v)) {
                 if (o instanceof Map) {
                   final var entity =
-                      createEntityFromMap(db, embeddedType, (Map<String, Object>) o);
+                      createEntityFromMap(session, embeddedType, (Map<String, Object>) o);
                   set.add(entity);
                 } else if (o instanceof Identifiable) {
-                  set.add(((Identifiable) o).getRecord(db));
+                  set.add(((Identifiable) o).getRecord(session));
                 } else {
                   set.add(o);
                 }
@@ -216,10 +215,11 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
               for (var entry : ((Map<String, Object>) v).entrySet()) {
                 if (entry.getValue() instanceof Map) {
                   final var entity =
-                      createEntityFromMap(db, embeddedType, (Map<String, Object>) entry.getValue());
+                      createEntityFromMap(session, embeddedType,
+                          (Map<String, Object>) entry.getValue());
                   map.put(entry.getKey(), entity);
                 } else if (entry.getValue() instanceof Identifiable) {
-                  map.put(entry.getKey(), ((Identifiable) entry.getValue()).getRecord(db));
+                  map.put(entry.getKey(), ((Identifiable) entry.getValue()).getRecord(session));
                 } else {
                   map.put(entry.getKey(), entry.getValue());
                 }
@@ -238,20 +238,13 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
       SchemaClass embeddedType, Map<String, Object> o) {
     final EntityImpl entity;
     if (embeddedType != null) {
-      entity = db.newInstance(embeddedType.getName());
+      entity = db.newInstance(embeddedType.getName(db));
     } else {
       entity = db.newInstance();
     }
     entity.updateFromMap(o);
 
     return entity;
-  }
-
-  @Override
-  public long getDistributedTimeout() {
-    return getDatabase()
-        .getConfiguration()
-        .getValueAsLong(GlobalConfiguration.DISTRIBUTED_COMMAND_TASK_SYNCH_TIMEOUT);
   }
 
   protected Object getFieldValueCountingParameters(String fieldValue) {
@@ -261,9 +254,10 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
     return SQLHelper.parseValue(this, fieldValue, context, true);
   }
 
-  protected EntityImpl parseJSON(DatabaseSessionInternal db) {
-    final var contentAsString = parserRequiredWord(false, "JSON expected").trim();
-    final var json = new EntityImpl(db);
+  protected EntityImpl parseJSON(DatabaseSessionInternal session) {
+    final var contentAsString = parserRequiredWord(false, "JSON expected",
+        session.getDatabaseName()).trim();
+    final var json = new EntityImpl(session);
     json.updateFromJSON(contentAsString);
     parserSkipWhiteSpaces();
     return json;

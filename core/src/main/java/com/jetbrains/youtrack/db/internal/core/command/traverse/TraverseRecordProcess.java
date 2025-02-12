@@ -82,7 +82,7 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
         return pop();
       }
 
-      var database = command.getContext().getDatabase();
+      var database = command.getContext().getDatabaseSession();
       if (targeEntity.isNotBound(database)) {
         targeEntity = database.bindToSession(targeEntity);
       }
@@ -127,7 +127,7 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
             }
 
             final var className = cfgField.substring(0, pos);
-            if (!cls.isSubClassOf(className))
+            if (!cls.isSubClassOf(database, className))
             // JUMP IT BECAUSE IT'S NOT A INSTANCEOF THE CLASS
             {
               continue;
@@ -160,7 +160,7 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
 
   private void processFields(Iterator<Object> target) {
     EntityImpl entity = this.target.getRecord(db);
-    var database = command.getContext().getDatabase();
+    var database = command.getContext().getDatabaseSession();
     if (entity.isNotBound(database)) {
       entity = database.bindToSession(entity);
     }

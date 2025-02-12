@@ -19,7 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
@@ -47,22 +46,22 @@ public class CommandExecutorSQLDropClass extends CommandExecutorSQLAbstract
   private boolean unsafe;
   private boolean ifExists = false;
 
-  public CommandExecutorSQLDropClass parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLDropClass parse(DatabaseSessionInternal session,
       final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
-      final var strict = getDatabase().getStorageInfo().getConfiguration().isStrictSql();
+      final var strict = session.getStorageInfo().getConfiguration().isStrictSql();
       if (strict) {
         this.className = ((SQLDropClassStatement) this.preParsedStatement).name.getStringValue();
         this.unsafe = ((SQLDropClassStatement) this.preParsedStatement).unsafe;
         this.ifExists = ((SQLDropClassStatement) this.preParsedStatement).ifExists;
       } else {
-        oldParsing((CommandRequestText) iRequest);
+        oldParsing(session, (CommandRequestText) iRequest);
       }
     } finally {
       textRequest.setText(originalQuery);
@@ -71,27 +70,27 @@ public class CommandExecutorSQLDropClass extends CommandExecutorSQLAbstract
     return this;
   }
 
-  private void oldParsing(CommandRequestText iRequest) {
-    init(iRequest);
+  private void oldParsing(DatabaseSessionInternal session, CommandRequestText iRequest) {
+    init(session, iRequest);
 
     final var word = new StringBuilder();
 
     var oldPos = 0;
     var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
     if (pos == -1 || !word.toString().equals(KEYWORD_DROP)) {
-      throw new CommandSQLParsingException(
+      throw new CommandSQLParsingException(session,
           "Keyword " + KEYWORD_DROP + " not found. Use " + getSyntax(), parserText, oldPos);
     }
 
     pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
     if (pos == -1 || !word.toString().equals(KEYWORD_CLASS)) {
-      throw new CommandSQLParsingException(
+      throw new CommandSQLParsingException(session,
           "Keyword " + KEYWORD_CLASS + " not found. Use " + getSyntax(), parserText, oldPos);
     }
 
     pos = nextWord(parserText, parserTextUpperCase, pos, word, false);
     if (pos == -1) {
-      throw new CommandSQLParsingException(
+      throw new CommandSQLParsingException(session,
           "Expected <class>. Use " + getSyntax(), parserText, pos);
     }
 
@@ -103,60 +102,38 @@ public class CommandExecutorSQLDropClass extends CommandExecutorSQLAbstract
     }
   }
 
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.ALL;
-  }
-
-  @Override
-  public long getDistributedTimeout() {
-    final var cls = (SchemaClassInternal) getDatabase().getMetadata().getSchema()
-        .getClass(className);
-    if (className != null && cls != null) {
-      return getDatabase()
-          .getConfiguration()
-          .getValueAsLong(GlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT)
-          + (2 * cls.count(getDatabase()));
-    }
-
-    return getDatabase()
-        .getConfiguration()
-        .getValueAsLong(GlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
-  }
-
   /**
    * Execute the DROP CLASS.
    */
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (className == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final var database = getDatabase();
-    if (ifExists && !database.getMetadata().getSchema().existsClass(className)) {
+    if (ifExists && !session.getMetadata().getSchema().existsClass(className)) {
       return true;
     }
-    final var cls = (SchemaClassInternal) database.getMetadata().getSchema()
+    final var cls = (SchemaClassInternal) session.getMetadata().getSchema()
         .getClass(className);
     if (cls == null) {
       return null;
     }
 
-    final var records = cls.count(database, true);
+    final var records = cls.count(session, true);
 
     if (records > 0 && !unsafe) {
       // NOT EMPTY, CHECK IF CLASS IS OF VERTEX OR EDGES
-      if (cls.isSubClassOf("V")) {
+      if (cls.isSubClassOf(session, "V")) {
         // FOUND VERTEX CLASS
-        throw new CommandExecutionException(
+        throw new CommandExecutionException(session,
             "'DROP CLASS' command cannot drop class '"
                 + className
                 + "' because it contains Vertices. Use 'DELETE VERTEX' command first to avoid"
                 + " broken edges in a database, or apply the 'UNSAFE' keyword to force it");
-      } else if (cls.isSubClassOf("E")) {
+      } else if (cls.isSubClassOf(session, "E")) {
         // FOUND EDGE CLASS
-        throw new CommandExecutionException(
+        throw new CommandExecutionException(session,
             "'DROP CLASS' command cannot drop class '"
                 + className
                 + "' because it contains Edges. Use 'DELETE EDGE' command first to avoid broken"
@@ -164,11 +141,11 @@ public class CommandExecutorSQLDropClass extends CommandExecutorSQLAbstract
       }
     }
 
-    database.getMetadata().getSchema().dropClass(className);
+    session.getMetadata().getSchema().dropClass(className);
 
     if (records > 0 && unsafe) {
       // NOT EMPTY, CHECK IF CLASS IS OF VERTEX OR EDGES
-      if (cls.isSubClassOf("V")) {
+      if (cls.isSubClassOf(session, "V")) {
         // FOUND VERTICES
         if (unsafe) {
           LogManager.instance()
@@ -179,7 +156,7 @@ public class CommandExecutorSQLDropClass extends CommandExecutorSQLAbstract
                   className,
                   records);
         }
-      } else if (cls.isSubClassOf("E")) {
+      } else if (cls.isSubClassOf(session, "E")) {
         // FOUND EDGES
         LogManager.instance()
             .warn(
@@ -199,8 +176,4 @@ public class CommandExecutorSQLDropClass extends CommandExecutorSQLAbstract
     return "DROP CLASS <class> [IF EXISTS] [UNSAFE]";
   }
 
-  @Override
-  public boolean involveSchema() {
-    return true;
-  }
 }

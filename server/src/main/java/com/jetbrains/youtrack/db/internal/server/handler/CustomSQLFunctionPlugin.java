@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.server.handler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.CustomSQLFunctionFactory;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
 import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfiguration;
@@ -12,17 +12,19 @@ import com.jetbrains.youtrack.db.internal.server.plugin.ServerPluginAbstract;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Server Plugin to register custom SQL functions.
  */
 public class CustomSQLFunctionPlugin extends ServerPluginAbstract {
-
   private static final char PREFIX_NAME_SEPARATOR = '_';
+  private static final Pattern PATTERN = Pattern.compile("^[\\pL]+$");
 
-  private EntityImpl configuration;
+  private Map<String, Object> configuration;
 
   @Override
   public String getName() {
@@ -31,7 +33,7 @@ public class CustomSQLFunctionPlugin extends ServerPluginAbstract {
 
   @Override
   public void config(YouTrackDBServer youTrackDBServer, ServerParameterConfiguration[] iParams) {
-    configuration = new EntityImpl(null);
+    configuration = new HashMap<>();
 
     final var configFile =
         Arrays.stream(iParams)
@@ -49,27 +51,28 @@ public class CustomSQLFunctionPlugin extends ServerPluginAbstract {
     try {
       var configurationContent = IOUtils.readFileAsString(configFile);
       configurationContent = removeComments(configurationContent);
-      configuration = new EntityImpl(null);
-      configuration.updateFromJSON(configurationContent);
+      var objectMapper = new ObjectMapper();
+      var typeReference = objectMapper.getTypeFactory()
+          .constructMapType(Map.class, String.class, Object.class);
+      configuration = objectMapper.readValue(configurationContent, typeReference);
     } catch (IOException e) {
       throw BaseException.wrapException(
           new ConfigurationException(
               "Cannot load Custom SQL configuration file '"
                   + configFile
                   + "'. No custom functions will be disabled"),
-          e);
+          e, (String) null);
     }
   }
 
-  private String removeComments(String configurationContent) {
+  private static String removeComments(String configurationContent) {
     if (configurationContent == null) {
       return null;
     }
     var result = new StringBuilder();
     var split = configurationContent.split("\n");
     var first = true;
-    for (var i = 0; i < split.length; i++) {
-      var row = split[i];
+    for (var row : split) {
       if (row.trim().startsWith("//")) {
         continue;
       }
@@ -84,8 +87,9 @@ public class CustomSQLFunctionPlugin extends ServerPluginAbstract {
 
   @Override
   public void startup() {
-    if (Boolean.TRUE.equals(configuration.field("enabled"))) {
-      List<Map<String, String>> functions = configuration.field("functions");
+    if (Boolean.TRUE.equals(configuration.get("enabled"))) {
+      @SuppressWarnings("unchecked")
+      var functions = (List<Map<String, String>>) configuration.get("functions");
       for (var function : functions) {
         final var prefix = function.get("prefix");
         final var clazz = function.get("class");
@@ -93,7 +97,7 @@ public class CustomSQLFunctionPlugin extends ServerPluginAbstract {
           throw new ConfigurationException(
               "Unable to load functions without prefix and / or class ");
         }
-        if (!prefix.matches("^[\\pL]+$")) {
+        if (!PATTERN.matcher(prefix).matches()) {
           throw new ConfigurationException(
               "Unable to load functions with prefix '"
                   + prefix
@@ -101,13 +105,13 @@ public class CustomSQLFunctionPlugin extends ServerPluginAbstract {
         }
 
         try {
-          Class functionsClass = Class.forName(clazz);
+          var functionsClass = Class.forName(clazz);
           CustomSQLFunctionFactory.register(prefix + PREFIX_NAME_SEPARATOR, functionsClass);
         } catch (ClassNotFoundException e) {
           throw BaseException.wrapException(
               new ConfigurationException(
                   "Unable to load class " + clazz + " for custom functions with prefix " + prefix),
-              e);
+              e, (String) null);
         }
       }
     }

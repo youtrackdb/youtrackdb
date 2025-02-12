@@ -47,7 +47,7 @@ public class LiveCommandResultListenerTest extends BaseMemoryInternalDatabase {
     }
 
     @Override
-    public void end() {
+    public void end(DatabaseSessionInternal db) {
     }
 
     @Override
@@ -67,9 +67,10 @@ public class LiveCommandResultListenerTest extends BaseMemoryInternalDatabase {
     connection = manager.connect(protocol);
     var tokenHandler = new TokenHandlerImpl(new ContextConfiguration());
     Mockito.when(server.getTokenHandler()).thenReturn(tokenHandler);
-    var token = tokenHandler.getSignedBinaryToken(db, db.geCurrentUser(), connection.getData());
+    var token = tokenHandler.getSignedBinaryToken(session, session.geCurrentUser(),
+        connection.getData());
     connection = manager.connect(protocol, connection, token);
-    connection.setDatabase(db);
+    connection.setSession(session);
     connection.getData().setSerializationImpl(RecordSerializerNetworkBase.NAME);
     Mockito.when(server.getClientConnectionManager()).thenReturn(manager);
   }
@@ -78,8 +79,8 @@ public class LiveCommandResultListenerTest extends BaseMemoryInternalDatabase {
   public void testSimpleMessageSend() throws IOException {
     var listener =
         new LiveCommandResultListener(server, connection, new TestResultListener());
-    var op = new RecordOperation(new EntityImpl(db), RecordOperation.CREATED);
-    listener.onLiveResult(db, 10, op);
+    var op = new RecordOperation(new EntityImpl(session), RecordOperation.CREATED);
+    listener.onLiveResult(session, 10, op);
     Mockito.verify(channelBinary, atLeastOnce()).writeBytes(Mockito.any(byte[].class));
   }
 
@@ -89,10 +90,10 @@ public class LiveCommandResultListenerTest extends BaseMemoryInternalDatabase {
         .thenThrow(new IOException("Mock Exception"));
     var listener =
         new LiveCommandResultListener(server, connection, new TestResultListener());
-    LiveQueryHook.subscribe(10, rawListener, db);
-    assertTrue(LiveQueryHook.getOpsReference(db).getQueueThread().hasToken(10));
-    var op = new RecordOperation(new EntityImpl(db), RecordOperation.CREATED);
-    listener.onLiveResult(db, 10, op);
-    assertFalse(LiveQueryHook.getOpsReference(db).getQueueThread().hasToken(10));
+    LiveQueryHook.subscribe(10, rawListener, session);
+    assertTrue(LiveQueryHook.getOpsReference(session).getQueueThread().hasToken(10));
+    var op = new RecordOperation(new EntityImpl(session), RecordOperation.CREATED);
+    listener.onLiveResult(session, 10, op);
+    assertFalse(LiveQueryHook.getOpsReference(session).getQueueThread().hasToken(10));
   }
 }

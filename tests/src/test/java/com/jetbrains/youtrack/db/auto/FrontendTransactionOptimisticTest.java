@@ -19,8 +19,6 @@ import com.jetbrains.youtrack.db.api.exception.ConcurrentModificationException;
 import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -29,7 +27,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.testng.Assert;
@@ -47,73 +44,71 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
 
   @Test
   public void testTransactionOptimisticRollback() {
-    if (db.getClusterIdByName("binary") == -1) {
-      db.addBlobCluster("binary");
+    if (session.getClusterIdByName("binary") == -1) {
+      session.addBlobCluster("binary");
     }
 
-    var rec = db.countClusterElements("binary");
+    var rec = session.countClusterElements("binary");
 
-    db.begin();
+    session.begin();
 
-    var recordBytes = db.newBlob("This is the first version".getBytes());
+    var recordBytes = session.newBlob("This is the first version".getBytes());
     ((RecordAbstract) recordBytes).save("binary");
 
-    db.rollback();
+    session.rollback();
 
-    Assert.assertEquals(db.countClusterElements("binary"), rec);
+    Assert.assertEquals(session.countClusterElements("binary"), rec);
   }
 
   @Test(dependsOnMethods = "testTransactionOptimisticRollback")
   public void testTransactionOptimisticCommit() {
-    if (db.getClusterIdByName("binary") == -1) {
-      db.addBlobCluster("binary");
+    if (session.getClusterIdByName("binary") == -1) {
+      session.addBlobCluster("binary");
     }
 
-    var tot = db.countClusterElements("binary");
+    var tot = session.countClusterElements("binary");
 
-    db.begin();
+    session.begin();
 
-    var recordBytes = db.newBlob("This is the first version".getBytes());
+    var recordBytes = session.newBlob("This is the first version".getBytes());
     ((RecordAbstract) recordBytes).save("binary");
 
-    db.commit();
+    session.commit();
 
-    Assert.assertEquals(db.countClusterElements("binary"), tot + 1);
+    Assert.assertEquals(session.countClusterElements("binary"), tot + 1);
   }
 
   @Test(dependsOnMethods = "testTransactionOptimisticCommit")
   public void testTransactionOptimisticConcurrentException() {
-    if (db.getClusterIdByName("binary") == -1) {
-      db.addBlobCluster("binary");
+    if (session.getClusterIdByName("binary") == -1) {
+      session.addBlobCluster("binary");
     }
 
-    var db2 = acquireSession();
-    db.activateOnCurrentThread();
-    var record1 = db.newBlob("This is the first version".getBytes());
+    var session2 = acquireSession();
+    session.activateOnCurrentThread();
+    var record1 = session.newBlob("This is the first version".getBytes());
 
-    db.begin();
+    session.begin();
     ((RecordAbstract) record1).save("binary");
-    db.commit();
+    session.commit();
 
     try {
-      db.begin();
+      session.begin();
 
       // RE-READ THE RECORD
-      record1 = db.load(record1.getIdentity());
+      record1 = session.load(record1.getIdentity());
 
-      DatabaseRecordThreadLocal.instance().set(db2);
-      Blob record2 = db2.load(record1.getIdentity());
+      Blob record2 = session2.load(record1.getIdentity());
       RecordInternal.fill(
           record2,
           record2.getIdentity(),
           record2.getVersion(),
           "This is the second version".getBytes(),
           true);
-      db2.begin();
+      session2.begin();
       record2.save();
-      db2.commit();
+      session2.commit();
 
-      DatabaseRecordThreadLocal.instance().set(db);
       RecordInternal.fill(
           record1,
           record1.getIdentity(),
@@ -122,56 +117,56 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
           true);
       record1.save();
 
-      db.commit();
+      session.commit();
 
       Assert.fail();
 
     } catch (ConcurrentModificationException e) {
       Assert.assertTrue(true);
-      db.rollback();
+      session.rollback();
 
     } finally {
-      db.close();
+      session.close();
 
-      db2.activateOnCurrentThread();
-      db2.close();
+      session2.activateOnCurrentThread();
+      session2.close();
     }
   }
 
   @Test(dependsOnMethods = "testTransactionOptimisticConcurrentException")
   public void testTransactionOptimisticCacheMgmt1Db() throws IOException {
-    if (db.getClusterIdByName("binary") == -1) {
-      db.addBlobCluster("binary");
+    if (session.getClusterIdByName("binary") == -1) {
+      session.addBlobCluster("binary");
     }
 
-    var record = db.newBlob("This is the first version".getBytes());
-    db.begin();
+    var record = session.newBlob("This is the first version".getBytes());
+    session.begin();
     record.save();
-    db.commit();
+    session.commit();
 
     try {
-      db.begin();
+      session.begin();
 
       // RE-READ THE RECORD
-      record = db.load(record.getIdentity());
+      record = session.load(record.getIdentity());
       var v1 = record.getVersion();
       RecordInternal.fill(
           record, record.getIdentity(), v1, "This is the second version".getBytes(), true);
       record.save();
-      db.commit();
+      session.commit();
 
-      record = db.bindToSession(record);
+      record = session.bindToSession(record);
       Assert.assertEquals(record.getVersion(), v1 + 1);
       Assert.assertTrue(new String(record.toStream()).contains("second"));
     } finally {
-      db.close();
+      session.close();
     }
   }
 
   @Test(dependsOnMethods = "testTransactionOptimisticCacheMgmt1Db")
   public void testTransactionOptimisticCacheMgmt2Db() throws IOException {
-    if (db.getClusterIdByName("binary") == -1) {
-      db.addBlobCluster("binary");
+    if (session.getClusterIdByName("binary") == -1) {
+      session.addBlobCluster("binary");
     }
 
     var db2 = acquireSession();
@@ -180,17 +175,16 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
     record1.save();
     db2.commit();
     try {
-      DatabaseRecordThreadLocal.instance().set(db);
-      db.begin();
+      session.begin();
 
       // RE-READ THE RECORD
-      record1 = db.load(record1.getIdentity());
+      record1 = session.load(record1.getIdentity());
       var v1 = record1.getVersion();
       RecordInternal.fill(
           record1, record1.getIdentity(), v1, "This is the second version".getBytes(), true);
       record1.save();
 
-      db.commit();
+      session.commit();
 
       db2.activateOnCurrentThread();
 
@@ -200,8 +194,8 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
 
     } finally {
 
-      db.activateOnCurrentThread();
-      db.close();
+      session.activateOnCurrentThread();
+      session.close();
 
       db2.activateOnCurrentThread();
       db2.close();
@@ -210,47 +204,47 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
 
   @Test(dependsOnMethods = "testTransactionOptimisticCacheMgmt2Db")
   public void testTransactionMultipleRecords() throws IOException {
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
 
     if (!schema.existsClass("Account")) {
       schema.createClass("Account");
     }
 
-    var totalAccounts = db.countClass("Account");
+    var totalAccounts = session.countClass("Account");
 
     var json =
         "{ \"@class\": \"Account\", \"type\": \"Residence\", \"street\": \"Piazza di Spagna\"}";
 
-    db.begin();
+    session.begin();
     for (var g = 0; g < 1000; g++) {
-      var doc = ((EntityImpl) db.newEntity("Account"));
+      var doc = ((EntityImpl) session.newEntity("Account"));
       doc.updateFromJSON(json);
       doc.field("nr", g);
 
       doc.save();
     }
-    db.commit();
+    session.commit();
 
-    Assert.assertEquals(db.countClass("Account"), totalAccounts + 1000);
+    Assert.assertEquals(session.countClass("Account"), totalAccounts + 1000);
 
-    db.close();
+    session.close();
   }
 
   @SuppressWarnings("unchecked")
   public void createGraphInTx() {
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
 
     if (!schema.existsClass("Profile")) {
       schema.createClass("Profile");
     }
 
-    db.begin();
+    session.begin();
 
-    var kim = ((EntityImpl) db.newEntity("Profile")).field("name", "Kim")
+    var kim = ((EntityImpl) session.newEntity("Profile")).field("name", "Kim")
         .field("surname", "Bauer");
-    var teri = ((EntityImpl) db.newEntity("Profile")).field("name", "Teri")
+    var teri = ((EntityImpl) session.newEntity("Profile")).field("name", "Teri")
         .field("surname", "Bauer");
-    var jack = ((EntityImpl) db.newEntity("Profile")).field("name", "Jack")
+    var jack = ((EntityImpl) session.newEntity("Profile")).field("name", "Jack")
         .field("surname", "Bauer");
 
     ((HashSet<EntityImpl>) jack.field("following", new HashSet<EntityImpl>())
@@ -264,32 +258,33 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
 
     jack.save();
 
-    db.commit();
+    session.commit();
 
-    db.close();
-    db = acquireSession();
+    session.close();
+    session = acquireSession();
 
-    EntityImpl loadedJack = db.load(jack.getIdentity());
+    EntityImpl loadedJack = session.load(jack.getIdentity());
     Assert.assertEquals(loadedJack.field("name"), "Jack");
     Collection<Identifiable> jackFollowings = loadedJack.field("following");
     Assert.assertNotNull(jackFollowings);
     Assert.assertEquals(jackFollowings.size(), 1);
 
-    var loadedKim = jackFollowings.iterator().next().getEntity(db);
+    var loadedKim = jackFollowings.iterator().next().getEntity(session);
     Assert.assertEquals(loadedKim.getProperty("name"), "Kim");
     Collection<Identifiable> kimFollowings = loadedKim.getProperty("following");
     Assert.assertNotNull(kimFollowings);
     Assert.assertEquals(kimFollowings.size(), 1);
 
-    var loadedTeri = kimFollowings.iterator().next().getEntity(db);
+    var loadedTeri = kimFollowings.iterator().next().getEntity(session);
     Assert.assertEquals(loadedTeri.getProperty("name"), "Teri");
     Collection<Identifiable> teriFollowings = loadedTeri.getProperty("following");
     Assert.assertNotNull(teriFollowings);
     Assert.assertEquals(teriFollowings.size(), 1);
 
-    Assert.assertEquals(teriFollowings.iterator().next().getEntity(db).getProperty("name"), "Jack");
+    Assert.assertEquals(teriFollowings.iterator().next().getEntity(session).getProperty("name"),
+        "Jack");
 
-    db.close();
+    session.close();
   }
 
   public void testNestedTx() throws Exception {
@@ -310,42 +305,42 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
           }
         };
 
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     if (!schema.existsClass("NestedTxClass")) {
       schema.createClass("NestedTxClass");
     }
 
-    db.begin();
+    session.begin();
 
-    final var externalDocOne = ((EntityImpl) db.newEntity("NestedTxClass"));
+    final var externalDocOne = ((EntityImpl) session.newEntity("NestedTxClass"));
     externalDocOne.field("v", "val1");
     externalDocOne.save();
 
     Future assertFuture = executorService.submit(assertEmptyRecord);
     assertFuture.get();
 
-    db.begin();
+    session.begin();
 
-    final var externalDocTwo = ((EntityImpl) db.newEntity("NestedTxClass"));
+    final var externalDocTwo = ((EntityImpl) session.newEntity("NestedTxClass"));
     externalDocTwo.field("v", "val2");
     externalDocTwo.save();
 
     assertFuture = executorService.submit(assertEmptyRecord);
     assertFuture.get();
 
-    db.commit();
+    session.commit();
 
     assertFuture = executorService.submit(assertEmptyRecord);
     assertFuture.get();
 
-    final var externalDocThree = ((EntityImpl) db.newEntity("NestedTxClass"));
+    final var externalDocThree = ((EntityImpl) session.newEntity("NestedTxClass"));
     externalDocThree.field("v", "val3");
     externalDocThree.save();
 
-    db.commit();
+    session.commit();
 
-    Assert.assertFalse(db.getTransaction().isActive());
-    Assert.assertEquals(db.countClass("NestedTxClass"), 3);
+    Assert.assertFalse(session.getTransaction().isActive());
+    Assert.assertEquals(session.countClass("NestedTxClass"), 3);
   }
 
   public void testNestedTxRollbackOne() throws Exception {
@@ -366,48 +361,48 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
           }
         };
 
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     if (!schema.existsClass("NestedTxRollbackOne")) {
       schema.createClass("NestedTxRollbackOne");
     }
 
-    var brokenDocOne = ((EntityImpl) db.newEntity("NestedTxRollbackOne"));
-    db.begin();
+    var brokenDocOne = ((EntityImpl) session.newEntity("NestedTxRollbackOne"));
+    session.begin();
     brokenDocOne.save();
-    db.commit();
+    session.commit();
     try {
-      db.begin();
+      session.begin();
 
-      final var externalDocOne = ((EntityImpl) db.newEntity("NestedTxRollbackOne"));
+      final var externalDocOne = ((EntityImpl) session.newEntity("NestedTxRollbackOne"));
       externalDocOne.field("v", "val1");
       externalDocOne.save();
 
       Future assertFuture = executorService.submit(assertEmptyRecord);
       assertFuture.get();
 
-      db.begin();
-      var externalDocTwo = ((EntityImpl) db.newEntity("NestedTxRollbackOne"));
+      session.begin();
+      var externalDocTwo = ((EntityImpl) session.newEntity("NestedTxRollbackOne"));
       externalDocTwo.field("v", "val2");
       externalDocTwo.save();
 
       assertFuture = executorService.submit(assertEmptyRecord);
       assertFuture.get();
 
-      brokenDocOne = db.bindToSession(brokenDocOne);
+      brokenDocOne = session.bindToSession(brokenDocOne);
       brokenDocOne.setDirty();
       brokenDocOne.save();
 
-      db.commit();
+      session.commit();
 
       assertFuture = executorService.submit(assertEmptyRecord);
       assertFuture.get();
 
-      final var externalDocThree = ((EntityImpl) db.newEntity("NestedTxRollbackOne"));
+      final var externalDocThree = ((EntityImpl) session.newEntity("NestedTxRollbackOne"));
       externalDocThree.field("v", "val3");
 
-      db.begin();
+      session.begin();
       externalDocThree.save();
-      db.commit();
+      session.commit();
 
       var brokenRid = brokenDocOne.getIdentity();
       executorService
@@ -423,43 +418,43 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
                 }
               }).get();
 
-      db.commit();
+      session.commit();
       Assert.fail();
     } catch (ConcurrentModificationException e) {
-      db.rollback();
+      session.rollback();
     }
 
-    Assert.assertFalse(db.getTransaction().isActive());
-    Assert.assertEquals(db.countClass("NestedTxRollbackOne"), 1);
+    Assert.assertFalse(session.getTransaction().isActive());
+    Assert.assertEquals(session.countClass("NestedTxRollbackOne"), 1);
   }
 
   public void testNestedTxRollbackTwo() {
-    final Schema schema = db.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     if (!schema.existsClass("NestedTxRollbackTwo")) {
       schema.createClass("NestedTxRollbackTwo");
     }
 
-    db.begin();
+    session.begin();
     try {
-      final var externalDocOne = ((EntityImpl) db.newEntity("NestedTxRollbackTwo"));
+      final var externalDocOne = ((EntityImpl) session.newEntity("NestedTxRollbackTwo"));
       externalDocOne.field("v", "val1");
       externalDocOne.save();
 
-      db.begin();
+      session.begin();
 
-      final var externalDocTwo = ((EntityImpl) db.newEntity("NestedTxRollbackTwo"));
+      final var externalDocTwo = ((EntityImpl) session.newEntity("NestedTxRollbackTwo"));
       externalDocTwo.field("v", "val2");
       externalDocTwo.save();
 
-      db.rollback();
+      session.rollback();
 
-      db.begin();
+      session.begin();
       Assert.fail();
     } catch (RollbackException e) {
-      db.rollback();
+      session.rollback();
     }
 
-    Assert.assertFalse(db.getTransaction().isActive());
-    Assert.assertEquals(db.countClass("NestedTxRollbackTwo"), 0);
+    Assert.assertFalse(session.getTransaction().isActive());
+    Assert.assertEquals(session.countClass("NestedTxRollbackTwo"), 0);
   }
 }

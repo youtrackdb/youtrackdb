@@ -47,7 +47,7 @@ public class SQLMethodFromJSON extends AbstractSQLMethod {
       Object ioResult,
       Object[] iParams) {
     if (iThis instanceof String) {
-      var db = iContext.getDatabase();
+      var db = iContext.getDatabaseSession();
       if (iParams.length > 0) {
         try {
           final var entity = new EntityImpl(db).updateFromJSON(iThis.toString(),

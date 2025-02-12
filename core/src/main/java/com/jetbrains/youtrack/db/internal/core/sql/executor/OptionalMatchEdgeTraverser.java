@@ -43,7 +43,7 @@ public class OptionalMatchEdgeTraverser extends MatchEdgeTraverser {
       }
     }
 
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     var result = new ResultInternal(db);
     for (var prop : sourceRecord.getPropertyNames()) {
       result.setProperty(prop, sourceRecord.getProperty(prop));

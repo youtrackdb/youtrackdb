@@ -23,7 +23,8 @@ public class ExpandStep extends AbstractExecutionStep {
   @Override
   public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev == null) {
-      throw new CommandExecutionException("Cannot expand without a target");
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
+          "Cannot expand without a target");
     }
     var resultSet = prev.start(ctx);
     return resultSet.flatMap(ExpandStep::nextResults);
@@ -39,7 +40,7 @@ public class ExpandStep extends AbstractExecutionStep {
 
     var propName = nextAggregateItem.getPropertyNames().iterator().next();
     var projValue = nextAggregateItem.getProperty(propName);
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     switch (projValue) {
       case null -> {
         return ExecutionStream.empty();
@@ -52,7 +53,7 @@ public class ExpandStep extends AbstractExecutionStep {
           return ExecutionStream.empty();
         }
 
-        var res = new ResultInternal(ctx.getDatabase(), rec);
+        var res = new ResultInternal(ctx.getDatabaseSession(), rec);
         return ExecutionStream.singleton(res);
       }
       case Result result -> {

@@ -51,7 +51,7 @@ public abstract class SQLFunctionMoveFiltered extends SQLFunctionMove
     }
 
     return SQLEngine.foreachRecord(
-        argument -> move(context.getDatabase(), argument, labels, possibleResults),
+        argument -> move(context.getDatabaseSession(), argument, labels, possibleResults),
         current,
         context);
   }

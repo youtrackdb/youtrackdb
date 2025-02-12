@@ -69,7 +69,7 @@ public class DbListenerTest extends BaseDBTest {
             @Override
             public void onRecordAfterUpdate(EntityImpl entity) {
               List<String> changedFields = new ArrayList<>();
-              Collections.addAll(changedFields, entity.getDirtyFields());
+              Collections.addAll(changedFields, entity.getDirtyProperties());
               changes.put(entity, changedFields);
             }
           });
@@ -120,27 +120,27 @@ public class DbListenerTest extends BaseDBTest {
 
   @Test
   public void testEmbeddedDbListeners() throws IOException {
-    db = createSessionInstance();
-    db.registerListener(new DbListener());
+    session = createSessionInstance();
+    session.registerListener(new DbListener());
 
     final var baseOnBeforeTxBegin = onBeforeTxBegin;
     final var baseOnBeforeTxCommit = onBeforeTxCommit;
     final var baseOnAfterTxCommit = onAfterTxCommit;
 
-    db.begin();
+    session.begin();
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 1);
 
-    db
-        .<EntityImpl>newInstance().save();
-    db.commit();
+    session
+        .newInstance().save();
+    session.commit();
     Assert.assertEquals(onBeforeTxCommit, baseOnBeforeTxCommit + 1);
     Assert.assertEquals(onAfterTxCommit, baseOnAfterTxCommit + 1);
 
-    db.begin();
+    session.begin();
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 2);
 
-    db.<EntityImpl>newInstance().save();
-    db.rollback();
+    session.newInstance().save();
+    session.rollback();
     Assert.assertEquals(onBeforeTxRollback, 1);
     Assert.assertEquals(onAfterTxRollback, 1);
   }
@@ -151,38 +151,38 @@ public class DbListenerTest extends BaseDBTest {
       return;
     }
 
-    db = createSessionInstance();
+    session = createSessionInstance();
 
     var listener = new DbListener();
-    db.registerListener(listener);
+    session.registerListener(listener);
 
     var baseOnBeforeTxBegin = onBeforeTxBegin;
-    db.begin();
+    session.begin();
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 1);
 
-    db
-        .<EntityImpl>newInstance()
+    session
+        .newInstance()
         .save();
     var baseOnBeforeTxCommit = onBeforeTxCommit;
     var baseOnAfterTxCommit = onAfterTxCommit;
-    db.commit();
+    session.commit();
     Assert.assertEquals(onBeforeTxCommit, baseOnBeforeTxCommit + 1);
     Assert.assertEquals(onAfterTxCommit, baseOnAfterTxCommit + 1);
 
-    db.begin();
+    session.begin();
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 2);
 
-    db
-        .<EntityImpl>newInstance()
+    session
+        .newInstance()
         .save();
     var baseOnBeforeTxRollback = onBeforeTxRollback;
     var baseOnAfterTxRollback = onAfterTxRollback;
-    db.rollback();
+    session.rollback();
     Assert.assertEquals(onBeforeTxRollback, baseOnBeforeTxRollback + 1);
     Assert.assertEquals(onAfterTxRollback, baseOnAfterTxRollback + 1);
 
     var baseOnClose = onClose;
-    db.close();
+    session.close();
     Assert.assertEquals(onClose, baseOnClose + 1);
   }
 
@@ -191,22 +191,22 @@ public class DbListenerTest extends BaseDBTest {
     if (remoteDB) {
       return;
     }
-    db = createSessionInstance();
+    session = createSessionInstance();
 
-    db.begin();
+    session.begin();
     var rec =
-        db
-            .<EntityImpl>newInstance()
+        session
+            .newInstance()
             .field("name", "Jay");
     rec.save();
-    db.commit();
+    session.commit();
 
-    final var cl = new DocumentChangeListener(db);
+    final var cl = new DocumentChangeListener(session);
 
-    db.begin();
-    rec = db.bindToSession(rec);
+    session.begin();
+    rec = session.bindToSession(rec);
     rec.field("surname", "Miner").save();
-    db.commit();
+    session.commit();
 
     Assert.assertEquals(cl.getChanges().size(), 1);
   }
@@ -220,22 +220,22 @@ public class DbListenerTest extends BaseDBTest {
 
   @Test
   public void testEmbeddedDbListenersGraph() throws IOException {
-    db = createSessionInstance();
+    session = createSessionInstance();
 
-    db.begin();
-    var v = db.newVertex();
+    session.begin();
+    var v = session.newVertex();
     v.setProperty("name", "Jay");
     v.save();
 
-    db.commit();
-    db.begin();
-    final var cl = new DocumentChangeListener(db);
+    session.commit();
+    session.begin();
+    final var cl = new DocumentChangeListener(session);
 
-    v = db.bindToSession(v);
+    v = session.bindToSession(v);
     v.setProperty("surname", "Miner");
     v.save();
-    db.commit();
-    db.close();
+    session.commit();
+    session.close();
 
     Assert.assertEquals(cl.getChanges().size(), 1);
   }

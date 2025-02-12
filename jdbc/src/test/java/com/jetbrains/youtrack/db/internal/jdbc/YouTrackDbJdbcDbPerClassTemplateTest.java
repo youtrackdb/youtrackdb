@@ -16,8 +16,8 @@ package com.jetbrains.youtrack.db.internal.jdbc;
 import static com.jetbrains.youtrack.db.internal.jdbc.YouTrackDbCreationHelper.createSchemaDB;
 import static com.jetbrains.youtrack.db.internal.jdbc.YouTrackDbCreationHelper.loadDB;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.util.Properties;
 import javax.sql.DataSource;
 import org.assertj.db.type.DataSourceWithLetterCase;
@@ -55,7 +55,7 @@ public abstract class YouTrackDbJdbcDbPerClassTemplateTest {
     conn = (YouTrackDbJdbcConnection) ds.getConnection();
     youTrackDB = conn.getYouTrackDb();
 
-    db = (DatabaseSessionInternal) ((YouTrackDbJdbcConnection) ds.getConnection()).getDatabase();
+    db = (DatabaseSessionInternal) ((YouTrackDbJdbcConnection) ds.getConnection()).getDatabaseSession();
 
     createSchemaDB(db);
 

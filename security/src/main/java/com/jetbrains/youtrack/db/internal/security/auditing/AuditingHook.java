@@ -22,7 +22,6 @@ import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.api.session.SessionListener;
 import com.jetbrains.youtrack.db.internal.common.parser.VariableParser;
 import com.jetbrains.youtrack.db.internal.common.parser.VariableParserListener;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.SystemDatabase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -57,16 +56,16 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
   private boolean onGlobalDelete;
   private AuditingClassConfig defaultConfig = new AuditingClassConfig();
   private AuditingSchemaConfig schemaConfig;
-  private EntityImpl iConfiguration;
+  private Map<String, Object> iConfiguration;
 
   private static class AuditingCommandConfig {
 
     public String regex;
     public String message;
 
-    public AuditingCommandConfig(final EntityImpl cfg) {
-      regex = cfg.field("regex");
-      message = cfg.field("message");
+    public AuditingCommandConfig(final Map<String, String> cfg) {
+      regex = cfg.get("regex");
+      message = cfg.get("message");
     }
   }
 
@@ -86,68 +85,69 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
     public AuditingClassConfig() {
     }
 
-    public AuditingClassConfig(final EntityImpl cfg) {
-      if (cfg.containsField("polymorphic")) {
-        polymorphic = cfg.field("polymorphic");
+    public AuditingClassConfig(final Map<String, Object> cfg) {
+      if (cfg.containsKey("polymorphic")) {
+        polymorphic = (Boolean) cfg.get("polymorphic");
       }
 
       // CREATE
-      if (cfg.containsField("onCreateEnabled")) {
-        onCreateEnabled = cfg.field("onCreateEnabled");
+      if (cfg.containsKey("onCreateEnabled")) {
+        onCreateEnabled = (Boolean) cfg.get("onCreateEnabled");
       }
-      if (cfg.containsField("onCreateMessage")) {
-        onCreateMessage = cfg.field("onCreateMessage");
+      if (cfg.containsKey("onCreateMessage")) {
+        onCreateMessage = cfg.get("onCreateMessage").toString();
       }
 
       // READ
-      if (cfg.containsField("onReadEnabled")) {
-        onReadEnabled = cfg.field("onReadEnabled");
+      if (cfg.containsKey("onReadEnabled")) {
+        onReadEnabled = (Boolean) cfg.get("onReadEnabled");
       }
-      if (cfg.containsField("onReadMessage")) {
-        onReadMessage = cfg.field("onReadMessage");
+      if (cfg.containsKey("onReadMessage")) {
+        onReadMessage = cfg.get("onReadMessage").toString();
       }
 
       // UPDATE
-      if (cfg.containsField("onUpdateEnabled")) {
-        onUpdateEnabled = cfg.field("onUpdateEnabled");
+      if (cfg.containsKey("onUpdateEnabled")) {
+        onUpdateEnabled = (Boolean) cfg.get("onUpdateEnabled");
       }
-      if (cfg.containsField("onUpdateMessage")) {
-        onUpdateMessage = cfg.field("onUpdateMessage");
+      if (cfg.containsKey("onUpdateMessage")) {
+        onUpdateMessage = cfg.get("onUpdateMessage").toString();
       }
-      if (cfg.containsField("onUpdateChanges")) {
-        onUpdateChanges = cfg.field("onUpdateChanges");
+      if (cfg.containsKey("onUpdateChanges")) {
+        onUpdateChanges = (Boolean) cfg.get("onUpdateChanges");
       }
 
       // DELETE
-      if (cfg.containsField("onDeleteEnabled")) {
-        onDeleteEnabled = cfg.field("onDeleteEnabled");
+      if (cfg.containsKey("onDeleteEnabled")) {
+        onDeleteEnabled = (Boolean) cfg.get("onDeleteEnabled");
       }
-      if (cfg.containsField("onDeleteMessage")) {
-        onDeleteMessage = cfg.field("onDeleteMessage");
+      if (cfg.containsKey("onDeleteMessage")) {
+        onDeleteMessage = cfg.get("onDeleteMessage").toString();
       }
     }
   }
 
   // Handles the auditing-config "schema" configuration.
   private static class AuditingSchemaConfig extends AuditingConfig {
+
     private boolean onCreateClassEnabled = false;
     private final String onCreateClassMessage;
 
     private boolean onDropClassEnabled = false;
     private final String onDropClassMessage;
 
-    public AuditingSchemaConfig(final EntityImpl cfg) {
-      if (cfg.containsField("onCreateClassEnabled")) {
-        onCreateClassEnabled = cfg.field("onCreateClassEnabled");
+    public AuditingSchemaConfig(final Map<String, Object> cfg) {
+      if (cfg.containsKey("onCreateClassEnabled")) {
+        onCreateClassEnabled = (Boolean) cfg.get("onCreateClassEnabled");
       }
 
-      onCreateClassMessage = cfg.field("onCreateClassMessage");
+      onCreateClassMessage = (String) cfg.get("onCreateClassMessage");
 
-      if (cfg.containsField("onDropClassEnabled")) {
-        onDropClassEnabled = cfg.field("onDropClassEnabled");
+      if (cfg.containsKey("onDropClassEnabled")) {
+        onDropClassEnabled = (Boolean) cfg.get("onDropClassEnabled");
       }
 
-      onDropClassMessage = cfg.field("onDropClassMessage");
+      onDropClassMessage = (String) cfg.get("onDropClassMessage");
     }
 
     @Override
@@ -173,19 +173,21 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
     }
   }
 
-  public AuditingHook(final EntityImpl iConfiguration, final SecuritySystem system) {
+  public AuditingHook(DatabaseSessionInternal session, final Map<String, Object> iConfiguration,
+      final SecuritySystem system) {
     this.iConfiguration = iConfiguration;
 
     onGlobalCreate = onGlobalRead = onGlobalUpdate = onGlobalDelete = false;
 
-    final EntityImpl classesCfg = iConfiguration.field("classes");
+    @SuppressWarnings("unchecked")
+    var classesCfg = (Map<String, Map<String, Object>>) iConfiguration.get("classes");
     if (classesCfg != null) {
-      for (var c : classesCfg.fieldNames()) {
-        final var cfg = new AuditingClassConfig(classesCfg.field(c));
-        if (c.equals("*")) {
+      for (var entry : classesCfg.entrySet()) {
+        final var cfg = new AuditingClassConfig(entry.getValue());
+        if (entry.getKey().equals("*")) {
           defaultConfig = cfg;
         } else {
-          classes.put(c, cfg);
+          classes.put(entry.getKey(), cfg);
         }
 
         if (cfg.onCreateEnabled) {
@@ -203,24 +205,24 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
       }
     }
 
-    final Iterable<EntityImpl> commandCfg = iConfiguration.field("commands");
+    @SuppressWarnings("unchecked") final var commandCfg = (Iterable<Map<String, String>>) iConfiguration.get(
+        "commands");
 
     if (commandCfg != null) {
-
       for (var cfg : commandCfg) {
         commands.add(new AuditingCommandConfig(cfg));
       }
     }
 
-    final EntityImpl schemaCfgDoc = iConfiguration.field("schema");
+    @SuppressWarnings("unchecked")
+    var schemaCfgDoc = (Map<String, Object>) iConfiguration.get("schema");
     if (schemaCfgDoc != null) {
       schemaConfig = new AuditingSchemaConfig(schemaCfgDoc);
     }
 
     auditingQueue = new LinkedBlockingQueue<>();
     auditingThread =
-        new AuditingLoggingThread(
-            DatabaseRecordThreadLocal.instance().get().getName(),
+        new AuditingLoggingThread(session.getDatabaseName(),
             auditingQueue,
             system.getContext(),
             system);
@@ -271,7 +273,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
     }
   }
 
-  public EntityImpl getConfiguration() {
+  public Map<String, Object> getConfiguration() {
     return iConfiguration;
   }
 
@@ -300,10 +302,10 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
       var clazz = EntityInternalUtils.getImmutableSchemaClass(
           (DatabaseSessionInternal) db, entity);
 
-      if (clazz.isUser() && Arrays.asList(entity.getDirtyFields()).contains("password")) {
+      if (clazz.isUser() && Arrays.asList(entity.getDirtyProperties()).contains("password")) {
         String name = entity.getProperty("name");
         var message = String.format("The password for user '%s' has been changed", name);
-        log(db, AuditingOperation.CHANGED_PWD, db.getName(), db.geCurrentUser(), message);
+        log(db, AuditingOperation.CHANGED_PWD, db.getDatabaseName(), db.geCurrentUser(), message);
       }
     }
     if (!onGlobalUpdate) {
@@ -325,42 +327,6 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
   @Override
   public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
     return DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE;
-  }
-
-  protected void logCommand(final String command) {
-    if (auditingQueue == null) {
-      return;
-    }
-
-    for (var cfg : commands) {
-      if (command.matches(cfg.regex)) {
-        final var db = DatabaseRecordThreadLocal.instance().get();
-
-        final Map<String, ?> entity =
-            createLogEntry(db
-                , AuditingOperation.COMMAND,
-                db.getName(),
-                db.geCurrentUser(), formatCommandNote(command, cfg.message));
-        auditingQueue.offer(entity);
-      }
-    }
-  }
-
-  private static String formatCommandNote(final String command, String message) {
-    if (message == null || message.isEmpty()) {
-      return command;
-    }
-    return (String)
-        VariableParser.resolveVariables(
-            message,
-            "${",
-            "}",
-            variable -> {
-              if (variable.startsWith("command")) {
-                return command;
-              }
-              return null;
-            });
   }
 
   protected void log(DatabaseSession db, final AuditingOperation operation,
@@ -401,7 +367,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
         if (iRecord instanceof EntityImpl entity && cfg.onUpdateChanges) {
           changes = new EntityImpl((DatabaseSessionInternal) db);
 
-          for (var f : entity.getDirtyFields()) {
+          for (var f : entity.getDirtyProperties()) {
             var fieldChanges = new EntityImpl(null);
             fieldChanges.field("from", entity.getOriginalValue(f));
             fieldChanges.field("to", (Object) entity.rawField(f));
@@ -420,7 +386,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
     }
 
     var entity =
-        createLogEntry(db, operation, db.getName(), db.geCurrentUser(),
+        createLogEntry(db, operation, db.getDatabaseName(), db.geCurrentUser(),
             formatNote(iRecord, note));
     entity.put("record", iRecord.getIdentity());
     if (changes != null) {
@@ -464,23 +430,24 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
   private AuditingClassConfig getAuditConfiguration(final DBRecord iRecord) {
     AuditingClassConfig cfg = null;
 
-    if (iRecord instanceof EntityImpl) {
-      var cls = ((EntityImpl) iRecord).getSchemaClass();
+    if (iRecord instanceof EntityImpl entity) {
+      var session = entity.getSession();
+      var cls = entity.getSchemaClass();
       if (cls != null) {
 
-        if (cls.getName().equals(DefaultAuditing.AUDITING_LOG_CLASSNAME))
+        if (cls.getName(session).equals(DefaultAuditing.AUDITING_LOG_CLASSNAME))
         // SKIP LOG CLASS
         {
           return null;
         }
 
-        cfg = classes.get(cls.getName());
+        cfg = classes.get(cls.getName(session));
 
         // BROWSE SUPER CLASSES UP TO ROOT
         while (cfg == null && cls != null) {
-          cls = cls.getSuperClass();
+          cls = cls.getSuperClass(session);
           if (cls != null) {
-            cfg = classes.get(cls.getName());
+            cfg = classes.get(cls.getName(session));
             if (cfg != null && !cfg.polymorphic) {
               // NOT POLYMORPHIC: IGNORE IT AND EXIT FROM THE LOOP
               cfg = null;
@@ -507,27 +474,27 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
     }
   }
 
-  protected void logClass(final AuditingOperation operation, final String note) {
-    final var db = DatabaseRecordThreadLocal.instance().get();
-
+  protected void logClass(DatabaseSessionInternal db, final AuditingOperation operation,
+      final String note) {
     final var user = db.geCurrentUser();
 
-    var entity = createLogEntry(db, operation, db.getName(), user, note);
+    var entity = createLogEntry(db, operation, db.getDatabaseName(), user, note);
     auditingQueue.offer(entity);
   }
 
-  protected void logClass(final AuditingOperation operation, final SchemaClass cls) {
+  protected void logClass(DatabaseSessionInternal db,
+      final AuditingOperation operation, final SchemaClass cls) {
     if (schemaConfig != null && schemaConfig.isEnabled(operation)) {
-      logClass(operation, schemaConfig.formatMessage(operation, cls.getName()));
+      logClass(db, operation, schemaConfig.formatMessage(operation, cls.getName(db)));
     }
   }
 
-  public void onCreateClass(SchemaClass iClass) {
-    logClass(AuditingOperation.CREATEDCLASS, iClass);
+  public void onCreateClass(DatabaseSession db, SchemaClass iClass) {
+    logClass((DatabaseSessionInternal) db, AuditingOperation.CREATEDCLASS, iClass);
   }
 
-  public void onDropClass(SchemaClass iClass) {
-    logClass(AuditingOperation.DROPPEDCLASS, iClass);
+  public void onDropClass(DatabaseSession db, SchemaClass iClass) {
+    logClass((DatabaseSessionInternal) db, AuditingOperation.DROPPEDCLASS, iClass);
   }
 
   public void log(

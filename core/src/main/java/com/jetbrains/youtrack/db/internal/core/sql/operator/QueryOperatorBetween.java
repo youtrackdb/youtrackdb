@@ -28,15 +28,12 @@ import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemField;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -80,7 +77,7 @@ public class QueryOperatorBetween extends QueryOperatorEqualityNotNulls {
 
     final var valueIterator = MultiValue.getMultiValueIterator(right);
 
-    var database = iContext.getDatabase();
+    var database = iContext.getDatabaseSession();
     var right1 = valueIterator.next();
     valueIterator.next();
     var right2 = valueIterator.next();
@@ -140,7 +137,7 @@ public class QueryOperatorBetween extends QueryOperatorEqualityNotNulls {
       CommandContext iContext, Index index, List<Object> keyParams, boolean ascSortOrder) {
     final var indexDefinition = index.getDefinition();
 
-    var database = iContext.getDatabase();
+    var database = iContext.getDatabaseSession();
     Stream<RawPair<Object, RID>> stream;
     final var internalIndex = index.getInternal();
     if (!internalIndex.canBeUsedInEqualityOperators() || !internalIndex.hasRangeQuerySupport()) {

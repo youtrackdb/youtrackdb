@@ -3,19 +3,17 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.api.schema.Collate;
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.IndexSearchInfo;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexCandidate;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexFinder;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.MetadataPath;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -367,7 +365,7 @@ public class SQLBinaryCondition extends SQLBooleanExpression {
     }
   }
 
-  private SQLExpression fieldNamesToStrings(SQLExpression left) {
+  private static SQLExpression fieldNamesToStrings(SQLExpression left) {
     if (left.isBaseIdentifier()) {
       var identifier =
           ((SQLBaseExpression) left.mathExpression).getIdentifier().suffix.getIdentifier();
@@ -415,7 +413,7 @@ public class SQLBinaryCondition extends SQLBooleanExpression {
     throw new CommandExecutionException("Cannot execute because of invalid LUCENE expression");
   }
 
-  private SQLExpression identifierToStringExpr(SQLIdentifier identifier) {
+  private static SQLExpression identifierToStringExpr(SQLIdentifier identifier) {
     var bexp = new SQLBaseExpression(identifier.getStringValue());
 
     var result = new SQLExpression(-1);
@@ -439,7 +437,7 @@ public class SQLBinaryCondition extends SQLBooleanExpression {
           (SQLBinaryCompareOperator)
               Class.forName(String.valueOf(fromResult.getProperty("operator"))).newInstance();
     } catch (Exception e) {
-      throw BaseException.wrapException(new CommandExecutionException(""), e);
+      throw BaseException.wrapException(new CommandExecutionException(""), e, (String) null);
     }
     right = new SQLExpression(-1);
     right.deserialize(fromResult.getProperty("right"));
@@ -469,10 +467,12 @@ public class SQLBinaryCondition extends SQLBooleanExpression {
 
       result.operator = new SQLInOperator(-1);
 
+      var session = ctx.getDatabaseSession();
       var nextClazz =
           clazz
-              .getProperty(base.getIdentifier().suffix.getIdentifier().getStringValue())
-              .getLinkedClass();
+              .getProperty(session,
+                  base.getIdentifier().suffix.getIdentifier().getStringValue())
+              .getLinkedClass(session);
       result.rightStatement =
           indexChainToStatement(
               ((SQLBaseExpression) left.mathExpression).modifier, nextClazz, right, ctx);
@@ -488,7 +488,8 @@ public class SQLBinaryCondition extends SQLBooleanExpression {
     var result = new SQLSelectStatement(-1);
     result.target = new SQLFromClause(-1);
     result.target.setItem(new SQLFromItem(-1));
-    result.target.getItem().identifier = new SQLIdentifier(queryClass.getName());
+    result.target.getItem().identifier = new SQLIdentifier(
+        queryClass.getName(ctx.getDatabaseSession()));
 
     result.whereClause = new SQLWhereClause(-1);
     var base = new SQLBinaryCondition(-1);

@@ -39,13 +39,13 @@ public class SQLExplainStatement extends SQLStatement {
 
   @Override
   public ResultSet execute(
-      DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
+      DatabaseSessionInternal session, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
     var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
-    ctx.setDatabase(db);
+    ctx.setDatabaseSession(session);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
       for (var i = 0; i < args.length; i++) {
@@ -61,19 +61,19 @@ public class SQLExplainStatement extends SQLStatement {
       executionPlan = statement.createExecutionPlanNoCache(ctx, false);
     }
 
-    var result = new ExplainResultSet(db, executionPlan, new DatabaseStats());
+    var result = new ExplainResultSet(session, executionPlan, new DatabaseStats());
     return result;
   }
 
   @Override
   public ResultSet execute(
-      DatabaseSessionInternal db, Map<Object, Object> args, CommandContext parentCtx,
+      DatabaseSessionInternal session, Map<Object, Object> args, CommandContext parentCtx,
       boolean usePlanCache) {
     var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
-    ctx.setDatabase(db);
+    ctx.setDatabaseSession(session);
     ctx.setInputParameters(args);
 
     ExecutionPlan executionPlan;
@@ -83,7 +83,7 @@ public class SQLExplainStatement extends SQLStatement {
       executionPlan = statement.createExecutionPlanNoCache(ctx, false);
     }
 
-    var result = new ExplainResultSet(db, executionPlan, new DatabaseStats());
+    var result = new ExplainResultSet(session, executionPlan, new DatabaseStats());
     return result;
   }
 

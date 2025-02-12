@@ -36,7 +36,8 @@ public class RemoteFetchContext implements FetchContext {
       Object iFieldValue, String iFieldName, Object iUserObject, PropertyType fieldType) {
   }
 
-  public void onBeforeMap(EntityImpl iRootRecord, String iFieldName, final Object iUserObject)
+  public void onBeforeMap(DatabaseSessionInternal db, EntityImpl iRootRecord, String iFieldName,
+      final Object iUserObject)
       throws FetchException {
   }
 
@@ -49,7 +50,8 @@ public class RemoteFetchContext implements FetchContext {
       throws FetchException {
   }
 
-  public void onAfterArray(EntityImpl iRootRecord, String iFieldName, Object iUserObject)
+  public void onAfterArray(DatabaseSessionInternal db, EntityImpl iRootRecord, String iFieldName,
+      Object iUserObject)
       throws FetchException {
   }
 
@@ -67,7 +69,8 @@ public class RemoteFetchContext implements FetchContext {
       throws FetchException {
   }
 
-  public void onAfterMap(EntityImpl iRootRecord, String iFieldName, final Object iUserObject)
+  public void onAfterMap(DatabaseSessionInternal db, EntityImpl iRootRecord, String iFieldName,
+      final Object iUserObject)
       throws FetchException {
   }
 
@@ -76,12 +79,14 @@ public class RemoteFetchContext implements FetchContext {
   }
 
   public void onAfterDocument(
-      EntityImpl iRootRecord, final EntityImpl entity, String iFieldName,
+      DatabaseSessionInternal db, EntityImpl iRootRecord, final EntityImpl entity,
+      String iFieldName,
       final Object iUserObject)
       throws FetchException {
   }
 
-  public void onAfterCollection(EntityImpl iRootRecord, String iFieldName,
+  public void onAfterCollection(DatabaseSessionInternal db, EntityImpl iRootRecord,
+      String iFieldName,
       final Object iUserObject)
       throws FetchException {
   }

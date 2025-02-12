@@ -4,10 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.jetbrains.youtrack.db.api.DatabaseType;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,37 +24,37 @@ public class LuceneFreezeReleaseTest extends LuceneBaseTest {
   @Test
   public void freezeReleaseTest() {
 
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var person = schema.createClass("Person");
-    person.createProperty(db, "name", PropertyType.STRING);
+    person.createProperty(session, "name", PropertyType.STRING);
 
-    db.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE");
+    session.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE");
 
-    db.begin();
-    db.save(((EntityImpl) db.newEntity("Person")).field("name", "John"));
-    db.commit();
+    session.begin();
+    session.save(((EntityImpl) session.newEntity("Person")).field("name", "John"));
+    session.commit();
 
-    var results = db.query("select from Person where search_class('John')=true");
+    var results = session.query("select from Person where search_class('John')=true");
 
     assertThat(results).hasSize(1);
     results.close();
 
-    db.freeze();
+    session.freeze();
 
-    results = db.command("select from Person where search_class('John')=true");
+    results = session.command("select from Person where search_class('John')=true");
     assertThat(results).hasSize(1);
     results.close();
 
-    db.release();
+    session.release();
 
-    EntityImpl doc = db.newInstance("Person");
+    EntityImpl doc = session.newInstance("Person");
     doc.field("name", "John");
 
-    db.begin();
-    db.save(doc);
-    db.commit();
+    session.begin();
+    session.save(doc);
+    session.commit();
 
-    results = db.query("select from Person where search_class('John')=true");
+    results = session.query("select from Person where search_class('John')=true");
     assertThat(results).hasSize(2);
     results.close();
   }
@@ -65,38 +63,38 @@ public class LuceneFreezeReleaseTest extends LuceneBaseTest {
   @Test
   public void freezeReleaseMisUsageTest() {
 
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var person = schema.createClass("Person");
-    person.createProperty(db, "name", PropertyType.STRING);
+    person.createProperty(session, "name", PropertyType.STRING);
 
-    db.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE");
+    session.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE");
 
-    db.begin();
-    db.save(((EntityImpl) db.newEntity("Person")).field("name", "John"));
-    db.commit();
+    session.begin();
+    session.save(((EntityImpl) session.newEntity("Person")).field("name", "John"));
+    session.commit();
 
-    var results = db.command("select from Person where search_class('John')=true");
-
-    assertThat(results).hasSize(1);
-    results.close();
-
-    db.freeze();
-
-    db.freeze();
-
-    results = db.command("select from Person where search_class('John')=true");
+    var results = session.command("select from Person where search_class('John')=true");
 
     assertThat(results).hasSize(1);
     results.close();
 
-    db.release();
-    db.release();
+    session.freeze();
 
-    db.begin();
-    db.save(((EntityImpl) db.newEntity("Person")).field("name", "John"));
-    db.commit();
+    session.freeze();
 
-    results = db.command("select from Person where search_class('John')=true");
+    results = session.command("select from Person where search_class('John')=true");
+
+    assertThat(results).hasSize(1);
+    results.close();
+
+    session.release();
+    session.release();
+
+    session.begin();
+    session.save(((EntityImpl) session.newEntity("Person")).field("name", "John"));
+    session.commit();
+
+    results = session.command("select from Person where search_class('John')=true");
     assertThat(results).hasSize(2);
     results.close();
   }

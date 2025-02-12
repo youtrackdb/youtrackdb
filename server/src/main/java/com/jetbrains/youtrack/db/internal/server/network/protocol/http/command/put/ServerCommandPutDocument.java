@@ -20,7 +20,6 @@
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.put;
 
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
@@ -44,7 +43,7 @@ public class ServerCommandPutDocument extends ServerCommandDocumentAbstract {
 
     iRequest.getData().commandInfo = "Edit Document";
 
-    try (var db = getProfiledDatabaseInstance(iRequest)) {
+    try (var db = getProfiledDatabaseSessionInstance(iRequest)) {
       RecordId recordId;
       if (urlParts.length > 2) {
         // EXTRACT RID

@@ -20,10 +20,7 @@ import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -75,7 +72,7 @@ public class YouTrackDbDataSourceTest extends YouTrackDbJdbcDbPerClassTemplateTe
     conn2.close();
     assertThat(conn2.isClosed()).isTrue();
 
-    assertThat(conn.getDatabase()).isSameAs(conn2.getDatabase());
+    assertThat(conn.getDatabaseSession()).isSameAs(conn2.getDatabaseSession());
 
     ds.close();
   }

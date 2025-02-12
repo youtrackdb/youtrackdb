@@ -16,21 +16,16 @@ import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.StorageDoesNotExistException;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.session.SessionPool;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.io.File;
-import java.util.List;
 import java.util.TimerTask;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 import org.junit.Assert;
@@ -179,14 +174,14 @@ public class YouTrackDBEmbeddedTests {
               "testRegisterDatabase/database1",
           "", "");
       try (final DatabaseSession db = youtrackEmbedded.open("database1", "admin", "admin")) {
-        assertEquals("database1", db.getName());
+        assertEquals("database1", db.getDatabaseName());
       }
       youtrackEmbedded.initCustomStorage("database2", DbTestBase.getDirectoryPath(getClass()) +
               "testRegisterDatabase/database2",
           "", "");
 
       try (final DatabaseSession db = youtrackEmbedded.open("database2", "admin", "admin")) {
-        assertEquals("database2", db.getName());
+        assertEquals("database2", db.getDatabaseName());
       }
       youtrackEmbedded.drop("database1", null, null);
       youtrackEmbedded.drop("database2", null, null);

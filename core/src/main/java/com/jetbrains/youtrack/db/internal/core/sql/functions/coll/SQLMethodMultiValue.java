@@ -52,11 +52,11 @@ public class SQLMethodMultiValue extends AbstractSQLMethod {
     }
 
     if (iParams.length == 1 && !MultiValue.isMultiValue(iParams[0])) {
-      return EntityHelper.getFieldValue(iContext.getDatabase(), iThis, iParams[0].toString(),
+      return EntityHelper.getFieldValue(iContext.getDatabaseSession(), iThis, iParams[0].toString(),
           iContext);
     }
 
-    var database = iContext.getDatabase();
+    var database = iContext.getDatabaseSession();
     // MULTI VALUES
     final List<Object> list = new ArrayList<Object>();
     for (var iParam : iParams) {

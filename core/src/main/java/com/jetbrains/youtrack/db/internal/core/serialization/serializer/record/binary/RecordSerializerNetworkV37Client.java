@@ -11,7 +11,6 @@ import com.jetbrains.youtrack.db.internal.core.storage.ridbag.RemoteTreeRidBag;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.RidBagBucketPointer;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class RecordSerializerNetworkV37Client extends RecordSerializerNetworkV37 {
 
@@ -19,8 +18,8 @@ public class RecordSerializerNetworkV37Client extends RecordSerializerNetworkV37
       new RecordSerializerNetworkV37Client();
   public static final String NAME = "onet_ser_v37_client";
 
-  protected RidBag readRidBag(DatabaseSessionInternal db, BytesContainer bytes) {
-    var uuid = UUIDSerializer.INSTANCE.deserialize(bytes.bytes, bytes.offset);
+  protected RidBag readRidBag(DatabaseSessionInternal session, BytesContainer bytes) {
+    var uuid = UUIDSerializer.staticDeserialize(bytes.bytes, bytes.offset);
     bytes.skip(UUIDSerializer.UUID_SIZE);
     if (uuid.getMostSignificantBits() == -1 && uuid.getLeastSignificantBits() == -1) {
       uuid = null;
@@ -28,12 +27,12 @@ public class RecordSerializerNetworkV37Client extends RecordSerializerNetworkV37
     var b = bytes.bytes[bytes.offset];
     bytes.skip(1);
     if (b == 1) {
-      var bag = new RidBag(db, uuid);
+      var bag = new RidBag(session, uuid);
       var size = VarIntSerializer.readAsInteger(bytes);
 
       if (size > 0) {
         for (var i = 0; i < size; i++) {
-          Identifiable id = readOptimizedLink(db, bytes);
+          Identifiable id = readOptimizedLink(session, bytes);
           if (id.equals(NULL_RECORD_ID)) {
             bag.add(null);
           } else {
@@ -57,7 +56,7 @@ public class RecordSerializerNetworkV37Client extends RecordSerializerNetworkV37
       Map<Identifiable, Change> changes = new HashMap<>();
       var size = VarIntSerializer.readAsInteger(bytes);
       while (size-- > 0) {
-        Identifiable link = readOptimizedLink(db, bytes);
+        Identifiable link = readOptimizedLink(session, bytes);
         var type = bytes.bytes[bytes.offset];
         bytes.skip(1);
         var change = VarIntSerializer.readAsInteger(bytes);
@@ -68,7 +67,7 @@ public class RecordSerializerNetworkV37Client extends RecordSerializerNetworkV37
         pointer =
             new BonsaiCollectionPointer(fileId, new RidBagBucketPointer(pageIndex, pageOffset));
       }
-      return new RidBag(db, new RemoteTreeRidBag(pointer));
+      return new RidBag(session, new RemoteTreeRidBag(pointer, session));
     }
   }
 }

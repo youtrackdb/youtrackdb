@@ -38,21 +38,21 @@ public class ExternalCollectionsTest extends DbTestBase {
     final List<Integer> list = new ArrayList<>();
     list.add(0);
 
-    db.begin();
-    final var document = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var document = ((EntityImpl) session.newEntity());
     document.field("list", list);
     Assert.assertEquals(document.field("list"), list);
     document.save();
     Assert.assertEquals(document.field("list"), list);
-    db.commit();
+    session.commit();
     Assert.assertEquals(document.field("list"), list);
 
-    db.begin();
+    session.begin();
     list.add(1);
     Assert.assertEquals(document.field("list"), list);
     document.save();
     Assert.assertEquals(document.field("list"), list);
-    db.commit();
+    session.commit();
     Assert.assertEquals(document.field("list"), list);
   }
 
@@ -62,18 +62,18 @@ public class ExternalCollectionsTest extends DbTestBase {
     final List<Integer> list = new ArrayList<>();
     list.add(0);
 
-    final var document = ((EntityImpl) db.newEntity());
+    final var document = ((EntityImpl) session.newEntity());
     document.field("list", list);
     Assert.assertEquals(document.field("list"), list);
     document.save();
     Assert.assertEquals(document.field("list"), list);
 
-    db.begin();
+    session.begin();
     list.add(1);
     Assert.assertEquals(document.field("list"), list);
     document.save();
     Assert.assertEquals(document.field("list"), list);
-    db.commit();
+    session.commit();
     Assert.assertEquals(document.field("list"), list);
   }
 
@@ -83,13 +83,13 @@ public class ExternalCollectionsTest extends DbTestBase {
     final List<Integer> list = new ArrayList<>();
     list.add(0);
 
-    db.begin();
-    final var document = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var document = ((EntityImpl) session.newEntity());
     document.field("list", list);
     Assert.assertEquals(document.field("list"), list);
     document.save();
     Assert.assertEquals(document.field("list"), list);
-    db.commit();
+    session.commit();
     Assert.assertEquals(document.field("list"), list);
 
     list.add(1);
@@ -104,7 +104,7 @@ public class ExternalCollectionsTest extends DbTestBase {
     final List<Integer> list = new ArrayList<>();
     list.add(0);
 
-    final var document = ((EntityImpl) db.newEntity());
+    final var document = ((EntityImpl) session.newEntity());
     document.field("list", list);
     Assert.assertEquals(document.field("list"), list);
     document.save();

@@ -35,13 +35,13 @@ public class CommandExecutorSQLExplain extends CommandExecutorSQLDelegate {
   public static final String KEYWORD_EXPLAIN = "EXPLAIN";
 
   @Override
-  public CommandExecutorSQLExplain parse(DatabaseSessionInternal db, CommandRequest iCommand) {
+  public CommandExecutorSQLExplain parse(DatabaseSessionInternal session, CommandRequest iCommand) {
     final var textRequest = (CommandRequestText) iCommand;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iCommand);
+      queryText = preParse(session, queryText, iCommand);
       textRequest.setText(queryText);
 
       final var cmd = ((CommandRequestText) iCommand).getText();
@@ -51,7 +51,7 @@ public class CommandExecutorSQLExplain extends CommandExecutorSQLDelegate {
 
       command.setContext(context);
 
-      super.parse(db, command);
+      super.parse(session, command);
     } finally {
       textRequest.setText(originalQuery);
     }
@@ -59,13 +59,13 @@ public class CommandExecutorSQLExplain extends CommandExecutorSQLDelegate {
   }
 
   @Override
-  public Object execute(DatabaseSessionInternal db, Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, Map<Object, Object> iArgs) {
     delegate.getContext().setRecordingMetrics(true);
 
     final var startTime = System.nanoTime();
 
-    final var result = super.execute(db, iArgs);
-    final var report = new EntityImpl(db, delegate.getContext().getVariables());
+    final var result = super.execute(session, iArgs);
+    final var report = new EntityImpl(session, delegate.getContext().getVariables());
 
     report.field("elapsed", (System.nanoTime() - startTime) / 1000000f);
 
@@ -80,21 +80,6 @@ public class CommandExecutorSQLExplain extends CommandExecutorSQLDelegate {
     }
 
     return report;
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.READ;
-  }
-
-  @Override
-  public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
-    return DISTRIBUTED_EXECUTION_MODE.REPLICATE;
-  }
-
-  @Override
-  public DISTRIBUTED_RESULT_MGMT getDistributedResultManagement() {
-    return DISTRIBUTED_RESULT_MGMT.MERGE;
   }
 
   @Override

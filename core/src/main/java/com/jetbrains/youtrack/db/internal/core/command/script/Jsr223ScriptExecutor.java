@@ -9,18 +9,14 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.script.transformer.ScriptTransformer;
 import com.jetbrains.youtrack.db.internal.core.command.traverse.AbstractScriptExecutor;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
-import javax.script.Bindings;
 import javax.script.Compilable;
 import javax.script.CompiledScript;
 import javax.script.Invocable;
 import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
 /**
@@ -59,18 +55,18 @@ public class Jsr223ScriptExecutor extends AbstractScriptExecutor {
     CompiledScript compiledScript = null;
 
     final var scriptEngine =
-        scriptManager.acquireDatabaseEngine(database.getName(), language);
+        scriptManager.acquireDatabaseEngine(database, language);
     try {
 
       if (!(scriptEngine instanceof Compilable c)) {
-        throw new CommandExecutionException(
+        throw new CommandExecutionException(database.getDatabaseName(),
             "Language '" + language + "' does not support compilation");
       }
 
       try {
         compiledScript = c.compile(script);
       } catch (ScriptException e) {
-        scriptManager.throwErrorMessage(e, script);
+        scriptManager.throwErrorMessage(database.getDatabaseName(), e, script);
       }
 
       final var binding =
@@ -86,15 +82,15 @@ public class Jsr223ScriptExecutor extends AbstractScriptExecutor {
         return transformer.toResultSet(database, ob);
       } catch (ScriptException e) {
         throw BaseException.wrapException(
-            new CommandScriptException(
+            new CommandScriptException(database.getDatabaseName(),
                 "Error on execution of the script", script, e.getColumnNumber()),
-            e);
+            e, database.getDatabaseName());
 
       } finally {
         scriptManager.unbind(scriptEngine, binding, null, params);
       }
     } finally {
-      scriptManager.releaseDatabaseEngine(language, database.getName(), scriptEngine);
+      scriptManager.releaseDatabaseEngine(language, database.getDatabaseName(), scriptEngine);
     }
   }
 
@@ -102,15 +98,15 @@ public class Jsr223ScriptExecutor extends AbstractScriptExecutor {
   public Object executeFunction(
       CommandContext context, final String functionName, final Map<Object, Object> iArgs) {
 
-    var db = context.getDatabase();
-    final var f = db.getMetadata().getFunctionLibrary().getFunction(functionName);
+    var db = context.getDatabaseSession();
+    final var f = db.getMetadata().getFunctionLibrary().getFunction(db, functionName);
 
     db.checkSecurity(Rule.ResourceGeneric.FUNCTION, Role.PERMISSION_READ, f.getName());
 
     final var scriptManager = db.getSharedContext().getYouTrackDB().getScriptManager();
 
     final var scriptEngine =
-        scriptManager.acquireDatabaseEngine(db.getName(), f.getLanguage());
+        scriptManager.acquireDatabaseEngine(db, f.getLanguage());
     try {
       final var binding =
           scriptManager.bind(
@@ -147,12 +143,13 @@ public class Jsr223ScriptExecutor extends AbstractScriptExecutor {
 
       } catch (ScriptException e) {
         throw BaseException.wrapException(
-            new CommandScriptException(
+            new CommandScriptException(db.getDatabaseName(),
                 "Error on execution of the script", functionName, e.getColumnNumber()),
-            e);
+            e, db.getDatabaseName());
       } catch (NoSuchMethodException e) {
         throw BaseException.wrapException(
-            new CommandScriptException("Error on execution of the script", functionName, 0), e);
+            new CommandScriptException(db.getDatabaseName(), "Error on execution of the script",
+                functionName, 0), e, db.getDatabaseName());
       } catch (CommandScriptException e) {
         // PASS THROUGH
         throw e;
@@ -161,7 +158,7 @@ public class Jsr223ScriptExecutor extends AbstractScriptExecutor {
         scriptManager.unbind(scriptEngine, binding, context, iArgs);
       }
     } finally {
-      scriptManager.releaseDatabaseEngine(f.getLanguage(), db.getName(), scriptEngine);
+      scriptManager.releaseDatabaseEngine(f.getLanguage(), db.getDatabaseName(), scriptEngine);
     }
   }
 }

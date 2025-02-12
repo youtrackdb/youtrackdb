@@ -32,14 +32,10 @@ import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
-import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
-import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
@@ -51,8 +47,6 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.s
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
-import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionRuntime;
-import com.jetbrains.youtrack.db.internal.core.sql.method.SQLMethod;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.lang.reflect.Array;
 import java.text.DateFormat;
@@ -63,7 +57,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -84,6 +77,7 @@ public class EntityHelper {
   public static final String ATTRIBUTE_RID_POS = "@rid_pos";
   public static final String ATTRIBUTE_VERSION = "@version";
   public static final String ATTRIBUTE_CLASS = "@class";
+  public static final String ATTRIBUTE_INTERNAL = "@internal";
   public static final String ATTRIBUTE_TYPE = "@type";
   public static final String ATTRIBUTE_EMBEDDED = "@embedded";
   public static final String ATTRIBUTE_SIZE = "@size";
@@ -244,9 +238,8 @@ public class EntityHelper {
                 + iValue.getClass());
       }
     } else if (Date.class.isAssignableFrom(iFieldType)) {
-      if (iValue instanceof String && DatabaseRecordThreadLocal.instance().isDefined()) {
-        var db = DatabaseRecordThreadLocal.instance().get();
-        final var config = db.getStorageInfo().getConfiguration();
+      if (iValue instanceof String) {
+        final var config = session.getStorageInfo().getConfiguration();
 
         DateFormat formatter;
 
@@ -267,9 +260,9 @@ public class EntityHelper {
                   ? config.getDateTimeFormat()
                   : config.getDateFormat();
           throw BaseException.wrapException(
-              new QueryParsingException(
+              new QueryParsingException(session.getDatabaseName(),
                   "Error on conversion of date '" + iValue + "' using the format: " + dateFormat),
-              pe);
+              pe, session.getDatabaseName());
         }
       }
     }
@@ -282,7 +275,7 @@ public class EntityHelper {
   public static <RET> RET getFieldValue(DatabaseSessionInternal db, Object value,
       final String iFieldName) {
     var context = new BasicCommandContext();
-    context.setDatabase(db);
+    context.setDatabaseSession(db);
 
     return getFieldValue(db, value, iFieldName, context);
   }
@@ -877,7 +870,6 @@ public class EntityHelper {
               "Custom attribute can not be processed because record is not bound to the session");
         }
 
-        assert db.assertIfNotActive();
         // RETURN AN ATTRIBUTE
         if (iFieldName.equalsIgnoreCase(ATTRIBUTE_THIS)) {
           return iCurrent.getRecord(db);
@@ -968,7 +960,7 @@ public class EntityHelper {
       } else {
         try {
           result =
-              DateHelper.getDateFormatInstance(DatabaseRecordThreadLocal.instance().get())
+              DateHelper.getDateFormatInstance(iContext.getDatabaseSession())
                   .parse(currentValue.toString());
         } catch (ParseException ignore) {
         }
@@ -981,7 +973,7 @@ public class EntityHelper {
       } else {
         try {
           result =
-              DateHelper.getDateTimeFormatInstance(DatabaseRecordThreadLocal.instance().get())
+              DateHelper.getDateTimeFormatInstance(iContext.getDatabaseSession())
                   .parse(currentValue.toString());
         } catch (ParseException ignore) {
         }
@@ -1029,7 +1021,7 @@ public class EntityHelper {
         if (currentValue instanceof Date) {
           var formatter = new SimpleDateFormat(
               IOUtils.getStringContent(args.getFirst()));
-          formatter.setTimeZone(DateHelper.getDatabaseTimeZone());
+          formatter.setTimeZone(DateHelper.getDatabaseTimeZone(iContext.getDatabaseSession()));
           result = formatter.format(currentValue);
         } else {
           result = String.format(IOUtils.getStringContent(args.getFirst()), currentValue);
@@ -1045,7 +1037,7 @@ public class EntityHelper {
             stringValue.substring(
                 offset < stringValue.length() ? stringValue.length() - offset : 0);
       } else {
-        final var f = SQLHelper.getFunction(iContext.getDatabase(), null,
+        final var f = SQLHelper.getFunction(iContext.getDatabaseSession(), null,
             iFunction);
         if (f != null) {
           result = f.execute(currentRecord, currentRecord, null, iContext);
@@ -1054,68 +1046,6 @@ public class EntityHelper {
     }
 
     return result;
-  }
-
-  @SuppressWarnings("unchecked")
-  public static Object cloneValue(DatabaseSessionInternal db,
-      EntityImpl iCloned, final Object fieldValue) {
-
-    if (fieldValue != null) {
-      if (fieldValue instanceof EntityImpl && ((EntityImpl) fieldValue).isEmbedded()) {
-        // EMBEDDED DOCUMENT
-        return ((EntityImpl) fieldValue).copy();
-      } else if (fieldValue instanceof RidBag) {
-        var newBag = ((RidBag) fieldValue).copy(db);
-        newBag.setOwner(null);
-        newBag.setOwner(iCloned);
-        return newBag;
-
-      } else if (fieldValue instanceof LinkList) {
-        return ((LinkList) fieldValue).copy(iCloned);
-
-      } else if (fieldValue instanceof TrackedList<?>) {
-        final var newList = new TrackedList<Object>(iCloned);
-        newList.addAll((TrackedList<Object>) fieldValue);
-        return newList;
-
-      } else if (fieldValue instanceof List<?>) {
-        return new ArrayList<>((List<Object>) fieldValue);
-        // SETS
-      } else if (fieldValue instanceof LinkSet) {
-        final var newList = new LinkSet(iCloned);
-        newList.addAll((LinkSet) fieldValue);
-        return newList;
-
-      } else if (fieldValue instanceof TrackedSet<?>) {
-        final var newList = new TrackedSet<Object>(iCloned);
-        newList.addAll((TrackedSet<Object>) fieldValue);
-        return newList;
-
-      } else if (fieldValue instanceof Set<?>) {
-        return new HashSet<Object>((Set<Object>) fieldValue);
-        // MAPS
-      } else if (fieldValue instanceof LinkMap) {
-        final var newMap = new LinkMap(iCloned, ((LinkMap) fieldValue).getRecordType());
-        newMap.putAll((LinkMap) fieldValue);
-        return newMap;
-
-      } else if (fieldValue instanceof TrackedMap) {
-        final var newMap = new TrackedMap<Object>(iCloned);
-        newMap.putAll((TrackedMap<Object>) fieldValue);
-        return newMap;
-
-      } else if (fieldValue instanceof Map<?, ?>) {
-        return new LinkedHashMap<String, Object>((Map<String, Object>) fieldValue);
-      } else {
-        return fieldValue;
-      }
-    }
-    // else if (iCloned.getImmutableSchemaClass() != null) {
-    // final Property prop = iCloned.getImmutableSchemaClass().getProperty(iEntry.getKey());
-    // if (prop != null && prop.isMandatory())
-    // return fieldValue;
-    // }
-    return null;
   }
 
   public static boolean hasSameContentItem(
@@ -1567,96 +1497,87 @@ public class EntityHelper {
     final var myBag = myFieldValue;
     final var otherBag = otherFieldValue;
 
-    final var currentDb = DatabaseRecordThreadLocal.instance()
-        .getIfDefined();
-    try {
+    final int mySize =
+        makeDbCall(
+            iMyDb,
+            new DbRelatedCall<Integer>() {
+              public Integer call(DatabaseSessionInternal database) {
+                return myBag.size();
+              }
+            });
 
-      final int mySize =
+    final int otherSize =
+        makeDbCall(
+            iOtherDb,
+            new DbRelatedCall<Integer>() {
+              public Integer call(DatabaseSessionInternal database) {
+                return otherBag.size();
+              }
+            });
+
+    if (mySize != otherSize) {
+      return false;
+    }
+
+    final var otherBagCopy =
+        makeDbCall(
+            iOtherDb,
+            new DbRelatedCall<List<RID>>() {
+              @Override
+              public List<RID> call(final DatabaseSessionInternal database) {
+                final List<RID> otherRidBag = new LinkedList<RID>();
+                for (Identifiable identifiable : otherBag) {
+                  otherRidBag.add(identifiable.getIdentity());
+                }
+
+                return otherRidBag;
+              }
+            });
+
+    final var myIterator =
+        makeDbCall(
+            iMyDb,
+            database -> myBag.iterator());
+
+    while (makeDbCall(
+        iMyDb,
+        database -> myIterator.hasNext())) {
+      final var myIdentifiable =
           makeDbCall(
               iMyDb,
-              new DbRelatedCall<Integer>() {
-                public Integer call(DatabaseSessionInternal database) {
-                  return myBag.size();
-                }
-              });
+              (DbRelatedCall<Identifiable>) database -> myIterator.next());
 
-      final int otherSize =
-          makeDbCall(
-              iOtherDb,
-              new DbRelatedCall<Integer>() {
-                public Integer call(DatabaseSessionInternal database) {
-                  return otherBag.size();
-                }
-              });
-
-      if (mySize != otherSize) {
-        return false;
-      }
-
-      final var otherBagCopy =
-          makeDbCall(
-              iOtherDb,
-              new DbRelatedCall<List<RID>>() {
-                @Override
-                public List<RID> call(final DatabaseSessionInternal database) {
-                  final List<RID> otherRidBag = new LinkedList<RID>();
-                  for (Identifiable identifiable : otherBag) {
-                    otherRidBag.add(identifiable.getIdentity());
-                  }
-
-                  return otherRidBag;
-                }
-              });
-
-      final var myIterator =
-          makeDbCall(
-              iMyDb,
-              database -> myBag.iterator());
-
-      while (makeDbCall(
-          iMyDb,
-          database -> myIterator.hasNext())) {
-        final var myIdentifiable =
-            makeDbCall(
-                iMyDb,
-                (DbRelatedCall<Identifiable>) database -> myIterator.next());
-
-        final RID otherRid;
-        if (ridMapper != null) {
-          var convertedRid = ridMapper.map(myIdentifiable.getIdentity());
-          if (convertedRid != null) {
-            otherRid = convertedRid;
-          } else {
-            otherRid = myIdentifiable.getIdentity();
-          }
+      final RID otherRid;
+      if (ridMapper != null) {
+        var convertedRid = ridMapper.map(myIdentifiable.getIdentity());
+        if (convertedRid != null) {
+          otherRid = convertedRid;
         } else {
           otherRid = myIdentifiable.getIdentity();
         }
-
-        makeDbCall(
-            iOtherDb,
-            new DbRelatedCall<Object>() {
-              @Override
-              public Object call(final DatabaseSessionInternal database) {
-                otherBagCopy.remove(otherRid);
-                return null;
-              }
-            });
+      } else {
+        otherRid = myIdentifiable.getIdentity();
       }
 
-      return makeDbCall(
+      makeDbCall(
           iOtherDb,
-          new DbRelatedCall<Boolean>() {
+          new DbRelatedCall<Object>() {
             @Override
-            public Boolean call(DatabaseSessionInternal database) {
-              return otherBagCopy.isEmpty();
+            public Object call(final DatabaseSessionInternal database) {
+              otherBagCopy.remove(otherRid);
+              return null;
             }
           });
-    } finally {
-      if (currentDb != null) {
-        currentDb.activateOnCurrentThread();
-      }
     }
+
+    return makeDbCall(
+        iOtherDb,
+        new DbRelatedCall<Boolean>() {
+          @Override
+          public Boolean call(DatabaseSessionInternal database) {
+            return otherBagCopy.isEmpty();
+          }
+        });
   }
 
   private static boolean compareScalarValues(

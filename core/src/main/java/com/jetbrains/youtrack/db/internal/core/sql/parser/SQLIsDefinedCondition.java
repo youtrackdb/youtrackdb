@@ -29,7 +29,7 @@ public class SQLIsDefinedCondition extends SQLBooleanExpression implements
 
   @Override
   public boolean evaluate(Identifiable currentRecord, CommandContext ctx) {
-    var db = ctx.getDatabase();
+    var db = ctx.getDatabaseSession();
     Object elem;
     try {
       elem = currentRecord.getRecord(db);

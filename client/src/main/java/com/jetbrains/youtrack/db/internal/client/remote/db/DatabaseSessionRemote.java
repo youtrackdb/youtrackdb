@@ -28,7 +28,6 @@ import com.jetbrains.youtrack.db.api.exception.CommandScriptException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.query.LiveQueryMonitor;
 import com.jetbrains.youtrack.db.api.query.LiveQueryResultListener;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Edge;
@@ -36,10 +35,7 @@ import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
 import com.jetbrains.youtrack.db.api.record.Vertex;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.session.SessionListener;
 import com.jetbrains.youtrack.db.internal.client.remote.LiveQueryClientListener;
-import com.jetbrains.youtrack.db.internal.client.remote.RemoteQueryResult;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemote;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
 import com.jetbrains.youtrack.db.internal.client.remote.message.RemoteResultSet;
@@ -47,14 +43,11 @@ import com.jetbrains.youtrack.db.internal.client.remote.metadata.schema.SchemaRe
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategy;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionAbstract;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigImpl;
-import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaProxy;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ImmutableUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
@@ -73,7 +66,6 @@ import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageInfo;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionAbstract;
-import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionNoTx;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionNoTx.NonTxReadMode;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
@@ -81,7 +73,6 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -138,9 +129,9 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
       databaseOwner = this;
     } catch (Exception t) {
-      DatabaseRecordThreadLocal.instance().remove();
-
-      throw BaseException.wrapException(new DatabaseException("Error on opening database "), t);
+      activeSession.remove();
+      throw BaseException.wrapException(
+          new DatabaseException(getDatabaseName(), "Error on opening database "), t, this);
     }
   }
 
@@ -241,24 +232,22 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
       status = STATUS.OPEN;
 
       initAtFirstOpen();
-      this.user =
-          new ImmutableUser(this,
-              -1,
-              new SecurityUserImpl(this, user, password)); // .addRole(new Role("passthrough", null,
-      // Role.ALLOW_MODES.ALLOW_ALL_BUT)));
+      this.user = new ImmutableUser(this, -1,
+          new SecurityUserImpl(this, user, password));
 
       // WAKE UP LISTENERS
       callOnOpenListeners();
 
     } catch (BaseException e) {
       close();
-      DatabaseRecordThreadLocal.instance().remove();
+      activeSession.remove();
       throw e;
     } catch (Exception e) {
       close();
-      DatabaseRecordThreadLocal.instance().remove();
+      activeSession.remove();
       throw BaseException.wrapException(
-          new DatabaseException("Cannot open database url=" + getURL()), e);
+          new DatabaseException(getDatabaseName(), "Cannot open database url=" + getURL()), e,
+          this);
     }
   }
 
@@ -275,7 +264,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
     var serializerFactory = RecordSerializerFactory.instance();
     serializer = serializerFactory.getFormat(RecordSerializerNetworkV37Client.NAME);
-    localCache.startup();
+    localCache.startup(this);
     componentsFactory = storage.getComponentsFactory();
     user = null;
 
@@ -490,12 +479,11 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
     throw new UnsupportedOperationException();
   }
 
-  public static void updateSchema(StorageRemote storage,
-      EntityImpl schema) {
+  public static void updateSchema(StorageRemote storage) {
     //    storage.get
     var shared = storage.getSharedContext();
     if (shared != null) {
-      ((SchemaRemote) shared.getSchema()).update(null, schema);
+      ((SchemaRemote) shared.getSchema()).requestUpdate();
     }
   }
 
@@ -599,13 +587,13 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
       return storage.recordExists(this, rid);
     } catch (Exception t) {
       throw BaseException.wrapException(
-          new DatabaseException(
+          new DatabaseException(getDatabaseName(),
               "Error on retrieving record "
                   + rid
                   + " (cluster: "
                   + getStorage().getPhysicalClusterNameById(rid.getClusterId())
                   + ")"),
-          t);
+          t, this);
     }
   }
 
@@ -625,13 +613,13 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
     checkOpenness();
     assert assertIfNotActive();
     if (record == null) {
-      throw new DatabaseException("Cannot delete null entity");
+      throw new DatabaseException(getDatabaseName(), "Cannot delete null entity");
     }
     if (record instanceof Vertex) {
       VertexInternal.deleteLinks((Vertex) record);
     } else {
       if (record instanceof Edge) {
-        EdgeEntityImpl.deleteLinks((Edge) record);
+        EdgeEntityImpl.deleteLinks(this, (Edge) record);
       }
     }
 
@@ -642,16 +630,18 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
     } catch (Exception e) {
       if (record instanceof EntityImpl) {
         throw BaseException.wrapException(
-            new DatabaseException(
+            new DatabaseException(getDatabaseName(),
                 "Error on deleting record "
                     + record.getIdentity()
                     + " of class '"
                     + ((EntityImpl) record).getClassName()
                     + "'"),
-            e);
+            e, this);
       } else {
         throw BaseException.wrapException(
-            new DatabaseException("Error on deleting record " + record.getIdentity()), e);
+            new DatabaseException(getDatabaseName(),
+                "Error on deleting record " + record.getIdentity()),
+            e, this);
       }
     }
   }
@@ -725,9 +715,9 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
       return storage.getClusterRecordsSizeByName(clusterName);
     } catch (Exception e) {
       throw BaseException.wrapException(
-          new DatabaseException(
+          new DatabaseException(getDatabaseName(),
               "Error on reading records size for cluster '" + clusterName + "'"),
-          e);
+          e, this);
     }
   }
 
@@ -792,9 +782,9 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
       return storage.getClusterRecordsSizeById(clusterId);
     } catch (Exception e) {
       throw BaseException.wrapException(
-          new DatabaseException(
+          new DatabaseException(getDatabaseName(),
               "Error on reading records size for cluster with id '" + clusterId + "'"),
-          e);
+          e, this);
     }
   }
 
@@ -901,7 +891,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
     assert assertIfNotActive();
 
     if (this.isClosed()) {
-      throw new DatabaseException("Cannot reload a closed db");
+      throw new DatabaseException(getDatabaseName(), "Cannot reload a closed db");
     }
 
     metadata.reload();
@@ -954,7 +944,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
     } finally {
       // ALWAYS RESET TL
-      DatabaseRecordThreadLocal.instance().remove();
+      activeSession.remove();
     }
   }
 
@@ -962,12 +952,6 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   public long[] getClusterDataRange(int currentClusterId) {
     assert assertIfNotActive();
     return storage.getClusterDataRange(this, currentClusterId);
-  }
-
-  @Override
-  public void setDefaultClusterId(int addCluster) {
-    assert assertIfNotActive();
-    storage.setDefaultClusterId(addCluster);
   }
 
   @Override
@@ -985,14 +969,14 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
     if (currentTx.isActive()) {
       return (FrontendTransactionOptimisticClient) currentTx;
     } else {
-      throw new DatabaseException("No active transaction found");
+      throw new DatabaseException(getDatabaseName(), "No active transaction found");
     }
   }
 
   @Override
   public int[] getClustersIds(Set<String> filterClusters) {
     assert assertIfNotActive();
-    return filterClusters.stream().map((c) -> getClusterIdByName(c)).mapToInt(i -> i).toArray();
+    return filterClusters.stream().map(this::getClusterIdByName).mapToInt(i -> i).toArray();
   }
 
   /**

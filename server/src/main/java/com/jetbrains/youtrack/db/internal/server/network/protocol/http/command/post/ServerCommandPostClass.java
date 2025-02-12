@@ -19,7 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.post;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
@@ -37,7 +36,7 @@ public class ServerCommandPostClass extends ServerCommandAuthenticatedDbAbstract
     iRequest.getData().commandInfo = "Create class";
     iRequest.getData().commandDetail = urlParts[2];
 
-    try (var db = getProfiledDatabaseInstance(iRequest)) {
+    try (var db = getProfiledDatabaseSessionInstance(iRequest)) {
 
       if (db.getMetadata().getSchema().getClass(urlParts[2]) != null) {
         throw new IllegalArgumentException("Class '" + urlParts[2] + "' already exists");
@@ -49,7 +48,7 @@ public class ServerCommandPostClass extends ServerCommandAuthenticatedDbAbstract
           HttpUtils.STATUS_CREATED_CODE,
           HttpUtils.STATUS_CREATED_DESCRIPTION,
           HttpUtils.CONTENT_TEXT_PLAIN,
-          db.getMetadata().getSchema().getClasses(db).size(),
+          db.getMetadata().getSchema().getClasses().size(),
           null);
 
     }

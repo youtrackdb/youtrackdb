@@ -160,7 +160,7 @@ public class TestSchemaPropertyTypeDetection extends DbTestBase {
 
     assertEquals(PropertyType.INTEGER, PropertyType.getTypeByValue(new BigInteger("20")));
 
-    assertEquals(PropertyType.LINK, PropertyType.getTypeByValue(db.newEntity()));
+    assertEquals(PropertyType.LINK, PropertyType.getTypeByValue(session.newEntity()));
 
     assertEquals(PropertyType.LINK, PropertyType.getTypeByValue(new ChangeableRecordId()));
 
@@ -168,7 +168,7 @@ public class TestSchemaPropertyTypeDetection extends DbTestBase {
 
     assertEquals(
         PropertyType.EMBEDDEDLIST,
-        PropertyType.getTypeByValue(new TrackedList<Object>((EntityImpl) db.newEntity())));
+        PropertyType.getTypeByValue(new TrackedList<Object>((EntityImpl) session.newEntity())));
 
     assertEquals(PropertyType.EMBEDDEDSET, PropertyType.getTypeByValue(new HashSet<Object>()));
 
@@ -176,15 +176,15 @@ public class TestSchemaPropertyTypeDetection extends DbTestBase {
         PropertyType.getTypeByValue(new HashMap<Object, Object>()));
 
     assertEquals(PropertyType.LINKSET,
-        PropertyType.getTypeByValue(new LinkSet((EntityImpl) db.newEntity())));
+        PropertyType.getTypeByValue(new LinkSet((EntityImpl) session.newEntity())));
 
     assertEquals(PropertyType.LINKLIST,
-        PropertyType.getTypeByValue(new LinkList((EntityImpl) db.newEntity())));
+        PropertyType.getTypeByValue(new LinkList((EntityImpl) session.newEntity())));
 
     assertEquals(PropertyType.LINKMAP,
-        PropertyType.getTypeByValue(new LinkMap((EntityImpl) db.newEntity())));
+        PropertyType.getTypeByValue(new LinkMap((EntityImpl) session.newEntity())));
 
-    assertEquals(PropertyType.LINKBAG, PropertyType.getTypeByValue(new RidBag(db)));
+    assertEquals(PropertyType.LINKBAG, PropertyType.getTypeByValue(new RidBag(session)));
 
     assertEquals(PropertyType.CUSTOM, PropertyType.getTypeByValue(new CustomClass()));
 
@@ -204,7 +204,7 @@ public class TestSchemaPropertyTypeDetection extends DbTestBase {
     assertEquals(PropertyType.LINKMAP, PropertyType.getTypeByValue(linkmap));
 
     Map<String, DBRecord> linkmap2 = new HashMap<String, DBRecord>();
-    linkmap2.put("some", db.newEntity());
+    linkmap2.put("some", session.newEntity());
     assertEquals(PropertyType.LINKMAP, PropertyType.getTypeByValue(linkmap2));
 
     List<RecordId> linkList = new ArrayList<RecordId>();
@@ -212,7 +212,7 @@ public class TestSchemaPropertyTypeDetection extends DbTestBase {
     assertEquals(PropertyType.LINKLIST, PropertyType.getTypeByValue(linkList));
 
     List<DBRecord> linkList2 = new ArrayList<DBRecord>();
-    linkList2.add(db.newEntity());
+    linkList2.add(session.newEntity());
     assertEquals(PropertyType.LINKLIST, PropertyType.getTypeByValue(linkList2));
 
     Set<RecordId> linkSet = new HashSet<RecordId>();
@@ -220,11 +220,11 @@ public class TestSchemaPropertyTypeDetection extends DbTestBase {
     assertEquals(PropertyType.LINKSET, PropertyType.getTypeByValue(linkSet));
 
     Set<DBRecord> linkSet2 = new HashSet<DBRecord>();
-    linkSet2.add(db.newEntity());
+    linkSet2.add(session.newEntity());
     assertEquals(PropertyType.LINKSET, PropertyType.getTypeByValue(linkSet2));
 
-    var document = (EntityImpl) db.newEntity();
-    EntityInternalUtils.addOwner(document, (EntityImpl) db.newEntity());
+    var document = (EntityImpl) session.newEntity();
+    EntityInternalUtils.addOwner(document, (EntityImpl) session.newEntity());
     assertEquals(PropertyType.EMBEDDED, PropertyType.getTypeByValue(document));
   }
 

@@ -25,20 +25,21 @@ public class CommandExecutorSQLDropUser extends CommandExecutorSQLAbstract
   private String userName;
 
   @Override
-  public CommandExecutorSQLDropUser parse(DatabaseSessionInternal db, CommandRequest iRequest) {
-    init((CommandRequestText) iRequest);
+  public CommandExecutorSQLDropUser parse(DatabaseSessionInternal session,
+      CommandRequest iRequest) {
+    init(session, (CommandRequestText) iRequest);
 
-    parserRequiredKeyword(KEYWORD_DROP);
-    parserRequiredKeyword(KEYWORD_USER);
-    this.userName = parserRequiredWord(false, "Expected <user name>");
+    parserRequiredKeyword(session.getDatabaseName(), KEYWORD_DROP);
+    parserRequiredKeyword(session.getDatabaseName(), KEYWORD_USER);
+    this.userName = parserRequiredWord(false, "Expected <user name>", session.getDatabaseName());
 
     return this;
   }
 
   @Override
-  public Object execute(DatabaseSessionInternal db, Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, Map<Object, Object> iArgs) {
     if (this.userName == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -50,16 +51,11 @@ public class CommandExecutorSQLDropUser extends CommandExecutorSQLAbstract
         "DELETE FROM " + USER_CLASS + " WHERE " + USER_FIELD_NAME + "='" + this.userName + "'";
 
     //
-    return db.command(new CommandSQL(sb)).execute(db);
+    return session.command(new CommandSQL(sb)).execute(session);
   }
 
   @Override
   public String getSyntax() {
     return SYNTAX;
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.ALL;
   }
 }

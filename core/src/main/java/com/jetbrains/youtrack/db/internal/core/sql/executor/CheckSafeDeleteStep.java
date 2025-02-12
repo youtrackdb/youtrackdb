@@ -29,20 +29,21 @@ public class CheckSafeDeleteStep extends AbstractExecutionStep {
   public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
     var upstream = prev.start(ctx);
-    return upstream.map(this::mapResult);
+    return upstream.map(CheckSafeDeleteStep::mapResult);
   }
 
-  private Result mapResult(Result result, CommandContext ctx) {
+  private static Result mapResult(Result result, CommandContext ctx) {
     if (result.isEntity()) {
       var elem = result.asEntity();
       SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass((EntityImpl) elem);
+      var db = ctx.getDatabaseSession();
       if (clazz != null) {
-        if (clazz.getName().equalsIgnoreCase("V") || clazz.isSubClassOf("V")) {
-          throw new CommandExecutionException(
+        if (clazz.getName(db).equalsIgnoreCase("V") || clazz.isSubClassOf(db, "V")) {
+          throw new CommandExecutionException(ctx.getDatabaseSession(),
               "Cannot safely delete a vertex, please use DELETE VERTEX or UNSAFE");
         }
-        if (clazz.getName().equalsIgnoreCase("E") || clazz.isSubClassOf("E")) {
-          throw new CommandExecutionException(
+        if (clazz.getName(db).equalsIgnoreCase("E") || clazz.isSubClassOf(db, "E")) {
+          throw new CommandExecutionException(ctx.getDatabaseSession(),
               "Cannot safely delete an edge, please use DELETE EDGE or UNSAFE");
         }
       }

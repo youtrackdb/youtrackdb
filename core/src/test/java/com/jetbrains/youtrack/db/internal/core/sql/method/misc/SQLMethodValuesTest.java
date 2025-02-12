@@ -20,7 +20,7 @@ public class SQLMethodValuesTest extends DbTestBase {
   @Test
   public void testWithOResult() {
 
-    var resultInternal = new ResultInternal(db);
+    var resultInternal = new ResultInternal(session);
     resultInternal.setProperty("name", "Foo");
     resultInternal.setProperty("surname", "Bar");
 

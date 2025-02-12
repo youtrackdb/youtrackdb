@@ -26,7 +26,7 @@ import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.common.util.Sizeable;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.id.ImmutableRecordId;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
@@ -83,15 +83,15 @@ public class TableFormatter {
   }
 
   public void writeRecords(List<RawPair<RID, Object>> resultSet,
-      final int limit) {
-    writeRecords(resultSet, limit, null);
+      final int limit, DatabaseSessionInternal session) {
+    writeRecords(resultSet, limit, null, session);
   }
 
   public void writeRecords(
       List<RawPair<RID, Object>> resultSet,
       final int limit,
-      final CallableFunction<Object, Object> iAfterDump) {
-    final var columns = parseColumns(resultSet, limit);
+      final CallableFunction<Object, Object> iAfterDump, DatabaseSessionInternal session) {
+    final var columns = parseColumns(resultSet, limit, session);
 
     if (columnSorting != null) {
       resultSet.sort(
@@ -122,7 +122,7 @@ public class TableFormatter {
 
     var fetched = 0;
     for (var record : resultSet) {
-      dumpRecordInTable(fetched++, record.first, record.second, columns);
+      dumpRecordInTable(fetched++, record.first, record.second, columns, session);
       if (iAfterDump != null) {
         iAfterDump.call(record.second);
       }
@@ -140,7 +140,7 @@ public class TableFormatter {
     }
 
     if (footer != null) {
-      dumpRecordInTable(-1, null, footer, columns);
+      dumpRecordInTable(-1, null, footer, columns, session);
       printHeaderLine(columns);
     }
   }
@@ -161,7 +161,7 @@ public class TableFormatter {
 
   public void dumpRecordInTable(
       final int iIndex, RID rid, Object iRecord,
-      final Map<String, Integer> iColumns) {
+      final Map<String, Integer> iColumns, DatabaseSessionInternal session) {
     if (iIndex == 0) {
       printHeader(iColumns);
     }
@@ -184,7 +184,7 @@ public class TableFormatter {
 
         format.append("%-").append(columnWidth).append("s");
 
-        var value = getFieldValue(iIndex, rid, iRecord, columnName);
+        var value = getFieldValue(iIndex, rid, iRecord, columnName, session);
         String valueAsString = null;
 
         if (value != null) {
@@ -252,7 +252,7 @@ public class TableFormatter {
 
   private Object getFieldValue(
       final int iIndex, RID rid, Object record,
-      final String iColumnName) {
+      final String iColumnName, DatabaseSessionInternal session) {
 
     Object value;
 
@@ -272,11 +272,11 @@ public class TableFormatter {
       value = record;
     }
 
-    return getPrettyFieldValue(value, maxMultiValueEntries);
+    return getPrettyFieldValue(value, maxMultiValueEntries, session);
   }
 
   public static String getPrettyFieldMultiValue(
-      final Iterator<?> iterator, final int maxMultiValueEntries) {
+      final Iterator<?> iterator, final int maxMultiValueEntries, DatabaseSessionInternal session) {
     final var value = new StringBuilder("[");
     for (var i = 0; iterator.hasNext(); i++) {
       if (i >= maxMultiValueEntries) {
@@ -295,7 +295,7 @@ public class TableFormatter {
         value.append(',');
       }
 
-      value.append(getPrettyFieldValue(iterator.next(), maxMultiValueEntries));
+      value.append(getPrettyFieldValue(iterator.next(), maxMultiValueEntries, session));
     }
 
     value.append("]");
@@ -307,17 +307,19 @@ public class TableFormatter {
     this.footer = footer;
   }
 
-  public static Object getPrettyFieldValue(Object value, final int multiValueMaxEntries) {
+  public static Object getPrettyFieldValue(Object value, final int multiValueMaxEntries,
+      DatabaseSessionInternal session) {
     if (value instanceof MultiCollectionIterator<?>) {
       value =
           getPrettyFieldMultiValue(
-              ((MultiCollectionIterator<?>) value).iterator(), multiValueMaxEntries);
+              ((MultiCollectionIterator<?>) value).iterator(), multiValueMaxEntries, session);
     } else if (value instanceof RidBag) {
-      value = getPrettyFieldMultiValue(((RidBag) value).iterator(), multiValueMaxEntries);
+      value = getPrettyFieldMultiValue(((RidBag) value).iterator(), multiValueMaxEntries, session);
     } else if (value instanceof Iterator) {
-      value = getPrettyFieldMultiValue((Iterator<?>) value, multiValueMaxEntries);
+      value = getPrettyFieldMultiValue((Iterator<?>) value, multiValueMaxEntries, session);
     } else if (value instanceof Collection<?>) {
-      value = getPrettyFieldMultiValue(((Collection<?>) value).iterator(), multiValueMaxEntries);
+      value = getPrettyFieldMultiValue(((Collection<?>) value).iterator(), multiValueMaxEntries,
+          session);
     } else if (value instanceof Identifiable identifiable) {
       if (identifiable.equals(ImmutableRecordId.EMPTY_RECORD_ID)) {
         value = value.toString();
@@ -325,12 +327,7 @@ public class TableFormatter {
         value = identifiable.getIdentity().toString();
       }
     } else if (value instanceof Date) {
-      final var db = DatabaseRecordThreadLocal.instance().getIfDefined();
-      if (db != null) {
-        value = DateHelper.getDateTimeFormatInstance(db).format((Date) value);
-      } else {
-        value = DEF_DATEFORMAT.format((Date) value);
-      }
+      value = DateHelper.getDateTimeFormatInstance(session).format((Date) value);
     } else if (value instanceof byte[]) {
       value = "byte[" + ((byte[]) value).length + "]";
     }
@@ -464,7 +461,7 @@ public class TableFormatter {
    */
   private Map<String, Integer> parseColumns(
       List<RawPair<RID, Object>> resultSet,
-      final int limit) {
+      final int limit, DatabaseSessionInternal session) {
     final Map<String, Integer> columns = new LinkedHashMap<>();
 
     for (var c : prefixedColumns) {
@@ -482,7 +479,7 @@ public class TableFormatter {
 
       for (var c : prefixedColumns) {
         columns.put(c,
-            getColumnSize(fetched, rid, record, c, columns.get(c)));
+            getColumnSize(fetched, rid, record, c, columns.get(c), session));
       }
 
       if (record instanceof Map) {
@@ -492,7 +489,7 @@ public class TableFormatter {
         for (var mapEntry : map.entrySet()) {
           var key = mapEntry.getKey();
           columns.put(key,
-              getColumnSize(fetched, rid, mapEntry.getValue(), key, columns.get(key)));
+              getColumnSize(fetched, rid, mapEntry.getValue(), key, columns.get(key), session));
         }
 
         if (!hasClass && map.containsKey("@class")) {
@@ -528,7 +525,7 @@ public class TableFormatter {
       for (var fieldName : footer.keySet()) {
         columns.put(fieldName,
             getColumnSize(fetched, null, footer, fieldName,
-                columns.get(fieldName)));
+                columns.get(fieldName), session));
       }
     }
 
@@ -603,7 +600,7 @@ public class TableFormatter {
   private Integer getColumnSize(
       final Integer iIndex, RID rid, final Object iRecord,
       final String fieldName,
-      final Integer origSize) {
+      final Integer origSize, DatabaseSessionInternal session) {
     int newColumnSize;
     if (origSize == null)
     // START FROM THE FIELD NAME SIZE
@@ -625,7 +622,7 @@ public class TableFormatter {
       }
     }
 
-    final var fieldValue = getFieldValue(iIndex, rid, iRecord, fieldName);
+    final var fieldValue = getFieldValue(iIndex, rid, iRecord, fieldName, session);
 
     if (fieldValue != null) {
       final var fieldValueAsString = fieldValue.toString();

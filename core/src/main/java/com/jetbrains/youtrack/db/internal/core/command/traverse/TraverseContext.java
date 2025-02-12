@@ -61,19 +61,19 @@ public class TraverseContext extends BasicCommandContext {
     if ("DEPTH".startsWith(name)) {
       return getDepth();
     } else if (name.startsWith("PATH")) {
-      return EntityHelper.getFieldValue(getDatabase(), getPath(),
+      return EntityHelper.getFieldValue(getDatabaseSession(), getPath(),
           iName.substring("PATH".length()));
     } else if (name.startsWith("STACK")) {
 
       var result =
-          EntityHelper.getFieldValue(getDatabase(), memory.getUnderlying(),
+          EntityHelper.getFieldValue(getDatabaseSession(), memory.getUnderlying(),
               iName.substring("STACK".length()));
       if (result instanceof ArrayDeque) {
         result = ((ArrayDeque) result).clone();
       }
       return result;
     } else if (name.startsWith("HISTORY")) {
-      return EntityHelper.getFieldValue(getDatabase(), history,
+      return EntityHelper.getFieldValue(getDatabaseSession(), history,
           iName.substring("HISTORY".length()));
     } else
     // DELEGATE

@@ -27,7 +27,6 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TopDocs;
 
 /**
  *
@@ -56,7 +55,7 @@ public abstract class LuceneTxChangesAbstract implements LuceneTxChanges {
       // documents", e);
       throw BaseException.wrapException(
           new LuceneIndexException("Error during searcher index instantiation on new entities"),
-          e);
+          e, (String) null);
     }
   }
 

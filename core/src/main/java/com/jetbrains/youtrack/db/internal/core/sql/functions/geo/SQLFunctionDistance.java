@@ -53,7 +53,7 @@ public class SQLFunctionDistance extends SQLFunctionAbstract {
         return null;
       }
 
-      values[i] = (Double) PropertyType.convert(iContext.getDatabase(), iParams[i],
+      values[i] = PropertyType.convert(iContext.getDatabaseSession(), iParams[i],
           Double.class);
     }
 

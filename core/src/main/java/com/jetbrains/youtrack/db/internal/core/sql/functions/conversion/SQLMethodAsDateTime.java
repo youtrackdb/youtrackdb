@@ -16,10 +16,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.conversion;
 
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.method.misc.AbstractSQLMethod;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.text.ParseException;
@@ -55,7 +54,7 @@ public class SQLMethodAsDateTime extends AbstractSQLMethod {
         return new Date(((Number) iThis).longValue());
       } else {
         try {
-          return DateHelper.getDateTimeFormatInstance(DatabaseRecordThreadLocal.instance().get())
+          return DateHelper.getDateTimeFormatInstance(iContext.getDatabaseSession())
               .parse(iThis.toString());
         } catch (ParseException e) {
           LogManager.instance().error(this, "Error during %s execution", e, NAME);

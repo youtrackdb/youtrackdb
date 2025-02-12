@@ -1,23 +1,18 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.SecurityException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
-import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAndBlock;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBooleanExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLOrBlock;
-import java.util.Set;
 
 public class SecurityEngine {
 
@@ -78,7 +73,8 @@ public class SecurityEngine {
       SecurityResourceFunction resource,
       SecurityPolicy.Scope scope) {
     var function =
-        session.getMetadata().getFunctionLibrary().getFunction(resource.getFunctionName());
+        session.getMetadata().getFunctionLibrary()
+            .getFunction(session, resource.getFunctionName());
     var roles = session.geCurrentUser().getRoles();
     if (roles == null || roles.size() == 0) {
       return null;
@@ -208,7 +204,7 @@ public class SecurityEngine {
     }
 
     if (predicateString != null) {
-      return parsePredicate(session, predicateString);
+      return parsePredicate(predicateString);
     }
     return SQLBooleanExpression.FALSE;
   }
@@ -221,7 +217,7 @@ public class SecurityEngine {
       SecurityPolicy.Scope scope) {
     SQLBooleanExpression result;
     if (role != null) {
-      result = security.getPredicateFromCache(role.getName(session), clazz.getName());
+      result = security.getPredicateFromCache(role.getName(session), clazz.getName(session));
       if (result != null) {
         return result;
       }
@@ -238,7 +234,7 @@ public class SecurityEngine {
     if (result == null) {
       result = SQLBooleanExpression.FALSE;
     }
-    security.putPredicateInCache(session, role.getName(session), clazz.getName(), result);
+    security.putPredicateInCache(session, role.getName(session), clazz.getName(session), result);
     return result;
   }
 
@@ -249,7 +245,7 @@ public class SecurityEngine {
       SchemaClass clazz,
       String propertyName,
       SecurityPolicy.Scope scope) {
-    var cacheKey = "$CLASS$" + clazz.getName() + "$PROP$" + propertyName + "$" + scope;
+    var cacheKey = "$CLASS$" + clazz.getName(session) + "$PROP$" + propertyName + "$" + scope;
     SQLBooleanExpression result;
     if (role != null) {
       result = security.getPredicateFromCache(role.getName(session), cacheKey);
@@ -279,18 +275,18 @@ public class SecurityEngine {
       SecurityRole role,
       SchemaClass clazz,
       SecurityPolicy.Scope scope) {
-    var resource = "database.class." + clazz.getName();
+    var resource = "database.class." + clazz.getName(session);
     var definedPolicies = security.getSecurityPolicies(session, role);
     var classPolicy = definedPolicies.get(resource);
 
     var predicateString = classPolicy != null ? classPolicy.get(scope, session) : null;
-    if (predicateString == null && !clazz.getSuperClasses().isEmpty()) {
-      if (clazz.getSuperClasses().size() == 1) {
+    if (predicateString == null && !clazz.getSuperClasses(session).isEmpty()) {
+      if (clazz.getSuperClasses(session).size() == 1) {
         return getPredicateForClassHierarchy(
-            session, security, role, clazz.getSuperClasses().iterator().next(), scope);
+            session, security, role, clazz.getSuperClasses(session).iterator().next(), scope);
       }
       var result = new SQLAndBlock(-1);
-      for (var superClass : clazz.getSuperClasses()) {
+      for (var superClass : clazz.getSuperClasses(session)) {
         var superClassPredicate =
             getPredicateForClassHierarchy(session, security, role, superClass, scope);
         if (superClassPredicate == null) {
@@ -311,7 +307,7 @@ public class SecurityEngine {
       predicateString = wildcardPolicy == null ? null : wildcardPolicy.get(scope, session);
     }
     if (predicateString != null) {
-      return parsePredicate(session, predicateString);
+      return parsePredicate(predicateString);
     }
     return SQLBooleanExpression.FALSE;
   }
@@ -323,23 +319,23 @@ public class SecurityEngine {
       SchemaClass clazz,
       String propertyName,
       SecurityPolicy.Scope scope) {
-    var resource = "database.class." + clazz.getName() + "." + propertyName;
+    var resource = "database.class." + clazz.getName(session) + "." + propertyName;
     var definedPolicies = security.getSecurityPolicies(session, role);
     var classPolicy = definedPolicies.get(resource);
 
     var predicateString = classPolicy != null ? classPolicy.get(scope, session) : null;
-    if (predicateString == null && !clazz.getSuperClasses().isEmpty()) {
-      if (clazz.getSuperClasses().size() == 1) {
+    if (predicateString == null && !clazz.getSuperClasses(session).isEmpty()) {
+      if (clazz.getSuperClasses(session).size() == 1) {
         return getPredicateForClassHierarchy(
             session,
             security,
             role,
-            clazz.getSuperClasses().iterator().next(),
+            clazz.getSuperClasses(session).iterator().next(),
             propertyName,
             scope);
       }
       var result = new SQLAndBlock(-1);
-      for (var superClass : clazz.getSuperClasses()) {
+      for (var superClass : clazz.getSuperClasses(session)) {
         var superClassPredicate =
             getPredicateForClassHierarchy(session, security, role, superClass, propertyName, scope);
         if (superClassPredicate == null) {
@@ -352,7 +348,7 @@ public class SecurityEngine {
 
     if (predicateString == null) {
       var wildcardPolicy =
-          definedPolicies.get("database.class." + clazz.getName() + ".*");
+          definedPolicies.get("database.class." + clazz.getName(session) + ".*");
       predicateString = wildcardPolicy == null ? null : wildcardPolicy.get(scope, session);
     }
 
@@ -373,13 +369,13 @@ public class SecurityEngine {
     // TODO
 
     if (predicateString != null) {
-      return parsePredicate(session, predicateString);
+      return parsePredicate(predicateString);
     }
     return SQLBooleanExpression.TRUE;
   }
 
   public static SQLBooleanExpression parsePredicate(
-      DatabaseSession session, String predicateString) {
+      String predicateString) {
     if ("true".equalsIgnoreCase(predicateString)) {
       return SQLBooleanExpression.TRUE;
     }
@@ -410,25 +406,21 @@ public class SecurityEngine {
       // Create a new instance of EntityImpl with a user record id, this will lazy load the user data
       // at the first access with the same execution permission of the policy
       var user = session.geCurrentUser().getIdentity();
-
-      var sessionInternal = session;
-      var recordCopy = ((RecordAbstract) record).copy();
-      return sessionInternal
+      return session
           .getSharedContext()
           .getYouTrackDB()
           .executeNoAuthorizationSync(
-              sessionInternal,
+              session,
               (db -> {
                 var ctx = new BasicCommandContext();
-                ctx.setDatabase(db);
+                ctx.setDatabaseSession(db);
                 ctx.setDynamicVariable("$currentUser", (inContext) -> user.getRecordSilently(db));
-
-                recordCopy.setup(db);
-                return predicate.evaluate(recordCopy, ctx);
+                return predicate.evaluate(record, ctx);
               }));
     } catch (Exception e) {
       throw BaseException.wrapException(
-          new SecurityException("Cannot execute security predicate"), e);
+          new SecurityException(session.getDatabaseName(), "Cannot execute security predicate"), e,
+          session.getDatabaseName());
     }
   }
 
@@ -449,10 +441,10 @@ public class SecurityEngine {
           .getSharedContext()
           .getYouTrackDB()
           .executeNoAuthorizationAsync(
-              session.getName(),
+              session.getDatabaseName(),
               (db -> {
                 var ctx = new BasicCommandContext();
-                ctx.setDatabase(db);
+                ctx.setDatabaseSession(db);
                 ctx.setDynamicVariable(
                     "$currentUser",
                     (inContext) -> {
@@ -463,7 +455,7 @@ public class SecurityEngine {
           .get();
     } catch (Exception e) {
       e.printStackTrace();
-      throw new SecurityException("Cannot execute security predicate");
+      throw new SecurityException(session.getDatabaseName(), "Cannot execute security predicate");
     }
   }
 

@@ -26,18 +26,15 @@ import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.profiler.Profiler;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.string.StringSerializerAnyStreamable;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.string.StringSerializerEmbedded;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
-import java.io.Serializable;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
@@ -49,7 +46,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @SuppressWarnings("serial")
-public abstract class RecordSerializerStringAbstract implements RecordSerializer, Serializable {
+public abstract class RecordSerializerStringAbstract {
 
   protected static final Profiler PROFILER = YouTrackDBEnginesManager.instance().getProfiler();
   private static final char DECIMAL_SEPARATOR = '.';
@@ -57,7 +54,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
   private static final int MAX_INTEGER_DIGITS = MAX_INTEGER_AS_STRING.length();
 
   public static Object fieldTypeFromStream(
-      DatabaseSessionInternal db, final EntityImpl entity, PropertyType iType,
+      DatabaseSessionInternal session, final EntityImpl entity, PropertyType iType,
       final Object iValue) {
     if (iValue == null) {
       return null;
@@ -81,12 +78,12 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
       case DATE:
       case DATETIME:
       case LINK:
-        return simpleValueFromStream(db, iValue, iType);
+        return simpleValueFromStream(session, iValue, iType);
 
       case EMBEDDED: {
         // EMBEDED RECORD
         final var embeddedObject =
-            StringSerializerEmbedded.INSTANCE.fromStream(db, (String) iValue);
+            StringSerializerEmbedded.INSTANCE.fromStream(session, (String) iValue);
         if (embeddedObject instanceof EntityImpl) {
           EntityInternalUtils.addOwner((EntityImpl) embeddedObject, entity);
         }
@@ -97,7 +94,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
 
       case CUSTOM:
         // RECORD
-        final var result = StringSerializerAnyStreamable.INSTANCE.fromStream(db,
+        final var result = StringSerializerAnyStreamable.INSTANCE.fromStream(session,
             (String) iValue);
         if (result instanceof EntityImpl) {
           EntityInternalUtils.addOwner((EntityImpl) result, entity);
@@ -107,13 +104,13 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
       case EMBEDDEDSET:
       case EMBEDDEDLIST: {
         final var value = (String) iValue;
-        return RecordSerializerSchemaAware2CSV.INSTANCE.embeddedCollectionFromStream(db,
+        return RecordSerializerSchemaAware2CSV.INSTANCE.embeddedCollectionFromStream(session,
             entity, iType, null, null, value);
       }
 
       case EMBEDDEDMAP: {
         final var value = (String) iValue;
-        return RecordSerializerCSVAbstract.embeddedMapFromStream(db,
+        return RecordSerializerCSVAbstract.embeddedMapFromStream(session,
             entity, null, value, null);
       }
     }
@@ -122,14 +119,14 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
         "Type " + iType + " not supported to convert value: " + iValue);
   }
 
-  public static Object convertValue(DatabaseSessionInternal db,
+  public static Object convertValue(DatabaseSessionInternal session,
       final String iValue, final PropertyType iExpectedType) {
-    final var v = getTypeValue(db, iValue);
-    return PropertyType.convert(db, v, iExpectedType.getDefaultJavaType());
+    final var v = getTypeValue(session, iValue);
+    return PropertyType.convert(session, v, iExpectedType.getDefaultJavaType());
   }
 
   public static void fieldTypeToString(
-      DatabaseSessionInternal db, final StringWriter iBuffer, PropertyType iType,
+      DatabaseSessionInternal session, final StringWriter iBuffer, PropertyType iType,
       final Object iValue) {
     if (iValue == null) {
       return;
@@ -147,7 +144,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
 
     switch (iType) {
       case STRING:
-        simpleValueToStream(iBuffer, iType, iValue);
+        simpleValueToStream(session, iBuffer, iType, iValue);
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.string2string"),
             "Serialize string to string",
@@ -155,7 +152,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
         break;
 
       case BOOLEAN:
-        simpleValueToStream(iBuffer, iType, iValue);
+        simpleValueToStream(session, iBuffer, iType, iValue);
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.bool2string"),
             "Serialize boolean to string",
@@ -163,7 +160,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
         break;
 
       case INTEGER:
-        simpleValueToStream(iBuffer, iType, iValue);
+        simpleValueToStream(session, iBuffer, iType, iValue);
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.int2string"),
             "Serialize integer to string",
@@ -171,7 +168,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
         break;
 
       case FLOAT:
-        simpleValueToStream(iBuffer, iType, iValue);
+        simpleValueToStream(session, iBuffer, iType, iValue);
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.float2string"),
             "Serialize float to string",
@@ -179,7 +176,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
         break;
 
       case DECIMAL:
-        simpleValueToStream(iBuffer, iType, iValue);
+        simpleValueToStream(session, iBuffer, iType, iValue);
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.decimal2string"),
             "Serialize decimal to string",
@@ -187,7 +184,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
         break;
 
       case LONG:
-        simpleValueToStream(iBuffer, iType, iValue);
+        simpleValueToStream(session, iBuffer, iType, iValue);
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.long2string"),
             "Serialize long to string",
@@ -195,7 +192,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
         break;
 
       case DOUBLE:
-        simpleValueToStream(iBuffer, iType, iValue);
+        simpleValueToStream(session, iBuffer, iType, iValue);
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.double2string"),
             "Serialize double to string",
@@ -203,7 +200,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
         break;
 
       case SHORT:
-        simpleValueToStream(iBuffer, iType, iValue);
+        simpleValueToStream(session, iBuffer, iType, iValue);
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.short2string"),
             "Serialize short to string",
@@ -211,7 +208,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
         break;
 
       case BYTE:
-        simpleValueToStream(iBuffer, iType, iValue);
+        simpleValueToStream(session, iBuffer, iType, iValue);
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.byte2string"),
             "Serialize byte to string",
@@ -219,7 +216,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
         break;
 
       case BINARY:
-        simpleValueToStream(iBuffer, iType, iValue);
+        simpleValueToStream(session, iBuffer, iType, iValue);
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.binary2string"),
             "Serialize binary to string",
@@ -227,7 +224,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
         break;
 
       case DATE:
-        simpleValueToStream(iBuffer, iType, iValue);
+        simpleValueToStream(session, iBuffer, iType, iValue);
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.date2string"),
             "Serialize date to string",
@@ -235,7 +232,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
         break;
 
       case DATETIME:
-        simpleValueToStream(iBuffer, iType, iValue);
+        simpleValueToStream(session, iBuffer, iType, iValue);
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.datetime2string"),
             "Serialize datetime to string",
@@ -256,7 +253,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
 
       case EMBEDDEDSET:
         RecordSerializerSchemaAware2CSV.INSTANCE.embeddedCollectionToStream(
-            DatabaseRecordThreadLocal.instance().getIfDefined(),
+            session,
             iBuffer,
             null,
             null,
@@ -270,7 +267,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
 
       case EMBEDDEDLIST:
         RecordSerializerSchemaAware2CSV.INSTANCE.embeddedCollectionToStream(
-            DatabaseRecordThreadLocal.instance().getIfDefined(),
+            session,
             iBuffer,
             null,
             null,
@@ -284,7 +281,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
 
       case EMBEDDEDMAP:
         RecordSerializerSchemaAware2CSV.INSTANCE.embeddedMapToStream(
-            DatabaseRecordThreadLocal.instance().getIfDefined(),
+            session,
             iBuffer,
             null,
             iValue
@@ -297,9 +294,10 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
 
       case EMBEDDED:
         if (iValue instanceof EntityImpl) {
-          RecordSerializerSchemaAware2CSV.INSTANCE.toString(db, (EntityImpl) iValue, iBuffer, null);
+          RecordSerializerSchemaAware2CSV.INSTANCE.toString(session, (EntityImpl) iValue, iBuffer,
+              null);
         } else {
-          StringSerializerEmbedded.INSTANCE.toStream(db, iBuffer, iValue);
+          StringSerializerEmbedded.INSTANCE.toStream(session, iBuffer, iValue);
         }
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.embed2string"),
@@ -308,7 +306,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
         break;
 
       case CUSTOM:
-        StringSerializerAnyStreamable.INSTANCE.toStream(db, iBuffer, iValue);
+        StringSerializerAnyStreamable.INSTANCE.toStream(session, iBuffer, iValue);
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.custom2string"),
             "Serialize custom to string",
@@ -655,7 +653,8 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
   }
 
   public static void simpleValueToStream(
-      final StringWriter iBuffer, final PropertyType iType, final Object iValue) {
+      DatabaseSessionInternal session, final StringWriter iBuffer, final PropertyType iType,
+      final Object iValue) {
     if (iValue == null || iType == null) {
       return;
     }
@@ -724,7 +723,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
       case DATE:
         if (iValue instanceof Date) {
           // RESET HOURS, MINUTES, SECONDS AND MILLISECONDS
-          final var calendar = DateHelper.getDatabaseCalendar();
+          final var calendar = DateHelper.getDatabaseCalendar(session);
           calendar.setTime((Date) iValue);
           calendar.set(Calendar.HOUR_OF_DAY, 0);
           calendar.set(Calendar.MINUTE, 0);
@@ -750,7 +749,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
   }
 
   public abstract <T extends DBRecord> T fromString(
-      DatabaseSessionInternal db, String iContent, RecordAbstract iRecord, String[] iFields);
+      DatabaseSessionInternal session, String iContent, RecordAbstract iRecord, String[] iFields);
 
   public StringWriter toString(
       DatabaseSessionInternal db, final DBRecord iRecord, final StringWriter iOutput,
@@ -758,17 +757,10 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
     return toString(db, iRecord, iOutput, iFormat, true);
   }
 
-  public <T extends DBRecord> T fromString(DatabaseSessionInternal db, final String iSource) {
-    return fromString(db, iSource, null, null);
+  public <T extends DBRecord> T fromString(DatabaseSessionInternal session, final String iSource) {
+    return fromString(session, iSource, null, null);
   }
 
-  @Override
-  public String[] getFieldNames(DatabaseSessionInternal db, EntityImpl reference,
-      byte[] iSource) {
-    return null;
-  }
-
-  @Override
   public RecordAbstract fromStream(
       DatabaseSessionInternal db, final byte[] iSource, final RecordAbstract iRecord,
       final String[] iFields) {
@@ -785,11 +777,11 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
     }
   }
 
-  public byte[] toStream(DatabaseSessionInternal db, final RecordAbstract iRecord) {
+  public byte[] toStream(DatabaseSessionInternal session, final RecordAbstract iRecord) {
     final var timer = PROFILER.startChrono();
 
     try {
-      return toString(db, iRecord, new StringWriter(2048), null, true)
+      return toString(session, iRecord, new StringWriter(2048), null, true)
           .toString()
           .getBytes(StandardCharsets.UTF_8);
     } finally {
@@ -802,7 +794,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
   }
 
   protected abstract StringWriter toString(
-      DatabaseSessionInternal db, final DBRecord iRecord,
+      DatabaseSessionInternal session, final DBRecord iRecord,
       final StringWriter iOutput,
       final String iFormat,
       boolean autoDetectCollectionType);

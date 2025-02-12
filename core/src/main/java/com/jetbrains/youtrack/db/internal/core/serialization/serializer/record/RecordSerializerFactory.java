@@ -25,8 +25,6 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.b
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkBase;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37Client;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJackson;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerSchemaAware2CSV;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,9 +41,6 @@ public class RecordSerializerFactory {
   private RecordSerializer defaultRecordSerializer;
 
   public RecordSerializerFactory() {
-    register(RecordSerializerSchemaAware2CSV.NAME, RecordSerializerSchemaAware2CSV.INSTANCE);
-    register(RecordSerializerJackson.NAME, RecordSerializerJackson.INSTANCE);
-    register(RecordSerializerRaw.NAME, new RecordSerializerRaw());
     register(RecordSerializerBinary.NAME, RecordSerializerBinary.INSTANCE);
     register(RecordSerializerNetworkBase.NAME, RecordSerializerNetworkBase.INSTANCE);
     register(RecordSerializerNetworkV37.NAME, RecordSerializerNetworkV37.INSTANCE);

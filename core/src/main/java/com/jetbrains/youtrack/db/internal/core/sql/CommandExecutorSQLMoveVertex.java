@@ -38,7 +38,6 @@ import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionRuntime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * SQL MOVE VERTEX command.
@@ -58,56 +57,57 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
   private int batch = 100;
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorSQLMoveVertex parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLMoveVertex parse(DatabaseSessionInternal session,
       final CommandRequest iRequest) {
-    final var database = getDatabase();
 
-    init((CommandRequestText) iRequest);
+    init(session, (CommandRequestText) iRequest);
 
-    parserRequiredKeyword("MOVE");
-    parserRequiredKeyword("VERTEX");
+    parserRequiredKeyword(session.getDatabaseName(), "MOVE");
+    parserRequiredKeyword(session.getDatabaseName(), "VERTEX");
 
-    source = parserRequiredWord(false, "Syntax error", " =><,\r\n");
+    source = parserRequiredWord(false, "Syntax error", " =><,\r\n", session.getDatabaseName());
     if (source == null) {
-      throw new CommandSQLParsingException("Cannot find source");
+      throw new CommandSQLParsingException(session.getDatabaseName(), "Cannot find source");
     }
 
-    parserRequiredKeyword("TO");
+    parserRequiredKeyword(session.getDatabaseName(), "TO");
 
-    var temp = parseOptionalWord(true);
+    var temp = parseOptionalWord(session.getDatabaseName(), true);
 
     while (temp != null) {
       if (temp.startsWith("CLUSTER:")) {
         if (className != null) {
-          throw new CommandSQLParsingException(
+          throw new CommandSQLParsingException(session.getDatabaseName(),
               "Cannot define multiple sources. Found both cluster and class.");
         }
 
         clusterName = temp.substring("CLUSTER:".length());
-        if (database.getClusterIdByName(clusterName) == -1) {
-          throw new CommandSQLParsingException("Cluster '" + clusterName + "' was not found");
+        if (session.getClusterIdByName(clusterName) == -1) {
+          throw new CommandSQLParsingException(session.getDatabaseName(),
+              "Cluster '" + clusterName + "' was not found");
         }
 
       } else if (temp.startsWith("CLASS:")) {
         if (clusterName != null) {
-          throw new CommandSQLParsingException(
+          throw new CommandSQLParsingException(session.getDatabaseName(),
               "Cannot define multiple sources. Found both cluster and class.");
         }
 
         className = temp.substring("CLASS:".length());
 
-        clazz = database.getMetadata().getSchema().getClass(className);
+        clazz = session.getMetadata().getSchema().getClass(className);
 
         if (clazz == null) {
-          throw new CommandSQLParsingException("Class '" + className + "' was not found");
+          throw new CommandSQLParsingException(session.getDatabaseName(),
+              "Class '" + className + "' was not found");
         }
 
       } else if (temp.equals(KEYWORD_SET)) {
         fields = new ArrayList<Pair<String, Object>>();
-        parseSetFields(db, clazz, fields);
+        parseSetFields(session, clazz, fields);
 
       } else if (temp.equals(KEYWORD_MERGE)) {
-        merge = parseJSON(db);
+        merge = parseJSON(session);
 
       } else if (temp.equals(KEYWORD_BATCH)) {
         temp = parserNextWord(true);
@@ -128,22 +128,22 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
   /**
    * Executes the command and return the EntityImpl object created.
    */
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
 
-    db.begin();
+    session.begin();
     if (className == null && clusterName == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not been parsed yet");
     }
 
     final var sourceRIDs =
-        SQLEngine.getInstance().parseRIDTarget(db, source, context, iArgs);
+        SQLEngine.getInstance().parseRIDTarget(session, source, context, iArgs);
 
     // CREATE EDGES
     final List<EntityImpl> result = new ArrayList<EntityImpl>(sourceRIDs.size());
 
     for (var from : sourceRIDs) {
-      final var fromVertex = toVertex(from);
+      final var fromVertex = toVertex(session, from);
       if (fromVertex == null) {
         continue;
       }
@@ -151,7 +151,7 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
       var oldVertex = ((RecordId) fromVertex.getIdentity()).copy();
       var newVertex = fromVertex.moveTo(className, clusterName);
 
-      final EntityImpl newVertexDoc = newVertex.getRecord(db);
+      final EntityImpl newVertexDoc = newVertex.getRecord(session);
 
       if (fields != null) {
         // EVALUATE FIELDS
@@ -159,7 +159,7 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
           if (f.getValue() instanceof SQLFunctionRuntime) {
             f.setValue(
                 ((SQLFunctionRuntime) f.getValue())
-                    .getValue(newVertex.getRecord(db), null, context));
+                    .getValue(newVertex.getRecord(session), null, context));
           }
         }
 
@@ -175,25 +175,20 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
 
       // PUT THE MOVE INTO THE RESULT
       result.add(
-          new EntityImpl(db)
+          new EntityImpl(session)
               .setTrackingChanges(false)
               .field("old", oldVertex, PropertyType.LINK)
               .field("new", newVertex, PropertyType.LINK));
 
       if (batch > 0 && result.size() % batch == 0) {
-        db.commit();
-        db.begin();
+        session.commit();
+        session.begin();
       }
     }
 
-    db.commit();
+    session.commit();
 
     return result;
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.WRITE;
   }
 
   @Override
@@ -202,12 +197,12 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
         + " [BATCH <batch-size>]";
   }
 
-  private static Vertex toVertex(Identifiable item) {
+  private static Vertex toVertex(DatabaseSessionInternal db, Identifiable item) {
     if (item instanceof Entity) {
       return ((Entity) item).asVertex().orElse(null);
     } else {
       try {
-        item = getDatabase().load(item.getIdentity());
+        item = db.load(item.getIdentity());
       } catch (RecordNotFoundException rnf) {
         return null;
       }

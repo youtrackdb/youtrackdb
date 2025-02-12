@@ -86,7 +86,7 @@ public class CheckIndexTool extends DatabaseTool {
     var fields = index.getDefinition().getFields();
     var className = index.getDefinition().getClassName();
     var clazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(className);
-    var clusterIds = clazz.getPolymorphicClusterIds();
+    var clusterIds = clazz.getPolymorphicClusterIds(database);
     for (var clusterId : clusterIds) {
       checkCluster(session, clusterId, index, fields);
     }

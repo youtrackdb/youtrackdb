@@ -4,21 +4,17 @@ import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.LiveQueryBatchResultListener;
 import com.jetbrains.youtrack.db.api.query.LiveQueryResultListener;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHookV2;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHookV2.LiveQueryOp;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryListenerV2;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +48,7 @@ public class LiveQueryListenerImpl implements LiveQueryListenerV2 {
   public LiveQueryListenerImpl(
       LiveQueryResultListener clientListener,
       String query,
-      DatabaseSessionInternal db,
+      DatabaseSessionInternal session,
       Map<Object, Object> iArgs) {
     this.clientListener = clientListener;
     this.params = iArgs;
@@ -60,42 +56,42 @@ public class LiveQueryListenerImpl implements LiveQueryListenerV2 {
     if (query.trim().toLowerCase().startsWith("live ")) {
       query = query.trim().substring(5);
     }
-    var stm = SQLEngine.parse(query, db);
+    var stm = SQLEngine.parse(query, session);
     if (!(stm instanceof SQLSelectStatement)) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Only SELECT statement can be used as a live query: " + query);
     }
     this.statement = (SQLSelectStatement) stm;
-    validateStatement(statement, db);
+    validateStatement(statement, session);
     if (statement.getTarget().getItem().getIdentifier() != null) {
       this.className = statement.getTarget().getItem().getIdentifier().getStringValue();
-      if (!db
+      if (!session
           .getMetadata()
           .getImmutableSchemaSnapshot()
           .existsClass(className)) {
-        throw new CommandExecutionException(
+        throw new CommandExecutionException(session,
             "Class " + className + " not found in the schema: " + query);
       }
     } else if (statement.getTarget().getItem().getRids() != null) {
       var context = new BasicCommandContext();
-      context.setDatabase(db);
+      context.setDatabaseSession(session);
       this.rids =
           statement.getTarget().getItem().getRids().stream()
-              .map(x -> x.toRecordId(new ResultInternal(db), context))
+              .map(x -> x.toRecordId(new ResultInternal(session), context))
               .collect(Collectors.toList());
     }
     execInSeparateDatabase(
         new CallableFunction() {
           @Override
           public Object call(Object iArgument) {
-            return execDb = db.copy();
+            return execDb = session.copy();
           }
         });
 
     synchronized (random) {
       token = random.nextInt(); // TODO do something better ;-)!
     }
-    LiveQueryHookV2.subscribe(token, this, db);
+    LiveQueryHookV2.subscribe(token, this, session);
 
     CommandContext ctx = new BasicCommandContext();
     if (iArgs != null)
@@ -107,26 +103,29 @@ public class LiveQueryListenerImpl implements LiveQueryListenerV2 {
     }
   }
 
-  private void validateStatement(SQLSelectStatement statement, DatabaseSessionInternal db) {
+  private void validateStatement(SQLSelectStatement statement, DatabaseSessionInternal session) {
     if (statement.getProjection() != null) {
-      if (statement.getProjection().getItems().stream().anyMatch(x -> x.isAggregate(db))) {
-        throw new CommandExecutionException(
+      if (statement.getProjection().getItems().stream().anyMatch(x -> x.isAggregate(session))) {
+        throw new CommandExecutionException(session,
             "Aggregate Projections cannot be used in live query " + statement);
       }
     }
     if (statement.getTarget().getItem().getIdentifier() == null
         && statement.getTarget().getItem().getRids() == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Live queries can only be executed against a Class or on RIDs" + statement);
     }
     if (statement.getOrderBy() != null) {
-      throw new CommandExecutionException("Live queries do not support ORDER BY " + statement);
+      throw new CommandExecutionException(session,
+          "Live queries do not support ORDER BY " + statement);
     }
     if (statement.getGroupBy() != null) {
-      throw new CommandExecutionException("Live queries do not support GROUP BY " + statement);
+      throw new CommandExecutionException(session,
+          "Live queries do not support GROUP BY " + statement);
     }
     if (statement.getSkip() != null || statement.getLimit() != null) {
-      throw new CommandExecutionException("Live queries do not support SKIP/LIMIT " + statement);
+      throw new CommandExecutionException(session,
+          "Live queries do not support SKIP/LIMIT " + statement);
     }
   }
 
@@ -151,7 +150,7 @@ public class LiveQueryListenerImpl implements LiveQueryListenerV2 {
         record.setMetadata(BEFORE_METADATA_KEY, record);
       }
 
-      if (filter(record)) {
+      if (filter(execDb, record)) {
         switch (iRecord.type) {
           case RecordOperation.DELETED:
             record.setMetadata(BEFORE_METADATA_KEY, null);
@@ -176,7 +175,7 @@ public class LiveQueryListenerImpl implements LiveQueryListenerV2 {
 
   private ResultInternal applyProjections(ResultInternal record) {
     var ctx = new BasicCommandContext();
-    ctx.setDatabase(execDb);
+    ctx.setDatabaseSession(execDb);
 
     if (statement.getProjection() != null) {
       var result =
@@ -187,7 +186,7 @@ public class LiveQueryListenerImpl implements LiveQueryListenerV2 {
     return record;
   }
 
-  private boolean filter(Result record) {
+  private boolean filter(DatabaseSessionInternal db, Result record) {
     // filter by class
     if (className != null) {
       var filterClass = record.getProperty("@class");
@@ -200,13 +199,13 @@ public class LiveQueryListenerImpl implements LiveQueryListenerV2 {
         if (recordClass == null) {
           return false;
         }
-        if (!recordClass.getName().equalsIgnoreCase(className)
-            && !recordClass.isSubClassOf(className)) {
+        if (!recordClass.getName(db).equalsIgnoreCase(className)
+            && !recordClass.isSubClassOf(db, className)) {
           return false;
         }
       }
     }
-    if (rids != null && rids.size() > 0) {
+    if (rids != null && !rids.isEmpty()) {
       var found = false;
       for (var rid : rids) {
         if (rid.equals(record.getIdentity().orElse(null))) {
@@ -258,16 +257,7 @@ public class LiveQueryListenerImpl implements LiveQueryListenerV2 {
   }
 
   protected void execInSeparateDatabase(final CallableFunction iCallback) {
-    final var prevDb = DatabaseRecordThreadLocal.instance().getIfDefined();
-    try {
-      iCallback.call(null);
-    } finally {
-      if (prevDb != null) {
-        DatabaseRecordThreadLocal.instance().set(prevDb);
-      } else {
-        DatabaseRecordThreadLocal.instance().remove();
-      }
-    }
+    iCallback.call(null);
   }
 
   public SQLSelectStatement getStatement() {

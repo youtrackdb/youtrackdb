@@ -50,7 +50,7 @@ public class SQLFunctionDecode extends SQLFunctionAbstract {
     if (SQLFunctionEncode.FORMAT_BASE64.equalsIgnoreCase(format)) {
       return Base64.getDecoder().decode(candidate);
     } else {
-      throw new DatabaseException("unknowned format :" + format);
+      throw new DatabaseException(iContext.getDatabaseSession(), "unknowned format :" + format);
     }
   }
 

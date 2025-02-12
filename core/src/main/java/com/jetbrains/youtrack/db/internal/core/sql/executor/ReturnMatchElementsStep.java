@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -23,7 +23,7 @@ public class ReturnMatchElementsStep extends AbstractUnrollStep {
       if (!s.startsWith(MatchExecutionPlanner.DEFAULT_ALIAS_PREFIX)) {
         var elem = res.getProperty(s);
         if (elem instanceof Identifiable) {
-          var newelem = new ResultInternal(iContext.getDatabase(),
+          var newelem = new ResultInternal(iContext.getDatabaseSession(),
               (Identifiable) elem);
           elem = newelem;
         }

@@ -18,12 +18,12 @@ public class ClassTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testShortName() {
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var oClass = schema.createClass(SHORTNAME_CLASS_NAME);
-    Assert.assertNull(oClass.getShortName());
+    Assert.assertNull(oClass.getShortName(session));
     Assert.assertNull(queryShortName());
 
-    final var storage = db.getStorage();
+    final var storage = session.getStorage();
 
     if (storage instanceof AbstractPaginatedStorage paginatedStorage) {
       final var writeCache = paginatedStorage.getWriteCache();
@@ -33,60 +33,60 @@ public class ClassTest extends BaseMemoryInternalDatabase {
     }
 
     var shortName = "shortname";
-    oClass.setShortName(db, shortName);
-    assertEquals(shortName, oClass.getShortName());
+    oClass.setShortName(session, shortName);
+    assertEquals(shortName, oClass.getShortName(session));
     assertEquals(shortName, queryShortName());
 
     // FAILS, saves null value and stores "null" string (not null value) internally
     shortName = "null";
-    oClass.setShortName(db, shortName);
-    assertEquals(shortName, oClass.getShortName());
+    oClass.setShortName(session, shortName);
+    assertEquals(shortName, oClass.getShortName(session));
     assertEquals(shortName, queryShortName());
 
-    oClass.setShortName(db, null);
-    Assert.assertNull(oClass.getShortName());
+    oClass.setShortName(session, null);
+    Assert.assertNull(oClass.getShortName(session));
     Assert.assertNull(queryShortName());
 
-    oClass.setShortName(db, "");
-    Assert.assertNull(oClass.getShortName());
+    oClass.setShortName(session, "");
+    Assert.assertNull(oClass.getShortName(session));
     Assert.assertNull(queryShortName());
   }
 
   @Test
   public void testShortNameSnapshot() {
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var oClass = schema.createClass(SHORTNAME_CLASS_NAME);
-    Assert.assertNull(oClass.getShortName());
+    Assert.assertNull(oClass.getShortName(session));
 
     var shortName = "shortName";
-    oClass.setShortName(db, shortName);
-    assertEquals(shortName, oClass.getShortName());
+    oClass.setShortName(session, shortName);
+    assertEquals(shortName, oClass.getShortName(session));
     var shorted = schema.getClass(shortName);
     Assert.assertNotNull(shorted);
-    assertEquals(shortName, shorted.getShortName());
-    var intern = db.getMetadata();
+    assertEquals(shortName, shorted.getShortName(session));
+    var intern = session.getMetadata();
     var immSchema = intern.getImmutableSchemaSnapshot();
     shorted = immSchema.getClass(shortName);
     Assert.assertNotNull(shorted);
-    assertEquals(shortName, shorted.getShortName());
+    assertEquals(shortName, shorted.getShortName(session));
   }
 
   @Test
   public void testRename() {
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     var oClass = schema.createClass("ClassName");
 
-    final var storage = db.getStorage();
+    final var storage = session.getStorage();
     final var paginatedStorage = (AbstractPaginatedStorage) storage;
     final var writeCache = paginatedStorage.getWriteCache();
     Assert.assertTrue(writeCache.exists("classname" + PaginatedCluster.DEF_EXTENSION));
 
-    oClass.setName(db, "ClassNameNew");
+    oClass.setName(session, "ClassNameNew");
 
     assertFalse(writeCache.exists("classname" + PaginatedCluster.DEF_EXTENSION));
     Assert.assertTrue(writeCache.exists("classnamenew" + PaginatedCluster.DEF_EXTENSION));
 
-    oClass.setName(db, "ClassName");
+    oClass.setName(session, "ClassName");
 
     assertFalse(writeCache.exists("classnamenew" + PaginatedCluster.DEF_EXTENSION));
     Assert.assertTrue(writeCache.exists("classname" + PaginatedCluster.DEF_EXTENSION));
@@ -94,22 +94,22 @@ public class ClassTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testOClassAndOPropertyDescription() {
-    final Schema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = session.getMetadata().getSchema();
     var oClass = oSchema.createClass("DescriptionTest");
-    var property = oClass.createProperty(db, "property", PropertyType.STRING);
-    oClass.setDescription(db, "DescriptionTest-class-description");
-    property.setDescription(db, "DescriptionTest-property-description");
-    assertEquals(oClass.getDescription(), "DescriptionTest-class-description");
-    assertEquals(property.getDescription(), "DescriptionTest-property-description");
+    var property = oClass.createProperty(session, "property", PropertyType.STRING);
+    oClass.setDescription(session, "DescriptionTest-class-description");
+    property.setDescription(session, "DescriptionTest-property-description");
+    assertEquals("DescriptionTest-class-description", oClass.getDescription(session));
+    assertEquals("DescriptionTest-property-description", property.getDescription(session));
     oClass = oSchema.getClass("DescriptionTest");
-    property = oClass.getProperty("property");
-    assertEquals(oClass.getDescription(), "DescriptionTest-class-description");
-    assertEquals(property.getDescription(), "DescriptionTest-property-description");
+    property = oClass.getProperty(session, "property");
+    assertEquals("DescriptionTest-class-description", oClass.getDescription(session));
+    assertEquals("DescriptionTest-property-description", property.getDescription(session));
 
-    oClass = db.getMetadata().getImmutableSchemaSnapshot().getClass("DescriptionTest");
-    property = oClass.getProperty("property");
-    assertEquals(oClass.getDescription(), "DescriptionTest-class-description");
-    assertEquals(property.getDescription(), "DescriptionTest-property-description");
+    oClass = session.getMetadata().getImmutableSchemaSnapshot().getClass("DescriptionTest");
+    property = oClass.getProperty(session, "property");
+    assertEquals("DescriptionTest-class-description", oClass.getDescription(session));
+    assertEquals("DescriptionTest-property-description", property.getDescription(session));
   }
 
   private String queryShortName() {
@@ -118,7 +118,7 @@ public class ClassTest extends BaseMemoryInternalDatabase {
             + " where name = \""
             + SHORTNAME_CLASS_NAME
             + "\"";
-    try (var result = db.query(selectShortNameSQL)) {
+    try (var result = session.query(selectShortNameSQL)) {
       String name = result.next().getProperty("shortName");
       assertFalse(result.hasNext());
       return name;

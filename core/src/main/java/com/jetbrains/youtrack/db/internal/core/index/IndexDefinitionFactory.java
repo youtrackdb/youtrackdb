@@ -23,7 +23,7 @@ package com.jetbrains.youtrack.db.internal.core.index;
 import com.jetbrains.youtrack.db.api.schema.Collate;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -40,6 +40,7 @@ public class IndexDefinitionFactory {
   /**
    * Creates an instance of {@link IndexDefinition} for automatic index.
    *
+   * @param session
    * @param oClass     class which will be indexed
    * @param fieldNames list of properties which will be indexed. Format should be '<property> [by
    *                   key|value]', use 'by key' or 'by value' to describe how to index maps. By
@@ -47,42 +48,41 @@ public class IndexDefinitionFactory {
    * @param types      types of indexed properties
    * @param collates
    * @param indexKind
-   * @param algorithm
    * @return index definition instance
    */
   public static IndexDefinition createIndexDefinition(
-      final SchemaClass oClass,
+      DatabaseSessionInternal session, final SchemaClass oClass,
       final List<String> fieldNames,
       final List<PropertyType> types,
       List<Collate> collates,
-      String indexKind,
-      String algorithm) {
-    checkTypes(oClass, fieldNames, types);
+      String indexKind) {
+    checkTypes(session, oClass, fieldNames, types);
 
     if (fieldNames.size() == 1) {
       Collate collate = null;
       PropertyType linkedType = null;
-      var type = types.get(0);
-      var field = fieldNames.get(0);
+      var type = types.getFirst();
+      var field = fieldNames.getFirst();
       final var fieldName =
-          SchemaClassImpl.decodeClassName(adjustFieldName(oClass, extractFieldName(field)));
+          SchemaClassImpl.decodeClassName(
+              adjustFieldName(session, oClass, extractFieldName(field)));
       if (collates != null) {
-        collate = collates.get(0);
+        collate = collates.getFirst();
       }
-      var property = oClass.getProperty(fieldName);
+      var property = oClass.getProperty(session, fieldName);
       if (property != null) {
         if (collate == null) {
-          collate = property.getCollate();
+          collate = property.getCollate(session);
         }
-        linkedType = property.getLinkedType();
+        linkedType = property.getLinkedType(session);
       }
 
       final var indexBy = extractMapIndexSpecifier(field);
       return createSingleFieldIndexDefinition(
-          oClass.getName(), fieldName, type, linkedType, collate, indexKind, indexBy);
+          oClass.getName(session), fieldName, type, linkedType, collate, indexKind, indexBy);
     } else {
-      return createMultipleFieldIndexDefinition(
-          oClass, fieldNames, types, collates, indexKind, algorithm);
+      return createMultipleFieldIndexDefinition(session,
+          oClass, fieldNames, types, collates, indexKind);
     }
   }
 
@@ -118,14 +118,12 @@ public class IndexDefinitionFactory {
   }
 
   private static IndexDefinition createMultipleFieldIndexDefinition(
-      final SchemaClass oClass,
+      DatabaseSessionInternal session, final SchemaClass oClass,
       final List<String> fieldsToIndex,
       final List<PropertyType> types,
       List<Collate> collates,
-      String indexKind,
-      String algorithm) {
-    final var factory = Indexes.getFactory(indexKind, algorithm);
-    final var className = oClass.getName();
+      String indexKind) {
+    final var className = oClass.getName(session);
     final var compositeIndex = new CompositeIndexDefinition(className);
 
     for (int i = 0, fieldsToIndexSize = fieldsToIndex.size(); i < fieldsToIndexSize; i++) {
@@ -135,15 +133,17 @@ public class IndexDefinitionFactory {
       if (collates != null) {
         collate = collates.get(i);
       }
+
       var field = fieldsToIndex.get(i);
       final var fieldName =
-          SchemaClassImpl.decodeClassName(adjustFieldName(oClass, extractFieldName(field)));
-      var property = oClass.getProperty(fieldName);
+          SchemaClassImpl.decodeClassName(
+              adjustFieldName(session, oClass, extractFieldName(field)));
+      var property = oClass.getProperty(session, fieldName);
       if (property != null) {
         if (collate == null) {
-          collate = property.getCollate();
+          collate = property.getCollate(session);
         }
-        linkedType = property.getLinkedType();
+        linkedType = property.getLinkedType(session);
       }
       final var indexBy = extractMapIndexSpecifier(field);
 
@@ -151,10 +151,12 @@ public class IndexDefinitionFactory {
           createSingleFieldIndexDefinition(
               className, fieldName, type, linkedType, collate, indexKind, indexBy));
     }
+
     return compositeIndex;
   }
 
-  private static void checkTypes(SchemaClass oClass, List<String> fieldNames,
+  private static void checkTypes(DatabaseSessionInternal session, SchemaClass oClass,
+      List<String> fieldNames,
       List<PropertyType> types) {
     if (fieldNames.size() != types.size()) {
       throw new IllegalArgumentException(
@@ -169,8 +171,8 @@ public class IndexDefinitionFactory {
       final var fieldName = fieldNames.get(i);
       final var type = types.get(i);
 
-      final var property = oClass.getProperty(fieldName);
-      if (property != null && !type.equals(property.getType())) {
+      final var property = oClass.getProperty(session, fieldName);
+      if (property != null && !type.equals(property.getType(session))) {
         throw new IllegalArgumentException("Property type list not match with real property types");
       }
     }
@@ -272,10 +274,11 @@ public class IndexDefinitionFactory {
             + '\'');
   }
 
-  private static String adjustFieldName(final SchemaClass clazz, final String fieldName) {
-    final var property = clazz.getProperty(fieldName);
+  private static String adjustFieldName(DatabaseSessionInternal session, final SchemaClass clazz,
+      final String fieldName) {
+    final var property = clazz.getProperty(session, fieldName);
     if (property != null) {
-      return property.getName();
+      return property.getName(session);
     } else {
       return fieldName;
     }

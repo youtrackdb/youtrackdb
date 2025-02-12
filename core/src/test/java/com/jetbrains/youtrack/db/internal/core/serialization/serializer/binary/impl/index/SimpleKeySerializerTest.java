@@ -1,27 +1,31 @@
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.index;
 
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALPageChangesPortion;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class SimpleKeySerializerTest {
 
   private static final int FIELD_SIZE = 9;
   private static final Double OBJECT = Math.PI;
-  private SimpleKeySerializer<Double> simpleKeySerializer;
+  private static SimpleKeySerializer<Double> simpleKeySerializer;
+  private static BinarySerializerFactory serializerFactory;
 
-  @Before
-  public void beforeClass() {
+  @BeforeClass
+  public static void beforeClass() {
     simpleKeySerializer = new SimpleKeySerializer<>();
+    serializerFactory = BinarySerializerFactory.create(
+        BinarySerializerFactory.currentBinaryFormatVersion());
   }
 
   @Test
   public void testFieldSize() {
-    Assert.assertEquals(simpleKeySerializer.getObjectSize(OBJECT), FIELD_SIZE);
+    Assert.assertEquals(FIELD_SIZE, simpleKeySerializer.getObjectSize(serializerFactory, OBJECT));
   }
 
   @Test
@@ -31,18 +35,20 @@ public class SimpleKeySerializerTest {
     final var buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
     buffer.position(serializationOffset);
 
-    simpleKeySerializer.serializeInByteBufferObject(OBJECT, buffer);
+    simpleKeySerializer.serializeInByteBufferObject(serializerFactory, OBJECT, buffer);
 
     final var binarySize = buffer.position() - serializationOffset;
-    Assert.assertEquals(binarySize, FIELD_SIZE);
+    Assert.assertEquals(FIELD_SIZE, binarySize);
 
     buffer.position(serializationOffset);
-    Assert.assertEquals(simpleKeySerializer.getObjectSizeInByteBuffer(buffer), FIELD_SIZE);
+    Assert.assertEquals(FIELD_SIZE,
+        simpleKeySerializer.getObjectSizeInByteBuffer(serializerFactory, buffer));
 
     buffer.position(serializationOffset);
-    Assert.assertEquals(simpleKeySerializer.deserializeFromByteBufferObject(buffer), OBJECT);
+    Assert.assertEquals(OBJECT,
+        simpleKeySerializer.deserializeFromByteBufferObject(serializerFactory, buffer));
 
-    Assert.assertEquals(buffer.position() - serializationOffset, FIELD_SIZE);
+    Assert.assertEquals(FIELD_SIZE, buffer.position() - serializationOffset);
   }
 
   @Test
@@ -52,18 +58,22 @@ public class SimpleKeySerializerTest {
     final var buffer = ByteBuffer.allocate(FIELD_SIZE + serializationOffset);
     buffer.position(serializationOffset);
 
-    simpleKeySerializer.serializeInByteBufferObject(OBJECT, buffer);
+    simpleKeySerializer.serializeInByteBufferObject(serializerFactory, OBJECT, buffer);
 
     final var binarySize = buffer.position() - serializationOffset;
-    Assert.assertEquals(binarySize, FIELD_SIZE);
+    Assert.assertEquals(FIELD_SIZE, binarySize);
 
     buffer.position(0);
     Assert.assertEquals(
-        simpleKeySerializer.getObjectSizeInByteBuffer(serializationOffset, buffer), FIELD_SIZE);
+        FIELD_SIZE,
+        simpleKeySerializer.getObjectSizeInByteBuffer(serializerFactory, serializationOffset,
+            buffer));
     Assert.assertEquals(0, buffer.position());
 
     Assert.assertEquals(
-        simpleKeySerializer.deserializeFromByteBufferObject(serializationOffset, buffer), OBJECT);
+        OBJECT,
+        simpleKeySerializer.deserializeFromByteBufferObject(serializerFactory, serializationOffset,
+            buffer));
     Assert.assertEquals(0, buffer.position());
   }
 
@@ -77,17 +87,17 @@ public class SimpleKeySerializerTest {
             .order(ByteOrder.nativeOrder());
     final var data = new byte[FIELD_SIZE];
 
-    simpleKeySerializer.serializeNativeObject(OBJECT, data, 0);
+    simpleKeySerializer.serializeNativeObject(OBJECT, serializerFactory, data, 0);
     final WALChanges walChanges = new WALPageChangesPortion();
     walChanges.setBinaryValue(buffer, data, serializationOffset);
 
     Assert.assertEquals(
-        simpleKeySerializer.getObjectSizeInByteBuffer(buffer, walChanges, serializationOffset),
-        FIELD_SIZE);
+        FIELD_SIZE,
+        simpleKeySerializer.getObjectSizeInByteBuffer(buffer, walChanges, serializationOffset));
     Assert.assertEquals(
-        simpleKeySerializer.deserializeFromByteBufferObject(
-            buffer, walChanges, serializationOffset),
-        OBJECT);
+        OBJECT,
+        simpleKeySerializer.deserializeFromByteBufferObject(serializerFactory,
+            buffer, walChanges, serializationOffset));
     Assert.assertEquals(0, buffer.position());
   }
 }

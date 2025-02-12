@@ -16,7 +16,6 @@
 package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
@@ -40,56 +39,56 @@ public class FunctionsTest extends BaseDBTest {
   @Test
   public void createFunctionBug2415() {
     Identifiable result =
-        db
+        session
             .command(
                 new CommandSQL(
                     "create function FunctionsTest \"return a + b\" PARAMETERS [a,b] IDEMPOTENT"
                         + " true LANGUAGE Javascript"))
-            .execute(db);
+            .execute(session);
 
-    db.begin();
-    final EntityImpl record = result.getRecord(db);
+    session.begin();
+    final EntityImpl record = result.getRecord(session);
     final List<String> parameters = record.field("parameters");
 
     Assert.assertNotNull(parameters);
     Assert.assertEquals(parameters.size(), 2);
-    db.rollback();
+    session.rollback();
   }
 
   @Test
   public void testFunctionDefinitionAndCall() {
-    db.command("create function testCall \"return 0;\" LANGUAGE Javascript").close();
+    session.command("create function testCall \"return 0;\" LANGUAGE Javascript").close();
 
-    var res1 = db.command("select testCall() as testCall");
+    var res1 = session.command("select testCall() as testCall");
     Assert.assertEquals((int) res1.next().getProperty("testCall"), 0);
   }
 
   @Test
   public void testFunctionCacheAndReload() {
     Identifiable f =
-        db
+        session
             .command(new CommandSQL("create function testCache \"return 1;\" LANGUAGE Javascript"))
-            .execute(db);
+            .execute(session);
     Assert.assertNotNull(f);
 
-    try (var res1 = db.command("select testCache() as testCache")) {
+    try (var res1 = session.command("select testCache() as testCache")) {
       Assert.assertEquals(res1.next().<Object>getProperty("testCache"), 1);
     }
 
-    db.begin();
-    EntityImpl func = f.getRecord(db);
+    session.begin();
+    EntityImpl func = f.getRecord(session);
     func.field("code", "return 2;");
     func.save();
-    db.commit();
+    session.commit();
 
-    try (var res2 = db.command("select testCache() as testCache")) {
+    try (var res2 = session.command("select testCache() as testCache")) {
       Assert.assertEquals(res2.next().<Object>getProperty("testCache"), 2);
     }
   }
 
   @Test
   public void testMultiThreadsFunctionCallMoreThanPool() {
-    db.command("create function testMTCall \"return 3;\" LANGUAGE Javascript").close();
+    session.command("create function testMTCall \"return 3;\" LANGUAGE Javascript").close();
 
     final var TOT = 1000;
     final var threadNum = GlobalConfiguration.SCRIPT_POOL.getValueAsInteger() * 3;
@@ -101,7 +100,7 @@ public class FunctionsTest extends BaseDBTest {
           new Thread() {
             public void run() {
               for (var cycle = 0; cycle < TOT; ++cycle) {
-                var res1 = db.command("select testMTCall() as testMTCall");
+                var res1 = session.command("select testMTCall() as testMTCall");
                 Assert.assertNotNull(res1);
                 Assert.assertEquals(res1.next().<Object>getProperty("testMTCall"), 3);
 
@@ -125,14 +124,14 @@ public class FunctionsTest extends BaseDBTest {
 
   @Test
   public void testFunctionDefinitionAndCallWithParams() {
-    db
+    session
         .command(
             "create function testParams \"return 'Hello ' + name + ' ' + surname + ' from ' +"
                 + " country;\" PARAMETERS [name,surname,country] LANGUAGE Javascript")
         .close();
 
     try (var res1 =
-        db.command("select testParams('Jay', 'Miner', 'USA') as testParams")) {
+        session.command("select testParams('Jay', 'Miner', 'USA') as testParams")) {
       Assert.assertEquals(res1.next().getProperty("testParams"), "Hello Jay Miner from USA");
     }
 
@@ -142,17 +141,17 @@ public class FunctionsTest extends BaseDBTest {
     params.put("country", "USA");
 
     var result =
-        db
+        session
             .getMetadata()
             .getFunctionLibrary()
-            .getFunction("testParams")
+            .getFunction(session, "testParams")
             .executeInContext(null, params);
     Assert.assertEquals(result, "Hello Jay Miner from USA");
   }
 
   @Test
   public void testMapParamToFunction() {
-    db
+    session
         .command(
             "create function testMapParamToFunction \"return mapParam.get('foo')[0];\" PARAMETERS"
                 + " [mapParam] LANGUAGE Javascript")
@@ -166,7 +165,7 @@ public class FunctionsTest extends BaseDBTest {
     theMap.put("foo", theList);
     params.put("theParam", theMap);
 
-    var res1 = db.command("select testMapParamToFunction(:theParam) as a", params);
+    var res1 = session.command("select testMapParamToFunction(:theParam) as a", params);
     Assert.assertEquals(res1.next().getProperty("a"), "bar");
   }
 }

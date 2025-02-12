@@ -2,9 +2,7 @@ package com.jetbrains.youtrack.db.internal.core.storage.ridbag;
 
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -27,22 +25,22 @@ public class ChangeSerializationHelper {
     };
   }
 
-  public Change deserializeChange(final byte[] stream, final int offset) {
+  public static Change deserializeChange(final byte[] stream, final int offset) {
     var value =
-        IntegerSerializer.INSTANCE.deserializeLiteral(stream, offset + ByteSerializer.BYTE_SIZE);
+        IntegerSerializer.deserializeLiteral(stream, offset + ByteSerializer.BYTE_SIZE);
     return createChangeInstance(ByteSerializer.INSTANCE.deserializeLiteral(stream, offset), value);
   }
 
   public static Map<RID, Change> deserializeChanges(DatabaseSessionInternal db,
       final byte[] stream, int offset) {
-    final var count = IntegerSerializer.INSTANCE.deserializeLiteral(stream, offset);
+    final var count = IntegerSerializer.deserializeLiteral(stream, offset);
     offset += IntegerSerializer.INT_SIZE;
 
     final var res = new HashMap<RID, Change>();
     for (var i = 0; i < count; i++) {
-      var rid = LinkSerializer.INSTANCE.deserialize(stream, offset);
+      var rid = LinkSerializer.staticDeserialize(stream, offset);
       offset += LinkSerializer.RID_SIZE;
-      var change = ChangeSerializationHelper.INSTANCE.deserializeChange(stream, offset);
+      var change = ChangeSerializationHelper.deserializeChange(stream, offset);
       offset += Change.SIZE;
 
       RID identifiable;
@@ -62,38 +60,35 @@ public class ChangeSerializationHelper {
     return res;
   }
 
-  public static <K extends Identifiable> void serializeChanges(
-      DatabaseSessionInternal db, Map<K, Change> changes, BinarySerializer<K> keySerializer,
-      byte[] stream, int offset) {
-    IntegerSerializer.INSTANCE.serializeLiteral(changes.size(), stream, offset);
+  public static void serializeChanges(
+      DatabaseSessionInternal db, Map<RID, Change> changes, byte[] stream, int offset) {
+    IntegerSerializer.serializeLiteral(changes.size(), stream, offset);
     offset += IntegerSerializer.INT_SIZE;
 
     for (var entry : changes.entrySet()) {
-      var key = entry.getKey();
-      if (key instanceof RID rid && rid.isTemporary()) {
+      var rid = entry.getKey();
+      if (rid.isTemporary()) {
         try {
-          //noinspection unchecked
-          key = (K) rid.getRecord(db).getIdentity();
+          rid = rid.getRecord(db).getIdentity();
         } catch (RecordNotFoundException e) {
           //ignore
         }
-      } else if (key instanceof DBRecord record && record.getIdentity().isTemporary()) {
+      } else if (rid instanceof DBRecord record && record.getIdentity().isTemporary()) {
         try {
-          //noinspection unchecked
-          key = record.getIdentity().getRecord(db);
+          rid = record.getIdentity().getRecord(db);
         } catch (RecordNotFoundException e) {
           //ignore
         }
       }
 
-      keySerializer.serialize(key, stream, offset);
-      offset += keySerializer.getObjectSize(key);
+      LinkSerializer.staticSerialize(rid, stream, offset);
+      offset += LinkSerializer.staticGetObjectSize();
 
       offset += entry.getValue().serialize(stream, offset);
     }
   }
 
-  public int getChangesSerializedSize(int changesCount) {
+  public static int getChangesSerializedSize(int changesCount) {
     return changesCount * (LinkSerializer.RID_SIZE + Change.SIZE);
   }
 }

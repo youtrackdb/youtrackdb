@@ -30,12 +30,12 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
   @Test
   public void testBeginTransactionEmptyWriteRead() throws IOException {
     var channel = new MockChannel();
-    var request = new BeginTransactionRequest(db, 0, false,
+    var request = new BeginTransactionRequest(session, 0, false,
         true, null);
-    request.write(db, channel, null);
+    request.write(session, channel, null);
     channel.close();
     var readRequest = new BeginTransactionRequest();
-    readRequest.read(db, channel, 0, null);
+    readRequest.read(session, channel, 0, null);
     assertFalse(readRequest.isHasContent());
   }
 
@@ -43,18 +43,18 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
   public void testBeginTransactionWriteRead() throws IOException {
 
     List<RecordOperation> operations = new ArrayList<>();
-    operations.add(new RecordOperation(new EntityImpl(db), RecordOperation.CREATED));
+    operations.add(new RecordOperation(new EntityImpl(session), RecordOperation.CREATED));
     Map<String, FrontendTransactionIndexChanges> changes = new HashMap<>();
 
     var channel = new MockChannel();
     var request =
-        new BeginTransactionRequest(db, 0, true, true, operations);
-    request.write(db, channel, null);
+        new BeginTransactionRequest(session, 0, true, true, operations);
+    request.write(session, channel, null);
 
     channel.close();
 
     var readRequest = new BeginTransactionRequest();
-    readRequest.read(db, channel, 0, RecordSerializerNetworkFactory.current());
+    readRequest.read(session, channel, 0, RecordSerializerNetworkFactory.current());
     assertTrue(readRequest.isUsingLog());
     assertEquals(1, readRequest.getOperations().size());
     assertEquals(0, readRequest.getTxId());
@@ -63,17 +63,17 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
   @Test
   public void testFullCommitTransactionWriteRead() throws IOException {
     List<RecordOperation> operations = new ArrayList<>();
-    operations.add(new RecordOperation(new EntityImpl(db), RecordOperation.CREATED));
+    operations.add(new RecordOperation(new EntityImpl(session), RecordOperation.CREATED));
     Map<String, FrontendTransactionIndexChanges> changes = new HashMap<>();
 
     var channel = new MockChannel();
-    var request = new Commit37Request(db, 0, true, true, operations);
-    request.write(db, channel, null);
+    var request = new Commit37Request(session, 0, true, true, operations);
+    request.write(session, channel, null);
 
     channel.close();
 
     var readRequest = new Commit37Request();
-    readRequest.read(db, channel, 0, RecordSerializerNetworkFactory.current());
+    readRequest.read(session, channel, 0, RecordSerializerNetworkFactory.current());
     assertTrue(readRequest.isUsingLog());
     assertEquals(1, readRequest.getOperations().size());
     assertEquals(0, readRequest.getTxId());
@@ -93,11 +93,11 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
     updatedRids.put(new RecordId(10, 21), new RecordId(10, 31));
 
     var response = new Commit37Response(updatedRids, changes);
-    response.write(db, channel, 0, null);
+    response.write(session, channel, 0, null);
     channel.close();
 
     var readResponse = new Commit37Response();
-    readResponse.read(db, channel, null);
+    readResponse.read(session, channel, null);
 
     assertEquals(2, readResponse.getUpdatedRids().size());
 
@@ -118,13 +118,13 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
   public void testEmptyCommitTransactionWriteRead() throws IOException {
 
     var channel = new MockChannel();
-    var request = new Commit37Request(db, 0, false, true, null);
-    request.write(db, channel, null);
+    var request = new Commit37Request(session, 0, false, true, null);
+    request.write(session, channel, null);
 
     channel.close();
 
     var readRequest = new Commit37Request();
-    readRequest.read(db, channel, 0, RecordSerializerNetworkFactory.current());
+    readRequest.read(session, channel, 0, RecordSerializerNetworkFactory.current());
     assertTrue(readRequest.isUsingLog());
     assertNull(readRequest.getOperations());
     assertEquals(0, readRequest.getTxId());
@@ -134,11 +134,11 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
   public void testTransactionFetchResponseWriteRead() throws IOException {
 
     List<RecordOperation> operations = new ArrayList<>();
-    operations.add(new RecordOperation(new EntityImpl(db), RecordOperation.CREATED));
-    var docOne = new EntityImpl(db);
+    operations.add(new RecordOperation(new EntityImpl(session), RecordOperation.CREATED));
+    var docOne = new EntityImpl(session);
     RecordInternal.setIdentity(docOne, new RecordId(10, 2));
 
-    var docTwo = new EntityImpl(db);
+    var docTwo = new EntityImpl(session);
     RecordInternal.setIdentity(docTwo, new RecordId(10, 1));
 
     operations.add(
@@ -148,13 +148,13 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
 
     var channel = new MockChannel();
     var response =
-        new FetchTransactionResponse(db, 10, operations, new HashMap<>());
-    response.write(db, channel, 0, RecordSerializerNetworkV37.INSTANCE);
+        new FetchTransactionResponse(session, 10, operations, new HashMap<>());
+    response.write(session, channel, 0, RecordSerializerNetworkV37.INSTANCE);
 
     channel.close();
 
     var readResponse = new FetchTransactionResponse();
-    readResponse.read(db, channel, null);
+    readResponse.read(session, channel, null);
 
     assertEquals(3, readResponse.getOperations().size());
     assertEquals(RecordOperation.CREATED, readResponse.getOperations().get(0).getType());
@@ -171,21 +171,21 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
   public void testTransactionFetchResponse38WriteRead() throws IOException {
 
     List<RecordOperation> operations = new ArrayList<>();
-    operations.add(new RecordOperation(new EntityImpl(db), RecordOperation.CREATED));
+    operations.add(new RecordOperation(new EntityImpl(session), RecordOperation.CREATED));
     operations.add(
-        new RecordOperation(new EntityImpl(db, new RecordId(10, 2)), RecordOperation.UPDATED));
+        new RecordOperation(new EntityImpl(session, new RecordId(10, 2)), RecordOperation.UPDATED));
     operations.add(
-        new RecordOperation(new EntityImpl(db, new RecordId(10, 1)), RecordOperation.DELETED));
+        new RecordOperation(new EntityImpl(session, new RecordId(10, 1)), RecordOperation.DELETED));
     Map<String, FrontendTransactionIndexChanges> changes = new HashMap<>();
     var channel = new MockChannel();
     var response =
-        new FetchTransaction38Response(db, 10, operations, changes, new HashMap<>(), null);
-    response.write(db, channel, 0, RecordSerializerNetworkV37.INSTANCE);
+        new FetchTransaction38Response(session, 10, operations, changes, new HashMap<>(), null);
+    response.write(session, channel, 0, RecordSerializerNetworkV37.INSTANCE);
 
     channel.close();
 
     var readResponse = new FetchTransaction38Response();
-    readResponse.read(db, channel, null);
+    readResponse.read(session, channel, null);
 
     assertEquals(3, readResponse.getOperations().size());
     assertEquals(RecordOperation.CREATED, readResponse.getOperations().get(0).getType());
@@ -204,14 +204,14 @@ public class RemoteTransactionMessagesTest extends DbTestBase {
 
     var channel = new MockChannel();
     var response =
-        new FetchTransactionResponse(db, 10, operations, new HashMap<>());
-    response.write(db, channel, 0, RecordSerializerNetworkV37.INSTANCE);
+        new FetchTransactionResponse(session, 10, operations, new HashMap<>());
+    response.write(session, channel, 0, RecordSerializerNetworkV37.INSTANCE);
 
     channel.close();
 
     var readResponse =
-        new FetchTransactionResponse(db, 10, operations, new HashMap<>());
-    readResponse.read(db, channel, null);
+        new FetchTransactionResponse(session, 10, operations, new HashMap<>());
+    readResponse.read(session, channel, null);
 
     assertEquals(10, readResponse.getTxId());
   }

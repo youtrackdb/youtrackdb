@@ -19,8 +19,8 @@ public class SQLRollbackStatement extends SQLSimpleExecStatement {
 
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
-    ctx.getDatabase().rollback();
-    var db = ctx.getDatabase();
+    ctx.getDatabaseSession().rollback();
+    var db = ctx.getDatabaseSession();
     var item = new ResultInternal(db);
     item.setProperty("operation", "rollback");
     return ExecutionStream.singleton(item);

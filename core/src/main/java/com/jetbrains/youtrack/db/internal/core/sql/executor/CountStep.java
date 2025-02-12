@@ -30,7 +30,7 @@ public class CountStep extends AbstractExecutionStep {
       prevResult.next(ctx);
     }
     prevResult.close(ctx);
-    var resultRecord = new ResultInternal(ctx.getDatabase());
+    var resultRecord = new ResultInternal(ctx.getDatabaseSession());
     resultRecord.setProperty("count", count);
     return ExecutionStream.singleton(resultRecord);
   }

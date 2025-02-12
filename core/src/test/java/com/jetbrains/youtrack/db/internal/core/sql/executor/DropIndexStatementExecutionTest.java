@@ -1,8 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
@@ -16,56 +14,59 @@ public class DropIndexStatementExecutionTest extends BaseMemoryInternalDatabase 
 
   @Test
   public void testPlain() {
-    var indexName = db.getMetadata()
+    var indexName = session.getMetadata()
         .getSchema()
         .createClass("testPlain")
-        .createProperty(db, "bar", PropertyType.STRING)
-        .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+        .createProperty(session, "bar", PropertyType.STRING)
+        .createIndex(session, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
-    db.getMetadata().getIndexManagerInternal().reload(db);
-    Assert.assertNotNull((db.getMetadata().getIndexManagerInternal()).getIndex(db, indexName));
+    session.getMetadata().getIndexManagerInternal().reload(session);
+    Assert.assertNotNull(
+        (session.getMetadata().getIndexManagerInternal()).getIndex(session, indexName));
 
-    var result = db.command("drop index " + indexName);
+    var result = session.command("drop index " + indexName);
     Assert.assertTrue(result.hasNext());
     var next = result.next();
     Assert.assertEquals("drop index", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();
 
-    db.getMetadata().getIndexManagerInternal().reload(db);
-    Assert.assertNull(db.getMetadata().getIndexManagerInternal().getIndex(db, indexName));
+    session.getMetadata().getIndexManagerInternal().reload(session);
+    Assert.assertNull(session.getMetadata().getIndexManagerInternal().getIndex(session, indexName));
   }
 
   @Test
   public void testAll() {
-    var indexName = db.getMetadata()
+    var indexName = session.getMetadata()
         .getSchema()
         .createClass("testAll")
-        .createProperty(db, "baz", PropertyType.STRING)
-        .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+        .createProperty(session, "baz", PropertyType.STRING)
+        .createIndex(session, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
-    db.getMetadata().getIndexManagerInternal().reload(db);
-    Assert.assertNotNull(db.getMetadata().getIndexManagerInternal().getIndex(db, indexName));
+    session.getMetadata().getIndexManagerInternal().reload(session);
+    Assert.assertNotNull(
+        session.getMetadata().getIndexManagerInternal().getIndex(session, indexName));
 
-    var result = db.command("drop index *");
+    var result = session.command("drop index *");
     Assert.assertTrue(result.hasNext());
     var next = result.next();
     Assert.assertEquals("drop index", next.getProperty("operation"));
     result.close();
-    db.getMetadata().getIndexManagerInternal().reload(db);
-    Assert.assertNull(db.getMetadata().getIndexManagerInternal().getIndex(db, indexName));
-    Assert.assertTrue(db.getMetadata().getIndexManagerInternal().getIndexes(db).isEmpty());
+    session.getMetadata().getIndexManagerInternal().reload(session);
+    Assert.assertNull(session.getMetadata().getIndexManagerInternal().getIndex(session, indexName));
+    Assert.assertTrue(
+        session.getMetadata().getIndexManagerInternal().getIndexes(session).isEmpty());
   }
 
   @Test
   public void testWrongName() {
 
     var indexName = "nonexistingindex";
-    db.getMetadata().getIndexManagerInternal().reload(db);
-    Assert.assertNull(db.getMetadata().getIndexManagerInternal().getIndex(db, indexName));
+    session.getMetadata().getIndexManagerInternal().reload(session);
+    Assert.assertNull(session.getMetadata().getIndexManagerInternal().getIndex(session, indexName));
 
     try {
-      db.command("drop index " + indexName).close();
+      session.command("drop index " + indexName).close();
       Assert.fail();
     } catch (CommandExecutionException ex) {
     } catch (Exception e) {
@@ -77,11 +78,11 @@ public class DropIndexStatementExecutionTest extends BaseMemoryInternalDatabase 
   public void testIfExists() {
 
     var indexName = "nonexistingindex";
-    db.getMetadata().getIndexManagerInternal().reload(db);
-    Assert.assertNull(db.getMetadata().getIndexManagerInternal().getIndex(db, indexName));
+    session.getMetadata().getIndexManagerInternal().reload(session);
+    Assert.assertNull(session.getMetadata().getIndexManagerInternal().getIndex(session, indexName));
 
     try {
-      db.command("drop index " + indexName + " if exists").close();
+      session.command("drop index " + indexName + " if exists").close();
     } catch (Exception e) {
       Assert.fail();
     }

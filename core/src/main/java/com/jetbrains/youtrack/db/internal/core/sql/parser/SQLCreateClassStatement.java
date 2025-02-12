@@ -2,10 +2,10 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
@@ -50,18 +50,18 @@ public class SQLCreateClassStatement extends DDLStatement {
 
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
-    var db = ctx.getDatabase();
-    Schema schema = db.getMetadata().getSchema();
+    var session = ctx.getDatabaseSession();
+    Schema schema = session.getMetadata().getSchema();
     if (schema.existsClass(name.getStringValue())) {
       if (ifNotExists) {
         return ExecutionStream.empty();
       } else {
-        throw new CommandExecutionException("Class " + name + " already exists");
+        throw new CommandExecutionException(session, "Class " + name + " already exists");
       }
     }
     checkSuperclasses(schema, ctx);
 
-    var result = new ResultInternal(db);
+    var result = new ResultInternal(session);
     result.setProperty("operation", "create class");
     result.setProperty("className", name.getStringValue());
 
@@ -103,7 +103,8 @@ public class SQLCreateClassStatement extends DDLStatement {
     if (superclasses != null) {
       for (var superclass : superclasses) {
         if (!schema.existsClass(superclass.getStringValue())) {
-          throw new CommandExecutionException("Superclass " + superclass + " not found");
+          throw new CommandExecutionException(ctx.getDatabaseSession(),
+              "Superclass " + superclass + " not found");
         }
       }
     }
@@ -116,7 +117,7 @@ public class SQLCreateClassStatement extends DDLStatement {
     if (ifNotExists) {
       builder.append(" IF NOT EXISTS");
     }
-    if (superclasses != null && superclasses.size() > 0) {
+    if (superclasses != null && !superclasses.isEmpty()) {
       builder.append(" EXTENDS ");
       var first = true;
       for (var sup : superclasses) {

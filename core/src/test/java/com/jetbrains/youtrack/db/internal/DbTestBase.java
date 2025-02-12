@@ -21,7 +21,7 @@ public class DbTestBase {
   private static final AtomicLong counter = new AtomicLong();
   private static final ConcurrentHashMap<Class<?>, Long> ids = new ConcurrentHashMap<>();
 
-  protected DatabaseSessionInternal db;
+  protected DatabaseSessionInternal session;
   protected SessionPool pool;
   protected YouTrackDBImpl context;
 
@@ -54,8 +54,8 @@ public class DbTestBase {
   }
 
   protected void createDatabase(DatabaseType dbType) {
-    if (db != null && !db.isClosed()) {
-      db.close();
+    if (session != null && !session.isClosed()) {
+      session.close();
     }
     if (pool != null && !pool.isClosed()) {
       pool.close();
@@ -65,7 +65,7 @@ public class DbTestBase {
         adminUser, adminPassword, "admin", readerUser, readerPassword, "reader");
     pool = context.cachedPool(this.databaseName, adminUser, adminPassword);
 
-    db = (DatabaseSessionInternal) context.open(this.databaseName, "admin", "adminpwd");
+    session = (DatabaseSessionInternal) context.open(this.databaseName, "admin", "adminpwd");
   }
 
   public static String embeddedDBUrl(Class<?> testClass) {
@@ -110,10 +110,10 @@ public class DbTestBase {
       this.pool = context.cachedPool(this.databaseName, user, password);
     }
 
-    if (!db.isClosed()) {
-      db.activateOnCurrentThread();
-      db.close();
-      this.db = (DatabaseSessionInternal) context.open(this.databaseName, user, password);
+    if (!session.isClosed()) {
+      session.activateOnCurrentThread();
+      session.close();
+      this.session = (DatabaseSessionInternal) context.open(this.databaseName, user, password);
     }
   }
 
@@ -136,9 +136,9 @@ public class DbTestBase {
   }
 
   public void dropDatabase() {
-    if (!db.isClosed()) {
-      db.activateOnCurrentThread();
-      db.close();
+    if (!session.isClosed()) {
+      session.activateOnCurrentThread();
+      session.close();
     }
     if (!pool.isClosed()) {
       pool.close();

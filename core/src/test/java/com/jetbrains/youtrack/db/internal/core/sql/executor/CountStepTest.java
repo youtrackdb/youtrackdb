@@ -23,7 +23,7 @@ public class CountStepTest extends DbTestBase {
   @Test
   public void shouldCountRecords() {
     CommandContext context = new BasicCommandContext();
-    context.setDatabase(db);
+    context.setDatabaseSession(session);
 
     var step = new CountStep(context, false);
 
@@ -36,7 +36,7 @@ public class CountStepTest extends DbTestBase {
             List<Result> result = new ArrayList<>();
             if (!done) {
               for (var i = 0; i < 100; i++) {
-                var item = new ResultInternal(ctx.getDatabase());
+                var item = new ResultInternal(ctx.getDatabaseSession());
                 item.setProperty(PROPERTY_NAME, PROPERTY_VALUE);
                 result.add(item);
               }

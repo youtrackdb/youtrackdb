@@ -227,11 +227,10 @@ public final class ClusterPositionMapV2 extends ClusterPositionMap {
 
     final var lastPage = getLastPage(atomicOperation);
     if (pageIndex > lastPage) {
-      throw new ClusterPositionMapException(
+      throw new ClusterPositionMapException(storage.getName(),
           "Passed in cluster position "
               + clusterPosition
-              + " is outside of range of cluster-position map",
-          this);
+              + " is outside of range of cluster-position map", this);
     }
 
     try (final var cacheEntry =

@@ -3,7 +3,6 @@ package com.jetbrains.youtrack.db.internal.core.sql.select;
 import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Assert;
@@ -18,43 +17,43 @@ public class TestBinaryRecordsQuery extends DbTestBase {
   @Before
   public void beforeTest() throws Exception {
     super.beforeTest();
-    db.addBlobCluster("BlobCluster");
+    session.addBlobCluster("BlobCluster");
   }
 
   @Test
   public void testSelectBinary() {
-    db.begin();
-    db.save(db.newBlob("blabla".getBytes()), "BlobCluster");
-    db.commit();
+    session.begin();
+    session.save(session.newBlob("blabla".getBytes()), "BlobCluster");
+    session.commit();
 
-    var res = db.query("select from cluster:BlobCluster");
+    var res = session.query("select from cluster:BlobCluster");
 
     assertEquals(1, res.stream().count());
   }
 
   @Test
   public void testSelectRidBinary() {
-    db.begin();
-    db.save(db.newBlob("blabla".getBytes()), "BlobCluster");
-    db.commit();
+    session.begin();
+    session.save(session.newBlob("blabla".getBytes()), "BlobCluster");
+    session.commit();
 
-    var res = db.query("select @rid from cluster:BlobCluster");
+    var res = session.query("select @rid from cluster:BlobCluster");
     assertEquals(1, res.stream().count());
   }
 
   @Test
   public void testDeleteBinary() {
-    db.begin();
-    var rec = db.save(db.newBlob("blabla".getBytes()), "BlobCluster");
-    db.commit();
+    session.begin();
+    var rec = session.save(session.newBlob("blabla".getBytes()), "BlobCluster");
+    session.commit();
 
-    db.begin();
-    var res = db.command("delete from (select from cluster:BlobCluster)");
-    db.commit();
+    session.begin();
+    var res = session.command("delete from (select from cluster:BlobCluster)");
+    session.commit();
 
     assertEquals(1, (long) res.next().getProperty("count"));
     try {
-      db.load(rec.getIdentity());
+      session.load(rec.getIdentity());
       Assert.fail();
     } catch (RecordNotFoundException e) {
       // ignore
@@ -63,26 +62,27 @@ public class TestBinaryRecordsQuery extends DbTestBase {
 
   @Test
   public void testSelectDeleteBinary() {
-    db.begin();
-    var rec = db.save(db.newBlob("blabla".getBytes()), "BlobCluster");
-    db.commit();
+    session.begin();
+    var rec = session.save(session.newBlob("blabla".getBytes()), "BlobCluster");
+    session.commit();
 
-    db.getMetadata().getSchema().createClass("RecordPointer");
+    session.getMetadata().getSchema().createClass("RecordPointer");
 
-    db.begin();
-    var doc = (EntityImpl) db.newEntity("RecordPointer");
-    doc.field("ref", db.bindToSession(rec));
-    db.save(doc);
-    db.commit();
+    session.begin();
+    var doc = (EntityImpl) session.newEntity("RecordPointer");
+    doc.field("ref", session.bindToSession(rec));
+    session.save(doc);
+    session.commit();
 
-    db.begin();
+    session.begin();
     var res =
-        db.command("delete from cluster:BlobCluster where @rid in (select ref from RecordPointer)");
-    db.commit();
+        session.command(
+            "delete from cluster:BlobCluster where @rid in (select ref from RecordPointer)");
+    session.commit();
 
     assertEquals(1, (long) res.next().getProperty("count"));
     try {
-      db.load(rec.getIdentity());
+      session.load(rec.getIdentity());
       Assert.fail();
     } catch (RecordNotFoundException e) {
       // ignore
@@ -91,39 +91,39 @@ public class TestBinaryRecordsQuery extends DbTestBase {
 
   @Test
   public void testDeleteFromSelectBinary() {
-    db.begin();
-    var rec = db.save(db.newBlob("blabla".getBytes()), "BlobCluster");
-    var rec1 = db.save(db.newBlob("blabla".getBytes()), "BlobCluster");
-    db.commit();
+    session.begin();
+    var rec = session.save(session.newBlob("blabla".getBytes()), "BlobCluster");
+    var rec1 = session.save(session.newBlob("blabla".getBytes()), "BlobCluster");
+    session.commit();
 
-    db.getMetadata().getSchema().createClass("RecordPointer");
+    session.getMetadata().getSchema().createClass("RecordPointer");
 
-    db.begin();
-    var doc = (EntityImpl) db.newEntity("RecordPointer");
-    doc.field("ref", db.bindToSession(rec));
-    db.save(doc);
-    db.commit();
+    session.begin();
+    var doc = (EntityImpl) session.newEntity("RecordPointer");
+    doc.field("ref", session.bindToSession(rec));
+    session.save(doc);
+    session.commit();
 
-    db.begin();
-    var doc1 = (EntityImpl) db.newEntity("RecordPointer");
-    doc1.field("ref", db.bindToSession(rec1));
-    db.save(doc1);
-    db.commit();
+    session.begin();
+    var doc1 = (EntityImpl) session.newEntity("RecordPointer");
+    doc1.field("ref", session.bindToSession(rec1));
+    session.save(doc1);
+    session.commit();
 
-    db.begin();
-    var res = db.command("delete from (select expand(ref) from RecordPointer)");
+    session.begin();
+    var res = session.command("delete from (select expand(ref) from RecordPointer)");
     assertEquals(2, (long) res.next().getProperty("count"));
-    db.commit();
+    session.commit();
 
     try {
-      db.load(rec.getIdentity());
+      session.load(rec.getIdentity());
       Assert.fail();
     } catch (RecordNotFoundException e) {
       // ignore
     }
 
     try {
-      db.load(rec1.getIdentity());
+      session.load(rec1.getIdentity());
       Assert.fail();
     } catch (RecordNotFoundException e) {
       // ignore

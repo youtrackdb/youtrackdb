@@ -29,7 +29,6 @@ import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
@@ -39,7 +38,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -72,7 +70,7 @@ public class HttpGraphResponse extends HttpResponseAbstract {
       final String accept,
       final Map<String, Object> iAdditionalProperties,
       final String mode,
-      DatabaseSessionInternal db)
+      DatabaseSessionInternal session)
       throws IOException {
     if (iRecords == null) {
       return;
@@ -86,15 +84,13 @@ public class HttpGraphResponse extends HttpResponseAbstract {
           accept,
           iAdditionalProperties,
           mode,
-          db);
+          session);
       return;
     }
 
     if (accept != null && accept.contains("text/csv")) {
       throw new IllegalArgumentException("Graph mode cannot accept '" + accept + "'");
     }
-
-    var graph = DatabaseRecordThreadLocal.instance().get();
 
     try {
       // DIVIDE VERTICES FROM EDGES
@@ -117,12 +113,12 @@ public class HttpGraphResponse extends HttpResponseAbstract {
         }
 
         try {
-          entry = ((Identifiable) entry).getRecord(graph);
+          entry = ((Identifiable) entry).getRecord(session);
         } catch (Exception e) {
           // IGNORE IT
           continue;
         }
-        entry = ((Identifiable) entry).getRecord(graph);
+        entry = ((Identifiable) entry).getRecord(session);
 
         if (entry instanceof Entity element) {
           if (element.isVertex()) {
@@ -150,18 +146,18 @@ public class HttpGraphResponse extends HttpResponseAbstract {
       json.beginObject("graph");
 
       // WRITE VERTICES
-      json.beginCollection(graph, "vertices");
+      json.beginCollection(session, "vertices");
       for (var vertex : vertices) {
         json.beginObject();
 
-        json.writeAttribute(graph, "@rid", vertex.getIdentity());
-        json.writeAttribute(graph, "@class", vertex.getSchemaType().get().getName());
+        json.writeAttribute(session, "@rid", vertex.getIdentity());
+        json.writeAttribute(session, "@class", vertex.getSchemaType().get().getName(session));
 
         // ADD ALL THE PROPERTIES
         for (var field : ((VertexInternal) vertex).getPropertyNamesInternal()) {
           final var v = ((VertexInternal) vertex).getPropertyInternal(field);
           if (v != null) {
-            json.writeAttribute(graph, field, v);
+            json.writeAttribute(session, field, v);
           }
         }
         json.endObject();
@@ -174,7 +170,7 @@ public class HttpGraphResponse extends HttpResponseAbstract {
       }
 
       // WRITE EDGES
-      json.beginCollection(graph, "edges");
+      json.beginCollection(session, "edges");
 
       if (edgeRids.isEmpty()) {
         for (var vertex : vertices) {
@@ -193,17 +189,17 @@ public class HttpGraphResponse extends HttpResponseAbstract {
 
             edgeRids.add(edge.getIdentity());
 
-            printEdge(graph, json, edge);
+            printEdge(session, json, edge);
           }
         }
       } else {
         for (var edgeRid : edgeRids) {
           try {
-            Entity elem = edgeRid.getRecord(graph);
+            Entity elem = edgeRid.getRecord(session);
             var edge = elem.asEdge().orElse(null);
 
             if (edge != null) {
-              printEdge(graph, json, edge);
+              printEdge(session, json, edge);
             }
           } catch (RecordNotFoundException rnf) {
             // ignore
@@ -218,11 +214,11 @@ public class HttpGraphResponse extends HttpResponseAbstract {
 
           final var v = entry.getValue();
           if (MultiValue.isMultiValue(v)) {
-            json.beginCollection(graph, -1, true, entry.getKey());
-            formatMultiValue(MultiValue.getMultiValueIterator(v), buffer, null, graph);
+            json.beginCollection(session, -1, true, entry.getKey());
+            formatMultiValue(MultiValue.getMultiValueIterator(v), buffer, null, session);
             json.endCollection(-1, true);
           } else {
-            json.writeAttribute(graph, entry.getKey(), v);
+            json.writeAttribute(session, entry.getKey(), v);
           }
 
           if (Thread.currentThread().isInterrupted()) {
@@ -241,23 +237,24 @@ public class HttpGraphResponse extends HttpResponseAbstract {
           buffer.toString(),
           null);
     } finally {
-      graph.close();
+      session.close();
     }
   }
 
-  private static void printEdge(DatabaseSessionInternal db, JSONWriter json, Edge edge)
+  private static void printEdge(DatabaseSessionInternal session, JSONWriter json, Edge edge)
       throws IOException {
     json.beginObject();
-    json.writeAttribute(db, "@rid", edge.getIdentity());
-    json.writeAttribute(db, "@class", edge.getSchemaType().map(x -> x.getName()).orElse(null));
+    json.writeAttribute(session, "@rid", edge.getIdentity());
+    json.writeAttribute(session, "@class",
+        edge.getSchemaType().map(x -> x.getName(session)).orElse(null));
 
-    json.writeAttribute(db, "out", edge.getVertex(Direction.OUT).getIdentity());
-    json.writeAttribute(db, "in", edge.getVertex(Direction.IN).getIdentity());
+    json.writeAttribute(session, "out", edge.getVertex(Direction.OUT).getIdentity());
+    json.writeAttribute(session, "in", edge.getVertex(Direction.IN).getIdentity());
 
     for (var field : edge.getPropertyNames()) {
       final var v = edge.getProperty(field);
       if (v != null) {
-        json.writeAttribute(db, field, v);
+        json.writeAttribute(session, field, v);
       }
     }
 

@@ -7,7 +7,6 @@ import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.EmptyStep;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStepInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.IfExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.IfStep;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.SelectExecutionPlan;
@@ -65,13 +64,13 @@ public class SQLIfStatement extends SQLStatement {
 
   @Override
   public ResultSet execute(
-      DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
+      DatabaseSessionInternal session, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
     var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
-    ctx.setDatabase(db);
+    ctx.setDatabaseSession(session);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
       for (var i = 0; i < args.length; i++) {
@@ -94,24 +93,24 @@ public class SQLIfStatement extends SQLStatement {
     if (isIdempotent()) {
       var finalPlan = new SelectExecutionPlan(ctx);
       finalPlan.chain(last);
-      return new LocalResultSet(finalPlan);
+      return new LocalResultSet(session, finalPlan);
     } else {
       var finalPlan = new UpdateExecutionPlan(ctx);
       finalPlan.chain(last);
       finalPlan.executeInternal();
-      return new LocalResultSet(finalPlan);
+      return new LocalResultSet(session, finalPlan);
     }
   }
 
   @Override
   public ResultSet execute(
-      DatabaseSessionInternal db, Map<Object, Object> params, CommandContext parentCtx,
+      DatabaseSessionInternal session, Map<Object, Object> params, CommandContext parentCtx,
       boolean usePlanCache) {
     var ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
-    ctx.setDatabase(db);
+    ctx.setDatabaseSession(session);
     ctx.setInputParameters(params);
 
     IfExecutionPlan executionPlan;
@@ -128,12 +127,12 @@ public class SQLIfStatement extends SQLStatement {
     if (isIdempotent()) {
       var finalPlan = new SelectExecutionPlan(ctx);
       finalPlan.chain(last);
-      return new LocalResultSet(finalPlan);
+      return new LocalResultSet(session, finalPlan);
     } else {
       var finalPlan = new UpdateExecutionPlan(ctx);
       finalPlan.chain(last);
       finalPlan.executeInternal();
-      return new LocalResultSet(finalPlan);
+      return new LocalResultSet(session, finalPlan);
     }
   }
 

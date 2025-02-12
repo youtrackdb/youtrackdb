@@ -7,6 +7,7 @@ import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.HashSet;
 import java.util.Set;
@@ -20,12 +21,12 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
 
   public DistinctExecutionStep(CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
-    DatabaseSession db = ctx == null ? null : ctx.getDatabase();
+    DatabaseSession session = ctx == null ? null : ctx.getDatabaseSession();
 
     maxElementsAllowed =
-        db == null
+        session == null
             ? GlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP.getValueAsLong()
-            : db.getConfiguration()
+            : session.getConfiguration()
                 .getValueAsLong(GlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP);
   }
 
@@ -36,19 +37,22 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
     Set<Result> pastItems = new HashSet<>();
     var pastRids = new RidSet();
 
-    return resultSet.filter((result, context) -> filterMap(result, pastRids, pastItems));
+    return resultSet.filter((result, context) -> filterMap(result, pastRids, pastItems,
+        ctx.getDatabaseSession()));
   }
 
-  private Result filterMap(Result result, Set<RID> pastRids, Set<Result> pastItems) {
+  private Result filterMap(Result result, Set<RID> pastRids, Set<Result> pastItems,
+      DatabaseSessionInternal session) {
     if (alreadyVisited(result, pastRids, pastItems)) {
       return null;
     } else {
-      markAsVisited(result, pastRids, pastItems);
+      markAsVisited(result, pastRids, pastItems, session);
       return result;
     }
   }
 
-  private void markAsVisited(Result nextValue, Set<RID> pastRids, Set<Result> pastItems) {
+  private void markAsVisited(Result nextValue, Set<RID> pastRids, Set<Result> pastItems,
+      DatabaseSessionInternal session) {
     if (nextValue.isEntity()) {
       var identity = nextValue.asEntity().getIdentity();
       var cluster = identity.getClusterId();
@@ -61,7 +65,7 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
     pastItems.add(nextValue);
     if (maxElementsAllowed > 0 && maxElementsAllowed < pastItems.size()) {
       pastItems.clear();
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Limit of allowed entities for in-heap DISTINCT in a single query exceeded ("
               + maxElementsAllowed
               + ") . You can set "

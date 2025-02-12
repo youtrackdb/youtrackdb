@@ -35,11 +35,8 @@ import com.jetbrains.youtrack.db.internal.core.index.iterator.PureTxMultiValueBe
 import com.jetbrains.youtrack.db.internal.core.index.multivalue.MultiValuesTransformer;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransaction;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges.OPERATION;
-import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChangesPerKey;
-import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChangesPerKey.TransactionIndexEntry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -73,7 +70,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
   }
 
   @Override
-  public Stream<RID> getRidsIgnoreTx(DatabaseSessionInternal db, Object key) {
+  public Stream<RID> getRidsIgnoreTx(DatabaseSessionInternal session, Object key) {
     final var collatedKey = getCollatingValue(key);
     Stream<RID> backedStream;
     acquireSharedLock();
@@ -84,7 +81,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
           if (apiVersion == 0) {
             //noinspection unchecked
             final var values =
-                (Collection<RID>) storage.getIndexValue(db, indexId, collatedKey);
+                (Collection<RID>) storage.getIndexValue(session, indexId, collatedKey);
             if (values != null) {
               stream = values.stream();
             } else {
@@ -95,7 +92,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
           } else {
             throw new IllegalStateException("Invalid version of index API - " + apiVersion);
           }
-          backedStream = IndexStreamSecurityDecorator.decorateRidStream(this, stream);
+          backedStream = IndexStreamSecurityDecorator.decorateRidStream(this, stream, session);
           break;
         } catch (InvalidIndexEngineIdException ignore) {
           doReloadIndexEngine();
@@ -108,11 +105,11 @@ public abstract class IndexMultiValues extends IndexAbstract {
   }
 
   @Override
-  public Stream<RID> getRids(DatabaseSessionInternal db, Object key) {
+  public Stream<RID> getRids(DatabaseSessionInternal session, Object key) {
     final var collatedKey = getCollatingValue(key);
-    var backedStream = getRidsIgnoreTx(db, key);
+    var backedStream = getRidsIgnoreTx(session, key);
     final var indexChanges =
-        db.getTransaction().getIndexChangesInternal(getName());
+        session.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return backedStream;
     }
@@ -127,7 +124,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
                 .map((rid) -> calculateTxIndexEntry(collatedKey, rid, indexChanges))
                 .filter(Objects::nonNull)
                 .map((pair) -> pair.second),
-            txChanges.stream().map(Identifiable::getIdentity)));
+            txChanges.stream().map(Identifiable::getIdentity)), session);
   }
 
   public IndexMultiValues put(DatabaseSessionInternal db, Object key,
@@ -153,7 +150,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
   }
 
   @Override
-  public void doPut(DatabaseSessionInternal db, AbstractPaginatedStorage storage,
+  public void doPut(DatabaseSessionInternal session, AbstractPaginatedStorage storage,
       Object key,
       RID rid)
       throws InvalidIndexEngineIdException {
@@ -207,7 +204,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
 
   @Override
   public Stream<RawPair<Object, RID>> streamEntriesBetween(
-      DatabaseSessionInternal db, Object fromKey, boolean fromInclusive, Object toKey,
+      DatabaseSessionInternal session, Object fromKey, boolean fromInclusive, Object toKey,
       boolean toInclusive, boolean ascOrder) {
     fromKey = getCollatingValue(fromKey);
     toKey = getCollatingValue(toKey);
@@ -219,12 +216,12 @@ public abstract class IndexMultiValues extends IndexAbstract {
           stream =
               IndexStreamSecurityDecorator.decorateStream(
                   this,
-                  storage.iterateIndexEntriesBetween(db,
+                  storage.iterateIndexEntriesBetween(session,
                       indexId,
                       fromKey,
                       fromInclusive,
                       toKey,
-                      toInclusive, ascOrder, MultiValuesTransformer.INSTANCE));
+                      toInclusive, ascOrder, MultiValuesTransformer.INSTANCE), session);
           break;
         } catch (InvalidIndexEngineIdException ignore) {
           doReloadIndexEngine();
@@ -235,7 +232,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
     }
 
     final var indexChanges =
-        db.getTransaction().getIndexChangesInternal(getName());
+        session.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
     }
@@ -256,11 +253,11 @@ public abstract class IndexMultiValues extends IndexAbstract {
     }
 
     if (indexChanges.cleared) {
-      return IndexStreamSecurityDecorator.decorateStream(this, txStream);
+      return IndexStreamSecurityDecorator.decorateStream(this, txStream, session);
     }
 
     return IndexStreamSecurityDecorator.decorateStream(
-        this, mergeTxAndBackedStreams(indexChanges, txStream, stream, ascOrder));
+        this, mergeTxAndBackedStreams(indexChanges, txStream, stream, ascOrder), session);
   }
 
   @Override
@@ -276,7 +273,8 @@ public abstract class IndexMultiValues extends IndexAbstract {
               IndexStreamSecurityDecorator.decorateStream(
                   this,
                   storage.iterateIndexEntriesMajor(
-                      indexId, fromKey, fromInclusive, ascOrder, MultiValuesTransformer.INSTANCE));
+                      indexId, fromKey, fromInclusive, ascOrder, MultiValuesTransformer.INSTANCE),
+                  session);
           break;
         } catch (InvalidIndexEngineIdException ignore) {
           doReloadIndexEngine();
@@ -310,11 +308,11 @@ public abstract class IndexMultiValues extends IndexAbstract {
     }
 
     if (indexChanges.cleared) {
-      return IndexStreamSecurityDecorator.decorateStream(this, txStream);
+      return IndexStreamSecurityDecorator.decorateStream(this, txStream, session);
     }
 
     return IndexStreamSecurityDecorator.decorateStream(
-        this, mergeTxAndBackedStreams(indexChanges, txStream, stream, ascOrder));
+        this, mergeTxAndBackedStreams(indexChanges, txStream, stream, ascOrder), session);
   }
 
   @Override
@@ -331,7 +329,8 @@ public abstract class IndexMultiValues extends IndexAbstract {
               IndexStreamSecurityDecorator.decorateStream(
                   this,
                   storage.iterateIndexEntriesMinor(
-                      indexId, toKey, toInclusive, ascOrder, MultiValuesTransformer.INSTANCE));
+                      indexId, toKey, toInclusive, ascOrder, MultiValuesTransformer.INSTANCE),
+                  session);
           break;
         } catch (InvalidIndexEngineIdException ignore) {
           doReloadIndexEngine();
@@ -365,15 +364,15 @@ public abstract class IndexMultiValues extends IndexAbstract {
     }
 
     if (indexChanges.cleared) {
-      return IndexStreamSecurityDecorator.decorateStream(this, txStream);
+      return IndexStreamSecurityDecorator.decorateStream(this, txStream, session);
     }
 
     return IndexStreamSecurityDecorator.decorateStream(
-        this, mergeTxAndBackedStreams(indexChanges, txStream, stream, ascOrder));
+        this, mergeTxAndBackedStreams(indexChanges, txStream, stream, ascOrder), session);
   }
 
   @Override
-  public Stream<RawPair<Object, RID>> streamEntries(DatabaseSessionInternal db,
+  public Stream<RawPair<Object, RID>> streamEntries(DatabaseSessionInternal session,
       Collection<?> keys, boolean ascSortOrder) {
     final List<Object> sortedKeys = new ArrayList<>(keys);
     final Comparator<Object> comparator;
@@ -387,9 +386,9 @@ public abstract class IndexMultiValues extends IndexAbstract {
 
     var stream =
         IndexStreamSecurityDecorator.decorateStream(
-            this, sortedKeys.stream().flatMap(key1 -> streamForKey(db, key1)));
+            this, sortedKeys.stream().flatMap(key1 -> streamForKey(session, key1)), session);
 
-    final var indexChanges = db.getTransaction()
+    final var indexChanges = session.getTransaction()
         .getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
@@ -409,11 +408,11 @@ public abstract class IndexMultiValues extends IndexAbstract {
             .sorted(keyComparator);
 
     if (indexChanges.cleared) {
-      return IndexStreamSecurityDecorator.decorateStream(this, txStream);
+      return IndexStreamSecurityDecorator.decorateStream(this, txStream, session);
     }
 
     return IndexStreamSecurityDecorator.decorateStream(
-        this, mergeTxAndBackedStreams(indexChanges, txStream, stream, ascSortOrder));
+        this, mergeTxAndBackedStreams(indexChanges, txStream, stream, ascSortOrder), session);
   }
 
   private Stream<RawPair<Object, RID>> txStramForKey(
@@ -520,7 +519,7 @@ public abstract class IndexMultiValues extends IndexAbstract {
         try {
           stream =
               IndexStreamSecurityDecorator.decorateStream(
-                  this, storage.getIndexStream(indexId, MultiValuesTransformer.INSTANCE));
+                  this, storage.getIndexStream(indexId, MultiValuesTransformer.INSTANCE), session);
           break;
         } catch (InvalidIndexEngineIdException ignore) {
           doReloadIndexEngine();
@@ -544,11 +543,11 @@ public abstract class IndexMultiValues extends IndexAbstract {
             false);
 
     if (indexChanges.cleared) {
-      return IndexStreamSecurityDecorator.decorateStream(this, txStream);
+      return IndexStreamSecurityDecorator.decorateStream(this, txStream, session);
     }
 
     return IndexStreamSecurityDecorator.decorateStream(
-        this, mergeTxAndBackedStreams(indexChanges, txStream, stream, true));
+        this, mergeTxAndBackedStreams(indexChanges, txStream, stream, true), session);
   }
 
   private Stream<RawPair<Object, RID>> mergeTxAndBackedStreams(
@@ -607,7 +606,8 @@ public abstract class IndexMultiValues extends IndexAbstract {
         try {
           stream =
               IndexStreamSecurityDecorator.decorateStream(
-                  this, storage.getIndexDescStream(indexId, MultiValuesTransformer.INSTANCE));
+                  this, storage.getIndexDescStream(indexId, MultiValuesTransformer.INSTANCE),
+                  session);
           break;
         } catch (InvalidIndexEngineIdException ignore) {
           doReloadIndexEngine();
@@ -630,10 +630,10 @@ public abstract class IndexMultiValues extends IndexAbstract {
             false);
 
     if (indexChanges.cleared) {
-      return IndexStreamSecurityDecorator.decorateStream(this, txStream);
+      return IndexStreamSecurityDecorator.decorateStream(this, txStream, session);
     }
 
     return IndexStreamSecurityDecorator.decorateStream(
-        this, mergeTxAndBackedStreams(indexChanges, txStream, stream, false));
+        this, mergeTxAndBackedStreams(indexChanges, txStream, stream, false), session);
   }
 }

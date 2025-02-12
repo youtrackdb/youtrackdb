@@ -20,15 +20,12 @@ import static org.junit.Assert.assertNotNull;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityManager;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
@@ -70,7 +67,7 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void queryMax() {
-    var result = db.command("select max(id) as max from Account");
+    var result = session.command("select max(id) as max from Account");
 
     assertNotNull(result.next().getProperty("max"));
     assertFalse(result.hasNext());
@@ -80,7 +77,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void queryMaxInline() {
     var result =
-        db.query("select max(1,2,7,0,-2,3) as max").toList();
+        session.query("select max(1,2,7,0,-2,3) as max").toList();
 
     Assert.assertEquals(result.size(), 1);
     for (var r : result) {
@@ -92,7 +89,7 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void queryMin() {
-    var result = db.command("select min(id) as min from Account");
+    var result = session.command("select min(id) as min from Account");
 
     var d = result.next();
     Assert.assertNotNull(d.getProperty("min"));
@@ -105,7 +102,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void queryMinInline() {
     var resultSet =
-        db.query("select min(1,2,7,0,-2,3) as min").toList();
+        session.query("select min(1,2,7,0,-2,3) as min").toList();
 
     Assert.assertEquals(resultSet.size(), 1);
     for (var r : resultSet) {
@@ -117,7 +114,7 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void querySum() {
-    var result = db.command("select sum(id) as sum from Account");
+    var result = session.command("select sum(id) as sum from Account");
     var d = result.next();
     Assert.assertNotNull(d.getProperty("sum"));
     Assert.assertFalse(result.hasNext());
@@ -126,7 +123,7 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void queryCount() {
-    var result = db.command("select count(*) as total from Account");
+    var result = session.command("select count(*) as total from Account");
     var d = result.next();
     Assert.assertNotNull(d.getProperty("total"));
     Assert.assertTrue(((Number) d.getProperty("total")).longValue() > 0);
@@ -135,82 +132,82 @@ public class SQLFunctionsTest extends BaseDBTest {
   }
 
   public void queryCountExtendsRestricted() {
-    var restricted = db.getMetadata().getSchema().getClass("ORestricted");
+    var restricted = session.getMetadata().getSchema().getClass("ORestricted");
     Assert.assertNotNull(restricted);
 
-    db.getMetadata().getSchema().createClass("QueryCountExtendsRestrictedClass", restricted);
+    session.getMetadata().getSchema().createClass("QueryCountExtendsRestrictedClass", restricted);
 
-    db.begin();
-    var admin = db.getMetadata().getSecurity().getUser("admin");
-    var reader = db.getMetadata().getSecurity().getUser("reader");
+    session.begin();
+    var admin = session.getMetadata().getSecurity().getUser("admin");
+    var reader = session.getMetadata().getSecurity().getUser("reader");
 
     @SuppressWarnings("deprecation")
     var byPassRestrictedRole =
-        db
+        session
             .getMetadata()
             .getSecurity()
             .createRole("byPassRestrictedRole");
-    byPassRestrictedRole.addRule(db,
+    byPassRestrictedRole.addRule(session,
         Rule.ResourceGeneric.BYPASS_RESTRICTED, null, Role.PERMISSION_READ);
-    byPassRestrictedRole.save(db);
+    byPassRestrictedRole.save(session);
 
-    db
+    session
         .getMetadata()
         .getSecurity()
         .createUser("superReader", "superReader", "reader", "byPassRestrictedRole");
 
-    var docAdmin = ((EntityImpl) db.newEntity("QueryCountExtendsRestrictedClass"));
+    var docAdmin = ((EntityImpl) session.newEntity("QueryCountExtendsRestrictedClass"));
     docAdmin.setProperty(
         "_allowRead",
         new HashSet<Identifiable>(
             Collections.singletonList(admin.getIdentity().getIdentity())));
 
     docAdmin.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    var docReader = ((EntityImpl) db.newEntity("QueryCountExtendsRestrictedClass"));
+    session.begin();
+    var docReader = ((EntityImpl) session.newEntity("QueryCountExtendsRestrictedClass"));
     docReader.setProperty("_allowRead",
         new HashSet<>(Collections.singletonList(reader.getIdentity())));
     docReader.save();
-    db.commit();
+    session.commit();
 
     var resultSet =
-        db.query("select count(*) from QueryCountExtendsRestrictedClass").toList();
+        session.query("select count(*) from QueryCountExtendsRestrictedClass").toList();
     var count = resultSet.getFirst();
     Assert.assertEquals(count.<Object>getProperty("count(*)"), 2L);
 
-    db.close();
+    session.close();
     //noinspection deprecation
-    db = createSessionInstance();
+    session = createSessionInstance();
 
     resultSet =
-        db.query("select count(*) as count from QueryCountExtendsRestrictedClass").toList();
+        session.query("select count(*) as count from QueryCountExtendsRestrictedClass").toList();
     count = resultSet.getFirst();
     Assert.assertEquals(count.<Object>getProperty("count"), 2L);
 
-    db.close();
-    db = createSessionInstance("superReader", "superReader");
+    session.close();
+    session = createSessionInstance("superReader", "superReader");
 
     resultSet =
-        db.query("select count(*) as count from QueryCountExtendsRestrictedClass").toList();
+        session.query("select count(*) as count from QueryCountExtendsRestrictedClass").toList();
     count = resultSet.getFirst();
     Assert.assertEquals(count.<Object>getProperty("count"), 2L);
   }
 
   @Test
   public void queryCountWithConditions() {
-    var indexed = db.getMetadata().getSchema().getOrCreateClass("Indexed");
-    indexed.createProperty(db, "key", PropertyType.STRING);
-    indexed.createIndex(db, "keyed", SchemaClass.INDEX_TYPE.NOTUNIQUE, "key");
+    var indexed = session.getMetadata().getSchema().getOrCreateClass("Indexed");
+    indexed.createProperty(session, "key", PropertyType.STRING);
+    indexed.createIndex(session, "keyed", SchemaClass.INDEX_TYPE.NOTUNIQUE, "key");
 
-    db.begin();
-    db.<EntityImpl>newInstance("Indexed").setProperty("key", "one");
-    db.<EntityImpl>newInstance("Indexed").setProperty("key", "two");
-    db.commit();
+    session.begin();
+    session.newInstance("Indexed").setProperty("key", "one");
+    session.newInstance("Indexed").setProperty("key", "two");
+    session.commit();
 
     var resultSet =
-        db.query("select count(*) as total from Indexed where key > 'one'").toList();
+        session.query("select count(*) as total from Indexed where key > 'one'").toList();
 
     Assert.assertEquals(resultSet.size(), 1);
     for (var result : resultSet) {
@@ -222,7 +219,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void queryDistinct() {
     var resultSet =
-        db.query("select distinct(name) as name from City").toList();
+        session.query("select distinct(name) as name from City").toList();
     Assert.assertTrue(resultSet.size() > 1);
 
     Set<String> cities = new HashSet<>();
@@ -236,7 +233,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void queryFunctionRenamed() {
     var result =
-        db.query("select distinct(name) as dist from City").toList();
+        session.query("select distinct(name) as dist from City").toList();
 
     Assert.assertTrue(result.size() > 1);
     for (var city : result) {
@@ -246,11 +243,11 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void queryUnionAllAsAggregationNotRemoveDuplicates() {
-    var result = db.query("select from City").toList();
+    var result = session.query("select from City").toList();
     var count = result.size();
 
     result =
-        db.query("select unionAll(name) as name from City").toList();
+        session.query("select unionAll(name) as name from City").toList();
     Collection<Object> citiesFound = result.getFirst().getProperty("name");
     Assert.assertEquals(citiesFound.size(), count);
   }
@@ -258,7 +255,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void querySetNotDuplicates() {
     var result =
-        db.query("select set(name) as name from City").toList();
+        session.query("select set(name) as name from City").toList();
 
     Assert.assertEquals(result.size(), 1);
 
@@ -275,7 +272,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void queryList() {
     var result =
-        db.query("select list(name) as names from City").toList();
+        session.query("select list(name) as names from City").toList();
 
     Assert.assertFalse(result.isEmpty());
 
@@ -287,7 +284,7 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   public void testSelectMap() {
     var result =
-        db
+        session
             .query("select list( 1, 4, 5.00, 'john', map( 'kAA', 'vAA' ) ) as myresult")
             .toList();
 
@@ -318,7 +315,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void querySet() {
     var result =
-        db.query("select set(name) as names from City").toList();
+        session.query("select set(name) as names from City").toList();
 
     Assert.assertFalse(result.isEmpty());
 
@@ -331,7 +328,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void queryMap() {
     var result =
-        db.query("select map(name, country.name) as names from City").toList();
+        session.query("select map(name, country.name) as names from City").toList();
 
     Assert.assertFalse(result.isEmpty());
 
@@ -344,7 +341,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void queryUnionAllAsInline() {
     var result =
-        db.query("select unionAll(out, in) as edges from V").toList();
+        session.query("select unionAll(out, in) as edges from V").toList();
 
     Assert.assertTrue(result.size() > 1);
     for (var d : result) {
@@ -356,7 +353,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void queryComposedAggregates() {
     var result =
-        db
+        session
             .query(
                 "select MIN(id) as min, max(id) as max, AVG(id) as average, sum(id) as total"
                     + " from Account").toList();
@@ -384,7 +381,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void queryFormat() {
     var result =
-        db
+        session
             .query(
                 "select format('%d - %s (%s)', nr, street, type, dummy ) as output from"
                     + " Account").toList();
@@ -397,7 +394,7 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void querySysdateNoFormat() {
-    var result = db.command("select sysdate() as date from Account");
+    var result = session.command("select sysdate() as date from Account");
 
     Assert.assertTrue(result.hasNext());
     while (result.hasNext()) {
@@ -409,7 +406,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void querySysdateWithFormat() {
     var result =
-        db.query("select sysdate('dd-MM-yyyy') as date from Account")
+        session.query("select sysdate('dd-MM-yyyy') as date from Account")
             .toList();
 
     Assert.assertTrue(result.size() > 1);
@@ -420,15 +417,15 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test
   public void queryDate() {
-    var result = db.command("select count(*) as tot from Account");
+    var result = session.command("select count(*) as tot from Account");
 
     var tot = ((Number) result.next().getProperty("tot")).intValue();
     assertFalse(result.hasNext());
 
-    db.begin();
+    session.begin();
     long updated =
-        db.command("update Account set created = date()").next().getProperty("count");
-    db.commit();
+        session.command("update Account set created = date()").next().getProperty("count");
+    session.commit();
 
     Assert.assertEquals(updated, tot);
 
@@ -436,7 +433,7 @@ public class SQLFunctionsTest extends BaseDBTest {
     var dateFormat = new SimpleDateFormat(pattern);
 
     result =
-        db.query(
+        session.query(
             "select from Account where created <= date('"
                 + dateFormat.format(new Date())
                 + "', \""
@@ -445,7 +442,7 @@ public class SQLFunctionsTest extends BaseDBTest {
 
     Assert.assertEquals(result.stream().count(), tot);
     result =
-        db.query(
+        session.query(
             "select from Account where created <= date('"
                 + dateFormat.format(new Date())
                 + "', \""
@@ -459,7 +456,7 @@ public class SQLFunctionsTest extends BaseDBTest {
 
   @Test(expectedExceptions = CommandSQLParsingException.class)
   public void queryUndefinedFunction() {
-    db.query("select blaaaa(salary) as max from Account")
+    session.query("select blaaaa(salary) as max from Account")
         .toList();
   }
 
@@ -502,7 +499,7 @@ public class SQLFunctionsTest extends BaseDBTest {
             });
 
     var result =
-        db.query("select from Account where bigger(id,1000) = 1000").toList();
+        session.query("select from Account where bigger(id,1000) = 1000").toList();
 
     Assert.assertFalse(result.isEmpty());
     for (var d : result) {
@@ -519,7 +516,7 @@ public class SQLFunctionsTest extends BaseDBTest {
         "select numberString.asLong() as value from ( select '"
             + moreThanInteger
             + "' as numberString from Account ) limit 1";
-    var result = db.query(sql).toList();
+    var result = session.query(sql).toList();
 
     Assert.assertEquals(result.size(), 1);
     for (var d : result) {
@@ -532,7 +529,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   @Test
   public void testHashMethod() throws UnsupportedEncodingException, NoSuchAlgorithmException {
     var result =
-        db
+        session
             .query("select name, name.hash() as n256, name.hash('sha-512') as n512 from OUser")
             .toList();
 
@@ -552,15 +549,15 @@ public class SQLFunctionsTest extends BaseDBTest {
       sequence.add(i);
     }
 
-    db.begin();
-    db.newEntity("V").setProperty("sequence", sequence, PropertyType.EMBEDDEDLIST);
+    session.begin();
+    session.newEntity("V").setProperty("sequence", sequence, PropertyType.EMBEDDEDLIST);
     var newSequence = new ArrayList<>(sequence);
     newSequence.removeFirst();
-    db.newEntity("V").setProperty("sequence", newSequence, PropertyType.EMBEDDEDLIST);
-    db.commit();
+    session.newEntity("V").setProperty("sequence", newSequence, PropertyType.EMBEDDEDLIST);
+    session.commit();
 
     var result =
-        db.query(
+        session.query(
                 "select first(sequence) as first from V where sequence is not null order by first")
             .toList();
 
@@ -576,17 +573,17 @@ public class SQLFunctionsTest extends BaseDBTest {
       sequence.add(i);
     }
 
-    db.begin();
-    db.newEntity("V").setProperty("sequence2", sequence);
+    session.begin();
+    session.newEntity("V").setProperty("sequence2", sequence);
 
     var newSequence = new ArrayList<>(sequence);
     newSequence.remove(sequence.size() - 1);
 
-    db.newEntity("V").setProperty("sequence2", newSequence);
-    db.commit();
+    session.newEntity("V").setProperty("sequence2", newSequence);
+    session.commit();
 
     var result =
-        db.query(
+        session.query(
                 "select last(sequence2) as last from V where sequence2 is not null order by last desc")
             .toList();
 
@@ -600,7 +597,7 @@ public class SQLFunctionsTest extends BaseDBTest {
   public void querySplit() {
     var sql = "select v.split('-') as value from ( select '1-2-3' as v ) limit 1";
 
-    var result = db.query(sql).toList();
+    var result = session.query(sql).toList();
 
     Assert.assertEquals(result.size(), 1);
     for (var d : result) {

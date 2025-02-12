@@ -2,10 +2,10 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalResultSet;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 import java.util.Objects;
@@ -35,23 +35,21 @@ public class SQLLetStatement extends SQLSimpleExecStatement {
       if (statement.originalStatement == null) {
         statement.setOriginalStatement(statement.toString());
       }
-      result = statement.execute(ctx.getDatabase(), params, ctx, false);
+      result = statement.execute(ctx.getDatabaseSession(), params, ctx, false);
     }
+    var session = ctx.getDatabaseSession();
     if (result instanceof ResultSet) {
-      var rs = new InternalResultSet();
-      ((ResultSet) result).stream().forEach(x -> rs.add(x));
+      var rs = new InternalResultSet(session);
+      ((ResultSet) result).stream().forEach(rs::add);
       rs.setPlan(((ResultSet) result).getExecutionPlan().orElse(null));
       ((ResultSet) result).close();
       result = rs;
     }
 
-    if (ctx != null) {
-      if (ctx.getParent() != null) {
-
-        ctx.getParent().setVariable(name.getStringValue(), result);
-      } else {
-        ctx.setVariable(name.getStringValue(), result);
-      }
+    if (ctx.getParent() != null) {
+      ctx.getParent().setVariable(name.getStringValue(), result);
+    } else {
+      ctx.setVariable(name.getStringValue(), result);
     }
     return ExecutionStream.empty();
   }

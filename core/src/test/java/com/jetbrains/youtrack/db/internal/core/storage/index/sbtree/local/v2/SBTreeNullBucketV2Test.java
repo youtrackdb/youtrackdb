@@ -2,11 +2,11 @@ package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.v2;
 
 import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
 import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator.Intention;
-import com.jetbrains.youtrack.db.internal.common.directmemory.Pointer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.StringSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntryImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CachePointer;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,9 +26,11 @@ public class SBTreeNullBucketV2Test {
     CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
 
+    var serializerFactory = BinarySerializerFactory.create(
+        BinarySerializerFactory.currentBinaryFormatVersion());
     var bucket = new SBTreeNullBucketV2<String>(cacheEntry);
     bucket.init();
-    Assert.assertNull(bucket.getValue(StringSerializer.INSTANCE));
+    Assert.assertNull(bucket.getValue(StringSerializer.INSTANCE, serializerFactory));
 
     cacheEntry.releaseExclusiveLock();
     cachePointer.decrementReferrer();
@@ -49,11 +51,14 @@ public class SBTreeNullBucketV2Test {
     var bucket = new SBTreeNullBucketV2<String>(cacheEntry);
     bucket.init();
 
+    var serializerFactory = BinarySerializerFactory.create(
+        BinarySerializerFactory.currentBinaryFormatVersion());
     bucket.setValue(
-        StringSerializer.INSTANCE.serializeNativeAsWhole("test"), StringSerializer.INSTANCE);
-    var treeValue = bucket.getValue(StringSerializer.INSTANCE);
+        StringSerializer.INSTANCE.serializeNativeAsWhole(serializerFactory, "test"),
+        StringSerializer.INSTANCE);
+    var treeValue = bucket.getValue(StringSerializer.INSTANCE, serializerFactory);
     Assert.assertNotNull(treeValue);
-    Assert.assertEquals(treeValue.getValue(), "test");
+    Assert.assertEquals("test", treeValue.getValue());
 
     cacheEntry.releaseExclusiveLock();
     cachePointer.decrementReferrer();
@@ -74,11 +79,14 @@ public class SBTreeNullBucketV2Test {
     var bucket = new SBTreeNullBucketV2<String>(cacheEntry);
     bucket.init();
 
+    var serializerFactory = BinarySerializerFactory.create(
+        BinarySerializerFactory.currentBinaryFormatVersion());
     bucket.setValue(
-        StringSerializer.INSTANCE.serializeNativeAsWhole("test"), StringSerializer.INSTANCE);
+        StringSerializer.INSTANCE.serializeNativeAsWhole(serializerFactory, "test"),
+        StringSerializer.INSTANCE);
     bucket.removeValue(StringSerializer.INSTANCE);
 
-    var treeValue = bucket.getValue(StringSerializer.INSTANCE);
+    var treeValue = bucket.getValue(StringSerializer.INSTANCE, serializerFactory);
     Assert.assertNull(treeValue);
 
     cacheEntry.releaseExclusiveLock();
@@ -100,19 +108,23 @@ public class SBTreeNullBucketV2Test {
     var bucket = new SBTreeNullBucketV2<String>(cacheEntry);
     bucket.init();
 
+    var serializerFactory = BinarySerializerFactory.create(
+        BinarySerializerFactory.currentBinaryFormatVersion());
     bucket.setValue(
-        StringSerializer.INSTANCE.serializeNativeAsWhole("test"), StringSerializer.INSTANCE);
+        StringSerializer.INSTANCE.serializeNativeAsWhole(serializerFactory, "test"),
+        StringSerializer.INSTANCE);
     bucket.removeValue(StringSerializer.INSTANCE);
 
-    var treeValue = bucket.getValue(StringSerializer.INSTANCE);
+    var treeValue = bucket.getValue(StringSerializer.INSTANCE, serializerFactory);
     Assert.assertNull(treeValue);
 
     bucket.setValue(
-        StringSerializer.INSTANCE.serializeNativeAsWhole("testOne"), StringSerializer.INSTANCE);
+        StringSerializer.INSTANCE.serializeNativeAsWhole(serializerFactory, "testOne"),
+        StringSerializer.INSTANCE);
 
-    treeValue = bucket.getValue(StringSerializer.INSTANCE);
+    treeValue = bucket.getValue(StringSerializer.INSTANCE, serializerFactory);
     Assert.assertNotNull(treeValue);
-    Assert.assertEquals(treeValue.getValue(), "testOne");
+    Assert.assertEquals("testOne", treeValue.getValue());
 
     cacheEntry.releaseExclusiveLock();
     cachePointer.decrementReferrer();

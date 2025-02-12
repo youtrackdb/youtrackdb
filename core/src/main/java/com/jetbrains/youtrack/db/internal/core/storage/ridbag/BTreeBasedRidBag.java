@@ -30,7 +30,6 @@ import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSeriali
 import com.jetbrains.youtrack.db.internal.common.types.ModifiableInteger;
 import com.jetbrains.youtrack.db.internal.common.util.Resettable;
 import com.jetbrains.youtrack.db.internal.common.util.Sizeable;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeTimeLine;
@@ -70,8 +69,9 @@ import javax.annotation.Nonnull;
  */
 public class BTreeBasedRidBag implements RidBagDelegate {
 
-  private final BTreeCollectionManager collectionManager =
-      DatabaseRecordThreadLocal.instance().get().getSbTreeCollectionManager();
+  private final BTreeCollectionManager collectionManager;
+  private final DatabaseSessionInternal session;
+
   private final ConcurrentSkipListMap<RID, Change> changes =
       new ConcurrentSkipListMap<>();
 
@@ -396,14 +396,19 @@ public class BTreeBasedRidBag implements RidBagDelegate {
     }
   }
 
-  public BTreeBasedRidBag(BonsaiCollectionPointer pointer, Map<RID, Change> changes) {
+  public BTreeBasedRidBag(BonsaiCollectionPointer pointer, Map<RID, Change> changes,
+      @Nonnull DatabaseSessionInternal session) {
     this.collectionPointer = pointer;
+    this.session = session;
     this.changes.putAll(changes);
     this.size = -1;
+    this.collectionManager = session.getSbTreeCollectionManager();
   }
 
-  public BTreeBasedRidBag() {
+  public BTreeBasedRidBag(@Nonnull DatabaseSessionInternal session) {
+    this.session = session;
     collectionPointer = null;
+    this.collectionManager = session.getSbTreeCollectionManager();
   }
 
   @Override
@@ -587,7 +592,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   public Object returnOriginalState(
       DatabaseSessionInternal session,
       List<MultiValueChangeEvent<RID, RID>> multiValueChangeEvents) {
-    final var reverted = new BTreeBasedRidBag();
+    final var reverted = new BTreeBasedRidBag(this.session);
     for (var rid : this) {
       reverted.add(rid);
     }
@@ -615,7 +620,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   @Override
   public int getSerializedSize() {
     var result = 2 * LongSerializer.LONG_SIZE + 3 * IntegerSerializer.INT_SIZE;
-    if (DatabaseRecordThreadLocal.instance().get().isRemote()
+    if (session.isRemote()
         || RecordSerializationContext.getContext() == null) {
       result += getChangesSerializedSize();
     }
@@ -623,12 +628,11 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   }
 
   private void rearrangeChanges() {
-    var db = DatabaseRecordThreadLocal.instance().getIfDefined();
     for (var change : this.changes.entrySet()) {
       Identifiable key = change.getKey();
-      if (db != null && db.getTransaction().isActive()) {
+      if (session != null && session.getTransaction().isActive()) {
         if (!key.getIdentity().isPersistent()) {
-          var record = db.getTransaction().getRecord(key.getIdentity());
+          var record = session.getTransaction().getRecord(key.getIdentity());
           if (record != null && record != FrontendTransactionAbstract.DELETED_RECORD) {
             changes.remove(key);
             changes.put(record.getIdentity(), change.getValue());
@@ -642,21 +646,23 @@ public class BTreeBasedRidBag implements RidBagDelegate {
       RecordSerializationContext context, BonsaiCollectionPointer pointer) {
     rearrangeChanges();
     this.collectionPointer = pointer;
-    context.push(new RidBagUpdateSerializationOperation(changes, collectionPointer));
+    context.push(new RidBagUpdateSerializationOperation(changes, collectionPointer, session));
   }
 
   @Override
-  public int serialize(DatabaseSessionInternal db, byte[] stream, int offset, UUID ownerUuid) {
+  public int serialize(@Nonnull DatabaseSessionInternal session, byte[] stream, int offset,
+      UUID ownerUuid) {
     applyNewEntries();
 
     final RecordSerializationContext context;
 
-    var tx = db.getTransaction();
+    var tx = session.getTransaction();
     if (!(tx instanceof FrontendTransactionOptimistic optimisticTx)) {
-      throw new DatabaseException("Changes are not supported outside of transactions");
+      throw new DatabaseException(session.getDatabaseName(),
+          "Changes are not supported outside of transactions");
     }
 
-    var remoteMode = db.isRemote();
+    var remoteMode = session.isRemote();
     if (remoteMode) {
       context = null;
     } else {
@@ -670,17 +676,18 @@ public class BTreeBasedRidBag implements RidBagDelegate {
         assert clusterId > -1;
         try {
           final var atomicOperationsManager =
-              ((AbstractPaginatedStorage) db.getStorage())
+              ((AbstractPaginatedStorage) session.getStorage())
                   .getAtomicOperationsManager();
           final var atomicOperation = atomicOperationsManager.getCurrentOperation();
           assert atomicOperation != null;
           collectionPointer =
-              db
+              session
                   .getSbTreeCollectionManager()
-                  .createSBTree(clusterId, atomicOperation, ownerUuid);
+                  .createSBTree(clusterId, atomicOperation, ownerUuid, session);
         } catch (IOException e) {
-          throw BaseException.wrapException(new DatabaseException("Error during ridbag creation"),
-              e);
+          throw BaseException.wrapException(
+              new DatabaseException(session.getDatabaseName(), "Error during ridbag creation"),
+              e, session);
         }
       }
     }
@@ -689,27 +696,26 @@ public class BTreeBasedRidBag implements RidBagDelegate {
     collectionPointer = Objects.requireNonNullElse(this.collectionPointer,
         BonsaiCollectionPointer.INVALID);
 
-    LongSerializer.INSTANCE.serializeLiteral(collectionPointer.getFileId(), stream, offset);
+    LongSerializer.serializeLiteral(collectionPointer.getFileId(), stream, offset);
     offset += LongSerializer.LONG_SIZE;
 
     var rootPointer = collectionPointer.getRootPointer();
-    LongSerializer.INSTANCE.serializeLiteral(rootPointer.getPageIndex(), stream, offset);
+    LongSerializer.serializeLiteral(rootPointer.getPageIndex(), stream, offset);
     offset += LongSerializer.LONG_SIZE;
 
-    IntegerSerializer.INSTANCE.serializeLiteral(rootPointer.getPageOffset(), stream, offset);
+    IntegerSerializer.serializeLiteral(rootPointer.getPageOffset(), stream, offset);
     offset += IntegerSerializer.INT_SIZE;
 
     // Keep this section for binary compatibility with versions older then 1.7.5
-    IntegerSerializer.INSTANCE.serializeLiteral(size, stream, offset);
+    IntegerSerializer.serializeLiteral(size, stream, offset);
     offset += IntegerSerializer.INT_SIZE;
 
     if (context == null) {
-      ChangeSerializationHelper.serializeChanges(db,
-          changes, LinkSerializer.INSTANCE, stream, offset);
+      ChangeSerializationHelper.serializeChanges(session, changes, stream, offset);
     } else {
       handleContextSBTree(context, collectionPointer);
       // 0-length serialized list of changes
-      IntegerSerializer.INSTANCE.serializeLiteral(0, stream, offset);
+      IntegerSerializer.serializeLiteral(0, stream, offset);
       offset += IntegerSerializer.INT_SIZE;
     }
 
@@ -752,14 +758,14 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   }
 
   @Override
-  public int deserialize(DatabaseSessionInternal db, byte[] stream, int offset) {
-    final var fileId = LongSerializer.INSTANCE.deserializeLiteral(stream, offset);
+  public int deserialize(@Nonnull DatabaseSessionInternal session, byte[] stream, int offset) {
+    final var fileId = LongSerializer.deserializeLiteral(stream, offset);
     offset += LongSerializer.LONG_SIZE;
 
-    final var pageIndex = LongSerializer.INSTANCE.deserializeLiteral(stream, offset);
+    final var pageIndex = LongSerializer.deserializeLiteral(stream, offset);
     offset += LongSerializer.LONG_SIZE;
 
-    final var pageOffset = IntegerSerializer.INSTANCE.deserializeLiteral(stream, offset);
+    final var pageOffset = IntegerSerializer.deserializeLiteral(stream, offset);
     offset += IntegerSerializer.INT_SIZE;
 
     // Cached bag size. Not used after 1.7.5
@@ -774,7 +780,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
 
     this.size = -1;
 
-    changes.putAll(ChangeSerializationHelper.deserializeChanges(db, stream, offset));
+    changes.putAll(ChangeSerializationHelper.deserializeChanges(session, stream, offset));
 
     offset +=
         IntegerSerializer.INT_SIZE + (LinkSerializer.RID_SIZE + Change.SIZE) * changes.size();
@@ -877,7 +883,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   private int getChangesSerializedSize() {
     Set<Identifiable> changedIds = new HashSet<>(changes.keySet());
     changedIds.addAll(newEntries.keySet());
-    return ChangeSerializationHelper.INSTANCE.getChangesSerializedSize(changedIds.size());
+    return ChangeSerializationHelper.getChangesSerializedSize(changedIds.size());
   }
 
   private int getHighLevelDocClusterId() {

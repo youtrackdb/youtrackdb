@@ -24,7 +24,6 @@ import com.jetbrains.youtrack.db.api.DatabaseSession.STATUS;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
@@ -39,15 +38,10 @@ public abstract class DocumentHookAbstract implements RecordHook {
   private String[] includeClasses;
   private String[] excludeClasses;
 
-  protected DatabaseSession database;
+  protected DatabaseSession session;
 
-  @Deprecated
-  public DocumentHookAbstract() {
-    this.database = DatabaseRecordThreadLocal.instance().get();
-  }
-
-  public DocumentHookAbstract(DatabaseSession database) {
-    this.database = database;
+  public DocumentHookAbstract(DatabaseSession session) {
+    this.session = session;
   }
 
   @Override
@@ -205,7 +199,7 @@ public abstract class DocumentHookAbstract implements RecordHook {
 
   @Override
   public RESULT onTrigger(DatabaseSession db, final TYPE iType, final DBRecord iRecord) {
-    if (database.getStatus() != STATUS.OPEN) {
+    if (session.getStatus() != STATUS.OPEN) {
       return RESULT.RECORD_NOT_CHANGED;
     }
 
@@ -327,7 +321,7 @@ public abstract class DocumentHookAbstract implements RecordHook {
     }
 
     final SchemaClass clazz =
-        EntityInternalUtils.getImmutableSchemaClass((DatabaseSessionInternal) database, entity);
+        EntityInternalUtils.getImmutableSchemaClass((DatabaseSessionInternal) session, entity);
     if (clazz == null) {
       return false;
     }
@@ -335,7 +329,7 @@ public abstract class DocumentHookAbstract implements RecordHook {
     if (includeClasses != null) {
       // FILTER BY CLASSES
       for (var cls : includeClasses) {
-        if (clazz.isSubClassOf(cls)) {
+        if (clazz.isSubClassOf(entity.getSession(), cls)) {
           return true;
         }
       }
@@ -345,7 +339,7 @@ public abstract class DocumentHookAbstract implements RecordHook {
     if (excludeClasses != null) {
       // FILTER BY CLASSES
       for (var cls : excludeClasses) {
-        if (clazz.isSubClassOf(cls)) {
+        if (clazz.isSubClassOf(entity.getSession(), cls)) {
           return false;
         }
       }

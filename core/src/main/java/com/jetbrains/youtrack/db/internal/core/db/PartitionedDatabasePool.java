@@ -20,15 +20,14 @@
 package com.jetbrains.youtrack.db.internal.core.db;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.common.concur.lock.ThreadInterruptedException;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.StorageExistsException;
+import com.jetbrains.youtrack.db.internal.common.concur.lock.ThreadInterruptedException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBListenerAbstract;
-import com.jetbrains.youtrack.db.api.exception.DatabaseException;
-import com.jetbrains.youtrack.db.api.exception.StorageExistsException;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
-import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -196,7 +195,7 @@ public class PartitionedDatabasePool extends YouTrackDBListenerAbstract {
       }
     } catch (java.lang.InterruptedException ie) {
       throw BaseException.wrapException(
-          new ThreadInterruptedException("Acquiring of new connection was interrupted"), ie);
+          new ThreadInterruptedException("Acquiring of new connection was interrupted"), ie, url);
     }
 
     var acquired = false;
@@ -435,12 +434,14 @@ public class PartitionedDatabasePool extends YouTrackDBListenerAbstract {
 
     @Override
     public DatabaseSession open(Token iToken) {
-      throw new DatabaseException("Impossible to open a database managed by a pool ");
+      throw new DatabaseException((String) null,
+          "Impossible to open a database managed by a pool ");
     }
 
     @Override
     public DatabaseSession open(String iUserName, String iUserPassword) {
-      throw new DatabaseException("Impossible to open a database managed by a pool ");
+      throw new DatabaseException((String) null,
+          "Impossible to open a database managed by a pool ");
     }
 
     /**

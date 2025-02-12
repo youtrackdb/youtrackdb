@@ -23,19 +23,14 @@ import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
-import com.jetbrains.youtrack.db.internal.core.db.StringCache;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMultiValue;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBagDelegate;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.embedded.EmbeddedRidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
@@ -43,9 +38,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.RecordSerializationContext;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeBasedRidBag;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BTreeCollectionManager;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.Change;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ChangeSerializationHelper;
@@ -61,6 +54,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
+import javax.annotation.Nonnull;
 
 /**
  *
@@ -148,7 +142,7 @@ public class HelperClasses {
 
   public static int readInteger(final BytesContainer container) {
     final var value =
-        IntegerSerializer.INSTANCE.deserializeLiteral(container.bytes, container.offset);
+        IntegerSerializer.deserializeLiteral(container.bytes, container.offset);
     container.offset += IntegerSerializer.INT_SIZE;
     return value;
   }
@@ -159,7 +153,7 @@ public class HelperClasses {
 
   public static long readLong(final BytesContainer container) {
     final var value =
-        LongSerializer.INSTANCE.deserializeLiteral(container.bytes, container.offset);
+        LongSerializer.deserializeLiteral(container.bytes, container.offset);
     container.offset += LongSerializer.LONG_SIZE;
     return value;
   }
@@ -178,21 +172,22 @@ public class HelperClasses {
     return new String(bytes, offset, len, StandardCharsets.UTF_8);
   }
 
-  public static String stringFromBytesIntern(final byte[] bytes, final int offset, final int len) {
+  public static String stringFromBytesIntern(DatabaseSessionInternal session, final byte[] bytes,
+      final int offset, final int len) {
     try {
-      var db = DatabaseRecordThreadLocal.instance().getIfDefined();
-      if (db != null) {
-        var context = db.getSharedContext();
-        if (context != null) {
-          var cache = context.getStringCache();
-          if (cache != null) {
-            return cache.getString(bytes, offset, len);
-          }
+      var context = session.getSharedContext();
+      if (context != null) {
+        var cache = context.getStringCache();
+        if (cache != null) {
+          return cache.getString(bytes, offset, len);
         }
       }
+
       return new String(bytes, offset, len, StandardCharsets.UTF_8).intern();
     } catch (UnsupportedEncodingException e) {
-      throw BaseException.wrapException(new SerializationException("Error on string decoding"), e);
+      throw BaseException.wrapException(
+          new SerializationException(session.getDatabaseName(), "Error on string decoding"),
+          e, session.getDatabaseName());
     }
   }
 
@@ -228,17 +223,18 @@ public class HelperClasses {
     return pointer;
   }
 
-  public static int writeOptimizedLink(DatabaseSessionInternal db, final BytesContainer bytes,
+  public static int writeOptimizedLink(DatabaseSessionInternal session, final BytesContainer bytes,
       Identifiable link) {
     if (!link.getIdentity().isPersistent()) {
       try {
-        link = link.getRecord(db);
+        link = link.getRecord(session);
       } catch (RecordNotFoundException ignored) {
         // IGNORE IT WILL FAIL THE ASSERT IN CASE
       }
     }
     if (link.getIdentity().getClusterId() < 0) {
-      throw new DatabaseException("Impossible to serialize invalid link " + link.getIdentity());
+      throw new DatabaseException(session.getDatabaseName(),
+          "Impossible to serialize invalid link " + link.getIdentity());
     }
 
     final var pos = VarIntSerializer.write(bytes, link.getIdentity().getClusterId());
@@ -338,20 +334,19 @@ public class HelperClasses {
 
   public static void writeByte(BytesContainer bytes, byte val) {
     var pos = bytes.alloc(ByteSerializer.BYTE_SIZE);
-    ByteSerializer.INSTANCE.serialize(val, bytes.bytes, pos);
+    bytes.bytes[pos] = val;
   }
 
-  public static void writeRidBag(BytesContainer bytes, RidBag ridbag) {
+  public static void writeRidBag(DatabaseSessionInternal session, BytesContainer bytes,
+      RidBag ridbag) {
     ridbag.checkAndConvert();
 
     var ownerUuid = ridbag.getTemporaryId();
-
     var positionOffset = bytes.offset;
-    final var bTreeCollectionManager =
-        DatabaseRecordThreadLocal.instance().get().getSbTreeCollectionManager();
+    final var bTreeCollectionManager = session.getSbTreeCollectionManager();
     UUID uuid = null;
     if (bTreeCollectionManager != null) {
-      uuid = bTreeCollectionManager.listenForChanges(ridbag);
+      uuid = bTreeCollectionManager.listenForChanges(ridbag, session);
     }
 
     byte configByte = 0;
@@ -365,29 +360,28 @@ public class HelperClasses {
 
     // alloc will move offset and do skip
     var posForWrite = bytes.alloc(ByteSerializer.BYTE_SIZE);
-    ByteSerializer.INSTANCE.serialize(configByte, bytes.bytes, posForWrite);
+    bytes.bytes[posForWrite] = configByte;
 
     // removed serializing UUID
-
     if (ridbag.isEmbedded()) {
-      writeEmbeddedRidbag(bytes, ridbag);
+      writeEmbeddedRidbag(session, bytes, ridbag);
     } else {
-      writeSBTreeRidbag(bytes, ridbag, ownerUuid);
+      writeSBTreeRidbag(session, bytes, ridbag, ownerUuid);
     }
   }
 
-  protected static void writeEmbeddedRidbag(BytesContainer bytes, RidBag ridbag) {
-    var db = DatabaseRecordThreadLocal.instance().getIfDefined();
+  protected static void writeEmbeddedRidbag(@Nonnull DatabaseSessionInternal session,
+      BytesContainer bytes,
+      RidBag ridbag) {
     var size = ridbag.size();
     var entries = ((EmbeddedRidBag) ridbag.getDelegate()).getEntries();
     for (var i = 0; i < entries.length; i++) {
       var entry = entries[i];
       if (entry instanceof Identifiable itemValue) {
-        if (db != null
-            && !db.isClosed()
-            && db.getTransaction().isActive()
+        if (!session.isClosed()
+            && session.getTransaction().isActive()
             && !itemValue.getIdentity().isPersistent()) {
-          itemValue = db.getTransaction().getRecord(itemValue.getIdentity());
+          itemValue = session.getTransaction().getRecord(itemValue.getIdentity());
         }
         if (itemValue == null || itemValue == FrontendTransactionAbstract.DELETED_RECORD) {
           entries[i] = null;
@@ -409,19 +403,20 @@ public class HelperClasses {
     }
   }
 
-  protected static void writeSBTreeRidbag(BytesContainer bytes, RidBag ridbag, UUID ownerUuid) {
+  protected static void writeSBTreeRidbag(DatabaseSessionInternal session, BytesContainer bytes,
+      RidBag ridbag, UUID ownerUuid) {
     ((BTreeBasedRidBag) ridbag.getDelegate()).applyNewEntries();
 
     var pointer = ridbag.getPointer();
 
     final RecordSerializationContext context;
-    var db = DatabaseRecordThreadLocal.instance().get();
-    var tx = db.getTransaction();
+    var tx = session.getTransaction();
     if (!(tx instanceof FrontendTransactionOptimistic optimisticTx)) {
-      throw new DatabaseException("Transaction is not active. Changes are not allowed");
+      throw new DatabaseException(session.getDatabaseName(),
+          "Transaction is not active. Changes are not allowed");
     }
 
-    var remoteMode = db.isRemote();
+    var remoteMode = session.isRemote();
 
     if (remoteMode) {
       context = null;
@@ -433,20 +428,18 @@ public class HelperClasses {
       final var clusterId = getHighLevelDocClusterId(ridbag);
       assert clusterId > -1;
       try {
-        final var storage =
-            (AbstractPaginatedStorage) DatabaseRecordThreadLocal.instance().get().getStorage();
+        final var storage = (AbstractPaginatedStorage) session.getStorage();
         final var atomicOperation =
             storage.getAtomicOperationsManager().getCurrentOperation();
 
         assert atomicOperation != null;
-        pointer =
-            DatabaseRecordThreadLocal.instance()
-                .get()
-                .getSbTreeCollectionManager()
-                .createSBTree(clusterId, atomicOperation, ownerUuid);
+        pointer = session
+            .getSbTreeCollectionManager()
+            .createSBTree(clusterId, atomicOperation, ownerUuid, session);
       } catch (IOException e) {
         throw BaseException.wrapException(
-            new DatabaseException("Error during creation of ridbag"), e);
+            new DatabaseException(session.getDatabaseName(), "Error during creation of ridbag"), e,
+            session.getDatabaseName());
       }
     }
 
@@ -488,7 +481,7 @@ public class HelperClasses {
   }
 
   public static RidBag readRidbag(DatabaseSessionInternal db, BytesContainer bytes) {
-    byte configByte = ByteSerializer.INSTANCE.deserialize(bytes.bytes, bytes.offset++);
+    var configByte = bytes.bytes[bytes.offset++];
     var isEmbedded = (configByte & 1) != 0;
 
     UUID uuid = null;
@@ -562,22 +555,23 @@ public class HelperClasses {
   }
 
   private static Change deserializeChange(BytesContainer bytes) {
-    byte type = ByteSerializer.INSTANCE.deserialize(bytes.bytes, bytes.offset);
+    var type = bytes.bytes[bytes.offset];
     bytes.skip(ByteSerializer.BYTE_SIZE);
-    int change = IntegerSerializer.INSTANCE.deserialize(bytes.bytes, bytes.offset);
+    var change = IntegerSerializer.deserializeLiteral(bytes.bytes, bytes.offset);
     bytes.skip(IntegerSerializer.INT_SIZE);
     return ChangeSerializationHelper.createChangeInstance(type, change);
   }
 
-  public static PropertyType getLinkedType(SchemaClass clazz, PropertyType type, String key) {
+  public static PropertyType getLinkedType(DatabaseSessionInternal session, SchemaClass clazz,
+      PropertyType type, String key) {
     if (type != PropertyType.EMBEDDEDLIST && type != PropertyType.EMBEDDEDSET
         && type != PropertyType.EMBEDDEDMAP) {
       return null;
     }
     if (clazz != null) {
-      var prop = clazz.getProperty(key);
+      var prop = clazz.getProperty(session, key);
       if (prop != null) {
-        return prop.getLinkedType();
+        return prop.getLinkedType(session);
       }
     }
     return null;

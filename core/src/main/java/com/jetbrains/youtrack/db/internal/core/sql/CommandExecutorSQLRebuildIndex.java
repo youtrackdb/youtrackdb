@@ -25,7 +25,6 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplica
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import java.util.Map;
 
 /**
@@ -40,37 +39,37 @@ public class CommandExecutorSQLRebuildIndex extends CommandExecutorSQLAbstract
 
   private String name;
 
-  public CommandExecutorSQLRebuildIndex parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLRebuildIndex parse(DatabaseSessionInternal session,
       final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
       final var word = new StringBuilder();
 
       var oldPos = 0;
       var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_REBUILD)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_REBUILD + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_INDEX)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_INDEX + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
       if (pos == -1) {
-        throw new CommandSQLParsingException("Expected index name", parserText, oldPos);
+        throw new CommandSQLParsingException(session, "Expected index name", parserText, oldPos);
       }
 
       name = word.toString();
@@ -85,47 +84,41 @@ public class CommandExecutorSQLRebuildIndex extends CommandExecutorSQLAbstract
   /**
    * Execute the REMOVE INDEX.
    */
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (name == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final var database = getDatabase();
     if (name.equals("*")) {
       long totalIndexed = 0;
-      for (var idx : database.getMetadata().getIndexManagerInternal().getIndexes(database)) {
+      for (var idx : session.getMetadata().getIndexManagerInternal().getIndexes(session)) {
         if (idx.isAutomatic()) {
-          totalIndexed += idx.rebuild(database);
+          totalIndexed += idx.rebuild(session);
         }
       }
 
       return totalIndexed;
 
     } else {
-      final var idx = database.getMetadata().getIndexManagerInternal().getIndex(database, name);
+      final var idx = session.getMetadata().getIndexManagerInternal().getIndex(session, name);
       if (idx == null) {
-        throw new CommandExecutionException("Index '" + name + "' not found");
+        throw new CommandExecutionException(session, "Index '" + name + "' not found");
       }
 
       if (!idx.isAutomatic()) {
-        throw new CommandExecutionException(
+        throw new CommandExecutionException(session,
             "Cannot rebuild index '"
                 + name
                 + "' because it's manual and there aren't indications of what to index");
       }
 
-      return idx.rebuild(database);
+      return idx.rebuild(session);
     }
   }
 
   @Override
   public String getSyntax() {
     return "REBUILD INDEX <index-name>";
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.ALL;
   }
 }

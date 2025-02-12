@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -80,8 +79,8 @@ public class SQLFunctionShortestPath extends SQLFunctionMathAbstract {
       final Object[] iParams,
       final CommandContext iContext) {
 
-    var db = iContext.getDatabase();
-    var record = iCurrentRecord != null ? iCurrentRecord.getRecord(db) : null;
+    var session = iContext.getDatabaseSession();
+    var record = iCurrentRecord != null ? iCurrentRecord.getRecord(session) : null;
 
     final var ctx = new ShortestPathContext();
 
@@ -92,7 +91,7 @@ public class SQLFunctionShortestPath extends SQLFunctionMathAbstract {
     }
     source = SQLHelper.getValue(source, record, iContext);
     if (source instanceof Identifiable) {
-      Entity elem = ((Identifiable) source).getRecord(db);
+      Entity elem = ((Identifiable) source).getRecord(session);
       if (elem == null || !elem.isVertex()) {
         throw new IllegalArgumentException("The sourceVertex must be a vertex record");
       }
@@ -108,7 +107,7 @@ public class SQLFunctionShortestPath extends SQLFunctionMathAbstract {
     }
     dest = SQLHelper.getValue(dest, record, iContext);
     if (dest instanceof Identifiable) {
-      Entity elem = ((Identifiable) dest).getRecord(db);
+      Entity elem = ((Identifiable) dest).getRecord(session);
       if (elem == null || !elem.isVertex()) {
         throw new IllegalArgumentException("The destinationVertex must be a vertex record");
       }
@@ -149,7 +148,7 @@ public class SQLFunctionShortestPath extends SQLFunctionMathAbstract {
     }
 
     if (iParams.length > 4) {
-      bindAdditionalParams(db, iParams[4], ctx);
+      bindAdditionalParams(session, iParams[4], ctx);
     }
 
     ctx.queueLeft.add(ctx.sourceVertex);
@@ -168,7 +167,8 @@ public class SQLFunctionShortestPath extends SQLFunctionMathAbstract {
       }
 
       if (Thread.interrupted()) {
-        throw new CommandExecutionException("The shortestPath() function has been interrupted");
+        throw new CommandExecutionException(session,
+            "The shortestPath() function has been interrupted");
       }
 
       if (!CommandExecutorAbstract.checkInterruption(iContext)) {

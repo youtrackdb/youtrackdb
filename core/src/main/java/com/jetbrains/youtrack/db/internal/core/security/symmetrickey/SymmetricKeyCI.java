@@ -53,10 +53,10 @@ public class SymmetricKeyCI implements CredentialInterceptor {
   public void intercept(final String url, final String username, final String password)
       throws SecurityException {
     if (username == null || username.isEmpty()) {
-      throw new SecurityException("SymmetricKeyCI username is not valid!");
+      throw new SecurityException((String) null, "SymmetricKeyCI username is not valid!");
     }
     if (password == null || password.isEmpty()) {
-      throw new SecurityException("SymmetricKeyCI password is not valid!");
+      throw new SecurityException((String) null, "SymmetricKeyCI password is not valid!");
     }
 
     this.username = username;
@@ -76,7 +76,9 @@ public class SymmetricKeyCI implements CredentialInterceptor {
       jsonDoc = new EntityImpl(null).updateFromJSON(password, "noMap");
     } catch (Exception ex) {
       throw BaseException.wrapException(
-          new SecurityException("SymmetricKeyCI.intercept() Exception: " + ex.getMessage()), ex);
+          new SecurityException((String) null,
+              "SymmetricKeyCI.intercept() Exception: " + ex.getMessage()),
+          ex, (String) null);
     }
 
     // Override algorithm and transform, if they exist in the JSON document.
@@ -89,7 +91,7 @@ public class SymmetricKeyCI implements CredentialInterceptor {
 
     // Just in case the default configuration gets changed, check it.
     if (transform == null || transform.isEmpty()) {
-      throw new SecurityException(
+      throw new SecurityException((String) null,
           "SymmetricKeyCI.intercept() cipher transformation is required");
     }
 
@@ -120,7 +122,8 @@ public class SymmetricKeyCI implements CredentialInterceptor {
         }
 
         if (keystoreFile == null || keystoreFile.isEmpty()) {
-          throw new SecurityException("SymmetricKeyCI.intercept() keystore file is required");
+          throw new SecurityException((String) null,
+              "SymmetricKeyCI.intercept() keystore file is required");
         }
 
         // Specific to Keystore, but override if present in the JSON document.
@@ -131,7 +134,7 @@ public class SymmetricKeyCI implements CredentialInterceptor {
         String keyAlias = ksDoc.field("keyAlias");
 
         if (keyAlias == null || keyAlias.isEmpty()) {
-          throw new SecurityException(
+          throw new SecurityException((String) null,
               "SymmetricKeyCI.intercept() keystore key alias is required");
         }
 
@@ -142,14 +145,9 @@ public class SymmetricKeyCI implements CredentialInterceptor {
         key = SymmetricKey.fromKeystore(keystoreFile, keystorePassword, keyAlias, keyPassword);
         key.setDefaultCipherTransform(transform);
       } else {
-        throw new SecurityException(
+        throw new SecurityException((String) null,
             "SymmetricKeyCI.intercept() No suitable symmetric key property exists");
       }
-
-    // This should never happen, but...
-    if (key == null) {
-      throw new SecurityException("SymmetricKeyCI.intercept() SymmetricKey is null");
-    }
 
     encodedJSON = key.encrypt(transform, username);
   }

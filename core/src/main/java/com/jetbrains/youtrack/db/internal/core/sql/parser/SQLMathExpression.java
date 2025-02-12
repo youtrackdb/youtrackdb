@@ -1141,8 +1141,8 @@ public class SQLMathExpression extends SimpleNode {
 
   public SimpleNode splitForAggregation(
       AggregateProjectionSplit aggregateProj, CommandContext ctx) {
-    var db = ctx.getDatabase();
-    if (isAggregate(db)) {
+    var session = ctx.getDatabaseSession();
+    if (isAggregate(session)) {
       var result = new SQLMathExpression(-1);
       if (this.childExpressions != null && this.operators != null) {
         var i = 0;
@@ -1152,10 +1152,10 @@ public class SQLMathExpression extends SimpleNode {
           }
           var splitResult = expr.splitForAggregation(aggregateProj, ctx);
           if (splitResult instanceof SQLMathExpression res) {
-            if (res.isEarlyCalculated(ctx) || res.isAggregate(db)) {
+            if (res.isEarlyCalculated(ctx) || res.isAggregate(session)) {
               result.addChildExpression(res);
             } else {
-              throw new CommandExecutionException(
+              throw new CommandExecutionException(session,
                   "Cannot mix aggregate and single record attribute values in the same projection");
             }
           } else if (splitResult instanceof SQLExpression) {
@@ -1263,7 +1263,7 @@ public class SQLMathExpression extends SimpleNode {
 
   public void applyRemove(ResultInternal result, CommandContext ctx) {
     if (childExpressions == null || childExpressions.size() != 1) {
-      throw new CommandExecutionException("cannot apply REMOVE " + this);
+      throw new CommandExecutionException(ctx.getDatabaseSession(), "cannot apply REMOVE " + this);
     }
     childExpressions.get(0).applyRemove(result, ctx);
   }
@@ -1277,7 +1277,7 @@ public class SQLMathExpression extends SimpleNode {
       result.deserialize(fromResult);
       return result;
     } catch (Exception e) {
-      throw BaseException.wrapException(new CommandExecutionException(""), e);
+      throw BaseException.wrapException(new CommandExecutionException(""), e, (String) null);
     }
   }
 

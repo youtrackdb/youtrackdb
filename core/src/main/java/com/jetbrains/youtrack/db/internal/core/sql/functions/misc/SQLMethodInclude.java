@@ -88,7 +88,7 @@ public class SQLMethodInclude extends AbstractSQLMethod {
       Object ioResult,
       Object[] iParams) {
 
-    var db = iContext.getDatabase();
+    var db = iContext.getDatabaseSession();
     if (iParams[0] != null) {
       if (iThis instanceof Identifiable) {
         try {

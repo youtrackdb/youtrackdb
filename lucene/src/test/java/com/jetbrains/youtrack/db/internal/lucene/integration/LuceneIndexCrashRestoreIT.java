@@ -12,11 +12,8 @@ import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.SessionPoolImpl;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.server.ServerMain;
-import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
 import java.io.File;
-import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -273,8 +270,7 @@ public class LuceneIndexCrashRestoreIT {
         db.getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "Person.name")
-            .getConfiguration(db)
-            .toJSON());
+            .getConfiguration(db));
     db.close();
   }
 

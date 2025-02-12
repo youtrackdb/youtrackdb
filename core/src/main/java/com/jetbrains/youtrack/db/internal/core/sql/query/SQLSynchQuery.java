@@ -22,13 +22,11 @@ package com.jetbrains.youtrack.db.internal.core.sql.query;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.serialization.MemoryStream;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetwork;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +38,7 @@ import java.util.Map;
  */
 @SuppressWarnings({"unchecked", "serial"})
 public class SQLSynchQuery<T extends Object> extends SQLAsynchQuery<T>
-    implements CommandResultListener, Iterable<T> {
+    implements CommandResultListener {
 
   private final LegacyResultSet<T> result = new ConcurrentLegacyResultSet<T>();
   private RID nextPageRID;
@@ -73,19 +71,19 @@ public class SQLSynchQuery<T extends Object> extends SQLAsynchQuery<T>
   }
 
   @Override
-  public void end() {
+  public void end(DatabaseSessionInternal db) {
     result.setCompleted();
   }
 
   @Override
-  public List<T> run(final Object... iArgs) {
+  public List<T> run(DatabaseSessionInternal session, final Object... iArgs) {
     result.clear();
 
     final Map<Object, Object> queryParams;
     queryParams = fetchQueryParams(iArgs);
     resetNextRIDIfParametersWereChanged(queryParams);
 
-    final var res = (List<Object>) super.run(iArgs);
+    final var res = (List<Object>) super.run(session, iArgs);
 
     if (res != result && res != null && result.isEmptyNoWait()) {
       var iter = res.iterator();
@@ -125,11 +123,6 @@ public class SQLSynchQuery<T extends Object> extends SQLAsynchQuery<T>
 
   public void resetPagination() {
     nextPageRID = null;
-  }
-
-  public Iterator<T> iterator() {
-    execute(DatabaseRecordThreadLocal.instance().get());
-    return ((Iterable<T>) getResult()).iterator();
   }
 
   @Override

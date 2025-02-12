@@ -74,7 +74,7 @@ public class ClassTrigger {
       if (func instanceof Function) {
         return ClassTrigger.executeFunction(entity, (Function) func, database);
       } else if (func instanceof Object[]) {
-        return ClassTrigger.executeMethod(entity, (Object[]) func);
+        return ClassTrigger.executeMethod(database.getDatabaseName(), entity, (Object[]) func);
       }
     }
     return RecordHook.RESULT.RECORD_NOT_CHANGED;
@@ -87,7 +87,7 @@ public class ClassTrigger {
       if (func instanceof Function) {
         ClassTrigger.executeFunction(entity, (Function) func, database);
       } else if (func instanceof Object[]) {
-        ClassTrigger.executeMethod(entity, (Object[]) func);
+        ClassTrigger.executeMethod(database.getDatabaseName(), entity, (Object[]) func);
       }
     }
   }
@@ -99,7 +99,7 @@ public class ClassTrigger {
       if (func instanceof Function) {
         return ClassTrigger.executeFunction(entity, (Function) func, database);
       } else if (func instanceof Object[]) {
-        return ClassTrigger.executeMethod(entity, (Object[]) func);
+        return ClassTrigger.executeMethod(database.getDatabaseName(), entity, (Object[]) func);
       }
     }
     return RecordHook.RESULT.RECORD_NOT_CHANGED;
@@ -112,7 +112,7 @@ public class ClassTrigger {
       if (func instanceof Function) {
         ClassTrigger.executeFunction(entity, (Function) func, database);
       } else if (func instanceof Object[]) {
-        ClassTrigger.executeMethod(entity, (Object[]) func);
+        ClassTrigger.executeMethod(database.getDatabaseName(), entity, (Object[]) func);
       }
     }
   }
@@ -124,7 +124,7 @@ public class ClassTrigger {
       if (func instanceof Function) {
         return ClassTrigger.executeFunction(entity, (Function) func, database);
       } else if (func instanceof Object[]) {
-        return ClassTrigger.executeMethod(entity, (Object[]) func);
+        return ClassTrigger.executeMethod(database.getDatabaseName(), entity, (Object[]) func);
       }
     }
     return RecordHook.RESULT.RECORD_NOT_CHANGED;
@@ -137,7 +137,7 @@ public class ClassTrigger {
       if (func instanceof Function) {
         ClassTrigger.executeFunction(entity, (Function) func, database);
       } else if (func instanceof Object[]) {
-        ClassTrigger.executeMethod(entity, (Object[]) func);
+        ClassTrigger.executeMethod(database.getDatabaseName(), entity, (Object[]) func);
       }
     }
   }
@@ -149,7 +149,7 @@ public class ClassTrigger {
       if (func instanceof Function) {
         return ClassTrigger.executeFunction(entity, (Function) func, database);
       } else if (func instanceof Object[]) {
-        return ClassTrigger.executeMethod(entity, (Object[]) func);
+        return ClassTrigger.executeMethod(database.getDatabaseName(), entity, (Object[]) func);
       }
     }
     return RecordHook.RESULT.RECORD_NOT_CHANGED;
@@ -162,40 +162,40 @@ public class ClassTrigger {
       if (func instanceof Function) {
         ClassTrigger.executeFunction(entity, (Function) func, database);
       } else if (func instanceof Object[]) {
-        ClassTrigger.executeMethod(entity, (Object[]) func);
+        ClassTrigger.executeMethod(database.getDatabaseName(), entity, (Object[]) func);
       }
     }
   }
 
   private static Object checkClzAttribute(
-      final EntityImpl entity, String attr, DatabaseSessionInternal database) {
-    final var clz = EntityInternalUtils.getImmutableSchemaClass(database, entity);
+      final EntityImpl entity, String attr, DatabaseSessionInternal session) {
+    final var clz = EntityInternalUtils.getImmutableSchemaClass(session, entity);
     if (clz != null && clz.isTriggered()) {
       Function func = null;
-      var fieldName = clz.getCustom(attr);
-      var superClz = clz.getSuperClass();
-      while (fieldName == null || fieldName.length() == 0) {
-        if (superClz == null || superClz.getName().equals(CLASSNAME)) {
+      var fieldName = clz.getCustom(session, attr);
+      var superClz = clz.getSuperClass(session);
+      while (fieldName == null || fieldName.isEmpty()) {
+        if (superClz == null || superClz.getName(session).equals(CLASSNAME)) {
           break;
         }
-        fieldName = superClz.getCustom(attr);
-        superClz = superClz.getSuperClass();
+        fieldName = superClz.getCustom(session, attr);
+        superClz = superClz.getSuperClass(session);
       }
-      if (fieldName != null && fieldName.length() > 0) {
+      if (fieldName != null && !fieldName.isEmpty()) {
         // check if it is reflection or not
         final var clzMethod = ClassTrigger.checkMethod(fieldName);
         if (clzMethod != null) {
           return clzMethod;
         }
-        func = database.getMetadata().getFunctionLibrary().getFunction(fieldName);
+        func = session.getMetadata().getFunctionLibrary().getFunction(session, fieldName);
         if (func == null) { // check if it is rid
           if (StringSerializerHelper.contains(fieldName, RID.SEPARATOR)) {
             try {
               try {
-                EntityImpl funcEntity = database.load(new RecordId(fieldName));
+                EntityImpl funcEntity = session.load(new RecordId(fieldName));
                 func =
-                    database.getMetadata().getFunctionLibrary()
-                        .getFunction(funcEntity.field("name"));
+                    session.getMetadata().getFunctionLibrary()
+                        .getFunction(session, funcEntity.field("name"));
               } catch (RecordNotFoundException rnf) {
                 // ignore
               }
@@ -213,7 +213,7 @@ public class ClassTrigger {
           } else {
             funcName = funcProp.toString();
           }
-          func = database.getMetadata().getFunctionLibrary().getFunction(funcName);
+          func = session.getMetadata().getFunctionLibrary().getFunction(session, funcName);
         }
       }
       return func;
@@ -228,7 +228,7 @@ public class ClassTrigger {
       clzName = fieldName.substring(0, fieldName.lastIndexOf(METHOD_SEPARATOR));
       methodName = fieldName.substring(fieldName.lastIndexOf(METHOD_SEPARATOR) + 1);
     }
-    if (clzName == null || methodName == null) {
+    if (clzName == null) {
       return null;
     }
     try {
@@ -244,14 +244,15 @@ public class ClassTrigger {
   }
 
   private static RecordHook.RESULT executeMethod(
-      final EntityImpl entity, final Object[] clzMethod) {
+      String dbName, final EntityImpl entity, final Object[] clzMethod) {
     if (clzMethod[0] instanceof Class clz && clzMethod[1] instanceof Method method) {
       String result = null;
       try {
         result = (String) method.invoke(clz.newInstance(), entity);
       } catch (Exception ex) {
         throw BaseException.wrapException(
-            new DatabaseException("Failed to invoke method " + method.getName()), ex);
+            new DatabaseException(dbName, "Failed to invoke method " + method.getName()), ex,
+            dbName);
       }
       if (result == null) {
         return RecordHook.RESULT.RECORD_NOT_CHANGED;
@@ -271,7 +272,7 @@ public class ClassTrigger {
         database.getSharedContext().getYouTrackDB().getScriptManager();
 
     final var scriptEngine =
-        scriptManager.acquireDatabaseEngine(database.getName(), func.getLanguage());
+        scriptManager.acquireDatabaseEngine(database, func.getLanguage());
     try {
       final var binding = scriptEngine.getBindings(ScriptContext.ENGINE_SCOPE);
 
@@ -282,6 +283,7 @@ public class ClassTrigger {
       try {
         if (func.getLanguage() == null) {
           throw new ConfigurationException(
+              database.getDatabaseName(),
               "Database function '" + func.getName() + "' has no language");
         }
         final var funcStr = scriptManager.getFunctionDefinition(database, func);
@@ -289,7 +291,7 @@ public class ClassTrigger {
           try {
             scriptEngine.eval(funcStr);
           } catch (ScriptException e) {
-            scriptManager.throwErrorMessage(e, funcStr);
+            scriptManager.throwErrorMessage(database.getDatabaseName(), e, funcStr);
           }
         }
         if (scriptEngine instanceof Invocable invocableEngine) {
@@ -298,13 +300,14 @@ public class ClassTrigger {
         }
       } catch (ScriptException e) {
         throw BaseException.wrapException(
-            new CommandScriptException(
+            new CommandScriptException(database.getDatabaseName(),
                 "Error on execution of the script", func.getName(), e.getColumnNumber()),
-            e);
+            e, database.getDatabaseName());
       } catch (NoSuchMethodException e) {
         throw BaseException.wrapException(
-            new CommandScriptException("Error on execution of the script", func.getName(),
-                0), e);
+            new CommandScriptException(database.getDatabaseName(),
+                "Error on execution of the script",
+                func.getName(), 0), e, database.getDatabaseName());
       } catch (CommandScriptException e) {
         // PASS THROUGH
         throw e;
@@ -318,7 +321,7 @@ public class ClassTrigger {
       return RecordHook.RESULT.valueOf(result);
 
     } finally {
-      scriptManager.releaseDatabaseEngine(func.getLanguage(), database.getName(),
+      scriptManager.releaseDatabaseEngine(func.getLanguage(), database.getDatabaseName(),
           scriptEngine);
     }
   }

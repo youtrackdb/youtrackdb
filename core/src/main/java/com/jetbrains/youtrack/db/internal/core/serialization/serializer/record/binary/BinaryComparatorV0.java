@@ -35,7 +35,7 @@ import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.DecimalSerializer;
 import com.jetbrains.youtrack.db.internal.core.collate.DefaultCollate;
 import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.math.BigDecimal;
@@ -43,6 +43,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 import java.util.TimeZone;
 
 /**
@@ -54,35 +55,24 @@ public class BinaryComparatorV0 implements BinaryComparator {
   }
 
   public boolean isBinaryComparable(final PropertyType iType) {
-    switch (iType) {
-      case INTEGER:
-      case LONG:
-      case DATETIME:
-      case SHORT:
-      case STRING:
-      case DOUBLE:
-      case FLOAT:
-      case BYTE:
-      case BOOLEAN:
-      case DATE:
-      case BINARY:
-      case LINK:
-      case DECIMAL:
-        return true;
-      default:
-        return false;
-    }
+    return switch (iType) {
+      case INTEGER, LONG, DATETIME, SHORT, STRING, DOUBLE, FLOAT, BYTE, BOOLEAN, DATE, BINARY, LINK,
+           DECIMAL -> true;
+      default -> false;
+    };
   }
 
   /**
    * Compares if 2 field values are the same.
    *
+   * @param session current database session
    * @param iField1 First value to compare
    * @param iField2 Second value to compare
    * @return true if they match, otherwise false
    */
   @Override
-  public boolean isEqual(final BinaryField iField1, final BinaryField iField2) {
+  public boolean isEqual(DatabaseSessionInternal session, final BinaryField iField1,
+      final BinaryField iField2) {
     final var fieldValue1 = iField1.bytes;
     final var offset1 = fieldValue1.offset;
 
@@ -130,7 +120,7 @@ public class BinaryComparatorV0 implements BinaryComparator {
             }
             case DECIMAL: {
               final var value2 =
-                  DecimalSerializer.INSTANCE.deserialize(
+                  DecimalSerializer.INSTANCE.deserialize(session.getSerializerFactory(),
                       fieldValue2.bytes, fieldValue2.offset);
               return value1 == value2.intValue();
             }
@@ -177,7 +167,7 @@ public class BinaryComparatorV0 implements BinaryComparator {
             }
             case DECIMAL: {
               final var value2 =
-                  DecimalSerializer.INSTANCE.deserialize(
+                  DecimalSerializer.INSTANCE.deserialize(session.getSerializerFactory(),
                       fieldValue2.bytes, fieldValue2.offset);
               return value1 == value2.longValue();
             }
@@ -224,7 +214,7 @@ public class BinaryComparatorV0 implements BinaryComparator {
             }
             case DECIMAL: {
               final var value2 =
-                  DecimalSerializer.INSTANCE.deserialize(
+                  DecimalSerializer.INSTANCE.deserialize(session.getSerializerFactory(),
                       fieldValue2.bytes, fieldValue2.offset);
               return value1 == value2.shortValue();
             }
@@ -306,7 +296,7 @@ public class BinaryComparatorV0 implements BinaryComparator {
             }
             case DECIMAL: {
               final var value2 =
-                  DecimalSerializer.INSTANCE.deserialize(
+                  DecimalSerializer.INSTANCE.deserialize(session.getSerializerFactory(),
                       fieldValue2.bytes, fieldValue2.offset);
               return new BigDecimal(readString(fieldValue1)).equals(value2);
             }
@@ -359,7 +349,7 @@ public class BinaryComparatorV0 implements BinaryComparator {
             case DECIMAL: {
               final var value1 = Double.longBitsToDouble(value1AsLong);
               final var value2 =
-                  DecimalSerializer.INSTANCE.deserialize(
+                  DecimalSerializer.INSTANCE.deserialize(session.getSerializerFactory(),
                       fieldValue2.bytes, fieldValue2.offset);
               return value1 == value2.doubleValue();
             }
@@ -408,7 +398,7 @@ public class BinaryComparatorV0 implements BinaryComparator {
             case DECIMAL: {
               final var value1 = Float.intBitsToFloat(value1AsInt);
               final var value2 =
-                  DecimalSerializer.INSTANCE.deserialize(
+                  DecimalSerializer.INSTANCE.deserialize(session.getSerializerFactory(),
                       fieldValue2.bytes, fieldValue2.offset);
               return value1 == value2.floatValue();
             }
@@ -451,7 +441,7 @@ public class BinaryComparatorV0 implements BinaryComparator {
             }
             case DECIMAL: {
               final var value2 =
-                  DecimalSerializer.INSTANCE.deserialize(
+                  DecimalSerializer.INSTANCE.deserialize(session.getSerializerFactory(),
                       fieldValue2.bytes, fieldValue2.offset);
               return value1 == value2.byteValue();
             }
@@ -488,7 +478,7 @@ public class BinaryComparatorV0 implements BinaryComparator {
               var value2 = VarIntSerializer.readAsLong(fieldValue2);
               value2 =
                   convertDayToTimezone(
-                      DateHelper.getDatabaseTimeZone(), TimeZone.getTimeZone("GMT"), value2);
+                      DateHelper.getDatabaseTimeZone(session), TimeZone.getTimeZone("GMT"), value2);
               return value1 == value2;
             }
             case DATE: {
@@ -511,7 +501,7 @@ public class BinaryComparatorV0 implements BinaryComparator {
             }
             case DECIMAL: {
               final var value2 =
-                  DecimalSerializer.INSTANCE.deserialize(
+                  DecimalSerializer.INSTANCE.deserialize(session.getSerializerFactory(),
                       fieldValue2.bytes, fieldValue2.offset);
               return value1 == value2.longValue();
             }
@@ -556,12 +546,10 @@ public class BinaryComparatorV0 implements BinaryComparator {
                 return value1 == value2;
               }
 
-              final var db =
-                  DatabaseRecordThreadLocal.instance().getIfDefined();
               try {
                 final DateFormat dateFormat;
-                if (db != null) {
-                  dateFormat = DateHelper.getDateTimeFormatInstance(db);
+                if (session != null) {
+                  dateFormat = DateHelper.getDateTimeFormatInstance(session);
                 } else {
                   dateFormat =
                       new SimpleDateFormat(StorageConfiguration.DEFAULT_DATETIME_FORMAT);
@@ -573,8 +561,9 @@ public class BinaryComparatorV0 implements BinaryComparator {
               } catch (ParseException ignore) {
                 try {
                   final SimpleDateFormat dateFormat;
-                  if (db != null) {
-                    dateFormat = db.getStorageInfo().getConfiguration().getDateFormatInstance();
+                  if (session != null) {
+                    dateFormat = session.getStorageInfo().getConfiguration()
+                        .getDateFormatInstance();
                   } else {
                     dateFormat =
                         new SimpleDateFormat(StorageConfiguration.DEFAULT_DATE_FORMAT);
@@ -590,7 +579,7 @@ public class BinaryComparatorV0 implements BinaryComparator {
             }
             case DECIMAL: {
               final var value2 =
-                  DecimalSerializer.INSTANCE.deserialize(
+                  DecimalSerializer.INSTANCE.deserialize(session.getSerializerFactory(),
                       fieldValue2.bytes, fieldValue2.offset);
               return value1 == value2.longValue();
             }
@@ -599,22 +588,20 @@ public class BinaryComparatorV0 implements BinaryComparator {
         }
 
         case BINARY: {
-          switch (iField2.type) {
-            case BINARY: {
-              final var length1 = VarIntSerializer.readAsInteger(fieldValue1);
-              final var length2 = VarIntSerializer.readAsInteger(fieldValue2);
-              if (length1 != length2) {
+          if (Objects.requireNonNull(iField2.type) == PropertyType.BINARY) {
+            final var length1 = VarIntSerializer.readAsInteger(fieldValue1);
+            final var length2 = VarIntSerializer.readAsInteger(fieldValue2);
+            if (length1 != length2) {
+              return false;
+            }
+
+            for (var i = 0; i < length1; ++i) {
+              if (fieldValue1.bytes[fieldValue1.offset + i]
+                  != fieldValue2.bytes[fieldValue2.offset + i]) {
                 return false;
               }
-
-              for (var i = 0; i < length1; ++i) {
-                if (fieldValue1.bytes[fieldValue1.offset + i]
-                    != fieldValue2.bytes[fieldValue2.offset + i]) {
-                  return false;
-                }
-              }
-              return true;
             }
+            return true;
           }
           break;
         }
@@ -646,7 +633,8 @@ public class BinaryComparatorV0 implements BinaryComparator {
 
         case DECIMAL: {
           final var value1 =
-              DecimalSerializer.INSTANCE.deserialize(fieldValue1.bytes, fieldValue1.offset);
+              DecimalSerializer.INSTANCE.deserialize(session.getSerializerFactory(),
+                  fieldValue1.bytes, fieldValue1.offset);
 
           switch (iField2.type) {
             case INTEGER: {
@@ -675,7 +663,7 @@ public class BinaryComparatorV0 implements BinaryComparator {
             }
             case DECIMAL: {
               final var value2 =
-                  DecimalSerializer.INSTANCE.deserialize(
+                  DecimalSerializer.INSTANCE.deserialize(session.getSerializerFactory(),
                       fieldValue2.bytes, fieldValue2.offset);
               return value1.equals(value2);
             }
@@ -694,12 +682,14 @@ public class BinaryComparatorV0 implements BinaryComparator {
   /**
    * Compares two values executing also conversion between types.
    *
+   * @param session current database session
    * @param iField1 First value to compare
    * @param iField2 Second value to compare
    * @return 0 if they matches, >0 if first value is major than second, <0 in case is minor
    */
   @Override
-  public int compare(final BinaryField iField1, final BinaryField iField2) {
+  public int compare(DatabaseSessionInternal session, final BinaryField iField1,
+      final BinaryField iField2) {
     final var fieldValue1 = iField1.bytes;
     final var offset1 = fieldValue1.offset;
 
@@ -714,7 +704,7 @@ public class BinaryComparatorV0 implements BinaryComparator {
           switch (iField2.type) {
             case INTEGER: {
               final var value2 = VarIntSerializer.readAsInteger(fieldValue2);
-              return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+              return Integer.compare(value1, value2);
             }
             case LONG:
             case DATETIME: {
@@ -748,9 +738,10 @@ public class BinaryComparatorV0 implements BinaryComparator {
             case DECIMAL: {
               final var value2 =
                   DecimalSerializer.INSTANCE
-                      .deserialize(fieldValue2.bytes, fieldValue2.offset)
+                      .deserialize(session.getSerializerFactory(), fieldValue2.bytes,
+                          fieldValue2.offset)
                       .intValue();
-              return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+              return Integer.compare(value1, value2);
             }
           }
           break;
@@ -767,11 +758,11 @@ public class BinaryComparatorV0 implements BinaryComparator {
             case LONG:
             case DATETIME: {
               final var value2 = VarIntSerializer.readAsLong(fieldValue2);
-              return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+              return Long.compare(value1, value2);
             }
             case DATE: {
               final var value2 = VarIntSerializer.readAsLong(fieldValue2) * MILLISEC_PER_DAY;
-              return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+              return Long.compare(value1, value2);
             }
             case SHORT: {
               final var value2 = VarIntSerializer.readAsShort(fieldValue2);
@@ -796,9 +787,10 @@ public class BinaryComparatorV0 implements BinaryComparator {
             case DECIMAL: {
               final var value2 =
                   DecimalSerializer.INSTANCE
-                      .deserialize(fieldValue2.bytes, fieldValue2.offset)
+                      .deserialize(session.getSerializerFactory(), fieldValue2.bytes,
+                          fieldValue2.offset)
                       .longValue();
-              return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+              return Long.compare(value1, value2);
             }
           }
           break;
@@ -823,7 +815,7 @@ public class BinaryComparatorV0 implements BinaryComparator {
             }
             case SHORT: {
               final var value2 = VarIntSerializer.readAsShort(fieldValue2);
-              return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+              return Short.compare(value1, value2);
             }
             case BYTE: {
               final var value2 = readByte(fieldValue2);
@@ -844,9 +836,10 @@ public class BinaryComparatorV0 implements BinaryComparator {
             case DECIMAL: {
               final var value2 =
                   DecimalSerializer.INSTANCE
-                      .deserialize(fieldValue2.bytes, fieldValue2.offset)
+                      .deserialize(session.getSerializerFactory(), fieldValue2.bytes,
+                          fieldValue2.offset)
                       .shortValue();
-              return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+              return Short.compare(value1, value2);
             }
           }
           break;
@@ -913,7 +906,7 @@ public class BinaryComparatorV0 implements BinaryComparator {
             }
             case DECIMAL: {
               final var value2 =
-                  DecimalSerializer.INSTANCE.deserialize(
+                  DecimalSerializer.INSTANCE.deserialize(session.getSerializerFactory(),
                       fieldValue2.bytes, fieldValue2.offset);
               return new BigDecimal(value1).compareTo(value2);
             }
@@ -948,7 +941,7 @@ public class BinaryComparatorV0 implements BinaryComparator {
             }
             case DOUBLE: {
               final var value2 = Double.longBitsToDouble(readLong(fieldValue2));
-              return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+              return Double.compare(value1, value2);
             }
             case STRING: {
               final var value2 = readString(fieldValue2);
@@ -957,9 +950,10 @@ public class BinaryComparatorV0 implements BinaryComparator {
             case DECIMAL: {
               final var value2 =
                   DecimalSerializer.INSTANCE
-                      .deserialize(fieldValue2.bytes, fieldValue2.offset)
+                      .deserialize(session.getSerializerFactory(), fieldValue2.bytes,
+                          fieldValue2.offset)
                       .doubleValue();
-              return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+              return Double.compare(value1, value2);
             }
           }
           break;
@@ -988,17 +982,13 @@ public class BinaryComparatorV0 implements BinaryComparator {
             }
             case FLOAT: {
               final var value2 = Float.intBitsToFloat(readInteger(fieldValue2));
-              return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+              return Float.compare(value1, value2);
             }
             case DOUBLE: {
               final var value2 = Double.longBitsToDouble(readLong(fieldValue2));
               return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
             }
-            case STRING: {
-              final var value2 = readString(fieldValue2);
-              return Float.toString(value1).compareTo(value2);
-            }
-            case DECIMAL: {
+            case STRING, DECIMAL: {
               final var value2 = readString(fieldValue2);
               return Float.toString(value1).compareTo(value2);
             }
@@ -1025,7 +1015,7 @@ public class BinaryComparatorV0 implements BinaryComparator {
             }
             case BYTE: {
               final var value2 = readByte(fieldValue2);
-              return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+              return Byte.compare(value1, value2);
             }
             case FLOAT: {
               final var value2 = Float.intBitsToFloat(readInteger(fieldValue2));
@@ -1042,9 +1032,10 @@ public class BinaryComparatorV0 implements BinaryComparator {
             case DECIMAL: {
               final var value2 =
                   DecimalSerializer.INSTANCE
-                      .deserialize(fieldValue2.bytes, fieldValue2.offset)
+                      .deserialize(session.getSerializerFactory(), fieldValue2.bytes,
+                          fieldValue2.offset)
                       .byteValue();
-              return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+              return Byte.compare(value1, value2);
             }
           }
           break;
@@ -1077,11 +1068,11 @@ public class BinaryComparatorV0 implements BinaryComparator {
             case LONG:
             case DATETIME: {
               final var value2 = VarIntSerializer.readAsLong(fieldValue2);
-              return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+              return Long.compare(value1, value2);
             }
             case DATE: {
               final var value2 = VarIntSerializer.readAsLong(fieldValue2) * MILLISEC_PER_DAY;
-              return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+              return Long.compare(value1, value2);
             }
             case SHORT: {
               final var value2 = VarIntSerializer.readAsShort(fieldValue2);
@@ -1104,20 +1095,20 @@ public class BinaryComparatorV0 implements BinaryComparator {
 
               if (IOUtils.isLong(value2AsString)) {
                 final var value2 = Long.parseLong(value2AsString);
-                return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+                return Long.compare(value1, value2);
               }
               try {
-                final var dateFormat = DateHelper.getDateTimeFormatInstance();
+                final var dateFormat = DateHelper.getDateTimeFormatInstance(session);
                 final var value2AsDate = dateFormat.parse(value2AsString);
                 final var value2 = value2AsDate.getTime();
-                return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+                return Long.compare(value1, value2);
               } catch (ParseException ignored) {
                 try {
-                  var dateFormat = DateHelper.getDateFormatInstance();
+                  var dateFormat = DateHelper.getDateFormatInstance(session);
 
                   final var value2AsDate = dateFormat.parse(value2AsString);
                   final var value2 = value2AsDate.getTime();
-                  return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+                  return Long.compare(value1, value2);
                 } catch (ParseException ignore) {
                   return new Date(value1).toString().compareTo(value2AsString);
                 }
@@ -1126,9 +1117,10 @@ public class BinaryComparatorV0 implements BinaryComparator {
             case DECIMAL: {
               final var value2 =
                   DecimalSerializer.INSTANCE
-                      .deserialize(fieldValue2.bytes, fieldValue2.offset)
+                      .deserialize(session.getSerializerFactory(), fieldValue2.bytes,
+                          fieldValue2.offset)
                       .longValue();
-              return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+              return Long.compare(value1, value2);
             }
           }
           break;
@@ -1145,11 +1137,11 @@ public class BinaryComparatorV0 implements BinaryComparator {
             case LONG:
             case DATETIME: {
               final var value2 = VarIntSerializer.readAsLong(fieldValue2);
-              return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+              return Long.compare(value1, value2);
             }
             case DATE: {
               final var value2 = VarIntSerializer.readAsLong(fieldValue2) * MILLISEC_PER_DAY;
-              return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+              return Long.compare(value1, value2);
             }
             case SHORT: {
               final var value2 = VarIntSerializer.readAsShort(fieldValue2);
@@ -1168,15 +1160,13 @@ public class BinaryComparatorV0 implements BinaryComparator {
 
               if (IOUtils.isLong(value2AsString)) {
                 final var value2 = Long.parseLong(value2AsString);
-                return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+                return Long.compare(value1, value2);
               }
 
-              final var db =
-                  DatabaseRecordThreadLocal.instance().getIfDefined();
               try {
                 final DateFormat dateFormat;
-                if (db != null) {
-                  dateFormat = DateHelper.getDateFormatInstance(db);
+                if (session != null) {
+                  dateFormat = DateHelper.getDateFormatInstance(session);
                 } else {
                   dateFormat = new SimpleDateFormat(StorageConfiguration.DEFAULT_DATE_FORMAT);
                 }
@@ -1184,13 +1174,14 @@ public class BinaryComparatorV0 implements BinaryComparator {
                 var value2 = value2AsDate.getTime();
                 value2 =
                     convertDayToTimezone(
-                        DateHelper.getDatabaseTimeZone(), TimeZone.getTimeZone("GMT"), value2);
-                return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+                        DateHelper.getDatabaseTimeZone(session), TimeZone.getTimeZone("GMT"),
+                        value2);
+                return Long.compare(value1, value2);
               } catch (ParseException ignore) {
                 try {
                   final DateFormat dateFormat;
-                  if (db != null) {
-                    dateFormat = DateHelper.getDateFormatInstance(db);
+                  if (session != null) {
+                    dateFormat = DateHelper.getDateFormatInstance(session);
                   } else {
                     dateFormat =
                         new SimpleDateFormat(StorageConfiguration.DEFAULT_DATETIME_FORMAT);
@@ -1200,10 +1191,10 @@ public class BinaryComparatorV0 implements BinaryComparator {
                   var value2 = value2AsDate.getTime();
                   value2 =
                       convertDayToTimezone(
-                          DateHelper.getDatabaseTimeZone(),
+                          DateHelper.getDatabaseTimeZone(session),
                           TimeZone.getTimeZone("GMT"),
                           value2);
-                  return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+                  return Long.compare(value1, value2);
                 } catch (ParseException ignored) {
                   return new Date(value1).toString().compareTo(value2AsString);
                 }
@@ -1212,41 +1203,40 @@ public class BinaryComparatorV0 implements BinaryComparator {
             case DECIMAL: {
               final var value2 =
                   DecimalSerializer.INSTANCE
-                      .deserialize(fieldValue2.bytes, fieldValue2.offset)
+                      .deserialize(session.getSerializerFactory(), fieldValue2.bytes,
+                          fieldValue2.offset)
                       .longValue();
-              return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
+              return Long.compare(value1, value2);
             }
           }
           break;
         }
 
         case BINARY: {
-          switch (iField2.type) {
-            case BINARY: {
-              final var length1 = VarIntSerializer.readAsInteger(fieldValue1);
-              final var length2 = VarIntSerializer.readAsInteger(fieldValue2);
+          if (Objects.requireNonNull(iField2.type) == PropertyType.BINARY) {
+            final var length1 = VarIntSerializer.readAsInteger(fieldValue1);
+            final var length2 = VarIntSerializer.readAsInteger(fieldValue2);
 
-              final var max = Math.min(length1, length2);
-              for (var i = 0; i < max; ++i) {
-                final var b1 = fieldValue1.bytes[fieldValue1.offset + i];
-                final var b2 = fieldValue2.bytes[fieldValue2.offset + i];
+            final var max = Math.min(length1, length2);
+            for (var i = 0; i < max; ++i) {
+              final var b1 = fieldValue1.bytes[fieldValue1.offset + i];
+              final var b2 = fieldValue2.bytes[fieldValue2.offset + i];
 
-                if (b1 > b2) {
-                  return 1;
-                } else if (b2 > b1) {
-                  return -1;
-                }
-              }
-
-              if (length1 > length2) {
+              if (b1 > b2) {
                 return 1;
-              } else if (length2 > length1) {
+              } else if (b2 > b1) {
                 return -1;
               }
-
-              // EQUALS
-              return 0;
             }
+
+            if (length1 > length2) {
+              return 1;
+            } else if (length2 > length1) {
+              return -1;
+            }
+
+            // EQUALS
+            return 0;
           }
           break;
         }
@@ -1282,7 +1272,8 @@ public class BinaryComparatorV0 implements BinaryComparator {
 
         case DECIMAL: {
           final var value1 =
-              DecimalSerializer.INSTANCE.deserialize(fieldValue1.bytes, fieldValue1.offset);
+              DecimalSerializer.INSTANCE.deserialize(session.getSerializerFactory(),
+                  fieldValue1.bytes, fieldValue1.offset);
 
           switch (iField2.type) {
             case INTEGER: {
@@ -1312,7 +1303,7 @@ public class BinaryComparatorV0 implements BinaryComparator {
             }
             case DECIMAL: {
               final var value2 =
-                  DecimalSerializer.INSTANCE.deserialize(
+                  DecimalSerializer.INSTANCE.deserialize(session.getSerializerFactory(),
                       fieldValue2.bytes, fieldValue2.offset);
               return value1.compareTo(value2);
             }

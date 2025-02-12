@@ -12,11 +12,11 @@ public class AlterDatabaseStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testSetProperty() {
-    var previousValue = db.get(DatabaseSession.ATTRIBUTES.MINIMUM_CLUSTERS);
+    var previousValue = session.get(DatabaseSession.ATTRIBUTES.MINIMUM_CLUSTERS);
 
-    var result = db.command("alter database MINIMUM_CLUSTERS 12");
+    var result = session.command("alter database MINIMUM_CLUSTERS 12");
 
-    var currentValue = db.get(DatabaseSession.ATTRIBUTES.MINIMUM_CLUSTERS);
+    var currentValue = session.get(DatabaseSession.ATTRIBUTES.MINIMUM_CLUSTERS);
 
     Assert.assertNotNull(result);
     Assert.assertTrue(result.hasNext());

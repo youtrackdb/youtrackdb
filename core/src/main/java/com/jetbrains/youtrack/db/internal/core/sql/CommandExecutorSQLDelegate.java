@@ -40,7 +40,7 @@ public class CommandExecutorSQLDelegate extends CommandExecutorSQLAbstract
   protected CommandExecutor delegate;
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorSQLDelegate parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLDelegate parse(DatabaseSessionInternal session,
       final CommandRequest iCommand) {
     if (iCommand instanceof CommandRequestText textRequest) {
       final var text = textRequest.getText();
@@ -52,32 +52,28 @@ public class CommandExecutorSQLDelegate extends CommandExecutorSQLAbstract
 
       delegate = SQLEngine.getInstance().getCommand(textUpperCase);
       if (delegate == null) {
-        throw new CommandExecutorNotFoundException(
+        throw new CommandExecutorNotFoundException(session.getDatabaseName(),
             "Cannot find a command executor for the command request: " + iCommand);
       }
 
       delegate.setContext(context);
       delegate.setLimit(iCommand.getLimit());
-      delegate.parse(db, iCommand);
+      delegate.parse(session, iCommand);
       delegate.setProgressListener(progressListener);
       if (delegate.getFetchPlan() != null) {
         textRequest.setFetchPlan(delegate.getFetchPlan());
       }
 
     } else {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot find a command executor for the command request: " + iCommand);
     }
     return this;
   }
 
-  @Override
-  public long getDistributedTimeout() {
-    return delegate.getDistributedTimeout();
-  }
 
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
-    return delegate.execute(db, iArgs);
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
+    return delegate.execute(session, iArgs);
   }
 
   @Override
@@ -114,15 +110,7 @@ public class CommandExecutorSQLDelegate extends CommandExecutorSQLAbstract
   }
 
   @Override
-  public QUORUM_TYPE getQuorumType() {
-    if (delegate instanceof CommandDistributedReplicateRequest) {
-      return ((CommandDistributedReplicateRequest) delegate).getQuorumType();
-    }
-    return QUORUM_TYPE.ALL;
-  }
-
-  @Override
-  public Set<String> getInvolvedClusters() {
-    return delegate.getInvolvedClusters();
+  public Set<String> getInvolvedClusters(DatabaseSessionInternal session) {
+    return delegate.getInvolvedClusters(session);
   }
 }

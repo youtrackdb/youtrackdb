@@ -112,7 +112,8 @@ public class LuceneQueryContext {
           searcher.getIndexReader(), luceneTxChanges.searcher().getIndexReader());
     } catch (final IOException e) {
       throw BaseException.wrapException(
-          new LuceneIndexException("unable to create reader on changes"), e);
+          new LuceneIndexException("unable to create reader on changes"), e,
+          context.getDatabaseSession());
     }
   }
 

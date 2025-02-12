@@ -58,7 +58,7 @@ public class BinaryToken implements Token {
   }
 
   @Override
-  public String getDatabase() {
+  public String getDatabaseName() {
     return this.payload.getDatabase();
   }
 

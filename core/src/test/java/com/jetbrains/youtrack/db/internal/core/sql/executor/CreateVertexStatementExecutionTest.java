@@ -2,11 +2,9 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import static com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionPlanPrintUtils.printExecutionPlan;
 
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Assert;
@@ -20,12 +18,12 @@ public class CreateVertexStatementExecutionTest extends DbTestBase {
   @Test
   public void testInsertSet() {
     var className = "testInsertSet";
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     schema.createClass(className, schema.getClass("V"));
 
-    db.begin();
-    var result = db.command("create vertex " + className + " set name = 'name1'");
-    db.commit();
+    session.begin();
+    var result = session.command("create vertex " + className + " set name = 'name1'");
+    session.commit();
 
     printExecutionPlan(result);
     for (var i = 0; i < 1; i++) {
@@ -36,7 +34,7 @@ public class CreateVertexStatementExecutionTest extends DbTestBase {
     }
     Assert.assertFalse(result.hasNext());
 
-    result = db.query("select from " + className);
+    result = session.query("select from " + className);
     for (var i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
       var item = result.next();
@@ -50,11 +48,11 @@ public class CreateVertexStatementExecutionTest extends DbTestBase {
   @Test
   public void testInsertSetNoVertex() {
     var className = "testInsertSetNoVertex";
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     schema.createClass(className);
 
     try {
-      var result = db.command("create vertex " + className + " set name = 'name1'");
+      var result = session.command("create vertex " + className + " set name = 'name1'");
       Assert.fail();
     } catch (CommandExecutionException e1) {
     } catch (Exception e2) {
@@ -65,13 +63,14 @@ public class CreateVertexStatementExecutionTest extends DbTestBase {
   @Test
   public void testInsertValue() {
     var className = "testInsertValue";
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     schema.createClass(className, schema.getClass("V"));
 
-    db.begin();
+    session.begin();
     var result =
-        db.command("create vertex " + className + "  (name, surname) values ('name1', 'surname1')");
-    db.commit();
+        session.command(
+            "create vertex " + className + "  (name, surname) values ('name1', 'surname1')");
+    session.commit();
     printExecutionPlan(result);
     for (var i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
@@ -82,7 +81,7 @@ public class CreateVertexStatementExecutionTest extends DbTestBase {
     }
     Assert.assertFalse(result.hasNext());
 
-    result = db.query("select from " + className);
+    result = session.query("select from " + className);
     for (var i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
       var item = result.next();
@@ -96,16 +95,16 @@ public class CreateVertexStatementExecutionTest extends DbTestBase {
   @Test
   public void testInsertValue2() {
     var className = "testInsertValue2";
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     schema.createClass(className, schema.getClass("V"));
 
-    db.begin();
+    session.begin();
     var result =
-        db.command(
+        session.command(
             "create vertex "
                 + className
                 + "  (name, surname) values ('name1', 'surname1'), ('name2', 'surname2')");
-    db.commit();
+    session.commit();
 
     printExecutionPlan(result);
 
@@ -121,7 +120,7 @@ public class CreateVertexStatementExecutionTest extends DbTestBase {
     Set<String> names = new HashSet<>();
     names.add("name1");
     names.add("name2");
-    result = db.query("select from " + className);
+    result = session.query("select from " + className);
     for (var i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
       var item = result.next();
@@ -138,14 +137,14 @@ public class CreateVertexStatementExecutionTest extends DbTestBase {
   @Test
   public void testContent() {
     var className = "testContent";
-    Schema schema = db.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     schema.createClass(className, schema.getClass("V"));
 
-    db.begin();
+    session.begin();
     var result =
-        db.command(
+        session.command(
             "create vertex " + className + " content {'name':'name1', 'surname':'surname1'}");
-    db.commit();
+    session.commit();
 
     printExecutionPlan(result);
     for (var i = 0; i < 1; i++) {
@@ -156,7 +155,7 @@ public class CreateVertexStatementExecutionTest extends DbTestBase {
     }
     Assert.assertFalse(result.hasNext());
 
-    result = db.query("select from " + className);
+    result = session.query("select from " + className);
     for (var i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
       var item = result.next();

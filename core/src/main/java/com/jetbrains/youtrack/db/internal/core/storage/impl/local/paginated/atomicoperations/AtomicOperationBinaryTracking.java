@@ -115,7 +115,8 @@ final class AtomicOperationBinaryTracking implements AtomicOperation {
     fileId = checkFileIdCompatibility(fileId, storageId);
 
     if (deletedFiles.contains(fileId)) {
-      throw new StorageException("File with id " + fileId + " is deleted.");
+      throw new StorageException(writeCache.getStorageName(),
+          "File with id " + fileId + " is deleted.");
     }
     final var changesContainer =
         fileChanges.computeIfAbsent(fileId, k -> new FileChanges());
@@ -159,7 +160,8 @@ final class AtomicOperationBinaryTracking implements AtomicOperation {
     fileId = checkFileIdCompatibility(fileId, storageId);
 
     if (deletedFiles.contains(fileId)) {
-      throw new StorageException("File with id " + fileId + " is deleted.");
+      throw new StorageException(writeCache.getStorageName(),
+          "File with id " + fileId + " is deleted.");
     }
 
     final var changesContainer = fileChanges.get(fileId);
@@ -238,7 +240,8 @@ final class AtomicOperationBinaryTracking implements AtomicOperation {
     fileId = checkFileIdCompatibility(fileId, storageId);
 
     if (deletedFiles.contains(fileId)) {
-      throw new StorageException("File with id " + fileId + " is deleted.");
+      throw new StorageException(writeCache.getStorageName(),
+          "File with id " + fileId + " is deleted.");
     }
 
     final var changesContainer =
@@ -278,7 +281,8 @@ final class AtomicOperationBinaryTracking implements AtomicOperation {
     final var real = (CacheEntryChanges) cacheEntry;
 
     if (deletedFiles.contains(cacheEntry.getFileId())) {
-      throw new StorageException("File with id " + cacheEntry.getFileId() + " is deleted.");
+      throw new StorageException(writeCache.getStorageName(),
+          "File with id " + cacheEntry.getFileId() + " is deleted.");
     }
 
     if (cacheEntry.getCachePointer().getBuffer() != null) {
@@ -292,7 +296,8 @@ final class AtomicOperationBinaryTracking implements AtomicOperation {
   public long filledUpTo(long fileId) {
     fileId = checkFileIdCompatibility(fileId, storageId);
     if (deletedFiles.contains(fileId)) {
-      throw new StorageException("File with id " + fileId + " is deleted.");
+      throw new StorageException(writeCache.getStorageName(),
+          "File with id " + fileId + " is deleted.");
     }
     final var changesContainer = fileChanges.get(fileId);
     return internalFilledUpTo(fileId, changesContainer);
@@ -333,7 +338,8 @@ final class AtomicOperationBinaryTracking implements AtomicOperation {
   @Override
   public long addFile(final String fileName) {
     if (newFileNamesId.containsKey(fileName)) {
-      throw new StorageException("File with name " + fileName + " already exists.");
+      throw new StorageException(writeCache.getStorageName(),
+          "File with name " + fileName + " already exists.");
     }
     final long fileId;
     final boolean isNew;
@@ -408,7 +414,8 @@ final class AtomicOperationBinaryTracking implements AtomicOperation {
     }
 
     if (deletedFiles.contains(fileId)) {
-      throw new StorageException("File with id " + fileId + " was deleted.");
+      throw new StorageException(writeCache.getStorageName(),
+          "File with id " + fileId + " was deleted.");
     }
 
     return writeCache.fileNameById(fileId);
@@ -538,7 +545,7 @@ final class AtomicOperationBinaryTracking implements AtomicOperation {
                   fileId, pageIndex, writeCache, filePageChanges.verifyCheckSum, startLSN);
           if (cacheEntry == null) {
             if (!filePageChanges.isNew) {
-              throw new StorageException(
+              throw new StorageException(writeCache.getStorageName(),
                   "Page with index " + pageIndex + " is not found in file with id " + fileId);
             }
             do {

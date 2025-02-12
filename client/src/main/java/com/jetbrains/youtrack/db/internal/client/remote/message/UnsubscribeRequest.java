@@ -29,19 +29,20 @@ public class UnsubscribeRequest implements BinaryRequest<UnsubscribeResponse> {
   }
 
   @Override
-  public void write(DatabaseSessionInternal database, ChannelDataOutput network,
+  public void write(DatabaseSessionInternal databaseSession, ChannelDataOutput network,
       StorageRemoteSession session) throws IOException {
     network.writeByte(unsubscribeMessage);
-    unsubscribeRequest.write(database, network, session);
+    unsubscribeRequest.write(databaseSession, network, session);
   }
 
   @Override
-  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+  public void read(DatabaseSessionInternal databaseSession, ChannelDataInput channel,
+      int protocolVersion,
       RecordSerializerNetwork serializer)
       throws IOException {
     unsubscribeMessage = channel.readByte();
     unsubscribeRequest = createBinaryRequest(unsubscribeMessage);
-    unsubscribeRequest.read(db, channel, protocolVersion, serializer);
+    unsubscribeRequest.read(databaseSession, channel, protocolVersion, serializer);
   }
 
   private BinaryRequest<? extends BinaryResponse> createBinaryRequest(byte message) {

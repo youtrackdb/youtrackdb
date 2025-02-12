@@ -28,13 +28,11 @@ import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.parser.StringParser;
 import com.jetbrains.youtrack.db.internal.common.types.Binary;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerCSVAbstract;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerSchemaAware2CSV;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.string.StringSerializerAnyStreamable;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -1194,7 +1192,8 @@ public abstract class StringSerializerHelper {
       getParameters(iText, 0, -1, params);
     } catch (Exception e) {
       throw BaseException.wrapException(
-          new CommandSQLParsingException("Error on reading parameters in: " + iText), e);
+          new CommandSQLParsingException("Error on reading parameters in: " + iText), e,
+          (String) null);
     }
     return params;
   }
@@ -1328,17 +1327,15 @@ public abstract class StringSerializerHelper {
     return buffer.toString();
   }
 
-  public static SchemaClass getRecordClassName(final String iValue, SchemaClass iLinkedClass) {
+  public static SchemaClass getRecordClassName(DatabaseSessionInternal session, final String iValue,
+      SchemaClass iLinkedClass) {
     // EXTRACT THE CLASS NAME
     final var classSeparatorPos =
         StringParser.indexOfOutsideStrings(
             iValue, StringSerializerHelper.CLASS_SEPARATOR.charAt(0), 0, -1);
     if (classSeparatorPos > -1) {
       final var className = iValue.substring(0, classSeparatorPos);
-      var database = DatabaseRecordThreadLocal.instance().get();
-      if (className != null && database != null) {
-        iLinkedClass = database.getMetadata().getImmutableSchemaSnapshot().getClass(className);
-      }
+      iLinkedClass = session.getMetadata().getImmutableSchemaSnapshot().getClass(className);
     }
     return iLinkedClass;
   }
@@ -1452,52 +1449,6 @@ public abstract class StringSerializerHelper {
         }
       }
     }
-    return -1;
-  }
-
-  /**
-   * Finds the end of a block delimited by 2 chars.
-   */
-  public static final int findEndBlock(
-      final String iOrigin, final char iBeginChar, final char iEndChar, final int iBeginOffset) {
-    var inc = 0;
-
-    for (var i = iBeginOffset; i < iOrigin.length(); i++) {
-      var c = iOrigin.charAt(i);
-      if (c == '\'') {
-        // skip to text end
-        var tend = i;
-        while (true) {
-          tend = iOrigin.indexOf('\'', tend + 1);
-          if (tend < 0) {
-            throw new CommandSQLParsingException("Could not find end of text area", iOrigin, i);
-          }
-
-          if (iOrigin.charAt(tend - 1) == '\\') {
-            // inner quote, skip it
-            continue;
-          } else {
-            break;
-          }
-        }
-        i = tend;
-        continue;
-      }
-
-      if (c != iBeginChar && c != iEndChar) {
-        continue;
-      }
-
-      if (c == iBeginChar) {
-        inc++;
-      } else if (c == iEndChar) {
-        inc--;
-        if (inc == 0) {
-          return i;
-        }
-      }
-    }
-
     return -1;
   }
 

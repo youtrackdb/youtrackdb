@@ -21,23 +21,22 @@ public class CommandExecutorSQLDropSequence extends CommandExecutorSQLAbstract
   private String sequenceName;
 
   @Override
-  public CommandExecutorSQLDropSequence parse(DatabaseSessionInternal db, CommandRequest iRequest) {
+  public CommandExecutorSQLDropSequence parse(DatabaseSessionInternal session,
+      CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
 
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
-      final var database = getDatabase();
-      final var word = new StringBuilder();
-
-      parserRequiredKeyword("DROP");
-      parserRequiredKeyword("SEQUENCE");
-      this.sequenceName = parserRequiredWord(false, "Expected <sequence name>");
+      parserRequiredKeyword(session.getDatabaseName(), "DROP");
+      parserRequiredKeyword(session.getDatabaseName(), "SEQUENCE");
+      this.sequenceName = parserRequiredWord(false, "Expected <sequence name>",
+          session.getDatabaseName());
     } finally {
       textRequest.setText(originalQuery);
     }
@@ -46,19 +45,17 @@ public class CommandExecutorSQLDropSequence extends CommandExecutorSQLAbstract
   }
 
   @Override
-  public Object execute(DatabaseSessionInternal db, Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, Map<Object, Object> iArgs) {
     if (this.sequenceName == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not been parsed yet");
     }
-
-    final var database = getDatabase();
     try {
-      database.getMetadata().getSequenceLibrary().dropSequence(this.sequenceName);
+      session.getMetadata().getSequenceLibrary().dropSequence(this.sequenceName);
     } catch (DatabaseException exc) {
       var message = "Unable to execute command: " + exc.getMessage();
       LogManager.instance().error(this, message, exc, (Object) null);
-      throw new CommandExecutionException(message);
+      throw new CommandExecutionException(session, message);
     }
     return true;
   }
@@ -66,10 +63,5 @@ public class CommandExecutorSQLDropSequence extends CommandExecutorSQLAbstract
   @Override
   public String getSyntax() {
     return "DROP SEQUENCE <sequence>";
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.ALL;
   }
 }

@@ -20,14 +20,14 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ShortSerializer;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.CachePointer;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.LogSequenceNumber;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
 import java.nio.ByteBuffer;
@@ -146,7 +146,7 @@ public class DurablePage {
     final var segment =
         LongSerializer.INSTANCE.deserializeNative(data, offset + WAL_SEGMENT_OFFSET);
     final var position =
-        IntegerSerializer.INSTANCE.deserializeNative(data, offset + WAL_POSITION_OFFSET);
+        IntegerSerializer.deserializeNative(data, offset + WAL_POSITION_OFFSET);
 
     return new LogSequenceNumber(segment, position);
   }
@@ -168,7 +168,7 @@ public class DurablePage {
     var bytes = getBinaryValue(pageOffset, size * IntegerSerializer.INT_SIZE);
     for (var i = 0; i < size; i++) {
       values[i] =
-          IntegerSerializer.INSTANCE.deserializeNative(bytes, i * IntegerSerializer.INT_SIZE);
+          IntegerSerializer.deserializeNative(bytes, i * IntegerSerializer.INT_SIZE);
     }
     return values;
   }
@@ -176,7 +176,7 @@ public class DurablePage {
   protected final void setIntArray(final int pageOffset, int[] values, int offset) {
     var bytes = new byte[(values.length - offset) * IntegerSerializer.INT_SIZE];
     for (var i = offset; i < values.length; i++) {
-      IntegerSerializer.INSTANCE.serializeNative(
+      IntegerSerializer.serializeNative(
           values[i], bytes, (i - offset) * IntegerSerializer.INT_SIZE);
     }
     setBinaryValue(pageOffset, bytes);
@@ -219,26 +219,29 @@ public class DurablePage {
   }
 
   protected final int getObjectSizeInDirectMemory(
-      final BinarySerializer<?> binarySerializer, final int offset) {
+      final BinarySerializer<?> binarySerializer, BinarySerializerFactory serializerFactory,
+      final int offset) {
     if (changes == null) {
       assert buffer != null;
       assert buffer.order() == ByteOrder.nativeOrder();
 
-      return binarySerializer.getObjectSizeInByteBuffer(offset, buffer);
+      return binarySerializer.getObjectSizeInByteBuffer(serializerFactory, offset, buffer);
     }
 
     return binarySerializer.getObjectSizeInByteBuffer(buffer, changes, offset);
   }
 
   protected final <T> T deserializeFromDirectMemory(
-      final BinarySerializer<T> binarySerializer, final int offset) {
+      final BinarySerializer<T> binarySerializer, BinarySerializerFactory serializerFactory,
+      final int offset) {
     if (changes == null) {
       assert buffer != null;
       assert buffer.order() == ByteOrder.nativeOrder();
 
-      return binarySerializer.deserializeFromByteBufferObject(offset, buffer);
+      return binarySerializer.deserializeFromByteBufferObject(serializerFactory, offset, buffer);
     }
-    return binarySerializer.deserializeFromByteBufferObject(buffer, changes, offset);
+    return binarySerializer.deserializeFromByteBufferObject(serializerFactory, buffer, changes,
+        offset);
   }
 
   protected final byte getByteValue(final int pageOffset) {

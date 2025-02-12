@@ -14,7 +14,6 @@
 package com.jetbrains.youtrack.db.internal.spatial;
 
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Assert;
@@ -28,21 +27,21 @@ public class LuceneSpatialGeometryCollectionTest extends BaseSpatialLuceneTest {
 
   @Before
   public void init() {
-    db.command("create class test").close();
-    db.command("create property test.name STRING").close();
-    db.command("create property test.geometry EMBEDDED OGeometryCollection").close();
+    session.command("create class test").close();
+    session.command("create property test.name STRING").close();
+    session.command("create property test.geometry EMBEDDED OGeometryCollection").close();
 
-    db.command("create index test.geometry on test (geometry) SPATIAL engine lucene").close();
+    session.command("create index test.geometry on test (geometry) SPATIAL engine lucene").close();
   }
 
   @Test
   public void testGeoCollectionOutsideTx() {
-    var test1 = ((EntityImpl) db.newEntity("test"));
+    var test1 = ((EntityImpl) session.newEntity("test"));
     test1.field("name", "test1");
-    var geometry = ((EntityImpl) db.newEntity("OGeometryCollection"));
-    var point = ((EntityImpl) db.newEntity("OPoint"));
+    var geometry = ((EntityImpl) session.newEntity("OGeometryCollection"));
+    var point = ((EntityImpl) session.newEntity("OPoint"));
     point.field("coordinates", Arrays.asList(1.0, 2.0));
-    var polygon = ((EntityImpl) db.newEntity("OPolygon"));
+    var polygon = ((EntityImpl) session.newEntity("OPolygon"));
     polygon.field(
         "coordinates",
         List.of(
@@ -55,12 +54,12 @@ public class LuceneSpatialGeometryCollectionTest extends BaseSpatialLuceneTest {
     geometry.field("geometries", Arrays.asList(point, polygon));
     test1.field("geometry", geometry);
 
-    db.begin();
+    session.begin();
     test1.save();
-    db.commit();
+    session.commit();
 
     var execute =
-        db.command(
+        session.command(
             "SELECT from test where ST_Contains(geometry, ST_GeomFromText('POINT(1 1)')) = true");
 
     Assert.assertEquals(execute.stream().count(), 1);
@@ -68,14 +67,14 @@ public class LuceneSpatialGeometryCollectionTest extends BaseSpatialLuceneTest {
 
   @Test
   public void testGeoCollectionInsideTransaction() {
-    db.begin();
+    session.begin();
 
-    var test1 = ((EntityImpl) db.newEntity("test"));
+    var test1 = ((EntityImpl) session.newEntity("test"));
     test1.field("name", "test1");
-    var geometry = ((EntityImpl) db.newEntity("OGeometryCollection"));
-    var point = ((EntityImpl) db.newEntity("OPoint"));
+    var geometry = ((EntityImpl) session.newEntity("OGeometryCollection"));
+    var point = ((EntityImpl) session.newEntity("OPoint"));
     point.field("coordinates", Arrays.asList(1.0, 2.0));
-    var polygon = ((EntityImpl) db.newEntity("OPolygon"));
+    var polygon = ((EntityImpl) session.newEntity("OPolygon"));
     polygon.field(
         "coordinates",
         List.of(
@@ -89,10 +88,10 @@ public class LuceneSpatialGeometryCollectionTest extends BaseSpatialLuceneTest {
     test1.field("geometry", geometry);
     test1.save();
 
-    db.commit();
+    session.commit();
 
     var execute =
-        db.command(
+        session.command(
             "SELECT from test where ST_Contains(geometry, ST_GeomFromText('POINT(1 1)')) = true");
 
     Assert.assertEquals(execute.stream().count(), 1);

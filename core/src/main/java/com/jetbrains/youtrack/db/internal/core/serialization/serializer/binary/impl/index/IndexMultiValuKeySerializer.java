@@ -1,16 +1,17 @@
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.index;
 
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ShortSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.UTF8Serializer;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.IndexException;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.CompactedLinkSerializer;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
 import java.math.BigDecimal;
@@ -24,7 +25,8 @@ import java.util.List;
 
 public final class IndexMultiValuKeySerializer implements BinarySerializer<CompositeKey> {
 
-  public int getObjectSize(CompositeKey compositeKey, Object... hints) {
+  public int getObjectSize(BinarySerializerFactory serializerFactory, CompositeKey compositeKey,
+      Object... hints) {
     final var types = (PropertyType[]) hints;
     final var keys = compositeKey.getKeys();
 
@@ -35,14 +37,15 @@ public final class IndexMultiValuKeySerializer implements BinarySerializer<Compo
 
       size += ByteSerializer.BYTE_SIZE;
       if (key != null) {
-        size += sizeOfKey(type, key);
+        size += sizeOfKey(type, key, serializerFactory);
       }
     }
 
     return size + 2 * IntegerSerializer.INT_SIZE;
   }
 
-  private static int sizeOfKey(final PropertyType type, final Object key) {
+  private static int sizeOfKey(final PropertyType type, final Object key,
+      BinarySerializerFactory serializerFactory) {
     return switch (type) {
       case BOOLEAN, BYTE -> 1;
       case DATE, DATETIME, DOUBLE, LONG -> LongSerializer.LONG_SIZE;
@@ -52,23 +55,24 @@ public final class IndexMultiValuKeySerializer implements BinarySerializer<Compo
         yield 2 * IntegerSerializer.INT_SIZE + bigDecimal.unscaledValue().toByteArray().length;
       }
       case FLOAT, INTEGER -> IntegerSerializer.INT_SIZE;
-      case LINK -> CompactedLinkSerializer.INSTANCE.getObjectSize((RID) key);
+      case LINK -> CompactedLinkSerializer.INSTANCE.getObjectSize(serializerFactory, (RID) key);
       case SHORT -> ShortSerializer.SHORT_SIZE;
-      case STRING -> UTF8Serializer.INSTANCE.getObjectSize((String) key);
-      default -> throw new IndexException("Unsupported key type " + type);
+      case STRING -> UTF8Serializer.INSTANCE.getObjectSize(serializerFactory, (String) key);
+      default -> throw new IndexException((String) null, "Unsupported key type " + type);
     };
   }
 
   public void serialize(
-      CompositeKey compositeKey, byte[] stream, int startPosition, Object... hints) {
+      CompositeKey compositeKey, BinarySerializerFactory serializerFactory, byte[] stream,
+      int startPosition, Object... hints) {
     final var buffer = ByteBuffer.wrap(stream);
     buffer.position(startPosition);
 
-    serialize(compositeKey, buffer, (PropertyType[]) hints);
+    serialize(compositeKey, buffer, (PropertyType[]) hints, serializerFactory);
   }
 
   private static void serialize(CompositeKey compositeKey, ByteBuffer buffer,
-      PropertyType[] types) {
+      PropertyType[] types, BinarySerializerFactory serializerFactory) {
     final var keys = compositeKey.getKeys();
     final var startPosition = buffer.position();
     buffer.position(startPosition + IntegerSerializer.INT_SIZE);
@@ -83,7 +87,7 @@ public final class IndexMultiValuKeySerializer implements BinarySerializer<Compo
         buffer.put((byte) (-(type.getId() + 1)));
       } else {
         buffer.put((byte) type.getId());
-        serializeKeyToByteBuffer(buffer, type, key);
+        serializeKeyToByteBuffer(buffer, type, key, serializerFactory);
       }
     }
 
@@ -91,7 +95,8 @@ public final class IndexMultiValuKeySerializer implements BinarySerializer<Compo
   }
 
   private static void serializeKeyToByteBuffer(
-      final ByteBuffer buffer, final PropertyType type, final Object key) {
+      final ByteBuffer buffer, final PropertyType type, final Object key,
+      BinarySerializerFactory serializerFactory) {
     switch (type) {
       case BINARY:
         final var array = (byte[]) key;
@@ -125,7 +130,8 @@ public final class IndexMultiValuKeySerializer implements BinarySerializer<Compo
         buffer.putInt((Integer) key);
         return;
       case LINK:
-        CompactedLinkSerializer.INSTANCE.serializeInByteBufferObject((RID) key, buffer);
+        CompactedLinkSerializer.INSTANCE.serializeInByteBufferObject(serializerFactory, (RID) key,
+            buffer);
         return;
       case LONG:
         buffer.putLong((Long) key);
@@ -134,21 +140,24 @@ public final class IndexMultiValuKeySerializer implements BinarySerializer<Compo
         buffer.putShort((Short) key);
         return;
       case STRING:
-        UTF8Serializer.INSTANCE.serializeInByteBufferObject((String) key, buffer);
+        UTF8Serializer.INSTANCE.serializeInByteBufferObject(serializerFactory, (String) key,
+            buffer);
         return;
       default:
-        throw new IndexException("Unsupported index type " + type);
+        throw new IndexException((String) null, "Unsupported index type " + type);
     }
   }
 
-  public CompositeKey deserialize(byte[] stream, int startPosition) {
+  public CompositeKey deserialize(BinarySerializerFactory serializerFactory, byte[] stream,
+      int startPosition) {
     final var buffer = ByteBuffer.wrap(stream);
     buffer.position(startPosition);
 
-    return deserialize(buffer);
+    return deserialize(buffer, serializerFactory);
   }
 
-  private static CompositeKey deserialize(ByteBuffer buffer) {
+  private static CompositeKey deserialize(ByteBuffer buffer,
+      BinarySerializerFactory serializerFactory) {
     buffer.position(buffer.position() + IntegerSerializer.INT_SIZE);
 
     final var keyLen = buffer.getInt();
@@ -160,14 +169,15 @@ public final class IndexMultiValuKeySerializer implements BinarySerializer<Compo
       } else {
         final var type = PropertyType.getById(typeId);
         assert type != null;
-        keys.addKey(deserializeKeyFromByteBuffer(buffer, type));
+        keys.addKey(deserializeKeyFromByteBuffer(buffer, type, serializerFactory));
       }
     }
 
     return keys;
   }
 
-  private static CompositeKey deserialize(int offset, ByteBuffer buffer) {
+  private static CompositeKey deserialize(int offset, ByteBuffer buffer,
+      BinarySerializerFactory serializerFactory) {
     offset += Integer.BYTES;
     final var keyLen = buffer.getInt(offset);
     offset += IntegerSerializer.INT_SIZE;
@@ -182,8 +192,8 @@ public final class IndexMultiValuKeySerializer implements BinarySerializer<Compo
       } else {
         final var type = PropertyType.getById(typeId);
         assert type != null;
-        var delta = getKeySizeInByteBuffer(offset, buffer, type);
-        keys.addKey(deserializeKeyFromByteBuffer(offset, buffer, type));
+        var delta = getKeySizeInByteBuffer(offset, buffer, type, serializerFactory);
+        keys.addKey(deserializeKeyFromByteBuffer(offset, buffer, type, serializerFactory));
         offset += delta;
       }
     }
@@ -192,7 +202,7 @@ public final class IndexMultiValuKeySerializer implements BinarySerializer<Compo
   }
 
   private static Object deserializeKeyFromByteBuffer(final ByteBuffer buffer,
-      final PropertyType type) {
+      final PropertyType type, BinarySerializerFactory serializerFactory) {
     switch (type) {
       case BINARY:
         final var len = buffer.getInt();
@@ -219,20 +229,22 @@ public final class IndexMultiValuKeySerializer implements BinarySerializer<Compo
       case INTEGER:
         return buffer.getInt();
       case LINK:
-        return CompactedLinkSerializer.INSTANCE.deserializeFromByteBufferObject(buffer);
+        return CompactedLinkSerializer.INSTANCE.deserializeFromByteBufferObject(serializerFactory,
+            buffer);
       case LONG:
         return buffer.getLong();
       case SHORT:
         return buffer.getShort();
       case STRING:
-        return UTF8Serializer.INSTANCE.deserializeFromByteBufferObject(buffer);
+        return UTF8Serializer.INSTANCE.deserializeFromByteBufferObject(serializerFactory, buffer);
       default:
-        throw new IndexException("Unsupported index type " + type);
+        throw new IndexException((String) null, "Unsupported index type " + type);
     }
   }
 
   private static Object deserializeKeyFromByteBuffer(
-      int offset, final ByteBuffer buffer, final PropertyType type) {
+      int offset, final ByteBuffer buffer, final PropertyType type,
+      BinarySerializerFactory serializerFactory) {
     switch (type) {
       case BINARY:
         final var len = buffer.getInt(offset);
@@ -266,20 +278,22 @@ public final class IndexMultiValuKeySerializer implements BinarySerializer<Compo
       case INTEGER:
         return buffer.getInt(offset);
       case LINK:
-        return CompactedLinkSerializer.INSTANCE.deserializeFromByteBufferObject(offset, buffer);
+        return CompactedLinkSerializer.INSTANCE.deserializeFromByteBufferObject(serializerFactory,
+            offset, buffer);
       case LONG:
         return buffer.getLong(offset);
       case SHORT:
         return buffer.getShort(offset);
       case STRING:
-        return UTF8Serializer.INSTANCE.deserializeFromByteBufferObject(offset, buffer);
+        return UTF8Serializer.INSTANCE.deserializeFromByteBufferObject(serializerFactory, offset,
+            buffer);
       default:
-        throw new IndexException("Unsupported index type " + type);
+        throw new IndexException((String) null, "Unsupported index type " + type);
     }
   }
 
   private static int getKeySizeInByteBuffer(int offset, final ByteBuffer buffer,
-      final PropertyType type) {
+      final PropertyType type, BinarySerializerFactory serializerFactory) {
     switch (type) {
       case BINARY:
         final var len = buffer.getInt(offset);
@@ -296,19 +310,20 @@ public final class IndexMultiValuKeySerializer implements BinarySerializer<Compo
       case FLOAT, INTEGER:
         return Integer.BYTES;
       case LINK:
-        return CompactedLinkSerializer.INSTANCE.getObjectSizeInByteBuffer(offset, buffer);
+        return CompactedLinkSerializer.INSTANCE.getObjectSizeInByteBuffer(serializerFactory, offset,
+            buffer);
       case SHORT:
         return Short.BYTES;
       case STRING:
-        return UTF8Serializer.INSTANCE.getObjectSizeInByteBuffer(offset, buffer);
+        return UTF8Serializer.INSTANCE.getObjectSizeInByteBuffer(serializerFactory, offset, buffer);
       default:
-        throw new IndexException("Unsupported index type " + type);
+        throw new IndexException((String) null, "Unsupported index type " + type);
     }
   }
 
   private static Object deserializeKeyFromByteBuffer(
       final int offset, final ByteBuffer buffer, final PropertyType type,
-      final WALChanges walChanges) {
+      final WALChanges walChanges, BinarySerializerFactory serializerFactory) {
     switch (type) {
       case BINARY:
         final var len = walChanges.getIntValue(buffer, offset);
@@ -335,20 +350,23 @@ public final class IndexMultiValuKeySerializer implements BinarySerializer<Compo
       case INTEGER:
         return walChanges.getIntValue(buffer, offset);
       case LINK:
-        return CompactedLinkSerializer.INSTANCE.deserializeFromByteBufferObject(
+        return CompactedLinkSerializer.INSTANCE.deserializeFromByteBufferObject(serializerFactory,
             buffer, walChanges, offset);
       case LONG:
         return walChanges.getLongValue(buffer, offset);
       case SHORT:
         return walChanges.getShortValue(buffer, offset);
       case STRING:
-        return UTF8Serializer.INSTANCE.deserializeFromByteBufferObject(buffer, walChanges, offset);
+        return UTF8Serializer.INSTANCE.deserializeFromByteBufferObject(serializerFactory, buffer,
+            walChanges,
+            offset);
       default:
-        throw new IndexException("Unsupported index type " + type);
+        throw new IndexException((String) null, "Unsupported index type " + type);
     }
   }
 
-  public int getObjectSize(byte[] stream, int startPosition) {
+  public int getObjectSize(BinarySerializerFactory serializerFactory, byte[] stream,
+      int startPosition) {
     //noinspection RedundantCast
     return ((ByteBuffer) ByteBuffer.wrap(stream).position(startPosition)).getInt();
   }
@@ -357,7 +375,8 @@ public final class IndexMultiValuKeySerializer implements BinarySerializer<Compo
     return -1;
   }
 
-  public int getObjectSizeNative(byte[] stream, int startPosition) {
+  public int getObjectSizeNative(BinarySerializerFactory serializerFactory, byte[] stream,
+      int startPosition) {
     //noinspection RedundantCast
     return ((ByteBuffer)
         ByteBuffer.wrap(stream).order(ByteOrder.nativeOrder()).position(startPosition))
@@ -365,16 +384,18 @@ public final class IndexMultiValuKeySerializer implements BinarySerializer<Compo
   }
 
   public void serializeNativeObject(
-      CompositeKey compositeKey, byte[] stream, int startPosition, Object... hints) {
+      CompositeKey compositeKey, BinarySerializerFactory serializerFactory, byte[] stream,
+      int startPosition, Object... hints) {
     @SuppressWarnings("RedundantCast") final var buffer =
         (ByteBuffer) ByteBuffer.wrap(stream).order(ByteOrder.nativeOrder()).position(startPosition);
-    serialize(compositeKey, buffer, (PropertyType[]) hints);
+    serialize(compositeKey, buffer, (PropertyType[]) hints, serializerFactory);
   }
 
-  public CompositeKey deserializeNativeObject(byte[] stream, int startPosition) {
+  public CompositeKey deserializeNativeObject(BinarySerializerFactory serializerFactory,
+      byte[] stream, int startPosition) {
     @SuppressWarnings("RedundantCast") final var buffer =
         (ByteBuffer) ByteBuffer.wrap(stream).order(ByteOrder.nativeOrder()).position(startPosition);
-    return deserialize(buffer);
+    return deserialize(buffer, serializerFactory);
   }
 
   public boolean isFixedLength() {
@@ -386,7 +407,8 @@ public final class IndexMultiValuKeySerializer implements BinarySerializer<Compo
   }
 
   @Override
-  public CompositeKey preprocess(CompositeKey value, Object... hints) {
+  public CompositeKey preprocess(BinarySerializerFactory serializerFactory, CompositeKey value,
+      Object... hints) {
     if (value == null) {
       return null;
     }
@@ -442,33 +464,38 @@ public final class IndexMultiValuKeySerializer implements BinarySerializer<Compo
    */
   @Override
   public void serializeInByteBufferObject(
-      CompositeKey object, ByteBuffer buffer, Object... hints) {
-    serialize(object, buffer, (PropertyType[]) hints);
+      BinarySerializerFactory serializerFactory, CompositeKey object, ByteBuffer buffer,
+      Object... hints) {
+    serialize(object, buffer, (PropertyType[]) hints, serializerFactory);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public CompositeKey deserializeFromByteBufferObject(ByteBuffer buffer) {
-    return deserialize(buffer);
+  public CompositeKey deserializeFromByteBufferObject(BinarySerializerFactory serializerFactory,
+      ByteBuffer buffer) {
+    return deserialize(buffer, serializerFactory);
   }
 
   @Override
-  public CompositeKey deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
-    return deserialize(offset, buffer);
+  public CompositeKey deserializeFromByteBufferObject(BinarySerializerFactory serializerFactory,
+      int offset, ByteBuffer buffer) {
+    return deserialize(offset, buffer, serializerFactory);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public int getObjectSizeInByteBuffer(ByteBuffer buffer) {
+  public int getObjectSizeInByteBuffer(BinarySerializerFactory serializerFactory,
+      ByteBuffer buffer) {
     return buffer.getInt();
   }
 
   @Override
-  public int getObjectSizeInByteBuffer(int offset, ByteBuffer buffer) {
+  public int getObjectSizeInByteBuffer(BinarySerializerFactory serializerFactory, int offset,
+      ByteBuffer buffer) {
     return buffer.getInt(offset);
   }
 
@@ -477,7 +504,8 @@ public final class IndexMultiValuKeySerializer implements BinarySerializer<Compo
    */
   @Override
   public CompositeKey deserializeFromByteBufferObject(
-      ByteBuffer buffer, WALChanges walChanges, int offset) {
+      BinarySerializerFactory serializerFactory, ByteBuffer buffer, WALChanges walChanges,
+      int offset) {
     offset += IntegerSerializer.INT_SIZE;
 
     final var keyLen = walChanges.getIntValue(buffer, offset);
@@ -493,8 +521,9 @@ public final class IndexMultiValuKeySerializer implements BinarySerializer<Compo
       } else {
         final var type = PropertyType.getById(typeId);
         assert type != null;
-        final var key = deserializeKeyFromByteBuffer(offset, buffer, type, walChanges);
-        offset += sizeOfKey(type, key);
+        final var key = deserializeKeyFromByteBuffer(offset, buffer, type, walChanges,
+            serializerFactory);
+        offset += sizeOfKey(type, key, serializerFactory);
         keys.add(key);
       }
     }

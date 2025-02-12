@@ -4,16 +4,13 @@ import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseCompare;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -245,21 +242,19 @@ public class LocalPaginatedStorageRestoreTx {
     }
   }
 
-  private void createSchema(DatabaseSessionInternal databaseDocumentTx) {
-    DatabaseRecordThreadLocal.instance().set(databaseDocumentTx);
-
-    Schema schema = databaseDocumentTx.getMetadata().getSchema();
+  private static void createSchema(DatabaseSessionInternal session) {
+    Schema schema = session.getMetadata().getSchema();
     var testOneClass = schema.createClass("TestOne");
 
-    testOneClass.createProperty(databaseDocumentTx, "intProp", PropertyType.INTEGER);
-    testOneClass.createProperty(databaseDocumentTx, "stringProp", PropertyType.STRING);
-    testOneClass.createProperty(databaseDocumentTx, "stringSet", PropertyType.EMBEDDEDSET,
+    testOneClass.createProperty(session, "intProp", PropertyType.INTEGER);
+    testOneClass.createProperty(session, "stringProp", PropertyType.STRING);
+    testOneClass.createProperty(session, "stringSet", PropertyType.EMBEDDEDSET,
         PropertyType.STRING);
-    testOneClass.createProperty(databaseDocumentTx, "linkMap", PropertyType.LINKMAP);
+    testOneClass.createProperty(session, "linkMap", PropertyType.LINKMAP);
 
     var testTwoClass = schema.createClass("TestTwo");
 
-    testTwoClass.createProperty(databaseDocumentTx, "stringList", PropertyType.EMBEDDEDLIST,
+    testTwoClass.createProperty(session, "stringList", PropertyType.EMBEDDEDLIST,
         PropertyType.STRING);
   }
 

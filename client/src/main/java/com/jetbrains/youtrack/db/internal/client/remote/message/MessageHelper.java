@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -54,22 +53,22 @@ public class MessageHelper {
   }
 
   public static void writeRecord(
-      DatabaseSessionInternal db, ChannelDataOutput channel, RecordAbstract iRecord,
+      DatabaseSessionInternal session, ChannelDataOutput channel, RecordAbstract iRecord,
       RecordSerializer serializer)
       throws IOException {
     channel.writeShort((short) 0);
-    channel.writeByte(RecordInternal.getRecordType(db, iRecord));
+    channel.writeByte(RecordInternal.getRecordType(session, iRecord));
     channel.writeRID(iRecord.getIdentity());
     channel.writeVersion(iRecord.getVersion());
     try {
-      final var stream = getRecordBytes(db, iRecord, serializer);
+      final var stream = getRecordBytes(session, iRecord, serializer);
       channel.writeBytes(stream);
     } catch (Exception e) {
       channel.writeBytes(null);
       final var message =
           "Error on marshalling record " + iRecord.getIdentity() + " (" + e + ")";
 
-      throw BaseException.wrapException(new SerializationException(message), e);
+      throw BaseException.wrapException(new SerializationException(session, message), e, session);
     }
   }
 

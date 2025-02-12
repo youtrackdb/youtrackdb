@@ -4,14 +4,12 @@ import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -35,27 +33,27 @@ public class LinkMapIndexTest extends BaseDBTest {
   @BeforeClass
   public void setupSchema() {
     final var linkMapIndexTestClass =
-        db.getMetadata().getSchema().createClass("LinkMapIndexTestClass");
-    linkMapIndexTestClass.createProperty(db, "linkMap", PropertyType.LINKMAP);
+        session.getMetadata().getSchema().createClass("LinkMapIndexTestClass");
+    linkMapIndexTestClass.createProperty(session, "linkMap", PropertyType.LINKMAP);
 
-    linkMapIndexTestClass.createIndex(db, "mapIndexTestKey", SchemaClass.INDEX_TYPE.NOTUNIQUE,
+    linkMapIndexTestClass.createIndex(session, "mapIndexTestKey", SchemaClass.INDEX_TYPE.NOTUNIQUE,
         "linkMap");
-    linkMapIndexTestClass.createIndex(db,
+    linkMapIndexTestClass.createIndex(session,
         "mapIndexTestValue", SchemaClass.INDEX_TYPE.NOTUNIQUE, "linkMap by value");
   }
 
   @AfterClass
   public void destroySchema() {
-    db = createSessionInstance();
-    db.getMetadata().getSchema().dropClass("LinkMapIndexTestClass");
-    db.close();
+    session = createSessionInstance();
+    session.getMetadata().getSchema().dropClass("LinkMapIndexTestClass");
+    session.close();
   }
 
   @AfterMethod
   public void afterMethod() throws Exception {
-    db.begin();
-    db.command("delete from LinkMapIndexTestClass").close();
-    db.commit();
+    session.begin();
+    session.command("delete from LinkMapIndexTestClass").close();
+    session.commit();
 
     super.afterMethod();
   }
@@ -63,11 +61,11 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMap() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
     Map<String, RID> map = new HashMap<>();
@@ -75,13 +73,13 @@ public class LinkMapIndexTest extends BaseDBTest {
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final var document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    db.commit();
+    session.commit();
 
     final var keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(session), 2);
 
     Iterator<Object> keyIterator;
     try (var keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -98,7 +96,7 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     final var valueIndexMap = getIndex("mapIndexTestValue");
 
-    Assert.assertEquals(valueIndexMap.getInternal().size(db), 2);
+    Assert.assertEquals(valueIndexMap.getInternal().size(session), 2);
     Iterator<Object> valuesIterator;
     try (var valueStream = valueIndexMap.getInternal().keyStream()) {
       valuesIterator = valueStream.iterator();
@@ -116,32 +114,32 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapInTx() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
-    db.commit();
+    session.commit();
 
     try {
-      db.begin();
+      session.begin();
       Map<String, RID> map = new HashMap<>();
 
       map.put("key1", docOne.getIdentity());
       map.put("key2", docTwo.getIdentity());
 
-      final var document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
+      final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
       document.field("linkMap", map);
       document.save();
-      db.commit();
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     final var keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(session), 2);
 
     Iterator<Object> keyIterator;
     try (var keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -156,7 +154,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final var valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(db), 2);
+    Assert.assertEquals(valueIndexMap.getInternal().size(session), 2);
 
     Iterator<Object> valuesIterator;
     try (var valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -175,15 +173,15 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateOne() {
     checkEmbeddedDB();
 
-    db.begin();
+    session.begin();
 
-    final var docOne = ((EntityImpl) db.newEntity());
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) session.newEntity());
     docThree.save();
 
     Map<String, RID> mapOne = new HashMap<>();
@@ -191,7 +189,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     mapOne.put("key1", docOne.getIdentity());
     mapOne.put("key2", docTwo.getIdentity());
 
-    final var document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", mapOne);
     document.save();
 
@@ -202,10 +200,10 @@ public class LinkMapIndexTest extends BaseDBTest {
     document.field("linkMap", mapTwo);
     document.save();
 
-    db.commit();
+    session.commit();
 
     final var keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(session), 2);
 
     Iterator<Object> keysIterator;
     try (var keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -220,7 +218,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final var valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(db), 2);
+    Assert.assertEquals(valueIndexMap.getInternal().size(session), 2);
 
     Iterator<Object> valuesIterator;
     try (var valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -239,11 +237,11 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateOneTx() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
     try {
@@ -252,18 +250,18 @@ public class LinkMapIndexTest extends BaseDBTest {
       mapTwo.put("key3", docOne.getIdentity());
       mapTwo.put("key2", docTwo.getIdentity());
 
-      final var document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
+      final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
       document.field("linkMap", mapTwo);
       document.save();
 
-      db.commit();
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     final var keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(session), 2);
 
     Iterator<Object> keysIterator;
     try (var keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -278,7 +276,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final var valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(db), 2);
+    Assert.assertEquals(valueIndexMap.getInternal().size(session), 2);
 
     Iterator<Object> valuesIterator;
     try (var valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -297,14 +295,14 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateOneTxRollback() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) session.newEntity());
     docThree.save();
 
     Map<String, RID> mapOne = new HashMap<>();
@@ -312,13 +310,13 @@ public class LinkMapIndexTest extends BaseDBTest {
     mapOne.put("key1", docOne.getIdentity());
     mapOne.put("key2", docTwo.getIdentity());
 
-    var document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
+    var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", mapOne);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    document = db.bindToSession(document);
+    session.begin();
+    document = session.bindToSession(document);
     final Map<String, RID> mapTwo = new HashMap<>();
 
     mapTwo.put("key3", docTwo.getIdentity());
@@ -326,10 +324,10 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     document.field("linkMap", mapTwo);
     document.save();
-    db.rollback();
+    session.rollback();
 
     final var keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(session), 2);
 
     Iterator<Object> keysIterator;
     try (var keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -344,7 +342,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final var valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(db), 2);
+    Assert.assertEquals(valueIndexMap.getInternal().size(session), 2);
 
     Iterator<Object> valuesIterator;
     try (var valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -363,14 +361,14 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapAddItem() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) session.newEntity());
     docThree.save();
 
     Map<String, RID> map = new HashMap<>();
@@ -378,20 +376,20 @@ public class LinkMapIndexTest extends BaseDBTest {
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final var document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    db
+    session.begin();
+    session
         .command(
             "UPDATE " + document.getIdentity() + " set linkMap['key3'] = " + docThree.getIdentity())
         .close();
-    db.commit();
+    session.commit();
 
     final var keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(db), 3);
+    Assert.assertEquals(keyIndexMap.getInternal().size(session), 3);
 
     Iterator<Object> keysIterator;
     try (var keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -406,7 +404,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final var valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(db), 3);
+    Assert.assertEquals(valueIndexMap.getInternal().size(session), 3);
 
     final Iterator<Object> valuesIterator;
     try (var valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -426,14 +424,14 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapAddItemTx() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) session.newEntity());
     docThree.save();
 
     Map<String, RID> map = new HashMap<>();
@@ -441,24 +439,24 @@ public class LinkMapIndexTest extends BaseDBTest {
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final var document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    db.commit();
+    session.commit();
 
     try {
-      db.begin();
-      final EntityImpl loadedDocument = db.load(document.getIdentity());
+      session.begin();
+      final EntityImpl loadedDocument = session.load(document.getIdentity());
       loadedDocument.<Map<String, RID>>field("linkMap").put("key3", docThree.getIdentity());
       loadedDocument.save();
-      db.commit();
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     final var keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(db), 3);
+    Assert.assertEquals(keyIndexMap.getInternal().size(session), 3);
 
     final Iterator<Object> keysIterator;
     try (var keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -474,7 +472,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final var valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(db), 3);
+    Assert.assertEquals(valueIndexMap.getInternal().size(session), 3);
 
     Iterator<Object> valuesIterator;
     try (var valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -494,14 +492,14 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapAddItemTxRollback() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) session.newEntity());
     docThree.save();
 
     Map<String, RID> map = new HashMap<>();
@@ -509,19 +507,19 @@ public class LinkMapIndexTest extends BaseDBTest {
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final var document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    final EntityImpl loadedDocument = db.load(document.getIdentity());
+    session.begin();
+    final EntityImpl loadedDocument = session.load(document.getIdentity());
     loadedDocument.<Map<String, RID>>field("linkMap").put("key3", docThree.getIdentity());
     loadedDocument.save();
-    db.rollback();
+    session.rollback();
 
     final var keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(session), 2);
 
     final Iterator<Object> keysIterator;
     try (var keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -536,7 +534,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final var valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(db), 2);
+    Assert.assertEquals(valueIndexMap.getInternal().size(session), 2);
 
     final Iterator<Object> valuesIterator;
     try (var valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -555,14 +553,14 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateItem() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) session.newEntity());
     docThree.save();
 
     Map<String, RID> map = new HashMap<>();
@@ -570,21 +568,21 @@ public class LinkMapIndexTest extends BaseDBTest {
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final var document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    db
+    session.begin();
+    session
         .command(
             "UPDATE " + document.getIdentity() + " set linkMap['key2'] = " + docThree.getIdentity())
         .close();
-    db.commit();
+    session.commit();
 
     final var keyIndexMap = getIndex("mapIndexTestKey");
 
-    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(session), 2);
     final Iterator<Object> keysIterator;
     try (var keyStream = keyIndexMap.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
@@ -598,7 +596,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final var valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(db), 2);
+    Assert.assertEquals(valueIndexMap.getInternal().size(session), 2);
 
     Iterator<Object> valuesIterator;
     try (var valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -617,14 +615,14 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateItemInTx() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) session.newEntity());
     docThree.save();
 
     Map<String, RID> map = new HashMap<>();
@@ -632,26 +630,26 @@ public class LinkMapIndexTest extends BaseDBTest {
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final var document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    db.commit();
+    session.commit();
 
     try {
-      db.begin();
-      final EntityImpl loadedDocument = db.load(document.getIdentity());
+      session.begin();
+      final EntityImpl loadedDocument = session.load(document.getIdentity());
       loadedDocument.<Map<String, RID>>field("linkMap").put("key2", docThree.getIdentity());
       loadedDocument.save();
-      db.commit();
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     final var keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(session), 2);
 
-    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(session), 2);
     final Iterator<Object> keysIterator;
     try (var keyStream = keyIndexMap.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
@@ -665,7 +663,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final var valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(db), 2);
+    Assert.assertEquals(valueIndexMap.getInternal().size(session), 2);
 
     final Iterator<Object> valuesIterator;
     try (var valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -684,14 +682,14 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapUpdateItemInTxRollback() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) session.newEntity());
     docThree.save();
 
     Map<String, RID> map = new HashMap<>();
@@ -699,19 +697,19 @@ public class LinkMapIndexTest extends BaseDBTest {
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final var document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    final EntityImpl loadedDocument = db.load(document.getIdentity());
+    session.begin();
+    final EntityImpl loadedDocument = session.load(document.getIdentity());
     loadedDocument.<Map<String, RID>>field("linkMap").put("key2", docThree.getIdentity());
     loadedDocument.save();
-    db.rollback();
+    session.rollback();
 
     final var keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(session), 2);
 
     Iterator<Object> keysIterator;
     try (var keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -726,7 +724,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final var valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(db), 2);
+    Assert.assertEquals(valueIndexMap.getInternal().size(session), 2);
 
     Iterator<Object> valuesIterator;
     try (var valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -745,14 +743,14 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapRemoveItem() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) session.newEntity());
     docThree.save();
 
     Map<String, RID> map = new HashMap<>();
@@ -761,17 +759,17 @@ public class LinkMapIndexTest extends BaseDBTest {
     map.put("key2", docTwo.getIdentity());
     map.put("key3", docThree.getIdentity());
 
-    final var document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    db.command("UPDATE " + document.getIdentity() + " remove linkMap = 'key2'").close();
-    db.commit();
+    session.begin();
+    session.command("UPDATE " + document.getIdentity() + " remove linkMap = 'key2'").close();
+    session.commit();
 
     final var keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(session), 2);
 
     final Iterator<Object> keysIterator;
     try (var keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -786,7 +784,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final var valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(db), 2);
+    Assert.assertEquals(valueIndexMap.getInternal().size(session), 2);
 
     Iterator<Object> valuesIterator;
     try (var valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -805,14 +803,14 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapRemoveItemInTx() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) session.newEntity());
     docThree.save();
 
     Map<String, RID> map = new HashMap<>();
@@ -821,24 +819,24 @@ public class LinkMapIndexTest extends BaseDBTest {
     map.put("key2", docTwo.getIdentity());
     map.put("key3", docThree.getIdentity());
 
-    final var document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    db.commit();
+    session.commit();
 
     try {
-      db.begin();
-      final EntityImpl loadedDocument = db.load(document.getIdentity());
+      session.begin();
+      final EntityImpl loadedDocument = session.load(document.getIdentity());
       loadedDocument.<Map<String, RID>>field("linkMap").remove("key2");
       loadedDocument.save();
-      db.commit();
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     final var keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(session), 2);
 
     Iterator<Object> keysIterator;
     try (var keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -853,7 +851,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final var valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(db), 2);
+    Assert.assertEquals(valueIndexMap.getInternal().size(session), 2);
 
     Iterator<Object> valuesIterator;
     try (var valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -872,14 +870,14 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapRemoveItemInTxRollback() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) session.newEntity());
     docThree.save();
 
     Map<String, RID> map = new HashMap<>();
@@ -888,19 +886,19 @@ public class LinkMapIndexTest extends BaseDBTest {
     map.put("key2", docTwo.getIdentity());
     map.put("key3", docThree.getIdentity());
 
-    final var document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    final EntityImpl loadedDocument = db.load(document.getIdentity());
+    session.begin();
+    final EntityImpl loadedDocument = session.load(document.getIdentity());
     loadedDocument.<Map<String, RID>>field("linkMap").remove("key2");
     loadedDocument.save();
-    db.rollback();
+    session.rollback();
 
     final var keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(db), 3);
+    Assert.assertEquals(keyIndexMap.getInternal().size(session), 3);
 
     final Iterator<Object> keyIterator;
     try (var keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -915,7 +913,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final var valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(db), 3);
+    Assert.assertEquals(valueIndexMap.getInternal().size(session), 3);
 
     final Iterator<Object> valuesIterator;
     try (var valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -935,14 +933,14 @@ public class LinkMapIndexTest extends BaseDBTest {
   public void testIndexMapRemove() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
-    final var docThree = ((EntityImpl) db.newEntity());
+    final var docThree = ((EntityImpl) session.newEntity());
     docThree.save();
 
     Map<String, RID> map = new HashMap<>();
@@ -950,30 +948,30 @@ public class LinkMapIndexTest extends BaseDBTest {
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final var document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    db.bindToSession(document).delete();
-    db.commit();
+    session.begin();
+    session.bindToSession(document).delete();
+    session.commit();
 
     final var keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(db), 0);
+    Assert.assertEquals(keyIndexMap.getInternal().size(session), 0);
 
     final var valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(db), 0);
+    Assert.assertEquals(valueIndexMap.getInternal().size(session), 0);
   }
 
   public void testIndexMapRemoveInTx() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
     Map<String, RID> map = new HashMap<>();
@@ -981,35 +979,35 @@ public class LinkMapIndexTest extends BaseDBTest {
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final var document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    db.commit();
+    session.commit();
 
     try {
-      db.begin();
-      db.bindToSession(document).delete();
-      db.commit();
+      session.begin();
+      session.bindToSession(document).delete();
+      session.commit();
     } catch (Exception e) {
-      db.rollback();
+      session.rollback();
       throw e;
     }
 
     final var keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(db), 0);
+    Assert.assertEquals(keyIndexMap.getInternal().size(session), 0);
 
     final var valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(db), 0);
+    Assert.assertEquals(valueIndexMap.getInternal().size(session), 0);
   }
 
   public void testIndexMapRemoveInTxRollback() {
     checkEmbeddedDB();
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
     Map<String, RID> map = new HashMap<>();
@@ -1017,17 +1015,17 @@ public class LinkMapIndexTest extends BaseDBTest {
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final var document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
+    final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    db.commit();
+    session.commit();
 
-    db.begin();
-    db.bindToSession(document).delete();
-    db.rollback();
+    session.begin();
+    session.bindToSession(document).delete();
+    session.rollback();
 
     final var keyIndexMap = getIndex("mapIndexTestKey");
-    Assert.assertEquals(keyIndexMap.getInternal().size(db), 2);
+    Assert.assertEquals(keyIndexMap.getInternal().size(session), 2);
 
     final Iterator<Object> keysIterator;
     try (var keyStream = keyIndexMap.getInternal().keyStream()) {
@@ -1042,7 +1040,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     }
 
     final var valueIndexMap = getIndex("mapIndexTestValue");
-    Assert.assertEquals(valueIndexMap.getInternal().size(db), 2);
+    Assert.assertEquals(valueIndexMap.getInternal().size(session), 2);
 
     final Iterator<Object> valuesIterator;
     try (var valueStream = valueIndexMap.getInternal().keyStream()) {
@@ -1060,11 +1058,11 @@ public class LinkMapIndexTest extends BaseDBTest {
 
   public void testIndexMapSQL() {
 
-    db.begin();
-    final var docOne = ((EntityImpl) db.newEntity());
+    session.begin();
+    final var docOne = ((EntityImpl) session.newEntity());
     docOne.save();
 
-    final var docTwo = ((EntityImpl) db.newEntity());
+    final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.save();
 
     Map<String, RID> map = new HashMap<>();
@@ -1072,20 +1070,20 @@ public class LinkMapIndexTest extends BaseDBTest {
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    var document = ((EntityImpl) db.newEntity("LinkMapIndexTestClass"));
+    var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
     document.save();
-    db.commit();
+    session.commit();
 
     final List<EntityImpl> resultByKey =
-        db.query(
+        session.query(
             new SQLSynchQuery<EntityImpl>(
                 "select * from LinkMapIndexTestClass where linkMap containskey ?"),
             "key1");
     Assert.assertNotNull(resultByKey);
     Assert.assertEquals(resultByKey.size(), 1);
 
-    document = db.bindToSession(document);
+    document = session.bindToSession(document);
     Assert.assertEquals(map, document.field("linkMap"));
 
     var resultByValue =

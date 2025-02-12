@@ -7,7 +7,6 @@ import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -24,7 +23,7 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
 
   public VertexEntityImpl(DatabaseSessionInternal session, String klass) {
     super(session, klass);
-    if (!getImmutableSchemaClass().isVertexType()) {
+    if (!getImmutableSchemaClass().isVertexType(session)) {
       throw new IllegalArgumentException(getClassName() + " is not a vertex class");
     }
   }
@@ -90,18 +89,6 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
     checkForBinding();
 
     super.delete();
-  }
-
-  @Override
-  public VertexEntityImpl copy() {
-    checkForBinding();
-
-    var newEntity = new VertexEntityImpl(getSession());
-    RecordInternal.unsetDirty(newEntity);
-    copyTo(newEntity);
-    newEntity.dirty = 1;
-
-    return newEntity;
   }
 
   @Override

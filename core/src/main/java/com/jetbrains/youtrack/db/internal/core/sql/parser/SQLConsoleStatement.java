@@ -2,10 +2,10 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
+import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
@@ -26,7 +26,7 @@ public class SQLConsoleStatement extends SQLSimpleExecStatement {
 
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
-    var item = new ResultInternal(ctx.getDatabase());
+    var item = new ResultInternal(ctx.getDatabaseSession());
     Object msg = "" + message.execute((Identifiable) null, ctx);
 
     if (logLevel.getStringValue().equalsIgnoreCase("log")) {
@@ -41,7 +41,8 @@ public class SQLConsoleStatement extends SQLSimpleExecStatement {
     } else if (logLevel.getStringValue().equalsIgnoreCase("debug")) {
       LogManager.instance().debug(this, "%s", msg);
     } else {
-      throw new CommandExecutionException("Unsupported log level: " + logLevel);
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
+          "Unsupported log level: " + logLevel);
     }
 
     item.setProperty("operation", "console");

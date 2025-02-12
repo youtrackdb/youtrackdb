@@ -26,12 +26,10 @@ import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseLifecycleListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.server.config.ServerConfiguration;
 import com.jetbrains.youtrack.db.internal.server.config.ServerHookConfiguration;
 import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfiguration;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,13 +68,13 @@ public class ConfigurableHooksManager implements DatabaseLifecycleListener {
   }
 
   @Override
-  public void onCreate(final DatabaseSessionInternal iDatabase) {
-    onOpen(iDatabase);
+  public void onCreate(final DatabaseSessionInternal session) {
+    onOpen(session);
   }
 
-  public void onOpen(DatabaseSessionInternal iDatabase) {
-    if (!iDatabase.isRemote()) {
-      var db = iDatabase;
+  public void onOpen(DatabaseSessionInternal session) {
+    if (!session.isRemote()) {
+      var db = session;
       for (var hook : configuredHooks) {
         try {
           final var pos = RecordHook.HOOK_POSITION.valueOf(hook.position);
@@ -90,7 +88,7 @@ public class ConfigurableHooksManager implements DatabaseLifecycleListener {
           }
 
           if (constructor != null) {
-            h = (RecordHook) constructor.newInstance(iDatabase);
+            h = (RecordHook) constructor.newInstance(session);
           } else {
             h = (RecordHook) klass.newInstance();
           }
@@ -124,15 +122,11 @@ public class ConfigurableHooksManager implements DatabaseLifecycleListener {
   }
 
   @Override
-  public void onClose(DatabaseSessionInternal iDatabase) {
+  public void onClose(DatabaseSessionInternal session) {
   }
 
   @Override
-  public void onDrop(DatabaseSessionInternal iDatabase) {
-  }
-
-  @Override
-  public void onLocalNodeConfigurationRequest(EntityImpl iConfiguration) {
+  public void onDrop(DatabaseSessionInternal session) {
   }
 
   public String getName() {

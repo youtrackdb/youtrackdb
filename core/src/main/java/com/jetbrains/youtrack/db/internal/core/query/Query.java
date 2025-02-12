@@ -31,7 +31,7 @@ public interface Query<T extends Object> extends CommandRequest {
    *
    * @return List of records if any record matches the query constraints, otherwise an empty List.
    */
-  List<T> run(Object... iArgs);
+  List<T> run(DatabaseSessionInternal session, Object... iArgs);
 
   /**
    * Returns the first occurrence found if any

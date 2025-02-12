@@ -48,7 +48,7 @@ public class CommandExecutorSQLCreateVertex extends CommandExecutorSQLSetAware
   private List<Pair<String, Object>> fields;
 
   @SuppressWarnings("unchecked")
-  public CommandExecutorSQLCreateVertex parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLCreateVertex parse(DatabaseSessionInternal session,
       final CommandRequest iRequest) {
 
     final var textRequest = (CommandRequestText) iRequest;
@@ -56,30 +56,28 @@ public class CommandExecutorSQLCreateVertex extends CommandExecutorSQLSetAware
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
 
-      final var database = getDatabase();
-
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
       String className = null;
 
-      parserRequiredKeyword("CREATE");
-      parserRequiredKeyword("VERTEX");
+      parserRequiredKeyword(session.getDatabaseName(), "CREATE");
+      parserRequiredKeyword(session.getDatabaseName(), "VERTEX");
 
-      var temp = parseOptionalWord(true);
+      var temp = parseOptionalWord(session.getDatabaseName(), true);
 
       while (temp != null) {
         if (temp.equals("CLUSTER")) {
-          clusterName = parserRequiredWord(false);
+          clusterName = parserRequiredWord(session.getDatabaseName(), false);
 
         } else if (temp.equals(KEYWORD_SET)) {
           fields = new ArrayList<Pair<String, Object>>();
-          parseSetFields(db, clazz, fields);
+          parseSetFields(session, clazz, fields);
 
         } else if (temp.equals(KEYWORD_CONTENT)) {
-          parseContent(db);
+          parseContent(session);
 
         } else if (className == null && temp.length() > 0) {
           className = temp;
@@ -90,10 +88,11 @@ public class CommandExecutorSQLCreateVertex extends CommandExecutorSQLSetAware
           }
 
           // GET/CHECK CLASS NAME
-          clazz = (SchemaClassInternal) database.getMetadata().getImmutableSchemaSnapshot()
+          clazz = (SchemaClassInternal) session.getMetadata().getImmutableSchemaSnapshot()
               .getClass(className);
           if (clazz == null) {
-            throw new CommandSQLParsingException("Class '" + className + "' was not found");
+            throw new CommandSQLParsingException(session.getDatabaseName(),
+                "Class '" + className + "' was not found");
           }
         }
 
@@ -108,10 +107,11 @@ public class CommandExecutorSQLCreateVertex extends CommandExecutorSQLSetAware
         className = "V";
 
         // GET/CHECK CLASS NAME
-        clazz = (SchemaClassInternal) database.getMetadata().getImmutableSchemaSnapshot()
+        clazz = (SchemaClassInternal) session.getMetadata().getImmutableSchemaSnapshot()
             .getClass(className);
         if (clazz == null) {
-          throw new CommandSQLParsingException("Class '" + className + "' was not found");
+          throw new CommandSQLParsingException(session.getDatabaseName(),
+              "Class '" + className + "' was not found");
         }
       }
     } finally {
@@ -123,30 +123,31 @@ public class CommandExecutorSQLCreateVertex extends CommandExecutorSQLSetAware
   /**
    * Execute the command and return the EntityImpl object created.
    */
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (clazz == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not been parsed yet");
     }
 
     // CREATE VERTEX DOES NOT HAVE TO BE IN TX
-    final var vertex = (VertexInternal) getDatabase().newVertex(clazz);
-
+    final var vertex = (VertexInternal) session.newVertex(clazz);
     if (fields != null)
     // EVALUATE FIELDS
     {
       for (final var f : fields) {
         if (f.getValue() instanceof SQLFunctionRuntime) {
           f.setValue(
-              ((SQLFunctionRuntime) f.getValue()).getValue(vertex.getRecord(db), null, context));
+              ((SQLFunctionRuntime) f.getValue()).getValue(vertex.getRecord(session), null,
+                  context));
         }
       }
     }
 
-    SQLHelper.bindParameters(vertex.getRecord(db), fields, new CommandParameters(iArgs), context);
+    SQLHelper.bindParameters(vertex.getRecord(session), fields, new CommandParameters(iArgs),
+        context);
 
     if (content != null) {
-      ((EntityImpl) vertex.getRecord(db)).merge(content, true, false);
+      ((EntityImpl) vertex.getRecord(session)).merge(content, true, false);
     }
 
     if (clusterName != null) {
@@ -155,29 +156,20 @@ public class CommandExecutorSQLCreateVertex extends CommandExecutorSQLSetAware
       vertex.save();
     }
 
-    return vertex.getRecord(db);
+    return vertex.getRecord(session);
   }
 
   @Override
-  public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
-    return DISTRIBUTED_EXECUTION_MODE.LOCAL;
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.WRITE;
-  }
-
-  @Override
-  public Set<String> getInvolvedClusters() {
+  public Set<String> getInvolvedClusters(DatabaseSessionInternal session) {
     if (clazz != null) {
       return Collections.singleton(
-          getDatabase().getClusterNameById(clazz.getClusterSelection().getCluster(clazz, null)));
+          session.getClusterNameById(
+              clazz.getClusterSelection(session).getCluster(session, clazz, null)));
     } else if (clusterName != null) {
-      return getInvolvedClustersOfClusters(Collections.singleton(clusterName));
+      return getInvolvedClustersOfClusters(session, Collections.singleton(clusterName));
     }
 
-    return Collections.EMPTY_SET;
+    return Collections.emptySet();
   }
 
   @Override

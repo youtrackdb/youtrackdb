@@ -19,7 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.CommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.common.comparator.CaseInsentiveComparator;
@@ -49,48 +48,48 @@ public class CommandExecutorSQLDropProperty extends CommandExecutorSQLAbstract
   private boolean ifExists;
   private boolean force = false;
 
-  public CommandExecutorSQLDropProperty parse(DatabaseSessionInternal db,
+  public CommandExecutorSQLDropProperty parse(DatabaseSessionInternal session,
       final CommandRequest iRequest) {
     final var textRequest = (CommandRequestText) iRequest;
 
     var queryText = textRequest.getText();
     var originalQuery = queryText;
     try {
-      queryText = preParse(queryText, iRequest);
+      queryText = preParse(session, queryText, iRequest);
       textRequest.setText(queryText);
 
-      init((CommandRequestText) iRequest);
+      init(session, (CommandRequestText) iRequest);
 
       final var word = new StringBuilder();
 
       var oldPos = 0;
       var pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_DROP)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_DROP + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_PROPERTY)) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Keyword " + KEYWORD_PROPERTY + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, false);
       if (pos == -1) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Expected <class>.<property>. Use " + getSyntax(), parserText, pos);
       }
 
       var parts = word.toString().split("\\.");
       if (parts.length != 2) {
-        throw new CommandSQLParsingException(
+        throw new CommandSQLParsingException(session,
             "Expected <class>.<property>. Use " + getSyntax(), parserText, pos);
       }
 
       className = decodeClassName(parts[0]);
       if (className == null) {
-        throw new CommandSQLParsingException("Class not found", parserText, pos);
+        throw new CommandSQLParsingException(session, "Class not found", parserText, pos);
       }
       fieldName = decodeClassName(parts[1]);
 
@@ -104,11 +103,11 @@ public class CommandExecutorSQLDropProperty extends CommandExecutorSQLAbstract
           if ("EXISTS".contentEquals(word)) {
             this.ifExists = true;
           } else {
-            throw new CommandSQLParsingException(
+            throw new CommandSQLParsingException(session,
                 "Wrong query parameter, expecting EXISTS after IF", parserText, pos);
           }
         } else {
-          throw new CommandSQLParsingException("Wrong query parameter", parserText, pos);
+          throw new CommandSQLParsingException(session, "Wrong query parameter", parserText, pos);
         }
       }
     } finally {
@@ -121,32 +120,31 @@ public class CommandExecutorSQLDropProperty extends CommandExecutorSQLAbstract
   /**
    * Execute the CREATE PROPERTY.
    */
-  public Object execute(DatabaseSessionInternal db, final Map<Object, Object> iArgs) {
+  public Object execute(DatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     if (fieldName == null) {
-      throw new CommandExecutionException(
+      throw new CommandExecutionException(session,
           "Cannot execute the command because it has not yet been parsed");
     }
 
-    final var database = getDatabase();
     var sourceClass =
-        (SchemaClassImpl) database.getMetadata().getSchemaInternal().getClassInternal(className);
+        (SchemaClassImpl) session.getMetadata().getSchemaInternal().getClassInternal(className);
     if (sourceClass == null) {
-      throw new CommandExecutionException("Source class '" + className + "' not found");
+      throw new CommandExecutionException(session, "Source class '" + className + "' not found");
     }
 
-    if (ifExists && !sourceClass.existsProperty(fieldName)) {
+    if (ifExists && !sourceClass.existsProperty(session, fieldName)) {
       return null;
     }
 
-    final var indexes = relatedIndexes(fieldName);
+    final var indexes = relatedIndexes(session, fieldName);
     if (!indexes.isEmpty()) {
       if (force) {
-        dropRelatedIndexes(indexes);
+        dropRelatedIndexes(indexes, session);
       } else {
         final var indexNames = new StringBuilder();
 
         var first = true;
-        for (final var index : sourceClass.getClassInvolvedIndexesInternal(database, fieldName)) {
+        for (final var index : sourceClass.getClassInvolvedIndexesInternal(session, fieldName)) {
           if (!first) {
             indexNames.append(", ");
           } else {
@@ -155,7 +153,7 @@ public class CommandExecutorSQLDropProperty extends CommandExecutorSQLAbstract
           indexNames.append(index.getName());
         }
 
-        throw new CommandExecutionException(
+        throw new CommandExecutionException(session,
             "Property used in indexes ("
                 + indexNames
                 + "). Please drop these indexes before removing property or use FORCE parameter.");
@@ -163,36 +161,21 @@ public class CommandExecutorSQLDropProperty extends CommandExecutorSQLAbstract
     }
 
     // REMOVE THE PROPERTY
-    sourceClass.dropProperty(database, fieldName);
+    sourceClass.dropProperty(session, fieldName);
 
     return null;
   }
 
-  @Override
-  public long getDistributedTimeout() {
-    return getDatabase()
-        .getConfiguration()
-        .getValueAsLong(GlobalConfiguration.DISTRIBUTED_COMMAND_TASK_SYNCH_TIMEOUT);
-  }
-
-  @Override
-  public QUORUM_TYPE getQuorumType() {
-    return QUORUM_TYPE.ALL;
-  }
-
-  private void dropRelatedIndexes(final List<Index> indexes) {
-    var database = getDatabase();
+  private static void dropRelatedIndexes(final List<Index> indexes, DatabaseSessionInternal db) {
     for (final var index : indexes) {
-      database.command("DROP INDEX " + index.getName()).close();
+      db.command("DROP INDEX " + index.getName()).close();
     }
   }
 
-  private List<Index> relatedIndexes(final String fieldName) {
+  private List<Index> relatedIndexes(DatabaseSessionInternal db, final String fieldName) {
     final List<Index> result = new ArrayList<Index>();
-
-    final var database = getDatabase();
     for (final var index :
-        database.getMetadata().getIndexManagerInternal().getClassIndexes(database, className)) {
+        db.getMetadata().getIndexManagerInternal().getClassIndexes(db, className)) {
       if (Collections.indexOf(
           index.getDefinition().getFields(), fieldName, new CaseInsentiveComparator())
           > -1) {

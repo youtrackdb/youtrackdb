@@ -20,10 +20,10 @@
 
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.index;
 
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
 import java.nio.ByteBuffer;
@@ -44,31 +44,35 @@ public class SimpleKeySerializer<T extends Comparable<?>> implements BinarySeria
   public SimpleKeySerializer() {
   }
 
-  public int getObjectSize(T key, Object... hints) {
-    init(key, hints);
-    return BinarySerializerFactory.TYPE_IDENTIFIER_SIZE + binarySerializer.getObjectSize(key);
+  public int getObjectSize(BinarySerializerFactory serializerFactory, T key, Object... hints) {
+    init(key, hints, serializerFactory);
+    return BinarySerializerFactory.TYPE_IDENTIFIER_SIZE + binarySerializer.getObjectSize(
+        serializerFactory, key);
   }
 
-  public void serialize(T key, byte[] stream, int startPosition, Object... hints) {
-    init(key, hints);
+  public void serialize(T key, BinarySerializerFactory serializerFactory, byte[] stream,
+      int startPosition, Object... hints) {
+    init(key, hints, serializerFactory);
     stream[startPosition] = binarySerializer.getId();
     startPosition += BinarySerializerFactory.TYPE_IDENTIFIER_SIZE;
-    binarySerializer.serialize(key, stream, startPosition);
+    binarySerializer.serialize(key, serializerFactory, stream, startPosition);
   }
 
-  public T deserialize(byte[] stream, int startPosition) {
+  public T deserialize(BinarySerializerFactory serializerFactory, byte[] stream,
+      int startPosition) {
     final var typeId = stream[startPosition];
     startPosition += BinarySerializerFactory.TYPE_IDENTIFIER_SIZE;
 
-    init(typeId);
-    return (T) binarySerializer.deserialize(stream, startPosition);
+    init(typeId, serializerFactory);
+    return (T) binarySerializer.deserialize(serializerFactory, stream, startPosition);
   }
 
-  public int getObjectSize(byte[] stream, int startPosition) {
+  public int getObjectSize(BinarySerializerFactory serializerFactory, byte[] stream,
+      int startPosition) {
     final var serializerId = stream[startPosition];
-    init(serializerId);
+    init(serializerId, serializerFactory);
     return BinarySerializerFactory.TYPE_IDENTIFIER_SIZE
-        + binarySerializer.getObjectSize(
+        + binarySerializer.getObjectSize(serializerFactory,
         stream, startPosition + BinarySerializerFactory.TYPE_IDENTIFIER_SIZE);
   }
 
@@ -76,7 +80,7 @@ public class SimpleKeySerializer<T extends Comparable<?>> implements BinarySeria
     return ID;
   }
 
-  protected void init(T key, Object[] hints) {
+  protected void init(T key, Object[] hints, BinarySerializerFactory serializerFactory) {
     if (binarySerializer == null) {
       final PropertyType[] types;
 
@@ -93,37 +97,40 @@ public class SimpleKeySerializer<T extends Comparable<?>> implements BinarySeria
         type = PropertyType.getTypeByClass(key.getClass());
       }
 
-      binarySerializer = BinarySerializerFactory.getInstance().getObjectSerializer(type);
+      binarySerializer = serializerFactory.getObjectSerializer(type);
     }
   }
 
-  protected void init(byte serializerId) {
+  protected void init(byte serializerId, BinarySerializerFactory serializerFactory) {
     if (binarySerializer == null) {
-      binarySerializer = BinarySerializerFactory.getInstance().getObjectSerializer(serializerId);
+      binarySerializer = serializerFactory.getObjectSerializer(serializerId);
     }
   }
 
-  public int getObjectSizeNative(byte[] stream, int startPosition) {
+  public int getObjectSizeNative(BinarySerializerFactory serializerFactory, byte[] stream,
+      int startPosition) {
     final var serializerId = stream[startPosition];
-    init(serializerId);
+    init(serializerId, serializerFactory);
     return BinarySerializerFactory.TYPE_IDENTIFIER_SIZE
         + binarySerializer.getObjectSizeNative(
-        stream, startPosition + BinarySerializerFactory.TYPE_IDENTIFIER_SIZE);
+        serializerFactory, stream, startPosition + BinarySerializerFactory.TYPE_IDENTIFIER_SIZE);
   }
 
-  public void serializeNativeObject(T key, byte[] stream, int startPosition, Object... hints) {
-    init(key, hints);
+  public void serializeNativeObject(T key, BinarySerializerFactory serializerFactory, byte[] stream,
+      int startPosition, Object... hints) {
+    init(key, hints, serializerFactory);
     stream[startPosition] = binarySerializer.getId();
     startPosition += BinarySerializerFactory.TYPE_IDENTIFIER_SIZE;
-    binarySerializer.serializeNativeObject(key, stream, startPosition);
+    binarySerializer.serializeNativeObject(key, serializerFactory, stream, startPosition);
   }
 
-  public T deserializeNativeObject(byte[] stream, int startPosition) {
+  public T deserializeNativeObject(BinarySerializerFactory serializerFactory, byte[] stream,
+      int startPosition) {
     final var typeId = stream[startPosition];
     startPosition += BinarySerializerFactory.TYPE_IDENTIFIER_SIZE;
 
-    init(typeId);
-    return (T) binarySerializer.deserializeNativeObject(stream, startPosition);
+    init(typeId, serializerFactory);
+    return (T) binarySerializer.deserializeNativeObject(serializerFactory, stream, startPosition);
   }
 
   public boolean isFixedLength() {
@@ -135,72 +142,79 @@ public class SimpleKeySerializer<T extends Comparable<?>> implements BinarySeria
   }
 
   @Override
-  public T preprocess(T value, Object... hints) {
-    init(value, hints);
+  public T preprocess(BinarySerializerFactory serializerFactory, T value, Object... hints) {
+    init(value, hints, serializerFactory);
 
-    return (T) binarySerializer.preprocess(value);
+    return (T) binarySerializer.preprocess(serializerFactory, value);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public void serializeInByteBufferObject(T object, ByteBuffer buffer, Object... hints) {
-    init(object, hints);
+  public void serializeInByteBufferObject(BinarySerializerFactory serializerFactory, T object,
+      ByteBuffer buffer, Object... hints) {
+    init(object, hints, serializerFactory);
     buffer.put(binarySerializer.getId());
-    binarySerializer.serializeInByteBufferObject(object, buffer);
+    binarySerializer.serializeInByteBufferObject(serializerFactory, object, buffer);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public T deserializeFromByteBufferObject(ByteBuffer buffer) {
+  public T deserializeFromByteBufferObject(BinarySerializerFactory serializerFactory,
+      ByteBuffer buffer) {
     final var typeId = buffer.get();
 
-    init(typeId);
-    return (T) binarySerializer.deserializeFromByteBufferObject(buffer);
+    init(typeId, serializerFactory);
+    return (T) binarySerializer.deserializeFromByteBufferObject(serializerFactory, buffer);
   }
 
   @Override
-  public T deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
+  public T deserializeFromByteBufferObject(BinarySerializerFactory serializerFactory, int offset,
+      ByteBuffer buffer) {
     final var typeId = buffer.get(offset);
     offset++;
 
-    init(typeId);
-    return (T) binarySerializer.deserializeFromByteBufferObject(offset, buffer);
+    init(typeId, serializerFactory);
+    return (T) binarySerializer.deserializeFromByteBufferObject(serializerFactory, offset, buffer);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public int getObjectSizeInByteBuffer(ByteBuffer buffer) {
+  public int getObjectSizeInByteBuffer(BinarySerializerFactory serializerFactory,
+      ByteBuffer buffer) {
     final var serializerId = buffer.get();
-    init(serializerId);
+    init(serializerId, serializerFactory);
     return BinarySerializerFactory.TYPE_IDENTIFIER_SIZE
-        + binarySerializer.getObjectSizeInByteBuffer(buffer);
+        + binarySerializer.getObjectSizeInByteBuffer(serializerFactory, buffer);
   }
 
   @Override
-  public int getObjectSizeInByteBuffer(int offset, ByteBuffer buffer) {
+  public int getObjectSizeInByteBuffer(BinarySerializerFactory serializerFactory, int offset,
+      ByteBuffer buffer) {
     final var serializerId = buffer.get(offset);
     offset++;
 
-    init(serializerId);
+    init(serializerId, serializerFactory);
     return BinarySerializerFactory.TYPE_IDENTIFIER_SIZE
-        + binarySerializer.getObjectSizeInByteBuffer(offset, buffer);
+        + binarySerializer.getObjectSizeInByteBuffer(serializerFactory, offset, buffer);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public T deserializeFromByteBufferObject(ByteBuffer buffer, WALChanges walChanges, int offset) {
+  public T deserializeFromByteBufferObject(BinarySerializerFactory serializerFactory,
+      ByteBuffer buffer, WALChanges walChanges, int offset) {
     final var typeId = walChanges.getByteValue(buffer, offset++);
 
-    init(typeId);
-    return (T) binarySerializer.deserializeFromByteBufferObject(buffer, walChanges, offset);
+    init(typeId, serializerFactory);
+    return (T) binarySerializer.deserializeFromByteBufferObject(serializerFactory, buffer,
+        walChanges, offset);
   }
 
   /**

@@ -1,11 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,18 +13,21 @@ public class CreateIndexStatementExecutionTest extends BaseMemoryInternalDatabas
   @Test
   public void testPlain() {
     var className = "testPlain";
-    var clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", PropertyType.STRING);
+    var clazz = session.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(session, "name", PropertyType.STRING);
 
-    Assert.assertNull(db.getMetadata().getIndexManagerInternal().getIndex(db, className + ".name"));
+    Assert.assertNull(
+        session.getMetadata().getIndexManagerInternal().getIndex(session, className + ".name"));
     var result =
-        db.command("create index " + className + ".name on " + className + " (name) notunique");
+        session.command(
+            "create index " + className + ".name on " + className + " (name) notunique");
     Assert.assertTrue(result.hasNext());
     var next = result.next();
     Assert.assertFalse(result.hasNext());
     Assert.assertNotNull(next);
     result.close();
-    var idx = db.getMetadata().getIndexManagerInternal().getIndex(db, className + ".name");
+    var idx = session.getMetadata().getIndexManagerInternal()
+        .getIndex(session, className + ".name");
     Assert.assertNotNull(idx);
     Assert.assertFalse(idx.isUnique());
   }
@@ -36,12 +35,13 @@ public class CreateIndexStatementExecutionTest extends BaseMemoryInternalDatabas
   @Test
   public void testIfNotExists() {
     var className = "testIfNotExists";
-    var clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", PropertyType.STRING);
+    var clazz = session.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(session, "name", PropertyType.STRING);
 
-    Assert.assertNull(db.getMetadata().getIndexManagerInternal().getIndex(db, className + ".name"));
+    Assert.assertNull(
+        session.getMetadata().getIndexManagerInternal().getIndex(session, className + ".name"));
     var result =
-        db.command(
+        session.command(
             "create index "
                 + className
                 + ".name IF NOT EXISTS on "
@@ -52,12 +52,13 @@ public class CreateIndexStatementExecutionTest extends BaseMemoryInternalDatabas
     Assert.assertFalse(result.hasNext());
     Assert.assertNotNull(next);
     result.close();
-    var idx = db.getMetadata().getIndexManagerInternal().getIndex(db, className + ".name");
+    var idx = session.getMetadata().getIndexManagerInternal()
+        .getIndex(session, className + ".name");
     Assert.assertNotNull(idx);
     Assert.assertFalse(idx.isUnique());
 
     result =
-        db.command(
+        session.command(
             "create index "
                 + className
                 + ".name IF NOT EXISTS on "

@@ -12,14 +12,11 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCompareOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCondition;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBooleanExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLGeOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLGtOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLeOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLtOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLRid;
 import java.util.Iterator;
 
 /**
@@ -58,7 +55,7 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
     var maxClusterPosition = calculateMaxClusterPosition();
     var iterator =
         new RecordIteratorCluster<DBRecord>(
-            ctx.getDatabase(), clusterId, minClusterPosition, maxClusterPosition);
+            ctx.getDatabaseSession(), clusterId, minClusterPosition, maxClusterPosition);
     Iterator<DBRecord> iter;
     if (ORDER_DESC.equals(order)) {
       iter = iterator.reversed();
@@ -168,24 +165,24 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public Result serialize(DatabaseSessionInternal db) {
-    var result = ExecutionStepInternal.basicSerialize(db, this);
+  public Result serialize(DatabaseSessionInternal session) {
+    var result = ExecutionStepInternal.basicSerialize(session, this);
     result.setProperty("clusterId", clusterId);
     result.setProperty("order", order);
     return result;
   }
 
   @Override
-  public void deserialize(Result fromResult) {
+  public void deserialize(Result fromResult, DatabaseSessionInternal session) {
     try {
-      ExecutionStepInternal.basicDeserialize(fromResult, this);
+      ExecutionStepInternal.basicDeserialize(fromResult, this, session);
       this.clusterId = fromResult.getProperty("clusterId");
       var orderProp = fromResult.getProperty("order");
       if (orderProp != null) {
         this.order = ORDER_ASC.equals(fromResult.getProperty("order")) ? ORDER_ASC : ORDER_DESC;
       }
     } catch (Exception e) {
-      throw BaseException.wrapException(new CommandExecutionException(""), e);
+      throw BaseException.wrapException(new CommandExecutionException(session, ""), e, session);
     }
   }
 
