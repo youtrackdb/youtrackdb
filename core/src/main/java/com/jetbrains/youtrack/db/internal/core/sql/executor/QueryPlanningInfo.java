@@ -12,8 +12,6 @@ import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLTimeout;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLUnwind;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  *
@@ -33,19 +31,6 @@ public class QueryPlanningInfo {
   protected boolean globalLetPresent = false;
 
   protected SQLLetClause perRecordLetClause = null;
-
-  /**
-   * in a sharded execution plan, this maps the single server to the clusters it will be queried for
-   * to execute the query.
-   */
-  protected Map<String, Set<String>> serverToClusters;
-
-  protected Map<String, SelectExecutionPlan> distributedFetchExecutionPlans;
-
-  /**
-   * set to true when the distributedFetchExecutionPlans are aggregated in the main execution plan
-   */
-  public boolean distributedPlanCreated = false;
 
   protected SQLFromClause target;
   protected SQLWhereClause whereClause;
@@ -73,11 +58,6 @@ public class QueryPlanningInfo {
     result.globalLetClause = this.globalLetClause;
     result.globalLetPresent = this.globalLetPresent;
     result.perRecordLetClause = this.perRecordLetClause;
-    result.serverToClusters = this.serverToClusters;
-
-    //    Map<String, SelectExecutionPlan> distributedFetchExecutionPlans;//TODO!
-
-    result.distributedPlanCreated = this.distributedPlanCreated;
     result.target = this.target;
     result.whereClause = this.whereClause;
     result.flattenedWhereClause = this.flattenedWhereClause;

@@ -4,7 +4,6 @@ import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -28,17 +27,13 @@ import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLEqualsCompareOperat
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLGeOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLGroupBy;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLGtOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIndexIdentifier;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInputParameter;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInteger;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLeOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLetClause;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLetItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLtOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMetadataIdentifier;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLOrBlock;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLOrderBy;
@@ -59,19 +54,13 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- *
- */
 public class SelectExecutionPlanner {
-
   private QueryPlanningInfo info;
   private final SQLSelectStatement statement;
 
@@ -143,10 +132,9 @@ public class SelectExecutionPlanner {
 
     handleGlobalLet(result, info, ctx, enableProfiling);
 
-    handleFetchFromTarger(result, info, ctx, enableProfiling);
-
-
     handleLet(result, info, ctx, enableProfiling);
+
+    handleFetchFromTarget(result, info, ctx, enableProfiling);
 
     handleWhere(result, info, ctx, enableProfiling);
 
@@ -208,179 +196,7 @@ public class SelectExecutionPlanner {
     }
   }
 
-  /**
-   * given a cluster map and a set of clusters involved in a query, tries to calculate the minimum
-   * number of nodes that will have to be involved in the query execution, with clusters involved
-   * for each node.
-   *
-   * @param session
-   * @param clusterMap
-   * @param queryClusters
-   * @return a map that has node names as a key and clusters (data files) for each node as a value
-   */
-  private Map<String, Set<String>> getMinimalSetOfNodesForShardedQuery(
-      DatabaseSessionInternal session, String localNode, Map<String, Set<String>> clusterMap,
-      Set<String> queryClusters) {
-    // approximate algorithm, the problem is NP-complete
-    Map<String, Set<String>> result = new LinkedHashMap<>();
-    Set<String> uncovered = new HashSet<>(queryClusters);
-    uncovered =
-        uncovered.stream()
-            .filter(Objects::nonNull)
-            .map(x -> x.toLowerCase(Locale.ENGLISH))
-            .collect(Collectors.toSet());
-
-    // try local node first
-    Set<String> nextNodeClusters = new HashSet<>();
-    var clustersForNode = clusterMap.get(localNode);
-    if (clustersForNode != null) {
-      nextNodeClusters.addAll(clustersForNode);
-    }
-    nextNodeClusters.retainAll(uncovered);
-    if (!nextNodeClusters.isEmpty()) {
-      result.put(localNode, nextNodeClusters);
-      uncovered.removeAll(nextNodeClusters);
-    }
-
-    while (!uncovered.isEmpty()) {
-      var nextNode = findItemThatCoversMore(uncovered, clusterMap);
-      nextNodeClusters = new HashSet<>(clusterMap.get(nextNode));
-      nextNodeClusters.retainAll(uncovered);
-      if (nextNodeClusters.isEmpty()) {
-        throw new CommandExecutionException(session,
-            "Cannot execute a sharded query: clusters ["
-                + String.join(", ", uncovered)
-                + "] are not present on any node"
-                + "\n ["
-                + clusterMap.entrySet().stream()
-                .map(x -> x.getKey() + ":(" + String.join(",", x.getValue()) + ")")
-                .collect(Collectors.joining(", "))
-                + "]");
-      }
-      result.put(nextNode, nextNodeClusters);
-      uncovered.removeAll(nextNodeClusters);
-    }
-    return result;
-  }
-
-  private String findItemThatCoversMore(
-      Set<String> uncovered, Map<String, Set<String>> clusterMap) {
-    String lastFound = null;
-    var lastSize = -1;
-    for (var nodeConfig : clusterMap.entrySet()) {
-      Set<String> current = new HashSet<>(nodeConfig.getValue());
-      current.retainAll(uncovered);
-      var thisSize = current.size();
-      if (lastFound == null || thisSize > lastSize) {
-        lastFound = nodeConfig.getKey();
-        lastSize = thisSize;
-      }
-    }
-    return lastFound;
-  }
-
-  /**
-   * @param clusterMap    the cluster map for current sharding configuration
-   * @param queryClusters the clusters that are target of the query
-   */
-  private Set<String> getServersThatHasAllClusters(
-      Map<String, Set<String>> clusterMap, Set<String> queryClusters) {
-    var remainingServers = clusterMap.keySet();
-    for (var cluster : queryClusters) {
-      for (var serverConfig : clusterMap.entrySet()) {
-        if (!serverConfig.getValue().contains(cluster)) {
-          remainingServers.remove(serverConfig.getKey());
-        }
-      }
-    }
-    return remainingServers;
-  }
-
-  /**
-   * tries to calculate which clusters will be impacted by this query
-   *
-   * @return a set of cluster names this query will fetch from
-   */
-  private Set<String> calculateTargetClusters(QueryPlanningInfo info, CommandContext ctx) {
-    if (info.target == null) {
-      return Collections.emptySet();
-    }
-
-    Set<String> result = new HashSet<>();
-    var session = ctx.getDatabaseSession();
-    var item = info.target.getItem();
-    if (item.getRids() != null && !item.getRids().isEmpty()) {
-      if (item.getRids().size() == 1) {
-        var cluster = item.getRids().get(0).getCluster();
-        if (cluster.getValue().longValue() > RID.CLUSTER_MAX) {
-          throw new CommandExecutionException(session,
-              "Invalid cluster Id:" + cluster + ". Max allowed value = " + RID.CLUSTER_MAX);
-        }
-        result.add(session.getClusterNameById(cluster.getValue().intValue()));
-      } else {
-        for (var rid : item.getRids()) {
-          var cluster = rid.getCluster();
-          result.add(session.getClusterNameById(cluster.getValue().intValue()));
-        }
-      }
-      return result;
-    } else if (item.getInputParams() != null && !item.getInputParams().isEmpty()) {
-      return null;
-    } else if (item.getCluster() != null) {
-      var name = item.getCluster().getClusterName();
-      if (name == null) {
-        name = session.getClusterNameById(item.getCluster().getClusterNumber());
-      }
-      if (name != null) {
-        result.add(name);
-        return result;
-      } else {
-        return null;
-      }
-    } else if (item.getClusterList() != null) {
-      for (var cluster : item.getClusterList().toListOfClusters()) {
-        var name = cluster.getClusterName();
-        if (name == null) {
-          name = session.getClusterNameById(cluster.getClusterNumber());
-        }
-        if (name != null) {
-          result.add(name);
-        }
-      }
-      return result;
-    } else if (item.getIndex() != null) {
-      var indexName = item.getIndex().getIndexName();
-      var idx = session.getMetadata().getIndexManagerInternal().getIndex(session, indexName);
-      if (idx == null) {
-        throw new CommandExecutionException(session, "Index " + indexName + " does not exist");
-      }
-      result.addAll(idx.getClusters());
-      if (result.isEmpty()) {
-        return null;
-      }
-      return result;
-    } else if (item.getInputParam() != null) {
-      return null;
-    } else if (item.getIdentifier() != null) {
-      var className = item.getIdentifier().getStringValue();
-      var clazz = getSchemaFromContext(ctx).getClass(className);
-      if (clazz == null) {
-        return null;
-      }
-      var clusterIds = clazz.getPolymorphicClusterIds(session);
-      for (var clusterId : clusterIds) {
-        var clusterName = session.getClusterNameById(clusterId);
-        if (clusterName != null) {
-          result.add(clusterName);
-        }
-      }
-      return result;
-    }
-
-    return null;
-  }
-
-  private SQLWhereClause translateLucene(SQLWhereClause whereClause) {
+  private static SQLWhereClause translateLucene(SQLWhereClause whereClause) {
     if (whereClause == null) {
       return null;
     }
@@ -399,15 +215,15 @@ public class SelectExecutionPlanner {
    */
   protected static SQLProjection translateDistinct(SQLProjection projection) {
     if (projection != null && projection.getItems().size() == 1) {
-      if (isDistinct(projection.getItems().get(0))) {
+      if (isDistinct(projection.getItems().getFirst())) {
         projection = projection.copy();
-        var item = projection.getItems().get(0);
+        var item = projection.getItems().getFirst();
         var function =
             ((SQLBaseExpression) item.getExpression().getMathExpression())
                 .getIdentifier()
                 .getLevelZero()
                 .getFunctionCall();
-        var exp = function.getParams().get(0);
+        var exp = function.getParams().getFirst();
         var resultItem = new SQLProjectionItem(-1);
         resultItem.setAlias(item.getAlias());
         resultItem.setExpression(exp.copy());
@@ -426,7 +242,6 @@ public class SelectExecutionPlanner {
    * supported, so "distinct(expr)" is translated to "DISTINCT expr"
    *
    * @param item the projection
-   * @return
    */
   private static boolean isDistinct(SQLProjectionItem item) {
     if (item.getExpression() == null) {
@@ -465,7 +280,7 @@ public class SelectExecutionPlanner {
     return handleHardwiredCountOnClassUsingIndex(result, info, ctx, profilingEnabled);
   }
 
-  private boolean handleHardwiredCountOnClass(
+  private static boolean handleHardwiredCountOnClass(
       SelectExecutionPlan result,
       QueryPlanningInfo info,
       CommandContext ctx,
@@ -546,11 +361,11 @@ public class SelectExecutionPlanner {
     }
     if (info.flattenedWhereClause == null
         || info.flattenedWhereClause.size() > 1
-        || info.flattenedWhereClause.get(0).getSubBlocks().size() > 1) {
+        || info.flattenedWhereClause.getFirst().getSubBlocks().size() > 1) {
       // for now it only handles a single equality condition, it can be extended
       return false;
     }
-    var condition = info.flattenedWhereClause.get(0).getSubBlocks().get(0);
+    var condition = info.flattenedWhereClause.getFirst().getSubBlocks().getFirst();
     if (!(condition instanceof SQLBinaryCondition binaryCondition)) {
       return false;
     }
@@ -568,7 +383,8 @@ public class SelectExecutionPlanner {
     for (var classIndex : clazz.getClassIndexesInternal(ctx.getDatabaseSession())) {
       var fields = classIndex.getDefinition().getFields();
       if (fields.size() == 1
-          && fields.get(0).equals(binaryCondition.getLeft().getDefaultAlias().getStringValue())) {
+          && fields.getFirst()
+          .equals(binaryCondition.getLeft().getDefaultAlias().getStringValue())) {
         var expr = ((SQLBinaryCondition) condition).getRight();
         result.chain(
             new CountFromIndexWithKeyStep(
@@ -584,7 +400,7 @@ public class SelectExecutionPlanner {
     return false;
   }
 
-  private boolean handleHardwiredCountOnIndex(
+  private static boolean handleHardwiredCountOnIndex(
       SelectExecutionPlan result,
       QueryPlanningInfo info,
       CommandContext ctx,
@@ -614,10 +430,8 @@ public class SelectExecutionPlanner {
   /**
    * returns true if the query is minimal, ie. no WHERE condition, no SKIP/LIMIT, no UNWIND, no
    * GROUP/ORDER BY, no LET
-   *
-   * @return
    */
-  private boolean isMinimalQuery(QueryPlanningInfo info) {
+  private static boolean isMinimalQuery(QueryPlanningInfo info) {
     return info.projectionAfterOrderBy == null
         && info.globalLetClause == null
         && info.perRecordLetClause == null
@@ -636,7 +450,7 @@ public class SelectExecutionPlanner {
         || info.projection.getItems().size() != 1) {
       return false;
     }
-    var item = info.aggregateProjection.getItems().get(0);
+    var item = info.aggregateProjection.getItems().getFirst();
     return item.getExpression().toString().equalsIgnoreCase("count(*)");
   }
 
@@ -650,7 +464,7 @@ public class SelectExecutionPlanner {
         != 1) {
       return false;
     }
-    var item = info.aggregateProjection.getItems().get(0);
+    var item = info.aggregateProjection.getItems().getFirst();
     var exp = item.getExpression();
     if (exp.getMathExpression() != null
         && exp.getMathExpression() instanceof SQLBaseExpression base) {
@@ -718,7 +532,7 @@ public class SelectExecutionPlanner {
         if (isCountOnly(info) && info.groupBy == null) {
           result.chain(
               new GuaranteeEmptyCountStep(
-                  info.aggregateProjection.getItems().get(0), ctx, profilingEnabled));
+                  info.aggregateProjection.getItems().getFirst(), ctx, profilingEnabled));
         }
       }
       result.chain(new ProjectionCalculationStep(info.projection, ctx, profilingEnabled));
@@ -738,7 +552,7 @@ public class SelectExecutionPlanner {
     if (info.whereClause != null) {
       info.flattenedWhereClause = info.whereClause.flatten();
       // this helps index optimization
-      info.flattenedWhereClause = moveFlattededEqualitiesLeft(info.flattenedWhereClause);
+      info.flattenedWhereClause = moveFlattenedEqualitiesLeft(info.flattenedWhereClause);
     }
 
     splitProjectionsForGroupBy(info, ctx);
@@ -771,7 +585,7 @@ public class SelectExecutionPlanner {
         var item = iterator.next();
         if (item.getExpression() != null
             && (item.getExpression().isEarlyCalculated(ctx)
-            || isCombinationOfQueries(info, item.getVarName(), item.getExpression()))) {
+            || isCombinationOfQueries(item.getExpression()))) {
           iterator.remove();
           addGlobalLet(info, item.getVarName(), item.getExpression());
         } else if (item.getQuery() != null && !item.getQuery().refersToParent()) {
@@ -785,8 +599,7 @@ public class SelectExecutionPlanner {
   private static final Set<String> COMBINATION_FUNCTIONS =
       Set.of("unionall", "intersect", "difference");
 
-  private static boolean isCombinationOfQueries(
-      QueryPlanningInfo info, SQLIdentifier varName, SQLExpression expression) {
+  private static boolean isCombinationOfQueries(SQLExpression expression) {
     if (expression.getMathExpression() instanceof SQLBaseExpression exp) {
       if (exp.getIdentifier() != null
           && exp.getModifier() == null
@@ -796,7 +609,7 @@ public class SelectExecutionPlanner {
         if (COMBINATION_FUNCTIONS.stream()
             .anyMatch(fc.getName().getStringValue()::equalsIgnoreCase)) {
           for (var param : fc.getParams()) {
-            if (param.toString().startsWith("$")) {
+            if (!param.toString().isEmpty() && param.toString().charAt(0) == '$') {
               return true;
             }
           }
@@ -809,11 +622,8 @@ public class SelectExecutionPlanner {
 
   /**
    * re-writes a list of flat AND conditions, moving left all the equality operations
-   *
-   * @param flattenedWhereClause
-   * @return
    */
-  private static List<SQLAndBlock> moveFlattededEqualitiesLeft(
+  private static List<SQLAndBlock> moveFlattenedEqualitiesLeft(
       List<SQLAndBlock> flattenedWhereClause) {
     if (flattenedWhereClause == null) {
       return null;
@@ -852,20 +662,21 @@ public class SelectExecutionPlanner {
         || info.expand
         || info.unwind != null
         || info.orderBy == null
-        || info.orderBy.getItems().size() == 0
+        || info.orderBy.getItems().isEmpty()
         || info.projection == null
         || info.projection.getItems() == null
-        || (info.projection.getItems().size() == 1 && info.projection.getItems().get(0).isAll())) {
+        || (info.projection.getItems().size() == 1 && info.projection.getItems().getFirst()
+        .isAll())) {
       return;
     }
 
     var newOrderBy = info.orderBy == null ? null : info.orderBy.copy();
     var additionalOrderByProjections =
         calculateAdditionalOrderByProjections(info.projection.getAllAliases(), newOrderBy);
-    if (additionalOrderByProjections.size() > 0) {
+    if (!additionalOrderByProjections.isEmpty()) {
       info.orderBy = newOrderBy; // the ORDER BY has changed
     }
-    if (additionalOrderByProjections.size() > 0) {
+    if (!additionalOrderByProjections.isEmpty()) {
       info.projectionAfterOrderBy = new SQLProjection(-1);
       info.projectionAfterOrderBy.setItems(new ArrayList<>());
       for (var alias : info.projection.getAllAliases()) {
@@ -971,12 +782,12 @@ public class SelectExecutionPlanner {
     if (isSplitted) {
       info.preAggregateProjection = preAggregate;
       if (info.preAggregateProjection.getItems() == null
-          || info.preAggregateProjection.getItems().size() == 0) {
+          || info.preAggregateProjection.getItems().isEmpty()) {
         info.preAggregateProjection = null;
       }
       info.aggregateProjection = aggregate;
       if (info.aggregateProjection.getItems() == null
-          || info.aggregateProjection.getItems().size() == 0) {
+          || info.aggregateProjection.getItems().isEmpty()) {
         info.aggregateProjection = null;
       }
       info.projection = postAggregate;
@@ -1004,7 +815,7 @@ public class SelectExecutionPlanner {
       QueryPlanningInfo info) {
     if (info.groupBy == null
         || info.groupBy.getItems() == null
-        || info.groupBy.getItems().size() == 0) {
+        || info.groupBy.getItems().isEmpty()) {
       return;
     }
     var newGroupBy = new SQLGroupBy(-1);
@@ -1143,124 +954,81 @@ public class SelectExecutionPlanner {
     info.perRecordLetClause.getItems().add(pos, item);
   }
 
-  private void handleFetchFromTarger(
+  private void handleFetchFromTarget(
       SelectExecutionPlan result,
       QueryPlanningInfo info,
       CommandContext ctx,
       boolean profilingEnabled) {
 
     var target = info.target == null ? null : info.target.getItem();
-    for (var shardedPlan :
-        info.distributedFetchExecutionPlans.entrySet()) {
-      if (target == null) {
-        handleNoTarget(shardedPlan.getValue(), ctx, profilingEnabled);
-      } else if (target.getIdentifier() != null) {
-        var className = target.getIdentifier().getStringValue();
-        if (className.startsWith("$")
-            && !ctx.getDatabaseSession()
-            .getMetadata()
-            .getImmutableSchemaSnapshot()
-            .existsClass(className)) {
-          handleVariableAsTarget(shardedPlan.getValue(), info, ctx, profilingEnabled);
-        } else {
-          var filterClusters = info.serverToClusters.get(shardedPlan.getKey());
-
-          var ridRangeConditions = extractRidRanges(info.flattenedWhereClause, ctx);
-          if (ridRangeConditions != null && !ridRangeConditions.isEmpty()) {
-            info.ridRangeConditions = ridRangeConditions;
-            filterClusters =
-                filterClusters.stream()
-                    .filter(
-                        x -> clusterMatchesRidRange(x, ridRangeConditions, ctx.getDatabaseSession(),
-                            ctx))
-                    .collect(Collectors.toSet());
-          }
-
-          handleClassAsTarget(shardedPlan.getValue(), filterClusters, info, ctx, profilingEnabled);
-        }
-      } else if (target.getCluster() != null) {
-        handleClustersAsTarget(
-            shardedPlan.getValue(),
-            info,
-            Collections.singletonList(target.getCluster()),
-            ctx,
-            profilingEnabled);
-      } else if (target.getClusterList() != null) {
-        var allClusters = target.getClusterList().toListOfClusters();
-        List<SQLCluster> clustersForShard = new ArrayList<>();
-        for (var cluster : allClusters) {
-          var name = cluster.getClusterName();
-          if (name == null) {
-            name = ctx.getDatabaseSession().getClusterNameById(cluster.getClusterNumber());
-          }
-          if (name != null && info.serverToClusters.get(shardedPlan.getKey()).contains(name)) {
-            clustersForShard.add(cluster);
-          }
-        }
-        handleClustersAsTarget(
-            shardedPlan.getValue(), info, clustersForShard, ctx, profilingEnabled);
-      } else if (target.getStatement() != null) {
-        handleSubqueryAsTarget(
-            shardedPlan.getValue(), target.getStatement(), ctx, profilingEnabled);
-      } else if (target.getFunctionCall() != null) {
-        //        handleFunctionCallAsTarget(result, target.getFunctionCall(), ctx);//TODO
-        throw new CommandExecutionException(ctx.getDatabaseSession(),
-            "function call as target is not supported yet");
-      } else if (target.getInputParam() != null) {
-        handleInputParamAsTarget(
-            shardedPlan.getValue(),
-            info.serverToClusters.get(shardedPlan.getKey()),
-            info,
-            target.getInputParam(),
-            ctx,
-            profilingEnabled);
-      } else if (target.getInputParams() != null && target.getInputParams().size() > 0) {
-        List<InternalExecutionPlan> plans = new ArrayList<>();
-        for (var param : target.getInputParams()) {
-          var subPlan = new SelectExecutionPlan(ctx);
-          handleInputParamAsTarget(
-              subPlan,
-              info.serverToClusters.get(shardedPlan.getKey()),
-              info,
-              param,
-              ctx,
-              profilingEnabled);
-          plans.add(subPlan);
-        }
-        shardedPlan.getValue().chain(new ParallelExecStep(plans, ctx, profilingEnabled));
-      } else if (target.getIndex() != null) {
-        handleIndexAsTarget(
-            shardedPlan.getValue(), info, target.getIndex(), null, ctx, profilingEnabled);
-        if (info.serverToClusters.size() > 1) {
-          shardedPlan
-              .getValue()
-              .chain(
-                  new FilterByClustersStep(
-                      info.serverToClusters.get(shardedPlan.getKey()), ctx, profilingEnabled));
-        }
-      } else if (target.getMetadata() != null) {
-        handleMetadataAsTarget(shardedPlan.getValue(), target.getMetadata(), ctx, profilingEnabled);
-      } else if (target.getRids() != null && target.getRids().size() > 0) {
-        var filterClusters = info.serverToClusters.get(shardedPlan.getKey());
-        List<SQLRid> rids = new ArrayList<>();
-        for (var rid : target.getRids()) {
-          if (filterClusters == null || isFromClusters(rid, filterClusters,
-              ctx.getDatabaseSession())) {
-            rids.add(rid);
-          }
-        }
-        if (rids.size() > 0) {
-          handleRidsAsTarget(shardedPlan.getValue(), rids, ctx, profilingEnabled);
-        } else {
-          result.chain(new EmptyStep(ctx, profilingEnabled)); // nothing to return
-        }
+    if (target == null) {
+      handleNoTarget(result, ctx, profilingEnabled);
+    } else if (target.getIdentifier() != null) {
+      var className = target.getIdentifier().getStringValue();
+      if (!className.isEmpty() && className.charAt(0) == '$'
+          && !ctx.getDatabaseSession()
+          .getMetadata()
+          .getImmutableSchemaSnapshot()
+          .existsClass(className)) {
+        handleVariableAsTarget(result, info, ctx, profilingEnabled);
       } else {
-        throw new UnsupportedOperationException();
+        var ridRangeConditions = extractRidRanges(info.flattenedWhereClause, ctx);
+        if (!ridRangeConditions.isEmpty()) {
+          info.ridRangeConditions = ridRangeConditions;
+        }
+
+        handleClassAsTarget(result, info, ctx, profilingEnabled);
       }
+    } else if (target.getCluster() != null) {
+      handleClustersAsTarget(
+          result,
+          info,
+          Collections.singletonList(target.getCluster()),
+          ctx,
+          profilingEnabled);
+    } else if (target.getClusterList() != null) {
+      var allClusters = target.getClusterList().toListOfClusters();
+      handleClustersAsTarget(
+          result, info, allClusters, ctx, profilingEnabled);
+    } else if (target.getStatement() != null) {
+      handleSubqueryAsTarget(
+          result, target.getStatement(), ctx, profilingEnabled);
+    } else if (target.getFunctionCall() != null) {
+      throw new CommandExecutionException(ctx.getDatabaseSession(),
+          "function call as target is not supported yet");
+    } else if (target.getInputParam() != null) {
+      handleInputParamAsTarget(
+          result,
+          info,
+          target.getInputParam(),
+          ctx,
+          profilingEnabled);
+    } else if (target.getInputParams() != null && !target.getInputParams().isEmpty()) {
+      List<InternalExecutionPlan> plans = new ArrayList<>();
+      for (var param : target.getInputParams()) {
+        var subPlan = new SelectExecutionPlan(ctx);
+        handleInputParamAsTarget(
+            subPlan,
+            info,
+            param,
+            ctx,
+            profilingEnabled);
+        plans.add(subPlan);
+      }
+      result.chain(new ParallelExecStep(plans, ctx, profilingEnabled));
+    } else if (target.getIndex() != null) {
+      handleIndexAsTarget(
+          result, info, target.getIndex(), ctx, profilingEnabled);
+    } else if (target.getMetadata() != null) {
+      handleMetadataAsTarget(result, target.getMetadata(), ctx, profilingEnabled);
+    } else if (target.getRids() != null && !target.getRids().isEmpty()) {
+      handleRidsAsTarget(result, target.getRids(), ctx, profilingEnabled);
+    } else {
+      throw new UnsupportedOperationException();
     }
   }
 
-  private void handleVariableAsTarget(
+  private static void handleVariableAsTarget(
       SelectExecutionPlan plan,
       QueryPlanningInfo info,
       CommandContext ctx,
@@ -1270,56 +1038,15 @@ public class SelectExecutionPlanner {
             info.target.getItem().getIdentifier().getStringValue(), ctx, profilingEnabled));
   }
 
-  private boolean clusterMatchesRidRange(
-      String clusterName,
-      SQLAndBlock ridRangeConditions,
-      DatabaseSessionInternal database,
+  private static SQLAndBlock extractRidRanges(List<SQLAndBlock> flattenedWhereClause,
       CommandContext ctx) {
-    var thisClusterId = database.getClusterIdByName(clusterName);
-    for (var ridRangeCondition : ridRangeConditions.getSubBlocks()) {
-      if (ridRangeCondition instanceof SQLBinaryCondition) {
-        var operator = ((SQLBinaryCondition) ridRangeCondition).getOperator();
-        RID conditionRid;
-
-        Object obj;
-        if (((SQLBinaryCondition) ridRangeCondition).getRight().getRid() != null) {
-          obj =
-              ((SQLBinaryCondition) ridRangeCondition)
-                  .getRight()
-                  .getRid()
-                  .toRecordId((Result) null, ctx);
-        } else {
-          obj = ((SQLBinaryCondition) ridRangeCondition).getRight().execute((Result) null, ctx);
-        }
-
-        conditionRid = ((Identifiable) obj).getIdentity();
-
-        if (conditionRid != null) {
-          var conditionClusterId = conditionRid.getClusterId();
-          if (operator instanceof SQLGtOperator || operator instanceof SQLGeOperator) {
-            if (thisClusterId < conditionClusterId) {
-              return false;
-            }
-          } else if (operator instanceof SQLLtOperator || operator instanceof SQLLeOperator) {
-            if (thisClusterId > conditionClusterId) {
-              return false;
-            }
-          }
-        }
-      }
-    }
-    return true;
-  }
-
-  private SQLAndBlock extractRidRanges(List<SQLAndBlock> flattenedWhereClause, CommandContext ctx) {
     var result = new SQLAndBlock(-1);
 
     if (flattenedWhereClause == null || flattenedWhereClause.size() != 1) {
       return result;
     }
-    // TODO optimization: merge multiple conditions
 
-    for (var booleanExpression : flattenedWhereClause.get(0).getSubBlocks()) {
+    for (var booleanExpression : flattenedWhereClause.getFirst().getSubBlocks()) {
       if (isRidRange(booleanExpression, ctx)) {
         result.getSubBlocks().add(booleanExpression.copy());
       }
@@ -1328,7 +1055,7 @@ public class SelectExecutionPlanner {
     return result;
   }
 
-  private boolean isRidRange(SQLBooleanExpression booleanExpression, CommandContext ctx) {
+  private static boolean isRidRange(SQLBooleanExpression booleanExpression, CommandContext ctx) {
     if (booleanExpression instanceof SQLBinaryCondition cond) {
       var operator = cond.getOperator();
       if (operator.isRangeOperator() && cond.getLeft().toString().equalsIgnoreCase("@rid")) {
@@ -1346,7 +1073,6 @@ public class SelectExecutionPlanner {
 
   private void handleInputParamAsTarget(
       SelectExecutionPlan result,
-      Set<String> filterClusters,
       QueryPlanningInfo info,
       SQLInputParameter inputParam,
       CommandContext ctx,
@@ -1360,7 +1086,7 @@ public class SelectExecutionPlanner {
         var item = new SQLFromItem(-1);
         from.setItem(item);
         item.setIdentifier(new SQLIdentifier(schemaClass.getName(session)));
-        handleClassAsTarget(result, filterClusters, from, info, ctx, profilingEnabled);
+        handleClassAsTarget(result, from, info, ctx, profilingEnabled);
       }
       case String s -> {
         // strings are treated as classes
@@ -1368,7 +1094,7 @@ public class SelectExecutionPlanner {
         var item = new SQLFromItem(-1);
         from.setItem(item);
         item.setIdentifier(new SQLIdentifier(s));
-        handleClassAsTarget(result, filterClusters, from, info, ctx, profilingEnabled);
+        handleClassAsTarget(result, from, info, ctx, profilingEnabled);
       }
       case Identifiable identifiable -> {
         var orid = identifiable.getIdentity();
@@ -1381,15 +1107,9 @@ public class SelectExecutionPlanner {
         rid.setLegacy(true);
         rid.setCluster(cluster);
         rid.setPosition(position);
-
-        if (filterClusters == null || isFromClusters(rid, filterClusters,
-            ctx.getDatabaseSession())) {
-          handleRidsAsTarget(result, Collections.singletonList(rid), ctx, profilingEnabled);
-        } else {
-          result.chain(new EmptyStep(ctx, profilingEnabled)); // nothing to return
-        }
+        handleRidsAsTarget(result, Collections.singletonList(rid), ctx, profilingEnabled);
       }
-      case Iterable iterable -> {
+      case Iterable<?> iterable -> {
         // try list of RIDs
         List<SQLRid> rids = new ArrayList<>();
         for (var x : iterable) {
@@ -1406,12 +1126,9 @@ public class SelectExecutionPlanner {
           position.setValue(orid.getClusterPosition());
           rid.setCluster(cluster);
           rid.setPosition(position);
-          if (filterClusters == null || isFromClusters(rid, filterClusters,
-              ctx.getDatabaseSession())) {
-            rids.add(rid);
-          }
+          rids.add(rid);
         }
-        if (rids.size() > 0) {
+        if (!rids.isEmpty()) {
           handleRidsAsTarget(result, rids, ctx, profilingEnabled);
         } else {
           result.chain(new EmptyStep(ctx, profilingEnabled)); // nothing to return
@@ -1421,24 +1138,7 @@ public class SelectExecutionPlanner {
     }
   }
 
-  /**
-   * checks if this RID is from one of these clusters
-   *
-   * @param rid
-   * @param filterClusters
-   * @param database
-   * @return
-   */
-  private boolean isFromClusters(
-      SQLRid rid, Set<String> filterClusters, DatabaseSessionInternal database) {
-    if (filterClusters == null) {
-      throw new IllegalArgumentException();
-    }
-    var clusterName = database.getClusterNameById(rid.getCluster().getValue().intValue());
-    return filterClusters.contains(clusterName);
-  }
-
-  private void handleNoTarget(
+  private static void handleNoTarget(
       SelectExecutionPlan result, CommandContext ctx, boolean profilingEnabled) {
     result.chain(new EmptyDataGeneratorStep(1, ctx, profilingEnabled));
   }
@@ -1447,7 +1147,6 @@ public class SelectExecutionPlanner {
       SelectExecutionPlan result,
       QueryPlanningInfo info,
       SQLIndexIdentifier indexIdentifier,
-      Set<String> filterClusters,
       CommandContext ctx,
       boolean profilingEnabled) {
 
@@ -1458,11 +1157,6 @@ public class SelectExecutionPlanner {
     var index = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
     if (index == null) {
       throw new CommandExecutionException(session, "Index not found: " + indexName);
-    }
-
-    int[] filterClusterIds = null;
-    if (filterClusters != null) {
-      filterClusterIds = database.getClustersIds(filterClusters);
     }
 
     switch (indexIdentifier.getType()) {
@@ -1479,7 +1173,7 @@ public class SelectExecutionPlanner {
               "Index queries with this kind of condition are not supported yet: "
                   + info.whereClause);
         } else {
-          var andBlock = info.flattenedWhereClause.get(0);
+          var andBlock = info.flattenedWhereClause.getFirst();
           if (andBlock.getSubBlocks().size() == 1) {
 
             info.whereClause =
@@ -1533,7 +1227,7 @@ public class SelectExecutionPlanner {
         result.chain(
             new GetValueFromIndexEntryStep(
                 ctx,
-                filterClusterIds != null ? IntArrayList.of(filterClusterIds) : null,
+                null,
                 profilingEnabled));
         break;
       case VALUESDESC:
@@ -1547,13 +1241,13 @@ public class SelectExecutionPlanner {
         result.chain(
             new GetValueFromIndexEntryStep(
                 ctx,
-                filterClusterIds != null ? IntArrayList.of(filterClusterIds) : null,
+                null,
                 profilingEnabled));
         break;
     }
   }
 
-  private SQLBooleanExpression getKeyCondition(SQLAndBlock andBlock) {
+  private static SQLBooleanExpression getKeyCondition(SQLAndBlock andBlock) {
     for (var exp : andBlock.getSubBlocks()) {
       var str = exp.toString();
       if (str.length() < 5) {
@@ -1566,7 +1260,7 @@ public class SelectExecutionPlanner {
     return null;
   }
 
-  private SQLBooleanExpression getRidCondition(SQLAndBlock andBlock) {
+  private static SQLBooleanExpression getRidCondition(SQLAndBlock andBlock) {
     for (var exp : andBlock.getSubBlocks()) {
       var str = exp.toString();
       if (str.length() < 5) {
@@ -1579,13 +1273,13 @@ public class SelectExecutionPlanner {
     return null;
   }
 
-  private void handleMetadataAsTarget(
+  private static void handleMetadataAsTarget(
       SelectExecutionPlan plan,
       SQLMetadataIdentifier metadata,
       CommandContext ctx,
       boolean profilingEnabled) {
     var db = ctx.getDatabaseSession();
-    String schemaRecordIdAsString = null;
+    String schemaRecordIdAsString;
     if (metadata.getName().equalsIgnoreCase(CommandExecutorSQLAbstract.METADATA_SCHEMA)) {
       schemaRecordIdAsString = db.getStorageInfo().getConfiguration().getSchemaRecordId();
       var schemaRid = new RecordId(schemaRecordIdAsString);
@@ -1603,7 +1297,7 @@ public class SelectExecutionPlanner {
     }
   }
 
-  private void handleRidsAsTarget(
+  private static void handleRidsAsTarget(
       SelectExecutionPlan plan, List<SQLRid> rids, CommandContext ctx, boolean profilingEnabled) {
     List<RecordId> actualRids = new ArrayList<>();
     for (var rid : rids) {
@@ -1659,7 +1353,7 @@ public class SelectExecutionPlanner {
     if (info.perRecordLetClause != null) {
       var items = info.perRecordLetClause.getItems();
       items = sortLet(items, this.statement.getLetClause());
-      if (plan.steps.size() > 0 || info.distributedPlanCreated) {
+      if (!plan.steps.isEmpty()) {
         for (var item : items) {
           if (item.getExpression() != null) {
             plan.chain(
@@ -1669,33 +1363,15 @@ public class SelectExecutionPlanner {
             plan.chain(new LetQueryStep(item.getVarName(), item.getQuery(), ctx, profilingEnabled));
           }
         }
-      } else {
-        for (var shardedPlan : info.distributedFetchExecutionPlans.values()) {
-          for (var item : items) {
-            if (item.getExpression() != null) {
-              shardedPlan.chain(
-                  new LetExpressionStep(
-                      item.getVarName().copy(),
-                      item.getExpression().copy(),
-                      ctx,
-                      profilingEnabled));
-            } else {
-              shardedPlan.chain(
-                  new LetQueryStep(
-                      item.getVarName().copy(), item.getQuery().copy(), ctx, profilingEnabled));
-            }
-          }
-        }
       }
     }
   }
 
-  private List<SQLLetItem> sortLet(List<SQLLetItem> items, SQLLetClause letClause) {
+  private static List<SQLLetItem> sortLet(List<SQLLetItem> items, SQLLetClause letClause) {
     if (letClause == null) {
       return items;
     }
-    List<SQLLetItem> i = new ArrayList<>();
-    i.addAll(items);
+    List<SQLLetItem> i = new ArrayList<>(items);
     var result = new ArrayList<SQLLetItem>();
     for (var item : letClause.getItems()) {
       var var = item.getVarName().getStringValue();
@@ -1709,10 +1385,7 @@ public class SelectExecutionPlanner {
         }
       }
     }
-    for (var item : i) {
-
-      result.add(item);
-    }
+    result.addAll(i);
     return result;
   }
 
@@ -1722,23 +1395,12 @@ public class SelectExecutionPlanner {
       CommandContext ctx,
       boolean profilingEnabled) {
     if (info.whereClause != null) {
-      if (info.distributedPlanCreated) {
-        plan.chain(
-            new FilterStep(
-                info.whereClause,
-                ctx,
-                this.info.timeout != null ? this.info.timeout.getVal().longValue() : -1,
-                profilingEnabled));
-      } else {
-        for (var shardedPlan : info.distributedFetchExecutionPlans.values()) {
-          shardedPlan.chain(
-              new FilterStep(
-                  info.whereClause.copy(),
-                  ctx,
-                  this.info.timeout != null ? this.info.timeout.getVal().longValue() : -1,
-                  profilingEnabled));
-        }
-      }
+      plan.chain(
+          new FilterStep(
+              info.whereClause,
+              ctx,
+              this.info.timeout != null ? this.info.timeout.getVal().longValue() : -1,
+              profilingEnabled));
     }
   }
 
@@ -1800,45 +1462,38 @@ public class SelectExecutionPlanner {
   }
 
   /**
-   * @param plan             the execution plan where to add the fetch step
-   * @param filterClusters   clusters of interest (all the others have to be excluded from the
-   *                         result)
-   * @param info
-   * @param ctx
-   * @param profilingEnabled
+   * @param plan the execution plan where to add the fetch step
    */
   private void handleClassAsTarget(
       SelectExecutionPlan plan,
-      Set<String> filterClusters,
       QueryPlanningInfo info,
       CommandContext ctx,
       boolean profilingEnabled) {
-    handleClassAsTarget(plan, filterClusters, info.target, info, ctx, profilingEnabled);
+    handleClassAsTarget(plan, info.target, info, ctx, profilingEnabled);
   }
 
   private void handleClassAsTarget(
       SelectExecutionPlan plan,
-      Set<String> filterClusters,
       SQLFromClause from,
       QueryPlanningInfo info,
       CommandContext ctx,
       boolean profilingEnabled) {
     var identifier = from.getItem().getIdentifier();
     if (handleClassAsTargetWithIndexedFunction(
-        plan, filterClusters, identifier, info, ctx, profilingEnabled)) {
+        plan, null, identifier, info, ctx, profilingEnabled)) {
       plan.chain(new FilterByClassStep(identifier, ctx, profilingEnabled));
       return;
     }
 
     if (handleClassAsTargetWithIndex(
-        plan, identifier, filterClusters, info, ctx, profilingEnabled)) {
+        plan, identifier, null, info, ctx, profilingEnabled)) {
       plan.chain(new FilterByClassStep(identifier, ctx, profilingEnabled));
       return;
     }
 
     if (info.orderBy != null
         && handleClassWithIndexForSortOnly(
-        plan, identifier, filterClusters, info, ctx, profilingEnabled)) {
+        plan, identifier, null, info, ctx, profilingEnabled)) {
       plan.chain(new FilterByClassStep(identifier, ctx, profilingEnabled));
       return;
     }
@@ -1856,19 +1511,19 @@ public class SelectExecutionPlanner {
     if (schema.getClass(className) != null) {
       fetcher =
           new FetchFromClassExecutionStep(
-              className, filterClusters, info, ctx, orderByRidAsc, profilingEnabled);
+              className, null, info, ctx, orderByRidAsc, profilingEnabled);
     } else {
       throw new CommandExecutionException(ctx.getDatabaseSession(),
           "Class or View not present in the schema: " + className);
     }
 
-    if (orderByRidAsc != null && info.serverToClusters.size() == 1) {
+    if (orderByRidAsc != null) {
       info.orderApplied = true;
     }
     plan.chain(fetcher);
   }
 
-  private IntArrayList classClustersFiltered(
+  private static IntArrayList classClustersFiltered(
       DatabaseSessionInternal db, SchemaClass clazz, Set<String> filterClusters) {
     var ids = clazz.getPolymorphicClusterIds(db);
     var filtered = new IntArrayList();
@@ -2058,19 +1713,19 @@ public class SelectExecutionPlanner {
     }
   }
 
-  private boolean refersToLet(List<SQLBooleanExpression> subBlocks) {
+  private static boolean refersToLet(List<SQLBooleanExpression> subBlocks) {
     if (subBlocks == null) {
       return false;
     }
     for (var exp : subBlocks) {
-      if (exp.toString().startsWith("$")) {
+      if (!exp.toString().isEmpty() && exp.toString().charAt(0) == '$') {
         return true;
       }
     }
     return false;
   }
 
-  private List<SQLBinaryCondition> filterIndexedFunctionsWithoutIndex(
+  private static List<SQLBinaryCondition> filterIndexedFunctionsWithoutIndex(
       List<SQLBinaryCondition> indexedFunctionConditions,
       SQLFromClause fromClause,
       CommandContext ctx) {
@@ -2114,9 +1769,9 @@ public class SelectExecutionPlanner {
     var db = ctx.getDatabaseSession();
     for (var idx :
         clazz.getIndexesInternal(db).stream()
-            .filter(i -> i.supportsOrderedIterations())
+            .filter(Index::supportsOrderedIterations)
             .filter(i -> i.getDefinition() != null)
-            .collect(Collectors.toList())) {
+            .toList()) {
       var indexFields = idx.getDefinition().getFields();
       if (indexFields.size() < info.orderBy.getItems().size()) {
         continue;
@@ -2157,9 +1812,7 @@ public class SelectExecutionPlanner {
           filterClusterIds = IntArrayList.of(clazz.getPolymorphicClusterIds(db));
         }
         plan.chain(new GetValueFromIndexEntryStep(ctx, filterClusterIds, profilingEnabled));
-        if (info.serverToClusters.size() == 1) {
-          info.orderApplied = true;
-        }
+        info.orderApplied = true;
         return true;
       }
     }
@@ -2225,7 +1878,7 @@ public class SelectExecutionPlanner {
       subSteps.forEach(subPlan::chain);
       subclassPlans.add(subPlan);
     }
-    if (subclassPlans.size() > 0) {
+    if (!subclassPlans.isEmpty()) {
       plan.chain(new ParallelExecStep(subclassPlans, ctx, profilingEnabled));
       return true;
     }
@@ -2234,17 +1887,13 @@ public class SelectExecutionPlanner {
 
   /**
    * checks if a class is the top of a diamond hierarchy
-   *
-   * @param db
-   * @param clazz
-   * @return
    */
-  private boolean isDiamondHierarchy(DatabaseSessionInternal db, SchemaClass clazz) {
+  private static boolean isDiamondHierarchy(DatabaseSessionInternal db, SchemaClass clazz) {
     Set<SchemaClass> traversed = new HashSet<>();
     List<SchemaClass> stack = new ArrayList<>();
     stack.add(clazz);
     while (!stack.isEmpty()) {
-      var current = stack.remove(0);
+      var current = stack.removeFirst();
       traversed.add(current);
       for (var sub : current.getSubclasses(db)) {
         if (traversed.contains(sub)) {
@@ -2306,7 +1955,7 @@ public class SelectExecutionPlanner {
       QueryPlanningInfo info,
       CommandContext ctx,
       boolean profilingEnabled) {
-    if (info.flattenedWhereClause == null || info.flattenedWhereClause.size() == 0) {
+    if (info.flattenedWhereClause == null || info.flattenedWhereClause.isEmpty()) {
       return null;
     }
 
@@ -2331,11 +1980,8 @@ public class SelectExecutionPlanner {
     var optimumIndexSearchDescriptors =
         commonFactor(indexSearchDescriptors);
 
-    List<ExecutionStepInternal> result = null;
-    result =
-        executionStepFromIndexes(
-            filterClusters, clazz, info, ctx, profilingEnabled, optimumIndexSearchDescriptors);
-    return result;
+    return executionStepFromIndexes(
+        filterClusters, clazz, info, ctx, profilingEnabled, optimumIndexSearchDescriptors);
   }
 
   private List<ExecutionStepInternal> executionStepFromIndexes(
@@ -2348,7 +1994,7 @@ public class SelectExecutionPlanner {
     List<ExecutionStepInternal> result;
     var db = ctx.getDatabaseSession();
     if (optimumIndexSearchDescriptors.size() == 1) {
-      var desc = optimumIndexSearchDescriptors.get(0);
+      var desc = optimumIndexSearchDescriptors.getFirst();
       result = new ArrayList<>();
       var orderAsc = getOrderDirection(info);
       result.add(
@@ -2365,21 +2011,17 @@ public class SelectExecutionPlanner {
       }
       if (orderAsc != null
           && info.orderBy != null
-          && fullySorted(info.orderBy, desc)
-          && info.serverToClusters.size() == 1) {
+          && fullySorted(info.orderBy, desc)) {
         info.orderApplied = true;
       }
       if (desc.getRemainingCondition() != null && !desc.getRemainingCondition().isEmpty()) {
         if ((info.perRecordLetClause != null
             && refersToLet(Collections.singletonList(desc.getRemainingCondition())))) {
           var stubPlan = new SelectExecutionPlan(ctx);
-          var prevCreatedDist = info.distributedPlanCreated;
-          info.distributedPlanCreated = true; // little hack, check this!!!
           handleLet(stubPlan, info, ctx, profilingEnabled);
           for (var step : stubPlan.getSteps()) {
             result.add((ExecutionStepInternal) step);
           }
-          info.distributedPlanCreated = prevCreatedDist;
         }
         result.add(
             new FilterStep(
@@ -2404,7 +2046,7 @@ public class SelectExecutionPlanner {
     return ctx.getDatabaseSession().getMetadata().getImmutableSchemaSnapshot();
   }
 
-  private boolean fullySorted(SQLOrderBy orderBy, IndexSearchDescriptor desc) {
+  private static boolean fullySorted(SQLOrderBy orderBy, IndexSearchDescriptor desc) {
     if (orderBy.ordersWithCollate() || !orderBy.ordersSameDirection()) {
       return false;
     }
@@ -2416,7 +2058,7 @@ public class SelectExecutionPlanner {
    *
    * @return TRUE if all the order clauses are ASC, FALSE if all are DESC, null otherwise
    */
-  private Boolean getOrderDirection(QueryPlanningInfo info) {
+  private static Boolean getOrderDirection(QueryPlanningInfo info) {
     if (info.orderBy == null) {
       return null;
     }
@@ -2464,7 +2106,7 @@ public class SelectExecutionPlanner {
     return new ParallelExecStep(subPlans, ctx, profilingEnabled);
   }
 
-  private SQLWhereClause createWhereFrom(SQLBooleanExpression remainingCondition) {
+  private static SQLWhereClause createWhereFrom(SQLBooleanExpression remainingCondition) {
     var result = new SQLWhereClause(-1);
     result.setBaseExpression(remainingCondition);
     return result;
@@ -2473,13 +2115,8 @@ public class SelectExecutionPlanner {
   /**
    * given a flat AND block and a set of indexes, returns the best index to be used to process it,
    * with the complete description on how to use it
-   *
-   * @param ctx
-   * @param indexes
-   * @param block
-   * @return
    */
-  private IndexSearchDescriptor findBestIndexFor(
+  private static IndexSearchDescriptor findBestIndexFor(
       CommandContext ctx, Set<Index> indexes, SQLAndBlock block, SchemaClass clazz) {
     // get all valid index descriptors
     var descriptors =
@@ -2495,11 +2132,11 @@ public class SelectExecutionPlanner {
         indexes.stream()
             .filter(idx -> idx.getType().equalsIgnoreCase("FULLTEXT"))
             .filter(idx -> !idx.getAlgorithm().equalsIgnoreCase("LUCENE"))
-            .map(idx -> buildIndexSearchDescriptorForFulltext(ctx, idx, block, clazz))
+            .map(idx -> buildIndexSearchDescriptorForFulltext(idx, block))
             .filter(Objects::nonNull)
             .filter(x -> x.getKeyCondition() != null)
             .filter(x -> x.blockCount() > 0)
-            .collect(Collectors.toList());
+            .toList();
 
     descriptors.addAll(fullTextIndexDescriptors);
 
@@ -2519,7 +2156,7 @@ public class SelectExecutionPlanner {
     } else {
       descriptors =
           sortedDescriptors.stream()
-              .filter(x -> x.key == sortedDescriptors.get(0).key)
+              .filter(x -> x.key == sortedDescriptors.getFirst().key)
               .map(x -> x.value)
               .collect(Collectors.toList());
     }
@@ -2531,14 +2168,14 @@ public class SelectExecutionPlanner {
             .collect(Collectors.toList());
 
     // get the one that has more indexed fields
-    return descriptors.isEmpty() ? null : descriptors.get(descriptors.size() - 1);
+    return descriptors.isEmpty() ? null : descriptors.getLast();
   }
 
   /**
    * If between the index candidates there are for the same property target class index and super
    * class index prefer the target class.
    */
-  private List<IndexSearchDescriptor> removeGenericIndexes(
+  private static List<IndexSearchDescriptor> removeGenericIndexes(
       DatabaseSessionInternal db, List<IndexSearchDescriptor> descriptors, SchemaClass clazz) {
     List<IndexSearchDescriptor> results = new ArrayList<>();
     for (var desc : descriptors) {
@@ -2561,7 +2198,8 @@ public class SelectExecutionPlanner {
     return results;
   }
 
-  private List<IndexSearchDescriptor> removePrefixIndexes(List<IndexSearchDescriptor> descriptors) {
+  private static List<IndexSearchDescriptor> removePrefixIndexes(
+      List<IndexSearchDescriptor> descriptors) {
     List<IndexSearchDescriptor> result = new ArrayList<>();
     for (var desc : descriptors) {
       if (result.isEmpty()) {
@@ -2581,7 +2219,8 @@ public class SelectExecutionPlanner {
     return result;
   }
 
-  private boolean isPrefixOfAny(IndexSearchDescriptor desc, List<IndexSearchDescriptor> result) {
+  private static boolean isPrefixOfAny(IndexSearchDescriptor desc,
+      List<IndexSearchDescriptor> result) {
     for (var item : result) {
       if (desc.isPrefixOf(item)) {
         return true;
@@ -2593,12 +2232,8 @@ public class SelectExecutionPlanner {
   /**
    * finds prefix conditions for a given condition, eg. if the condition is on [a,b] and in the list
    * there is another condition on [a] or on [a,b], then that condition is returned.
-   *
-   * @param desc
-   * @param descriptors
-   * @return
    */
-  private List<IndexSearchDescriptor> findPrefixes(
+  private static List<IndexSearchDescriptor> findPrefixes(
       IndexSearchDescriptor desc, List<IndexSearchDescriptor> descriptors) {
     List<IndexSearchDescriptor> result = new ArrayList<>();
     for (var item : descriptors) {
@@ -2612,14 +2247,8 @@ public class SelectExecutionPlanner {
   /**
    * given an index and a flat AND block, returns a descriptor on how to process it with an index
    * (index, index key and additional filters to apply after index fetch
-   *
-   * @param ctx
-   * @param index
-   * @param block
-   * @param clazz
-   * @return
    */
-  private IndexSearchDescriptor buildIndexSearchDescriptor(
+  private static IndexSearchDescriptor buildIndexSearchDescriptor(
       CommandContext ctx, Index index, SQLAndBlock block, SchemaClass clazz) {
     var indexFields = index.getDefinition().getFields();
     var found = false;
@@ -2689,15 +2318,9 @@ public class SelectExecutionPlanner {
   /**
    * given a full text index and a flat AND block, returns a descriptor on how to process it with an
    * index (index, index key and additional filters to apply after index fetch
-   *
-   * @param ctx
-   * @param index
-   * @param block
-   * @param clazz
-   * @return
    */
-  private IndexSearchDescriptor buildIndexSearchDescriptorForFulltext(
-      CommandContext ctx, Index index, SQLAndBlock block, SchemaClass clazz) {
+  private static IndexSearchDescriptor buildIndexSearchDescriptorForFulltext(
+      Index index, SQLAndBlock block) {
     var indexFields = index.getDefinition().getFields();
     var found = false;
 
@@ -2736,7 +2359,7 @@ public class SelectExecutionPlanner {
     return null;
   }
 
-  private boolean isIndexByKey(Index index, String field) {
+  private static boolean isIndexByKey(Index index, String field) {
     var def = index.getDefinition();
     for (var o : def.getFieldsToIndex()) {
       if (o.equalsIgnoreCase(field + " by key")) {
@@ -2746,7 +2369,7 @@ public class SelectExecutionPlanner {
     return false;
   }
 
-  private boolean isIndexByValue(Index index, String field) {
+  private static boolean isIndexByValue(Index index, String field) {
     var def = index.getDefinition();
     for (var o : def.getFieldsToIndex()) {
       if (o.equalsIgnoreCase(field + " by value")) {
@@ -2777,11 +2400,7 @@ public class SelectExecutionPlanner {
     // index, key condition, additional filter (to aggregate in OR)
     Map<Index, Map<IndexCondPair, SQLOrBlock>> aggregation = new HashMap<>();
     for (var item : indexSearchDescriptors) {
-      var filtersForIndex = aggregation.get(item.getIndex());
-      if (filtersForIndex == null) {
-        filtersForIndex = new HashMap<>();
-        aggregation.put(item.getIndex(), filtersForIndex);
-      }
+      var filtersForIndex = aggregation.computeIfAbsent(item.getIndex(), k -> new HashMap<>());
       var extendedCond =
           new IndexCondPair(item.getKeyCondition(), item.getAdditionalRangeCondition());
 
@@ -2872,16 +2491,16 @@ public class SelectExecutionPlanner {
     } else if (isOrderByRidDesc(info)) {
       orderByRidAsc = false;
     }
-    if (orderByRidAsc != null && info.serverToClusters.size() == 1) {
+    if (orderByRidAsc != null) {
       info.orderApplied = true;
     }
     if (clusters.size() == 1) {
-      var cluster = clusters.get(0);
+      var cluster = clusters.getFirst();
       var clusterId = cluster.getClusterNumber();
       if (clusterId == null) {
         clusterId = db.getClusterIdByName(cluster.getClusterName());
       }
-      if (clusterId == null) {
+      if (clusterId < 0) {
         throw new CommandExecutionException(ctx.getDatabaseSession(),
             "Cluster " + cluster + " does not exist");
       }
@@ -2901,7 +2520,7 @@ public class SelectExecutionPlanner {
         if (clusterId == null) {
           clusterId = db.getClusterIdByName(cluster.getClusterName());
         }
-        if (clusterId == null) {
+        if (clusterId < 0) {
           throw new CommandExecutionException(ctx.getDatabaseSession(),
               "Cluster " + cluster + " does not exist");
         }
@@ -2913,7 +2532,7 @@ public class SelectExecutionPlanner {
     }
   }
 
-  private void handleSubqueryAsTarget(
+  private static void handleSubqueryAsTarget(
       SelectExecutionPlan plan,
       SQLStatement subQuery,
       CommandContext ctx,
@@ -2926,7 +2545,7 @@ public class SelectExecutionPlanner {
     plan.chain(new SubQueryStep(subExecutionPlan, ctx, subCtx, profilingEnabled));
   }
 
-  private boolean isOrderByRidDesc(QueryPlanningInfo info) {
+  private static boolean isOrderByRidDesc(QueryPlanningInfo info) {
     if (!hasTargetWithSortedRids(info)) {
       return false;
     }
@@ -2935,7 +2554,7 @@ public class SelectExecutionPlanner {
       return false;
     }
     if (info.orderBy.getItems().size() == 1) {
-      var item = info.orderBy.getItems().get(0);
+      var item = info.orderBy.getItems().getFirst();
       var recordAttr = item.getRecordAttr();
       return recordAttr != null
           && recordAttr.equalsIgnoreCase("@rid")
@@ -2944,7 +2563,7 @@ public class SelectExecutionPlanner {
     return false;
   }
 
-  private boolean isOrderByRidAsc(QueryPlanningInfo info) {
+  private static boolean isOrderByRidAsc(QueryPlanningInfo info) {
     if (!hasTargetWithSortedRids(info)) {
       return false;
     }
@@ -2953,7 +2572,7 @@ public class SelectExecutionPlanner {
       return false;
     }
     if (info.orderBy.getItems().size() == 1) {
-      var item = info.orderBy.getItems().get(0);
+      var item = info.orderBy.getItems().getFirst();
       var recordAttr = item.getRecordAttr();
       return recordAttr != null
           && recordAttr.equalsIgnoreCase("@rid")
@@ -2962,7 +2581,7 @@ public class SelectExecutionPlanner {
     return false;
   }
 
-  private boolean hasTargetWithSortedRids(QueryPlanningInfo info) {
+  private static boolean hasTargetWithSortedRids(QueryPlanningInfo info) {
     if (info.target == null) {
       return false;
     }

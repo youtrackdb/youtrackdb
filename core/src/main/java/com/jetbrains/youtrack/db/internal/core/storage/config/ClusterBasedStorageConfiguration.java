@@ -152,7 +152,7 @@ public final class ClusterBasedStorageConfiguration implements StorageConfigurat
             FREE_MAP_FILE_EXTENSION);
     btree =
         new CellBTreeSingleValueV1<>(
-            COMPONENT_NAME, TREE_DATA_FILE_EXTENSION, TREE_NULL_FILE_EXTENSION, storage);
+            COMPONENT_NAME, TREE_DATA_FILE_EXTENSION, TREE_NULL_FILE_EXTENSION, storage, null);
     this.storage = storage;
   }
 

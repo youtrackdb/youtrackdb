@@ -126,6 +126,21 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     }
   }
 
+  public CellBTreeSingleValueV1(
+      final String name,
+      final String dataFileExtension,
+      final String nullFileExtension,
+      final AbstractPaginatedStorage storage, BinarySerializerFactory serializerFactory) {
+    super(storage, name, dataFileExtension, name + dataFileExtension);
+    acquireExclusiveLock();
+    try {
+      this.nullFileExtension = nullFileExtension;
+      this.serializerFactory = serializerFactory;
+    } finally {
+      releaseExclusiveLock();
+    }
+  }
+
   @Override
   public void create(
       AtomicOperation atomicOperation,
@@ -182,7 +197,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
       try {
         final var atomicOperation = atomicOperationsManager.getCurrentOperation();
         if (key != null) {
-          key = keySerializer.preprocess(storage.getComponentsFactory().binarySerializerFactory,
+          key = keySerializer.preprocess(serializerFactory,
               key, (Object[]) keyTypes);
 
           final var bucketSearchResult = findBucket(key, atomicOperation);

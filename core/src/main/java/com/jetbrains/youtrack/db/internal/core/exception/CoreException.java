@@ -65,7 +65,8 @@ public abstract class CoreException extends BaseException {
 
   @Override
   public final String getMessage() {
-    final var builder = new StringBuilder(super.getMessage());
+    var msg = super.getMessage();
+    final var builder = new StringBuilder(msg != null ? msg : "");
 
     if (getDbName() != null) {
       builder.append("\r\n\t").append("DB name=\"").append(getDbName()).append("\"");

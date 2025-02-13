@@ -43,7 +43,6 @@ import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.CompactedLinkSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.LinkSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.index.CompositeKeySerializer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.index.SimpleKeySerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.stream.StreamSerializerRID;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.multivalue.v2.MultiValueEntrySerializer;
 import it.unimi.dsi.fastutil.bytes.Byte2ObjectArrayMap;
@@ -61,7 +60,7 @@ public class BinarySerializerFactory {
    */
   public static final int TYPE_IDENTIFIER_SIZE = 1;
 
-  public static final byte CURRENT_BINARY_FORMAT_VERSION = 0;
+  public static final byte CURRENT_BINARY_FORMAT_VERSION = 13;
 
   private final Byte2ObjectArrayMap<BinarySerializer<?>> serializerIdMap = new Byte2ObjectArrayMap<>();
   private final Byte2ObjectArrayMap<Class<? extends BinarySerializer>> serializerClassesIdMap =
@@ -106,8 +105,6 @@ public class BinarySerializerFactory {
     factory.registerSerializer(BinaryTypeSerializer.INSTANCE, PropertyType.BINARY);
     factory.registerSerializer(DecimalSerializer.INSTANCE, PropertyType.DECIMAL);
 
-    // STATEFUL SERIALIER
-    factory.registerSerializer(SimpleKeySerializer.ID, SimpleKeySerializer.class);
 
     factory.registerSerializer(CompactedLinkSerializer.INSTANCE, null);
     factory.registerSerializer(UTF8Serializer.INSTANCE, null);
