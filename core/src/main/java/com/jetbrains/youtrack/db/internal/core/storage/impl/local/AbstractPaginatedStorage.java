@@ -920,17 +920,7 @@ public abstract class AbstractPaginatedStorage
                   atomicOperation, GlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger());
 
           generateDatabaseInstanceId(atomicOperation);
-
-          // ADD THE INDEX CLUSTER TO STORE, BY DEFAULT, ALL THE RECORDS OF
-          // INDEXING
-          doAddCluster(atomicOperation, MetadataDefault.CLUSTER_INDEX_NAME);
-
-          // ADD THE INDEX CLUSTER TO STORE, BY DEFAULT, ALL THE RECORDS OF
-          // INDEXING
-          doAddCluster(atomicOperation, MetadataDefault.CLUSTER_MANUAL_INDEX_NAME);
-
           clearStorageDirty();
-
           postCreateSteps();
         });
   }
@@ -5097,13 +5087,6 @@ public abstract class AbstractPaginatedStorage
     RecordSerializationContext.pushContext();
     try {
       final var cluster = doGetAndCheckCluster(rid.getClusterId());
-
-      if (cluster.getName().equals(MetadataDefault.CLUSTER_INDEX_NAME)
-          || cluster.getName().equals(MetadataDefault.CLUSTER_MANUAL_INDEX_NAME))
-      // AVOID TO COMMIT INDEX STUFF
-      {
-        return;
-      }
 
       var db = transcation.getDatabaseSession();
       switch (txEntry.type) {

@@ -8,7 +8,6 @@ import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
@@ -63,6 +62,7 @@ public class TestImportRewriteLinks {
             .save();
         db.commit();
 
+        db.begin();
         final Set<RID> brokenRids = new HashSet<>();
 
         var doc = (EntityImpl) db.newEntity();
@@ -126,6 +126,7 @@ public class TestImportRewriteLinks {
         resLinkMap.put("key3", new RecordId(-1, -42));
 
         Assert.assertEquals(emb1.field("linkMap"), resLinkMap);
+        db.rollback();
       }
     }
   }

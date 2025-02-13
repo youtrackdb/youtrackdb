@@ -41,11 +41,7 @@ import com.jetbrains.youtrack.db.internal.core.schedule.SchedulerProxy;
 import java.io.IOException;
 
 public class MetadataDefault implements MetadataInternal {
-
   public static final String CLUSTER_INTERNAL_NAME = "internal";
-  public static final String CLUSTER_INDEX_NAME = "index";
-  public static final String CLUSTER_MANUAL_INDEX_NAME = "manindex";
-
   protected int schemaClusterId;
 
   protected SchemaProxy schema;

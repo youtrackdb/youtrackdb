@@ -1183,15 +1183,15 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   @Override
-  public <T extends Record> T fromJson(String json) {
+  public <T extends DBRecord> T fromJson(String json) {
     assert assertIfNotActive();
-    return RecordSerializerJackson.INSTANCE.fromString(this, json);
+    return (T) RecordSerializerJackson.fromString(this, json);
   }
 
   @Override
   public Entity entityFromJson(String json) {
     assert assertIfNotActive();
-    var result = RecordSerializerJackson.INSTANCE.fromString(this, json);
+    var result = RecordSerializerJackson.fromString(this, json);
 
     if (result instanceof Entity) {
       return (Entity) result;

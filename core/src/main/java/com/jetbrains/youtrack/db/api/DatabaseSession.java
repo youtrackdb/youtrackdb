@@ -405,7 +405,7 @@ public interface DatabaseSession extends AutoCloseable {
 
   Entity newEntity(final SchemaClass cls);
 
-  <T extends Record> T fromJson(String json);
+  <T extends DBRecord> T fromJson(String json);
 
   Entity entityFromJson(String json);
 

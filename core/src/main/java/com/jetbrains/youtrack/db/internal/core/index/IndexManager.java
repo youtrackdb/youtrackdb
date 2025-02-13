@@ -148,24 +148,6 @@ public interface IndexManager {
   @Deprecated
   IndexManager dropIndex(final String iIndexName);
 
-  /**
-   * IMPORTANT! Only for internal usage.
-   *
-   * @return name of default cluster.
-   */
-  @Deprecated
-  String getDefaultClusterName();
-
-  /**
-   * Sets the new default cluster.
-   *
-   * <p>IMPORTANT! Only for internal usage.
-   *
-   * @param defaultClusterName name of new default cluster
-   */
-  @Deprecated
-  void setDefaultClusterName(String defaultClusterName);
-
 
   /**
    * Returns a record where configurations are saved.

@@ -29,7 +29,6 @@ import com.jetbrains.youtrack.db.internal.common.util.UncaughtExceptionHandler;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityResourceProperty;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
@@ -62,7 +61,6 @@ public class IndexManagerShared implements IndexManagerAbstract {
   protected final Map<String, Map<MultiKey, Set<Index>>> classPropertyIndex =
       new ConcurrentHashMap<>();
   protected Map<String, Index> indexes = new ConcurrentHashMap<>();
-  protected String defaultClusterName = MetadataDefault.CLUSTER_INDEX_NAME;
   protected final AtomicInteger writeLockNesting = new AtomicInteger();
 
   protected final ReadWriteLock lock = new ReentrantReadWriteLock();
@@ -183,36 +181,15 @@ public class IndexManagerShared implements IndexManagerAbstract {
   }
 
   public Index getRawIndex(final String iName) {
-    final var index = indexes.get(iName);
-    return index;
+    return indexes.get(iName);
   }
 
   public Index getIndex(DatabaseSessionInternal database, final String iName) {
-    final var index = indexes.get(iName);
-    return index;
+    return indexes.get(iName);
   }
 
   public boolean existsIndex(final String iName) {
     return indexes.containsKey(iName);
-  }
-
-  public String getDefaultClusterName() {
-    acquireSharedLock();
-    try {
-      return defaultClusterName;
-    } finally {
-      releaseSharedLock();
-    }
-  }
-
-  public void setDefaultClusterName(
-      DatabaseSessionInternal database, final String defaultClusterName) {
-    acquireExclusiveLock(database);
-    try {
-      this.defaultClusterName = defaultClusterName;
-    } finally {
-      releaseExclusiveLock(database);
-    }
   }
 
   public EntityImpl getConfiguration(DatabaseSessionInternal session) {
@@ -663,7 +640,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
                 .collect(Collectors.toSet());
       }
 
-      if (indexedAndFilteredProperties.size() > 0) {
+      if (!indexedAndFilteredProperties.isEmpty()) {
         try (var stream = indexedAndFilteredProperties.stream()) {
           throw new IndexException(database.getDatabaseName(),
               "Cannot create index on "
@@ -701,7 +678,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
       throw new IllegalStateException("Cannot drop an index inside a transaction");
     }
 
-    int[] clusterIdsToIndex = null;
+    int[] clusterIdsToIndex;
 
     acquireExclusiveLock(database);
 
@@ -937,14 +914,21 @@ public class IndexManagerShared implements IndexManagerAbstract {
     }
   }
 
+  @Override
   public Index preProcessBeforeReturn(DatabaseSessionInternal database, final Index index) {
     return index;
+  }
+
+  @Override
+  public RID getIdentity() {
+    return identity;
   }
 
   protected Storage getStorage() {
     return storage;
   }
 
+  @Override
   public EntityImpl getDocument(DatabaseSessionInternal session) {
     return toStream(session);
   }
@@ -955,4 +939,5 @@ public class IndexManagerShared implements IndexManagerAbstract {
     entity.save();
     session.commit();
   }
+
 }

@@ -127,7 +127,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
   public DatabaseExport exportDatabase() {
     try {
       listener.onMessage(
-          "\nStarted export of database '" + database.getDatabaseName() + "' to " + fileName
+          "\nStarted export of database '" + session.getDatabaseName() + "' to " + fileName
               + "...");
 
       var time = System.nanoTime();
@@ -144,10 +144,10 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
       jsonGenerator.flush();
     } catch (Exception e) {
       LogManager.instance()
-          .error(this, "Error on exporting database '%s' to: %s", e, database.getDatabaseName(),
+          .error(this, "Error on exporting database '%s' to: %s", e, session.getDatabaseName(),
               fileName);
       throw new DatabaseExportException(
-          "Error on exporting database '" + database.getDatabaseName() + "' to: " + fileName, e);
+          "Error on exporting database '" + session.getDatabaseName() + "' to: " + fileName, e);
     } finally {
       close();
     }
@@ -168,14 +168,14 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
     var exportedClusters = 0;
     var maxClusterId = getMaxClusterId();
     for (var i = 0; exportedClusters <= maxClusterId; ++i) {
-      var clusterName = database.getClusterNameById(i);
+      var clusterName = session.getClusterNameById(i);
 
       exportedClusters++;
 
       long clusterExportedRecordsTot = 0;
       if (clusterName != null) {
         // CHECK IF THE CLUSTER IS INCLUDED
-        clusterExportedRecordsTot = database.countClusterElements(clusterName);
+        clusterExportedRecordsTot = session.countClusterElements(clusterName);
       }
 
       listener.onMessage(
@@ -189,7 +189,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
       if (clusterName != null) {
         RecordAbstract rec = null;
         try {
-          var it = database.browseCluster(clusterName);
+          var it = session.browseCluster(clusterName);
 
           while (it.hasNext()) {
             rec = (RecordAbstract) it.next();
@@ -277,10 +277,10 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
       jsonGenerator = null;
     } catch (IOException e) {
       LogManager.instance()
-          .error(this, "Error on exporting database '%s' to: %s", e, database.getDatabaseName(),
+          .error(this, "Error on exporting database '%s' to: %s", e, session.getDatabaseName(),
               fileName);
       throw new DatabaseExportException(
-          "Error on exporting database '" + database.getDatabaseName() + "' to: " + fileName, e);
+          "Error on exporting database '" + session.getDatabaseName() + "' to: " + fileName, e);
     }
 
     if (tempFileName != null) // may be null if writing to an output stream w/o file
@@ -290,19 +290,19 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
       } catch (IOException e) {
         LogManager.instance()
             .error(
-                this, "Error on exporting database '%s' to: %s", e, database.getDatabaseName(),
+                this, "Error on exporting database '%s' to: %s", e, session.getDatabaseName(),
                 fileName);
         throw new DatabaseExportException(
-            "Error on exporting database '" + database.getDatabaseName() + "' to: " + fileName, e);
+            "Error on exporting database '" + session.getDatabaseName() + "' to: " + fileName, e);
       }
     }
   }
 
   private int getMaxClusterId() {
     var totalCluster = -1;
-    for (var clusterName : database.getClusterNames()) {
-      if (database.getClusterIdByName(clusterName) > totalCluster) {
-        totalCluster = database.getClusterIdByName(clusterName);
+    for (var clusterName : session.getClusterNames()) {
+      if (session.getClusterIdByName(clusterName) > totalCluster) {
+        totalCluster = session.getClusterIdByName(clusterName);
       }
     }
     return totalCluster;
@@ -330,7 +330,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
 
     for (var clusterId = 0; clusterId <= maxClusterId; ++clusterId) {
 
-      final var clusterName = database.getClusterNameById(clusterId);
+      final var clusterName = session.getClusterNameById(clusterId);
 
       // exclude removed clusters
       if (clusterName == null) {
@@ -359,7 +359,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
 
     jsonGenerator.writeObjectFieldStart("info");
     jsonGenerator.writeFieldName("name");
-    jsonGenerator.writeString(database.getDatabaseName().replace('\\', '/'));
+    jsonGenerator.writeString(session.getDatabaseName().replace('\\', '/'));
 
     jsonGenerator.writeFieldName("exporter-version");
     jsonGenerator.writeNumber(EXPORTER_VERSION);
@@ -377,9 +377,9 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
         StorageConfiguration.CURRENT_VERSION);
     jsonGenerator.writeNumberField("schema-version", SchemaShared.CURRENT_VERSION_NUMBER);
     jsonGenerator.writeStringField("schemaRecordId",
-        database.getStorageInfo().getConfiguration().getSchemaRecordId());
+        session.getStorageInfo().getConfiguration().getSchemaRecordId());
     jsonGenerator.writeStringField("indexMgrRecordId",
-        database.getStorageInfo().getConfiguration().getIndexMgrRecordId());
+        session.getStorageInfo().getConfiguration().getIndexMgrRecordId());
     jsonGenerator.writeEndObject();
 
     listener.onMessage("OK");
@@ -390,10 +390,10 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
 
     jsonGenerator.writeArrayFieldStart("indexes");
 
-    final var indexManager = database.getMetadata().getIndexManagerInternal();
-    indexManager.reload(database);
+    final var indexManager = session.getMetadata().getIndexManagerInternal();
+    indexManager.reload(session);
 
-    final var indexes = indexManager.getIndexes(database);
+    final var indexes = indexManager.getIndexes(session);
 
     for (var index : indexes) {
       final var clsName =
@@ -414,7 +414,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
       }
 
       if (!index.getClusters().isEmpty()) {
-        jsonGenerator.writeArrayFieldStart("clusters");
+        jsonGenerator.writeArrayFieldStart("clustersToIndex");
         for (var cluster : index.getClusters()) {
           jsonGenerator.writeString(cluster);
         }
@@ -423,7 +423,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
 
       if (index.getDefinition() != null) {
         jsonGenerator.writeObjectFieldStart("definition");
-        jsonGenerator.writeStringField("defClass", index.getDefinition().getClassName());
+        jsonGenerator.writeStringField("defClass", index.getDefinition().getClass().getName());
 
         jsonGenerator.writeFieldName("stream");
         index.getDefinition().toJson(jsonGenerator);
@@ -433,7 +433,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
       final var metadata = index.getMetadata();
       if (metadata != null) {
         jsonGenerator.writeFieldName("metadata");
-        RecordSerializerJackson.serializeEmbeddedMap(database, jsonGenerator, metadata, null);
+        RecordSerializerJackson.serializeEmbeddedMap(session, jsonGenerator, metadata, null);
       }
 
       jsonGenerator.writeEndObject();
@@ -448,11 +448,11 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
     listener.onMessage("\nExporting schema...");
 
     jsonGenerator.writeObjectFieldStart("schema");
-    final Schema schema = (database.getMetadata()).getImmutableSchemaSnapshot();
+    final Schema schema = (session.getMetadata()).getImmutableSchemaSnapshot();
     //noinspection deprecation
     jsonGenerator.writeNumberField("version", schema.getVersion());
     jsonGenerator.writeArrayFieldStart("blob-clusters");
-    for (var clusterId : database.getBlobClusterIds()) {
+    for (var clusterId : session.getBlobClusterIds()) {
       jsonGenerator.writeNumber(clusterId);
     }
     jsonGenerator.writeEndArray();
@@ -461,85 +461,85 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
       jsonGenerator.writeArrayFieldStart("classes");
 
       final List<SchemaClass> classes = new ArrayList<>(schema.getClasses());
-      classes.sort(Comparator.comparing(cls -> cls.getName(database)));
+      classes.sort(Comparator.comparing(cls -> cls.getName(session)));
 
       for (var cls : classes) {
         // CHECK TO FILTER CLASS
         jsonGenerator.writeStartObject();
 
-        jsonGenerator.writeStringField("name", cls.getName(database));
+        jsonGenerator.writeStringField("name", cls.getName(session));
 
         jsonGenerator.writeArrayFieldStart("cluster-ids");
-        for (var clusterId : cls.getClusterIds(database)) {
+        for (var clusterId : cls.getClusterIds(session)) {
           jsonGenerator.writeNumber(clusterId);
         }
         jsonGenerator.writeEndArray();
 
-        if (cls.isStrictMode(database)) {
-          jsonGenerator.writeBooleanField("strictMode", cls.isStrictMode(database));
+        if (cls.isStrictMode(session)) {
+          jsonGenerator.writeBooleanField("strictMode", cls.isStrictMode(session));
         }
-        if (!cls.getSuperClasses(database).isEmpty()) {
+        if (!cls.getSuperClasses(session).isEmpty()) {
           jsonGenerator.writeArrayFieldStart("super-classes");
-          for (var superClass : cls.getSuperClasses(database)) {
-            jsonGenerator.writeString(superClass.getName(database));
+          for (var superClass : cls.getSuperClasses(session)) {
+            jsonGenerator.writeString(superClass.getName(session));
           }
           jsonGenerator.writeEndArray();
         }
-        if (cls.getShortName(database) != null) {
-          jsonGenerator.writeStringField("short-name", cls.getShortName(database));
+        if (cls.getShortName(session) != null) {
+          jsonGenerator.writeStringField("short-name", cls.getShortName(session));
         }
-        if (cls.isAbstract(database)) {
-          jsonGenerator.writeBooleanField("abstract", cls.isAbstract(database));
+        if (cls.isAbstract(session)) {
+          jsonGenerator.writeBooleanField("abstract", cls.isAbstract(session));
         }
         jsonGenerator.writeStringField("cluster-selection",
-            cls.getClusterSelectionStrategyName(database));
+            cls.getClusterSelectionStrategyName(session));
 
-        if (!cls.properties(database).isEmpty()) {
+        if (!cls.properties(session).isEmpty()) {
           jsonGenerator.writeArrayFieldStart("properties");
 
-          final List<SchemaProperty> properties = new ArrayList<>(cls.declaredProperties(database));
-          properties.sort(Comparator.comparing(prop -> prop.getName(database)));
+          final List<SchemaProperty> properties = new ArrayList<>(cls.declaredProperties(session));
+          properties.sort(Comparator.comparing(prop -> prop.getName(session)));
 
           for (var p : properties) {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField("name", p.getName(database));
-            jsonGenerator.writeStringField("type", p.getType(database).toString());
-            if (p.isMandatory(database)) {
-              jsonGenerator.writeBooleanField("mandatory", p.isMandatory(database));
+            jsonGenerator.writeStringField("name", p.getName(session));
+            jsonGenerator.writeStringField("type", p.getType(session).toString());
+            if (p.isMandatory(session)) {
+              jsonGenerator.writeBooleanField("mandatory", p.isMandatory(session));
 
             }
-            if (p.isReadonly(database)) {
-              jsonGenerator.writeBooleanField("readonly", p.isReadonly(database));
+            if (p.isReadonly(session)) {
+              jsonGenerator.writeBooleanField("readonly", p.isReadonly(session));
             }
-            if (p.isNotNull(database)) {
-              jsonGenerator.writeBooleanField("not-null", p.isNotNull(database));
+            if (p.isNotNull(session)) {
+              jsonGenerator.writeBooleanField("not-null", p.isNotNull(session));
             }
-            if (p.getLinkedClass(database) != null) {
+            if (p.getLinkedClass(session) != null) {
               jsonGenerator.writeStringField("linked-class",
-                  p.getLinkedClass(database).getName(database));
+                  p.getLinkedClass(session).getName(session));
             }
-            if (p.getLinkedType(database) != null) {
-              jsonGenerator.writeStringField("linked-type", p.getLinkedType(database).toString());
+            if (p.getLinkedType(session) != null) {
+              jsonGenerator.writeStringField("linked-type", p.getLinkedType(session).toString());
             }
-            if (p.getMin(database) != null) {
-              jsonGenerator.writeStringField("min", p.getMin(database));
+            if (p.getMin(session) != null) {
+              jsonGenerator.writeStringField("min", p.getMin(session));
             }
-            if (p.getMax(database) != null) {
-              jsonGenerator.writeStringField("max", p.getMax(database));
+            if (p.getMax(session) != null) {
+              jsonGenerator.writeStringField("max", p.getMax(session));
             }
-            if (p.getCollate(database) != null) {
-              jsonGenerator.writeStringField("collate", p.getCollate(database).getName());
+            if (p.getCollate(session) != null) {
+              jsonGenerator.writeStringField("collate", p.getCollate(session).getName());
             }
-            if (p.getDefaultValue(database) != null) {
-              jsonGenerator.writeStringField("default-value", p.getDefaultValue(database));
+            if (p.getDefaultValue(session) != null) {
+              jsonGenerator.writeStringField("default-value", p.getDefaultValue(session));
             }
-            if (p.getRegexp(database) != null) {
-              jsonGenerator.writeStringField("regexp", p.getRegexp(database));
+            if (p.getRegexp(session) != null) {
+              jsonGenerator.writeStringField("regexp", p.getRegexp(session));
             }
-            final var customKeys = p.getCustomKeys(database);
+            final var customKeys = p.getCustomKeys(session);
             final Map<String, String> custom = new HashMap<>();
             for (var key : customKeys) {
-              custom.put(key, p.getCustom(database, key));
+              custom.put(key, p.getCustom(session, key));
             }
 
             if (!custom.isEmpty()) {
@@ -553,10 +553,10 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
           }
           jsonGenerator.writeEndArray();
         }
-        final var customKeys = cls.getCustomKeys(database);
+        final var customKeys = cls.getCustomKeys(session);
         final Map<String, String> custom = new HashMap<>();
         for (var key : customKeys) {
-          custom.put(key, cls.getCustom(database, key));
+          custom.put(key, cls.getCustom(session, key));
         }
 
         if (!custom.isEmpty()) {
@@ -580,7 +580,7 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
     if (rec != null) {
       try {
         final var format = "version,class,type,keepTypes,internal";
-        RecordSerializerJackson.recordToJson(database, rec, jsonGenerator, format);
+        RecordSerializerJackson.recordToJson(session, rec, jsonGenerator, format);
 
         recordExported++;
         recordNum++;

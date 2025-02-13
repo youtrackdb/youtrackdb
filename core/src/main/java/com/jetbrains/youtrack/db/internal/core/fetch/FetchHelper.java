@@ -28,7 +28,6 @@ import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.fetch.json.JSONFetchContext;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
@@ -939,12 +938,6 @@ public class FetchHelper {
               iFieldPathFromRoot,
               iListener,
               context, settings);
-        } else if ((recordLazyMultiValue instanceof String
-            || recordLazyMultiValue instanceof Number
-            || recordLazyMultiValue instanceof Boolean)
-            && context instanceof JSONFetchContext) {
-          ((JSONFetchContext) context).getJsonWriter().writeValue(db, 0,
-              false, recordLazyMultiValue);
         }
       }
     } finally {

@@ -208,8 +208,8 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
   public <RET extends DBRecord> RET updateFromJSON(final String iSource, final String iOptions) {
     status = STATUS.UNMARSHALLING;
     try {
-      RecordSerializerJackson.INSTANCE.fromString(getSessionIfDefined(),
-          iSource, this, null);
+      RecordSerializerJackson.fromString(getSessionIfDefined(),
+          iSource, this);
       // nothing change
       return (RET) this;
     } finally {
@@ -220,7 +220,7 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
   public void updateFromJSON(final @Nonnull String iSource) {
     status = STATUS.UNMARSHALLING;
     try {
-      RecordSerializerJackson.INSTANCE.fromString(getSessionIfDefined(), iSource, this, null);
+      RecordSerializerJackson.fromString(getSessionIfDefined(), iSource, this);
     } finally {
       status = STATUS.LOADED;
     }
@@ -230,7 +230,7 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
   public final <RET extends DBRecord> RET updateFromJSON(final String iSource, boolean needReload) {
     status = STATUS.UNMARSHALLING;
     try {
-      return RecordSerializerJackson.INSTANCE.fromString(getSession(), iSource, this, null);
+      return (RET) RecordSerializerJackson.fromString(getSession(), iSource, this);
     } finally {
       status = STATUS.LOADED;
     }
@@ -242,7 +242,7 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
     try {
       final var out = new ByteArrayOutputStream();
       IOUtils.copyStream(iContentResult, out);
-      RecordSerializerJackson.INSTANCE.fromString(getSession(), out.toString(), this, null);
+      RecordSerializerJackson.fromString(getSession(), out.toString(), this);
       return (RET) this;
     } finally {
       status = STATUS.LOADED;
@@ -257,7 +257,7 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
   public String toJSON(final String format) {
     checkForBinding();
 
-    return RecordSerializerJackson.INSTANCE
+    return RecordSerializerJackson
         .toString(getSessionIfDefined(), this, new StringWriter(1024),
             format == null ? "" : format)
         .toString();

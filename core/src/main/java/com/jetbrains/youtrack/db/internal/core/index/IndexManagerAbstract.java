@@ -19,6 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.index;
 
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.concur.resource.CloseableInStorage;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -82,10 +83,6 @@ public interface IndexManagerAbstract extends CloseableInStorage {
 
   EntityImpl getConfiguration(DatabaseSessionInternal session);
 
-  String getDefaultClusterName();
-
-  void setDefaultClusterName(DatabaseSessionInternal database, String defaultClusterName2);
-
   Set<Index> getClassInvolvedIndexes(
       DatabaseSessionInternal database, String className, Collection<String> fields);
 
@@ -116,6 +113,8 @@ public interface IndexManagerAbstract extends CloseableInStorage {
   EntityImpl getDocument(DatabaseSessionInternal session);
 
   EntityImpl toStream(DatabaseSessionInternal session);
+
+  RID getIdentity();
 
   Index getRawIndex(String indexName);
 

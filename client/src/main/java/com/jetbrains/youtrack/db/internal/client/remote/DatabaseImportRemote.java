@@ -43,7 +43,7 @@ public class DatabaseImportRemote extends DatabaseImpExpAbstract {
     var storage = (StorageRemote) getDatabase().getStorage();
     var file = new File(getFileName());
     try {
-      storage.importDatabase((DatabaseSessionRemote) database, options, new FileInputStream(file),
+      storage.importDatabase((DatabaseSessionRemote) session, options, new FileInputStream(file),
           file.getName(),
           getListener());
     } catch (FileNotFoundException e) {

@@ -103,14 +103,6 @@ public class IndexManagerProxy extends ProxedResource<IndexManagerAbstract>
     return this;
   }
 
-  public String getDefaultClusterName() {
-    return delegate.getDefaultClusterName();
-  }
-
-  public void setDefaultClusterName(final String defaultClusterName) {
-    delegate.setDefaultClusterName(session, defaultClusterName);
-  }
-
   public Set<Index> getClassInvolvedIndexes(
       final String className, final Collection<String> fields) {
     return delegate.getClassInvolvedIndexes(session, className, fields);

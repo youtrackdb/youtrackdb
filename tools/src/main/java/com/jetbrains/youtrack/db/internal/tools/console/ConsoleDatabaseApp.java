@@ -2128,7 +2128,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       var verbose = iOptions != null && iOptions.contains("-v");
 
       new DatabaseRepair(currentDatabaseSession)
-          .setDatabase(currentDatabaseSession)
+          .setDatabaseSession(currentDatabaseSession)
           .setOutputListener(
               new CommandOutputListener() {
                 @Override

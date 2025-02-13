@@ -23,10 +23,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jetbrains.youtrack.db.api.DatabaseSession.STATUS;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
-import com.jetbrains.youtrack.db.api.exception.SchemaException;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.RID;
@@ -37,14 +35,13 @@ import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.ArrayUtils;
+import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.EntityFieldWalker;
 import com.jetbrains.youtrack.db.internal.core.db.record.ClassTrigger;
-import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.db.tool.importer.ConverterData;
 import com.jetbrains.youtrack.db.internal.core.db.tool.importer.LinksRewriter;
-import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
@@ -65,15 +62,12 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImp
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONReader;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJackson;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.RidSet;
 import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -119,7 +113,6 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
   private boolean rebuildIndexes = true;
 
   private final Set<String> indexesToRebuild = new HashSet<>();
-  private final Map<String, String> convertedClassNames = new HashMap<>();
 
   private final Int2IntOpenHashMap clusterToClusterMapping = new Int2IntOpenHashMap();
 
@@ -150,7 +143,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       bufferedInputStream.reset();
       inputStream = bufferedInputStream;
     }
-    createJsonReaderDefaultListenerAndDeclareIntent(database, outputListener, inputStream);
+    createJsonReaderDefaultListenerAndDeclareIntent(outputListener, inputStream);
   }
 
   public DatabaseImport(
@@ -161,11 +154,10 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     super(database, "streaming", outputListener);
     objectMapper = new ObjectMapper();
     clusterToClusterMapping.defaultReturnValue(-2);
-    createJsonReaderDefaultListenerAndDeclareIntent(database, outputListener, inputStream);
+    createJsonReaderDefaultListenerAndDeclareIntent(outputListener, inputStream);
   }
 
   private void createJsonReaderDefaultListenerAndDeclareIntent(
-      final DatabaseSessionInternal database,
       final CommandOutputListener outputListener,
       final InputStream inputStream) {
     if (outputListener == null) {
@@ -209,28 +201,28 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
   }
 
   public DatabaseImport importDatabase() {
-    database.checkSecurity(Rule.ResourceGeneric.DATABASE, Role.PERMISSION_ALL);
-    final var preValidation = database.isValidationEnabled();
+    session.checkSecurity(Rule.ResourceGeneric.DATABASE, Role.PERMISSION_ALL);
+    final var preValidation = session.isValidationEnabled();
     try {
       listener.onMessage(
-          "\nStarted import of database '" + database.getURL() + "' from " + fileName + "...");
+          "\nStarted import of database '" + session.getURL() + "' from " + fileName + "...");
       final var time = System.nanoTime();
 
       jsonReader.readNext(JSONReader.BEGIN_OBJECT);
-      database.setValidationEnabled(false);
-      database.setUser(null);
+      session.setValidationEnabled(false);
+      session.setUser(null);
 
       removeDefaultNonSecurityClasses();
-      database.getMetadata().getIndexManagerInternal().reload(database);
+      session.getMetadata().getIndexManagerInternal().reload(session);
 
       for (final var index :
-          database.getMetadata().getIndexManagerInternal().getIndexes(database)) {
+          session.getMetadata().getIndexManagerInternal().getIndexes(session)) {
         if (index.isAutomatic()) {
           indexesToRebuild.add(index.getName());
         }
       }
 
-      var beforeImportSchemaSnapshot = database.getMetadata().getImmutableSchemaSnapshot();
+      var beforeImportSchemaSnapshot = session.getMetadata().getImmutableSchemaSnapshot();
 
       var clustersImported = false;
       while (jsonReader.hasNext() && jsonReader.lastChar() != '}') {
@@ -272,11 +264,11 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       // This is needed to insure functions loaded into an open
       // in memory database are available after the import.
       // see issue #5245
-      database.getMetadata().reload();
+      session.getMetadata().reload();
 
-      database.getStorage().synch();
+      session.getStorage().synch();
       // status concept seems deprecated, but status `OPEN` is checked elsewhere
-      database.setStatus(STATUS.OPEN);
+      session.setStatus(STATUS.OPEN);
 
       if (deleteRIDMapping) {
         removeExportImportRIDsMap();
@@ -298,14 +290,14 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
         writer.close();
       } catch (final IOException e1) {
         throw new DatabaseExportException(
-            "Error on importing database '" + database.getDatabaseName() + "' from file: "
+            "Error on importing database '" + session.getDatabaseName() + "' from file: "
                 + fileName, e1);
       }
       throw new DatabaseExportException(
-          "Error on importing database '" + database.getDatabaseName() + "' from file: " + fileName,
+          "Error on importing database '" + session.getDatabaseName() + "' from file: " + fileName,
           e);
     } finally {
-      database.setValidationEnabled(preValidation);
+      session.setValidationEnabled(preValidation);
       close();
     }
     return this;
@@ -345,21 +337,21 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
   }
 
   public void rebuildIndexes() {
-    database.getMetadata().getIndexManagerInternal().reload(database);
+    session.getMetadata().getIndexManagerInternal().reload(session);
 
-    var indexManager = database.getMetadata().getIndexManagerInternal();
+    var indexManager = session.getMetadata().getIndexManagerInternal();
 
     listener.onMessage("\nRebuild of stale indexes...");
     for (var indexName : indexesToRebuild) {
 
-      if (indexManager.getIndex(database, indexName) == null) {
+      if (indexManager.getIndex(session, indexName) == null) {
         listener.onMessage(
             "\nIndex " + indexName + " is skipped because it is absent in imported DB.");
         continue;
       }
 
       listener.onMessage("\nStart rebuild index " + indexName);
-      database.command("rebuild index " + indexName).close();
+      session.command("rebuild index " + indexName).close();
       listener.onMessage("\nRebuild  of index " + indexName + " is completed.");
     }
     listener.onMessage("\nStale indexes were rebuilt...");
@@ -368,7 +360,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
   public void removeExportImportRIDsMap() {
     listener.onMessage("\nDeleting RID Mapping table...");
 
-    Schema schema = database.getMetadata().getSchema();
+    Schema schema = session.getMetadata().getSchema();
     if (schema.getClass(EXPORT_IMPORT_CLASS_NAME) != null) {
       schema.dropClass(EXPORT_IMPORT_CLASS_NAME);
     }
@@ -379,18 +371,22 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
   public void close() {
   }
 
+  @SuppressWarnings("unused")
   public boolean isMigrateLinks() {
     return migrateLinks;
   }
 
+  @SuppressWarnings("unused")
   public void setMigrateLinks(boolean migrateLinks) {
     this.migrateLinks = migrateLinks;
   }
 
+  @SuppressWarnings("unused")
   public boolean isRebuildIndexes() {
     return rebuildIndexes;
   }
 
+  @SuppressWarnings("unused")
   public void setRebuildIndexes(boolean rebuildIndexes) {
     this.rebuildIndexes = rebuildIndexes;
   }
@@ -407,12 +403,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     listener.onMessage(
         "\nWARN: Exported database does not support manual index separation."
             + " Manual index cluster will be dropped.");
-
-    // In v4 new cluster for manual indexes has been implemented. To keep database consistent we
-    // should shift back all clusters and recreate cluster for manual indexes in the end.
-    database.dropCluster(MetadataDefault.CLUSTER_MANUAL_INDEX_NAME);
-
-    final Schema schema = database.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     if (schema.existsClass(SecurityUserImpl.CLASS_NAME)) {
       schema.dropClass(SecurityUserImpl.CLASS_NAME);
     }
@@ -432,7 +423,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       schema.dropClass(ClassTrigger.CLASSNAME);
     }
 
-    database.getSharedContext().getSecurity().create(database);
+    session.getSharedContext().getSecurity().create(session);
   }
 
   private void importInfo() throws IOException, ParseException {
@@ -459,12 +450,12 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
     if (schemaRecordId == null) {
       schemaRecordId =
-          new RecordId(database.getStorageInfo().getConfiguration().getSchemaRecordId());
+          new RecordId(session.getStorageInfo().getConfiguration().getSchemaRecordId());
     }
 
     if (indexMgrRecordId == null) {
       indexMgrRecordId =
-          new RecordId(database.getStorageInfo().getConfiguration().getIndexMgrRecordId());
+          new RecordId(session.getStorageInfo().getConfiguration().getIndexMgrRecordId());
     }
 
     listener.onMessage("OK");
@@ -474,7 +465,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     listener.onMessage(
         "\nNon merge mode (-merge=false): removing all default non security classes");
 
-    final Schema schema = database.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     final var classes = schema.getClasses();
     final var role = schema.getClass(Role.CLASS_NAME);
     final var user = schema.getClass(SecurityUserImpl.CLASS_NAME);
@@ -483,19 +474,19 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     final Map<String, SchemaClass> classesToDrop = new HashMap<>();
     final Set<String> indexNames = new HashSet<>();
     for (final var dbClass : classes) {
-      final var className = dbClass.getName(database);
-      if (!dbClass.isSuperClassOf(database, role)
-          && !dbClass.isSuperClassOf(database, user)
-          && !dbClass.isSuperClassOf(database,
+      final var className = dbClass.getName(session);
+      if (!dbClass.isSuperClassOf(session, role)
+          && !dbClass.isSuperClassOf(session, user)
+          && !dbClass.isSuperClassOf(session,
           identity) /*&& !dbClass.isSuperClassOf(oSecurityPolicy)*/) {
         classesToDrop.put(className, dbClass);
-        indexNames.addAll(((SchemaClassInternal) dbClass).getIndexes(database));
+        indexNames.addAll(((SchemaClassInternal) dbClass).getIndexes(session));
       }
     }
 
-    final var indexManager = database.getMetadata().getIndexManagerInternal();
+    final var indexManager = session.getMetadata().getIndexManagerInternal();
     for (final var indexName : indexNames) {
-      indexManager.dropIndex(database, indexName);
+      indexManager.dropIndex(session, indexName);
     }
 
     var removedClasses = 0;
@@ -504,10 +495,10 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       for (final var className : classesToDrop.keySet()) {
         var isSuperClass = false;
         for (var dbClass : classesToDrop.values()) {
-          final var parentClasses = dbClass.getSuperClasses(database);
+          final var parentClasses = dbClass.getSuperClasses(session);
           if (parentClasses != null) {
             for (var parentClass : parentClasses) {
-              if (className.equalsIgnoreCase(parentClass.getName(database))) {
+              if (className.equalsIgnoreCase(parentClass.getName(session))) {
                 isSuperClass = true;
                 break;
               }
@@ -532,8 +523,8 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     for (final var linkedClass : linkedClasses.entrySet()) {
       linkedClass
           .getKey()
-          .setLinkedClass(database,
-              database.getMetadata().getSchema().getClass(linkedClass.getValue()));
+          .setLinkedClass(session,
+              session.getMetadata().getSchema().getClass(linkedClass.getValue()));
     }
   }
 
@@ -559,13 +550,11 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       do {
         jsonReader.readNext(JSONReader.BEGIN_OBJECT);
         jsonReader.readNext(JSONReader.FIELD_ASSIGNMENT).checkContent("\"name\"");
-        var name = jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
+        jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
         jsonReader.readNext(JSONReader.FIELD_ASSIGNMENT).checkContent("\"global-id\"");
-        var id = jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
+        jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
         jsonReader.readNext(JSONReader.FIELD_ASSIGNMENT).checkContent("\"type\"");
-        var type = jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
-        // getDatabase().getMetadata().getSchema().createGlobalProperty(name, PropertyType.valueOf(type),
-        // Integer.valueOf(id));
+        jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
         jsonReader.readNext(JSONReader.NEXT_IN_ARRAY);
       } while (jsonReader.lastChar() == ',');
       jsonReader.readNext(JSONReader.COMMA_SEPARATOR);
@@ -582,9 +571,9 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
             StringSerializerHelper.split(
                 blobClusterIds, StringSerializerHelper.RECORD_SEPARATOR)) {
           var cluster = Integer.parseInt(i);
-          if (!ArrayUtils.contains(database.getBlobClusterIds(), cluster)) {
-            var name = database.getClusterNameById(cluster);
-            database.addBlobCluster(name);
+          if (!ArrayUtils.contains(session.getBlobClusterIds(), cluster)) {
+            var name = session.getClusterNameById(cluster);
+            session.addBlobCluster(name);
           }
         }
       }
@@ -620,31 +609,29 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
         if (className.contains(".")) {
           // MIGRATE OLD NAME WITH . TO _
           final var newClassName = className.replace('.', '_');
-          convertedClassNames.put(className, newClassName);
-
           listener.onMessage(
               "\nWARNING: class '" + className + "' has been renamed in '" + newClassName + "'\n");
 
           className = newClassName;
         }
 
-        var cls = (SchemaClassImpl) database.getMetadata().getSchema()
+        var cls = (SchemaClassImpl) session.getMetadata().getSchema()
             .getClass(className);
 
         if (cls == null) {
           if (clustersImported) {
             cls =
                 (SchemaClassImpl)
-                    database
+                    session
                         .getMetadata()
                         .getSchema()
                         .createClass(className, classClusterIds);
           } else {
             if (className.equalsIgnoreCase("ORestricted")) {
-              cls = (SchemaClassImpl) database.getMetadata().getSchema()
+              cls = (SchemaClassImpl) session.getMetadata().getSchema()
                   .createAbstractClass(className);
             } else {
-              cls = (SchemaClassImpl) database.getMetadata().getSchema().createClass(className);
+              cls = (SchemaClassImpl) session.getMetadata().getSchema().createClass(className);
             }
           }
         }
@@ -656,19 +643,19 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
           switch (value) {
             case "\"strictMode\"" ->
-                cls.setStrictMode(database, jsonReader.readBoolean(JSONReader.NEXT_IN_OBJECT));
+                cls.setStrictMode(session, jsonReader.readBoolean(JSONReader.NEXT_IN_OBJECT));
             case "\"abstract\"" ->
-                cls.setAbstract(database, jsonReader.readBoolean(JSONReader.NEXT_IN_OBJECT));
+                cls.setAbstract(session, jsonReader.readBoolean(JSONReader.NEXT_IN_OBJECT));
             case "\"short-name\"" -> {
               final var shortName = jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
-              if (!cls.getName(database).equalsIgnoreCase(shortName)) {
-                cls.setShortName(database, shortName);
+              if (!cls.getName(session).equalsIgnoreCase(shortName)) {
+                cls.setShortName(session, shortName);
               }
             }
             case "\"super-class\"" -> {
               // @compatibility <2.1 SINGLE CLASS ONLY
               final var classSuper = jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
-              final List<String> superClassNames = new ArrayList<String>();
+              final List<String> superClassNames = new ArrayList<>();
               superClassNames.add(classSuper);
               superClasses.put(cls, superClassNames);
             }
@@ -676,7 +663,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
               // MULTIPLE CLASSES
               jsonReader.readNext(JSONReader.BEGIN_COLLECTION);
 
-              final List<String> superClassNames = new ArrayList<String>();
+              final List<String> superClassNames = new ArrayList<>();
               while (jsonReader.lastChar() != ']') {
                 jsonReader.readNext(JSONReader.NEXT_IN_ARRAY);
 
@@ -704,12 +691,12 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
             case "\"customFields\"" -> {
               var customFields = importCustomFields();
               for (var entry : customFields.entrySet()) {
-                cls.setCustom(database, entry.getKey(), entry.getValue());
+                cls.setCustom(session, entry.getKey(), entry.getValue());
               }
             }
             case "\"cluster-selection\"" ->
               // @SINCE 1.7
-                cls.setClusterSelection(database,
+                cls.setClusterSelection(session,
                     jsonReader.readString(JSONReader.NEXT_IN_OBJECT));
           }
         }
@@ -723,8 +710,8 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       this.setLinkedClasses();
 
       if (exporterVersion < 11) {
-        var role = database.getMetadata().getSchema().getClass(Role.CLASS_NAME);
-        role.dropProperty(database, "rules");
+        var role = session.getMetadata().getSchema().getClass(Role.CLASS_NAME);
+        role.dropProperty(session, "rules");
       }
 
       listener.onMessage("OK (" + classImported + " classes)");
@@ -740,10 +727,10 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
   private void rebuildCompleteClassInheritence() {
     for (final var entry : superClasses.entrySet()) {
       for (final var superClassName : entry.getValue()) {
-        final var superClass = database.getMetadata().getSchema().getClass(superClassName);
+        final var superClass = session.getMetadata().getSchema().getClass(superClassName);
 
-        if (!entry.getKey().getSuperClasses(database).contains(superClass)) {
-          entry.getKey().addSuperClass(database, superClass);
+        if (!entry.getKey().getSuperClasses(session).contains(superClass)) {
+          entry.getKey().addSuperClass(session, superClass);
         }
       }
     }
@@ -766,8 +753,8 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
     if (next.equals("\"id\"")) {
       // @COMPATIBILITY 1.0rc4 IGNORE THE ID
-      next = jsonReader.readString(JSONReader.COMMA_SEPARATOR);
-      next = jsonReader.readNext(JSONReader.FIELD_ASSIGNMENT).getValue();
+      jsonReader.readString(JSONReader.COMMA_SEPARATOR);
+      jsonReader.readNext(JSONReader.FIELD_ASSIGNMENT);
     }
     next = jsonReader.checkContent("\"type\"").readString(JSONReader.NEXT_IN_OBJECT);
 
@@ -844,41 +831,41 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       }
     }
 
-    var prop = (SchemaPropertyImpl) iClass.getProperty(database, propName);
+    var prop = (SchemaPropertyImpl) iClass.getProperty(session, propName);
     if (prop == null) {
       // CREATE IT
-      prop = (SchemaPropertyImpl) iClass.createProperty(database, propName, type,
+      prop = (SchemaPropertyImpl) iClass.createProperty(session, propName, type,
           (PropertyType) null,
           true);
     }
-    prop.setMandatory(database, mandatory);
-    prop.setReadonly(database, readonly);
-    prop.setNotNull(database, notNull);
+    prop.setMandatory(session, mandatory);
+    prop.setReadonly(session, readonly);
+    prop.setNotNull(session, notNull);
 
     if (min != null) {
-      prop.setMin(database, min);
+      prop.setMin(session, min);
     }
     if (max != null) {
-      prop.setMax(database, max);
+      prop.setMax(session, max);
     }
     if (linkedClass != null) {
       linkedClasses.put(prop, linkedClass);
     }
     if (linkedType != null) {
-      prop.setLinkedType(database, linkedType);
+      prop.setLinkedType(session, linkedType);
     }
     if (collate != null) {
-      prop.setCollate(database, collate);
+      prop.setCollate(session, collate);
     }
     if (regexp != null) {
-      prop.setRegexp(database, regexp);
+      prop.setRegexp(session, regexp);
     }
     if (defaultValue != null) {
-      prop.setDefaultValue(database, value);
+      prop.setDefaultValue(session, value);
     }
     if (customFields != null) {
       for (var entry : customFields.entrySet()) {
-        prop.setCustom(database, entry.getKey(), entry.getValue());
+        prop.setCustom(session, entry.getKey(), entry.getValue());
       }
     }
   }
@@ -907,14 +894,10 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
     jsonReader.readNext(JSONReader.BEGIN_COLLECTION);
 
-    var recreateManualIndex = false;
     if (exporterVersion <= 4) {
       removeDefaultClusters();
-      recreateManualIndex = true;
     }
 
-    @SuppressWarnings("unused")
-    RecordId rid = null;
     while (jsonReader.lastChar() != ']') {
       jsonReader.readNext(JSONReader.BEGIN_OBJECT);
 
@@ -937,11 +920,10 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
                 .readNext(JSONReader.FIELD_ASSIGNMENT)
                 .checkContent("\"id\"")
                 .readInteger(JSONReader.COMMA_SEPARATOR);
-        var type =
-            jsonReader
-                .readNext(JSONReader.FIELD_ASSIGNMENT)
-                .checkContent("\"type\"")
-                .readString(JSONReader.NEXT_IN_OBJECT);
+        jsonReader
+            .readNext(JSONReader.FIELD_ASSIGNMENT)
+            .checkContent("\"type\"")
+            .readString(JSONReader.NEXT_IN_OBJECT);
       } else {
         clusterIdFromJson =
             jsonReader
@@ -950,42 +932,34 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
                 .readInteger(JSONReader.NEXT_IN_OBJECT);
       }
 
-      String type;
       if (jsonReader.lastChar() == ',') {
-        type =
-            jsonReader
-                .readNext(JSONReader.FIELD_ASSIGNMENT)
-                .checkContent("\"type\"")
-                .readString(JSONReader.NEXT_IN_OBJECT);
-      } else {
-        type = "PHYSICAL";
+        jsonReader
+            .readNext(JSONReader.FIELD_ASSIGNMENT)
+            .checkContent("\"type\"")
+            .readString(JSONReader.NEXT_IN_OBJECT);
       }
 
       if (jsonReader.lastChar() == ',') {
-        rid =
-            new RecordId(
-                jsonReader
-                    .readNext(JSONReader.FIELD_ASSIGNMENT)
-                    .checkContent("\"rid\"")
-                    .readString(JSONReader.NEXT_IN_OBJECT));
-      } else {
-        rid = null;
+        jsonReader
+            .readNext(JSONReader.FIELD_ASSIGNMENT)
+            .checkContent("\"rid\"")
+            .readString(JSONReader.NEXT_IN_OBJECT);
       }
 
       listener.onMessage(
           "\n- Creating cluster " + (name != null ? "'" + name + "'" : "NULL") + "...");
 
-      var createdClusterId = name != null ? database.getClusterIdByName(name) : -1;
+      var createdClusterId = name != null ? session.getClusterIdByName(name) : -1;
       if (createdClusterId == -1) {
         // CREATE IT
         if (!preserveClusterIDs) {
-          createdClusterId = database.addCluster(name);
+          createdClusterId = session.addCluster(name);
         } else {
           if (getDatabase().getClusterNameById(clusterIdFromJson) == null) {
-            createdClusterId = database.addCluster(name, clusterIdFromJson, null);
+            createdClusterId = session.addCluster(name, clusterIdFromJson, null);
             assert createdClusterId == clusterIdFromJson;
           } else {
-            createdClusterId = database.addCluster(name);
+            createdClusterId = session.addCluster(name);
             listener.onMessage(
                 "\n- WARNING cluster with id " + clusterIdFromJson + " already exists");
           }
@@ -994,35 +968,35 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
       if (createdClusterId != clusterIdFromJson) {
         if (!preserveClusterIDs) {
-          if (database.countClusterElements(createdClusterId - 1) == 0) {
+          if (session.countClusterElements(createdClusterId - 1) == 0) {
             listener.onMessage("Found previous version: migrating old clusters...");
-            database.dropCluster(name);
-            database.addCluster("temp_" + createdClusterId, null);
-            createdClusterId = database.addCluster(name);
+            session.dropCluster(name);
+            session.addCluster("temp_" + createdClusterId);
+            createdClusterId = session.addCluster(name);
           } else {
             throw new ConfigurationException(
-                database.getDatabaseName(), "Imported cluster '"
+                session.getDatabaseName(), "Imported cluster '"
                 + name
                 + "' has id="
                 + createdClusterId
                 + " different from the original: "
                 + clusterIdFromJson
                 + ". To continue the import drop the cluster '"
-                + database.getClusterNameById(createdClusterId - 1)
+                + session.getClusterNameById(createdClusterId - 1)
                 + "' that has "
-                + database.countClusterElements(createdClusterId - 1)
+                + session.countClusterElements(createdClusterId - 1)
                 + " records");
           }
         } else {
 
           final var clazz =
-              database.getMetadata().getSchema().getClassByClusterId(createdClusterId);
+              session.getMetadata().getSchema().getClassByClusterId(createdClusterId);
           if (clazz instanceof SchemaClassEmbedded) {
-            ((SchemaClassEmbedded) clazz).removeClusterId(database, createdClusterId, true);
+            ((SchemaClassEmbedded) clazz).removeClusterId(session, createdClusterId, true);
           }
 
-          database.dropCluster(createdClusterId);
-          createdClusterId = database.addCluster(name, clusterIdFromJson, null);
+          session.dropCluster(createdClusterId);
+          createdClusterId = session.addCluster(name, clusterIdFromJson, null);
         }
       }
       clusterToClusterMapping.put(clusterIdFromJson, createdClusterId);
@@ -1038,11 +1012,11 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     listener.onMessage("\nRebuilding indexes of truncated clusters ...");
 
     for (final var indexName : indexesToRebuild) {
-      database
+      session
           .getMetadata()
           .getIndexManagerInternal()
-          .getIndex(database, indexName)
-          .rebuild(database,
+          .getIndex(session, indexName)
+          .rebuild(session,
               new ProgressListener() {
                 private long last = 0;
 
@@ -1076,23 +1050,16 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
               });
     }
     listener.onMessage("\nDone " + indexesToRebuild.size() + " indexes were rebuilt.");
-
-    if (recreateManualIndex) {
-      database.addCluster(MetadataDefault.CLUSTER_MANUAL_INDEX_NAME);
-      database.getMetadata().getIndexManagerInternal().create();
-
-      listener.onMessage("\nManual index cluster was recreated.");
-    }
     listener.onMessage("\nDone. Imported " + total + " clusters");
 
-    database.begin();
-    if (!database.exists(
-        new RecordId(database.getStorageInfo().getConfiguration().getIndexMgrRecordId()))) {
-      var indexEntity = new EntityImpl(database);
+    session.begin();
+    if (!session.exists(
+        new RecordId(session.getStorageInfo().getConfiguration().getIndexMgrRecordId()))) {
+      var indexEntity = new EntityImpl(session);
       indexEntity.save(MetadataDefault.CLUSTER_INTERNAL_NAME);
-      database.getStorage().setIndexMgrRecordId(indexEntity.getIdentity().toString());
+      session.getStorage().setIndexMgrRecordId(indexEntity.getIdentity().toString());
     }
-    database.commit();
+    session.commit();
 
   }
 
@@ -1104,207 +1071,72 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
   private RID importRecord(HashSet<RID> recordsBeforeImport,
       Schema beforeImportSchemaSnapshot)
       throws Exception {
-    database.begin();
+    RawPair<RecordAbstract, RecordSerializerJackson.RecordMetadata> recordWithMetadata = null;
+    session.begin();
     var ok = false;
     try {
       var recordParse =
           jsonReader.readRecordString(this.maxRidbagStringSizeBeforeLazyImport);
       var value = recordParse.getKey().trim();
-
       if (value.isEmpty()) {
         return null;
       }
-
-      // JUMP EMPTY RECORDS
-      while (!value.isEmpty() && value.charAt(0) != '{') {
-        value = value.substring(1);
-      }
-
-      RecordAbstract record = null;
-
-      // big ridbags (ie. supernodes) sometimes send the system OOM, so they have to be discarded at
-      // this stage
-      // and processed later. The following collects the positions ("value" inside the string) of
-      // skipped fields.
-      var skippedPartsIndexes = new IntOpenHashSet();
-
       try {
-        try {
-          record =
-              RecordSerializerJackson.INSTANCE.fromString(database,
-                  value,
-                  null,
-                  null);
-        } catch (final SerializationException e) {
-          if (e.getCause() instanceof SchemaException) {
-            // EXTRACT CLASS NAME If ANY
-            final var pos = value.indexOf("\"@class\":\"");
-            if (pos > -1) {
-              final var end = value.indexOf('"', pos + "\"@class\":\"".length() + 1);
-              final var value1 = value.substring(0, pos + "\"@class\":\"".length());
-              final var clsName = value.substring(pos + "\"@class\":\"".length(), end);
-              final var value2 = value.substring(end);
+        recordWithMetadata =
+            RecordSerializerJackson.fromStringWithMetadata(session,
+                value,
+                null
+            );
 
-              final var newClassName = convertedClassNames.get(clsName);
+        var record = recordWithMetadata.first;
+        var metadata = recordWithMetadata.second;
 
-              value = value1 + newClassName + value2;
-              // OVERWRITE CLASS NAME WITH NEW NAME
-              record =
-                  RecordSerializerJackson.INSTANCE.fromString(database,
-                      value,
-                      record,
-                      null);
+        switch (metadata.internalRecordType()) {
+          case SCHEMA -> {
+            recordsBeforeImport.remove(schemaRecordId);
+            if (!schemaImported) {
+              return null;
             }
-          } else {
-            throw BaseException.wrapException(
-                new DatabaseImportException("Error on importing record"), e,
-                database.getDatabaseName());
+
+            var schemaRecord = (RecordAbstract) session.load(schemaRecordId);
+            schemaRecord.fromStream(record.toStream());
+            record.delete();
+
+            return schemaRecordId;
           }
-        }
-
-        // Incorrect record format, skip this record
-        if (record == null) {
-          LogManager.instance().warn(this, "Broken record was detected and will be skipped");
-          return null;
-        }
-
-        if (schemaImported && record.getIdentity().equals(schemaRecordId)) {
-          recordsBeforeImport.remove(record.getIdentity());
-          // JUMP THE SCHEMA
-          return null;
-        }
-
-        // CHECK IF THE CLUSTER IS INCLUDED
-
-        if (record.getIdentity().getClusterId() == 0
-            && record.getIdentity().getClusterPosition() == 1) {
-          recordsBeforeImport.remove(record.getIdentity());
-          // JUMP INTERNAL RECORDS
-          return null;
-        }
-
-        if (exporterVersion >= 3) {
-          var oridsId = database.getClusterIdByName("ORIDs");
-          var indexId = database.getClusterIdByName(MetadataDefault.CLUSTER_INDEX_NAME);
-
-          if (record.getIdentity().getClusterId() == indexId
-              || record.getIdentity().getClusterId() == oridsId) {
-            recordsBeforeImport.remove(record.getIdentity());
-            // JUMP INDEX RECORDS
+          case INDEX_MANAGER -> {
+            recordsBeforeImport.remove(indexMgrRecordId);
             return null;
           }
-        }
+          case null -> {
+            final RID rid = record.getIdentity().copy();
+            final var clusterId = rid.getClusterId();
 
-        final var manualIndexCluster =
-            database.getClusterIdByName(MetadataDefault.CLUSTER_MANUAL_INDEX_NAME);
-        final var internalCluster =
-            database.getClusterIdByName(MetadataDefault.CLUSTER_INTERNAL_NAME);
-        final var indexCluster = database.getClusterIdByName(MetadataDefault.CLUSTER_INDEX_NAME);
-
-        if (exporterVersion >= 4) {
-          if (record.getIdentity().getClusterId() == manualIndexCluster) {
-            // JUMP INDEX RECORDS
-            recordsBeforeImport.remove(record.getIdentity());
-            return null;
-          }
-        }
-
-        if (record.getIdentity().equals(indexMgrRecordId)) {
-          recordsBeforeImport.remove(record.getIdentity());
-          return null;
-        }
-
-        final RID rid = record.getIdentity().copy();
-        final var clusterId = rid.getClusterId();
-
-        Entity systemRecord = null;
-        var cls = beforeImportSchemaSnapshot.getClassByClusterId(clusterId);
-        if (cls != null) {
-          assert record instanceof EntityImpl;
-
-          if (cls.getName(database).equals(SecurityUserImpl.CLASS_NAME)) {
-            try (var resultSet =
-                database.query(
-                    "select from " + SecurityUserImpl.CLASS_NAME + " where name = ?",
-                    ((EntityImpl) record).<String>getProperty("name"))) {
-              if (resultSet.hasNext()) {
-                systemRecord = resultSet.next().asEntity();
+            var systemRecord = findRelatedSystemRecord(beforeImportSchemaSnapshot, clusterId,
+                record);
+            if (systemRecord != null) {
+              if (!record.getClass().isAssignableFrom(systemRecord.getClass())) {
+                throw new IllegalStateException(
+                    "Imported record and record stored in database under id "
+                        + rid
+                        + " have different types. "
+                        + "Stored record class is : "
+                        + record.getClass()
+                        + " and imported "
+                        + systemRecord.getClass()
+                        + " .");
               }
+
+              RecordInternal.setVersion(record, systemRecord.getVersion());
+              RecordInternal.setIdentity(record, (RecordId) systemRecord.getIdentity());
+              recordsBeforeImport.remove(systemRecord.getIdentity());
             }
-          } else if (cls.getName(database).equals(Role.CLASS_NAME)) {
-            try (var resultSet =
-                database.query(
-                    "select from " + Role.CLASS_NAME + " where name = ?",
-                    ((EntityImpl) record).<String>getProperty("name"))) {
-              if (resultSet.hasNext()) {
-                systemRecord = resultSet.next().asEntity();
-              }
-            }
-          } else if (cls.getName(database).equals(SecurityPolicy.class.getSimpleName())) {
-            try (var resultSet =
-                database.query(
-                    "select from " + SecurityPolicy.class.getSimpleName() + " where name = ?",
-                    ((EntityImpl) record).<String>getProperty("name"))) {
-              if (resultSet.hasNext()) {
-                systemRecord = resultSet.next().asEntity();
-              }
-            }
-          } else if (cls.getName(database).equals("V") || cls.getName(database).equals("E")) {
-            // skip it
-          } else {
-            throw new IllegalStateException(
-                "Class " + cls.getName(database) + " is not supported.");
           }
         }
-
-        if ((clusterId != manualIndexCluster
-            && clusterId != internalCluster
-            && clusterId != indexCluster)) {
-          if (systemRecord != null) {
-            if (!record.getClass().isAssignableFrom(systemRecord.getClass())) {
-              throw new IllegalStateException(
-                  "Imported record and record stored in database under id "
-                      + rid
-                      + " have different types. "
-                      + "Stored record class is : "
-                      + record.getClass()
-                      + " and imported "
-                      + systemRecord.getClass()
-                      + " .");
-            }
-
-            RecordInternal.setVersion(record, systemRecord.getVersion());
-            RecordInternal.setIdentity(record, (RecordId) systemRecord.getIdentity());
-            recordsBeforeImport.remove(systemRecord.getIdentity());
-          } else {
-            RecordInternal.setVersion(record, 0);
-            RecordInternal.setIdentity(record, new ChangeableRecordId());
-          }
-          record.setDirty();
-
-          if (!rid.equals(record.getIdentity())) {
-            // SAVE IT ONLY IF DIFFERENT
-            var recordRid = record.getIdentity();
-            var entity = database.newEntity(EXPORT_IMPORT_CLASS_NAME);
-
-            entity.setProperty("key", rid.toString());
-            entity.setProperty("value", recordRid.toString());
-          }
-        }
-
-        // import skipped records (too big to be imported before)
-        if (!skippedPartsIndexes.isEmpty()) {
-          for (var skippedPartsIndex : skippedPartsIndexes) {
-            importSkippedRidbag(record, value, skippedPartsIndex);
-          }
-        }
-
-        if (!recordParse.value.isEmpty()) {
-          importSkippedRidbag(record, recordParse.getValue());
-        }
-
       } catch (Exception t) {
-        if (record != null) {
+        if (recordWithMetadata != null) {
+          var record = recordWithMetadata.first;
+
           LogManager.instance()
               .error(
                   this,
@@ -1332,26 +1164,71 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       }
 
       ok = true;
-      return record.getIdentity();
+      return recordWithMetadata.first.getIdentity();
     } finally {
       if (ok) {
-        database.commit();
+        session.commit();
       } else {
-        database.rollback();
+        session.rollback();
       }
     }
+  }
+
+  private Entity findRelatedSystemRecord(Schema beforeImportSchemaSnapshot, int clusterId,
+      RecordAbstract record) {
+    Entity systemRecord = null;
+    var cls = beforeImportSchemaSnapshot.getClassByClusterId(clusterId);
+    if (cls != null) {
+      assert record instanceof EntityImpl;
+
+      if (cls.getName(session).equals(SecurityUserImpl.CLASS_NAME)) {
+        try (var resultSet =
+            session.query(
+                "select from " + SecurityUserImpl.CLASS_NAME + " where name = ?",
+                ((EntityImpl) record).<String>getProperty("name"))) {
+          if (resultSet.hasNext()) {
+            systemRecord = resultSet.next().asEntity();
+          }
+        }
+      } else if (cls.getName(session).equals(Role.CLASS_NAME)) {
+        try (var resultSet =
+            session.query(
+                "select from " + Role.CLASS_NAME + " where name = ?",
+                ((EntityImpl) record).<String>getProperty("name"))) {
+          if (resultSet.hasNext()) {
+            systemRecord = resultSet.next().asEntity();
+          }
+        }
+      } else if (cls.getName(session).equals(SecurityPolicy.class.getSimpleName())) {
+        try (var resultSet =
+            session.query(
+                "select from " + SecurityPolicy.class.getSimpleName() + " where name = ?",
+                ((EntityImpl) record).<String>getProperty("name"))) {
+          if (resultSet.hasNext()) {
+            systemRecord = resultSet.next().asEntity();
+          }
+        }
+      } else //noinspection StatementWithEmptyBody
+        if (cls.getName(session).equals("V") || cls.getName(session).equals("E")) {
+          // skip it
+        } else {
+          throw new IllegalStateException(
+              "Class " + cls.getName(session) + " is not supported.");
+        }
+    }
+    return systemRecord;
   }
 
   private void importRecords(Schema beforeImportSchemaSnapshot) throws Exception {
     long total = 0;
 
-    final Schema schema = database.getMetadata().getSchema();
+    final Schema schema = session.getMetadata().getSchema();
     if (schema.getClass(EXPORT_IMPORT_CLASS_NAME) != null) {
       schema.dropClass(EXPORT_IMPORT_CLASS_NAME);
     }
     final var cls = schema.createClass(EXPORT_IMPORT_CLASS_NAME);
-    cls.createProperty(database, "key", PropertyType.STRING);
-    cls.createProperty(database, "value", PropertyType.STRING);
+    cls.createProperty(session, "key", PropertyType.STRING);
+    cls.createProperty(session, "value", PropertyType.STRING);
 
     jsonReader.readNext(JSONReader.BEGIN_COLLECTION);
 
@@ -1363,15 +1240,12 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     // and then remove left overs
     final var recordsBeforeImport = new HashSet<RID>();
 
-    for (final var clusterName : database.getClusterNames()) {
-      final Iterator<DBRecord> recordIterator = database.browseCluster(clusterName);
+    for (final var clusterName : session.getClusterNames()) {
+      final Iterator<DBRecord> recordIterator = session.browseCluster(clusterName);
       while (recordIterator.hasNext()) {
         recordsBeforeImport.add(recordIterator.next().getIdentity());
       }
     }
-
-    // excluding placeholder record that exist for binary compatibility
-    recordsBeforeImport.remove(new RecordId(0, 0));
 
     RID rid;
     RID lastRid = new ChangeableRecordId();
@@ -1382,7 +1256,6 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
     LogManager.instance().debug(this, "Detected exporter version " + exporterVersion + ".");
     while (jsonReader.lastChar() != ']') {
-      // TODO: add special handling for `exporterVersion` / `DatabaseExport.EXPORTER_VERSION` >= 13
       rid = importRecord(recordsBeforeImport, beforeImportSchemaSnapshot);
 
       total++;
@@ -1391,7 +1264,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
         ++totalRecords;
 
         if (rid.getClusterId() != lastRid.getClusterId() || involvedClusters.isEmpty()) {
-          involvedClusters.add(database.getClusterNameById(rid.getClusterId()));
+          involvedClusters.add(session.getClusterNameById(rid.getClusterId()));
         }
         lastRid = rid;
       }
@@ -1422,10 +1295,10 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     // remove all records which were absent in new database but
     // exist in old database
     for (final var leftOverRid : recordsBeforeImport) {
-      database.executeInTx(() -> database.delete(leftOverRid));
+      session.executeInTx(() -> session.delete(leftOverRid));
     }
 
-    database.getMetadata().reload();
+    session.getMetadata().reload();
 
     final Set<RID> brokenRids = new HashSet<>();
     processBrokenRids(brokenRids);
@@ -1439,77 +1312,11 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
   }
 
-  private void importSkippedRidbag(final DBRecord record, final Map<String, RidSet> bags) {
-    if (bags == null) {
-      return;
-    }
-    var entity = (Entity) record;
-    bags.forEach(
-        (field, ridset) -> {
-          RidBag ridbag = ((EntityInternal) record).getPropertyInternal(field);
-          ridset.forEach(
-              rid -> {
-                ridbag.add(rid);
-                entity.save();
-              });
-        });
-  }
-
-  private static void importSkippedRidbag(DBRecord record, String value,
-      Integer skippedPartsIndex) {
-    var entity = (EntityInternal) record;
-
-    var builder = new StringBuilder();
-
-    var nextIndex =
-        StringSerializerHelper.parse(
-            value,
-            builder,
-            skippedPartsIndex,
-            -1,
-            RecordSerializerJackson.PARAMETER_SEPARATOR,
-            true,
-            true,
-            false,
-            -1,
-            false,
-            ' ',
-            '\n',
-            '\r',
-            '\t');
-
-    var fieldName = IOUtils.getStringContent(builder.toString());
-    RidBag bag = entity.getPropertyInternal(fieldName);
-
-    if (!(value.charAt(nextIndex) == '[')) {
-      throw new DatabaseImportException("Cannot import field: " + fieldName + " (too big)");
-    }
-
-    var ridBuffer = new StringBuilder();
-
-    for (var i = nextIndex + 1; i < value.length() + 2; i++) {
-      if (value.charAt(i) == ',' || value.charAt(i) == ']') {
-        var ridString = IOUtils.getStringContent(ridBuffer.toString().trim());
-        if (ridString.length() > 0) {
-          var rid = new RecordId(ridString);
-          bag.add(rid);
-          record.save();
-        }
-        ridBuffer = new StringBuilder();
-        if (value.charAt(i) == ']') {
-          break;
-        }
-      } else {
-        ridBuffer.append(value.charAt(i));
-      }
-    }
-  }
-
   private void importIndexes() throws IOException, ParseException {
     listener.onMessage("\n\nImporting indexes ...");
 
-    var indexManager = database.getMetadata().getIndexManagerInternal();
-    indexManager.reload(database);
+    var indexManager = session.getMetadata().getIndexManagerInternal();
+    indexManager.reload(session);
 
     jsonReader.readNext(JSONReader.BEGIN_COLLECTION);
 
@@ -1520,14 +1327,15 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
         break;
       }
 
-      String blueprintsIndexClass = null;
       String indexName = null;
       String indexType = null;
       String indexAlgorithm = null;
       Set<String> clustersToIndex = new HashSet<>();
       IndexDefinition indexDefinition = null;
-      EntityImpl metadata = null;
-      Map<String, String> engineProperties = null;
+      Map<String, Object> metadata = null;
+      var objectMapper = new ObjectMapper();
+      var typeRef = new TypeReference<HashMap<String, Object>>() {
+      };
 
       while (jsonReader.lastChar() != '}') {
         final var fieldName = jsonReader.readString(JSONReader.FIELD_ASSIGNMENT);
@@ -1544,29 +1352,23 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
                 clustersToIndex = importClustersToIndex();
               } else {
                 if (fieldName.equals("definition")) {
-                  indexDefinition = importIndexDefinition();
+                  indexDefinition = importIndexDefinition(objectMapper);
                   jsonReader.readNext(JSONReader.NEXT_IN_OBJECT);
                 } else {
                   if (fieldName.equals("metadata")) {
                     final var jsonMetadata = jsonReader.readString(JSONReader.END_OBJECT, true);
-                    metadata = new EntityImpl(database);
-                    metadata.updateFromJSON(jsonMetadata);
-                    jsonReader.readNext(JSONReader.NEXT_IN_OBJECT);
+                    metadata = objectMapper.readValue(jsonMetadata, typeRef);
                   } else {
                     if (fieldName.equals("engineProperties")) {
                       final var jsonEngineProperties =
                           jsonReader.readString(JSONReader.END_OBJECT, true);
-                      var entity = new EntityImpl(database);
+                      var entity = new EntityImpl(session);
                       entity.updateFromJSON(jsonEngineProperties);
                       Map<String, ?> map = entity.toMap();
                       if (map != null) {
                         map.replaceAll((k, v) -> v);
                       }
                       jsonReader.readNext(JSONReader.NEXT_IN_OBJECT);
-                    } else {
-                      if (fieldName.equals("blueprintsIndexClass")) {
-                        blueprintsIndexClass = jsonReader.readString(JSONReader.NEXT_IN_OBJECT);
-                      }
                     }
                   }
                 }
@@ -1581,13 +1383,12 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
           dropAutoCreatedIndexesAndCountCreatedIndexes(
               indexManager,
               numberOfCreatedIndexes,
-              blueprintsIndexClass,
               indexName,
               indexType,
               indexAlgorithm,
               clustersToIndex,
               indexDefinition,
-              metadata.toMap());
+              metadata);
     }
     listener.onMessage("\nDone. Created " + numberOfCreatedIndexes + " indexes.");
     jsonReader.readNext(JSONReader.NEXT_IN_OBJECT);
@@ -1596,7 +1397,6 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
   private int dropAutoCreatedIndexesAndCountCreatedIndexes(
       final IndexManagerAbstract indexManager,
       int numberOfCreatedIndexes,
-      final String blueprintsIndexClass,
       final String indexName,
       final String indexType,
       final String indexAlgorithm,
@@ -1611,12 +1411,12 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     if (!indexName.equalsIgnoreCase(EXPORT_IMPORT_INDEX_NAME)) {
       listener.onMessage("\n- Index '" + indexName + "'...");
 
-      indexManager.dropIndex(database, indexName);
+      indexManager.dropIndex(session, indexName);
       indexesToRebuild.remove(indexName);
       var clusterIds = new IntArrayList();
 
       for (final var clusterName : clustersToIndex) {
-        var id = database.getClusterIdByName(clusterName);
+        var id = session.getClusterIdByName(clusterName);
         if (id != -1) {
           clusterIds.add(id);
         } else {
@@ -1642,16 +1442,15 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       var oldValue = GlobalConfiguration.INDEX_IGNORE_NULL_VALUES_DEFAULT.getValueAsBoolean();
       GlobalConfiguration.INDEX_IGNORE_NULL_VALUES_DEFAULT.setValue(
           indexDefinition.isNullValuesIgnored());
-      final var index =
-          indexManager.createIndex(
-              database,
-              indexName,
-              indexType,
-              indexDefinition,
-              clusterIdsToIndex,
-              null,
-              metadata,
-              indexAlgorithm);
+      indexManager.createIndex(
+          session,
+          indexName,
+          indexType,
+          indexDefinition,
+          clusterIdsToIndex,
+          null,
+          metadata,
+          indexAlgorithm);
       GlobalConfiguration.INDEX_IGNORE_NULL_VALUES_DEFAULT.setValue(oldValue);
       numberOfCreatedIndexes++;
       listener.onMessage("OK");
@@ -1673,7 +1472,8 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     return clustersToIndex;
   }
 
-  private IndexDefinition importIndexDefinition() throws IOException, ParseException {
+  private IndexDefinition importIndexDefinition(ObjectMapper mapper)
+      throws IOException, ParseException {
     jsonReader.readString(JSONReader.BEGIN_OBJECT);
     jsonReader.readNext(JSONReader.FIELD_ASSIGNMENT);
 
@@ -1685,7 +1485,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     final IndexDefinition indexDefinition;
     TypeReference<HashMap<String, Object>> typeRef = new TypeReference<>() {
     };
-    var indexDefinitionMap = objectMapper.readValue(value, typeRef);
+    var indexDefinitionMap = mapper.readValue(value, typeRef);
     try {
       final var indexDefClass = Class.forName(className);
       indexDefinition = (IndexDefinition) indexDefClass.getDeclaredConstructor().newInstance();
@@ -1700,22 +1500,22 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     return indexDefinition;
   }
 
-  private void migrateLinksInImportedDocuments(Set<RID> brokenRids) throws IOException {
+  private void migrateLinksInImportedDocuments(Set<RID> brokenRids) {
     listener.onMessage(
-        "\n\n"
-            + "Started migration of links (-migrateLinks=true). Links are going to be updated"
-            + " according to new RIDs:");
+        """
+            
+            
+            Started migration of links (-migrateLinks=true). Links are going to be updated\
+             according to new RIDs:""");
 
     final var begin = System.currentTimeMillis();
     final var last = new long[]{begin};
     final var entitiesLastLap = new long[1];
 
     var totalEntities = new long[1];
-    var clusterNames = database.getClusterNames();
+    var clusterNames = session.getClusterNames();
     for (var clusterName : clusterNames) {
-      if (MetadataDefault.CLUSTER_INDEX_NAME.equals(clusterName)
-          || MetadataDefault.CLUSTER_INTERNAL_NAME.equals(clusterName)
-          || MetadataDefault.CLUSTER_MANUAL_INDEX_NAME.equals(clusterName)) {
+      if (MetadataDefault.CLUSTER_INTERNAL_NAME.equals(clusterName)) {
         continue;
       }
 
@@ -1724,18 +1524,18 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
       listener.onMessage("\n- Cluster " + clusterName + "...");
 
-      final var clusterId = database.getClusterIdByName(clusterName);
-      final var clusterRecords = database.countClusterElements(clusterId);
-      var storage = database.getStorage();
+      final var clusterId = session.getClusterIdByName(clusterName);
+      final var clusterRecords = session.countClusterElements(clusterId);
+      var storage = session.getStorage();
 
       var positions =
-          storage.ceilingPhysicalPositions(database, clusterId, new PhysicalPosition(0));
+          storage.ceilingPhysicalPositions(session, clusterId, new PhysicalPosition(0));
       while (positions.length > 0) {
         for (var position : positions) {
-          database.executeInTx(() -> {
-            var record = database.load(new RecordId(clusterId, position.clusterPosition));
+          session.executeInTx(() -> {
+            var record = session.load(new RecordId(clusterId, position.clusterPosition));
             if (record instanceof EntityImpl entity) {
-              rewriteLinksInDocument(database, entity, brokenRids);
+              rewriteLinksInDocument(session, entity, brokenRids);
 
               entities[0]++;
               entitiesLastLap[0]++;
@@ -1760,7 +1560,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
           });
         }
 
-        positions = storage.higherPhysicalPositions(database, clusterId,
+        positions = storage.higherPhysicalPositions(session, clusterId,
             positions[positions.length - 1]);
       }
 
@@ -1791,6 +1591,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     return entityFieldWalker.walkDocument(session, entity, rewriter);
   }
 
+  @SuppressWarnings("unused")
   public int getMaxRidbagStringSizeBeforeLazyImport() {
     return maxRidbagStringSizeBeforeLazyImport;
   }

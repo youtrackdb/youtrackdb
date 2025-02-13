@@ -55,11 +55,11 @@ public class CheckIndexTool extends DatabaseTool {
 
   @Override
   public void run() {
-    for (var index : database.getMetadata().getIndexManagerInternal().getIndexes(database)) {
+    for (var index : session.getMetadata().getIndexManagerInternal().getIndexes(session)) {
       if (!canCheck(index)) {
         continue;
       }
-      checkIndex(database, index);
+      checkIndex(session, index);
     }
     message("Total errors found on indexes: " + totalErrors);
   }
@@ -85,8 +85,8 @@ public class CheckIndexTool extends DatabaseTool {
   private void checkIndex(DatabaseSessionInternal session, Index index) {
     var fields = index.getDefinition().getFields();
     var className = index.getDefinition().getClassName();
-    var clazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(className);
-    var clusterIds = clazz.getPolymorphicClusterIds(database);
+    var clazz = this.session.getMetadata().getImmutableSchemaSnapshot().getClass(className);
+    var clusterIds = clazz.getPolymorphicClusterIds(this.session);
     for (var clusterId : clusterIds) {
       checkCluster(session, clusterId, index, fields);
     }
@@ -94,12 +94,12 @@ public class CheckIndexTool extends DatabaseTool {
 
   private void checkCluster(
       DatabaseSessionInternal session, int clusterId, Index index, List<String> fields) {
-    var totRecordsForCluster = database.countClusterElements(clusterId);
-    var clusterName = database.getClusterNameById(clusterId);
+    var totRecordsForCluster = this.session.countClusterElements(clusterId);
+    var clusterName = this.session.getClusterNameById(clusterId);
 
     var totSteps = 5;
     message("Checking cluster " + clusterName + "  for index " + index.getName() + "\n");
-    var iter = database.browseCluster(clusterName);
+    var iter = this.session.browseCluster(clusterName);
     long count = 0;
     long step = -1;
     while (iter.hasNext()) {

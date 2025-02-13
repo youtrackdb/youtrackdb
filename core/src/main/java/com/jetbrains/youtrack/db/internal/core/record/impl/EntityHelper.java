@@ -77,7 +77,8 @@ public class EntityHelper {
   public static final String ATTRIBUTE_RID_POS = "@rid_pos";
   public static final String ATTRIBUTE_VERSION = "@version";
   public static final String ATTRIBUTE_CLASS = "@class";
-  public static final String ATTRIBUTE_INTERNAL = "@internal";
+  public static final String ATTRIBUTE_INTERNAL_SCHEMA = "@internalSchema";
+  public static final String ATTRIBUTE_INTERNAL_INDEX_MANAGER = "@internalIndexManager";
   public static final String ATTRIBUTE_TYPE = "@type";
   public static final String ATTRIBUTE_EMBEDDED = "@embedded";
   public static final String ATTRIBUTE_SIZE = "@size";

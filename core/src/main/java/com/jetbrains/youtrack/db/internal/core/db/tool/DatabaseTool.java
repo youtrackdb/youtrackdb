@@ -32,7 +32,7 @@ import java.util.List;
 public abstract class DatabaseTool implements Runnable {
 
   protected CommandOutputListener output;
-  protected DatabaseSessionInternal database;
+  protected DatabaseSessionInternal session;
   protected boolean verbose = false;
 
   protected abstract void parseSetting(final String option, final List<String> items);
@@ -66,8 +66,8 @@ public abstract class DatabaseTool implements Runnable {
     return this;
   }
 
-  public DatabaseTool setDatabase(final DatabaseSessionInternal database) {
-    this.database = database;
+  public DatabaseTool setDatabaseSession(final DatabaseSessionInternal session) {
+    this.session = session;
     return this;
   }
 

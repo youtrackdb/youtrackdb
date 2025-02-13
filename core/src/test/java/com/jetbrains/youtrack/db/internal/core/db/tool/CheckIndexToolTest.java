@@ -45,7 +45,7 @@ public class CheckIndexToolTest extends BaseMemoryInternalDatabase {
     Assert.assertEquals(N_RECORDS + 1, result.stream().count());
 
     var tool = new CheckIndexTool();
-    tool.setDatabase(session);
+    tool.setDatabaseSession(session);
     tool.setVerbose(true);
     tool.setOutputListener(System.out::println);
 
@@ -71,7 +71,7 @@ public class CheckIndexToolTest extends BaseMemoryInternalDatabase {
 
     final var tool = new CheckIndexTool();
 
-    tool.setDatabase(session);
+    tool.setDatabaseSession(session);
     tool.setVerbose(true);
     tool.setOutputListener(System.out::println);
     tool.run();
