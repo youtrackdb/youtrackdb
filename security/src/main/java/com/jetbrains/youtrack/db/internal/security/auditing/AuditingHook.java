@@ -278,55 +278,51 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
   }
 
   @Override
-  public void onRecordAfterCreate(DatabaseSession db, final DBRecord iRecord) {
+  public void onRecordAfterCreate(DatabaseSession session, final DBRecord iRecord) {
     if (!onGlobalCreate) {
       return;
     }
 
-    log(db, AuditingOperation.CREATED, iRecord);
+    log(session, AuditingOperation.CREATED, iRecord);
   }
 
   @Override
-  public void onRecordAfterRead(DatabaseSession db, final DBRecord iRecord) {
+  public void onRecordAfterRead(DatabaseSession session, final DBRecord iRecord) {
     if (!onGlobalRead) {
       return;
     }
 
-    log(db, AuditingOperation.LOADED, iRecord);
+    log(session, AuditingOperation.LOADED, iRecord);
   }
 
   @Override
-  public void onRecordAfterUpdate(DatabaseSession db, final DBRecord iRecord) {
+  public void onRecordAfterUpdate(DatabaseSession session, final DBRecord iRecord) {
 
     if (iRecord instanceof EntityImpl entity) {
       var clazz = EntityInternalUtils.getImmutableSchemaClass(
-          (DatabaseSessionInternal) db, entity);
+          (DatabaseSessionInternal) session, entity);
 
       if (clazz.isUser() && Arrays.asList(entity.getDirtyProperties()).contains("password")) {
         String name = entity.getProperty("name");
         var message = String.format("The password for user '%s' has been changed", name);
-        log(db, AuditingOperation.CHANGED_PWD, db.getDatabaseName(), db.geCurrentUser(), message);
+        log(session, AuditingOperation.CHANGED_PWD, session.getDatabaseName(),
+            session.geCurrentUser(), message);
       }
     }
     if (!onGlobalUpdate) {
       return;
     }
 
-    log(db, AuditingOperation.UPDATED, iRecord);
+    log(session, AuditingOperation.UPDATED, iRecord);
   }
 
   @Override
-  public void onRecordAfterDelete(DatabaseSession db, final DBRecord iRecord) {
+  public void onRecordAfterDelete(DatabaseSession session, final DBRecord iRecord) {
     if (!onGlobalDelete) {
       return;
     }
 
-    log(db, AuditingOperation.DELETED, iRecord);
-  }
-
-  @Override
-  public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
-    return DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE;
+    log(session, AuditingOperation.DELETED, iRecord);
   }
 
   protected void log(DatabaseSession db, final AuditingOperation operation,

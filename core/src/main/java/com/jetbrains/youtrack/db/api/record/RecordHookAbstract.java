@@ -49,16 +49,12 @@ public abstract class RecordHookAbstract implements RecordHook {
   /**
    * It's called just after the iRecord is created.
    *
-   * @param db
    * @param iRecord The iRecord just created
    */
-  public void onRecordAfterCreate(DatabaseSession db, final DBRecord iRecord) {
+  public void onRecordAfterCreate(DatabaseSession session, final DBRecord iRecord) {
   }
 
   public void onRecordCreateFailed(final DBRecord iRecord) {
-  }
-
-  public void onRecordCreateReplicated(final DBRecord iRecord) {
   }
 
   /**
@@ -66,23 +62,18 @@ public abstract class RecordHookAbstract implements RecordHook {
    *
    * @param iRecord The iRecord to read
    */
-  public RESULT onRecordBeforeRead(final DBRecord iRecord) {
-    return RESULT.RECORD_NOT_CHANGED;
+  public void onRecordBeforeRead(final DBRecord iRecord) {
   }
 
   /**
    * It's called just after the iRecord is read.
    *
-   * @param db
    * @param iRecord The iRecord just read
    */
-  public void onRecordAfterRead(DatabaseSession db, final DBRecord iRecord) {
+  public void onRecordAfterRead(DatabaseSession session, final DBRecord iRecord) {
   }
 
   public void onRecordReadFailed(final DBRecord iRecord) {
-  }
-
-  public void onRecordReadReplicated(final DBRecord iRecord) {
   }
 
   /**
@@ -99,16 +90,12 @@ public abstract class RecordHookAbstract implements RecordHook {
   /**
    * It's called just after the iRecord is updated.
    *
-   * @param db
    * @param iRecord The iRecord just updated
    */
-  public void onRecordAfterUpdate(DatabaseSession db, final DBRecord iRecord) {
+  public void onRecordAfterUpdate(DatabaseSession session, final DBRecord iRecord) {
   }
 
   public void onRecordUpdateFailed(final DBRecord iRecord) {
-  }
-
-  public void onRecordUpdateReplicated(final DBRecord iRecord) {
   }
 
   /**
@@ -125,46 +112,12 @@ public abstract class RecordHookAbstract implements RecordHook {
   /**
    * It's called just after the iRecord is deleted.
    *
-   * @param db
    * @param iRecord The iRecord just deleted
    */
-  public void onRecordAfterDelete(DatabaseSession db, final DBRecord iRecord) {
+  public void onRecordAfterDelete(DatabaseSession session, final DBRecord iRecord) {
   }
 
   public void onRecordDeleteFailed(final DBRecord iRecord) {
-  }
-
-  public void onRecordDeleteReplicated(final DBRecord iRecord) {
-  }
-
-  public RESULT onRecordBeforeReplicaAdd(final DBRecord record) {
-    return RESULT.RECORD_NOT_CHANGED;
-  }
-
-  public void onRecordAfterReplicaAdd(final DBRecord record) {
-  }
-
-  public void onRecordReplicaAddFailed(final DBRecord record) {
-  }
-
-  public RESULT onRecordBeforeReplicaUpdate(final DBRecord record) {
-    return RESULT.RECORD_NOT_CHANGED;
-  }
-
-  public void onRecordAfterReplicaUpdate(final DBRecord record) {
-  }
-
-  public void onRecordReplicaUpdateFailed(final DBRecord record) {
-  }
-
-  public RESULT onRecordBeforeReplicaDelete(final DBRecord record) {
-    return RESULT.RECORD_NOT_CHANGED;
-  }
-
-  public void onRecordAfterReplicaDelete(final DBRecord record) {
-  }
-
-  public void onRecordReplicaDeleteFailed(final DBRecord record) {
   }
 
   public void onRecordFinalizeUpdate(final DBRecord record) {
@@ -176,66 +129,51 @@ public abstract class RecordHookAbstract implements RecordHook {
   public void onRecordFinalizeDeletion(final DBRecord record) {
   }
 
-  public RESULT onTrigger(DatabaseSession db, final TYPE iType, final DBRecord record) {
+  public RESULT onTrigger(DatabaseSession session, final TYPE iType, final DBRecord record) {
     switch (iType) {
       case BEFORE_CREATE:
         return onRecordBeforeCreate(record);
 
       case AFTER_CREATE:
-        onRecordAfterCreate(db, record);
+        onRecordAfterCreate(session, record);
         break;
 
       case CREATE_FAILED:
         onRecordCreateFailed(record);
         break;
 
-      case CREATE_REPLICATED:
-        onRecordCreateReplicated(record);
+      case BEFORE_READ:
+        onRecordBeforeRead(record);
         break;
 
-      case BEFORE_READ:
-        return onRecordBeforeRead(record);
-
       case AFTER_READ:
-        onRecordAfterRead(db, record);
+        onRecordAfterRead(session, record);
         break;
 
       case READ_FAILED:
         onRecordReadFailed(record);
         break;
 
-      case READ_REPLICATED:
-        onRecordReadReplicated(record);
-        break;
-
       case BEFORE_UPDATE:
         return onRecordBeforeUpdate(record);
 
       case AFTER_UPDATE:
-        onRecordAfterUpdate(db, record);
+        onRecordAfterUpdate(session, record);
         break;
 
       case UPDATE_FAILED:
         onRecordUpdateFailed(record);
         break;
 
-      case UPDATE_REPLICATED:
-        onRecordUpdateReplicated(record);
-        break;
-
       case BEFORE_DELETE:
         return onRecordBeforeDelete(record);
 
       case AFTER_DELETE:
-        onRecordAfterDelete(db, record);
+        onRecordAfterDelete(session, record);
         break;
 
       case DELETE_FAILED:
         onRecordDeleteFailed(record);
-        break;
-
-      case DELETE_REPLICATED:
-        onRecordDeleteReplicated(record);
         break;
 
       case FINALIZE_CREATION:

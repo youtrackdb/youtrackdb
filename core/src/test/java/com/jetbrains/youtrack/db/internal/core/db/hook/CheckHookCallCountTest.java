@@ -92,10 +92,6 @@ public class CheckHookCallCountTest extends DbTestBase {
             }
           }
 
-          @Override
-          public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
-            return DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE;
-          }
         });
 
     session.begin();
@@ -126,11 +122,6 @@ public class CheckHookCallCountTest extends DbTestBase {
 
     public TestHook(DatabaseSession session) {
       super(session);
-    }
-
-    @Override
-    public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
-      return DISTRIBUTED_EXECUTION_MODE.BOTH;
     }
 
     @Override

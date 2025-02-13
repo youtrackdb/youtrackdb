@@ -305,8 +305,7 @@ public class SQLSelectStatement extends SQLStatement {
       executionPlan = createExecutionPlanNoCache(ctx, false);
     }
 
-    var result = new LocalResultSet(session, executionPlan);
-    return result;
+    return new LocalResultSet(session, executionPlan);
   }
 
   @Override

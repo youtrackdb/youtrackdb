@@ -167,11 +167,6 @@ public class RemoteTransactionHookTest extends DbTestBase {
     }
 
     @Override
-    public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
-      return DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE;
-    }
-
-    @Override
     public RESULT onRecordBeforeCreate(EntityImpl entity) {
       beforeCreate++;
       return RESULT.RECORD_NOT_CHANGED;

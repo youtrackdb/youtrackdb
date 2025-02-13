@@ -6,7 +6,6 @@ import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 
@@ -23,26 +22,24 @@ public class HookRegisterRemoveTest extends DbTestBase {
           }
 
           @Override
-          public RESULT onTrigger(DatabaseSession db, TYPE iType, DBRecord iRecord) {
+          public RESULT onTrigger(DatabaseSession session, TYPE iType, DBRecord iRecord) {
             integer.incrementAndGet();
             return null;
           }
 
-          @Override
-          public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
-            return null;
-          }
         };
     session.registerHook(iHookImpl);
 
     session.begin();
-    session.save(((EntityImpl) session.newEntity()).field("test", "test"));
+    var entity = session.newEntity();
+    entity.setProperty("test", "test");
     session.commit();
+
     assertEquals(3, integer.get());
     session.unregisterHook(iHookImpl);
 
     session.begin();
-    session.save(session.newEntity());
+    session.newEntity();
     session.commit();
 
     assertEquals(3, integer.get());

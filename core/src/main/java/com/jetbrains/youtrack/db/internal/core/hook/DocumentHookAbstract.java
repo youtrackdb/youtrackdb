@@ -52,8 +52,7 @@ public abstract class DocumentHookAbstract implements RecordHook {
    * It's called just before to create the new entity.
    *
    * @param entity The entity to create
-   * @return True if the entity has been modified and a new marshalling is required, otherwise
-   * false
+   * @return True if the entity has been modified and a new marshalling is required, otherwise false
    */
   public RESULT onRecordBeforeCreate(final EntityImpl entity) {
     return RESULT.RECORD_NOT_CHANGED;
@@ -76,22 +75,11 @@ public abstract class DocumentHookAbstract implements RecordHook {
   }
 
   /**
-   * It's called just after the entity creation was replicated on another node.
-   *
-   * @param entity The entity just created
-   */
-  public void onRecordCreateReplicated(final EntityImpl entity) {
-  }
-
-  /**
    * It's called just before to read the entity.
    *
    * @param entity The entity to read
-   * @return True if the entity has been modified and a new marshalling is required, otherwise
-   * false
    */
-  public RESULT onRecordBeforeRead(final EntityImpl entity) {
-    return RESULT.RECORD_NOT_CHANGED;
+  public void onRecordBeforeRead(final EntityImpl entity) {
   }
 
   /**
@@ -111,19 +99,10 @@ public abstract class DocumentHookAbstract implements RecordHook {
   }
 
   /**
-   * It's called just after the entity read was replicated on another node.
-   *
-   * @param entity The entity just created
-   */
-  public void onRecordReadReplicated(final EntityImpl entity) {
-  }
-
-  /**
    * It's called just before to update the entity.
    *
    * @param entity The entity to update
-   * @return True if the entity has been modified and a new marshalling is required, otherwise
-   * false
+   * @return True if the entity has been modified and a new marshalling is required, otherwise false
    */
   public RESULT onRecordBeforeUpdate(final EntityImpl entity) {
     return RESULT.RECORD_NOT_CHANGED;
@@ -146,19 +125,10 @@ public abstract class DocumentHookAbstract implements RecordHook {
   }
 
   /**
-   * It's called just after the entity updated was replicated.
-   *
-   * @param entity The entity is going to be updated
-   */
-  public void onRecordUpdateReplicated(final EntityImpl entity) {
-  }
-
-  /**
    * It's called just before to delete the entity.
    *
    * @param entity The entity to delete
-   * @return True if the entity has been modified and a new marshalling is required, otherwise
-   * false
+   * @return True if the entity has been modified and a new marshalling is required, otherwise false
    */
   public RESULT onRecordBeforeDelete(final EntityImpl entity) {
     return RESULT.RECORD_NOT_CHANGED;
@@ -180,13 +150,6 @@ public abstract class DocumentHookAbstract implements RecordHook {
   public void onRecordDeleteFailed(final EntityImpl entity) {
   }
 
-  /**
-   * It's called just after the entity deletion was replicated.
-   *
-   * @param entity The entity is going to be deleted
-   */
-  public void onRecordDeleteReplicated(final EntityImpl entity) {
-  }
 
   public void onRecordFinalizeUpdate(final EntityImpl entity) {
   }
@@ -198,8 +161,8 @@ public abstract class DocumentHookAbstract implements RecordHook {
   }
 
   @Override
-  public RESULT onTrigger(DatabaseSession db, final TYPE iType, final DBRecord iRecord) {
-    if (session.getStatus() != STATUS.OPEN) {
+  public RESULT onTrigger(DatabaseSession session, final TYPE iType, final DBRecord iRecord) {
+    if (this.session.getStatus() != STATUS.OPEN) {
       return RESULT.RECORD_NOT_CHANGED;
     }
 
@@ -223,12 +186,9 @@ public abstract class DocumentHookAbstract implements RecordHook {
         onRecordCreateFailed(entity);
         break;
 
-      case CREATE_REPLICATED:
-        onRecordCreateReplicated(entity);
-        break;
-
       case BEFORE_READ:
-        return onRecordBeforeRead(entity);
+        onRecordBeforeRead(entity);
+        break;
 
       case AFTER_READ:
         onRecordAfterRead(entity);
@@ -236,10 +196,6 @@ public abstract class DocumentHookAbstract implements RecordHook {
 
       case READ_FAILED:
         onRecordReadFailed(entity);
-        break;
-
-      case READ_REPLICATED:
-        onRecordReadReplicated(entity);
         break;
 
       case BEFORE_UPDATE:
@@ -253,10 +209,6 @@ public abstract class DocumentHookAbstract implements RecordHook {
         onRecordUpdateFailed(entity);
         break;
 
-      case UPDATE_REPLICATED:
-        onRecordUpdateReplicated(entity);
-        break;
-
       case BEFORE_DELETE:
         return onRecordBeforeDelete(entity);
 
@@ -266,10 +218,6 @@ public abstract class DocumentHookAbstract implements RecordHook {
 
       case DELETE_FAILED:
         onRecordDeleteFailed(entity);
-        break;
-
-      case DELETE_REPLICATED:
-        onRecordDeleteReplicated(entity);
         break;
 
       case FINALIZE_CREATION:
@@ -295,12 +243,11 @@ public abstract class DocumentHookAbstract implements RecordHook {
     return includeClasses;
   }
 
-  public DocumentHookAbstract setIncludeClasses(final String... includeClasses) {
+  public void setIncludeClasses(final String... includeClasses) {
     if (excludeClasses != null) {
       throw new IllegalStateException("Cannot include classes if exclude classes has been set");
     }
     this.includeClasses = includeClasses;
-    return this;
   }
 
   public String[] getExcludeClasses() {

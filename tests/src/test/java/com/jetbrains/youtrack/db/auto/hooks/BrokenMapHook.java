@@ -18,11 +18,6 @@ public class BrokenMapHook extends RecordHookAbstract implements RecordHook {
   public BrokenMapHook() {
   }
 
-  @Override
-  public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
-    return DISTRIBUTED_EXECUTION_MODE.BOTH;
-  }
-
   public RESULT onRecordBeforeCreate(DBRecord record) {
     var now = new Date();
     var element = (Entity) record;

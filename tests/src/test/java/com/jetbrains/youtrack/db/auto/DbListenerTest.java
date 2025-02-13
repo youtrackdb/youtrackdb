@@ -18,7 +18,6 @@ package com.jetbrains.youtrack.db.auto;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.api.record.RecordHook;
 import com.jetbrains.youtrack.db.api.session.SessionListener;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
 import com.jetbrains.youtrack.db.internal.core.hook.DocumentHookAbstract;
@@ -60,11 +59,6 @@ public class DbListenerTest extends BaseDBTest {
     public DocumentChangeListener(final DatabaseSession db) {
       db.registerHook(
           new DocumentHookAbstract(db) {
-
-            @Override
-            public RecordHook.DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
-              return RecordHook.DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE;
-            }
 
             @Override
             public void onRecordAfterUpdate(EntityImpl entity) {

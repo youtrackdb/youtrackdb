@@ -32,11 +32,6 @@ public class HookInstallServerTest {
     }
 
     @Override
-    public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
-      return DISTRIBUTED_EXECUTION_MODE.TARGET_NODE;
-    }
-
-    @Override
     public void onRecordAfterCreate(EntityImpl entity) {
       count++;
     }

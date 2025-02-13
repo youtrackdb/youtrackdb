@@ -36,10 +36,6 @@ public class HookChangeValidationTest extends DbTestBase {
             return RESULT.RECORD_NOT_CHANGED;
           }
 
-          @Override
-          public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
-            return DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE;
-          }
         });
     session.begin();
     var doc = (EntityImpl) session.newEntity(classA);
@@ -78,10 +74,6 @@ public class HookChangeValidationTest extends DbTestBase {
             return RESULT.RECORD_CHANGED;
           }
 
-          @Override
-          public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
-            return DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE;
-          }
         });
 
     session.begin();

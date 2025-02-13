@@ -27,13 +27,6 @@ import com.jetbrains.youtrack.db.api.DatabaseSession;
  * @see RecordHookAbstract
  */
 public interface RecordHook {
-
-  enum DISTRIBUTED_EXECUTION_MODE {
-    TARGET_NODE,
-    SOURCE_NODE,
-    BOTH
-  }
-
   enum HOOK_POSITION {
     FIRST,
     EARLY,
@@ -58,11 +51,7 @@ public interface RecordHook {
     READ_FAILED,
     UPDATE_FAILED,
     DELETE_FAILED,
-    CREATE_REPLICATED,
-    READ_REPLICATED,
-    UPDATE_REPLICATED,
 
-    DELETE_REPLICATED,
     FINALIZE_UPDATE,
     FINALIZE_CREATION,
     FINALIZE_DELETION
@@ -87,13 +76,13 @@ public interface RecordHook {
     /**
      * The create scope, includes: {@link RecordHook.TYPE#BEFORE_CREATE},
      * {@link RecordHook.TYPE#AFTER_CREATE}, {@link RecordHook.TYPE#FINALIZE_CREATION},
-     * {@link RecordHook.TYPE#CREATE_REPLICATED} and {@link RecordHook.TYPE#CREATE_FAILED}.
+     * and {@link RecordHook.TYPE#CREATE_FAILED}.
      */
     CREATE,
 
     /**
      * The read scope, includes: {@link RecordHook.TYPE#BEFORE_READ},
-     * {@link RecordHook.TYPE#AFTER_READ}, {@link RecordHook.TYPE#READ_REPLICATED} and
+     * {@link RecordHook.TYPE#AFTER_READ}, and
      * {@link RecordHook.TYPE#READ_FAILED}.
      */
     READ,
@@ -101,13 +90,13 @@ public interface RecordHook {
     /**
      * The update scope, includes: {@link RecordHook.TYPE#BEFORE_UPDATE},
      * {@link RecordHook.TYPE#AFTER_UPDATE}, {@link RecordHook.TYPE#FINALIZE_UPDATE},
-     * {@link RecordHook.TYPE#UPDATE_REPLICATED} and {@link RecordHook.TYPE#UPDATE_FAILED}.
+     * and {@link RecordHook.TYPE#UPDATE_FAILED}.
      */
     UPDATE,
 
     /**
      * The delete scope, includes: {@link RecordHook.TYPE#BEFORE_DELETE},
-     * {@link RecordHook.TYPE#AFTER_DELETE}, {@link RecordHook.TYPE#DELETE_REPLICATED},
+     * {@link RecordHook.TYPE#AFTER_DELETE},
      * {@link RecordHook.TYPE#DELETE_FAILED} and {@link RecordHook.TYPE#FINALIZE_DELETION}.
      */
     DELETE;
@@ -120,12 +109,12 @@ public interface RecordHook {
      */
     public static SCOPE typeToScope(TYPE type) {
       return switch (type) {
-        case BEFORE_CREATE, AFTER_CREATE, CREATE_FAILED, CREATE_REPLICATED, FINALIZE_CREATION ->
+        case BEFORE_CREATE, AFTER_CREATE, CREATE_FAILED, FINALIZE_CREATION ->
             SCOPE.CREATE;
-        case BEFORE_READ, AFTER_READ, READ_REPLICATED, READ_FAILED -> SCOPE.READ;
-        case BEFORE_UPDATE, AFTER_UPDATE, UPDATE_FAILED, UPDATE_REPLICATED, FINALIZE_UPDATE ->
+        case BEFORE_READ, AFTER_READ, READ_FAILED -> SCOPE.READ;
+        case BEFORE_UPDATE, AFTER_UPDATE, UPDATE_FAILED, FINALIZE_UPDATE ->
             SCOPE.UPDATE;
-        case BEFORE_DELETE, AFTER_DELETE, DELETE_FAILED, DELETE_REPLICATED, FINALIZE_DELETION ->
+        case BEFORE_DELETE, AFTER_DELETE, DELETE_FAILED, FINALIZE_DELETION ->
             SCOPE.DELETE;
         default -> throw new IllegalStateException("Unexpected hook type.");
       };
@@ -134,9 +123,7 @@ public interface RecordHook {
 
   void onUnregister();
 
-  RESULT onTrigger(DatabaseSession db, TYPE iType, DBRecord iRecord);
-
-  DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode();
+  RESULT onTrigger(DatabaseSession session, TYPE iType, DBRecord iRecord);
 
   /**
    * Returns the array of scopes this hook interested in. By default, all available scopes are

@@ -64,6 +64,7 @@ import javax.annotation.Nullable;
 
 public class FrontendTransactionOptimistic extends FrontendTransactionAbstract implements
     TransactionInternal {
+
   private static final AtomicLong txSerial = new AtomicLong();
 
   // order of updates is critical during synchronization of remote transactions
@@ -644,92 +645,74 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
 
   private void preProcessRecordsAndExecuteCallCallbacks() {
     var serializer = session.getSerializer();
-    List<RecordAbstract> changedRecords = null;
 
-    for (var recordOperation : recordOperations.values()) {
-      var record = recordOperation.record;
-      if (recordOperation.type == RecordOperation.CREATED
-          || recordOperation.type == RecordOperation.UPDATED) {
-        if (recordOperation.record instanceof EntityImpl entity) {
-          EntityInternalUtils.checkClass(entity, session);
-          try {
-            entity.autoConvertValues();
-          } catch (ValidationException e) {
-            entity.undo();
-            throw e;
+    while (changed) {
+      changed = false;
+
+      var operations = new ArrayList<>(recordOperations.values());
+      for (var recordOperation : operations) {
+        var record = recordOperation.record;
+        if (recordOperation.type == RecordOperation.CREATED
+            || recordOperation.type == RecordOperation.UPDATED) {
+          if (recordOperation.record instanceof EntityImpl entity) {
+            var className = entity.getClassName();
+            if (recordOperation.recordCallBackDirtyCounter != record.getDirtyCounter()) {
+              EntityInternalUtils.checkClass(entity, session);
+              try {
+                entity.autoConvertValues();
+              } catch (ValidationException e) {
+                entity.undo();
+                throw e;
+              }
+
+              EntityInternalUtils.convertAllMultiValuesToTrackedVersions(entity);
+
+              if (recordOperation.type == RecordOperation.CREATED) {
+                if (className != null) {
+                  session.checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_CREATE,
+                      className);
+                }
+              } else {
+                // UPDATE: CHECK ACCESS ON SCHEMA CLASS NAME (IF ANY)
+                if (className != null) {
+                  session.checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_UPDATE,
+                      className);
+                }
+              }
+            }
+
+            entity.recordFormat = serializer;
+
+            if (entity.getDirtyCounter() != recordOperation.indexTrackingDirtyCounter) {
+              if (className != null) {
+                ClassIndexManager.checkIndexesAfterUpdate(entity, session);
+                recordOperation.indexTrackingDirtyCounter = record.getDirtyCounter();
+              }
+            }
           }
 
-          EntityInternalUtils.convertAllMultiValuesToTrackedVersions(entity);
-
-          var className = entity.getClassName();
-          if (!entity.getIdentity().isValid()) {
-            if (className != null) {
-              session.checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_CREATE,
-                  className);
-            }
-          } else {
-            // UPDATE: CHECK ACCESS ON SCHEMA CLASS NAME (IF ANY)
-            if (className != null) {
-              session.checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_UPDATE,
-                  className);
-            }
-          }
-
-          entity.recordFormat = serializer;
-
-          if (entity.getDirtyCounter() != recordOperation.indexTrackingDirtyCounter) {
-            if (className != null) {
-              ClassIndexManager.checkIndexesAfterUpdate(entity, session);
-              recordOperation.indexTrackingDirtyCounter = record.getDirtyCounter();
+          if (recordOperation.recordCallBackDirtyCounter != record.getDirtyCounter()) {
+            if (recordOperation.type == RecordOperation.CREATED) {
+              if (recordOperation.recordCallBackDirtyCounter == 0) {
+                if (processRecordCreation(recordOperation, record)) {
+                  changed = true;
+                }
+              } else if (processRecordUpdate(recordOperation, record)) {
+                changed = true;
+              }
+            } else {
+              if (processRecordUpdate(recordOperation, record)) {
+                changed = true;
+              }
             }
           }
-        }
-
-        if (recordOperation.type == RecordOperation.CREATED) {
-          if (processRecordCreation(recordOperation, record)) {
-            if (changedRecords == null) {
-              changedRecords = new ArrayList<>(recordOperations.size());
-            }
-
-            changedRecords.add(record);
+        } else if (recordOperation.type == RecordOperation.DELETED) {
+          if (record.getDirtyCounter() != recordOperation.recordCallBackDirtyCounter) {
+            processRecordDeletion(recordOperation, record);
           }
         } else {
-          if (processRecordUpdate(recordOperation, record)) {
-            if (changedRecords == null) {
-              changedRecords = new ArrayList<>(recordOperations.size());
-            }
-
-            changedRecords.add(record);
-          }
+          throw new IllegalStateException("Invalid record operation type " + recordOperation.type);
         }
-      } else if (recordOperation.type == RecordOperation.DELETED) {
-        processRecordDeletion(recordOperation, record);
-      } else {
-        throw new IllegalStateException("Invalid record operation type " + recordOperation.type);
-      }
-    }
-
-    if (changedRecords != null && !changedRecords.isEmpty()) {
-      var recordsChangedInLoop = new ArrayList<RecordAbstract>(changedRecords.size());
-
-      while (!changedRecords.isEmpty()) {
-        for (var record : changedRecords) {
-          var recordOperation = new RecordOperation(record, RecordOperation.UPDATED);
-          recordOperation.recordCallBackDirtyCounter = record.getDirtyCounter();
-          recordOperation.indexTrackingDirtyCounter = record.getDirtyCounter();
-
-          if (record instanceof EntityImpl entity && entity.getClassName() != null) {
-            ClassIndexManager.checkIndexesAfterUpdate(entity, session);
-            recordOperation.indexTrackingDirtyCounter = record.getDirtyCounter();
-          }
-
-          if (processRecordUpdate(recordOperation, record)) {
-            recordsChangedInLoop.add(record);
-          }
-        }
-
-        changedRecords = recordsChangedInLoop;
-        recordsChangedInLoop = new ArrayList<>();
       }
     }
   }
@@ -755,25 +738,22 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
   private boolean processRecordUpdate(RecordOperation recordOperation, RecordAbstract record) {
     var dirtyCounter = record.getDirtyCounter();
     var clusterName = session.getClusterNameById(record.getIdentity().getClusterId());
-    if (recordOperation.recordCallBackDirtyCounter != record.getDirtyCounter()) {
-      recordOperation.recordCallBackDirtyCounter = dirtyCounter;
-      session.beforeUpdateOperations(record, clusterName);
-      try {
-        session.afterUpdateOperations(record);
-        if (record instanceof EntityImpl && ((EntityImpl) record).isTrackingChanges()) {
-          EntityInternalUtils.clearTrackData(((EntityImpl) record));
-        }
-      } catch (Exception e) {
-        session.callbackHooks(TYPE.UPDATE_FAILED, record);
-        throw e;
-      } finally {
-        session.callbackHooks(TYPE.FINALIZE_UPDATE, record);
-      }
 
-      return record.getDirtyCounter() != recordOperation.recordCallBackDirtyCounter;
+    recordOperation.recordCallBackDirtyCounter = dirtyCounter;
+    session.beforeUpdateOperations(record, clusterName);
+    try {
+      session.afterUpdateOperations(record);
+      if (record instanceof EntityImpl && ((EntityImpl) record).isTrackingChanges()) {
+        EntityInternalUtils.clearTrackData(((EntityImpl) record));
+      }
+    } catch (Exception e) {
+      session.callbackHooks(TYPE.UPDATE_FAILED, record);
+      throw e;
+    } finally {
+      session.callbackHooks(TYPE.FINALIZE_UPDATE, record);
     }
 
-    return false;
+    return record.getDirtyCounter() != recordOperation.recordCallBackDirtyCounter;
   }
 
   private boolean processRecordCreation(RecordOperation recordOperation, RecordAbstract record) {
@@ -924,7 +904,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
     }
   }
 
-  private void updateChangesIdentity(
+  private static void updateChangesIdentity(
       RID oldRid, RID newRid, FrontendTransactionIndexChangesPerKey changesPerKey) {
     if (changesPerKey == null) {
       return;

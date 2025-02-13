@@ -59,7 +59,7 @@ public class HookTxTest extends BaseDBTest {
 
     @Override
     @Test(enabled = false)
-    public void onRecordAfterCreate(DatabaseSession db, DBRecord iRecord) {
+    public void onRecordAfterCreate(DatabaseSession session, DBRecord iRecord) {
       if (iRecord instanceof EntityImpl
           && ((EntityImpl) iRecord).getClassName() != null
           && ((EntityImpl) iRecord).getClassName().equals("Profile")) {
@@ -69,18 +69,17 @@ public class HookTxTest extends BaseDBTest {
 
     @Override
     @Test(enabled = false)
-    public RESULT onRecordBeforeRead(DBRecord iRecord) {
+    public void onRecordBeforeRead(DBRecord iRecord) {
       if (iRecord instanceof EntityImpl
           && ((EntityImpl) iRecord).getClassName() != null
           && ((EntityImpl) iRecord).getClassName().equals("Profile")) {
         callbackCount += RECORD_BEFORE_READ;
       }
-      return RESULT.RECORD_NOT_CHANGED;
     }
 
     @Override
     @Test(enabled = false)
-    public void onRecordAfterRead(DatabaseSession db, DBRecord iRecord) {
+    public void onRecordAfterRead(DatabaseSession session, DBRecord iRecord) {
       if (iRecord instanceof EntityImpl
           && ((EntityImpl) iRecord).getClassName() != null
           && ((EntityImpl) iRecord).getClassName().equals("Profile")) {
@@ -101,7 +100,7 @@ public class HookTxTest extends BaseDBTest {
 
     @Override
     @Test(enabled = false)
-    public void onRecordAfterUpdate(DatabaseSession db, DBRecord iRecord) {
+    public void onRecordAfterUpdate(DatabaseSession session, DBRecord iRecord) {
       if (iRecord instanceof EntityImpl
           && ((EntityImpl) iRecord).getClassName() != null
           && ((EntityImpl) iRecord).getClassName().equals("Profile")) {
@@ -122,7 +121,7 @@ public class HookTxTest extends BaseDBTest {
 
     @Override
     @Test(enabled = false)
-    public void onRecordAfterDelete(DatabaseSession db, DBRecord iRecord) {
+    public void onRecordAfterDelete(DatabaseSession session, DBRecord iRecord) {
       if (iRecord instanceof EntityImpl
           && ((EntityImpl) iRecord).getClassName() != null
           && ((EntityImpl) iRecord).getClassName().equals("Profile")) {
@@ -130,10 +129,6 @@ public class HookTxTest extends BaseDBTest {
       }
     }
 
-    @Override
-    public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
-      return DISTRIBUTED_EXECUTION_MODE.TARGET_NODE;
-    }
   }
 
   @Parameters(value = "remote")

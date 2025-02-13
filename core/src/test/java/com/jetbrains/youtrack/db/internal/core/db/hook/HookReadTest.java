@@ -21,7 +21,7 @@ public class HookReadTest extends DbTestBase {
           }
 
           @Override
-          public RESULT onTrigger(DatabaseSession db, TYPE iType, DBRecord iRecord) {
+          public RESULT onTrigger(DatabaseSession session, TYPE iType, DBRecord iRecord) {
             if (iType == TYPE.AFTER_READ
                 && !((EntityImpl) iRecord)
                 .getClassName()
@@ -31,10 +31,6 @@ public class HookReadTest extends DbTestBase {
             return RESULT.RECORD_CHANGED;
           }
 
-          @Override
-          public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
-            return null;
-          }
         });
 
     session.getMetadata().getSchema().createClass("TestClass");
