@@ -93,7 +93,7 @@ public class YouTrackDBEnginesManager extends ListenerManger<YouTrackDBListener>
       Collections.newSetFromMap(
           new ConcurrentHashMap<WeakHashSetValueHolder<YouTrackDBShutdownListener>, Boolean>());
 
-  private volatile YouTrackDBScheduler scheduler;
+  private final YouTrackDBScheduler scheduler = new YouTrackDBScheduler();
   private volatile Profiler profiler;
 
   private final PriorityQueue<ShutdownHandler> shutdownHandlers =
@@ -256,7 +256,6 @@ public class YouTrackDBEnginesManager extends ListenerManger<YouTrackDBListener>
         return this;
       }
 
-      scheduler = new YouTrackDBScheduler();
       profiler = new Profiler(scheduler);
 
       registerWeakYouTrackDBStartupListener(profiler);
@@ -733,10 +732,7 @@ public class YouTrackDBEnginesManager extends ListenerManger<YouTrackDBListener>
         threadGroup.interrupt();
       }
 
-      if (scheduler != null) {
-        scheduler.shutdown();
-        scheduler = null;
-      }
+      scheduler.shutdown();
     }
 
     @Override
