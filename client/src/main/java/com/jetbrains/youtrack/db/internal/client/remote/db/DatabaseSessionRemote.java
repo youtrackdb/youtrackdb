@@ -47,13 +47,13 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionAbstract;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigImpl;
+import com.jetbrains.youtrack.db.internal.core.index.IndexManagerRemote;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ImmutableUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceAction;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeEntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -74,7 +74,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -501,6 +500,13 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
     }
   }
 
+  public static void updateIndexManager(StorageRemote storage) {
+    var shared = storage.getSharedContext();
+    if (shared != null) {
+      ((IndexManagerRemote) shared.getIndexManager()).requestUpdate();
+    }
+  }
+
   @Override
   public int addBlobCluster(final String iClusterName, final Object... iParameters) {
     int id;
@@ -600,13 +606,6 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   public String getClusterName(final DBRecord record) {
     // DON'T ASSIGN CLUSTER WITH REMOTE: SERVER KNOWS THE RIGHT CLUSTER BASED ON LOCALITY
     return null;
-  }
-
-  @Override
-  public <T> T sendSequenceAction(SequenceAction action)
-      throws ExecutionException, InterruptedException {
-    throw new UnsupportedOperationException(
-        "Not supported yet."); // To change body of generated methods, choose Tools | Templates.
   }
 
   public void delete(final DBRecord record) {

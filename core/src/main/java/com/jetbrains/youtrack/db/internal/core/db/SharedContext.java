@@ -5,6 +5,7 @@ import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.common.listener.ListenerManger;
 import com.jetbrains.youtrack.db.internal.common.profiler.Profiler;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.FunctionLibraryImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
@@ -45,6 +46,7 @@ public abstract class SharedContext extends ListenerManger<MetadataUpdateListene
   protected volatile boolean loaded = false;
   protected Map<String, Object> resources;
   protected StringCache stringCache;
+  protected IndexManagerAbstract indexManager;
 
   public SharedContext() {
     super(true);
@@ -106,6 +108,10 @@ public abstract class SharedContext extends ListenerManger<MetadataUpdateListene
 
   public void setStorage(Storage storage) {
     this.storage = storage;
+  }
+
+  public IndexManagerAbstract getIndexManager() {
+    return indexManager;
   }
 
   public synchronized <T> T getResource(final String name, final Callable<T> factory) {

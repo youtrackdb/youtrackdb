@@ -38,7 +38,6 @@ import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceAction;
 import com.jetbrains.youtrack.db.internal.core.query.Query;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeInternal;
@@ -68,7 +67,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -1328,13 +1326,6 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   @Override
   public String getClusterName(DBRecord record) {
     return internal.getClusterName(record);
-  }
-
-  @Override
-  public <T> T sendSequenceAction(SequenceAction action)
-      throws ExecutionException, InterruptedException {
-    throw new UnsupportedOperationException(
-        "Not supported yet."); // To change body of generated methods, choose Tools | Templates.
   }
 
   @Override

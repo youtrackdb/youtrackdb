@@ -37,16 +37,16 @@ public class LuceneOperatorUtil {
       List<IndexSearchResult> iIndexSearchResults,
       CommandContext context) {
 
-    if (iCondition.getLeft() instanceof Collection left) {
+    if (iCondition.getLeft() instanceof Collection<?> left) {
       IndexSearchResult lastResult = null;
 
       var i = 0;
-      Object lastValue = null;
       for (var obj : left) {
         if (obj instanceof SQLFilterItemField item) {
 
-          Object value = null;
-          if (iCondition.getRight() instanceof Collection) {
+          Object value;
+          if (iCondition.getRight() instanceof Collection<?>) {
+            @SuppressWarnings("unchecked")
             var right = (List<Object>) iCondition.getRight();
             value = right.get(i);
           } else {
@@ -62,8 +62,9 @@ public class LuceneOperatorUtil {
           }
 
         } else if (obj instanceof SQLFilterItemVariable item) {
-          Object value = null;
+          Object value;
           if (iCondition.getRight() instanceof Collection) {
+            @SuppressWarnings("unchecked")
             var right = (List<Object>) iCondition.getRight();
             value = right.get(i);
           } else {
@@ -125,7 +126,7 @@ public class LuceneOperatorUtil {
 
   public static IndexSearchResult createIndexedProperty(
       final SQLFilterCondition iCondition, final Object iItem) {
-    if (iItem == null || !(iItem instanceof SQLFilterItemField item)) {
+    if (!(iItem instanceof SQLFilterItemField item)) {
       return null;
     }
 

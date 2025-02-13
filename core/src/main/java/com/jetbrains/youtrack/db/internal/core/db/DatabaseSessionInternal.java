@@ -49,7 +49,6 @@ import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceAction;
 import com.jetbrains.youtrack.db.internal.core.query.Query;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeInternal;
@@ -73,7 +72,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimerTask;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
 
 public interface DatabaseSessionInternal extends DatabaseSession {
@@ -256,13 +254,6 @@ public interface DatabaseSessionInternal extends DatabaseSession {
     return command(query, args);
   }
 
-
-  <T> T sendSequenceAction(SequenceAction action) throws ExecutionException, InterruptedException;
-
-  default boolean isDistributed() {
-    return false;
-  }
-
   default boolean isRemote() {
     return false;
   }
@@ -270,10 +261,6 @@ public interface DatabaseSessionInternal extends DatabaseSession {
   Map<UUID, BonsaiCollectionPointer> getCollectionsChanges();
 
   boolean dropClusterInternal(int clusterId);
-
-  default String getStorageId() {
-    return getDatabaseName();
-  }
 
   long[] getClusterDataRange(int currentClusterId);
 

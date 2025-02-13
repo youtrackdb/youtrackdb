@@ -441,8 +441,8 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
   /**
    * {@inheritDoc}
    */
-  public SchemaClass truncateCluster(DatabaseSession session, String clusterName) {
-    var database = (DatabaseSessionInternal) session;
+  public SchemaClass truncateCluster(DatabaseSessionInternal session, String clusterName) {
+    var database = session;
     database.checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_DELETE, name);
 
     truncateClusterInternal(clusterName, database);
@@ -450,7 +450,7 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
     return this;
   }
 
-  public SchemaClass setStrictMode(DatabaseSession session, final boolean isStrict) {
+  public void setStrictMode(DatabaseSession session, final boolean isStrict) {
     final var database = (DatabaseSessionInternal) session;
     database.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_UPDATE);
 
@@ -461,7 +461,6 @@ public class SchemaClassEmbedded extends SchemaClassImpl {
       releaseSchemaWriteLock(database);
     }
 
-    return this;
   }
 
   protected void setStrictModeInternal(DatabaseSessionInternal session, final boolean iStrict) {

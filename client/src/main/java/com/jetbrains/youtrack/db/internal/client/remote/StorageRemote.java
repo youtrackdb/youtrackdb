@@ -55,6 +55,7 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.LiveQueryPushReq
 import com.jetbrains.youtrack.db.internal.client.remote.message.LowerPhysicalPositionsRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.Open37Request;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushDistributedConfigurationRequest;
+import com.jetbrains.youtrack.db.internal.client.remote.message.PushIndexManagerRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushSchemaRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushSequencesRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushStorageConfigurationRequest;
@@ -2159,6 +2160,12 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
     DatabaseSessionRemote.updateSequences(this);
     return null;
   }
+
+  public BinaryPushResponse executeUpdateIndexManager(PushIndexManagerRequest request) {
+    DatabaseSessionRemote.updateIndexManager(this);
+    return null;
+  }
+
 
   public BinaryPushResponse executeUpdateStorageConfig(PushStorageConfigurationRequest payload) {
     final StorageConfiguration storageConfiguration =

@@ -2,17 +2,16 @@ package com.jetbrains.youtrack.db.internal.client.remote.metadata.schema;
 
 import com.jetbrains.youtrack.db.api.exception.SchemaException;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.internal.common.types.ModifiableLong;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.annotation.Nonnull;
 
 /**
  *
@@ -20,6 +19,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class SchemaRemote extends SchemaShared {
 
   private final AtomicInteger updateRequests = new AtomicInteger(0);
+  private final ThreadLocal<ModifiableLong> lockNesting = ThreadLocal.withInitial(
+      ModifiableLong::new);
 
   public SchemaRemote() {
     super();
@@ -39,7 +40,7 @@ public class SchemaRemote extends SchemaShared {
         return cls;
       }
     } finally {
-      releaseSchemaReadLock();
+      releaseSchemaReadLock(session);
     }
 
     SchemaClass cls;
@@ -73,6 +74,7 @@ public class SchemaRemote extends SchemaShared {
       int[] clusterIds,
       SchemaClass... superClasses) {
     final var wrongCharacter = SchemaShared.checkClassNameIfValid(className);
+    //noinspection ConstantValue
     if (wrongCharacter != null) {
       throw new SchemaException(session,
           "Invalid class name found. Character '"
@@ -104,7 +106,6 @@ public class SchemaRemote extends SchemaShared {
       cmd.append(className);
       cmd.append('`');
 
-      List<SchemaClass> superClassesList = new ArrayList<SchemaClass>();
       if (superClasses != null && superClasses.length > 0) {
         var first = true;
         for (var superClass : superClasses) {
@@ -117,7 +118,6 @@ public class SchemaRemote extends SchemaShared {
             }
             cmd.append('`').append(superClass.getName(session)).append('`');
             first = false;
-            superClassesList.add(superClass);
           }
         }
       }
@@ -143,18 +143,6 @@ public class SchemaRemote extends SchemaShared {
       reload(session);
 
       result = classes.get(className.toLowerCase(Locale.ENGLISH));
-
-      // WAKE UP DB LIFECYCLE LISTENER
-      for (var it = YouTrackDBEnginesManager.instance()
-          .getDbLifecycleListeners();
-          it.hasNext(); ) {
-        it.next().onCreateClass(session, result);
-      }
-
-      for (var it = session.getListeners().iterator(); it.hasNext(); ) {
-        it.next().onCreateClass(session, result);
-      }
-
     } finally {
       releaseSchemaWriteLock(session);
     }
@@ -168,6 +156,7 @@ public class SchemaRemote extends SchemaShared {
       int clusters,
       SchemaClass... superClasses) {
     final var wrongCharacter = SchemaShared.checkClassNameIfValid(className);
+    //noinspection ConstantValue
     if (wrongCharacter != null) {
       throw new SchemaException(session,
           "Invalid class name found. Character '"
@@ -197,7 +186,6 @@ public class SchemaRemote extends SchemaShared {
       cmd.append(className);
       cmd.append('`');
 
-      List<SchemaClass> superClassesList = new ArrayList<SchemaClass>();
       if (superClasses != null && superClasses.length > 0) {
         var first = true;
         for (var superClass : superClasses) {
@@ -210,7 +198,6 @@ public class SchemaRemote extends SchemaShared {
             }
             cmd.append(superClass.getName(session));
             first = false;
-            superClassesList.add(superClass);
           }
         }
       }
@@ -225,18 +212,6 @@ public class SchemaRemote extends SchemaShared {
       session.command(cmd.toString()).close();
       reload(session);
       result = classes.get(className.toLowerCase(Locale.ENGLISH));
-
-      // WAKE UP DB LIFECYCLE LISTENER
-      for (var it = YouTrackDBEnginesManager.instance()
-          .getDbLifecycleListeners();
-          it.hasNext(); ) {
-        it.next().onCreateClass(session, result);
-      }
-
-      for (var it = session.getListeners().iterator(); it.hasNext(); ) {
-        it.next().onCreateClass(session, result);
-      }
-
     } finally {
       releaseSchemaWriteLock(session);
     }
@@ -312,25 +287,55 @@ public class SchemaRemote extends SchemaShared {
   @Override
   public void acquireSchemaWriteLock(DatabaseSessionInternal session) {
     updateIfRequested(session);
+
+    lockNesting.get().increment();
   }
 
-  private void updateIfRequested(DatabaseSessionInternal database) {
-    var updateReqs = updateRequests.get();
+  @Override
+  public void releaseSchemaWriteLock(DatabaseSessionInternal session) {
+    super.releaseSchemaWriteLock(session);
+    lockNesting.get().decrement();
 
-    if (updateReqs > 0) {
-      reload(database);
-      updateRequests.getAndAdd(-updateReqs);
+    updateIfRequested(session);
+  }
+
+  private void updateIfRequested(@Nonnull DatabaseSessionInternal database) {
+    var lockNesting = this.lockNesting.get().value;
+    if (lockNesting > 0) {
+      return;
+    }
+
+    while (true) {
+      var updateReqs = updateRequests.get();
+
+      if (updateReqs > 0) {
+        reload(database);
+        updateRequests.getAndAdd(-updateReqs);
+      } else {
+        break;
+      }
     }
   }
 
   @Override
   public void releaseSchemaWriteLock(DatabaseSessionInternal session, final boolean iSave) {
+    updateIfRequested(session);
   }
 
   @Override
   public void acquireSchemaReadLock(DatabaseSessionInternal session) {
     updateIfRequested(session);
+
+    lockNesting.get().increment();
     super.acquireSchemaReadLock(session);
+  }
+
+  @Override
+  public void releaseSchemaReadLock(DatabaseSessionInternal session) {
+    super.releaseSchemaReadLock(session);
+    lockNesting.get().decrement();
+
+    updateIfRequested(session);
   }
 
   @Override

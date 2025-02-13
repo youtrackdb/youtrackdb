@@ -187,7 +187,7 @@ public abstract class SchemaShared implements CloseableInStorage {
           snapshot = new ImmutableSchema(this, session);
         }
       } finally {
-        releaseSchemaReadLock();
+        releaseSchemaReadLock(session);
       }
     }
     return snapshot;
@@ -198,7 +198,7 @@ public abstract class SchemaShared implements CloseableInStorage {
     try {
       snapshot = new ImmutableSchema(this, session);
     } finally {
-      releaseSchemaReadLock();
+      releaseSchemaReadLock(session);
     }
   }
 
@@ -213,7 +213,7 @@ public abstract class SchemaShared implements CloseableInStorage {
     try {
       return classes.size();
     } finally {
-      releaseSchemaReadLock();
+      releaseSchemaReadLock(session);
     }
   }
 
@@ -306,7 +306,7 @@ public abstract class SchemaShared implements CloseableInStorage {
                 + "'");
       }
     } finally {
-      releaseSchemaReadLock();
+      releaseSchemaReadLock(session);
     }
   }
 
@@ -315,7 +315,7 @@ public abstract class SchemaShared implements CloseableInStorage {
     try {
       return clustersToClasses.get(clusterId);
     } finally {
-      releaseSchemaReadLock();
+      releaseSchemaReadLock(session);
     }
   }
 
@@ -350,7 +350,7 @@ public abstract class SchemaShared implements CloseableInStorage {
     try {
       return classes.containsKey(iClassName.toLowerCase(Locale.ENGLISH));
     } finally {
-      releaseSchemaReadLock();
+      releaseSchemaReadLock(session);
     }
   }
 
@@ -371,7 +371,7 @@ public abstract class SchemaShared implements CloseableInStorage {
     try {
       return classes.get(iClassName.toLowerCase(Locale.ENGLISH));
     } finally {
-      releaseSchemaReadLock();
+      releaseSchemaReadLock(session);
     }
   }
 
@@ -379,7 +379,7 @@ public abstract class SchemaShared implements CloseableInStorage {
     lock.readLock().lock();
   }
 
-  public void releaseSchemaReadLock() {
+  public void releaseSchemaReadLock(DatabaseSessionInternal session) {
     lock.readLock().unlock();
   }
 
@@ -630,7 +630,7 @@ public abstract class SchemaShared implements CloseableInStorage {
     try {
       return new HashSet<SchemaClass>(classes.values());
     } finally {
-      releaseSchemaReadLock();
+      releaseSchemaReadLock(session);
     }
   }
 
@@ -650,7 +650,7 @@ public abstract class SchemaShared implements CloseableInStorage {
 
       return result;
     } finally {
-      releaseSchemaReadLock();
+      releaseSchemaReadLock(session);
     }
   }
 
@@ -701,7 +701,7 @@ public abstract class SchemaShared implements CloseableInStorage {
     try {
       return identity;
     } finally {
-      releaseSchemaReadLock();
+      releaseSchemaReadLock(session);
     }
   }
 
@@ -756,9 +756,6 @@ public abstract class SchemaShared implements CloseableInStorage {
     session.executeInTx(() -> toStream(session));
 
     forceSnapshot(session);
-    for (var listener : session.getSharedContext().browseListeners()) {
-      listener.onSchemaUpdate(session, session.getDatabaseName(), this);
-    }
   }
 
   protected void addClusterClassMap(DatabaseSessionInternal session, final SchemaClass cls) {

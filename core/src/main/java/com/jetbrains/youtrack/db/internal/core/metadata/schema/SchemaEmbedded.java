@@ -228,7 +228,7 @@ public class SchemaEmbedded extends SchemaShared {
         return cls;
       }
     } finally {
-      releaseSchemaReadLock();
+      releaseSchemaReadLock(session);
     }
 
     SchemaClass cls;
@@ -303,15 +303,6 @@ public class SchemaEmbedded extends SchemaShared {
       doRealCreateClass(session, className, superClassesList, clusterIds);
 
       result = classes.get(className.toLowerCase(Locale.ENGLISH));
-
-      // WAKE UP DB LIFECYCLE LISTENER
-      for (var it = YouTrackDBEnginesManager.instance()
-          .getDbLifecycleListeners();
-          it.hasNext(); ) {
-        //noinspection deprecation
-        it.next().onCreateClass(session, result);
-      }
-
       for (var oSessionListener : session.getListeners()) {
         oSessionListener.onCreateClass(session, result);
       }

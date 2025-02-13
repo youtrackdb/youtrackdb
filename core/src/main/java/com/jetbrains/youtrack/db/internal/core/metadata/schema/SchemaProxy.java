@@ -173,7 +173,7 @@ public class SchemaProxy extends ProxedResource<SchemaShared> implements SchemaI
   public boolean indexExists(String indexName) {
     var indexManager = session.getMetadata().getIndexManagerInternal();
 
-    return indexManager.existsIndex(indexName);
+    return indexManager.existsIndex(session, indexName);
   }
 
   @Override
@@ -231,8 +231,9 @@ public class SchemaProxy extends ProxedResource<SchemaShared> implements SchemaI
   }
 
   @Override
-  public Set<SchemaClass> getClassesRelyOnCluster(DatabaseSession db, final String iClusterName) {
-    return delegate.getClassesRelyOnCluster(session, iClusterName);
+  public Set<SchemaClass> getClassesRelyOnCluster(DatabaseSession session,
+      final String iClusterName) {
+    return delegate.getClassesRelyOnCluster(this.session, iClusterName);
   }
 
   @Override

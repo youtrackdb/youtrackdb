@@ -167,7 +167,7 @@ public class IndexManagerTest extends BaseDBTest {
   public void testAreIndexedOneProperty() {
     final var indexManager = session.getMetadata().getIndexManagerInternal();
 
-    final var result = indexManager.areIndexed(CLASS_NAME, List.of("fOne"));
+    final var result = indexManager.areIndexed(session, CLASS_NAME, List.of("fOne"));
 
     assertTrue(result);
   }
@@ -181,7 +181,7 @@ public class IndexManagerTest extends BaseDBTest {
   public void testAreIndexedDoesNotContainProperty() {
     final var indexManager = session.getMetadata().getIndexManagerInternal();
 
-    final var result = indexManager.areIndexed(CLASS_NAME, List.of("fSix"));
+    final var result = indexManager.areIndexed(session, CLASS_NAME, List.of("fSix"));
 
     assertFalse(result);
   }
@@ -195,7 +195,7 @@ public class IndexManagerTest extends BaseDBTest {
   public void testAreIndexedTwoProperties() {
     final var indexManager = session.getMetadata().getIndexManagerInternal();
 
-    final var result = indexManager.areIndexed(CLASS_NAME, Arrays.asList("fTwo", "fOne"));
+    final var result = indexManager.areIndexed(session, CLASS_NAME, Arrays.asList("fTwo", "fOne"));
 
     assertTrue(result);
   }
@@ -210,7 +210,7 @@ public class IndexManagerTest extends BaseDBTest {
     final var indexManager = session.getMetadata().getIndexManagerInternal();
 
     final var result =
-        indexManager.areIndexed(CLASS_NAME, Arrays.asList("fTwo", "fOne", "fThree"));
+        indexManager.areIndexed(session, CLASS_NAME, Arrays.asList("fTwo", "fOne", "fThree"));
 
     assertTrue(result);
   }
@@ -225,7 +225,7 @@ public class IndexManagerTest extends BaseDBTest {
     final var indexManager = session.getMetadata().getIndexManagerInternal();
 
     final var result =
-        indexManager.areIndexed(CLASS_NAME, Arrays.asList("fTwo", "fOne", "fThree"));
+        indexManager.areIndexed(session, CLASS_NAME, Arrays.asList("fTwo", "fOne", "fThree"));
 
     assertTrue(result);
   }
@@ -241,7 +241,7 @@ public class IndexManagerTest extends BaseDBTest {
 
     final var result =
         indexManager.areIndexed(
-            "ClaSSForIndeXManagerTeST", Arrays.asList("fTwo", "fOne", "fThree"));
+            session, "ClaSSForIndeXManagerTeST", Arrays.asList("fTwo", "fOne", "fThree"));
 
     assertTrue(result);
   }
@@ -255,7 +255,7 @@ public class IndexManagerTest extends BaseDBTest {
   public void testAreIndexedPropertiesNotFirst() {
     final var indexManager = session.getMetadata().getIndexManagerInternal();
 
-    final var result = indexManager.areIndexed(CLASS_NAME, Arrays.asList("fTwo", "fTree"));
+    final var result = indexManager.areIndexed(session, CLASS_NAME, Arrays.asList("fTwo", "fTree"));
 
     assertFalse(result);
   }
@@ -270,7 +270,8 @@ public class IndexManagerTest extends BaseDBTest {
     final var indexManager = session.getMetadata().getIndexManagerInternal();
 
     final var result =
-        indexManager.areIndexed(CLASS_NAME, Arrays.asList("fTwo", "fOne", "fThee", "fFour"));
+        indexManager.areIndexed(session, CLASS_NAME,
+            Arrays.asList("fTwo", "fOne", "fThee", "fFour"));
 
     assertFalse(result);
   }
@@ -284,7 +285,7 @@ public class IndexManagerTest extends BaseDBTest {
   public void testAreIndexedOnePropertyArrayParams() {
     final var indexManager = session.getMetadata().getIndexManagerInternal();
 
-    final var result = indexManager.areIndexed(CLASS_NAME, "fOne");
+    final var result = indexManager.areIndexed(session, CLASS_NAME, "fOne");
 
     assertTrue(result);
   }
@@ -298,7 +299,7 @@ public class IndexManagerTest extends BaseDBTest {
   public void testAreIndexedDoesNotContainPropertyArrayParams() {
     final var indexManager = session.getMetadata().getIndexManagerInternal();
 
-    final var result = indexManager.areIndexed(CLASS_NAME, "fSix");
+    final var result = indexManager.areIndexed(session, CLASS_NAME, "fSix");
 
     assertFalse(result);
   }
@@ -312,7 +313,7 @@ public class IndexManagerTest extends BaseDBTest {
   public void testAreIndexedTwoPropertiesArrayParams() {
     final var indexManager = session.getMetadata().getIndexManagerInternal();
 
-    final var result = indexManager.areIndexed(CLASS_NAME, "fTwo", "fOne");
+    final var result = indexManager.areIndexed(session, CLASS_NAME, "fTwo", "fOne");
 
     assertTrue(result);
   }
@@ -326,7 +327,7 @@ public class IndexManagerTest extends BaseDBTest {
   public void testAreIndexedThreePropertiesArrayParams() {
     final var indexManager = session.getMetadata().getIndexManagerInternal();
 
-    final var result = indexManager.areIndexed(CLASS_NAME, "fTwo", "fOne", "fThree");
+    final var result = indexManager.areIndexed(session, CLASS_NAME, "fTwo", "fOne", "fThree");
 
     assertTrue(result);
   }
@@ -340,7 +341,7 @@ public class IndexManagerTest extends BaseDBTest {
   public void testAreIndexedPropertiesNotFirstArrayParams() {
     final var indexManager = session.getMetadata().getIndexManagerInternal();
 
-    final var result = indexManager.areIndexed(CLASS_NAME, "fTwo", "fTree");
+    final var result = indexManager.areIndexed(session, CLASS_NAME, "fTwo", "fTree");
 
     assertFalse(result);
   }
@@ -354,7 +355,8 @@ public class IndexManagerTest extends BaseDBTest {
   public void testAreIndexedPropertiesMoreThanNeededArrayParams() {
     final var indexManager = session.getMetadata().getIndexManagerInternal();
 
-    final var result = indexManager.areIndexed(CLASS_NAME, "fTwo", "fOne", "fThee", "fFour");
+    final var result = indexManager.areIndexed(session, CLASS_NAME, "fTwo", "fOne", "fThee",
+        "fFour");
 
     assertFalse(result);
   }

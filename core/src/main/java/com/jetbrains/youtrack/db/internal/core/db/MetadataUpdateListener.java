@@ -1,6 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.db;
 
 import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
+import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
 
 public interface MetadataUpdateListener {
@@ -11,4 +12,7 @@ public interface MetadataUpdateListener {
 
   void onStorageConfigurationUpdate(String database,
       StorageConfiguration update);
+
+  void onIndexManagerUpdate(DatabaseSessionInternal session, String database,
+      IndexManagerAbstract indexManager);
 }

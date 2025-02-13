@@ -44,17 +44,17 @@ public class SequenceLibraryImpl {
     init(database);
   }
 
-  public synchronized void load(final DatabaseSessionInternal db) {
+  public synchronized void load(final DatabaseSessionInternal session) {
     sequences.clear();
 
-    if (db.getMetadata().getImmutableSchemaSnapshot().existsClass(DBSequence.CLASS_NAME)) {
-      try (final var result = db.query("SELECT FROM " + DBSequence.CLASS_NAME)) {
+    if (session.getMetadata().getImmutableSchemaSnapshot().existsClass(DBSequence.CLASS_NAME)) {
+      try (final var result = session.query("SELECT FROM " + DBSequence.CLASS_NAME)) {
         while (result.hasNext()) {
           var res = result.next();
 
           final var sequence =
               SequenceHelper.createSequence((EntityImpl) res.getEntity().get());
-          sequences.put(sequence.getName(db).toUpperCase(Locale.ENGLISH), sequence);
+          sequences.put(sequence.getName(session).toUpperCase(Locale.ENGLISH), sequence);
         }
       }
     }
@@ -64,24 +64,24 @@ public class SequenceLibraryImpl {
     sequences.clear();
   }
 
-  public synchronized Set<String> getSequenceNames(DatabaseSessionInternal database) {
-    reloadIfNeeded(database);
+  public synchronized Set<String> getSequenceNames(DatabaseSessionInternal session) {
+    reloadIfNeeded(session);
     return sequences.keySet();
   }
 
-  public synchronized int getSequenceCount(DatabaseSessionInternal database) {
-    reloadIfNeeded(database);
+  public synchronized int getSequenceCount(DatabaseSessionInternal session) {
+    reloadIfNeeded(session);
     return sequences.size();
   }
 
-  public DBSequence getSequence(final DatabaseSessionInternal database, final String iName) {
+  public DBSequence getSequence(final DatabaseSessionInternal session, final String iName) {
     final var name = iName.toUpperCase(Locale.ENGLISH);
-    reloadIfNeeded(database);
+    reloadIfNeeded(session);
     DBSequence seq;
     synchronized (this) {
       seq = sequences.get(name);
       if (seq == null) {
-        load(database);
+        load(session);
         seq = sequences.get(name);
       }
     }
@@ -90,39 +90,39 @@ public class SequenceLibraryImpl {
   }
 
   public synchronized DBSequence createSequence(
-      final DatabaseSessionInternal db,
+      final DatabaseSessionInternal session,
       final String iName,
       final SEQUENCE_TYPE sequenceType,
       final DBSequence.CreateParams params) {
-    init(db);
-    reloadIfNeeded(db);
+    init(session);
+    reloadIfNeeded(session);
 
     final var key = iName.toUpperCase(Locale.ENGLISH);
     validateSequenceNoExists(key);
 
-    final var sequence = SequenceHelper.createSequence(db, sequenceType, params, iName);
+    final var sequence = SequenceHelper.createSequence(session, sequenceType, params, iName);
     sequences.put(key, sequence);
 
     return sequence;
   }
 
   public synchronized void dropSequence(
-      final DatabaseSessionInternal database, final String iName) {
-    final var seq = getSequence(database, iName);
+      final DatabaseSessionInternal session, final String iName) {
+    final var seq = getSequence(session, iName);
     if (seq != null) {
       try {
-        database.delete(seq.entityRid);
+        session.delete(seq.entityRid);
         sequences.remove(iName.toUpperCase(Locale.ENGLISH));
       } catch (NeedRetryException e) {
-        var rec = database.load(seq.entityRid);
+        var rec = session.load(seq.entityRid);
         rec.delete();
       }
     }
   }
 
   public void onSequenceCreated(
-      final DatabaseSessionInternal database, final EntityImpl entity) {
-    init(database);
+      final DatabaseSessionInternal session, final EntityImpl entity) {
+    init(session);
 
     var name = DBSequence.getSequenceName(entity);
     if (name == null) {
@@ -131,39 +131,41 @@ public class SequenceLibraryImpl {
 
     name = name.toUpperCase(Locale.ENGLISH);
 
-    final var seq = getSequence(database, name);
+    final var seq = getSequence(session, name);
 
     if (seq != null) {
+      onSequenceLibraryUpdate(session);
       return;
     }
 
     final var sequence = SequenceHelper.createSequence(entity);
 
     sequences.put(name, sequence);
-    onSequenceLibraryUpdate(database);
+    onSequenceLibraryUpdate(session);
   }
 
   public void onSequenceDropped(
-      final DatabaseSessionInternal database, final EntityImpl entity) {
+      final DatabaseSessionInternal session, final EntityImpl entity) {
     var name = DBSequence.getSequenceName(entity);
     if (name == null) {
+      onSequenceLibraryUpdate(session);
       return;
     }
 
     name = name.toUpperCase(Locale.ENGLISH);
 
     sequences.remove(name);
-    onSequenceLibraryUpdate(database);
+    onSequenceLibraryUpdate(session);
   }
 
-  private static void init(final DatabaseSessionInternal database) {
-    if (database.getMetadata().getSchema().existsClass(DBSequence.CLASS_NAME)) {
+  private static void init(final DatabaseSessionInternal session) {
+    if (session.getMetadata().getSchema().existsClass(DBSequence.CLASS_NAME)) {
       return;
     }
 
     final var sequenceClass =
-        (SchemaClassImpl) database.getMetadata().getSchema().createClass(DBSequence.CLASS_NAME);
-    DBSequence.initClass(database, sequenceClass);
+        (SchemaClassImpl) session.getMetadata().getSchema().createClass(DBSequence.CLASS_NAME);
+    DBSequence.initClass(session, sequenceClass);
   }
 
   private void validateSequenceNoExists(final String iName) {
@@ -172,9 +174,9 @@ public class SequenceLibraryImpl {
     }
   }
 
-  private static void onSequenceLibraryUpdate(DatabaseSessionInternal database) {
-    for (var one : database.getSharedContext().browseListeners()) {
-      one.onSequenceLibraryUpdate(database, database.getDatabaseName());
+  private static void onSequenceLibraryUpdate(DatabaseSessionInternal session) {
+    for (var one : session.getSharedContext().browseListeners()) {
+      one.onSequenceLibraryUpdate(session, session.getDatabaseName());
     }
   }
 

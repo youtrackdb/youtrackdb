@@ -41,10 +41,10 @@ public interface IndexManagerAbstract extends CloseableInStorage {
     throw new UnsupportedOperationException();
   }
 
-  boolean autoRecreateIndexesAfterCrash(DatabaseSessionInternal database);
+  boolean autoRecreateIndexesAfterCrash(DatabaseSessionInternal session);
 
   Index createIndex(
-      DatabaseSessionInternal database,
+      DatabaseSessionInternal session,
       final String iName,
       final String iType,
       IndexDefinition indexDefinition,
@@ -53,7 +53,7 @@ public interface IndexManagerAbstract extends CloseableInStorage {
       Map<String, ?> metadata);
 
   Index createIndex(
-      DatabaseSessionInternal database,
+      DatabaseSessionInternal session,
       final String iName,
       final String iType,
       IndexDefinition indexDefinition,
@@ -66,57 +66,54 @@ public interface IndexManagerAbstract extends CloseableInStorage {
 
   void removeClassPropertyIndex(DatabaseSessionInternal session, Index idx);
 
-  void dropIndex(DatabaseSessionInternal database, String iIndexName);
+  void dropIndex(DatabaseSessionInternal session, String iIndexName);
 
   void reload(DatabaseSessionInternal session);
 
   void addClusterToIndex(DatabaseSessionInternal session, String clusterName, String indexName);
 
-  void load(DatabaseSessionInternal database);
+  void load(DatabaseSessionInternal session);
 
   void removeClusterFromIndex(DatabaseSessionInternal session, String clusterName,
       String indexName);
 
   void save(DatabaseSessionInternal session);
 
-  void getClassRawIndexes(String name, Collection<Index> indexes2);
+  void getClassRawIndexes(DatabaseSessionInternal session, String name, Collection<Index> indexes2);
 
   EntityImpl getConfiguration(DatabaseSessionInternal session);
 
   Set<Index> getClassInvolvedIndexes(
-      DatabaseSessionInternal database, String className, Collection<String> fields);
+      DatabaseSessionInternal session, String className, Collection<String> fields);
 
   Set<Index> getClassInvolvedIndexes(
-      DatabaseSessionInternal database, String className, String... fields);
+      DatabaseSessionInternal session, String className, String... fields);
 
-  boolean areIndexed(String className, String... fields);
+  boolean areIndexed(DatabaseSessionInternal session, String className, String... fields);
 
-  boolean areIndexed(final String className, final Collection<String> fields);
+  boolean areIndexed(DatabaseSessionInternal session, final String className,
+      final Collection<String> fields);
 
   void getClassIndexes(
-      DatabaseSessionInternal database, String className, Collection<Index> indexes2);
+      DatabaseSessionInternal session, String className, Collection<Index> indexes2);
 
-  Set<Index> getClassIndexes(DatabaseSessionInternal database, String className);
+  Set<Index> getClassIndexes(DatabaseSessionInternal session, String className);
 
-  Index getClassIndex(DatabaseSessionInternal database, String className, String indexName);
+  Index getClassIndex(DatabaseSessionInternal session, String className, String indexName);
 
-  IndexUnique getClassUniqueIndex(String className);
+  IndexUnique getClassUniqueIndex(DatabaseSessionInternal session, String className);
 
-  void create(DatabaseSessionInternal database);
+  void create(DatabaseSessionInternal session);
 
-  Collection<? extends Index> getIndexes(DatabaseSessionInternal database);
+  Collection<? extends Index> getIndexes(DatabaseSessionInternal session);
 
-  Index getIndex(DatabaseSessionInternal database, String iName);
+  Index getIndex(DatabaseSessionInternal session, String iName);
 
-  boolean existsIndex(String iName);
+  boolean existsIndex(DatabaseSessionInternal session, String iName);
 
-  EntityImpl getDocument(DatabaseSessionInternal session);
+  EntityImpl getEntity(DatabaseSessionInternal session);
 
   EntityImpl toStream(DatabaseSessionInternal session);
 
   RID getIdentity();
-
-  Index getRawIndex(String indexName);
-
-  Index preProcessBeforeReturn(DatabaseSessionInternal database, Index index);
 }

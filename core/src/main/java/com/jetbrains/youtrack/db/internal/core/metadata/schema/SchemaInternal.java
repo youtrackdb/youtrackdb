@@ -12,7 +12,7 @@ public interface SchemaInternal extends Schema {
 
   ImmutableSchema makeSnapshot();
 
-  Set<SchemaClass> getClassesRelyOnCluster(DatabaseSession db, final String iClusterName);
+  Set<SchemaClass> getClassesRelyOnCluster(DatabaseSession session, final String iClusterName);
 
   ClusterSelectionFactory getClusterSelectionFactory();
 

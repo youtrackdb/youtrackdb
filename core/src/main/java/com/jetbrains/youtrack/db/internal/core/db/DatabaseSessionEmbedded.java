@@ -62,7 +62,6 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceAction;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceLibraryProxy;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHook;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHookV2;
@@ -102,7 +101,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -1039,9 +1037,6 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
           ClassTrigger.onRecordAfterCreate(entity, this);
         }
       }
-
-      LiveQueryHook.addOp(entity, RecordOperation.CREATED, this);
-      LiveQueryHookV2.addOp(this, entity, RecordOperation.CREATED);
     }
 
     callbackHooks(RecordHook.TYPE.AFTER_CREATE, id);
@@ -1088,8 +1083,6 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
           ClassTrigger.onRecordAfterDelete(entity, this);
         }
       }
-      LiveQueryHook.addOp(entity, RecordOperation.DELETED, this);
-      LiveQueryHookV2.addOp(this, entity, RecordOperation.DELETED);
     }
     callbackHooks(RecordHook.TYPE.AFTER_DELETE, id);
   }
@@ -1147,31 +1140,24 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   @Override
   public void afterCommitOperations() {
     assert assertIfNotActive();
+
     for (var operation : currentTx.getRecordOperations()) {
-      if (operation.type == RecordOperation.CREATED) {
-        var record = operation.record;
+      var record = operation.record;
 
-        if (record instanceof EntityImpl entity) {
-          var clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
+      if (record instanceof EntityImpl entity) {
+        var clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
 
-          if (clazz != null) {
+        if (clazz != null) {
+          if (operation.type == RecordOperation.CREATED) {
             if (clazz.isSequence()) {
               ((SequenceLibraryProxy) getMetadata().getSequenceLibrary())
                   .getDelegate()
                   .onSequenceCreated(this, entity);
             }
-
             if (clazz.isScheduler()) {
               getMetadata().getScheduler().scheduleEvent(this, new ScheduledEvent(entity, this));
             }
-          }
-        }
-      } else if (operation.type == RecordOperation.UPDATED) {
-        var record = operation.record;
-
-        if (record instanceof EntityImpl entity) {
-          var clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
-          if (clazz != null) {
+          } else if (operation.type == RecordOperation.UPDATED) {
             if (clazz.isFunction()) {
               this.getSharedContext().getFunctionLibrary().updatedFunction(this, entity);
             }
@@ -1179,10 +1165,25 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
               getSharedContext().getScheduler().postHandleUpdateScheduleAfterTxCommit(this, entity);
             }
           }
+        } else {
+          var schemaId = metadata.getSchemaInternal().getIdentity();
 
-          LiveQueryHook.addOp(entity, RecordOperation.UPDATED, this);
-          LiveQueryHookV2.addOp(this, entity, RecordOperation.UPDATED);
+          if (record.getIdentity().equals(schemaId)) {
+            var schema = sharedContext.getSchema();
+            for (var listener : sharedContext.browseListeners()) {
+              listener.onSchemaUpdate(this, getDatabaseName(), schema);
+            }
+          } else if (record.getIdentity()
+              .equals(metadata.getIndexManagerInternal().getIdentity())) {
+            var indexManager = sharedContext.getIndexManager();
+            for (var listener : sharedContext.browseListeners()) {
+              listener.onIndexManagerUpdate(this, getDatabaseName(), indexManager);
+            }
+          }
         }
+
+        LiveQueryHook.addOp(entity, operation.type, this);
+        LiveQueryHookV2.addOp(this, entity, operation.type);
       }
     }
 
@@ -1294,13 +1295,6 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
                   + ")"),
           t, getDatabaseName());
     }
-  }
-
-  @Override
-  public <T> T sendSequenceAction(SequenceAction action)
-      throws ExecutionException, InterruptedException {
-    throw new UnsupportedOperationException(
-        "Not supported yet."); // To change body of generated methods, choose Tools | Templates.
   }
 
   /**

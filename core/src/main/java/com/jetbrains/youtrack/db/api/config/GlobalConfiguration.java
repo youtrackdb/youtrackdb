@@ -21,7 +21,6 @@ package com.jetbrains.youtrack.db.api.config;
 
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.profiler.Profiler;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.config.ConfigurationChangeCallback;
@@ -29,7 +28,6 @@ import com.jetbrains.youtrack.db.internal.core.storage.ChecksumMode;
 import java.io.PrintStream;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -1316,249 +1314,6 @@ public enum GlobalConfiguration {
       true,
       false),
 
-  // DISTRIBUTED
-  /**
-   * @since 2.2.18
-   */
-  DISTRIBUTED_DUMP_STATS_EVERY(
-      "distributed.dumpStatsEvery",
-      "Time in ms to dump the cluster stats. Set to 0 to disable such dump",
-      Long.class,
-      0L,
-      true),
-
-  DISTRIBUTED_CRUD_TASK_SYNCH_TIMEOUT(
-      "distributed.crudTaskTimeout",
-      "Maximum timeout (in ms) to wait for CRUD remote tasks",
-      Long.class,
-      3000L,
-      true),
-
-  DISTRIBUTED_MAX_STARTUP_DELAY(
-      "distributed.maxStartupDelay",
-      "Maximum delay time (in ms) to wait for a server to start",
-      Long.class,
-      10000L,
-      true),
-
-  DISTRIBUTED_COMMAND_TASK_SYNCH_TIMEOUT(
-      "distributed.commandTaskTimeout",
-      "Maximum timeout (in ms) to wait for command distributed tasks",
-      Long.class,
-      2 * 60 * 1000L,
-      true),
-
-  DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT(
-      "distributed.commandQuickTaskTimeout",
-      "Maximum timeout (in ms) to wait for quick command distributed tasks",
-      Long.class,
-      5 * 1000L,
-      true),
-
-  DISTRIBUTED_COMMAND_LONG_TASK_SYNCH_TIMEOUT(
-      "distributed.commandLongTaskTimeout",
-      "Maximum timeout (in ms) to wait for Long-running distributed tasks",
-      Long.class,
-      24 * 60 * 60 * 1000,
-      true),
-
-  DISTRIBUTED_DEPLOYDB_TASK_SYNCH_TIMEOUT(
-      "distributed.deployDbTaskTimeout",
-      "Maximum timeout (in ms) to wait for database deployment",
-      Long.class,
-      1200000L,
-      true),
-
-  DISTRIBUTED_DEPLOYCHUNK_TASK_SYNCH_TIMEOUT(
-      "distributed.deployChunkTaskTimeout",
-      "Maximum timeout (in ms) to wait for database chunk deployment",
-      Long.class,
-      60000L,
-      true),
-
-  DISTRIBUTED_DEPLOYDB_TASK_COMPRESSION(
-      "distributed.deployDbTaskCompression",
-      "Compression level (between 0 and 9) to use in backup for database deployment",
-      Integer.class,
-      7,
-      true),
-
-  DISTRIBUTED_ASYNCH_QUEUE_SIZE(
-      "distributed.asynchQueueSize",
-      "Queue size to handle distributed asynchronous operations. The bigger is the queue, the more"
-          + " operation are buffered, but also more memory it's consumed. 0 = dynamic allocation,"
-          + " which means up to 2^31-1 entries",
-      Integer.class,
-      0),
-
-  DISTRIBUTED_ASYNCH_RESPONSES_TIMEOUT(
-      "distributed.asynchResponsesTimeout",
-      "Maximum timeout (in ms) to collect all the asynchronous responses from replication. After"
-          + " this time the operation is rolled back (through an UNDO)",
-      Long.class,
-      15000L),
-
-  DISTRIBUTED_PURGE_RESPONSES_TIMER_DELAY(
-      "distributed.purgeResponsesTimerDelay",
-      "Maximum timeout (in ms) to collect all the asynchronous responses from replication. This is"
-          + " the delay the purge thread uses to check asynchronous requests in timeout",
-      Long.class,
-      15000L),
-
-  /**
-   * @since 2.2.7
-   */
-  DISTRIBUTED_TX_EXPIRE_TIMEOUT(
-      "distributed.txAliveTimeout",
-      "Maximum timeout (in ms) a distributed transaction can be alive. This timeout is to rollback"
-          + " pending transactions after a while",
-      Long.class,
-      1800000L,
-      true),
-
-  /**
-   * @since 2.2.6
-   */
-  DISTRIBUTED_REQUEST_CHANNELS(
-      "distributed.requestChannels",
-      "Number of network channels used to send requests",
-      Integer.class,
-      1),
-
-  /**
-   * @since 2.2.6
-   */
-  DISTRIBUTED_RESPONSE_CHANNELS(
-      "distributed.responseChannels",
-      "Number of network channels used to send responses",
-      Integer.class,
-      1),
-
-  /**
-   * @since 2.2.5
-   */
-  DISTRIBUTED_HEARTBEAT_TIMEOUT(
-      "distributed.heartbeatTimeout",
-      "Maximum time in ms to wait for the heartbeat. If the server does not respond in time, it is"
-          + " put offline",
-      Long.class,
-      10000L),
-
-  /**
-   * @since 2.2.5
-   */
-  DISTRIBUTED_CHECK_HEALTH_CAN_OFFLINE_SERVER(
-      "distributed.checkHealthCanOfflineServer",
-      "In case a server does not respond to the heartbeat message, it is set offline",
-      Boolean.class,
-      false),
-
-  /**
-   * @since 2.2.5
-   */
-  DISTRIBUTED_CHECK_HEALTH_EVERY(
-      "distributed.checkHealthEvery",
-      "Time in ms to check the cluster health. Set to 0 to disable it",
-      Long.class,
-      10000L),
-
-  /**
-   * Since 2.2.4
-   */
-  DISTRIBUTED_AUTO_REMOVE_OFFLINE_SERVERS(
-      "distributed.autoRemoveOfflineServers",
-      "This is the amount of time (in ms) the server has to be OFFLINE, before it is automatically"
-          + " removed from the distributed configuration. -1 = never, 0 = immediately, >0 the"
-          + " actual time to wait",
-      Long.class,
-      0,
-      true),
-
-  /**
-   * @since 2.2.0
-   */
-  DISTRIBUTED_PUBLISH_NODE_STATUS_EVERY(
-      "distributed.publishNodeStatusEvery",
-      "Time in ms to publish the node status on distributed map. Set to 0 to disable such refresh"
-          + " of node configuration",
-      Long.class,
-      10000L,
-      true),
-
-  /**
-   * @since 2.2.0
-   */
-  DISTRIBUTED_REPLICATION_PROTOCOL_VERSION(
-      "distributed.replicationProtocol.version",
-      "1 for legacy replication model (v 3.0 and previous), 2 for coordinated replication (v 3.1"
-          + " and next)",
-      Integer.class,
-      1,
-      true),
-
-  /**
-   * @since 2.2.0
-   */
-  DISTRIBUTED_LOCAL_QUEUESIZE(
-      "distributed.localQueueSize",
-      "Size of the intra-thread queue for distributed messages",
-      Integer.class,
-      10000),
-
-  /**
-   * @since 2.2.0
-   */
-  DISTRIBUTED_DB_WORKERTHREADS(
-      "distributed.dbWorkerThreads",
-      "Number of parallel worker threads per database that process distributed messages. Use 0 for"
-          + " automatic",
-      Integer.class,
-      0),
-
-  DISTRIBUTED_BACKUP_DIRECTORY(
-      "distributed.backupDirectory",
-      "Directory where the copy of an existent database is saved, before it is downloaded from the"
-          + " cluster. Leave it empty to avoid the backup.",
-      String.class,
-      "../backup/databases"),
-
-  DISTRIBUTED_BACKUP_TRY_INCREMENTAL_FIRST(
-      "distributed.backupTryIncrementalFirst",
-      "Try to execute an incremental backup first.",
-      Boolean.class,
-      true),
-
-  DISTRIBUTED_CONCURRENT_TX_MAX_AUTORETRY(
-      "distributed.concurrentTxMaxAutoRetry",
-      "Maximum attempts the transaction coordinator should execute a transaction automatically, if"
-          + " records are locked. (Minimum is 1 = no attempts)",
-      Integer.class,
-      15,
-      true),
-
-  DISTRIBUTED_ATOMIC_LOCK_TIMEOUT(
-      "distributed.atomicLockTimeout",
-      "Timeout (in ms) to acquire a distributed lock on a record. (0=infinite)",
-      Integer.class,
-      100,
-      true),
-
-  DISTRIBUTED_CONCURRENT_TX_AUTORETRY_DELAY(
-      "distributed.concurrentTxAutoRetryDelay",
-      "Delay (in ms) between attempts on executing a distributed transaction, which had failed"
-          + " because of locked records. (0=no delay)",
-      Integer.class,
-      1000,
-      true),
-
-  DISTRIBUTED_TRANSACTION_SEQUENCE_SET_SIZE(
-      "distributed.transactionSequenceSetSize",
-      "Size of the set of sequences used by distributed transactions, correspond to the amount of"
-          + " transactions commits that can be active at the same time",
-      Integer.class,
-      1000,
-      false),
-
   DB_ENTITY_SERIALIZER(
       "db.entity.serializer",
       "The default record serializer used by the database",
@@ -2042,6 +1797,7 @@ public enum GlobalConfiguration {
   }
 
   private static class ProfileEnabledChangeCallbac implements ConfigurationChangeCallback {
+
     public void change(final Object iCurrentValue, final Object iNewValue) {
       var instance = YouTrackDBEnginesManager.instance();
       if (instance != null) {

@@ -41,7 +41,7 @@ public class RecreateIndexesTask implements Runnable {
       indexManager.acquireExclusiveLock(newDb);
       try {
         var knownIndexes =
-            (indexManager.getDocument(newDb)
+            (indexManager.getEntity(newDb)
                 .<Set<Entity>>getProperty(IndexManagerShared.CONFIG_INDEXES)).stream()
                 .map(Entity::toMap).toList();
         // make copies to safely iterate them later

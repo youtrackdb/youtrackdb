@@ -2,9 +2,9 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
@@ -29,24 +29,24 @@ public class SQLDropIndexStatement extends DDLStatement {
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
     List<Result> rs = new ArrayList<>();
-    var db = ctx.getDatabaseSession();
-    var idxMgr = db.getMetadata().getIndexManagerInternal();
+    var session = ctx.getDatabaseSession();
+    var idxMgr = session.getMetadata().getIndexManagerInternal();
     if (all) {
-      for (var idx : idxMgr.getIndexes(db)) {
-        db.getMetadata().getIndexManagerInternal().dropIndex(db, idx.getName());
-        var result = new ResultInternal(db);
+      for (var idx : idxMgr.getIndexes(session)) {
+        session.getMetadata().getIndexManagerInternal().dropIndex(session, idx.getName());
+        var result = new ResultInternal(session);
         result.setProperty("operation", "drop index");
         result.setProperty("clusterName", idx.getName());
         rs.add(result);
       }
 
     } else {
-      if (!idxMgr.existsIndex(name.getValue()) && !ifExists) {
+      if (!idxMgr.existsIndex(session, name.getValue()) && !ifExists) {
         throw new CommandExecutionException(ctx.getDatabaseSession(),
             "Index not found: " + name.getValue());
       }
-      idxMgr.dropIndex(db, name.getValue());
-      var result = new ResultInternal(db);
+      idxMgr.dropIndex(session, name.getValue());
+      var result = new ResultInternal(session);
       result.setProperty("operation", "drop index");
       result.setProperty("indexName", name.getValue());
       rs.add(result);

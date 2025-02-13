@@ -38,6 +38,27 @@ public class RemotePushMessagesTest extends DbTestBase {
   }
 
   @Test
+  public void testIndexManager() throws IOException {
+    try (YouTrackDB youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig())) {
+      youTrackDB.execute(
+          "create database test memory users (admin identified by 'admin' role admin)");
+      try (var session = (DatabaseSessionInternal) youTrackDB.open("test", "admin", "admin")) {
+        session.begin();
+        var channel = new MockChannel();
+
+        var request = new PushIndexManagerRequest();
+        request.write(null, channel);
+        channel.close();
+        session.commit();
+
+        var readRequest = new PushIndexManagerRequest();
+        readRequest.read(session, channel);
+      }
+    }
+  }
+
+  @Test
   public void testSchema() throws IOException {
     YouTrackDB youTrackDB = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());

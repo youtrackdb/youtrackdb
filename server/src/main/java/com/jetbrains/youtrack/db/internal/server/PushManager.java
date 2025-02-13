@@ -1,5 +1,6 @@
 package com.jetbrains.youtrack.db.internal.server;
 
+import com.jetbrains.youtrack.db.internal.client.remote.message.PushIndexManagerRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushSchemaRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushSequencesRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushStorageConfigurationRequest;
@@ -8,6 +9,7 @@ import com.jetbrains.youtrack.db.internal.common.thread.ThreadPoolExecutors;
 import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.MetadataUpdateListener;
+import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.binary.NetworkProtocolBinary;
 import java.io.IOException;
@@ -93,6 +95,13 @@ public class PushManager implements MetadataUpdateListener {
       SchemaShared schema) {
     var request = new PushSchemaRequest();
     this.schema.send(db, database, request, this);
+  }
+
+  @Override
+  public void onIndexManagerUpdate(DatabaseSessionInternal session, String database,
+      IndexManagerAbstract indexManager) {
+    var request = new PushIndexManagerRequest();
+    this.indexManager.send(session, database, request, this);
   }
 
   @Override

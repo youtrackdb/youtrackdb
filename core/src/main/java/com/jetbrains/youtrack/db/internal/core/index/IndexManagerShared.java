@@ -71,24 +71,24 @@ public class IndexManagerShared implements IndexManagerAbstract {
     this.storage = storage;
   }
 
-  public void load(DatabaseSessionInternal database) {
-    if (!autoRecreateIndexesAfterCrash(database)) {
-      acquireExclusiveLock(database);
+  public void load(DatabaseSessionInternal session) {
+    if (!autoRecreateIndexesAfterCrash(session)) {
+      acquireExclusiveLock(session);
       try {
-        if (database.getStorageInfo().getConfiguration().getIndexMgrRecordId() == null)
+        if (session.getStorageInfo().getConfiguration().getIndexMgrRecordId() == null)
         // @COMPATIBILITY: CREATE THE INDEX MGR
         {
-          create(database);
+          create(session);
         }
         identity =
-            new RecordId(database.getStorageInfo().getConfiguration().getIndexMgrRecordId());
+            new RecordId(session.getStorageInfo().getConfiguration().getIndexMgrRecordId());
         // RELOAD IT
-        EntityImpl entity = database.load(identity);
-        fromStream(database, entity);
+        EntityImpl entity = session.load(identity);
+        fromStream(session, entity);
         RecordInternal.unsetDirty(entity);
         entity.unload();
       } finally {
-        releaseExclusiveLock(database);
+        releaseExclusiveLock(session);
       }
     }
   }
@@ -165,38 +165,33 @@ public class IndexManagerShared implements IndexManagerAbstract {
     }
   }
 
-  public void create(DatabaseSessionInternal database) {
-    acquireExclusiveLock(database);
+  public void create(DatabaseSessionInternal session) {
+    acquireExclusiveLock(session);
     try {
-      var entity = database.computeInTx(database::newInternalInstance);
+      var entity = session.computeInTx(session::newInternalInstance);
       identity = entity.getIdentity();
-      database.getStorage().setIndexMgrRecordId(entity.getIdentity().toString());
+      session.getStorage().setIndexMgrRecordId(entity.getIdentity().toString());
     } finally {
-      releaseExclusiveLock(database);
+      releaseExclusiveLock(session);
     }
   }
 
-  public Collection<? extends Index> getIndexes(DatabaseSessionInternal database) {
+  public Collection<? extends Index> getIndexes(DatabaseSessionInternal session) {
     return indexes.values();
   }
 
-  public Index getRawIndex(final String iName) {
+  public Index getIndex(DatabaseSessionInternal session, final String iName) {
     return indexes.get(iName);
   }
 
-  public Index getIndex(DatabaseSessionInternal database, final String iName) {
-    return indexes.get(iName);
-  }
-
-  public boolean existsIndex(final String iName) {
+  public boolean existsIndex(DatabaseSessionInternal session, final String iName) {
     return indexes.containsKey(iName);
   }
 
   public EntityImpl getConfiguration(DatabaseSessionInternal session) {
     acquireSharedLock();
-
     try {
-      return getDocument(session);
+      return getEntity(session);
     } finally {
       releaseSharedLock();
     }
@@ -209,7 +204,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
   }
 
   public Set<Index> getClassInvolvedIndexes(
-      DatabaseSessionInternal database, final String className, Collection<String> fields) {
+      DatabaseSessionInternal session, final String className, Collection<String> fields) {
     final var multiKey = new MultiKey(fields);
 
     final var propertyIndex = getIndexOnProperty(className);
@@ -232,11 +227,12 @@ public class IndexManagerShared implements IndexManagerAbstract {
   }
 
   public Set<Index> getClassInvolvedIndexes(
-      DatabaseSessionInternal database, final String className, final String... fields) {
-    return getClassInvolvedIndexes(database, className, Arrays.asList(fields));
+      DatabaseSessionInternal session, final String className, final String... fields) {
+    return getClassInvolvedIndexes(session, className, Arrays.asList(fields));
   }
 
-  public boolean areIndexed(final String className, Collection<String> fields) {
+  public boolean areIndexed(DatabaseSessionInternal session, final String className,
+      Collection<String> fields) {
     final var multiKey = new MultiKey(fields);
 
     final var propertyIndex = getIndexOnProperty(className);
@@ -248,18 +244,19 @@ public class IndexManagerShared implements IndexManagerAbstract {
     return propertyIndex.containsKey(multiKey) && !propertyIndex.get(multiKey).isEmpty();
   }
 
-  public boolean areIndexed(final String className, final String... fields) {
-    return areIndexed(className, Arrays.asList(fields));
+  public boolean areIndexed(DatabaseSessionInternal session, final String className,
+      final String... fields) {
+    return areIndexed(session, className, Arrays.asList(fields));
   }
 
-  public Set<Index> getClassIndexes(DatabaseSessionInternal database, final String className) {
+  public Set<Index> getClassIndexes(DatabaseSessionInternal session, final String className) {
     final var coll = new HashSet<Index>(4);
-    getClassIndexes(database, className, coll);
+    getClassIndexes(session, className, coll);
     return coll;
   }
 
   public void getClassIndexes(
-      DatabaseSessionInternal database, final String className,
+      DatabaseSessionInternal session, final String className,
       final Collection<Index> indexes) {
     final var propertyIndex = getIndexOnProperty(className);
 
@@ -272,7 +269,8 @@ public class IndexManagerShared implements IndexManagerAbstract {
     }
   }
 
-  public void getClassRawIndexes(final String className, final Collection<Index> indexes) {
+  public void getClassRawIndexes(DatabaseSessionInternal session,
+      final String className, final Collection<Index> indexes) {
     final var propertyIndex = getIndexOnProperty(className);
 
     if (propertyIndex == null) {
@@ -284,7 +282,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
     }
   }
 
-  public IndexUnique getClassUniqueIndex(final String className) {
+  public IndexUnique getClassUniqueIndex(DatabaseSessionInternal session, final String className) {
     final var propertyIndex = getIndexOnProperty(className);
 
     if (propertyIndex != null) {
@@ -301,7 +299,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
   }
 
   public Index getClassIndex(
-      DatabaseSessionInternal database, String className, String indexName) {
+      DatabaseSessionInternal session, String className, String indexName) {
     className = className.toLowerCase();
 
     final var index = indexes.get(indexName);
@@ -447,13 +445,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
   }
 
   private Map<MultiKey, Set<Index>> getIndexOnProperty(final String className) {
-    acquireSharedLock();
-    try {
-      return classPropertyIndex.get(className.toLowerCase());
-
-    } finally {
-      releaseSharedLock();
-    }
+    return classPropertyIndex.get(className.toLowerCase());
   }
 
   /**
@@ -468,7 +460,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
    * @return a newly created index instance
    */
   public Index createIndex(
-      DatabaseSessionInternal database,
+      DatabaseSessionInternal session,
       final String iName,
       final String iType,
       final IndexDefinition indexDefinition,
@@ -476,7 +468,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
       ProgressListener progressListener,
       Map<String, ?> metadata) {
     return createIndex(
-        database,
+        session,
         iName,
         iType,
         indexDefinition,
@@ -501,7 +493,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
    * @return a newly created index instance
    */
   public Index createIndex(
-      DatabaseSessionInternal database,
+      DatabaseSessionInternal session,
       final String iName,
       String type,
       final IndexDefinition indexDefinition,
@@ -516,11 +508,11 @@ public class IndexManagerShared implements IndexManagerAbstract {
             || indexDefinition.getFields() == null
             || indexDefinition.getFields().isEmpty();
     if (manualIndexesAreUsed) {
-      IndexAbstract.manualIndexesWarning(database.getDatabaseName());
+      IndexAbstract.manualIndexesWarning(session.getDatabaseName());
     } else {
-      checkSecurityConstraintsForIndexCreate(database, indexDefinition);
+      checkSecurityConstraintsForIndexCreate(session, indexDefinition);
     }
-    if (database.getTransaction().isActive()) {
+    if (session.getTransaction().isActive()) {
       throw new IllegalStateException("Cannot create a new index inside a transaction");
     }
 
@@ -540,11 +532,11 @@ public class IndexManagerShared implements IndexManagerAbstract {
     }
 
     final IndexInternal index;
-    acquireExclusiveLock(database);
+    acquireExclusiveLock(session);
     try {
 
       if (indexes.containsKey(iName)) {
-        throw new IndexException(database.getDatabaseName(),
+        throw new IndexException(session.getDatabaseName(),
             "Index with name " + iName + " already exists.");
       }
 
@@ -552,7 +544,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
         metadata = new HashMap<>();
       }
 
-      final var clustersToIndex = findClustersByIds(clusterIdsToIndex, database);
+      final var clustersToIndex = findClustersByIds(clusterIdsToIndex, session);
       var ignoreNullValues = metadata.get("ignoreNullValues");
       if (Boolean.TRUE.equals(ignoreNullValues)) {
         indexDefinition.setNullValuesIgnored(true);
@@ -576,12 +568,12 @@ public class IndexManagerShared implements IndexManagerAbstract {
               -1,
               metadata);
 
-      index = createIndexFromMetadata(database, storage, im, progressListener);
+      index = createIndexFromMetadata(session, storage, im, progressListener);
 
-      addIndexInternal(database, index);
+      addIndexInternal(session, index);
 
     } finally {
-      releaseExclusiveLock(database, true);
+      releaseExclusiveLock(session, true);
     }
 
     return index;
@@ -673,14 +665,14 @@ public class IndexManagerShared implements IndexManagerAbstract {
     return clustersToIndex;
   }
 
-  public void dropIndex(DatabaseSessionInternal database, final String iIndexName) {
-    if (database.getTransaction().isActive()) {
+  public void dropIndex(DatabaseSessionInternal session, final String iIndexName) {
+    if (session.getTransaction().isActive()) {
       throw new IllegalStateException("Cannot drop an index inside a transaction");
     }
 
     int[] clusterIdsToIndex;
 
-    acquireExclusiveLock(database);
+    acquireExclusiveLock(session);
 
     Index idx;
     try {
@@ -691,17 +683,17 @@ public class IndexManagerShared implements IndexManagerAbstract {
           clusterIdsToIndex = new int[clusters.size()];
           var i = 0;
           for (var cl : clusters) {
-            clusterIdsToIndex[i++] = database.getClusterIdByName(cl);
+            clusterIdsToIndex[i++] = session.getClusterIdByName(cl);
           }
         }
 
-        removeClassPropertyIndex(database, idx);
+        removeClassPropertyIndex(session, idx);
 
-        idx.delete(database);
+        idx.delete(session);
         indexes.remove(iIndexName);
       }
     } finally {
-      releaseExclusiveLock(database, true);
+      releaseExclusiveLock(session, true);
     }
   }
 
@@ -773,12 +765,12 @@ public class IndexManagerShared implements IndexManagerAbstract {
     }
   }
 
-  public boolean autoRecreateIndexesAfterCrash(DatabaseSessionInternal database) {
+  public boolean autoRecreateIndexesAfterCrash(DatabaseSessionInternal session) {
     if (rebuildCompleted) {
       return false;
     }
 
-    final var storage = database.getStorage();
+    final var storage = session.getStorage();
     if (storage instanceof AbstractPaginatedStorage paginatedStorage) {
       return paginatedStorage.wereDataRestoredAfterOpen()
           && paginatedStorage.wereNonTxOperationsPerformedInPreviousOpen();
@@ -915,11 +907,6 @@ public class IndexManagerShared implements IndexManagerAbstract {
   }
 
   @Override
-  public Index preProcessBeforeReturn(DatabaseSessionInternal database, final Index index) {
-    return index;
-  }
-
-  @Override
   public RID getIdentity() {
     return identity;
   }
@@ -929,7 +916,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
   }
 
   @Override
-  public EntityImpl getDocument(DatabaseSessionInternal session) {
+  public EntityImpl getEntity(DatabaseSessionInternal session) {
     return toStream(session);
   }
 

@@ -259,14 +259,14 @@ public class ImmutableSchema implements SchemaInternal {
     return new RecordId(identity);
   }
 
-  public Set<SchemaClass> getClassesRelyOnCluster(DatabaseSession db, String clusterName) {
-    var sessionInternal = (DatabaseSessionInternal) db;
+  public Set<SchemaClass> getClassesRelyOnCluster(DatabaseSession session, String clusterName) {
+    var sessionInternal = (DatabaseSessionInternal) session;
     sessionInternal.checkSecurity(Rule.ResourceGeneric.SCHEMA, Role.PERMISSION_READ);
 
     final var clusterId = sessionInternal.getClusterIdByName(clusterName);
     final Set<SchemaClass> result = new HashSet<SchemaClass>();
     for (SchemaClass c : classes.values()) {
-      if (ArrayUtils.contains(c.getPolymorphicClusterIds(db), clusterId)) {
+      if (ArrayUtils.contains(c.getPolymorphicClusterIds(session), clusterId)) {
         result.add(c);
       }
     }

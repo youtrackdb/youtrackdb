@@ -7,6 +7,7 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.MetadataUpdateListener;
+import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
 import java.util.LinkedHashMap;
@@ -171,6 +172,11 @@ public class ExecutionPlanCache implements MetadataUpdateListener {
     invalidate();
   }
 
+  @Override
+  public void onIndexManagerUpdate(DatabaseSessionInternal session, String database,
+      IndexManagerAbstract indexManager) {
+    invalidate();
+  }
 
   @Override
   public void onSequenceLibraryUpdate(DatabaseSessionInternal session, String database) {

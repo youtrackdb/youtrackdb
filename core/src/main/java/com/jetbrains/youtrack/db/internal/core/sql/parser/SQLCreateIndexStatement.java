@@ -71,7 +71,7 @@ public class SQLCreateIndexStatement extends DDLStatement {
   Object execute(CommandContext ctx) {
     final var session = ctx.getDatabaseSession();
 
-    if (session.getMetadata().getIndexManagerInternal().existsIndex(name.getValue())) {
+    if (session.getMetadata().getIndexManagerInternal().existsIndex(session, name.getValue())) {
       if (ifNotExists) {
         return null;
       } else {

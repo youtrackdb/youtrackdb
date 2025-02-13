@@ -4,7 +4,6 @@ import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.index.IndexException;
-import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerShared;
 import com.jetbrains.youtrack.db.internal.core.index.Indexes;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
@@ -24,8 +23,6 @@ import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPagina
  *
  */
 public class SharedContextEmbedded extends SharedContext {
-  protected IndexManagerAbstract indexManager;
-
   public SharedContextEmbedded(Storage storage, YouTrackDBEmbedded youtrackDB) {
     this.youtrackDB = youtrackDB;
     this.storage = storage;
@@ -63,6 +60,13 @@ public class SharedContextEmbedded extends SharedContext {
     this.registerListener(executionPlanCache);
 
     queryStats = new QueryStats();
+    ((AbstractPaginatedStorage) storage)
+        .setStorageConfigurationUpdateListener(
+            update -> {
+              for (var listener : browseListeners()) {
+                listener.onStorageConfigurationUpdate(storage.getName(), update);
+              }
+            });
   }
 
   public synchronized void load(DatabaseSessionInternal database) {
@@ -146,10 +150,6 @@ public class SharedContextEmbedded extends SharedContext {
     }
 
     loaded = true;
-  }
-
-  public IndexManagerAbstract getIndexManager() {
-    return indexManager;
   }
 
   public synchronized void reInit(

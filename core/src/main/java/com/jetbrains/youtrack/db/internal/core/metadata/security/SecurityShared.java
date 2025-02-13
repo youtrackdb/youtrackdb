@@ -577,13 +577,13 @@ public class SecurityShared implements SecurityInternal {
     initPredicateSecurityOptimizations(session);
   }
 
-  private static void validatePolicyWithIndexes(DatabaseSession session, String resource)
+  private static void validatePolicyWithIndexes(DatabaseSessionInternal session, String resource)
       throws IllegalArgumentException {
     var res = SecurityResource.getInstance(resource);
     if (res instanceof SecurityResourceProperty) {
       var clazzName = ((SecurityResourceProperty) res).getClassName();
       var clazz =
-          ((DatabaseSessionInternal) session)
+          session
               .getMetadata()
               .getImmutableSchemaSnapshot()
               .getClass(clazzName);

@@ -20,7 +20,6 @@
 
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
@@ -126,7 +125,7 @@ public class FilterAnalyzer {
   }
 
   private IndexSearchResult analyzeFilterBranch(
-      DatabaseSession session, final SchemaClassInternal iSchemaClass,
+      DatabaseSessionInternal session, final SchemaClassInternal iSchemaClass,
       SQLFilterCondition condition,
       final List<IndexSearchResult> iIndexSearchResults,
       CommandContext iContext) {
@@ -169,7 +168,7 @@ public class FilterAnalyzer {
   }
 
   private static IndexSearchResult analyzeIndexMethod(
-      DatabaseSession session, SchemaClassInternal iSchemaClass,
+      DatabaseSessionInternal session, SchemaClassInternal iSchemaClass,
       SQLFilterCondition condition,
       List<IndexSearchResult> iIndexSearchResults,
       CommandContext ctx) {
@@ -190,7 +189,7 @@ public class FilterAnalyzer {
   }
 
   private IndexSearchResult analyzeIntersection(
-      DatabaseSession session, SchemaClassInternal iSchemaClass,
+      DatabaseSessionInternal session, SchemaClassInternal iSchemaClass,
       SQLFilterCondition condition,
       List<IndexSearchResult> iIndexSearchResults,
       CommandContext iContext) {
@@ -220,7 +219,7 @@ public class FilterAnalyzer {
 
   private List<List<IndexSearchResult>> analyzeUnion(
       SchemaClassInternal iSchemaClass, SQLFilterCondition condition, CommandContext iContext) {
-    List<List<IndexSearchResult>> result = new ArrayList<List<IndexSearchResult>>();
+    List<List<IndexSearchResult>> result = new ArrayList<>();
 
     result.addAll(
         analyzeOrFilterBranch(iSchemaClass, (SQLFilterCondition) condition.getLeft(), iContext));
@@ -235,7 +234,6 @@ public class FilterAnalyzer {
    *
    * @param iCondition Condition item
    * @param iItem      Value to search
-   * @return true if the property was indexed and found, otherwise false
    */
   private static IndexSearchResult createIndexedProperty(
       final SQLFilterCondition iCondition, final Object iItem, CommandContext ctx) {
@@ -283,14 +281,14 @@ public class FilterAnalyzer {
     return new IndexSearchResult(operator, item.getFieldChain(), value);
   }
 
-  private static boolean checkIndexExistence(DatabaseSession session,
+  private static boolean checkIndexExistence(DatabaseSessionInternal session,
       final SchemaClassInternal iSchemaClass,
       final IndexSearchResult result) {
     return iSchemaClass.areIndexed(session, result.fields())
         && (!result.lastField.isLong() || checkIndexChainExistence(session, iSchemaClass, result));
   }
 
-  private static boolean checkIndexChainExistence(DatabaseSession session,
+  private static boolean checkIndexChainExistence(DatabaseSessionInternal session,
       SchemaClassInternal iSchemaClass,
       IndexSearchResult result) {
     final var fieldCount = result.lastField.getItemCount();

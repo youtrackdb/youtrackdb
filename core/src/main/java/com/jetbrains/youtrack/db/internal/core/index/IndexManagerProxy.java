@@ -60,7 +60,7 @@ public class IndexManagerProxy extends ProxedResource<IndexManagerAbstract>
   }
 
   public boolean existsIndex(final String iName) {
-    return delegate.existsIndex(iName);
+    return delegate.existsIndex(session, iName);
   }
 
   public Index createIndex(
@@ -113,11 +113,11 @@ public class IndexManagerProxy extends ProxedResource<IndexManagerAbstract>
   }
 
   public boolean areIndexed(final String className, final Collection<String> fields) {
-    return delegate.areIndexed(className, fields);
+    return delegate.areIndexed(session, className, fields);
   }
 
   public boolean areIndexed(final String className, final String... fields) {
-    return delegate.areIndexed(className, fields);
+    return delegate.areIndexed(session, className, fields);
   }
 
   public Set<Index> getClassIndexes(final String className) {
@@ -135,7 +135,7 @@ public class IndexManagerProxy extends ProxedResource<IndexManagerAbstract>
 
   @Override
   public IndexUnique getClassUniqueIndex(final String className) {
-    return delegate.getClassUniqueIndex(className);
+    return delegate.getClassUniqueIndex(session, className);
   }
 
   @Override
@@ -176,7 +176,7 @@ public class IndexManagerProxy extends ProxedResource<IndexManagerAbstract>
   }
 
   public void getClassRawIndexes(String name, Collection<Index> indexes) {
-    delegate.getClassRawIndexes(name, indexes);
+    delegate.getClassRawIndexes(session, name, indexes);
   }
 
   public IndexManagerAbstract delegate() {

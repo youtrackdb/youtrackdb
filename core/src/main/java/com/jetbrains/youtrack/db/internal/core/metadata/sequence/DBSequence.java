@@ -400,7 +400,7 @@ public abstract class DBSequence {
         "Sequence type not found in entity");
   }
 
-  public static void initClass(DatabaseSession session, SchemaClassImpl sequenceClass) {
+  public static void initClass(DatabaseSessionInternal session, SchemaClassImpl sequenceClass) {
     sequenceClass.createProperty(session, DBSequence.FIELD_START, PropertyType.LONG,
         (PropertyType) null, true);
     sequenceClass.createProperty(session, DBSequence.FIELD_INCREMENT, PropertyType.INTEGER,
