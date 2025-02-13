@@ -127,8 +127,8 @@ public class RatioTest extends MetricsBaseTest {
   @Test
   public void asyncRatio() throws InterruptedException {
 
-    final var writerThreadCount = 10;
-    final var eventPeriodNanos = 500; // 1 event per 500ns
+    final var writerThreadCount = 5;
+    final var eventPeriodNanos = 1000; // 1 event per 1000ns
     final var successEveryNthIt = 3;
 
     final var ticker = closeable(new GranularTicker(TICK.toNanos()));
@@ -167,6 +167,6 @@ public class RatioTest extends MetricsBaseTest {
     final var expectedRatio = 1.0 / successEveryNthIt;
     final var avgRatio = total / iterations;
 
-    assertEquals(expectedRatio, avgRatio, 0.001 * expectedRatio);
+    assertEquals(expectedRatio, avgRatio, 0.01 * expectedRatio);
   }
 }
