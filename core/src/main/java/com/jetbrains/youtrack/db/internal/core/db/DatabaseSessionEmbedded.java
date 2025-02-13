@@ -479,12 +479,11 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     if ("clear".equalsIgnoreCase(name) && iValue == null) {
       clearCustomInternal();
     } else {
-      var customName = name;
       var customValue = iValue == null ? null : "" + iValue;
-      if (customName == null || customValue.isEmpty()) {
-        removeCustomInternal(customName);
+      if (name == null || customValue.isEmpty()) {
+        removeCustomInternal(name);
       } else {
-        setCustomInternal(customName, customValue);
+        setCustomInternal(name, customValue);
       }
     }
 
@@ -802,8 +801,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     LiveQueryListenerV2 queryListener = new LiveQueryListenerImpl(listener, query, this, args);
     var dbCopy = this.copy();
     this.activateOnCurrentThread();
-    LiveQueryMonitor monitor = new YTLiveQueryMonitorEmbedded(queryListener.getToken(), dbCopy);
-    return monitor;
+    return new YTLiveQueryMonitorEmbedded(queryListener.getToken(), dbCopy);
   }
 
   @Override
@@ -1067,18 +1065,6 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     if (id instanceof EntityImpl entity) {
       var clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
-        if (clazz.isFunction()) {
-          this.getSharedContext().getFunctionLibrary().droppedFunction(this, entity);
-        }
-        if (clazz.isSequence()) {
-          ((SequenceLibraryProxy) getMetadata().getSequenceLibrary())
-              .getDelegate()
-              .onSequenceDropped(this, entity);
-        }
-        if (clazz.isScheduler()) {
-          final String eventName = entity.field(ScheduledEvent.PROP_NAME);
-          getSharedContext().getScheduler().removeEventInternal(eventName);
-        }
         if (clazz.isTriggered()) {
           ClassTrigger.onRecordAfterDelete(entity, this);
         }
@@ -1163,6 +1149,19 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
             }
             if (clazz.isScheduler()) {
               getSharedContext().getScheduler().postHandleUpdateScheduleAfterTxCommit(this, entity);
+            }
+          } else if (operation.type == RecordOperation.DELETED) {
+            if (clazz.isFunction()) {
+              this.getSharedContext().getFunctionLibrary().droppedFunction(this, entity);
+            }
+            if (clazz.isSequence()) {
+              ((SequenceLibraryProxy) getMetadata().getSequenceLibrary())
+                  .getDelegate()
+                  .onSequenceDropped(this, entity);
+            }
+            if (clazz.isScheduler()) {
+              final String eventName = entity.field(ScheduledEvent.PROP_NAME);
+              getSharedContext().getScheduler().removeEventInternal(eventName);
             }
           }
         } else {

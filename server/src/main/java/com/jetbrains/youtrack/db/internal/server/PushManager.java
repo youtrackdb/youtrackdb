@@ -1,5 +1,6 @@
 package com.jetbrains.youtrack.db.internal.server;
 
+import com.jetbrains.youtrack.db.internal.client.remote.message.PushFunctionsRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushIndexManagerRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushSchemaRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushSequencesRequest;
@@ -91,30 +92,36 @@ public class PushManager implements MetadataUpdateListener {
   }
 
   @Override
-  public void onSchemaUpdate(DatabaseSessionInternal db, String database,
+  public void onSchemaUpdate(DatabaseSessionInternal session, String databaseName,
       SchemaShared schema) {
     var request = new PushSchemaRequest();
-    this.schema.send(db, database, request, this);
+    this.schema.send(session, databaseName, request, this);
   }
 
   @Override
-  public void onIndexManagerUpdate(DatabaseSessionInternal session, String database,
+  public void onIndexManagerUpdate(DatabaseSessionInternal session, String databaseName,
       IndexManagerAbstract indexManager) {
     var request = new PushIndexManagerRequest();
-    this.indexManager.send(session, database, request, this);
+    this.indexManager.send(session, databaseName, request, this);
   }
 
   @Override
-  public void onSequenceLibraryUpdate(DatabaseSessionInternal session, String database) {
+  public void onSequenceLibraryUpdate(DatabaseSessionInternal session, String databaseName) {
     var request = new PushSequencesRequest();
-    this.sequences.send(session, database, request, this);
+    this.sequences.send(session, databaseName, request, this);
   }
 
   @Override
-  public void onStorageConfigurationUpdate(String database,
+  public void onStorageConfigurationUpdate(String databaseName,
       StorageConfiguration update) {
     var request = new PushStorageConfigurationRequest(update);
-    storageConfigurations.send(null, database, request, this);
+    storageConfigurations.send(null, databaseName, request, this);
+  }
+
+  @Override
+  public void onFunctionLibraryUpdate(DatabaseSessionInternal session, String database) {
+    var request = new PushFunctionsRequest();
+    this.functions.send(session, database, request, this);
   }
 
   public void genericNotify(

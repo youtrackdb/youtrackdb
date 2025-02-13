@@ -28,6 +28,7 @@ public class DatabaseMetadataUpdateListenerTest {
   private int sequenceCount;
   private int schemaCount;
   private int indexManagerUpdateCount;
+  private int functionCount;
 
   @Before
   public void before() {
@@ -40,35 +41,39 @@ public class DatabaseMetadataUpdateListenerTest {
     schemaCount = 0;
     sequenceCount = 0;
     indexManagerUpdateCount = 0;
-    MetadataUpdateListener listener =
+    functionCount = 0;
+
+    var listener =
         new MetadataUpdateListener() {
 
           @Override
-          public void onSchemaUpdate(DatabaseSessionInternal session, String database,
+          public void onSchemaUpdate(DatabaseSessionInternal session, String databaseName,
               SchemaShared schema) {
             schemaCount++;
             assertNotNull(schema);
           }
 
           @Override
-          public void onIndexManagerUpdate(DatabaseSessionInternal session, String database,
+          public void onIndexManagerUpdate(DatabaseSessionInternal session, String databaseName,
               IndexManagerAbstract indexManager) {
             indexManagerUpdateCount++;
             assertNotNull(indexManager);
           }
 
-//          @Override
-//          public void onFunctionLibraryUpdate(DatabaseSessionInternal session, String database) {
-//            count++;
-//          }
+          @Override
+          public void onFunctionLibraryUpdate(DatabaseSessionInternal session, String database) {
+            functionCount++;
+          }
 
           @Override
-          public void onSequenceLibraryUpdate(DatabaseSessionInternal session, String database) {
+          public void onSequenceLibraryUpdate(DatabaseSessionInternal session,
+              String databaseName) {
             sequenceCount++;
           }
 
           @Override
-          public void onStorageConfigurationUpdate(String database, StorageConfiguration update) {
+          public void onStorageConfigurationUpdate(String databaseName,
+              StorageConfiguration update) {
             configCount++;
             assertNotNull(update);
           }
@@ -92,7 +97,7 @@ public class DatabaseMetadataUpdateListenerTest {
     } catch (DatabaseException exc) {
       Assert.fail("Failed to create sequence");
     }
-    assertEquals(sequenceCount, 1);
+    assertEquals(1, sequenceCount);
   }
 
 
@@ -108,7 +113,13 @@ public class DatabaseMetadataUpdateListenerTest {
         .createClass("Some")
         .createProperty(session, "test", PropertyType.STRING)
         .createIndex(session, SchemaClass.INDEX_TYPE.NOTUNIQUE);
-    assertEquals(indexManagerUpdateCount, 1);
+    assertEquals(1, indexManagerUpdateCount);
+  }
+
+  @Test
+  public void testFunctionUpdateListener() {
+    session.getMetadata().getFunctionLibrary().createFunction("some");
+    assertEquals(1, functionCount);
   }
 
 

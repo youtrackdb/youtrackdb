@@ -167,24 +167,29 @@ public class ExecutionPlanCache implements MetadataUpdateListener {
   }
 
   @Override
-  public void onSchemaUpdate(DatabaseSessionInternal db, String database,
+  public void onSchemaUpdate(DatabaseSessionInternal session, String databaseName,
       SchemaShared schema) {
     invalidate();
   }
 
   @Override
-  public void onIndexManagerUpdate(DatabaseSessionInternal session, String database,
+  public void onIndexManagerUpdate(DatabaseSessionInternal session, String databaseName,
       IndexManagerAbstract indexManager) {
     invalidate();
   }
 
   @Override
-  public void onSequenceLibraryUpdate(DatabaseSessionInternal session, String database) {
+  public void onFunctionLibraryUpdate(DatabaseSessionInternal session, String databaseName) {
     invalidate();
   }
 
   @Override
-  public void onStorageConfigurationUpdate(String database, StorageConfiguration update) {
+  public void onSequenceLibraryUpdate(DatabaseSessionInternal session, String databaseName) {
+    invalidate();
+  }
+
+  @Override
+  public void onStorageConfigurationUpdate(String databaseName, StorageConfiguration update) {
     invalidate();
   }
 

@@ -55,6 +55,7 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.LiveQueryPushReq
 import com.jetbrains.youtrack.db.internal.client.remote.message.LowerPhysicalPositionsRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.Open37Request;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushDistributedConfigurationRequest;
+import com.jetbrains.youtrack.db.internal.client.remote.message.PushFunctionsRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushIndexManagerRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushSchemaRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushSequencesRequest;
@@ -2146,6 +2147,9 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
       case ChannelBinaryProtocol.REQUEST_PUSH_STORAGE_CONFIG ->
           new PushStorageConfigurationRequest();
       case ChannelBinaryProtocol.REQUEST_PUSH_SCHEMA -> new PushSchemaRequest();
+      case ChannelBinaryProtocol.REQUEST_PUSH_INDEX_MANAGER -> new PushIndexManagerRequest();
+      case ChannelBinaryProtocol.REQUEST_PUSH_FUNCTIONS -> new PushFunctionsRequest();
+      case ChannelBinaryProtocol.REQUEST_PUSH_SEQUENCES -> new PushSequencesRequest();
       default -> null;
     };
   }
@@ -2175,6 +2179,11 @@ public class StorageRemote implements StorageProxy, RemotePushHandler, Storage {
             clientConfiguration);
 
     updateStorageConfiguration(storageConfiguration);
+    return null;
+  }
+
+  public BinaryPushResponse executeUpdateFunction(PushFunctionsRequest request) {
+    DatabaseSessionRemote.updateFunction(this);
     return null;
   }
 

@@ -50,11 +50,11 @@ public class FunctionLibraryImpl {
   public FunctionLibraryImpl() {
   }
 
-  public static void create(DatabaseSessionInternal db) {
-    init(db);
+  public static void create(DatabaseSessionInternal session) {
+    init(session);
   }
 
-  public void load(DatabaseSessionInternal db) {
+  public void load(DatabaseSessionInternal session) {
     // COPY CALLBACK IN RAM
     final Map<String, CallableFunction<Object, Map<Object, Object>>> callbacks =
         new HashMap<String, CallableFunction<Object, Map<Object, Object>>>();
@@ -67,8 +67,8 @@ public class FunctionLibraryImpl {
     functions.clear();
 
     // LOAD ALL THE FUNCTIONS IN MEMORY
-    if (db.getMetadata().getImmutableSchemaSnapshot().existsClass("OFunction")) {
-      try (var result = db.query("select from OFunction order by name")) {
+    if (session.getMetadata().getImmutableSchemaSnapshot().existsClass("OFunction")) {
+      try (var result = session.query("select from OFunction order by name")) {
         while (result.hasNext()) {
           var res = result.next();
           var d = (EntityImpl) res.getEntity().orElseThrow();
@@ -77,7 +77,7 @@ public class FunctionLibraryImpl {
             continue;
           }
 
-          final var f = new Function(db, d);
+          final var f = new Function(session, d);
 
           // RESTORE CALLBACK IF ANY
           f.setCallback(callbacks.get(f.getName()));
@@ -88,44 +88,44 @@ public class FunctionLibraryImpl {
     }
   }
 
-  public void droppedFunction(DatabaseSessionInternal db, EntityImpl function) {
+  public void droppedFunction(DatabaseSessionInternal session, EntityImpl function) {
     functions.remove(function.field("name").toString());
-    onFunctionsChanged(db);
+    onFunctionsChanged(session);
   }
 
-  public void createdFunction(DatabaseSessionInternal db, EntityImpl function) {
-    final var f = new Function(db, function.getIdentity());
+  public void createdFunction(DatabaseSessionInternal session, EntityImpl function) {
+    final var f = new Function(session, function.getIdentity());
     functions.put(function.getProperty("name").toString().toUpperCase(Locale.ENGLISH), f);
-    onFunctionsChanged(db);
+    onFunctionsChanged(session);
   }
 
   public Set<String> getFunctionNames() {
     return Collections.unmodifiableSet(functions.keySet());
   }
 
-  public Function getFunction(DatabaseSessionInternal db, final String iName) {
-    reloadIfNeeded(db);
+  public Function getFunction(DatabaseSessionInternal session, final String iName) {
+    reloadIfNeeded(session);
     return functions.get(iName.toUpperCase(Locale.ENGLISH));
   }
 
   public synchronized Function createFunction(
-      DatabaseSessionInternal database, final String iName) {
-    init(database);
-    reloadIfNeeded(database);
+      DatabaseSessionInternal session, final String iName) {
+    init(session);
+    reloadIfNeeded(session);
 
-    database.begin();
-    final var f = new Function(database).setName(iName);
+    session.begin();
+    final var f = new Function(session).setName(iName);
     try {
-      f.save(database);
+      f.save(session);
       functions.put(iName.toUpperCase(Locale.ENGLISH), f);
-      database.commit();
+      session.commit();
     } catch (RecordDuplicatedException ex) {
       LogManager.instance().error(this, "Exception is suppressed, original exception is ", ex);
 
       //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
       throw BaseException.wrapException(
           new FunctionDuplicatedException("Function with name '" + iName + "' already exist"),
-          null, database.getDatabaseName());
+          null, session.getDatabaseName());
     }
 
     return f;
@@ -135,25 +135,25 @@ public class FunctionLibraryImpl {
     functions.clear();
   }
 
-  protected static void init(final DatabaseSessionInternal db) {
-    if (db.getMetadata().getSchema().existsClass("OFunction")) {
-      var f = db.getMetadata().getSchema().getClassInternal("OFunction");
-      var prop = f.getPropertyInternal(db, "name");
+  protected static void init(final DatabaseSessionInternal session) {
+    if (session.getMetadata().getSchema().existsClass("OFunction")) {
+      var f = session.getMetadata().getSchema().getClassInternal("OFunction");
+      var prop = f.getPropertyInternal(session, "name");
 
-      if (prop.getAllIndexes(db).isEmpty()) {
-        prop.createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
+      if (prop.getAllIndexes(session).isEmpty()) {
+        prop.createIndex(session, SchemaClass.INDEX_TYPE.UNIQUE);
       }
       return;
     }
 
-    var f = (SchemaClassInternal) db.getMetadata().getSchema().createClass("OFunction");
-    var prop = f.createProperty(db, "name", PropertyType.STRING, (PropertyType) null, true);
-    prop.createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
+    var f = (SchemaClassInternal) session.getMetadata().getSchema().createClass("OFunction");
+    var prop = f.createProperty(session, "name", PropertyType.STRING, (PropertyType) null, true);
+    prop.createIndex(session, SchemaClass.INDEX_TYPE.UNIQUE);
 
-    f.createProperty(db, "code", PropertyType.STRING, (PropertyType) null, true);
-    f.createProperty(db, "language", PropertyType.STRING, (PropertyType) null, true);
-    f.createProperty(db, "idempotent", PropertyType.BOOLEAN, (PropertyType) null, true);
-    f.createProperty(db, "parameters", PropertyType.EMBEDDEDLIST, PropertyType.STRING, true);
+    f.createProperty(session, "code", PropertyType.STRING, (PropertyType) null, true);
+    f.createProperty(session, "language", PropertyType.STRING, (PropertyType) null, true);
+    f.createProperty(session, "idempotent", PropertyType.BOOLEAN, (PropertyType) null, true);
+    f.createProperty(session, "parameters", PropertyType.EMBEDDEDLIST, PropertyType.STRING, true);
   }
 
   public synchronized void dropFunction(DatabaseSessionInternal session, Function function) {
@@ -174,8 +174,8 @@ public class FunctionLibraryImpl {
         });
   }
 
-  public void updatedFunction(DatabaseSessionInternal database, EntityImpl function) {
-    reloadIfNeeded(database);
+  public void updatedFunction(DatabaseSessionInternal session, EntityImpl function) {
+    reloadIfNeeded(session);
     var oldName = (String) function.getOriginalValue("name");
     if (oldName != null) {
       functions.remove(oldName.toUpperCase(Locale.ENGLISH));
@@ -186,25 +186,28 @@ public class FunctionLibraryImpl {
       callBack = oldFunction.getCallback();
     }
 
-    final var f = new Function(database, function.getIdentity());
+    final var f = new Function(session, function.getIdentity());
     if (callBack != null) {
       f.setCallback(callBack);
     }
 
     functions.put(function.getProperty("name").toString().toUpperCase(Locale.ENGLISH), f);
-    onFunctionsChanged(database);
+    onFunctionsChanged(session);
   }
 
-  private void reloadIfNeeded(DatabaseSessionInternal database) {
+  private void reloadIfNeeded(DatabaseSessionInternal session) {
     if (needReload.get()) {
-      load(database);
+      load(session);
       needReload.set(false);
     }
   }
 
-  private static void onFunctionsChanged(DatabaseSessionInternal database) {
-    database.getSharedContext().getYouTrackDB().getScriptManager()
-        .close(database.getDatabaseName());
+  private static void onFunctionsChanged(DatabaseSessionInternal session) {
+    for (var listener : session.getSharedContext().browseListeners()) {
+      listener.onFunctionLibraryUpdate(session, session.getDatabaseName());
+    }
+    session.getSharedContext().getYouTrackDB().getScriptManager()
+        .close(session.getDatabaseName());
   }
 
   public synchronized void update() {
