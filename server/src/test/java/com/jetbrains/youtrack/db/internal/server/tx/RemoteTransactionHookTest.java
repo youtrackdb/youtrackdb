@@ -15,7 +15,7 @@ import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.hook.DocumentHookAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
-import com.jetbrains.youtrack.db.internal.server.config.ServerHookConfiguration;
+import com.jetbrains.youtrack.db.internal.tools.config.ServerHookConfiguration;
 import java.io.File;
 import org.junit.After;
 import org.junit.Before;

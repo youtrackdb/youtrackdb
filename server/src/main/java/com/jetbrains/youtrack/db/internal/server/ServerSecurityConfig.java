@@ -4,8 +4,7 @@ import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityConfig;
 import com.jetbrains.youtrack.db.internal.core.security.Syslog;
-import com.jetbrains.youtrack.db.internal.server.config.ServerConfigurationManager;
-import com.jetbrains.youtrack.db.internal.server.plugin.ServerPluginInfo;
+import com.jetbrains.youtrack.db.internal.tools.config.ServerConfigurationManager;
 
 public class ServerSecurityConfig implements SecurityConfig {
 

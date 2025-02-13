@@ -45,8 +45,6 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.TokenAuthI
 import com.jetbrains.youtrack.db.internal.core.security.InvalidPasswordException;
 import com.jetbrains.youtrack.db.internal.core.security.ParsedToken;
 import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
-import com.jetbrains.youtrack.db.internal.server.config.ServerConfiguration;
-import com.jetbrains.youtrack.db.internal.server.config.ServerConfigurationManager;
 import com.jetbrains.youtrack.db.internal.server.handler.ConfigurableHooksManager;
 import com.jetbrains.youtrack.db.internal.server.network.ServerNetworkListener;
 import com.jetbrains.youtrack.db.internal.server.network.ServerSocketFactory;
@@ -58,6 +56,8 @@ import com.jetbrains.youtrack.db.internal.server.plugin.ServerPlugin;
 import com.jetbrains.youtrack.db.internal.server.plugin.ServerPluginInfo;
 import com.jetbrains.youtrack.db.internal.server.plugin.ServerPluginManager;
 import com.jetbrains.youtrack.db.internal.server.token.TokenHandlerImpl;
+import com.jetbrains.youtrack.db.internal.tools.config.ServerConfiguration;
+import com.jetbrains.youtrack.db.internal.tools.config.ServerConfigurationManager;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;

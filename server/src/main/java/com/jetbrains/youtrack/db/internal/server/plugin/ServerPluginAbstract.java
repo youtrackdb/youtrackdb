@@ -21,7 +21,7 @@ package com.jetbrains.youtrack.db.internal.server.plugin;
 
 import com.jetbrains.youtrack.db.internal.server.ClientConnection;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
-import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfiguration;
+import com.jetbrains.youtrack.db.internal.tools.config.ServerParameterConfiguration;
 
 /**
  * Abstract class to make ServerHandler implementation easier.

@@ -19,13 +19,11 @@
  */
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command;
 
-import com.jetbrains.youtrack.db.internal.server.config.ServerConfiguration;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpSession;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
+import com.jetbrains.youtrack.db.internal.tools.config.ServerConfiguration;
 import java.io.IOException;
-import java.util.Map;
 
 /**
  * Server based authenticated commands. Authenticates against the YouTrackDB server users found in

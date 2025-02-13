@@ -21,8 +21,8 @@ import com.cloudbees.syslog.sender.UdpSyslogMessageSender;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.security.Syslog;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
-import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfiguration;
 import com.jetbrains.youtrack.db.internal.server.plugin.ServerPluginAbstract;
+import com.jetbrains.youtrack.db.internal.tools.config.ServerParameterConfiguration;
 
 /**
  * Provides a default implementation for syslog access.
