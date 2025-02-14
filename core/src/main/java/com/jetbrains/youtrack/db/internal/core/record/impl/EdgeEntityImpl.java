@@ -3,6 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.record.impl;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.StatefulEdge;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -16,7 +17,7 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
+public class EdgeEntityImpl extends EntityImpl implements EdgeInternal, StatefulEdge {
 
   public EdgeEntityImpl(DatabaseSessionInternal session, String cl) {
     super(session, cl);

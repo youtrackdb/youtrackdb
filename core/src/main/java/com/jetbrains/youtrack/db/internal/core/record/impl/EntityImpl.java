@@ -634,11 +634,31 @@ public class EntityImpl extends RecordAbstract
         value = (RET) ((Entity) value).castToVertex();
       } else {
         if (((Entity) value).isStatefulEdge()) {
-          value = (RET) ((Entity) value).castToVertex();
+          value = (RET) ((Entity) value).castToEdge();
         }
       }
     }
     return value;
+  }
+
+  @Nonnull
+  @Override
+  public StatefulEdge castToStateFullEdge() {
+    if (this instanceof StatefulEdge edge) {
+      return edge;
+    }
+
+    SchemaClass type = this.getImmutableSchemaClass();
+    if (type == null) {
+      throw new DatabaseException("Entity is not an edge");
+    }
+    var session = getSession();
+
+    if (type.isEdgeType(session)) {
+      return new EdgeDelegate(this);
+    }
+
+    throw new DatabaseException("Entity is not an edge");
   }
 
   /**

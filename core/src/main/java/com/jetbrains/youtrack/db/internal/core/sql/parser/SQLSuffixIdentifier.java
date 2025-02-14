@@ -473,10 +473,14 @@ public class SQLSuffixIdentifier extends SimpleNode {
         var record = currentResult.castToEntity();
         var schemaClass = record.getSchemaClass();
         if (schemaClass != null) {
-          return schemaClass.getProperty(session, identifier.getStringValue()).getCollate(session);
+          var property = schemaClass.getProperty(session, identifier.getStringValue());
+          if (property != null) {
+            return property.getCollate(session);
+          }
         }
       }
     }
+
     return null;
   }
 
